@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<config>
+   
+	<params>
+		<!-- Java总路径  生成java文件包的目录 -->
+		<osdir       value="E:\code\sjs_yfg_pdm\src\main\java\com\base\sbc"></osdir>
+		<!-- xml总路径 -->
+		<xmlosdir    value="E:\code\sjs_yfg_pdm\src\main\resources"></xmlosdir>
+		<!-- 总包名 -->
+		<javapackage value="com.base.sbc"></javapackage>
+		<!-- 模块名称 -->
+		<project     value="pdm"></project><!-- 模块名称 -->
+	</params>
+	<tables>
+		<table       value="t_test"   genType="1,2,3,4" ></table>
+	</tables>
+	
+    <dataSource>
+		<driver      value="com.mysql.jdbc.Driver"></driver>
+		<url         value="jdbc:mysql://192.168.3.129:3306/s_pdm_data?useSSL=false&amp;useUnicode=true&amp;characterEncoding=utf-8"></url>
+		<username    value="root"></username>
+		<password    value="123456"></password>
+	</dataSource>
+	<author>
+		<name  		 value="lile" ></name>
+		<email  	 value="lilemyemail@163.com" ></email>
+	</author>
+</config>

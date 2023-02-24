@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ShopDetailsDao">
+	<!--商品详情表
+	创建人：youkehai
+	邮箱：717407966@qq.com
+	创建时间：2021-8-12 11:21:39
+	版本号：1.0
+-->
+	<!-- *******************************************自定义方法区  不替换的区域【other_start】***************************************** -->
+
+
+	<!-- *******************************************自定义方法区 【other_end】***************************************** -->
+	<!-- *******************************************公用方法区(不可修改)***************************************** -->
+	<!-- 公用返回值 与数据库字段保持一致即可，同时实体(驼峰命名)必须包含所有字段 -->
+	<sql id="base_column">
+		id,company_code,shop_code,prom_id,shop_imgs,colors,sizes,manner,lining,accessories,brand,year,season,waviness,designer,sex,type_name,cycle,quantity,remaks,sort,status,create_id,create_name,create_date,update_id,update_name,update_date,DEL_FLAG,designer_name
+	</sql>
+	<!--  方法返回：成功条数。     方法名称： 新增          方法参数：list集合 -->
+	<insert id="insert" parameterType="java.util.List">
+		insert into t_shop_details (
+		<include refid="base_column"/>
+		) values
+		<foreach collection="list" item="t" index="index" separator=",">
+			(  #{t.id,jdbcType=VARCHAR},#{t.companyCode,jdbcType=VARCHAR},#{t.shopCode,jdbcType=VARCHAR},#{t.promId,jdbcType=VARCHAR},#{t.shopImgs,jdbcType=VARCHAR},#{t.colors,jdbcType=VARCHAR},#{t.sizes,jdbcType=VARCHAR},#{t.manner,jdbcType=VARCHAR},#{t.lining,jdbcType=VARCHAR},#{t.accessories,jdbcType=VARCHAR},#{t.brand,jdbcType=VARCHAR},#{t.year,jdbcType=VARCHAR},#{t.season,jdbcType=VARCHAR},#{t.waviness,jdbcType=VARCHAR},#{t.designer,jdbcType=VARCHAR},#{t.sex,jdbcType=VARCHAR},#{t.typeName,jdbcType=VARCHAR},#{t.cycle,jdbcType=DECIMAL},#{t.quantity,jdbcType=DECIMAL},#{t.remaks,jdbcType=VARCHAR},#{t.sort,jdbcType=VARCHAR},#{t.status,jdbcType=CHAR},#{t.createId,jdbcType=VARCHAR},#{t.createName,jdbcType=VARCHAR},#{t.createDate,jdbcType=TIMESTAMP},#{t.updateId,jdbcType=VARCHAR},#{t.updateName,jdbcType=VARCHAR},#{t.updateDate,jdbcType=TIMESTAMP},#{t.delFlag,jdbcType=CHAR},#{t.designerName,jdbcType=VARCHAR}
+			)
+		</foreach>
+	</insert>
+	<!--
+        方法返回：成功条数。
+        方法名称： 按list更新
+        方法参数：list集合，id不为空，其他字段为空也修改，使用场景一般先查询  或更改明细的几个字段
+    -->
+	<update id="updateList" parameterType="java.util.List">
+		<foreach collection="list" item="t" index="index" separator=";">
+			update t_shop_details
+			<set>
+					id = #{t.id,jdbcType=VARCHAR},
+					company_code = #{t.companyCode,jdbcType=VARCHAR},
+					shop_code = #{t.shopCode,jdbcType=VARCHAR},
+					prom_id = #{t.promId,jdbcType=VARCHAR},
+					shop_imgs = #{t.shopImgs,jdbcType=VARCHAR},
+					colors = #{t.colors,jdbcType=VARCHAR},
+					sizes = #{t.sizes,jdbcType=VARCHAR},
+					manner = #{t.manner,jdbcType=VARCHAR},
+					lining = #{t.lining,jdbcType=VARCHAR},
+					accessories = #{t.accessories,jdbcType=VARCHAR},
+					brand = #{t.brand,jdbcType=VARCHAR},
+					year = #{t.year,jdbcType=VARCHAR},
+					season = #{t.season,jdbcType=VARCHAR},
+					waviness = #{t.waviness,jdbcType=VARCHAR},
+					designer = #{t.designer,jdbcType=VARCHAR},
+					sex = #{t.sex,jdbcType=VARCHAR},
+					type_name = #{t.typeName,jdbcType=VARCHAR},
+					cycle = #{t.cycle,jdbcType=DECIMAL},
+					quantity = #{t.quantity,jdbcType=DECIMAL},
+					remaks = #{t.remaks,jdbcType=VARCHAR},
+					sort = #{t.sort,jdbcType=VARCHAR},
+					status = #{t.status,jdbcType=CHAR},
+					create_id = #{t.createId,jdbcType=VARCHAR},
+					create_name = #{t.createName,jdbcType=VARCHAR},
+					create_date = #{t.createDate,jdbcType=TIMESTAMP},
+					update_id = #{t.updateId,jdbcType=VARCHAR},
+					update_name = #{t.updateName,jdbcType=VARCHAR},
+					update_date = #{t.updateDate,jdbcType=TIMESTAMP},
+					DEL_FLAG = #{t.delFlag,jdbcType=CHAR},
+					designer_name = #{t.designerName,jdbcType=VARCHAR},
+			</set>
+			where id = #{t.id,jdbcType=BIGINT}
+
+		</foreach>
+	</update>
+
+	<!--
+        方法名称： 按条件更新
+        方法参数：条件构造器（构造器中T对象所有不为空属性为修改后的值）。
+        方法返回：成功条数。
+    -->
+	<update id="update" parameterType="queryCondition">
+		update t_shop_details
+		<set>
+				<if test="t.id != null">
+					id = #{t.id
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.companyCode != null">
+					company_code = #{t.companyCode
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.shopCode != null">
+					shop_code = #{t.shopCode
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.promId != null">
+					prom_id = #{t.promId
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.shopImgs != null">
+					shop_imgs = #{t.shopImgs
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.colors != null">
+					colors = #{t.colors
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.sizes != null">
+					sizes = #{t.sizes
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.manner != null">
+					manner = #{t.manner
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.lining != null">
+					lining = #{t.lining
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.accessories != null">
+					accessories = #{t.accessories
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.brand != null">
+					brand = #{t.brand
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.year != null">
+					year = #{t.year
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.season != null">
+					season = #{t.season
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.waviness != null">
+					waviness = #{t.waviness
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.designer != null">
+					designer = #{t.designer
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.sex != null">
+					sex = #{t.sex
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.typeName != null">
+					type_name = #{t.typeName
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.cycle != null">
+					cycle = #{t.cycle
+					,jdbcType=DECIMAL},
+				</if>
+				<if test="t.quantity != null">
+					quantity = #{t.quantity
+					,jdbcType=DECIMAL},
+				</if>
+				<if test="t.remaks != null">
+					remaks = #{t.remaks
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.sort != null">
+					sort = #{t.sort
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.status != null">
+					status = #{t.status
+					,jdbcType=CHAR},
+				</if>
+				<if test="t.createId != null">
+					create_id = #{t.createId
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.createName != null">
+					create_name = #{t.createName
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.createDate != null">
+					create_date = #{t.createDate
+					,jdbcType=TIMESTAMP},
+				</if>
+				<if test="t.updateId != null">
+					update_id = #{t.updateId
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.updateName != null">
+					update_name = #{t.updateName
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.updateDate != null">
+					update_date = #{t.updateDate
+					,jdbcType=TIMESTAMP},
+				</if>
+				<if test="t.delFlag != null">
+					DEL_FLAG = #{t.delFlag
+					,jdbcType=CHAR},
+				</if>
+				<if test="t.designerName != null">
+					designer_name = #{t.designerName
+					,jdbcType=VARCHAR},
+				</if>
+		</set>
+		<include refid="common.whereClause"></include>
+	</update>
+
+	<!--
+        方法名称： 按条件删除
+        方法参数：条件构造器。
+        方法返回：成功条数。
+    -->
+	<delete id="delete" parameterType="queryCondition">
+		delete from t_shop_details
+		<include refid="common.whereClause"></include>
+	</delete>
+
+	<select id="selectCount" resultType="java.lang.Integer" parameterType="queryCondition">
+		select  count(${countByClause})
+		<include refid="base_column"/>
+		from t_shop_details
+		<include refid="common.whereClause"></include>
+		<if test="groupByClause != null">
+			group by ${groupByClause}
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+
+	<!--
+        方法名称： 按条件查询
+        方法参数：条件构造器(可分组和排序)。
+        方法返回：返回单个对象或集合。
+    -->
+	<select id="select" resultType="com.base.sbc.shop.entity.ShopDetails" parameterType="queryCondition">
+		select <include refid="base_column"/> from t_shop_details
+		<include refid="common.whereClause"></include>
+		<if test="groupByClause != null">
+			group by ${groupByClause}
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+</mapper>
+
+<!-- /******************************************************************************
+ * Copyright (C) 2018 广州尚捷科技有限责任公司
+ * All Rights Reserved.
+ * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
+ * 不得使用、复制、修改或发布本软件.
+ ***************************************************************************** -->

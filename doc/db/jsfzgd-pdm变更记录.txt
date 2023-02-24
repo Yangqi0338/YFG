@@ -1,0 +1,13 @@
+--------------------------------------------------------------
+开发者：申志雄
+时间：2021-3-19 18:06:12
+内容：初始化表格0个，详情同目录下：pdm.sql，因需求变更，调整整体表结构
+--------------------------------------------------------------
+-- 修改图片字段长度
+ALTER TABLE `s_pdm_data`.`t_design`
+MODIFY COLUMN `image` varchar(140) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '图片' AFTER `del_flag`;
+
+-- 添加字段
+ALTER TABLE `s_pdm_data`.`t_design`
+MODIFY COLUMN `source` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '单据来源' AFTER `planning_type`,
+ADD COLUMN `process_type` varchar(64) NULL COMMENT '制程分类' AFTER `source_code`;
