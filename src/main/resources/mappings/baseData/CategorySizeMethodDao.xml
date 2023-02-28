@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CategorySizeMethodDao">
+<!--品类尺寸量法 
+	创建人：youkehai
+	邮箱：717407966@qq.com
+	创建时间：2021-5-6 16:34:43
+	版本号：1.0	
+-->
+<!-- *******************************************自定义方法区  不替换的区域【other_start】***************************************** -->	
+ 
+ 
+
+<!-- *******************************************自定义方法区 【other_end】***************************************** -->	
+<!-- *******************************************公用方法区(不可修改)***************************************** -->	
+	<!-- 公用返回值 与数据库字段保持一致即可，同时实体(驼峰命名)必须包含所有字段 -->
+	<sql id="base_column" >
+		 id,company_code,category_name,part_name,method,size,tolerance,standard,tips,del_flag,create_id,create_date,update_id,update_date,image,code_error,base_size
+	</sql>
+	<!--  方法返回：成功条数。     方法名称： 新增          方法参数：list集合 -->
+    <insert id="insert" parameterType="java.util.List">
+        insert into t_category_size_method ( <include refid="base_column" /> ) values
+        <foreach collection="list" item="t" index="index" separator=",">
+          (  #{t.id,jdbcType=VARCHAR},#{t.companyCode,jdbcType=VARCHAR},#{t.categoryName,jdbcType=VARCHAR},#{t.partName,jdbcType=VARCHAR},#{t.method,jdbcType=VARCHAR},#{t.size,jdbcType=VARCHAR},#{t.tolerance,jdbcType=VARCHAR},#{t.standard,jdbcType=VARCHAR},#{t.tips,jdbcType=VARCHAR},#{t.delFlag,jdbcType=CHAR},#{t.createId,jdbcType=VARCHAR},#{t.createDate,jdbcType=TIMESTAMP},#{t.updateId,jdbcType=VARCHAR},#{t.updateDate,jdbcType=TIMESTAMP},#{t.image,jdbcType=VARCHAR},#{t.codeError,jdbcType=VARCHAR},#{t.baseSize,jdbcType=VARCHAR}  )
+        </foreach>
+    </insert>
+    <!-- 
+		方法返回：成功条数。
+		方法名称： 按list更新
+		方法参数：list集合，id不为空，其他字段为空也修改，使用场景一般先查询  或更改明细的几个字段
+	-->   
+    <update id="updateList" parameterType="java.util.List">  
+	    <foreach collection="list" item="t" index="index" separator=";">   
+	    	 update t_category_size_method
+			     <set>
+		    		id = #{t.id,jdbcType=VARCHAR},
+		    		company_code = #{t.companyCode,jdbcType=VARCHAR},
+		    		category_name = #{t.categoryName,jdbcType=VARCHAR},
+		    		part_name = #{t.partName,jdbcType=VARCHAR},
+		    		method = #{t.method,jdbcType=VARCHAR},
+		    		size = #{t.size,jdbcType=VARCHAR},
+		    		tolerance = #{t.tolerance,jdbcType=VARCHAR},
+		    		standard = #{t.standard,jdbcType=VARCHAR},
+		    		tips = #{t.tips,jdbcType=VARCHAR},
+		    		del_flag = #{t.delFlag,jdbcType=CHAR},
+		    		create_id = #{t.createId,jdbcType=VARCHAR},
+		    		create_date = #{t.createDate,jdbcType=TIMESTAMP},
+		    		update_id = #{t.updateId,jdbcType=VARCHAR},
+		    		update_date = #{t.updateDate,jdbcType=TIMESTAMP},
+		    		image = #{t.image,jdbcType=VARCHAR},
+		    		code_error = #{t.codeError,jdbcType=VARCHAR},
+		    		base_size = #{t.baseSize,jdbcType=VARCHAR},
+			    </set>
+			    where id = #{t.id,jdbcType=BIGINT}
+			   
+	    </foreach>  
+	</update>
+    
+	<!-- 
+		方法名称： 按条件更新
+		方法参数：条件构造器（构造器中T对象所有不为空属性为修改后的值）。
+		方法返回：成功条数。
+	-->   
+    <update id="update" parameterType="queryCondition">  
+	   	update t_category_size_method
+	    <set>
+		  	<if test="t.id != null">
+    		id = #{t.id,jdbcType=VARCHAR},
+    		</if>
+		  	<if test="t.companyCode != null">
+    		company_code = #{t.companyCode,jdbcType=VARCHAR},
+    		</if>
+		  	<if test="t.categoryName != null">
+    		category_name = #{t.categoryName,jdbcType=VARCHAR},
+    		</if>
+		  	<if test="t.partName != null">
+    		part_name = #{t.partName,jdbcType=VARCHAR},
+    		</if>
+		  	<if test="t.method != null">
+    		method = #{t.method,jdbcType=VARCHAR},
+    		</if>
+		  	<if test="t.size != null">
+    		size = #{t.size,jdbcType=VARCHAR},
+    		</if>
+		  	<if test="t.tolerance != null">
+    		tolerance = #{t.tolerance,jdbcType=VARCHAR},
+    		</if>
+		  	<if test="t.standard != null">
+    		standard = #{t.standard,jdbcType=VARCHAR},
+    		</if>
+		  	<if test="t.tips != null">
+    		tips = #{t.tips,jdbcType=VARCHAR},
+    		</if>
+		  	<if test="t.delFlag != null">
+    		del_flag = #{t.delFlag,jdbcType=CHAR},
+    		</if>
+		  	<if test="t.createId != null">
+    		create_id = #{t.createId,jdbcType=VARCHAR},
+    		</if>
+		  	<if test="t.createDate != null">
+    		create_date = #{t.createDate,jdbcType=TIMESTAMP},
+    		</if>
+		  	<if test="t.updateId != null">
+    		update_id = #{t.updateId,jdbcType=VARCHAR},
+    		</if>
+		  	<if test="t.updateDate != null">
+    		update_date = #{t.updateDate,jdbcType=TIMESTAMP},
+    		</if>
+		  	<if test="t.image != null">
+    		image = #{t.image,jdbcType=VARCHAR},
+    		</if>
+		  	<if test="t.codeError != null">
+    		code_error = #{t.codeError,jdbcType=VARCHAR},
+    		</if>
+		  	<if test="t.baseSize != null">
+    		base_size = #{t.baseSize,jdbcType=VARCHAR},
+    		</if>
+	    </set>
+	    <include refid="common.whereClause" ></include>
+	</update>
+    
+	<!-- 
+		方法名称： 按条件删除
+		方法参数：条件构造器。
+		方法返回：成功条数。
+	-->   
+    <delete id="delete" parameterType="queryCondition">
+    	delete from t_category_size_method
+    	<include refid="common.whereClause"></include>
+    </delete>
+    
+    <!-- 
+		方法名称： 按条件查询
+		方法参数：条件构造器(可分组和排序)。
+		方法返回：返回单个对象或集合。
+	-->
+    <select id="select" resultType="com.base.sbc.basedata.entity.CategorySizeMethod" parameterType="queryCondition">
+        select <include refid="base_column" /> from t_category_size_method
+        <include refid="common.whereClause"></include>
+        <if test="groupByClause != null">
+	        group by ${groupByClause}
+        </if>
+        <if test="orderByClause != null">
+	        order by ${orderByClause}
+        </if>
+    </select>
+</mapper>
+
+<!-- /******************************************************************************
+ * Copyright (C) 2018 广州尚捷科技有限责任公司
+ * All Rights Reserved.
+ * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
+ * 不得使用、复制、修改或发布本软件.
+ ***************************************************************************** -->
+

@@ -40,6 +40,7 @@ public class BaseController {
 	public static final String PAGE_NUM = "pageNum";
 	public static final String PAGE_SIZE = "pageSize";
 	public static final String COMPANY_CODE = "company_code";
+	public static final String CATEGORY_NAME = "category_name";
 	public static final String DEL_FLAG="del_flag";
 	
 	
