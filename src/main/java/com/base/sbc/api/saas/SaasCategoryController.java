@@ -1,6 +1,7 @@
 package com.base.sbc.api.saas;
 
 import com.base.sbc.api.saas.entity.Page;
+import com.base.sbc.api.saas.excel.ExportSizeTemplate;
 import com.base.sbc.basedata.entity.CategorySizeMethod;
 import com.base.sbc.basedata.service.CategorySizeMethodService;
 import com.base.sbc.client.oauth.entity.GroupUser;
@@ -16,10 +17,16 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.Date;
 import java.util.List;
@@ -92,6 +99,30 @@ public class SaasCategoryController extends BaseController{
             return selectSuccess(pageList);
         }
         return selectNotFound();
+    }
+
+    @ApiOperation(value = "尺寸量法导入模板下载", notes = "尺寸量法导入模板下载")
+    @GetMapping("/downLoadTemplate")
+    public void downLoadExcel(@RequestParam(value = "sizes", required = true) String sizes, HttpServletRequest request,
+                              HttpServletResponse response) {
+        String strFileName = "尺寸表模板.xlsx";
+        OutputStream objStream = null;
+        try {
+            objStream = response.getOutputStream();
+            response.reset();
+            // 设置文件名称
+            response.setContentType("application/x-msdownload");
+            request.setCharacterEncoding("UTF-8");
+            // 火狐浏览器
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(strFileName, "UTF-8"));
+            ExportSizeTemplate excel = new ExportSizeTemplate();
+            XSSFWorkbook objWb = excel.createWorkBook(sizes);
+            objWb.write(objStream);
+            objStream.flush();
+            objStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
