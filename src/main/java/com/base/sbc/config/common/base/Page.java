@@ -54,6 +54,19 @@ public class Page implements Serializable {
      */
     private String groupId;
 
+    /***
+     * 状态
+     */
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public String getGroupId() {
         return groupId;
     }
