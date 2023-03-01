@@ -129,7 +129,20 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		}
 		return list;
 	}
-
+	public static List<String> convertList(String str,boolean isNull) {
+		List<String> list = Lists.newArrayList();
+		if (isNotBlank(str)) {
+			String[] s = str.split(String.valueOf(D));
+			for (String string : s) {
+				if(isNull && StringUtils.isNotBlank(string)){
+					list.add(string);
+				}else{
+					list.add(null);
+				}
+			}
+		}
+		return list;
+	}
 	/**
 	 * 将1,2,3,a,b,c 转换为 "1","2","3","a","b","c"
 	 * 

@@ -63,4 +63,35 @@ public class SaasCategoryController extends BaseController{
         return categorySizeMethodService.insetAll(users,categorySizeMethod,categoryName,userCompany);
     }
 
+    @GetMapping("/categorySizeMethods")
+    public ApiResult getSizeMethodsByCn(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode,
+                                        Page page, String categoryName) {
+        if(StringUtils.isBlank(categoryName)) {
+            return selectAttributeNotRequirements("categoryName");
+        }
+        QueryCondition qc = new QueryCondition();
+
+        // 页面条件
+        if (StringUtils.isNoneBlank(page.getSql())) {
+            qc.andConditionSql(page.getSql());
+        }
+        com.github.pagehelper.Page<CategorySizeMethod> pages = PageHelper.startPage(page.getPageNum(), page.getPageSize());
+        qc.andEqualTo(COMPANY_CODE, companyCode);
+        qc.andEqualTo(CATEGORY_NAME, categoryName);
+        categorySizeMethodService.findByCondition(qc);
+        PageInfo<CategorySizeMethod> pageList = pages.toPageInfo();
+        if (pageList.getList() != null && pageList.getList().size() > 0) {
+            for (CategorySizeMethod categorySizeMethod : pageList.getList()) {
+                if(StringUtils.isNoneBlank(categorySizeMethod.getSize())) {
+                    categorySizeMethod.setSizeList(StringUtils.convertList(categorySizeMethod.getSize()));
+                }
+                if(StringUtils.isNoneBlank(categorySizeMethod.getStandard())) {
+                    categorySizeMethod.setStandardList(StringUtils.convertList(categorySizeMethod.getStandard(),true));
+                }
+            }
+            return selectSuccess(pageList);
+        }
+        return selectNotFound();
+    }
+
 }
