@@ -21,20 +21,22 @@ public class UserUtils {
 
 	@Autowired
 	private RedisUtils redisUtils;
-	
+
 	@Autowired
 	private OauthService oauthService;
-	
+
 	public static final String USER_ID = "userId:";
 	public static final String NAME = "name:";
-	
+
+	public static final String userInfo="USER_INFO_";
+
 	public String getUserIdBy(Principal user) {
 		String userName = user.getName();
 		String userId = (String)redisUtils.get(USER_ID+userName);
 		if(StringUtils.isBlank(userId)) {
 			String retomeResult = oauthService.getUserInfo();
 			JSONObject jsonx = JSON.parseObject(retomeResult);
-			String data =  jsonx.getJSONObject("data").toJSONString(); 
+			String data =  jsonx.getJSONObject("data").toJSONString();
 			if(jsonx.getBoolean(Constants.SUCCESS)) {
 				GroupUser gu = (GroupUser)JsonUtils.jsonToBean(data, GroupUser.class);
 				redisUtils.set(USER_ID+userName, gu.getId());
@@ -49,12 +51,30 @@ public class UserUtils {
 		if(users==null) {
 			String retomeResult = oauthService.getUserInfo();
 			JSONObject jsonx = JSON.parseObject(retomeResult);
-			String data =  jsonx.getJSONObject("data").toJSONString(); 
+			String data =  jsonx.getJSONObject("data").toJSONString();
 			if(jsonx.getBoolean(Constants.SUCCESS)) {
 				users = (GroupUser) JsonUtils.jsonToBean(data, GroupUser.class);
 				redisUtils.set(USER_ID+userName, users);
 			}
 		}
 		return users;
+	}
+
+	/**
+	 * 获取当前登录用户信息，传入参数必须为当前用户id，否则写入redis后，因为id值不一致可能会导致数据错乱
+	 * @param userId  当前用户id
+	 */
+	public GroupUser getUser(String userId){
+		GroupUser user = (GroupUser)redisUtils.get(userInfo+userId);
+		if (user==null){
+			String retomeResult = oauthService.getUserInfo();
+			JSONObject jsonx = JSON.parseObject(retomeResult);
+			String data =  jsonx.getJSONObject("data").toJSONString();
+			if(jsonx.getBoolean(Constants.SUCCESS)) {
+				user = (GroupUser) JsonUtils.jsonToBean(data, GroupUser.class);
+				redisUtils.set(userInfo+userId, user);
+			}
+		}
+		return user;
 	}
 }

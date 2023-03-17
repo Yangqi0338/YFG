@@ -1,9 +1,9 @@
 spring:
   application:
-    name: pdm
+    name: pdm1
   cloud:
     nacos:
       config:
-        server-addr: 192.168.3.129:8848   # 配置中心地址
-        namespace: dev
+        server-addr: 10.8.240.161:8848   # 配置中心地址
+        namespace: sj-pdm-dev
         file-extension: yml # 假如不配置，则nacos远程配置文件的后缀为.properties

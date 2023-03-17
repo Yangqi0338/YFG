@@ -16,6 +16,10 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.i18n.LocaleMessages;
 import com.base.sbc.config.utils.DateUtils;
 import com.base.sbc.config.utils.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * @author fred
  * @data 创建时间:2020/2/3
@@ -26,24 +30,36 @@ public class BaseController {
 	/** 国际化对象*/
 	@Autowired
 	private LocaleMessages localeMessages;
-	
+
+	@Autowired
+	protected HttpServletRequest request;
+	@Autowired
+	protected HttpServletResponse response;
+
 	/** 免登录访问接口 */
 	public static final String OPEN_URL = "/api/open";
-	
+
 	/** 拥有登录Token才能访问 */
 	public static final String TOKEN_URL = "/api/token";
-	
+
 	/** saas接口 */
 	public static final String SAAS_URL = "/api/saas";
-	
-	
+
+	public static final String USER_COMPANY = "userCompany";
+	public static final String USER_ID= "userId";
 	public static final String PAGE_NUM = "pageNum";
 	public static final String PAGE_SIZE = "pageSize";
 	public static final String COMPANY_CODE = "company_code";
 	public static final String CATEGORY_NAME = "category_name";
 	public static final String DEL_FLAG="del_flag";
-	
-	
+
+	public String getUserCompany(){
+		return request.getHeader(USER_COMPANY);
+	}
+	public String getUserId(){
+		return request.getHeader(USER_ID);
+	}
+
 /****************************************国际化方法satrt************************************************/
 	/**
 	 * 获取国际化信息
@@ -71,8 +87,8 @@ public class BaseController {
 		}
 		return messageCcode;
 	}
-/****************************************国际化方法end  统一返回值  ************************************************/	
-	
+/****************************************国际化方法end  统一返回值  ************************************************/
+
 	/****************************************查询  ************************************************/
 	/**查询成功:单个String，实体，分页对象*/
 	protected ApiResult selectSuccess(Object object) {
@@ -98,7 +114,7 @@ public class BaseController {
 	protected ApiResult selectNotFound() {
 		return error(BaseErrorEnum.ERR_SELECT_NOT_FOUND.getErrorMessage());
 	}
-	
+
 	/****************************************新增  ************************************************/
 	/**新增成功:单个String，实体，分页对象*/
 	protected ApiResult insertSuccess(Object object) {
@@ -112,7 +128,7 @@ public class BaseController {
 	protected ApiResult insertSuccess(Object object,Map<String, Object> attributes) {
 		return success(BaseErrorEnum.SUCCESS_INSERT.getErrorMessage(),object,attributes);
 	}
-	
+
 	/** 新增失败：属性不满足要求(不存在，不符合，不在之内等) */
 	protected ApiResult insertAttributeNotRequirements(Object object) {
 		return error(BaseErrorEnum.ERR_INSERT_ATTRIBUTE_NOT_REQUIREMENTS.getErrorMessage(),object);
@@ -125,8 +141,8 @@ public class BaseController {
 	protected ApiResult insertDataRepeat() {
 		return error(BaseErrorEnum.ERR_INSERT_DATA_REPEAT.getErrorMessage());
 	}
-	
-	
+
+
 	/****************************************修改 ************************************************/
 	/**修改成功:单个String，实体，分页对象*/
 	protected ApiResult updateSuccess(Object object) {
@@ -140,7 +156,7 @@ public class BaseController {
 	protected ApiResult updateSuccess(Object object,Map<String, Object> attributes) {
 		return success(BaseErrorEnum.SUCCESS_UPDATE.getErrorMessage(),object,attributes);
 	}
-	
+
 	/**修改失败：属性不满足要求(不存在，不符合，不在之内等) */
 	protected ApiResult updateAttributeNotRequirements(Object object) {
 		return error(BaseErrorEnum.ERR_UPDATE_ATTRIBUTE_NOT_REQUIREMENTS.getErrorMessage(),object);
@@ -153,7 +169,7 @@ public class BaseController {
 	protected ApiResult updateNotFound() {
 		return error(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND.getErrorMessage());
 	}
-	
+
 	/****************************************删除************************************************/
 	/**删除成功:单个String，实体，分页对象*/
 	protected ApiResult deleteSuccess(Object object) {
@@ -179,9 +195,9 @@ public class BaseController {
 	protected ApiResult deleteNotFound() {
 		return error(BaseErrorEnum.ERR_DELETE_DATA_NOT_FOUND.getErrorMessage());
 	}
-	
+
 	/****************************************公用************************************************/
-	
+
 	protected ApiResult success(String baseErrorEnumMessage,Object object) {
 		return ApiResult.success(getMessage(baseErrorEnumMessage),object);
 	}
@@ -191,7 +207,7 @@ public class BaseController {
 	protected ApiResult success(String baseErrorEnumMessage,Object object,Map<String, Object> attributes) {
 		return ApiResult.success(getMessage(baseErrorEnumMessage),object,attributes);
 	}
-	
+
 	protected ApiResult error(String baseErrorEnumMessage,Object object) {
 		return ApiResult.error(getMessage(baseErrorEnumMessage),BaseErrorEnum.valueOf(baseErrorEnumMessage).getErrorCode(),object);
 	}

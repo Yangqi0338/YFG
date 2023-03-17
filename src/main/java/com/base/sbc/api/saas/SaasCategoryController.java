@@ -38,7 +38,6 @@ import java.util.List;
 @Api(tags="1.2 SAAS接口[定义品类尺寸量法与检验标准]")
 @RequestMapping(value = BaseController.SAAS_URL+"/category", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class SaasCategoryController extends BaseController{
-
     @Autowired
     private CategorySizeMethodService categorySizeMethodService;
     @Autowired
