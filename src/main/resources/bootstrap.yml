@@ -7,3 +7,9 @@ spring:
         server-addr: 10.8.240.161:8848   # 配置中心地址
         namespace: sj-pdm-dev
         file-extension: yml # 假如不配置，则nacos远程配置文件的后缀为.properties
+logging:
+  level:
+    #基础包
+    com.base.sbc.pdm.mapper: debug
+    #指定报的日志级别
+    org.springframework: info

@@ -4,10 +4,13 @@ import java.beans.PropertyEditorSupport;
 import java.util.Date;
 import java.util.Map;
 
+import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.utils.UserUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
@@ -17,6 +20,7 @@ import com.base.sbc.config.i18n.LocaleMessages;
 import com.base.sbc.config.utils.DateUtils;
 import com.base.sbc.config.utils.StringUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author fred
  * @data 创建时间:2020/2/3
  */
+@Component
 public class BaseController {
 	/** 日志对象 */
 	protected Logger logger = LoggerFactory.getLogger(getClass());
@@ -35,6 +40,9 @@ public class BaseController {
 	protected HttpServletRequest request;
 	@Autowired
 	protected HttpServletResponse response;
+
+	@Resource
+	private UserUtils userUtils;
 
 	/** 免登录访问接口 */
 	public static final String OPEN_URL = "/api/open";
@@ -58,6 +66,10 @@ public class BaseController {
 	}
 	public String getUserId(){
 		return request.getHeader(USER_ID);
+	}
+
+	public GroupUser getUser(){
+		return userUtils.getUser(getUserId());
 	}
 
 /****************************************国际化方法satrt************************************************/

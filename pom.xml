@@ -10,7 +10,7 @@
 
 	<name>pdm</name>
 	<description>产品管理</description>
-	
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -21,7 +21,7 @@
 		<poi.version>5.2.0</poi.version>
 		<log4j2.version>2.17.2</log4j2.version>
 	</properties>
-	
+
 	<parent>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-parent</artifactId>
@@ -29,23 +29,23 @@
     </parent>
 
     <dependencies>
-    	<dependency>  
-	         <groupId>org.springframework.cloud</groupId>  
-	         <artifactId>spring-cloud-starter-sleuth</artifactId>  
-	     </dependency>  
+    	<dependency>
+	         <groupId>org.springframework.cloud</groupId>
+	         <artifactId>spring-cloud-starter-sleuth</artifactId>
+	     </dependency>
     	  <dependency>
-	        <groupId>org.springframework.cloud</groupId> 
-	        <artifactId>spring-cloud-starter-hystrix</artifactId> 
+	        <groupId>org.springframework.cloud</groupId>
+	        <artifactId>spring-cloud-starter-hystrix</artifactId>
 	    </dependency>
-	    <dependency>  
-           <groupId>com.alibaba</groupId>  
-           <artifactId>druid</artifactId>  
-           <version>1.1.6</version>  
+	    <dependency>
+           <groupId>com.alibaba</groupId>
+           <artifactId>druid</artifactId>
+           <version>1.1.6</version>
         </dependency>
 	    <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency> 
+        </dependency>
     	 <dependency>
 	        <groupId>org.springframework.cloud</groupId>
 	        <artifactId>spring-cloud-starter-feign</artifactId>
@@ -141,21 +141,21 @@
 		    <artifactId>fastjson</artifactId>
 		    <version>1.2.47</version>
 		</dependency>
-		
+
 		<!-- 临时jar包   用于 压缩图片 -->
 		 <dependency>
 		    <groupId>net.coobird</groupId>
 		    <artifactId>thumbnailator</artifactId>
 		    <version>0.4.8</version>
-		</dependency> 
-		
+		</dependency>
+
 		<!-- 用于操作阿里云OSS -->
 		<dependency>
 		    <groupId>com.aliyun.oss</groupId>
 		    <artifactId>aliyun-sdk-oss</artifactId>
 		    <version>2.8.3</version>
 		</dependency>
-		
+
 		<!-- 用于读取xml的配置属性 -->
 		<dependency>
 		    <groupId>dom4j</groupId>
@@ -242,7 +242,10 @@
 			<version>${log4j2.version}</version>
 		</dependency>
 
-
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
 	</dependencies>
 
 	<profiles>

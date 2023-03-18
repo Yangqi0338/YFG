@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.pdm.mapper.TagMapper">
+    <insert id="add">
+        insert into t_tag
+        set id=#{id},
+            tag_name=#{tagName},
+            group_id=#{groupId},
+            company_code=#{companyCode},
+            create_id=#{createId},
+            create_name=#{createName},
+            create_date=now(),
+            update_id=#{updateId},
+            update_name=#{updateName},
+            update_date=now(),
+            del_flag='0',
+            remarks=#{remarks}
+    </insert>
+
+    <select id="listQuery" resultType="com.base.sbc.pdm.entity.Tag">
+        select * from t_tag
+        where company_code = #{companyCode}
+        and del_flag ='0'
+        <if test="ids != null and ids.length > 0">
+            and id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="tagName != null and tagName != ''">
+            and tag_name like concat('%',#{tagName},'%')
+        </if>
+        <if test="groupId != null and groupId != ''">
+            and group_id=#{groupId}
+        </if>
+        <if test="createId != null and createId != ''">
+            and create_id=#{createId}
+        </if>
+        order by create_date desc
+    </select>
+
+    <select id="getByNameAndGroupId" resultType="com.base.sbc.pdm.entity.Tag">
+        select id
+        from t_tag
+        where group_id = #{groupId}
+          and tag_name = #{tagName}
+    </select>
+
+    <delete id="del">
+        <if test="ids != null and ids.length > 0">
+            update t_tag set del_flag='1',
+            update_date=now(),
+            update_name=#{updateName},
+            update_id=#{updateId}
+            where id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </delete>
+
+    <update id="update">
+        update t_tag
+        set del_flag='1',
+        update_date=now(),
+        update_name=#{updateName},
+        update_id=#{updateId}
+        <if test="tagName != null and tagName != ''">
+            ,tag_name=#{tagName}
+        </if>
+        <if test="groupId != null and groupId != ''">
+            ,group_id=#{groupId}
+        </if>
+        where id = #{id}
+    </update>
+</mapper>
