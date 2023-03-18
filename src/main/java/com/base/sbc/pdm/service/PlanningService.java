@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.pdm.service;
 
-import com.base.sbc.pdm.mapper.PlanningMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,26 +16,24 @@ import com.base.sbc.config.common.base.BaseService;
 import com.base.sbc.pdm.entity.Planning;
 import com.base.sbc.pdm.dao.PlanningDao;
 
-import javax.annotation.Resource;
-
-/**
+/** 
  * 类描述： service类
  * @address com.base.sbc.pdm.service.PlanningService
  * @author lile
  * @email lilemyemail@163.com
- * @date 创建时间：2023-3-17 11:24:43
- * @version 1.0
+ * @date 创建时间：2023-3-17 18:09:02
+ * @version 1.0  
  */
 @Service
 @Transactional(readOnly = true)
 public class PlanningService extends BaseService<Planning> {
-
+	
 	@Autowired
 	private PlanningDao planningDao;
-
+	
 	@Override
 	protected BaseDao<Planning> getEntityDao() {
 		return planningDao;
 	}
-
+	
 }

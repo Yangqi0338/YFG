@@ -4,7 +4,7 @@
 	<!--
 	创建人：lile
 	邮箱：lilemyemail@163.com
-	创建时间：2023-3-17 11:24:43
+	创建时间：2023-3-17 18:09:02
 	版本号：1.0
 -->
 	<!-- *******************************************自定义方法区  不替换的区域【other_start】***************************************** -->
@@ -14,7 +14,7 @@
 	<!-- *******************************************公用方法区(不可修改)***************************************** -->
 	<!-- 公用返回值 与数据库字段保持一致即可，同时实体(驼峰命名)必须包含所有字段 -->
 	<sql id="base_column">
-		id,planning_name,particular_year,season,month,brand,gender,style_num,color_num,wave_band,company_code,create_id,create_name,create_date,update_id,update_name,update_date,del_flag,remarks
+		id,planning_name,particular_year,season,month,brand,gender,style_num,color_num,wave_band_id,company_code,create_id,create_name,create_date,update_id,update_name,update_date,del_flag,remarks
 	</sql>
 	<!--  方法返回：成功条数。     方法名称： 新增          方法参数：list集合 -->
 	<insert id="insert" parameterType="java.util.List">
@@ -22,7 +22,7 @@
 		<include refid="base_column"/>
 		) values
 		<foreach collection="list" item="t" index="index" separator=",">
-			(  #{t.id,jdbcType=VARCHAR},#{t.planningName,jdbcType=VARCHAR},#{t.particularYear,jdbcType=VARCHAR},#{t.season,jdbcType=VARCHAR},#{t.month,jdbcType=VARCHAR},#{t.brand,jdbcType=VARCHAR},#{t.gender,jdbcType=VARCHAR},#{t.styleNum,jdbcType=INTEGER},#{t.colorNum,jdbcType=INTEGER},#{t.waveBand,jdbcType=VARCHAR},#{t.companyCode,jdbcType=VARCHAR},#{t.createId,jdbcType=VARCHAR},#{t.createName,jdbcType=VARCHAR},#{t.createDate,jdbcType=TIMESTAMP},#{t.updateId,jdbcType=VARCHAR},#{t.updateName,jdbcType=VARCHAR},#{t.updateDate,jdbcType=TIMESTAMP},#{t.delFlag,jdbcType=CHAR},#{t.remarks,jdbcType=VARCHAR}
+			(  #{t.id,jdbcType=VARCHAR},#{t.planningName,jdbcType=VARCHAR},#{t.particularYear,jdbcType=VARCHAR},#{t.season,jdbcType=VARCHAR},#{t.month,jdbcType=VARCHAR},#{t.brand,jdbcType=VARCHAR},#{t.gender,jdbcType=VARCHAR},#{t.styleNum,jdbcType=INTEGER},#{t.colorNum,jdbcType=INTEGER},#{t.waveBandId,jdbcType=VARCHAR},#{t.companyCode,jdbcType=VARCHAR},#{t.createId,jdbcType=VARCHAR},#{t.createName,jdbcType=VARCHAR},#{t.createDate,jdbcType=TIMESTAMP},#{t.updateId,jdbcType=VARCHAR},#{t.updateName,jdbcType=VARCHAR},#{t.updateDate,jdbcType=TIMESTAMP},#{t.delFlag,jdbcType=CHAR},#{t.remarks,jdbcType=VARCHAR}
 			)
 		</foreach>
 	</insert>
@@ -44,7 +44,7 @@
 					gender = #{t.gender,jdbcType=VARCHAR},
 					style_num = #{t.styleNum,jdbcType=INTEGER},
 					color_num = #{t.colorNum,jdbcType=INTEGER},
-					wave_band = #{t.waveBand,jdbcType=VARCHAR},
+					wave_band_id = #{t.waveBandId,jdbcType=VARCHAR},
 					company_code = #{t.companyCode,jdbcType=VARCHAR},
 					create_id = #{t.createId,jdbcType=VARCHAR},
 					create_name = #{t.createName,jdbcType=VARCHAR},
@@ -104,8 +104,8 @@
 					color_num = #{t.colorNum
 					,jdbcType=INTEGER},
 				</if>
-				<if test="t.waveBand != null">
-					wave_band = #{t.waveBand
+				<if test="t.waveBandId != null">
+					wave_band_id = #{t.waveBandId
 					,jdbcType=VARCHAR},
 				</if>
 				<if test="t.companyCode != null">

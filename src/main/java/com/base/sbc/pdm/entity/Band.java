@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  * @address com.base.sbc.pdm.entity.Band
  * @author lile
  * @email lilemyemail@163.com
- * @date 创建时间：2023-3-17 16:37:32
+ * @date 创建时间：2023-3-17 18:08:52
  * @version 1.0  
  */
 public class Band extends BaseDataEntity<String> {
@@ -115,3 +115,4 @@ public class Band extends BaseDataEntity<String> {
 		this.status = status;
 	}
 }
+

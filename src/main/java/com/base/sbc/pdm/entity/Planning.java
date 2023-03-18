@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  * @address com.base.sbc.pdm.entity.Planning
  * @author lile
  * @email lilemyemail@163.com
- * @date 创建时间：2023-3-17 11:24:43
+ * @date 创建时间：2023-3-17 18:09:02
  * @version 1.0  
  */
 public class Planning extends BaseDataEntity<String> {
@@ -45,8 +45,8 @@ public class Planning extends BaseDataEntity<String> {
     private Integer styleNum;
     /** 配色数量 */
     private Integer colorNum;
-    /** 波段名称 */
-    private String waveBand;
+    /** 波段id */
+    private String waveBandId;
     /*******************************************getset方法区************************************/
     public String getPlanningName() {
 		return planningName;
@@ -128,14 +128,15 @@ public class Planning extends BaseDataEntity<String> {
 	public void setColorNum(Integer colorNum) {
 		this.colorNum = colorNum;
 	}
-    public String getWaveBand() {
-		return waveBand;
+    public String getWaveBandId() {
+		return waveBandId;
 	}
-	public Planning setWaveBandAnd(String waveBand) {
-		this.waveBand = waveBand;
+	public Planning setWaveBandIdAnd(String waveBandId) {
+		this.waveBandId = waveBandId;
 		return this;
 	}
-	public void setWaveBand(String waveBand) {
-		this.waveBand = waveBand;
+	public void setWaveBandId(String waveBandId) {
+		this.waveBandId = waveBandId;
 	}
 }
+
