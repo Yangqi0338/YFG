@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.pdm.service;
 
+import com.base.sbc.pdm.mapper.BandMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,24 +17,28 @@ import com.base.sbc.config.common.base.BaseService;
 import com.base.sbc.pdm.entity.Band;
 import com.base.sbc.pdm.dao.BandDao;
 
-/** 
+import javax.annotation.Resource;
+
+/**
  * 类描述： service类
  * @address com.base.sbc.pdm.service.BandService
  * @author lile
  * @email lilemyemail@163.com
  * @date 创建时间：2023-3-17 18:08:53
- * @version 1.0  
+ * @version 1.0
  */
 @Service
 @Transactional(readOnly = true)
 public class BandService extends BaseService<Band> {
-	
+
 	@Autowired
 	private BandDao bandDao;
-	
+	@Resource
+	private BandMapper bandMapper;
+
 	@Override
 	protected BaseDao<Band> getEntityDao() {
 		return bandDao;
 	}
-	
+
 }

@@ -6,28 +6,28 @@
  *****************************************************************************/
 package com.base.sbc.pdm.entity;
 
-import java.util.Date;
-import java.util.List;
-import java.math.BigDecimal;
-import com.base.sbc.config.common.base.BaseDataEntity;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
-/** 
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.base.BaseDataEntity;
+
+/**
  * 类描述： 实体类
  * @address com.base.sbc.pdm.entity.Band
  * @author lile
  * @email lilemyemail@163.com
  * @date 创建时间：2023-3-17 18:08:52
- * @version 1.0  
+ * @version 1.0
  */
+
+@TableName("t_band")
 public class Band extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
-	
-	
+
+
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
-	
+
     /*****************************数据库字段区 不包含父类公共字段(属性)***********************************/
     /** 年份 */
     private String particularYear;

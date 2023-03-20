@@ -5,9 +5,8 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.pdm.entity;
-
 import com.base.sbc.config.common.base.BaseDataEntity;
-import lombok.Data;
+
 
 /**
  * 类描述： 实体类
@@ -17,7 +16,6 @@ import lombok.Data;
  * @date 创建时间：2023-3-18 10:05:23
  * @version 1.0
  */
-@Data
 public class Tag extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
@@ -26,7 +24,15 @@ public class Tag extends BaseDataEntity<String> {
 	 * id集合
 	 */
 	private String[] ids;
-/**********************************实体存放的其他字段区 【other_end】******************************************/
+
+	public String[] getIds() {
+		return ids;
+	}
+
+	public void setIds(String[] ids) {
+		this.ids = ids;
+	}
+	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性)***********************************/
     /** 标签名称 */

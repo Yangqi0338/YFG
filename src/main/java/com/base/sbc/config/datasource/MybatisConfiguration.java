@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ibatis.plugin.Interceptor;
@@ -71,7 +72,7 @@ public class MybatisConfiguration implements TransactionManagementConfigurer {
     @Primary
     public SqlSessionFactory sqlSessionFactory() {
         try {
-            SqlSessionFactoryBean sessionFactoryBean = new SqlSessionFactoryBean();
+            MybatisSqlSessionFactoryBean sessionFactoryBean = new MybatisSqlSessionFactoryBean();
             sessionFactoryBean.setDataSource(dataSource);
 
             // 读取配置
