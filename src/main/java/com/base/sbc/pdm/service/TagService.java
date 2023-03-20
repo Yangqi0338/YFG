@@ -9,7 +9,6 @@ package com.base.sbc.pdm.service;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.pdm.mapper.TagMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ import com.base.sbc.pdm.entity.Tag;
 import com.base.sbc.pdm.dao.TagDao;
 
 import javax.annotation.Resource;
-import javax.management.Query;
 import java.util.List;
 
 /**
@@ -57,9 +55,9 @@ public class TagService extends BaseService<Tag> {
 	}
 
 	@Transactional(readOnly = false)
-	public Integer del(Tag tag) {
+	public Integer delByIds(Tag tag) {
 		this.upTag(tag);
-		return tagMapper.del(tag);
+		return tagMapper.delByIds(tag);
 	}
 	@Transactional(readOnly = false)
 	public Integer update(Tag tag) {

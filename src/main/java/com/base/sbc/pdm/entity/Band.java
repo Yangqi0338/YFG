@@ -7,6 +7,7 @@
 package com.base.sbc.pdm.entity;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 
@@ -24,7 +25,19 @@ public class Band extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+	/**
+	 * id集合
+	 */
+	@TableField(exist = false)
+	private String[] ids;
 
+	public String[] getIds() {
+		return ids;
+	}
+
+	public void setIds(String[] ids) {
+		this.ids = ids;
+	}
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 

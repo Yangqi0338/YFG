@@ -61,9 +61,9 @@ public class TagController extends BaseController {
     /**
      * 批量删除标签
      */
-    @DeleteMapping("/del")
-    public ApiResult del(Tag tag) {
-        return deleteSuccess(tagService.del(tag));
+    @DeleteMapping("/delByIds")
+    public ApiResult delByIds(Tag tag) {
+        return deleteSuccess(tagService.delByIds(tag));
     }
 
     /**

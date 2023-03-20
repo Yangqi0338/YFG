@@ -6,6 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.pdm.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.pdm.mapper.BandMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +22,8 @@ import com.base.sbc.pdm.entity.Band;
 import com.base.sbc.pdm.dao.BandDao;
 
 import javax.annotation.Resource;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 类描述： service类
@@ -36,9 +42,47 @@ public class BandService extends BaseService<Band> {
 	@Resource
 	private BandMapper bandMapper;
 
+	@Resource
+	private BaseController baseController;
+
 	@Override
 	protected BaseDao<Band> getEntityDao() {
 		return bandDao;
 	}
 
+	public List<Band> listQuery(Band band) {
+		String userCompany = baseController.getUserCompany();
+		band.setCompanyCode(userCompany);
+		return bandMapper.listQuery(band);
+	}
+
+	public Integer delByIds(String[] ids) {
+		return bandMapper.delByIds(ids);
+	}
+	@Transactional(readOnly = false)
+	public Integer update(Band band) {
+		return bandMapper.update(band);
+	}
+
+	@Transactional(readOnly = false)
+	public Integer add(Band band) {
+		//先去波段名称和编码是否重复
+		QueryWrapper<Band> queryWrapper=new QueryWrapper<>();
+		queryWrapper.eq("code", band.getCode()).or().eq("band_name", band.getBandName());
+		Band band1 = bandMapper.selectOne(queryWrapper);
+		if (band1!=null){
+			return 0;
+		}
+		Date date=new Date();
+		band.setId(IdGen.getId().toString());
+		GroupUser user = baseController.getUser();
+		band.setUpdateName(user.getName());
+		band.setUpdateId(user.getId());
+		band.setUpdateDate(date);
+		band.setCreateName(user.getName());
+		band.setCreateId(user.getId());
+		band.setCreateDate(date);
+		band.setCompanyCode(baseController.getUserCompany());
+		return bandMapper.insert(band);
+	}
 }

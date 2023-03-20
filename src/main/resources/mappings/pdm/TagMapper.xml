@@ -46,7 +46,7 @@
           and tag_name = #{tagName}
     </select>
 
-    <delete id="del">
+    <delete id="delByIds">
         <if test="ids != null and ids.length > 0">
             update t_tag set del_flag='1',
             update_date=now(),
@@ -61,8 +61,7 @@
 
     <update id="update">
         update t_tag
-        set del_flag='1',
-        update_date=now(),
+        set update_date=now(),
         update_name=#{updateName},
         update_id=#{updateId}
         <if test="tagName != null and tagName != ''">

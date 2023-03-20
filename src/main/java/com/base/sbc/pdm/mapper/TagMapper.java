@@ -2,7 +2,6 @@ package com.base.sbc.pdm.mapper;
 
 import com.base.sbc.pdm.entity.Tag;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -19,7 +18,7 @@ public interface TagMapper {
      */
     List<Tag> listQuery(Tag tag);
 
-    Integer del(Tag tag);
+    Integer delByIds(Tag tag);
 
     Integer update(Tag tag);
 

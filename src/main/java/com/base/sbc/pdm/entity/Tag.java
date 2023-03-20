@@ -5,6 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.pdm.entity;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.base.sbc.config.common.base.BaseDataEntity;
 
 
@@ -23,6 +24,7 @@ public class Tag extends BaseDataEntity<String> {
 	/**
 	 * id集合
 	 */
+	@TableField(exist = false)
 	private String[] ids;
 
 	public String[] getIds() {
