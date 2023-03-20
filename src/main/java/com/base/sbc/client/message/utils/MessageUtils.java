@@ -31,4 +31,13 @@ public class MessageUtils {
 		msg.setModelCode("SJ502");
 		messagesService.sendNoticeByModel(msg);
 	}
+
+	/**
+	 * 发送模板信息
+	 * @param msg
+	 */
+	public void sendMessage(ModelMessage msg) {
+		String s = messagesService.sendNoticeByModel(msg);
+		System.out.println(s);
+	}
 }
