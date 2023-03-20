@@ -1,8 +1,8 @@
 package com.base.sbc.pdm.mapper;
 
+import com.base.sbc.pdm.entity.Band;
 import com.base.sbc.pdm.entity.Planning;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -12,7 +12,9 @@ import java.util.List;
  */
 @Mapper
 public interface PlanningMapper {
+    List<Planning> listQuery(Planning planning);
 
-    @Select("select * from t_planning")
-    List<Planning> getList();
+    Integer delByIds(String[] ids);
+
+    Integer update(Planning planning);
 }

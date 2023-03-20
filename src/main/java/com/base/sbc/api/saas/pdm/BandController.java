@@ -10,6 +10,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -29,7 +30,11 @@ public class BandController extends BaseController {
      */
     @PostMapping("/add")
     public ApiResult add(@RequestBody Band band) {
-        return insertSuccess(bandService.add(band));
+        Integer i = bandService.add(band);
+        if (i == 0) {
+            return insertDataRepeat("标签名称重复");
+        }
+        return insertSuccess("新增成功");
     }
 
     /**

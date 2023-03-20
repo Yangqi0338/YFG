@@ -61,7 +61,7 @@
             and season=#{season}
         </if>
         <if test="code != null and code != ''">
-            and season=#{code}
+            and code=#{code}
         </if>
         <if test="status != null and status != ''">
             and status=#{status}

@@ -66,11 +66,10 @@ public class BandService extends BaseService<Band> {
 
 	@Transactional(readOnly = false)
 	public Integer add(Band band) {
-		//先去波段名称和编码是否重复
+		//波段名称和编码是否重复
 		QueryWrapper<Band> queryWrapper=new QueryWrapper<>();
 		queryWrapper.eq("code", band.getCode()).or().eq("band_name", band.getBandName());
-		Band band1 = bandMapper.selectOne(queryWrapper);
-		if (band1!=null){
+		if (bandMapper.selectOne(queryWrapper)!=null){
 			return 0;
 		}
 		Date date=new Date();
