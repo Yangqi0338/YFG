@@ -45,9 +45,8 @@ import java.util.List;
  */
 @RestController
 @Api(value = "分组树表", tags = {"分组树表接口"})
-@RequestMapping(value = BaseController.SAAS_URL+"/groupTree", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = BaseController.SAAS_URL + "/groupTree", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class GroupTreeController extends BaseController {
-
 
 
     @Autowired
@@ -82,14 +81,14 @@ public class GroupTreeController extends BaseController {
     public ApiResult list(GroupTree groupTree) {
         //初始化查询条件构造器
         QueryCondition qc = new QueryCondition(getUserCompany());
-        qc.andEqualTo("company_code",getUserCompany());
+        qc.andEqualTo("company_code", getUserCompany());
         qc.setOrderByClause("sort asc");
-        if(StrUtil.isNotBlank(groupTree.getGroupName())){
-            qc.andEqualTo("group_name",groupTree.getGroupName());
+        if (StrUtil.isNotBlank(groupTree.getGroupName())) {
+            qc.andEqualTo("group_name", groupTree.getGroupName());
         }
 
-        if(StrUtil.isNotBlank(groupTree.getParentId())){
-            qc.andEqualTo("parent_id",groupTree.getParentId());
+        if (StrUtil.isNotBlank(groupTree.getParentId())) {
+            qc.andEqualTo("parent_id", groupTree.getParentId());
         }
         return ApiResult.error(HttpStatus.NOT_FOUND.getReasonPhrase(), HttpStatus.NOT_FOUND.value());
     }
@@ -98,18 +97,18 @@ public class GroupTreeController extends BaseController {
     @ApiImplicitParam(name = "group", value = "分组树表", required = true, dataType = "GroupTree")
     @PostMapping
     public ApiResult save(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @Valid @RequestBody GroupTree group) throws Exception {
-        if(StringUtils.isAnyBlank(group.getGroupName(),group.getName())){
+        if (StringUtils.isAnyBlank(group.getGroupName(), group.getName())) {
             return updateAttributeNotRequirements("请填写非空字段");
         }
-        if(StringUtils.isNotBlank(group.getId())){
+        if (StringUtils.isNotBlank(group.getId())) {
             group.preUpdate();
             return ApiResult.success("success", groupService.updateAll(group));
-        }else{
+        } else {
             QueryCondition qc = new QueryCondition(getUserCompany());
             qc.andEqualTo("group_name", group.getGroupName());
-            qc.andEqualTo("name",group.getName());
-            qc.andEqualTo(COMPANY_CODE,userCompany);
-            List<GroupTree> db=groupService.findByCondition(qc);
+            qc.andEqualTo("name", group.getName());
+            qc.andEqualTo(COMPANY_CODE, userCompany);
+            List<GroupTree> db = groupService.findByCondition(qc);
             if (CollUtil.isNotEmpty(db)) {
                 return ApiResult.error("分组重复", 500);
             }
@@ -119,6 +118,7 @@ public class GroupTreeController extends BaseController {
             return ApiResult.success("success", groupService.insert(group));
         }
     }
+
     @ApiOperation(value = "删除分组树表", notes = "根据url的id来指定删除对象(逗号隔开删除多个)")
     @DeleteMapping(value = "/{id}")
     public ApiResult delete(@PathVariable String id) throws Exception {
@@ -144,7 +144,7 @@ public class GroupTreeController extends BaseController {
     @ApiOperation(value = "查询分组树", notes = "根据url的groupName查询")
     @ApiImplicitParam(name = "group", value = "分组树表", required = true, dataType = "String")
     @GetMapping("/tree")
-    public ApiResult tree(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestParam(value = "groupName",required = true) String groupName,String name,String level) {
+    public ApiResult tree(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestParam(value = "groupName", required = true) String groupName, String name, String level) {
         if (StringUtils.isBlank(groupName)) {
             return selectNotFound();
         }
@@ -158,12 +158,26 @@ public class GroupTreeController extends BaseController {
         if (StrUtil.isNotBlank(level)) {
             qc.andEqualTo("level", level);
         }
-        qc.andEqualTo(COMPANY_CODE,userCompany);
+        qc.andEqualTo(COMPANY_CODE, userCompany);
         List<GroupTree> groups = groupService.findByCondition(qc);
         if (CollUtil.isEmpty(groups)) {
             return selectNotFound();
         }
         return selectSuccess(groups);
+    }
+
+    /**
+     * 根据树层级查询列表
+     */
+    @GetMapping("/getByLevel")
+    public ApiResult getByLevel(Integer level,String groupName) {
+        QueryCondition qc = new QueryCondition();
+        qc.andEqualTo("company_code", getUserCompany());
+        qc.andEqualTo("level", level);
+        if (groupName!=null && !"".equals(groupName)){
+            qc.andEqualTo("group_name",groupName);
+        }
+        return selectSuccess(groupService.findByCondition(qc));
     }
 
 
