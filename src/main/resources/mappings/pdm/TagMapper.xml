@@ -64,7 +64,8 @@
         update t_tag
         set update_date=now(),
         update_name=#{updateName},
-        update_id=#{updateId}
+        update_id=#{updateId},
+        remarks=#{remarks}
         <if test="tagName != null and tagName != ''">
             ,tag_name=#{tagName}
         </if>
