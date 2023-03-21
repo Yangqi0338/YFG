@@ -40,6 +40,17 @@
         </if>
         where id = #{id}
     </update>
+    <update id="bandStartStop">
+        update t_band
+        set   update_date=now(),
+        update_name=#{updateName},
+        update_id=#{updateId},
+        status=#{status}
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
     <select id="listQuery" resultType="com.base.sbc.pdm.entity.Band">
         select *
         from t_band

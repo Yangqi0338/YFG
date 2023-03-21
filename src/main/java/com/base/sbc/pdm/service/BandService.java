@@ -57,8 +57,19 @@ public class BandService extends BaseService<Band> {
 	}
 	@Transactional(readOnly = false)
 	public Integer delByIds(String[] ids) {
-		return bandMapper.delByIds(ids);
+		GroupUser user = baseController.getUser();
+		return bandMapper.delByIds(ids,user.getName(),user.getId());
 	}
+
+
+	@Transactional(readOnly = false)
+	public Integer bandStartStop( Band band) {
+		GroupUser user = baseController.getUser();
+		band.setUpdateId(user.getId());
+		band.setUpdateName(user.getName());
+		return bandMapper.bandStartStop(band);
+	}
+
 	@Transactional(readOnly = false)
 	public Integer update(Band band) {
 		return bandMapper.update(band);

@@ -8,6 +8,9 @@ import com.base.sbc.pdm.service.BandService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,7 +66,6 @@ public class BandController extends BaseController {
     public ApiResult delByIds(String[] ids) {
         return deleteSuccess(bandService.delByIds(ids));
     }
-
     /**
      * 修改
      */
@@ -71,4 +73,13 @@ public class BandController extends BaseController {
     public ApiResult update(@RequestBody Band band) {
         return updateSuccess(bandService.update(band));
     }
+    /**
+     * 启动 停止
+     */
+    @ApiOperation(value = "批量启用/停用波段", notes = "ids:制造流程ids(多个用逗号拼接), status:0启用1停用")
+    @PostMapping("bandStartStop")
+    public ApiResult bandStartStop(@RequestBody Band band) {
+        return deleteSuccess(bandService.bandStartStop(band));
+    }
+
 }
