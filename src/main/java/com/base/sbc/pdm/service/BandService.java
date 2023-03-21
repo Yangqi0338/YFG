@@ -64,14 +64,13 @@ public class BandService extends BaseService<Band> {
 
 	@Transactional(readOnly = false)
 	public Integer bandStartStop( Band band) {
-		GroupUser user = baseController.getUser();
-		band.setUpdateId(user.getId());
-		band.setUpdateName(user.getName());
+		band.preUpdate();
 		return bandMapper.bandStartStop(band);
 	}
 
 	@Transactional(readOnly = false)
 	public Integer update(Band band) {
+		band.preUpdate();
 		return bandMapper.update(band);
 	}
 
