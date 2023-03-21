@@ -83,6 +83,7 @@ public class TagService extends BaseService<Tag> {
         }
         tag.setCompanyCode(baseController.getUserCompany());
         tag.preInsert();
+        tag.setDelFlag("0");
         return this.insert(tag);
     }
 
