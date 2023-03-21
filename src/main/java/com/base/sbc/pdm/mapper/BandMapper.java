@@ -3,6 +3,7 @@ package com.base.sbc.pdm.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.pdm.entity.Band;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -14,7 +15,10 @@ import java.util.List;
 public interface BandMapper extends BaseMapper<Band> {
     List<Band> listQuery(Band band);
 
-    Integer delByIds(String[] ids);
+    Integer delByIds( @Param("ids")  String[] ids,@Param("updateName") String updateName,@Param("updateId") String updateId);
 
     Integer update(Band band);
+
+    Integer bandStartStop(Band band);
+
 }
