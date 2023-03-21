@@ -72,15 +72,7 @@ public class BandService extends BaseService<Band> {
 		if (bandMapper.selectOne(queryWrapper)!=null){
 			return 0;
 		}
-		Date date=new Date();
-		band.setId(IdGen.getId().toString());
-		GroupUser user = baseController.getUser();
-		band.setUpdateName(user.getName());
-		band.setUpdateId(user.getId());
-		band.setUpdateDate(date);
-		band.setCreateName(user.getName());
-		band.setCreateId(user.getId());
-		band.setCreateDate(date);
+		band.preInsert();
 		band.setCompanyCode(baseController.getUserCompany());
 		return bandMapper.insert(band);
 	}

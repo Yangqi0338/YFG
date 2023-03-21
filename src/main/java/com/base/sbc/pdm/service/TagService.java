@@ -8,19 +8,18 @@ package com.base.sbc.pdm.service;
 
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.IdGen;
-import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.*;
 import com.base.sbc.pdm.mapper.TagMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.base.sbc.config.common.base.BaseDao;
-import com.base.sbc.config.common.base.BaseService;
-
 import com.base.sbc.pdm.entity.Tag;
 import com.base.sbc.pdm.dao.TagDao;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
 
@@ -58,7 +57,7 @@ public class TagService extends BaseService<Tag> {
 
     @Transactional(readOnly = false)
     public Integer delByIds(Tag tag) {
-        this.upTag(tag);
+        tag.preUpdate();
         return tagMapper.delByIds(tag);
     }
 
@@ -71,7 +70,7 @@ public class TagService extends BaseService<Tag> {
                 return 0;
             }
         }
-        this.upTag(tag);
+        tag.preUpdate();
         return tagMapper.update(tag);
     }
 
@@ -82,22 +81,9 @@ public class TagService extends BaseService<Tag> {
         if (tag1 != null) {
             return 0;
         }
-        tag.setId(IdGen.getId().toString());
-        GroupUser user = baseController.getUser();
-        tag.setUpdateName(user.getName());
-        tag.setUpdateId(user.getId());
-        tag.setCreateName(user.getName());
-        tag.setCreateId(user.getId());
         tag.setCompanyCode(baseController.getUserCompany());
-        return tagMapper.add(tag);
+        tag.preInsert();
+        return this.insert(tag);
     }
 
-    /**
-     * 更新修改人
-     */
-    public void upTag(Tag tag) {
-        GroupUser user = baseController.getUser();
-        tag.setUpdateName(user.getName());
-        tag.setUpdateId(user.getId());
-    }
 }
