@@ -170,12 +170,13 @@ public class GroupTreeController extends BaseController {
      * 根据树层级查询列表
      */
     @GetMapping("/getByLevel")
-    public ApiResult getByLevel(Integer level,String groupName) {
+    public ApiResult getByLevel(Integer level, String groupName) {
         QueryCondition qc = new QueryCondition();
         qc.andEqualTo("company_code", getUserCompany());
         qc.andEqualTo("level", level);
-        if (groupName!=null && !"".equals(groupName)){
-            qc.andEqualTo("group_name",groupName);
+        qc.andEqualTo("del_flag", "0");
+        if (groupName != null && !"".equals(groupName)) {
+            qc.andEqualTo("group_name", groupName);
         }
         return selectSuccess(groupService.findByCondition(qc));
     }

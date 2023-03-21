@@ -22,72 +22,82 @@ import com.base.sbc.pdm.dao.TagDao;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 类描述： service类
- * @address com.base.sbc.pdm.service.TagService
+ *
  * @author lile
+ * @version 1.0
+ * @address com.base.sbc.pdm.service.TagService
  * @email lilemyemail@163.com
  * @date 创建时间：2023-3-18 10:05:23
- * @version 1.0
  */
 @Service
 @Transactional(readOnly = true)
 public class TagService extends BaseService<Tag> {
 
-	@Autowired
-	private TagDao tagDao;
+    @Autowired
+    private TagDao tagDao;
 
-	@Resource
-	private TagMapper tagMapper;
+    @Resource
+    private TagMapper tagMapper;
 
 
-	@Resource
-	private BaseController baseController;
+    @Resource
+    private BaseController baseController;
 
-	@Override
-	protected BaseDao<Tag> getEntityDao() {
-		return tagDao;
-	}
+    @Override
+    protected BaseDao<Tag> getEntityDao() {
+        return tagDao;
+    }
 
-	public List<Tag> listQuery(Tag tag) {
-		return tagMapper.listQuery(tag);
-	}
+    public List<Tag> listQuery(Tag tag) {
+        return tagMapper.listQuery(tag);
+    }
 
-	@Transactional(readOnly = false)
-	public Integer delByIds(Tag tag) {
-		this.upTag(tag);
-		return tagMapper.delByIds(tag);
-	}
-	@Transactional(readOnly = false)
-	public Integer update(Tag tag) {
-		this.upTag(tag);
-		return tagMapper.update(tag);
-	}
+    @Transactional(readOnly = false)
+    public Integer delByIds(Tag tag) {
+        this.upTag(tag);
+        return tagMapper.delByIds(tag);
+    }
 
-	@Transactional(readOnly = false)
-	public Integer add(Tag tag) {
-		//先去验证标签名是否重复,同类型下不能同标签名
-		Tag tag1 = tagMapper.getByNameAndGroupId(tag);
-		if (tag1!=null){
-			return 0;
-		}
-		tag.setId(IdGen.getId().toString());
-		GroupUser user = baseController.getUser();
-		tag.setUpdateName(user.getName());
-		tag.setUpdateId(user.getId());
-		tag.setCreateName(user.getName());
-		tag.setCreateId(user.getId());
-		tag.setCompanyCode(baseController.getUserCompany());
-		return tagMapper.add(tag);
-	}
+    @Transactional(readOnly = false)
+    public Integer update(Tag tag) {
+        Tag tag1 = this.getById(tag.getId());
+        if (!Objects.equals(tag1.getGroupId(), tag.getGroupId()) || !Objects.equals(tag1.getTagName(), tag.getTagName())) {
+            Tag tag2 = tagMapper.getByNameAndGroupId(tag);
+            if (tag2 != null) {
+                return 0;
+            }
+        }
+        this.upTag(tag);
+        return tagMapper.update(tag);
+    }
 
-	/**
-	 * 更新修改人
-	 */
-	public void upTag(Tag tag){
-		GroupUser user = baseController.getUser();
-		tag.setUpdateName(user.getName());
-		tag.setUpdateId(user.getId());
-	}
+    @Transactional(readOnly = false)
+    public Integer add(Tag tag) {
+        //先去验证标签名是否重复,同类型下不能同标签名
+        Tag tag1 = tagMapper.getByNameAndGroupId(tag);
+        if (tag1 != null) {
+            return 0;
+        }
+        tag.setId(IdGen.getId().toString());
+        GroupUser user = baseController.getUser();
+        tag.setUpdateName(user.getName());
+        tag.setUpdateId(user.getId());
+        tag.setCreateName(user.getName());
+        tag.setCreateId(user.getId());
+        tag.setCompanyCode(baseController.getUserCompany());
+        return tagMapper.add(tag);
+    }
+
+    /**
+     * 更新修改人
+     */
+    public void upTag(Tag tag) {
+        GroupUser user = baseController.getUser();
+        tag.setUpdateName(user.getName());
+        tag.setUpdateId(user.getId());
+    }
 }

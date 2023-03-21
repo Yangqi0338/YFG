@@ -55,7 +55,7 @@ public class BandService extends BaseService<Band> {
 		band.setCompanyCode(userCompany);
 		return bandMapper.listQuery(band);
 	}
-
+	@Transactional(readOnly = false)
 	public Integer delByIds(String[] ids) {
 		return bandMapper.delByIds(ids);
 	}

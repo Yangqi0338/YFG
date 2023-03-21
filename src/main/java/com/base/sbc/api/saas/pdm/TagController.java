@@ -71,7 +71,11 @@ public class TagController extends BaseController {
      */
     @PutMapping("/update")
     public ApiResult update(@RequestBody Tag tag) {
-        return updateSuccess(tagService.update(tag));
+        Integer i = tagService.update(tag);
+        if (i==0){
+            return  updateNotFound("名称重复");
+        }
+        return updateSuccess(1);
     }
 
 }

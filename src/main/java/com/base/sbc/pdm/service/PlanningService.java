@@ -43,11 +43,11 @@ public class PlanningService extends BaseService<Planning> {
 	protected BaseDao<Planning> getEntityDao() {
 		return planningDao;
 	}
-
+	@Transactional(readOnly = false)
 	public Integer delByIds(String[] ids) {
 		return planningMapper.delByIds(ids);
 	}
-
+	@Transactional(readOnly = false)
 	public Integer update(Planning planning) {
 		return planningMapper.update(planning);
 	}

@@ -26,6 +26,15 @@ public class Tag extends BaseDataEntity<String> {
 	 */
 	@TableField(exist = false)
 	private String[] ids;
+	private String groupName;
+
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
 
 	public String[] getIds() {
 		return ids;
