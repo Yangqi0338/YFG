@@ -1,8 +1,11 @@
 package com.base.sbc.api.saas.pdm;
 
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.pdm.entity.Band;
 import com.base.sbc.pdm.service.BandService;
 import com.github.pagehelper.PageHelper;
@@ -44,11 +47,16 @@ public class BandController extends BaseController {
      * 条件查询列表
      */
     @GetMapping("/listQuery")
-    public ApiResult listQuery(Band band, Page page) {
-        PageHelper.startPage(page);
-        List<Band> bandList = bandService.listQuery(band);
-        PageInfo<Band> pageInfo = new PageInfo<>(bandList);
-        return selectSuccess(pageInfo);
+    public ApiResult listQuery(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, Band band, Page page) {
+        QueryCondition qc = new QueryCondition();
+        qc.andEqualTo("company_code", userCompany);
+        qc.andEqualTo("del_flag", "0");
+    /*搜索*/
+        if(StringUtils.isNotBlank(page.getSearch())){
+            qc.andLikeOr(page.getSearch(), "band_name", "code");
+        }
+        qc.setOrderByClause("create_date desc");
+        return  bandService.findPageByCondition(qc,page);
     }
 
     /**
