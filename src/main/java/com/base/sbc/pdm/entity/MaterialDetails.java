@@ -12,22 +12,22 @@ import java.math.BigDecimal;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-/** 
+/**
  * 类描述： 实体类
  * @address com.base.sbc.pdm.entity.MaterialDetails
  * @author lile
  * @email lilemyemail@163.com
  * @date 创建时间：2023-3-22 13:32:27
- * @version 1.0  
+ * @version 1.0
  */
-public class MaterialDetails extends BaseDataEntity<String> {
+public class MaterialDetails extends Material {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
-	
-	
+
+
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
-	
+
     /*****************************数据库字段区 不包含父类公共字段(属性)***********************************/
     /** 关联素材库id */
     private String materialId;
