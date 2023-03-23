@@ -13,27 +13,27 @@ import org.springframework.transaction.annotation.Transactional;
 import com.base.sbc.config.common.base.BaseDao;
 import com.base.sbc.config.common.base.BaseService;
 
-import com.base.sbc.pdm.entity.Material;
-import com.base.sbc.pdm.dao.MaterialDao;
+import com.base.sbc.pdm.entity.MaterialCollect;
+import com.base.sbc.pdm.dao.MaterialCollectDao;
 
 /** 
- * 类描述：素材库 service类
- * @address com.base.sbc.pdm.service.MaterialService
+ * 类描述：素材收藏表 service类
+ * @address com.base.sbc.pdm.service.MaterialCollectService
  * @author lile
  * @email lilemyemail@163.com
- * @date 创建时间：2023-3-23 11:24:30
+ * @date 创建时间：2023-3-23 13:28:27
  * @version 1.0  
  */
 @Service
 @Transactional(readOnly = true)
-public class MaterialService extends BaseService<Material> {
+public class MaterialCollectService extends BaseService<MaterialCollect> {
 	
 	@Autowired
-	private MaterialDao materialDao;
+	private MaterialCollectDao materialCollectDao;
 	
 	@Override
-	protected BaseDao<Material> getEntityDao() {
-		return materialDao;
+	protected BaseDao<MaterialCollect> getEntityDao() {
+		return materialCollectDao;
 	}
 	
 }

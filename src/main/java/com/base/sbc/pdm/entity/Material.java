@@ -13,11 +13,11 @@ import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /** 
- * 类描述： 实体类
+ * 类描述：素材库 实体类
  * @address com.base.sbc.pdm.entity.Material
  * @author lile
  * @email lilemyemail@163.com
- * @date 创建时间：2023-3-22 13:11:09
+ * @date 创建时间：2023-3-23 11:24:30
  * @version 1.0  
  */
 public class Material extends BaseDataEntity<String> {
@@ -39,6 +39,14 @@ public class Material extends BaseDataEntity<String> {
     private String fileName;
     /** 所属素材库 */
     private String materialLibrary;
+    /** 审核状态（0：未审核，1：审核通过，2：审核不通过） */
+    private String status;
+    /** 所属分类 */
+    private String materialType;
+    /** 缺点 */
+    private String drawback;
+    /** 风险评估 */
+    private String assess;
     /*******************************************getset方法区************************************/
     public String getPictureUrl() {
 		return pictureUrl;
@@ -90,4 +98,45 @@ public class Material extends BaseDataEntity<String> {
 	public void setMaterialLibrary(String materialLibrary) {
 		this.materialLibrary = materialLibrary;
 	}
+    public String getStatus() {
+		return status;
+	}
+	public Material setStatusAnd(String status) {
+		this.status = status;
+		return this;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+    public String getMaterialType() {
+		return materialType;
+	}
+	public Material setMaterialTypeAnd(String materialType) {
+		this.materialType = materialType;
+		return this;
+	}
+	public void setMaterialType(String materialType) {
+		this.materialType = materialType;
+	}
+    public String getDrawback() {
+		return drawback;
+	}
+	public Material setDrawbackAnd(String drawback) {
+		this.drawback = drawback;
+		return this;
+	}
+	public void setDrawback(String drawback) {
+		this.drawback = drawback;
+	}
+    public String getAssess() {
+		return assess;
+	}
+	public Material setAssessAnd(String assess) {
+		this.assess = assess;
+		return this;
+	}
+	public void setAssess(String assess) {
+		this.assess = assess;
+	}
 }
+

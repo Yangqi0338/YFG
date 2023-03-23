@@ -8,21 +8,21 @@ package com.base.sbc.pdm.dao;
 
 import com.base.sbc.config.common.annotation.MyBatisDao;
 import com.base.sbc.config.common.base.BaseDao;
-import com.base.sbc.pdm.entity.Material;
+import com.base.sbc.pdm.entity.MaterialCollect;
 /** 
- * 类描述：素材库 dao类
- * @address com.base.sbc.pdm.dao.MaterialDao
+ * 类描述：素材收藏表 dao类
+ * @address com.base.sbc.pdm.dao.MaterialCollectDao
  * @author lile  
  * @email  lilemyemail@163.com
- * @date 创建时间：2023-3-23 11:24:30 
+ * @date 创建时间：2023-3-23 13:28:27 
  * @version 1.0  
  */
  @MyBatisDao
-public class MaterialDao extends BaseDao<Material>{
+public class MaterialCollectDao extends BaseDao<MaterialCollect>{
 
    @Override
 	protected String getMapperNamespace() {
-		return "MaterialDao";
+		return "MaterialCollectDao";
 	}
 
 }
