@@ -2,6 +2,8 @@ package com.base.sbc.config.utils;
 
 import java.security.Principal;
 
+import com.base.sbc.config.aspect.GetCurUserInfoAspect;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.Constants;
 import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,5 +78,21 @@ public class UserUtils {
 			}
 		}
 		return user;
+	}
+
+	public String getUserId(){
+		return this.getUserCompany().getUserId();
+	}
+
+	public String getUserName(){
+		return this.getUserCompany().getName();
+	}
+
+	public String getCompanyCode(){
+		return this.getUserCompany().getCompanyCode();
+	}
+
+	public UserCompany getUserCompany(){
+		return GetCurUserInfoAspect.companyUserInfo.get();
 	}
 }

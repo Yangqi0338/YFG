@@ -7,23 +7,17 @@
 package com.base.sbc.pdm.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.client.oauth.entity.GroupUser;
-import com.base.sbc.config.common.IdGen;
-import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.pdm.mapper.BandMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.base.sbc.config.common.base.BaseDao;
 import com.base.sbc.config.common.base.BaseService;
-
 import com.base.sbc.pdm.entity.Band;
 import com.base.sbc.pdm.dao.BandDao;
-
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,7 +38,8 @@ public class BandService extends BaseService<Band> {
 	private BandMapper bandMapper;
 
 	@Resource
-	private BaseController baseController;
+	private UserUtils userUtils;
+
 
 	@Override
 	protected BaseDao<Band> getEntityDao() {
@@ -52,14 +47,15 @@ public class BandService extends BaseService<Band> {
 	}
 
 	public List<Band> listQuery(Band band) {
-		String userCompany = baseController.getUserCompany();
-		band.setCompanyCode(userCompany);
+
+		band.setCompanyCode(userUtils.getCompanyCode());
 		return bandMapper.listQuery(band);
 	}
 	@Transactional(readOnly = false)
 	public Integer delByIds(String[] ids) {
-		GroupUser user = baseController.getUser();
-		return bandMapper.delByIds(ids,user.getName(),user.getId());
+
+
+		return bandMapper.delByIds(ids,userUtils.getUserName(),userUtils.getUserId());
 	}
 
 
@@ -84,7 +80,7 @@ public class BandService extends BaseService<Band> {
 			throw new OtherException("编码或者波段重复");
 		}
 		band.preInsert();
-		band.setCompanyCode(baseController.getUserCompany());
+		band.setCompanyCode(userUtils.getCompanyCode());
 		bandMapper.insert(band);
 		return band.getId();
 	}

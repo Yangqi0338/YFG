@@ -12,6 +12,10 @@ import lombok.Data;
 @ApiModel("素材新增DTO MaterialAddDto")
 public class MaterialAddDto {
     /** 图片地址 */
+    @ApiModelProperty(value = "id" ,example = "")
+    private String id;
+
+    /** 图片地址 */
     @ApiModelProperty(value = "图片地址" ,required = true,example = "url地址")
     private String pictureUrl;
 
