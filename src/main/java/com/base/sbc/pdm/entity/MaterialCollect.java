@@ -11,15 +11,18 @@ import java.util.List;
 import java.math.BigDecimal;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-/** 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+/**
  * 类描述：素材收藏表 实体类
  * @address com.base.sbc.pdm.entity.MaterialCollect
  * @author lile
  * @email lilemyemail@163.com
- * @date 创建时间：2023-3-23 13:28:27
- * @version 1.0  
+ * @date 创建时间：2023-3-24 9:44:55
+ * @version 1.0
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class MaterialCollect extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
@@ -27,32 +30,13 @@ public class MaterialCollect extends BaseDataEntity<String> {
 	
 	
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
-	
+
     /*****************************数据库字段区 不包含父类公共字段(属性)***********************************/
     /** 用户id */
     private String userId;
     /** 素材id */
-    private String tMaterialId;
+    private String materialId;
     /*******************************************getset方法区************************************/
-    public String getUserId() {
-		return userId;
-	}
-	public MaterialCollect setUserIdAnd(String userId) {
-		this.userId = userId;
-		return this;
-	}
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
-    public String getTMaterialId() {
-		return tMaterialId;
-	}
-	public MaterialCollect setTMaterialIdAnd(String tMaterialId) {
-		this.tMaterialId = tMaterialId;
-		return this;
-	}
-	public void setTMaterialId(String tMaterialId) {
-		this.tMaterialId = tMaterialId;
-	}
+
 }
 

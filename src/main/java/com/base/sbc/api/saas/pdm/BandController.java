@@ -8,17 +8,12 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.pdm.entity.Band;
 import com.base.sbc.pdm.service.BandService;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * @author 卞康
@@ -35,12 +30,8 @@ public class BandController extends BaseController {
      * 新增波段
      */
     @PostMapping("/add")
-    public ApiResult add(@RequestBody Band band) {
-        Integer i = bandService.add(band);
-        if (i == 0) {
-            return insertDataRepeat("标签名称重复");
-        }
-        return insertSuccess("新增成功");
+    public String add(@RequestBody Band band) {
+        return bandService.add(band);
     }
 
     /**

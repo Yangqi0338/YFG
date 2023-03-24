@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.pdm.mapper.BandMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,15 +76,16 @@ public class BandService extends BaseService<Band> {
 	}
 
 	@Transactional(readOnly = false)
-	public Integer add(Band band) {
+	public String add(Band band) {
 		//波段名称和编码是否重复
 		QueryWrapper<Band> queryWrapper=new QueryWrapper<>();
 		queryWrapper.eq("code", band.getCode()).or().eq("band_name", band.getBandName());
 		if (bandMapper.selectOne(queryWrapper)!=null){
-			return 0;
+			throw new OtherException("编码或者波段重复");
 		}
 		band.preInsert();
 		band.setCompanyCode(baseController.getUserCompany());
-		return bandMapper.insert(band);
+		bandMapper.insert(band);
+		return band.getId();
 	}
 }

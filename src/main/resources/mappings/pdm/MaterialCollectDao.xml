@@ -4,7 +4,7 @@
 	<!--素材收藏表
 	创建人：lile
 	邮箱：lilemyemail@163.com
-	创建时间：2023-3-23 13:28:27
+	创建时间：2023-3-24 9:44:55
 	版本号：1.0
 -->
 	<!-- *******************************************自定义方法区  不替换的区域【other_start】***************************************** -->
@@ -14,7 +14,7 @@
 	<!-- *******************************************公用方法区(不可修改)***************************************** -->
 	<!-- 公用返回值 与数据库字段保持一致即可，同时实体(驼峰命名)必须包含所有字段 -->
 	<sql id="base_column">
-		id,user_id,t_material_id,company_code,create_id,create_name,create_date,update_id,update_name,update_date,del_flag,remarks
+		id,user_id,material_id,company_code,create_id,create_name,create_date,update_id,update_name,update_date,del_flag,remarks
 	</sql>
 	<!--  方法返回：成功条数。     方法名称： 新增          方法参数：list集合 -->
 	<insert id="insert" parameterType="java.util.List">
@@ -22,7 +22,7 @@
 		<include refid="base_column"/>
 		) values
 		<foreach collection="list" item="t" index="index" separator=",">
-			(  #{t.id,jdbcType=VARCHAR},#{t.userId,jdbcType=VARCHAR},#{t.tMaterialId,jdbcType=VARCHAR},#{t.companyCode,jdbcType=VARCHAR},#{t.createId,jdbcType=VARCHAR},#{t.createName,jdbcType=VARCHAR},#{t.createDate,jdbcType=TIMESTAMP},#{t.updateId,jdbcType=VARCHAR},#{t.updateName,jdbcType=VARCHAR},#{t.updateDate,jdbcType=TIMESTAMP},#{t.delFlag,jdbcType=CHAR},#{t.remarks,jdbcType=VARCHAR}
+			(  #{t.id,jdbcType=VARCHAR},#{t.userId,jdbcType=VARCHAR},#{t.materialId,jdbcType=VARCHAR},#{t.companyCode,jdbcType=VARCHAR},#{t.createId,jdbcType=VARCHAR},#{t.createName,jdbcType=VARCHAR},#{t.createDate,jdbcType=TIMESTAMP},#{t.updateId,jdbcType=VARCHAR},#{t.updateName,jdbcType=VARCHAR},#{t.updateDate,jdbcType=TIMESTAMP},#{t.delFlag,jdbcType=CHAR},#{t.remarks,jdbcType=VARCHAR}
 			)
 		</foreach>
 	</insert>
@@ -37,7 +37,7 @@
 			<set>
 					id = #{t.id,jdbcType=VARCHAR},
 					user_id = #{t.userId,jdbcType=VARCHAR},
-					t_material_id = #{t.tMaterialId,jdbcType=VARCHAR},
+					material_id = #{t.materialId,jdbcType=VARCHAR},
 					company_code = #{t.companyCode,jdbcType=VARCHAR},
 					create_id = #{t.createId,jdbcType=VARCHAR},
 					create_name = #{t.createName,jdbcType=VARCHAR},
@@ -69,8 +69,8 @@
 					user_id = #{t.userId
 					,jdbcType=VARCHAR},
 				</if>
-				<if test="t.tMaterialId != null">
-					t_material_id = #{t.tMaterialId
+				<if test="t.materialId != null">
+					material_id = #{t.materialId
 					,jdbcType=VARCHAR},
 				</if>
 				<if test="t.companyCode != null">

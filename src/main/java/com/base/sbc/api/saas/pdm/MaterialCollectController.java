@@ -40,10 +40,14 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
 
+
 /**
  * 类描述：素材收藏表 Controller类
- * @author 卞康
- * @date 创建时间：2023-3-23 13:28:27
+ * @address com.base.sbc.pdm.web.MaterialCollectController
+ * @author lile
+ * @email lilemyemail@163.com
+ * @date 创建时间：2023-3-24 9:44:55
+ * @version 1.0
  */
 @RestController
 @Api(value = "素材收藏表", description = "与素材收藏表相关的所有接口信息",tags={"素材收藏表接口"})

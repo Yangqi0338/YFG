@@ -11,7 +11,6 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 import java.util.Arrays;
 
@@ -30,8 +29,10 @@ public class MaterialController extends BaseController {
      * 新增
      */
     @PostMapping("/add")
-    public ApiResult add(@RequestBody Material material) {
-        return insertSuccess(materialService.insert(material));
+    public String add(@RequestBody Material material) {
+        material.insertInit();
+        materialService.insert(material);
+        return material.getId();
     }
 
     /**
