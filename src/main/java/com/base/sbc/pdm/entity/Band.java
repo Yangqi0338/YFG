@@ -10,6 +10,8 @@ package com.base.sbc.pdm.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 类描述： 实体类
@@ -19,7 +21,8 @@ import com.base.sbc.config.common.base.BaseDataEntity;
  * @date 创建时间：2023-3-17 18:08:52
  * @version 1.0
  */
-
+@Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("t_band")
 public class Band extends BaseDataEntity<String> {
 

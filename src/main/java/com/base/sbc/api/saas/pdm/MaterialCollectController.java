@@ -4,7 +4,7 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package ${javapackage}.api.saas.${project};
+package com.base.sbc.api.saas.pdm;
 
 import java.util.List;
 
@@ -26,8 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.QueryCondition;
-import ${javapackage}.${project}.entity.${className};
-import ${javapackage}.${project}.service.${className}Service;
+import com.base.sbc.pdm.entity.MaterialCollect;
+import com.base.sbc.pdm.service.MaterialCollectService;
 import com.base.sbc.config.utils.StringUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -42,35 +42,35 @@ import io.swagger.annotations.ApiOperation;
 
 
 /**
- * 类描述：${title} Controller类
- * @address ${javapackage}.${project}.web.${className}Controller
- * @author ${author}
- * @email ${email}
- * @date 创建时间：${.now}
+ * 类描述：素材收藏表 Controller类
+ * @address com.base.sbc.pdm.web.MaterialCollectController
+ * @author lile
+ * @email lilemyemail@163.com
+ * @date 创建时间：2023-3-24 9:44:55
  * @version 1.0
  */
 @RestController
-@Api(value = "${title}", description = "与${title}相关的所有接口信息",tags={"${title}接口"})
-@RequestMapping(value = "/${smallClassName}s")
-public class ${className}Controller {
+@Api(value = "素材收藏表", description = "与素材收藏表相关的所有接口信息",tags={"素材收藏表接口"})
+@RequestMapping(value = "/materialCollects")
+public class MaterialCollectController {
 
 	QueryCondition qc = new QueryCondition();
 
 	@Autowired
-	private ${className}Service ${smallClassName}Service;
+	private MaterialCollectService materialCollectService;
 
 
-	@ApiOperation(value="查询${title}", notes="根据url的id来获取${title}详细信息")
+	@ApiOperation(value="查询素材收藏表", notes="根据url的id来获取素材收藏表详细信息")
     @GetMapping(value = "/{id}")
     public ApiResult get(@PathVariable String id) throws Exception {
     	List<String> ids = StringUtils.convertList(id);
-    	List<${className}> list = Lists.newArrayList();
+    	List<MaterialCollect> list = Lists.newArrayList();
 		if(ids.size()!=1) {
 			qc.init();
 			qc.andIn(BaseGlobal.ID, ids);
-			list = ${smallClassName}Service.findByCondition(qc);
+			list = materialCollectService.findByCondition(qc);
 		}else {
-			${className} db = ${smallClassName}Service.getById(id);//如果 查询1个
+			MaterialCollect db = materialCollectService.getById(id);//如果 查询1个
 			if(db!=null) {
 				list.add(db);
 			}
@@ -83,7 +83,7 @@ public class ${className}Controller {
     }
 
 
-	@ApiOperation(value="多数据查询", notes="分页获取所有的${title}")
+	@ApiOperation(value="多数据查询", notes="分页获取所有的素材收藏表")
     @ApiImplicitParams({
 	    @ApiImplicitParam(name = "pageNum", value = "第几页", required = false, dataType = "String",paramType="query"),
 	    @ApiImplicitParam(name = "pageSize", value = "每页条数", required = false, dataType = "String",paramType="query"),
@@ -97,16 +97,16 @@ public class ${className}Controller {
 			qc.setOrderByClause(order + " " + asc);
 		}
 		if(StringUtils.isNoneBlank(pageNum) && StringUtils.isNoneBlank(pageSize) && Integer.parseInt(pageNum)>0 && Integer.parseInt(pageSize)>0) {
-			Page<${className}> page = PageHelper.startPage(Integer.parseInt(pageNum), Integer.parseInt(pageSize));
-			${smallClassName}Service.findByCondition(qc);
-			PageInfo<${className}> pages = page.toPageInfo();
-			List<${className}> list = pages.getList();
+			Page<MaterialCollect> page = PageHelper.startPage(Integer.parseInt(pageNum), Integer.parseInt(pageSize));
+			materialCollectService.findByCondition(qc);
+			PageInfo<MaterialCollect> pages = page.toPageInfo();
+			List<MaterialCollect> list = pages.getList();
 			if(list!=null && list.size()>0) {
 				return ApiResult.success("success", pages);
 			}
 			return ApiResult.error(HttpStatus.NOT_FOUND.getReasonPhrase(),HttpStatus.NOT_FOUND.value());
 		}else {
-			List<${className}> list = ${smallClassName}Service.findByCondition(qc);
+			List<MaterialCollect> list = materialCollectService.findByCondition(qc);
 			if(list!=null && list.size()>0) {
 				return ApiResult.success("success", list);
 			}
@@ -114,20 +114,20 @@ public class ${className}Controller {
 		}
 	}
 
-    @ApiOperation(value="新增${title}", notes="根据url的id来获取${title}详细信息")
-    @ApiImplicitParam(name = "${smallClassName}", value = "${title}", required = true, dataType = "${className}")
+    @ApiOperation(value="新增素材收藏表", notes="根据url的id来获取素材收藏表详细信息")
+    @ApiImplicitParam(name = "materialCollect", value = "素材收藏表", required = true, dataType = "MaterialCollect")
     @PostMapping
-    public ApiResult save(@Valid @RequestBody ${className} ${smallClassName}) throws Exception {
-    	${className} db = ${smallClassName}Service.getById(${smallClassName}.getId());
+    public ApiResult save(@Valid @RequestBody MaterialCollect materialCollect) throws Exception {
+    	MaterialCollect db = materialCollectService.getById(materialCollect.getId());
     	if(db!=null) {
     		return ApiResult.error("ID已存在",500);
     	}
-        return ApiResult.success("success",${smallClassName}Service.insert(${smallClassName}));
+        return ApiResult.success("success",materialCollectService.insert(materialCollect));
     }
 
 
 
-    @ApiOperation(value="删除${title}", notes="根据url的id来指定删除对象(逗号隔开删除多个)")
+    @ApiOperation(value="删除素材收藏表", notes="根据url的id来指定删除对象(逗号隔开删除多个)")
 	@DeleteMapping(value = "/{id}")
     public ApiResult delete(@PathVariable String id) throws Exception {
 		List<String> ids = StringUtils.convertList(id);
@@ -135,9 +135,9 @@ public class ${className}Controller {
 		if(ids.size()!=1) {
 			qc.init();
 			qc.andIn(BaseGlobal.ID, ids);
-	        i = ${smallClassName}Service.deleteByCondition(qc);
+	        i = materialCollectService.deleteByCondition(qc);
 		}else {
-			i = ${smallClassName}Service.deleteById(id);//如果只删除一个
+			i = materialCollectService.deleteById(id);//如果只删除一个
 		}
         if(i>0) {
         	return ApiResult.success("success",i);
@@ -147,32 +147,32 @@ public class ${className}Controller {
 
     }
 
-    @ApiOperation(value="更新${title}", notes="根据url的id来指定更新对象，并根据传过来的${title}信息来更新详细信息,注意不存在将会清空  id必填")
-    @ApiImplicitParam(name = "${smallClassName}", value = "${title}", required = true, dataType = "${className}")
+    @ApiOperation(value="更新素材收藏表", notes="根据url的id来指定更新对象，并根据传过来的素材收藏表信息来更新详细信息,注意不存在将会清空  id必填")
+    @ApiImplicitParam(name = "materialCollect", value = "素材收藏表", required = true, dataType = "MaterialCollect")
     @PutMapping
-    public ApiResult updateAll(@Valid @RequestBody ${className} ${smallClassName}) throws Exception {
-    	${className} d = ${smallClassName}Service.getById(${smallClassName}.getId());
+    public ApiResult updateAll(@Valid @RequestBody MaterialCollect materialCollect) throws Exception {
+    	MaterialCollect d = materialCollectService.getById(materialCollect.getId());
         if(d==null) {
         	return ApiResult.error(HttpStatus.NOT_FOUND.getReasonPhrase(),HttpStatus.NOT_FOUND.value());
         }
-        BeanUtils.copyProperties(${smallClassName}, d, BaseGlobal.ID);//忽略ID
-        ${smallClassName}Service.updateAll(d);
+        BeanUtils.copyProperties(materialCollect, d, BaseGlobal.ID);//忽略ID
+        materialCollectService.updateAll(d);
         return ApiResult.success("success",d);
     }
 
-    @ApiOperation(value="更新${title}(只修改不为空字段)", notes="根据url的id来指定更新对象，并根据传过来的信息来更新${title}详细信息  id必填")
-    @ApiImplicitParam(name = "${smallClassName}", value = "${title}", required = true, dataType = "${className}")
+    @ApiOperation(value="更新素材收藏表(只修改不为空字段)", notes="根据url的id来指定更新对象，并根据传过来的信息来更新素材收藏表详细信息  id必填")
+    @ApiImplicitParam(name = "materialCollect", value = "素材收藏表", required = true, dataType = "MaterialCollect")
     @PatchMapping
-    public ApiResult update(@RequestBody ${className} ${smallClassName}) throws Exception {
-    	if(StringUtils.isBlank(String.valueOf(${smallClassName}.getId()))) {
+    public ApiResult update(@RequestBody MaterialCollect materialCollect) throws Exception {
+    	if(StringUtils.isBlank(String.valueOf(materialCollect.getId()))) {
     		return ApiResult.error(HttpStatus.NOT_FOUND.getReasonPhrase(),HttpStatus.NOT_FOUND.value());
     	}
-    	List<String> ids = StringUtils.convertList(String.valueOf(${smallClassName}.getId()));
+    	List<String> ids = StringUtils.convertList(String.valueOf(materialCollect.getId()));
 		qc.init();
 		qc.andIn(BaseGlobal.ID, ids);
-		${smallClassName}.setId(null);//必须把不要的字段设空
-		qc.setT(${smallClassName});//设置除id外 不为空的属性  ，修改新值，值为这个实体传过来的值
-		return ApiResult.success("success",${smallClassName}Service.batchUpdateByCondition(qc));
+		materialCollect.setId(null);//必须把不要的字段设空
+		qc.setT(materialCollect);//设置除id外 不为空的属性  ，修改新值，值为这个实体传过来的值
+		return ApiResult.success("success",materialCollectService.batchUpdateByCondition(qc));
     }
 
 }

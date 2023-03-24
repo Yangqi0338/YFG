@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MaterialDetailsDao">
+	<!--
+	创建人：lile
+	邮箱：lilemyemail@163.com
+	创建时间：2023-3-22 13:32:27
+	版本号：1.0
+-->
+	<!-- *******************************************自定义方法区  不替换的区域【other_start】***************************************** -->
+
+
+	<!-- *******************************************自定义方法区 【other_end】***************************************** -->
+	<!-- *******************************************公用方法区(不可修改)***************************************** -->
+	<!-- 公用返回值 与数据库字段保持一致即可，同时实体(驼峰命名)必须包含所有字段 -->
+	<sql id="base_column">
+		id,material_id,material_type,material_classes,particular_year,season,material_code,supplier_no,fabric_craft,material_source,material_name,def_repository,def_supplier,place,cost_price,unit,def_loss_rate,longitude,latitude,purchase_loss_rate,bulk_batch,purchase_period,min_stock,safety_stock,freeze,strategy_stock,width,gram,roll_weight,paper_cylinder,empty_poor,empty_poor_ratio,material_price,material_ingredient
+	</sql>
+	<!--  方法返回：成功条数。     方法名称： 新增          方法参数：list集合 -->
+	<insert id="insert" parameterType="java.util.List">
+		insert into t_material_details (
+		<include refid="base_column"/>
+		) values
+		<foreach collection="list" item="t" index="index" separator=",">
+			(  #{t.id,jdbcType=INTEGER},#{t.materialId,jdbcType=VARCHAR},#{t.materialType,jdbcType=VARCHAR},#{t.materialClasses,jdbcType=VARCHAR},#{t.particularYear,jdbcType=VARCHAR},#{t.season,jdbcType=VARCHAR},#{t.materialCode,jdbcType=VARCHAR},#{t.supplierNo,jdbcType=VARCHAR},#{t.fabricCraft,jdbcType=VARCHAR},#{t.materialSource,jdbcType=VARCHAR},#{t.materialName,jdbcType=VARCHAR},#{t.defRepository,jdbcType=VARCHAR},#{t.defSupplier,jdbcType=VARCHAR},#{t.place,jdbcType=VARCHAR},#{t.costPrice,jdbcType=VARCHAR},#{t.unit,jdbcType=VARCHAR},#{t.defLossRate,jdbcType=VARCHAR},#{t.longitude,jdbcType=VARCHAR},#{t.latitude,jdbcType=VARCHAR},#{t.purchaseLossRate,jdbcType=VARCHAR},#{t.bulkBatch,jdbcType=VARCHAR},#{t.purchasePeriod,jdbcType=VARCHAR},#{t.minStock,jdbcType=VARCHAR},#{t.safetyStock,jdbcType=VARCHAR},#{t.freeze,jdbcType=VARCHAR},#{t.strategyStock,jdbcType=VARCHAR},#{t.width,jdbcType=VARCHAR},#{t.gram,jdbcType=VARCHAR},#{t.rollWeight,jdbcType=VARCHAR},#{t.paperCylinder,jdbcType=VARCHAR},#{t.emptyPoor,jdbcType=VARCHAR},#{t.emptyPoorRatio,jdbcType=VARCHAR},#{t.materialPrice,jdbcType=VARCHAR},#{t.materialIngredient,jdbcType=VARCHAR}
+			)
+		</foreach>
+	</insert>
+	<!--
+        方法返回：成功条数。
+        方法名称： 按list更新
+        方法参数：list集合，id不为空，其他字段为空也修改，使用场景一般先查询  或更改明细的几个字段
+    -->
+	<update id="updateList" parameterType="java.util.List">
+		<foreach collection="list" item="t" index="index" separator=";">
+			update t_material_details
+			<set>
+					id = #{t.id,jdbcType=INTEGER},
+					material_id = #{t.materialId,jdbcType=VARCHAR},
+					material_type = #{t.materialType,jdbcType=VARCHAR},
+					material_classes = #{t.materialClasses,jdbcType=VARCHAR},
+					particular_year = #{t.particularYear,jdbcType=VARCHAR},
+					season = #{t.season,jdbcType=VARCHAR},
+					material_code = #{t.materialCode,jdbcType=VARCHAR},
+					supplier_no = #{t.supplierNo,jdbcType=VARCHAR},
+					fabric_craft = #{t.fabricCraft,jdbcType=VARCHAR},
+					material_source = #{t.materialSource,jdbcType=VARCHAR},
+					material_name = #{t.materialName,jdbcType=VARCHAR},
+					def_repository = #{t.defRepository,jdbcType=VARCHAR},
+					def_supplier = #{t.defSupplier,jdbcType=VARCHAR},
+					place = #{t.place,jdbcType=VARCHAR},
+					cost_price = #{t.costPrice,jdbcType=VARCHAR},
+					unit = #{t.unit,jdbcType=VARCHAR},
+					def_loss_rate = #{t.defLossRate,jdbcType=VARCHAR},
+					longitude = #{t.longitude,jdbcType=VARCHAR},
+					latitude = #{t.latitude,jdbcType=VARCHAR},
+					purchase_loss_rate = #{t.purchaseLossRate,jdbcType=VARCHAR},
+					bulk_batch = #{t.bulkBatch,jdbcType=VARCHAR},
+					purchase_period = #{t.purchasePeriod,jdbcType=VARCHAR},
+					min_stock = #{t.minStock,jdbcType=VARCHAR},
+					safety_stock = #{t.safetyStock,jdbcType=VARCHAR},
+					freeze = #{t.freeze,jdbcType=VARCHAR},
+					strategy_stock = #{t.strategyStock,jdbcType=VARCHAR},
+					width = #{t.width,jdbcType=VARCHAR},
+					gram = #{t.gram,jdbcType=VARCHAR},
+					roll_weight = #{t.rollWeight,jdbcType=VARCHAR},
+					paper_cylinder = #{t.paperCylinder,jdbcType=VARCHAR},
+					empty_poor = #{t.emptyPoor,jdbcType=VARCHAR},
+					empty_poor_ratio = #{t.emptyPoorRatio,jdbcType=VARCHAR},
+					material_price = #{t.materialPrice,jdbcType=VARCHAR},
+					material_ingredient = #{t.materialIngredient,jdbcType=VARCHAR},
+			</set>
+			where id = #{t.id,jdbcType=BIGINT}
+
+		</foreach>
+	</update>
+
+	<!--
+        方法名称： 按条件更新
+        方法参数：条件构造器（构造器中T对象所有不为空属性为修改后的值）。
+        方法返回：成功条数。
+    -->
+	<update id="update" parameterType="queryCondition">
+		update t_material_details
+		<set>
+				<if test="t.id != null">
+					id = #{t.id
+					,jdbcType=INTEGER},
+				</if>
+				<if test="t.materialId != null">
+					material_id = #{t.materialId
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.materialType != null">
+					material_type = #{t.materialType
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.materialClasses != null">
+					material_classes = #{t.materialClasses
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.particularYear != null">
+					particular_year = #{t.particularYear
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.season != null">
+					season = #{t.season
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.materialCode != null">
+					material_code = #{t.materialCode
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.supplierNo != null">
+					supplier_no = #{t.supplierNo
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.fabricCraft != null">
+					fabric_craft = #{t.fabricCraft
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.materialSource != null">
+					material_source = #{t.materialSource
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.materialName != null">
+					material_name = #{t.materialName
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.defRepository != null">
+					def_repository = #{t.defRepository
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.defSupplier != null">
+					def_supplier = #{t.defSupplier
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.place != null">
+					place = #{t.place
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.costPrice != null">
+					cost_price = #{t.costPrice
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.unit != null">
+					unit = #{t.unit
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.defLossRate != null">
+					def_loss_rate = #{t.defLossRate
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.longitude != null">
+					longitude = #{t.longitude
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.latitude != null">
+					latitude = #{t.latitude
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.purchaseLossRate != null">
+					purchase_loss_rate = #{t.purchaseLossRate
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.bulkBatch != null">
+					bulk_batch = #{t.bulkBatch
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.purchasePeriod != null">
+					purchase_period = #{t.purchasePeriod
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.minStock != null">
+					min_stock = #{t.minStock
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.safetyStock != null">
+					safety_stock = #{t.safetyStock
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.freeze != null">
+					freeze = #{t.freeze
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.strategyStock != null">
+					strategy_stock = #{t.strategyStock
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.width != null">
+					width = #{t.width
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.gram != null">
+					gram = #{t.gram
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.rollWeight != null">
+					roll_weight = #{t.rollWeight
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.paperCylinder != null">
+					paper_cylinder = #{t.paperCylinder
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.emptyPoor != null">
+					empty_poor = #{t.emptyPoor
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.emptyPoorRatio != null">
+					empty_poor_ratio = #{t.emptyPoorRatio
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.materialPrice != null">
+					material_price = #{t.materialPrice
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.materialIngredient != null">
+					material_ingredient = #{t.materialIngredient
+					,jdbcType=VARCHAR},
+				</if>
+		</set>
+		<include refid="common.whereClause"></include>
+	</update>
+
+	<!--
+        方法名称： 按条件删除
+        方法参数：条件构造器。
+        方法返回：成功条数。
+    -->
+	<delete id="delete" parameterType="queryCondition">
+		delete from t_material_details
+		<include refid="common.whereClause"></include>
+	</delete>
+
+	<select id="selectCount" resultType="java.lang.Integer" parameterType="queryCondition">
+		select  count(${countByClause})
+		<include refid="base_column"/>
+		from t_material_details
+		<include refid="common.whereClause"></include>
+		<if test="groupByClause != null">
+			group by ${groupByClause}
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+
+	<!--
+        方法名称： 按条件查询
+        方法参数：条件构造器(可分组和排序)。
+        方法返回：返回单个对象或集合。
+    -->
+	<select id="select" resultType="com.base.sbc.pdm.entity.MaterialDetails" parameterType="queryCondition">
+		select <include refid="base_column"/> from t_material_details
+		<include refid="common.whereClause"></include>
+		<if test="groupByClause != null">
+			group by ${groupByClause}
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+</mapper>
+
+<!-- /******************************************************************************
+ * Copyright (C) 2018 广州尚捷科技有限责任公司
+ * All Rights Reserved.
+ * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
+ * 不得使用、复制、修改或发布本软件.
+ ***************************************************************************** -->
