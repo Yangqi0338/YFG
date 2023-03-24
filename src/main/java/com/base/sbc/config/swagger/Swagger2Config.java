@@ -26,18 +26,18 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @Configuration
 public class Swagger2Config {
-   
+
 	 private ApiInfo apiInfo() {
 	        return new ApiInfoBuilder()
-	                .title("PDM产品管理")
-	                .description("PDM产品管理接口说明文档")
+	                .title("意丰歌")
+	                .description("意丰歌产品管理接口说明文档")
 	                .termsOfServiceUrl("")
-	                .contact(new Contact("游克海","717407966@qq.com","717407966@qq.com"))
+	                .contact(new Contact("卞康","247967116@qq.com","247967116@qq.com"))
 	                .version("1.0")
 	                .build();
 	    }
-		
-	  
+
+
 		@Bean
 	    public Docket api() {
 	        return new Docket(DocumentationType.SWAGGER_2).
@@ -59,11 +59,11 @@ public class Swagger2Config {
 			list.add(new ApiKey("Authorization","Authorization",  "header"));
 	        return list;
 	    }
-	    
+
 	    private AuthorizationScope[] scopes() {
-	        AuthorizationScope[] scopes = { 
-	          new AuthorizationScope("read", "for read operations"), 
-	          new AuthorizationScope("write", "for write operations"), 
+	        AuthorizationScope[] scopes = {
+	          new AuthorizationScope("read", "for read operations"),
+	          new AuthorizationScope("write", "for write operations"),
 	          new AuthorizationScope("foo", "Access foo API") };
 	        return scopes;
 	    }

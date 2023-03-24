@@ -83,8 +83,8 @@ public class MybatisConfiguration implements TransactionManagementConfigurer {
             sessionFactoryBean.setConfigLocation(new DefaultResourceLoader().getResource(configLocation));
 
             //添加分页插件、打印sql插件
-            Interceptor[] plugins = new Interceptor[]{pageHelper(), sqlPrintInterceptor()};
-            sessionFactoryBean.setPlugins(plugins);
+            //Interceptor[] plugins = new Interceptor[]{pageHelper(), sqlPrintInterceptor()};
+            //sessionFactoryBean.setPlugins(plugins);
 
             return sessionFactoryBean.getObject();
         } catch (IOException e) {
