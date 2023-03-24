@@ -42,7 +42,7 @@ public class BandController extends BaseController {
         QueryCondition qc = new QueryCondition();
         qc.andEqualTo("company_code", userCompany);
         qc.andEqualTo("del_flag", "0");
-    /*搜索*/
+
         if(StringUtils.isNotBlank(page.getSearch())){
             qc.andLikeOr(page.getSearch(), "band_name", "code");
         }

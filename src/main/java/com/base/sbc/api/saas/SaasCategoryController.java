@@ -1,6 +1,5 @@
 package com.base.sbc.api.saas;
 
-import com.base.sbc.api.saas.entity.Page;
 import com.base.sbc.api.saas.excel.ExportSizeTemplate;
 import com.base.sbc.basedata.entity.CategorySizeMethod;
 import com.base.sbc.basedata.service.CategorySizeMethodService;
@@ -10,6 +9,7 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;

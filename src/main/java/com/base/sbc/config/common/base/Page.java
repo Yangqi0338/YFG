@@ -1,6 +1,9 @@
 package com.base.sbc.config.common.base;
 
 import com.base.sbc.config.utils.StringUtils;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -9,133 +12,30 @@ import java.io.Serializable;
  * @author Youkehai
  * @data 创建时间:2021/4/2
  */
+
+@Data
+@ApiModel("分页组件")
 public class Page implements Serializable {
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
-    /**
-     * 默认第一页
-     */
     public static final int PAGE_NUM = 1;
-    /**
-     * 默认分页数量
-     */
     public static final int PAGE_SIZE = 10;
 
-    /**
-     * 企业id
-     */
-    private String companyCode;
 
-    /**
-     * 第几页
-     */
     @NotNull
+    @ApiModelProperty(value = "第几页", example = "1")
     private int pageNum;
-    /**
-     * 每页数量
-     */
     @NotNull
+    @ApiModelProperty(value = "每页数量", example = "10")
     private int pageSize;
-
-    /**
-     * 排序(单表):  create_date desc
-     */
+    @ApiModelProperty(value = "排序(单表)", example = "create_date desc")
     private String order;
-    /**
-     * 查询的sql： user_id = '123'
-     */
-    private String sql;
-    /***/
+    @ApiModelProperty(value = "关键字搜索", example = "")
     private String search;
-    /**
-     * 分组id(plm)
-     */
-    private String groupId;
-
-    /***
-     * 状态
-     */
+    @ApiModelProperty(value = "状态", example = "")
     private String status;
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
-
-    public String getSearch() {
-        return search;
-    }
-
-    public void setSearch(String search) {
-        this.search = search;
-    }
-
-    public int getPageNum() {
-        return pageNum;
-    }
-
-    public void setPageNum(int pageNum) {
-        this.pageNum = pageNum;
-    }
-
-    public int getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    public String getOrder() {
-        return order;
-    }
-
-    public void setOrder(String order) {
-        this.order = order;
-    }
-
     public String getSql() {
-
-        return StringUtils.replaceHtmlCode(sql);
+        return null;
     }
 
-    public void setSql(String sql) {
-        this.sql = sql;
-    }
-
-    public String getCompanyCode() {
-        return companyCode;
-    }
-
-    public void setCompanyCode(String companyCode) {
-        this.companyCode = companyCode;
-    }
-
-    public Page(int pageNum, int pageSize) {
-        this.pageNum = pageNum;
-        this.pageSize = pageSize;
-    }
-
-    public Page(int pageNum, int pageSize, String order, String sql) {
-        this.pageNum = pageNum;
-        this.pageSize = pageSize;
-        this.order = order;
-        this.sql = sql;
-    }
-
-    public Page() {
-    }
 }
