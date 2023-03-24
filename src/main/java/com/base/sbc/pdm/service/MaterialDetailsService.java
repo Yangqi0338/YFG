@@ -17,11 +17,11 @@ import com.base.sbc.pdm.entity.MaterialDetails;
 import com.base.sbc.pdm.dao.MaterialDetailsDao;
 
 /** 
- * 类描述： service类
+ * 类描述：素材库详情表 service类
  * @address com.base.sbc.pdm.service.MaterialDetailsService
  * @author lile
  * @email lilemyemail@163.com
- * @date 创建时间：2023-3-22 13:32:27
+ * @date 创建时间：2023-3-24 18:27:18
  * @version 1.0  
  */
 @Service

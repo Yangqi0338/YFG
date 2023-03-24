@@ -14,7 +14,7 @@ import com.base.sbc.pdm.entity.Material;
  * @address com.base.sbc.pdm.dao.MaterialDao
  * @author lile  
  * @email  lilemyemail@163.com
- * @date 创建时间：2023-3-23 11:24:30 
+ * @date 创建时间：2023-3-24 16:26:15 
  * @version 1.0  
  */
  @MyBatisDao

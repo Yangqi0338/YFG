@@ -10,11 +10,11 @@ import com.base.sbc.config.common.annotation.MyBatisDao;
 import com.base.sbc.config.common.base.BaseDao;
 import com.base.sbc.pdm.entity.MaterialDetails;
 /** 
- * 类描述： dao类
+ * 类描述：素材库详情表 dao类
  * @address com.base.sbc.pdm.dao.MaterialDetailsDao
  * @author lile  
  * @email  lilemyemail@163.com
- * @date 创建时间：2023-3-22 13:32:27 
+ * @date 创建时间：2023-3-24 18:27:18 
  * @version 1.0  
  */
  @MyBatisDao

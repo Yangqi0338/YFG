@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="MaterialDetailsDao">
-	<!--
+	<!--素材库详情表
 	创建人：lile
 	邮箱：lilemyemail@163.com
-	创建时间：2023-3-22 13:32:27
+	创建时间：2023-3-24 18:27:18
 	版本号：1.0
 -->
 	<!-- *******************************************自定义方法区  不替换的区域【other_start】***************************************** -->
@@ -14,7 +14,7 @@
 	<!-- *******************************************公用方法区(不可修改)***************************************** -->
 	<!-- 公用返回值 与数据库字段保持一致即可，同时实体(驼峰命名)必须包含所有字段 -->
 	<sql id="base_column">
-		id,material_id,material_type,material_classes,particular_year,season,material_code,supplier_no,fabric_craft,material_source,material_name,def_repository,def_supplier,place,cost_price,unit,def_loss_rate,longitude,latitude,purchase_loss_rate,bulk_batch,purchase_period,min_stock,safety_stock,freeze,strategy_stock,width,gram,roll_weight,paper_cylinder,empty_poor,empty_poor_ratio,material_price,material_ingredient
+		id,material_id,supplier_code,supplier_no,fabric_craft,def_repository,def_supplier,place,cost_price,unit,def_loss_rate,longitude,latitude,purchase_loss_rate,bulk_batch,purchase_period,min_stock,safety_stock,freeze,strategy_stock,width,gram,roll_weight,paper_cylinder,empty_poor,empty_poor_ratio,material_price,material_ingredient
 	</sql>
 	<!--  方法返回：成功条数。     方法名称： 新增          方法参数：list集合 -->
 	<insert id="insert" parameterType="java.util.List">
@@ -22,7 +22,7 @@
 		<include refid="base_column"/>
 		) values
 		<foreach collection="list" item="t" index="index" separator=",">
-			(  #{t.id,jdbcType=INTEGER},#{t.materialId,jdbcType=VARCHAR},#{t.materialType,jdbcType=VARCHAR},#{t.materialClasses,jdbcType=VARCHAR},#{t.particularYear,jdbcType=VARCHAR},#{t.season,jdbcType=VARCHAR},#{t.materialCode,jdbcType=VARCHAR},#{t.supplierNo,jdbcType=VARCHAR},#{t.fabricCraft,jdbcType=VARCHAR},#{t.materialSource,jdbcType=VARCHAR},#{t.materialName,jdbcType=VARCHAR},#{t.defRepository,jdbcType=VARCHAR},#{t.defSupplier,jdbcType=VARCHAR},#{t.place,jdbcType=VARCHAR},#{t.costPrice,jdbcType=VARCHAR},#{t.unit,jdbcType=VARCHAR},#{t.defLossRate,jdbcType=VARCHAR},#{t.longitude,jdbcType=VARCHAR},#{t.latitude,jdbcType=VARCHAR},#{t.purchaseLossRate,jdbcType=VARCHAR},#{t.bulkBatch,jdbcType=VARCHAR},#{t.purchasePeriod,jdbcType=VARCHAR},#{t.minStock,jdbcType=VARCHAR},#{t.safetyStock,jdbcType=VARCHAR},#{t.freeze,jdbcType=VARCHAR},#{t.strategyStock,jdbcType=VARCHAR},#{t.width,jdbcType=VARCHAR},#{t.gram,jdbcType=VARCHAR},#{t.rollWeight,jdbcType=VARCHAR},#{t.paperCylinder,jdbcType=VARCHAR},#{t.emptyPoor,jdbcType=VARCHAR},#{t.emptyPoorRatio,jdbcType=VARCHAR},#{t.materialPrice,jdbcType=VARCHAR},#{t.materialIngredient,jdbcType=VARCHAR}
+			(  #{t.id,jdbcType=VARCHAR},#{t.materialId,jdbcType=VARCHAR},#{t.supplierCode,jdbcType=VARCHAR},#{t.supplierNo,jdbcType=VARCHAR},#{t.fabricCraft,jdbcType=VARCHAR},#{t.defRepository,jdbcType=VARCHAR},#{t.defSupplier,jdbcType=VARCHAR},#{t.place,jdbcType=VARCHAR},#{t.costPrice,jdbcType=VARCHAR},#{t.unit,jdbcType=VARCHAR},#{t.defLossRate,jdbcType=VARCHAR},#{t.longitude,jdbcType=VARCHAR},#{t.latitude,jdbcType=VARCHAR},#{t.purchaseLossRate,jdbcType=VARCHAR},#{t.bulkBatch,jdbcType=VARCHAR},#{t.purchasePeriod,jdbcType=VARCHAR},#{t.minStock,jdbcType=VARCHAR},#{t.safetyStock,jdbcType=VARCHAR},#{t.freeze,jdbcType=VARCHAR},#{t.strategyStock,jdbcType=VARCHAR},#{t.width,jdbcType=VARCHAR},#{t.gram,jdbcType=VARCHAR},#{t.rollWeight,jdbcType=VARCHAR},#{t.paperCylinder,jdbcType=VARCHAR},#{t.emptyPoor,jdbcType=VARCHAR},#{t.emptyPoorRatio,jdbcType=VARCHAR},#{t.materialPrice,jdbcType=VARCHAR},#{t.materialIngredient,jdbcType=VARCHAR}
 			)
 		</foreach>
 	</insert>
@@ -35,17 +35,11 @@
 		<foreach collection="list" item="t" index="index" separator=";">
 			update t_material_details
 			<set>
-					id = #{t.id,jdbcType=INTEGER},
+					id = #{t.id,jdbcType=VARCHAR},
 					material_id = #{t.materialId,jdbcType=VARCHAR},
-					material_type = #{t.materialType,jdbcType=VARCHAR},
-					material_classes = #{t.materialClasses,jdbcType=VARCHAR},
-					particular_year = #{t.particularYear,jdbcType=VARCHAR},
-					season = #{t.season,jdbcType=VARCHAR},
-					material_code = #{t.materialCode,jdbcType=VARCHAR},
+					supplier_code = #{t.supplierCode,jdbcType=VARCHAR},
 					supplier_no = #{t.supplierNo,jdbcType=VARCHAR},
 					fabric_craft = #{t.fabricCraft,jdbcType=VARCHAR},
-					material_source = #{t.materialSource,jdbcType=VARCHAR},
-					material_name = #{t.materialName,jdbcType=VARCHAR},
 					def_repository = #{t.defRepository,jdbcType=VARCHAR},
 					def_supplier = #{t.defSupplier,jdbcType=VARCHAR},
 					place = #{t.place,jdbcType=VARCHAR},
@@ -85,30 +79,14 @@
 		<set>
 				<if test="t.id != null">
 					id = #{t.id
-					,jdbcType=INTEGER},
+					,jdbcType=VARCHAR},
 				</if>
 				<if test="t.materialId != null">
 					material_id = #{t.materialId
 					,jdbcType=VARCHAR},
 				</if>
-				<if test="t.materialType != null">
-					material_type = #{t.materialType
-					,jdbcType=VARCHAR},
-				</if>
-				<if test="t.materialClasses != null">
-					material_classes = #{t.materialClasses
-					,jdbcType=VARCHAR},
-				</if>
-				<if test="t.particularYear != null">
-					particular_year = #{t.particularYear
-					,jdbcType=VARCHAR},
-				</if>
-				<if test="t.season != null">
-					season = #{t.season
-					,jdbcType=VARCHAR},
-				</if>
-				<if test="t.materialCode != null">
-					material_code = #{t.materialCode
+				<if test="t.supplierCode != null">
+					supplier_code = #{t.supplierCode
 					,jdbcType=VARCHAR},
 				</if>
 				<if test="t.supplierNo != null">
@@ -117,14 +95,6 @@
 				</if>
 				<if test="t.fabricCraft != null">
 					fabric_craft = #{t.fabricCraft
-					,jdbcType=VARCHAR},
-				</if>
-				<if test="t.materialSource != null">
-					material_source = #{t.materialSource
-					,jdbcType=VARCHAR},
-				</if>
-				<if test="t.materialName != null">
-					material_name = #{t.materialName
 					,jdbcType=VARCHAR},
 				</if>
 				<if test="t.defRepository != null">
@@ -269,3 +239,4 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  ***************************************************************************** -->
+

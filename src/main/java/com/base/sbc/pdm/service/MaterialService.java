@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.pdm.service;
 
+import com.base.sbc.pdm.vo.MaterialAllVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,24 +17,29 @@ import com.base.sbc.config.common.base.BaseService;
 import com.base.sbc.pdm.entity.Material;
 import com.base.sbc.pdm.dao.MaterialDao;
 
-/** 
+import java.util.List;
+
+/**
  * 类描述：素材库 service类
  * @address com.base.sbc.pdm.service.MaterialService
  * @author lile
  * @email lilemyemail@163.com
- * @date 创建时间：2023-3-23 11:24:30
- * @version 1.0  
+ * @date 创建时间：2023-3-24 16:26:15
+ * @version 1.0
  */
 @Service
 @Transactional(readOnly = true)
 public class MaterialService extends BaseService<Material> {
-	
+
 	@Autowired
 	private MaterialDao materialDao;
-	
+
 	@Override
 	protected BaseDao<Material> getEntityDao() {
 		return materialDao;
 	}
-	
+
+    public List<MaterialAllVo> listQuery(Material material) {
+		return null;
+    }
 }

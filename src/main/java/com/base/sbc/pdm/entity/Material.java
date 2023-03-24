@@ -13,13 +13,12 @@ import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 /**
  * 类描述：素材库 实体类
  * @address com.base.sbc.pdm.entity.Material
  * @author lile
  * @email lilemyemail@163.com
- * @date 创建时间：2023-3-23 11:24:30
+ * @date 创建时间：2023-3-24 16:26:15
  * @version 1.0
  */
 @Data
@@ -29,6 +28,8 @@ public class Material extends BaseDataEntity<String> {
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
+    /** 所在部门 */
+    private String deptName;
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
@@ -39,18 +40,33 @@ public class Material extends BaseDataEntity<String> {
     private String pictureFormat;
     /** 图片大小 */
     private String pictureSize;
-    /** 文件名 */
-    private String fileName;
+    /** 素材文件名 */
+    private String materialName;
+    /** 素材编码 */
+    private String materialCode;
     /** 所属素材库 */
     private String materialLibrary;
     /** 审核状态（0：未审核，1：审核通过，2：审核不通过） */
     private String status;
     /** 所属分类 */
     private String materialType;
+    /** 年份 */
+    private String particularYear;
+    /** 月份 */
+    private String month;
+    /** 来源地 */
+    private String source;
+    /** 季节 */
+    private String season;
+    /** 品牌 */
+    private String brand;
+    /** 品牌规模 */
+    private String brandScale;
     /** 缺点 */
     private String drawback;
     /** 风险评估 */
     private String assess;
+    /*******************************************getset方法区************************************/
 
 }
 
