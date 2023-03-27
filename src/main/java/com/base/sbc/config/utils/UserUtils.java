@@ -84,8 +84,8 @@ public class UserUtils {
 		return this.getUserCompany().getUserId();
 	}
 
-	public String getUserName(){
-		return this.getUserCompany().getName();
+	public String getAliasUserName(){
+		return this.getUserCompany().getAliasUserName();
 	}
 
 	public String getCompanyCode(){

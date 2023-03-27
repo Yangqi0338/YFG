@@ -8,7 +8,21 @@
 	版本号：1.0
 -->
 	<!-- *******************************************自定义方法区  不替换的区域【other_start】***************************************** -->
-
+	<sql id="base_column1">
+		id,particular_year,season,month,band_name,code,sort,status,company_code,create_id,create_name,create_date,update_id,update_name,update_date,del_flag,remarks
+	</sql>
+	<select id="selectbaseList" resultType="com.base.sbc.api.saas.vo.BandQueryReturnVo"
+			parameterType="queryCondition">
+		select 	<include refid="base_column1"/>
+		from t_band
+		<include refid="common.whereClause"></include>
+		<if test="groupByClause != null">
+			group by ${groupByClause}
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
 
 	<!-- *******************************************自定义方法区 【other_end】***************************************** -->
 	<!-- *******************************************公用方法区(不可修改)***************************************** -->
