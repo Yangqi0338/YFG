@@ -46,7 +46,7 @@ public class Material extends BaseDataEntity<String> {
     private String materialCode;
     /** 所属素材库 */
     private String materialLibrary;
-    /** 审核状态（0：未审核，1：审核通过，2：审核不通过） */
+    /** 审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过） */
     private String status;
     /** 所属分类 */
     private String materialType;

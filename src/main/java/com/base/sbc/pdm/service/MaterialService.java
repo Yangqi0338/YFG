@@ -6,7 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.pdm.service;
 
-import com.base.sbc.pdm.vo.MaterialAllVo;
+import com.base.sbc.pdm.mapper.MaterialMapper;
+import com.base.sbc.pdm.vo.MaterialAllDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import com.base.sbc.config.common.base.BaseService;
 import com.base.sbc.pdm.entity.Material;
 import com.base.sbc.pdm.dao.MaterialDao;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -34,12 +36,16 @@ public class MaterialService extends BaseService<Material> {
 	@Autowired
 	private MaterialDao materialDao;
 
+	@Resource
+	private MaterialMapper materialMapper;
+
+
 	@Override
 	protected BaseDao<Material> getEntityDao() {
 		return materialDao;
 	}
 
-    public List<MaterialAllVo> listQuery(Material material) {
-		return null;
+    public List<MaterialAllDto> listQuery(MaterialAllDto materialAllDto) {
+		return materialMapper.listQuery(materialAllDto);
     }
 }

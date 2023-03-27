@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.pdm.mapper.MaterialMapper">
+
+    <select id="listQuery" resultType="com.base.sbc.pdm.vo.MaterialAllDto">
+        select *
+        from t_material tm
+        left join t_material_details tmd on tm.id = tmd.material_id
+        where tm.del_flag = '0'
+        and status = #{status}
+        and material_library = #{materialLibrary}
+        and company_code=#{companyCode}
+        <if test="materialName != null and materialName != ''">
+            and material_name like concat('%',#{materialName},'%')
+        </if>
+        <if test="materialType != null and materialType != ''">
+            and material_type = #{materialType}
+        </if>
+        <if test="createId != null and createId != ''">
+            and create_id = #{createId}
+        </if>
+        order by create_date desc
+    </select>
+</mapper>

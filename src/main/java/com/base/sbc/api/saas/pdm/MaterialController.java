@@ -1,15 +1,17 @@
 package com.base.sbc.api.saas.pdm;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.pdm.entity.Material;
 import com.base.sbc.pdm.dto.MaterialDto;
 import com.base.sbc.pdm.entity.MaterialDetails;
 import com.base.sbc.pdm.service.MaterialDetailsService;
 import com.base.sbc.pdm.service.MaterialService;
-import com.base.sbc.pdm.vo.MaterialAllVo;
+import com.base.sbc.pdm.vo.MaterialAllDto;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -37,6 +39,9 @@ public class MaterialController extends BaseController {
 
     @Resource
     private MaterialDetailsService materialDetailsService;
+
+    @Resource
+    private UserUtils userUtils;
 
     /**
      * 新增
@@ -100,36 +105,20 @@ public class MaterialController extends BaseController {
      * 查询列表
      */
     @GetMapping("/listQuery")
-    public PageInfo<MaterialDto> listQuery(MaterialAllVo materialAllVo, Page page) {
-        if (materialAllVo == null) {
+    public PageInfo<MaterialDto> listQuery(MaterialAllDto materialAllDto, Page page) {
+        if (materialAllDto == null) {
             throw new OtherException("参数不能为空");
         }
-        QueryCondition qc = new QueryCondition();
-        if (materialAllVo.getMaterialName() != null && "".equals(materialAllVo.getMaterialName())) {
-            qc.andEqualTo("materialName", materialAllVo.getMaterialName());
-        }
-        qc.andEqualTo("material_type", materialAllVo.getMaterialType());
-        qc.andEqualTo("material_library",materialAllVo.getMaterialLibrary());
-        PageHelper.startPage(page);
-        List<Material> materialList = materialService.findByCondition(qc);
-        List<String> ids = new ArrayList<>();
-        for (Material material : materialList) {
-            ids.add(material.getId());
-        }
 
-        QueryCondition qc2 = new QueryCondition();
-        qc2.andIn("material_id", ids);
-        List<MaterialDetails> materialDetailsList = materialDetailsService.findByCondition(qc2);
+        materialAllDto.setCompanyCode(userUtils.getCompanyCode());
+        PageHelper.startPage(page);
+        List<MaterialAllDto> materialAllDtos = materialService.listQuery(materialAllDto);
 
         List<MaterialDto> list=new ArrayList<>();
-        for (Material material : materialList) {
+        for (MaterialAllDto allDto : materialAllDtos) {
             MaterialDto materialDto =new MaterialDto();
-            materialDto.setMaterial(material);
-            for (MaterialDetails materialDetails : materialDetailsList) {
-                if (material.getId().equals(materialDetails.getMaterialId())){
-                    materialDto.setMaterialDetails(materialDetails);
-                }
-            }
+            materialDto.setMaterialDetails(allDto.toMaterialDetails());
+            materialDto.setMaterial(allDto.toMaterial());
             list.add(materialDto);
         }
         return new PageInfo<>(list);
