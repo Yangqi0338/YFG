@@ -87,11 +87,12 @@ public class MaterialController extends BaseController {
             material.preInsert();
             material.setStatus("0");
             material.setDelFlag("0");
-
+            material.setCompanyCode(userUtils.getCompanyCode());
             MaterialDetails materialDetails =new MaterialDetails();
             materialDetails.setMaterialId(material.getId());
             materialDetails.preInsert();
             materialDetailsList.add(materialDetails);
+
         }
 
         int i= materialService.batchInsert(materialList);
