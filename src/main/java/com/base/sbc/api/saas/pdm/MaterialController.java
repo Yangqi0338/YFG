@@ -72,6 +72,34 @@ public class MaterialController extends BaseController {
     }
 
     /**
+     * 批量新增
+     */
+    @PostMapping("addList")
+    @Transactional
+    @ApiOperation(value = "批量新增素材",notes = "批量新增素材")
+    public String addList(@RequestBody List<Material> materialList){
+        if (materialList==null || materialList.size()==0){
+            throw new OtherException("参数错误");
+        }
+
+       List<MaterialDetails> materialDetailsList =new ArrayList<>();
+        for (Material material : materialList) {
+            material.preInsert();
+            material.setStatus("0");
+            material.setDelFlag("0");
+
+            MaterialDetails materialDetails =new MaterialDetails();
+            materialDetails.setMaterialId(material.getId());
+            materialDetails.preInsert();
+            materialDetailsList.add(materialDetails);
+        }
+
+        int i= materialService.batchInsert(materialList);
+        materialDetailsService.batchInsert(materialDetailsList);
+        return Integer.toString(i);
+    }
+
+    /**
      * 单个修改
      */
     @PutMapping("/update")
