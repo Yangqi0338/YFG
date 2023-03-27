@@ -95,4 +95,8 @@ public class UserUtils {
 	public UserCompany getUserCompany(){
 		return GetCurUserInfoAspect.companyUserInfo.get();
 	}
+
+	public String getDeptName(){
+		return this.getUserCompany().getDeptName();
+	}
 }

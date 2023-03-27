@@ -42,4 +42,10 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/token/companyDept/deptUserById")
     public String queryUserInfoByDeptId(@RequestParam("userCompany") String userCompany, @RequestParam("deptId") String deptId);
+
+    /**
+     * 批量根据用户id获取用户部门
+     */
+    @GetMapping("/amc/api/token/companyDept/getDeptList")
+    public String getDeptList(@RequestHeader("Authorization") String token,@RequestParam("userIds") String[] userIds);
 }

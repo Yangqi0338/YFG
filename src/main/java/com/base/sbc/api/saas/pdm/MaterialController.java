@@ -1,6 +1,9 @@
 package com.base.sbc.api.saas.pdm;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
+import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
@@ -21,10 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author 卞康
@@ -42,6 +42,9 @@ public class MaterialController extends BaseController {
 
     @Resource
     private UserUtils userUtils;
+
+    @Resource
+    private AmcService amcService;
 
     /**
      * 新增
@@ -105,7 +108,7 @@ public class MaterialController extends BaseController {
      * 查询列表
      */
     @GetMapping("/listQuery")
-    public PageInfo<MaterialDto> listQuery(MaterialAllDto materialAllDto, Page page) {
+    public PageInfo<MaterialDto> listQuery(@RequestHeader("Authorization") String token,MaterialAllDto materialAllDto, Page page) {
         if (materialAllDto == null) {
             throw new OtherException("参数不能为空");
         }
@@ -114,13 +117,28 @@ public class MaterialController extends BaseController {
         PageHelper.startPage(page);
         List<MaterialAllDto> materialAllDtos = materialService.listQuery(materialAllDto);
 
+        List<String> userIds =new ArrayList<>();
         List<MaterialDto> list=new ArrayList<>();
         for (MaterialAllDto allDto : materialAllDtos) {
+            userIds.add(allDto.getCreateId());
+        }
+        String[] strings = userIds.toArray(new String[0]);
+        String str = amcService.getDeptList(token, strings);
+        JSONObject jsonObject = JSONObject.parseObject(str);
+        List<JSONObject> data = jsonObject.getList("data", JSONObject.class);
+
+        for (MaterialAllDto allDto : materialAllDtos) {
+            for (JSONObject json : data) {
+                if (allDto.getCreateId().equals(json.getString("userId"))){
+                    allDto.setDeptName(json.getString("deptName"));
+                }
+            }
             MaterialDto materialDto =new MaterialDto();
             materialDto.setMaterialDetails(allDto.toMaterialDetails());
             materialDto.setMaterial(allDto.toMaterial());
             list.add(materialDto);
         }
+
         return new PageInfo<>(list);
     }
 
