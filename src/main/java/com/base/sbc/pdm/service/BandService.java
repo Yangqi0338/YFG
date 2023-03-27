@@ -7,9 +7,12 @@
 package com.base.sbc.pdm.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.api.saas.dto.BandSaveDto;
+import com.base.sbc.api.saas.dto.BandStartStopDto;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.pdm.mapper.BandMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,14 +56,14 @@ public class BandService extends BaseService<Band> {
 	}
 	@Transactional(readOnly = false)
 	public Integer delByIds(String[] ids) {
-
-
-		return bandMapper.delByIds(ids,userUtils.getUserName(),userUtils.getUserId());
+		return bandMapper.delByIds(ids,userUtils.getAliasUserName(),userUtils.getUserId());
 	}
 
 
 	@Transactional(readOnly = false)
-	public Integer bandStartStop( Band band) {
+	public Integer bandStartStop( BandStartStopDto bandStartStopDto) {
+		Band band=new Band();
+		BeanUtils.copyProperties(bandStartStopDto,band);
 		band.preUpdate();
 		return bandMapper.bandStartStop(band);
 	}
@@ -72,7 +75,9 @@ public class BandService extends BaseService<Band> {
 	}
 
 	@Transactional(readOnly = false)
-	public String add(Band band) {
+	public String add(BandSaveDto bandSaveDto) {
+		Band band=new Band();
+		BeanUtils.copyProperties(bandSaveDto,band);
 		//波段名称和编码是否重复
 		QueryWrapper<Band> queryWrapper=new QueryWrapper<>();
 		queryWrapper.eq("code", band.getCode()).or().eq("band_name", band.getBandName());
