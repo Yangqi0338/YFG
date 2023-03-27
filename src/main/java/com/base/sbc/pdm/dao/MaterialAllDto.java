@@ -1,4 +1,4 @@
-package com.base.sbc.pdm.vo;
+package com.base.sbc.pdm.dao;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.pdm.entity.Material;
@@ -45,15 +45,19 @@ public class MaterialAllDto extends MaterialDetails {
      * 所属素材库
      */
     private String materialLibrary;
+    /** 所属素材库名称 */
+    private String libraryName;
 
     /**
      * 审核状态（0：未审核，1：审核通过，2：审核不通过）
      */
     private String status;
     /**
-     * 所属分类
+     * 所属分类id
      */
     private String materialType;
+    /** 所属分类名称 */
+    private String typeName;
     /**
      * 年份
      */

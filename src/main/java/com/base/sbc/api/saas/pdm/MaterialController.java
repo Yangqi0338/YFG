@@ -1,7 +1,5 @@
 package com.base.sbc.api.saas.pdm;
 
-import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.QueryCondition;
@@ -14,7 +12,7 @@ import com.base.sbc.pdm.dto.MaterialDto;
 import com.base.sbc.pdm.entity.MaterialDetails;
 import com.base.sbc.pdm.service.MaterialDetailsService;
 import com.base.sbc.pdm.service.MaterialService;
-import com.base.sbc.pdm.vo.MaterialAllDto;
+import com.base.sbc.pdm.dao.MaterialAllDto;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;

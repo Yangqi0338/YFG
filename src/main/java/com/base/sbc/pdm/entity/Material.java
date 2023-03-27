@@ -44,12 +44,16 @@ public class Material extends BaseDataEntity<String> {
     private String materialName;
     /** 素材编码 */
     private String materialCode;
-    /** 所属素材库 */
+    /** 所属素材库id */
     private String materialLibrary;
+    /** 所属素材库名称 */
+    private String libraryName;
     /** 审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过） */
     private String status;
-    /** 所属分类 */
+    /** 所属分类id */
     private String materialType;
+    /** 所属分类名称 */
+    private String typeName;
     /** 年份 */
     private String particularYear;
     /** 月份 */
