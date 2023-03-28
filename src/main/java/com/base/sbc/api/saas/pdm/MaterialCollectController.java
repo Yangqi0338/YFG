@@ -8,11 +8,16 @@ package com.base.sbc.api.saas.pdm;
 
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.UserUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -50,14 +55,17 @@ import io.swagger.annotations.ApiOperation;
  * @version 1.0
  */
 @RestController
-@Api(value = "素材收藏表", description = "与素材收藏表相关的所有接口信息",tags={"素材收藏表接口"})
-@RequestMapping(value = "/materialCollects")
+@Api(value = "与素材收藏相关的所有接口信息", tags = {"素材收藏表接口"})
+@RequestMapping(value = BaseController.SAAS_URL + "/materialCollect", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class MaterialCollectController {
 
 	QueryCondition qc = new QueryCondition();
 
 	@Autowired
 	private MaterialCollectService materialCollectService;
+
+	@Resource
+	private UserUtils userUtils;
 
 
 	@ApiOperation(value="查询素材收藏表", notes="根据url的id来获取素材收藏表详细信息")
@@ -114,15 +122,22 @@ public class MaterialCollectController {
 		}
 	}
 
-    @ApiOperation(value="新增素材收藏表", notes="根据url的id来获取素材收藏表详细信息")
+    @ApiOperation(value="素材收藏", notes="素材收藏")
     @ApiImplicitParam(name = "materialCollect", value = "素材收藏表", required = true, dataType = "MaterialCollect")
-    @PostMapping
-    public ApiResult save(@Valid @RequestBody MaterialCollect materialCollect) throws Exception {
-    	MaterialCollect db = materialCollectService.getById(materialCollect.getId());
-    	if(db!=null) {
-    		return ApiResult.error("ID已存在",500);
-    	}
-        return ApiResult.success("success",materialCollectService.insert(materialCollect));
+    @PostMapping("/add")
+    public String save(@RequestBody MaterialCollect materialCollect) throws Exception {
+		String userId = userUtils.getUserId();
+		QueryCondition qc=new QueryCondition();
+		qc.andEqualTo("material_id",materialCollect.getMaterialId());
+		qc.andEqualTo("user_id",userId);
+		MaterialCollect materialCollect1 = materialCollectService.getByCondition(qc);
+		if (materialCollect1!=null){
+			throw new OtherException("请勿重复收藏");
+		}
+		materialCollect.preInsert();
+		materialCollect.setUserId(userId);
+		materialCollectService.insert(materialCollect);
+        return "新增成功";
     }
 
 
