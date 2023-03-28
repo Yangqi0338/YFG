@@ -90,7 +90,7 @@ public class MaterialController extends BaseController {
             material.setCompanyCode(userUtils.getCompanyCode());
             MaterialDetails materialDetails =new MaterialDetails();
             materialDetails.setMaterialId(material.getId());
-            materialDetails.preInsert();
+            materialDetails.preInsert(idGen.nextIdStr());
             materialDetailsList.add(materialDetails);
 
         }
