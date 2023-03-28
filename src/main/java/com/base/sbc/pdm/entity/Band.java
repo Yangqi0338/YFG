@@ -56,7 +56,7 @@ public class Band extends BaseDataEntity<String> {
     /** 编码 */
     private String code;
     /** 排序 */
-    private String sort;
+    private Integer sort;
     /** 是否启用(0启用，1删除) */
     private String status;
     /*******************************************getset方法区************************************/
@@ -110,14 +110,14 @@ public class Band extends BaseDataEntity<String> {
 	public void setCode(String code) {
 		this.code = code;
 	}
-    public String getSort() {
+    public Integer getSort() {
 		return sort;
 	}
-	public Band setSortAnd(String sort) {
+	public Band setSortAnd(Integer sort) {
 		this.sort = sort;
 		return this;
 	}
-	public void setSort(String sort) {
+	public void setSort(Integer sort) {
 		this.sort = sort;
 	}
     public String getStatus() {

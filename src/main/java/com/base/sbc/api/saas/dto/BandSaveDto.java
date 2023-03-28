@@ -32,7 +32,7 @@ public class BandSaveDto {
     private String bandName;
 
     @ApiModelProperty(value = "排序",  required = false, example = "1")
-    private String sort;
+    private Integer sort;
 
     @ApiModelProperty(value = "状态",  required = true, example = "0")
     @NotBlank(message = "状态必填")
