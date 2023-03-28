@@ -67,61 +67,6 @@ public class MaterialCollectController {
 	@Resource
 	private UserUtils userUtils;
 
-
-	@ApiOperation(value="查询素材收藏表", notes="根据url的id来获取素材收藏表详细信息")
-    @GetMapping(value = "/{id}")
-    public ApiResult get(@PathVariable String id) throws Exception {
-    	List<String> ids = StringUtils.convertList(id);
-    	List<MaterialCollect> list = Lists.newArrayList();
-		if(ids.size()!=1) {
-			qc.init();
-			qc.andIn(BaseGlobal.ID, ids);
-			list = materialCollectService.findByCondition(qc);
-		}else {
-			MaterialCollect db = materialCollectService.getById(id);//如果 查询1个
-			if(db!=null) {
-				list.add(db);
-			}
-		}
-    	if(list==null || list.size()==0) {
-
-    		return ApiResult.error("找不到数据",HttpStatus.NOT_FOUND.value());
-    	}
-        return ApiResult.success("success",list);
-    }
-
-
-	@ApiOperation(value="多数据查询", notes="分页获取所有的素材收藏表")
-    @ApiImplicitParams({
-	    @ApiImplicitParam(name = "pageNum", value = "第几页", required = false, dataType = "String",paramType="query"),
-	    @ApiImplicitParam(name = "pageSize", value = "每页条数", required = false, dataType = "String",paramType="query"),
-	    @ApiImplicitParam(name = "order", value = "排序字段", required = false, dataType = "String",paramType="query"),
-	    @ApiImplicitParam(name = "asc", value = "正/倒序(asc/desc)", required = false, dataType = "String",paramType="query")
-    	})
-    @GetMapping
-    public ApiResult getByPage(String pageNum, String pageSize,String order,String asc) {
-		qc.init();//初始化查询条件构造器
-		if(StringUtils.isNoneBlank(order) && ("asc".equals(asc) || "desc".equals(asc))) {
-			qc.setOrderByClause(order + " " + asc);
-		}
-		if(StringUtils.isNoneBlank(pageNum) && StringUtils.isNoneBlank(pageSize) && Integer.parseInt(pageNum)>0 && Integer.parseInt(pageSize)>0) {
-			Page<MaterialCollect> page = PageHelper.startPage(Integer.parseInt(pageNum), Integer.parseInt(pageSize));
-			materialCollectService.findByCondition(qc);
-			PageInfo<MaterialCollect> pages = page.toPageInfo();
-			List<MaterialCollect> list = pages.getList();
-			if(list!=null && list.size()>0) {
-				return ApiResult.success("success", pages);
-			}
-			return ApiResult.error(HttpStatus.NOT_FOUND.getReasonPhrase(),HttpStatus.NOT_FOUND.value());
-		}else {
-			List<MaterialCollect> list = materialCollectService.findByCondition(qc);
-			if(list!=null && list.size()>0) {
-				return ApiResult.success("success", list);
-			}
-			return ApiResult.error(HttpStatus.NOT_FOUND.getReasonPhrase(),HttpStatus.NOT_FOUND.value());
-		}
-	}
-
     @ApiOperation(value="素材收藏", notes="素材收藏")
     @PostMapping("/add")
     public String add(@RequestBody MaterialCollect materialCollect) throws Exception {
@@ -151,54 +96,5 @@ public class MaterialCollectController {
 		return "取消收藏成功";
 	}
 
-
-
-    @ApiOperation(value="删除素材收藏表", notes="根据url的id来指定删除对象(逗号隔开删除多个)")
-	@DeleteMapping(value = "/{id}")
-    public ApiResult delete(@PathVariable String id) throws Exception {
-		List<String> ids = StringUtils.convertList(id);
-		int i = 0;
-		if(ids.size()!=1) {
-			qc.init();
-			qc.andIn(BaseGlobal.ID, ids);
-	        i = materialCollectService.deleteByCondition(qc);
-		}else {
-			i = materialCollectService.deleteById(id);//如果只删除一个
-		}
-        if(i>0) {
-        	return ApiResult.success("success",i);
-        }else {
-        	return ApiResult.error(HttpStatus.NOT_FOUND.getReasonPhrase(),HttpStatus.NOT_FOUND.value());
-        }
-
-    }
-
-    @ApiOperation(value="更新素材收藏表", notes="根据url的id来指定更新对象，并根据传过来的素材收藏表信息来更新详细信息,注意不存在将会清空  id必填")
-    @ApiImplicitParam(name = "materialCollect", value = "素材收藏表", required = true, dataType = "MaterialCollect")
-    @PutMapping
-    public ApiResult updateAll(@Valid @RequestBody MaterialCollect materialCollect) throws Exception {
-    	MaterialCollect d = materialCollectService.getById(materialCollect.getId());
-        if(d==null) {
-        	return ApiResult.error(HttpStatus.NOT_FOUND.getReasonPhrase(),HttpStatus.NOT_FOUND.value());
-        }
-        BeanUtils.copyProperties(materialCollect, d, BaseGlobal.ID);//忽略ID
-        materialCollectService.updateAll(d);
-        return ApiResult.success("success",d);
-    }
-
-    @ApiOperation(value="更新素材收藏表(只修改不为空字段)", notes="根据url的id来指定更新对象，并根据传过来的信息来更新素材收藏表详细信息  id必填")
-    @ApiImplicitParam(name = "materialCollect", value = "素材收藏表", required = true, dataType = "MaterialCollect")
-    @PatchMapping
-    public ApiResult update(@RequestBody MaterialCollect materialCollect) throws Exception {
-    	if(StringUtils.isBlank(String.valueOf(materialCollect.getId()))) {
-    		return ApiResult.error(HttpStatus.NOT_FOUND.getReasonPhrase(),HttpStatus.NOT_FOUND.value());
-    	}
-    	List<String> ids = StringUtils.convertList(String.valueOf(materialCollect.getId()));
-		qc.init();
-		qc.andIn(BaseGlobal.ID, ids);
-		materialCollect.setId(null);//必须把不要的字段设空
-		qc.setT(materialCollect);//设置除id外 不为空的属性  ，修改新值，值为这个实体传过来的值
-		return ApiResult.success("success",materialCollectService.batchUpdateByCondition(qc));
-    }
 
 }
