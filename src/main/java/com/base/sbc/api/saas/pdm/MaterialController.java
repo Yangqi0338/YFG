@@ -2,6 +2,7 @@ package com.base.sbc.api.saas.pdm;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
@@ -79,10 +80,11 @@ public class MaterialController extends BaseController {
         if (materialList==null || materialList.size()==0){
             throw new OtherException("参数错误");
         }
+        IdGen idGen =new IdGen();
 
        List<MaterialDetails> materialDetailsList =new ArrayList<>();
         for (Material material : materialList) {
-            material.preInsert();
+            material.preInsert(idGen.nextIdStr());
             material.setStatus("0");
             material.setDelFlag("0");
             material.setCompanyCode(userUtils.getCompanyCode());
