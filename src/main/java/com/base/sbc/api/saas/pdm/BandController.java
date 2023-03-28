@@ -55,15 +55,20 @@ public class BandController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageNum", value = "第几页", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "pageSize", value = "每页条数", required = false, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "search", value = "查询字段", required = false, dataType = "String", paramType = "query")
+            @ApiImplicitParam(name = "search", value = "查询字段", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "order", value = "排序", required = false, dataType = "String", paramType = "query")
     })
     public ApiResult listQuery(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, Page page) {
         QueryCondition qc = new QueryCondition();
         qc.andEqualTo("company_code", userCompany);
         qc.andEqualTo("del_flag", "0");
-        qc.setOrderByClause("create_date desc");
         if (StringUtils.isNotBlank(page.getSearch())) {
             qc.andLikeOr(page.getSearch(), "band_name", "code");
+        }
+        if (!StringUtils.isEmpty(page.getOrder())){
+            qc.setOrderByClause(page.getOrder());
+        }else {
+            qc.setOrderByClause("create_date desc");
         }
         if (page.getPageNum() != 0 && page.getPageSize() != 0) {
             com.github.pagehelper.Page<BandQueryReturnVo> basicLabelUseScopePage = PageHelper.startPage(page.getPageNum(), page.getPageSize());
