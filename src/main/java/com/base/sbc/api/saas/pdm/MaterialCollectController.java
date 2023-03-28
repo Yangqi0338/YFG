@@ -123,9 +123,8 @@ public class MaterialCollectController {
 	}
 
     @ApiOperation(value="素材收藏", notes="素材收藏")
-    @ApiImplicitParam(name = "materialCollect", value = "素材收藏表", required = true, dataType = "MaterialCollect")
     @PostMapping("/add")
-    public String save(@RequestBody MaterialCollect materialCollect) throws Exception {
+    public String add(@RequestBody MaterialCollect materialCollect) throws Exception {
 		String userId = userUtils.getUserId();
 		QueryCondition qc=new QueryCondition();
 		qc.andEqualTo("material_id",materialCollect.getMaterialId());
@@ -139,6 +138,18 @@ public class MaterialCollectController {
 		materialCollectService.insert(materialCollect);
         return "新增成功";
     }
+
+	@ApiOperation(value="素材取消收藏", notes="素材取消收藏")
+	@PostMapping("/del")
+	public String del(MaterialCollect materialCollect) throws Exception {
+		String userId = userUtils.getUserId();
+		QueryCondition qc=new QueryCondition();
+		qc.andEqualTo("material_id",materialCollect.getMaterialId());
+		qc.andEqualTo("user_id",userId);
+		MaterialCollect materialCollect1 = materialCollectService.getByCondition(qc);
+		materialCollectService.deleteByIdDelFlag(materialCollect1,materialCollect1.getId());
+		return "取消收藏成功";
+	}
 
 
 
