@@ -53,15 +53,15 @@ public class MaterialController extends BaseController {
     @Transactional
     @ApiOperation(value = "新增素材", notes = "新增素材")
     public String add(@RequestBody MaterialDto materialDto) {
-        QueryCondition qc = new QueryCondition();
-
-        qc.andEqualTo("material_name", materialDto.getMaterial().getMaterialName());
-        qc.andEqualTo("material_library", materialDto.getMaterial().getMaterialLibrary());
-        Material material1 = materialService.getByCondition(qc);
-
-        if (material1 != null) {
-            throw new OtherException("已存在相同名称素材");
-        }
+        //QueryCondition qc = new QueryCondition();
+        //
+        //qc.andEqualTo("material_name", materialDto.getMaterial().getMaterialName());
+        //qc.andEqualTo("material_library", materialDto.getMaterial().getMaterialLibrary());
+        //Material material1 = materialService.getByCondition(qc);
+        //
+        //if (material1 != null) {
+        //    throw new OtherException("已存在相同名称素材");
+        //}
         materialDto.getMaterial().preInsert();
         materialDto.getMaterialDetails().preInsert();
         materialService.insert(materialDto.getMaterial());
