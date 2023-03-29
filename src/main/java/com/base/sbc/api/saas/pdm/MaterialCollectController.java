@@ -59,7 +59,6 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping(value = BaseController.SAAS_URL + "/materialCollect", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class MaterialCollectController {
 
-	QueryCondition qc = new QueryCondition();
 
 	@Autowired
 	private MaterialCollectService materialCollectService;
@@ -85,7 +84,7 @@ public class MaterialCollectController {
     }
 
 	@ApiOperation(value="素材取消收藏", notes="素材取消收藏")
-	@PostMapping("/del")
+	@DeleteMapping("/del")
 	public String del(MaterialCollect materialCollect) throws Exception {
 		String userId = userUtils.getUserId();
 		QueryCondition qc=new QueryCondition();

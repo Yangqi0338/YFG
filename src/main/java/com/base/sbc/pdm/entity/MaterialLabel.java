@@ -18,4 +18,6 @@ public class MaterialLabel {
     private String materialId;
     private String labelId;
     private String labelName;
+
+    private String labelColor;
 }

@@ -21,11 +21,16 @@ public class MaterialAllDto extends MaterialDetails {
     /**
      * 状态查询数组
      */
-    public String[] statusList;
+    private String[] statusList;
     /**
      * 所有标签
      */
-    public List<MaterialLabel> labels;
+    private List<MaterialLabel> labels;
+
+    /**
+     * 查询条件标签id集合
+     */
+    private List<String> labelIds;
 
     /**
      * 收藏id

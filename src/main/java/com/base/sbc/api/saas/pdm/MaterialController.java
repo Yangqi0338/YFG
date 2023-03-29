@@ -44,11 +44,7 @@ public class MaterialController extends BaseController {
     @Resource
     private UserUtils userUtils;
 
-    @Resource
-    private AmcService amcService;
 
-    @Resource
-    private MaterialLabelService materialLabelService;
 
     /**
      * 新增
@@ -149,56 +145,10 @@ public class MaterialController extends BaseController {
         }
 
         materialAllDto.setCompanyCode(userUtils.getCompanyCode());
-        PageHelper.startPage(page);
-        List<MaterialAllDto> materialAllDtos = materialService.listQuery(materialAllDto);
-
-        List<String> userIds =new ArrayList<>();
-        List<String> ids=new ArrayList<>();
-
-        for (MaterialAllDto allDto : materialAllDtos) {
-            ids.add(allDto.getId());
-            userIds.add(allDto.getCreateId());
-        }
 
 
 
-        //查询关联标签
-        List<MaterialLabel> materialLabelList = materialLabelService.list(ids);
-        //查询关联尺码信息
-        //查询关联颜色信息
-        //远程获取用户部门信息
-
-        List<MaterialDto> list=new ArrayList<>();
-
-
-
-        String str = amcService.getDeptList(token, userIds.toArray(new String[0]));
-        JSONObject jsonObject = JSONObject.parseObject(str);
-        List<JSONObject> data = jsonObject.getList("data", JSONObject.class);
-
-        for (MaterialAllDto allDto : materialAllDtos) {
-            for (JSONObject json : data) {
-                if (allDto.getCreateId().equals(json.getString("userId"))){
-                    allDto.setDeptName(json.getString("deptName"));
-                }
-            }
-
-            //标签放入对象
-            List<MaterialLabel> labels=new ArrayList<>();
-            for (MaterialLabel materialLabel : materialLabelList) {
-                if (allDto.getId().equals(materialLabel.getMaterialId())){
-                    labels.add(materialLabel);
-                }
-            }
-            allDto.setLabels(labels);
-
-            MaterialDto materialDto =new MaterialDto();
-            materialDto.setMaterialDetails(allDto.toMaterialDetails());
-            materialDto.setMaterial(allDto.toMaterial());
-            list.add(materialDto);
-        }
-
-        return new PageInfo<>(list);
+        return materialService.listQuery(token, materialAllDto,page);
     }
 
 
