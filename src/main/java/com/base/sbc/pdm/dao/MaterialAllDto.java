@@ -3,8 +3,11 @@ package com.base.sbc.pdm.dao;
 import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.pdm.entity.Material;
 import com.base.sbc.pdm.entity.MaterialDetails;
+import com.base.sbc.pdm.entity.MaterialLabel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 /**
  * @author 卞康
@@ -19,7 +22,15 @@ public class MaterialAllDto extends MaterialDetails {
      * 状态查询数组
      */
     public String[] statusList;
+    /**
+     * 所有标签
+     */
+    public List<MaterialLabel> labels;
 
+    /**
+     * 收藏id
+     */
+    public String collectId;
 
     /**
      * 所在部门
