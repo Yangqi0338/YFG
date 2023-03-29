@@ -3,14 +3,16 @@
 <mapper namespace="com.base.sbc.pdm.mapper.MaterialMapper">
 
     <select id="listQuery" resultType="com.base.sbc.pdm.dao.MaterialAllDto">
-        select *
+        select tm.*,tmd.*,tmc.id as collectId
         from t_material tm
         left join t_material_details tmd on tm.id = tmd.material_id
+        left join t_material_collect tmc on tm.id = tmc.material_id and tmc.del_flag = '0'
         where tm.del_flag = '0'
+
         and material_library = #{materialLibrary}
-        and company_code=#{companyCode}
+        and tm.company_code=#{companyCode}
         <if test="statusList != null and statusList.length > 0">
-          and status in
+            and status in
             <foreach collection="statusList" open="(" separator="," item="item" close=")">
                 #{item}
             </foreach>

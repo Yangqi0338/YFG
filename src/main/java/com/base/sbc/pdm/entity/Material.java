@@ -30,6 +30,10 @@ public class Material extends BaseDataEntity<String> {
 
     /** 所在部门 */
     private String deptName;
+    /**
+     * 收藏id
+     */
+    public String collectId;
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 

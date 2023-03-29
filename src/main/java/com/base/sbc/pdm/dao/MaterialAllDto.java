@@ -20,6 +20,7 @@ public class MaterialAllDto extends MaterialDetails {
      */
     public String[] statusList;
 
+
     /**
      * 所在部门
      */
