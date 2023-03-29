@@ -64,6 +64,7 @@ public class MaterialController extends BaseController {
         //}
         materialDto.getMaterial().preInsert();
         materialDto.getMaterialDetails().preInsert();
+        materialDto.getMaterial().setStatus("1");
         materialService.insert(materialDto.getMaterial());
         materialDto.getMaterialDetails().setMaterialId(materialDto.getMaterial().getId());
         materialDetailsService.insert(materialDto.getMaterialDetails());

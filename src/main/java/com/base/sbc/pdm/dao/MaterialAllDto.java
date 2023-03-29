@@ -15,6 +15,10 @@ import lombok.EqualsAndHashCode;
 public class MaterialAllDto extends MaterialDetails {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 状态查询数组
+     */
+    public String[] statusList;
 
     /**
      * 所在部门

@@ -7,9 +7,14 @@
         from t_material tm
         left join t_material_details tmd on tm.id = tmd.material_id
         where tm.del_flag = '0'
-        and status = #{status}
         and material_library = #{materialLibrary}
         and company_code=#{companyCode}
+        <if test="statusList != null and statusList.length > 0">
+          and status in
+            <foreach collection="statusList" open="(" separator="," item="item" close=")">
+                #{item}
+            </foreach>
+        </if>
         <if test="materialName != null and materialName != ''">
             and material_name like concat('%',#{materialName},'%')
         </if>
