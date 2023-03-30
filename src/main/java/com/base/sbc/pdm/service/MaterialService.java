@@ -81,6 +81,7 @@ public class MaterialService extends BaseService<Material> {
 		if ("1".equals(materialAllDto.getCollectId())){
 			QueryCondition qc =new QueryCondition();
 			qc.andEqualTo("user_id",userUtils.getUserId());
+			qc.andEqualTo("del_flag",0);
 			List<MaterialCollect> materialCollects = materialCollectService.findByCondition(qc);
 			HashSet<String> hashSet=new HashSet<>();
 			for (MaterialCollect materialCollect : materialCollects) {
