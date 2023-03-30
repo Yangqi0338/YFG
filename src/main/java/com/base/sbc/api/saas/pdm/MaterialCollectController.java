@@ -73,6 +73,7 @@ public class MaterialCollectController {
 		QueryCondition qc=new QueryCondition();
 		qc.andEqualTo("material_id",materialCollect.getMaterialId());
 		qc.andEqualTo("user_id",userId);
+		qc.andEqualTo("del_flag","0");
 		MaterialCollect materialCollect1 = materialCollectService.getByCondition(qc);
 		if (materialCollect1!=null){
 			throw new OtherException("请勿重复收藏");
