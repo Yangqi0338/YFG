@@ -2,6 +2,7 @@ package com.base.sbc.api.saas.pdm;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
@@ -54,7 +55,7 @@ public class MaterialController extends BaseController {
     @PostMapping("/add")
     @Transactional
     @ApiOperation(value = "新增素材", notes = "新增素材")
-    public String add(@RequestBody MaterialDto materialDto) {
+    public ApiResult add(@RequestBody MaterialDto materialDto) {
 
         materialDto.getMaterial().preInsert();
         materialDto.getMaterialDetails().preInsert();
@@ -73,16 +74,16 @@ public class MaterialController extends BaseController {
         }
         materialDto.getMaterialDetails().setMaterialId(materialDto.getMaterial().getId());
         materialDetailsService.insert(materialDto.getMaterialDetails());
-        return materialDto.getMaterial().getId();
+        return insertSuccess(materialDto.getMaterial().getId());
     }
 
     /**
      * 批量新增
      */
     @PostMapping("addList")
-    @Transactional
+    @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "批量新增素材", notes = "批量新增素材")
-    public String addList(@RequestBody List<Material> materialList) {
+    public ApiResult addList(@RequestBody List<Material> materialList) {
         if (materialList == null || materialList.size() == 0) {
             throw new OtherException("参数错误");
         }
@@ -103,7 +104,7 @@ public class MaterialController extends BaseController {
 
         int i = materialService.batchInsert(materialList);
         materialDetailsService.batchInsert(materialDetailsList);
-        return Integer.toString(i);
+        return insertSuccess(i);
     }
 
     /**
@@ -111,7 +112,7 @@ public class MaterialController extends BaseController {
      */
     @PutMapping("/update")
     @ApiOperation(value = "修改素材", notes = "修改素材")
-    public Integer update(@RequestBody MaterialDto materialDto) {
+    public ApiResult update(@RequestBody MaterialDto materialDto) {
         Material material1 = materialService.getById(materialDto.getMaterial().getId());
         //是否修改了文件名或者所属素材库
         if (!material1.getMaterialLibrary().equals(materialDto.getMaterial().getMaterialLibrary()) || !material1.getMaterialName().equals(materialDto.getMaterial().getMaterialName())) {
@@ -140,16 +141,16 @@ public class MaterialController extends BaseController {
         }
         int i = materialService.updateAll(materialDto.getMaterial());
         materialDetailsService.updateAll(materialDto.getMaterialDetails());
-        return i;
+        return updateSuccess(i);
     }
 
     /**
      * 根据id删除
      */
     @DeleteMapping("/delByIds")
-    public Integer delByIds(String[] ids) {
+    public ApiResult delByIds(String[] ids) {
         Material material = new Material();
-        return materialService.batchdeleteByIdDelFlag(material, Arrays.asList(ids));
+        return deleteSuccess(materialService.batchdeleteByIdDelFlag(material, Arrays.asList(ids)));
     }
 
 

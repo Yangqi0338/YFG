@@ -4,7 +4,7 @@ package com.base.sbc.config.enums;
  * @author 24796
  */
 
-public enum BasicNumberStr {
+public enum BasicNumber {
     ZERO("0"),
     ONE("1"),
     TWO("2"),
@@ -18,7 +18,7 @@ public enum BasicNumberStr {
 
     private String number;
 
-    BasicNumberStr(String number) {
+    BasicNumber(String number) {
         this.number = number;
     }
 
