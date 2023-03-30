@@ -57,7 +57,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @Api(value = "与素材收藏相关的所有接口信息", tags = {"素材收藏表接口"})
 @RequestMapping(value = BaseController.SAAS_URL + "/materialCollect", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-public class MaterialCollectController {
+public class MaterialCollectController extends BaseController{
 
 
 	@Autowired
@@ -68,7 +68,7 @@ public class MaterialCollectController {
 
     @ApiOperation(value="素材收藏", notes="素材收藏")
     @PostMapping("/add")
-    public String add(@RequestBody MaterialCollect materialCollect) throws Exception {
+    public ApiResult add(@RequestBody MaterialCollect materialCollect) throws Exception {
 		String userId = userUtils.getUserId();
 		QueryCondition qc=new QueryCondition();
 		qc.andEqualTo("material_id",materialCollect.getMaterialId());
@@ -83,12 +83,12 @@ public class MaterialCollectController {
 		materialCollect.setUserId(userId);
 		materialCollect.setDelFlag("0");
 		materialCollectService.insert(materialCollect);
-        return "新增成功";
+        return insertSuccess(materialCollect.getId());
     }
 
 	@ApiOperation(value="素材取消收藏", notes="素材取消收藏")
 	@DeleteMapping("/del")
-	public String del(MaterialCollect materialCollect) throws Exception {
+	public ApiResult del(MaterialCollect materialCollect) throws Exception {
 		String userId = userUtils.getUserId();
 		QueryCondition qc=new QueryCondition();
 		qc.andEqualTo("material_id",materialCollect.getMaterialId());
@@ -98,8 +98,8 @@ public class MaterialCollectController {
 		if (materialCollect1==null){
 			throw  new OtherException("此素材未收藏");
 		}
-		materialCollectService.deleteByIdDelFlag(materialCollect1,materialCollect1.getId());
-		return "取消收藏成功";
+
+		return deleteSuccess(materialCollectService.deleteByIdDelFlag(materialCollect1,materialCollect1.getId()));
 	}
 
 
