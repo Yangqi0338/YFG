@@ -93,7 +93,6 @@ public class MaterialService extends BaseService<Material> {
 
 
 		//远程获取用户部门信息
-
 		String str = amcService.getDeptList(token, userIds.toArray(new String[0]));
 		JSONObject jsonObject = JSONObject.parseObject(str);
 		List<JSONObject> data = jsonObject.getList("data", JSONObject.class);

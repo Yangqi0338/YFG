@@ -44,7 +44,8 @@ public class MaterialController extends BaseController {
     @Resource
     private UserUtils userUtils;
 
-
+    @Resource
+    private MaterialLabelService materialLabelService;
 
     /**
      * 新增
@@ -54,19 +55,22 @@ public class MaterialController extends BaseController {
     @Transactional
     @ApiOperation(value = "新增素材", notes = "新增素材")
     public String add(@RequestBody MaterialDto materialDto) {
-        //QueryCondition qc = new QueryCondition();
-        //
-        //qc.andEqualTo("material_name", materialDto.getMaterial().getMaterialName());
-        //qc.andEqualTo("material_library", materialDto.getMaterial().getMaterialLibrary());
-        //Material material1 = materialService.getByCondition(qc);
-        //
-        //if (material1 != null) {
-        //    throw new OtherException("已存在相同名称素材");
-        //}
+
         materialDto.getMaterial().preInsert();
         materialDto.getMaterialDetails().preInsert();
         materialDto.getMaterial().setStatus("1");
         materialService.insert(materialDto.getMaterial());
+
+        List<MaterialLabel> labels = materialDto.getMaterial().getLabels();
+        //新增关联标签
+        if (labels != null) {
+            IdGen idGen = new IdGen();
+            for (MaterialLabel label : labels) {
+                label.setId(String.valueOf(idGen.nextId()));
+                label.setMaterialId(materialDto.getMaterial().getId());
+                materialLabelService.add(label);
+            }
+        }
         materialDto.getMaterialDetails().setMaterialId(materialDto.getMaterial().getId());
         materialDetailsService.insert(materialDto.getMaterialDetails());
         return materialDto.getMaterial().getId();
@@ -77,27 +81,27 @@ public class MaterialController extends BaseController {
      */
     @PostMapping("addList")
     @Transactional
-    @ApiOperation(value = "批量新增素材",notes = "批量新增素材")
-    public String addList(@RequestBody List<Material> materialList){
-        if (materialList==null || materialList.size()==0){
+    @ApiOperation(value = "批量新增素材", notes = "批量新增素材")
+    public String addList(@RequestBody List<Material> materialList) {
+        if (materialList == null || materialList.size() == 0) {
             throw new OtherException("参数错误");
         }
-        IdGen idGen =new IdGen();
+        IdGen idGen = new IdGen();
 
-       List<MaterialDetails> materialDetailsList =new ArrayList<>();
+        List<MaterialDetails> materialDetailsList = new ArrayList<>();
         for (Material material : materialList) {
             material.preInsert(idGen.nextIdStr());
             material.setStatus("0");
             material.setDelFlag("0");
             material.setCompanyCode(userUtils.getCompanyCode());
-            MaterialDetails materialDetails =new MaterialDetails();
+            MaterialDetails materialDetails = new MaterialDetails();
             materialDetails.setMaterialId(material.getId());
             materialDetails.preInsert(idGen.nextIdStr());
             materialDetailsList.add(materialDetails);
 
         }
 
-        int i= materialService.batchInsert(materialList);
+        int i = materialService.batchInsert(materialList);
         materialDetailsService.batchInsert(materialDetailsList);
         return Integer.toString(i);
     }
@@ -120,6 +124,20 @@ public class MaterialController extends BaseController {
                 throw new OtherException("已存在相同名称素材");
             }
         }
+
+        //先去删除关联标签
+        materialService.delete(materialDto.getMaterial().getId());
+
+        List<MaterialLabel> labels = materialDto.getMaterial().getLabels();
+        //新增关联标签
+        if (labels != null) {
+            IdGen idGen = new IdGen();
+            for (MaterialLabel label : labels) {
+                label.setId(String.valueOf(idGen.nextId()));
+                label.setMaterialId(materialDto.getMaterial().getId());
+                materialLabelService.add(label);
+            }
+        }
         int i = materialService.updateAll(materialDto.getMaterial());
         materialDetailsService.updateAll(materialDto.getMaterialDetails());
         return i;
@@ -139,7 +157,7 @@ public class MaterialController extends BaseController {
      * 查询列表
      */
     @GetMapping("/listQuery")
-    public PageInfo<MaterialDto> listQuery(@RequestHeader("Authorization") String token,MaterialAllDto materialAllDto, Page page) {
+    public PageInfo<MaterialDto> listQuery(@RequestHeader("Authorization") String token, MaterialAllDto materialAllDto, Page page) {
         if (materialAllDto == null) {
             throw new OtherException("参数不能为空");
         }
@@ -147,8 +165,7 @@ public class MaterialController extends BaseController {
         materialAllDto.setCompanyCode(userUtils.getCompanyCode());
 
 
-
-        return materialService.listQuery(token, materialAllDto,page);
+        return materialService.listQuery(token, materialAllDto, page);
     }
 
 
@@ -159,7 +176,7 @@ public class MaterialController extends BaseController {
     public MaterialDto getById(String id) {
         Material material = materialService.getById(id);
         MaterialDetails materialDetails = materialDetailsService.getById(material.getId());
-        MaterialDto materialDto=new MaterialDto();
+        MaterialDto materialDto = new MaterialDto();
         materialDto.setMaterial(material);
         materialDto.setMaterialDetails(materialDetails);
         return materialDto;

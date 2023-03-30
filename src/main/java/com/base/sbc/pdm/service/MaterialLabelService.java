@@ -25,4 +25,20 @@ public class MaterialLabelService {
         queryWrapper.in("material_id",ids);
         return materialLabelMapper.selectList(queryWrapper);
     }
+
+    /**
+     * 新增标签关连
+     */
+    public Integer add(MaterialLabel materialLabel){
+        return materialLabelMapper.insert(materialLabel);
+    }
+
+    /**
+     * 删除关联
+     */
+    public Integer del(String materialId){
+        QueryWrapper<MaterialLabel> queryWrapper =new QueryWrapper<>();
+        queryWrapper.eq("material_id",materialId);
+        return materialLabelMapper.delete(queryWrapper);
+    }
 }
