@@ -93,7 +93,11 @@ public class MaterialCollectController {
 		QueryCondition qc=new QueryCondition();
 		qc.andEqualTo("material_id",materialCollect.getMaterialId());
 		qc.andEqualTo("user_id",userId);
+		qc.andEqualTo("del_flag",0);
 		MaterialCollect materialCollect1 = materialCollectService.getByCondition(qc);
+		if (materialCollect1==null){
+			throw  new OtherException("此素材未收藏");
+		}
 		materialCollectService.deleteByIdDelFlag(materialCollect1,materialCollect1.getId());
 		return "取消收藏成功";
 	}
