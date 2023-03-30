@@ -78,7 +78,9 @@ public class MaterialCollectController {
 			throw new OtherException("请勿重复收藏");
 		}
 		materialCollect.preInsert();
+		materialCollect.setCompanyCode(userUtils.getCompanyCode());
 		materialCollect.setUserId(userId);
+		materialCollect.setDelFlag("0");
 		materialCollectService.insert(materialCollect);
         return "新增成功";
     }
