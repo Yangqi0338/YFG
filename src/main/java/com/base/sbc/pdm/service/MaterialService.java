@@ -10,6 +10,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.pdm.dto.MaterialDto;
 import com.base.sbc.pdm.entity.MaterialCollect;
@@ -21,13 +22,10 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.base.sbc.config.common.base.BaseDao;
 import com.base.sbc.config.common.base.BaseService;
-
 import com.base.sbc.pdm.entity.Material;
 import com.base.sbc.pdm.dao.MaterialDao;
-
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,9 +33,7 @@ import java.util.List;
 
 /**
  * 类描述：素材库 service类
- * @address com.base.sbc.pdm.service.MaterialService
- * @author lile
- * @email lilemyemail@163.com
+ * @author 卞康
  * @date 创建时间：2023-3-24 16:26:15
  * @version 1.0
  */
@@ -78,7 +74,7 @@ public class MaterialService extends BaseService<Material> {
 	 */
     public PageInfo<MaterialDto> listQuery(String token, MaterialAllDto materialAllDto, Page page) {
 
-		if ("1".equals(materialAllDto.getCollectId())){
+		if (BasicNumber.ONE.getNumber().equals(materialAllDto.getCollectId())){
 			QueryCondition qc =new QueryCondition();
 			qc.andEqualTo("user_id",userUtils.getUserId());
 			qc.andEqualTo("del_flag",0);

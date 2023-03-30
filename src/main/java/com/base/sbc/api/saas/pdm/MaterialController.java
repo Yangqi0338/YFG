@@ -1,7 +1,5 @@
 package com.base.sbc.api.saas.pdm;
 
-import com.alibaba.fastjson2.JSONObject;
-import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.QueryCondition;
@@ -17,14 +15,12 @@ import com.base.sbc.pdm.service.MaterialDetailsService;
 import com.base.sbc.pdm.service.MaterialLabelService;
 import com.base.sbc.pdm.service.MaterialService;
 import com.base.sbc.pdm.dao.MaterialAllDto;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 import java.util.*;
 
@@ -127,7 +123,7 @@ public class MaterialController extends BaseController {
         }
 
         //先去删除关联标签
-        materialService.delete(materialDto.getMaterial().getId());
+        materialLabelService.del(materialDto.getMaterial().getId());
 
         List<MaterialLabel> labels = materialDto.getMaterial().getLabels();
         //新增关联标签
