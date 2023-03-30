@@ -94,6 +94,9 @@ public class MaterialService extends BaseService<Material> {
 		PageHelper.startPage(page);
 		List<MaterialAllDto> materialAllDtos = materialMapper.listQuery(materialAllDto);
 
+		if (materialAllDtos==null || materialAllDtos.size() ==0){
+			return new PageInfo<>();
+		}
 		List<MaterialDto> list=new ArrayList<>();
 
 		List<String> userIds =new ArrayList<>();
