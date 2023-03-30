@@ -1,5 +1,6 @@
 package com.base.sbc.api.saas.pdm;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.api.saas.dto.BandSaveDto;
 import com.base.sbc.api.saas.dto.BandStartStopDto;
 import com.base.sbc.api.saas.vo.BandQueryReturnVo;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.sql.Struct;
 import java.util.Arrays;
 import java.util.List;
 
@@ -132,6 +134,25 @@ public class BandController extends BaseController {
     @PostMapping("bandStartStop")
     public ApiResult bandStartStop(@Valid @RequestBody BandStartStopDto bandStartStopDto) {
         return deleteSuccess(bandService.bandStartStop(bandStartStopDto));
+    }
+
+    @GetMapping("/queryBand")
+    public ApiResult queryBand(BandSaveDto dto){
+        QueryCondition qc=new QueryCondition(getUserCompany());
+        if(StrUtil.isNotBlank(dto.getParticularYear())){
+            qc.andEqualTo("particular_year",dto.getParticularYear());
+        }
+        if(StrUtil.isNotBlank(dto.getSeason())){
+            qc.andEqualTo("season",dto.getSeason());
+        }
+        if(StrUtil.isNotBlank(dto.getCode())){
+            qc.andEqualTo("code",dto.getCode());
+        }
+        if(StrUtil.isNotBlank(dto.getMonth())){
+            qc.andEqualTo("month",dto.getMonth());
+        }
+        List<Band> bandList = bandService.findByCondition(qc);
+        return selectSuccess(bandList);
     }
 
 }

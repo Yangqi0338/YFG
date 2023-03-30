@@ -48,4 +48,7 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/token/companyDept/getDeptList")
     public String getDeptList(@RequestHeader("Authorization") String token,@RequestParam("userIds") String[] userIds);
+
+    @GetMapping("/amc/api/token/companyUser/getCompanyUserInfoByUserIds")
+    public String getCompanyUserInfoByUserIds( @RequestParam("userIds") String userIds);
 }
