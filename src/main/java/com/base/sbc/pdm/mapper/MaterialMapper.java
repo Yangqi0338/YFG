@@ -12,4 +12,6 @@ import java.util.List;
 @Mapper
 public interface MaterialMapper {
     List<MaterialAllDto> listQuery(MaterialAllDto materialAllDto);
+
+
 }

@@ -164,7 +164,6 @@ public class MaterialController extends BaseController {
 
         materialAllDto.setCompanyCode(userUtils.getCompanyCode());
 
-
         return materialService.listQuery(token, materialAllDto, page);
     }
 

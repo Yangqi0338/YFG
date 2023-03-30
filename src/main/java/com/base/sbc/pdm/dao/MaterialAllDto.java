@@ -38,6 +38,11 @@ public class MaterialAllDto extends MaterialDetails {
     public String collectId;
 
     /**
+     * ids 查询的id集合
+     */
+    public List<String> ids;
+
+    /**
      * 所在部门
      */
     private String deptName;

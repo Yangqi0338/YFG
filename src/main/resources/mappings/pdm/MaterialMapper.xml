@@ -11,6 +11,12 @@
 
         and material_library = #{materialLibrary}
         and tm.company_code=#{companyCode}
+        <if test="ids != null and ids.size > 0">
+            and tm.id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")" >
+                #{id}
+            </foreach>
+        </if>
         <if test="statusList != null and statusList.length > 0">
             and status in
             <foreach collection="statusList" open="(" separator="," item="item" close=")">
@@ -24,7 +30,7 @@
             and material_type = #{materialType}
         </if>
         <if test="createId != null and createId != ''">
-            and create_id = #{createId}
+            and tm.create_id = #{createId}
         </if>
         order by create_date desc
     </select>

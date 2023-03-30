@@ -8,9 +8,11 @@ package com.base.sbc.pdm.service;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.pdm.dto.MaterialDto;
+import com.base.sbc.pdm.entity.MaterialCollect;
 import com.base.sbc.pdm.entity.MaterialLabel;
 import com.base.sbc.pdm.mapper.MaterialMapper;
 import com.base.sbc.pdm.dao.MaterialAllDto;
@@ -28,6 +30,7 @@ import com.base.sbc.pdm.dao.MaterialDao;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -57,6 +60,9 @@ public class MaterialService extends BaseService<Material> {
 	@Resource
 	private MaterialLabelService materialLabelService;
 
+	@Resource
+	private MaterialCollectService materialCollectService;
+
 
 	@Override
 	protected BaseDao<Material> getEntityDao() {
@@ -71,6 +77,19 @@ public class MaterialService extends BaseService<Material> {
 	 * @return 返回的封装对象
 	 */
     public PageInfo<MaterialDto> listQuery(String token, MaterialAllDto materialAllDto, Page page) {
+
+		if ("1".equals(materialAllDto.getCollectId())){
+			QueryCondition qc =new QueryCondition();
+			qc.andEqualTo("user_id",userUtils.getUserId());
+			List<MaterialCollect> materialCollects = materialCollectService.findByCondition(qc);
+			HashSet<String> hashSet=new HashSet<>();
+			for (MaterialCollect materialCollect : materialCollects) {
+				hashSet.add(materialCollect.getMaterialId());
+			}
+			ArrayList<String> arrayList =new ArrayList<>(hashSet);
+			materialAllDto.setIds(arrayList);
+		}
+
 
 		PageHelper.startPage(page);
 		List<MaterialAllDto> materialAllDtos = materialMapper.listQuery(materialAllDto);

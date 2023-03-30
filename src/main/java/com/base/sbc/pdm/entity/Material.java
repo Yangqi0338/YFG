@@ -40,6 +40,11 @@ public class Material extends BaseDataEntity<String> {
      */
     public List<MaterialLabel> labels;
 
+    /**
+     * ids 查询的id集合
+     */
+    public List<String> ids;
+
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性)***********************************/
