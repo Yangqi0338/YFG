@@ -20,9 +20,18 @@ public class MaterialLabelService {
     /**
      * 获取素材列表相关联的列表
      */
-    public List<MaterialLabel> list(List<String> ids){
+    public List<MaterialLabel> getByMaterialIds(List<String> materialIds){
         QueryWrapper<MaterialLabel> queryWrapper =new QueryWrapper<>();
-        queryWrapper.in("material_id",ids);
+        queryWrapper.in("material_id",materialIds);
+        return materialLabelMapper.selectList(queryWrapper);
+    }
+
+    /**
+     * 根据id集合查询列表
+     */
+    public List<MaterialLabel> getByLabelIds(List<String> labelId){
+        QueryWrapper<MaterialLabel> queryWrapper =new QueryWrapper<>();
+        queryWrapper.in("label_id",labelId);
         return materialLabelMapper.selectList(queryWrapper);
     }
 
