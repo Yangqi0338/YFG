@@ -30,7 +30,7 @@ public class MaterialAllDto extends MaterialDetails {
     /**
      * 查询条件标签id集合
      */
-    private List<String> labelIds;
+    private String[] labelIds;
 
     /**
      * 收藏id
