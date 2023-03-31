@@ -1,9 +1,9 @@
-package com.base.sbc.pdm.dao;
+package com.base.sbc.pdm.dao.material;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.base.sbc.pdm.entity.Material;
-import com.base.sbc.pdm.entity.MaterialDetails;
-import com.base.sbc.pdm.entity.MaterialLabel;
+import com.base.sbc.pdm.entity.material.Material;
+import com.base.sbc.pdm.entity.material.MaterialDetails;
+import com.base.sbc.pdm.entity.material.MaterialLabel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -35,12 +35,22 @@ public class MaterialAllDto extends MaterialDetails {
     /**
      * 收藏id
      */
-    public String collectId;
+    private String collectId;
 
     /**
      * ids 查询的id集合
      */
-    public List<String> ids;
+    private List<String> ids;
+
+    /**
+     * 尺码筛选
+     */
+    private String sizeId;
+
+    /**
+     * 颜色筛选
+     */
+    private String colorId;
 
     /**
      * 所在部门
@@ -71,7 +81,9 @@ public class MaterialAllDto extends MaterialDetails {
      * 所属素材库
      */
     private String materialLibrary;
-    /** 所属素材库名称 */
+    /**
+     * 所属素材库名称
+     */
     private String libraryName;
 
     /**
@@ -82,7 +94,9 @@ public class MaterialAllDto extends MaterialDetails {
      * 所属分类id
      */
     private String materialType;
-    /** 所属分类名称 */
+    /**
+     * 所属分类名称
+     */
     private String typeName;
     /**
      * 年份

@@ -4,18 +4,14 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.pdm.entity;
+package com.base.sbc.pdm.entity.material;
 
-import java.util.Date;
-import java.util.List;
-import java.math.BigDecimal;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
  * 类描述：素材库详情表 实体类
- * @address com.base.sbc.pdm.entity.MaterialDetails
+ * @address com.base.sbc.pdm.entity.material.MaterialDetails
  * @author lile
  * @email lilemyemail@163.com
  * @date 创建时间：2023-3-24 18:27:18

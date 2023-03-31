@@ -1,4 +1,4 @@
-package com.base.sbc.pdm.entity;
+package com.base.sbc.pdm.entity.material;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

@@ -4,7 +4,7 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.pdm.service;
+package com.base.sbc.pdm.service.material;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson2.JSONObject;
@@ -12,12 +12,15 @@ import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.pdm.dto.MaterialDto;
-import com.base.sbc.pdm.entity.MaterialCollect;
-import com.base.sbc.pdm.entity.MaterialLabel;
-import com.base.sbc.pdm.mapper.MaterialMapper;
-import com.base.sbc.pdm.dao.MaterialAllDto;
+import com.base.sbc.pdm.dto.material.MaterialDto;
+import com.base.sbc.pdm.entity.material.MaterialCollect;
+import com.base.sbc.pdm.entity.material.MaterialLabel;
+import com.base.sbc.pdm.entity.material.MaterialSize;
+import com.base.sbc.pdm.mapper.material.MaterialMapper;
+import com.base.sbc.pdm.dao.material.MaterialAllDto;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.base.sbc.config.common.base.BaseDao;
 import com.base.sbc.config.common.base.BaseService;
-import com.base.sbc.pdm.entity.Material;
-import com.base.sbc.pdm.dao.MaterialDao;
+import com.base.sbc.pdm.entity.material.Material;
+import com.base.sbc.pdm.dao.material.MaterialDao;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -60,6 +63,9 @@ public class MaterialService extends BaseService<Material> {
     @Resource
     private MaterialCollectService materialCollectService;
 
+    @Resource
+    private MaterialSizeService materialSizeService;
+
     @Override
     protected BaseDao<Material> getEntityDao() {
         return materialDao;
@@ -70,9 +76,13 @@ public class MaterialService extends BaseService<Material> {
      * 为了解决太多表关联查询太慢的问题
      * 相关联的表，生成查询条件
      */
+
     private void addQuery(MaterialAllDto materialAllDto) {
+        // TODO: 2023/3/31 后期优化，写sql语句优化查询返回字段
         HashSet<String> collectSet = null;
         HashSet<String> labelSet = null;
+        HashSet<String> sizeSet = null;
+        HashSet<String> colorSet = null;
         //我的收藏筛选条件
         if (BasicNumber.ONE.getNumber().equals(materialAllDto.getCollectId())) {
             collectSet = new HashSet<>();
@@ -93,23 +103,37 @@ public class MaterialService extends BaseService<Material> {
                 labelSet.add(materialLabel.getMaterialId());
             }
         }
-        //尺码 筛选条件
-        //颜色筛选条件
 
+
+        //尺码 筛选条件
+        if (!StringUtils.isEmpty(materialAllDto.getSizeId())) {
+            sizeSet = new HashSet<>();
+            List<MaterialSize> materialSizes = materialSizeService.getBySizeId(materialAllDto.getSizeId());
+            for (MaterialSize materialSize : materialSizes) {
+                sizeSet.add(materialSize.getId());
+            }
+        }
+
+        //颜色筛选条件
+        if (!StringUtils.isEmpty(materialAllDto.getColorId())) {
+            colorSet = new HashSet<>();
+        }
 
         //如果有集合不为null，则说明有筛选条件
-        if (collectSet != null || labelSet != null) {
+        if (collectSet != null || labelSet != null || sizeSet != null || colorSet != null) {
+
             //取所有条件相交的
-            Set<String> ids = CollectionUtil.intersectionDistinct(collectSet, labelSet);
-            if (ids==null || ids.size()==0){
+            Set<String> ids = CommonUtils.findCommonElements(collectSet, labelSet, sizeSet);
+            if (ids.size() == 0) {
                 //说明无筛选结果，给个0让查询不到数据
-                ids=new HashSet<>();
+                ids = new HashSet<>();
                 ids.add("0");
             }
             materialAllDto.setIds(new ArrayList<>(ids));
         }
 
     }
+
 
     /**
      * 条件查询

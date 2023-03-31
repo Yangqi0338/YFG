@@ -1,7 +1,7 @@
-package com.base.sbc.pdm.mapper;
+package com.base.sbc.pdm.mapper.material;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.pdm.entity.MaterialLabel;
+import com.base.sbc.pdm.entity.material.MaterialLabel;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

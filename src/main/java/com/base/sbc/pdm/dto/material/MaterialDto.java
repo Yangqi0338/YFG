@@ -1,7 +1,7 @@
-package com.base.sbc.pdm.dto;
+package com.base.sbc.pdm.dto.material;
 
-import com.base.sbc.pdm.entity.Material;
-import com.base.sbc.pdm.entity.MaterialDetails;
+import com.base.sbc.pdm.entity.material.Material;
+import com.base.sbc.pdm.entity.material.MaterialDetails;
 import lombok.Data;
 
 /**

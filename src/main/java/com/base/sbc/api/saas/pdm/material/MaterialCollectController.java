@@ -4,44 +4,27 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.api.saas.pdm;
-
-import java.util.List;
+package com.base.sbc.api.saas.pdm.material;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
 
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.QueryCondition;
-import com.base.sbc.pdm.entity.MaterialCollect;
-import com.base.sbc.pdm.service.MaterialCollectService;
-import com.base.sbc.config.utils.StringUtils;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Lists;
+import com.base.sbc.pdm.entity.material.MaterialCollect;
+import com.base.sbc.pdm.service.material.MaterialCollectService;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 
 

@@ -1,7 +1,7 @@
-package com.base.sbc.api.saas.pdm;
+package com.base.sbc.api.saas.pdm.material;
 
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.pdm.service.MaterialDetailsService;
+import com.base.sbc.pdm.service.material.MaterialDetailsService;
 import io.swagger.annotations.Api;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;

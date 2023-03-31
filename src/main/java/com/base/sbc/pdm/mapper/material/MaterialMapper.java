@@ -1,6 +1,6 @@
-package com.base.sbc.pdm.mapper;
+package com.base.sbc.pdm.mapper.material;
 
-import com.base.sbc.pdm.dao.MaterialAllDto;
+import com.base.sbc.pdm.dao.material.MaterialAllDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

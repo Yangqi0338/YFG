@@ -1,4 +1,4 @@
-package com.base.sbc.api.saas.pdm;
+package com.base.sbc.api.saas.pdm.material;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
@@ -7,14 +7,14 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.pdm.entity.Material;
-import com.base.sbc.pdm.dto.MaterialDto;
-import com.base.sbc.pdm.entity.MaterialDetails;
-import com.base.sbc.pdm.entity.MaterialLabel;
-import com.base.sbc.pdm.service.MaterialDetailsService;
-import com.base.sbc.pdm.service.MaterialLabelService;
-import com.base.sbc.pdm.service.MaterialService;
-import com.base.sbc.pdm.dao.MaterialAllDto;
+import com.base.sbc.pdm.entity.material.Material;
+import com.base.sbc.pdm.dto.material.MaterialDto;
+import com.base.sbc.pdm.entity.material.MaterialDetails;
+import com.base.sbc.pdm.entity.material.MaterialLabel;
+import com.base.sbc.pdm.service.material.MaterialDetailsService;
+import com.base.sbc.pdm.service.material.MaterialLabelService;
+import com.base.sbc.pdm.service.material.MaterialService;
+import com.base.sbc.pdm.dao.material.MaterialAllDto;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

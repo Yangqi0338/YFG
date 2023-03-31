@@ -1,8 +1,8 @@
-package com.base.sbc.pdm.service;
+package com.base.sbc.pdm.service.material;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.pdm.entity.MaterialLabel;
-import com.base.sbc.pdm.mapper.MaterialLabelMapper;
+import com.base.sbc.pdm.entity.material.MaterialLabel;
+import com.base.sbc.pdm.mapper.material.MaterialLabelMapper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
