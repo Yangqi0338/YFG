@@ -104,7 +104,7 @@ public class MaterialService extends BaseService<Material> {
         }
 
 
-        //尺码 筛选条件
+        //尺码筛选条件
         if (!StringUtils.isEmpty(materialAllDto.getSizeId())) {
             sizeSet = new HashSet<>();
             List<MaterialSize> materialSizes = materialSizeService.getBySizeId(materialAllDto.getSizeId());

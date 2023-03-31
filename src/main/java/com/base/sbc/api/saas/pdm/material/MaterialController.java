@@ -7,13 +7,9 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.pdm.entity.material.Material;
+import com.base.sbc.pdm.entity.material.*;
 import com.base.sbc.pdm.dto.material.MaterialDto;
-import com.base.sbc.pdm.entity.material.MaterialDetails;
-import com.base.sbc.pdm.entity.material.MaterialLabel;
-import com.base.sbc.pdm.service.material.MaterialDetailsService;
-import com.base.sbc.pdm.service.material.MaterialLabelService;
-import com.base.sbc.pdm.service.material.MaterialService;
+import com.base.sbc.pdm.service.material.*;
 import com.base.sbc.pdm.dao.material.MaterialAllDto;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -21,6 +17,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 import java.util.*;
 
@@ -44,12 +41,18 @@ public class MaterialController extends BaseController {
     @Resource
     private MaterialLabelService materialLabelService;
 
+    @Resource
+    private MaterialSizeService materialSizeService;
+
+    @Resource
+    private MaterialColorService materialColorService;
+
     /**
      * 新增
      */
 
     @PostMapping("/add")
-    @Transactional
+    @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "新增素材", notes = "新增素材")
     public ApiResult add(@RequestBody MaterialDto materialDto) {
 
@@ -59,15 +62,39 @@ public class MaterialController extends BaseController {
         materialService.insert(materialDto.getMaterial());
 
         List<MaterialLabel> labels = materialDto.getMaterial().getLabels();
+
         //新增关联标签
         if (labels != null) {
             IdGen idGen = new IdGen();
             for (MaterialLabel label : labels) {
-                label.setId(String.valueOf(idGen.nextId()));
+                label.setId(idGen.nextIdStr());
                 label.setMaterialId(materialDto.getMaterial().getId());
                 materialLabelService.add(label);
             }
         }
+
+        //新增关联尺码
+        List<MaterialSize> sizes = materialDto.getMaterial().getSizes();
+        if (sizes != null) {
+            IdGen idGen = new IdGen();
+            for (MaterialSize size : sizes) {
+                size.setId(idGen.nextIdStr());
+                size.setMaterialId(materialDto.getMaterial().getId());
+                materialSizeService.add(size);
+            }
+        }
+
+        //新增关联颜色
+        List<MaterialColor> colors = materialDto.getMaterial().getColors();
+        if (colors != null) {
+            IdGen idGen = new IdGen();
+            for (MaterialColor color : colors) {
+                color.setId(idGen.nextIdStr());
+                color.setMaterialId(materialDto.getMaterial().getId());
+                materialColorService.add(color);
+            }
+        }
+
         materialDto.getMaterialDetails().setMaterialId(materialDto.getMaterial().getId());
         materialDetailsService.insert(materialDto.getMaterialDetails());
         return insertSuccess(materialDto.getMaterial().getId());
@@ -95,7 +122,6 @@ public class MaterialController extends BaseController {
             materialDetails.setMaterialId(material.getId());
             materialDetails.preInsert(idGen.nextIdStr());
             materialDetailsList.add(materialDetails);
-
         }
 
         int i = materialService.batchInsert(materialList);
@@ -122,7 +148,7 @@ public class MaterialController extends BaseController {
             }
         }
 
-        //先去删除关联标签
+        //删除关联标签
         materialLabelService.del(materialDto.getMaterial().getId());
 
         List<MaterialLabel> labels = materialDto.getMaterial().getLabels();
@@ -135,6 +161,33 @@ public class MaterialController extends BaseController {
                 materialLabelService.add(label);
             }
         }
+
+        //删除关联尺码
+        materialSizeService.del(materialDto.getMaterial().getId());
+        //新增关联尺码
+        List<MaterialSize> sizes = materialDto.getMaterial().getSizes();
+        if (sizes != null) {
+            IdGen idGen = new IdGen();
+            for (MaterialSize size : sizes) {
+                size.setId(idGen.nextIdStr());
+                size.setMaterialId(materialDto.getMaterial().getId());
+                materialSizeService.add(size);
+            }
+        }
+
+        //删除关联颜色
+        materialColorService.del(materialDto.getMaterial().getId());
+        //新增关联颜色
+        List<MaterialColor> colors = materialDto.getMaterial().getColors();
+        if (colors != null) {
+            IdGen idGen = new IdGen();
+            for (MaterialColor color : colors) {
+                color.setId(idGen.nextIdStr());
+                color.setMaterialId(materialDto.getMaterial().getId());
+                materialColorService.add(color);
+            }
+        }
+
         int i = materialService.updateAll(materialDto.getMaterial());
         materialDetailsService.updateAll(materialDto.getMaterialDetails());
         return updateSuccess(i);

@@ -26,7 +26,7 @@ public class MaterialAllDto extends MaterialDetails {
     private List<MaterialSize> sizes;
 
     /**
-     * 所有尺码
+     * 所有颜色
      */
     private List<MaterialColor> colors;
 

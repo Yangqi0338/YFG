@@ -39,6 +39,16 @@ public class Material extends BaseDataEntity<String> {
     public List<MaterialLabel> labels;
 
     /**
+     * 所有尺码
+     */
+    private List<MaterialSize> sizes;
+
+    /**
+     * 所有颜色
+     */
+    private List<MaterialColor> colors;
+
+    /**
      * ids 查询的id集合
      */
     public List<String> ids;
