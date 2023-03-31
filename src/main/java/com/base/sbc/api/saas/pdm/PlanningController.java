@@ -18,8 +18,10 @@ import com.base.sbc.pdm.dto.PlanningSeasonSaveDto;
 import com.base.sbc.pdm.dto.PlanningSeasonSearchDto;
 import com.base.sbc.pdm.entity.PlanningBand;
 import com.base.sbc.pdm.entity.PlanningCategory;
+import com.base.sbc.pdm.entity.PlanningCategoryItem;
 import com.base.sbc.pdm.entity.PlanningSeason;
 import com.base.sbc.pdm.service.PlanningBandService;
+import com.base.sbc.pdm.service.PlanningCategoryItemService;
 import com.base.sbc.pdm.service.PlanningCategoryService;
 import com.base.sbc.pdm.service.PlanningSeasonService;
 import com.base.sbc.pdm.vo.PlanningBandVo;
@@ -58,6 +60,8 @@ public class PlanningController extends BaseController {
     @Resource
     private PlanningCategoryService planningCategoryService;
     @Resource
+    private PlanningCategoryItemService planningCategoryItemService;
+    @Resource
     private AmcService amcService;
     private IdGen idGen = new IdGen();
 
@@ -79,7 +83,7 @@ public class PlanningController extends BaseController {
 
         PlanningSeason bean = null;
         int insert = 0;
-        if (StrUtil.isNotEmpty(dto.getId())) {
+        if (StrUtil.isEmpty(dto.getId())) {
             bean = BeanUtil.copyProperties(dto, PlanningSeason.class);
             //保存
             bean.preInsert();
@@ -101,6 +105,7 @@ public class PlanningController extends BaseController {
         throw new OtherException(BaseErrorEnum.ERR_INTERNAL_SERVER_ERROR);
     }
 
+    @ApiOperation(value = "查询产品季-通过季名称查询")
     @GetMapping("/getByName")
     public PlanningSeasonVo getByName(@NotNull(message = "名称不能为空") String name) {
         QueryCondition qc = new QueryCondition(getUserCompany());
@@ -113,6 +118,7 @@ public class PlanningController extends BaseController {
 
     }
 
+    @ApiOperation(value = "查询产品季-分页查询")
     @GetMapping
     public PageInfo<PlanningSeasonVo> query(PlanningSeasonSearchDto dto) {
 
@@ -147,7 +153,7 @@ public class PlanningController extends BaseController {
 
         return new PageInfo<>();
     }
-
+    @ApiOperation(value = "查询波段企划-分页查询")
     @GetMapping("/planBand")
     public PageInfo<PlanningSeasonBandVo> bandList(@Valid PlanningBandSearchDto dto) {
         // 1 查询产品季
@@ -175,10 +181,10 @@ public class PlanningController extends BaseController {
         return new PageInfo<>();
     }
 
-
+    @ApiOperation(value = "查询波段企划-通过产品季和波段企划名称")
     @GetMapping("/planBand/getByName")
-    public PlanningSeasonBandVo bandList(@NotNull(message = "产品季名称不能为空") String planningSeasonName,
-                                                   @NotNull(message = "企划波段名称不能为空") String planningBandName) {
+    public PlanningSeasonBandVo getBandByName(@NotNull(message = "产品季名称不能为空") String planningSeasonName,
+                                                   @NotNull(message = "波段企划名称不能为空") String planningBandName) {
         QueryCondition qc = new QueryCondition();
         qc.andConditionSql("b.planning_season_id=s.id");
         qc.andEqualTo("s.company_code", getUserCompany());
@@ -190,11 +196,15 @@ public class PlanningController extends BaseController {
         QueryCondition categoryQc=new QueryCondition(getUserCompany());
         categoryQc.andEqualTo("planning_season_id",first.getSeason().getId());
         categoryQc.andEqualTo("planning_band_id",first.getBand().getId());
-        List<PlanningCategory> categoryList = planningCategoryService.findByCondition(categoryQc);
-        first.getBand().setCategoryData(categoryList);
+        List<PlanningCategory> categoryData = planningCategoryService.findByCondition(categoryQc);
+        first.getBand().setCategoryData(categoryData);
+        //查询坑位信息
+        List<PlanningCategoryItem> categoryItemData = planningCategoryItemService.findByCondition(categoryQc);
+        first.getBand().setCategoryItemData(categoryItemData);
         return first;
     }
 
+    @ApiOperation(value = "保存波段企划")
     @PostMapping("/planBand")
     public PlanningBandVo savePlanBand(@Valid @RequestBody PlanningBandDto dto) {
         // 校验名称重复
@@ -246,8 +256,8 @@ public class PlanningController extends BaseController {
                 }
             }
             planningCategoryService.batchInsert(categoryList);
+            planningCategoryItemService.saveCategoryItem(categoryList,getUserCompany());
         }
-
         return BeanUtil.copyProperties(bean, PlanningBandVo.class);
     }
 }

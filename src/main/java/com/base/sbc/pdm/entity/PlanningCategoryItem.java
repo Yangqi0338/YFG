@@ -15,22 +15,22 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import io.swagger.annotations.ApiModelProperty;
 /**
- * 类描述：企划-品类信息 实体类
- * @address com.base.sbc.pdm.entity.PlanningCategory
+ * 类描述：企划-坑位信息 实体类
+ * @address com.base.sbc.pdm.entity.PlanningCategoryItem
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-3-31 13:47:37
+ * @date 创建时间：2023-3-31 13:47:40
  * @version 1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class PlanningCategory extends BaseDataEntity<String> {
+public class PlanningCategoryItem extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
-    /**********************************实体存放的其他字段区 【other_end】******************************************/
+	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性)***********************************/
     /** 产品季节id */
@@ -39,36 +39,30 @@ public class PlanningCategory extends BaseDataEntity<String> {
     /** 波段企划id */
     @ApiModelProperty(value = "波段企划id"  )
     private String planningBandId;
-    /** 品类id(品类) */
-    @ApiModelProperty(value = "品类id(品类)"  )
+    /** 品类信息id */
+    @ApiModelProperty(value = "品类信息id"  )
+    private String planningCategoryId;
+    /** 款式图 */
+    @ApiModelProperty(value = "款式图"  )
+    private String stylePic;
+    /** 设计款号 */
+    @ApiModelProperty(value = "设计款号"  )
+    private String designNo;
+    /** 品类id(小类) */
+    @ApiModelProperty(value = "品类id(小类)"  )
     private String categoryId;
-    /** 品类名称路径(大类/品类) */
-    @ApiModelProperty(value = "品类名称路径(大类/品类)"  )
+    /** 品类名称路径:(中类/小类) */
+    @ApiModelProperty(value = "品类名称路径:(中类/小类)"  )
     private String categoryName;
-    /** 品类id路径(大类/品类) */
-    @ApiModelProperty(value = "品类id路径(大类/品类)"  )
+    /** 品类id路径:(中类/小类) */
+    @ApiModelProperty(value = "品类id路径:(中类/小类)"  )
     private String categoryIds;
-    /** 品类规划SKC数 */
-    @ApiModelProperty(value = "品类规划SKC数"  )
-    private BigDecimal categoryPlanSkcNum;
-    /** 款色数SKC数 */
-    @ApiModelProperty(value = "款色数SKC数"  )
-    private BigDecimal styleColorSkcNum;
-    /** 每款SKC数 */
-    @ApiModelProperty(value = "每款SKC数"  )
-    private BigDecimal styleSkcNum;
-    /** 企划需求数 */
-    @ApiModelProperty(value = "企划需求数"  )
-    private BigDecimal planRequirementNum;
-    /** 设计放量 */
-    @ApiModelProperty(value = "设计放量"  )
-    private BigDecimal designReleaseNum;
-    /** 计划开发数 */
-    @ApiModelProperty(value = "计划开发数"  )
-    private BigDecimal planDevNum;
-    /** 负责人 */
-    @ApiModelProperty(value = "负责人"  )
-    private String manager;
+    /** 价格带 */
+    @ApiModelProperty(value = "价格带"  )
+    private String price;
+    /** 关联历史款 */
+    @ApiModelProperty(value = "关联历史款"  )
+    private String hisDesignNo;
     /*******************************************getset方法区************************************/
 
 }
