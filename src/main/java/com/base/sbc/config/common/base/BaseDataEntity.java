@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2018 celizi.com 
+ * Copyright (C) 2018 celizi.com
  * All Rights Reserved.
  * 本软件为网址：celizi.com 开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
@@ -8,6 +8,9 @@ package com.base.sbc.config.common.base;
 
 import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.base.sbc.config.aspect.GetCurUserInfoAspect;
 import org.hibernate.validator.constraints.Length;
 
@@ -15,13 +18,8 @@ import com.base.sbc.config.common.IdGen;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
- * 类描述：
- *
- * @author shenzhixiong
- * @version 1.0
- * @address com.celizi.base.common.base.DataEntity
- * @email 731139982@qq.com
- * @date 创建时间：2017年4月8日 上午9:27:06
+ * @author 卞康
+ * @date 2023/3/31 19:56:38
  */
 public abstract class BaseDataEntity<T> extends BaseEntity {
     /**
@@ -45,6 +43,8 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
     protected String remarks;
     /**  删除标记（0：正常；1：删除；） */
     @Length(min = 1, max = 1)
+    @TableLogic(value = "0", delval = "1")
+    @TableField(value = "delete_flag", fill = FieldFill.INSERT)
     protected String delFlag;
     /** 创建者 */
     protected String createId;

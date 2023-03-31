@@ -1,8 +1,8 @@
 package com.base.sbc.module.material.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
-import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.exception.OtherException;
@@ -59,7 +59,7 @@ public class MaterialController extends BaseController {
         materialDto.getMaterial().preInsert();
         materialDto.getMaterialDetails().preInsert();
         materialDto.getMaterial().setStatus("1");
-        materialService.insert(materialDto.getMaterial());
+        materialService.save(materialDto.getMaterial());
 
         List<MaterialLabel> labels = materialDto.getMaterial().getLabels();
 
@@ -124,9 +124,9 @@ public class MaterialController extends BaseController {
             materialDetailsList.add(materialDetails);
         }
 
-        int i = materialService.batchInsert(materialList);
+        boolean b = materialService.saveBatch(materialList);
         materialDetailsService.batchInsert(materialDetailsList);
-        return insertSuccess(i);
+        return insertSuccess(b);
     }
 
     /**
@@ -138,10 +138,11 @@ public class MaterialController extends BaseController {
         Material material1 = materialService.getById(materialDto.getMaterial().getId());
         //是否修改了文件名或者所属素材库
         if (!material1.getMaterialLibrary().equals(materialDto.getMaterial().getMaterialLibrary()) || !material1.getMaterialName().equals(materialDto.getMaterial().getMaterialName())) {
-            QueryCondition qc = new QueryCondition();
-            qc.andEqualTo("material_name", materialDto.getMaterial().getMaterialName());
-            qc.andEqualTo("material_library", materialDto.getMaterial().getMaterialLibrary());
-            Material material = materialService.getByCondition(qc);
+
+            QueryWrapper<Material> queryWrapper=new QueryWrapper<>();
+            queryWrapper.eq("material_name", materialDto.getMaterial().getMaterialName());
+            queryWrapper.eq("material_library", materialDto.getMaterial().getMaterialLibrary());
+            Material material = materialService.getOne(queryWrapper);
 
             if (material != null && !Objects.equals(material.getId(), materialDto.getMaterial().getId())) {
                 throw new OtherException("已存在相同名称素材");
@@ -188,9 +189,9 @@ public class MaterialController extends BaseController {
             }
         }
 
-        int i = materialService.updateAll(materialDto.getMaterial());
+        boolean b = materialService.updateById(materialDto.getMaterial());
         materialDetailsService.updateAll(materialDto.getMaterialDetails());
-        return updateSuccess(i);
+        return updateSuccess(b);
     }
 
     /**
@@ -198,8 +199,7 @@ public class MaterialController extends BaseController {
      */
     @DeleteMapping("/delByIds")
     public ApiResult delByIds(String[] ids) {
-        Material material = new Material();
-        return deleteSuccess(materialService.batchdeleteByIdDelFlag(material, Arrays.asList(ids)));
+        return deleteSuccess(materialService.removeBatchByIds(Arrays.asList(ids)));
     }
 
 
