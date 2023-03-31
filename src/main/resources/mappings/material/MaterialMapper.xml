@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.material.mapper.MaterialMapper">
+
+    <select id="listQuery" resultType="com.base.sbc.material.dao.MaterialAllDto">
+        select tm.*,tmd.*,tmc.id as collectId
+        from t_material tm
+        left join t_material_details tmd on tm.id = tmd.material_id
+        left join t_material_collect tmc on tm.id = tmc.material_id and tmc.del_flag = '0'
+        where tm.del_flag = '0'
+
+        and material_library = #{materialLibrary}
+        and tm.company_code=#{companyCode}
+        <if test="ids != null and ids.size > 0">
+            and tm.id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="statusList != null and statusList.length > 0">
+            and status in
+            <foreach collection="statusList" open="(" separator="," item="item" close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="materialName != null and materialName != ''">
+            and material_name like concat('%',#{materialName},'%')
+        </if>
+        <if test="materialType != null and materialType != ''">
+            and material_type = #{materialType}
+        </if>
+        <if test="createId != null and createId != ''">
+            and tm.create_id = #{createId}
+        </if>
+        order by create_date desc
+    </select>
+</mapper>

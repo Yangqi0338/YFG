@@ -1,0 +1,17 @@
+package com.base.sbc.material.mapper;
+
+import com.base.sbc.material.dao.MaterialAllDto;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+
+/**
+ * @author 卞康
+ * @date 2023/3/24 19:07:58
+ */
+@Mapper
+public interface MaterialMapper {
+    List<MaterialAllDto> listQuery(MaterialAllDto materialAllDto);
+
+
+}
