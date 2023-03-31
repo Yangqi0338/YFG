@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.pdm.service.material;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.QueryCondition;
@@ -16,9 +15,7 @@ import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.pdm.dto.material.MaterialDto;
-import com.base.sbc.pdm.entity.material.MaterialCollect;
-import com.base.sbc.pdm.entity.material.MaterialLabel;
-import com.base.sbc.pdm.entity.material.MaterialSize;
+import com.base.sbc.pdm.entity.material.*;
 import com.base.sbc.pdm.mapper.material.MaterialMapper;
 import com.base.sbc.pdm.dao.material.MaterialAllDto;
 import com.github.pagehelper.PageHelper;
@@ -28,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.base.sbc.config.common.base.BaseDao;
 import com.base.sbc.config.common.base.BaseService;
-import com.base.sbc.pdm.entity.material.Material;
 import com.base.sbc.pdm.dao.material.MaterialDao;
 
 import javax.annotation.Resource;
@@ -71,6 +67,9 @@ public class MaterialService extends BaseService<Material> {
         return materialDao;
     }
 
+    @Resource
+    private MaterialColorService materialColorService;
+
 
     /**
      * 为了解决太多表关联查询太慢的问题
@@ -110,13 +109,17 @@ public class MaterialService extends BaseService<Material> {
             sizeSet = new HashSet<>();
             List<MaterialSize> materialSizes = materialSizeService.getBySizeId(materialAllDto.getSizeId());
             for (MaterialSize materialSize : materialSizes) {
-                sizeSet.add(materialSize.getId());
+                sizeSet.add(materialSize.getMaterialId());
             }
         }
 
         //颜色筛选条件
         if (!StringUtils.isEmpty(materialAllDto.getColorId())) {
             colorSet = new HashSet<>();
+            List<MaterialColor> materialColors = materialColorService.getColorId(materialAllDto.getColorId());
+            for (MaterialColor materialColor : materialColors) {
+                colorSet.add(materialColor.getMaterialId());
+            }
         }
 
         //如果有集合不为null，则说明有筛选条件
@@ -131,7 +134,6 @@ public class MaterialService extends BaseService<Material> {
             }
             materialAllDto.setIds(new ArrayList<>(ids));
         }
-
     }
 
 
@@ -145,7 +147,6 @@ public class MaterialService extends BaseService<Material> {
      */
     public PageInfo<MaterialDto> listQuery(String token, MaterialAllDto materialAllDto, Page page) {
         this.addQuery(materialAllDto);
-
 
         PageHelper.startPage(page);
         List<MaterialAllDto> materialAllDtos = materialMapper.listQuery(materialAllDto);
