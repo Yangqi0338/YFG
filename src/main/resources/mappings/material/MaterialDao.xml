@@ -211,7 +211,7 @@
         方法参数：条件构造器(可分组和排序)。
         方法返回：返回单个对象或集合。
     -->
-	<select id="select" resultType="com.base.sbc.material.entity.Material" parameterType="queryCondition">
+	<select id="select" resultType="com.base.sbc.module.material.entity.Material" parameterType="queryCondition">
 		select <include refid="base_column"/> from t_material
 		<include refid="common.whereClause"></include>
 		<if test="groupByClause != null">

@@ -35,7 +35,7 @@ public class GetCurUserInfoAspect {
     /**
      * 前置通知
      */
-    @Before(value = "execution(* com.base.sbc.api.saas..*.*(..))")
+    @Before(value = "execution(* com.base.sbc.module.*.controller..*.*(..))")
     public void doSaasBefore() {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
@@ -55,7 +55,7 @@ public class GetCurUserInfoAspect {
      * @param joinPoint
      * @param keys
      */
-    @AfterReturning(value = "execution(* com.base.sbc.api.saas..*.*(..))", returning = "keys")
+    @AfterReturning(value = "execution(* com.base.sbc.module.*.controller..*.*(..))", returning = "keys")
     public void doAfterReturningAdvice1(JoinPoint joinPoint, Object keys) {
         companyUserInfo.remove();
     }

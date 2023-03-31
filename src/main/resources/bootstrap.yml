@@ -1,6 +1,6 @@
 spring:
   application:
-    name: pdm
+    name: pdm1
   cloud:
     nacos:
       config:
@@ -10,6 +10,6 @@ spring:
 logging:
   level:
     #基础包
-    com.base.sbc.pdm.mapper: debug
+    com.base.sbc.module.common.mapper: debug
     #指定报的日志级别
     org.springframework: info
