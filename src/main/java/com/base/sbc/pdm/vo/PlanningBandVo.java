@@ -1,6 +1,7 @@
 package com.base.sbc.pdm.vo;
 
 import com.base.sbc.pdm.entity.PlanningCategory;
+import com.base.sbc.pdm.entity.PlanningCategoryItem;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -38,4 +39,6 @@ public class PlanningBandVo {
     private String createId;
     @ApiModelProperty(value = "品类信息" )
     private List<PlanningCategory> categoryData;
+    @ApiModelProperty(value = "坑位信息" )
+    private List<PlanningCategoryItem> categoryItemData;
 }

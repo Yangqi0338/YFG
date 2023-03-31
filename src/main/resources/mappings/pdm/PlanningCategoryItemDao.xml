@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="PlanningCategoryDao">
-	<!--企划-品类信息
+<mapper namespace="PlanningCategoryItemDao">
+	<!--企划-坑位信息
 	创建人：lxl
 	邮箱：lxl.fml@gmail.com
-	创建时间：2023-3-31 13:47:37
+	创建时间：2023-3-31 13:47:40
 	版本号：1.0
 -->
 	<!-- *******************************************自定义方法区  不替换的区域【other_start】***************************************** -->
@@ -14,15 +14,15 @@
 	<!-- *******************************************公用方法区(不可修改)***************************************** -->
 	<!-- 公用返回值 与数据库字段保持一致即可，同时实体(驼峰命名)必须包含所有字段 -->
 	<sql id="base_column">
-		id,company_code,planning_season_id,planning_band_id,category_id,category_name,category_ids,category_plan_skc_num,style_color_skc_num,style_skc_num,plan_requirement_num,design_release_num,plan_dev_num,manager
+		id,company_code,planning_season_id,planning_band_id,planning_category_id,style_pic,design_no,category_id,category_name,category_ids,price,his_design_no
 	</sql>
 	<!--  方法返回：成功条数。     方法名称： 新增          方法参数：list集合 -->
 	<insert id="insert" parameterType="java.util.List">
-		insert into t_planning_category (
+		insert into t_planning_category_item (
 		<include refid="base_column"/>
 		) values
 		<foreach collection="list" item="t" index="index" separator=",">
-			(  #{t.id,jdbcType=VARCHAR},#{t.companyCode,jdbcType=VARCHAR},#{t.planningSeasonId,jdbcType=VARCHAR},#{t.planningBandId,jdbcType=VARCHAR},#{t.categoryId,jdbcType=VARCHAR},#{t.categoryName,jdbcType=VARCHAR},#{t.categoryIds,jdbcType=VARCHAR},#{t.categoryPlanSkcNum,jdbcType=DECIMAL},#{t.styleColorSkcNum,jdbcType=DECIMAL},#{t.styleSkcNum,jdbcType=DECIMAL},#{t.planRequirementNum,jdbcType=DECIMAL},#{t.designReleaseNum,jdbcType=DECIMAL},#{t.planDevNum,jdbcType=DECIMAL},#{t.manager,jdbcType=VARCHAR}
+			(  #{t.id,jdbcType=VARCHAR},#{t.companyCode,jdbcType=VARCHAR},#{t.planningSeasonId,jdbcType=VARCHAR},#{t.planningBandId,jdbcType=VARCHAR},#{t.planningCategoryId,jdbcType=VARCHAR},#{t.stylePic,jdbcType=VARCHAR},#{t.designNo,jdbcType=VARCHAR},#{t.categoryId,jdbcType=VARCHAR},#{t.categoryName,jdbcType=VARCHAR},#{t.categoryIds,jdbcType=VARCHAR},#{t.price,jdbcType=VARCHAR},#{t.hisDesignNo,jdbcType=VARCHAR}
 			)
 		</foreach>
 	</insert>
@@ -33,22 +33,20 @@
     -->
 	<update id="updateList" parameterType="java.util.List">
 		<foreach collection="list" item="t" index="index" separator=";">
-			update t_planning_category
+			update t_planning_category_item
 			<set>
 					id = #{t.id,jdbcType=VARCHAR},
 					company_code = #{t.companyCode,jdbcType=VARCHAR},
 					planning_season_id = #{t.planningSeasonId,jdbcType=VARCHAR},
 					planning_band_id = #{t.planningBandId,jdbcType=VARCHAR},
+					planning_category_id = #{t.planningCategoryId,jdbcType=VARCHAR},
+					style_pic = #{t.stylePic,jdbcType=VARCHAR},
+					design_no = #{t.designNo,jdbcType=VARCHAR},
 					category_id = #{t.categoryId,jdbcType=VARCHAR},
 					category_name = #{t.categoryName,jdbcType=VARCHAR},
 					category_ids = #{t.categoryIds,jdbcType=VARCHAR},
-					category_plan_skc_num = #{t.categoryPlanSkcNum,jdbcType=DECIMAL},
-					style_color_skc_num = #{t.styleColorSkcNum,jdbcType=DECIMAL},
-					style_skc_num = #{t.styleSkcNum,jdbcType=DECIMAL},
-					plan_requirement_num = #{t.planRequirementNum,jdbcType=DECIMAL},
-					design_release_num = #{t.designReleaseNum,jdbcType=DECIMAL},
-					plan_dev_num = #{t.planDevNum,jdbcType=DECIMAL},
-					manager = #{t.manager,jdbcType=VARCHAR},
+					price = #{t.price,jdbcType=VARCHAR},
+					his_design_no = #{t.hisDesignNo,jdbcType=VARCHAR},
 			</set>
 			where id = #{t.id,jdbcType=BIGINT}
 
@@ -61,7 +59,7 @@
         方法返回：成功条数。
     -->
 	<update id="update" parameterType="queryCondition">
-		update t_planning_category
+		update t_planning_category_item
 		<set>
 				<if test="t.id != null">
 					id = #{t.id
@@ -79,6 +77,18 @@
 					planning_band_id = #{t.planningBandId
 					,jdbcType=VARCHAR},
 				</if>
+				<if test="t.planningCategoryId != null">
+					planning_category_id = #{t.planningCategoryId
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.stylePic != null">
+					style_pic = #{t.stylePic
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.designNo != null">
+					design_no = #{t.designNo
+					,jdbcType=VARCHAR},
+				</if>
 				<if test="t.categoryId != null">
 					category_id = #{t.categoryId
 					,jdbcType=VARCHAR},
@@ -91,32 +101,12 @@
 					category_ids = #{t.categoryIds
 					,jdbcType=VARCHAR},
 				</if>
-				<if test="t.categoryPlanSkcNum != null">
-					category_plan_skc_num = #{t.categoryPlanSkcNum
-					,jdbcType=DECIMAL},
+				<if test="t.price != null">
+					price = #{t.price
+					,jdbcType=VARCHAR},
 				</if>
-				<if test="t.styleColorSkcNum != null">
-					style_color_skc_num = #{t.styleColorSkcNum
-					,jdbcType=DECIMAL},
-				</if>
-				<if test="t.styleSkcNum != null">
-					style_skc_num = #{t.styleSkcNum
-					,jdbcType=DECIMAL},
-				</if>
-				<if test="t.planRequirementNum != null">
-					plan_requirement_num = #{t.planRequirementNum
-					,jdbcType=DECIMAL},
-				</if>
-				<if test="t.designReleaseNum != null">
-					design_release_num = #{t.designReleaseNum
-					,jdbcType=DECIMAL},
-				</if>
-				<if test="t.planDevNum != null">
-					plan_dev_num = #{t.planDevNum
-					,jdbcType=DECIMAL},
-				</if>
-				<if test="t.manager != null">
-					manager = #{t.manager
+				<if test="t.hisDesignNo != null">
+					his_design_no = #{t.hisDesignNo
 					,jdbcType=VARCHAR},
 				</if>
 		</set>
@@ -129,14 +119,14 @@
         方法返回：成功条数。
     -->
 	<delete id="delete" parameterType="queryCondition">
-		delete from t_planning_category
+		delete from t_planning_category_item
 		<include refid="common.whereClause"></include>
 	</delete>
 
 	<select id="selectCount" resultType="java.lang.Integer" parameterType="queryCondition">
 		select  count(${countByClause})
 		<include refid="base_column"/>
-		from t_planning_category
+		from t_planning_category_item
 		<include refid="common.whereClause"></include>
 		<if test="groupByClause != null">
 			group by ${groupByClause}
@@ -151,8 +141,8 @@
         方法参数：条件构造器(可分组和排序)。
         方法返回：返回单个对象或集合。
     -->
-	<select id="select" resultType="com.base.sbc.pdm.entity.PlanningCategory" parameterType="queryCondition">
-		select <include refid="base_column"/> from t_planning_category
+	<select id="select" resultType="com.base.sbc.pdm.entity.PlanningCategoryItem" parameterType="queryCondition">
+		select <include refid="base_column"/> from t_planning_category_item
 		<include refid="common.whereClause"></include>
 		<if test="groupByClause != null">
 			group by ${groupByClause}
