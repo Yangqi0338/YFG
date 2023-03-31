@@ -1,9 +1,7 @@
 package com.base.sbc.pdm.dao.material;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.base.sbc.pdm.entity.material.Material;
-import com.base.sbc.pdm.entity.material.MaterialDetails;
-import com.base.sbc.pdm.entity.material.MaterialLabel;
+import com.base.sbc.pdm.entity.material.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,16 +14,26 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class MaterialAllDto extends MaterialDetails {
-    private static final long serialVersionUID = 1L;
+
+    /**
+     * 所有标签
+     */
+    private List<MaterialLabel> labels;
+
+    /**
+     * 所有尺码
+     */
+    private List<MaterialSize> sizes;
+
+    /**
+     * 所有尺码
+     */
+    private List<MaterialColor> colors;
 
     /**
      * 状态查询数组
      */
     private String[] statusList;
-    /**
-     * 所有标签
-     */
-    private List<MaterialLabel> labels;
 
     /**
      * 查询条件标签id集合

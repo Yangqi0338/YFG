@@ -168,9 +168,9 @@ public class MaterialService extends BaseService<Material> {
         //查询关联标签
         List<MaterialLabel> materialLabelList = materialLabelService.getByMaterialIds(ids);
         //查询关联尺码信息
-
+        List<MaterialSize> materialSizeList = materialSizeService.getByMaterialIds(ids);
         //查询关联颜色信息
-
+        List<MaterialColor> materialColorList = materialColorService.getByMaterialIds(ids);
 
         //远程获取用户部门信息
         String str = amcService.getDeptList(token, userIds.toArray(new String[0]));
@@ -192,6 +192,24 @@ public class MaterialService extends BaseService<Material> {
                 }
             }
             allDto.setLabels(labels);
+
+            //尺码放入对象
+            List<MaterialSize> materialSizes =new ArrayList<>();
+            for (MaterialSize materialSize : materialSizeList) {
+                if (allDto.getId().equals(materialSize.getMaterialId())){
+                    materialSizes.add(materialSize);
+                }
+            }
+            allDto.setSizes(materialSizes);
+
+            //颜色放入对象
+            List<MaterialColor> materialColors=new ArrayList<>();
+            for (MaterialColor materialColor : materialColorList) {
+                if (allDto.getId().equals(materialColor.getMaterialId())){
+                    materialColors.add(materialColor);
+                }
+            }
+            allDto.setColors(materialColors);
 
             MaterialDto materialDto = new MaterialDto();
             materialDto.setMaterialDetails(allDto.toMaterialDetails());
