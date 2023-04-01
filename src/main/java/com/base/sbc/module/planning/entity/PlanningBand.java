@@ -6,7 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.entity;
 
+import java.util.Date;
+import java.util.List;
+import java.math.BigDecimal;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @address com.base.sbc.module.planning.entity.PlanningBand
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-3-29 10:36:56
+ * @date 创建时间：2023-4-1 9:22:16
  * @version 1.0
  */
 @Data
@@ -38,9 +42,12 @@ public class PlanningBand extends BaseDataEntity<String> {
     /** 性别 */
     @ApiModelProperty(value = "性别"  )
     private String sex;
-    /** 波段 */
-    @ApiModelProperty(value = "波段"  )
+    /** 波段名称 */
+    @ApiModelProperty(value = "波段名称"  )
     private String band;
+    /** 波段id */
+    @ApiModelProperty(value = "波段id"  )
+    private String bandId;
     /** 生成模式 */
     @ApiModelProperty(value = "生成模式"  )
     private String devtType;
