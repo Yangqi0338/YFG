@@ -19,8 +19,10 @@ import lombok.EqualsAndHashCode;
 @TableName("t_material")
 public class Material extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-
+    /**
+     * 市场
+     */
+    private String market;
     /** 来源人 */
     private String sourcePerson;
     /** 采集时间 */

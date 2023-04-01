@@ -61,14 +61,26 @@ public class MaterialAllDto extends MaterialDetails {
      */
     private String colorId;
 
+    /**
+     * 市场
+     */
+    private String market;
 
-    /** 来源人 */
+    /**
+     * 来源人
+     */
     private String sourcePerson;
-    /** 采集时间 */
+    /**
+     * 采集时间
+     */
     private Date collectionTime;
-    /** 来源部门id */
+    /**
+     * 来源部门id
+     */
     private String sourceDeptId;
-    /** 来源部门 */
+    /**
+     * 来源部门
+     */
     private String sourceDeptName;
 
     /**
