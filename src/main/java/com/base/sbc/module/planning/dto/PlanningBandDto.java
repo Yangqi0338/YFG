@@ -26,9 +26,12 @@ public class PlanningBandDto {
     private String sex;
     /** 波段 */
 
-    @ApiModelProperty(value = "波段" ,example = "689467740238381051")
+    @ApiModelProperty(value = "波段" ,example = "1b")
     @NotNull(message = "波段不能为空")
     private String band;
+    @ApiModelProperty(value = "波段" ,example = "689467740238381051")
+    @NotNull(message = "波段id不能为空")
+    private String bandId;
     /** 生成模式 */
     @ApiModelProperty(value = "生产模式" ,example = "CMT")
     @NotNull(message = "生产模式不能为空")
