@@ -1,15 +1,9 @@
-/******************************************************************************
- * Copyright (C) 2018 广州尚捷科技有限责任公司
- * All Rights Reserved.
- * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
- * 不得使用、复制、修改或发布本软件.
- *****************************************************************************/
 package com.base.sbc.module.material.service.impl;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.client.amc.service.AmcService;
-import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.utils.CommonUtils;
@@ -24,47 +18,39 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.annotation.Resource;
 import java.util.*;
 
 /**
- * 类描述：素材库 service类
+ * 类描述：素材库 service实现类
  *
  * @author 卞康
  * @version 1.0
- * @date 创建时间：2023-3-24 16:26:15
+ * @date 创建时间：2023-4-1 16:26:15
  */
 @Service
 @Transactional(readOnly = true)
-public class MaterialServiceImpl extends ServiceImpl<MaterialMapper,Material> implements MaterialService{
-
+public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> implements MaterialService {
     @Resource
     private MaterialMapper materialMapper;
-
     @Resource
     private UserUtils userUtils;
-
     @Resource
     private AmcService amcService;
-
     @Resource
     private MaterialLabelService materialLabelService;
-
     @Resource
     private MaterialCollectService materialCollectService;
-
     @Resource
     private MaterialSizeService materialSizeService;
-
     @Resource
     private MaterialColorService materialColorService;
-
 
     /**
      * 为了解决太多表关联查询太慢的问题
      * 相关联的表，生成查询条件
      */
-
     private void addQuery(MaterialAllDto materialAllDto) {
         // TODO: 2023/3/31 后期优化，写sql语句优化查询返回字段
         HashSet<String> collectSet = null;
@@ -74,10 +60,9 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper,Material> im
         //我的收藏筛选条件
         if (BasicNumber.ONE.getNumber().equals(materialAllDto.getCollectId())) {
             collectSet = new HashSet<>();
-            QueryCondition qc = new QueryCondition();
-            qc.andEqualTo("user_id", userUtils.getUserId());
-            qc.andEqualTo("del_flag", 0);
-            List<MaterialCollect> materialCollects = materialCollectService.findByCondition(qc);
+            QueryWrapper<MaterialCollect> qc = new QueryWrapper<>();
+            qc.eq("user_id", userUtils.getUserId());
+            List<MaterialCollect> materialCollects = materialCollectService.list(qc);
             for (MaterialCollect materialCollect : materialCollects) {
                 collectSet.add(materialCollect.getMaterialId());
             }
@@ -91,7 +76,6 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper,Material> im
                 labelSet.add(materialLabel.getMaterialId());
             }
         }
-
 
         //尺码筛选条件
         if (!StringUtils.isEmpty(materialAllDto.getSizeId())) {
@@ -125,7 +109,6 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper,Material> im
         }
     }
 
-
     /**
      * 条件查询
      *
@@ -136,6 +119,7 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper,Material> im
      */
     @Override
     public PageInfo<MaterialDto> listQuery(String token, MaterialAllDto materialAllDto, Page page) {
+        materialAllDto.setCompanyCode(userUtils.getCompanyCode());
         this.addQuery(materialAllDto);
 
         PageHelper.startPage(page);
@@ -184,18 +168,18 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper,Material> im
             allDto.setLabels(labels);
 
             //尺码放入对象
-            List<MaterialSize> materialSizes =new ArrayList<>();
+            List<MaterialSize> materialSizes = new ArrayList<>();
             for (MaterialSize materialSize : materialSizeList) {
-                if (allDto.getId().equals(materialSize.getMaterialId())){
+                if (allDto.getId().equals(materialSize.getMaterialId())) {
                     materialSizes.add(materialSize);
                 }
             }
             allDto.setSizes(materialSizes);
 
             //颜色放入对象
-            List<MaterialColor> materialColors=new ArrayList<>();
+            List<MaterialColor> materialColors = new ArrayList<>();
             for (MaterialColor materialColor : materialColorList) {
-                if (allDto.getId().equals(materialColor.getMaterialId())){
+                if (allDto.getId().equals(materialColor.getMaterialId())) {
                     materialColors.add(materialColor);
                 }
             }

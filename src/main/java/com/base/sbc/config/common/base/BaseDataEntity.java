@@ -7,13 +7,11 @@
 package com.base.sbc.config.common.base;
 
 import java.util.Date;
-
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.base.sbc.config.aspect.GetCurUserInfoAspect;
 import org.hibernate.validator.constraints.Length;
-
 import com.base.sbc.config.common.IdGen;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -22,32 +20,47 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  * @date 2023/3/31 19:56:38
  */
 public abstract class BaseDataEntity<T> extends BaseEntity {
-    /**
-     *
-     */
+
+    @TableField(exist = false)
     private static final long serialVersionUID = 7022181519896948997L;
-    /** 更新者  */
+
+    /** 更新者名称  */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     protected String updateName;
-    /**  更新者 */
+
+    /**  更新者id */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     protected String updateId;
-    /** 创建日期 */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    protected Date createDate;
+
     /** 更新日期 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     protected Date updateDate;
-    /**  创建者 */
+
+    /** 创建日期 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(fill = FieldFill.INSERT)
+    protected Date createDate;
+
+    /**  创建者名称 */
+    @TableField(fill = FieldFill.INSERT)
     protected String createName;
-    /**  备注 */
-    @Length(min = 0, max = 500)
-    protected String remarks;
+
+    /** 创建者id */
+    @TableField(fill = FieldFill.INSERT)
+    protected String createId;
+
     /**  删除标记（0：正常；1：删除；） */
     @Length(min = 1, max = 1)
     @TableLogic(value = "0", delval = "1")
-    @TableField(value = "delete_flag", fill = FieldFill.INSERT)
+    @TableField(fill = FieldFill.INSERT)
+
     protected String delFlag;
-    /** 创建者 */
-    protected String createId;
+    /**  备注 */
+    //@Length(min = 0, max = 500)
+    //protected String remarks;
+
+
 
     public BaseDataEntity() {
         super();
@@ -115,14 +128,14 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
     }
 
 
-    public String getRemarks() {
-        return remarks;
-    }
-
-    public BaseDataEntity setRemarks(String remarks) {
-        this.remarks = remarks;
-        return this;
-    }
+    //public String getRemarks() {
+    //    return remarks;
+    //}
+    //
+    //public BaseDataEntity setRemarks(String remarks) {
+    //    this.remarks = remarks;
+    //    return this;
+    //}
 
 
     public String getDelFlag() {

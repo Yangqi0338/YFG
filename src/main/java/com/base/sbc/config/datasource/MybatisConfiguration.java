@@ -5,7 +5,10 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
+import com.baomidou.mybatisplus.core.config.GlobalConfig;
+import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
+import com.base.sbc.config.AutoFillFieldValueConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ibatis.plugin.Interceptor;
@@ -61,6 +64,9 @@ public class MybatisConfiguration implements TransactionManagementConfigurer {
     @Autowired
     private DataSource dataSource;
 
+    @javax.annotation.Resource
+    private AutoFillFieldValueConfig autoFillFieldValueConfig;
+
     /**
      * 提供SqlSeesion
      *
@@ -81,6 +87,13 @@ public class MybatisConfiguration implements TransactionManagementConfigurer {
             sessionFactoryBean.setMapperLocations(resources);
             //设置mybatis-config.xml配置文件位置
             sessionFactoryBean.setConfigLocation(new DefaultResourceLoader().getResource(configLocation));
+            //获取mybatis-plus全局配置
+
+            GlobalConfig globalConfig = GlobalConfigUtils.defaults();
+            //mybatis-plus全局配置设置元数据对象处理器为自己实现的那个
+            globalConfig.setMetaObjectHandler(autoFillFieldValueConfig);
+            //mybatisSqlSessionFactoryBean关联设置全局配置
+            sessionFactoryBean.setGlobalConfig(globalConfig);
 
             //添加分页插件、打印sql插件
             Interceptor[] plugins = new Interceptor[]{pageHelper(), sqlPrintInterceptor()};

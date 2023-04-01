@@ -9,7 +9,10 @@ package com.base.sbc.config.common.base;
 import java.io.Serializable;
 import java.util.Map;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -32,9 +35,11 @@ public abstract class BaseEntity implements Serializable{
 	public static final String DEL_FLAG_AUDIT = "2";
 
 	/** 实体主键 */
+	@TableId(type = IdType.ASSIGN_ID)
 	protected String id;
 
 	/** 公司编码 */
+	@TableField(fill = FieldFill.INSERT)
 	protected String companyCode;
 
 	/** 自定义SQL（SQL标识，SQL内容） */

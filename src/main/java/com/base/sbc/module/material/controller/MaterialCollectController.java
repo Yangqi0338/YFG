@@ -1,89 +1,66 @@
-/******************************************************************************
- * Copyright (C) 2018 广州尚捷科技有限责任公司
- * All Rights Reserved.
- * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
- * 不得使用、复制、修改或发布本软件.
- *****************************************************************************/
 package com.base.sbc.module.material.controller;
 
 import javax.annotation.Resource;
-
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.module.material.entity.MaterialCollect;
 import com.base.sbc.module.material.service.MaterialCollectService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-
-
 /**
- * 类描述：素材收藏表 Controller类
- * @address com.base.sbc.pdm.web.MaterialCollectController
- * @author lile
- * @email lilemyemail@163.com
- * @date 创建时间：2023-3-24 9:44:55
+ * 类描述：素材库收藏控制器
+ *
+ * @author 卞康
  * @version 1.0
+ * @date 创建时间：2023-4-1 16:26:15
  */
 @RestController
 @Api(value = "与素材收藏相关的所有接口信息", tags = {"素材收藏表接口"})
 @RequestMapping(value = BaseController.SAAS_URL + "/materialCollect", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-public class MaterialCollectController extends BaseController{
+public class MaterialCollectController extends BaseController {
 
+    @Resource
+    private MaterialCollectService materialCollectService;
 
-	@Autowired
-	private MaterialCollectService materialCollectService;
+    @Resource
+    private UserUtils userUtils;
 
-	@Resource
-	private UserUtils userUtils;
-
-    @ApiOperation(value="素材收藏", notes="素材收藏")
+    @ApiOperation(value = "素材收藏", notes = "素材收藏")
     @PostMapping("/add")
     public ApiResult add(@RequestBody MaterialCollect materialCollect) throws Exception {
-		String userId = userUtils.getUserId();
-		QueryCondition qc=new QueryCondition();
-		qc.andEqualTo("material_id",materialCollect.getMaterialId());
-		qc.andEqualTo("user_id",userId);
-		qc.andEqualTo("del_flag","0");
-		MaterialCollect materialCollect1 = materialCollectService.getByCondition(qc);
-		if (materialCollect1!=null){
-			throw new OtherException("请勿重复收藏");
-		}
-		materialCollect.preInsert();
-		materialCollect.setCompanyCode(userUtils.getCompanyCode());
-		materialCollect.setUserId(userId);
-		materialCollect.setDelFlag("0");
-		materialCollectService.insert(materialCollect);
+        String userId = userUtils.getUserId();
+        QueryWrapper<MaterialCollect> qc = new QueryWrapper<>();
+        qc.eq("material_id", materialCollect.getMaterialId());
+        qc.eq("user_id", userId);
+        if (materialCollectService.getOne(qc) != null) {
+            throw new OtherException("请勿重复收藏");
+        }
+        materialCollect.setUserId(userId);
+        materialCollectService.save(materialCollect);
         return insertSuccess(materialCollect.getId());
     }
 
-	@ApiOperation(value="素材取消收藏", notes="素材取消收藏")
-	@DeleteMapping("/del")
-	public ApiResult del(MaterialCollect materialCollect) throws Exception {
-		String userId = userUtils.getUserId();
-		QueryCondition qc=new QueryCondition();
-		qc.andEqualTo("material_id",materialCollect.getMaterialId());
-		qc.andEqualTo("user_id",userId);
-		qc.andEqualTo("del_flag",0);
-		MaterialCollect materialCollect1 = materialCollectService.getByCondition(qc);
-		if (materialCollect1==null){
-			throw  new OtherException("此素材未收藏");
-		}
-
-		return deleteSuccess(materialCollectService.deleteByIdDelFlag(materialCollect1,materialCollect1.getId()));
-	}
-
-
+    @ApiOperation(value = "素材取消收藏", notes = "素材取消收藏")
+    @DeleteMapping("/del")
+    public ApiResult del(MaterialCollect materialCollect) {
+        String userId = userUtils.getUserId();
+        QueryWrapper<MaterialCollect> qc = new QueryWrapper<>();
+        qc.eq("material_id", materialCollect.getMaterialId());
+        qc.eq("user_id", userId);
+        MaterialCollect materialCollect1 = materialCollectService.getOne(qc);
+        if (materialCollect1 == null) {
+            throw new OtherException("此素材未收藏");
+        }
+        return deleteSuccess(materialCollectService.removeById(materialCollect1.getId()));
+    }
 }

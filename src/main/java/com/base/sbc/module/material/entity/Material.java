@@ -1,61 +1,58 @@
-/******************************************************************************
- * Copyright (C) 2018 广州尚捷科技有限责任公司
- * All Rights Reserved.
- * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
- * 不得使用、复制、修改或发布本软件.
- *****************************************************************************/
 package com.base.sbc.module.material.entity;
 
 import java.util.List;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 /**
  * 类描述：素材库 实体类
- * @address com.base.sbc.module.material.entity.Material
- * @author lile
- * @email lilemyemail@163.com
- * @date 创建时间：2023-3-24 16:26:15
- * @version 1.0
+ * @author 卞康
+ * @date 2023/3/29 16:15:13
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@TableName("t_material")
 public class Material extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
     /** 所在部门 */
+    @TableField(exist = false)
     private String deptName;
     /**
      * 收藏id
      */
+    @TableField(exist = false)
     public String collectId;
 
     /**
      * 所有标签
      */
+    @TableField(exist = false)
     public List<MaterialLabel> labels;
 
     /**
      * 所有尺码
      */
+    @TableField(exist = false)
     private List<MaterialSize> sizes;
 
     /**
      * 所有颜色
      */
+    @TableField(exist = false)
     private List<MaterialColor> colors;
 
     /**
      * ids 查询的id集合
      */
+    @TableField(exist = false)
     public List<String> ids;
 
-    /**********************************实体存放的其他字段区 【other_end】******************************************/
-
-    /*****************************数据库字段区 不包含父类公共字段(属性)***********************************/
     /** 图片地址 */
     private String pictureUrl;
     /** 图片格式 */
@@ -92,7 +89,7 @@ public class Material extends BaseDataEntity<String> {
     private String drawback;
     /** 风险评估 */
     private String assess;
-    /*******************************************getset方法区************************************/
-
+    /** 备注 */
+    private String remarks;
 }
 

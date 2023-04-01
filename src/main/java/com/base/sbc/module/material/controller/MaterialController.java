@@ -2,9 +2,9 @@ package com.base.sbc.module.material.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.material.entity.*;
@@ -31,72 +31,56 @@ import java.util.*;
 public class MaterialController extends BaseController {
     @Resource
     private MaterialService materialService;
-
     @Resource
     private MaterialDetailsService materialDetailsService;
-
-    @Resource
-    private UserUtils userUtils;
-
     @Resource
     private MaterialLabelService materialLabelService;
-
     @Resource
     private MaterialSizeService materialSizeService;
-
     @Resource
     private MaterialColorService materialColorService;
 
     /**
      * 新增
      */
-
     @PostMapping("/add")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "新增素材", notes = "新增素材")
     public ApiResult add(@RequestBody MaterialDto materialDto) {
 
-        materialDto.getMaterial().preInsert();
-        materialDto.getMaterialDetails().preInsert();
-        materialDto.getMaterial().setStatus("1");
+        materialDto.getMaterial().setStatus(BasicNumber.ONE.getNumber());
         materialService.save(materialDto.getMaterial());
 
         List<MaterialLabel> labels = materialDto.getMaterial().getLabels();
 
         //新增关联标签
         if (labels != null) {
-            IdGen idGen = new IdGen();
             for (MaterialLabel label : labels) {
-                label.setId(idGen.nextIdStr());
                 label.setMaterialId(materialDto.getMaterial().getId());
-                materialLabelService.add(label);
+                materialLabelService.save(label);
             }
         }
 
         //新增关联尺码
         List<MaterialSize> sizes = materialDto.getMaterial().getSizes();
         if (sizes != null) {
-            IdGen idGen = new IdGen();
             for (MaterialSize size : sizes) {
-                size.setId(idGen.nextIdStr());
                 size.setMaterialId(materialDto.getMaterial().getId());
-                materialSizeService.add(size);
+                materialSizeService.save(size);
             }
         }
 
         //新增关联颜色
         List<MaterialColor> colors = materialDto.getMaterial().getColors();
         if (colors != null) {
-            IdGen idGen = new IdGen();
             for (MaterialColor color : colors) {
-                color.setId(idGen.nextIdStr());
                 color.setMaterialId(materialDto.getMaterial().getId());
-                materialColorService.add(color);
+                materialColorService.save(color);
             }
         }
 
         materialDto.getMaterialDetails().setMaterialId(materialDto.getMaterial().getId());
-        materialDetailsService.insert(materialDto.getMaterialDetails());
+        materialDetailsService.save(materialDto.getMaterialDetails());
         return insertSuccess(materialDto.getMaterial().getId());
     }
 
@@ -110,22 +94,17 @@ public class MaterialController extends BaseController {
         if (materialList == null || materialList.size() == 0) {
             throw new OtherException("参数错误");
         }
-        IdGen idGen = new IdGen();
 
         List<MaterialDetails> materialDetailsList = new ArrayList<>();
         for (Material material : materialList) {
-            material.preInsert(idGen.nextIdStr());
-            material.setStatus("0");
-            material.setDelFlag("0");
-            material.setCompanyCode(userUtils.getCompanyCode());
+            material.setStatus(BasicNumber.ZERO.getNumber());
             MaterialDetails materialDetails = new MaterialDetails();
             materialDetails.setMaterialId(material.getId());
-            materialDetails.preInsert(idGen.nextIdStr());
             materialDetailsList.add(materialDetails);
         }
 
         boolean b = materialService.saveBatch(materialList);
-        materialDetailsService.batchInsert(materialDetailsList);
+        materialDetailsService.saveBatch(materialDetailsList);
         return insertSuccess(b);
     }
 
@@ -139,7 +118,7 @@ public class MaterialController extends BaseController {
         //是否修改了文件名或者所属素材库
         if (!material1.getMaterialLibrary().equals(materialDto.getMaterial().getMaterialLibrary()) || !material1.getMaterialName().equals(materialDto.getMaterial().getMaterialName())) {
 
-            QueryWrapper<Material> queryWrapper=new QueryWrapper<>();
+            QueryWrapper<Material> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("material_name", materialDto.getMaterial().getMaterialName());
             queryWrapper.eq("material_library", materialDto.getMaterial().getMaterialLibrary());
             Material material = materialService.getOne(queryWrapper);
@@ -150,47 +129,43 @@ public class MaterialController extends BaseController {
         }
 
         //删除关联标签
-        materialLabelService.del(materialDto.getMaterial().getId());
+        QueryWrapper<MaterialLabel> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("material_id", materialDto.getMaterial().getId());
+        materialLabelService.remove(queryWrapper);
 
         List<MaterialLabel> labels = materialDto.getMaterial().getLabels();
         //新增关联标签
         if (labels != null) {
-            IdGen idGen = new IdGen();
             for (MaterialLabel label : labels) {
-                label.setId(String.valueOf(idGen.nextId()));
                 label.setMaterialId(materialDto.getMaterial().getId());
-                materialLabelService.add(label);
+                materialLabelService.save(label);
             }
         }
 
         //删除关联尺码
-        materialSizeService.del(materialDto.getMaterial().getId());
+        materialSizeService.removeById(materialDto.getMaterial().getId());
         //新增关联尺码
         List<MaterialSize> sizes = materialDto.getMaterial().getSizes();
         if (sizes != null) {
-            IdGen idGen = new IdGen();
             for (MaterialSize size : sizes) {
-                size.setId(idGen.nextIdStr());
                 size.setMaterialId(materialDto.getMaterial().getId());
-                materialSizeService.add(size);
+                materialSizeService.save(size);
             }
         }
 
         //删除关联颜色
-        materialColorService.del(materialDto.getMaterial().getId());
+        materialColorService.removeById(materialDto.getMaterial().getId());
         //新增关联颜色
         List<MaterialColor> colors = materialDto.getMaterial().getColors();
         if (colors != null) {
-            IdGen idGen = new IdGen();
             for (MaterialColor color : colors) {
-                color.setId(idGen.nextIdStr());
                 color.setMaterialId(materialDto.getMaterial().getId());
-                materialColorService.add(color);
+                materialColorService.save(color);
             }
         }
 
         boolean b = materialService.updateById(materialDto.getMaterial());
-        materialDetailsService.updateAll(materialDto.getMaterialDetails());
+        materialDetailsService.updateById(materialDto.getMaterialDetails());
         return updateSuccess(b);
     }
 
@@ -202,7 +177,6 @@ public class MaterialController extends BaseController {
         return deleteSuccess(materialService.removeBatchByIds(Arrays.asList(ids)));
     }
 
-
     /**
      * 查询列表
      */
@@ -211,12 +185,8 @@ public class MaterialController extends BaseController {
         if (materialAllDto == null) {
             throw new OtherException("参数不能为空");
         }
-
-        materialAllDto.setCompanyCode(userUtils.getCompanyCode());
-
         return materialService.listQuery(token, materialAllDto, page);
     }
-
 
     /**
      * 根据id单个查询
@@ -224,7 +194,9 @@ public class MaterialController extends BaseController {
     @GetMapping("/getById")
     public MaterialDto getById(String id) {
         Material material = materialService.getById(id);
-        MaterialDetails materialDetails = materialDetailsService.getById(material.getId());
+        QueryWrapper<MaterialDetails> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("material_id",material.getId());
+        MaterialDetails materialDetails = materialDetailsService.getOne(queryWrapper);
         MaterialDto materialDto = new MaterialDto();
         materialDto.setMaterial(material);
         materialDto.setMaterialDetails(materialDetails);

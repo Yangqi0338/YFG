@@ -15,6 +15,8 @@ import java.util.List;
 public interface MaterialMapper extends BaseMapper<Material> {
     /**
      * 多条件关联查询
+     * @param materialAllDto materialAllDto对象
+     * @return MaterialAllDto集合
      */
     List<MaterialAllDto> listQuery(MaterialAllDto materialAllDto);
 }

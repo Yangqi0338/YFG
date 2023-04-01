@@ -1,33 +1,19 @@
-/******************************************************************************
- * Copyright (C) 2018 广州尚捷科技有限责任公司
- * All Rights Reserved.
- * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
- * 不得使用、复制、修改或发布本软件.
- *****************************************************************************/
 package com.base.sbc.module.material.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
  * 类描述：素材库详情表 实体类
- * @address com.base.sbc.module.material.entity.MaterialDetails
- * @author lile
- * @email lilemyemail@163.com
- * @date 创建时间：2023-3-24 18:27:18
+ * @author 卞康
+ * @date 创建时间：2023-3-24 9:44:55
  * @version 1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@TableName("t_material_details")
 public class MaterialDetails extends BaseDataEntity<String> {
-
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
-
-
-	/**********************************实体存放的其他字段区 【other_end】******************************************/
-
-    /*****************************数据库字段区 不包含父类公共字段(属性)***********************************/
     /** 关联素材库id */
     private String materialId;
     /** 供应商编码 */
@@ -82,7 +68,5 @@ public class MaterialDetails extends BaseDataEntity<String> {
     private String materialPrice;
     /** 物料成分 */
     private String materialIngredient;
-    /*******************************************getset方法区************************************/
-
 }
 
