@@ -1,7 +1,7 @@
 package com.base.sbc.module.material.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.module.material.dao.MaterialAllDto;
+import com.base.sbc.module.material.dto.MaterialAllDto;
 import com.base.sbc.module.material.entity.Material;
 import org.apache.ibatis.annotations.Mapper;
 

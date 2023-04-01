@@ -1,5 +1,6 @@
 package com.base.sbc.module.material.entity;
 
+import java.util.Date;
 import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -20,9 +21,14 @@ public class Material extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 
-    /** 所在部门 */
-    @TableField(exist = false)
-    private String deptName;
+    /** 来源人 */
+    private String sourcePerson;
+    /** 采集时间 */
+    private Date collectionTime;
+    /** 来源部门id */
+    private String sourceDeptId;
+    /** 来源部门 */
+    private String sourceDeptName;
     /**
      * 收藏id
      */

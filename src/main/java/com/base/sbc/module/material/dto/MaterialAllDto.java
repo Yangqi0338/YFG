@@ -1,10 +1,11 @@
-package com.base.sbc.module.material.dao;
+package com.base.sbc.module.material.dto;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.module.material.entity.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -60,10 +61,15 @@ public class MaterialAllDto extends MaterialDetails {
      */
     private String colorId;
 
-    /**
-     * 所在部门
-     */
-    private String deptName;
+
+    /** 来源人 */
+    private String sourcePerson;
+    /** 采集时间 */
+    private Date collectionTime;
+    /** 来源部门id */
+    private String sourceDeptId;
+    /** 来源部门 */
+    private String sourceDeptName;
 
     /**
      * 图片地址

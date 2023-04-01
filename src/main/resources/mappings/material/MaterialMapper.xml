@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.base.sbc.module.material.mapper.MaterialMapper">
 
-    <select id="listQuery" resultType="com.base.sbc.module.material.dao.MaterialAllDto">
+    <select id="listQuery" resultType="com.base.sbc.module.material.dto.MaterialAllDto">
         select tm.*,tmd.*,tmc.id as collectId
         from t_material tm
         left join t_material_details tmd on tm.id = tmd.material_id

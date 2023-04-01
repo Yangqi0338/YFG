@@ -9,7 +9,7 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.module.material.dao.MaterialAllDto;
+import com.base.sbc.module.material.dto.MaterialAllDto;
 import com.base.sbc.module.material.dto.MaterialDto;
 import com.base.sbc.module.material.entity.*;
 import com.base.sbc.module.material.mapper.MaterialMapper;
@@ -147,16 +147,16 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
         List<MaterialColor> materialColorList = materialColorService.getByMaterialIds(ids);
 
         //远程获取用户部门信息
-        String str = amcService.getDeptList(token, userIds.toArray(new String[0]));
-        JSONObject jsonObject = JSONObject.parseObject(str);
-        List<JSONObject> data = jsonObject.getList("data", JSONObject.class);
+        //String str = amcService.getDeptList(token, userIds.toArray(new String[0]));
+        //JSONObject jsonObject = JSONObject.parseObject(str);
+        //List<JSONObject> data = jsonObject.getList("data", JSONObject.class);
 
         for (MaterialAllDto allDto : materialAllDtolist) {
-            for (JSONObject json : data) {
-                if (allDto.getCreateId().equals(json.getString("userId"))) {
-                    allDto.setDeptName(json.getString("deptName"));
-                }
-            }
+            //for (JSONObject json : data) {
+            //    if (allDto.getCreateId().equals(json.getString("userId"))) {
+            //        allDto.setDeptName(json.getString("deptName"));
+            //    }
+            //}
 
             //标签放入对象
             List<MaterialLabel> labels = new ArrayList<>();

@@ -2,7 +2,7 @@ package com.base.sbc.module.material.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.module.material.dto.MaterialDto;
-import com.base.sbc.module.material.dao.MaterialAllDto;
+import com.base.sbc.module.material.dto.MaterialAllDto;
 import com.base.sbc.module.material.entity.Material;
 import com.github.pagehelper.PageInfo;
 
