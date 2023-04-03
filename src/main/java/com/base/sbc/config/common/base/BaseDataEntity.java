@@ -207,6 +207,7 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
         this.createDate = new Date();
         this.createId = userCompany.getUserId();
         this.createName = userCompany.getAliasUserName();
+        this.delFlag=BaseGlobal.DEL_FLAG_NORMAL;
     }
 
 }

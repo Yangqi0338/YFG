@@ -8,6 +8,7 @@ import com.base.sbc.client.amc.utils.AmcUtils;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -29,6 +30,7 @@ import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import feign.Body;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
@@ -88,7 +90,6 @@ public class PlanningController extends BaseController {
             //保存
             bean.preInsert();
             bean.setCompanyCode(getUserCompany());
-            bean.setDelFlag(BaseGlobal.DEL_FLAG_NORMAL);
             bean.setStatus(BaseGlobal.STATUS_NORMAL);
             insert = planningSeasonService.insert(bean);
         } else {
@@ -110,6 +111,7 @@ public class PlanningController extends BaseController {
     public PlanningSeasonVo getByName(@NotNull(message = "名称不能为空") String name) {
         QueryCondition qc = new QueryCondition(getUserCompany());
         qc.andEqualTo("name", name);
+        qc.andEqualTo("del_flag", BaseEntity.DEL_FLAG_NORMAL);
         List<PlanningSeason> seasons = planningSeasonService.findByCondition(qc);
         if (CollUtil.isEmpty(seasons)) {
             throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
@@ -123,6 +125,7 @@ public class PlanningController extends BaseController {
     public PageInfo<PlanningSeasonVo> query(PlanningSeasonSearchDto dto) {
 
         QueryCondition qc = new QueryCondition(getUserCompany());
+        qc.andEqualTo("del_flag", BaseEntity.DEL_FLAG_NORMAL);
         if (StrUtil.isNotBlank(dto.getSearch())) {
             qc.andLikeOr(dto.getSearch(), "name");
         }
@@ -161,6 +164,7 @@ public class PlanningController extends BaseController {
         qc.andConditionSql("b.planning_season_id=s.id");
         qc.andEqualTo("s.name", dto.getSeasonName());
         qc.andEqualTo("s.company_code", getUserCompany());
+        qc.andEqualTo("s.del_flag", BaseEntity.DEL_FLAG_NORMAL);
         PageHelper.startPage(dto);
         List<PlanningSeasonBandVo> list = planningBandService.selectList2("selectByQc", qc);
         if (CollUtil.isNotEmpty(list)) {
@@ -190,12 +194,15 @@ public class PlanningController extends BaseController {
         qc.andEqualTo("s.company_code", getUserCompany());
         qc.andEqualTo("s.name", planningSeasonName);
         qc.andEqualTo("b.name", planningBandName);
+        qc.andEqualTo("b.del_flag", BaseEntity.DEL_FLAG_NORMAL);
+        qc.andEqualTo("s.del_flag", BaseEntity.DEL_FLAG_NORMAL);
         List<PlanningSeasonBandVo> list = planningBandService.selectList2("selectByQc", qc);
         PlanningSeasonBandVo first = CollUtil.getFirst(list);
         //查询品类列表
         QueryCondition categoryQc=new QueryCondition(getUserCompany());
         categoryQc.andEqualTo("planning_season_id",first.getSeason().getId());
         categoryQc.andEqualTo("planning_band_id",first.getBand().getId());
+        categoryQc.andEqualTo("del_flag", BaseEntity.DEL_FLAG_NORMAL);
         List<PlanningCategory> categoryData = planningCategoryService.findByCondition(categoryQc);
         first.getBand().setCategoryData(categoryData);
         //查询坑位信息
@@ -227,7 +234,6 @@ public class PlanningController extends BaseController {
             bean = BeanUtil.copyProperties(dto, PlanningBand.class);
             bean.preInsert(idGen.nextIdStr());
             bean.setCompanyCode(getUserCompany());
-            bean.setDelFlag(BaseGlobal.DEL_FLAG_NORMAL);
             planningBandService.insert(bean);
 
         } else {
@@ -239,25 +245,19 @@ public class PlanningController extends BaseController {
             bean.preUpdate();
             planningBandService.updateAll(bean);
         }
-        QueryCondition delQc = new QueryCondition();
-        delQc.andEqualTo("planning_season_id", bean.getPlanningSeasonId());
-        delQc.andEqualTo("planning_band_id", bean.getId());
-        planningCategoryService.deleteByCondition(delQc);
         List<PlanningCategory> categoryList = dto.getCategoryData();
         if (CollUtil.isNotEmpty(categoryList)) {
-            for (PlanningCategory category : categoryList) {
-                category.setPlanningBandId(bean.getId());
-                category.setPlanningSeasonId(bean.getPlanningSeasonId());
-                if (StrUtil.contains(category.getId(), "-")) {
-                    category.preInsert(idGen.nextIdStr());
-                    category.setCompanyCode(getUserCompany());
-                } else {
-                    category.preUpdate();
-                }
-            }
-            planningCategoryService.batchInsert(categoryList);
-            planningCategoryItemService.saveCategoryItem(categoryList,getUserCompany());
+            planningCategoryService.savePlanningCategory(bean,categoryList);
+
         }
         return BeanUtil.copyProperties(bean, PlanningBandVo.class);
+    }
+
+    @ApiOperation(value = "修改坑位信息")
+    @PostMapping("/updateCategoryItem")
+    public PlanningCategoryItem updateCategoryItem(@RequestBody PlanningCategoryItem item){
+         item.preUpdate();
+         planningCategoryItemService.updateAll(item);
+        return item;
     }
 }

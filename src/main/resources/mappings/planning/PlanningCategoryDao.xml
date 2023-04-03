@@ -4,7 +4,7 @@
 	<!--企划-品类信息
 	创建人：lxl
 	邮箱：lxl.fml@gmail.com
-	创建时间：2023-3-31 13:47:37
+	创建时间：2023-4-1 11:13:44
 	版本号：1.0
 -->
 	<!-- *******************************************自定义方法区  不替换的区域【other_start】***************************************** -->
@@ -14,7 +14,7 @@
 	<!-- *******************************************公用方法区(不可修改)***************************************** -->
 	<!-- 公用返回值 与数据库字段保持一致即可，同时实体(驼峰命名)必须包含所有字段 -->
 	<sql id="base_column">
-		id,company_code,planning_season_id,planning_band_id,category_id,category_name,category_ids,category_plan_skc_num,style_color_skc_num,style_skc_num,plan_requirement_num,design_release_num,plan_dev_num,manager
+		id,company_code,planning_season_id,planning_band_id,category_id,category_name,category_ids,category_plan_skc_num,style_color_skc_num,style_skc_num,plan_requirement_num,design_release_num,plan_dev_num,manager,create_id,create_name,create_date,update_id,update_name,update_date,del_flag
 	</sql>
 	<!--  方法返回：成功条数。     方法名称： 新增          方法参数：list集合 -->
 	<insert id="insert" parameterType="java.util.List">
@@ -22,7 +22,7 @@
 		<include refid="base_column"/>
 		) values
 		<foreach collection="list" item="t" index="index" separator=",">
-			(  #{t.id,jdbcType=VARCHAR},#{t.companyCode,jdbcType=VARCHAR},#{t.planningSeasonId,jdbcType=VARCHAR},#{t.planningBandId,jdbcType=VARCHAR},#{t.categoryId,jdbcType=VARCHAR},#{t.categoryName,jdbcType=VARCHAR},#{t.categoryIds,jdbcType=VARCHAR},#{t.categoryPlanSkcNum,jdbcType=DECIMAL},#{t.styleColorSkcNum,jdbcType=DECIMAL},#{t.styleSkcNum,jdbcType=DECIMAL},#{t.planRequirementNum,jdbcType=DECIMAL},#{t.designReleaseNum,jdbcType=DECIMAL},#{t.planDevNum,jdbcType=DECIMAL},#{t.manager,jdbcType=VARCHAR}
+			(  #{t.id,jdbcType=VARCHAR},#{t.companyCode,jdbcType=VARCHAR},#{t.planningSeasonId,jdbcType=VARCHAR},#{t.planningBandId,jdbcType=VARCHAR},#{t.categoryId,jdbcType=VARCHAR},#{t.categoryName,jdbcType=VARCHAR},#{t.categoryIds,jdbcType=VARCHAR},#{t.categoryPlanSkcNum,jdbcType=DECIMAL},#{t.styleColorSkcNum,jdbcType=DECIMAL},#{t.styleSkcNum,jdbcType=DECIMAL},#{t.planRequirementNum,jdbcType=DECIMAL},#{t.designReleaseNum,jdbcType=DECIMAL},#{t.planDevNum,jdbcType=DECIMAL},#{t.manager,jdbcType=VARCHAR},#{t.createId,jdbcType=VARCHAR},#{t.createName,jdbcType=VARCHAR},#{t.createDate,jdbcType=TIMESTAMP},#{t.updateId,jdbcType=VARCHAR},#{t.updateName,jdbcType=VARCHAR},#{t.updateDate,jdbcType=TIMESTAMP},#{t.delFlag,jdbcType=CHAR}
 			)
 		</foreach>
 	</insert>
@@ -49,6 +49,13 @@
 					design_release_num = #{t.designReleaseNum,jdbcType=DECIMAL},
 					plan_dev_num = #{t.planDevNum,jdbcType=DECIMAL},
 					manager = #{t.manager,jdbcType=VARCHAR},
+					create_id = #{t.createId,jdbcType=VARCHAR},
+					create_name = #{t.createName,jdbcType=VARCHAR},
+					create_date = #{t.createDate,jdbcType=TIMESTAMP},
+					update_id = #{t.updateId,jdbcType=VARCHAR},
+					update_name = #{t.updateName,jdbcType=VARCHAR},
+					update_date = #{t.updateDate,jdbcType=TIMESTAMP},
+					del_flag = #{t.delFlag,jdbcType=CHAR},
 			</set>
 			where id = #{t.id,jdbcType=BIGINT}
 
@@ -118,6 +125,34 @@
 				<if test="t.manager != null">
 					manager = #{t.manager
 					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.createId != null">
+					create_id = #{t.createId
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.createName != null">
+					create_name = #{t.createName
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.createDate != null">
+					create_date = #{t.createDate
+					,jdbcType=TIMESTAMP},
+				</if>
+				<if test="t.updateId != null">
+					update_id = #{t.updateId
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.updateName != null">
+					update_name = #{t.updateName
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.updateDate != null">
+					update_date = #{t.updateDate
+					,jdbcType=TIMESTAMP},
+				</if>
+				<if test="t.delFlag != null">
+					del_flag = #{t.delFlag
+					,jdbcType=CHAR},
 				</if>
 		</set>
 		<include refid="common.whereClause"></include>

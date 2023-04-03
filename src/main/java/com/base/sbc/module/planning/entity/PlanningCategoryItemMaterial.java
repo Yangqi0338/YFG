@@ -6,7 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.entity;
 
+import java.util.Date;
+import java.util.List;
+import java.math.BigDecimal;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-3-31 13:47:43
+ * @date 创建时间：2023-4-1 11:13:50
  * @version 1.0
  */
 @Data
@@ -50,3 +54,4 @@ public class PlanningCategoryItemMaterial extends BaseDataEntity<String> {
     /*******************************************getset方法区************************************/
 
 }
+
