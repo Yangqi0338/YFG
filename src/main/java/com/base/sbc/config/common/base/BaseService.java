@@ -1,5 +1,6 @@
 package com.base.sbc.config.common.base;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -107,6 +108,19 @@ public abstract class BaseService<T> {
 	@Transactional(readOnly = false)
 	public int deleteByCondition(QueryCondition qc) {
 		return this.getEntityDao().deleteByCondition(qc);
+	}
+
+	/**
+	 * 逻辑删除
+	 * @param qc
+	 * @return
+	 */
+	@Transactional(readOnly = false)
+	public int deleteByConditionDelFlag(QueryCondition qc){
+		Map<String,String> t=new HashMap<>(2);
+		t.put("delFlag",BaseGlobal.DEL_FLAG_DELETE);
+		qc.setT(t);
+		return this.getEntityDao().batchUpdateByCondition(qc);
 	}
 
 	/*****************************************基础方法：修改***************************************/

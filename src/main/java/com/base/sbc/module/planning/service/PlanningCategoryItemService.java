@@ -61,9 +61,10 @@ public class PlanningCategoryItemService extends BaseService<PlanningCategoryIte
 		List<String> planningBandIds = categoryList.stream().map(PlanningCategory::getPlanningBandId).collect(Collectors.toList());
 		QueryCondition delQc=new QueryCondition(companyCode);
 		delQc.andIn("planning_band_id",planningBandIds);
-		planningCategoryItemMaterialService.deleteByCondition(delQc);
-//		planningCategoryItemMaterialService.batchdeleteByIdDelFlag()
-		deleteByCondition(delQc);
+		//删除物料关联表
+		planningCategoryItemMaterialService.deleteByConditionDelFlag(delQc);
+		// 删除坑位信息
+		deleteByConditionDelFlag(delQc);
 		List<PlanningCategoryItem> itemList=new ArrayList<>(12);
 		IdGen idGen=new IdGen();
 		//通过企划需求数生成 
@@ -75,7 +76,8 @@ public class PlanningCategoryItemService extends BaseService<PlanningCategoryIte
 			for (int i = 0; i < planRequirementNum.intValue(); i++) {
 				PlanningCategoryItem item=new PlanningCategoryItem();
 				item.setCompanyCode(companyCode);
-				item.setId(idGen.nextIdStr());
+				item.preInsert(idGen.nextIdStr());
+				item.preUpdate();
 				item.setPlanningSeasonId(planningCategory.getPlanningSeasonId());
 				item.setPlanningBandId(planningCategory.getPlanningBandId());
 				item.setPlanningCategoryId(planningCategory.getId());

@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
@@ -23,8 +24,9 @@ public class PlanningBandVo {
     private String sex;
     /** 波段 */
 
-    @ApiModelProperty(value = "波段" ,example = "689467740238381051")
+    @ApiModelProperty(value = "波段名称" ,example = "1b")
     private String band;
+
     /** 生成模式 */
     @ApiModelProperty(value = "生产模式" ,example = "CMT")
     private String devtType;

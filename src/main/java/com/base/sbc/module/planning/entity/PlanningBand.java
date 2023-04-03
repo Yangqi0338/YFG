@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @address com.base.sbc.module.planning.entity.PlanningBand
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-4-1 9:22:16
+ * @date 创建时间：2023-4-1 11:13:41
  * @version 1.0
  */
 @Data
@@ -42,18 +42,18 @@ public class PlanningBand extends BaseDataEntity<String> {
     /** 性别 */
     @ApiModelProperty(value = "性别"  )
     private String sex;
-    /** 波段名称 */
-    @ApiModelProperty(value = "波段名称"  )
+    /** 波段(编码) */
+    @ApiModelProperty(value = "波段(编码)"  )
     private String band;
-    /** 波段id */
-    @ApiModelProperty(value = "波段id"  )
-    private String bandId;
     /** 生成模式 */
     @ApiModelProperty(value = "生成模式"  )
     private String devtType;
     /** 渠道 */
     @ApiModelProperty(value = "渠道"  )
     private String channel;
+    /** 状态(0正常,1停用) */
+    @ApiModelProperty(value = "状态(0正常,1停用)"  )
+    private String status;
     /*******************************************getset方法区************************************/
 
 }
