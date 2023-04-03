@@ -31,8 +31,6 @@ public class MaterialController extends BaseController {
     @Resource
     private MaterialService materialService;
     @Resource
-    private MaterialDetailsService materialDetailsService;
-    @Resource
     private MaterialLabelService materialLabelService;
     @Resource
     private MaterialSizeService materialSizeService;
