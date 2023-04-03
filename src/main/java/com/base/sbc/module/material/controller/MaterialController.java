@@ -91,16 +91,11 @@ public class MaterialController extends BaseController {
             throw new OtherException("参数错误");
         }
 
-        List<MaterialDetails> materialDetailsList = new ArrayList<>();
         for (Material material : materialList) {
             material.setStatus(BasicNumber.ZERO.getNumber());
-            MaterialDetails materialDetails = new MaterialDetails();
-            materialDetails.setMaterialId(material.getId());
-            materialDetailsList.add(materialDetails);
         }
 
         boolean b = materialService.saveBatch(materialList);
-        materialDetailsService.saveBatch(materialDetailsList);
         return insertSuccess(b);
     }
 

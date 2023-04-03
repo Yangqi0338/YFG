@@ -1,5 +1,6 @@
 package com.base.sbc.module.material.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
@@ -13,6 +14,7 @@ import java.util.Date;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@TableName("t_material")
 public class Material extends BaseDataEntity<String> {
 
     /**
@@ -83,7 +85,7 @@ public class Material extends BaseDataEntity<String> {
     /**
      * 品类id
      */
-    private Integer categoryId;
+    private String categoryId;
 
     /**
      * 年份

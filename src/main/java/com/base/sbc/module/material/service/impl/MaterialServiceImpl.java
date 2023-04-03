@@ -2,7 +2,6 @@ package com.base.sbc.module.material.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
@@ -16,7 +15,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.annotation.Resource;
 import java.util.*;
 
@@ -34,8 +32,6 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
     private MaterialMapper materialMapper;
     @Resource
     private UserUtils userUtils;
-    @Resource
-    private AmcService amcService;
     @Resource
     private MaterialLabelService materialLabelService;
     @Resource
@@ -95,7 +91,6 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
 
         //如果有集合不为null，则说明有筛选条件
         if (collectSet != null || labelSet != null || sizeSet != null || colorSet != null) {
-
             //取所有条件相交的
             Set<String> ids = CommonUtils.findCommonElements(collectSet, labelSet, sizeSet);
             if (ids.size() == 0) {
@@ -125,15 +120,11 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
             return new PageInfo<>();
         }
         List<MaterialVo> list = new ArrayList<>();
-
-        //List<String> userIds = new ArrayList<>();
         List<String> ids = new ArrayList<>();
 
-        //for (MaterialVo allDto : materialAllDtolist) {
-        //    ids.add(allDto.getId());
-        //    userIds.add(allDto.getCreateId());
-        //}
-
+        for (MaterialVo allDto : materialAllDtolist) {
+            ids.add(allDto.getId());
+        }
 
         //查询关联标签
         List<MaterialLabel> materialLabelList = materialLabelService.getByMaterialIds(ids);
@@ -142,18 +133,7 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
         //查询关联颜色信息
         List<MaterialColor> materialColorList = materialColorService.getByMaterialIds(ids);
 
-        //远程获取用户部门信息
-        //String str = amcService.getDeptList(token, userIds.toArray(new String[0]));
-        //JSONObject jsonObject = JSONObject.parseObject(str);
-        //List<JSONObject> data = jsonObject.getList("data", JSONObject.class);
-
         for (MaterialVo materialVo : materialAllDtolist) {
-            //for (JSONObject json : data) {
-            //    if (allDto.getCreateId().equals(json.getString("userId"))) {
-            //        allDto.setDeptName(json.getString("deptName"));
-            //    }
-            //}
-
             //标签放入对象
             List<MaterialLabel> labels = new ArrayList<>();
             for (MaterialLabel materialLabel : materialLabelList) {
@@ -180,7 +160,6 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
                 }
             }
             materialVo.setColors(materialColors);
-
 
             list.add(materialVo);
         }
