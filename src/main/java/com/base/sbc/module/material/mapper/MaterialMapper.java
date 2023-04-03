@@ -1,8 +1,9 @@
 package com.base.sbc.module.material.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.module.material.dto.MaterialAllDto;
+import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.entity.Material;
+import com.base.sbc.module.material.vo.MaterialVo;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -15,8 +16,8 @@ import java.util.List;
 public interface MaterialMapper extends BaseMapper<Material> {
     /**
      * 多条件关联查询
-     * @param materialAllDto materialAllDto对象
+     * @param materialQueryDto materialDto对象
      * @return MaterialAllDto集合
      */
-    List<MaterialAllDto> listQuery(MaterialAllDto materialAllDto);
+    List<MaterialVo> listQuery(MaterialQueryDto materialQueryDto);
 }

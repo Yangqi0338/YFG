@@ -1,9 +1,8 @@
 package com.base.sbc.module.material.service;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.base.sbc.config.common.base.Page;
-import com.base.sbc.module.material.dto.MaterialDto;
-import com.base.sbc.module.material.dto.MaterialAllDto;
+import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.entity.Material;
+import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -16,10 +15,9 @@ public interface MaterialService extends IService<Material> {
 
     /**
      * 条件查询
-     * @param token          用户的登录凭证
-     * @param materialAllDto 请求封装对象
-     * @param page           分页参数
+     *
+     * @param materialQueryDto 请求封装对象
      * @return 返回的封装对象
      */
-     PageInfo<MaterialDto> listQuery(String token, MaterialAllDto materialAllDto, Page page);
+     PageInfo<MaterialVo> listQuery(MaterialQueryDto materialQueryDto);
 }

@@ -2,15 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.base.sbc.module.material.mapper.MaterialMapper">
 
-    <select id="listQuery" resultType="com.base.sbc.module.material.dto.MaterialAllDto">
-        select tm.*,tmd.*,tmc.id as collectId
+    <select id="listQuery" resultType="com.base.sbc.module.material.vo.MaterialVo">
+        select tm.*,tmc.id as collectId
         from t_material tm
-        left join t_material_details tmd on tm.id = tmd.material_id
         left join t_material_collect tmc on tm.id = tmc.material_id and tmc.del_flag = '0'
         where tm.del_flag = '0'
-
-        and material_library = #{materialLibrary}
-        and tm.company_code=#{companyCode}
+        and material_category_id = #{materialCategoryId}
+        and tm.company_code = #{companyCode}
         <if test="ids != null and ids.size > 0">
             and tm.id in
             <foreach collection="ids" item="id" separator="," open="(" close=")">
@@ -19,15 +17,15 @@
         </if>
         <if test="statusList != null and statusList.length > 0">
             and status in
-            <foreach collection="statusList" open="(" separator="," item="item" close=")">
+            <foreach collection = "statusList" open="(" separator="," item="item" close=")">
                 #{item}
             </foreach>
         </if>
-        <if test="materialName != null and materialName != ''">
-            and material_name like concat('%',#{materialName},'%')
+        <if test="fileInfo != null and fileInfo != ''">
+            and file_info like concat('%',#{fileInfo},'%')
         </if>
-        <if test="materialType != null and materialType != ''">
-            and material_type = #{materialType}
+        <if test="categoryId != null and categoryId != ''">
+            and category_id = #{categoryId}
         </if>
         <if test="createId != null and createId != ''">
             and tm.create_id = #{createId}

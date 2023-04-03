@@ -1,35 +1,18 @@
 package com.base.sbc.module.material.dto;
 
-import cn.hutool.core.bean.BeanUtil;
-import com.base.sbc.module.material.entity.*;
+import com.base.sbc.config.common.base.Page;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
 import java.util.List;
 
 /**
  * @author 卞康
- * @date 2023/3/24 17:48:17
+ * @date 2023/3/24 17:16:34
  */
-@Data
 @EqualsAndHashCode(callSuper = true)
-public class MaterialAllDto extends Material {
-
-    /**
-     * 所有标签
-     */
-    private List<MaterialLabel> labels;
-
-    /**
-     * 所有尺码
-     */
-    private List<MaterialSize> sizes;
-
-    /**
-     * 所有颜色
-     */
-    private List<MaterialColor> colors;
+@Data
+public class MaterialQueryDto extends Page {
 
     /**
      * 状态查询数组
@@ -61,4 +44,28 @@ public class MaterialAllDto extends Material {
      */
     private String colorId;
 
+    /**
+     * 租户编码
+     */
+    private String companyCode;
+
+    /**
+     * 素材分类id
+     */
+    private String materialCategoryId;
+
+    /**
+     * 品类id
+     */
+    private Integer categoryId;
+
+    /**
+     * 创建人的id
+     */
+    private String createId;
+
+    /**
+     * 文件信息
+     */
+    private String fileInfo;
 }

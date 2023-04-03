@@ -1,19 +1,17 @@
 package com.base.sbc.module.material.service.impl;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.client.amc.service.AmcService;
-import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.module.material.dto.MaterialAllDto;
-import com.base.sbc.module.material.dto.MaterialDto;
+import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.entity.*;
 import com.base.sbc.module.material.mapper.MaterialMapper;
 import com.base.sbc.module.material.service.*;
+import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
@@ -51,14 +49,14 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
      * 为了解决太多表关联查询太慢的问题
      * 相关联的表，生成查询条件
      */
-    private void addQuery(MaterialAllDto materialAllDto) {
+    private void addQuery(MaterialQueryDto materialQueryDto) {
         // TODO: 2023/3/31 后期优化，写sql语句优化查询返回字段
         HashSet<String> collectSet = null;
         HashSet<String> labelSet = null;
         HashSet<String> sizeSet = null;
         HashSet<String> colorSet = null;
         //我的收藏筛选条件
-        if (BasicNumber.ONE.getNumber().equals(materialAllDto.getCollectId())) {
+        if (BasicNumber.ONE.getNumber().equals(materialQueryDto.getCollectId())) {
             collectSet = new HashSet<>();
             QueryWrapper<MaterialCollect> qc = new QueryWrapper<>();
             qc.eq("user_id", userUtils.getUserId());
@@ -69,27 +67,27 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
         }
 
         //标签筛选条件
-        if (materialAllDto.getLabelIds() != null && materialAllDto.getLabelIds().length > 0) {
+        if (materialQueryDto.getLabelIds() != null && materialQueryDto.getLabelIds().length > 0) {
             labelSet = new HashSet<>();
-            List<MaterialLabel> materialLabels = materialLabelService.getByLabelIds(Arrays.asList(materialAllDto.getLabelIds()));
+            List<MaterialLabel> materialLabels = materialLabelService.getByLabelIds(Arrays.asList(materialQueryDto.getLabelIds()));
             for (MaterialLabel materialLabel : materialLabels) {
                 labelSet.add(materialLabel.getMaterialId());
             }
         }
 
         //尺码筛选条件
-        if (!StringUtils.isEmpty(materialAllDto.getSizeId())) {
+        if (!StringUtils.isEmpty(materialQueryDto.getSizeId())) {
             sizeSet = new HashSet<>();
-            List<MaterialSize> materialSizes = materialSizeService.getBySizeId(materialAllDto.getSizeId());
+            List<MaterialSize> materialSizes = materialSizeService.getBySizeId(materialQueryDto.getSizeId());
             for (MaterialSize materialSize : materialSizes) {
                 sizeSet.add(materialSize.getMaterialId());
             }
         }
 
         //颜色筛选条件
-        if (!StringUtils.isEmpty(materialAllDto.getColorId())) {
+        if (!StringUtils.isEmpty(materialQueryDto.getColorId())) {
             colorSet = new HashSet<>();
-            List<MaterialColor> materialColors = materialColorService.getColorId(materialAllDto.getColorId());
+            List<MaterialColor> materialColors = materialColorService.getColorId(materialQueryDto.getColorId());
             for (MaterialColor materialColor : materialColors) {
                 colorSet.add(materialColor.getMaterialId());
             }
@@ -105,38 +103,36 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
                 ids = new HashSet<>();
                 ids.add("0");
             }
-            materialAllDto.setIds(new ArrayList<>(ids));
+            materialQueryDto.setIds(new ArrayList<>(ids));
         }
     }
 
     /**
      * 条件查询
      *
-     * @param token          用户的登录凭证
-     * @param materialAllDto 请求封装对象
-     * @param page           分页参数
+     * @param materialQueryDto 请求封装对象
      * @return 返回的封装对象
      */
     @Override
-    public PageInfo<MaterialDto> listQuery(String token, MaterialAllDto materialAllDto, Page page) {
-        materialAllDto.setCompanyCode(userUtils.getCompanyCode());
-        this.addQuery(materialAllDto);
+    public PageInfo<MaterialVo> listQuery(MaterialQueryDto materialQueryDto) {
+        materialQueryDto.setCompanyCode(userUtils.getCompanyCode());
+        this.addQuery(materialQueryDto);
 
-        PageHelper.startPage(page);
-        List<MaterialAllDto> materialAllDtolist = materialMapper.listQuery(materialAllDto);
+        PageHelper.startPage(materialQueryDto);
+        List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
 
         if (materialAllDtolist == null || materialAllDtolist.size() == 0) {
             return new PageInfo<>();
         }
-        List<MaterialDto> list = new ArrayList<>();
+        List<MaterialVo> list = new ArrayList<>();
 
-        List<String> userIds = new ArrayList<>();
+        //List<String> userIds = new ArrayList<>();
         List<String> ids = new ArrayList<>();
 
-        for (MaterialAllDto allDto : materialAllDtolist) {
-            ids.add(allDto.getId());
-            userIds.add(allDto.getCreateId());
-        }
+        //for (MaterialVo allDto : materialAllDtolist) {
+        //    ids.add(allDto.getId());
+        //    userIds.add(allDto.getCreateId());
+        //}
 
 
         //查询关联标签
@@ -151,7 +147,7 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
         //JSONObject jsonObject = JSONObject.parseObject(str);
         //List<JSONObject> data = jsonObject.getList("data", JSONObject.class);
 
-        for (MaterialAllDto allDto : materialAllDtolist) {
+        for (MaterialVo materialVo : materialAllDtolist) {
             //for (JSONObject json : data) {
             //    if (allDto.getCreateId().equals(json.getString("userId"))) {
             //        allDto.setDeptName(json.getString("deptName"));
@@ -161,34 +157,32 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
             //标签放入对象
             List<MaterialLabel> labels = new ArrayList<>();
             for (MaterialLabel materialLabel : materialLabelList) {
-                if (allDto.getId().equals(materialLabel.getMaterialId())) {
+                if (materialVo.getId().equals(materialLabel.getMaterialId())) {
                     labels.add(materialLabel);
                 }
             }
-            allDto.setLabels(labels);
+            materialVo.setLabels(labels);
 
             //尺码放入对象
             List<MaterialSize> materialSizes = new ArrayList<>();
             for (MaterialSize materialSize : materialSizeList) {
-                if (allDto.getId().equals(materialSize.getMaterialId())) {
+                if (materialVo.getId().equals(materialSize.getMaterialId())) {
                     materialSizes.add(materialSize);
                 }
             }
-            allDto.setSizes(materialSizes);
+            materialVo.setSizes(materialSizes);
 
             //颜色放入对象
             List<MaterialColor> materialColors = new ArrayList<>();
             for (MaterialColor materialColor : materialColorList) {
-                if (allDto.getId().equals(materialColor.getMaterialId())) {
+                if (materialVo.getId().equals(materialColor.getMaterialId())) {
                     materialColors.add(materialColor);
                 }
             }
-            allDto.setColors(materialColors);
+            materialVo.setColors(materialColors);
 
-            MaterialDto materialDto = new MaterialDto();
-            materialDto.setMaterialDetails(allDto.toMaterialDetails());
-            materialDto.setMaterial(allDto.toMaterial());
-            list.add(materialDto);
+
+            list.add(materialVo);
         }
         return new PageInfo<>(list);
     }

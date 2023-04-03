@@ -3,13 +3,13 @@ package com.base.sbc.module.material.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.*;
-import com.base.sbc.module.material.dto.MaterialDto;
+import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.service.*;
-import com.base.sbc.module.material.dto.MaterialAllDto;
+import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -45,42 +45,39 @@ public class MaterialController extends BaseController {
     @PostMapping("/add")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "新增素材", notes = "新增素材")
-    public ApiResult add(@RequestBody MaterialDto materialDto) {
+    public ApiResult add(@RequestBody MaterialSaveDto materialSaveDto) {
 
-        materialDto.getMaterial().setStatus(BasicNumber.ONE.getNumber());
-        materialService.save(materialDto.getMaterial());
+        materialSaveDto.setStatus(BasicNumber.ONE.getNumber());
+        materialService.save(materialSaveDto);
 
-        List<MaterialLabel> labels = materialDto.getMaterial().getLabels();
+        List<MaterialLabel> labels = materialSaveDto.getLabels();
 
         //新增关联标签
         if (labels != null) {
             for (MaterialLabel label : labels) {
-                label.setMaterialId(materialDto.getMaterial().getId());
+                label.setMaterialId(materialSaveDto.getId());
                 materialLabelService.save(label);
             }
         }
 
         //新增关联尺码
-        List<MaterialSize> sizes = materialDto.getMaterial().getSizes();
+        List<MaterialSize> sizes = materialSaveDto.getSizes();
         if (sizes != null) {
             for (MaterialSize size : sizes) {
-                size.setMaterialId(materialDto.getMaterial().getId());
+                size.setMaterialId(materialSaveDto.getId());
                 materialSizeService.save(size);
             }
         }
 
         //新增关联颜色
-        List<MaterialColor> colors = materialDto.getMaterial().getColors();
+        List<MaterialColor> colors = materialSaveDto.getColors();
         if (colors != null) {
             for (MaterialColor color : colors) {
-                color.setMaterialId(materialDto.getMaterial().getId());
+                color.setMaterialId(materialSaveDto.getId());
                 materialColorService.save(color);
             }
         }
-
-        materialDto.getMaterialDetails().setMaterialId(materialDto.getMaterial().getId());
-        materialDetailsService.save(materialDto.getMaterialDetails());
-        return insertSuccess(materialDto.getMaterial().getId());
+        return insertSuccess(materialSaveDto.getId());
     }
 
     /**
@@ -112,59 +109,44 @@ public class MaterialController extends BaseController {
      */
     @PutMapping("/update")
     @ApiOperation(value = "修改素材", notes = "修改素材")
-    public ApiResult update(@RequestBody MaterialDto materialDto) {
-        Material material1 = materialService.getById(materialDto.getMaterial().getId());
-        //是否修改了文件名或者所属素材库
-        if (!material1.getMaterialLibrary().equals(materialDto.getMaterial().getMaterialLibrary()) || !material1.getMaterialName().equals(materialDto.getMaterial().getMaterialName())) {
-
-            QueryWrapper<Material> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("material_name", materialDto.getMaterial().getMaterialName());
-            queryWrapper.eq("material_library", materialDto.getMaterial().getMaterialLibrary());
-            Material material = materialService.getOne(queryWrapper);
-
-            if (material != null && !Objects.equals(material.getId(), materialDto.getMaterial().getId())) {
-                throw new OtherException("已存在相同名称素材");
-            }
-        }
-
+    public ApiResult update(@RequestBody MaterialSaveDto materialSaveDto) {
         //删除关联标签
         QueryWrapper<MaterialLabel> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("material_id", materialDto.getMaterial().getId());
+        queryWrapper.eq("material_id", materialSaveDto.getId());
         materialLabelService.remove(queryWrapper);
 
-        List<MaterialLabel> labels = materialDto.getMaterial().getLabels();
+        List<MaterialLabel> labels = materialSaveDto.getLabels();
         //新增关联标签
         if (labels != null) {
             for (MaterialLabel label : labels) {
-                label.setMaterialId(materialDto.getMaterial().getId());
+                label.setMaterialId(materialSaveDto.getId());
                 materialLabelService.save(label);
             }
         }
 
         //删除关联尺码
-        materialSizeService.removeById(materialDto.getMaterial().getId());
+        materialSizeService.removeById(materialSaveDto.getId());
         //新增关联尺码
-        List<MaterialSize> sizes = materialDto.getMaterial().getSizes();
+        List<MaterialSize> sizes = materialSaveDto.getSizes();
         if (sizes != null) {
             for (MaterialSize size : sizes) {
-                size.setMaterialId(materialDto.getMaterial().getId());
+                size.setMaterialId(materialSaveDto.getId());
                 materialSizeService.save(size);
             }
         }
 
         //删除关联颜色
-        materialColorService.removeById(materialDto.getMaterial().getId());
+        materialColorService.removeById(materialSaveDto.getId());
         //新增关联颜色
-        List<MaterialColor> colors = materialDto.getMaterial().getColors();
+        List<MaterialColor> colors = materialSaveDto.getColors();
         if (colors != null) {
             for (MaterialColor color : colors) {
-                color.setMaterialId(materialDto.getMaterial().getId());
+                color.setMaterialId(materialSaveDto.getId());
                 materialColorService.save(color);
             }
         }
 
-        boolean b = materialService.updateById(materialDto.getMaterial());
-        materialDetailsService.updateById(materialDto.getMaterialDetails());
+        boolean b = materialService.updateById(materialSaveDto);
         return updateSuccess(b);
     }
 
@@ -180,25 +162,18 @@ public class MaterialController extends BaseController {
      * 查询列表
      */
     @GetMapping("/listQuery")
-    public PageInfo<MaterialDto> listQuery(@RequestHeader("Authorization") String token, MaterialAllDto materialAllDto, Page page) {
-        if (materialAllDto == null) {
+    public PageInfo<MaterialVo> listQuery(MaterialQueryDto materialQueryDto) {
+        if (materialQueryDto == null) {
             throw new OtherException("参数不能为空");
         }
-        return materialService.listQuery(token, materialAllDto, page);
+        return materialService.listQuery(materialQueryDto);
     }
 
     /**
      * 根据id单个查询
      */
     @GetMapping("/getById")
-    public MaterialDto getById(String id) {
-        Material material = materialService.getById(id);
-        QueryWrapper<MaterialDetails> queryWrapper=new QueryWrapper<>();
-        queryWrapper.eq("material_id",material.getId());
-        MaterialDetails materialDetails = materialDetailsService.getOne(queryWrapper);
-        MaterialDto materialDto = new MaterialDto();
-        materialDto.setMaterial(material);
-        materialDto.setMaterialDetails(materialDetails);
-        return materialDto;
+    public Material getById(String id) {
+        return materialService.getById(id);
     }
 }
