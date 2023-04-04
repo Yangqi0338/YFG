@@ -102,7 +102,7 @@ public class MaterialController extends BaseController {
      * 单个修改
      */
     @PutMapping("/update")
-
+    @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "修改素材", notes = "修改素材")
     public ApiResult update(@RequestBody MaterialSaveDto materialSaveDto) {
         //删除关联标签
@@ -150,6 +150,7 @@ public class MaterialController extends BaseController {
      */
     @ApiOperation(value = "根据id数组删除", notes = "根据id数组删除")
     @DeleteMapping("/delByIds")
+    @Transactional(rollbackFor = {Exception.class})
     public ApiResult delByIds(String[] ids) {
         return deleteSuccess(materialService.removeBatchByIds(Arrays.asList(ids)));
     }
