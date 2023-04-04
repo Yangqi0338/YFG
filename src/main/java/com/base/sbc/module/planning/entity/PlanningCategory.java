@@ -69,6 +69,8 @@ public class PlanningCategory extends BaseDataEntity<String> {
     /** 负责人 */
     @ApiModelProperty(value = "负责人"  )
     private String manager;
+    @ApiModelProperty(value = "备注"  )
+    private String remarks;
     /*******************************************getset方法区************************************/
 
 }

@@ -42,5 +42,5 @@ public class PlanningBandVo {
     @ApiModelProperty(value = "品类信息" )
     private List<PlanningCategory> categoryData;
     @ApiModelProperty(value = "坑位信息" )
-    private List<PlanningCategoryItem> categoryItemData;
+    private List<PlanningCategoryItemVo> categoryItemData;
 }

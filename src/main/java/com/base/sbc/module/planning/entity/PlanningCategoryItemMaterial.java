@@ -51,6 +51,8 @@ public class PlanningCategoryItemMaterial extends BaseDataEntity<String> {
     /** 素材库id */
     @ApiModelProperty(value = "素材库id"  )
     private String materialId;
+    @ApiModelProperty(value = "备注"  )
+    private String remarks;
     /*******************************************getset方法区************************************/
 
 }
