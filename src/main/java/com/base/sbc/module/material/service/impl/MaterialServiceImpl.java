@@ -15,6 +15,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.annotation.Resource;
 import java.util.*;
 
@@ -112,7 +113,10 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
     public PageInfo<MaterialVo> listQuery(MaterialQueryDto materialQueryDto) {
         materialQueryDto.setCompanyCode(userUtils.getCompanyCode());
         this.addQuery(materialQueryDto);
-
+        //筛选我的收藏
+        if(BasicNumber.ONE.getNumber().equals(materialQueryDto.getCollectId())){
+            materialQueryDto.setCreateId(userUtils.getUserId());
+        }
         PageHelper.startPage(materialQueryDto);
         List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
 
