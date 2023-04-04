@@ -17,7 +17,7 @@
         </if>
         <if test="statusList != null and statusList.length > 0">
             and status in
-            <foreach collection = "statusList" open="(" separator="," item="item" close=")">
+            <foreach collection="statusList" open="(" separator="," item="item" close=")">
                 #{item}
             </foreach>
         </if>
