@@ -94,8 +94,8 @@ public class MaterialController extends BaseController {
             material.setStatus(BasicNumber.ZERO.getNumber());
         }
 
-        boolean b = materialService.saveBatch(materialList);
-        return insertSuccess(b);
+        materialService.saveBatch(materialList);
+        return insertSuccess(materialList.size());
     }
 
     /**
