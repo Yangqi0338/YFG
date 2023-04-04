@@ -81,6 +81,7 @@ public class MaterialController extends BaseController {
     /**
      * 批量新增
      */
+
     @PostMapping("addList")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "批量新增素材", notes = "批量新增素材")
@@ -101,6 +102,7 @@ public class MaterialController extends BaseController {
      * 单个修改
      */
     @PutMapping("/update")
+
     @ApiOperation(value = "修改素材", notes = "修改素材")
     public ApiResult update(@RequestBody MaterialSaveDto materialSaveDto) {
         //删除关联标签
@@ -146,6 +148,7 @@ public class MaterialController extends BaseController {
     /**
      * 根据id删除
      */
+    @ApiOperation(value = "根据id数组删除", notes = "根据id数组删除")
     @DeleteMapping("/delByIds")
     public ApiResult delByIds(String[] ids) {
         return deleteSuccess(materialService.removeBatchByIds(Arrays.asList(ids)));
@@ -154,6 +157,7 @@ public class MaterialController extends BaseController {
     /**
      * 查询列表
      */
+    @ApiOperation(value = "条件查询列表", notes = "条件查询列表")
     @GetMapping("/listQuery")
     public PageInfo<MaterialVo> listQuery(MaterialQueryDto materialQueryDto) {
         if (materialQueryDto == null) {
@@ -165,6 +169,7 @@ public class MaterialController extends BaseController {
     /**
      * 根据id单个查询
      */
+    @ApiOperation(value = "根据id单个查询", notes = "根据id单个查询")
     @GetMapping("/getById")
     public Material getById(String id) {
         return materialService.getById(id);

@@ -1,6 +1,7 @@
 package com.base.sbc.module.material.dto;
 
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.module.common.dto.PageDto;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -12,60 +13,38 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class MaterialQueryDto extends Page {
+public class MaterialQueryDto extends PageDto {
 
-    /**
-     * 状态查询数组
-     */
+    @ApiModelProperty(value = "状态查询数组")
     private String[] statusList;
 
-    /**
-     * 查询条件标签id集合
-     */
+    @ApiModelProperty(value = "查询条件标签id集合")
     private String[] labelIds;
 
-    /**
-     * 收藏id
-     */
+    @ApiModelProperty(value = "收藏id")
     private String collectId;
 
-    /**
-     * ids 查询的id集合
-     */
+    @ApiModelProperty(value = "ids 查询的id集合")
     private List<String> ids;
 
-    /**
-     * 尺码筛选
-     */
+    @ApiModelProperty(value = "尺码筛选")
     private String sizeId;
 
-    /**
-     * 颜色筛选
-     */
+    @ApiModelProperty(value = "颜色筛选")
     private String colorId;
 
-    /**
-     * 租户编码
-     */
+    @ApiModelProperty(value = "租户编码")
     private String companyCode;
 
-    /**
-     * 素材分类id
-     */
+    @ApiModelProperty(value = "素材分类id")
     private String materialCategoryId;
 
-    /**
-     * 品类id
-     */
+    @ApiModelProperty(value = "品类id")
     private Integer categoryId;
 
-    /**
-     * 创建人的id
-     */
+    @ApiModelProperty(value = "创建人的id")
     private String createId;
 
-    /**
-     * 文件信息
-     */
+    @ApiModelProperty(value = "文件信息")
     private String fileInfo;
 }

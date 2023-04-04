@@ -3,6 +3,7 @@ package com.base.sbc.module.material.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import java.util.Date;
 
@@ -17,144 +18,88 @@ import java.util.Date;
 @TableName("t_material")
 public class Material extends BaseDataEntity<String> {
 
-    /**
-     * 文件信息
-     */
+    @ApiModelProperty(value = "文件信息")
     private String fileInfo;
 
-    /**
-     * 素材分类id
-     */
+    @ApiModelProperty(value = "素材分类id")
     private String materialCategoryId;
 
-    /**
-     * 素材分类名称
-     */
+    @ApiModelProperty(value = "素材分类名称")
     private String materialCategoryName;
 
-    /**
-     * 素材细分类
-     */
+    @ApiModelProperty(value = "素材细分类")
     private String materialSubcategory;
 
-    /**
-     * 供应商名称
-     */
+    @ApiModelProperty(value = "供应商名称")
     private String supplierName;
 
-    /**
-     * 供应商编号
-     */
+    @ApiModelProperty(value = "供应商编号")
     private String supplierCode;
 
-    /**
-     * 供应商色号
-     */
+    @ApiModelProperty(value = "供应商色号")
     private String supplierColor;
 
-    /**
-     * 成分
-     */
+    @ApiModelProperty(value = "成分")
     private String component;
 
-    /**
-     * 品牌
-     */
+    @ApiModelProperty(value = "品牌")
     private String brand;
 
-    /**
-     * 市场
-     */
+    @ApiModelProperty(value = "市场")
     private String market;
 
-    /**
-     * 市场等级
-     */
+    @ApiModelProperty(value = "市场等级")
     private String marketLevel;
 
-    /**
-     * 知名度
-     */
+    @ApiModelProperty(value = "知名度")
     private String fame;
 
-    /**
-     * 品类名称
-     */
+    @ApiModelProperty(value = "品类名称")
     private String categoryName;
 
-    /**
-     * 品类id
-     */
+    @ApiModelProperty(value = "品类id")
     private String categoryId;
 
-    /**
-     * 年份
-     */
+    @ApiModelProperty(value = "年份")
     private String year;
 
-    /**
-     * 月份
-     */
+    @ApiModelProperty(value = "月份")
     private String month;
 
-    /**
-     * 季节
-     */
+    @ApiModelProperty(value = "季节")
     private String season;
 
-    /**
-     * 来源地
-     */
+    @ApiModelProperty(value = "来源地")
     private String sourcePlace;
 
-    /**
-     * 来源人
-     */
+    @ApiModelProperty(value = "来源人")
     private String sourcePerson;
 
-    /**
-     * 来源部门
-     */
+    @ApiModelProperty(value = "来源部门")
     private String sourceDepartment;
 
-    /**
-     * 采集时间
-     */
+    @ApiModelProperty(value = "采集时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date collectionTime;
 
-    /**
-     * 素材缺点
-     */
+    @ApiModelProperty(value = "素材缺点")
     private String materialDefect;
 
-    /**
-     * 风险评估
-     */
+    @ApiModelProperty(value = "风险评估")
     private String riskAssessment;
 
-    /**
-     * 审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）
-     */
+    @ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）")
     private String status;
 
-    /**
-     * 图片地址
-     */
+    @ApiModelProperty(value = "图片地址")
     private String picUrl;
 
-    /**
-     * 图片格式
-     */
+    @ApiModelProperty(value = "图片格式")
     private String picFormat;
 
-    /**
-     * 图片尺寸
-     */
+    @ApiModelProperty(value = "图片尺寸")
     private String picSize;
 
-    /**
-     * 备注
-     */
+    @ApiModelProperty(value = "备注")
     private String remarks;
 }
