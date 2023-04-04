@@ -63,6 +63,8 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     /** 关联历史款 */
     @ApiModelProperty(value = "关联历史款"  )
     private String hisDesignNo;
+    @ApiModelProperty(value = "备注"  )
+    private String remarks;
     /*******************************************getset方法区************************************/
 
 }

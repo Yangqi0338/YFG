@@ -8,7 +8,18 @@
 	版本号：1.0
 -->
 	<!-- *******************************************自定义方法区  不替换的区域【other_start】***************************************** -->
-
+	<select id="selectByQc" resultType="com.base.sbc.module.planning.vo.PlanningCategoryItemMaterialVo" parameterType="queryCondition">
+		select
+			id,material_type,material_id
+		    from t_planning_category_item_material
+		<include refid="common.whereClause"></include>
+		<if test="groupByClause != null">
+			group by ${groupByClause}
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
 
 	<!-- *******************************************自定义方法区 【other_end】***************************************** -->
 	<!-- *******************************************公用方法区(不可修改)***************************************** -->

@@ -48,6 +48,8 @@ public class PlanningSeason extends BaseDataEntity<String> {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+    @ApiModelProperty(value = "备注"  )
+    private String remarks;
     /*******************************************getset方法区************************************/
 
 }

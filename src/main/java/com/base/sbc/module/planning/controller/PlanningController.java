@@ -13,21 +13,13 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.entity.*;
+import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.dto.PlanningBandDto;
 import com.base.sbc.module.planning.dto.PlanningBandSearchDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
-import com.base.sbc.module.planning.entity.PlanningBand;
-import com.base.sbc.module.planning.entity.PlanningCategory;
-import com.base.sbc.module.planning.entity.PlanningCategoryItem;
-import com.base.sbc.module.planning.entity.PlanningSeason;
-import com.base.sbc.module.planning.service.PlanningBandService;
-import com.base.sbc.module.planning.service.PlanningCategoryItemService;
-import com.base.sbc.module.planning.service.PlanningCategoryService;
-import com.base.sbc.module.planning.vo.PlanningBandVo;
-import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
-import com.base.sbc.module.planning.vo.PlanningSeasonVo;
+import com.base.sbc.module.planning.vo.*;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import feign.Body;
@@ -40,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,6 +56,9 @@ public class PlanningController extends BaseController {
     private PlanningCategoryService planningCategoryService;
     @Resource
     private PlanningCategoryItemService planningCategoryItemService;
+
+    @Resource
+    private PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
     @Resource
     private AmcService amcService;
     private IdGen idGen = new IdGen();
@@ -207,7 +203,30 @@ public class PlanningController extends BaseController {
         first.getBand().setCategoryData(categoryData);
         //查询坑位信息
         List<PlanningCategoryItem> categoryItemData = planningCategoryItemService.findByCondition(categoryQc);
-        first.getBand().setCategoryItemData(categoryItemData);
+        // 关联素材库
+        List<PlanningCategoryItemMaterialVo> itemMaterials = planningCategoryItemMaterialService.selectList2("selectByQc",categoryQc);
+
+        if(CollUtil.isNotEmpty(categoryItemData)&&CollUtil.isNotEmpty(categoryData)){
+            List<PlanningCategoryItemVo> categoryItemVoData=new ArrayList<>(categoryData.size());
+            Map<String, PlanningCategory> planningCategoryMap = categoryData.stream()
+                    .collect(Collectors.toMap(PlanningCategory::getId,v->v,(a,b)->b));
+            Map<String, List<PlanningCategoryItemMaterialVo>> itemMaterialMap = Optional.ofNullable(itemMaterials).orElse(CollUtil.newArrayList())
+                    .stream().collect(Collectors.groupingBy(PlanningCategoryItemMaterialVo::getPlanningCategoryItemId));
+            for (PlanningCategoryItem categoryItem : categoryItemData) {
+                PlanningCategoryItemVo planningCategoryItemVo = BeanUtil.copyProperties(categoryItem, PlanningCategoryItemVo.class);
+                PlanningCategory p = planningCategoryMap.get(categoryItem.getPlanningCategoryId());
+                if(p!=null){
+                    planningCategoryItemVo.setParentCategoryIds(p.getCategoryIds());
+                    planningCategoryItemVo.setParentCategoryName(p.getCategoryName());
+                }
+                planningCategoryItemVo.setMaterialVoList(itemMaterialMap.get(categoryItem.getId()));
+                categoryItemVoData.add(planningCategoryItemVo);
+            }
+            first.getBand().setCategoryItemData(categoryItemVoData);
+        }else{
+            first.getBand().setCategoryItemData(new ArrayList<>());
+        }
+
         return first;
     }
 
@@ -260,4 +279,5 @@ public class PlanningController extends BaseController {
          planningCategoryItemService.updateAll(item);
         return item;
     }
+
 }
