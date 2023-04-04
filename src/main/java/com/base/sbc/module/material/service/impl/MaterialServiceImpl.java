@@ -113,10 +113,7 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
     public PageInfo<MaterialVo> listQuery(MaterialQueryDto materialQueryDto) {
         materialQueryDto.setCompanyCode(userUtils.getCompanyCode());
         this.addQuery(materialQueryDto);
-        //筛选我的收藏
-        if(BasicNumber.ONE.getNumber().equals(materialQueryDto.getCollectId())){
-            materialQueryDto.setCreateId(userUtils.getUserId());
-        }
+
         PageHelper.startPage(materialQueryDto);
         List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
 
