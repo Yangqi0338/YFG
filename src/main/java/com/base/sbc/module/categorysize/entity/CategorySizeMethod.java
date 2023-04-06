@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.categorysize.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,11 +25,12 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CategorySizeMethod extends BaseDataEntity<String> implements Cloneable{
+@TableName("t_category_size_method")
+public class CategorySizeMethod extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-
+    @TableField(exist = false)
 	private List<String> sizeList;
+    @TableField(exist = false)
 	private List<String> standardList;
 
     /** 品类名称（对应CCM的品类名称） */

@@ -22,6 +22,9 @@ public class JacksonConfig {
     public ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
         ObjectMapper objectMapper = builder.createXmlMapper(false).build();
         objectMapper.getSerializerProvider().setNullValueSerializer(new JsonSerializer<Object>() {
+            /**
+             * 如果返回字段为null则替换为空字符串
+             */
             @Override
             public void serialize(Object o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
                 jsonGenerator.writeString("");
