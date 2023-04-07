@@ -27,6 +27,18 @@
         <if test="categoryId != null and categoryId != ''">
             and category_id = #{categoryId}
         </if>
+        <if test="materialSubcategory != null and materialSubcategory != ''">
+            and material_subcategory like concat('%',#{materialSubcategory},'%')
+        </if>
+        <if test="year != null and year != ''">
+            and year = #{year}
+        </if>
+        <if test="month != null and month != ''">
+            and month = #{month}
+        </if>
+        <if test="season != null and season != ''">
+            and season = #{season}
+        </if>
         <if test="createId != null and createId != ''">
             and tm.create_id = #{createId}
         </if>
