@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
  * @data 创建时间:2021/1/4
  */
 @FeignClient(name = "ccm", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
+//@FeignClient(name = "ccm", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
 public interface CcmService {
     /**
      * 获取最后一级的品类信息
@@ -104,4 +105,13 @@ public interface CcmService {
      */
     @PostMapping("/ccm/api/saas/companyCodeGen/getGenCode")
     ApiResult genCodeByCodeRule(@RequestParam("genCode") String genCode, @RequestBody Object dataMap);
+
+    /**
+     * 根据单据编码和数据，获取编码
+     * @param genCode
+     * @param dataMap
+     * @return
+     */
+    @PostMapping("/ccm/api/saas/companyCodeGen/getGenCodeByRegexp")
+    String getGenCodeByRegexp(@RequestParam("genCode") String genCode, @RequestBody Object dataMap);
 }

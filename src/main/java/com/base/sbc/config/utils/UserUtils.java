@@ -5,7 +5,6 @@ import java.security.Principal;
 import com.base.sbc.config.aspect.GetCurUserInfoAspect;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.Constants;
-import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +29,7 @@ public class UserUtils {
 	public static final String USER_ID = "userId:";
 	public static final String NAME = "name:";
 
-	public static final String userInfo="USER_INFO_";
+	public static final String USER_INFO ="USER_INFO_";
 
 	public String getUserIdBy(Principal user) {
 		String userName = user.getName();
@@ -67,14 +66,14 @@ public class UserUtils {
 	 * @param userId  当前用户id
 	 */
 	public GroupUser getUser(String userId){
-		GroupUser user = (GroupUser)redisUtils.get(userInfo+userId);
+		GroupUser user = (GroupUser)redisUtils.get(USER_INFO +userId);
 		if (user==null){
 			String retomeResult = oauthService.getUserInfo();
 			JSONObject jsonx = JSON.parseObject(retomeResult);
 			String data =  jsonx.getJSONObject("data").toJSONString();
 			if(jsonx.getBoolean(Constants.SUCCESS)) {
 				user = (GroupUser) JsonUtils.jsonToBean(data, GroupUser.class);
-				redisUtils.set(userInfo+userId, user);
+				redisUtils.set(USER_INFO +userId, user);
 			}
 		}
 		return user;

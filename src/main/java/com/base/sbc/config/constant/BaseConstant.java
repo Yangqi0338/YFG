@@ -45,6 +45,8 @@ public class BaseConstant {
 	 *  success
 	 */
 	public static final String SUCCESS = "success";
+	public static final String DATA = "data";
+	public static final String FLOWING = "flowing";
 
 	/**
 	 *  id

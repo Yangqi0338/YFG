@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.constant.BaseConstant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +26,8 @@ public class AmcUtils {
      */
     public static List<UserCompany> parseStrToList(String str){
         JSONObject jsonObject = JSON.parseObject(str);
-        if(jsonObject.getBoolean("success")){
-            JSONArray data = jsonObject.getJSONArray("data");
+        if(jsonObject.getBoolean(BaseConstant.SUCCESS)){
+            JSONArray data = jsonObject.getJSONArray(BaseConstant.DATA);
             return data.toJavaList(UserCompany.class);
         }
         return new ArrayList<>();

@@ -110,10 +110,10 @@ public class FilesUtils {
             int i = 0;
             for (File file2 : fileList) {
                 fileName = UUID.randomUUID().toString();
-                if (excList.get(i).equals("jpeg")) {
+                if ("jpeg".equals(excList.get(i))) {
                     fileName += ".jpg";
                 }
-                if (excList.get(i).equals("png")) {
+                if ("png".equals(excList.get(i))) {
                     fileName += ".png";
                 }
                 i++;
