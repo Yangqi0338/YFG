@@ -5,6 +5,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.*;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
@@ -36,6 +37,9 @@ public class MaterialController extends BaseController {
     private MaterialSizeService materialSizeService;
     @Resource
     private MaterialColorService materialColorService;
+
+    @Resource
+    private UserUtils userUtils;
 
     /**
      * 新增
@@ -105,6 +109,12 @@ public class MaterialController extends BaseController {
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "修改素材", notes = "修改素材")
     public ApiResult update(@RequestBody MaterialSaveDto materialSaveDto) {
+        if (!userUtils.getUserId().equals(materialSaveDto.getCreateId())){
+            throw new OtherException("只有创建人才能修改");
+        }
+        if (BasicNumber.ZERO.getNumber().equals(materialSaveDto.getStatus())){
+            materialSaveDto.setStatus(BasicNumber.ONE.getNumber());
+        }
         //删除关联标签
         QueryWrapper<MaterialLabel> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("material_id", materialSaveDto.getId());

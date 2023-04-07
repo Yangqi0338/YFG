@@ -67,14 +67,12 @@ public class BandController extends BaseController {
     public ApiResult listQuery(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, Page page) {
         QueryWrapper<Band> qc = new QueryWrapper<>();
         qc.eq("company_code", userCompany);
-        qc.eq("del_flag", "0");
         if (StringUtils.isNotBlank(page.getSearch())) {
             qc.like("band_name",page.getSearch()).or().like("code",page.getSearch());
         }
         if (!StringUtils.isEmpty(page.getOrder())){
             qc.orderByAsc(page.getOrder());
         }else {
-            qc.orderByDesc("create_date");
             qc.orderByDesc("create_date");
         }
         if (page.getPageNum() != 0 && page.getPageSize() != 0) {
