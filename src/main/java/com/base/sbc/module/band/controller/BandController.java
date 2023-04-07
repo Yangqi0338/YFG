@@ -1,11 +1,12 @@
 package com.base.sbc.module.band.controller;
 
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.module.band.dto.BandSaveDto;
 import com.base.sbc.module.band.dto.BandStartStopDto;
 import com.base.sbc.module.band.vo.BandQueryReturnVo;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.constant.BaseConstant;
@@ -22,10 +23,12 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,9 +46,12 @@ public class BandController extends BaseController {
      * 新增波段
      */
     @PostMapping("/add")
+    @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "新增波段", notes = "id为空")
-    public String add(@Valid @RequestBody BandSaveDto bandSaveDto) {
-        return bandService.add(bandSaveDto);
+    public boolean add(@Valid @RequestBody BandSaveDto bandSaveDto) {
+        Band band =new Band();
+        BeanUtils.copyProperties(bandSaveDto,band);
+        return bandService.save(band);
     }
 
     /**
@@ -59,31 +65,28 @@ public class BandController extends BaseController {
             @ApiImplicitParam(name = "order", value = "排序", required = false, dataType = "String", paramType = "query")
     })
     public ApiResult listQuery(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, Page page) {
-        QueryCondition qc = new QueryCondition();
-        qc.andEqualTo("company_code", userCompany);
-        qc.andEqualTo("del_flag", "0");
+        QueryWrapper<Band> qc = new QueryWrapper<>();
+        qc.eq("company_code", userCompany);
+        qc.eq("del_flag", "0");
         if (StringUtils.isNotBlank(page.getSearch())) {
-            qc.andLikeOr(page.getSearch(), "band_name", "code");
+            qc.like("band_name",page.getSearch()).or().like("code",page.getSearch());
         }
         if (!StringUtils.isEmpty(page.getOrder())){
-            qc.setOrderByClause(page.getOrder());
+            qc.orderByAsc(page.getOrder());
         }else {
-            qc.setOrderByClause("create_date desc");
+            qc.orderByDesc("create_date");
+            qc.orderByDesc("create_date");
         }
         if (page.getPageNum() != 0 && page.getPageSize() != 0) {
             com.github.pagehelper.Page<BandQueryReturnVo> basicLabelUseScopePage = PageHelper.startPage(page.getPageNum(), page.getPageSize());
-            bandService.findByCondition(qc);
+            bandService.list(qc);
             PageInfo<BandQueryReturnVo> pages = basicLabelUseScopePage.toPageInfo();
             List<BandQueryReturnVo> list = pages.getList();
             if (list != null && list.size() > 0) {
                 return ApiResult.success("success", pages);
             }
-            return ApiResult.error(HttpStatus.NOT_FOUND.getReasonPhrase(), HttpStatus.NOT_FOUND.value());
-        } else {
-            List<BandQueryReturnVo> bandQueryReturnVoList = bandService.selectList2("selectbaseList", qc);
-            return ApiResult.success("success", bandQueryReturnVoList);
         }
-
+        return ApiResult.error(HttpStatus.NOT_FOUND.getReasonPhrase(), HttpStatus.NOT_FOUND.value());
 
     }
 
@@ -103,16 +106,18 @@ public class BandController extends BaseController {
     /**
      * 批量删除
      */
+    @Transactional(rollbackFor = {Exception.class})
     @DeleteMapping("delByIds")
     @ApiImplicitParams({  @ApiImplicitParam(name = "ids", value = "删除波段", required = true, dataType = "String[]"), })
     @ApiOperation(value = "删除波段", notes = "ids必填")
     public ApiResult delByIds(String[] ids) {
-        return deleteSuccess(bandService.delByIds(ids));
+        return deleteSuccess(bandService.removeBatchByIds(Arrays.asList(ids)));
     }
     /**
      * 修改
      */
     @PutMapping("/update")
+    @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "修改波段", notes = "必填")
     public ApiResult update(@Valid @RequestBody BandSaveDto bandSaveDto) {
         if (StringUtils.isEmpty(bandSaveDto.getId())){
@@ -123,33 +128,38 @@ public class BandController extends BaseController {
             throw new OtherException("查无数据");
         }
         BeanUtils.copyProperties(bandSaveDto,band);
-        return updateSuccess(bandService.update(band));
+        return updateSuccess(bandService.updateById(band));
     }
     /**
      * 启动 停止
      */
     @ApiOperation(value = "批量启用/停用波段", notes = "ids:波段ids(多个用逗号拼接), status:0启用1停用")
     @PostMapping("bandStartStop")
+    @Transactional(rollbackFor = {Exception.class})
     public ApiResult bandStartStop(@Valid @RequestBody BandStartStopDto bandStartStopDto) {
-        return deleteSuccess(bandService.bandStartStop(bandStartStopDto));
+        UpdateWrapper<Band> updateWrapper =new UpdateWrapper<>();
+        updateWrapper.in("id",Arrays.asList(bandStartStopDto.getIds()));
+        updateWrapper.set("status",bandStartStopDto.getStatus());
+        return deleteSuccess(bandService.update(null,updateWrapper));
     }
 
     @GetMapping("/queryBand")
     public ApiResult queryBand(BandSaveDto dto){
-        QueryCondition qc=new QueryCondition(getUserCompany());
+        QueryWrapper<Band> qc=new QueryWrapper<>();
+        qc.eq("company_code",getUserId());
         if(StrUtil.isNotBlank(dto.getParticularYear())){
-            qc.andEqualTo("particular_year",dto.getParticularYear());
+            qc.eq("particular_year",dto.getParticularYear());
         }
         if(StrUtil.isNotBlank(dto.getSeason())){
-            qc.andEqualTo("season",dto.getSeason());
+            qc.eq("season",dto.getSeason());
         }
         if(StrUtil.isNotBlank(dto.getCode())){
-            qc.andEqualTo("code",dto.getCode());
+            qc.eq("code",dto.getCode());
         }
         if(StrUtil.isNotBlank(dto.getMonth())){
-            qc.andEqualTo("month",dto.getMonth());
+            qc.eq("month",dto.getMonth());
         }
-        List<Band> bandList = bandService.findByCondition(qc);
+        List<Band> bandList = bandService.list(qc);
         return selectSuccess(bandList);
     }
 

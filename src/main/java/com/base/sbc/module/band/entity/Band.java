@@ -34,14 +34,6 @@ public class Band extends BaseDataEntity<String> {
 	@TableField(exist = false)
 	private String[] ids;
 
-	public String[] getIds() {
-		return ids;
-	}
-
-	public void setIds(String[] ids) {
-		this.ids = ids;
-	}
-
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性)***********************************/
@@ -59,76 +51,5 @@ public class Band extends BaseDataEntity<String> {
     private Integer sort;
     /** 是否启用(0启用，1删除) */
     private String status;
-    /*******************************************getset方法区************************************/
-    public String getParticularYear() {
-		return particularYear;
-	}
-	public Band setParticularYearAnd(String particularYear) {
-		this.particularYear = particularYear;
-		return this;
-	}
-	public void setParticularYear(String particularYear) {
-		this.particularYear = particularYear;
-	}
-    public String getSeason() {
-		return season;
-	}
-	public Band setSeasonAnd(String season) {
-		this.season = season;
-		return this;
-	}
-	public void setSeason(String season) {
-		this.season = season;
-	}
-    public String getMonth() {
-		return month;
-	}
-	public Band setMonthAnd(String month) {
-		this.month = month;
-		return this;
-	}
-	public void setMonth(String month) {
-		this.month = month;
-	}
-    public String getBandName() {
-		return bandName;
-	}
-	public Band setBandNameAnd(String bandName) {
-		this.bandName = bandName;
-		return this;
-	}
-	public void setBandName(String bandName) {
-		this.bandName = bandName;
-	}
-    public String getCode() {
-		return code;
-	}
-	public Band setCodeAnd(String code) {
-		this.code = code;
-		return this;
-	}
-	public void setCode(String code) {
-		this.code = code;
-	}
-    public Integer getSort() {
-		return sort;
-	}
-	public Band setSortAnd(Integer sort) {
-		this.sort = sort;
-		return this;
-	}
-	public void setSort(Integer sort) {
-		this.sort = sort;
-	}
-    public String getStatus() {
-		return status;
-	}
-	public Band setStatusAnd(String status) {
-		this.status = status;
-		return this;
-	}
-	public void setStatus(String status) {
-		this.status = status;
-	}
 }
 

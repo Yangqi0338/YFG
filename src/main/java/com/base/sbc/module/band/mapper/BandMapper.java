@@ -13,12 +13,5 @@ import java.util.List;
  */
 @Mapper
 public interface BandMapper extends BaseMapper<Band> {
-    List<Band> listQuery(Band band);
-
-    Integer delByIds( @Param("ids")  String[] ids,@Param("updateName") String updateName,@Param("updateId") String updateId);
-
-    Integer update(Band band);
-
-    Integer bandStartStop(Band band);
 
 }

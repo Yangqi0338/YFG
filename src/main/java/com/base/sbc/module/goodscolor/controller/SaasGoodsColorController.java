@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -78,6 +79,7 @@ public class SaasGoodsColorController extends BaseController {
     }
 
     @ApiOperation(value = "新增物料颜色", notes = "新增物料颜色")
+    @Transactional(rollbackFor = {Exception.class})
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userCompany", value = "用户企业ID ", required = true, dataType = "String", paramType = "header")})
     @PostMapping("/insertColor")
@@ -125,7 +127,7 @@ public class SaasGoodsColorController extends BaseController {
         }
         return insertAttributeNotRequirements("保存失败");
     }
-
+    @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "批量启用/停用制造流程", notes = "批量启用/停用制造流程 params{ids:制造流程ids(多个用逗号拼接), status:0启用1停用}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userCompany", value = "用户企业ID ", required = true, dataType = "String", paramType = "header")})
@@ -151,7 +153,7 @@ public class SaasGoodsColorController extends BaseController {
         }
         return updateNotFound();
     }
-
+    @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "批量删除物料颜色", notes = "批量删除物料颜色 params{id:物料颜色id}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userCompany", value = "用户企业ID ", required = true, dataType = "String", paramType = "header"),
@@ -164,7 +166,7 @@ public class SaasGoodsColorController extends BaseController {
         }
         return deleteNotFound();
     }
-
+    @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "修改物料颜色", notes = "修改物料颜色")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "userCompany", value = "用户企业ID ", required = true, dataType = "String", paramType = "header")})

@@ -6,6 +6,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +38,7 @@ public class MaterialCollectController extends BaseController {
 
     @ApiOperation(value = "素材收藏", notes = "素材收藏")
     @PostMapping("/add")
+    @Transactional(rollbackFor = {Exception.class})
     public ApiResult add(@RequestBody MaterialCollect materialCollect) throws Exception {
         String userId = userUtils.getUserId();
         QueryWrapper<MaterialCollect> qc = new QueryWrapper<>();
@@ -52,6 +54,7 @@ public class MaterialCollectController extends BaseController {
 
     @ApiOperation(value = "素材取消收藏", notes = "素材取消收藏")
     @DeleteMapping("/del")
+    @Transactional(rollbackFor = {Exception.class})
     public ApiResult del(MaterialCollect materialCollect) {
         String userId = userUtils.getUserId();
         QueryWrapper<MaterialCollect> qc = new QueryWrapper<>();
