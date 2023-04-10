@@ -1,11 +1,7 @@
 package com.base.sbc.module.common.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
@@ -23,7 +19,7 @@ import java.util.List;
  * @data 2023/4/10 9:41
  */
 @Service
-public class CommonServiceImpl<T> implements CommonService<T> {
+public  class CommonServiceImpl<T extends BaseEntity> implements CommonService<T> {
 
     @Resource
     private UserUtils userUtils;
@@ -34,24 +30,24 @@ public class CommonServiceImpl<T> implements CommonService<T> {
      */
     @Override
     @Transactional
-    public Integer updateList(IService<T> iService,List<? extends BaseEntity> entityList, QueryWrapper<T> queryWrapper) {
+    public Integer updateList(IService<T> iService,List<T> entityList, QueryWrapper<T> queryWrapper) {
         String companyCode = userUtils.getCompanyCode();
         //分类
         // 新增的
-        List<BaseDataEntity> addList = new ArrayList<>();
+        Collection<T> addList = new ArrayList<>();
         // 修改的
-        List<BaseDataEntity> updateList = new ArrayList<>();
+        Collection<T> updateList = new ArrayList<>();
 
-        List<String> ids=new ArrayList<>();
+        Collection<String> ids=new ArrayList<>();
 
-        for (BaseEntity entity : entityList) {
+        for (T entity : entityList) {
             if (StringUtils.isEmpty(entity.getId()) || entity.getId().contains("-")) {
                 //说明是新增的
                 entity.setId(null);
-                addList.add((BaseDataEntity) entity);
+                addList.add(entity);
             } else {
                 //说明是修改的
-                updateList.add((BaseDataEntity) entity);
+                updateList.add(entity);
                 ids.add(entity.getId());
             }
         }
@@ -61,11 +57,11 @@ public class CommonServiceImpl<T> implements CommonService<T> {
             queryWrapper.notIn("id",ids);
         }
         queryWrapper.eq("company_code",companyCode);
-        iService.remove((Wrapper)queryWrapper);
+        iService.remove(queryWrapper);
         //新增
-        iService.saveBatch((Collection<T>) addList);
+        iService.saveBatch(addList);
         //修改
-        iService.updateBatchById((Collection<T>) updateList);
+        iService.updateBatchById(updateList);
 
         return entityList.size();
     }

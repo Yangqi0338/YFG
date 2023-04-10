@@ -13,10 +13,10 @@ import java.util.List;
  * @data 2023/4/10 9:39
  */
 
-public interface CommonService<T> {
+public interface CommonService<T>{
     /**
      * 批量逻辑修改新增删除封装
      */
-    Integer updateList (IService<T> iService,List<? extends BaseEntity> entityList, QueryWrapper<T> queryWrapper);
+    Integer updateList (IService<T> iService,List<T> entityList, QueryWrapper<T> queryWrapper);
 
 }

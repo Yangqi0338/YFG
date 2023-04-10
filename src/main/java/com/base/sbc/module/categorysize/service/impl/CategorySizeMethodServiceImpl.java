@@ -25,7 +25,7 @@ public class CategorySizeMethodServiceImpl extends ServiceImpl<CategorySizeMetho
     private UserUtils userUtils;
 
     @Resource
-    private CommonService commonService;
+    private CommonService<CategorySizeMethod> commonService;
 
 
     @Override
