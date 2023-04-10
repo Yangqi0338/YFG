@@ -1,11 +1,8 @@
 package com.base.sbc.module.common.service;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.base.sbc.config.common.base.BaseEntity;
-
 import java.util.List;
 
 /**
@@ -15,8 +12,11 @@ import java.util.List;
 
 public interface CommonService<T>{
     /**
-     * 批量逻辑修改新增删除封装
+     * 批量提交修改，逻辑删除新增修改
+     * @param entityList 实体列表
+     * @param queryWrapper 构造器
+     * @return 传入实体列表的总长度
      */
-    Integer updateList (IService<T> iService,List<T> entityList, QueryWrapper<T> queryWrapper);
+    Integer addAndUpdateAndDelList (IService<T> iService,List<T> entityList, QueryWrapper<T> queryWrapper);
 
 }

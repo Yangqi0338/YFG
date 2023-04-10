@@ -1,12 +1,11 @@
 package com.base.sbc.module.common.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.module.common.service.CommonService;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -16,11 +15,9 @@ import java.util.List;
 
 /**
  * @author 卞康
- * @data 2023/4/10 9:41
+ * @data 2023/4/10 11:52
  */
-@Service
-public class CommonServiceImpl<T extends BaseEntity> implements CommonService<T> {
-
+public class IServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> extends ServiceImpl<M,T> {
     @Resource
     private UserUtils userUtils;
 
@@ -30,9 +27,8 @@ public class CommonServiceImpl<T extends BaseEntity> implements CommonService<T>
      * @param queryWrapper 构造器
      * @return 传入实体列表的总长度
      */
-    @Override
     @Transactional(rollbackFor = Exception.class)
-    public Integer addAndUpdateAndDelList(IService<T> iService,List<T> entityList, QueryWrapper<T> queryWrapper) {
+    public Integer addAndUpdateAndDelList(List<T> entityList, QueryWrapper<T> queryWrapper) {
         String companyCode = userUtils.getCompanyCode();
         //分类
         // 新增的
@@ -59,13 +55,12 @@ public class CommonServiceImpl<T extends BaseEntity> implements CommonService<T>
             queryWrapper.notIn("id",ids);
         }
         queryWrapper.eq("company_code",companyCode);
-        iService.remove(queryWrapper);
+        this.remove(queryWrapper);
         //新增
-        iService.saveBatch(addList);
+        this.saveBatch(addList);
         //修改
-        iService.updateBatchById(updateList);
+        this.updateBatchById(updateList);
 
         return entityList.size();
     }
-
 }
