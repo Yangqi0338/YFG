@@ -49,12 +49,11 @@ public class IServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> extends
                 ids.add(entity.getId());
             }
         }
-
+        queryWrapper.eq("company_code",companyCode);
         //逻辑删除传进来不存在的
         if (ids.size()>0){
             queryWrapper.notIn("id",ids);
         }
-        queryWrapper.eq("company_code",companyCode);
         this.remove(queryWrapper);
         //新增
         this.saveBatch(addList);

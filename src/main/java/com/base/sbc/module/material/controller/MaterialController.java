@@ -121,15 +121,15 @@ public class MaterialController extends BaseController {
         materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(),labelQueryWrapper);
 
 
-        //修改关联尺码
-        QueryWrapper<MaterialSize> sizeQueryWrapper = new QueryWrapper<>();
-        sizeQueryWrapper.eq("material_id", materialSaveDto.getId());
-        materialSizeService.addAndUpdateAndDelList(materialSaveDto.getSizes(),sizeQueryWrapper);
-
-        //修改关联颜色
-        QueryWrapper<MaterialColor> colorQueryWrapper = new QueryWrapper<>();
-        colorQueryWrapper.eq("material_id", materialSaveDto.getId());
-        materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
+        ////修改关联尺码
+        //QueryWrapper<MaterialSize> sizeQueryWrapper = new QueryWrapper<>();
+        //sizeQueryWrapper.eq("material_id", materialSaveDto.getId());
+        //materialSizeService.addAndUpdateAndDelList(materialSaveDto.getSizes(),sizeQueryWrapper);
+        //
+        ////修改关联颜色
+        //QueryWrapper<MaterialColor> colorQueryWrapper = new QueryWrapper<>();
+        //colorQueryWrapper.eq("material_id", materialSaveDto.getId());
+        //materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
 
         boolean b = materialService.updateById(materialSaveDto);
         return updateSuccess(b);
