@@ -33,7 +33,7 @@ public class CategorySizeMethodServiceImpl extends ServiceImpl<CategorySizeMetho
     public Integer updateList(List<CategorySizeMethod> categorySizeMethodList, String categoryName) {
         QueryWrapper<CategorySizeMethod> queryWrapper =new QueryWrapper<>();
         queryWrapper.eq("category_name",categoryName);
-       return commonService.updateList(categorySizeMethodList,queryWrapper);
+       return commonService.updateList(this,categorySizeMethodList,queryWrapper);
         //String companyCode = userUtils.getCompanyCode();
         ////分类
         //// 新增的

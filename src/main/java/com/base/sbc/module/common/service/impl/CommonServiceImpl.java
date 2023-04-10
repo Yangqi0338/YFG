@@ -3,6 +3,7 @@ package com.base.sbc.module.common.service.impl;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.common.base.BaseEntity;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -21,7 +23,7 @@ import java.util.List;
  * @data 2023/4/10 9:41
  */
 @Service
-public class CommonServiceImpl extends ServiceImpl<BaseMapper<BaseDataEntity>, BaseDataEntity> implements CommonService {
+public class CommonServiceImpl<T> implements CommonService<T> {
 
     @Resource
     private UserUtils userUtils;
@@ -32,7 +34,7 @@ public class CommonServiceImpl extends ServiceImpl<BaseMapper<BaseDataEntity>, B
      */
     @Override
     @Transactional
-    public Integer updateList(List<? extends BaseEntity> entityList, QueryWrapper<? extends BaseEntity> queryWrapper) {
+    public Integer updateList(IService<T> iService,List<? extends BaseEntity> entityList, QueryWrapper<T> queryWrapper) {
         String companyCode = userUtils.getCompanyCode();
         //分类
         // 新增的
@@ -59,12 +61,13 @@ public class CommonServiceImpl extends ServiceImpl<BaseMapper<BaseDataEntity>, B
             queryWrapper.notIn("id",ids);
         }
         queryWrapper.eq("company_code",companyCode);
-        this.remove((Wrapper<BaseDataEntity>) queryWrapper);
+        iService.remove((Wrapper)queryWrapper);
         //新增
-        this.saveBatch( addList);
+        iService.saveBatch((Collection<T>) addList);
         //修改
-        this.updateBatchById( updateList);
+        iService.updateBatchById((Collection<T>) updateList);
 
         return entityList.size();
     }
+
 }

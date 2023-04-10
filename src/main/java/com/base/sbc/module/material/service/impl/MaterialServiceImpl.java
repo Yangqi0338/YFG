@@ -115,7 +115,7 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
         materialQueryDto.setCompanyCode(userUtils.getCompanyCode());
         this.addQuery(materialQueryDto);
 
-        Page<MaterialVo> materialVoPage = PageHelper.startPage(materialQueryDto.getPageNum(), materialQueryDto.getPageSize());
+        Page<MaterialVo> materialVoPage = PageHelper.startPage(materialQueryDto);
         List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
 
         if (materialAllDtolist == null || materialAllDtolist.size() == 0) {
