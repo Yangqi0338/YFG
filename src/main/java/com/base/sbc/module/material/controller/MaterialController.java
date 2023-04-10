@@ -115,41 +115,21 @@ public class MaterialController extends BaseController {
         if (BasicNumber.ZERO.getNumber().equals(materialSaveDto.getStatus())){
             materialSaveDto.setStatus(BasicNumber.ONE.getNumber());
         }
-        //删除关联标签
-        QueryWrapper<MaterialLabel> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("material_id", materialSaveDto.getId());
-        materialLabelService.remove(queryWrapper);
+        //修改关联标签
+        QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
+        labelQueryWrapper.eq("material_id", materialSaveDto.getId());
+        materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(),labelQueryWrapper);
 
-        List<MaterialLabel> labels = materialSaveDto.getLabels();
-        //新增关联标签
-        if (labels != null) {
-            for (MaterialLabel label : labels) {
-                label.setMaterialId(materialSaveDto.getId());
-                materialLabelService.save(label);
-            }
-        }
 
-        //删除关联尺码
-        materialSizeService.removeById(materialSaveDto.getId());
-        //新增关联尺码
-        List<MaterialSize> sizes = materialSaveDto.getSizes();
-        if (sizes != null) {
-            for (MaterialSize size : sizes) {
-                size.setMaterialId(materialSaveDto.getId());
-                materialSizeService.save(size);
-            }
-        }
+        //修改关联尺码
+        QueryWrapper<MaterialSize> sizeQueryWrapper = new QueryWrapper<>();
+        sizeQueryWrapper.eq("material_id", materialSaveDto.getId());
+        materialSizeService.addAndUpdateAndDelList(materialSaveDto.getSizes(),sizeQueryWrapper);
 
-        //删除关联颜色
-        materialColorService.removeById(materialSaveDto.getId());
-        //新增关联颜色
-        List<MaterialColor> colors = materialSaveDto.getColors();
-        if (colors != null) {
-            for (MaterialColor color : colors) {
-                color.setMaterialId(materialSaveDto.getId());
-                materialColorService.save(color);
-            }
-        }
+        //修改关联颜色
+        QueryWrapper<MaterialColor> colorQueryWrapper = new QueryWrapper<>();
+        colorQueryWrapper.eq("material_id", materialSaveDto.getId());
+        materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
 
         boolean b = materialService.updateById(materialSaveDto);
         return updateSuccess(b);

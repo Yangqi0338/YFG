@@ -1,5 +1,6 @@
 package com.base.sbc.module.material.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.module.material.entity.MaterialColor;
 import org.springframework.stereotype.Service;
@@ -22,4 +23,5 @@ public interface MaterialColorService extends IService<MaterialColor> {
      */
     List<MaterialColor> getColorId(String colorId);
 
+    Integer addAndUpdateAndDelList(List<MaterialColor> colors, QueryWrapper<MaterialColor> colorQueryWrapper);
 }

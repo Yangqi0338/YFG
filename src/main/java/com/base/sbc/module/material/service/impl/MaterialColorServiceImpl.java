@@ -2,6 +2,7 @@ package com.base.sbc.module.material.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.base.sbc.module.common.service.impl.IServiceImpl;
 import com.base.sbc.module.material.entity.MaterialColor;
 import com.base.sbc.module.material.mapper.MaterialColorMapper;
 import com.base.sbc.module.material.service.MaterialColorService;
@@ -15,7 +16,7 @@ import java.util.List;
  * @date 2023/4/1 11:20:07
  */
 @Service
-public class MaterialColorServiceImpl extends ServiceImpl<MaterialColorMapper,MaterialColor> implements MaterialColorService {
+public class MaterialColorServiceImpl extends IServiceImpl<MaterialColorMapper,MaterialColor> implements MaterialColorService {
     @Resource
     private MaterialColorMapper materialColorMapper;
     /**
