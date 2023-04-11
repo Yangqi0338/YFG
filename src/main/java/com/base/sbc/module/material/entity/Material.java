@@ -88,7 +88,7 @@ public class Material extends BaseDataEntity<String> {
     @ApiModelProperty(value = "风险评估")
     private String riskAssessment;
 
-    @ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）")
+    @ApiModelProperty(value = "审核状态（0：未提交，1:已提交，2：待审核，3：审核通过，4：审核不通过）")
     private String status;
 
     @ApiModelProperty(value = "图片地址")

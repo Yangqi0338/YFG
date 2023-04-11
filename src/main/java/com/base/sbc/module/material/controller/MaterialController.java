@@ -49,7 +49,7 @@ public class MaterialController extends BaseController {
     @ApiOperation(value = "新增素材", notes = "新增素材")
     public ApiResult add(@RequestBody MaterialSaveDto materialSaveDto) {
 
-        materialSaveDto.setStatus(BasicNumber.ONE.getNumber());
+        //materialSaveDto.setStatus(BasicNumber.ONE.getNumber());
         materialService.save(materialSaveDto);
 
         List<MaterialLabel> labels = materialSaveDto.getLabels();
@@ -112,9 +112,9 @@ public class MaterialController extends BaseController {
         if (!userUtils.getUserId().equals(materialSaveDto.getCreateId())){
             throw new OtherException("只有创建人才能修改");
         }
-        if (BasicNumber.ZERO.getNumber().equals(materialSaveDto.getStatus())){
-            materialSaveDto.setStatus(BasicNumber.ONE.getNumber());
-        }
+        //if (BasicNumber.ZERO.getNumber().equals(materialSaveDto.getStatus())){
+        //    materialSaveDto.setStatus(BasicNumber.ONE.getNumber());
+        //}
         //修改关联标签
         QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
         labelQueryWrapper.eq("material_id", materialSaveDto.getId());
