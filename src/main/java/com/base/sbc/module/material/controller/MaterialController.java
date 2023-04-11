@@ -5,6 +5,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.*;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
@@ -36,6 +37,9 @@ public class MaterialController extends BaseController {
     private MaterialSizeService materialSizeService;
     @Resource
     private MaterialColorService materialColorService;
+
+    @Resource
+    private UserUtils userUtils;
 
     /**
      * 新增
@@ -102,44 +106,30 @@ public class MaterialController extends BaseController {
      * 单个修改
      */
     @PutMapping("/update")
-
+    @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "修改素材", notes = "修改素材")
     public ApiResult update(@RequestBody MaterialSaveDto materialSaveDto) {
-        //删除关联标签
-        QueryWrapper<MaterialLabel> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("material_id", materialSaveDto.getId());
-        materialLabelService.remove(queryWrapper);
-
-        List<MaterialLabel> labels = materialSaveDto.getLabels();
-        //新增关联标签
-        if (labels != null) {
-            for (MaterialLabel label : labels) {
-                label.setMaterialId(materialSaveDto.getId());
-                materialLabelService.save(label);
-            }
+        if (!userUtils.getUserId().equals(materialSaveDto.getCreateId())){
+            throw new OtherException("只有创建人才能修改");
         }
-
-        //删除关联尺码
-        materialSizeService.removeById(materialSaveDto.getId());
-        //新增关联尺码
-        List<MaterialSize> sizes = materialSaveDto.getSizes();
-        if (sizes != null) {
-            for (MaterialSize size : sizes) {
-                size.setMaterialId(materialSaveDto.getId());
-                materialSizeService.save(size);
-            }
+        if (BasicNumber.ZERO.getNumber().equals(materialSaveDto.getStatus())){
+            materialSaveDto.setStatus(BasicNumber.ONE.getNumber());
         }
+        //修改关联标签
+        QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
+        labelQueryWrapper.eq("material_id", materialSaveDto.getId());
+        materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(),labelQueryWrapper);
 
-        //删除关联颜色
-        materialColorService.removeById(materialSaveDto.getId());
-        //新增关联颜色
-        List<MaterialColor> colors = materialSaveDto.getColors();
-        if (colors != null) {
-            for (MaterialColor color : colors) {
-                color.setMaterialId(materialSaveDto.getId());
-                materialColorService.save(color);
-            }
-        }
+
+        ////修改关联尺码
+        //QueryWrapper<MaterialSize> sizeQueryWrapper = new QueryWrapper<>();
+        //sizeQueryWrapper.eq("material_id", materialSaveDto.getId());
+        //materialSizeService.addAndUpdateAndDelList(materialSaveDto.getSizes(),sizeQueryWrapper);
+        //
+        ////修改关联颜色
+        //QueryWrapper<MaterialColor> colorQueryWrapper = new QueryWrapper<>();
+        //colorQueryWrapper.eq("material_id", materialSaveDto.getId());
+        //materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
 
         boolean b = materialService.updateById(materialSaveDto);
         return updateSuccess(b);
@@ -150,6 +140,7 @@ public class MaterialController extends BaseController {
      */
     @ApiOperation(value = "根据id数组删除", notes = "根据id数组删除")
     @DeleteMapping("/delByIds")
+    @Transactional(rollbackFor = {Exception.class})
     public ApiResult delByIds(String[] ids) {
         return deleteSuccess(materialService.removeBatchByIds(Arrays.asList(ids)));
     }

@@ -11,6 +11,7 @@ import com.base.sbc.module.material.entity.*;
 import com.base.sbc.module.material.mapper.MaterialMapper;
 import com.base.sbc.module.material.service.*;
 import com.base.sbc.module.material.vo.MaterialVo;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
@@ -114,7 +115,7 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
         materialQueryDto.setCompanyCode(userUtils.getCompanyCode());
         this.addQuery(materialQueryDto);
 
-        PageHelper.startPage(materialQueryDto);
+        Page<MaterialVo> materialVoPage = PageHelper.startPage(materialQueryDto);
         List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
 
         if (materialAllDtolist == null || materialAllDtolist.size() == 0) {
@@ -164,6 +165,6 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
 
             list.add(materialVo);
         }
-        return new PageInfo<>(list);
+        return new PageInfo<>(materialVoPage);
     }
 }

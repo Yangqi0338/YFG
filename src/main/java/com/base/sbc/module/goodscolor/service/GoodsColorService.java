@@ -7,32 +7,18 @@
 package com.base.sbc.module.goodscolor.service;
 
 
-import com.base.sbc.module.goodscolor.dao.GoodsColorDao;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.module.goodscolor.entity.GoodsColor;
-import com.base.sbc.config.common.base.BaseDao;
-import com.base.sbc.config.common.base.BaseService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-/** 
+/**
  * 类描述：物料颜色 service类
  * @address com.base.sbc.baseData.service.GoodsColorService
  * @author gcc
  * @email gcc@bestgcc.cn
  * @date 创建时间：2021-4-25 9:05:01
- * @version 1.0  
+ * @version 1.0
  */
 @Service
-@Transactional(readOnly = true)
-public class GoodsColorService extends BaseService<GoodsColor> {
-	
-	@Autowired
-	private GoodsColorDao goodsColorDao;
-	
-	@Override
-	protected BaseDao<GoodsColor> getEntityDao() {
-		return goodsColorDao;
-	}
-	
+public interface GoodsColorService extends IService<GoodsColor> {
 }

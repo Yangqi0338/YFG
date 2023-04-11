@@ -6,87 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.band.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.module.band.dto.BandSaveDto;
-import com.base.sbc.module.band.dto.BandStartStopDto;
-import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.module.band.mapper.BandMapper;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import com.base.sbc.config.common.base.BaseDao;
-import com.base.sbc.config.common.base.BaseService;
+import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.module.band.entity.Band;
-import com.base.sbc.module.band.dao.BandDao;
-import javax.annotation.Resource;
-import java.util.List;
+import org.springframework.stereotype.Service;
 
 /**
  * 类描述： service类
- * @address com.base.sbc.module.band.service.BandService
- * @author lile
- * @email lilemyemail@163.com
+ * @author 卞康
  * @date 创建时间：2023-3-17 18:08:53
- * @version 1.0
  */
 @Service
-@Transactional(readOnly = true)
-public class BandService extends BaseService<Band> {
-
-	@Autowired
-	private BandDao bandDao;
-	@Resource
-	private BandMapper bandMapper;
-
-	@Resource
-	private UserUtils userUtils;
-
-
-	@Override
-	protected BaseDao<Band> getEntityDao() {
-		return bandDao;
-	}
-
-	public List<Band> listQuery(Band band) {
-
-		band.setCompanyCode(userUtils.getCompanyCode());
-		return bandMapper.listQuery(band);
-	}
-	@Transactional(readOnly = false)
-	public Integer delByIds(String[] ids) {
-		return bandMapper.delByIds(ids,userUtils.getAliasUserName(),userUtils.getUserId());
-	}
-
-
-	@Transactional(readOnly = false)
-	public Integer bandStartStop( BandStartStopDto bandStartStopDto) {
-		Band band=new Band();
-		BeanUtils.copyProperties(bandStartStopDto,band);
-		band.preUpdate();
-		return bandMapper.bandStartStop(band);
-	}
-
-	@Transactional(readOnly = false)
-	public Integer update(Band band) {
-		band.preUpdate();
-		return bandMapper.update(band);
-	}
-
-	@Transactional(readOnly = false)
-	public String add(BandSaveDto bandSaveDto) {
-		Band band=new Band();
-		BeanUtils.copyProperties(bandSaveDto,band);
-		//波段名称和编码是否重复
-		QueryWrapper<Band> queryWrapper=new QueryWrapper<>();
-		queryWrapper.eq("code", band.getCode()).or().eq("band_name", band.getBandName());
-		if (bandMapper.selectOne(queryWrapper)!=null){
-			throw new OtherException("编码或者波段重复");
-		}
-		band.preInsert();
-		band.setCompanyCode(userUtils.getCompanyCode());
-		bandMapper.insert(band);
-		return band.getId();
-	}
+public interface BandService extends IService<Band> {
 }

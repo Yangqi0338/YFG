@@ -39,6 +39,9 @@ public class MaterialQueryDto extends PageDto {
     @ApiModelProperty(value = "素材分类id")
     private String materialCategoryId;
 
+    @ApiModelProperty(value = "素材细分类")
+    private String materialSubcategory;
+
     @ApiModelProperty(value = "品类id")
     private Integer categoryId;
 
@@ -47,4 +50,13 @@ public class MaterialQueryDto extends PageDto {
 
     @ApiModelProperty(value = "文件信息")
     private String fileInfo;
+
+    @ApiModelProperty(value = "年份")
+    private String year;
+
+    @ApiModelProperty(value = "月份")
+    private String month;
+
+    @ApiModelProperty(value = "季节")
+    private String season;
 }

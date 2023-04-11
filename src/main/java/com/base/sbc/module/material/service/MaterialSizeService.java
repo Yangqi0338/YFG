@@ -1,5 +1,6 @@
 package com.base.sbc.module.material.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.module.material.entity.MaterialSize;
 import java.util.List;
@@ -20,4 +21,6 @@ public interface MaterialSizeService extends IService<MaterialSize> {
      */
      List<MaterialSize> getBySizeId(String sizeId);
 
+
+    Integer addAndUpdateAndDelList(List<MaterialSize> sizes, QueryWrapper<MaterialSize> sizeQueryWrapper);
 }

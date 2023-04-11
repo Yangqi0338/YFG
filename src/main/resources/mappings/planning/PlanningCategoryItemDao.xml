@@ -9,7 +9,16 @@
 -->
 	<!-- *******************************************自定义方法区  不替换的区域【other_start】***************************************** -->
 
-
+	<select id="selectMaxDesignNo" resultType="String" parameterType="queryCondition">
+		select max(design_no) from t_planning_category_item
+		<include refid="common.whereClause"></include>
+		<if test="groupByClause != null">
+			group by ${groupByClause}
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
 	<!-- *******************************************自定义方法区 【other_end】***************************************** -->
 	<!-- *******************************************公用方法区(不可修改)***************************************** -->
 	<!-- 公用返回值 与数据库字段保持一致即可，同时实体(驼峰命名)必须包含所有字段 -->

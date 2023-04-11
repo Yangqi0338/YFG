@@ -6,21 +6,26 @@
  *****************************************************************************/
 package com.base.sbc.module.goodscolor.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
-/** 
+/**
  * 类描述：物料颜色 实体类
  * @address com.base.sbc.baseData.entity.GoodsColor
  * @author gcc
  * @email gcc@bestgcc.cn
  * @date 创建时间：2021-4-25 9:05:01
- * @version 1.0  
+ * @version 1.0
  */
-public class GoodsColor extends BaseDataEntity<String> implements Cloneable{
+@Data
+@EqualsAndHashCode(callSuper = true)
+@TableName("t_goods_color")
+public class GoodsColor extends BaseDataEntity<String>{
 
-	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 	/**
@@ -44,7 +49,7 @@ public class GoodsColor extends BaseDataEntity<String> implements Cloneable{
 		}
 	}
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
-	
+
     /*****************************数据库字段区 不包含父类公共字段(属性)***********************************/
     /** 排序 */
     private Integer sort;
@@ -66,65 +71,4 @@ public class GoodsColor extends BaseDataEntity<String> implements Cloneable{
     private String pantoneCode;
     /** pantone名称 */
     private String pantoneName;
-    /*******************************************getset方法区************************************/
-    public Integer getSort() {
-		return sort;
-	}
-	public void setSort(Integer sort) {
-		this.sort = sort;
-	}
-    public String getStatus() {
-		return status;
-	}
-	public void setStatus(String status) {
-		this.status = status;
-	}
-    public String getColorTypeId() {
-		return colorTypeId;
-	}
-	public void setColorTypeId(String colorTypeId) {
-		this.colorTypeId = colorTypeId;
-	}
-    public String getColorHex() {
-		return colorHex;
-	}
-	public void setColorHex(String colorHex) {
-		this.colorHex = colorHex;
-	}
-    public String getColorRgb() {
-		return colorRgb;
-	}
-	public void setColorRgb(String colorRgb) {
-		this.colorRgb = colorRgb;
-	}
-    public String getColorCode() {
-		return colorCode;
-	}
-	public void setColorCode(String colorCode) {
-		this.colorCode = colorCode;
-	}
-    public String getColor() {
-		return color;
-	}
-	public void setColor(String color) {
-		this.color = color;
-	}
-    public String getColorClassify() {
-		return colorClassify;
-	}
-	public void setColorClassify(String colorClassify) {
-		this.colorClassify = colorClassify;
-	}
-    public String getPantoneCode() {
-		return pantoneCode;
-	}
-	public void setPantoneCode(String pantoneCode) {
-		this.pantoneCode = pantoneCode;
-	}
-    public String getPantoneName() {
-		return pantoneName;
-	}
-	public void setPantoneName(String pantoneName) {
-		this.pantoneName = pantoneName;
-	}
 }

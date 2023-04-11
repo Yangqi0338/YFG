@@ -4,8 +4,10 @@ import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ApiModel("波段查询返回 BandQueryReturnVo")
 public class BandQueryReturnVo extends BaseDataEntity<String> {
     /** 年份 */

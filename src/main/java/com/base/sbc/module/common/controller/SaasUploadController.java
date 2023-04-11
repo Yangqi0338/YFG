@@ -15,7 +15,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@Api(description = "产品图片上传", tags = "2.1 已登接口[上传]")
+@Api(tags = "2.1 产品图片上传 已登接口[上传]")
 @RequestMapping(value = BaseController.SAAS_URL + "/upload", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class SaasUploadController extends BaseController {
     @Autowired

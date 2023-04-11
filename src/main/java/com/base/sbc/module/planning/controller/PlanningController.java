@@ -2,17 +2,22 @@ package com.base.sbc.module.planning.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.amc.utils.AmcUtils;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.common.dto.GetMaxCodeRegexp;
+import com.base.sbc.module.common.entity.GetMaxCode;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.dto.PlanningBandDto;
@@ -25,6 +30,7 @@ import com.github.pagehelper.PageInfo;
 import feign.Body;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,10 +38,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -59,6 +64,10 @@ public class PlanningController extends BaseController {
 
     @Resource
     private PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
+
+    @Autowired
+    private CcmService ccmService;
+
     @Resource
     private AmcService amcService;
     private IdGen idGen = new IdGen();
@@ -279,5 +288,55 @@ public class PlanningController extends BaseController {
          planningCategoryItemService.updateAll(item);
         return item;
     }
+    @ApiOperation(value = "获取下一个流水(测试)")
+    @GetMapping("/nextDesignNo")
+    public String nextDesignNo( ){
+        GetMaxCodeRegexp getMaxCode = new GetMaxCodeRegexp(ccmService);
+        Map<String,String> params=new HashMap<>(12);
+        params.put("companyCode","1");
+        params.put("year","21");
+        params.put("season","A");
+        params.put("category","0");
+        params.put("designCode","LD");
+        String planningDesignNo = getMaxCode.genCode("PLANNING_DESIGN_NO", params);
+        return planningDesignNo;
 
+    }
+    @ApiOperation(value = "获取最大流水号")
+    @PostMapping("/maxDesignNo")
+    public String maxDesignNo(@RequestBody GetMaxCodeRegexp data){
+        if(ObjectUtil.isEmpty(data.getValueMap())){
+            throw  new OtherException("空");
+        }
+        List<String> regexps=new ArrayList<>(12);
+        List<String> textFormats=new ArrayList<>(12);
+        data.getValueMap().forEach((key,val)->{
+            if (BaseConstant.FLOWING.equals(key)){
+                textFormats.add("{0}");
+            }else{
+                textFormats.add(String.valueOf(val));
+            }
+            regexps.add(String.valueOf(val));
+        });
+        String regexp="^"+ CollUtil.join(regexps,"") +"$";
+        System.out.println("传过来的正则:"+regexp);
+        QueryCondition qc=new QueryCondition(getUserCompany());
+        qc.andConditionSql(" design_no REGEXP '"+ regexp+"'");
+        String maxCode=planningCategoryItemService.selectOne2("selectMaxDesignNo",qc);
+        if(StrUtil.isBlank(maxCode)){
+            return null;
+        }
+        // 替换,保留流水号
+        MessageFormat mf=new MessageFormat(CollUtil.join(textFormats,""));
+        try {
+            Object[] parse = mf.parse(maxCode);
+            if(parse!=null&&parse.length>0){
+                return String.valueOf(parse[0]);
+            }
+            return null;
+        } catch (ParseException e) {
+            return null;
+        }
+
+    }
 }

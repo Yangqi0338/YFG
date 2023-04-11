@@ -1,5 +1,6 @@
 package com.base.sbc.module.material.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.module.material.entity.MaterialLabel;
 import java.util.List;
@@ -18,4 +19,6 @@ public interface MaterialLabelService extends IService<MaterialLabel> {
      * 根据label_id集合查询列表
      */
     List<MaterialLabel> getByLabelIds(List<String> labelId);
+
+    Integer addAndUpdateAndDelList(List<MaterialLabel> entityList, QueryWrapper<MaterialLabel> queryWrapper);
 }
