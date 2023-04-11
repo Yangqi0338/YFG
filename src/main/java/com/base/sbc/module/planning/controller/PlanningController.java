@@ -2,6 +2,7 @@ package com.base.sbc.module.planning.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.amc.service.AmcService;
@@ -16,8 +17,7 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.common.dto.GetMaxCodeRegexp;
-import com.base.sbc.module.common.entity.GetMaxCode;
+import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.dto.PlanningBandDto;
@@ -27,7 +27,6 @@ import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
 import com.base.sbc.module.planning.vo.*;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import feign.Body;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,7 +78,7 @@ public class PlanningController extends BaseController {
         QueryCondition nameQc = new QueryCondition(getUserCompany())
                 .andEqualTo("name", dto.getName());
         if (StrUtil.isNotEmpty(dto.getId())) {
-            nameQc.andNotEqualTo("id", dto);
+            nameQc.andNotEqualTo("id", dto.getId());
         }
         int nameCount = planningSeasonService.
                 selectOne2("countByQc", nameQc);
@@ -161,6 +160,7 @@ public class PlanningController extends BaseController {
 
         return new PageInfo<>();
     }
+
     @ApiOperation(value = "查询波段企划-分页查询")
     @GetMapping("/planBand")
     public PageInfo<PlanningSeasonBandVo> bandList(@Valid PlanningBandSearchDto dto) {
@@ -193,7 +193,7 @@ public class PlanningController extends BaseController {
     @ApiOperation(value = "查询波段企划-通过产品季和波段企划名称")
     @GetMapping("/planBand/getByName")
     public PlanningSeasonBandVo getBandByName(@NotNull(message = "产品季名称不能为空") String planningSeasonName,
-                                                   @NotNull(message = "波段企划名称不能为空") String planningBandName) {
+                                              @NotNull(message = "波段企划名称不能为空") String planningBandName) {
         QueryCondition qc = new QueryCondition();
         qc.andConditionSql("b.planning_season_id=s.id");
         qc.andEqualTo("s.company_code", getUserCompany());
@@ -204,27 +204,27 @@ public class PlanningController extends BaseController {
         List<PlanningSeasonBandVo> list = planningBandService.selectList2("selectByQc", qc);
         PlanningSeasonBandVo first = CollUtil.getFirst(list);
         //查询品类列表
-        QueryCondition categoryQc=new QueryCondition(getUserCompany());
-        categoryQc.andEqualTo("planning_season_id",first.getSeason().getId());
-        categoryQc.andEqualTo("planning_band_id",first.getBand().getId());
+        QueryCondition categoryQc = new QueryCondition(getUserCompany());
+        categoryQc.andEqualTo("planning_season_id", first.getSeason().getId());
+        categoryQc.andEqualTo("planning_band_id", first.getBand().getId());
         categoryQc.andEqualTo("del_flag", BaseEntity.DEL_FLAG_NORMAL);
         List<PlanningCategory> categoryData = planningCategoryService.findByCondition(categoryQc);
         first.getBand().setCategoryData(categoryData);
         //查询坑位信息
         List<PlanningCategoryItem> categoryItemData = planningCategoryItemService.findByCondition(categoryQc);
         // 关联素材库
-        List<PlanningCategoryItemMaterialVo> itemMaterials = planningCategoryItemMaterialService.selectList2("selectByQc",categoryQc);
+        List<PlanningCategoryItemMaterialVo> itemMaterials = planningCategoryItemMaterialService.selectList2("selectByQc", categoryQc);
 
-        if(CollUtil.isNotEmpty(categoryItemData)&&CollUtil.isNotEmpty(categoryData)){
-            List<PlanningCategoryItemVo> categoryItemVoData=new ArrayList<>(categoryData.size());
+        if (CollUtil.isNotEmpty(categoryItemData) && CollUtil.isNotEmpty(categoryData)) {
+            List<PlanningCategoryItemVo> categoryItemVoData = new ArrayList<>(categoryData.size());
             Map<String, PlanningCategory> planningCategoryMap = categoryData.stream()
-                    .collect(Collectors.toMap(PlanningCategory::getId,v->v,(a,b)->b));
+                    .collect(Collectors.toMap(PlanningCategory::getId, v -> v, (a, b) -> b));
             Map<String, List<PlanningCategoryItemMaterialVo>> itemMaterialMap = Optional.ofNullable(itemMaterials).orElse(CollUtil.newArrayList())
                     .stream().collect(Collectors.groupingBy(PlanningCategoryItemMaterialVo::getPlanningCategoryItemId));
             for (PlanningCategoryItem categoryItem : categoryItemData) {
                 PlanningCategoryItemVo planningCategoryItemVo = BeanUtil.copyProperties(categoryItem, PlanningCategoryItemVo.class);
                 PlanningCategory p = planningCategoryMap.get(categoryItem.getPlanningCategoryId());
-                if(p!=null){
+                if (p != null) {
                     planningCategoryItemVo.setParentCategoryIds(p.getCategoryIds());
                     planningCategoryItemVo.setParentCategoryName(p.getCategoryName());
                 }
@@ -232,7 +232,7 @@ public class PlanningController extends BaseController {
                 categoryItemVoData.add(planningCategoryItemVo);
             }
             first.getBand().setCategoryItemData(categoryItemVoData);
-        }else{
+        } else {
             first.getBand().setCategoryItemData(new ArrayList<>());
         }
 
@@ -245,8 +245,7 @@ public class PlanningController extends BaseController {
         // 校验名称重复
         QueryCondition nameQc = new QueryCondition(getUserCompany())
                 .andEqualTo("name", dto.getName())
-                .andEqualTo("planning_season_id",dto.getPlanningSeasonId())
-                ;
+                .andEqualTo("planning_season_id", dto.getPlanningSeasonId());
         if (StrUtil.isNotEmpty(dto.getId())) {
             nameQc.andNotEqualTo("id", dto.getId());
         }
@@ -274,63 +273,65 @@ public class PlanningController extends BaseController {
             planningBandService.updateAll(bean);
         }
         List<PlanningCategory> categoryList = dto.getCategoryData();
-        if (CollUtil.isNotEmpty(categoryList)) {
-            planningCategoryService.savePlanningCategory(bean,categoryList);
+        planningCategoryService.savePlanningCategory(bean, categoryList);
 
-        }
         return BeanUtil.copyProperties(bean, PlanningBandVo.class);
     }
 
     @ApiOperation(value = "修改坑位信息")
     @PostMapping("/updateCategoryItem")
-    public PlanningCategoryItem updateCategoryItem(@RequestBody PlanningCategoryItem item){
-         item.preUpdate();
-         planningCategoryItemService.updateAll(item);
+    public PlanningCategoryItem updateCategoryItem(@RequestBody PlanningCategoryItem item) {
+        item.preUpdate();
+        planningCategoryItemService.updateAll(item);
         return item;
     }
+
     @ApiOperation(value = "获取下一个流水(测试)")
     @GetMapping("/nextDesignNo")
-    public String nextDesignNo( ){
-        GetMaxCodeRegexp getMaxCode = new GetMaxCodeRegexp(ccmService);
-        Map<String,String> params=new HashMap<>(12);
-        params.put("companyCode","1");
-        params.put("year","21");
-        params.put("season","A");
-        params.put("category","0");
-        params.put("designCode","LD");
-        String planningDesignNo = getMaxCode.genCode("PLANNING_DESIGN_NO", params);
-        return planningDesignNo;
+    public String nextDesignNo() {
+        GetMaxCodeRedis getMaxCode = new GetMaxCodeRedis(ccmService);
+        Map<String, String> params = new HashMap<>(12);
+        params.put("brand", "1");
+        params.put("year", "2021");
+        params.put("season", "A");
+        params.put("category", "0");
+        params.put("designCode", "LD");
+//        String planningDesignNo = getMaxCode.genCode("PLANNING_DESIGN_NO", params);
+        List<String> planningDesignNo1 = getMaxCode.genCode("PLANNING_DESIGN_NO", 10, params);
+        return CollUtil.join(planningDesignNo1, ",");
 
     }
+
     @ApiOperation(value = "获取最大流水号")
     @PostMapping("/maxDesignNo")
-    public String maxDesignNo(@RequestBody GetMaxCodeRegexp data){
-        if(ObjectUtil.isEmpty(data.getValueMap())){
-            throw  new OtherException("空");
+    public String maxDesignNo(@RequestBody GetMaxCodeRedis data) {
+        if (ObjectUtil.isEmpty(data.getValueMap())) {
+            throw new OtherException("空");
         }
-        List<String> regexps=new ArrayList<>(12);
-        List<String> textFormats=new ArrayList<>(12);
-        data.getValueMap().forEach((key,val)->{
-            if (BaseConstant.FLOWING.equals(key)){
+        List<String> regexps = new ArrayList<>(12);
+        List<String> textFormats = new ArrayList<>(12);
+        data.getValueMap().forEach((key, val) -> {
+            if (BaseConstant.FLOWING.equals(key)) {
                 textFormats.add("{0}");
-            }else{
+            } else {
                 textFormats.add(String.valueOf(val));
             }
             regexps.add(String.valueOf(val));
         });
-        String regexp="^"+ CollUtil.join(regexps,"") +"$";
-        System.out.println("传过来的正则:"+regexp);
-        QueryCondition qc=new QueryCondition(getUserCompany());
-        qc.andConditionSql(" design_no REGEXP '"+ regexp+"'");
-        String maxCode=planningCategoryItemService.selectOne2("selectMaxDesignNo",qc);
-        if(StrUtil.isBlank(maxCode)){
+        String regexp = "^" + CollUtil.join(regexps, "") + "$";
+        System.out.println("传过来的正则:" + regexp);
+        QueryCondition qc = new QueryCondition(getUserCompany());
+        qc.andConditionSql(" design_no REGEXP '" + regexp + "'");
+        qc.andEqualTo("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
+        String maxCode = planningCategoryItemService.selectOne2("selectMaxDesignNo", qc);
+        if (StrUtil.isBlank(maxCode)) {
             return null;
         }
         // 替换,保留流水号
-        MessageFormat mf=new MessageFormat(CollUtil.join(textFormats,""));
+        MessageFormat mf = new MessageFormat(CollUtil.join(textFormats, ""));
         try {
             Object[] parse = mf.parse(maxCode);
-            if(parse!=null&&parse.length>0){
+            if (parse != null && parse.length > 0) {
                 return String.valueOf(parse[0]);
             }
             return null;
@@ -338,5 +339,15 @@ public class PlanningController extends BaseController {
             return null;
         }
 
+    }
+
+    @ApiOperation(value = "删除品类信息")
+    @DeleteMapping("/delPlanningCategory")
+    public boolean delPlanningCategory(String ids) {
+        if (StrUtil.isBlank(ids)) {
+            return false;
+        }
+        List<String> idList = StrUtil.split(ids, CharUtil.COMMA);
+        return planningCategoryService.delPlanningCategory(getUserCompany(), idList);
     }
 }

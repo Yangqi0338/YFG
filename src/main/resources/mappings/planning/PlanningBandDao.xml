@@ -28,6 +28,7 @@
 		s.year as 'season.year',
 		s.season  as 'season.season',
 		s.month as 'season.month',
+		s.brand as 'season.brand',
 		b.id as 'band.id',
 		b.name as 'band.name',
 		b.sex as 'band.sex',
