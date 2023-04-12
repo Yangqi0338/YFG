@@ -37,7 +37,7 @@ public class ${className} extends BaseDataEntity<String> {
     <#if propertyName != 'id'& propertyName != 'companyCode'
     & propertyName != 'createId'& propertyName != 'createName'& propertyName != 'createDate'
     & propertyName != 'updateId'& propertyName != 'updateName'& propertyName != 'updateDate'
-    & propertyName != 'delFlag'& propertyName != 'remarks'>
+    & propertyName != 'delFlag' >
     /** ${remarks[propertyName_index]} */
     @ApiModelProperty(value = "${remarks[propertyName_index]}"  )
     private ${columnTypes[propertyName_index]} ${propertyName};

@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @address com.base.sbc.module.planning.entity.PlanningSeason
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-4-1 11:13:38
+ * @date 创建时间：2023-4-10 14:28:51
  * @version 1.0
  */
 @Data
@@ -36,6 +36,9 @@ public class PlanningSeason extends BaseDataEntity<String> {
     /** 企划名称 */
     @ApiModelProperty(value = "企划名称"  )
     private String name;
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
     /** 年份 */
     @ApiModelProperty(value = "年份"  )
     private String year;

@@ -4,7 +4,7 @@
 	<!--企划-产品季
 	创建人：lxl
 	邮箱：lxl.fml@gmail.com
-	创建时间：2023-4-1 11:13:38
+	创建时间：2023-4-10 14:28:51
 	版本号：1.0
 -->
 	<!-- *******************************************自定义方法区  不替换的区域【other_start】***************************************** -->
@@ -24,7 +24,7 @@
 	<!-- *******************************************公用方法区(不可修改)***************************************** -->
 	<!-- 公用返回值 与数据库字段保持一致即可，同时实体(驼峰命名)必须包含所有字段 -->
 	<sql id="base_column">
-		id,company_code,name,year,season,month,create_id,create_name,create_date,update_id,update_name,update_date,del_flag,status,remarks
+		id,company_code,name,brand,year,season,month,create_id,create_name,create_date,update_id,update_name,update_date,del_flag,status,remarks
 	</sql>
 	<!--  方法返回：成功条数。     方法名称： 新增          方法参数：list集合 -->
 	<insert id="insert" parameterType="java.util.List">
@@ -32,7 +32,7 @@
 		<include refid="base_column"/>
 		) values
 		<foreach collection="list" item="t" index="index" separator=",">
-			(  #{t.id,jdbcType=VARCHAR},#{t.companyCode,jdbcType=VARCHAR},#{t.name,jdbcType=VARCHAR},#{t.year,jdbcType=VARCHAR},#{t.season,jdbcType=VARCHAR},#{t.month,jdbcType=VARCHAR},#{t.createId,jdbcType=VARCHAR},#{t.createName,jdbcType=VARCHAR},#{t.createDate,jdbcType=TIMESTAMP},#{t.updateId,jdbcType=VARCHAR},#{t.updateName,jdbcType=VARCHAR},#{t.updateDate,jdbcType=TIMESTAMP},#{t.delFlag,jdbcType=CHAR},#{t.status,jdbcType=VARCHAR},#{t.remarks,jdbcType=VARCHAR}
+			(  #{t.id,jdbcType=VARCHAR},#{t.companyCode,jdbcType=VARCHAR},#{t.name,jdbcType=VARCHAR},#{t.brand,jdbcType=VARCHAR},#{t.year,jdbcType=VARCHAR},#{t.season,jdbcType=VARCHAR},#{t.month,jdbcType=VARCHAR},#{t.createId,jdbcType=VARCHAR},#{t.createName,jdbcType=VARCHAR},#{t.createDate,jdbcType=TIMESTAMP},#{t.updateId,jdbcType=VARCHAR},#{t.updateName,jdbcType=VARCHAR},#{t.updateDate,jdbcType=TIMESTAMP},#{t.delFlag,jdbcType=CHAR},#{t.status,jdbcType=VARCHAR},#{t.remarks,jdbcType=VARCHAR}
 			)
 		</foreach>
 	</insert>
@@ -48,6 +48,7 @@
 					id = #{t.id,jdbcType=VARCHAR},
 					company_code = #{t.companyCode,jdbcType=VARCHAR},
 					name = #{t.name,jdbcType=VARCHAR},
+					brand = #{t.brand,jdbcType=VARCHAR},
 					year = #{t.year,jdbcType=VARCHAR},
 					season = #{t.season,jdbcType=VARCHAR},
 					month = #{t.month,jdbcType=VARCHAR},
@@ -84,6 +85,10 @@
 				</if>
 				<if test="t.name != null">
 					name = #{t.name
+					,jdbcType=VARCHAR},
+				</if>
+				<if test="t.brand != null">
+					brand = #{t.brand
 					,jdbcType=VARCHAR},
 				</if>
 				<if test="t.year != null">

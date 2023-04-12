@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @address com.base.sbc.module.planning.entity.PlanningCategory
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-4-1 11:13:44
+ * @date 创建时间：2023-4-10 14:28:55
  * @version 1.0
  */
 @Data
@@ -66,11 +66,9 @@ public class PlanningCategory extends BaseDataEntity<String> {
     /** 计划开发数 */
     @ApiModelProperty(value = "计划开发数"  )
     private BigDecimal planDevNum;
-    /** 负责人 */
-    @ApiModelProperty(value = "负责人"  )
+    /** 负责人(name,userCode) */
+    @ApiModelProperty(value = "负责人(name,userCode)"  )
     private String manager;
-    @ApiModelProperty(value = "备注"  )
-    private String remarks;
     /*******************************************getset方法区************************************/
 
 }

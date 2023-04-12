@@ -11,6 +11,8 @@ public class PlanningSeasonVo {
     private String id;
     @ApiModelProperty(value = "名称" ,example = "23年秋常规产品企划")
     private String name;
+    @ApiModelProperty(value = "品牌" ,required = true,example = "0" )
+    private String brand;
     @ApiModelProperty(value = "年份" ,example = "2023")
     private String year;
     @ApiModelProperty(value = "季节" ,example = "冬")
@@ -25,5 +27,8 @@ public class PlanningSeasonVo {
     private String aliasUserAvatar;
     @ApiModelProperty(value = "创建者" ,example = "张三")
     private String createName;
+
+    @ApiModelProperty(value = "备注" )
+    private String remarks;
 
 }
