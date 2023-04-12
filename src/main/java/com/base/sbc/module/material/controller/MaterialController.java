@@ -136,6 +136,35 @@ public class MaterialController extends BaseController {
     }
 
     /**
+     * 批量修改
+     */
+    @PutMapping("/updateList")
+    @Transactional(rollbackFor = {Exception.class})
+    @ApiOperation(value = "修改素材", notes = "修改素材")
+    public ApiResult updateList(@RequestBody List<MaterialSaveDto> materialSaveDtoList) {
+        for (MaterialSaveDto materialSaveDto : materialSaveDtoList) {
+            //修改关联标签
+            QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
+            labelQueryWrapper.eq("material_id", materialSaveDto.getId());
+            materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(),labelQueryWrapper);
+             materialService.updateById(materialSaveDto);
+        }
+
+
+        ////修改关联尺码
+        //QueryWrapper<MaterialSize> sizeQueryWrapper = new QueryWrapper<>();
+        //sizeQueryWrapper.eq("material_id", materialSaveDto.getId());
+        //materialSizeService.addAndUpdateAndDelList(materialSaveDto.getSizes(),sizeQueryWrapper);
+        //
+        ////修改关联颜色
+        //QueryWrapper<MaterialColor> colorQueryWrapper = new QueryWrapper<>();
+        //colorQueryWrapper.eq("material_id", materialSaveDto.getId());
+        //materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
+
+        return updateSuccess(materialSaveDtoList.size());
+    }
+
+    /**
      * 根据id删除
      */
     @ApiOperation(value = "根据id数组删除", notes = "根据id数组删除")
