@@ -51,4 +51,12 @@ public interface AmcService {
 
     @GetMapping("/amc/api/token/companyUser/getCompanyUserInfoByUserIds")
     public String getCompanyUserInfoByUserIds( @RequestParam("userIds") String userIds);
+
+    /**
+     * 获取用户头像
+     * @param userIds
+     * @return
+     */
+    @GetMapping("/amc/api/token/user/getUserAvatar")
+    public String getUserAvatar( @RequestParam("userIds") String userIds);
 }

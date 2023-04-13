@@ -9,7 +9,8 @@ package com.base.sbc.module.planning.dao;
 import com.base.sbc.config.common.annotation.MyBatisDao;
 import com.base.sbc.config.common.base.BaseDao;
 import com.base.sbc.module.planning.entity.PlanningSeason;
-/** 
+
+/**
  * 类描述：企划-产品季 dao类
  * @address com.base.sbc.module.planning.dao.PlanningSeasonDao
  * @author lxl  
@@ -18,7 +19,7 @@ import com.base.sbc.module.planning.entity.PlanningSeason;
  * @version 1.0  
  */
  @MyBatisDao
-public class PlanningSeasonDao extends BaseDao<PlanningSeason>{
+ public class PlanningSeasonDao extends BaseDao<PlanningSeason>{
 
    @Override
 	protected String getMapperNamespace() {

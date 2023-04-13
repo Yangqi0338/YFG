@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.amc.utils.AmcUtils;
 import com.base.sbc.client.ccm.service.CcmService;
@@ -17,6 +18,7 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.SpringContextHolder;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.service.*;
@@ -25,11 +27,13 @@ import com.base.sbc.module.planning.dto.PlanningBandSearchDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
 import com.base.sbc.module.planning.vo.*;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -69,6 +73,8 @@ public class PlanningController extends BaseController {
 
     @Resource
     private AmcService amcService;
+    @Resource
+    private AmcFeignService amcFeignService;
     private IdGen idGen = new IdGen();
 
     @ApiOperation(value = "保存产品季", notes = "")
@@ -126,8 +132,7 @@ public class PlanningController extends BaseController {
 
     @ApiOperation(value = "查询产品季-分页查询")
     @GetMapping
-    public PageInfo<PlanningSeasonVo> query(PlanningSeasonSearchDto dto) {
-
+    public PageInfo query(PlanningSeasonSearchDto dto) {
         QueryCondition qc = new QueryCondition(getUserCompany());
         qc.andEqualTo("del_flag", BaseEntity.DEL_FLAG_NORMAL);
         if (StrUtil.isNotBlank(dto.getSearch())) {
@@ -141,21 +146,17 @@ public class PlanningController extends BaseController {
         } else {
             qc.setOrderByClause("create_date desc");
         }
-        PageHelper.startPage(dto);
-        List<PlanningSeason> list = planningSeasonService.selectList2("select", qc);
+        Page<PlanningSeasonVo> objects = PageHelper.startPage(dto);
+        planningSeasonService.selectList2("selectByQc", qc);
+        PageInfo<PlanningSeasonVo> planningSeasonPageInfo = objects.toPageInfo();
+        List<PlanningSeasonVo> list = planningSeasonPageInfo.getList();
         if (CollUtil.isNotEmpty(list)) {
             //查询用户信息
-            String companyUserInfoByUserIds = amcService.getCompanyUserInfoByUserIds(list.stream().map(PlanningSeason::getCreateId).collect(Collectors.joining(",")));
-            Map<String, UserCompany> userMap = AmcUtils.parseStrToMap(companyUserInfoByUserIds);
-            List<PlanningSeasonVo> result = list.stream().map(item -> {
-                        PlanningSeasonVo vo = BeanUtil.copyProperties(item, PlanningSeasonVo.class);
-                        vo.setAliasUserAvatar(Optional.ofNullable(userMap.get(item.getCreateId()))
-                                .map(u -> u.getAliasUserAvatar()).orElse(null));
-                        return vo;
-                    })
-                    .collect(Collectors.toList());
-            PageInfo<PlanningSeasonVo> pageInfo = new PageInfo<>(result);
-            return pageInfo;
+            Map<String,String> userAvatarMap= amcFeignService.getUserAvatar(list.stream().map(PlanningSeasonVo::getCreateId).collect(Collectors.joining(",")));
+            for (PlanningSeasonVo planningSeasonVo : list) {
+                planningSeasonVo.setAliasUserAvatar(userAvatarMap.get(planningSeasonVo.getCreateId()));
+            }
+            return planningSeasonPageInfo;
         }
 
         return new PageInfo<>();
@@ -170,18 +171,15 @@ public class PlanningController extends BaseController {
         qc.andEqualTo("s.name", dto.getSeasonName());
         qc.andEqualTo("s.company_code", getUserCompany());
         qc.andEqualTo("s.del_flag", BaseEntity.DEL_FLAG_NORMAL);
+        qc.andEqualTo("b.del_flag", BaseEntity.DEL_FLAG_NORMAL);
         PageHelper.startPage(dto);
         List<PlanningSeasonBandVo> list = planningBandService.selectList2("selectByQc", qc);
         if (CollUtil.isNotEmpty(list)) {
             //查询用户信息
-            String companyUserInfoByUserIds = amcService.getCompanyUserInfoByUserIds(
-                    list.stream().map(PlanningSeasonBandVo::getBand).map(PlanningBandVo::getCreateId).collect(Collectors.joining(",")));
-            Map<String, UserCompany> userMap = AmcUtils.parseStrToMap(companyUserInfoByUserIds);
+            Map<String,String> userAvatarMap= amcFeignService.getUserAvatar(list.stream().map(item->item.getBand().getCreateId()).collect(Collectors.joining(",")));
             list.forEach(item -> {
                 PlanningBandVo band = item.getBand();
-                band.setAliasUserAvatar(Optional.ofNullable(userMap.get(band.getCreateId()))
-                        .map(u -> u.getAliasUserAvatar()).orElse(null));
-
+                band.setAliasUserAvatar(userAvatarMap.get(band.getCreateId()));
             });
             PageInfo<PlanningSeasonBandVo> pageInfo = new PageInfo<>(list);
             return pageInfo;
@@ -341,13 +339,37 @@ public class PlanningController extends BaseController {
 
     }
 
-    @ApiOperation(value = "删除品类信息")
-    @DeleteMapping("/delPlanningCategory")
-    public boolean delPlanningCategory(String ids) {
+    @ApiOperation(value = "删除波段企划下的品类信息")
+    @DeleteMapping("/planBand/delCategory")
+    public boolean delPlanBandCategory(String ids) {
         if (StrUtil.isBlank(ids)) {
             return false;
         }
         List<String> idList = StrUtil.split(ids, CharUtil.COMMA);
         return planningCategoryService.delPlanningCategory(getUserCompany(), idList);
     }
+
+
+    @ApiOperation(value = "删除产品季")
+    @DeleteMapping("/planningSeason")
+    public boolean delPlanningSeason(@Valid @NotNull(message = "编号不能为空") String id){
+        //TODO 其他校验
+
+        // 波段企划信息
+        QueryCondition countQc=new QueryCondition(getUserCompany());
+        countQc.andEqualTo("planning_season_id",id);
+        countQc.andEqualTo(DEL_FLAG,BaseEntity.DEL_FLAG_NORMAL);
+        int i=planningBandService.selectOne2("countByQc",countQc);
+        if(i>0){
+            throw new OtherException("存在波段企划无法删除");
+        }
+        return planningSeasonService.del(getUserCompany(),id);
+    }
+    @ApiOperation(value = "删除波段企划")
+    @DeleteMapping("/planningBand")
+    public boolean delPlanningBand(@Valid @NotNull(message = "编号不能为空") String id){
+        //TODO 其他校验
+        return planningBandService.del(getUserCompany(),id);
+    }
+
 }

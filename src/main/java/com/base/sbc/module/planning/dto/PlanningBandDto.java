@@ -28,7 +28,7 @@ public class PlanningBandDto {
 
     @ApiModelProperty(value = "波段" ,example = "1b")
     @NotNull(message = "波段不能为空")
-    private String band;
+    private String bandCode;
     /** 生成模式 */
     @ApiModelProperty(value = "生产模式" ,example = "CMT")
     @NotNull(message = "生产模式不能为空")

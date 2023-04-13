@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
 
+import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseDao;
 import com.base.sbc.config.common.base.BaseService;
 import com.base.sbc.module.planning.dao.PlanningSeasonDao;
@@ -33,6 +34,14 @@ public class PlanningSeasonService extends BaseService<PlanningSeason> {
     @Override
     protected BaseDao<PlanningSeason> getEntityDao() {
         return planningSeasonDao;
+    }
+
+
+    @Transactional(readOnly = false)
+    public boolean del(String companyCode,String id){
+        //删除产品季信息
+        int flg= deleteByConditionDelFlag(new QueryCondition(companyCode).andEqualTo("id",id));
+        return flg>0;
     }
 
 }

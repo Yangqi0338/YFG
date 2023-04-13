@@ -139,4 +139,12 @@ public class PlanningCategoryService extends BaseService<PlanningCategory> {
 		planningCategoryItemService.delByPlanningCategory(userCompany,idList);
 		return true;
 	}
+	@Transactional(readOnly = false)
+	public boolean delByPlanningBand(String userCompany,String id) {
+		//删除品类信息
+		deleteByConditionDelFlag(new QueryCondition(userCompany).andEqualTo("planning_band_id",id));
+		//删除坑位信息
+		planningCategoryItemService.delByPlanningBand(userCompany,id);
+		return true;
+	}
 }

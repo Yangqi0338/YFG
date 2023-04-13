@@ -144,7 +144,7 @@ public class BandController extends BaseController {
     @GetMapping("/queryBand")
     public ApiResult queryBand(BandSaveDto dto){
         QueryWrapper<Band> qc=new QueryWrapper<>();
-        qc.eq("company_code",getUserId());
+        qc.eq("company_code",getUserCompany());
         if(StrUtil.isNotBlank(dto.getParticularYear())){
             qc.eq("particular_year",dto.getParticularYear());
         }

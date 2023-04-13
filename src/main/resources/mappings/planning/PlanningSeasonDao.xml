@@ -8,6 +8,16 @@
 	版本号：1.0
 -->
 	<!-- *******************************************自定义方法区  不替换的区域【other_start】***************************************** -->
+	<select id="selectByQc" resultType="com.base.sbc.module.planning.vo.PlanningSeasonVo" parameterType="queryCondition">
+		select <include refid="base_column"/> from t_planning_season
+		<include refid="common.whereClause"></include>
+		<if test="groupByClause != null">
+			group by ${groupByClause}
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
 	<select id="countByQc" resultType="java.lang.Integer" parameterType="queryCondition">
 		select  count(id)
 		from t_planning_season
