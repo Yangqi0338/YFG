@@ -7,7 +7,9 @@
         from t_material tm
         left join t_material_collect tmc on tm.id = tmc.material_id and tmc.del_flag = '0'
         where tm.del_flag = '0'
-        and material_category_id = #{materialCategoryId}
+        <if test="materialCategoryId != null and materialCategoryId != ''">
+            and material_category_id like concat('%',#{materialCategoryId},'%')
+        </if>
         and tm.company_code = #{companyCode}
         <if test="ids != null and ids.size > 0">
             and tm.id in
