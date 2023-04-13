@@ -26,7 +26,8 @@ public class MaterialQueryDto extends PageDto {
 
     @ApiModelProperty(value = "ids 查询的id集合")
     private List<String> ids;
-
+    @ApiModelProperty(value = "materialCategoryIds 查询的id集合")
+    private List<String> materialCategoryIds;
     @ApiModelProperty(value = "尺码筛选")
     private String sizeId;
 

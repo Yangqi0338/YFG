@@ -8,7 +8,13 @@
         left join t_material_collect tmc on tm.id = tmc.material_id and tmc.del_flag = '0'
         where tm.del_flag = '0'
         <if test="materialCategoryId != null and materialCategoryId != ''">
-            and material_category_id like concat('%',#{materialCategoryId},'%')
+            and material_category_id = #{materialCategoryId}
+        </if>
+        <if test="materialCategoryIds != null and materialCategoryIds.size > 0">
+            and tm.material_category_id in
+            <foreach collection="materialCategoryIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
         </if>
         and tm.company_code = #{companyCode}
         <if test="ids != null and ids.size > 0">
