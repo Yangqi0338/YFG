@@ -1,11 +1,11 @@
 package com.base.sbc.module.material.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.entity.*;
 import com.base.sbc.module.material.mapper.MaterialMapper;
@@ -29,7 +29,7 @@ import java.util.*;
  */
 @Service
 @Transactional(readOnly = true)
-public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> implements MaterialService {
+public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Material> implements MaterialService {
     @Resource
     private MaterialMapper materialMapper;
     @Resource

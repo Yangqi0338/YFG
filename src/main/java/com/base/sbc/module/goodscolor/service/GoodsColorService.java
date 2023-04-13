@@ -6,8 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.goodscolor.service;
 
-
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.goodscolor.entity.GoodsColor;
 import org.springframework.stereotype.Service;
 
@@ -20,5 +19,5 @@ import org.springframework.stereotype.Service;
  * @version 1.0
  */
 @Service
-public interface GoodsColorService extends IService<GoodsColor> {
+public interface GoodsColorService extends IServicePlus<GoodsColor> {
 }

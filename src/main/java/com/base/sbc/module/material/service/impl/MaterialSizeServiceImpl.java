@@ -1,8 +1,7 @@
 package com.base.sbc.module.material.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.base.sbc.module.common.service.impl.IServiceImpl;
+import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.material.entity.MaterialSize;
 import com.base.sbc.module.material.mapper.MaterialSizeMapper;
 import com.base.sbc.module.material.service.MaterialSizeService;
@@ -16,7 +15,7 @@ import java.util.List;
  * @date 2023/4/1 10:02:59
  */
 @Service
-public class MaterialSizeServiceImpl extends IServiceImpl<MaterialSizeMapper,MaterialSize> implements MaterialSizeService {
+public class MaterialSizeServiceImpl extends ServicePlusImpl<MaterialSizeMapper,MaterialSize> implements MaterialSizeService {
 
     @Resource
     private MaterialSizeMapper materialSizeMapper;

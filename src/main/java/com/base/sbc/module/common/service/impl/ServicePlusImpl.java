@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.common.service.IServicePlus;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -15,12 +16,12 @@ import java.util.List;
 
 /**
  * @author 卞康
- * @data 2023/4/10 11:52
+ * @date 2023/4/13 11:50:06
  */
-public class IServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> extends ServiceImpl<M,T> {
+public class ServicePlusImpl<M extends BaseMapper<T>, T extends BaseEntity> extends ServiceImpl<M,T> implements IServicePlus<T> {
+
     @Resource
     private UserUtils userUtils;
-
     /**
      * 批量提交修改，逻辑删除新增修改
      * @param entityList 实体列表

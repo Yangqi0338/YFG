@@ -1,5 +1,5 @@
 package com.base.sbc.module.material.service;
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.material.vo.MaterialVo;
@@ -11,7 +11,7 @@ import com.github.pagehelper.PageInfo;
  * @version 1.0
  * @date 创建时间：2023-3-24 16:26:15
  */
-public interface MaterialService extends IService<Material> {
+public interface MaterialService extends IServicePlus<Material> {
 
     /**
      * 条件查询
