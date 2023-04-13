@@ -24,8 +24,8 @@ public class PlanningBandVo {
     private String sex;
     /** 波段 */
 
-    @ApiModelProperty(value = "波段名称" ,example = "1b")
-    private String band;
+    @ApiModelProperty(value = "波段" ,example = "1b")
+    private String bandCode;
 
     /** 生成模式 */
     @ApiModelProperty(value = "生产模式" ,example = "CMT")

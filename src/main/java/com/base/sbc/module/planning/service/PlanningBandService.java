@@ -6,7 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
 
+import cn.hutool.core.collection.CollUtil;
+import com.base.sbc.config.common.QueryCondition;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,10 +33,26 @@ public class PlanningBandService extends BaseService<PlanningBand> {
 	
 	@Autowired
 	private PlanningBandDao planningBandDao;
+
+	@Autowired
+	private PlanningCategoryService planningCategoryService;
 	
 	@Override
 	protected BaseDao<PlanningBand> getEntityDao() {
 		return planningBandDao;
+	}
+	@Transactional(readOnly = false)
+	public  boolean del(String companyCode,String id){
+		PlanningBand t=new PlanningBand();
+		t.setDelFlag("1");
+		t.setRemarks("del test");
+		QueryCondition queryCondition = new QueryCondition(companyCode);
+		queryCondition.andEqualTo("id",id).setT(t);
+		int flg=updateByCondition("update",queryCondition);
+		// 删除 品类信息,坑位信息,关联素材库
+		planningCategoryService.delByPlanningBand(companyCode, id);
+
+		return flg>0;
 	}
 	
 }

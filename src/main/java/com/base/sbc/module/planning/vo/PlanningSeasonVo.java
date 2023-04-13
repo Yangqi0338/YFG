@@ -27,7 +27,8 @@ public class PlanningSeasonVo {
     private String aliasUserAvatar;
     @ApiModelProperty(value = "创建者" ,example = "张三")
     private String createName;
-
+    @ApiModelProperty(value = "创建者id" ,example = "111")
+    private String createId;
     @ApiModelProperty(value = "备注" )
     private String remarks;
 

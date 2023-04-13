@@ -4,7 +4,7 @@
 	<!--企划-波段表
 	创建人：lxl
 	邮箱：lxl.fml@gmail.com
-	创建时间：2023-4-1 11:13:41
+	创建时间：2023-4-12 15:32:44
 	版本号：1.0
 -->
 	<!-- *******************************************自定义方法区  不替换的区域【other_start】***************************************** -->
@@ -23,6 +23,7 @@
 
 	<select id="selectByQc"  parameterType="queryCondition" resultType="com.base.sbc.module.planning.vo.PlanningSeasonBandVo">
 		select
+		b.id as id,
 		s.id as 'season.id',
 		s.name as 'season.name',
 		s.year as 'season.year',
@@ -32,7 +33,7 @@
 		b.id as 'band.id',
 		b.name as 'band.name',
 		b.sex as 'band.sex',
-		b.band as 'band.band',
+		b.band_code as 'band.band',
 		b.devt_type as 'band.devtType',
 		b.channel as 'band.channel',
 		b.create_id as 'band.createId',
@@ -52,7 +53,7 @@
 	<!-- *******************************************公用方法区(不可修改)***************************************** -->
 	<!-- 公用返回值 与数据库字段保持一致即可，同时实体(驼峰命名)必须包含所有字段 -->
 	<sql id="base_column">
-		id,company_code,planning_season_id,name,sex,band,devt_type,channel,create_id,create_name,create_date,update_id,update_name,update_date,status,del_flag,remarks
+		id,company_code,planning_season_id,name,sex,band_code,devt_type,channel,create_id,create_name,create_date,update_id,update_name,update_date,status,del_flag,remarks
 	</sql>
 	<!--  方法返回：成功条数。     方法名称： 新增          方法参数：list集合 -->
 	<insert id="insert" parameterType="java.util.List">
@@ -60,7 +61,7 @@
 		<include refid="base_column"/>
 		) values
 		<foreach collection="list" item="t" index="index" separator=",">
-			(  #{t.id,jdbcType=VARCHAR},#{t.companyCode,jdbcType=VARCHAR},#{t.planningSeasonId,jdbcType=VARCHAR},#{t.name,jdbcType=VARCHAR},#{t.sex,jdbcType=VARCHAR},#{t.band,jdbcType=VARCHAR},#{t.devtType,jdbcType=VARCHAR},#{t.channel,jdbcType=VARCHAR},#{t.createId,jdbcType=VARCHAR},#{t.createName,jdbcType=VARCHAR},#{t.createDate,jdbcType=TIMESTAMP},#{t.updateId,jdbcType=VARCHAR},#{t.updateName,jdbcType=VARCHAR},#{t.updateDate,jdbcType=TIMESTAMP},#{t.status,jdbcType=VARCHAR},#{t.delFlag,jdbcType=CHAR},#{t.remarks,jdbcType=VARCHAR}
+			(  #{t.id,jdbcType=VARCHAR},#{t.companyCode,jdbcType=VARCHAR},#{t.planningSeasonId,jdbcType=VARCHAR},#{t.name,jdbcType=VARCHAR},#{t.sex,jdbcType=VARCHAR},#{t.bandCode,jdbcType=VARCHAR},#{t.devtType,jdbcType=VARCHAR},#{t.channel,jdbcType=VARCHAR},#{t.createId,jdbcType=VARCHAR},#{t.createName,jdbcType=VARCHAR},#{t.createDate,jdbcType=TIMESTAMP},#{t.updateId,jdbcType=VARCHAR},#{t.updateName,jdbcType=VARCHAR},#{t.updateDate,jdbcType=TIMESTAMP},#{t.status,jdbcType=VARCHAR},#{t.delFlag,jdbcType=CHAR},#{t.remarks,jdbcType=VARCHAR}
 			)
 		</foreach>
 	</insert>
@@ -78,7 +79,7 @@
 					planning_season_id = #{t.planningSeasonId,jdbcType=VARCHAR},
 					name = #{t.name,jdbcType=VARCHAR},
 					sex = #{t.sex,jdbcType=VARCHAR},
-					band = #{t.band,jdbcType=VARCHAR},
+					band_code = #{t.bandCode,jdbcType=VARCHAR},
 					devt_type = #{t.devtType,jdbcType=VARCHAR},
 					channel = #{t.channel,jdbcType=VARCHAR},
 					create_id = #{t.createId,jdbcType=VARCHAR},
@@ -124,8 +125,8 @@
 					sex = #{t.sex
 					,jdbcType=VARCHAR},
 				</if>
-				<if test="t.band != null">
-					band = #{t.band
+				<if test="t.bandCode != null">
+					band_code = #{t.bandCode
 					,jdbcType=VARCHAR},
 				</if>
 				<if test="t.devtType != null">

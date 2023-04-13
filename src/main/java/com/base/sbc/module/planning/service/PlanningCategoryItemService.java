@@ -136,4 +136,13 @@ public class PlanningCategoryItemService extends BaseService<PlanningCategoryIte
         return categoryCode;
 
     }
+
+    @Transactional(readOnly = false)
+    public boolean delByPlanningBand(String userCompany, String id) {
+        //删除坑位信息
+        deleteByConditionDelFlag(new QueryCondition(userCompany).andEqualTo("planning_band_id",id));
+        // 删除坑位信息关联的素材库
+        planningCategoryItemMaterialService.deleteByConditionDelFlag(new QueryCondition(userCompany).andEqualTo("planning_band_id",id));
+        return true;
+    }
 }
