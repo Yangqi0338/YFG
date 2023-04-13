@@ -1,5 +1,6 @@
 package com.base.sbc.module.material.controller;
 
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
@@ -17,8 +18,10 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -193,5 +196,13 @@ public class MaterialController extends BaseController {
     @GetMapping("/getById")
     public Material getById(String id) {
         return materialService.getById(id);
+    }
+
+
+    @PostMapping("upTest")
+    public void upTest(MultipartFile file) throws IOException {
+
+        List<Test> test = EasyExcel.read(file.getInputStream()).head(Test.class).sheet().headRowNumber(3).doReadSync();
+        System.out.println(test);
     }
 }

@@ -1,7 +1,6 @@
 package com.base.sbc.module.categorysize.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.module.categorysize.entity.CategorySizeMethod;
 import com.base.sbc.module.categorysize.mapper.CategorySizeMethodMapper;
 import com.base.sbc.module.categorysize.service.CategorySizeMethodService;

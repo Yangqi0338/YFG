@@ -43,7 +43,7 @@ public class MaterialQueryDto extends PageDto {
     private String materialSubcategory;
 
     @ApiModelProperty(value = "品类id")
-    private Integer categoryId;
+    private String categoryId;
 
     @ApiModelProperty(value = "创建人的id")
     private String createId;
