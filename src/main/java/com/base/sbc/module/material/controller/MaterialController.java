@@ -194,7 +194,7 @@ public class MaterialController extends BaseController {
     /**
      * 查询传入的素材库下的品类数量
      */
-    @GetMapping("/countByCategoryIds")
+    @PostMapping("/countByCategoryIds")
     public ApiResult countByCategoryIds(@RequestBody List<CategoryIdDto> categoryIdDtoList){
         Map<String,Object> map =new HashMap<>(5);
         for (CategoryIdDto categoryIdDto : categoryIdDtoList) {
