@@ -1,21 +1,12 @@
 package com.base.sbc.module.planning.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.config.common.QueryCondition;
-import com.base.sbc.config.common.base.BaseDao;
-import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
-import com.base.sbc.module.material.entity.MaterialColor;
-import com.base.sbc.module.material.mapper.MaterialColorMapper;
-import com.base.sbc.module.material.service.MaterialColorService;
-import com.base.sbc.module.planning.dao.PlanningBandMapper;
+import com.base.sbc.module.planning.mapper.PlanningBandMapper;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.service.PlanningBandService;
-import com.base.sbc.module.planning.service.PlanningCategoryService;
 import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

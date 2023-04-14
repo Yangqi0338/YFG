@@ -1,7 +1,7 @@
 package com.base.sbc.module.planning.service.impl;
 
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
-import com.base.sbc.module.planning.dao.PlanningSeasonMapper;
+import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import org.springframework.stereotype.Service;

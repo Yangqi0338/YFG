@@ -6,29 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.client.ccm.service.CcmService;
-import com.base.sbc.config.common.IdGen;
-import com.base.sbc.config.common.QueryCondition;
-import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategory;
-import com.base.sbc.module.planning.entity.PlanningSeason;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.base.sbc.config.common.base.BaseDao;
-import com.base.sbc.config.common.base.BaseService;
-
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
-import com.base.sbc.module.planning.dao.PlanningCategoryItemMapper;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 /**

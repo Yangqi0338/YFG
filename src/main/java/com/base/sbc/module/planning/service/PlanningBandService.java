@@ -7,19 +7,10 @@
 package com.base.sbc.module.planning.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.method.P;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.base.sbc.config.common.base.BaseDao;
-import com.base.sbc.config.common.base.BaseService;
 
 import com.base.sbc.module.planning.entity.PlanningBand;
-import com.base.sbc.module.planning.dao.PlanningBandMapper;
 
 import java.util.List;
 
