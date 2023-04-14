@@ -1,6 +1,8 @@
 package com.base.sbc.module.material.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
@@ -11,7 +13,6 @@ import com.base.sbc.module.material.entity.*;
 import com.base.sbc.module.material.mapper.MaterialMapper;
 import com.base.sbc.module.material.service.*;
 import com.base.sbc.module.material.vo.MaterialVo;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,9 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
     private MaterialSizeService materialSizeService;
     @Resource
     private MaterialColorService materialColorService;
+
+    @Resource
+    private AmcFeignService amcFeignService;
 
     /**
      * 为了解决太多表关联查询太慢的问题
@@ -115,17 +119,19 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
         materialQueryDto.setCompanyCode(userUtils.getCompanyCode());
         this.addQuery(materialQueryDto);
 
-        Page<MaterialVo> materialVoPage = PageHelper.startPage(materialQueryDto);
+        PageHelper.startPage(materialQueryDto);
         List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
 
         if (materialAllDtolist == null || materialAllDtolist.size() == 0) {
             return new PageInfo<>();
         }
-        List<MaterialVo> list = new ArrayList<>();
-        List<String> ids = new ArrayList<>();
 
-        for (MaterialVo allDto : materialAllDtolist) {
-            ids.add(allDto.getId());
+        List<String> ids = new ArrayList<>();
+        List<String> userIds=new ArrayList<>();
+
+        for (MaterialVo materialVo : materialAllDtolist) {
+            userIds.add(materialVo.getCreateId());
+            ids.add(materialVo.getId());
         }
 
         //查询关联标签
@@ -134,8 +140,12 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
         List<MaterialSize> materialSizeList = materialSizeService.getByMaterialIds(ids);
         //查询关联颜色信息
         List<MaterialColor> materialColorList = materialColorService.getByMaterialIds(ids);
+        //获取用户头像
+        Map<String, String> userAvatarMap = amcFeignService.getUserAvatar(CollUtil.join(userIds, ","));
+
 
         for (MaterialVo materialVo : materialAllDtolist) {
+            materialVo.setUserAvatar(userAvatarMap.get(materialVo.getCreateId()));
             //标签放入对象
             List<MaterialLabel> labels = new ArrayList<>();
             for (MaterialLabel materialLabel : materialLabelList) {
@@ -161,10 +171,9 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
                     materialColors.add(materialColor);
                 }
             }
-            materialVo.setColors(materialColors);
 
-            list.add(materialVo);
+            materialVo.setColors(materialColors);
         }
-        return new PageInfo<>(materialVoPage);
+        return new PageInfo<>(materialAllDtolist);
     }
 }

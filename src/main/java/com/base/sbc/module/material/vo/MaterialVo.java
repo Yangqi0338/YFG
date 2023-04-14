@@ -17,6 +17,10 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class MaterialVo extends Material {
     /**
+     * 创建者头像
+     */
+    private String userAvatar;
+    /**
      * 所有标签
      */
     private List<MaterialLabel> labels;

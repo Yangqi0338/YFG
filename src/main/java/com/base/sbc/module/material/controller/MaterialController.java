@@ -7,6 +7,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.material.dto.CategoryIdDto;
 import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.*;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
@@ -191,21 +192,20 @@ public class MaterialController extends BaseController {
     }
 
     /**
-     * 查询传入的素材库下的素材数量
+     * 查询传入的素材库下的品类数量
      */
     @GetMapping("/countByCategoryIds")
-    public ApiResult countByCategoryIds(@RequestParam("categoryIds") List<String> categoryIds){
-        List<Map<String,Object>> list =new ArrayList<>();
-        categoryIds.forEach(categoryId-> {
+    public ApiResult countByCategoryIds(@RequestBody List<CategoryIdDto> categoryIdDtoList){
+        Map<String,Object> map =new HashMap<>(5);
+        for (CategoryIdDto categoryIdDto : categoryIdDtoList) {
             QueryWrapper<Material> queryWrapper =new QueryWrapper<>();
-            queryWrapper.eq("material_category_id", categoryId);
+
+            queryWrapper.in("category_id",categoryIdDto.getCategoryIds());
             long count = materialService.count(queryWrapper);
-            Map<String,Object> map =new HashMap<>(2);
-            map.put("categoryId", categoryId);
-            map.put("count", count);
-            list.add(map);
-        });
-        return selectSuccess(list);
+            map.put(categoryIdDto.getId(),count);
+        }
+
+        return selectSuccess(map);
     }
 
     /**
