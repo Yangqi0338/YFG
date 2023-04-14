@@ -5,16 +5,8 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package ${javapackage}.${project}.service;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.base.sbc.config.common.base.BaseDao;
-import com.base.sbc.config.common.base.BaseService;
-
+import com.base.sbc.module.common.service.IServicePlus;
 import ${javapackage}.${project}.entity.${className};
-import ${javapackage}.${project}.dao.${className}Dao;
 
 /** 
  * 类描述：${title} service类
@@ -24,16 +16,13 @@ import ${javapackage}.${project}.dao.${className}Dao;
  * @date 创建时间：${.now}
  * @version 1.0  
  */
-@Service
-@Transactional(readOnly = true)
-public class ${className}Service extends BaseService<${className}> {
-	
-	@Autowired
-	private ${className}Dao ${smallClassName}Dao;
-	
-	@Override
-	protected BaseDao<${className}> getEntityDao() {
-		return ${smallClassName}Dao;
-	}
+public interface ${className}Service extends IServicePlus<${className}>{
+
+/** 自定义方法区 不替换的区域【other_start】 **/
+
+
+
+/** 自定义方法区 不替换的区域【other_end】 **/
+
 	
 }

@@ -4,24 +4,28 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package ${javapackage}.${project}.mapper;
+package ${javapackage}.${project}.service.impl;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
+import ${javapackage}.common.service.impl.ServicePlusImpl;
+import ${javapackage}.${project}.mapper.${className}Mapper;
 import ${javapackage}.${project}.entity.${className};
+import ${javapackage}.${project}.service.${className}Service;
+import org.springframework.stereotype.Service;
 /** 
- * 类描述：${title} dao类
- * @address ${javapackage}.${project}.dao.${className}Dao
- * @author ${author}  
- * @email  ${email}
- * @date 创建时间：${.now} 
+ * 类描述：${title} service类
+ * @address ${javapackage}.${project}.service.${className}Service
+ * @author ${author}
+ * @email ${email}
+ * @date 创建时间：${.now}
  * @version 1.0  
  */
-@Mapper
-public interface ${className}Mapper extends BaseMapper<${className}> {
+@Service
+public class ${className}ServiceImpl extends ServicePlusImpl<${className}Mapper, ${className}> implements ${className}Service {
+
 /** 自定义方法区 不替换的区域【other_start】 **/
 
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/
+	
 }
