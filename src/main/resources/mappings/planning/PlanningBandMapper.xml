@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.base.sbc.module.planning.dao.PlanningBandMapper">
+<mapper namespace="com.base.sbc.module.planning.mapper.PlanningBandMapper">
     <select id="selectByQw" resultType="com.base.sbc.module.planning.vo.PlanningSeasonBandVo">
         select b.id as id,
                s.id as 'season.id',
