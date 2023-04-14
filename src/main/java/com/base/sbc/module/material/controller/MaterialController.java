@@ -15,6 +15,7 @@ import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -187,6 +188,24 @@ public class MaterialController extends BaseController {
             throw new OtherException("参数不能为空");
         }
         return materialService.listQuery(materialQueryDto);
+    }
+
+    /**
+     * 查询传入的素材库下的素材数量
+     */
+    @GetMapping("/countByCategoryIds")
+    public ApiResult countByCategoryIds(@RequestParam("categoryIds") List<String> categoryIds){
+        List<Map<String,Object>> list =new ArrayList<>();
+        categoryIds.forEach(categoryId-> {
+            QueryWrapper<Material> queryWrapper =new QueryWrapper<>();
+            queryWrapper.eq("material_category_id", categoryId);
+            long count = materialService.count(queryWrapper);
+            Map<String,Object> map =new HashMap<>(2);
+            map.put("categoryId", categoryId);
+            map.put("count", count);
+            list.add(map);
+        });
+        return selectSuccess(list);
     }
 
     /**
