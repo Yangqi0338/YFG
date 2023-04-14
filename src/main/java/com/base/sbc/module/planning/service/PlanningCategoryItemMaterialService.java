@@ -6,34 +6,30 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.base.sbc.config.common.base.BaseDao;
-import com.base.sbc.config.common.base.BaseService;
-
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
-import com.base.sbc.module.planning.dao.PlanningCategoryItemMaterialDao;
+import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
 
-/** 
+import java.util.List;
+
+/**
  * 类描述：企划-坑位关联的素材库表 service类
- * @address com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService
+ *
  * @author lxl
+ * @version 1.0
+ * @address com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-3-31 13:47:43
- * @version 1.0  
  */
-@Service
-@Transactional(readOnly = true)
-public class PlanningCategoryItemMaterialService extends BaseService<PlanningCategoryItemMaterial> {
-	
-	@Autowired
-	private PlanningCategoryItemMaterialDao planningCategoryItemMaterialDao;
-	
-	@Override
-	protected BaseDao<PlanningCategoryItemMaterial> getEntityDao() {
-		return planningCategoryItemMaterialDao;
-	}
-	
+public interface PlanningCategoryItemMaterialService extends IServicePlus<PlanningCategoryItemMaterial> {
+
+
+    /**
+     * 通过构造器查询
+     * @param qw
+     * @return
+     */
+    public List<PlanningCategoryItemMaterial> selectByQw(QueryWrapper<PlanningCategoryItemMaterial> qw);
 }

@@ -6,10 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.dao;
 
-import com.base.sbc.config.common.annotation.MyBatisDao;
-import com.base.sbc.config.common.base.BaseDao;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.planning.entity.PlanningCategory;
-/** 
+import org.apache.ibatis.annotations.Mapper;
+
+/**
  * 类描述：企划-品类信息 dao类
  * @address com.base.sbc.module.planning.dao.PlanningCategoryDao
  * @author lxl  
@@ -17,12 +18,8 @@ import com.base.sbc.module.planning.entity.PlanningCategory;
  * @date 创建时间：2023-3-29 10:36:59 
  * @version 1.0  
  */
- @MyBatisDao
-public class PlanningCategoryDao extends BaseDao<PlanningCategory>{
 
-   @Override
-	protected String getMapperNamespace() {
-		return "PlanningCategoryDao";
-	}
+@Mapper
+public interface PlanningCategoryMapper extends BaseMapper<PlanningCategory>{
 
 }

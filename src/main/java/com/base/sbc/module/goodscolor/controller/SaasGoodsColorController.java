@@ -67,8 +67,8 @@ public class SaasGoodsColorController extends BaseController {
             qc.eq("status", page.getStatus());
         }
         // 排序
-        if (StringUtils.isNotBlank(page.getOrder())) {
-            qc.orderByAsc(page.getOrder());
+        if (StringUtils.isNotBlank(page.getOrderBy())) {
+            qc.orderByAsc(page.getOrderBy());
         } else {
             qc.orderByDesc("update_date");
         }

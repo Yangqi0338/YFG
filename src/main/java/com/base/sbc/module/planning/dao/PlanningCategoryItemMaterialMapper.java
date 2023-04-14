@@ -6,23 +6,27 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.dao;
 
-import com.base.sbc.config.common.annotation.MyBatisDao;
-import com.base.sbc.config.common.base.BaseDao;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
-/** 
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
  * 类描述：企划-坑位关联的素材库表 dao类
+ *
+ * @author lxl
+ * @version 1.0
  * @address com.base.sbc.module.planning.dao.PlanningCategoryItemMaterialDao
- * @author lxl  
- * @email  lxl.fml@gmail.com
- * @date 创建时间：2023-3-31 13:47:43 
- * @version 1.0  
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-3-31 13:47:43
  */
- @MyBatisDao
-public class PlanningCategoryItemMaterialDao extends BaseDao<PlanningCategoryItemMaterial>{
+@Mapper
+public interface PlanningCategoryItemMaterialMapper extends BaseMapper<PlanningCategoryItemMaterial> {
 
-   @Override
-	protected String getMapperNamespace() {
-		return "PlanningCategoryItemMaterialDao";
-	}
 
+    List<PlanningCategoryItemMaterial> selectByQw(@Param(Constants.WRAPPER) QueryWrapper<PlanningCategoryItemMaterial> qw);
 }

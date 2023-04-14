@@ -6,23 +6,20 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.dao;
 
-import com.base.sbc.config.common.annotation.MyBatisDao;
-import com.base.sbc.config.common.base.BaseDao;
-import com.base.sbc.module.planning.entity.PlanningCategoryItem;
-/** 
- * 类描述：企划-坑位信息 dao类
- * @address com.base.sbc.module.planning.dao.PlanningCategoryItemDao
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.base.sbc.module.planning.entity.PlanningSeason;
+import org.apache.ibatis.annotations.Mapper;
+
+/**
+ * 类描述：企划-产品季 dao类
+ * @address com.base.sbc.module.planning.dao.PlanningSeasonDao
  * @author lxl  
  * @email  lxl.fml@gmail.com
- * @date 创建时间：2023-3-31 13:40:49 
+ * @date 创建时间：2023-3-27 17:42:08 
  * @version 1.0  
  */
- @MyBatisDao
-public class PlanningCategoryItemDao extends BaseDao<PlanningCategoryItem>{
+@Mapper
+ public interface PlanningSeasonMapper extends BaseMapper<PlanningSeason> {
 
-   @Override
-	protected String getMapperNamespace() {
-		return "PlanningCategoryItemDao";
-	}
 
 }

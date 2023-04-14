@@ -218,8 +218,8 @@ public abstract class BaseService<T> {
 	 */
 	@Transactional(readOnly = true)
 	public ApiResult findPageByCondition(QueryCondition qc, Page page) {
-		if(StringUtils.isNoneBlank(page.getOrder())) {
-			qc.setOrderByClause(page.getOrder());
+		if(StringUtils.isNoneBlank(page.getOrderBy())) {
+			qc.setOrderByClause(page.getOrderBy());
 		}
 		com.github.pagehelper.Page<?> pages = PageHelper.startPage(page.getPageNum(), page.getPageSize());
 		this.getEntityDao().findByCondition(qc);
@@ -235,8 +235,8 @@ public abstract class BaseService<T> {
 	 */
 	@Transactional(readOnly = true)
 	public ApiResult findPageByCondition(QueryCondition qc, Page page,String statement) {
-		if(StringUtils.isNoneBlank(page.getOrder())) {
-			qc.setOrderByClause(page.getOrder());
+		if(StringUtils.isNoneBlank(page.getOrderBy())) {
+			qc.setOrderByClause(page.getOrderBy());
 		}
 		com.github.pagehelper.Page<?> pages = PageHelper.startPage(page.getPageNum(), page.getPageSize());
 		this.getEntityDao().selectList(statement,qc);
@@ -251,8 +251,8 @@ public abstract class BaseService<T> {
 	 */
 	@Transactional(readOnly = true)
 	public ApiResult findPageByConditionAndDelNormal(QueryCondition qc, Page page) {
-		if(StringUtils.isNoneBlank(page.getOrder())) {
-			qc.setOrderByClause(page.getOrder());
+		if(StringUtils.isNoneBlank(page.getOrderBy())) {
+			qc.setOrderByClause(page.getOrderBy());
 		}
 		com.github.pagehelper.Page<?> pages = PageHelper.startPage(page.getPageNum(), page.getPageSize());
 		this.getEntityDao().findByConditionAndDelNormal(qc);

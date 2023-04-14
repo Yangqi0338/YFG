@@ -9,6 +9,8 @@ package com.base.sbc.module.planning.entity;
 import java.util.Date;
 import java.util.List;
 import java.math.BigDecimal;
+
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -24,6 +26,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@TableName("t_planning_season")
 public class PlanningSeason extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;

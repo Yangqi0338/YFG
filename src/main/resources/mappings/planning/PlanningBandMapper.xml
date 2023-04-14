@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.planning.dao.PlanningBandMapper">
+    <select id="selectByQw" resultType="com.base.sbc.module.planning.vo.PlanningSeasonBandVo">
+        select b.id as id,
+               s.id as 'season.id',
+                s.name as 'season.name',
+                s.year as 'season.year',
+                 s.season as 'season.season',
+                  s.month as 'season.month',
+                   s.brand as 'season.brand',
+                    b.id as 'band.id', b.name as 'band.name', b.sex as 'band.sex', b.band_code as 'band.bandCode', b.devt_type as 'band.devtType', b.channel as 'band.channel', b.create_id as 'band.createId', b.create_name as 'band.createName'
+        from t_planning_band b,
+             t_planning_season s
+            ${ ew.customSqlSegment}
+
+
+    </select>
+</mapper>
