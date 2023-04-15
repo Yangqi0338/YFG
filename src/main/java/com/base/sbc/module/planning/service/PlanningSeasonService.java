@@ -6,14 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
 
-import com.base.sbc.config.common.QueryCondition;
-import com.base.sbc.config.common.base.BaseDao;
-import com.base.sbc.config.common.base.BaseService;
-import com.base.sbc.module.planning.dao.PlanningSeasonDao;
+import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.planning.entity.PlanningSeason;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 类描述：企划-产品季 service类
@@ -24,24 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-3-27 17:42:08
  */
-@Service
-@Transactional(readOnly = true)
-public class PlanningSeasonService extends BaseService<PlanningSeason> {
+public interface PlanningSeasonService extends IServicePlus<PlanningSeason> {
 
-    @Autowired
-    private PlanningSeasonDao planningSeasonDao;
-
-    @Override
-    protected BaseDao<PlanningSeason> getEntityDao() {
-        return planningSeasonDao;
-    }
-
-
-    @Transactional(readOnly = false)
-    public boolean del(String companyCode,String id){
-        //删除产品季信息
-        int flg= deleteByConditionDelFlag(new QueryCondition(companyCode).andEqualTo("id",id));
-        return flg>0;
-    }
+    /**
+     * 删除产品季
+     */
+    public boolean del(String companyCode, String id);
 
 }

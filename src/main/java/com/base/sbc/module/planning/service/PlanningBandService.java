@@ -6,18 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
 
-import cn.hutool.core.collection.CollUtil;
-import com.base.sbc.config.common.QueryCondition;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.method.P;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.base.sbc.config.common.base.BaseDao;
-import com.base.sbc.config.common.base.BaseService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
 
 import com.base.sbc.module.planning.entity.PlanningBand;
-import com.base.sbc.module.planning.dao.PlanningBandDao;
+
+import java.util.List;
 
 /** 
  * 类描述：企划-波段表 service类
@@ -27,32 +22,21 @@ import com.base.sbc.module.planning.dao.PlanningBandDao;
  * @date 创建时间：2023-3-27 17:42:11
  * @version 1.0  
  */
-@Service
-@Transactional(readOnly = true)
-public class PlanningBandService extends BaseService<PlanningBand> {
-	
-	@Autowired
-	private PlanningBandDao planningBandDao;
+public interface PlanningBandService extends IServicePlus<PlanningBand> {
 
-	@Autowired
-	private PlanningCategoryService planningCategoryService;
-	
-	@Override
-	protected BaseDao<PlanningBand> getEntityDao() {
-		return planningBandDao;
-	}
-	@Transactional(readOnly = false)
-	public  boolean del(String companyCode,String id){
-		PlanningBand t=new PlanningBand();
-		t.setDelFlag("1");
-		t.setRemarks("del test");
-		QueryCondition queryCondition = new QueryCondition(companyCode);
-		queryCondition.andEqualTo("id",id).setT(t);
-		int flg=updateByCondition("update",queryCondition);
-		// 删除 品类信息,坑位信息,关联素材库
-		planningCategoryService.delByPlanningBand(companyCode, id);
 
-		return flg>0;
-	}
+	/**
+	 * 删除
+	 * @param id
+	 * @return
+	 */
+	boolean del(String id);
+
+	/**
+	 * 通过构造器查询
+	 * @param qw
+	 * @return
+	 */
+	public List<PlanningSeasonBandVo> selectByQw(QueryWrapper<PlanningBand> qw);
 	
 }

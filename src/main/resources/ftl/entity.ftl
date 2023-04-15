@@ -6,14 +6,11 @@
  *****************************************************************************/
 package ${javapackage}.${project}.entity;
 
-import java.util.Date;
-import java.util.List;
-import java.math.BigDecimal;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import io.swagger.annotations.ApiModelProperty;
 /**
  * 类描述：${title} 实体类
  * @address ${javapackage}.${project}.entity.${className}
@@ -24,6 +21,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@TableName("${tableName}")
 public class ${className} extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
@@ -32,7 +30,7 @@ public class ${className} extends BaseDataEntity<String> {
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
-    /*****************************数据库字段区 不包含父类公共字段(属性)***********************************/
+    /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     <#list columns as propertyName>
     <#if propertyName != 'id'& propertyName != 'companyCode'
     & propertyName != 'createId'& propertyName != 'createName'& propertyName != 'createDate'
@@ -43,6 +41,5 @@ public class ${className} extends BaseDataEntity<String> {
     private ${columnTypes[propertyName_index]} ${propertyName};
     </#if>
     </#list>
-    /*******************************************getset方法区************************************/
-
+    /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

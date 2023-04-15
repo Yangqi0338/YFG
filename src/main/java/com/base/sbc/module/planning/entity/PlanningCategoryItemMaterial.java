@@ -9,6 +9,8 @@ package com.base.sbc.module.planning.entity;
 import java.util.Date;
 import java.util.List;
 import java.math.BigDecimal;
+
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -24,6 +26,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@TableName("t_planning_category_item_material")
 public class PlanningCategoryItemMaterial extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
@@ -51,8 +54,6 @@ public class PlanningCategoryItemMaterial extends BaseDataEntity<String> {
     /** 素材库id */
     @ApiModelProperty(value = "素材库id"  )
     private String materialId;
-    @ApiModelProperty(value = "备注"  )
-    private String remarks;
     /*******************************************getset方法区************************************/
 
 }

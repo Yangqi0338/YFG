@@ -70,8 +70,8 @@ public class BandController extends BaseController {
         if (StringUtils.isNotBlank(page.getSearch())) {
             qc.like("band_name",page.getSearch()).or().like("code",page.getSearch());
         }
-        if (!StringUtils.isEmpty(page.getOrder())){
-            qc.orderByAsc(page.getOrder());
+        if (!StringUtils.isEmpty(page.getOrderBy())){
+            qc.orderByAsc(page.getOrderBy());
         }else {
             qc.orderByDesc("create_date");
         }

@@ -59,7 +59,7 @@ public class Gen {
 			//不存在  或者  包含1
 			if(StringUtils.isBlank(table.getGenType())||table.getGenType().indexOf(Tables.GENXML)!=-1) {
 				// 1.xml
-				String xmlName =  params.getXmlosdir()+ File.separatorChar +"mappings"+ File.separatorChar +params.getProject()+ File.separatorChar + javaClassName + "Dao.xml";
+				String xmlName =  params.getXmlosdir()+ File.separatorChar +"mappings"+ File.separatorChar +params.getProject()+ File.separatorChar + javaClassName + "Mapper.xml";
 				System.out.println("输出文件："+map.get("title")+"的mapper.xml件");
 				UtilFreemarker.generateFile(xmlName, "ftl/xml.ftl", map);
 			}
@@ -73,7 +73,7 @@ public class Gen {
 			//不存在  或者  包含3
 			if(StringUtils.isBlank(table.getGenType())||table.getGenType().indexOf(Tables.GENDAO)!=-1) {
 				//3.dao
-				String daoName = javaPath +  "dao" + File.separatorChar + javaClassName + "Dao.java";
+				String daoName = javaPath +  "mapper" + File.separatorChar + javaClassName + "Mapper.java";
 				System.out.println("输出文件："+map.get("title")+"的dao类");
 				UtilFreemarker.generateFile(daoName,  "ftl/dao.ftl", map);
 			}
@@ -83,6 +83,11 @@ public class Gen {
 				String serviceName = javaPath +  "service" + File.separatorChar + javaClassName + "Service.java";
 				System.out.println("输出文件："+map.get("title")+"的service类");
 				UtilFreemarker.generateFile(serviceName,  "ftl/service.ftl", map);
+
+				//4.service2
+				String serviceImplName = javaPath +  "service" + File.separatorChar+"impl"+ File.separatorChar+ javaClassName + "ServiceImpl.java";
+				System.out.println("输出文件："+map.get("title")+"的serviceImpl类");
+				UtilFreemarker.generateFile(serviceImplName,  "ftl/serviceImpl.ftl", map);
 			}
 			//不存在  或者  包含5
 			if(StringUtils.isBlank(table.getGenType())||table.getGenType().indexOf(Tables.GENCONTROLLER)!=-1) {

@@ -9,6 +9,8 @@ package com.base.sbc.module.planning.entity;
 import java.util.Date;
 import java.util.List;
 import java.math.BigDecimal;
+
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -24,6 +26,7 @@ import io.swagger.annotations.ApiModelProperty;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@TableName("t_planning_band")
 public class PlanningBand extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
@@ -54,9 +57,6 @@ public class PlanningBand extends BaseDataEntity<String> {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
-    /** 备注 */
-    @ApiModelProperty(value = "备注"  )
-    private String remarks;
     /*******************************************getset方法区************************************/
 
 }

@@ -5,27 +5,32 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
-import com.base.sbc.client.amc.utils.AmcUtils;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.IdGen;
-import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.SpringContextHolder;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
-import com.base.sbc.module.planning.entity.*;
-import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.dto.PlanningBandDto;
 import com.base.sbc.module.planning.dto.PlanningBandSearchDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
+import com.base.sbc.module.planning.entity.PlanningBand;
+import com.base.sbc.module.planning.entity.PlanningCategory;
+import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
+import com.base.sbc.module.planning.service.PlanningCategoryItemService;
+import com.base.sbc.module.planning.service.PlanningCategoryService;
+import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.service.impl.PlanningBandServiceImpl;
 import com.base.sbc.module.planning.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -33,7 +38,6 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -58,8 +62,8 @@ public class PlanningController extends BaseController {
 
     @Resource
     private PlanningSeasonService planningSeasonService;
-    @Resource
-    private PlanningBandService planningBandService;
+    @Autowired
+    private PlanningBandServiceImpl planningBandService;
     @Resource
     private PlanningCategoryService planningCategoryService;
     @Resource
@@ -81,48 +85,39 @@ public class PlanningController extends BaseController {
     @PostMapping
     public PlanningSeasonVo save(@Valid @RequestBody PlanningSeasonSaveDto dto) {
         // 校验名称重复
-        QueryCondition nameQc = new QueryCondition(getUserCompany())
-                .andEqualTo("name", dto.getName());
-        if (StrUtil.isNotEmpty(dto.getId())) {
-            nameQc.andNotEqualTo("id", dto.getId());
-        }
-        int nameCount = planningSeasonService.
-                selectOne2("countByQc", nameQc);
+        QueryWrapper nameQc = new QueryWrapper();
+        nameQc.eq(COMPANY_CODE, getUserCompany());
+        nameQc.eq("name", dto.getName());
+        nameQc.eq(StrUtil.isNotEmpty(dto.getId()), "id", dto.getId());
+        long nameCount = planningSeasonService.count(nameQc);
         if (nameCount > 0) {
             throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
         }
 
 
         PlanningSeason bean = null;
-        int insert = 0;
         if (StrUtil.isEmpty(dto.getId())) {
             bean = BeanUtil.copyProperties(dto, PlanningSeason.class);
-            //保存
-            bean.preInsert();
-            bean.setCompanyCode(getUserCompany());
             bean.setStatus(BaseGlobal.STATUS_NORMAL);
-            insert = planningSeasonService.insert(bean);
+            planningSeasonService.save(bean);
         } else {
             bean = planningSeasonService.getById(dto.getId());
             if (bean == null) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
             BeanUtil.copyProperties(dto, bean);
-            insert = planningSeasonService.updateAll(bean);
+            planningSeasonService.updateById(bean);
         }
-        if (insert > 0) {
-            return BeanUtil.copyProperties(bean, PlanningSeasonVo.class);
-        }
-        throw new OtherException(BaseErrorEnum.ERR_INTERNAL_SERVER_ERROR);
+        return BeanUtil.copyProperties(bean, PlanningSeasonVo.class);
     }
 
     @ApiOperation(value = "查询产品季-通过季名称查询")
     @GetMapping("/getByName")
     public PlanningSeasonVo getByName(@NotNull(message = "名称不能为空") String name) {
-        QueryCondition qc = new QueryCondition(getUserCompany());
-        qc.andEqualTo("name", name);
-        qc.andEqualTo("del_flag", BaseEntity.DEL_FLAG_NORMAL);
-        List<PlanningSeason> seasons = planningSeasonService.findByCondition(qc);
+        QueryWrapper qc = new QueryWrapper();
+        qc.eq("name", name);
+        qc.eq(COMPANY_CODE, getUserCompany());
+        List<PlanningSeason> seasons = planningSeasonService.list(qc);
         if (CollUtil.isEmpty(seasons)) {
             throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
@@ -133,32 +128,28 @@ public class PlanningController extends BaseController {
     @ApiOperation(value = "查询产品季-分页查询")
     @GetMapping
     public PageInfo query(PlanningSeasonSearchDto dto) {
-        QueryCondition qc = new QueryCondition(getUserCompany());
-        qc.andEqualTo("del_flag", BaseEntity.DEL_FLAG_NORMAL);
-        if (StrUtil.isNotBlank(dto.getSearch())) {
-            qc.andLikeOr(dto.getSearch(), "name");
-        }
-        if (StrUtil.isNotBlank(dto.getYear())) {
-            qc.andEqualTo("year", dto.getYear());
-        }
-        if (StrUtil.isNotBlank(dto.getOrder())) {
-            qc.setOrderByClause(dto.getOrder());
-        } else {
-            qc.setOrderByClause("create_date desc");
-        }
-        Page<PlanningSeasonVo> objects = PageHelper.startPage(dto);
-        planningSeasonService.selectList2("selectByQc", qc);
-        PageInfo<PlanningSeasonVo> planningSeasonPageInfo = objects.toPageInfo();
-        List<PlanningSeasonVo> list = planningSeasonPageInfo.getList();
+        QueryWrapper qc = new QueryWrapper();
+        qc.eq("del_flag", BaseEntity.DEL_FLAG_NORMAL);
+        qc.eq(COMPANY_CODE, getUserCompany());
+        qc.like(StrUtil.isNotBlank(dto.getSearch()), dto.getSearch(), "name");
+        qc.eq(StrUtil.isNotBlank(dto.getYear()), "year", dto.getYear());
+//        dto.setOrderBy("create_date desc ");
+        Page<PlanningSeason> objects = PageHelper.startPage(dto);
+        planningSeasonService.list(qc);
+        PageInfo<PlanningSeason> planningSeasonPageInfo = objects.toPageInfo();
+        List<PlanningSeason> list = planningSeasonPageInfo.getList();
         if (CollUtil.isNotEmpty(list)) {
             //查询用户信息
-            Map<String,String> userAvatarMap= amcFeignService.getUserAvatar(list.stream().map(PlanningSeasonVo::getCreateId).collect(Collectors.joining(",")));
-            for (PlanningSeasonVo planningSeasonVo : list) {
+            Map<String, String> userAvatarMap = amcFeignService.getUserAvatar(list.stream().map(PlanningSeason::getCreateId).collect(Collectors.joining(",")));
+            List<PlanningSeasonVo> volist = BeanUtil.copyToList(list, PlanningSeasonVo.class);
+            for (PlanningSeasonVo planningSeasonVo : volist) {
                 planningSeasonVo.setAliasUserAvatar(userAvatarMap.get(planningSeasonVo.getCreateId()));
             }
-            return planningSeasonPageInfo;
+            PageInfo<PlanningSeasonVo> pageInfoVO=new PageInfo<>();
+            pageInfoVO.setList(volist);
+            BeanUtil.copyProperties(planningSeasonPageInfo,pageInfoVO,"list");
+            return pageInfoVO;
         }
-
         return new PageInfo<>();
     }
 
@@ -166,17 +157,18 @@ public class PlanningController extends BaseController {
     @GetMapping("/planBand")
     public PageInfo<PlanningSeasonBandVo> bandList(@Valid PlanningBandSearchDto dto) {
         // 1 查询产品季
-        QueryCondition qc = new QueryCondition();
-        qc.andConditionSql("b.planning_season_id=s.id");
-        qc.andEqualTo("s.name", dto.getSeasonName());
-        qc.andEqualTo("s.company_code", getUserCompany());
-        qc.andEqualTo("s.del_flag", BaseEntity.DEL_FLAG_NORMAL);
-        qc.andEqualTo("b.del_flag", BaseEntity.DEL_FLAG_NORMAL);
+        QueryWrapper<PlanningBand> qc = new QueryWrapper<>();
+        qc.apply("b.planning_season_id=s.id");
+        qc.eq(StrUtil.isNotBlank(dto.getSeasonName()), "s.name", dto.getSeasonName());
+        qc.eq("s.company_code", getUserCompany());
+        qc.eq("s.del_flag", BaseEntity.DEL_FLAG_NORMAL);
+        qc.eq("b.del_flag", BaseEntity.DEL_FLAG_NORMAL);
+        dto.setOrderBy("b.create_date desc ");
         PageHelper.startPage(dto);
-        List<PlanningSeasonBandVo> list = planningBandService.selectList2("selectByQc", qc);
+        List<PlanningSeasonBandVo> list = planningBandService.selectByQw(qc);
         if (CollUtil.isNotEmpty(list)) {
             //查询用户信息
-            Map<String,String> userAvatarMap= amcFeignService.getUserAvatar(list.stream().map(item->item.getBand().getCreateId()).collect(Collectors.joining(",")));
+            Map<String, String> userAvatarMap = amcFeignService.getUserAvatar(list.stream().map(item -> item.getBand().getCreateId()).collect(Collectors.joining(",")));
             list.forEach(item -> {
                 PlanningBandVo band = item.getBand();
                 band.setAliasUserAvatar(userAvatarMap.get(band.getCreateId()));
@@ -184,41 +176,38 @@ public class PlanningController extends BaseController {
             PageInfo<PlanningSeasonBandVo> pageInfo = new PageInfo<>(list);
             return pageInfo;
         }
-
         return new PageInfo<>();
     }
 
     @ApiOperation(value = "查询波段企划-通过产品季和波段企划名称")
     @GetMapping("/planBand/getByName")
-    public PlanningSeasonBandVo getBandByName(@NotNull(message = "产品季名称不能为空") String planningSeasonName,
-                                              @NotNull(message = "波段企划名称不能为空") String planningBandName) {
-        QueryCondition qc = new QueryCondition();
-        qc.andConditionSql("b.planning_season_id=s.id");
-        qc.andEqualTo("s.company_code", getUserCompany());
-        qc.andEqualTo("s.name", planningSeasonName);
-        qc.andEqualTo("b.name", planningBandName);
-        qc.andEqualTo("b.del_flag", BaseEntity.DEL_FLAG_NORMAL);
-        qc.andEqualTo("s.del_flag", BaseEntity.DEL_FLAG_NORMAL);
-        List<PlanningSeasonBandVo> list = planningBandService.selectList2("selectByQc", qc);
+    public PlanningSeasonBandVo getBandByName(@NotNull(message = "产品季名称不能为空") String planningSeasonName, @NotNull(message = "波段企划名称不能为空") String planningBandName) {
+        QueryWrapper qc = new QueryWrapper();
+        qc.apply("b.planning_season_id=s.id");
+        qc.eq("s.company_code", getUserCompany());
+        qc.eq("s.name", planningSeasonName);
+        qc.eq("b.name", planningBandName);
+        qc.eq("b.del_flag", BaseEntity.DEL_FLAG_NORMAL);
+        qc.eq("s.del_flag", BaseEntity.DEL_FLAG_NORMAL);
+        List<PlanningSeasonBandVo> list = planningBandService.selectByQw(qc);
         PlanningSeasonBandVo first = CollUtil.getFirst(list);
         //查询品类列表
-        QueryCondition categoryQc = new QueryCondition(getUserCompany());
-        categoryQc.andEqualTo("planning_season_id", first.getSeason().getId());
-        categoryQc.andEqualTo("planning_band_id", first.getBand().getId());
-        categoryQc.andEqualTo("del_flag", BaseEntity.DEL_FLAG_NORMAL);
-        List<PlanningCategory> categoryData = planningCategoryService.findByCondition(categoryQc);
+        QueryWrapper categoryQc = new QueryWrapper();
+        categoryQc.eq(COMPANY_CODE, getUserCompany());
+        categoryQc.eq("planning_season_id", first.getSeason().getId());
+        categoryQc.eq("planning_band_id", first.getBand().getId());
+        categoryQc.eq("del_flag", BaseEntity.DEL_FLAG_NORMAL);
+        List<PlanningCategory> categoryData = planningCategoryService.list(categoryQc);
         first.getBand().setCategoryData(categoryData);
         //查询坑位信息
-        List<PlanningCategoryItem> categoryItemData = planningCategoryItemService.findByCondition(categoryQc);
+        List<PlanningCategoryItem> categoryItemData = planningCategoryItemService.list(categoryQc);
         // 关联素材库
-        List<PlanningCategoryItemMaterialVo> itemMaterials = planningCategoryItemMaterialService.selectList2("selectByQc", categoryQc);
+        List<PlanningCategoryItemMaterialVo> itemMaterials = planningCategoryItemMaterialService.selectByQw(categoryQc);
 
         if (CollUtil.isNotEmpty(categoryItemData) && CollUtil.isNotEmpty(categoryData)) {
             List<PlanningCategoryItemVo> categoryItemVoData = new ArrayList<>(categoryData.size());
-            Map<String, PlanningCategory> planningCategoryMap = categoryData.stream()
-                    .collect(Collectors.toMap(PlanningCategory::getId, v -> v, (a, b) -> b));
-            Map<String, List<PlanningCategoryItemMaterialVo>> itemMaterialMap = Optional.ofNullable(itemMaterials).orElse(CollUtil.newArrayList())
-                    .stream().collect(Collectors.groupingBy(PlanningCategoryItemMaterialVo::getPlanningCategoryItemId));
+            Map<String, PlanningCategory> planningCategoryMap = categoryData.stream().collect(Collectors.toMap(PlanningCategory::getId, v -> v, (a, b) -> b));
+            Map<String, List<PlanningCategoryItemMaterialVo>> itemMaterialMap = Optional.ofNullable(itemMaterials).orElse(CollUtil.newArrayList()).stream().collect(Collectors.groupingBy(PlanningCategoryItemMaterialVo::getPlanningCategoryItemId));
             for (PlanningCategoryItem categoryItem : categoryItemData) {
                 PlanningCategoryItemVo planningCategoryItemVo = BeanUtil.copyProperties(categoryItem, PlanningCategoryItemVo.class);
                 PlanningCategory p = planningCategoryMap.get(categoryItem.getPlanningCategoryId());
@@ -241,14 +230,14 @@ public class PlanningController extends BaseController {
     @PostMapping("/planBand")
     public PlanningBandVo savePlanBand(@Valid @RequestBody PlanningBandDto dto) {
         // 校验名称重复
-        QueryCondition nameQc = new QueryCondition(getUserCompany())
-                .andEqualTo("name", dto.getName())
-                .andEqualTo("planning_season_id", dto.getPlanningSeasonId());
+        QueryWrapper nameQc = new QueryWrapper();
+        nameQc.eq(COMPANY_CODE, getUserCompany());
+        nameQc.eq("name", dto.getName());
+        nameQc.eq("planning_season_id", dto.getPlanningSeasonId());
         if (StrUtil.isNotEmpty(dto.getId())) {
-            nameQc.andNotEqualTo("id", dto.getId());
+            nameQc.ne("id", dto.getId());
         }
-        int nameCount = planningBandService.
-                selectOne2("countByQc", nameQc);
+        long nameCount = planningBandService.count(nameQc);
         if (nameCount > 0) {
             throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
         }
@@ -257,9 +246,7 @@ public class PlanningController extends BaseController {
         PlanningBand bean = null;
         if (StrUtil.isBlank(dto.getId())) {
             bean = BeanUtil.copyProperties(dto, PlanningBand.class);
-            bean.preInsert(idGen.nextIdStr());
-            bean.setCompanyCode(getUserCompany());
-            planningBandService.insert(bean);
+            planningBandService.save(bean);
 
         } else {
             bean = planningBandService.getById(dto.getId());
@@ -267,8 +254,7 @@ public class PlanningController extends BaseController {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
             BeanUtil.copyProperties(dto, bean);
-            bean.preUpdate();
-            planningBandService.updateAll(bean);
+            planningBandService.updateById(bean);
         }
         List<PlanningCategory> categoryList = dto.getCategoryData();
         planningCategoryService.savePlanningCategory(bean, categoryList);
@@ -279,8 +265,7 @@ public class PlanningController extends BaseController {
     @ApiOperation(value = "修改坑位信息")
     @PostMapping("/updateCategoryItem")
     public PlanningCategoryItem updateCategoryItem(@RequestBody PlanningCategoryItem item) {
-        item.preUpdate();
-        planningCategoryItemService.updateAll(item);
+        planningCategoryItemService.updateById(item);
         return item;
     }
 
@@ -318,10 +303,11 @@ public class PlanningController extends BaseController {
         });
         String regexp = "^" + CollUtil.join(regexps, "") + "$";
         System.out.println("传过来的正则:" + regexp);
-        QueryCondition qc = new QueryCondition(getUserCompany());
-        qc.andConditionSql(" design_no REGEXP '" + regexp + "'");
-        qc.andEqualTo("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
-        String maxCode = planningCategoryItemService.selectOne2("selectMaxDesignNo", qc);
+        QueryWrapper qc = new QueryWrapper();
+        qc.eq(COMPANY_CODE, getUserCompany());
+        qc.apply(" design_no REGEXP '" + regexp + "'");
+        qc.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
+        String maxCode = planningCategoryItemService.selectMaxDesignNo(qc);
         if (StrUtil.isBlank(maxCode)) {
             return null;
         }
@@ -352,24 +338,25 @@ public class PlanningController extends BaseController {
 
     @ApiOperation(value = "删除产品季")
     @DeleteMapping("/planningSeason")
-    public boolean delPlanningSeason(@Valid @NotNull(message = "编号不能为空") String id){
-        //TODO 其他校验
-
+    public boolean delPlanningSeason(@Valid @NotNull(message = "编号不能为空") String id) {
         // 波段企划信息
-        QueryCondition countQc=new QueryCondition(getUserCompany());
-        countQc.andEqualTo("planning_season_id",id);
-        countQc.andEqualTo(DEL_FLAG,BaseEntity.DEL_FLAG_NORMAL);
-        int i=planningBandService.selectOne2("countByQc",countQc);
-        if(i>0){
+        QueryWrapper<PlanningBand> qw = new QueryWrapper<>();
+        UpdateWrapper<PlanningBand> up = new UpdateWrapper<>();
+
+        qw.eq("planning_season_id", id);
+        qw.eq(DEL_FLAG, BaseEntity.DEL_FLAG_NORMAL);
+        long i = planningBandService.count(qw);
+        if (i > 0) {
             throw new OtherException("存在波段企划无法删除");
         }
-        return planningSeasonService.del(getUserCompany(),id);
+        return planningSeasonService.del(getUserCompany(), id);
     }
+
     @ApiOperation(value = "删除波段企划")
     @DeleteMapping("/planningBand")
-    public boolean delPlanningBand(@Valid @NotNull(message = "编号不能为空") String id){
+    public boolean delPlanningBand(@Valid @NotNull(message = "编号不能为空") String id) {
         //TODO 其他校验
-        return planningBandService.del(getUserCompany(),id);
+        return planningBandService.del(id);
     }
 
 }
