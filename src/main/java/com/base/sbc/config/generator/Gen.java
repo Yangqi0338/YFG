@@ -92,8 +92,7 @@ public class Gen {
 			//不存在  或者  包含5
 			if(StringUtils.isBlank(table.getGenType())||table.getGenType().indexOf(Tables.GENCONTROLLER)!=-1) {
 				//5.controller
-				javaPath = javaPath.replace("sbc\\pdm", "sbc\\api\\saas\\pdm");
-				String controllerName = javaPath + File.separatorChar + javaClassName + "Controller.java";
+				String controllerName = javaPath +  "controller" + File.separatorChar + javaClassName + "Controller.java";
 				System.out.println("输出文件："+map.get("title")+"的控制器类");
 				UtilFreemarker.generateFile(controllerName,  "ftl/controller.ftl", map);
 			}

@@ -47,7 +47,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
                                   ServerHttpResponse response) {
         if (body == null) {
-            return JsonUtils.beanToJson(ApiResult.error(localeMessages.getMessage(ERR_SELECT_NOT_FOUND), 404));
+            return ApiResult.error(localeMessages.getMessage(ERR_SELECT_NOT_FOUND), 404);
         }
         if (body instanceof ApiResult) {
             // 进行国际化处理
