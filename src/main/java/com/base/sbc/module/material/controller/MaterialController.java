@@ -199,7 +199,7 @@ public class MaterialController extends BaseController {
         Map<String,Object> map =new HashMap<>(5);
         for (CategoryIdDto categoryIdDto : categoryIdDtoList) {
             QueryWrapper<Material> queryWrapper =new QueryWrapper<>();
-
+            queryWrapper.eq("status",BasicNumber.TWO.getNumber());
             queryWrapper.in("category_id",categoryIdDto.getCategoryIds());
             long count = materialService.count(queryWrapper);
             map.put(categoryIdDto.getId(),count);
