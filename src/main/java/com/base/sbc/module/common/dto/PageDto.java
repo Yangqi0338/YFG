@@ -19,5 +19,5 @@ public class PageDto implements Serializable {
     @ApiModelProperty(value = "每页数量", example = "10")
     private int pageSize;
     @ApiModelProperty(value = "排序(单表)", example = "create_date desc")
-    private String order;
+    private String orderBy;
 }
