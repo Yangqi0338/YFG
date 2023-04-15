@@ -2,9 +2,7 @@ package com.base.sbc.client.amc.service;
 
 import com.base.sbc.config.constant.BaseConstant;
 import org.springframework.cloud.netflix.feign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * amc 远程调用
@@ -59,4 +57,13 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/token/user/getUserAvatar")
     public String getUserAvatar( @RequestParam("userIds") String userIds);
+
+    /**
+     * 获取数据隔离信息
+     *
+     * @return
+     */
+    @RequestMapping(value = "/amc/api/token/manageGroupRole/userDataIsolation",method = RequestMethod.GET)
+    public Object  userDataIsolation(@RequestHeader("Authorization") String token, @RequestParam("companyCode") String companyCode, @RequestParam("isolation") String isolation, @RequestParam("userId") String userId, @RequestParam("dataName") String dataName);
+
 }
