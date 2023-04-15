@@ -29,15 +29,19 @@ public class UtilFile {
 		String entityDir = params.getOsdir() + File.separatorChar + params.getProject() + File.separatorChar + "entity";
 		createDir(entityDir);
 		// 3.dao
-		String daoDir = params.getOsdir() + File.separatorChar + params.getProject() + File.separatorChar + "dao";
+		String daoDir = params.getOsdir() + File.separatorChar + params.getProject() + File.separatorChar + "mapper";
 		createDir(daoDir);
 		// 4.service
 		String serviceDir = params.getOsdir() + File.separatorChar + params.getProject() + File.separatorChar
 				+ "service";
 		createDir(serviceDir);
+		// 4.2serviceImpl
+		String serviceImplDir = params.getOsdir() + File.separatorChar + params.getProject() + File.separatorChar
+				+ "service"+File.separator+"impl";
+		createDir(serviceImplDir);
 		// 5.controller
 		String controllerDir = params.getOsdir() + File.separatorChar + params.getProject() + File.separatorChar
-				+ "web";
+				+ "controller";
 		createDir(controllerDir);
 	}
 }
