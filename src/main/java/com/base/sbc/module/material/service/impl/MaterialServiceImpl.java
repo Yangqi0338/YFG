@@ -132,6 +132,7 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
         for (MaterialVo materialVo : materialAllDtolist) {
             userIds.add(materialVo.getCreateId());
             ids.add(materialVo.getId());
+            materialVo.setCollect(materialVo.getCollectId()!=null);
         }
 
         //查询关联标签
