@@ -29,6 +29,12 @@ public class MaterialVo extends Material {
      * 收藏数量
      */
     private String collectNum;
+
+    /**
+     * 引用数量
+     */
+    private String quoteNum;
+
     /**
      * 所有标签
      */

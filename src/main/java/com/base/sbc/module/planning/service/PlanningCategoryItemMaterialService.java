@@ -11,8 +11,10 @@ import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：企划-坑位关联的素材库表 service类
@@ -32,4 +34,9 @@ public interface PlanningCategoryItemMaterialService extends IServicePlus<Planni
      * @return
      */
     public List<PlanningCategoryItemMaterial> selectByQw(QueryWrapper<PlanningCategoryItemMaterial> qw);
+
+    /**
+     * 根据传入的素材id列表查询对应收藏的数量
+     */
+    List<Map<String,Integer>> numList(@Param("materialIds")List<String> materialIds);
 }

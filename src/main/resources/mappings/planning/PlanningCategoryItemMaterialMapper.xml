@@ -7,4 +7,14 @@
                material_id
         from t_planning_category_item_material ${ ew.customSqlSegment}
     </select>
+
+    <select id="numList" resultType="java.util.Map">
+        select count(*) as collectNum,material_id as materialId from t_planning_category_item_material
+        where material_id in
+        <foreach collection="materialIds" open="(" item="id" close=")" separator=",">
+            #{id}
+        </foreach>
+        and del_flag ='0'
+        group by material_id
+    </select>
 </mapper>

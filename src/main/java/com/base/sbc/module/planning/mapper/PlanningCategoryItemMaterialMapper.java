@@ -14,6 +14,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：企划-坑位关联的素材库表 dao类
@@ -29,4 +30,9 @@ public interface PlanningCategoryItemMaterialMapper extends BaseMapper<PlanningC
 
 
     List<PlanningCategoryItemMaterial> selectByQw(@Param(Constants.WRAPPER) QueryWrapper<PlanningCategoryItemMaterial> qw);
+
+    /**
+     * 根据传入的素材id列表查询对应收藏的数量
+     */
+    List<Map<String,Integer>> numList(@Param("materialIds")List<String> materialIds);
 }

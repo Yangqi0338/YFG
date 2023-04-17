@@ -14,6 +14,7 @@ import com.base.sbc.module.material.mapper.MaterialCollectMapper;
 import com.base.sbc.module.material.mapper.MaterialMapper;
 import com.base.sbc.module.material.service.*;
 import com.base.sbc.module.material.vo.MaterialVo;
+import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
@@ -49,6 +50,8 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
     private AmcFeignService amcFeignService;
     @Resource
     private MaterialCollectMapper materialCollectMapper;
+    @Resource
+    private PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
     /**
      * 为了解决太多表关联查询太慢的问题
@@ -145,7 +148,9 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
         //查询关联颜色信息
         List<MaterialColor> materialColorList = materialColorService.getByMaterialIds(ids);
         //查询收藏数量
-        List<Map<String, Integer>> mapList = materialCollectMapper.numList(ids);
+        List<Map<String, Integer>> mapList = materialCollectService.numList(ids);
+        //查询引用数量
+        List<Map<String, Integer>> maps = planningCategoryItemMaterialService.numList(ids);
         //获取用户头像
         Map<String, String> userAvatarMap = amcFeignService.getUserAvatar(CollUtil.join(userIds, ","));
 
@@ -184,6 +189,14 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
             for (Map<String, Integer> map : mapList) {
                 if (materialVo.getId().equals(String.valueOf(map.get("materialId")))){
                     materialVo.setCollectNum(String.valueOf(map.get("collectNum")));
+                }
+            }
+
+            //引用数量
+            materialVo.setQuoteNum("0");
+            for (Map<String, Integer> map : maps) {
+                if (materialVo.getId().equals(String.valueOf(map.get("materialId")))){
+                    materialVo.setQuoteNum(String.valueOf(map.get("collectNum")));
                 }
             }
         }
