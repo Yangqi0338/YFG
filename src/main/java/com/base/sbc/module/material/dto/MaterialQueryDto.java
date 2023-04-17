@@ -24,6 +24,9 @@ public class MaterialQueryDto extends PageDto {
     @ApiModelProperty(value = "收藏id")
     private String collectId;
 
+    @ApiModelProperty(value = "用户id")
+    private String userId;
+
     @ApiModelProperty(value = "ids 查询的id集合")
     private List<String> ids;
     @ApiModelProperty(value = "materialCategoryIds 查询的id集合")

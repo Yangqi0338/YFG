@@ -10,6 +10,7 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.entity.*;
+import com.base.sbc.module.material.mapper.MaterialCollectMapper;
 import com.base.sbc.module.material.mapper.MaterialMapper;
 import com.base.sbc.module.material.service.*;
 import com.base.sbc.module.material.vo.MaterialVo;
@@ -46,6 +47,8 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
 
     @Resource
     private AmcFeignService amcFeignService;
+    @Resource
+    private MaterialCollectMapper materialCollectMapper;
 
     /**
      * 为了解决太多表关联查询太慢的问题
@@ -61,7 +64,7 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
         if (BasicNumber.ONE.getNumber().equals(materialQueryDto.getCollectId())) {
             collectSet = new HashSet<>();
             QueryWrapper<MaterialCollect> qc = new QueryWrapper<>();
-            qc.eq("user_id", userUtils.getUserId());
+            qc.eq("user_id", materialQueryDto.getUserId());
             List<MaterialCollect> materialCollects = materialCollectService.list(qc);
             for (MaterialCollect materialCollect : materialCollects) {
                 collectSet.add(materialCollect.getMaterialId());
@@ -117,6 +120,7 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
     @Override
     public PageInfo<MaterialVo> listQuery(MaterialQueryDto materialQueryDto) {
         materialQueryDto.setCompanyCode(userUtils.getCompanyCode());
+        materialQueryDto.setUserId(userUtils.getUserId());
         this.addQuery(materialQueryDto);
 
         PageHelper.startPage(materialQueryDto);
@@ -141,6 +145,8 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
         List<MaterialSize> materialSizeList = materialSizeService.getByMaterialIds(ids);
         //查询关联颜色信息
         List<MaterialColor> materialColorList = materialColorService.getByMaterialIds(ids);
+        //查询收藏数量
+        List<Map<String, Integer>> mapList = materialCollectMapper.numList(ids);
         //获取用户头像
         Map<String, String> userAvatarMap = amcFeignService.getUserAvatar(CollUtil.join(userIds, ","));
 
@@ -172,8 +178,15 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
                     materialColors.add(materialColor);
                 }
             }
-
             materialVo.setColors(materialColors);
+
+            //收藏数量
+            materialVo.setCollectNum("0");
+            for (Map<String, Integer> map : mapList) {
+                if (materialVo.getId().equals(String.valueOf(map.get("materialId")))){
+                    materialVo.setCollectNum(String.valueOf(map.get("collectNum")));
+                }
+            }
         }
         return new PageInfo<>(materialAllDtolist);
     }

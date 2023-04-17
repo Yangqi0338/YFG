@@ -23,10 +23,6 @@ public class Material extends BaseDataEntity<String> {
     @TableField(exist = false)
     private String collectId;
 
-    @ApiModelProperty(value = "是否收藏")
-    @TableField(exist = false)
-    private boolean collect;
-
     @ApiModelProperty(value = "文件信息")
     private String fileInfo;
 

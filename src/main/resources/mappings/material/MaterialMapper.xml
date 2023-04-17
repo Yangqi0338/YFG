@@ -5,7 +5,7 @@
     <select id="listQuery" resultType="com.base.sbc.module.material.vo.MaterialVo">
         select tm.*,tmc.id as collectId
         from t_material tm
-        left join t_material_collect tmc on tm.id = tmc.material_id and tmc.del_flag = '0'
+        left join t_material_collect tmc on tm.id = tmc.material_id and tmc.user_id = #{userId} and tmc.del_flag = '0'
         where tm.del_flag = '0'
         <if test="materialCategoryId != null and materialCategoryId != ''">
             and material_category_id = #{materialCategoryId}
