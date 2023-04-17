@@ -61,7 +61,7 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
         HashSet<String> sizeSet = null;
         HashSet<String> colorSet = null;
         //我的收藏筛选条件
-        if (BasicNumber.ONE.getNumber().equals(materialQueryDto.getCollectId())) {
+        if (materialQueryDto.isCollect()) {
             collectSet = new HashSet<>();
             QueryWrapper<MaterialCollect> qc = new QueryWrapper<>();
             qc.eq("user_id", materialQueryDto.getUserId());
@@ -136,7 +136,6 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
         for (MaterialVo materialVo : materialAllDtolist) {
             userIds.add(materialVo.getCreateId());
             ids.add(materialVo.getId());
-            materialVo.setCollect(materialVo.getCollectId()!=null);
         }
 
         //查询关联标签

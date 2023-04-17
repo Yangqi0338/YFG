@@ -3,7 +3,7 @@
 <mapper namespace="com.base.sbc.module.material.mapper.MaterialMapper">
 
     <select id="listQuery" resultType="com.base.sbc.module.material.vo.MaterialVo">
-        select tm.*,tmc.id as collectId
+        select tm.*,tmc.id as collect
         from t_material tm
         left join t_material_collect tmc on tm.id = tmc.material_id and tmc.user_id = #{userId} and tmc.del_flag = '0'
         where tm.del_flag = '0'

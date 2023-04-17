@@ -1,6 +1,5 @@
 package com.base.sbc.module.material.vo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.material.entity.MaterialColor;
 import com.base.sbc.module.material.entity.MaterialLabel;
@@ -23,9 +22,12 @@ public class MaterialVo extends Material {
      */
     private String userAvatar;
 
+    @ApiModelProperty(value = "收藏id，为空则未收藏")
+    private String collectId;
+
     @ApiModelProperty(value = "是否收藏")
-    @TableField(exist = false)
     private boolean collect;
+
     /**
      * 收藏数量
      */
