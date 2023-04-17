@@ -22,9 +22,6 @@ public class MaterialVo extends Material {
      */
     private String userAvatar;
 
-    @ApiModelProperty(value = "收藏id，为空则未收藏")
-    private String collectId;
-
     @ApiModelProperty(value = "是否收藏")
     private boolean collect;
 

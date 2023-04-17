@@ -21,9 +21,6 @@ public class MaterialQueryDto extends PageDto {
     @ApiModelProperty(value = "查询条件标签id集合")
     private String[] labelIds;
 
-    //@ApiModelProperty(value = "收藏id")
-    //private String collectId;
-
     @ApiModelProperty(value = "是否收藏")
     private boolean collect;
 
