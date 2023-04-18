@@ -7,9 +7,14 @@
 package com.base.sbc.module.fieldManagement.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.base.sbc.module.fieldManagement.dto.QueryFieldManagementDto;
+import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
 import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.fieldManagement.entity.FieldManagement;
-/** 
+
+import java.util.List;
+
+/**
  * 类描述：字段管理表 dao类
  * @address com.base.sbc.module.fieldManagement.dao.FieldManagementDao
  * @author lxl  
@@ -21,6 +26,7 @@ import com.base.sbc.module.fieldManagement.entity.FieldManagement;
 public interface FieldManagementMapper extends BaseMapper<FieldManagement> {
 /** 自定义方法区 不替换的区域【other_start】 **/
 
+  List<FieldManagementVo> getFieldManagementList(QueryFieldManagementDto queryFieldManagementDto);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

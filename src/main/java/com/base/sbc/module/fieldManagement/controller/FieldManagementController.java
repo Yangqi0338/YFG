@@ -5,11 +5,18 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.fieldManagement.controller;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.fieldManagement.dto.QueryFieldManagementDto;
+import com.base.sbc.module.fieldManagement.dto.SaveUpdateFieldManagementDto;
 import com.base.sbc.module.fieldManagement.entity.FieldManagement;
+import com.base.sbc.module.fieldManagement.entity.Option;
 import com.base.sbc.module.fieldManagement.service.FieldManagementService;
+import com.base.sbc.module.fieldManagement.service.OptionService;
+import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -19,7 +26,9 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
 * 类描述：字段管理表 Controller类
@@ -37,13 +46,13 @@ public class FieldManagementController{
 
 	@Autowired
 	private FieldManagementService fieldManagementService;
+	@Autowired
+	private OptionService optionService;
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getFieldManagementList")
-	public PageInfo<FieldManagement> page(Page page) {
-		PageHelper.startPage(page);
-		List<FieldManagement> list = fieldManagementService.list();
-		return new PageInfo<>(list);
+	public PageInfo<FieldManagementVo> getFieldManagementList(@Valid QueryFieldManagementDto queryFieldManagementDto) {
+		return fieldManagementService.getFieldManagementList(queryFieldManagementDto);
 	}
 
 	@ApiOperation(value = "明细-通过id查询")
@@ -52,29 +61,28 @@ public class FieldManagementController{
 		return fieldManagementService.getById(id);
 	}
 
+	@ApiOperation(value = "保存修改字段管理表")
+	@PostMapping("/saveUpdateField")
+	public ApiResult saveUpdateField(@Valid @RequestBody SaveUpdateFieldManagementDto saveUpdateFieldManagementDto) {
+		return fieldManagementService.saveUpdateField(saveUpdateFieldManagementDto);
+	}
+
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
-	@DeleteMapping("/{id}")
+	@DeleteMapping("delField/{id}")
 	public Boolean removeById(@PathVariable("id") String id) {
 		List<String> ids = StringUtils.convertList(id);
+		QueryWrapper<Option> queryWrapper=new QueryWrapper<>();
+		queryWrapper.in("field_id",ids);
+		List<Option> optionList= optionService.list(queryWrapper);
+		List<String> optionIds =	optionList.stream().map(Option::getId).collect(Collectors.toList());
+		optionService.removeByIds(optionIds);
 		return fieldManagementService.removeByIds(ids);
 	}
 
-	@ApiOperation(value = "保存")
-	@PostMapping
-	public FieldManagement save(@RequestBody FieldManagement fieldManagement) {
-		fieldManagementService.save(fieldManagement);
-		return fieldManagement;
-	}
-
-	@ApiOperation(value = "修改")
-	@PutMapping
-	public FieldManagement update(@RequestBody FieldManagement fieldManagement) {
-		boolean b = fieldManagementService.updateById(fieldManagement);
-		if (!b) {
-			//影响行数为0（数据未改变或者数据不存在）
-			//返回影响行数需要配置jdbcURL参数useAffectedRows=true
-		}
-		return fieldManagement;
+	@ApiOperation(value = "调整顺序")
+	@PostMapping("/adjustmentOrder")
+	public ApiResult adjustmentOrder(@Valid @RequestBody QueryFieldManagementDto queryFieldManagementDto) {
+		return fieldManagementService.adjustmentOrder(queryFieldManagementDto);
 	}
 
 }

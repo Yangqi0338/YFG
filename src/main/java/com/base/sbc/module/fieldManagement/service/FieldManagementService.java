@@ -5,8 +5,13 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.fieldManagement.service;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.fieldManagement.dto.QueryFieldManagementDto;
+import com.base.sbc.module.fieldManagement.dto.SaveUpdateFieldManagementDto;
 import com.base.sbc.module.fieldManagement.entity.FieldManagement;
+import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
+import com.github.pagehelper.PageInfo;
 
 /** 
  * 类描述：字段管理表 service类
@@ -16,13 +21,20 @@ import com.base.sbc.module.fieldManagement.entity.FieldManagement;
  * @date 创建时间：2023-4-15 18:33:51
  * @version 1.0  
  */
-public interface FieldManagementService extends IServicePlus<FieldManagement>{
+public interface FieldManagementService extends IServicePlus<FieldManagement> {
 
-/** 自定义方法区 不替换的区域【other_start】 **/
+    /**
+     * 自定义方法区 不替换的区域【other_start】
+     **/
+    ApiResult saveUpdateField(SaveUpdateFieldManagementDto saveUpdateFieldManagementDto);
 
 
+    PageInfo<FieldManagementVo> getFieldManagementList(QueryFieldManagementDto queryFieldManagementDto);
+
+
+    ApiResult adjustmentOrder(QueryFieldManagementDto queryFieldManagementDto);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
-	
+
 }

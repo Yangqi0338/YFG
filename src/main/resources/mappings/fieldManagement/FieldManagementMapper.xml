@@ -8,9 +8,66 @@
         创建时间：2023-4-15 18:33:51
         版本号：1.0
       -->
-
+    <resultMap type="com.base.sbc.module.fieldManagement.vo.FieldManagementVo" id="fieldManagementMaps">
+        <id column="id" property="id"/>
+        <result column="form_type_id" property="formTypeId"/>
+        <result column="group_name" property="groupName"/>
+        <result column="field_name" property="fieldName"/>
+        <result column="field_type" property="fieldType"/>
+        <result column="field_type_id" property="fieldTypeId"/>
+        <result column="field_type_name" property="fieldTypeName"/>
+        <result column="default_hint" property="defaultHint"/>
+        <result column="is_option" property="isOption"/>
+        <result column="is_must_fill" property="isMustFill"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="season" property="season"/>
+        <result column="is_examine" property="isExamine"/>
+        <result column="examine_order" property="examineOrder"/>
+        <result column="status" property="status"/>
+        <result column="sequence" property="sequence"/>
+        <result column="field_explain" property="fieldExplain"/>
+        <collection property="optionList" ofType="com.base.sbc.module.fieldManagement.entity.Option"  >
+            <id column="to_id" property="id"/>
+            <result column="option_name" property="optionName"/>
+            <result column="option_url" property="optionUrl"/>
+            <result column="option_number" property="optionNumber"/>
+            <result column="option_date" property="optionDate"/>
+        </collection>
+    </resultMap>
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+    <select id="getFieldManagementList" resultType="com.base.sbc.module.fieldManagement.vo.FieldManagementVo" resultMap="fieldManagementMaps">
+        select
+        tfm.id,
+        tfm.form_type_id,
+        tfm.group_name,
+        tfm.field_name,
+        tfm.field_type,
+        tfm.field_type_id,
+        tfm.field_type_name,
+        tfm.default_hint,
+        tfm.is_option,
+        tfm.is_must_fill,
+        tfm.category_id,
+        tfm.season,
+        tfm.is_examine,
+        tfm.examine_order,
+        tfm.status,
+        tfm.sequence,
+        tfm.field_explain,
+        to1.option_name,
+        to1.id to_id,
+        to1.option_url,
+        to1. option_number,
+        to1.option_date
+        from t_field_management tfm
+        left join  t_option  to1 on tfm.id=to1.field_id and to1.company_code=#{companyCode} and to1.del_flag='0'
+        where tfm.company_code=#{companyCode} and tfm.del_flag='0'
+        <if test="formTypeId !='' and formTypeId != null">
+            and tfm.form_type_id=#{formTypeId}
+        </if>
+        order By tfm.sequence desc
+    </select>
 </mapper>
