@@ -6,22 +6,20 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.entity;
 
-import java.util.Date;
-import java.util.List;
-import java.math.BigDecimal;
-
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import io.swagger.annotations.ApiModelProperty;
+
+import java.math.BigDecimal;
+
 /**
  * 类描述：企划-坑位信息 实体类
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-4-1 11:13:47
+ * @date 创建时间：2023-4-18 14:50:21
  * @version 1.0
  */
 @Data
@@ -35,7 +33,7 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
-    /*****************************数据库字段区 不包含父类公共字段(属性)***********************************/
+    /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 产品季节id */
     @ApiModelProperty(value = "产品季节id"  )
     private String planningSeasonId;
@@ -63,10 +61,12 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     /** 价格带 */
     @ApiModelProperty(value = "价格带"  )
     private String price;
+    /** 关联的素材库数量 */
+    @ApiModelProperty(value = "关联的素材库数量"  )
+    private BigDecimal materialCount;
     /** 关联历史款 */
     @ApiModelProperty(value = "关联历史款"  )
     private String hisDesignNo;
-    /*******************************************getset方法区************************************/
-
+    /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

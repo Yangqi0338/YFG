@@ -32,5 +32,7 @@ public class PlanningSeasonVo{
     private String createId;
     @ApiModelProperty(value = "备注" )
     private String remarks;
+    @ApiModelProperty(value = "skc数" )
+    private Long skcCount;
 
 }

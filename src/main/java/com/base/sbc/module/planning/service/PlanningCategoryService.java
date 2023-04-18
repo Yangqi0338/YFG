@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.base.sbc.module.planning.entity.PlanningCategory;
 
 import java.util.List;
+import java.util.Map;
 
 /** 
  * 类描述：企划-品类信息 service类
@@ -49,4 +50,13 @@ public interface PlanningCategoryService extends IServicePlus<PlanningCategory> 
 	 * @return
 	 */
 	public boolean delByPlanningBand(String userCompany,String id) ;
+
+
+	/**
+	 * 统计skc 数量
+	 * @param column
+	 * @param collect
+	 * @return
+	 */
+	Map<String, Long> countSkc(String column, List<String> collect);
 }

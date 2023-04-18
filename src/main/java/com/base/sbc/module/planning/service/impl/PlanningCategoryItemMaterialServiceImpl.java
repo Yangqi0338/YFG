@@ -15,10 +15,6 @@ import java.util.Map;
  */
 @Service
 public class PlanningCategoryItemMaterialServiceImpl extends ServicePlusImpl<PlanningCategoryItemMaterialMapper, PlanningCategoryItemMaterial> implements PlanningCategoryItemMaterialService {
-    @Override
-    public List<PlanningCategoryItemMaterial> selectByQw(QueryWrapper<PlanningCategoryItemMaterial> qw) {
-        return getBaseMapper().selectByQw(qw);
-    }
 
     /**
      * 根据传入的素材id列表查询对应收藏的数量

@@ -29,7 +29,6 @@ import java.util.Map;
 public interface PlanningCategoryItemMaterialMapper extends BaseMapper<PlanningCategoryItemMaterial> {
 
 
-    List<PlanningCategoryItemMaterial> selectByQw(@Param(Constants.WRAPPER) QueryWrapper<PlanningCategoryItemMaterial> qw);
 
     /**
      * 根据传入的素材id列表查询对应收藏的数量

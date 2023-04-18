@@ -43,4 +43,8 @@ public class PlanningBandVo {
     private List<PlanningCategory> categoryData;
     @ApiModelProperty(value = "坑位信息" )
     private List<PlanningCategoryItemVo> categoryItemData;
+
+    @ApiModelProperty(value = "skc数" )
+    private Long skcCount;
+
 }

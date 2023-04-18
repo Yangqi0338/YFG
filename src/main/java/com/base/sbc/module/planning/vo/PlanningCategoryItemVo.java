@@ -2,6 +2,7 @@ package com.base.sbc.module.planning.vo;
 
 import com.base.sbc.module.planning.entity.PlanningCategory;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -16,6 +17,6 @@ public class PlanningCategoryItemVo extends PlanningCategoryItem {
     @ApiModelProperty(value = "品类信息的大类品类名称" )
     private String parentCategoryName;
     @ApiModelProperty(value = "关联的素材库列表" )
-    List<PlanningCategoryItemMaterialVo> materialVoList;
+    List<PlanningCategoryItemMaterial> materialVoList;
 
 }

@@ -14,5 +14,5 @@ public class PlanningBandSearchDto extends Page {
     private String year;
 
     @ApiModelProperty(value = "产品季名称" ,required = true,example = "23年春常规产品企划")
-    private String seasonName;
+    private String planningSeasonName;
 }

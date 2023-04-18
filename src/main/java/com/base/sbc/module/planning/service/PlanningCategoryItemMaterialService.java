@@ -28,13 +28,7 @@ import java.util.Map;
 public interface PlanningCategoryItemMaterialService extends IServicePlus<PlanningCategoryItemMaterial> {
 
 
-    /**
-     * 通过构造器查询
-     * @param qw
-     * @return
-     */
-    public List<PlanningCategoryItemMaterial> selectByQw(QueryWrapper<PlanningCategoryItemMaterial> qw);
-
+ 
     /**
      * 根据传入的素材id列表查询对应收藏的数量
      */
