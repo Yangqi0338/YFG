@@ -1,12 +1,14 @@
 package com.base.sbc.module.fieldManagement.vo;
 
 import com.base.sbc.module.fieldManagement.entity.Option;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@JsonIgnoreProperties(value = {"handler"})
 public class FieldManagementVo {
 
     private String id;
