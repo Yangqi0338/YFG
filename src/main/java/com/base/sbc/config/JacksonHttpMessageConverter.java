@@ -100,9 +100,10 @@ public class JacksonHttpMessageConverter extends MappingJackson2HttpMessageConve
 //                }
 //                else if (isBooleanType(writer)) {
 //                    writer.assignNullSerializer(new NullBooleanJsonSerializer());
-//                } else if (isStringType(writer)) {
-//                    writer.assignNullSerializer(new NullStringJsonSerializer());
 //                }
+                else if (isStringType(writer)) {
+                    writer.assignNullSerializer(new NullStringJsonSerializer());
+                }
             }
             return beanProperties;
         }
