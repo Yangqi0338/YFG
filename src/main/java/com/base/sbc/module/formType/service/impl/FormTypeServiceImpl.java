@@ -60,7 +60,6 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
     public PageInfo<PagingFormTypeVo> getFormTypeIsGroup(QueryFormTypeDto queryFormTypeDto) {
         PageHelper.startPage(queryFormTypeDto);
         queryFormTypeDto.setCompanyCode(baseController.getUserCompany());
-        queryFormTypeDto.setOrderBy("ftg.create_date desc");
         List<PagingFormTypeVo> list = baseMapper.getFormTypeIsGroup(queryFormTypeDto);
         return new PageInfo<>(list);
     }

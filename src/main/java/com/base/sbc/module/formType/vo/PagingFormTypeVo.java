@@ -1,11 +1,13 @@
 package com.base.sbc.module.formType.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@JsonIgnoreProperties(value = {"handler"})
 public class PagingFormTypeVo {
     @ApiModelProperty(value = "编号" ,example = "")
     private String id;

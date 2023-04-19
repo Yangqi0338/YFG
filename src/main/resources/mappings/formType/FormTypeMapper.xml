@@ -9,6 +9,13 @@
         版本号：1.0
       -->
     <resultMap type="com.base.sbc.module.formType.vo.PagingFormTypeVo" id="formTypeMaps">
+        <id column="id" property="id"/>
+        <result column="group_name" property="groupName"/>
+        <result column="status" property="status"/>
+        <association property="list"  javaType="arraylist"  column="id"    select="getFormTypeList"> </association>
+    </resultMap>
+
+<!--    <resultMap type="com.base.sbc.module.formType.vo.PagingFormTypeVo" id="formTypeMaps">
         <id column="ftg_id" property="id"/>
         <result column="group_name" property="groupName"/>
         <result column="status" property="status"/>
@@ -20,27 +27,34 @@
             <result column="ft_status" property="status"/>
             <result column="group_id" property="groupId"/>
         </collection>
-    </resultMap>
+    </resultMap>-->
+
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
     <select id="getFormTypeIsGroup" resultType="com.base.sbc.module.formType.vo.PagingFormTypeVo" resultMap="formTypeMaps">
         select
-        ftg.id ftg_id,
+        ftg.id ,
         ftg.group_name,
-        ftg.status,
-        ft.id as ft_id,
-        ft.name as ft_name,
-        ft.coding,
-        ft.table_explain,
-        ft.status ft_status,
-        ft.group_id
+        ftg.status
         from t_form_type_group  ftg
-        left join t_form_type ft on  ft.group_id=ftg.id and  ft.del_flag = 0 	AND ft.company_code =#{companyCode}
-        where ftg.del_flag=0 and ftg.company_code=#{companyCode}
+        where ftg.del_flag='0'
+        and ftg.company_code=#{companyCode}
         order By ftg.create_date desc
     </select>
 
+    <select id="getFormTypeList" resultType="com.base.sbc.module.formType.vo.FormTypeVo">
+      select
+     ft.id ,
+     ft.name groupName,
+     ft.coding,
+     ft.table_explain tableExplain,
+     ft.status,
+     ft.group_id  groupId
+     from t_form_type ft
+     where ft.del_flag = '0'
+     and  ft.group_id=#{id}
+    </select>
 
 
 
