@@ -83,5 +83,8 @@ public class FieldManagement extends BaseDataEntity<String> {
     private String fieldExplain;
     @ApiModelProperty(value = "顺序"  )
     private Long sequence;
+    /** 是否能编辑0可1否 */
+    /*是否能编辑0可1否*/
+    private String isCompile;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

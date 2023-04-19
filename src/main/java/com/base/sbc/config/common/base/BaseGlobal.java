@@ -62,6 +62,11 @@ public class BaseGlobal {
      * 状态正常
      */
     public static final String STATUS_NORMAL = "0";
+    /***
+     * 状态关闭
+     */
+    public static final String STATUS_CLOSE = "1";
+
     /**
      * 删除标记0：正常
      */

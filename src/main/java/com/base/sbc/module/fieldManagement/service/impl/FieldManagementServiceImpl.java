@@ -9,6 +9,7 @@ package com.base.sbc.module.fieldManagement.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
@@ -66,6 +67,7 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
             FieldManagement fieldManagement = new FieldManagement();
             BeanUtils.copyProperties(saveUpdateFieldManagementDto, fieldManagement);
             fieldManagement.setCompanyCode(baseController.getUserCompany());
+            fieldManagement.setIsCompile(BaseGlobal.STATUS_NORMAL);
             fieldManagement.insertInit();
             baseMapper.insert(fieldManagement);
             if (!CollectionUtils.isEmpty(saveUpdateFieldManagementDto.getOptionList())) {
