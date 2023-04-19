@@ -107,7 +107,12 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
 
     @Override
     public PageInfo<FieldManagementVo> getFieldManagementList(QueryFieldManagementDto queryFieldManagementDto) {
-        PageHelper.startPage(queryFieldManagementDto);
+
+
+        if (queryFieldManagementDto.getPageNum() != 0 && queryFieldManagementDto.getPageSize() != 0) {
+            PageHelper.startPage(queryFieldManagementDto);
+        }
+
         queryFieldManagementDto.setCompanyCode(baseController.getUserCompany());
         List<FieldManagementVo> list = baseMapper.getFieldManagementList(queryFieldManagementDto);
         return new PageInfo<>(list);

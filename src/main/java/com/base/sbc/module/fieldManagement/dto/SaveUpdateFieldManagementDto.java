@@ -40,6 +40,8 @@ public class SaveUpdateFieldManagementDto {
     @ApiModelProperty(value = "字段类型名"  )
     @NotBlank(message = "字段名称")
     private String fieldTypeName;
+    @ApiModelProperty(value = "字段类型编码"  )
+    private String  fieldTypeCoding;
     /** 默认提示 */
     @ApiModelProperty(value = "默认提示"  )
     @NotBlank(message = "默认提示")

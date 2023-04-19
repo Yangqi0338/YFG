@@ -16,6 +16,7 @@
         <result column="field_type" property="fieldType"/>
         <result column="field_type_id" property="fieldTypeId"/>
         <result column="field_type_name" property="fieldTypeName"/>
+        <result column="field_type_coding" property="fieldTypeCoding"/>
         <result column="default_hint" property="defaultHint"/>
         <result column="is_option" property="isOption"/>
         <result column="is_must_fill" property="isMustFill"/>
@@ -42,6 +43,7 @@
         tfm.field_type,
         tfm.field_type_id,
         tfm.field_type_name,
+        tfm.field_type_coding,
         tfm.default_hint,
         tfm.is_option,
         tfm.is_must_fill,

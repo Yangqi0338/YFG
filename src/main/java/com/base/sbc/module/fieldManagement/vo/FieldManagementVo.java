@@ -29,7 +29,8 @@ public class FieldManagementVo {
     /** 字段类型id */
     @ApiModelProperty(value = "字段类型名"  )
     private String fieldTypeName;
-
+    @ApiModelProperty(value = "字段类型编码"  )
+    private String  fieldTypeCoding;
     /** 默认提示 */
     @ApiModelProperty(value = "默认提示"  )
     private String defaultHint;
