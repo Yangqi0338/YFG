@@ -54,7 +54,10 @@
         tfm.field_explain,
         tfm.is_compile
         from t_field_management tfm
-        where tfm.company_code=#{companyCode} and tfm.del_flag='0'
+        left join t_form_type tft on tfm.form_type_id = tft.id
+        where tfm.company_code=#{companyCode}
+        and tfm.del_flag='0'
+        and tft.status='0'
         <if test="formTypeId !='' and formTypeId != null">
             and tfm.form_type_id=#{formTypeId}
         </if>
