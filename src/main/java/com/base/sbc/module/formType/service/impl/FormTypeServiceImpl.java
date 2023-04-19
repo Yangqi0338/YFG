@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
@@ -34,6 +35,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：表单类型 service类
@@ -67,7 +69,7 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
             queryWrapper.in("group_id",Arrays.asList(formDeleteDto.getIds()));
             List<FormType> formTypeList= baseMapper.selectList(queryWrapper);
             if (!CollectionUtils.isEmpty(formTypeList)){
-                throw new OtherException("分组存在表单类型");
+                throw new OtherException(BaseErrorEnum.ERR_DELETE_ATTRIBUTE_NOT_REQUIREMENTS);
             }
             formTypeGroupMapper.deleteBatchIds(Arrays.asList(formDeleteDto.getIds()));
         } else {
@@ -84,9 +86,8 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
         if(StringUtils.isNotBlank(queryFormTypeDto.getName())){
             queryWrapper.like("name" ,queryFormTypeDto.getName());
         }
-        queryWrapper.eq("status" ,"0");
-        queryWrapper.eq("del_flag" ,"0");
-
+        queryWrapper.eq("status" ,BaseGlobal.STATUS_NORMAL);
+        queryWrapper.eq("del_flag" ,BaseGlobal.DEL_FLAG_NORMAL);
         return ApiResult.success("查询成功", baseMapper.selectList(queryWrapper));
     }
 
@@ -102,7 +103,33 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
             queryWrapper.set("update_id", baseController.getUserId());
             queryWrapper.set("update_name", baseController.getUser().getName());
             formTypeGroupMapper.update(null, queryWrapper);
+            /*停止改分组下的表单*/
+            if(formStartStopDto.getStatus().equals(BaseGlobal.STATUS_CLOSE)){
+                QueryWrapper<FormType> queryWrapper1=new QueryWrapper<>();
+                queryWrapper1.in("group_id", formStartStopDto.getIds());
+                List<FormType> formTypeList = baseMapper.selectList(queryWrapper1);
+                if (!CollectionUtils.isEmpty(formTypeList)) {
+                    UpdateWrapper<FormType> updateWrapper=new UpdateWrapper<>();
+                    updateWrapper.in("id",formTypeList.stream().map(FormType::getId).collect(Collectors.toList()));
+                    updateWrapper.set("status", formStartStopDto.getStatus());
+                    baseMapper.update(null, updateWrapper);
+                }
+            }
         } else {
+            /*如果启用查看上级是否开启*/
+            if(formStartStopDto.getStatus().equals(BaseGlobal.STATUS_NORMAL)){
+                QueryWrapper<FormType> queryWrapper = new QueryWrapper<>();
+                queryWrapper.in("id",formStartStopDto.getIds());
+                List<FormType> formTypeList = baseMapper.selectList(queryWrapper);
+                List<String> stringList=   formTypeList.stream().map(FormType::getGroupId).collect(Collectors.toList());
+                QueryWrapper<FormTypeGroup> formTypeGroupQueryWrapper = new QueryWrapper<>();
+                formTypeGroupQueryWrapper.in("id",stringList);
+                formTypeGroupQueryWrapper.eq("status",BaseGlobal.STATUS_NORMAL);
+                List<FormTypeGroup> formTypeGroupList=formTypeGroupMapper.selectList(formTypeGroupQueryWrapper);
+               if(CollectionUtils.isEmpty(formTypeGroupList)){
+                   throw new OtherException(BaseErrorEnum.ERR_UPDATE_ATTRIBUTE_NOT_REQUIREMENTS);
+               }
+            }
             /*表单类型*/
             UpdateWrapper<FormType> queryWrapper = new UpdateWrapper<>();
             queryWrapper.in("id", formStartStopDto.getIds());
@@ -124,7 +151,6 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
             BeanUtils.copyProperties(saveUpdateFormTypeDto,formType);
             formType.insertInit();
             baseMapper.updateById(formType);
-
         }else {
             QueryWrapper<FormType> queryWrapper=new QueryWrapper<>();
             queryWrapper.eq("name",saveUpdateFormTypeDto.getName());
