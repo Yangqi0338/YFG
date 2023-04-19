@@ -26,6 +26,7 @@
         <result column="status" property="status"/>
         <result column="sequence" property="sequence"/>
         <result column="field_explain" property="fieldExplain"/>
+        <result column="is_compile" property="isCompile"/>
         <association property="optionList"  javaType="arraylist"  column="id"    select="getOptionList"> </association>
     </resultMap>
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
@@ -50,7 +51,8 @@
         tfm.examine_order,
         tfm.status,
         tfm.sequence,
-        tfm.field_explain
+        tfm.field_explain,
+        tfm.is_compile
         from t_field_management tfm
         where tfm.company_code=#{companyCode} and tfm.del_flag='0'
         <if test="formTypeId !='' and formTypeId != null">
@@ -69,7 +71,18 @@
         from  t_option
          where field_id = #{id} and  del_flag='0'
     </select>
-
+    <select id="getTableMessage" resultType="java.util.Map">
+        select
+        COLUMN_NAME,
+        DATA_TYPE,
+        COLUMN_COMMENT,
+        IS_NULLABLE,
+        COLUMN_DEFAULT
+        from information_schema.COLUMNS
+        where table_name = #{coding}
+        and COLUMN_NAME not in('del_flag','update_name','update_id','update_date','create_name','create_id','create_date')
+        ORDER BY ORDINAL_POSITION DESC
+    </select>
 
 
 </mapper>

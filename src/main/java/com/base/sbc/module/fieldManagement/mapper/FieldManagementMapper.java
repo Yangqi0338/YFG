@@ -9,10 +9,12 @@ package com.base.sbc.module.fieldManagement.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.fieldManagement.dto.QueryFieldManagementDto;
 import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.fieldManagement.entity.FieldManagement;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：字段管理表 dao类
@@ -28,6 +30,8 @@ public interface FieldManagementMapper extends BaseMapper<FieldManagement> {
 
   List<FieldManagementVo> getFieldManagementList(QueryFieldManagementDto queryFieldManagementDto);
 
+  @MapKey("COLUMN_NAME")
+  List<Map<String,String>> getTableMessage(String coding);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

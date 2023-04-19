@@ -56,6 +56,8 @@ public class FieldManagementVo {
     private String status;
 
     private String fieldExplain;
+
+    private String  isCompile;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remark;

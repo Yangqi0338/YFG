@@ -13,8 +13,11 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.generator.utils.UtilString;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.fieldManagement.entity.FieldManagement;
+import com.base.sbc.module.fieldManagement.mapper.FieldManagementMapper;
 import com.base.sbc.module.formType.dto.FormDeleteDto;
 import com.base.sbc.module.formType.dto.FormStartStopDto;
 import com.base.sbc.module.formType.dto.QueryFormTypeDto;
@@ -30,11 +33,10 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -51,6 +53,8 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
     private FormTypeGroupMapper formTypeGroupMapper;
     @Autowired
     private BaseController baseController;
+    @Autowired
+    private FieldManagementMapper fieldManagementMapper;
 
     @Override
     public PageInfo<PagingFormTypeVo> getFormTypeIsGroup(QueryFormTypeDto queryFormTypeDto) {
@@ -69,7 +73,7 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
             queryWrapper.in("group_id",Arrays.asList(formDeleteDto.getIds()));
             List<FormType> formTypeList= baseMapper.selectList(queryWrapper);
             if (!CollectionUtils.isEmpty(formTypeList)){
-                throw new OtherException(BaseErrorEnum.ERR_DELETE_ATTRIBUTE_NOT_REQUIREMENTS);
+                throw new OtherException("分组下存在表单类型");
             }
             formTypeGroupMapper.deleteBatchIds(Arrays.asList(formDeleteDto.getIds()));
         } else {
@@ -127,7 +131,7 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
                 formTypeGroupQueryWrapper.eq("status",BaseGlobal.STATUS_NORMAL);
                 List<FormTypeGroup> formTypeGroupList=formTypeGroupMapper.selectList(formTypeGroupQueryWrapper);
                if(CollectionUtils.isEmpty(formTypeGroupList)){
-                   throw new OtherException(BaseErrorEnum.ERR_UPDATE_ATTRIBUTE_NOT_REQUIREMENTS);
+                   throw new OtherException("分组未启用");
                }
             }
             /*表单类型*/
@@ -143,12 +147,19 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
     }
 
     @Override
+    @Transactional(readOnly = false)
     public ApiResult saveUpdateType(SaveUpdateFormTypeDto saveUpdateFormTypeDto) {
         FormType formType=new FormType();
         /*修改*/
-        if(StringUtils.isNotBlank(saveUpdateFormTypeDto.getId())){
-             formType= baseMapper.selectById(saveUpdateFormTypeDto.getId());
-            BeanUtils.copyProperties(saveUpdateFormTypeDto,formType);
+        if(StringUtils.isNotBlank(saveUpdateFormTypeDto.getId())) {
+            formType = baseMapper.selectById(saveUpdateFormTypeDto.getId());
+            if (StringUtils.isNotBlank(formType.getCoding()) && !formType.getCoding().equals(saveUpdateFormTypeDto.getCoding())) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("form_type_id", formType.getId());
+                fieldManagementMapper.deleteByMap(map);
+                addField(formType.getCoding(), formType.getId());
+            }
+            BeanUtils.copyProperties(saveUpdateFormTypeDto, formType);
             formType.insertInit();
             baseMapper.updateById(formType);
         }else {
@@ -164,16 +175,42 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
             formType.setRemark("");
             formType.insertInit();
             baseMapper.insert(formType);
+            /*存在数据库名编码*/
+            if(StringUtils.isNotBlank(formType.getCoding())){
+                /*当前表的字段添加到字段管理表*/
+                addField(formType.getCoding(),formType.getId());
+            }
         }
         return ApiResult.success("操作成功");
     }
 
+    /*添加字段*/
+    public void addField(String coding,String id){
+        List<Map<String,String>>  mapList=   fieldManagementMapper.getTableMessage(coding);
+        int sequence=0;
+        for (Map<String, String> map : mapList) {
+            FieldManagement fieldManagement=new FieldManagement();
+            fieldManagement.setFormTypeId(id);
+            fieldManagement.setCompanyCode(baseController.getUserCompany());
+            fieldManagement.setFieldName("");
+            fieldManagement.setFieldName(UtilString.dbNameToVarName(map.get("COLUMN_NAME")));
+            fieldManagement.setFieldType(UtilString.dbTypeToJavaType(map.get("DATA_TYPE").toUpperCase()));
+            fieldManagement.setFieldTypeId("");
+            fieldManagement.setFieldTypeName("");
+            fieldManagement.setDefaultHint(StringUtils.isNotBlank(map.get("COLUMN_DEFAULT"))?map.get("COLUMN_DEFAULT"):"");
+            fieldManagement.setFieldExplain(map.get("COLUMN_COMMENT"));
+            fieldManagement.setIsMustFill(map.get("IS_NULLABLE").equals("NO")?"0":"1");
+            fieldManagement.setSequence((long) sequence++);
+            fieldManagement.setIsCompile("1");
+            fieldManagement.setExamineOrder("");
+            fieldManagement.setIsExamine("0");
+            fieldManagement.setSeason("");
+            fieldManagement.setCategoryId("");
+            fieldManagement.setIsOption("0");
+            fieldManagement.setSeason("0");
+            fieldManagement.insertInit();
+            fieldManagementMapper.insert(fieldManagement);
+        }
+    }
 
-
-/** 自定义方法区 不替换的区域【other_start】 **/
-
-
-
-/** 自定义方法区 不替换的区域【other_end】 **/
-	
 }
