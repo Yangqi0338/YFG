@@ -5,12 +5,16 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.fabricInformation.controller;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.fabricInformation.dto.QueryFabricInformationDto;
+import com.base.sbc.module.fabricInformation.dto.SaveUpdateFabricDetailedInformationDto;
+import com.base.sbc.module.fabricInformation.dto.SaveUpdateFabricBasicInformationDto;
 import com.base.sbc.module.fabricInformation.entity.FabricBasicInformation;
 import com.base.sbc.module.fabricInformation.service.FabricBasicInformationService;
-import com.github.pagehelper.PageHelper;
+import com.base.sbc.module.fabricInformation.service.FabricDetailedInformationService;
+import com.base.sbc.module.fabricInformation.vo.FabricInformationVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -19,10 +23,11 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
-* 类描述：面料基本信息 Controller类
+* 类描述：面料信息 Controller类
 * @address com.base.sbc.module.fabricInformation.web.FabricBasicInformationController
 * @author lxl
 * @email lxl.fml@gmail.com
@@ -31,23 +36,23 @@ import java.util.List;
 */
 @RestController
 @Api(tags = "面料基本信息")
-@RequestMapping(value = BaseController.SAAS_URL + "/fabricBasicInformation", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = BaseController.SAAS_URL + "/fabricInformation", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class FabricBasicInformationController{
+public class FabricInformationController {
 
 	@Autowired
 	private FabricBasicInformationService fabricBasicInformationService;
+	@Autowired
+	private FabricDetailedInformationService fabricDetailedInformationService;
 
-	@ApiOperation(value = "分页查询")
-	@GetMapping
-	public PageInfo<FabricBasicInformation> page(Page page) {
-		PageHelper.startPage(page);
-		List<FabricBasicInformation> list = fabricBasicInformationService.list();
-		return new PageInfo<>(list);
+	@ApiOperation(value = "分页查询面料信息 ")
+	@GetMapping("/getFabricInformationList")
+	public PageInfo<FabricInformationVo> getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto) {
+		return fabricBasicInformationService.getFabricInformationList(queryFabricInformationDto);
 	}
 
 	@ApiOperation(value = "明细-通过id查询")
-	@GetMapping("/{id}")
+	@GetMapping("/getById/{id}")
 	public FabricBasicInformation getById(@PathVariable("id") String id) {
 		return fabricBasicInformationService.getById(id);
 	}
@@ -59,23 +64,22 @@ public class FabricBasicInformationController{
 		return fabricBasicInformationService.removeByIds(ids);
 	}
 
-	@ApiOperation(value = "保存")
-	@PostMapping
-	public FabricBasicInformation save(@RequestBody FabricBasicInformation fabricBasicInformation) {
-		fabricBasicInformationService.save(fabricBasicInformation);
-		return fabricBasicInformation;
+
+	/*设计师*/
+	@ApiOperation(value = "保存修改面料基本信息")
+	@PostMapping("/saveUpdateFabricBasic")
+	public ApiResult saveUpdateFabricBasic(@Valid @RequestBody SaveUpdateFabricBasicInformationDto saveUpdateFabricBasicDto){
+	return 	fabricBasicInformationService.saveUpdateFabricBasic(saveUpdateFabricBasicDto);
 	}
 
-	@ApiOperation(value = "修改")
-	@PutMapping
-	public FabricBasicInformation update(@RequestBody FabricBasicInformation fabricBasicInformation) {
-		boolean b = fabricBasicInformationService.updateById(fabricBasicInformation);
-		if (!b) {
-			//影响行数为0（数据未改变或者数据不存在）
-			//返回影响行数需要配置jdbcURL参数useAffectedRows=true
-		}
-		return fabricBasicInformation;
+
+	/*辅料专员*/
+	@ApiOperation(value = "保存修改面料详细信息")
+	@PostMapping("/saveUpdateFabricDetailed")
+	public ApiResult saveUpdateFabricDetailed(@Valid @RequestBody SaveUpdateFabricDetailedInformationDto saveUpdateFabricBasicDto){
+		return	fabricDetailedInformationService.saveUpdateFabricDetailed(saveUpdateFabricBasicDto);
 	}
+
 
 }
 

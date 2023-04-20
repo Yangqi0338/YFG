@@ -5,8 +5,13 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.fabricInformation.service;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.fabricInformation.dto.QueryFabricInformationDto;
+import com.base.sbc.module.fabricInformation.dto.SaveUpdateFabricBasicInformationDto;
 import com.base.sbc.module.fabricInformation.entity.FabricBasicInformation;
+import com.base.sbc.module.fabricInformation.vo.FabricInformationVo;
+import com.github.pagehelper.PageInfo;
 
 /** 
  * 类描述：面料基本信息 service类
@@ -18,8 +23,10 @@ import com.base.sbc.module.fabricInformation.entity.FabricBasicInformation;
  */
 public interface FabricBasicInformationService extends IServicePlus<FabricBasicInformation>{
 
-/** 自定义方法区 不替换的区域【other_start】 **/
+   PageInfo<FabricInformationVo> getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto);
 
+/** 自定义方法区 不替换的区域【other_start】 **/
+   ApiResult saveUpdateFabricBasic(SaveUpdateFabricBasicInformationDto saveUpdateFabricBasicDto);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

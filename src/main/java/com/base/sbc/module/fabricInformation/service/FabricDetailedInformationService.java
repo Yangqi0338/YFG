@@ -5,7 +5,9 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.fabricInformation.service;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.fabricInformation.dto.SaveUpdateFabricDetailedInformationDto;
 import com.base.sbc.module.fabricInformation.entity.FabricDetailedInformation;
 
 /** 
@@ -20,7 +22,7 @@ public interface FabricDetailedInformationService extends IServicePlus<FabricDet
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
-
+    ApiResult saveUpdateFabricDetailed  (SaveUpdateFabricDetailedInformationDto saveUpdateFabricBasicDto);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

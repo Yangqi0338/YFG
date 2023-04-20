@@ -7,10 +7,8 @@
 package com.base.sbc.module.fabricInformation.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.module.fabricInformation.dto.QueryFabricInformationDto;
-import com.base.sbc.module.fabricInformation.vo.FabricInformationVo;
+import com.base.sbc.module.fabricInformation.entity.FabricPost;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.fabricInformation.entity.FabricBasicInformation;
 
 import java.util.List;
 
@@ -23,10 +21,10 @@ import java.util.List;
  * @version 1.0  
  */
 @Mapper
-public interface FabricBasicInformationMapper extends BaseMapper<FabricBasicInformation> {
+public interface FabricPostMapper extends BaseMapper<FabricPost> {
 /** 自定义方法区 不替换的区域【other_start】 **/
 
-  List<FabricInformationVo> getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto);
+  int  batchInsert(List<FabricPost> fabricPostList);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }
