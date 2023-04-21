@@ -9,8 +9,8 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_fabric_post")
-public class FabricPost  extends BaseDataEntity<String> {
+@TableName("t_fabric_job")
+public class FabricJob extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -20,7 +20,7 @@ public class FabricPost  extends BaseDataEntity<String> {
 
     /** 岗位id */
     @ApiModelProperty(value = "岗位id"  )
-    private Integer userPostId;
+    private String userJobId;
 
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
