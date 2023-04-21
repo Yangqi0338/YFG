@@ -92,11 +92,6 @@ public class PlanningCategoryServiceImpl extends ServicePlusImpl<PlanningCategor
 					addSub=true;
 					dbCategoryItemTemp=null;
 				}
-				// 负责人不一样 重新删除坑位
-				else if(!StrUtil.equals(category.getCategoryIds(),dbCategory.getCategoryIds())){
-					addSub=true;
-					dbCategoryItemTemp=null;
-				}
 				// 数量不一样 重新生成坑位
 				else if(!NumberUtil.equals(dbCategory.getPlanRequirementNum(),category.getPlanRequirementNum())){
 					addSub=true;

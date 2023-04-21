@@ -1,5 +1,6 @@
 package com.base.sbc.module.planning.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -12,12 +13,10 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.vo.UserInfoVo;
-import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
-import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
-import com.base.sbc.module.planning.dto.ProductSeasonExpandByBandSearchDto;
-import com.base.sbc.module.planning.dto.ProductSeasonExpandByCategorySearchDto;
+import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningSeason;
@@ -164,4 +163,54 @@ public class ProductSeasonController extends BaseController {
         attr.put("summaryInfo",summaryInfo);
         return ApiResult.success("SUCCESS_OK",pageInfo,attr);
     }
+
+    @ApiOperation(value = "设置任务等级")
+    @PostMapping("/setTaskLevel")
+    public boolean setTaskLevel(@Valid @RequestBody List<SetTaskLevelDto> dtoList){
+        // 查询数据是否存在
+        Map<String, SetTaskLevelDto> dtoMap = dtoList.stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b));
+        List<PlanningCategoryItem> planningCategoryItems = planningCategoryItemService.listByIds(dtoMap.keySet());
+        if(dtoList.size()!=planningCategoryItems.size()){
+            throw  new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+        }
+        for (PlanningCategoryItem planningCategoryItem : planningCategoryItems) {
+            planningCategoryItem.setTaskLevel(dtoMap.get(planningCategoryItem.getId()).getTaskLevel());
+        }
+        return planningCategoryItemService.updateBatchById(planningCategoryItems);
+    }
+
+    @ApiOperation(value = "分配设计师")
+    @PostMapping("/allocationDesign")
+    public boolean allocationDesign(@Valid @RequestBody List<AllocationDesignDto> dtoList){
+        // 查询数据是否存在
+        Map<String, AllocationDesignDto> dtoMap = dtoList.stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b));
+        List<PlanningCategoryItem> planningCategoryItems = planningCategoryItemService.listByIds(dtoMap.keySet());
+        if(dtoList.size()!=planningCategoryItems.size()){
+            throw  new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+        }
+        for (PlanningCategoryItem planningCategoryItem : planningCategoryItems) {
+            AllocationDesignDto allocationDesignDto = dtoMap.get(planningCategoryItem.getId());
+            String newDesigner = allocationDesignDto.getDesigner();
+            if(!newDesigner.contains(",")){
+                throw new OtherException("设计师名称格式为:名称,代码");
+            }
+            String newDesignerCode=newDesigner.split(",")[1];
+            String oldDesigner=planningCategoryItem.getDesigner();
+            //重新设置款号
+            String designNo=planningCategoryItem.getDesignNo();
+            //如果还没设置设计师 款号= 款号+设计师代码
+            if(StrUtil.isBlank(oldDesigner)){
+                planningCategoryItem.setDesignNo(designNo+newDesignerCode);
+            }else{
+                //如果已经设置了设计师 款号=款号+新设计师代码
+                String oldDesignCode=oldDesigner.split(",")[1];
+                // 获取原始款号
+                designNo= StrUtil.sub(designNo,0,designNo.length()-oldDesignCode.length());
+                planningCategoryItem.setDesignNo(designNo+newDesignerCode);
+            }
+            BeanUtil.copyProperties(allocationDesignDto,planningCategoryItem);
+        }
+        return planningCategoryItemService.updateBatchById(planningCategoryItems);
+    }
+
 }
