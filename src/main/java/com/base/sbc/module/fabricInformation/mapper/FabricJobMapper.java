@@ -7,7 +7,7 @@
 package com.base.sbc.module.fabricInformation.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.module.fabricInformation.entity.FabricPost;
+import com.base.sbc.module.fabricInformation.entity.FabricJob;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -21,10 +21,10 @@ import java.util.List;
  * @version 1.0  
  */
 @Mapper
-public interface FabricPostMapper extends BaseMapper<FabricPost> {
+public interface FabricJobMapper extends BaseMapper<FabricJob> {
 /** 自定义方法区 不替换的区域【other_start】 **/
 
-  int  batchInsert(List<FabricPost> fabricPostList);
+  int  batchInsert(List<FabricJob> fabricPostList);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

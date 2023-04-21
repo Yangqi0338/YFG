@@ -1,8 +1,10 @@
 package com.base.sbc.module.fabricInformation.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -13,7 +15,7 @@ public class SaveUpdateFabricDetailedInformationDto {
     private String id;
 
     private String fabricBasicId;
-
+    private String  fabricDetailedId;
 
     /** 面料是否可用(0是，1否) */
     @ApiModelProperty(value = "面料是否可用(0是，1否)"  )
@@ -47,21 +49,31 @@ public class SaveUpdateFabricDetailedInformationDto {
     private String germinalCondition;
     /** 调样日期 */
     @ApiModelProperty(value = "调样日期"  )
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date atactiformDate;
     /** 预估到样时间 */
     @ApiModelProperty(value = "预估到样时间"  )
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date estimateAtactiformDate;
     /** 实际到样时间 */
     @ApiModelProperty(value = "实际到样时间"  )
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date practicalAtactiformDate;
     /** 留样送检时间 */
     @ApiModelProperty(value = "留样送检时间"  )
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date inspectDate;
     /** 理化检测结果（0是1否 */
     @ApiModelProperty(value = "理化检测结果（0是1否"  )
     private String physicochemistryDetectionResult;
     /** 样衣试穿洗涤送检时间 */
     @ApiModelProperty(value = "样衣试穿洗涤送检时间"  )
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date sampleWashingInspectionDate;
     /** 洗涤检测结果（0是1否 */
     @ApiModelProperty(value = "洗涤检测结果（0是1否"  )

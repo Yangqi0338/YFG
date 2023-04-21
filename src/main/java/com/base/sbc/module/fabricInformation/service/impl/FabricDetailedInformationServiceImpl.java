@@ -42,11 +42,12 @@ public class FabricDetailedInformationServiceImpl extends ServicePlusImpl<Fabric
     @Transactional(readOnly = false)
     public ApiResult saveUpdateFabricDetailed(SaveUpdateFabricDetailedInformationDto saveUpdateFabricBasicDto) {
         FabricDetailedInformation fabricDetailedInformation=new FabricDetailedInformation();
-        if(StringUtils.isNotBlank(saveUpdateFabricBasicDto.getId())){
+        if(StringUtils.isNotBlank(saveUpdateFabricBasicDto.getFabricDetailedId())){
             /*调整*/
-            fabricDetailedInformation=baseMapper.selectById(saveUpdateFabricBasicDto.getId());
+            fabricDetailedInformation=baseMapper.selectById(saveUpdateFabricBasicDto.getFabricDetailedId());
             BeanUtils.copyProperties(saveUpdateFabricBasicDto,fabricDetailedInformation);
             fabricDetailedInformation.updateInit();
+            fabricDetailedInformation.setId(saveUpdateFabricBasicDto.getFabricDetailedId());
             baseMapper.updateById(fabricDetailedInformation);
         }else {
             FabricBasicInformation fabricBasicInformation= fabricBasicInformationMapper.selectById(saveUpdateFabricBasicDto.getFabricBasicId());

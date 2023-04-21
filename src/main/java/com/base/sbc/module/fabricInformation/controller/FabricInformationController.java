@@ -53,15 +53,14 @@ public class FabricInformationController {
 
 	@ApiOperation(value = "明细-通过id查询")
 	@GetMapping("/getById/{id}")
-	public FabricBasicInformation getById(@PathVariable("id") String id) {
+	public ApiResult getById(@PathVariable("id") String id) {
 		return fabricBasicInformationService.getById(id);
 	}
 
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
-	@DeleteMapping("/{id}")
-	public Boolean removeById(@PathVariable("id") String id) {
-		List<String> ids = StringUtils.convertList(id);
-		return fabricBasicInformationService.removeByIds(ids);
+	@DeleteMapping("/delFabric")
+	public ApiResult delFabric(String id) {
+		return fabricBasicInformationService.delFabric(id);
 	}
 
 

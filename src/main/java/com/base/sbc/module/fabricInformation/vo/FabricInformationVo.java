@@ -8,7 +8,7 @@ import java.util.Date;
 
 /*返回面料信息*/
 @Data
-public class FabricInformationVo {
+public class FabricInformationVo extends FabricDetailedInformationVo {
 
     private String id;
 

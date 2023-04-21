@@ -28,6 +28,10 @@ public interface FabricBasicInformationService extends IServicePlus<FabricBasicI
 /** 自定义方法区 不替换的区域【other_start】 **/
    ApiResult saveUpdateFabricBasic(SaveUpdateFabricBasicInformationDto saveUpdateFabricBasicDto);
 
+   /*删除*/
+   ApiResult  delFabric(String id);
+
+   ApiResult getById(String id);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

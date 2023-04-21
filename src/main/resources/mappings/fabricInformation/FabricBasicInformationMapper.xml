@@ -79,8 +79,20 @@
         tfdi.image_url
     from t_fabric_basic_information tfbi
     left join t_fabric_detailed_information tfdi on tfbi.fabric_detailed_id=tfdi.id
-    where tfbi.company_code=#{companyCode}
+    left join t_fabric_job tfj on tfbi.id=tfj.fabric_basic_id
+     where tfbi.company_code=#{companyCode}
      and tfbi.del_flag='0'
+        <!-- 查询出我发起的面料信息 -->
+        <if test='originate != null and originate == "0"'>
+         and tfbi.create_id=#{userId}
+     </if>
+        <!-- 查询出我接受的面料信息 -->
+     <if test='originate != null and originate == "1"'>
+         and tfj.user_job_id in
+         <foreach item="idItem" collection="jobIdList" open="(" separator="," close=")">
+             #{idItem}
+         </foreach>
+     </if>
     <if test="manufacturerNumber!=null and manufacturerNumber!=''">
         and tfbi.manufacturer_number like  concat('%',#{manufacturerNumber},'%')
     </if>
