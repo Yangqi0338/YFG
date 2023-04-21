@@ -45,11 +45,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @author 卞康
- * @date 2023/3/17 14:17:04
+ * 类描述：商品企划 相关接口
+ * @address com.base.sbc.module.planning.controller.PlanningController
+ * @author lixianglin
+ * @email li_xianglin@126.com
+ * @date 创建时间：2023-04-20 13:47
+ * @version 1.0
  */
 @RestController
-@Api(tags = "1.2 SAAS接口[企划接口]")
+@Api(tags = "商品企划 相关接口")
 @RequestMapping(value = BaseController.SAAS_URL + "/planning", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
 public class PlanningController extends BaseController {
@@ -263,7 +267,7 @@ public class PlanningController extends BaseController {
         if (StrUtil.isBlank(dto.getId())) {
             bean = BeanUtil.copyProperties(dto, PlanningBand.class);
             planningBandService.save(bean);
-
+            bean.setStatus(Optional.ofNullable(dto.getStatus()).orElse(BaseGlobal.STATUS_NORMAL));
         } else {
             bean = planningBandService.getById(dto.getId());
             if (bean == null) {
@@ -271,6 +275,7 @@ public class PlanningController extends BaseController {
             }
             BeanUtil.copyProperties(dto, bean);
             planningBandService.updateById(bean);
+            bean.setStatus(Optional.ofNullable(dto.getStatus()).orElse(BaseGlobal.STATUS_NORMAL));
         }
         List<PlanningCategory> categoryList = dto.getCategoryData();
         planningCategoryService.savePlanningCategory(bean, categoryList);
@@ -278,10 +283,18 @@ public class PlanningController extends BaseController {
         return BeanUtil.copyProperties(bean, PlanningBandVo.class);
     }
 
-    @ApiOperation(value = "修改坑位信息")
+    @ApiOperation(value = "修改坑位信息/提交")
     @PostMapping("/updateCategoryItem")
-    public PlanningCategoryItem updateCategoryItem(@RequestBody PlanningCategoryItem item) {
-        planningCategoryItemService.updateById(item);
+    public List<PlanningCategoryItem> updateCategoryItem(@RequestParam(value = "planningBandId",required = false) String planningBandId,  @RequestBody List<PlanningCategoryItem> item) {
+        planningCategoryItemService.updateBatchById(item);
+        if(StrUtil.isNotBlank(planningBandId)){
+            PlanningBand byId = planningBandService.getById(planningBandId);
+            if(byId==null){
+                throw  new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+            }
+            byId.setStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+           planningBandService.updateById(byId);
+        }
         return item;
     }
 
@@ -391,8 +404,11 @@ public class PlanningController extends BaseController {
         updateWrapper.eq("id",dto.getId());
         updateWrapper.set("material_count",Optional.ofNullable(dto.getItem()).map(List::size).orElse(0));
         planningCategoryItemService.update(updateWrapper);
-        // 修改数量
+
         return true;
     }
+
+
+
 
 }

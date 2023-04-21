@@ -143,4 +143,9 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
     public String selectMaxDesignNo(QueryWrapper qc) {
         return getBaseMapper().selectMaxDesignNo(qc);
     }
+
+    @Override
+    public List<String> selectCategoryIdsByBand(QueryWrapper qw) {
+        return getBaseMapper().selectCategoryIdsByBand(qw);
+    }
 }

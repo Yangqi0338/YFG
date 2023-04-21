@@ -5,12 +5,14 @@ import com.base.sbc.config.constant.BaseConstant;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author Youkehai
  * @data 创建时间:2021/1/4
  */
-@FeignClient(name = "ccm", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
-//@FeignClient(name = "ccm", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
+//@FeignClient(name = "ccm", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
+@FeignClient(name = "ccm", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
 public interface CcmService {
     /**
      * 获取最后一级的品类信息
@@ -114,4 +116,7 @@ public interface CcmService {
      */
     @PostMapping("/ccm/api/saas/companyCodeGen/getGenCodeByRedis")
     String getGenCodeByRedis(@RequestParam("genCode") String genCode,@RequestParam("count") Integer count, @RequestBody Object dataMap);
+
+    @PostMapping("/ccm/api/saas/basicStructure/findByCategoryIds")
+    String findStructureTreeByCategoryIds(@RequestBody String categoryIds);
 }

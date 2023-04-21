@@ -71,7 +71,8 @@ public class RestExceptionHandler {
         String code = error.getDefaultMessage();
         String message = String.format("%s:%s", field, code);
         logger.error("参数验证失败(@Valid对应实体类验证异常)", e);
-        return error(BaseErrorEnum.ERR_METHOD_ARGUMENT_NOT_VALID_EXCEPTION.getErrorMessage(),message);
+//        return error(BaseErrorEnum.ERR_METHOD_ARGUMENT_NOT_VALID_EXCEPTION.getErrorMessage(),message);
+        return ApiResult.error(message,BaseErrorEnum.ERR_METHOD_ARGUMENT_NOT_VALID_EXCEPTION.getErrorCode());
     }
     
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -81,8 +82,10 @@ public class RestExceptionHandler {
         ConstraintViolation<?> violation = violations.iterator().next();
         String message = violation.getMessage();
         logger.error("参数验证失败(@Validated验证实体的异常)", e);
-        return error(BaseErrorEnum.ERR_CONSTRAINT_VIOLATIONEXCEPTION.getErrorMessage(),message);
+//        return error(BaseErrorEnum.ERR_CONSTRAINT_VIOLATIONEXCEPTION.getErrorMessage(),message);
+        return ApiResult.error(message,BaseErrorEnum.ERR_CONSTRAINT_VIOLATIONEXCEPTION.getErrorCode());
     }
+
     
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ValidationException.class)
@@ -100,7 +103,8 @@ public class RestExceptionHandler {
         String code = error.getDefaultMessage();
         String message = String.format("%s:%s", field, code);
         logger.error("参数绑定失败(检查参数名称)", e);
-        return error(BaseErrorEnum.ERR_BIND_EXCEPTION.getErrorMessage(),message);
+//        return error(BaseErrorEnum.ERR_BIND_EXCEPTION.getErrorMessage(),message);
+        return ApiResult.error(message,BaseErrorEnum.ERR_BIND_EXCEPTION.getErrorCode());
     }
     
     @ResponseStatus(HttpStatus.NOT_FOUND)

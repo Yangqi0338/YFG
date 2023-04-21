@@ -19,7 +19,7 @@ import java.math.BigDecimal;
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-4-18 14:50:21
+ * @date 创建时间：2023-4-20 18:05:21
  * @version 1.0
  */
 @Data
@@ -67,6 +67,18 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     /** 关联历史款 */
     @ApiModelProperty(value = "关联历史款"  )
     private String hisDesignNo;
+    /** 状态:0未下发,1已下发,2已完成 */
+    @ApiModelProperty(value = "状态:0未下发,1已下发,2已完成"  )
+    private String status;
+    /** 设计师名称 */
+    @ApiModelProperty(value = "设计师名称"  )
+    private String designer;
+    /** 设计师id */
+    @ApiModelProperty(value = "设计师id"  )
+    private String designerId;
+    /** 任务等级:普通,紧急,非常紧急 */
+    @ApiModelProperty(value = "任务等级:普通,紧急,非常紧急"  )
+    private String taskLevel;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
