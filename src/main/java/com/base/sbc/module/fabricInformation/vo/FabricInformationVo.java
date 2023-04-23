@@ -47,6 +47,6 @@ public class FabricInformationVo extends FabricDetailedInformationVo {
     @ApiModelProperty(value = "备注"  )
     private String remark;
 
-    private FabricDetailedInformationVo detailedInformationVo;
+
 
 }

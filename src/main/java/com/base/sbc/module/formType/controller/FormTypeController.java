@@ -103,7 +103,7 @@ public class FormTypeController {
      */
     @ApiOperation(value = "获取数据库名及表单分组", notes = "")
     @GetMapping("/getFormType")
-    public ApiResult getFormType(@Valid  QueryFormTypeDto queryFormTypeDto) {
+    public ApiResult getFormType(  QueryFormTypeDto queryFormTypeDto) {
         return formTypeService.getFormType(queryFormTypeDto);
     }
 

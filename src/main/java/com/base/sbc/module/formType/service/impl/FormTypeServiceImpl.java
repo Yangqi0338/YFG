@@ -107,7 +107,7 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
             queryWrapper.set("update_name", baseController.getUser().getName());
             formTypeGroupMapper.update(null, queryWrapper);
             /*停止改分组下的表单*/
-            if(formStartStopDto.getStatus().equals(BaseGlobal.STATUS_CLOSE)){
+//            if(formStartStopDto.getStatus().equals(BaseGlobal.STATUS_CLOSE)){
                 QueryWrapper<FormType> queryWrapper1=new QueryWrapper<>();
                 queryWrapper1.in("group_id", formStartStopDto.getIds());
                 List<FormType> formTypeList = baseMapper.selectList(queryWrapper1);
@@ -117,7 +117,7 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
                     updateWrapper.set("status", formStartStopDto.getStatus());
                     baseMapper.update(null, updateWrapper);
                 }
-            }
+//            }
         } else {
             /*如果启用查看上级是否开启*/
             if(formStartStopDto.getStatus().equals(BaseGlobal.STATUS_NORMAL)){

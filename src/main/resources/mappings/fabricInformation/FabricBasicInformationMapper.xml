@@ -19,8 +19,6 @@
         <result column="is_new_fabric" property="isNewFabric"/>
         <result column="quantity" property="quantity"/>
         <result column="register_date" property="registerDate"/>
-        <association property="detailedInformationVo" javaType="com.base.sbc.module.fabricInformation.vo.FabricDetailedInformationVo">
-            <id column="tfdi_id" property="id"></id>
             <result column="fabric_is_usable" property="fabricIsUsable"/>
             <result column="fabric_price" property="fabricPrice"/>
             <result column="specification" property="specification"/>
@@ -39,7 +37,6 @@
             <result column="sample_washing_inspection_date" property="sampleWashingInspectionDate"/>
             <result column="wash_detection_result" property="washDetectionResult"/>
             <result column="image_url" property="imageUrl"/>
-        </association>
     </resultMap>
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
@@ -99,7 +96,55 @@
     <if test="manufacturer!=null and manufacturer!=''">
         and tfbi.manufacturer=#{manufacturer}
     </if>
-    order By tfbi.create_date desc
+    <if test="year!=null and year!=''">
+            and tfbi.year=#{year}
+    </if>
+    <if test="season!=null and season!=''">
+            and tfbi.season=#{season}
+    </if>
+        <if test="manufacturerColour!=null and manufacturerColour!=''">
+            and tfbi.manufacturer_colour=#{manufacturerColour}
+        </if>
+        <if test="isNewFabric!=null and isNewFabric!=''">
+            and tfbi.is_new_fabric=#{isNewFabric}
+        </if>
+        <if test="quantity!=null">
+            and tfbi.quantity=#{quantity}
+        </if>
+        <if test="registerDate!=null">
+            and ( tfbi.register_date between #{registerDate.[0]} and #{registerDate.[1]}
+            or tfdi.atactiform_date between #{registerDate.[0]} and #{registerDate.[1]}
+            or tfdi.estimate_atactiform_date between #{registerDate.[0]} and #{registerDate.[1]}
+            or tfdi.practical_atactiform_date between #{registerDate.[0]} and #{registerDate.[1]}
+            or tfdi.inspect_date between #{registerDate.[0]} and #{registerDate.[1]}
+            or tfdi.estimate_atactiform_date between #{registerDate.[0]} and #{registerDate.[1]}
+            or tfdi.sample_washing_inspection_date between #{registerDate.[0]} and #{registerDate.[1]}
+            )
+        </if>
+        <if test="fabricPrice!=null">
+            and tfdi.fabric_price  between #{fabricPrice.[0]} and #{fabricPrice.[1]}
+        </if>
+
+        <if test="leadtime!=null and leadtime!=''">
+            and tfdi.leadtime like  concat('%',#{leadtime},'%')
+        </if>
+
+        <if test="germinalCondition!=null and germinalCondition!=''">
+            and tfdi.germinal_condition=#{germinalCondition}
+        </if>
+
+        <if test="fabricIsUsable!=null and fabricIsUsable!=''">
+            and tfdi.fabric_is_usable=#{fabricIsUsable}
+        </if>
+
+        <if test="physicochemistryDetectionResult!=null and physicochemistryDetectionResult!=''">
+            and tfdi.physicochemistry_detection_result=#{physicochemistryDetectionResult}
+        </if>
+
+        <if test="washDetectionResult!=null and washDetectionResult!=''">
+            and tfdi.wash_detection_result=#{washDetectionResult}
+        </if>
+        order By tfbi.create_date desc
 
     </select>
 </mapper>
