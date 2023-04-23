@@ -119,9 +119,19 @@ public class ProductSeasonController extends BaseController {
             throw  new OtherException("品类和波段必须有一个不为空");
         }
         QueryWrapper qw = new QueryWrapper();
+        // 设计款号
+        qw.like(StrUtil.isNotBlank(dto.getSearch()),"design_no",dto.getSearch());
+        //产品季
         qw.eq("planning_season_id",dto.getPlanningSeasonId());
+        // 品类
         qw.in(CollUtil.isNotEmpty(dto.getCategoryIds()),"category_id",dto.getCategoryIds());
+        // 波段企划
         qw.eq(StrUtil.isNotBlank(dto.getPlanningBandId()),"planning_band_id",dto.getPlanningBandId());
+        // 设计师
+        qw.in(CollUtil.isNotEmpty(dto.getDesignerIds()),"designer_id",dto.getDesignerIds());
+        // 任务等级
+        qw.in(CollUtil.isNotEmpty(dto.getTaskLevels()),"task_level",dto.getTaskLevels());
+
         Page<PlanningCategoryItem> objects = PageHelper.startPage(dto);
         planningCategoryItemService.list(qw);
         PageInfo<PlanningCategoryItem> pageInfo = objects.toPageInfo();
