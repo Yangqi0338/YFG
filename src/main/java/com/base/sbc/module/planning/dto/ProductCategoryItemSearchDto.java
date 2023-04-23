@@ -37,5 +37,5 @@ public class ProductCategoryItemSearchDto extends Page {
     private List<String> taskLevels;
 
     @ApiModelProperty(value = "状态" ,required = false,example = "['1']")
-    private List<String> status;
+    private List<String> statusList;
 }

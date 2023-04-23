@@ -131,6 +131,11 @@ public class ProductSeasonController extends BaseController {
         qw.in(CollUtil.isNotEmpty(dto.getDesignerIds()),"designer_id",dto.getDesignerIds());
         // 任务等级
         qw.in(CollUtil.isNotEmpty(dto.getTaskLevels()),"task_level",dto.getTaskLevels());
+        // 状态 多选
+        qw.in(CollUtil.isNotEmpty(dto.getStatusList()),"status",dto.getStatusList());
+        // 状态 单个
+        qw.eq(StrUtil.isNotBlank(dto.getStatus()),"status",dto.getStatus());
+
 
         Page<PlanningCategoryItem> objects = PageHelper.startPage(dto);
         planningCategoryItemService.list(qw);
