@@ -21,7 +21,7 @@ public class SaveUpdateFormTypeDto {
     private String groupId;
 
     @ApiModelProperty(value = "编码",  required = true, example = "编码")
-    @NotBlank(message = "编码必填")
+//    @NotBlank(message = "编码必填")
     private String coding;
 
     @ApiModelProperty(value = "表说明",  required = true, example = "表说明")
