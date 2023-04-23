@@ -25,7 +25,6 @@ public class SaveUpdateFormTypeDto {
     private String coding;
 
     @ApiModelProperty(value = "表说明",  required = true, example = "表说明")
-    @NotBlank(message = "表说明必填")
     private String tableExplain;
 
     @ApiModelProperty(value = "状态",  required = true, example = "0")

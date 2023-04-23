@@ -81,6 +81,8 @@ public class SaveUpdateFabricDetailedInformationDto {
     /** 图片地址 */
     @ApiModelProperty(value = "图片地址"  )
     private String imageUrl;
+    /*理化报告地址*/
+    private String  reportUrl;
     /** 是否草稿（0是：1否 */
     @ApiModelProperty(value = "是否草稿（0是：1否"  )
     private String isDraft;

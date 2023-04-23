@@ -42,26 +42,26 @@ public class FabricDetailedInformationVo {
     private String germinalCondition;
     /** 调样日期 */
     @ApiModelProperty(value = "调样日期"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date atactiformDate;
     /** 预估到样时间 */
     @ApiModelProperty(value = "预估到样时间"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date estimateAtactiformDate;
     /** 实际到样时间 */
     @ApiModelProperty(value = "实际到样时间"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date practicalAtactiformDate;
     /** 留样送检时间 */
     @ApiModelProperty(value = "留样送检时间"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date inspectDate;
     /** 理化检测结果（0是1否 */
     @ApiModelProperty(value = "理化检测结果（0是1否"  )
     private String physicochemistryDetectionResult;
     /** 样衣试穿洗涤送检时间 */
     @ApiModelProperty(value = "样衣试穿洗涤送检时间"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date sampleWashingInspectionDate;
     /** 洗涤检测结果（0是1否 */
     @ApiModelProperty(value = "洗涤检测结果（0是1否"  )
@@ -70,6 +70,9 @@ public class FabricDetailedInformationVo {
     /** 是否草稿（0是：1否 */
     @ApiModelProperty(value = "是否草稿（0是：1否"  )
     private String isDraft;
+    /*理化报告地址*/
+    private String  reportUrl;
+
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;

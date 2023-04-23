@@ -91,6 +91,8 @@ public class FabricDetailedInformation extends BaseDataEntity<String> {
     /** 是否草稿（0是：1否 */
     @ApiModelProperty(value = "是否草稿（0是：1否"  )
     private String isDraft;
+    /*理化报告地址*/
+    private String  reportUrl;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;

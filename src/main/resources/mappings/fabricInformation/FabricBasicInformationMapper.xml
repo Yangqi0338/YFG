@@ -73,7 +73,8 @@
         tfdi. physicochemistry_detection_result,
         tfdi. sample_washing_inspection_date,
         tfdi. wash_detection_result,
-        tfdi.image_url
+        tfdi.image_url,
+        tfdi.report_url
     from t_fabric_basic_information tfbi
     left join t_fabric_detailed_information tfdi on tfbi.fabric_detailed_id=tfdi.id
     left join t_fabric_job tfj on tfbi.id=tfj.fabric_basic_id
@@ -124,6 +125,11 @@
         <if test="fabricPrice!=null">
             and tfdi.fabric_price  between #{fabricPrice.[0]} and #{fabricPrice.[1]}
         </if>
+
+        <if test="ingredient!=null and ingredient!=''">
+            and tfdi.ingredient   like  concat('%',#{ingredient},'%')
+        </if>
+
 
         <if test="leadtime!=null and leadtime!=''">
             and tfdi.leadtime like  concat('%',#{leadtime},'%')

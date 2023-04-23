@@ -53,7 +53,6 @@ public class FabricDetailedInformationServiceImpl extends ServicePlusImpl<Fabric
             FabricBasicInformation fabricBasicInformation= fabricBasicInformationMapper.selectById(saveUpdateFabricBasicDto.getFabricBasicId());
             BeanUtils.copyProperties(saveUpdateFabricBasicDto,fabricDetailedInformation);
             fabricDetailedInformation.setCompanyCode(baseController.getUserCompany());
-            fabricDetailedInformation.setRemark("");
             fabricDetailedInformation.insertInit();
             baseMapper.insert(fabricDetailedInformation);
             fabricBasicInformation.setFabricDetailedId(fabricDetailedInformation.getId());

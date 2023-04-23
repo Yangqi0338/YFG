@@ -39,6 +39,9 @@ public class QueryFabricInformationDto extends Page {
 
     private String[] fabricPrice;
 
+    /*成分*/
+    private String ingredient;
+
     /*期货*/
     private String leadtime;
 
