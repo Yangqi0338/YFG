@@ -16,6 +16,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.generator.utils.UtilString;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.fabricInformation.entity.FabricBasicInformation;
 import com.base.sbc.module.fieldManagement.entity.FieldManagement;
 import com.base.sbc.module.fieldManagement.mapper.FieldManagementMapper;
 import com.base.sbc.module.formType.dto.FormDeleteDto;
@@ -162,6 +163,10 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
             formType.insertInit();
             baseMapper.updateById(formType);
         }else {
+            FormTypeGroup formTypeGroup= formTypeGroupMapper.selectById(saveUpdateFormTypeDto.getGroupId());
+            if(formTypeGroup.getStatus().equals(BaseGlobal.STOCK_STATUS_WAIT_CHECK)){
+                throw new OtherException("分组为停用添加失败");
+            }
             QueryWrapper<FormType> queryWrapper=new QueryWrapper<>();
             queryWrapper.eq("name",saveUpdateFormTypeDto.getName());
             queryWrapper.eq("company_code",baseController.getUserCompany());
