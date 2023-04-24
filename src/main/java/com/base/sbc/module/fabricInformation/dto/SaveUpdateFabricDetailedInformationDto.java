@@ -86,4 +86,6 @@ public class SaveUpdateFabricDetailedInformationDto {
     /** 是否草稿（0是：1否 */
     @ApiModelProperty(value = "是否草稿（0是：1否"  )
     private String isDraft;
+    /*备注*/
+    private String  remark;
 }

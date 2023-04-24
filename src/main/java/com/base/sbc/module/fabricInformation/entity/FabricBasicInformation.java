@@ -43,6 +43,9 @@ public class FabricBasicInformation extends BaseDataEntity<String> {
     /** 季节 */
     @ApiModelProperty(value = "季节"  )
     private String season;
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
     /** 厂家 */
     @ApiModelProperty(value = "厂家"  )
     private String manufacturer;

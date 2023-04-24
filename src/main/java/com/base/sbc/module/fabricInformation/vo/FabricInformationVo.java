@@ -21,6 +21,7 @@ public class FabricInformationVo extends FabricDetailedInformationVo {
     /** 季节 */
     @ApiModelProperty(value = "季节"  )
     private String season;
+    private String brand;
     /** 厂家 */
     @ApiModelProperty(value = "厂家"  )
     private String manufacturer;

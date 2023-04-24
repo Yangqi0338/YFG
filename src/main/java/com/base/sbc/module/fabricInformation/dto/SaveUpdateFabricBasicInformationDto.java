@@ -26,6 +26,11 @@ public class SaveUpdateFabricBasicInformationDto {
     @NotBlank(message = "季节必填")
     private String season;
 
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  ,  required = true )
+    @NotBlank(message = "品牌必填")
+    private String brand;
+
     /** 厂家 */
     @ApiModelProperty(value = "厂家" ,  required = true  )
     @NotBlank(message = "厂家必填")

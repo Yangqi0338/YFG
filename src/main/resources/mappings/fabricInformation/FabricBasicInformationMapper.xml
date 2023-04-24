@@ -12,6 +12,7 @@
         <id column="id" property="id"></id>
         <result column="fabric_detailed_id" property="fabricDetailedId"/>
         <result column="year" property="year"/>
+        <result column="brand" property="brand"/>
         <result column="season" property="season"/>
         <result column="manufacturer" property="manufacturer"/>
         <result column="manufacturer_number" property="manufacturerNumber"/>
@@ -48,6 +49,7 @@
         tfbi.id,
         tfbi.fabric_detailed_id,
         tfbi.year,
+        tfbi.brand,
         tfbi.season,
         tfbi.manufacturer,
         tfbi.manufacturer_number,
