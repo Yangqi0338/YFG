@@ -7,11 +7,9 @@
 package com.base.sbc.module.fabricInformation.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.fabricInformation.dto.QueryFabricInformationDto;
 import com.base.sbc.module.fabricInformation.dto.SaveUpdateFabricDetailedInformationDto;
 import com.base.sbc.module.fabricInformation.dto.SaveUpdateFabricBasicInformationDto;
-import com.base.sbc.module.fabricInformation.entity.FabricBasicInformation;
 import com.base.sbc.module.fabricInformation.service.FabricBasicInformationService;
 import com.base.sbc.module.fabricInformation.service.FabricDetailedInformationService;
 import com.base.sbc.module.fabricInformation.vo.FabricInformationVo;
@@ -22,9 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.List;
 
 /**
 * 类描述：面料信息 Controller类
@@ -79,6 +78,12 @@ public class FabricInformationController {
 		return	fabricDetailedInformationService.saveUpdateFabricDetailed(saveUpdateFabricBasicDto);
 	}
 
+	/*上传理化报告*/
+	@ApiOperation(value = "上传理化报告")
+	@RequestMapping("/uploadingReport")
+	public ApiResult uploadingReport(@RequestParam(value = "fabricDetailedId", required = true) String fabricDetailedId, @RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request) throws Throwable {
+		return	fabricDetailedInformationService.uploadingReport(fabricDetailedId,file,request);
+	}
 
 }
 

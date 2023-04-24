@@ -9,6 +9,9 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.fabricInformation.dto.SaveUpdateFabricDetailedInformationDto;
 import com.base.sbc.module.fabricInformation.entity.FabricDetailedInformation;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 
 /** 
  * 类描述：面料详细信息 service类
@@ -24,6 +27,7 @@ public interface FabricDetailedInformationService extends IServicePlus<FabricDet
 
     ApiResult saveUpdateFabricDetailed  (SaveUpdateFabricDetailedInformationDto saveUpdateFabricBasicDto);
 
+    ApiResult uploadingReport (String fabricDetailedId, MultipartFile file, HttpServletRequest request) throws Throwable;
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 	

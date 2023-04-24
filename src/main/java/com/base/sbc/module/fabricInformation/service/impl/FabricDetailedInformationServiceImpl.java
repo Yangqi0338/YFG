@@ -8,6 +8,8 @@ package com.base.sbc.module.fabricInformation.service.impl;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.fabricInformation.dto.SaveUpdateFabricDetailedInformationDto;
@@ -20,6 +22,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 类描述：面料详细信息 service类
@@ -35,7 +40,8 @@ public class FabricDetailedInformationServiceImpl extends ServicePlusImpl<Fabric
     private FabricBasicInformationMapper fabricBasicInformationMapper;
     @Autowired
     private BaseController baseController;
-
+    @Autowired
+    private FilesUtils filesUtils;
 
 
     @Override
@@ -58,6 +64,20 @@ public class FabricDetailedInformationServiceImpl extends ServicePlusImpl<Fabric
             fabricBasicInformation.setFabricDetailedId(fabricDetailedInformation.getId());
             fabricBasicInformationMapper.updateById(fabricBasicInformation);
         }
+        return ApiResult.success("操作成功");
+    }
+
+    @Override
+    public ApiResult uploadingReport(String fabricDetailedId, MultipartFile file, HttpServletRequest request) throws Throwable {
+        if (StringUtils.isEmpty(fabricDetailedId)) {
+            throw new OtherException("FabricDetailedId为空");
+        }
+        Object o = filesUtils.uploadBigData(file, FilesUtils.PRODUCT, request).getData();
+        String s = o.toString();
+        FabricDetailedInformation fabricDetailedInformation = baseMapper.selectById(fabricDetailedId);
+        fabricDetailedInformation.setReportUrl(s);
+        fabricDetailedInformation.updateInit();
+        baseMapper.updateById(fabricDetailedInformation);
         return ApiResult.success("操作成功");
     }
 
