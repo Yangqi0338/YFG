@@ -71,10 +71,7 @@ public class SaveUpdateFieldManagementDto {
     @NotBlank(message = "是否检查")
     private String isExamine;
 
-    /** 检查顺序 */
-    @ApiModelProperty(value = "检查顺序"  )
-    @NotBlank(message = "检查顺序")
-    private String examineOrder;
+
 
     /** 是否启用(0是，1否) */
     @ApiModelProperty(value = "是否启用(0是，1否)"  )

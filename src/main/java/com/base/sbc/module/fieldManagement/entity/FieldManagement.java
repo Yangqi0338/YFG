@@ -71,9 +71,6 @@ public class FieldManagement extends BaseDataEntity<String> {
     /** 是否检查(0是，1否) */
     @ApiModelProperty(value = "是否检查(0是，1否)"  )
     private String isExamine;
-    /** 检查顺序 */
-    @ApiModelProperty(value = "检查顺序"  )
-    private String examineOrder;
     /** 是否启用(0是，1否) */
     @ApiModelProperty(value = "是否启用(0是，1否)"  )
     private String status;

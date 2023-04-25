@@ -206,7 +206,6 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
             fieldManagement.setIsMustFill(map.get("IS_NULLABLE").equals("NO")?"0":"1");
             fieldManagement.setSequence((long) sequence++);
             fieldManagement.setIsCompile("1");
-            fieldManagement.setExamineOrder("");
             fieldManagement.setIsExamine("0");
             fieldManagement.setSeason("");
             fieldManagement.setCategoryId("");

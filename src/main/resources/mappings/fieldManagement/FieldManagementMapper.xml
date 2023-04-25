@@ -23,7 +23,6 @@
         <result column="category_id" property="categoryId"/>
         <result column="season" property="season"/>
         <result column="is_examine" property="isExamine"/>
-        <result column="examine_order" property="examineOrder"/>
         <result column="status" property="status"/>
         <result column="sequence" property="sequence"/>
         <result column="field_explain" property="fieldExplain"/>
@@ -50,7 +49,6 @@
         tfm.category_id,
         tfm.season,
         tfm.is_examine,
-        tfm.examine_order,
         tfm.status,
         tfm.sequence,
         tfm.field_explain,
