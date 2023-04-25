@@ -7,6 +7,7 @@
 package com.base.sbc.module.fabricInformation.service;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.fabricInformation.dto.QueryDetailFabricDto;
 import com.base.sbc.module.fabricInformation.dto.QueryFabricInformationDto;
 import com.base.sbc.module.fabricInformation.dto.SaveUpdateFabricBasicInformationDto;
 import com.base.sbc.module.fabricInformation.entity.FabricBasicInformation;
@@ -31,7 +32,7 @@ public interface FabricBasicInformationService extends IServicePlus<FabricBasicI
    /*删除*/
    ApiResult  delFabric(String id);
 
-   ApiResult getById(String id);
+   ApiResult getById(QueryDetailFabricDto queryDetailFabricDto);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

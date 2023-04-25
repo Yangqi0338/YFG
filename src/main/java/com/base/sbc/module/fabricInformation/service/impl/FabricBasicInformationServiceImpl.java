@@ -16,6 +16,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.fabricInformation.dto.QueryDetailFabricDto;
 import com.base.sbc.module.fabricInformation.dto.QueryFabricInformationDto;
 import com.base.sbc.module.fabricInformation.dto.SaveUpdateFabricBasicInformationDto;
 import com.base.sbc.module.fabricInformation.entity.FabricDetailedInformation;
@@ -122,25 +123,24 @@ public class FabricBasicInformationServiceImpl extends ServicePlusImpl<FabricBas
     public ApiResult delFabric(String id) {
         List<String> ids = StringUtils.convertList(id);
         List<FabricBasicInformation> list = baseMapper.selectBatchIds(ids);
-        /*基本信息*/
-        List<String> basicIdList=list.stream().map(FabricBasicInformation::getId).collect(Collectors.toList());
-        /*详细信息*/
-        List<String> DetailedIdList=  list.stream().filter(f -> StringUtils.isNotBlank(f.getFabricDetailedId())).map(FabricBasicInformation::getFabricDetailedId).collect(Collectors.toList());
-        baseMapper.deleteBatchIds(basicIdList);
-        if (!CollectionUtils.isEmpty(DetailedIdList)) {
-            fabricDetailedInformationMapper.deleteBatchIds(DetailedIdList);
+        List<String> basicIdList=  list.stream().filter(f -> StringUtils.isBlank(f.getFabricDetailedId())).map(FabricBasicInformation::getId).collect(Collectors.toList());
+        if(CollectionUtils.isEmpty(basicIdList)){
+            throw new OtherException("存在面料详细无法删除");
         }
+        baseMapper.deleteBatchIds(basicIdList);
         return ApiResult.success("操作成功");
     }
 
     @Override
-    public ApiResult getById(String id) {
-        FabricBasicInformation fabricBasicInformation=   baseMapper.selectById(id);
+    public ApiResult getById(QueryDetailFabricDto queryDetailFabricDto) {
+        FabricBasicInformation fabricBasicInformation=   baseMapper.selectById(queryDetailFabricDto.getId());
         FabricInformationVo fabricInformationVo=new FabricInformationVo();
         BeanUtils.copyProperties(fabricBasicInformation,fabricInformationVo );
         if(StringUtils.isNotBlank(fabricBasicInformation.getFabricDetailedId())){
            FabricDetailedInformation fabricDetailedInformation= fabricDetailedInformationMapper.selectById(fabricBasicInformation.getFabricDetailedId());
-            BeanUtils.copyProperties(fabricDetailedInformation,fabricInformationVo );
+            if (queryDetailFabricDto.getType().equals("update") ||   fabricDetailedInformation.getIsDraft().equals(BaseGlobal.STOCK_STATUS_WAIT_CHECK)) {
+                BeanUtils.copyProperties(fabricDetailedInformation,fabricInformationVo );
+            }
         }
         return ApiResult.success("查询成功",fabricInformationVo);
     }

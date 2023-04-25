@@ -7,6 +7,7 @@
 package com.base.sbc.module.fabricInformation.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.fabricInformation.dto.QueryDetailFabricDto;
 import com.base.sbc.module.fabricInformation.dto.QueryFabricInformationDto;
 import com.base.sbc.module.fabricInformation.dto.SaveUpdateFabricDetailedInformationDto;
 import com.base.sbc.module.fabricInformation.dto.SaveUpdateFabricBasicInformationDto;
@@ -51,9 +52,9 @@ public class FabricInformationController {
 	}
 
 	@ApiOperation(value = "明细-通过id查询")
-	@GetMapping("/getById/{id}")
-	public ApiResult getById(@PathVariable("id") String id) {
-		return fabricBasicInformationService.getById(id);
+	@GetMapping("/getById")
+	public ApiResult getById(QueryDetailFabricDto queryDetailFabricDto) {
+		return fabricBasicInformationService.getById(queryDetailFabricDto);
 	}
 
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")

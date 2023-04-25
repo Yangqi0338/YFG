@@ -2,10 +2,8 @@ package com.base.sbc.module.fabricInformation.dto;
 
 import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.Date;
 import java.util.List;
 
 @Data

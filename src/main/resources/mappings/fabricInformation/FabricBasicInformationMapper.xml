@@ -78,7 +78,7 @@
         tfdi.image_url,
         tfdi.report_url
     from t_fabric_basic_information tfbi
-    left join t_fabric_detailed_information tfdi on tfbi.fabric_detailed_id=tfdi.id
+    left join t_fabric_detailed_information tfdi on tfbi.fabric_detailed_id=tfdi.id  and tfdi.is_draft='1'
     left join t_fabric_job tfj on tfbi.id=tfj.fabric_basic_id
      where tfbi.company_code=#{companyCode}
      and tfbi.del_flag='0'
