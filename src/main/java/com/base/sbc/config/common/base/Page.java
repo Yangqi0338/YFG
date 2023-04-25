@@ -20,14 +20,14 @@ public class Page implements Serializable {
     public static final int PAGE_SIZE = 10;
 
 
-    @NotNull
     @ApiModelProperty(value = "第几页", example = "1")
+    @NotNull(message = "不能为空")
     private int pageNum;
-    @NotNull
     @ApiModelProperty(value = "每页数量", example = "10")
+    @NotNull(message = "不能为空")
     private int pageSize;
     @ApiModelProperty(value = "排序(单表)", example = "create_date")
-    private String orderBy = "create_date";
+    private String orderBy = "";
     @ApiModelProperty(value = "关键字搜索", example = "")
     private String search;
     @ApiModelProperty(value = "状态", example = "")

@@ -236,7 +236,7 @@ public class BaseController {
 		binder.registerCustomEditor(String.class, new PropertyEditorSupport() {
 			@Override
 			public void setAsText(String text) {
-				setValue(text == null ? null : StringEscapeUtils.escapeHtml4(text.trim()));
+				setValue(text);
 			}
 
 			@Override

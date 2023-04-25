@@ -5,6 +5,8 @@ import com.base.sbc.config.constant.BaseConstant;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author Youkehai
  * @data 创建时间:2021/1/4
@@ -114,4 +116,7 @@ public interface CcmService {
      */
     @PostMapping("/ccm/api/saas/companyCodeGen/getGenCodeByRedis")
     String getGenCodeByRedis(@RequestParam("genCode") String genCode,@RequestParam("count") Integer count, @RequestBody Object dataMap);
+
+    @PostMapping("/ccm/api/saas/basicStructure/findByCategoryIds")
+    String findStructureTreeByCategoryIds(@RequestBody String categoryIds);
 }

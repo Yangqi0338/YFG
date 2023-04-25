@@ -38,6 +38,8 @@ public class PlanningBandDto {
     @NotNull(message = "渠道不能为空")
     private String channel;
 
+    @ApiModelProperty(value = "草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)"  )
+    private String status;
     @ApiModelProperty(value = "品类信息" )
     private List<PlanningCategory> categoryData;
 

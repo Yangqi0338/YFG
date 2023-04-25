@@ -4,6 +4,7 @@ import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.material.entity.MaterialColor;
 import com.base.sbc.module.material.entity.MaterialLabel;
 import com.base.sbc.module.material.entity.MaterialSize;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -20,6 +21,20 @@ public class MaterialVo extends Material {
      * 创建者头像
      */
     private String userAvatar;
+
+    @ApiModelProperty(value = "是否收藏")
+    private boolean collect;
+
+    /**
+     * 收藏数量
+     */
+    private String collectNum;
+
+    /**
+     * 引用数量
+     */
+    private String quoteNum;
+
     /**
      * 所有标签
      */

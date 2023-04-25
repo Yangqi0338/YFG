@@ -5,6 +5,7 @@ import cn.hutool.core.map.MapUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.base.sbc.client.amc.entity.Job;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 
@@ -44,5 +45,19 @@ public class AmcUtils {
             return  userCompanies.stream().collect(Collectors.toMap(k->k.getUserId(),v->v,(a,b)->b));
         }
         return MapUtil.empty();
+    }
+
+    /**
+     * 将 amc 返回的str 转换为 List<String>
+     * @param str
+     * @return
+     */
+    public static List<Job> parseStrTopostIdList(String str){
+        JSONObject jsonObject = JSON.parseObject(str);
+        if(jsonObject.getBoolean(BaseConstant.SUCCESS)){
+            JSONArray data = jsonObject.getJSONArray(BaseConstant.DATA);
+            return data.toJavaList(Job.class);
+        }
+        return new ArrayList<>();
     }
 }

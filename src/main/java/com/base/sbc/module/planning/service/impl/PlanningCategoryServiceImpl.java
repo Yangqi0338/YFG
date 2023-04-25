@@ -7,10 +7,12 @@
 package com.base.sbc.module.planning.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.planning.mapper.PlanningCategoryMapper;
 import com.base.sbc.module.planning.entity.PlanningBand;
@@ -25,10 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /** 
@@ -93,11 +92,6 @@ public class PlanningCategoryServiceImpl extends ServicePlusImpl<PlanningCategor
 					addSub=true;
 					dbCategoryItemTemp=null;
 				}
-				// 负责人不一样 重新删除坑位
-				else if(!StrUtil.equals(category.getCategoryIds(),dbCategory.getCategoryIds())){
-					addSub=true;
-					dbCategoryItemTemp=null;
-				}
 				// 数量不一样 重新生成坑位
 				else if(!NumberUtil.equals(dbCategory.getPlanRequirementNum(),category.getPlanRequirementNum())){
 					addSub=true;
@@ -140,5 +134,24 @@ public class PlanningCategoryServiceImpl extends ServicePlusImpl<PlanningCategor
 		//删除坑位信息
 		planningCategoryItemService.delByPlanningBand(userCompany,id);
 		return true;
+	}
+
+	@Override
+	public Map<String, Long> countSkc(String column, List<String> collect) {
+		QueryWrapper qw=new QueryWrapper();
+		qw.in(column,collect);
+		qw.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
+		qw.groupBy(column);
+		List<Map<String,Object>> list=this.getBaseMapper().countSkc(column,qw);
+		Map<String,Long> result=new HashMap<>(16);
+		if(CollUtil.isEmpty(list)){
+			return result;
+		}
+		for (Map<String, Object> row : list) {
+			String col = MapUtil.getStr(row, "col");
+			Long summary=MapUtil.getLong(row,"summary");
+			result.put(col,summary);
+		}
+		return result;
 	}
 }

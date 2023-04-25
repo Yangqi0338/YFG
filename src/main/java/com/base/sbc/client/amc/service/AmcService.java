@@ -66,4 +66,12 @@ public interface AmcService {
     @RequestMapping(value = "/amc/api/token/manageGroupRole/userDataIsolation",method = RequestMethod.GET)
     public Object  userDataIsolation(@RequestHeader("Authorization") String token, @RequestParam("companyCode") String companyCode, @RequestParam("isolation") String isolation, @RequestParam("userId") String userId, @RequestParam("dataName") String dataName);
 
+
+    /**
+     * 查询职位
+     * @param userId,jobName
+     * @return
+     */
+    @GetMapping("/amc/api/token/companyJob/getJobByUserIdOrJobName")
+    public String getJobByUserIdOrJobName(  @RequestParam("userId") String userId,  @RequestParam("jobName") String jobName);
 }

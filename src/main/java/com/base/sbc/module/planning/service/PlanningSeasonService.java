@@ -6,8 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.planning.entity.PlanningSeason;
+
+import java.util.List;
 
 /**
  * 类描述：企划-产品季 service类
@@ -25,4 +28,10 @@ public interface PlanningSeasonService extends IServicePlus<PlanningSeason> {
      */
     public boolean del(String companyCode, String id);
 
+    /**
+     * 查询产品季( 产品季总览)
+     * @param qw
+     * @return
+     */
+    List<PlanningSeason> selectProductSeason(QueryWrapper qw);
 }

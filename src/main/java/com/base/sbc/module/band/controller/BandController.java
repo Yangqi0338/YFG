@@ -3,6 +3,7 @@ package com.base.sbc.module.band.controller;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.module.band.dto.BandSaveDto;
 import com.base.sbc.module.band.dto.BandStartStopDto;
 import com.base.sbc.module.band.vo.BandQueryReturnVo;
@@ -145,18 +146,11 @@ public class BandController extends BaseController {
     public ApiResult queryBand(BandSaveDto dto){
         QueryWrapper<Band> qc=new QueryWrapper<>();
         qc.eq("company_code",getUserCompany());
-        if(StrUtil.isNotBlank(dto.getParticularYear())){
-            qc.eq("particular_year",dto.getParticularYear());
-        }
-        if(StrUtil.isNotBlank(dto.getSeason())){
-            qc.eq("season",dto.getSeason());
-        }
-        if(StrUtil.isNotBlank(dto.getCode())){
-            qc.eq("code",dto.getCode());
-        }
-        if(StrUtil.isNotBlank(dto.getMonth())){
-            qc.eq("month",dto.getMonth());
-        }
+        qc.eq(StrUtil.isNotBlank(dto.getStatus()),"status", BaseGlobal.STATUS_NORMAL);
+        qc.eq(StrUtil.isNotBlank(dto.getParticularYear()),"particular_year",dto.getParticularYear());
+        qc.eq(StrUtil.isNotBlank(dto.getSeason()),"season",dto.getSeason());
+        qc.eq(StrUtil.isNotBlank(dto.getCode()),"code",dto.getCode());
+        qc.eq(StrUtil.isNotBlank(dto.getMonth()),"month",dto.getMonth());
         List<Band> bandList = bandService.list(qc);
         return selectSuccess(bandList);
     }

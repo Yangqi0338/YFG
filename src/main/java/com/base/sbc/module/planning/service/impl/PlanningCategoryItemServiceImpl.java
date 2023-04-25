@@ -77,7 +77,6 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         params.put("year", planningSeason.getYear());
         params.put("season", planningSeason.getSeason());
         params.put("category", getCategory(category.getCategoryName()));
-        params.put("designCode", getDesignCode(category.getManager()));
         for (int i = 0; i < planRequirementNum.intValue(); i++) {
             PlanningCategoryItem item = new PlanningCategoryItem();
             item.setCompanyCode(companyCode);
@@ -142,5 +141,10 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
     @Override
     public String selectMaxDesignNo(QueryWrapper qc) {
         return getBaseMapper().selectMaxDesignNo(qc);
+    }
+
+    @Override
+    public List<String> selectCategoryIdsByBand(QueryWrapper qw) {
+        return getBaseMapper().selectCategoryIdsByBand(qw);
     }
 }

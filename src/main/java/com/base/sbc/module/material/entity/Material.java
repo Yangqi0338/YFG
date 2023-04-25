@@ -1,6 +1,5 @@
 package com.base.sbc.module.material.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -18,10 +17,6 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @TableName("t_material")
 public class Material extends BaseDataEntity<String> {
-
-    @ApiModelProperty(value = "收藏id，为空则未收藏")
-    @TableField(exist = false)
-    private String collectId;
 
     @ApiModelProperty(value = "文件信息")
     private String fileInfo;

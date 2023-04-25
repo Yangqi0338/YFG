@@ -12,6 +12,9 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
  * 类描述：企划-坑位信息 dao类
@@ -27,4 +30,7 @@ import org.apache.ibatis.annotations.Param;
 public interface PlanningCategoryItemMapper extends BaseMapper<PlanningCategoryItem> {
 
     String selectMaxDesignNo(@Param(Constants.WRAPPER) QueryWrapper qc);
+
+
+    List<String> selectCategoryIdsByBand(@Param(Constants.WRAPPER) QueryWrapper qw);
 }

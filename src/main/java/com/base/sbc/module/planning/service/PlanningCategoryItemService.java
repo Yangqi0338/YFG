@@ -32,4 +32,6 @@ public interface PlanningCategoryItemService extends IServicePlus<PlanningCatego
     public boolean delByPlanningBand(String userCompany, String id);
 
     String selectMaxDesignNo(QueryWrapper qc);
+
+    List<String> selectCategoryIdsByBand(QueryWrapper qw);
 }

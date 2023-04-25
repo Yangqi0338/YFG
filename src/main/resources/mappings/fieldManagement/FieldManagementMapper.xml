@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.fieldManagement.mapper.FieldManagementMapper">
+    <!--
+        字段管理表
+        创建人：lxl
+        邮箱：lxl.fml@gmail.com
+        创建时间：2023-4-15 18:33:51
+        版本号：1.0
+      -->
+    <resultMap type="com.base.sbc.module.fieldManagement.vo.FieldManagementVo" id="fieldManagementMaps">
+        <result column="id" property="id"/>
+        <result column="form_type_id" property="formTypeId"/>
+        <result column="group_name" property="groupName"/>
+        <result column="field_name" property="fieldName"/>
+        <result column="field_type" property="fieldType"/>
+        <result column="field_type_id" property="fieldTypeId"/>
+        <result column="field_type_name" property="fieldTypeName"/>
+        <result column="field_type_coding" property="fieldTypeCoding"/>
+        <result column="default_hint" property="defaultHint"/>
+        <result column="is_option" property="isOption"/>
+        <result column="is_must_fill" property="isMustFill"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="season" property="season"/>
+        <result column="is_examine" property="isExamine"/>
+        <result column="status" property="status"/>
+        <result column="sequence" property="sequence"/>
+        <result column="field_explain" property="fieldExplain"/>
+        <result column="is_compile" property="isCompile"/>
+        <association property="optionList"  javaType="arraylist"  column="id"    select="getOptionList"> </association>
+    </resultMap>
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+    <select id="getFieldManagementList" resultType="com.base.sbc.module.fieldManagement.vo.FieldManagementVo" resultMap="fieldManagementMaps">
+        select
+        tfm.id,
+        tfm.form_type_id,
+        tfm.group_name,
+        tfm.field_name,
+        tfm.field_type,
+        tfm.field_type_id,
+        tfm.field_type_name,
+        tfm.field_type_coding,
+        tfm.default_hint,
+        tfm.is_option,
+        tfm.is_must_fill,
+        tfm.category_id,
+        tfm.season,
+        tfm.is_examine,
+        tfm.status,
+        tfm.sequence,
+        tfm.field_explain,
+        tfm.is_compile
+        from t_field_management tfm
+        left join t_form_type tft on tfm.form_type_id = tft.id
+        where tfm.company_code=#{companyCode}
+        and tfm.del_flag='0'
+        and tft.status='0'
+        <if test="formTypeId !='' and formTypeId != null">
+            and tfm.form_type_id=#{formTypeId}
+        </if>
+        order By tfm.sequence desc
+    </select>
+
+    <select id="getOptionList" resultType="com.base.sbc.module.fieldManagement.entity.Option" >
+        select
+        option_name optionName,
+        id id,
+        option_url optionUrl,
+        option_number optionNumber,
+        option_date optionDate
+        from  t_option
+         where field_id = #{id} and  del_flag='0'
+    </select>
+    <select id="getTableMessage" resultType="java.util.Map">
+        select
+        COLUMN_NAME,
+        DATA_TYPE,
+        COLUMN_COMMENT,
+        IS_NULLABLE,
+        COLUMN_DEFAULT
+        from information_schema.COLUMNS
+        where table_name = #{coding}
+        and COLUMN_NAME not in('del_flag','update_name','update_id','update_date','create_name','create_id','create_date')
+        ORDER BY ORDINAL_POSITION DESC
+    </select>
+
+
+</mapper>

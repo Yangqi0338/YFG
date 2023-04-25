@@ -16,6 +16,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class MaterialSaveDto extends Material {
+
     /**
      * 所有标签
      */

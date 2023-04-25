@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.fabricInformation.mapper.FabricBasicInformationMapper">
+    <!--
+        面料基本信息
+        创建人：lxl
+        邮箱：lxl.fml@gmail.com
+        创建时间：2023-4-19 18:23:26
+        版本号：1.0
+      -->
+    <resultMap type="com.base.sbc.module.fabricInformation.vo.FabricInformationVo" id="fabricInformationMaps">
+        <id column="id" property="id"></id>
+        <result column="fabric_detailed_id" property="fabricDetailedId"/>
+        <result column="year" property="year"/>
+        <result column="brand" property="brand"/>
+        <result column="season" property="season"/>
+        <result column="manufacturer" property="manufacturer"/>
+        <result column="manufacturer_number" property="manufacturerNumber"/>
+        <result column="manufacturer_colour" property="manufacturerColour"/>
+        <result column="is_new_fabric" property="isNewFabric"/>
+        <result column="quantity" property="quantity"/>
+        <result column="register_date" property="registerDate"/>
+            <result column="fabric_is_usable" property="fabricIsUsable"/>
+            <result column="fabric_price" property="fabricPrice"/>
+            <result column="specification" property="specification"/>
+            <result column="density" property="density"/>
+            <result column="ingredient" property="ingredient"/>
+            <result column="leadtime" property="leadtime"/>
+            <result column="minimum_order_quantity" property="minimumOrderQuantity"/>
+            <result column="larghezza" property="larghezza"/>
+            <result column="gram_weight" property="gramWeight"/>
+            <result column="germinal_condition" property="germinalCondition"/>
+            <result column="atactiform_date" property="atactiformDate"/>
+            <result column="estimate_atactiform_date" property="estimateAtactiformDate"/>
+            <result column="practical_atactiform_date" property="practicalAtactiformDate"/>
+            <result column="inspect_date" property="inspectDate"/>
+            <result column="physicochemistry_detection_result" property="physicochemistryDetectionResult"/>
+            <result column="sample_washing_inspection_date" property="sampleWashingInspectionDate"/>
+            <result column="wash_detection_result" property="washDetectionResult"/>
+            <result column="image_url" property="imageUrl"/>
+    </resultMap>
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+    <select id="getFabricInformationList"  resultType="com.base.sbc.module.fabricInformation.vo.FabricInformationVo" resultMap="fabricInformationMaps">
+	select
+        tfbi.id,
+        tfbi.fabric_detailed_id,
+        tfbi.year,
+        tfbi.brand,
+        tfbi.season,
+        tfbi.manufacturer,
+        tfbi.manufacturer_number,
+        tfbi.manufacturer_colour,
+        tfbi.is_new_fabric,
+        tfbi.quantity,
+        tfbi.register_date,
+        tfdi.id tfdi_id,
+        tfdi. fabric_is_usable,
+        tfdi.  fabric_price,
+        tfdi. specification,
+        tfdi. density,
+        tfdi. ingredient,
+        tfdi.  leadtime,
+        tfdi. minimum_order_quantity,
+        tfdi. larghezza,
+        tfdi.  gram_weight,
+        tfdi. germinal_condition,
+        tfdi. atactiform_date,
+        tfdi. estimate_atactiform_date,
+        tfdi.practical_atactiform_date,
+        tfdi. inspect_date,
+        tfdi. physicochemistry_detection_result,
+        tfdi. sample_washing_inspection_date,
+        tfdi. wash_detection_result,
+        tfdi.image_url,
+        tfdi.report_url
+    from t_fabric_basic_information tfbi
+    left join t_fabric_detailed_information tfdi on tfbi.fabric_detailed_id=tfdi.id  and tfdi.is_draft='1'
+    left join t_fabric_job tfj on tfbi.id=tfj.fabric_basic_id
+     where tfbi.company_code=#{companyCode}
+     and tfbi.del_flag='0'
+        <!-- 查询出我发起的面料信息 -->
+        <if test='originate != null and originate == "0"'>
+         and tfbi.create_id=#{userId}
+     </if>
+        <!-- 查询出我接受的面料信息 -->
+     <if test='originate != null and originate == "1"'>
+         and tfj.user_job_id in
+         <foreach item="idItem" collection="jobIdList" open="(" separator="," close=")">
+             #{idItem}
+         </foreach>
+     </if>
+    <if test="manufacturerNumber!=null and manufacturerNumber!=''">
+        and tfbi.manufacturer_number like  concat('%',#{manufacturerNumber},'%')
+    </if>
+    <if test="manufacturer!=null and manufacturer!=''">
+        and tfbi.manufacturer=#{manufacturer}
+    </if>
+    <if test="year!=null and year!=''">
+            and tfbi.year=#{year}
+    </if>
+    <if test="season!=null and season!=''">
+            and tfbi.season=#{season}
+    </if>
+        <if test="manufacturerColour!=null and manufacturerColour!=''">
+            and tfbi.manufacturer_colour=#{manufacturerColour}
+        </if>
+        <if test="isNewFabric!=null and isNewFabric!=''">
+            and tfbi.is_new_fabric=#{isNewFabric}
+        </if>
+        <if test="quantity!=null">
+            and tfbi.quantity=#{quantity}
+        </if>
+        <if test="registerDate!=null">
+            and ( tfbi.register_date between #{registerDate.[0]} and #{registerDate.[1]}
+            or tfdi.atactiform_date between #{registerDate.[0]} and #{registerDate.[1]}
+            or tfdi.estimate_atactiform_date between #{registerDate.[0]} and #{registerDate.[1]}
+            or tfdi.practical_atactiform_date between #{registerDate.[0]} and #{registerDate.[1]}
+            or tfdi.inspect_date between #{registerDate.[0]} and #{registerDate.[1]}
+            or tfdi.estimate_atactiform_date between #{registerDate.[0]} and #{registerDate.[1]}
+            or tfdi.sample_washing_inspection_date between #{registerDate.[0]} and #{registerDate.[1]}
+            )
+        </if>
+        <if test="fabricPrice!=null">
+            and tfdi.fabric_price  between #{fabricPrice.[0]} and #{fabricPrice.[1]}
+        </if>
+
+        <if test="ingredient!=null and ingredient!=''">
+            and tfdi.ingredient   like  concat('%',#{ingredient},'%')
+        </if>
+
+
+        <if test="leadtime!=null and leadtime!=''">
+            and tfdi.leadtime like  concat('%',#{leadtime},'%')
+        </if>
+
+        <if test="germinalCondition!=null and germinalCondition!=''">
+            and tfdi.germinal_condition=#{germinalCondition}
+        </if>
+
+        <if test="fabricIsUsable!=null and fabricIsUsable!=''">
+            and tfdi.fabric_is_usable=#{fabricIsUsable}
+        </if>
+
+        <if test="physicochemistryDetectionResult!=null and physicochemistryDetectionResult!=''">
+            and tfdi.physicochemistry_detection_result=#{physicochemistryDetectionResult}
+        </if>
+
+        <if test="washDetectionResult!=null and washDetectionResult!=''">
+            and tfdi.wash_detection_result=#{washDetectionResult}
+        </if>
+        order By tfbi.create_date desc
+
+    </select>
+</mapper>

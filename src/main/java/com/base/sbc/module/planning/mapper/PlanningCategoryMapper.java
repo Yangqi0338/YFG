@@ -6,9 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.planning.entity.PlanningCategory;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：企划-品类信息 dao类
@@ -22,4 +28,11 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface PlanningCategoryMapper extends BaseMapper<PlanningCategory>{
 
+    /**
+     * 统计skc数
+     * @param column
+     * @param qw
+     * @return
+     */
+    List<Map<String, Object>> countSkc(@Param("column")String column,@Param(Constants.WRAPPER) QueryWrapper qw);
 }
