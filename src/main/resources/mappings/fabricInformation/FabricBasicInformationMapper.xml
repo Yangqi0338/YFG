@@ -128,7 +128,7 @@
 
 
         <if test="leadtime!=null and leadtime!=''">
-            and tfdi.leadtime like  concat('%',#{leadtime},'%')
+            and tfdi.leadtime between #{leadtime.[0]} and #{leadtime.[1]}
         </if>
 
         <if test="germinalCondition!=null and germinalCondition!=''">
