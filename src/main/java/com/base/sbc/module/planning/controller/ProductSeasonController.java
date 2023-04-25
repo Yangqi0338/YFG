@@ -24,6 +24,7 @@ import com.base.sbc.module.planning.service.PlanningBandService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningBandSummaryInfoVo;
+import com.base.sbc.module.planning.vo.YearSeasonVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -37,10 +38,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.sql.Struct;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -74,12 +72,40 @@ public class ProductSeasonController extends BaseController {
         QueryWrapper qc = new QueryWrapper();
         qc.eq("del_flag", BaseEntity.DEL_FLAG_NORMAL);
         qc.eq(COMPANY_CODE, getUserCompany());
+        qc.eq(StrUtil.isNotBlank(dto.getYear()),"year",dto.getYear());
+        qc.eq(StrUtil.isNotBlank(dto.getSeason()),"season",dto.getSeason());
         qc.like(StrUtil.isNotBlank(dto.getSearch()), "name",dto.getSearch());
         dto.setOrderBy("create_date desc ");
+        qc.select("*");
         Page<PlanningSeason> objects = PageHelper.startPage(dto);
         planningSeasonService.selectProductSeason(qc);
         PageInfo<PlanningSeason> planningSeasonPageInfo = objects.toPageInfo();
        return planningSeasonPageInfo;
+    }
+
+    @ApiOperation(value = "查询年份季节")
+    @GetMapping("/queryYs")
+    public List<YearSeasonVo> queryYs(){
+        List<YearSeasonVo> result=new ArrayList<>(16);
+        List<PlanningSeason> planningSeasons = planningSeasonService.queryYs(getUserCompany());
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Year,C8_Quarter");
+        if(CollUtil.isNotEmpty(planningSeasons)){
+            for (PlanningSeason planningSeason : planningSeasons) {
+                YearSeasonVo yearSeasonVo = BeanUtil.copyProperties(planningSeason, YearSeasonVo.class);
+                yearSeasonVo.setSeasonDesc(Optional.ofNullable(dictInfoToMap.get("C8_Quarter"))
+                        .map(item->item.get(planningSeason.getSeason()))
+                        .orElse(""));
+                yearSeasonVo.setYearDesc(Optional.ofNullable(dictInfoToMap.get("C8_Year"))
+                        .map(item->item.get(planningSeason.getYear()))
+                        .orElse(""));
+                result.add(yearSeasonVo);
+            }
+            //排序 TODO
+//            CollUtil.sort(result,(a,b)->{
+//                return 0;
+//            });
+        }
+        return result;
     }
 
     @ApiOperation(value = "按波段展开-分页查询")

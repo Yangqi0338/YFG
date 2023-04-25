@@ -28,4 +28,6 @@ import java.util.List;
 
 
  List<PlanningSeason> selectProductSeason(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+ List<PlanningSeason> queryYs(@Param("companyCode") String companyCode);
 }

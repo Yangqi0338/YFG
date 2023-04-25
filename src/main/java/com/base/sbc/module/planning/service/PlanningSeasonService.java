@@ -34,4 +34,6 @@ public interface PlanningSeasonService extends IServicePlus<PlanningSeason> {
      * @return
      */
     List<PlanningSeason> selectProductSeason(QueryWrapper qw);
+
+    List<PlanningSeason> queryYs(String companyCode);
 }

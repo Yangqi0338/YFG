@@ -29,4 +29,9 @@ public class PlanningSeasonServiceImpl extends ServicePlusImpl<PlanningSeasonMap
     public List<PlanningSeason> selectProductSeason(QueryWrapper qw) {
         return getBaseMapper().selectProductSeason(qw);
     }
+
+    @Override
+    public List<PlanningSeason> queryYs(String companyCode) {
+        return getBaseMapper().queryYs(companyCode);
+    }
 }
