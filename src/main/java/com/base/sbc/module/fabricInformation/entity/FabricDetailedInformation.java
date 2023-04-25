@@ -51,16 +51,16 @@ public class FabricDetailedInformation extends BaseDataEntity<String> {
     private String ingredient;
     /** 货期 */
     @ApiModelProperty(value = "货期"  )
-    private String leadtime;
+    private Integer leadtime;
     /** 起订量 */
     @ApiModelProperty(value = "起订量"  )
     private Integer minimumOrderQuantity;
     /** 门幅 */
     @ApiModelProperty(value = "门幅"  )
-    private String larghezza;
+    private Double larghezza;
     /** 克重 */
     @ApiModelProperty(value = "克重"  )
-    private Integer gramWeight;
+    private Double gramWeight;
     /** 胚布情况 */
     @ApiModelProperty(value = "胚布情况"  )
     private String germinalCondition;

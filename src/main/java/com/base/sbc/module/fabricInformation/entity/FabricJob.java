@@ -29,4 +29,7 @@ public class FabricJob extends BaseDataEntity<String> {
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remark;
+
+    /*发起状态（0我发起 1我接受*/
+    private String  sponsorStatus;
 }

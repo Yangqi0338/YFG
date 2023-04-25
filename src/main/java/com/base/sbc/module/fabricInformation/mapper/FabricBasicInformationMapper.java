@@ -23,6 +23,7 @@ import java.util.List;
  * @version 1.0  
  */
 @Mapper
+//@DataIsolation(groups={"'getFabricInformationList'"},defaultState=false)
 public interface FabricBasicInformationMapper extends BaseMapper<FabricBasicInformation> {
 /** 自定义方法区 不替换的区域【other_start】 **/
 

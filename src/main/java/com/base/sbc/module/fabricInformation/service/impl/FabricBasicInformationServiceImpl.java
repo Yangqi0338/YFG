@@ -66,17 +66,12 @@ public class FabricBasicInformationServiceImpl extends ServicePlusImpl<FabricBas
     public PageInfo<FabricInformationVo> getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto) {
         PageHelper.startPage(queryFabricInformationDto);
         queryFabricInformationDto.setCompanyCode(baseController.getUserCompany());
-        if(queryFabricInformationDto.getOriginate().equals(BaseGlobal.STOCK_STATUS_DRAFT)){
-            queryFabricInformationDto.setUserId(baseController.getUserId());
+        String postString=  amcService.getJobByUserIdOrJobName(baseController.getUserId(),null);
+        List<Job> jobList= AmcUtils.parseStrTopostIdList(postString);
+        if(!CollectionUtils.isEmpty(jobList)){
+            queryFabricInformationDto.setJobIdList(jobList.stream().map(Job::getId).collect(Collectors.toList()));
         }else {
-            /*获取该用户的岗位*/
-           String postString=  amcService.getJobByUserIdOrJobName(baseController.getUserId(),null);
-           List<Job> jobList= AmcUtils.parseStrTopostIdList(postString);
-           if(!CollectionUtils.isEmpty(jobList)){
-             queryFabricInformationDto.setJobIdList(jobList.stream().map(Job::getId).collect(Collectors.toList()));
-           }else {
-               throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
-           }
+            throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
         List<FabricInformationVo> list = baseMapper.getFabricInformationList(queryFabricInformationDto);
         return new PageInfo<>(list);
@@ -104,7 +99,7 @@ public class FabricBasicInformationServiceImpl extends ServicePlusImpl<FabricBas
             fabricBasicInformation.setFabricDetailedId("");
             baseMapper.insert(fabricBasicInformation);
             /*暂时这么写*/
-            String postString=  amcService.getJobByUserIdOrJobName(null,"面辅料专员");
+            String postString=  amcService.getJobByUserIdOrJobName(null,"面辅料专员,设计师");
             List<Job> jobList= AmcUtils.parseStrTopostIdList(postString);
             for (Job job : jobList) {
                 FabricJob fabricJob=new FabricJob();
@@ -112,6 +107,11 @@ public class FabricBasicInformationServiceImpl extends ServicePlusImpl<FabricBas
                 fabricJob.setUserJobId(job.getId());
                 fabricJob.setCompanyCode(baseController.getUserCompany());
                 fabricJob.setRemark("");
+                if(job.getName().equals("设计师") || job.getName().equals("设计师助理")){
+                    fabricJob.setSponsorStatus("0");
+                }else {
+                    fabricJob.setSponsorStatus("1");
+                }
                 fabricJob.insertInit();
                 fabricJobMapper.insert(fabricJob);
             }
