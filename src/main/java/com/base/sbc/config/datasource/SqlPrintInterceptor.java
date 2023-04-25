@@ -151,7 +151,7 @@ public class SqlPrintInterceptor implements Interceptor {
     }
     private boolean arrSearch(String[] arr, String targetValue) {
         for(String s: arr){
-            if(s.equals(targetValue)) {
+            if(s.equals("'"+targetValue+"'")) {
                 return true;
             }
         }
