@@ -59,6 +59,7 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
             } else if (!StringUtils.isEmpty(saveUpdateFieldManagementDto.getDefaultHint())) {
                 queryWrapper.or().eq("default_hint", saveUpdateFieldManagementDto.getDefaultHint());
             }
+            queryWrapper.eq("form_type_id",saveUpdateFieldManagementDto.getFormTypeId());
             List<FieldManagement> list=  baseMapper.selectList(queryWrapper);
             if (!CollectionUtils.isEmpty(list)) {
                 throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
