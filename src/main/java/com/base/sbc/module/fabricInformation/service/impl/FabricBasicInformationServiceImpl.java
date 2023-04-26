@@ -99,7 +99,7 @@ public class FabricBasicInformationServiceImpl extends ServicePlusImpl<FabricBas
             fabricBasicInformation.setFabricDetailedId("");
             baseMapper.insert(fabricBasicInformation);
             /*暂时这么写*/
-            String postString=  amcService.getJobByUserIdOrJobName(null,"面辅料专员,设计师");
+            String postString=  amcService.getJobByUserIdOrJobName(null,"面辅料专员,设计师,理化实验室,设计师助理");
             List<Job> jobList= AmcUtils.parseStrTopostIdList(postString);
             for (Job job : jobList) {
                 FabricJob fabricJob=new FabricJob();
