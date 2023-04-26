@@ -72,9 +72,13 @@ public class FabricDetailedInformationServiceImpl extends ServicePlusImpl<Fabric
         if (StringUtils.isEmpty(fabricDetailedId)) {
             throw new OtherException("FabricDetailedId为空");
         }
+        FabricDetailedInformation fabricDetailedInformation = baseMapper.selectById(fabricDetailedId);
+        if(fabricDetailedInformation==null){
+            throw new OtherException("辅料专员暂未提交面料详情");
+        }
         Object o = filesUtils.uploadBigData(file, FilesUtils.PRODUCT, request).getData();
         String s = o.toString();
-        FabricDetailedInformation fabricDetailedInformation = baseMapper.selectById(fabricDetailedId);
+        fabricDetailedInformation.setReportName(file.getOriginalFilename());
         fabricDetailedInformation.setReportUrl(s);
         fabricDetailedInformation.updateInit();
         baseMapper.updateById(fabricDetailedInformation);
