@@ -4,6 +4,7 @@ import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -35,7 +36,7 @@ public class QueryFabricInformationDto extends Page {
     /** 登记时间 */
     private String[] registerDate;
 
-    private String[] fabricPrice;
+    private BigDecimal[] fabricPrice;
 
     /*成分*/
     private String ingredient;

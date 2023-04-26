@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
@@ -22,7 +23,7 @@ public class SaveUpdateFabricDetailedInformationDto {
     private String fabricIsUsable;
     /** 面料价格 */
     @ApiModelProperty(value = "面料价格"  )
-    private Integer fabricPrice;
+    private BigDecimal fabricPrice;
     /** 纱支规格 */
     @ApiModelProperty(value = "纱支规格"  )
     private String specification;

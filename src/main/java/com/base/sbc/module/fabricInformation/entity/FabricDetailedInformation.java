@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -39,7 +40,7 @@ public class FabricDetailedInformation extends BaseDataEntity<String> {
     private String fabricIsUsable;
     /** 面料价格 */
     @ApiModelProperty(value = "面料价格"  )
-    private Integer fabricPrice;
+    private BigDecimal fabricPrice;
     /** 纱支规格 */
     @ApiModelProperty(value = "纱支规格"  )
     private String specification;

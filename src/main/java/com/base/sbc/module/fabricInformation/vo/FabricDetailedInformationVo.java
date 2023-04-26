@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /*返回de 面料详细信息*/
@@ -15,7 +16,7 @@ public class FabricDetailedInformationVo {
     private String fabricIsUsable;
     /** 面料价格 */
     @ApiModelProperty(value = "面料价格"  )
-    private Integer fabricPrice;
+    private BigDecimal fabricPrice;
     /** 纱支规格 */
     @ApiModelProperty(value = "纱支规格"  )
     private String specification;
