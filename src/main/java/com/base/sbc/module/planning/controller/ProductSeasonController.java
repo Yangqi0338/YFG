@@ -7,6 +7,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.ApiResult;
@@ -15,6 +16,7 @@ import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.vo.UserInfoVo;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningBand;
@@ -35,8 +37,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,6 +68,10 @@ public class ProductSeasonController extends BaseController {
     private AmcFeignService amcFeignService;
     @Resource
     PlanningCategoryItemService planningCategoryItemService;
+    @Resource
+    private AmcService amcService;
+
+
     @ApiOperation(value = "查询产品季-分页查询")
     @GetMapping
     public PageInfo query(PlanningSeasonSearchDto dto){
@@ -226,6 +230,28 @@ public class ProductSeasonController extends BaseController {
             BeanUtil.copyProperties(allocationDesignDto,planningCategoryItem);
         }
         return planningCategoryItemService.updateBatchById(planningCategoryItems);
+    }
+
+    /**
+     * 获取企业和产品季的树形结构
+     */
+    @GetMapping("/getTree")
+    public ApiResult getTree(){
+        List<AdTree> list = amcService.getAdList();
+        for (AdTree adTree : list) {
+            List<AdTree> adTrees =new ArrayList<>();
+            for (PlanningSeason planningSeason : planningSeasonService.list()) {
+                if(planningSeason.getCompanyCode().equals(adTree.getId())){
+                    AdTree tree =new AdTree();
+                    tree.setTitle(planningSeason.getName());
+                    tree.setKey(planningSeason.getId());
+                    tree.setId(planningSeason.getId());
+                    adTrees.add(tree);
+                }
+            }
+            adTree.setChildren(adTrees);
+        }
+        return selectSuccess(list);
     }
 
 }
