@@ -12,11 +12,12 @@
 		<project     value="planning"></project><!-- 模块名称 -->
 	</params>
 	<tables>
-		<table       value="t_tag"   genType="1,2,3,4" ></table>
+<!--		<table       value="t_tag"   genType="1,2,3,4,5" ></table>-->
+<!--		<table       value="t_band"   genType="1,2,3,4,5" ></table>-->
 <!--		<table       value="t_planning_season"   genType="4" ></table>-->
 <!--		<table       value="t_planning_band"   genType="2" ></table>-->
 <!--		<table       value="t_planning_category"   genType="4" ></table>-->
-<!--		<table       value="t_planning_category_item"   genType="1,2" ></table>-->
+		<table       value="t_planning_category_item"   genType="2" ></table>
 <!--		<table       value="t_planning_category_item_material"   genType="1,2" ></table>-->
 	</tables>
 
