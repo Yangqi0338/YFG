@@ -7,6 +7,7 @@
 package com.base.sbc.module.planning.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategory;
@@ -34,4 +35,19 @@ public interface PlanningCategoryItemService extends IServicePlus<PlanningCatego
     String selectMaxDesignNo(QueryWrapper qc);
 
     List<String> selectCategoryIdsByBand(QueryWrapper qw);
+
+    /**
+     * 修改/提交
+     * @param planningBandId
+     * @param item
+     */
+    void updateAndCommit(String planningBandId, List<PlanningCategoryItem> item);
+
+    /**
+     * 获取最大流水号
+     * @param data
+     * @param userCompany
+     * @return
+     */
+    String getMaxDesignNo(GetMaxCodeRedis data, String userCompany);
 }

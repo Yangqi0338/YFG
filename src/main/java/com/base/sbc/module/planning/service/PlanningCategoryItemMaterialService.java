@@ -8,6 +8,7 @@ package com.base.sbc.module.planning.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.planning.dto.PlanningCategoryItemMaterialSaveDto;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
@@ -33,4 +34,11 @@ public interface PlanningCategoryItemMaterialService extends IServicePlus<Planni
      * 根据传入的素材id列表查询对应收藏的数量
      */
     List<Map<String,Integer>> numList(@Param("materialIds")List<String> materialIds);
+
+    /**
+     * 保存关联素材库
+     * @param dto
+     * @return
+     */
+    boolean savePlanningCategoryItemMaterial(PlanningCategoryItemMaterialSaveDto dto);
 }

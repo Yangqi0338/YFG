@@ -8,7 +8,11 @@ package com.base.sbc.module.planning.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
+import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.vo.PlanningSeasonVo;
+import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
@@ -36,4 +40,39 @@ public interface PlanningSeasonService extends IServicePlus<PlanningSeason> {
     List<PlanningSeason> selectProductSeason(QueryWrapper qw);
 
     List<PlanningSeason> queryYs(String companyCode);
+
+    /**
+     * 校验名称重复
+     * @param dto
+     * @param userCompany
+     */
+    void checkNameRepeat(PlanningSeasonSaveDto dto, String userCompany);
+
+    /**
+     * 保存产品季
+     * @param dto
+     * @return
+     */
+    PlanningSeason savePlanningSeason(PlanningSeasonSaveDto dto);
+
+    /**
+     * 通过名称获取
+     * @param name
+     * @return
+     */
+    List<PlanningSeason> getByName(String name,String userCompany);
+
+    /**
+     * 产品季分页查询
+     * @param dto
+     * @param userCompany
+     * @return
+     */
+    PageInfo<PlanningSeasonVo> queryPlanningSeasonPageInfo(PlanningSeasonSearchDto dto, String userCompany);
+
+    /**
+     * 检查产品季是否有波段企划
+     * @param id
+     */
+    boolean checkPlanningSeasonHasBand(String id);
 }

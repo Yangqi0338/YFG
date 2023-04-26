@@ -12,11 +12,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.QueryCondition;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
 import com.base.sbc.module.planning.entity.*;
+import com.base.sbc.module.planning.service.PlanningBandService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
@@ -25,10 +29,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.*;
+
+import static com.base.sbc.config.common.base.BaseController.COMPANY_CODE;
 
 /**
  * 类描述：企划-坑位信息 service类
@@ -44,6 +49,8 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
 
     @Autowired
     PlanningSeasonService planningSeasonService;
+    @Autowired
+    PlanningBandService planningBandService;
     @Autowired
     PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
@@ -146,5 +153,56 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
     @Override
     public List<String> selectCategoryIdsByBand(QueryWrapper qw) {
         return getBaseMapper().selectCategoryIdsByBand(qw);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class, OtherException.class})
+    public void updateAndCommit(String planningBandId, List<PlanningCategoryItem> item) {
+        // 修改
+        updateBatchById(item);
+        //提交
+        if(StrUtil.isNotBlank(planningBandId)){
+            PlanningBand byId = planningBandService.getById(planningBandId);
+            if(byId==null){
+                throw  new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+            }
+            byId.setStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+            planningBandService.updateById(byId);
+        }
+    }
+
+    @Override
+    public String getMaxDesignNo(GetMaxCodeRedis data, String userCompany) {
+        List<String> regexps = new ArrayList<>(12);
+        List<String> textFormats = new ArrayList<>(12);
+        data.getValueMap().forEach((key, val) -> {
+            if (BaseConstant.FLOWING.equals(key)) {
+                textFormats.add("{0}");
+            } else {
+                textFormats.add(String.valueOf(val));
+            }
+            regexps.add(String.valueOf(val));
+        });
+        String regexp = "^" + CollUtil.join(regexps, "") + "$";
+        System.out.println("传过来的正则:" + regexp);
+        QueryWrapper qc = new QueryWrapper();
+        qc.eq(COMPANY_CODE, userCompany);
+        qc.apply(" design_no REGEXP '" + regexp + "'");
+        qc.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
+        String maxCode = selectMaxDesignNo(qc);
+        if (StrUtil.isBlank(maxCode)) {
+            return null;
+        }
+        // 替换,保留流水号
+        MessageFormat mf = new MessageFormat(CollUtil.join(textFormats, ""));
+        try {
+            Object[] parse = mf.parse(maxCode);
+            if (parse != null && parse.length > 0) {
+                return String.valueOf(parse[0]);
+            }
+            return null;
+        } catch (ParseException e) {
+            return null;
+        }
     }
 }
