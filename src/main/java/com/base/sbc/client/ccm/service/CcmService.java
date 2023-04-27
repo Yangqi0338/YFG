@@ -118,5 +118,5 @@ public interface CcmService {
     String getGenCodeByRedis(@RequestParam("genCode") String genCode,@RequestParam("count") Integer count, @RequestBody Object dataMap);
 
     @PostMapping("/ccm/api/saas/basicStructure/findByCategoryIds")
-    String findStructureTreeByCategoryIds(@RequestBody String categoryIds);
+    String findStructureTreeByCategoryIds(@RequestParam("categoryIds") String categoryIds);
 }
