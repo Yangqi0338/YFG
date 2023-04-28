@@ -19,9 +19,11 @@ public class QueryFieldManagementDto  extends Page {
 
     private String id;
 
+    private String groupName;
+
     /*原先*/
     private String currentId;
 
-            /*目标*/
+    /*目标*/
      private String  targetId;
 }

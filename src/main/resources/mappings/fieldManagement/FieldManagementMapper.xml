@@ -61,6 +61,9 @@
         <if test="formTypeId !='' and formTypeId != null">
             and tfm.form_type_id=#{formTypeId}
         </if>
+        <if test="groupName !='' and groupName != null">
+            and tfm.group_name=#{groupName}
+        </if>
         order By tfm.sequence desc
     </select>
 

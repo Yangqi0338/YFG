@@ -52,14 +52,14 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
         if(StringUtils.isEmpty(saveUpdateFieldManagementDto.getId())) {
             /*查询是否重复*/
             QueryWrapper<FieldManagement> queryWrapper = new QueryWrapper<>();
-            if (!StringUtils.isEmpty(saveUpdateFieldManagementDto.getGroupName())) {
-                queryWrapper.or().eq("group_name", saveUpdateFieldManagementDto.getGroupName());
-            } else if (!StringUtils.isEmpty(saveUpdateFieldManagementDto.getFieldName())) {
-                queryWrapper.or().eq("field_name", saveUpdateFieldManagementDto.getFieldName());
-            } else if (!StringUtils.isEmpty(saveUpdateFieldManagementDto.getDefaultHint())) {
-                queryWrapper.or().eq("default_hint", saveUpdateFieldManagementDto.getDefaultHint());
+
+            if (!StringUtils.isEmpty(saveUpdateFieldManagementDto.getFieldName())) {
+                queryWrapper.or().eq("field_name", saveUpdateFieldManagementDto.getFieldName()).eq("form_type_id",saveUpdateFieldManagementDto.getFormTypeId());
             }
-            queryWrapper.eq("form_type_id",saveUpdateFieldManagementDto.getFormTypeId());
+        /*    if (!StringUtils.isEmpty(saveUpdateFieldManagementDto.getDefaultHint())) {
+                queryWrapper.or().eq("default_hint", saveUpdateFieldManagementDto.getDefaultHint()).eq("form_type_id",saveUpdateFieldManagementDto.getFormTypeId());
+            }*/
+
             List<FieldManagement> list=  baseMapper.selectList(queryWrapper);
             if (!CollectionUtils.isEmpty(list)) {
                 throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
