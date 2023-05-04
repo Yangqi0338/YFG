@@ -23,6 +23,7 @@ import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -97,7 +98,7 @@ public class PlanningDemandController {
 	/*删除需求维度数据*/
 	@ApiOperation(value = "删除需求维度数据")
 	@DeleteMapping("/del")
-	public ApiResult delPlanningBand(@Valid @NotNull(message = "编号不能为空") String id) {
+	public ApiResult delPlanningBand(@Valid @NotBlank(message = "编号id不能为空") String id) {
 		return planningDemandProportionDataService.del(id);
 	}
 
@@ -136,7 +137,7 @@ public class PlanningDemandController {
 	/*删除维度标签*/
 	@ApiOperation(value = "删除维度标签")
 	@DeleteMapping("/delDelDimensionality")
-	public ApiResult delDelDimensionality(@Valid @NotNull(message = "编号不能为空") String id) {
+	public ApiResult delDelDimensionality(@Valid @NotBlank(message = "编号id不能为空") String id) {
 		return planningDimensionalityService.delDelDimensionality(id);
 	}
 
