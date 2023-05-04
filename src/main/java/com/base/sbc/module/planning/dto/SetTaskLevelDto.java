@@ -3,6 +3,7 @@ package com.base.sbc.module.planning.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 
@@ -19,9 +20,9 @@ import javax.validation.constraints.NotNull;
 @ApiModel("产品季总览-设置任务等级 SetTaskLevelDto")
 public class SetTaskLevelDto {
     @ApiModelProperty(value = "坑位编号" ,example = "689467740238381056",required = true)
-    @NotNull(message = "坑位编号不能为空")
+    @NotBlank(message = "坑位编号不能为空")
     private String id;
-    @NotNull(message = "任务等级不能为空")
+    @NotBlank(message = "任务等级不能为空")
     @ApiModelProperty(value = "任务等级" ,example = "0",required = true)
     private String taskLevel;
 }

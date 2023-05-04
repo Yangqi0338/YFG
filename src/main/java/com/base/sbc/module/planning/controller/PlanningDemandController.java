@@ -90,7 +90,7 @@ public class PlanningDemandController {
 	/*新增修改需求占比数据表*/
 	@ApiOperation(value = "新增修改需求占比数据表")
 	@PostMapping("saveUpdate")
-	public ApiResult saveUpdate(@RequestBody SaveUpdateDemandProportionDataDto saveUpdateDemandDimensionalityDto) {
+	public ApiResult saveUpdate(@Valid @RequestBody SaveUpdateDemandProportionDataDto saveUpdateDemandDimensionalityDto) {
 		return planningDemandProportionDataService.saveUpdate(saveUpdateDemandDimensionalityDto);
 	}
 
@@ -129,7 +129,7 @@ public class PlanningDemandController {
 	/*编辑维度标签*/
 	@ApiOperation(value = "编辑维度标签")
 	@PostMapping("/updateDimensionality")
-	public ApiResult updateDimensionality(@RequestBody  UpdateDimensionalityDto updateDimensionalityDto) {
+	public ApiResult updateDimensionality(@Valid @RequestBody  UpdateDimensionalityDto updateDimensionalityDto) {
 		return planningDimensionalityService.updateDimensionality(updateDimensionalityDto);
 	}
 

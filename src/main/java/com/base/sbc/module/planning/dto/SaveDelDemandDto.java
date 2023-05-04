@@ -15,11 +15,11 @@ public class SaveDelDemandDto {
 
     /*产品季id*/
     @ApiModelProperty(value = "产品季id" ,required = true,example = "111")
-    @NotNull(message = "产品季id不能为空")
+    @NotBlank(message = "产品季id不能为空")
     private String planningSeasonId;
 
     @ApiModelProperty(value = "品类id" ,required = true,example = "122222")
-    @NotNull(message = "品类id不能为空")
+    @NotBlank(message = "品类id不能为空")
     private String categoryId;
 
     @ApiModelProperty(value = "需求占比" ,  required = true ,example = "111")
