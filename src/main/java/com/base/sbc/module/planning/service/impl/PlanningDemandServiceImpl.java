@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -130,7 +131,7 @@ public class PlanningDemandServiceImpl extends ServicePlusImpl<PlanningDemandMap
             delList = list.stream().filter(item -> !demandNameList2.contains(item.getDemandName())).collect(Collectors.toList());
             /*数据库查询的数据*/
             List<String> demandNameList = list.stream().map(PlanningDemand::getDemandName).collect(Collectors.toList());
-            addList = saveDelDemandDto.stream().filter(item -> !demandNameList.contains(item.getDemandName())).collect(Collectors.toList());
+            addList = saveDelDemandDto.stream().filter(item -> !StringUtils.isEmpty(item.getDemandName())&&!demandNameList.contains(item.getDemandName())   ).collect(Collectors.toList());
         }
         if (!CollectionUtils.isEmpty(delList)) {
             QueryWrapper<PlanningDemand> queryWrapper1 = new QueryWrapper<>();

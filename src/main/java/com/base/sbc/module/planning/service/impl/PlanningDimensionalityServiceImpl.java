@@ -103,7 +103,7 @@ public class PlanningDimensionalityServiceImpl extends ServicePlusImpl<PlanningD
             List<String> stringList = list.stream().map(SaveDelDimensionalityDto::getDimensionalityName).collect(Collectors.toList());
             delList = planningDimensionalityList.stream().filter(item -> !stringList.contains(item.getDimensionalityName())).collect(Collectors.toList());
             List<String> stringList1 = planningDimensionalityList.stream().map(PlanningDimensionality::getDimensionalityName).collect(Collectors.toList());
-            addList = list.stream().filter(item -> !stringList1.contains(item.getDimensionalityName())).collect(Collectors.toList());
+            addList = list.stream().filter(item -> !StringUtils.isEmpty(item.getDimensionalityName()) && !stringList1.contains(item.getDimensionalityName())).collect(Collectors.toList());
         }
         if (!CollectionUtils.isEmpty(delList)) {
             QueryWrapper<PlanningDimensionality> queryWrapper1 = new QueryWrapper<>();
