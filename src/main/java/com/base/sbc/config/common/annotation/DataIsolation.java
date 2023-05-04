@@ -20,6 +20,7 @@ public @interface DataIsolation {
     boolean jobState() default  false; //开启岗位的数据隔离
     /**
      * 指定要被数据隔离的方法,不指定，默认隔离所有SELECT方法
+     * 例子 groups={"'SELECT'"}
      */
     String[] groups() default {};
 }
