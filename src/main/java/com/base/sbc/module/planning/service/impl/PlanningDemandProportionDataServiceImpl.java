@@ -40,13 +40,6 @@ public class PlanningDemandProportionDataServiceImpl extends ServicePlusImpl<Pla
     @Override
     public ApiResult saveUpdate(SaveUpdateDemandProportionDataDto saveUpdateDemandDimensionalityDataDto) {
         PlanningDemandProportionData planningDemandDimensionalityData = new PlanningDemandProportionData();
-        QueryWrapper<PlanningDemandProportionData> queryWrapper=new QueryWrapper<>();
-        queryWrapper.eq("demand_id",saveUpdateDemandDimensionalityDataDto.getDemandId())
-        .eq("classify",saveUpdateDemandDimensionalityDataDto.getClassify());
-        List<PlanningDemandProportionData> list = baseMapper.selectList(queryWrapper);
-        if (!CollectionUtils.isEmpty(list)) {
-            throw new OtherException("数据重复");
-        }
         if (!StringUtils.isEmpty(saveUpdateDemandDimensionalityDataDto.getId())) {
             /*修改*/
             planningDemandDimensionalityData = baseMapper.selectById(saveUpdateDemandDimensionalityDataDto.getId());
