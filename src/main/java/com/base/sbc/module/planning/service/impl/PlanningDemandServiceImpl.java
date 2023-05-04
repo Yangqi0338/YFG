@@ -14,6 +14,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.fieldManagement.dto.QueryFieldManagementDto;
 import com.base.sbc.module.fieldManagement.entity.FieldManagement;
+import com.base.sbc.module.fieldManagement.entity.Option;
 import com.base.sbc.module.fieldManagement.mapper.FieldManagementMapper;
 import com.base.sbc.module.fieldManagement.mapper.OptionMapper;
 import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
@@ -80,6 +81,17 @@ public class PlanningDemandServiceImpl extends ServicePlusImpl<PlanningDemandMap
             queryWrapper1.eq("demand_id", p.getId());
             List<PlanningDemandProportionData> demandDimensionalityDataList = planningDemandProportionDataMapper.selectList(queryWrapper1);
             p.setList(demandDimensionalityDataList);
+            /*禁用下拉框已选中的值*/
+            list1.forEach(fieldManagementVo -> {
+                if(fieldManagementVo.getFieldTypeCoding().equals("select")){
+                    List<String> stringList =   p.getList().stream().map(PlanningDemandProportionData::getClassify).collect(Collectors.toList());
+                    fieldManagementVo.getOptionList().forEach(option -> {
+                        if (stringList.contains(option.getOptionName())) {
+                            option.setDisabled(true);
+                        }
+                    });
+                }
+            });
         });
         return ApiResult.success("查询成功", list);
     }

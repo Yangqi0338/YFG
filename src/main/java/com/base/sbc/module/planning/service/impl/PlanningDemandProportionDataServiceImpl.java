@@ -6,8 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.planning.dto.SaveUpdateDemandProportionDataDto;
@@ -17,6 +19,7 @@ import com.base.sbc.module.planning.service.PlanningDemandProportionDataService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -37,6 +40,13 @@ public class PlanningDemandProportionDataServiceImpl extends ServicePlusImpl<Pla
     @Override
     public ApiResult saveUpdate(SaveUpdateDemandProportionDataDto saveUpdateDemandDimensionalityDataDto) {
         PlanningDemandProportionData planningDemandDimensionalityData = new PlanningDemandProportionData();
+        QueryWrapper<PlanningDemandProportionData> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("demand_id",saveUpdateDemandDimensionalityDataDto.getDemandId())
+        .eq("classify",saveUpdateDemandDimensionalityDataDto.getClassify());
+        List<PlanningDemandProportionData> list = baseMapper.selectList(queryWrapper);
+        if (!CollectionUtils.isEmpty(list)) {
+            throw new OtherException("数据重复");
+        }
         if (!StringUtils.isEmpty(saveUpdateDemandDimensionalityDataDto.getId())) {
             /*修改*/
             planningDemandDimensionalityData = baseMapper.selectById(saveUpdateDemandDimensionalityDataDto.getId());
