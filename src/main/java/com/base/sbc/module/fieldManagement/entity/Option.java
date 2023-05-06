@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.fieldManagement.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModelProperty;
@@ -52,6 +53,7 @@ public class Option extends BaseDataEntity<String> {
     @ApiModelProperty(value = "备注"  )
     private String remark;
 
+    @TableField(exist = false)
     private Boolean disabled;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
