@@ -10,7 +10,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
-import com.base.sbc.module.sample.dto.SampleDto;
+import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.entity.Technology;
 import com.base.sbc.module.sample.mapper.SampleMapper;
 import com.base.sbc.module.sample.entity.Sample;
@@ -35,11 +35,9 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
     @Autowired
     private TechnologyService technologyService;
 
-    /**
-     * 自定义方法区 不替换的区域【other_start】
-     **/
+
     @Override
-    public Sample saveSample(SampleDto dto) {
+    public Sample saveSample(SampleSaveDto dto) {
         Sample sample = getById(dto.getId());
         BeanUtil.copyProperties(dto, sample);
         save(sample);
@@ -57,7 +55,6 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
     }
 
 
-/** 自定义方法区 不替换的区域【other_end】 **/
 
 }
 

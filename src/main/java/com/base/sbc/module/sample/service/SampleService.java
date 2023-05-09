@@ -7,7 +7,7 @@
 package com.base.sbc.module.sample.service;
 
 import com.base.sbc.module.common.service.IServicePlus;
-import com.base.sbc.module.sample.dto.SampleDto;
+import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.entity.Sample;
 
 /**
@@ -30,7 +30,7 @@ public interface SampleService extends IServicePlus<Sample> {
      * @param dto
      * @return
      */
-    Sample saveSample(SampleDto dto);
+    Sample saveSample(SampleSaveDto dto);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

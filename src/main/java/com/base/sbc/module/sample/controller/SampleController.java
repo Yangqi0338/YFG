@@ -6,21 +6,15 @@
 *****************************************************************************/
 package com.base.sbc.module.sample.controller;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.sample.dto.SampleDto;
+import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.service.SampleService;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
 * 类描述：样衣 Controller类
@@ -41,7 +35,7 @@ public class SampleController{
 
 	@ApiOperation(value = "保存")
 	@PostMapping
-	public Sample save(@RequestBody SampleDto dto) {
+	public Sample save(@RequestBody SampleSaveDto dto) {
 		Sample  sample=sampleService.saveSample(dto);
 		return sample;
 	}

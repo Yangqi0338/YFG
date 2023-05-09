@@ -14,13 +14,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 类描述：样衣 实体类
  * @address com.base.sbc.module.sample.entity.Sample
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-9 16:31:39
+ * @date 创建时间：2023-5-9 17:32:40
  * @version 1.0
  */
 @Data
@@ -132,6 +133,39 @@ public class Sample extends BaseDataEntity<String> {
     /** 设计师id */
     @ApiModelProperty(value = "设计师id"  )
     private String designerId;
+    /** 款式图 */
+    @ApiModelProperty(value = "款式图"  )
+    private String stylePic;
+    /** 价格带 */
+    @ApiModelProperty(value = "价格带"  )
+    private String price;
+    /** 关联的素材库数量 */
+    @ApiModelProperty(value = "关联的素材库数量"  )
+    private BigDecimal materialCount;
+    /** 任务等级:普通,紧急,非常紧急 */
+    @ApiModelProperty(value = "任务等级:普通,紧急,非常紧急"  )
+    private String taskLevel;
+    /** 开始时间 */
+    @ApiModelProperty(value = "开始时间"  )
+    private Date startTime;
+    /** 截止时间 */
+    @ApiModelProperty(value = "截止时间"  )
+    private Date endTime;
+    /** 设计工艺员id */
+    @ApiModelProperty(value = "设计工艺员id"  )
+    private String technicianId;
+    /** 设计工艺员名称 */
+    @ApiModelProperty(value = "设计工艺员名称"  )
+    private String technicianName;
+    /** 材料专员id */
+    @ApiModelProperty(value = "材料专员id"  )
+    private String fabDevelopeId;
+    /** 材料专员名称 */
+    @ApiModelProperty(value = "材料专员名称"  )
+    private String fabDevelopeName;
+    /** 实际出稿时间 */
+    @ApiModelProperty(value = "实际出稿时间"  )
+    private Date actualPublicationDate;
     /** 状态:0未开款，1已开款，2已下发打板 */
     @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板"  )
     private String status;
