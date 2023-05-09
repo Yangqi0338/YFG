@@ -24,6 +24,11 @@ public class BaseGlobal {
      */
     public static final int ZERO = 0;
 
+    /**
+     * 1
+     */
+    public static final Integer ONE = 1;
+
     /**横杠 */
     public static final String H = "-";
     /**

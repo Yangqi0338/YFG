@@ -92,7 +92,8 @@ public class SampleFlowServiceImpl extends ServicePlusImpl<SampleFlowMapper, Sam
         /*获取所有节点*/
         List<SampleFlowVo> list = getFlowList(sampleId);
         /*获取已完成的节点*/
-        List<Integer> integerList=  list.stream().filter(s -> s.getFlowStatus().equals(BaseGlobal.STATUS_CLOSE)).map(SampleFlowVo::getFlowOrder).collect(Collectors.toList());
+        List<Integer> integerList=  list.stream().filter(s -> s.getFlowStatus().equals(BaseGlobal.STATUS_CLOSE))
+                .map(SampleFlowVo::getFlowOrder).collect(Collectors.toList());
         if (CollectionUtils.isEmpty(integerList)) {
             throw new OtherException("样衣流程已完成");
         }
@@ -106,7 +107,7 @@ public class SampleFlowServiceImpl extends ServicePlusImpl<SampleFlowMapper, Sam
     @Override
     public boolean rejectFlow(String flowId) {
         SampleFlow sampleFlow = baseMapper.selectById(flowId);
-        if (ObjectUtils.isEmpty(sampleFlow) || sampleFlow.getFlowOrder()==1) {
+        if (ObjectUtils.isEmpty(sampleFlow) || sampleFlow.getFlowOrder().equals(BaseGlobal.ONE)) {
             throw new OtherException("查无数据或是第一个节点无法驳回");
         }
         //   修改到上个节点
