@@ -7,8 +7,14 @@
 package com.base.sbc.module.planning.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.planning.dto.AllocationDesignDto;
+import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
+import com.base.sbc.module.planning.dto.ProductSeasonExpandByCategorySearchDto;
+import com.base.sbc.module.planning.dto.SetTaskLevelDto;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategory;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,4 +56,39 @@ public interface PlanningCategoryItemService extends IServicePlus<PlanningCatego
      * @return
      */
     String getMaxDesignNo(GetMaxCodeRedis data, String userCompany);
+
+    /**
+     * 分配设计师
+     * @param dtoList
+     * @return
+     */
+    boolean allocationDesign(List<AllocationDesignDto> dtoList);
+
+    /**
+     * 设置任务等级
+     * @param dtoList
+     * @return
+     */
+    boolean setTaskLevel(List<SetTaskLevelDto> dtoList);
+
+    /**
+     * 查找坑位信息
+     * @param dto
+     * @return
+     */
+    ApiResult findProductCategoryItem(ProductCategoryItemSearchDto dto);
+
+    /**
+     * 按品类展开
+     * @param dto
+     * @return
+     */
+    List<BasicStructureTreeVo> expandByCategory(ProductSeasonExpandByCategorySearchDto dto);
+
+    /**
+     * 坑位信息下发
+     * @param categoryItemList
+     * @return
+     */
+    boolean send(List<PlanningCategoryItem> categoryItemList);
 }

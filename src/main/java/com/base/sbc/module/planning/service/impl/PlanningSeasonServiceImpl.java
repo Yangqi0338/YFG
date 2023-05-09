@@ -6,10 +6,12 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
@@ -47,11 +49,13 @@ import static com.base.sbc.config.common.base.BaseController.DEL_FLAG;
 public class PlanningSeasonServiceImpl extends ServicePlusImpl<PlanningSeasonMapper, PlanningSeason> implements PlanningSeasonService {
     @Resource
     private AmcFeignService amcFeignService;
-
+    @Resource
+    private AmcService amcService;
     @Resource
     private PlanningCategoryService planningCategoryService;
     @Resource
     private PlanningBandService planningBandService;
+
     @Override
     public boolean del(String companyCode, String id) {
         return removeById(id);
@@ -66,6 +70,7 @@ public class PlanningSeasonServiceImpl extends ServicePlusImpl<PlanningSeasonMap
     public List<PlanningSeason> queryYs(String companyCode) {
         return getBaseMapper().queryYs(companyCode);
     }
+
 
     @Override
     public void checkNameRepeat(PlanningSeasonSaveDto dto, String userCompany) {
@@ -123,24 +128,24 @@ public class PlanningSeasonServiceImpl extends ServicePlusImpl<PlanningSeasonMap
         PageInfo<PlanningSeason> planningSeasonPageInfo = objects.toPageInfo();
         List<PlanningSeason> list = planningSeasonPageInfo.getList();
         if (CollUtil.isNotEmpty(list)) {
-            List<String> userIds=new ArrayList<>(16);
-            List<String> columnIds=new ArrayList<>(16);
+            List<String> userIds = new ArrayList<>(16);
+            List<String> columnIds = new ArrayList<>(16);
             for (PlanningSeason item : list) {
                 userIds.add(item.getCreateId());
                 columnIds.add(item.getId());
             }
             //查询用户信息
-            Map<String, String> userAvatarMap = amcFeignService.getUserAvatar(CollUtil.join(userIds,","));
+            Map<String, String> userAvatarMap = amcFeignService.getUserAvatar(CollUtil.join(userIds, ","));
             List<PlanningSeasonVo> volist = BeanUtil.copyToList(list, PlanningSeasonVo.class);
             // 查询skc 数
-            Map<String, Long> skcCount=planningCategoryService.countSkc("planning_season_id",columnIds);
+            Map<String, Long> skcCount = planningCategoryService.countSkc("planning_season_id", columnIds);
             for (PlanningSeasonVo planningSeasonVo : volist) {
                 planningSeasonVo.setAliasUserAvatar(userAvatarMap.get(planningSeasonVo.getCreateId()));
                 planningSeasonVo.setSkcCount(skcCount.get(planningSeasonVo.getId()));
             }
-            PageInfo<PlanningSeasonVo> pageInfoVO=new PageInfo<>();
+            PageInfo<PlanningSeasonVo> pageInfoVO = new PageInfo<>();
             pageInfoVO.setList(volist);
-            BeanUtil.copyProperties(planningSeasonPageInfo,pageInfoVO,"list");
+            BeanUtil.copyProperties(planningSeasonPageInfo, pageInfoVO, "list");
             return pageInfoVO;
         }
         return null;
@@ -154,8 +159,44 @@ public class PlanningSeasonServiceImpl extends ServicePlusImpl<PlanningSeasonMap
         qw.eq(DEL_FLAG, BaseEntity.DEL_FLAG_NORMAL);
         long i = planningBandService.count(qw);
         if (i > 0) {
-           return true;
+            return true;
         }
         return false;
+    }
+
+    @Override
+    public List<AdTree> getTree() {
+        List<AdTree> list = amcService.getAdList();
+        for (AdTree adTree : list) {
+            List<AdTree> adTrees = new ArrayList<>();
+            List<PlanningSeason> seasonList = list();
+            for (PlanningSeason planningSeason : seasonList) {
+                if (planningSeason.getCompanyCode().equals(adTree.getId())) {
+                    AdTree tree = new AdTree();
+                    tree.setTitle(planningSeason.getName());
+                    tree.setKey(planningSeason.getId());
+                    tree.setId(planningSeason.getId());
+                    adTrees.add(tree);
+                }
+            }
+            adTree.setChildren(adTrees);
+        }
+        return list;
+    }
+
+    @Override
+    public PageInfo queryByPage(PlanningSeasonSearchDto dto, String userCompany) {
+        QueryWrapper qc = new QueryWrapper();
+        qc.eq("del_flag", BaseEntity.DEL_FLAG_NORMAL);
+        qc.eq(COMPANY_CODE, userCompany);
+        qc.eq(StrUtil.isNotBlank(dto.getYear()),"year", dto.getYear());
+        qc.eq(StrUtil.isNotBlank(dto.getSeason()),"season", dto.getSeason());
+        qc.like(StrUtil.isNotBlank(dto.getSearch()), "name", dto.getSearch());
+        dto.setOrderBy("create_date desc ");
+        qc.select("*");
+        Page<PlanningSeason> objects = PageHelper.startPage(dto);
+        selectProductSeason(qc);
+        PageInfo<PlanningSeason> planningSeasonPageInfo = objects.toPageInfo();
+        return planningSeasonPageInfo;
     }
 }

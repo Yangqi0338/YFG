@@ -13,6 +13,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.planning.dto.PlanningBandDto;
 import com.base.sbc.module.planning.dto.PlanningBandSearchDto;
+import com.base.sbc.module.planning.dto.ProductSeasonExpandByBandSearchDto;
 import com.base.sbc.module.planning.entity.PlanningCategory;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
@@ -25,6 +26,7 @@ import com.base.sbc.module.planning.service.PlanningCategoryService;
 import com.base.sbc.module.planning.vo.PlanningBandVo;
 import com.base.sbc.module.planning.vo.PlanningCategoryItemVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,5 +199,20 @@ public class PlanningBandServiceImpl extends ServicePlusImpl<PlanningBandMapper,
     public boolean delPlanningSeason(String id) {
          del(id);
         return true;
+    }
+
+    @Override
+    public PageInfo expandByBand(ProductSeasonExpandByBandSearchDto dto,String companyCode) {
+
+        QueryWrapper bqw = new QueryWrapper();
+        bqw.eq("del_flag", BaseEntity.DEL_FLAG_NORMAL);
+        bqw.eq(COMPANY_CODE, companyCode);
+        bqw.eq("status", BaseGlobal.STOCK_STATUS_CHECKED);
+        bqw.eq("planning_season_id", dto.getPlanningSeasonId());
+        dto.setOrderBy("create_date desc ");
+        Page<PlanningBand> objects = PageHelper.startPage(dto);
+        list(bqw);
+        PageInfo<PlanningBand> planningSeasonPageInfo = objects.toPageInfo();
+        return planningSeasonPageInfo;
     }
 }

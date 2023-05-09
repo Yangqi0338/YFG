@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.planning.dto.PlanningBandDto;
 import com.base.sbc.module.planning.dto.PlanningBandSearchDto;
+import com.base.sbc.module.planning.dto.ProductSeasonExpandByBandSearchDto;
 import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
 
 import com.base.sbc.module.planning.entity.PlanningBand;
@@ -80,4 +81,11 @@ public interface PlanningBandService extends IServicePlus<PlanningBand> {
 	 * @return
 	 */
 	boolean delPlanningSeason(String id);
+
+	/**
+	 * 按波段展开
+	 * @param dto
+	 * @return
+	 */
+    PageInfo expandByBand(ProductSeasonExpandByBandSearchDto dto,String companyCode);
 }
