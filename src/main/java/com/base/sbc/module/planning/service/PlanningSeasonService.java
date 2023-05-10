@@ -90,4 +90,11 @@ public interface PlanningSeasonService extends IServicePlus<PlanningSeason> {
      * @return
      */
     PageInfo queryByPage(PlanningSeasonSearchDto dto, String userCompany);
+
+    /**
+     * 校验重复
+     * @param dto
+     * @param userCompany
+     */
+    void checkBYSRepeat(PlanningSeasonSaveDto dto, String userCompany);
 }

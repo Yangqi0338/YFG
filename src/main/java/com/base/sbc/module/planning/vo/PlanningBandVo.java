@@ -22,8 +22,9 @@ public class PlanningBandVo {
     /** 性别 */
     @ApiModelProperty(value = "性别" ,example = "男")
     private String sex;
+    @ApiModelProperty(value = "月份" ,required = true,example = "11")
+    private String month;
     /** 波段 */
-
     @ApiModelProperty(value = "波段" ,example = "1b")
     private String bandCode;
 

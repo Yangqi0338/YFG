@@ -69,6 +69,8 @@ public class PlanningController extends BaseController {
     public PlanningSeasonVo save(@Valid @RequestBody PlanningSeasonSaveDto dto) {
         // 校验名称重复
         planningSeasonService.checkNameRepeat(dto, getUserCompany());
+        // 校验品牌，年份，季节重复
+        planningSeasonService.checkBYSRepeat(dto, getUserCompany());
         //保存产品季
         PlanningSeason bean = planningSeasonService.savePlanningSeason(dto);
         return BeanUtil.copyProperties(bean, PlanningSeasonVo.class);

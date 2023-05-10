@@ -9,13 +9,17 @@ package com.base.sbc.module.sample.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.entity.Technology;
 import com.base.sbc.module.sample.mapper.SampleMapper;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.sample.service.TechnologyService;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,6 +58,15 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         return sample;
     }
 
+    @Override
+    public PageInfo pageInfo(SamplePageDto dto, String companyCode) {
+        QueryWrapper<Sample> qw=new QueryWrapper<>();
+        qw.like("design_no",dto.getSearch()).or().like("hi_design_no",dto.getSearch());
+        qw.eq(StrUtil.isNotBlank(dto.getYear()),"year",dto.getYear());
+        qw.eq(StrUtil.isNotBlank(dto.getMonth()),"month",dto.getMonth());
+        qw.eq(StrUtil.isNotBlank(dto.getSeason()),"season",dto.getSeason());
+        return null;
+    }
 
 
 }

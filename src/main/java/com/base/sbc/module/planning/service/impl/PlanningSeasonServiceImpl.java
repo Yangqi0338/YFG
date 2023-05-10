@@ -199,4 +199,18 @@ public class PlanningSeasonServiceImpl extends ServicePlusImpl<PlanningSeasonMap
         PageInfo<PlanningSeason> planningSeasonPageInfo = objects.toPageInfo();
         return planningSeasonPageInfo;
     }
+
+    @Override
+    public void checkBYSRepeat(PlanningSeasonSaveDto dto, String userCompany) {
+        QueryWrapper nameQc = new QueryWrapper();
+        nameQc.eq(COMPANY_CODE, userCompany);
+        nameQc.eq("brand", dto.getBrand());
+        nameQc.eq("year", dto.getYear());
+        nameQc.eq("season", dto.getSeason());
+        nameQc.ne(StrUtil.isNotEmpty(dto.getId()), "id", dto.getId());
+        long nameCount = count(nameQc);
+        if (nameCount > 0) {
+            throw new OtherException("该品牌已经存在此年份、季节");
+        }
+    }
 }

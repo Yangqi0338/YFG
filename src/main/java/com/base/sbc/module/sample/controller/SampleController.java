@@ -6,15 +6,20 @@
 *****************************************************************************/
 package com.base.sbc.module.sample.controller;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.planning.dto.ProductSeasonExpandByBandSearchDto;
+import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.service.SampleService;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 /**
 * 类描述：样衣 Controller类
@@ -32,6 +37,12 @@ public class SampleController{
 
 	@Autowired
 	private SampleService sampleService;
+
+	@ApiOperation(value = "分页查询")
+	@GetMapping()
+	public PageInfo pageInfo(@RequestHeader(BaseController.COMPANY_CODE) String companyCode, @Valid SamplePageDto dto){
+		return sampleService.pageInfo(dto,companyCode);
+	}
 
 	@ApiOperation(value = "保存")
 	@PostMapping
