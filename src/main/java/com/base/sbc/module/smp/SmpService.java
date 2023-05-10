@@ -52,7 +52,7 @@ public class SmpService {
     }
 
     /**
-     * 工艺单地址下发
+     * 工艺单下发
      */
     public Boolean processSheet(SmpProcessSheetDto smpProcessSheetDto){
         return RestTemplateUtils.spmPost(URL + "/processSheet",smpProcessSheetDto);
