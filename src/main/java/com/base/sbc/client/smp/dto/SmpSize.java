@@ -8,7 +8,7 @@ import lombok.Data;
  * @mail 247967116@qq.com
  */
 @Data
-public class  SmpSizeItem {
+public class  SmpSize {
     /**尺寸(XS、S)*/
     private String size;
     /**尺寸编号(5、1)*/

@@ -217,7 +217,7 @@ public class SmpGoodsDto {
     /**修改时间*/
     private Date modifiedTime;
     /**尺码集合*/
-    private List<SmpSizeItem> itemList;
+    private List<SmpSize> itemList;
     /**图片地址集合*/
     private List<String> imgList;
 }
