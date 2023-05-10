@@ -51,6 +51,15 @@ public interface SampleFlowService extends IServicePlus<SampleFlow> {
     boolean accomplishAdjFlow(String sampleId);
 
     /**
+     * 方法描述：传入样衣id及流程名称完成样衣下指点节点
+     *
+     * @param sampleId 样衣id
+     * @param flowName 流程名称
+     * @return boolean
+     */
+    boolean accomplishAdjFlow(String sampleId,String flowName);
+
+    /**
      * 方法描述：驳回节点
      *
      * @param flowId 流程id
