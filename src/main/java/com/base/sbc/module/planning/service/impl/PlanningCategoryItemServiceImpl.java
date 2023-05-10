@@ -439,6 +439,7 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         sample.setPlanningCategoryItemId(item.getId());
         sample.setId(null);
         sample.setStatus(BaseGlobal.STATUS_NORMAL);
+        sample.setSender(getUserId());
         return sample;
     }
 

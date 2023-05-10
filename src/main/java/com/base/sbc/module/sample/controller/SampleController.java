@@ -6,7 +6,6 @@
 *****************************************************************************/
 package com.base.sbc.module.sample.controller;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.planning.dto.ProductSeasonExpandByBandSearchDto;
 import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.entity.Sample;
@@ -20,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 /**
 * 类描述：样衣 Controller类
@@ -30,7 +30,7 @@ import javax.validation.Valid;
 * @version 1.0
 */
 @RestController
-@Api(tags = "样衣")
+@Api(tags = "样衣设计相关接口")
 @RequestMapping(value = BaseController.SAAS_URL + "/sample", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
 public class SampleController{
@@ -40,8 +40,8 @@ public class SampleController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping()
-	public PageInfo pageInfo(@RequestHeader(BaseController.COMPANY_CODE) String companyCode, @Valid SamplePageDto dto){
-		return sampleService.pageInfo(dto,companyCode);
+	public PageInfo pageInfo(@Valid SamplePageDto dto){
+		return sampleService.queryPageInfo(dto);
 	}
 
 	@ApiOperation(value = "保存")

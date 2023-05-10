@@ -20,6 +20,18 @@ import lombok.Data;
 public class SamplePageDto extends Page {
 
     /**
+     * 1我下发的
+     */
+    public static final String userType1 = "1";
+    /**
+     * 2我创建的
+     */
+    public static final String userType2 = "2";
+    /**
+     * 3我负责的
+     */
+    public static final String userType3 = "3";
+    /**
      * 年份
      */
     @ApiModelProperty(value = "年份", example = "2022")
@@ -35,4 +47,12 @@ public class SamplePageDto extends Page {
     @ApiModelProperty(value = "月份", example = "1")
     private String month;
 
+    @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成)", example = "0")
+    private String status;
+
+    @ApiModelProperty(value = "是否齐套:0未齐套，1已齐套", example = "0")
+    private String kitting;
+
+    @ApiModelProperty(value = "类型:1我下发的,2我创建的,3我负责的", example = "1")
+    private String userType;
 }
