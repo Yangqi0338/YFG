@@ -7,6 +7,7 @@
 package com.base.sbc.module.planning.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
@@ -75,4 +76,25 @@ public interface PlanningSeasonService extends IServicePlus<PlanningSeason> {
      * @param id
      */
     boolean checkPlanningSeasonHasBand(String id);
+
+    /**
+     * 获取企业和产品季的树形结构
+     * @return
+     */
+    List<AdTree> getTree();
+
+    /**
+     * 分页查询
+     * @param dto
+     * @param userCompany
+     * @return
+     */
+    PageInfo queryByPage(PlanningSeasonSearchDto dto, String userCompany);
+
+    /**
+     * 校验重复
+     * @param dto
+     * @param userCompany
+     */
+    void checkBYSRepeat(PlanningSeasonSaveDto dto, String userCompany);
 }

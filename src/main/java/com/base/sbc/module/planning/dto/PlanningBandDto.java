@@ -26,6 +26,8 @@ public class PlanningBandDto {
     private String sex;
     /** 波段 */
 
+    @ApiModelProperty(value = "月份" ,required = true,example = "11月")
+    private String month;
     @ApiModelProperty(value = "波段" ,example = "1b")
     @NotNull(message = "波段不能为空")
     private String bandCode;

@@ -8,6 +8,7 @@ package ${javapackage}.${project}.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,6 +23,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("${tableName}")
+@ApiModel("${title} ${className}")
 public class ${className} extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;

@@ -17,8 +17,6 @@ public class PlanningSeasonSaveDto {
     private String year;
     @ApiModelProperty(value = "季节" ,required = true,example = "冬")
     private String season;
-    @ApiModelProperty(value = "月份" ,required = true,example = "11月")
-    private String month;
     @ApiModelProperty(value = "备注" )
     private String remarks;
 
