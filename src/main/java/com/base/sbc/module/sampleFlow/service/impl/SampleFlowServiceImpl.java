@@ -100,8 +100,7 @@ public class SampleFlowServiceImpl extends ServicePlusImpl<SampleFlowMapper, Sam
         /*获取走到的节点*/
         SampleFlowVo sampleFlowVo= list.get(integerList.size());
         /*完成节点*/
-        accomplishFlow(sampleFlowVo.getId());
-        return true;
+        return accomplishFlow(sampleFlowVo.getId());
     }
 
     @Override
