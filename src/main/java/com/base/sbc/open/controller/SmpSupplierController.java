@@ -1,4 +1,4 @@
-package com.base.sbc.module.open.controller;
+package com.base.sbc.open.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.ApiResult;
@@ -21,6 +21,6 @@ public class SmpSupplierController extends BaseController{
     @PostMapping("/save")
     public ApiResult save(@RequestBody JSONObject jsonObject){
         System.out.println(jsonObject);
-        return insertSuccess("操作成功");
+        return insertSuccess(null);
     }
 }
