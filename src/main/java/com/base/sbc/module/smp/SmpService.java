@@ -1,7 +1,7 @@
-package com.base.sbc.client.smp;
+package com.base.sbc.module.smp;
 
 import com.alibaba.fastjson.JSONObject;
-import com.base.sbc.client.smp.dto.SmpGoodsDto;
+import com.base.sbc.module.smp.dto.SmpGoodsDto;
 import com.base.sbc.config.restTemplate.RestTemplateUtils;
 import org.springframework.stereotype.Service;
 

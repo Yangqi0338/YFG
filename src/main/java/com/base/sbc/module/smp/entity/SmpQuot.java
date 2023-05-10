@@ -1,4 +1,4 @@
-package com.base.sbc.client.smp.dto;
+package com.base.sbc.module.smp.entity;
 
 import lombok.Data;
 

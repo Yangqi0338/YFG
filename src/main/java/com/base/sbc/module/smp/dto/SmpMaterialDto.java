@@ -1,8 +1,11 @@
-package com.base.sbc.client.smp.dto;
+package com.base.sbc.module.smp.dto;
 
+import com.base.sbc.module.smp.base.SmpBaseDto;
+import com.base.sbc.module.smp.entity.SmpColor;
+import com.base.sbc.module.smp.entity.SmpModuleSize;
+import com.base.sbc.module.smp.entity.SmpQuot;
 import lombok.Data;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -11,10 +14,10 @@ import java.util.List;
  * @mail 247967116@qq.com
  */
 @Data
-public class  SmpMaterialDto {
+public class  SmpMaterialDto extends SmpBaseDto {
     /** 材料编号 */
     private String materialCode;
-    /** 材料名称名称 */
+    /** 材料名称 */
     private String materialName;
     /** 材料单位（采购单位） */
     private String materialUnit;
@@ -58,8 +61,6 @@ public class  SmpMaterialDto {
     private String productTypeId;
     /** 物料类型 */
     private String productType;
-    /** 材料启用标识 */
-    private Boolean active;
     /** 采购模式 */
     private String procurementMode;
     /** 默认超收比例 */
@@ -74,16 +75,4 @@ public class  SmpMaterialDto {
     private List<SmpModuleSize> moduleSizeList;
     /** 报价集合 */
     private List<SmpQuot> quotList;
-    /**创建人*/
-    private String creator;
-    /**创建时间*/
-    private Date createTime;
-    /**修改人*/
-    private String modifiedPerson;
-    /**修改时间*/
-    private Date modifiedTime;
-    /**PLMID*/
-    private String PLMId;
-    /**同步ID*/
-    private String syncID;
 }

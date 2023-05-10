@@ -1,5 +1,7 @@
-package com.base.sbc.client.smp.dto;
+package com.base.sbc.module.smp.dto;
 
+import com.base.sbc.module.smp.base.SmpBaseDto;
+import com.base.sbc.module.smp.entity.SmpSize;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -13,7 +15,7 @@ import java.util.List;
  * goods-大货主数据
  */
 @Data
-public class SmpGoodsDto {
+public class SmpGoodsDto extends SmpBaseDto {
     /** 款式分类id */
     private String productTypeID;
     /** 款式分类/产品类型 */
@@ -160,8 +162,6 @@ public class SmpGoodsDto {
     private BigDecimal materialCost;
     /**品名*/
     private String productName;
-    /**是否启用*/
-    private String active;
     /**唯一码*/
     private String uniqueCode;
     /**系列*/
@@ -198,8 +198,6 @@ public class SmpGoodsDto {
     private String bulkNumber;
     /**成份信息*/
     private String compsition;
-    /**PLMID*/
-    private String PLMId;
     /**主款号*/
     private String mainCode;
     /**配饰款号*/
@@ -208,14 +206,6 @@ public class SmpGoodsDto {
     private Boolean integritySample;
     /**大货BOM完整标志*/
     private Boolean integrityProduct;
-    /**创建人*/
-    private String creator;
-    /**创建时间*/
-    private Date createTime;
-    /**修改人*/
-    private String modifiedPerson;
-    /**修改时间*/
-    private Date modifiedTime;
     /**尺码集合*/
     private List<SmpSize> itemList;
     /**图片地址集合*/
