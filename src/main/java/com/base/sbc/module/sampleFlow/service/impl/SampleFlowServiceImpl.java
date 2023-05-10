@@ -104,6 +104,16 @@ public class SampleFlowServiceImpl extends ServicePlusImpl<SampleFlowMapper, Sam
     }
 
     @Override
+    public boolean accomplishAdjFlow(String sampleId, String flowName) {
+        /*获取所有节点*/
+        List<SampleFlowVo> list = getFlowList(sampleId);
+        /*获取指定的节点*/
+        SampleFlowVo sampleFlowVo = list.stream().filter(s -> s.getFlowName().equals(flowName)).findFirst().orElse(null);
+        /*完成节点*/
+        return accomplishFlow(sampleFlowVo.getId());
+    }
+
+    @Override
     public boolean rejectFlow(String flowId) {
         SampleFlow sampleFlow = baseMapper.selectById(flowId);
         if (ObjectUtils.isEmpty(sampleFlow) || sampleFlow.getFlowOrder().equals(BaseGlobal.ONE)) {
