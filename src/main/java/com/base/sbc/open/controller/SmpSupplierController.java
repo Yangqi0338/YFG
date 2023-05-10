@@ -13,13 +13,44 @@ import org.springframework.web.bind.annotation.RestController;
  * @author 卞康
  * @date 2023/5/10 9:27:47
  * @mail 247967116@qq.com
- * smp供应商开放接口
+ * smp开放接口
  */
 @RestController
-@RequestMapping(value = BaseController.OPEN_URL + "/smpSupplier", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-public class SmpSupplierController extends BaseController{
-    @PostMapping("/save")
-    public ApiResult save(@RequestBody JSONObject jsonObject){
+@RequestMapping(value = BaseController.OPEN_URL + "/smp", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+public class SmpSupplierController extends BaseController {
+
+    /**
+     * bp供应商
+     */
+    @PostMapping("/supplierSave")
+    public ApiResult supplierSave(@RequestBody JSONObject jsonObject) {
+        System.out.println(jsonObject);
+        return insertSuccess(null);
+    }
+
+    /**
+     * hr-人员
+     */
+    @PostMapping("/hrUserSave")
+    public ApiResult hrSave(@RequestBody JSONObject jsonObject) {
+        System.out.println(jsonObject);
+        return insertSuccess(null);
+    }
+
+    /**
+     * hr-部门
+     */
+    @PostMapping("/hrDeptSave")
+    public ApiResult hrDeptSave(@RequestBody JSONObject jsonObject) {
+        System.out.println(jsonObject);
+        return insertSuccess(null);
+    }
+
+    /**
+     * hr-岗位
+     */
+    @PostMapping("/hrPostSave")
+    public ApiResult hrPostSave(@RequestBody JSONObject jsonObject) {
         System.out.println(jsonObject);
         return insertSuccess(null);
     }
