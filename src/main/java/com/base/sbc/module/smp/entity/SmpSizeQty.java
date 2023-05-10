@@ -16,7 +16,7 @@ public class SmpSizeQty {
     /**门幅规格*/
     private String itemSize;
     /**材料尺码URL*/
-    private String matSizeURL;
+    private String matSizeUrl;
     /**单件用量*/
     private String itemQty;
 }

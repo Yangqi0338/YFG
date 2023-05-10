@@ -21,5 +21,5 @@ public class SmpModuleSize {
     /** 规格是否启用 */
     private String active;
     /** 尺码URL */
-    private String sizeURL;
+    private String sizeUrl;
 }

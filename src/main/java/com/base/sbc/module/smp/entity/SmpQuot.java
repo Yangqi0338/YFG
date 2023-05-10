@@ -13,7 +13,7 @@ public class SmpQuot {
     /** 厂家有效门幅/规格 */
     private String supplierSize;
     /** 尺码URL */
-    private String sizeURL;
+    private String sizeUrl;
     /** 材料颜色ID */
     private String supplierColorId;
     /** 材料颜色名称 */

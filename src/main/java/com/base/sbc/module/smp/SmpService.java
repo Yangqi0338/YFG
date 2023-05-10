@@ -1,7 +1,7 @@
 package com.base.sbc.module.smp;
 
 import com.alibaba.fastjson.JSONObject;
-import com.base.sbc.module.smp.dto.SmpGoodsDto;
+import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.config.restTemplate.RestTemplateUtils;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
  * @author 卞康
  * @date 2023/5/8 15:27:43
  * @mail 247967116@qq.com
+ * 对接下发Smp主数据
  */
 @Service
 public class SmpService {
@@ -22,39 +23,39 @@ public class SmpService {
     /**
      * 商品主数据下发
      */
-    public Boolean goods(SmpGoodsDto goodsDto){
-        return RestTemplateUtils.spmPost(URL + "/sample",goodsDto);
+    public Boolean goods(SmpGoodsDto smpGoodsDto){
+        return RestTemplateUtils.spmPost(URL + "/sample",smpGoodsDto);
 
     }
 
     /**
      * 物料主数据下发
      */
-    public Boolean materials(JSONObject jsonObject){
-        return RestTemplateUtils.spmPost(URL + "/sample",jsonObject);
+    public Boolean materials(SmpMaterialDto smpMaterialDto){
+        return RestTemplateUtils.spmPost(URL + "/materials",smpMaterialDto);
 
     }
 
     /**
      * bom下发
      */
-    public Boolean bom(JSONObject jsonObject){
-        return RestTemplateUtils.spmPost(URL + "/sample",jsonObject);
+    public Boolean bom(SmpBomDto smpBomDto){
+        return RestTemplateUtils.spmPost(URL + "/bom",smpBomDto);
     }
 
     /**
      * 颜色主数据下发
      */
-    public Boolean color(JSONObject jsonObject){
-        return RestTemplateUtils.spmPost(URL + "/sample",jsonObject);
+    public Boolean color(SmpColorDto smpColorDto){
+        return RestTemplateUtils.spmPost(URL + "/color",smpColorDto);
 
     }
 
     /**
      * 工艺单地址下发
      */
-    public Boolean processSheet(JSONObject jsonObject){
-        return RestTemplateUtils.spmPost(URL + "/sample",jsonObject);
+    public Boolean processSheet(SmpProcessSheetDto smpProcessSheetDto){
+        return RestTemplateUtils.spmPost(URL + "/processSheet",smpProcessSheetDto);
     }
 
     /**
