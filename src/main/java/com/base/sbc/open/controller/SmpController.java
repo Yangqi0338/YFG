@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(value = BaseController.OPEN_URL + "/smp", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-public class SmpSupplierController extends BaseController {
+public class SmpController extends BaseController {
 
     /**
      * bp供应商
