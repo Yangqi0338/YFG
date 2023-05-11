@@ -34,7 +34,7 @@ public interface SampleService extends IServicePlus<Sample> {
      */
     Sample saveSample(SampleSaveDto dto);
 
-    PageInfo pageInfo(SamplePageDto dto, String companyCode);
+    PageInfo queryPageInfo(SamplePageDto dto);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

@@ -22,6 +22,18 @@ public class ServicePlusImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Resource
     private UserUtils userUtils;
+
+    /**
+     * 获取企业编码
+     * @return
+     */
+    public String getCompanyCode(){
+        return userUtils.getCompanyCode();
+    }
+
+    public String getUserId(){
+        return userUtils.getUserCompany().getUserId();
+    }
     /**
      * 批量提交修改，逻辑删除新增修改
      * @param entityList 实体列表
