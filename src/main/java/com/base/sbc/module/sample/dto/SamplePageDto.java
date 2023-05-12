@@ -47,7 +47,7 @@ public class SamplePageDto extends Page {
     @ApiModelProperty(value = "月份", example = "1")
     private String month;
 
-    @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成)", example = "0")
+    @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成,引用历史款)", example = "0")
     private String status;
 
     @ApiModelProperty(value = "是否齐套:0未齐套，1已齐套", example = "0")

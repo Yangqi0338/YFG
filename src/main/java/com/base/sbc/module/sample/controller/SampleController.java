@@ -5,21 +5,26 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.sample.controller;
+
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
+import com.base.sbc.module.sample.dto.SendSampleMakingDto;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.service.SampleService;
+import com.base.sbc.module.sample.vo.SampleVo;
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import java.security.Principal;
+import javax.validation.constraints.NotNull;
 
 /**
 * 类描述：样衣 Controller类
@@ -43,7 +48,11 @@ public class SampleController{
 	public PageInfo pageInfo(@Valid SamplePageDto dto){
 		return sampleService.queryPageInfo(dto);
 	}
-
+	@ApiOperation(value = "明细信息")
+	@GetMapping("/{id}")
+	public SampleVo getDetail(@PathVariable("id") String id){
+		return sampleService.getDetail(id);
+	}
 	@ApiOperation(value = "保存")
 	@PostMapping
 	public Sample save(@RequestBody SampleSaveDto dto) {
@@ -51,6 +60,29 @@ public class SampleController{
 		return sample;
 	}
 
+	@ApiOperation(value = "发送打板指令")
+	@PostMapping("/sendSampleMaking")
+	public boolean sendSampleMaking(@Valid @RequestBody SendSampleMakingDto dto){
+		return sampleService.sendSampleMaking(dto);
+	}
+	@ApiOperation(value = "发起审批")
+	@GetMapping("/startApproval")
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "id" ,value = "id",required = true,paramType = "query")
+	})
+	public boolean startApproval(@NotBlank(message = "编号不能为空") String id){
+		return sampleService.startApproval(id);
+	}
+	/**
+	 * 处理审批
+	 * @param dto
+	 * @return
+	 */
+	@ApiIgnore
+	@PostMapping("/approval")
+	public boolean approval(@RequestBody AnswerDto dto){
+		return sampleService.approval(dto);
+	}
 }
 
 

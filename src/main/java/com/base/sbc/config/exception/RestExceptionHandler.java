@@ -1,6 +1,7 @@
 package com.base.sbc.config.exception;
 
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.List;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
@@ -66,13 +67,16 @@ public class RestExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiResult handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         BindingResult result = e.getBindingResult();
-        FieldError error = result.getFieldError();
-        String field = error.getField();
-        String code = error.getDefaultMessage();
-        String message = String.format("%s:%s", field, code);
+        List<FieldError> fieldErrors = result.getFieldErrors();
+        StringBuilder sb=new StringBuilder();
+        for (FieldError error : fieldErrors) {
+            String field = error.getField();
+            String code = error.getDefaultMessage();
+            sb.append(String.format("%s:%s;", field, code));
+        }
         logger.error("参数验证失败(@Valid对应实体类验证异常)", e);
 //        return error(BaseErrorEnum.ERR_METHOD_ARGUMENT_NOT_VALID_EXCEPTION.getErrorMessage(),message);
-        return ApiResult.error(message,BaseErrorEnum.ERR_METHOD_ARGUMENT_NOT_VALID_EXCEPTION.getErrorCode());
+        return ApiResult.error(sb.toString(),BaseErrorEnum.ERR_METHOD_ARGUMENT_NOT_VALID_EXCEPTION.getErrorCode());
     }
     
     @ResponseStatus(HttpStatus.BAD_REQUEST)
