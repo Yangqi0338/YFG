@@ -6,10 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service;
 
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
+import com.base.sbc.module.sample.dto.SendSampleMakingDto;
 import com.base.sbc.module.sample.entity.Sample;
+import com.base.sbc.module.sample.vo.SampleVo;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -34,8 +37,42 @@ public interface SampleService extends IServicePlus<Sample> {
      */
     Sample saveSample(SampleSaveDto dto);
 
+    /**
+     * 分页查询
+     * @param dto
+     * @return
+     */
     PageInfo queryPageInfo(SamplePageDto dto);
 
+    /**
+     * 发起审批
+     * @param id
+     * @return
+     */
+    boolean startApproval(String id);
+
+    /**
+     * 处理审批回调
+     * @param dto
+     * @return
+     */
+    boolean approval(AnswerDto dto);
+
+    /**
+     * 发送打板指令
+     * @param id
+     * @return
+     */
+    boolean sendSampleMaking(SendSampleMakingDto dto);
+
+    Sample checkedSampleExists(String id);
+
+    /**
+     * 查询明细数据
+     * @param id
+     * @return
+     */
+    SampleVo getDetail(String id);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

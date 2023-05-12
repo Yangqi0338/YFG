@@ -5,6 +5,7 @@ import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 
@@ -20,6 +21,6 @@ import javax.validation.constraints.NotNull;
 @ApiModel("产品季总览-展开按品类查询 ProductSeasonExpandByCategorySearchDto")
 public class ProductSeasonExpandByCategorySearchDto {
     @ApiModelProperty(value = "产品季id" ,required = true,example = "122222")
-    @NotNull(message = "产品季id不能为空")
+    @NotBlank(message = "产品季id不能为空")
     private String planningSeasonId;
 }

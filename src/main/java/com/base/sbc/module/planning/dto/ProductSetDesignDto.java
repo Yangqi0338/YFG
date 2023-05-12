@@ -5,6 +5,7 @@ import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.List;
 public class ProductSetDesignDto extends Page {
 
     @ApiModelProperty(value = "坑位id" ,required = true,example = "122222")
-    @NotNull(message = "坑位id")
+    @NotBlank(message = "坑位id")
     private String id;
 
     @ApiModelProperty(value = "品类ids" ,required = false,example = "[1233]")
