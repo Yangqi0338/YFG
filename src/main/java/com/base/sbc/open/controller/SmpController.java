@@ -3,6 +3,7 @@ package com.base.sbc.open.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.open.dto.DTBPReq;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,8 +24,8 @@ public class SmpController extends BaseController {
      * bp供应商
      */
     @PostMapping("/supplierSave")
-    public ApiResult supplierSave(@RequestBody JSONObject jsonObject) {
-        System.out.println(jsonObject);
+    public ApiResult supplierSave(@RequestBody DTBPReq dtbpReq) {
+        System.out.println(dtbpReq);
         return insertSuccess(null);
     }
 
