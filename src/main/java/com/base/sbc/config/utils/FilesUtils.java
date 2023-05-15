@@ -12,7 +12,9 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -248,5 +250,19 @@ public class FilesUtils {
         //获取图片返回的地址
         String fileUrl = HTTPS + bucketName + endpoint.replace(HTTP, BaseGlobal.DI) + "/"+folder + fileName;
         return ApiResult.success(SUCCESS, fileUrl);
+    }
+
+
+    /**
+     * file转MultipartFile
+     *
+     * @param file file
+     * @return MultipartFile
+     */
+    public MultipartFile convertFileToMultipartFile(File file) throws IOException {
+        String fileName = file.getName();
+        String contentType = "multipart/form-data"; // or find contentType using some utility
+        byte[] content = FileCopyUtils.copyToByteArray(file);
+        return new MockMultipartFile(fileName, fileName, contentType, content);
     }
 }

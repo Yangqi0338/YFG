@@ -28,8 +28,9 @@ import java.util.Date;
  */
 @Data
 
-public class BasicsdatumComponentVo  {
+public class BasicsdatumComponentVo extends BaseDataEntity<String>   {
 
+    private static final long serialVersionUID = 1L;
     private String id;
     /** 编码 */
     @ApiModelProperty(value = "编码"  )
@@ -50,19 +51,6 @@ public class BasicsdatumComponentVo  {
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
 
-    /** 更新者名称  */
-    protected String updateName;
-
-    /** 更新日期 */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    protected Date updateDate;
-
-    /** 创建日期 */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    protected Date createDate;
-
-    /**  创建者名称 */
-    protected String createName;
 
 
 }

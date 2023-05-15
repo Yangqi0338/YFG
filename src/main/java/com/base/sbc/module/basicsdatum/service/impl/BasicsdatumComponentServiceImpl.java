@@ -6,14 +6,16 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampComponentDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumComponentExcelDto;
@@ -33,7 +35,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -50,7 +52,8 @@ public class BasicsdatumComponentServiceImpl extends ServicePlusImpl<Basicsdatum
 
     @Autowired
     private BaseController baseController;
-
+    @Autowired
+    private FilesUtils filesUtils;
 
     @Override
     public PageInfo<BasicsdatumComponentVo> getComponentList(QueryComponentDto queryComponentDto) {
@@ -61,24 +64,35 @@ public class BasicsdatumComponentServiceImpl extends ServicePlusImpl<Basicsdatum
         queryWrapper.in(StrUtil.isNotEmpty(queryComponentDto.getCoding()), "coding", queryComponentDto.getCoding());
         /*查询部件数据*/
         List<BasicsdatumComponent> basicsdatumComponentList = baseMapper.selectList(queryWrapper);
+        PageInfo<BasicsdatumComponent> pageInfo = new PageInfo<>(basicsdatumComponentList);
         /*转换vo*/
         List<BasicsdatumComponentVo> list = BeanUtil.copyToList(basicsdatumComponentList, BasicsdatumComponentVo.class);
-        return new PageInfo<>(list);
+        PageInfo<BasicsdatumComponentVo> pageInfo1 = new PageInfo<BasicsdatumComponentVo>();
+        pageInfo1.setList(list);
+        pageInfo1.setTotal(pageInfo.getTotal());
+        pageInfo1.setPageNum(pageInfo.getPageNum());
+        pageInfo1.setPageSize(pageInfo.getPageSize());
+        return pageInfo1;
 
     }
 
     @Override
     public Boolean importExcel(MultipartFile file) throws Exception {
-/*导入*/
-        InputStream inputStream = file.getInputStream();
-        List<BasicsdatumComponentExcelDto> basicsdatumComponentExcelDtoList = EasyExcel.read(inputStream).head(BasicsdatumComponentExcelDto.class).sheet().doReadSync();
-
-
-//            List<BasicsdatumComponentExcelDto> basicsdatumComponentExcelDtoList = ExcelUtils.readMultipartFile(file, BasicsdatumComponentExcelDto.class);
-
-          List<BasicsdatumComponent> basicsdatumComponentList = BeanUtil.copyToList(basicsdatumComponentExcelDtoList, BasicsdatumComponent.class);
-//        saveBatch(basicsdatumComponentList)
-        return null;
+        ImportParams params = new ImportParams();
+        params.setNeedSave(false);
+        List<BasicsdatumComponentExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumComponentExcelDto.class, params);
+        for (BasicsdatumComponentExcelDto basicsdatumComponentExcelDto : list) {
+            //如果图片不为空
+            if (StringUtils.isNotEmpty(basicsdatumComponentExcelDto.getImage())) {
+                File file1 = new File(basicsdatumComponentExcelDto.getImage());
+                String s=  filesUtils.upload(filesUtils.convertFileToMultipartFile(file1), FilesUtils.PRODUCT,baseController.getUserCompany());
+                basicsdatumComponentExcelDto.setImage(s);
+            }
+            basicsdatumComponentExcelDto.setStatus(basicsdatumComponentExcelDto.getStatus().equals("TRUE")?"0":"1");
+        }
+        List<BasicsdatumComponent> basicsdatumComponentList = BeanUtil.copyToList(list, BasicsdatumComponent.class);
+        saveBatch(basicsdatumComponentList);
+        return true;
     }
 
     @Override
