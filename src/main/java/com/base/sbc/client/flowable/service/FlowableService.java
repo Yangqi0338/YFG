@@ -31,16 +31,18 @@ public class FlowableService {
      * 开始流程
      * @param processDefinitionName 流程名称
      * @param businessKey           业务id
-     * @param answerAddress         通过驳回回调地址
+     * @param answerAddress         通过回调地址
+     * @param rejectAddress         驳回回调地址
      * @param checkAddress          查看明细地址
      * @param variables             流程数据
      * @return
      */
-    public boolean start(String processDefinitionName, String businessKey, String answerAddress, String checkAddress, Map<String, Object> variables) {
+    public boolean start(String processDefinitionName, String businessKey, String answerAddress, String rejectAddress, String checkAddress, Map<String, Object> variables) {
         if (variables == null) {
             variables = new LinkedHashMap<>(16);
         }
         variables.put("answerAddress", answerAddress);
+        variables.put("rejectAddress", answerAddress);
         variables.put("checkAddress", checkAddress);
         String result=flowableFeignService.start(null, processDefinitionName, businessKey, null, variables);
         if(StrUtil.isNotBlank(result)){

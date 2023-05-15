@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 类描述：样衣dto
  *
@@ -21,5 +23,8 @@ public class SampleSaveDto extends Sample {
 
     @ApiModelProperty(value = "工艺信息")
     private TechnologySaveDto technology;
+
+    @ApiModelProperty(value = "附件信息")
+    private List<SampleAttachmentDto> attachmentList;
 
 }
