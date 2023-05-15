@@ -165,6 +165,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
+                sample.setStatus("0");
                 sample.setConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
             }
             updateById(sample);
