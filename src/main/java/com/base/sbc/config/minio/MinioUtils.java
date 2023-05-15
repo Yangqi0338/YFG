@@ -38,7 +38,7 @@ public class MinioUtils {
     }
     public String uploadFile(String bucketName,MultipartFile file, String objectName, String contentType){
         try {
-            String object="pdm/"+ DateUtils.getDate()+"/"+objectName;
+            String object=minioConfig.getDir()+"/"+ DateUtils.getDate()+"/"+objectName;
             InputStream inputStream = file.getInputStream();
             ObjectWriteResponse objectWriteResponse = minioClient.putObject(PutObjectArgs.builder().bucket(bucketName).object(object).contentType(contentType).stream(inputStream, inputStream.available(), -1).build());
             // 获取url

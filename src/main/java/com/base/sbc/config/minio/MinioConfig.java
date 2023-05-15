@@ -42,7 +42,7 @@ public class MinioConfig {
      */
     @Value("${minio.bucketName}")
     private String bucketName;
-    @Value("${minio.dir}")
+    @Value("${minio.dir:pdm}")
     private String dir;
 
     @Bean
