@@ -31,7 +31,7 @@ import java.util.*;
  * @date 创建时间：2023-4-1 16:26:15
  */
 @Service
-@Transactional(readOnly = true)
+@Transactional
 public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Material> implements MaterialService {
     @Resource
     private MaterialMapper materialMapper;
