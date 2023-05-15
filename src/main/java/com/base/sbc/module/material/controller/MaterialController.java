@@ -1,7 +1,10 @@
 package com.base.sbc.module.material.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BasicNumber;
@@ -16,7 +19,6 @@ import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +47,9 @@ public class MaterialController extends BaseController {
 
     @Resource
     private UserUtils userUtils;
+
+    @Resource
+    private FlowableService flowableService;
 
     /**
      * 新增
@@ -114,7 +119,7 @@ public class MaterialController extends BaseController {
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "修改素材", notes = "修改素材")
     public ApiResult update(@RequestBody MaterialSaveDto materialSaveDto) {
-        if (!userUtils.getUserId().equals(materialSaveDto.getCreateId())){
+        if (!userUtils.getUserId().equals(materialSaveDto.getCreateId())) {
             throw new OtherException("只有创建人才能修改");
         }
         //if (BasicNumber.ZERO.getNumber().equals(materialSaveDto.getStatus())){
@@ -123,7 +128,7 @@ public class MaterialController extends BaseController {
         //修改关联标签
         QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
         labelQueryWrapper.eq("material_id", materialSaveDto.getId());
-        materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(),labelQueryWrapper);
+        materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
 
 
         ////修改关联尺码
@@ -151,8 +156,10 @@ public class MaterialController extends BaseController {
             //修改关联标签
             QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
             labelQueryWrapper.eq("material_id", materialSaveDto.getId());
-            materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(),labelQueryWrapper);
-             materialService.updateById(materialSaveDto);
+            materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
+            materialService.updateById(materialSaveDto);
+            flowableService.start(FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
+                    "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), BeanUtil.beanToMap(materialSaveDto));
         }
 
 
@@ -195,14 +202,14 @@ public class MaterialController extends BaseController {
      * 查询传入的素材库下的品类数量
      */
     @PostMapping("/countByCategoryIds")
-    public ApiResult countByCategoryIds(@RequestBody List<CategoryIdDto> categoryIdDtoList){
-        Map<String,Object> map =new HashMap<>(5);
+    public ApiResult countByCategoryIds(@RequestBody List<CategoryIdDto> categoryIdDtoList) {
+        Map<String, Object> map = new HashMap<>(5);
         for (CategoryIdDto categoryIdDto : categoryIdDtoList) {
-            QueryWrapper<Material> queryWrapper =new QueryWrapper<>();
-            queryWrapper.eq("status",BasicNumber.TWO.getNumber());
-            queryWrapper.in("category_id",categoryIdDto.getCategoryIds());
+            QueryWrapper<Material> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("status", BasicNumber.TWO.getNumber());
+            queryWrapper.in("category_id", categoryIdDto.getCategoryIds());
             long count = materialService.count(queryWrapper);
-            map.put(categoryIdDto.getId(),count);
+            map.put(categoryIdDto.getId(), count);
         }
 
         return selectSuccess(map);
@@ -223,5 +230,14 @@ public class MaterialController extends BaseController {
 
         List<Test> test = EasyExcel.read(file.getInputStream()).head(Test.class).sheet().headRowNumber(3).doReadSync();
         System.out.println(test);
+    }
+
+
+    /**
+     * 审核回调地址
+     */
+    @PostMapping("/toExamine")
+    public boolean toExamine(@RequestBody AnswerDto dto) {
+        return materialService.toExamine(dto);
     }
 }

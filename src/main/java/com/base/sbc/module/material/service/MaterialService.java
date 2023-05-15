@@ -1,4 +1,5 @@
 package com.base.sbc.module.material.service;
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.entity.Material;
@@ -20,4 +21,6 @@ public interface MaterialService extends IServicePlus<Material> {
      * @return 返回的封装对象
      */
      PageInfo<MaterialVo> listQuery(MaterialQueryDto materialQueryDto);
+
+    boolean toExamine(AnswerDto dto);
 }

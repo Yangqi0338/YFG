@@ -3,14 +3,14 @@ package com.base.sbc.module.material.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
-import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.entity.*;
-import com.base.sbc.module.material.mapper.MaterialCollectMapper;
 import com.base.sbc.module.material.mapper.MaterialMapper;
 import com.base.sbc.module.material.service.*;
 import com.base.sbc.module.material.vo.MaterialVo;
@@ -48,8 +48,7 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
 
     @Resource
     private AmcFeignService amcFeignService;
-    @Resource
-    private MaterialCollectMapper materialCollectMapper;
+
     @Resource
     private PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
@@ -134,7 +133,7 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
         }
 
         List<String> ids = new ArrayList<>();
-        List<String> userIds=new ArrayList<>();
+        List<String> userIds = new ArrayList<>();
 
         for (MaterialVo materialVo : materialAllDtolist) {
             userIds.add(materialVo.getCreateId());
@@ -187,7 +186,7 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
             //收藏数量
             materialVo.setCollectNum("0");
             for (Map<String, Integer> map : mapList) {
-                if (materialVo.getId().equals(String.valueOf(map.get("materialId")))){
+                if (materialVo.getId().equals(String.valueOf(map.get("materialId")))) {
                     materialVo.setCollectNum(String.valueOf(map.get("collectNum")));
                 }
             }
@@ -195,11 +194,27 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
             //引用数量
             materialVo.setQuoteNum("0");
             for (Map<String, Integer> map : maps) {
-                if (materialVo.getId().equals(String.valueOf(map.get("materialId")))){
+                if (materialVo.getId().equals(String.valueOf(map.get("materialId")))) {
                     materialVo.setQuoteNum(String.valueOf(map.get("collectNum")));
                 }
             }
         }
         return new PageInfo<>(materialAllDtolist);
+    }
+
+    @Override
+    public boolean toExamine(AnswerDto dto) {
+        Material material = this.getById(dto.getBusinessKey());
+        if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
+            //审核通过
+            material.setStatus("2");
+            this.updateById(material);
+            return true;
+        } else {
+            material.setStatus("3");
+            this.updateById(material);
+            return false;
+        }
+
     }
 }

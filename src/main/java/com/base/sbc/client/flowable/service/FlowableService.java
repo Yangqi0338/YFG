@@ -22,13 +22,16 @@ import java.util.Map;
 public class FlowableService {
 
 
-    public static final  String sample_pdn="样衣设计审批";
+    public static final String sample_pdn = "样衣设计审批";
+
+    public static final String MATERIAL = "素材审批";
 
     @Autowired
     FlowableFeignService flowableFeignService;
 
     /**
      * 开始流程
+     *
      * @param processDefinitionName 流程名称
      * @param businessKey           业务id
      * @param answerAddress         通过回调地址
@@ -44,8 +47,8 @@ public class FlowableService {
         variables.put("answerAddress", answerAddress);
         variables.put("rejectAddress", rejectAddress);
         variables.put("checkAddress", checkAddress);
-        String result=flowableFeignService.start(null, processDefinitionName, businessKey, null, variables);
-        if(StrUtil.isNotBlank(result)){
+        String result = flowableFeignService.start(null, processDefinitionName, businessKey, null, variables);
+        if (StrUtil.isNotBlank(result)) {
             ApiResult apiResult = JSONObject.parseObject(result, ApiResult.class);
             return apiResult.getSuccess();
         }

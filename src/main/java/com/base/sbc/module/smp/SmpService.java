@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 public class SmpService {
 
 
-    private  static final String URL ="http://10.88.34.25:7006/pdm";
-    //private  static final String URL ="http://smp-i.eifini.com/service-manager/pdm";
+    //private  static final String URL ="http://10.88.34.25:7006/pdm";
+    private  static final String URL ="http://smp-i.eifini.com/service-manager/pdm";
 
 
     /**
