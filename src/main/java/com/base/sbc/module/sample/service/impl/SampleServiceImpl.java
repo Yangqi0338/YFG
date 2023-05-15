@@ -144,7 +144,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         if (sample == null) {
             throw new OtherException("样衣数据不存在,请先保存");
         }
-        boolean flg = flowableService.start(FlowableService.sample_pdn, id, "/pdm/api/saas/sample/approval", "/sampleClothesDesign/sampleDesign/" + id,"/sampleClothesDesign/sampleDesign/" + id, BeanUtil.beanToMap(sample));
+        boolean flg = flowableService.start(FlowableService.sample_pdn, id, "/pdm/api/saas/sample/approval", "/pdm/api/saas/sample/approval" + id,"/sampleClothesDesign/sampleDesign/" + id, BeanUtil.beanToMap(sample));
         if (flg) {
             sample.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
             updateById(sample);
