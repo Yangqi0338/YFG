@@ -1,6 +1,5 @@
 package com.base.sbc.open.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.open.dto.DTBPReq;
@@ -26,33 +25,6 @@ public class SmpController extends BaseController {
     @PostMapping("/supplierSave")
     public ApiResult supplierSave(@RequestBody DTBPReq dtbpReq) {
         System.out.println(dtbpReq);
-        return insertSuccess(null);
-    }
-
-    /**
-     * hr-人员
-     */
-    @PostMapping("/hrUserSave")
-    public ApiResult hrSave(@RequestBody JSONObject jsonObject) {
-        System.out.println(jsonObject);
-        return insertSuccess(null);
-    }
-
-    /**
-     * hr-部门
-     */
-    @PostMapping("/hrDeptSave")
-    public ApiResult hrDeptSave(@RequestBody JSONObject jsonObject) {
-        System.out.println(jsonObject);
-        return insertSuccess(null);
-    }
-
-    /**
-     * hr-岗位
-     */
-    @PostMapping("/hrPostSave")
-    public ApiResult hrPostSave(@RequestBody JSONObject jsonObject) {
-        System.out.println(jsonObject);
         return insertSuccess(null);
     }
 }
