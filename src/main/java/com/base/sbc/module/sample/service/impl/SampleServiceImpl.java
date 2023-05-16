@@ -116,6 +116,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         QueryWrapper<Sample> qw = new QueryWrapper<>();
         qw.like(StrUtil.isNotBlank(dto.getSearch()), "design_no", dto.getSearch()).or().like(StrUtil.isNotBlank(dto.getSearch()), "his_design_no", dto.getSearch());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "year", dto.getYear());
+        qw.eq(StrUtil.isNotBlank(dto.getDesignerId()), "designer_id", dto.getDesignerId());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "month", dto.getMonth());
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "season", dto.getSeason());
         qw.in(StrUtil.isNotBlank(dto.getStatus()), "status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));

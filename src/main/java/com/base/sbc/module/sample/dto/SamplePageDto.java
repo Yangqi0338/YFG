@@ -58,4 +58,6 @@ public class SamplePageDto extends Page {
 
     @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)"  )
     private String categoryIds;
+    @ApiModelProperty(value = "设计师id",example = "680014765321355265" )
+    private String designerId;
 }
