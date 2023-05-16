@@ -55,4 +55,7 @@ public class SamplePageDto extends Page {
 
     @ApiModelProperty(value = "类型:1我下发的,2我创建的,3我负责的", example = "1")
     private String userType;
+
+    @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)"  )
+    private String categoryIds;
 }

@@ -8,22 +8,21 @@ package com.base.sbc.module.sample.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
-import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
-import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.base.sbc.module.material.entity.MaterialLabel;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.base.sbc.module.sample.dto.*;
@@ -32,6 +31,7 @@ import com.base.sbc.module.sample.mapper.SampleMapper;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.sample.service.TechnologyService;
+import com.base.sbc.module.sample.vo.DesignDocTreeVo;
 import com.base.sbc.module.sample.vo.MaterialVo;
 import com.base.sbc.module.sample.vo.SamplePageVo;
 import com.base.sbc.module.sample.vo.SampleVo;
@@ -42,8 +42,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：样衣 service类
@@ -68,6 +68,8 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
     @Autowired
     public PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
+    @Autowired
+    CcmFeignService ccmFeignService;
     @Override
     public Sample saveSample(SampleSaveDto dto) {
         Sample sample = null;
@@ -118,6 +120,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "season", dto.getSeason());
         qw.in(StrUtil.isNotBlank(dto.getStatus()), "status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getKitting()), "kitting", StrUtil.split(dto.getKitting(), CharUtil.COMMA));
+        qw.likeRight(StrUtil.isNotBlank(dto.getCategoryIds()), "category_ids", dto.getCategoryIds());
         qw.eq(BaseConstant.COMPANY_CODE, companyCode);
         //1我下发的
         if (StrUtil.equals(dto.getUserType(), SamplePageDto.userType1)) {
@@ -216,6 +219,133 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
 
 
         return sampleVo;
+    }
+
+    @Override
+    public List<DesignDocTreeVo> queryDesignDocTree(DesignDocTreeVo designDocTreeVo) {
+        // 查询第0级 年份季节
+        if(designDocTreeVo.getLevel()==null){
+            return getAllYearSeason();
+        }
+        // 查询波段
+        else if(designDocTreeVo.getLevel()==0){
+            return queryBand(designDocTreeVo);
+        }
+        // 查询大类
+        else if(designDocTreeVo.getLevel()==1){
+            return queryCategory(designDocTreeVo,0);
+        }
+        // 查询品类
+        else if(designDocTreeVo.getLevel()==2){
+            return queryCategory(designDocTreeVo,1);
+        }
+
+        return null;
+    }
+
+    private List<DesignDocTreeVo> queryCategory(DesignDocTreeVo designDocTreeVo,int categoryIdx) {
+        List<DesignDocTreeVo> result=new ArrayList<>(16);
+        if(!StrUtil.isAllNotEmpty(designDocTreeVo.getYear(),designDocTreeVo.getSeason(),designDocTreeVo.getBandCode())){
+            return result;
+        }
+        if(categoryIdx==1&&StrUtil.isBlank(designDocTreeVo.getCategoryIds())){
+            return result;
+        }
+        QueryWrapper<Sample> qw=new QueryWrapper<>();
+        qw.eq(COMPANY_CODE,getCompanyCode());
+        qw.eq(DEL_FLAG,BaseGlobal.DEL_FLAG_NORMAL);
+        qw.eq("year",designDocTreeVo.getYear());
+        qw.eq("season",designDocTreeVo.getSeason());
+        qw.eq("band_code",designDocTreeVo.getBandCode());
+        qw.likeRight(StrUtil.isNotBlank(designDocTreeVo.getCategoryIds()),"category_ids",designDocTreeVo.getCategoryIds());
+        qw.select("DISTINCT category_ids");
+        List<Sample> list = list(qw);
+        if(CollUtil.isNotEmpty(list)){
+            String categoryIds= list.stream().map(item->{
+                return CollUtil.get(StrUtil.split(item.getCategoryIds(), CharUtil.COMMA), categoryIdx);
+            }).collect(Collectors.joining(","));
+            Map<String, String> nameMaps = ccmFeignService.findStructureTreeNameByCategoryIds(categoryIds);
+            Set<String> categoryIdsSet=new HashSet<>(16);
+            for (Sample sample : list) {
+                List<String> split = StrUtil.split(sample.getCategoryIds(), CharUtil.COMMA);
+                String categoryId = CollUtil.get(split, categoryIdx);
+                System.out.println(categoryId);
+                if(categoryIdsSet.contains(categoryId)){
+                    continue;
+                }
+                categoryIdsSet.add(categoryId);
+                DesignDocTreeVo vo =new DesignDocTreeVo();
+                BeanUtil.copyProperties(designDocTreeVo,vo);
+                vo.setLevel(2+categoryIdx);
+                vo.setChildren(categoryIdx==0);
+
+                List<String> sub = CollUtil.sub(split, 0, categoryIdx+1);
+                vo.setCategoryIds(CollUtil.join(sub,StrUtil.COMMA));
+                vo.setLabel(MapUtil.getStr(nameMaps,categoryId,categoryId));
+                result.add(vo);
+            }
+        }
+        return result;
+    }
+
+
+    private List<DesignDocTreeVo> queryBand(DesignDocTreeVo designDocTreeVo){
+        List<DesignDocTreeVo> result=new ArrayList<>(16);
+        if(StrUtil.isBlank(designDocTreeVo.getYear())||StrUtil.isBlank(designDocTreeVo.getSeason())){
+            return result;
+        }
+        QueryWrapper<Sample> qw=new QueryWrapper<>();
+        qw.eq(COMPANY_CODE,getCompanyCode());
+        qw.eq(DEL_FLAG,BaseGlobal.DEL_FLAG_NORMAL);
+        qw.eq("year",designDocTreeVo.getYear());
+        qw.eq("season",designDocTreeVo.getSeason());
+        qw.select("DISTINCT band_code");
+        qw.orderByAsc("band_code");
+        List<Sample> list = list(qw);
+        if(CollUtil.isNotEmpty(list)){
+            for (Sample sample : list) {
+                DesignDocTreeVo vo =new DesignDocTreeVo();
+                BeanUtil.copyProperties(designDocTreeVo,vo);
+                vo.setBandCode(sample.getBandCode());
+                vo.setLevel(1);
+                vo.setLabel(sample.getBandCode());
+                vo.setChildren(true);
+                result.add(vo);
+            }
+        }
+        return result;
+    }
+
+    private List<DesignDocTreeVo> getAllYearSeason(){
+      QueryWrapper<Sample> qw=new QueryWrapper<>();
+      qw.eq(COMPANY_CODE,getCompanyCode());
+      qw.eq(DEL_FLAG,BaseGlobal.DEL_FLAG_NORMAL);
+      qw.select("DISTINCT year,season");
+      List<Sample> list = list(qw);
+      List<DesignDocTreeVo> result=new ArrayList<>(16);
+      if(CollUtil.isNotEmpty(list)){
+          //根据年份季节排序
+          Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Year,C8_Quarter");
+          Map<String, String> c8Quarter = dictInfoToMap.get("C8_Quarter");
+          Map<String, String> c8Year = dictInfoToMap.get("C8_Year");
+          list.sort((a,b)->{
+              int aIdx=CollUtil.indexOf(c8Quarter.keySet(),t->t.equals(a.getSeason()));
+              int bIdx=CollUtil.indexOf(c8Quarter.keySet(),t->t.equals(b.getSeason()));
+              String aLabel=a.getYear()+ StrUtil.padPre(aIdx==-1?"9999":String.valueOf(aIdx),3,"0");
+              String bLabel=b.getYear()+ StrUtil.padPre(bIdx==-1?"9999":String.valueOf(bIdx),3,"0");
+              return bLabel.compareTo(aLabel);
+          });
+
+          for (Sample sample : list) {
+              DesignDocTreeVo vo =new DesignDocTreeVo();
+              BeanUtil.copyProperties(sample,vo);
+              vo.setLevel(0);
+              vo.setLabel(MapUtil.getStr(c8Year,vo.getYear(),vo.getYear())+MapUtil.getStr(c8Quarter,vo.getSeason(),vo.getSeason()));
+              vo.setChildren(true);
+              result.add(vo);
+          }
+      }
+      return result;
     }
 
 

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,24 @@ public class CcmFeignService {
         return null;
     }
 
+    /**
+     * 通过id 获取结构树名称
+     * @param categoryIds
+     * @return
+     */
+    public Map<String,String> findStructureTreeNameByCategoryIds(String categoryIds){
+        String str = ccmService.findStructureTreeNameByCategoryIds(categoryIds);
+        Map<String,String> result=new HashMap<>(16);
+        if(StrUtil.isBlank(str)){
+            return result;
+        }
+        JSONObject jsonObject = JSON.parseObject(str);
+        if(jsonObject.getBoolean(BaseConstant.SUCCESS)){
+             return (Map<String, String>) jsonObject.get("data");
+
+        }
+        return result;
+    }
     /**
      * ccm 查询字典
      * @param types
