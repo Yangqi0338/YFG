@@ -120,4 +120,7 @@ public interface CcmService {
 
     @PostMapping(value = "/ccm/api/saas/basicStructure/findByCategoryIds", headers = {"Content-type=application/json"})
     String findStructureTreeByCategoryIds(@RequestBody String categoryIds);
+
+    @PostMapping(value = "/ccm/api/saas/basicStructure/getNameByIds", headers = {"Content-type=application/json"})
+    String findStructureTreeNameByCategoryIds(@RequestBody String categoryIds);
 }

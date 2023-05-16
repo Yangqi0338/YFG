@@ -8,6 +8,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 
+import cn.hutool.core.util.EnumUtil;
 import com.base.sbc.config.constant.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,8 +202,12 @@ public class RestExceptionHandler {
     * @return
     */
    private ApiResult error(String baseErrorEnumMessage) {
-	   BaseErrorEnum bre = BaseErrorEnum.valueOf(baseErrorEnumMessage);
-	   return ApiResult.error(localeMessages.getMessage(bre.getErrorMessage()),bre.getErrorCode());
+       boolean contains = EnumUtil.contains(BaseErrorEnum.class, baseErrorEnumMessage);
+       if(contains){
+           BaseErrorEnum bre = BaseErrorEnum.valueOf(baseErrorEnumMessage);
+           return ApiResult.error(localeMessages.getMessage(bre.getErrorMessage()),bre.getErrorCode());
+       }
+      return ApiResult.error(baseErrorEnumMessage,500);
    }
    /**
     * 国际化

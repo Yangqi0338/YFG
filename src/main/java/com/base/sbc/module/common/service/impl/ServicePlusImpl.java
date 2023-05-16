@@ -23,6 +23,9 @@ public class ServicePlusImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     @Resource
     private UserUtils userUtils;
 
+    public static  final String COMPANY_CODE="company_code";
+    public static  final String DEL_FLAG="del_flag";
+
     /**
      * 获取企业编码
      * @return

@@ -13,6 +13,7 @@ import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.dto.SendSampleMakingDto;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.service.SampleService;
+import com.base.sbc.module.sample.vo.DesignDocTreeVo;
 import com.base.sbc.module.sample.vo.SampleVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.*;
@@ -25,6 +26,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
 * 类描述：样衣 Controller类
@@ -82,6 +84,13 @@ public class SampleController{
 	@PostMapping("/approval")
 	public boolean approval(@RequestBody AnswerDto dto){
 		return sampleService.approval(dto);
+	}
+
+
+	@ApiOperation(value = "设计档案左侧树",notes = "（0级:年份季节,1级:波段,2级:大类,3级:品类）")
+	@GetMapping("/queryDesignDocTree")
+	public List<DesignDocTreeVo> queryDesignDocTree(@RequestBody  DesignDocTreeVo designDocTreeVo){
+		return sampleService.queryDesignDocTree(designDocTreeVo);
 	}
 }
 

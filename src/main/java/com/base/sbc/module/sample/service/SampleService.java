@@ -12,8 +12,11 @@ import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.dto.SendSampleMakingDto;
 import com.base.sbc.module.sample.entity.Sample;
+import com.base.sbc.module.sample.vo.DesignDocTreeVo;
 import com.base.sbc.module.sample.vo.SampleVo;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * 类描述：样衣 service类
@@ -73,6 +76,13 @@ public interface SampleService extends IServicePlus<Sample> {
      * @return
      */
     SampleVo getDetail(String id);
+
+    /**
+     * 设计档案左侧树（0级:年份季节,1级:波段,2级:大类,3级:品类）
+     * @param designDocTreeVo
+     * @return
+     */
+    List<DesignDocTreeVo> queryDesignDocTree(DesignDocTreeVo designDocTreeVo);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

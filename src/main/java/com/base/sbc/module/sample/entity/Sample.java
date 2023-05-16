@@ -21,7 +21,7 @@ import java.util.Date;
  * @address com.base.sbc.module.sample.entity.Sample
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-11 10:54:32
+ * @date 创建时间：2023-5-16 18:38:50
  * @version 1.0
  */
 @Data
@@ -55,6 +55,9 @@ public class Sample extends BaseDataEntity<String> {
     /** 品类id路径:(大类/品类/中类/小类) */
     @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)"  )
     private String categoryIds;
+    /** 品类id(最后一级) */
+    @ApiModelProperty(value = "品类id(最后一级)"  )
+    private String categoryId;
     /** 设计款号 */
     @ApiModelProperty(value = "设计款号"  )
     private String designNo;
