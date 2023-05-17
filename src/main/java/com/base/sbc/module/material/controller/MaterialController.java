@@ -40,16 +40,12 @@ public class MaterialController extends BaseController {
     private MaterialService materialService;
     @Resource
     private MaterialLabelService materialLabelService;
-    @Resource
-    private MaterialSizeService materialSizeService;
-    @Resource
-    private MaterialColorService materialColorService;
+
 
     @Resource
     private UserUtils userUtils;
 
-    @Resource
-    private FlowableService flowableService;
+
 
     /**
      * 新增
@@ -58,38 +54,8 @@ public class MaterialController extends BaseController {
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "新增素材", notes = "新增素材")
     public ApiResult add(@RequestBody MaterialSaveDto materialSaveDto) {
-
-        //materialSaveDto.setStatus(BasicNumber.ONE.getNumber());
-        materialService.save(materialSaveDto);
-
-        List<MaterialLabel> labels = materialSaveDto.getLabels();
-
-        //新增关联标签
-        if (labels != null) {
-            for (MaterialLabel label : labels) {
-                label.setMaterialId(materialSaveDto.getId());
-                materialLabelService.save(label);
-            }
-        }
-
-        //新增关联尺码
-        List<MaterialSize> sizes = materialSaveDto.getSizes();
-        if (sizes != null) {
-            for (MaterialSize size : sizes) {
-                size.setMaterialId(materialSaveDto.getId());
-                materialSizeService.save(size);
-            }
-        }
-
-        //新增关联颜色
-        List<MaterialColor> colors = materialSaveDto.getColors();
-        if (colors != null) {
-            for (MaterialColor color : colors) {
-                color.setMaterialId(materialSaveDto.getId());
-                materialColorService.save(color);
-            }
-        }
-        return insertSuccess(materialSaveDto.getId());
+        String id = materialService.add(materialSaveDto);
+        return insertSuccess(id);
     }
 
     /**
@@ -152,27 +118,7 @@ public class MaterialController extends BaseController {
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "修改素材", notes = "修改素材")
     public ApiResult updateList(@RequestBody List<MaterialSaveDto> materialSaveDtoList) {
-        for (MaterialSaveDto materialSaveDto : materialSaveDtoList) {
-            //修改关联标签
-            QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
-            labelQueryWrapper.eq("material_id", materialSaveDto.getId());
-            materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
-            materialService.updateById(materialSaveDto);
-            flowableService.start(FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
-                    "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), BeanUtil.beanToMap(materialSaveDto));
-        }
-
-
-        ////修改关联尺码
-        //QueryWrapper<MaterialSize> sizeQueryWrapper = new QueryWrapper<>();
-        //sizeQueryWrapper.eq("material_id", materialSaveDto.getId());
-        //materialSizeService.addAndUpdateAndDelList(materialSaveDto.getSizes(),sizeQueryWrapper);
-        //
-        ////修改关联颜色
-        //QueryWrapper<MaterialColor> colorQueryWrapper = new QueryWrapper<>();
-        //colorQueryWrapper.eq("material_id", materialSaveDto.getId());
-        //materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
-
+        materialService.updateList(materialSaveDtoList);
         return updateSuccess(materialSaveDtoList.size());
     }
 

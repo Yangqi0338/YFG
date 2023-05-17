@@ -2,9 +2,12 @@ package com.base.sbc.module.material.service;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
+import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * 类描述：素材库 service类
@@ -23,4 +26,17 @@ public interface MaterialService extends IServicePlus<Material> {
      PageInfo<MaterialVo> listQuery(MaterialQueryDto materialQueryDto);
 
     boolean toExamine(AnswerDto dto);
+
+    /**
+     * 新增
+     * @param materialSaveDto materialSaveDto类
+     */
+    String add(MaterialSaveDto materialSaveDto);
+
+    /**
+     * 批量修改素材
+     * @param materialSaveDtoList 素材列表
+     * @return 影响的条数
+     */
+    Integer updateList(List<MaterialSaveDto> materialSaveDtoList);
 }

@@ -1,15 +1,18 @@
 package com.base.sbc.module.material.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
+import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.*;
 import com.base.sbc.module.material.mapper.MaterialMapper;
 import com.base.sbc.module.material.service.*;
@@ -50,7 +53,11 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
     private AmcFeignService amcFeignService;
 
     @Resource
+    private FlowableService flowableService;
+
+    @Resource
     private PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
+
 
     /**
      * 为了解决太多表关联查询太慢的问题
@@ -216,5 +223,75 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
             return false;
         }
 
+    }
+
+    /**
+     * 新增
+     *
+     * @param materialSaveDto materialSaveDto类
+     */
+    @Override
+    public String add(MaterialSaveDto materialSaveDto) {
+        this.save(materialSaveDto);
+
+        List<MaterialLabel> labels = materialSaveDto.getLabels();
+
+        //新增关联标签
+        if (labels != null) {
+            for (MaterialLabel label : labels) {
+                label.setMaterialId(materialSaveDto.getId());
+                materialLabelService.save(label);
+            }
+        }
+
+        //新增关联尺码
+        List<MaterialSize> sizes = materialSaveDto.getSizes();
+        if (sizes != null) {
+            for (MaterialSize size : sizes) {
+                size.setMaterialId(materialSaveDto.getId());
+                materialSizeService.save(size);
+            }
+        }
+
+        //新增关联颜色
+        List<MaterialColor> colors = materialSaveDto.getColors();
+        if (colors != null) {
+            for (MaterialColor color : colors) {
+                color.setMaterialId(materialSaveDto.getId());
+                materialColorService.save(color);
+            }
+        }
+
+        return materialSaveDto.getId();
+    }
+
+    /**
+     * 批量修改素材
+     *
+     * @param materialSaveDtoList 素材列表
+     * @return 影响的条数
+     */
+    @Override
+    public Integer updateList(List<MaterialSaveDto> materialSaveDtoList) {
+        for (MaterialSaveDto materialSaveDto : materialSaveDtoList) {
+            //修改关联标签
+            QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
+            labelQueryWrapper.eq("material_id", materialSaveDto.getId());
+            materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
+            this.updateById(materialSaveDto);
+            flowableService.start(FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
+                    "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), BeanUtil.beanToMap(materialSaveDto));
+        }
+
+        ////修改关联尺码
+        //QueryWrapper<MaterialSize> sizeQueryWrapper = new QueryWrapper<>();
+        //sizeQueryWrapper.eq("material_id", materialSaveDto.getId());
+        //materialSizeService.addAndUpdateAndDelList(materialSaveDto.getSizes(),sizeQueryWrapper);
+        //
+        ////修改关联颜色
+        //QueryWrapper<MaterialColor> colorQueryWrapper = new QueryWrapper<>();
+        //colorQueryWrapper.eq("material_id", materialSaveDto.getId());
+        //materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
+        return materialSaveDtoList.size();
     }
 }
