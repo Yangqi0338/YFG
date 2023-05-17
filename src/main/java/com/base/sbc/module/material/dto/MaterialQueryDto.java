@@ -1,6 +1,6 @@
 package com.base.sbc.module.material.dto;
 
-import com.base.sbc.module.common.dto.PageDto;
+import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +13,7 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class MaterialQueryDto extends PageDto {
+public class MaterialQueryDto extends Page {
 
     @ApiModelProperty(value = "状态查询数组")
     private String[] statusList;
