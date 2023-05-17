@@ -74,13 +74,7 @@ public interface PlanningBandService extends IServicePlus<PlanningBand> {
 	 */
 	PageInfo<PlanningSeasonBandVo> queryPlanningSeasonBandPageInfo(PlanningBandSearchDto dto, String userCompany);
 
-	/**
-	 * 删除产品季
-	 *
-	 * @param id
-	 * @return
-	 */
-	boolean delPlanningSeason(String id);
+
 
 	/**
 	 * 按波段展开

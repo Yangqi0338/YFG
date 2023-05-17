@@ -13,6 +13,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ public class JacksonHttpMessageConverter extends MappingJackson2HttpMessageConve
         }
     }
 
-    public class NullMapJsonSerializer extends JsonSerializer<Object>{
+    public class NullMapJsonSerializer extends JsonSerializer<Object> {
 
         @Override
         public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
@@ -91,9 +92,16 @@ public class JacksonHttpMessageConverter extends MappingJackson2HttpMessageConve
                 if (isArrayType(writer)) {
                     //给writer注册一个自己的nullSerializer
                     writer.assignNullSerializer(new NullArrayJsonSerializer());
-                }
-                else if (isMapType(writer)) {
+                } else if (isMapType(writer)) {
                     writer.assignNullSerializer(new NullMapJsonSerializer());
+
+                } else if (isDateType(writer)) {
+//                    writer.assignSerializer(new JsonSerializer<Object>() {
+//                        @Override
+//                        public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {
+//                            gen.writeString(DateUtils.formatDateTime((Date)value));
+//                        }
+//                    });
                 }
 //                else if (isNumberType(writer)) {
 //                    writer.assignNullSerializer(new NullNumberJsonSerializer());
@@ -115,15 +123,30 @@ public class JacksonHttpMessageConverter extends MappingJackson2HttpMessageConve
             Class<?> clazz = writer.getType().getRawClass();
             return clazz.isArray() || Collection.class.isAssignableFrom(clazz);
         }
+
         /**
          * 是否是map
          */
         private boolean isMapType(BeanPropertyWriter writer) {
             Class<?> clazz = writer.getType().getRawClass();
-            if(Map.class.isAssignableFrom(clazz)){
+            if (Map.class.isAssignableFrom(clazz)) {
                 return true;
             }
-            return  false;
+            return false;
+        }
+
+        /**
+         * 是否是 日期格式
+         *
+         * @param writer
+         * @return
+         */
+        private boolean isDateType(BeanPropertyWriter writer) {
+            Class<?> clazz = writer.getType().getRawClass();
+            if (Date.class.isAssignableFrom(clazz)) {
+                return true;
+            }
+            return false;
         }
 
         /**

@@ -79,8 +79,7 @@ public class PlanningController extends BaseController {
     @ApiOperation(value = "查询产品季-通过季名称查询")
     @GetMapping("/getByName")
     public PlanningSeasonVo getByName(@NotNull(message = "名称不能为空") String name) {
-        List<PlanningSeason> seasons = planningSeasonService.getByName(name, getUserCompany());
-        return BeanUtil.copyProperties(seasons.get(0), PlanningSeasonVo.class);
+        return planningSeasonService.getByName(name);
     }
 
     @ApiOperation(value = "查询产品季-分页查询")
@@ -169,7 +168,7 @@ public class PlanningController extends BaseController {
         if (planningSeasonService.checkPlanningSeasonHasBand(id)) {
             throw new OtherException("存在波段企划无法删除");
         }
-        return planningBandService.delPlanningSeason(id);
+        return planningSeasonService.delPlanningSeason(id);
     }
 
 

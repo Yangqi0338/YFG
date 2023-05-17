@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.TeamVo;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -40,9 +40,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.base.sbc.config.common.base.BaseController.COMPANY_CODE;
-import static com.base.sbc.config.common.base.BaseController.DEL_FLAG;
-
 /**
  * 类描述：波段企划 service
  * @address com.base.sbc.module.planning.service.impl.PlanningBandServiceImpl
@@ -65,6 +62,7 @@ public class PlanningBandServiceImpl extends ServicePlusImpl<PlanningBandMapper,
     @Resource
     private AmcFeignService amcFeignService;
     @Override
+    @Transactional
     public boolean del( String id) {
         this.removeById(id);
         return true;
@@ -154,6 +152,9 @@ public class PlanningBandServiceImpl extends ServicePlusImpl<PlanningBandMapper,
         } else {
             first.getBand().setCategoryItemData(new ArrayList<>());
         }
+        //获取团队信息
+        List<TeamVo> teamList = amcFeignService.getTeamBySeasonId(first.getSeason().getId());
+        first.getSeason().setTeamList(teamList);
         return first;
     }
 
@@ -193,12 +194,6 @@ public class PlanningBandServiceImpl extends ServicePlusImpl<PlanningBandMapper,
             return pageInfo;
         }
         return null;
-    }
-
-    @Override
-    public boolean delPlanningSeason(String id) {
-         del(id);
-        return true;
     }
 
     @Override

@@ -1,9 +1,12 @@
 package com.base.sbc.module.planning.vo;
 
+import com.base.sbc.client.amc.TeamVo;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @ApiModel("商品企划-产品季列表 PlanningSeasonSaveVo")
@@ -34,5 +37,8 @@ public class PlanningSeasonVo{
     private String remarks;
     @ApiModelProperty(value = "skc数" )
     private Long skcCount;
+
+    @ApiModelProperty(value = "团队" )
+    private List<TeamVo> teamList;
 
 }
