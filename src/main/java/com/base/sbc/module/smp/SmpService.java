@@ -61,8 +61,8 @@ public class SmpService {
     /**
      * 样品下发
      */
-    public Boolean sample(JSONObject jsonObject){
-        return RestTemplateUtils.spmPost(URL + "/sample",jsonObject);
+    public Boolean sample(SmpSampleDto smpSampleDto){
+        return RestTemplateUtils.spmPost(URL + "/sample",smpSampleDto);
     }
 
     /**
