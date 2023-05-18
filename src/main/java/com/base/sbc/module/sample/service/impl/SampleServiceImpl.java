@@ -205,7 +205,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         SampleVo sampleVo = BeanUtil.copyProperties(sample, SampleVo.class);
         //查询工艺信息
         Technology technology = technologyService.getOne(new QueryWrapper<Technology>().eq("f_id", id));
-        sampleVo.setTechnology(technology);
+        sampleVo.setTechnology(Optional.ofNullable(technology).orElse(new Technology()));
 
         //查询附件
         List<AttachmentVo> attachmentVoList = attachmentService.findByFId(id);
