@@ -29,13 +29,13 @@ public class BasicsdatumSizeExcelDto {
     /**
      * 工艺项目
      */
-    @Excel(name = "Internal Size")
+    @Excel(name = "Internal Size" ,width = 120)
     private String internalSize;
 
     /**
      * 描述
      */
-    @Excel(name = "External Size")
+    @Excel(name = "External Size",width = 120)
     private String externalSize;
 
     /**
@@ -60,7 +60,7 @@ public class BasicsdatumSizeExcelDto {
     @Excel(name = "状态", replace = {"FALSE_1","TRUE_0"})
     private String status;
 
-    @Excel(name = "Dimension Type")
+    @Excel(name = "Dimension Type",width = 120)
     private String dimensionType;
 
     @Excel(name = "翻译名称")
@@ -72,7 +72,7 @@ public class BasicsdatumSizeExcelDto {
     @Excel(name = "US标签")
     private String labelName;
 
-    @Excel(name = "显示尺码标识",replace = {"FALSE_1","TRUE_0"})
+    @Excel(name = "显示尺码标识",replace = {"FALSE_1","TRUE_0"},width = 120)
     private String showSizeStatus;
 
     private String    sizeLabelId;
