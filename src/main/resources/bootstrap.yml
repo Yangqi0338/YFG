@@ -7,7 +7,6 @@ spring:
         server-addr: 10.8.252.11:8848   # 配置中心地址
         namespace: dev
         file-extension: yml # 假如不配置，则nacos远程配置文件的后缀为.properties
-
 # 暂不打印
 logging:
   level:

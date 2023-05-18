@@ -1,11 +1,14 @@
 package com.base.sbc.client.amc.service;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.base.sbc.client.amc.TeamVo;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -22,6 +25,7 @@ import java.util.Map;
  * @version 1.0
  */
 @Service
+@Slf4j
 public class AmcFeignService {
 
     @Resource
@@ -48,5 +52,22 @@ public class AmcFeignService {
         return userAvatarMap;
     }
 
+    /**
+     * 获取团队信息
+     * @param seasonId 产品季节id
+     * @return
+     */
+    public List<TeamVo> getTeamBySeasonId(String seasonId){
+        try {
+            String str = amcService.getTeamBySeasonId(seasonId);
+            JSONObject jsonObject = JSON.parseObject(str);
+            if(jsonObject.getBoolean("success")){
+              return  jsonObject.getJSONArray("data").toJavaList(TeamVo.class);
+            }
+        } catch (Exception e) {
+            log.error("获取产品季团队异常",e);
+        }
+        return null;
+    }
 
 }

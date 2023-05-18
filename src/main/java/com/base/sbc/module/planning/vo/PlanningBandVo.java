@@ -1,12 +1,15 @@
 package com.base.sbc.module.planning.vo;
 
+import com.base.sbc.client.amc.TeamVo;
 import com.base.sbc.module.planning.entity.PlanningCategory;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -40,6 +43,9 @@ public class PlanningBandVo {
     private String createName;
     @ApiModelProperty(value = "创建id" ,example = "12331423412412")
     private String createId;
+    @ApiModelProperty(value = "时间时间" ,example = "2023-05-17 13:12:38")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date createDate;
     @ApiModelProperty(value = "品类信息" )
     private List<PlanningCategory> categoryData;
     @ApiModelProperty(value = "坑位信息" )

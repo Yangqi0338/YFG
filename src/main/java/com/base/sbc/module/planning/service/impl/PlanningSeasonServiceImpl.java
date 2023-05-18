@@ -213,4 +213,21 @@ public class PlanningSeasonServiceImpl extends ServicePlusImpl<PlanningSeasonMap
             throw new OtherException("该品牌已经存在此年份、季节");
         }
     }
+
+    @Override
+    public boolean delPlanningSeason(String id) {
+        removeById(id);
+        return true;
+    }
+
+    @Override
+    public PlanningSeasonVo getByName(String name) {
+        List<PlanningSeason> seasons =  getByName(name, getCompanyCode());
+        if(CollUtil.isNotEmpty(seasons)){
+            PlanningSeasonVo planningSeasonVo = BeanUtil.copyProperties(seasons.get(0), PlanningSeasonVo.class);
+            planningSeasonVo.setTeamList(amcFeignService.getTeamBySeasonId(planningSeasonVo.getId()));
+            return planningSeasonVo;
+        }
+        return null;
+    }
 }

@@ -97,4 +97,18 @@ public interface PlanningSeasonService extends IServicePlus<PlanningSeason> {
      * @param userCompany
      */
     void checkBYSRepeat(PlanningSeasonSaveDto dto, String userCompany);
+
+    /**
+     * 删除产品季
+     * @param id
+     * @return
+     */
+    boolean delPlanningSeason(String id);
+
+    /**
+     * 通过名称获取
+     * @param name
+     * @return
+     */
+    PlanningSeasonVo getByName(String name);
 }

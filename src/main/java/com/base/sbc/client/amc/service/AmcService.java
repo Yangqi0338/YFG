@@ -13,8 +13,8 @@ import java.util.List;
  * @author lilele
  * @data 创建时间:2021/12/24
  */
-//@FeignClient(name = "amc", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
-@FeignClient(name = "amc", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
+@FeignClient(name = "amc", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
+//@FeignClient(name = "amc", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
 public interface AmcService {
     /**
      * 获取用户信息
@@ -84,4 +84,12 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/token/userCompany/getAdList")
     List<AdTree> getAdList();
+
+    /**
+     * 获取团队信息
+     * @param seasonId 产品季节id
+     * @return
+     */
+    @GetMapping("/amc/api/token/team/getBySeasonId")
+    String getTeamBySeasonId( @RequestParam("seasonId") String seasonId);
 }

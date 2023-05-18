@@ -57,9 +57,9 @@ public class SampleController{
 	}
 	@ApiOperation(value = "保存")
 	@PostMapping
-	public Sample save(@RequestBody SampleSaveDto dto) {
+	public SampleVo save(@RequestBody SampleSaveDto dto) {
 		Sample  sample=sampleService.saveSample(dto);
-		return sample;
+		return sampleService.getDetail(sample.getId());
 	}
 
 	@ApiOperation(value = "发送打板指令")
