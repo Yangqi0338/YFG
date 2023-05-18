@@ -154,22 +154,19 @@ public class BasicsdatumSizeServiceImpl extends ServicePlusImpl<BasicsdatumSizeM
         if(StringUtils.isEmpty( queryDasicsdatumSizeDto.getIsDerive())){
             throw new OtherException("失败");
         }
-
         String fileName="";
-
-        List<BasicsdatumSizeExcelDto> list =new ArrayList<>();
-
+        List<BasicsdatumSizeExcelDto> list =null;
         if(queryDasicsdatumSizeDto.getIsDerive().equals(BaseGlobal.STATUS_NORMAL)){
             /*模板导出*/
             fileName="尺码模板";
+            list =new ArrayList<>();
         }else {
             fileName="尺码";
+            QueryWrapper<BasicsdatumSizeExcelDto> queryWrapper=new QueryWrapper<>();
+            queryWrapper.eq(!StringUtils.isEmpty(queryDasicsdatumSizeDto.getSizeLabelId()),"size_label_id",queryDasicsdatumSizeDto.getSizeLabelId());
+            list = baseMapper.selectSize(queryWrapper);
         }
-        QueryWrapper<BasicsdatumSizeExcelDto> queryWrapper=new QueryWrapper<>();
-        list = baseMapper.selectSize(queryWrapper);
-        ExcelUtils.exportExcel(list, "人员名单", "名单", BasicsdatumSizeExcelDto.class, "人员名单.xlsx", response);
-
-
+        ExcelUtils.exportExcel(list, fileName, fileName, BasicsdatumSizeExcelDto.class, fileName+".xlsx", response);
     }
 
     /**
@@ -197,6 +194,7 @@ public class BasicsdatumSizeServiceImpl extends ServicePlusImpl<BasicsdatumSizeM
             /*新增*/
             BeanUtils.copyProperties(addRevampSizeDto, basicsdatumSize);
             basicsdatumSize.setCompanyCode(baseController.getUserCompany());
+            basicsdatumSize.setSendStatus(BaseGlobal.STATUS_NORMAL);
             basicsdatumSize.insertInit();
             baseMapper.insert(basicsdatumSize);
         } else {
@@ -206,6 +204,7 @@ public class BasicsdatumSizeServiceImpl extends ServicePlusImpl<BasicsdatumSizeM
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
             BeanUtils.copyProperties(addRevampSizeDto, basicsdatumSize);
+            basicsdatumSize.setSendStatus(BaseGlobal.STATUS_CLOSE);
             basicsdatumSize.updateInit();
             baseMapper.updateById(basicsdatumSize);
         }
