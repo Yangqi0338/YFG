@@ -23,6 +23,7 @@ import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.fieldManagement.entity.Option;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.base.sbc.module.sample.dto.*;
@@ -71,6 +72,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
     @Autowired
     CcmFeignService ccmFeignService;
     @Override
+    @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public Sample saveSample(SampleSaveDto dto) {
         Sample sample = null;
         if (StrUtil.isNotBlank(dto.getId())) {
@@ -85,13 +87,15 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         //保存工艺信息
         if (ObjectUtil.isNotEmpty(dto.getTechnology())) {
             TechnologySaveDto technologyDto = dto.getTechnology();
-            Technology technology = null;
-            if (StrUtil.isNotBlank(technologyDto.getId())) {
-                technology = technologyService.getById(technologyDto.getId());
-            } else {
-                technology = BeanUtil.copyProperties(technologyDto, Technology.class);
-            }
+            Technology technology = technologyService.getOne(new QueryWrapper<Technology>().eq("f_id", sample.getId()));
+            technology = Optional.ofNullable(technology).orElse(new Technology());
+            BeanUtil.copyProperties(technologyDto, technology,"id");
+            technology.setFId(sample.getId());
+            technology.setDelFlag(BaseGlobal.DEL_FLAG_NORMAL);
+            technology.setStatus(BaseGlobal.STATUS_NORMAL);
+            technology.copyFrom(sample);
             technologyService.saveOrUpdate(technology);
+
         }
         // 附件信息
         QueryWrapper<Attachment> aqw = new QueryWrapper<>();

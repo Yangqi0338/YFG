@@ -210,4 +210,13 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
         this.delFlag=BaseGlobal.DEL_FLAG_NORMAL;
     }
 
+    public <T extends BaseDataEntity> void copyFrom(T t){
+        this.setUpdateDate(t.getUpdateDate());
+        this.setUpdateId(t.getUpdateId());
+        this.setUpdateName(t.getCreateName());
+        this.setCreateDate(t.getCreateDate());
+        this.setCreateId(t.getCreateId());
+        this.setCreateName(t.getCreateName());
+        this.setDelFlag(t.getDelFlag());
+    }
 }
