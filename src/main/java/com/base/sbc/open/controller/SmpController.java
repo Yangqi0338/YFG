@@ -1,8 +1,12 @@
 package com.base.sbc.open.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.open.dto.DTBPReq;
+import com.base.sbc.open.dto.MtBpReqDto;
+import com.base.sbc.open.dto.SmpDeptDto;
+import com.base.sbc.open.dto.SmpPostDto;
+import com.base.sbc.open.dto.SmpUserDto;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,8 +27,38 @@ public class SmpController extends BaseController {
      * bp供应商
      */
     @PostMapping("/supplierSave")
-    public ApiResult supplierSave(@RequestBody DTBPReq dtbpReq) {
-        System.out.println(dtbpReq);
+    public ApiResult supplierSave(@RequestBody JSONObject jsonObject) {
+        MtBpReqDto mtBpReqDto = JSONObject.parseObject(jsonObject.toJSONString(), MtBpReqDto.class);
+        System.out.println(mtBpReqDto);
+        return insertSuccess(null);
+    }
+    /**
+     * hr-人员
+     */
+    @PostMapping("/hrUserSave")
+    public ApiResult hrSave(@RequestBody JSONObject jsonObject) {
+        SmpUserDto smpUserDto = JSONObject.parseObject(jsonObject.toJSONString(), SmpUserDto.class);
+        System.out.println(smpUserDto);
+        return insertSuccess(null);
+    }
+
+    /**
+     * hr-部门
+     */
+    @PostMapping("/hrDeptSave")
+    public ApiResult hrDeptSave(@RequestBody JSONObject jsonObject) {
+        SmpDeptDto smpDeptDto = JSONObject.parseObject(jsonObject.toJSONString(), SmpDeptDto.class);
+        System.out.println(smpDeptDto);
+        return insertSuccess(null);
+    }
+
+    /**
+     * hr-岗位
+     */
+    @PostMapping("/hrPostSave")
+    public ApiResult hrPostSave(@RequestBody JSONObject jsonObject) {
+        SmpPostDto smpPostDto = JSONObject.parseObject(jsonObject.toJSONString(), SmpPostDto.class);
+        System.out.println(smpPostDto);
         return insertSuccess(null);
     }
 }

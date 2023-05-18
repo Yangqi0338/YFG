@@ -20,6 +20,7 @@ import com.base.sbc.module.material.vo.MaterialVo;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,36 +35,34 @@ import java.util.*;
  * @date 创建时间：2023-4-1 16:26:15
  */
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Material> implements MaterialService {
-    @Resource
-    private MaterialMapper materialMapper;
-    @Resource
-    private UserUtils userUtils;
-    @Resource
-    private MaterialLabelService materialLabelService;
-    @Resource
-    private MaterialCollectService materialCollectService;
-    @Resource
-    private MaterialSizeService materialSizeService;
-    @Resource
-    private MaterialColorService materialColorService;
 
-    @Resource
-    private AmcFeignService amcFeignService;
+    private final MaterialMapper materialMapper;
 
-    @Resource
-    private FlowableService flowableService;
+    private final UserUtils userUtils;
 
-    @Resource
-    private PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
+    private final MaterialLabelService materialLabelService;
+
+    private final MaterialCollectService materialCollectService;
+
+    private final MaterialSizeService materialSizeService;
+
+    private final MaterialColorService materialColorService;
+
+    private final AmcFeignService amcFeignService;
+
+    private final FlowableService flowableService;
+
+    private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
 
     /**
      * 为了解决太多表关联查询太慢的问题
      * 相关联的表，生成查询条件
      */
-    private void addQuery(MaterialQueryDto materialQueryDto) {
+    @Transactional
+    public void addQuery(MaterialQueryDto materialQueryDto) {
         // TODO: 2023/3/31 后期优化，写sql语句优化查询返回字段
         HashSet<String> collectSet = null;
         HashSet<String> labelSet = null;
@@ -210,6 +209,7 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
     }
 
     @Override
+    @Transactional
     public boolean toExamine(AnswerDto dto) {
         Material material = this.getById(dto.getBusinessKey());
         if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
@@ -231,6 +231,7 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
      * @param materialSaveDto materialSaveDto类
      */
     @Override
+    @Transactional
     public String add(MaterialSaveDto materialSaveDto) {
         this.save(materialSaveDto);
 
@@ -272,6 +273,7 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
      * @return 影响的条数
      */
     @Override
+    @Transactional
     public Integer updateList(List<MaterialSaveDto> materialSaveDtoList) {
         for (MaterialSaveDto materialSaveDto : materialSaveDtoList) {
             //修改关联标签

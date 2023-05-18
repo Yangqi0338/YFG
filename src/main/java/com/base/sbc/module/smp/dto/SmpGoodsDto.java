@@ -46,7 +46,7 @@ public class SmpGoodsDto extends SmpBaseDto {
     private String designer;
     /** 工艺员 */
     private String technician;
-    /** 工艺员 */
+    /** 工艺员id */
     private String technicianId;
     /** 目标成本 */
     private BigDecimal targetCost;

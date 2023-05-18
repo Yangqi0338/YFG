@@ -19,12 +19,11 @@ import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
 
@@ -34,16 +33,15 @@ import java.util.*;
  */
 @RestController
 @Api(value = "与素材库相关的所有接口信息", tags = {"素材库接口"})
+@RequiredArgsConstructor
 @RequestMapping(value = BaseController.SAAS_URL + "/material", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class MaterialController extends BaseController {
-    @Resource
-    private MaterialService materialService;
-    @Resource
-    private MaterialLabelService materialLabelService;
 
+    private final MaterialService materialService;
 
-    @Resource
-    private UserUtils userUtils;
+    private final MaterialLabelService materialLabelService;
+
+    private final UserUtils userUtils;
 
 
 

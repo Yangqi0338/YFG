@@ -49,9 +49,6 @@ public class SmpSampleDto {
     private String colorwayCode;
     /**大货款号唯一标识*/
     private String colorwayPLMID;
-
-    /**图片*/
-    private List<String> imgList;
     /**样衣名*/
     private String nodeName;
     /**设计收样日期*/
@@ -64,9 +61,6 @@ public class SmpSampleDto {
     private String sampleType;
     /**样衣类型名称*/
     private String sampleTypeName;
-
-
-
     /**大类*/
     private String majorCategories;
     /**大类名称*/
@@ -107,4 +101,6 @@ public class SmpSampleDto {
     private String supplier;
     /**打样部门编号*/
     private String supplierNumber;
+    /**图片集合*/
+    private List<String> imgList;
 }

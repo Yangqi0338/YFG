@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 
 import com.base.sbc.config.JacksonHttpMessageConverter;
+import com.base.sbc.config.exception.RequestInterceptor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -14,6 +15,9 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+
+import javax.annotation.Resource;
+
 /**
  * @author Fred
  * @data 创建时间:2020/2/3
@@ -22,6 +26,9 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 @EnableAutoConfiguration
 @ComponentScan
 public class LocaleConfig extends WebMvcConfigurerAdapter {
+
+    @Resource
+    private RequestInterceptor requestInterceptor;
 
     @Bean
     public LocaleResolver localeResolver() {
@@ -42,6 +49,7 @@ public class LocaleConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(localeChangeInterceptor());
+        registry.addInterceptor(requestInterceptor);
     }
 
     @Override
