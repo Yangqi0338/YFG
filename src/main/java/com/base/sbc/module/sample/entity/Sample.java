@@ -21,7 +21,7 @@ import java.util.Date;
  * @address com.base.sbc.module.sample.entity.Sample
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-16 18:38:50
+ * @date 创建时间：2023-5-18 17:51:21
  * @version 1.0
  */
 @Data
@@ -175,6 +175,9 @@ public class Sample extends BaseDataEntity<String> {
     /** 是否齐套:0未齐套，1已齐套 */
     @ApiModelProperty(value = "是否齐套:0未齐套，1已齐套"  )
     private String kitting;
+    /** 模板部件 */
+    @ApiModelProperty(value = "模板部件"  )
+    private String patternParts;
     /** 状态:0未开款，1已开款，2已下发打板(完成) */
     @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成)"  )
     private String status;

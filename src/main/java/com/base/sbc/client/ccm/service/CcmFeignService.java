@@ -69,6 +69,7 @@ public class CcmFeignService {
     public Map<String,Map<String,String>> getDictInfoToMap(String types){
         Map<String,Map<String,String>> result=new LinkedHashMap<>(16);
         String dictInfo = ccmService.getDictInfo(types);
+        System.out.println(dictInfo);
         JSONObject jsonObject = JSON.parseObject(dictInfo);
         if(jsonObject.getBoolean(BaseConstant.SUCCESS)){
             List<BasicBaseDict> data = jsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);

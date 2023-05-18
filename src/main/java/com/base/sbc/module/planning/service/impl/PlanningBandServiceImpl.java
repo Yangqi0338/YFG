@@ -96,7 +96,7 @@ public class PlanningBandServiceImpl extends ServicePlusImpl<PlanningBandMapper,
     }
 
     @Override
-    public void checkNameRepeat(PlanningBandDto dto, String userCompany) {
+    public void checkRepeat(PlanningBandDto dto, String userCompany) {
         QueryWrapper nameQc = new QueryWrapper();
         nameQc.eq(COMPANY_CODE, userCompany);
         nameQc.eq("name", dto.getName());
@@ -106,7 +106,19 @@ public class PlanningBandServiceImpl extends ServicePlusImpl<PlanningBandMapper,
         }
         long nameCount = count(nameQc);
         if (nameCount > 0) {
-            throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
+            throw new OtherException("名称重复");
+        }
+
+        QueryWrapper bandQc = new QueryWrapper();
+        bandQc.eq(COMPANY_CODE, userCompany);
+        bandQc.eq("band_code", dto.getBandCode());
+        bandQc.eq("planning_season_id", dto.getPlanningSeasonId());
+        if (StrUtil.isNotEmpty(dto.getId())) {
+            bandQc.ne("id", dto.getId());
+        }
+        long bandCount = count(bandQc);
+        if (bandCount > 0) {
+            throw new OtherException("该产品季已有此波段");
         }
     }
 
@@ -165,6 +177,7 @@ public class PlanningBandServiceImpl extends ServicePlusImpl<PlanningBandMapper,
         qc.apply("b.planning_season_id=s.id");
         qc.like(StrUtil.isNotBlank(dto.getSearch()), "b.name", dto.getSearch());
         qc.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
+        qc.in(CollUtil.isNotEmpty(dto.getMonthList()),"b.month",dto.getMonthList());
         qc.eq("s.company_code", userCompany);
         qc.eq("s.del_flag", BaseEntity.DEL_FLAG_NORMAL);
         qc.eq("b.del_flag", BaseEntity.DEL_FLAG_NORMAL);

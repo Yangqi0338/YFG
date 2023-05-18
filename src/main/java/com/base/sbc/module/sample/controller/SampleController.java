@@ -88,10 +88,11 @@ public class SampleController{
 
 
 	@ApiOperation(value = "设计档案左侧树",notes = "（0级:年份季节,1级:波段,2级:大类,3级:品类）")
-	@GetMapping("/queryDesignDocTree")
+	@PostMapping("/queryDesignDocTree")
 	public List<DesignDocTreeVo> queryDesignDocTree(@RequestBody  DesignDocTreeVo designDocTreeVo){
 		return sampleService.queryDesignDocTree(designDocTreeVo);
 	}
+
 }
 
 

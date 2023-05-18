@@ -13,10 +13,12 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.entity.Attachment;
@@ -24,8 +26,9 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.fieldManagement.entity.Option;
-import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
-import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
+import com.base.sbc.module.planning.entity.*;
+import com.base.sbc.module.planning.service.*;
+import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.Technology;
 import com.base.sbc.module.sample.mapper.SampleMapper;
@@ -43,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,12 +69,22 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
     @Autowired
     private FlowableService flowableService;
     @Autowired
-    public AttachmentService attachmentService;
+    private AttachmentService attachmentService;
     @Autowired
-    public PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
+    private PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
+    @Autowired
+    private PlanningSeasonService planningSeasonService;
+    @Autowired
+    private PlanningBandService planningBandService;
+    @Autowired
+    private PlanningCategoryService planningCategoryService;
+    @Autowired
+    private PlanningCategoryItemService planningCategoryItemService;
 
     @Autowired
     CcmFeignService ccmFeignService;
+    @Autowired
+    AmcFeignService amcFeignService;
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public Sample saveSample(SampleSaveDto dto) {
@@ -79,10 +93,9 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
             sample = getById(dto.getId());
             BeanUtil.copyProperties(dto, sample);
             updateById(sample);
+            planningCategoryItemMaterialService.saveMaterialList(dto);
         } else {
-            sample = new Sample();
-            BeanUtil.copyProperties(dto, sample);
-            save(sample);
+            sample =saveNewSample(dto);
         }
         //保存工艺信息
         if (ObjectUtil.isNotEmpty(dto.getTechnology())) {
@@ -110,6 +123,97 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
             }
         }
         attachmentService.addAndUpdateAndDelList(attachments, aqw);
+        return sample;
+    }
+
+    @Transactional(rollbackFor = {OtherException.class, Exception.class})
+    public Sample saveNewSample(SampleSaveDto dto) {
+
+        // 判断当前用户是否有编码
+        UserCompany userInfo = amcFeignService.getUserInfo(getUserId());
+        if(userInfo==null||StrUtil.isBlank(userInfo.getUserCode())){
+            throw  new OtherException("您为设置用户编码");
+        }
+
+        PlanningSeason planningSeason=null;
+        PlanningBand planningBand;
+        //1 查询产品季 年份 + 季节
+        QueryWrapper<PlanningSeason> seasonQw=new QueryWrapper<>();
+        seasonQw.eq(COMPANY_CODE,getCompanyCode());
+        seasonQw.eq("year",dto.getYear());
+        seasonQw.eq("season",dto.getSeason());
+        seasonQw.eq("del_flag",BaseGlobal.DEL_FLAG_NORMAL);
+        List<PlanningSeason> seasonList = planningSeasonService.list(seasonQw);
+        if(CollUtil.isEmpty(seasonList)){
+            throw  new OtherException("产品季为空");
+        }
+
+        planningSeason=CollUtil.getFirst(seasonList);
+        //2 查询波段企划 产品季 + 波段
+        QueryWrapper<PlanningBand> bandQw=new QueryWrapper<>();
+        bandQw.eq("planning_season_id",planningSeason.getId());
+        bandQw.eq("band_code",dto.getBandCode());
+        bandQw.eq("del_flag",BaseGlobal.DEL_FLAG_NORMAL);
+        List<PlanningBand> bandList = planningBandService.list(bandQw);
+        if(CollUtil.isEmpty(bandList)){
+            throw  new OtherException("波段企划为空");
+        }
+        planningBand=CollUtil.getFirst(bandList);
+
+        //3 查询波段下的品类信息 波段 + 品类
+        //品类
+        List<String> categoryIds = StrUtil.split(dto.getCategoryIds(), StrUtil.COMMA);
+
+        QueryWrapper<PlanningCategory> categoryQw=new QueryWrapper<>();
+        categoryQw.eq("planning_band_id",planningBand.getId());
+        bandQw.eq("del_flag",BaseGlobal.DEL_FLAG_NORMAL);
+        bandQw.eq("category_ids",CollUtil.join(CollUtil.sub(categoryIds,0,2),StrUtil.COMMA));
+        List<PlanningCategory> categoryList = planningCategoryService.list(categoryQw);
+        if(CollUtil.isEmpty(categoryList)){
+            throw  new OtherException("该波段下无此品类信息");
+        }
+        PlanningCategory planningCategory=CollUtil.getFirst(categoryList);
+        // 品类信息的需求数+1
+        planningCategory.setPlanRequirementNum(planningCategory.getPlanRequirementNum().add(BigDecimal.ONE));
+        planningCategoryService.updateById(planningCategory);
+        // 新增坑位信息
+        PlanningCategoryItem categoryItem=new PlanningCategoryItem();
+        categoryItem.setPlanningSeasonId(planningSeason.getId());
+        categoryItem.setPlanningBandId(planningBand.getId());
+        categoryItem.setPlanningCategoryId(planningCategory.getId());
+        categoryItem.setStylePic(dto.getStylePic());
+        categoryItem.setCategoryId(CollUtil.getLast(categoryIds));
+        categoryItem.setStatus("1");
+        categoryItem.setCategoryIds(dto.getCategoryIds());
+        categoryItem.setCategoryName(dto.getCategoryName());
+        categoryItem.setDesigner(userInfo.getAliasUserName()+StrUtil.COMMA+userInfo.getUserCode());
+        categoryItem.setDesignerId(userInfo.getUserId());
+        categoryItem.setMaterialCount(new BigDecimal(String.valueOf(CollUtil.size(dto.getMaterialList()))));
+        categoryItem.setHisDesignNo(dto.getHisDesignNo());
+        // 设置款号
+        String designNo=planningCategoryItemService.getNextCode(dto.getBrand(),dto.getYear(),dto.getSeason(),dto.getCategoryName());
+        if(StrUtil.isBlank(designNo)){
+            throw  new OtherException("款号生成失败");
+        }
+        designNo=designNo+userInfo.getUserCode();
+        categoryItem.setDesignNo(designNo);
+        planningCategoryItemService.save(categoryItem);
+        // 新增坑位 信息对应的关联素材
+        if(CollUtil.isNotEmpty(dto.getMaterialList())){
+            List<PlanningCategoryItemMaterial> cims = dto.getMaterialList().stream().map(item -> {
+                PlanningCategoryItemMaterial p = new PlanningCategoryItemMaterial();
+                BeanUtil.copyProperties(categoryItem, p, "id");
+                p.setDelFlag(BaseGlobal.DEL_FLAG_NORMAL);
+                p.setMaterialCategoryId(categoryItem.getId());
+                p.setMaterialId(item.getMaterialId());
+                return p;
+            }).collect(Collectors.toList());
+            planningCategoryItemMaterialService.saveBatch(cims);
+        }
+        // 新增样衣设计
+        Sample sample =BeanUtil.copyProperties(dto,Sample.class);
+        PlanningUtils.toSample(sample,planningSeason, planningBand, categoryItem);
+        save(sample);
         return sample;
     }
 

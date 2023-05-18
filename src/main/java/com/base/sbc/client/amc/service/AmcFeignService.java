@@ -52,6 +52,18 @@ public class AmcFeignService {
         return userAvatarMap;
     }
 
+    public UserCompany getUserInfo(String userId){
+        String responseStr = amcService.getCompanyUserInfoByUserIds(userId);
+        JSONObject jsonObject = JSON.parseObject(responseStr);
+        if(jsonObject.getBoolean(BaseConstant.SUCCESS)){
+            JSONArray data = jsonObject.getJSONArray(BaseConstant.DATA);
+            List<UserCompany> userCompanies = data.toJavaList(UserCompany.class);
+            if(CollUtil.isNotEmpty(userCompanies)){
+                 return CollUtil.getLast(userCompanies);
+            }
+        }
+        return null;
+    }
     /**
      * 获取团队信息
      * @param seasonId 产品季节id

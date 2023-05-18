@@ -51,11 +51,11 @@ public interface PlanningBandService extends IServicePlus<PlanningBand> {
     PlanningBand savePlanningBand(PlanningBandDto dto);
 
 	/**
-	 * 校验名称是否重复
+	 * 校验名称、波段是否重复
 	 * @param dto
 	 * @param userCompany
 	 */
-    void checkNameRepeat(PlanningBandDto dto, String userCompany);
+    void checkRepeat(PlanningBandDto dto, String userCompany);
 
 	/**
 	 * 通过产品季和波段企划名称

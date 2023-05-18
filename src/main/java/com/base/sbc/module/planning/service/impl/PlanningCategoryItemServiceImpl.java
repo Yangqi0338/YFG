@@ -38,6 +38,7 @@ import com.base.sbc.module.planning.service.PlanningBandService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.PlanningBandSummaryInfoVo;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.service.SampleService;
@@ -129,6 +130,20 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
 
         }
         return insertCount;
+    }
+
+    public String getNextCode(String brand,String year,String season,String category){
+        if(StrUtil.contains(category,StrUtil.COMMA)){
+            category=getCategory(category);
+        }
+        Map<String, String> params = new HashMap<>(12);
+        params.put("brand", brand);
+        params.put("year", year);
+        params.put("season", season);
+        params.put("category", category);
+        GetMaxCodeRedis getMaxCode = new GetMaxCodeRedis(ccmService);
+        String planningDesignNo = getMaxCode.genCode("PLANNING_DESIGN_NO", params);
+        return planningDesignNo;
     }
 
     @Transactional(readOnly = false)
@@ -224,7 +239,8 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
             return null;
         }
         // 替换,保留流水号
-        MessageFormat mf = new MessageFormat(CollUtil.join(textFormats, ""));
+        String formatStr=CollUtil.join(textFormats, "");
+        MessageFormat mf = new MessageFormat(formatStr);
         try {
             Object[] parse = mf.parse(maxCode);
             if (parse != null && parse.length > 0) {
@@ -422,7 +438,10 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
             if(dbItemMap.containsKey(item.getId())){
                 continue;
             }
-            sampleList.add(toSample(seasonMap.get(item.getPlanningSeasonId()),bandMap.get(item.getPlanningBandId()),item));
+            Sample sample = PlanningUtils.toSample(seasonMap.get(item.getPlanningSeasonId()), bandMap.get(item.getPlanningBandId()), item);
+            sample.setSender(getUserId());
+            sampleList.add(sample);
+
         }
         // 保存样衣设计
         if(CollUtil.isNotEmpty(sampleList)){
@@ -431,17 +450,6 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         return true;
     }
 
-    private Sample toSample(PlanningSeason season,PlanningBand band,PlanningCategoryItem item){
-        Sample sample=new Sample();
-        BeanUtil.copyProperties(season,sample);
-        BeanUtil.copyProperties(band,sample);
-        BeanUtil.copyProperties(item,sample);
-        sample.setPlanningCategoryItemId(item.getId());
-        sample.setId(null);
-        sample.setStatus(BaseGlobal.STATUS_NORMAL);
-        sample.setSender(getUserId());
-        sample.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
-        return sample;
-    }
+
 
 }
