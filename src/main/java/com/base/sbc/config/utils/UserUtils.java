@@ -5,6 +5,7 @@ import java.security.Principal;
 import com.base.sbc.config.aspect.GetCurUserInfoAspect;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.Constants;
+import com.base.sbc.module.common.entity.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,17 @@ public class UserUtils {
 	public static final String NAME = "name:";
 
 	public static final String USER_INFO ="USER_INFO_";
+
+	/**
+	 * 获取当前登录用户所有础信息
+	 * 岗位、部门、权限、菜单等
+	 * @return 用户所有基础信息
+	 */
+
+	public UserInfo getUserInfo(){
+
+	}
+
 
 	public String getUserIdBy(Principal user) {
 		String userName = user.getName();

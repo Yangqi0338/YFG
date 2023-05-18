@@ -6,15 +6,17 @@
  *****************************************************************************/
 package com.base.sbc.config.common.base;
 
+import com.base.sbc.module.common.entity.HttpLog;
+
 /**
  * 类描述：用户-企业 实体类
  * @address com.base.sbc.company.entity.UserCompany
  * @author youkehai
  * @email 717407966@qq.com
  * @date 创建时间：2020-12-28 10:59:05
- * @version 1.0  
+ * @version 1.0
  */
-public class UserCompany extends BaseDataEntity<String> {
+public class UserCompany extends HttpLog {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -107,7 +109,7 @@ public class UserCompany extends BaseDataEntity<String> {
 	}
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
-	
+
     /*****************************数据库字段区 不包含父类公共字段(属性)***********************************/
 	/** 用户ID */
 	private String userId;

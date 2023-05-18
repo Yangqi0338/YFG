@@ -17,6 +17,12 @@ import org.springframework.web.client.RestTemplate;
 public class RestTemplateUtils {
     private static final RestTemplate restTemplate = new RestTemplate();
 
+    /**
+     * smp系统对接post请求
+     * @param url 请求地址
+     * @param o 请求对象
+     * @return 返回的结果
+     */
     public static Boolean spmPost(String url, Object o) {
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.add("Content-Type", "application/json");

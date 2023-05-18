@@ -3,6 +3,7 @@ package com.base.sbc.config;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.base.sbc.config.aspect.GetCurUserInfoAspect;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.exception.RequestInterceptor;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
