@@ -19,7 +19,7 @@ import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampComponentDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumComponentExcelDto;
-import com.base.sbc.module.basicsdatum.dto.QueryComponentDto;
+import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumComponent;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumComponentMapper;
@@ -56,12 +56,12 @@ public class BasicsdatumComponentServiceImpl extends ServicePlusImpl<Basicsdatum
     private FilesUtils filesUtils;
 
     @Override
-    public PageInfo<BasicsdatumComponentVo> getComponentList(QueryComponentDto queryComponentDto) {
+    public PageInfo<BasicsdatumComponentVo> getComponentList(QueryDto queryDto) {
         /*分页*/
-        PageHelper.startPage(queryComponentDto);
+        PageHelper.startPage(queryDto);
         QueryWrapper<BasicsdatumComponent> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
-        queryWrapper.in(StrUtil.isNotEmpty(queryComponentDto.getCoding()), "coding", queryComponentDto.getCoding());
+        queryWrapper.in(StrUtil.isNotEmpty(queryDto.getCoding()), "coding", queryDto.getCoding());
         /*查询部件数据*/
         List<BasicsdatumComponent> basicsdatumComponentList = baseMapper.selectList(queryWrapper);
         PageInfo<BasicsdatumComponent> pageInfo = new PageInfo<>(basicsdatumComponentList);
@@ -88,7 +88,7 @@ public class BasicsdatumComponentServiceImpl extends ServicePlusImpl<Basicsdatum
                 String s=  filesUtils.upload(filesUtils.convertFileToMultipartFile(file1), FilesUtils.PRODUCT,baseController.getUserCompany());
                 basicsdatumComponentExcelDto.setImage(s);
             }
-            basicsdatumComponentExcelDto.setStatus(basicsdatumComponentExcelDto.getStatus().equals("TRUE")?"0":"1");
+            basicsdatumComponentExcelDto.setStatus(basicsdatumComponentExcelDto.getStatus().equals("true")?"0":"1");
         }
         List<BasicsdatumComponent> basicsdatumComponentList = BeanUtil.copyToList(list, BasicsdatumComponent.class);
         saveBatch(basicsdatumComponentList);

@@ -5,11 +5,9 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
-import com.base.sbc.module.basicsdatum.dto.AddRevampComponentDto;
 import com.base.sbc.module.basicsdatum.dto.AddRevampTechnologyDto;
-import com.base.sbc.module.basicsdatum.dto.QueryComponentDto;
+import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumComponentVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumTechnologyVo;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumClippingTechnology;
@@ -28,7 +26,13 @@ public interface BasicsdatumClippingTechnologyService extends IServicePlus<Basic
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
-   PageInfo<BasicsdatumTechnologyVo> getTechnologyList(QueryComponentDto queryComponentDto);
+ /**
+  * 方法描述：分页查询裁剪工艺
+  *
+  * @param queryDto 查询条件
+  * @return PageInfo<BasicsdatumTechnologyVo>
+  */
+   PageInfo<BasicsdatumTechnologyVo> getTechnologyList(QueryDto queryDto);
 
 
 

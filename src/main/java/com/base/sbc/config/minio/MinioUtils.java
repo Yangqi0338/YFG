@@ -11,9 +11,13 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 @Slf4j
@@ -61,5 +65,19 @@ public class MinioUtils {
     public String getObjectUrl(String bucketName, String objectName) {
         GetPresignedObjectUrlArgs args = GetPresignedObjectUrlArgs.builder().bucket(bucketName).object(objectName).method(Method.GET).build();
         return minioClient.getPresignedObjectUrl(args);
+    }
+
+
+    /**
+     * file转MultipartFile
+     *
+     * @param file file
+     * @return MultipartFile
+     */
+    public MultipartFile convertFileToMultipartFile(File file) throws IOException {
+        String fileName = file.getName();
+        String contentType = "multipart/form-data"; // or find contentType using some utility
+        byte[] content = FileCopyUtils.copyToByteArray(file);
+        return new MockMultipartFile(fileName, fileName, contentType, content);
     }
 }

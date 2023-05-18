@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeMapper">
+    <!--
+        基础资料-尺码表
+        创建人：mengfanjiang
+        邮箱：2915350015@qq.com
+        创建时间：2023-5-17 14:01:34
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+    <select id="selectSize" resultType="com.base.sbc.module.basicsdatum.dto.BasicsdatumSizeExcelDto">
+
+          select
+          tbs.hangtags,
+          tbs.model,
+          tbs.internal_size,
+          tbs.external_size,
+          tbs.code,
+          tbs.sort,
+          tbs.send_status,
+          tbs.data_status,
+          tbs.dimension_type,
+          tbs.translate_name,
+          tbs.european_size,
+          tbs.show_size_status,
+          tbs.status,
+
+tbsl.label_name
+
+
+
+
+          from  t_basicsdatum_size tbs
+          left join t_basicsdatum_size_label tbsl  on tbs.size_label_id=tbsl.id
+          ${ ew.customSqlSegment}
+
+
+    </select>
+</mapper>

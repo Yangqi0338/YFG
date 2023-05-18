@@ -9,7 +9,7 @@ package com.base.sbc.module.basicsdatum.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.AddRevampComponentDto;
-import com.base.sbc.module.basicsdatum.dto.QueryComponentDto;
+import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumComponentService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumComponentVo;
@@ -45,8 +45,8 @@ public class BasicsdatumComponentController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getComponentList")
-	public PageInfo<BasicsdatumComponentVo> getComponentList(@Valid QueryComponentDto queryComponentDto) {
-		return basicsdatumComponentService.getComponentList(queryComponentDto);
+	public PageInfo<BasicsdatumComponentVo> getComponentList(@Valid QueryDto queryDto) {
+		return basicsdatumComponentService.getComponentList(queryDto);
 	}
 
 

@@ -3,6 +3,9 @@ package com.base.sbc.module.basicsdatum.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+/**
+ * 新增修改部件Dto类
+ * */
 @Data
 public class AddRevampComponentDto {
 

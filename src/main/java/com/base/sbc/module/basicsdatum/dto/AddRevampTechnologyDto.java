@@ -3,6 +3,11 @@ package com.base.sbc.module.basicsdatum.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+
+
+/**
+ * 新增修改裁剪工艺Dto类
+ * */
 @Data
 public class AddRevampTechnologyDto {
 

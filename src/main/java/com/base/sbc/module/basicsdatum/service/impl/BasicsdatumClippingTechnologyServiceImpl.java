@@ -19,10 +19,8 @@ import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampTechnologyDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumComponentExcelDto;
-import com.base.sbc.module.basicsdatum.dto.QueryComponentDto;
+import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumComponent;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumComponentVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumTechnologyVo;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumClippingTechnologyMapper;
@@ -58,12 +56,12 @@ public class BasicsdatumClippingTechnologyServiceImpl extends ServicePlusImpl<Ba
 
 
     @Override
-    public PageInfo<BasicsdatumTechnologyVo> getTechnologyList(QueryComponentDto queryComponentDto) {
+    public PageInfo<BasicsdatumTechnologyVo> getTechnologyList(QueryDto queryDto) {
         /*分页*/
-        PageHelper.startPage(queryComponentDto);
+        PageHelper.startPage(queryDto);
         QueryWrapper<BasicsdatumClippingTechnology> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
-        queryWrapper.in(StrUtil.isNotEmpty(queryComponentDto.getCoding()), "coding", queryComponentDto.getCoding());
+        queryWrapper.in(StrUtil.isNotEmpty(queryDto.getCoding()), "coding", queryDto.getCoding());
         /*查询部件数据*/
         List<BasicsdatumClippingTechnology> clippingTechnologyList = baseMapper.selectList(queryWrapper);
         PageInfo<BasicsdatumClippingTechnology> pageInfo = new PageInfo<>(clippingTechnologyList);
@@ -94,7 +92,7 @@ public class BasicsdatumClippingTechnologyServiceImpl extends ServicePlusImpl<Ba
             if (StringUtils.isBlank(basicsdatumComponentExcelDto.getDescription())) {
                 basicsdatumComponentExcelDto.setDescription("");
             }
-            basicsdatumComponentExcelDto.setStatus(basicsdatumComponentExcelDto.getStatus().equals("TRUE")?"0":"1");
+            basicsdatumComponentExcelDto.setStatus(basicsdatumComponentExcelDto.getStatus().equals("true")?"0":"1");
         }
         List<BasicsdatumClippingTechnology> basicsdatumComponentList = BeanUtil.copyToList(list, BasicsdatumClippingTechnology.class);
         saveBatch(basicsdatumComponentList);

@@ -5,9 +5,20 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+
+/*
+* 用于基础资料查询dto类
+*
+* */
 @Data
-@ApiModel("查询 QueryComponentDto")
-public class QueryComponentDto   extends Page {
+@ApiModel(" QueryDto")
+public class QueryDto extends Page {
     @ApiModelProperty(value = "编码"  )
     private String coding;
+
+    @ApiModelProperty(value = "测量点"  )
+    private String measurement;
+    /** POM类型 */
+    @ApiModelProperty(value = "POM类型"  )
+    private String pdmType;
 }

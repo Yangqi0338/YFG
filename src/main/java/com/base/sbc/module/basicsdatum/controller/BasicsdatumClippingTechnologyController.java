@@ -7,16 +7,11 @@
 package com.base.sbc.module.basicsdatum.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.AddRevampComponentDto;
 import com.base.sbc.module.basicsdatum.dto.AddRevampTechnologyDto;
-import com.base.sbc.module.basicsdatum.dto.QueryComponentDto;
+import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumClippingTechnology;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumClippingTechnologyService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumTechnologyVo;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.List;
 
 /**
 * 类描述：基础资料-裁剪工艺 Controller类
@@ -49,8 +43,8 @@ public class BasicsdatumClippingTechnologyController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getTechnologyList")
-	public PageInfo<BasicsdatumTechnologyVo> getTechnologyList(QueryComponentDto queryComponentDto) {
-		return  basicsdatumClippingTechnologyService.getTechnologyList(queryComponentDto);
+	public PageInfo<BasicsdatumTechnologyVo> getTechnologyList(QueryDto queryDto) {
+		return  basicsdatumClippingTechnologyService.getTechnologyList(queryDto);
 	}
 
 
