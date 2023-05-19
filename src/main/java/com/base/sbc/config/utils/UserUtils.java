@@ -39,7 +39,7 @@ public class UserUtils {
 	 */
 
 	public UserInfo getUserInfo(){
-
+			return null;
 	}
 
 
