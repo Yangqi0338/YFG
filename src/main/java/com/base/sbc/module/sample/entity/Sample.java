@@ -5,23 +5,20 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.sample.entity;
-
+import java.math.BigDecimal;
+import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.math.BigDecimal;
-import java.util.Date;
-
 /**
  * 类描述：样衣 实体类
  * @address com.base.sbc.module.sample.entity.Sample
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-18 17:51:21
+ * @date 创建时间：2023-5-19 19:35:22
  * @version 1.0
  */
 @Data
@@ -58,6 +55,9 @@ public class Sample extends BaseDataEntity<String> {
     /** 品类id(最后一级) */
     @ApiModelProperty(value = "品类id(最后一级)"  )
     private String categoryId;
+    /** 款式(大货款号) */
+    @ApiModelProperty(value = "款式(大货款号)"  )
+    private String styleNo;
     /** 设计款号 */
     @ApiModelProperty(value = "设计款号"  )
     private String designNo;
