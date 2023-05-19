@@ -1,6 +1,7 @@
 package com.base.sbc.module.sample.dto;
 
 import com.base.sbc.module.sample.entity.Sample;
+import com.base.sbc.module.sample.vo.MaterialVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -26,5 +27,8 @@ public class SampleSaveDto extends Sample {
 
     @ApiModelProperty(value = "附件信息")
     private List<SampleAttachmentDto> attachmentList;
+
+    @ApiModelProperty(value = "关联的素材库")
+    private List<MaterialVo> materialList;
 
 }

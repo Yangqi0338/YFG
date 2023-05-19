@@ -41,6 +41,13 @@ public interface SampleService extends IServicePlus<Sample> {
     Sample saveSample(SampleSaveDto dto);
 
     /**
+     * 新增样衣设计
+     * @param dto
+     * @return
+     */
+    Sample saveNewSample(SampleSaveDto dto);
+
+    /**
      * 分页查询
      * @param dto
      * @return

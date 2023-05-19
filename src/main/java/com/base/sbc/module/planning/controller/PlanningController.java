@@ -112,8 +112,8 @@ public class PlanningController extends BaseController {
     @ApiOperation(value = "保存波段企划")
     @PostMapping("/planBand")
     public PlanningBandVo savePlanBand(@Valid @RequestBody PlanningBandDto dto) {
-        // 校验名称重复
-        planningBandService.checkNameRepeat(dto, getUserCompany());
+        // 校验重复
+        planningBandService.checkRepeat(dto, getUserCompany());
         PlanningBand bean = planningBandService.savePlanningBand(dto);
         return BeanUtil.copyProperties(bean, PlanningBandVo.class);
     }

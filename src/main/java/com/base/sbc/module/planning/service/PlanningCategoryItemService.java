@@ -42,6 +42,16 @@ public interface PlanningCategoryItemService extends IServicePlus<PlanningCatego
 
     List<String> selectCategoryIdsByBand(QueryWrapper qw);
 
+
+    /**
+     * 获取下一个编码
+     * @param brand
+     * @param year
+     * @param season
+     * @param category
+     * @return
+     */
+    String getNextCode(String brand,String year,String season,String category);
     /**
      * 修改/提交
      * @param planningBandId

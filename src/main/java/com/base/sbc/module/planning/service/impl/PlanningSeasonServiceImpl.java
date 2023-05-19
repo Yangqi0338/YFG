@@ -122,6 +122,9 @@ public class PlanningSeasonServiceImpl extends ServicePlusImpl<PlanningSeasonMap
         qc.eq(COMPANY_CODE, userCompany);
         qc.like(StrUtil.isNotBlank(dto.getSearch()), "name", dto.getSearch());
         qc.eq(StrUtil.isNotBlank(dto.getYear()), "year", dto.getYear());
+        qc.in(CollUtil.isNotEmpty(dto.getYearList()), "year", dto.getYearList());
+        qc.in(CollUtil.isNotEmpty(dto.getSeasonList()), "season", dto.getSeasonList());
+        qc.in(CollUtil.isNotEmpty(dto.getBrandList()), "brand", dto.getBrandList());
         dto.setOrderBy("create_date desc ");
         Page<PlanningSeason> objects = PageHelper.startPage(dto);
         list(qc);
@@ -191,7 +194,10 @@ public class PlanningSeasonServiceImpl extends ServicePlusImpl<PlanningSeasonMap
         qc.eq(COMPANY_CODE, userCompany);
         qc.eq(StrUtil.isNotBlank(dto.getYear()),"year", dto.getYear());
         qc.eq(StrUtil.isNotBlank(dto.getSeason()),"season", dto.getSeason());
+        qc.in(CollUtil.isNotEmpty(dto.getYearList()), "year", dto.getYearList());
+        qc.in(CollUtil.isNotEmpty(dto.getSeasonList()), "season", dto.getSeasonList());
         qc.like(StrUtil.isNotBlank(dto.getSearch()), "name", dto.getSearch());
+        qc.in(CollUtil.isNotEmpty(dto.getBrandList()), "brand", dto.getBrandList());
         dto.setOrderBy("create_date desc ");
         qc.select("*");
         Page<PlanningSeason> objects = PageHelper.startPage(dto);

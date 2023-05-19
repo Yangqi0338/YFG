@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @ApiModel("商品企划-波段列表查询 PlanningBandSearchDto")
 public class PlanningBandSearchDto extends Page {
@@ -15,4 +17,6 @@ public class PlanningBandSearchDto extends Page {
 
     @ApiModelProperty(value = "产品季名称" ,required = true,example = "23年春常规产品企划")
     private String planningSeasonName;
+    @ApiModelProperty(value = "月份" ,required = true,example = "['01','02']")
+    private List<String> monthList;
 }

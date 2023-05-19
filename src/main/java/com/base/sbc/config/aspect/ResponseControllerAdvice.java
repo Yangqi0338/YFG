@@ -55,8 +55,9 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
             result.setMessage(localeMessages.getMessage(result.getMessage()));
             return result;
         } else if (body instanceof String) {
-            // String类型不能直接包装，所以要进行些特别的处理 将数据包装在Result里后，再转换为json字符串响应给前端
-            return JsonUtils.beanToJson(ApiResult.success(localeMessages.getMessage(SUCCESS_OK), body));
+            // 这样写远程调用没办法转json
+            //  return JsonUtils.beanToJson(ApiResult.success(localeMessages.getMessage(SUCCESS_OK), body));
+            return ApiResult.success(localeMessages.getMessage(SUCCESS_OK), body);
         } else if (body instanceof Boolean) {
             if (body.equals(true)) {
                 return ApiResult.success(localeMessages.getMessage(SUCCESS_OK), null);
