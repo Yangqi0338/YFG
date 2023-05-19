@@ -16,7 +16,7 @@ import com.base.sbc.module.common.entity.HttpLog;
  * @date 创建时间：2020-12-28 10:59:05
  * @version 1.0
  */
-public class UserCompany extends HttpLog {
+public class UserCompany extends BaseDataEntity<String>  {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -36,6 +36,8 @@ public class UserCompany extends HttpLog {
 	private String avatar;
 	/**部门ID*/
 	private String deptId;
+
+	private HttpLog httpLog;
 
 
 	public String getDeptName() {
@@ -201,5 +203,12 @@ public class UserCompany extends HttpLog {
 		this.userCode = userCode;
 	}
 
+	public HttpLog getHttpLog() {
+		return httpLog;
+	}
+
+	public void setHttpLog(HttpLog httpLog) {
+		this.httpLog = httpLog;
+	}
 }
 

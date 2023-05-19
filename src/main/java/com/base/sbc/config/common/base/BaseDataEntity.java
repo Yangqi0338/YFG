@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.base.sbc.config.aspect.GetCurUserInfoAspect;
+import com.base.sbc.config.exception.RequestInterceptor;
 import org.hibernate.validator.constraints.Length;
 import com.base.sbc.config.common.IdGen;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -165,7 +166,7 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
     public void preInsert(String id) {
         //设置主键
         setId(id);
-        insertInit(GetCurUserInfoAspect.companyUserInfo.get());
+        insertInit(RequestInterceptor.companyUserInfo.get());
     }
 
     /**
@@ -180,14 +181,14 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
      * 设置修改时间,修改人,拿当前线程中的用户信息
      */
     public void updateInit() {
-        updateInit(GetCurUserInfoAspect.companyUserInfo.get());
+        updateInit(RequestInterceptor.companyUserInfo.get());
     }
 
     /**
      * 设置修改时间,修改人创建人等
      */
     public void insertInit() {
-        this.insertInit(GetCurUserInfoAspect.companyUserInfo.get());
+        this.insertInit(RequestInterceptor.companyUserInfo.get());
     }
 
     /**
