@@ -57,13 +57,14 @@ public class RequestInterceptor implements HandlerInterceptor {
                 String header = request.getHeader(headerName);
                 reqHeaders.put(headerName, header);
             }
-
-            //获取请求体
             StringBuilder requestBody = new StringBuilder();
-            BufferedReader reader = request.getReader();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                requestBody.append(line);
+            //获取请求体
+            if (!request.getHeader("content-type").contains("multipart/form-data")){
+                BufferedReader reader = request.getReader();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    requestBody.append(line);
+                }
             }
 
             //获取所有请求参数
