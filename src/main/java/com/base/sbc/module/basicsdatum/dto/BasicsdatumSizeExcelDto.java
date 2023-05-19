@@ -14,6 +14,10 @@ import java.util.Date;
 @Data
 @TableName(value = "BasicsdatumComponentExcelDto")
 public class BasicsdatumSizeExcelDto {
+
+    @Excel(name = "id")
+    private String id;
+
     /**
      * 编码
      */
@@ -29,13 +33,13 @@ public class BasicsdatumSizeExcelDto {
     /**
      * 工艺项目
      */
-    @Excel(name = "Internal Size" ,width = 120)
+    @Excel(name = "Internal Size" )
     private String internalSize;
 
     /**
      * 描述
      */
-    @Excel(name = "External Size",width = 120)
+    @Excel(name = "External Size")
     private String externalSize;
 
     /**
@@ -57,10 +61,10 @@ public class BasicsdatumSizeExcelDto {
     @DateTimeFormat("yyyy/MM/dd hh:mm:ss")
     protected Date createDate;
 
-    @Excel(name = "状态", replace = {"FALSE_1","TRUE_0"})
+    @Excel(name = "状态", replace = {"false_1","true_0"})
     private String status;
 
-    @Excel(name = "Dimension Type",width = 120)
+    @Excel(name = "Dimension Type")
     private String dimensionType;
 
     @Excel(name = "翻译名称")
@@ -72,7 +76,7 @@ public class BasicsdatumSizeExcelDto {
     @Excel(name = "US标签")
     private String labelName;
 
-    @Excel(name = "显示尺码标识",replace = {"FALSE_1","TRUE_0"},width = 120)
+    @Excel(name = "显示尺码标识",replace = {"false_1","true_0"})
     private String showSizeStatus;
 
     private String    sizeLabelId;

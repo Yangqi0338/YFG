@@ -40,7 +40,7 @@ public class BasicsdatumMeasurementExcelDto {
     private String image;
 
     /** 可用的 */
-    @Excel(name  = "可用的" , replace = {"TRUE_0", "FALSE_1"})
+    @Excel(name  = "可用的" , replace = {"true_0", "false_1"})
     private String status;
 
 }

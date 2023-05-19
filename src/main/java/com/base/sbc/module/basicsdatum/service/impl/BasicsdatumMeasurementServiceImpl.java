@@ -7,26 +7,32 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.minio.MinioUtils;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumComponent;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumComponentVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMeasurementVo;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMeasurementMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMeasurementService;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -36,8 +42,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：基础资料-测量点 service类
@@ -54,6 +62,10 @@ public class BasicsdatumMeasurementServiceImpl extends ServicePlusImpl<Basicsdat
     private BaseController baseController;
     @Autowired
     private MinioUtils minioUtils;
+    @Autowired
+    private UploadFileService uploadFileService;
+    @Autowired
+    private CcmFeignService ccmFeignService;
 
     /**
      * 方法描述：分页查询测量点
@@ -92,14 +104,16 @@ public class BasicsdatumMeasurementServiceImpl extends ServicePlusImpl<Basicsdat
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
         List<BasicsdatumMeasurementExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumMeasurementExcelDto.class, params);
+        /*获取字典值*/
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_DimType");
+        Map<String, String> map =   dictInfoToMap.get("C8_DimType");
         for (BasicsdatumMeasurementExcelDto basicsdatumMeasurementExcelDto : list) {
             //如果图片不为空
             if (StringUtils.isNotEmpty(basicsdatumMeasurementExcelDto.getImage())) {
                 File file1 = new File(basicsdatumMeasurementExcelDto.getImage());
-                String objectName = System.currentTimeMillis() + "." + FileUtil.extName(file.getOriginalFilename());
-                String contentType = file.getContentType();
-                String s=  minioUtils.uploadFile(minioUtils.convertFileToMultipartFile(file1), objectName,contentType);
-                basicsdatumMeasurementExcelDto.setImage(s);
+                /*上传图*/
+                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
+                basicsdatumMeasurementExcelDto.setImage(attachmentVo.getUrl());
             }
             if (StringUtils.isBlank(basicsdatumMeasurementExcelDto.getDescription())) {
                 basicsdatumMeasurementExcelDto.setDescription("");
@@ -107,12 +121,35 @@ public class BasicsdatumMeasurementServiceImpl extends ServicePlusImpl<Basicsdat
             if (StringUtils.isBlank(basicsdatumMeasurementExcelDto.getDescriptionAlt())) {
                 basicsdatumMeasurementExcelDto.setDescriptionAlt("");
             }
+            if (!StringUtils.isBlank(basicsdatumMeasurementExcelDto.getPdmType())) {
+                for(Map.Entry<String, String> entry : map.entrySet()){
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                    if (value.equals(basicsdatumMeasurementExcelDto.getPdmType())){
+                        basicsdatumMeasurementExcelDto.setPdmType(key);
+                        break;
+                    }
 
-            basicsdatumMeasurementExcelDto.setStatus("TRUE".equals(basicsdatumMeasurementExcelDto.getStatus())?"0":"1");
+                }
+
+            }
         }
         List<BasicsdatumMeasurement> basicsdatumMeasurementList = BeanUtil.copyToList(list, BasicsdatumMeasurement.class);
-        saveBatch(basicsdatumMeasurementList);
+        saveOrUpdateBatch(basicsdatumMeasurementList);
         return true;
+    }
+
+    /**
+     * 基础资料-测量点导出
+     *
+     * @param response
+     * @return
+     */
+    @Override
+    public void deriveExcel(HttpServletResponse response) throws Exception {
+        QueryWrapper<BasicsdatumMeasurement> queryWrapper=new QueryWrapper<>();
+        List<BasicsdatumMeasurementExcelDto> list = BeanUtil.copyToList( baseMapper.selectList(queryWrapper), BasicsdatumMeasurementExcelDto.class);
+        ExcelUtils.exportExcel(list,  BasicsdatumMeasurementExcelDto.class, "基础资料-测量点.xlsx",new ExportParams() ,response);
     }
 
     /**
@@ -139,7 +176,7 @@ public class BasicsdatumMeasurementServiceImpl extends ServicePlusImpl<Basicsdat
             baseMapper.insert(basicsdatumMeasurement);
         } else {
             /*修改*/
-            basicsdatumMeasurement = baseMapper.selectById(basicsdatumMeasurement.getId());
+            basicsdatumMeasurement = baseMapper.selectById(addRevampMeasurementDto.getId());
             if (ObjectUtils.isEmpty(basicsdatumMeasurement)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }

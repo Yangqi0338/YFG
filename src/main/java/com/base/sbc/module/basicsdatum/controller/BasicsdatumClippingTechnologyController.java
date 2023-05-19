@@ -22,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 /**
@@ -52,6 +53,13 @@ public class BasicsdatumClippingTechnologyController{
 	@PostMapping("/importExcel")
 	public ApiResult importExcel( @RequestParam("file") MultipartFile file) throws Exception {
 		return ApiResult.success("操作成功",basicsdatumClippingTechnologyService.importExcel(file)) ;
+	}
+
+
+	@ApiOperation(value = "/导出")
+	@GetMapping("/deriveExcel")
+	public void deriveExcel(HttpServletResponse response) throws Exception {
+		basicsdatumClippingTechnologyService.deriveExcel(response);
 	}
 
 
