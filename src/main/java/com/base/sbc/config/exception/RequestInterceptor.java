@@ -19,9 +19,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.Enumeration;
 
@@ -82,6 +85,13 @@ public class RequestInterceptor implements HandlerInterceptor {
             for (String headerName : response.getHeaderNames()) {
                 String header = response.getHeader(headerName);
                 respHeaders.put(headerName, header);
+            }
+
+            //获取请求体
+            if (!response.getHeader("content-type").contains("multipart/form-data")){
+                PrintWriter writer = response.getWriter();
+                String responseData = writer.toString();
+                System.out.println(responseData);
             }
 
             httpLog.setRespHeaders(respHeaders.toJSONString());

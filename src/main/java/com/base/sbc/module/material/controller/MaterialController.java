@@ -44,6 +44,7 @@ public class MaterialController extends BaseController {
     private final UserUtils userUtils;
 
 
+    private final FlowableService flowableService;
 
     /**
      * 新增
@@ -106,6 +107,8 @@ public class MaterialController extends BaseController {
         //materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
 
         boolean b = materialService.updateById(materialSaveDto);
+        flowableService.start(FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
+                "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), BeanUtil.beanToMap(materialSaveDto));
         return updateSuccess(b);
     }
 

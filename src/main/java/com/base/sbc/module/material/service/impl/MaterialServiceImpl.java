@@ -52,7 +52,6 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
 
     private final AmcFeignService amcFeignService;
 
-    private final FlowableService flowableService;
 
     private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
@@ -281,8 +280,6 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
             labelQueryWrapper.eq("material_id", materialSaveDto.getId());
             materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
             this.updateById(materialSaveDto);
-            flowableService.start(FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
-                    "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), BeanUtil.beanToMap(materialSaveDto));
         }
 
         ////修改关联尺码
