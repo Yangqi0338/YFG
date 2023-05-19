@@ -46,50 +46,54 @@ public class RequestInterceptor implements HandlerInterceptor{
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object arg2, Exception arg3) throws Exception {
 
+		try {
 
-		//获取所有请求头
-		JSONObject reqHeaders =new JSONObject();
-		Enumeration<String> headerNames = request.getHeaderNames();
-		while (headerNames.hasMoreElements()){
-			String headerName = headerNames.nextElement();
-			String header = request.getHeader(headerName);
-			reqHeaders.put(headerName,header);
+		}catch (Exception e){
+			e.printStackTrace();
+
+			//获取所有请求头
+			JSONObject reqHeaders =new JSONObject();
+			Enumeration<String> headerNames = request.getHeaderNames();
+			while (headerNames.hasMoreElements()){
+				String headerName = headerNames.nextElement();
+				String header = request.getHeader(headerName);
+				reqHeaders.put(headerName,header);
+			}
+
+			//获取请求体
+			StringBuilder requestBody = new StringBuilder();
+			BufferedReader reader = request.getReader();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				requestBody.append(line);
+			}
+
+			//获取所有请求参数
+			String parameter = JSON.toJSONString(request.getParameterMap());
+			UserCompany userCompany = companyUserInfo.get();
+			userCompany.setReqBody(requestBody.toString());
+			userCompany.setMethod(request.getMethod());
+			userCompany.setUrl(request.getRequestURI());
+			userCompany.setType(2);
+			userCompany.setReqHeaders(reqHeaders.toJSONString());
+			userCompany.setReqQuery(parameter);
+
+			// 处理响应内容
+			JSONObject respHeaders =new JSONObject();
+			for (String headerName : response.getHeaderNames()) {
+				String header = response.getHeader(headerName);
+				respHeaders.put(headerName,header);
+			}
+
+			userCompany.setRespHeaders(respHeaders.toJSONString());
+			userCompany.setStatusCode(response.getStatus());
+			userCompany.setIntervalNum(System.currentTimeMillis()-userCompany.getCreateDate().getTime());
+
+			httpLogService.save(userCompany);
+
+		}finally {
+			GetCurUserInfoAspect.companyUserInfo.remove();
 		}
-
-		//获取请求体
-		StringBuilder requestBody = new StringBuilder();
-		BufferedReader reader = request.getReader();
-		String line;
-		while ((line = reader.readLine()) != null) {
-			requestBody.append(line);
-		}
-
-		//获取所有请求参数
-		String parameter = JSON.toJSONString(request.getParameterMap());
-		UserCompany userCompany = companyUserInfo.get();
-		userCompany.setReqBody(requestBody.toString());
-		userCompany.setMethod(request.getMethod());
-		userCompany.setUrl(request.getRequestURI());
-		userCompany.setType(2);
-		userCompany.setReqHeaders(reqHeaders.toJSONString());
-		userCompany.setReqQuery(parameter);
-
-		// 处理响应内容
-		JSONObject respHeaders =new JSONObject();
-		for (String headerName : response.getHeaderNames()) {
-			String header = response.getHeader(headerName);
-			respHeaders.put(headerName,header);
-		}
-
-
-		userCompany.setRespHeaders(respHeaders.toJSONString());
-		userCompany.setStatusCode(response.getStatus());
-		userCompany.setIntervalNum(System.currentTimeMillis()-userCompany.getCreateDate().getTime());
-
-
-		httpLogService.save(userCompany);
-
-		GetCurUserInfoAspect.companyUserInfo.remove();
 	}
 
 	@Override
