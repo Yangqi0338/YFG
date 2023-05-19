@@ -25,14 +25,16 @@ import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.base.sbc.module.fieldManagement.entity.Option;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
-import com.base.sbc.module.sample.dto.*;
+import com.base.sbc.module.sample.dto.SamplePageDto;
+import com.base.sbc.module.sample.dto.SampleSaveDto;
+import com.base.sbc.module.sample.dto.SendSampleMakingDto;
+import com.base.sbc.module.sample.dto.TechnologySaveDto;
+import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.entity.Technology;
 import com.base.sbc.module.sample.mapper.SampleMapper;
-import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.sample.service.TechnologyService;
 import com.base.sbc.module.sample.vo.DesignDocTreeVo;
@@ -246,6 +248,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         }
         Page<SamplePageVo> objects = PageHelper.startPage(dto);
         getBaseMapper().selectByQw(qw);
+        amcFeignService.addUserAvatarToList(objects.getResult(),"designerId","aliasUserAvatar");
         return objects.toPageInfo();
     }
 

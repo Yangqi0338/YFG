@@ -8,6 +8,7 @@ package com.base.sbc.module.planning.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,12 +20,13 @@ import java.math.BigDecimal;
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-4-20 18:05:21
+ * @date 创建时间：2023-5-19 16:52:34
  * @version 1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("t_planning_category_item")
+@ApiModel("企划-坑位信息 PlanningCategoryItem")
 public class PlanningCategoryItem extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;

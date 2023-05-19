@@ -1,6 +1,9 @@
 package com.base.sbc.client.amc.service;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -12,9 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 类描述： 用户信息
@@ -80,6 +81,38 @@ public class AmcFeignService {
             log.error("获取产品季团队异常",e);
         }
         return null;
+    }
+
+    /**
+     * 添加头像
+     * @param arr
+     * @param userIdKey
+     * @param avatarKey
+     */
+    public void addUserAvatarToList(List arr,String userIdKey,String avatarKey){
+        try {
+            if(CollUtil.isEmpty(arr)){
+                return;
+            }
+            Set<String> userIds=new HashSet<>(arr.size());
+            for (Object o : arr) {
+                Object property = BeanUtil.getProperty(o, userIdKey);
+                if(ObjUtil.isNotNull(property)){
+                    userIds.add(property.toString());
+                }
+            }
+            if(CollUtil.isEmpty(userIds)){
+                return;
+            }
+            Map<String, String> userAvatar = getUserAvatar(CollUtil.join(userIds, StrUtil.COMMA));
+            for (Object o : arr) {
+                Object val= MapUtil.getStr(userAvatar,BeanUtil.getProperty(o,userIdKey),null);
+                BeanUtil.setProperty(o,avatarKey,val);
+            }
+        } catch (Exception e) {
+            log.error("获取头像失败",e);
+        }
+
     }
 
 }
