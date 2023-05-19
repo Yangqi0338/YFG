@@ -15,7 +15,7 @@ public class GetCurUserInfoAspect {
     /**
      * 当前线程的用户信息
      */
-    public static ThreadLocal<UserCompany> companyUserInfo=new ThreadLocal<>();
+
 
     ///**
     // * 前置通知

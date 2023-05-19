@@ -44,7 +44,7 @@ public class AutoFillFieldValueConfig implements MetaObjectHandler {
     }
 
     private void userInfo() {
-        UserCompany userCompany = GetCurUserInfoAspect.companyUserInfo.get();
+        UserCompany userCompany = RequestInterceptor.companyUserInfo.get();
         if (userCompany == null) {
             this.userName = "系统管理员";
             this.userId = "0";

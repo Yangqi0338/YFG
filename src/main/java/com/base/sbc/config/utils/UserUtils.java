@@ -5,6 +5,7 @@ import java.security.Principal;
 import com.base.sbc.config.aspect.GetCurUserInfoAspect;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.Constants;
+import com.base.sbc.config.exception.RequestInterceptor;
 import com.base.sbc.module.common.entity.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -104,7 +105,7 @@ public class UserUtils {
 	}
 
 	public UserCompany getUserCompany(){
-		return GetCurUserInfoAspect.companyUserInfo.get();
+		return RequestInterceptor.companyUserInfo.get();
 	}
 
 	public String getDeptName(){
