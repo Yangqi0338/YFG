@@ -26,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -59,6 +60,11 @@ public class BasicsdatumMeasurementController{
 		return ApiResult.success("操作成功",basicsdatumMeasurementService.importExcel(file)) ;
 	}
 
+	@ApiOperation(value = "/导出")
+	@GetMapping("/deriveExcel")
+	public void deriveExcel(HttpServletResponse response) throws Exception {
+		basicsdatumMeasurementService.deriveExcel(response);
+	}
 
 	@ApiOperation(value = "新增修改部件")
 	@PostMapping("/addRevampMeasurement")

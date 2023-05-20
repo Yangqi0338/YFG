@@ -16,9 +16,13 @@ public class QueryDto extends Page {
     @ApiModelProperty(value = "编码"  )
     private String coding;
 
+
     @ApiModelProperty(value = "测量点"  )
     private String measurement;
     /** POM类型 */
     @ApiModelProperty(value = "POM类型"  )
     private String pdmType;
+    /** 号型类型 */
+    @ApiModelProperty(value = "号型类型"  )
+    private String modelType;
 }

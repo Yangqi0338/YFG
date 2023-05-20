@@ -10,6 +10,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import com.base.sbc.config.generator.entity.Params;
 import com.base.sbc.config.generator.entity.Tables;
 import com.base.sbc.config.generator.utils.UtilFile;
@@ -55,6 +57,10 @@ public class Gen {
 			map.put("smallClassName", toLowerCaseFirstOne(javaClassName));
 			map.put("voClassName", javaClassName);
 			map.put("javapackage", params.getJavapackage());
+			List<String> columnTypes = (List<String>)map.get("columnTypes");
+			map.put("hasDate",CollUtil.contains(columnTypes,"Date"));
+			map.put("hasBigDecimal",CollUtil.contains(columnTypes,"BigDecimal"));
+			map.put("hasInteger",CollUtil.contains(columnTypes,"Integer"));
 
 			//不存在  或者  包含1
 			if(StringUtils.isBlank(table.getGenType())||table.getGenType().indexOf(Tables.GENXML)!=-1) {

@@ -16,11 +16,9 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.planning.dto.*;
+import com.base.sbc.module.planning.entity.PlanningCategory;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
-import com.base.sbc.module.planning.service.PlanningCategoryItemService;
-import com.base.sbc.module.planning.service.PlanningDemandProportionDataService;
-import com.base.sbc.module.planning.service.PlanningDemandService;
-import com.base.sbc.module.planning.service.PlanningDimensionalityService;
+import com.base.sbc.module.planning.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
@@ -61,6 +59,8 @@ public class PlanningDemandController {
 
 	@Resource
 	private	PlanningCategoryItemService planningCategoryItemService;
+	@Resource
+	private PlanningCategoryService planningCategoryService;
 
 	@Resource
 	private CcmFeignService ccmFeignService;
@@ -144,13 +144,13 @@ public class PlanningDemandController {
 	@ApiOperation(value = "按产品季展开")
 	@GetMapping("/expandByProduct")
 	public List<BasicStructureTreeVo> expandByProduct(@Valid ProductSeasonExpandByCategorySearchDto dto){
-		QueryWrapper<PlanningCategoryItem> qw = new QueryWrapper();
+		QueryWrapper<PlanningCategory> qw = new QueryWrapper();
     	qw.eq("planning_season_id",dto.getPlanningSeasonId());
-		List<PlanningCategoryItem> list=planningCategoryItemService.list(qw);
+		List<PlanningCategory> list = planningCategoryService.list(qw);
 		if(CollUtil.isEmpty(list)){
 			return	new ArrayList<>();
 		}
-		List<String> categoryIds=list.stream().filter(p -> !StringUtils.isEmpty(p.getCategoryIds())).map(PlanningCategoryItem::getCategoryIds).collect(Collectors.toList());
+		List<String> categoryIds=list.stream().filter(p -> !StringUtils.isEmpty(p.getCategoryIds())).map(PlanningCategory::getCategoryIds).collect(Collectors.toList());
 		if(CollUtil.isEmpty(categoryIds)){
 			return	new ArrayList<>();
 		}

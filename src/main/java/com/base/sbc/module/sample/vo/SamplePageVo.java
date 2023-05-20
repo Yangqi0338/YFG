@@ -7,48 +7,86 @@ import lombok.Data;
 
 /**
  * 类描述：样衣分页返回
- * @address com.base.sbc.module.sample.vo.SamplePageVo
+ *
  * @author lixianglin
+ * @version 1.0
+ * @address com.base.sbc.module.sample.vo.SamplePageVo
  * @email li_xianglin@126.com
  * @date 创建时间：2023-05-10 11:54
- * @version 1.0
  */
 @Data
 @ApiModel("样衣分页返回 SamplePageVo ")
 public class SamplePageVo {
-    @ApiModelProperty(value = "编号"  )
-    private String id ;
+    @ApiModelProperty(value = "编号")
+    private String id;
 
-    /** 品牌 */
-    @ApiModelProperty(value = "品牌"  )
+    /**
+     * 品牌
+     */
+    @ApiModelProperty(value = "品牌")
     private String brand;
-    /** 年份 */
-    @ApiModelProperty(value = "年份"  )
+    /**
+     * 年份
+     */
+    @ApiModelProperty(value = "年份")
     private String year;
-    /** 季节 */
-    @ApiModelProperty(value = "季节"  )
+    /**
+     * 季节
+     */
+    @ApiModelProperty(value = "季节")
     private String season;
-    /** 月份 */
-    @ApiModelProperty(value = "月份"  )
+    /**
+     * 月份
+     */
+    @ApiModelProperty(value = "月份")
     private String month;
-    /** 波段(编码) */
-    @ApiModelProperty(value = "波段(编码)"  )
+    /**
+     * 波段(编码)
+     */
+    @ApiModelProperty(value = "波段(编码)")
     private String bandCode;
 
-    @ApiModelProperty(value = "设计师名称"  )
+    @ApiModelProperty(value = "设计师名称")
     private String designer;
-    /** 设计师id */
-    @ApiModelProperty(value = "设计师id"  )
+    /**
+     * 设计师id
+     */
+    @ApiModelProperty(value = "设计师id")
     private String designerId;
 
-    /** 设计款号 */
-    @ApiModelProperty(value = "设计款号"  )
+    /**
+     * 设计款号
+     */
+    @ApiModelProperty(value = "设计款号")
     private String designNo;
-    /** 旧设计款号 */
-    @ApiModelProperty(value = "旧设计款号"  )
+    /**
+     * 旧设计款号
+     */
+    @ApiModelProperty(value = "旧设计款号")
     private String hisDesignNo;
 
-    @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板"  )
+    @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板")
     private String status;
+
+    @ApiModelProperty(value = "款式图" )
+    private String stylePic;
+    @ApiModelProperty(value = "用户头像", example = "https://sjkj-demo.oss-cn-shenzhen.aliyuncs.com/null/userHead/09/02/8361ea39-21d2-4944-b150-d2e69bb68254.png")
+    private String aliasUserAvatar;
+    @ApiModelProperty(value = "款式名称" )
+    private String styleName;
+    @ApiModelProperty(value = "款式类型" )
+    private String styleType;
+    @ApiModelProperty(value = "生成类型" )
+    private String devtType;
+    @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)"  )
+    private String categoryName;
+    /** 品类id路径:(大类/品类/中类/小类) */
+    @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)"  )
+    private String categoryIds;
+
+
+
+
+
 
 }

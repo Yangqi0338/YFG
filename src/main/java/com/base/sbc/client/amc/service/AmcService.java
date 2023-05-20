@@ -56,11 +56,11 @@ public interface AmcService {
 
     /**
      * 获取用户头像
-     * @param userIds
+     * @param ids 用户id
      * @return
      */
     @GetMapping("/amc/api/token/user/getUserAvatar")
-    public String getUserAvatar( @RequestParam("userIds") String userIds);
+    public String getUserAvatar( @RequestParam("ids") String ids);
 
     /**
      * 获取数据隔离信息

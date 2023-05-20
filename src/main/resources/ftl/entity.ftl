@@ -5,7 +5,12 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package ${javapackage}.${project}.entity;
-
+<#if hasBigDecimal >
+import java.math.BigDecimal;
+</#if>
+<#if hasDate >
+import java.util.Date;
+</#if>
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;

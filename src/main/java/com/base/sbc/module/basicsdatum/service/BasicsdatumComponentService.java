@@ -15,6 +15,8 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumComponent;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * 类描述：基础资料-部件 service类
  *
@@ -41,6 +43,14 @@ public interface BasicsdatumComponentService extends IServicePlus<BasicsdatumCom
      * @return boolean
      */
     Boolean importExcel(MultipartFile file) throws Exception;
+
+
+    /**
+     * 基础资料-测量点导出
+     * @param response
+     * @return
+     */
+    void deriveExcel(HttpServletResponse response) throws Exception;
 
     /**
      * 方法描述：新增修改基础资料-部件

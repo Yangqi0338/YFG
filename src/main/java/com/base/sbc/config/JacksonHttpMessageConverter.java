@@ -96,6 +96,7 @@ public class JacksonHttpMessageConverter extends MappingJackson2HttpMessageConve
                     writer.assignNullSerializer(new NullMapJsonSerializer());
 
                 } else if (isDateType(writer)) {
+                    writer.assignNullSerializer(new NullStringJsonSerializer());
 //                    writer.assignSerializer(new JsonSerializer<Object>() {
 //                        @Override
 //                        public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {

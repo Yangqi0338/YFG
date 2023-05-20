@@ -6,27 +6,27 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.entity;
 
-import java.util.Date;
-import java.util.List;
-import java.math.BigDecimal;
-
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import io.swagger.annotations.ApiModelProperty;
+
+import java.math.BigDecimal;
+
 /**
  * 类描述：企划-品类信息 实体类
  * @address com.base.sbc.module.planning.entity.PlanningCategory
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-4-10 14:28:55
+ * @date 创建时间：2023-5-19 17:57:45
  * @version 1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("t_planning_category")
+@ApiModel("企划-品类信息 PlanningCategory")
 public class PlanningCategory extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
@@ -35,7 +35,7 @@ public class PlanningCategory extends BaseDataEntity<String> {
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
-    /*****************************数据库字段区 不包含父类公共字段(属性)***********************************/
+    /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 产品季节id */
     @ApiModelProperty(value = "产品季节id"  )
     private String planningSeasonId;
@@ -69,10 +69,12 @@ public class PlanningCategory extends BaseDataEntity<String> {
     /** 计划开发数 */
     @ApiModelProperty(value = "计划开发数"  )
     private BigDecimal planDevNum;
-    /** 负责人(name,userCode) */
-    @ApiModelProperty(value = "负责人(name,userCode)"  )
+    /** 负责人id */
+    @ApiModelProperty(value = "负责人id"  )
+    private String managerId;
+    /** 负责人名称 */
+    @ApiModelProperty(value = "负责人名称"  )
     private String manager;
-    /*******************************************getset方法区************************************/
-
+    /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

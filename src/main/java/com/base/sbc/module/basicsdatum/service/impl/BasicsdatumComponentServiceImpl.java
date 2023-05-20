@@ -7,15 +7,18 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.FilesUtils;
+import com.base.sbc.config.minio.MinioUtils;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampComponentDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumComponentExcelDto;
@@ -25,7 +28,9 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumComponent;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumComponentMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumComponentService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumComponentVo;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -35,8 +40,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：基础资料-部件 service类
@@ -53,7 +60,11 @@ public class BasicsdatumComponentServiceImpl extends ServicePlusImpl<Basicsdatum
     @Autowired
     private BaseController baseController;
     @Autowired
-    private FilesUtils filesUtils;
+    private UploadFileService uploadFileService;
+    @Autowired
+    private CcmFeignService ccmFeignService;
+    @Autowired
+    private MinioUtils minioUtils;
 
     @Override
     public PageInfo<BasicsdatumComponentVo> getComponentList(QueryDto queryDto) {
@@ -81,18 +92,44 @@ public class BasicsdatumComponentServiceImpl extends ServicePlusImpl<Basicsdatum
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
         List<BasicsdatumComponentExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumComponentExcelDto.class, params);
+        /*获取字典值*/
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_SpecCategory");
+        Map<String, String> map = dictInfoToMap.get("C8_SpecCategory");
         for (BasicsdatumComponentExcelDto basicsdatumComponentExcelDto : list) {
             //如果图片不为空
             if (StringUtils.isNotEmpty(basicsdatumComponentExcelDto.getImage())) {
                 File file1 = new File(basicsdatumComponentExcelDto.getImage());
-                String s=  filesUtils.upload(filesUtils.convertFileToMultipartFile(file1), FilesUtils.PRODUCT,baseController.getUserCompany());
-                basicsdatumComponentExcelDto.setImage(s);
+                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
+                basicsdatumComponentExcelDto.setImage(attachmentVo.getUrl());
             }
-            basicsdatumComponentExcelDto.setStatus(basicsdatumComponentExcelDto.getStatus().equals("true")?"0":"1");
+            if (!StringUtils.isEmpty(basicsdatumComponentExcelDto.getComponentCategory())) {
+                for (Map.Entry<String, String> entry : map.entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                    if (value.equals(basicsdatumComponentExcelDto.getComponentCategory())) {
+                        basicsdatumComponentExcelDto.setComponentCategory(key);
+                        break;
+                    }
+                }
+            }
         }
         List<BasicsdatumComponent> basicsdatumComponentList = BeanUtil.copyToList(list, BasicsdatumComponent.class);
-        saveBatch(basicsdatumComponentList);
+        saveOrUpdateBatch(basicsdatumComponentList);
         return true;
+    }
+
+    /**
+     * 基础资料-测量点导出
+     *
+     * @param response
+     * @return
+     */
+    @Override
+    public void deriveExcel(HttpServletResponse response) throws Exception {
+        QueryWrapper<BasicsdatumComponent> queryWrapper=new QueryWrapper<>();
+        List<BasicsdatumComponentExcelDto> list = BeanUtil.copyToList( baseMapper.selectList(queryWrapper), BasicsdatumComponentExcelDto.class);
+        ExcelUtils.exportExcel(list,  BasicsdatumComponentExcelDto.class, "部件库.xlsx",new ExportParams() ,response);
+
     }
 
     @Override
