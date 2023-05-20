@@ -1,18 +1,26 @@
-package com.base.sbc.config.aspect;
+package com.base.sbc.config.adviceAdapter;
 
 import com.alibaba.fastjson2.JSON;
-import com.base.sbc.config.RequestInterceptor;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.Ip2regionAnalysis;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.i18n.LocaleMessages;
 import com.base.sbc.module.common.entity.HttpLog;
+import com.base.sbc.module.common.service.HttpLogService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
+import java.net.InetSocketAddress;
+import java.net.URI;
 
 /**
  * 统一返回
@@ -22,10 +30,16 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @date 2022年7月4日
  */
 @RestControllerAdvice(basePackages = {"com.base.sbc"})
+@RequiredArgsConstructor
 public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
 
-    @Autowired
-    private LocaleMessages localeMessages;
+
+    private final LocaleMessages localeMessages;
+
+    private final HttpLogService httpLogService;
+
+    public static ThreadLocal<UserCompany> companyUserInfo = new ThreadLocal<>();
+
 
     /**
      * 操作成功
@@ -78,19 +92,35 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
     }
 
     /**
-     * 记录响应头信息
+     * 记录请求信息
      *
-     * @param request
+     * @param request 请求头
      * @param response 响应头
      * @param body     返回响应对象
      */
 
     private void preHttpLog(ServerHttpRequest request, ServerHttpResponse response, Object body) {
+        //记录请求信息
+        HttpLog httpLog = companyUserInfo.get().getHttpLog();
+        httpLog.setReqHeaders(JSON.toJSONString(request.getHeaders()));
+        httpLog.setMethod(request.getMethod().toString());
+        httpLog.setUrl(request.getURI().toString());
+        httpLog.setIp(request.getRemoteAddress().toString());
+        httpLog.setAddress(Ip2regionAnalysis.getStringAddressByIp(request.getRemoteAddress().getAddress().toString()));
 
-        HttpLog httpLog = RequestInterceptor.companyUserInfo.get().getHttpLog();
+        //记录响应信息
+        String jsonString = JSON.toJSONString(body);
         httpLog.setRespBody(JSON.toJSONString(body));
-        //记录响应头
+        httpLog.setRespHeaders(JSON.toJSONString(response.getHeaders()));
+        httpLog.setStatusCode(JSON.parseObject(jsonString).getInteger("status"));
+        httpLog.setIntervalNum(System.currentTimeMillis() - httpLog.getStartTime().getTime());
+        httpLog.setExceptionFlag(0);
+        if (!JSON.parseObject(jsonString).getBoolean("success")){
+            httpLog.setExceptionFlag(1);
+            httpLog.setThrowableException(JSON.parseObject(jsonString).getString("message"));
+        }
+        httpLogService.save(httpLog);
+        companyUserInfo.remove();
     }
-
 
 }

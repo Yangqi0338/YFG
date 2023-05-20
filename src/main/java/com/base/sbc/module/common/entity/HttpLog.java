@@ -77,10 +77,10 @@ public class HttpLog extends BaseDataEntity<String> {
     private String respBody;
 
     /** 是否异常(0正常1异常) */
-    private boolean exceptionFlag;
+    private Integer exceptionFlag;
 
     /** 异常信息 */
-    private Throwable throwableException;
+    private String throwableException;
 
     ///** 请求的cookie */
     //private Map<String, String> cookieMap;
