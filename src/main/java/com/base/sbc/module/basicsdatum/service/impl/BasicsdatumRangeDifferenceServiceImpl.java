@@ -72,7 +72,9 @@ public class BasicsdatumRangeDifferenceServiceImpl extends ServicePlusImpl<Basic
         @Override
         public PageInfo<BasicsdatumRangeDifferenceVo> getList(QueryDto queryDto) {
             /*分页*/
-            PageHelper.startPage(queryDto);
+            if(queryDto.getPageNum()!=0 & queryDto.getPageSize()!=0){
+                PageHelper.startPage(queryDto);
+            }
             QueryWrapper<BasicsdatumRangeDifference> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
             queryWrapper.orderByDesc("create_date");
