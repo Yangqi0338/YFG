@@ -123,4 +123,15 @@ public interface CcmService {
 
     @PostMapping(value = "/ccm/api/saas/basicStructure/getNameByIds", headers = {"Content-type=application/json"})
     String findStructureTreeNameByCategoryIds(@RequestBody String categoryIds);
+
+    /**
+     * 通过名称,级别获取id
+     * @param structureName
+     * @param names
+     *  @param level
+     * @return
+     */
+    @GetMapping(value = "/ccm/api/saas/basicStructure/getIdsByNameAndLevel")
+    public String getIdsByNameAndLevel( @RequestParam("structureName") String structureName,@RequestParam("names") String names,@RequestParam("level") String level);
+
 }

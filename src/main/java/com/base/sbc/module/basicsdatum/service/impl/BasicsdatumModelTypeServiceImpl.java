@@ -9,6 +9,7 @@ package com.base.sbc.module.basicsdatum.service.impl;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
@@ -53,6 +54,8 @@ public class BasicsdatumModelTypeServiceImpl extends ServicePlusImpl<Basicsdatum
 
     @Autowired
     private BaseController baseController;
+    @Autowired
+    private CcmFeignService ccmFeignService;
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -102,7 +105,7 @@ public class BasicsdatumModelTypeServiceImpl extends ServicePlusImpl<Basicsdatum
         for (BasicsdatumModelTypeExcelDto basicsdatumModelTypeExcelDto : list) {
 //            获取品类id
             if (StringUtils.isNotBlank(basicsdatumModelTypeExcelDto.getCategory())) {
-
+                basicsdatumModelTypeExcelDto.setCategoryId(ccmFeignService.getIdsByNameAndLevel("品类",basicsdatumModelTypeExcelDto.getCategory(),"1"));
             }
         }
         List<BasicsdatumModelType> basicsdatumModelTypeList = BeanUtil.copyToList(list, BasicsdatumModelType.class);
