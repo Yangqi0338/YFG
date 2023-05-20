@@ -7,6 +7,7 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -16,10 +17,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumMaterialsIngredientDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialsIngredientExcelDto;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialsIngredient;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialsIngredientMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialsIngredientService;
@@ -91,7 +89,7 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends ServicePlusImpl<B
             params.setNeedSave(false);
             List<BasicsdatumMaterialsIngredientExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumMaterialsIngredientExcelDto.class, params);
             List<BasicsdatumMaterialsIngredient> basicsdatumMaterialsIngredientList = BeanUtil.copyToList(list, BasicsdatumMaterialsIngredient.class);
-            saveBatch( basicsdatumMaterialsIngredientList);
+            saveOrUpdateBatch( basicsdatumMaterialsIngredientList);
             return true;
        }
 
@@ -105,7 +103,7 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends ServicePlusImpl<B
         public void basicsdatumMaterialsIngredientDeriveExcel(HttpServletResponse response) throws Exception {
         QueryWrapper<BasicsdatumMaterialsIngredient> queryWrapper=new QueryWrapper<>();
         List<BasicsdatumMaterialsIngredientExcelDto> list = BeanUtil.copyToList( baseMapper.selectList(queryWrapper), BasicsdatumMaterialsIngredientExcelDto.class);
-        ExcelUtils.exportExcel(list, "基础资料-材料成分", "基础资料-材料成分", BasicsdatumMaterialsIngredientExcelDto.class, "基础资料-材料成分.xlsx", response);
+        ExcelUtils.exportExcel(list,  BasicsdatumMaterialsIngredientExcelDto.class, "基础资料-材料成分.xlsx",new ExportParams() ,response);
         }
 
 

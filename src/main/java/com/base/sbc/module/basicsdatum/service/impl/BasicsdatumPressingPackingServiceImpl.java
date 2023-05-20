@@ -7,6 +7,7 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -14,17 +15,17 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumPressingPackingDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumPressingPackingExcelDto;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumPressingPacking;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumPressingPackingMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumPressingPackingService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumPressingPackingVo;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -34,21 +35,29 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
-/** 
+/**
  * 类描述：基础资料-洗涤图标与温馨提示 service类
  * @address com.base.sbc.module.basicsdatum.service.BasicsdatumPressingPackingService
  * @author mengfanjiang
  * @email 2915350015@qq.com
  * @date 创建时间：2023-5-19 19:15:00
- * @version 1.0  
+ * @version 1.0
  */
 @Service
 public class BasicsdatumPressingPackingServiceImpl extends ServicePlusImpl<BasicsdatumPressingPackingMapper, BasicsdatumPressingPacking> implements BasicsdatumPressingPackingService {
 
         @Autowired
         private BaseController baseController;
+
+        @Autowired
+        private UploadFileService uploadFileService;
+
+        @Autowired
+        private MinioUtils minioUtils;
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -90,8 +99,21 @@ public class BasicsdatumPressingPackingServiceImpl extends ServicePlusImpl<Basic
             ImportParams params = new ImportParams();
             params.setNeedSave(false);
             List<BasicsdatumPressingPackingExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumPressingPackingExcelDto.class, params);
+           list=     list.stream().filter(p -> StringUtils.isNotBlank(p.getCategory())).collect(Collectors.toList());
+           for (BasicsdatumPressingPackingExcelDto basicsdatumPressingPackingExcelDto : list) {
+
+               if(!StringUtils.isEmpty(basicsdatumPressingPackingExcelDto.getPicture())){
+                   if (StringUtils.isNotEmpty(basicsdatumPressingPackingExcelDto.getPicture())) {
+                       File file1 = new File(basicsdatumPressingPackingExcelDto.getPicture());
+                       /*上传图*/
+                       AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
+                       basicsdatumPressingPackingExcelDto.setPicture(attachmentVo.getUrl());
+                   }
+               }
+           }
+
             List<BasicsdatumPressingPacking> basicsdatumPressingPackingList = BeanUtil.copyToList(list, BasicsdatumPressingPacking.class);
-            saveBatch( basicsdatumPressingPackingList);
+           saveOrUpdateBatch( basicsdatumPressingPackingList);
             return true;
        }
 
@@ -105,7 +127,7 @@ public class BasicsdatumPressingPackingServiceImpl extends ServicePlusImpl<Basic
         public void basicsdatumPressingPackingDeriveExcel(HttpServletResponse response) throws Exception {
         QueryWrapper<BasicsdatumPressingPacking> queryWrapper=new QueryWrapper<>();
         List<BasicsdatumPressingPackingExcelDto> list = BeanUtil.copyToList( baseMapper.selectList(queryWrapper), BasicsdatumPressingPackingExcelDto.class);
-        ExcelUtils.exportExcel(list, "基础资料-洗涤图标与温馨提示", "基础资料-洗涤图标与温馨提示", BasicsdatumPressingPackingExcelDto.class, "基础资料-洗涤图标与温馨提示.xlsx", response);
+        ExcelUtils.exportExcel(list,  BasicsdatumPressingPackingExcelDto.class, "基础资料-洗涤图标与温馨提示.xlsx",new ExportParams() ,response);
         }
 
 

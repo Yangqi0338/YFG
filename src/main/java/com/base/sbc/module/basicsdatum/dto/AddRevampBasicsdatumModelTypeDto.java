@@ -65,4 +65,8 @@ public class AddRevampBasicsdatumModelTypeDto  {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    /*尺码标签id*/
+    private String sizeLabelId;
+
 }

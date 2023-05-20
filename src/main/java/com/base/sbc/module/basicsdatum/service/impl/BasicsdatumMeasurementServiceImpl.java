@@ -76,7 +76,10 @@ public class BasicsdatumMeasurementServiceImpl extends ServicePlusImpl<Basicsdat
     @Override
     public PageInfo<BasicsdatumMeasurementVo> getMeasurement(QueryDto queryDto) {
         /*分页*/
-        PageHelper.startPage(queryDto);
+        if(queryDto.getPageSize()!=0 && queryDto.getPageNum()!=0){
+            PageHelper.startPage(queryDto);
+        }
+
         QueryWrapper<BasicsdatumMeasurement> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.in(StrUtil.isNotEmpty(queryDto.getMeasurement()), "measurement", queryDto.getMeasurement());

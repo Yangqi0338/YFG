@@ -26,7 +26,8 @@ import cn.afterturn.easypoi.excel.annotation.Excel;
 @ApiModel("基础资料-注意事项 BasicsdatumMattersAttention")
 public class BasicsdatumMattersAttentionExcelDto  {
 
-
+    @Excel(name = "id")
+    private String id;
     /** 编码 */
     @ApiModelProperty(value = "编码"  )
     @Excel(name = "编码")
@@ -41,10 +42,10 @@ public class BasicsdatumMattersAttentionExcelDto  {
     private String description;
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
-    @Excel(name = "图片")
+    @Excel(name = "图片",type = 2)
     private String picture;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
-    @Excel(name = "状态(0正常,1停用)")
+    @Excel(name = "状态", replace = {"true_0", "false_1"} )
     private String status;
 }

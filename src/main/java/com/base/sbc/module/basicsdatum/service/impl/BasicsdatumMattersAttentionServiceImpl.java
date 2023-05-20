@@ -7,6 +7,7 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -14,26 +15,28 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumMattersAttentionDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMattersAttentionExcelDto;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMattersAttention;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMattersAttentionMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMattersAttentionService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMattersAttentionVo;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.util.List;
 
 /** 
@@ -49,6 +52,12 @@ public class BasicsdatumMattersAttentionServiceImpl extends ServicePlusImpl<Basi
 
         @Autowired
         private BaseController baseController;
+
+        @Autowired
+        private UploadFileService uploadFileService;
+
+        @Autowired
+        private MinioUtils minioUtils;
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -87,12 +96,20 @@ public class BasicsdatumMattersAttentionServiceImpl extends ServicePlusImpl<Basi
        */
        @Override
        public Boolean basicsdatumMattersAttentionImportExcel(MultipartFile file) throws Exception {
-            ImportParams params = new ImportParams();
-            params.setNeedSave(false);
-            List<BasicsdatumMattersAttentionExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumMattersAttentionExcelDto.class, params);
-            List<BasicsdatumMattersAttention> basicsdatumMattersAttentionList = BeanUtil.copyToList(list, BasicsdatumMattersAttention.class);
-            saveBatch( basicsdatumMattersAttentionList);
-            return true;
+           ImportParams params = new ImportParams();
+           params.setNeedSave(false);
+           List<BasicsdatumMattersAttentionExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumMattersAttentionExcelDto.class, params);
+           for (BasicsdatumMattersAttentionExcelDto basicsdatumMattersAttentionExcelDto : list) {
+               if (StringUtils.isNotEmpty(basicsdatumMattersAttentionExcelDto.getPicture())) {
+                   File file1 = new File(basicsdatumMattersAttentionExcelDto.getPicture());
+                   /*上传图*/
+                   AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
+                   basicsdatumMattersAttentionExcelDto.setPicture(attachmentVo.getUrl());
+               }
+           }
+           List<BasicsdatumMattersAttention> basicsdatumMattersAttentionList = BeanUtil.copyToList(list, BasicsdatumMattersAttention.class);
+           saveOrUpdateBatch(basicsdatumMattersAttentionList);
+           return true;
        }
 
         /**
@@ -105,7 +122,7 @@ public class BasicsdatumMattersAttentionServiceImpl extends ServicePlusImpl<Basi
         public void basicsdatumMattersAttentionDeriveExcel(HttpServletResponse response) throws Exception {
         QueryWrapper<BasicsdatumMattersAttention> queryWrapper=new QueryWrapper<>();
         List<BasicsdatumMattersAttentionExcelDto> list = BeanUtil.copyToList( baseMapper.selectList(queryWrapper), BasicsdatumMattersAttentionExcelDto.class);
-        ExcelUtils.exportExcel(list, "基础资料-注意事项", "基础资料-注意事项", BasicsdatumMattersAttentionExcelDto.class, "基础资料-注意事项.xlsx", response);
+        ExcelUtils.exportExcel(list,  BasicsdatumMattersAttentionExcelDto.class, "基础资料-注意事项.xlsx",new ExportParams() ,response);
         }
 
 
@@ -121,6 +138,11 @@ public class BasicsdatumMattersAttentionServiceImpl extends ServicePlusImpl<Basi
                 BasicsdatumMattersAttention basicsdatumMattersAttention = new BasicsdatumMattersAttention();
             if (StringUtils.isEmpty(addRevampBasicsdatumMattersAttentionDto.getId())) {
                 QueryWrapper<BasicsdatumMattersAttention> queryWrapper=new QueryWrapper<>();
+                queryWrapper.eq("coding",addRevampBasicsdatumMattersAttentionDto.getCoding());
+                queryWrapper.eq("company_code",baseController.getUserCompany());
+                if(!CollectionUtils.isEmpty(baseMapper.selectList(queryWrapper))){
+                 throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
+                }
                 /*新增*/
                 BeanUtils.copyProperties(addRevampBasicsdatumMattersAttentionDto, basicsdatumMattersAttention);
                 basicsdatumMattersAttention.setCompanyCode(baseController.getUserCompany());
