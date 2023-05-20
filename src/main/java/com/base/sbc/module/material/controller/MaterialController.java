@@ -97,8 +97,8 @@ public class MaterialController extends BaseController {
 
         // TODO: 2023/5/20 临时修改，保留之前的素材状态信息，驳回则恢复
         Material material = materialService.getById(materialSaveDto.getId());
-        if (material.getStatus().equals("2")) {
-            redisTemplate.opsForValue().set("MTUP-"+materialSaveDto.getId(),materialSaveDto);
+        if ("2".equals(material.getStatus())) {
+            redisTemplate.opsForValue().set("MTUP-"+materialSaveDto.getId(),material);
         }
 
 
