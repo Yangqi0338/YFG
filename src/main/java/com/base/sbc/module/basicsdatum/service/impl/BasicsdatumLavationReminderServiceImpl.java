@@ -19,10 +19,10 @@ import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumPressingPacking;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumPressingPackingMapper;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumPressingPackingService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumPressingPackingVo;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumLavationReminderMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumLavationReminderService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -41,14 +41,14 @@ import java.util.stream.Collectors;
 
 /**
  * 类描述：基础资料-洗涤图标与温馨提示 service类
- * @address com.base.sbc.module.basicsdatum.service.BasicsdatumPressingPackingService
+ * @address com.base.sbc.module.basicsdatum.service.BasicsdatumLavationReminderService
  * @author mengfanjiang
  * @email 2915350015@qq.com
  * @date 创建时间：2023-5-19 19:15:00
  * @version 1.0
  */
 @Service
-public class BasicsdatumPressingPackingServiceImpl extends ServicePlusImpl<BasicsdatumPressingPackingMapper, BasicsdatumPressingPacking> implements BasicsdatumPressingPackingService {
+public class BasicsdatumLavationReminderServiceImpl extends ServicePlusImpl<BasicsdatumLavationReminderMapper, BasicsdatumLavationReminder> implements BasicsdatumLavationReminderService {
 
         @Autowired
         private BaseController baseController;
@@ -68,17 +68,17 @@ public class BasicsdatumPressingPackingServiceImpl extends ServicePlusImpl<Basic
         * @return
         */
         @Override
-        public PageInfo<BasicsdatumPressingPackingVo> getBasicsdatumPressingPackingList(QueryDto queryDto) {
+        public PageInfo<BasicsdatumLavationReminderVo> getBasicsdatumLavationReminderList(QueryDto queryDto) {
             /*分页*/
             PageHelper.startPage(queryDto);
-            QueryWrapper<BasicsdatumPressingPacking> queryWrapper = new QueryWrapper<>();
+            QueryWrapper<BasicsdatumLavationReminder> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
             /*查询基础资料-洗涤图标与温馨提示数据*/
-            List<BasicsdatumPressingPacking> basicsdatumPressingPackingList = baseMapper.selectList(queryWrapper);
-            PageInfo<BasicsdatumPressingPacking> pageInfo = new PageInfo<>(basicsdatumPressingPackingList);
+            List<BasicsdatumLavationReminder> basicsdatumLavationReminderList = baseMapper.selectList(queryWrapper);
+            PageInfo<BasicsdatumLavationReminder> pageInfo = new PageInfo<>(basicsdatumLavationReminderList);
             /*转换vo*/
-            List<BasicsdatumPressingPackingVo> list = BeanUtil.copyToList(basicsdatumPressingPackingList, BasicsdatumPressingPackingVo.class);
-            PageInfo<BasicsdatumPressingPackingVo> pageInfo1 = new PageInfo<>();
+            List<BasicsdatumLavationReminderVo> list = BeanUtil.copyToList(basicsdatumLavationReminderList, BasicsdatumLavationReminderVo.class);
+            PageInfo<BasicsdatumLavationReminderVo> pageInfo1 = new PageInfo<>();
             pageInfo1.setList(list);
             pageInfo1.setTotal(pageInfo.getTotal());
             pageInfo1.setPageNum(pageInfo.getPageNum());
@@ -95,25 +95,25 @@ public class BasicsdatumPressingPackingServiceImpl extends ServicePlusImpl<Basic
        * @return
        */
        @Override
-       public Boolean basicsdatumPressingPackingImportExcel(MultipartFile file) throws Exception {
+       public Boolean basicsdatumLavationReminderImportExcel(MultipartFile file) throws Exception {
             ImportParams params = new ImportParams();
             params.setNeedSave(false);
-            List<BasicsdatumPressingPackingExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumPressingPackingExcelDto.class, params);
+            List<BasicsdatumLavationReminderExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumLavationReminderExcelDto.class, params);
            list=     list.stream().filter(p -> StringUtils.isNotBlank(p.getCategory())).collect(Collectors.toList());
-           for (BasicsdatumPressingPackingExcelDto basicsdatumPressingPackingExcelDto : list) {
+           for (BasicsdatumLavationReminderExcelDto basicsdatumLavationReminderExcelDto : list) {
 
-               if(!StringUtils.isEmpty(basicsdatumPressingPackingExcelDto.getPicture())){
-                   if (StringUtils.isNotEmpty(basicsdatumPressingPackingExcelDto.getPicture())) {
-                       File file1 = new File(basicsdatumPressingPackingExcelDto.getPicture());
+               if(!StringUtils.isEmpty(basicsdatumLavationReminderExcelDto.getPicture())){
+                   if (StringUtils.isNotEmpty(basicsdatumLavationReminderExcelDto.getPicture())) {
+                       File file1 = new File(basicsdatumLavationReminderExcelDto.getPicture());
                        /*上传图*/
                        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
-                       basicsdatumPressingPackingExcelDto.setPicture(attachmentVo.getUrl());
+                       basicsdatumLavationReminderExcelDto.setPicture(attachmentVo.getUrl());
                    }
                }
            }
 
-            List<BasicsdatumPressingPacking> basicsdatumPressingPackingList = BeanUtil.copyToList(list, BasicsdatumPressingPacking.class);
-           saveOrUpdateBatch( basicsdatumPressingPackingList);
+            List<BasicsdatumLavationReminder> basicsdatumLavationReminderList = BeanUtil.copyToList(list, BasicsdatumLavationReminder.class);
+           saveOrUpdateBatch( basicsdatumLavationReminderList);
             return true;
        }
 
@@ -124,10 +124,10 @@ public class BasicsdatumPressingPackingServiceImpl extends ServicePlusImpl<Basic
         * @return
         */
         @Override
-        public void basicsdatumPressingPackingDeriveExcel(HttpServletResponse response) throws Exception {
-        QueryWrapper<BasicsdatumPressingPacking> queryWrapper=new QueryWrapper<>();
-        List<BasicsdatumPressingPackingExcelDto> list = BeanUtil.copyToList( baseMapper.selectList(queryWrapper), BasicsdatumPressingPackingExcelDto.class);
-        ExcelUtils.exportExcel(list,  BasicsdatumPressingPackingExcelDto.class, "基础资料-洗涤图标与温馨提示.xlsx",new ExportParams() ,response);
+        public void basicsdatumLavationReminderDeriveExcel(HttpServletResponse response) throws Exception {
+        QueryWrapper<BasicsdatumLavationReminder> queryWrapper=new QueryWrapper<>();
+        List<BasicsdatumLavationReminderExcelDto> list = BeanUtil.copyToList( baseMapper.selectList(queryWrapper), BasicsdatumLavationReminderExcelDto.class);
+        ExcelUtils.exportExcel(list,  BasicsdatumLavationReminderExcelDto.class, "基础资料-洗涤图标与温馨提示.xlsx",new ExportParams() ,response);
         }
 
 
@@ -135,28 +135,28 @@ public class BasicsdatumPressingPackingServiceImpl extends ServicePlusImpl<Basic
         /**
         * 方法描述：新增修改基础资料-洗涤图标与温馨提示
         *
-        * @param addRevampBasicsdatumPressingPackingDto 基础资料-洗涤图标与温馨提示Dto类
+        * @param addRevampBasicsdatumLavationReminderDto 基础资料-洗涤图标与温馨提示Dto类
         * @return boolean
         */
         @Override
-        public Boolean addRevampBasicsdatumPressingPacking(AddRevampBasicsdatumPressingPackingDto addRevampBasicsdatumPressingPackingDto) {
-                BasicsdatumPressingPacking basicsdatumPressingPacking = new BasicsdatumPressingPacking();
-            if (StringUtils.isEmpty(addRevampBasicsdatumPressingPackingDto.getId())) {
-                QueryWrapper<BasicsdatumPressingPacking> queryWrapper=new QueryWrapper<>();
+        public Boolean addRevampBasicsdatumLavationReminder(AddRevampBasicsdatumLavationReminderDto addRevampBasicsdatumLavationReminderDto) {
+                BasicsdatumLavationReminder basicsdatumLavationReminder = new BasicsdatumLavationReminder();
+            if (StringUtils.isEmpty(addRevampBasicsdatumLavationReminderDto.getId())) {
+                QueryWrapper<BasicsdatumLavationReminder> queryWrapper=new QueryWrapper<>();
                 /*新增*/
-                BeanUtils.copyProperties(addRevampBasicsdatumPressingPackingDto, basicsdatumPressingPacking);
-                basicsdatumPressingPacking.setCompanyCode(baseController.getUserCompany());
-                basicsdatumPressingPacking.insertInit();
-                baseMapper.insert(basicsdatumPressingPacking);
+                BeanUtils.copyProperties(addRevampBasicsdatumLavationReminderDto, basicsdatumLavationReminder);
+                basicsdatumLavationReminder.setCompanyCode(baseController.getUserCompany());
+                basicsdatumLavationReminder.insertInit();
+                baseMapper.insert(basicsdatumLavationReminder);
            } else {
                 /*修改*/
-                basicsdatumPressingPacking = baseMapper.selectById(addRevampBasicsdatumPressingPackingDto.getId());
-                if (ObjectUtils.isEmpty(basicsdatumPressingPacking)) {
+                basicsdatumLavationReminder = baseMapper.selectById(addRevampBasicsdatumLavationReminderDto.getId());
+                if (ObjectUtils.isEmpty(basicsdatumLavationReminder)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
                 }
-                BeanUtils.copyProperties(addRevampBasicsdatumPressingPackingDto, basicsdatumPressingPacking);
-                basicsdatumPressingPacking.updateInit();
-                baseMapper.updateById(basicsdatumPressingPacking);
+                BeanUtils.copyProperties(addRevampBasicsdatumLavationReminderDto, basicsdatumLavationReminder);
+                basicsdatumLavationReminder.updateInit();
+                baseMapper.updateById(basicsdatumLavationReminder);
                 }
                 return true;
          }
@@ -169,7 +169,7 @@ public class BasicsdatumPressingPackingServiceImpl extends ServicePlusImpl<Basic
          * @return boolean
          */
          @Override
-         public Boolean delBasicsdatumPressingPacking(String id) {
+         public Boolean delBasicsdatumLavationReminder(String id) {
          List<String> ids = StringUtils.convertList(id);
            /*批量删除*/
            baseMapper.deleteBatchIds(ids);
@@ -184,8 +184,8 @@ public class BasicsdatumPressingPackingServiceImpl extends ServicePlusImpl<Basic
          * @return boolean
          */
           @Override
-          public Boolean startStopBasicsdatumPressingPacking(StartStopDto startStopDto) {
-            UpdateWrapper<BasicsdatumPressingPacking> updateWrapper = new UpdateWrapper<>();
+          public Boolean startStopBasicsdatumLavationReminder(StartStopDto startStopDto) {
+            UpdateWrapper<BasicsdatumLavationReminder> updateWrapper = new UpdateWrapper<>();
             updateWrapper.in("id",StringUtils.convertList(startStopDto.getIds()));
             updateWrapper.set("status", startStopDto.getStatus());
             /*修改状态*/

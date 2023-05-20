@@ -8,17 +8,17 @@ package com.base.sbc.module.basicsdatum.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumPressingPacking;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
 /** 
  * 类描述：基础资料-洗涤图标与温馨提示 dao类
- * @address com.base.sbc.module.basicsdatum.dao.BasicsdatumPressingPackingDao
+ * @address com.base.sbc.module.basicsdatum.dao.BasicsdatumLavationReminderDao
  * @author mengfanjiang  
  * @email  2915350015@qq.com
  * @date 创建时间：2023-5-19 19:15:00 
  * @version 1.0  
  */
 @Mapper
-public interface BasicsdatumPressingPackingMapper extends BaseMapper<BasicsdatumPressingPacking> {
+public interface BasicsdatumLavationReminderMapper extends BaseMapper<BasicsdatumLavationReminder> {
 /** 自定义方法区 不替换的区域【other_start】 **/
 
 

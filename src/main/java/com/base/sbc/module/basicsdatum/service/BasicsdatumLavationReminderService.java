@@ -8,9 +8,9 @@ package com.base.sbc.module.basicsdatum.service;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.github.pagehelper.PageInfo;
 import com.base.sbc.module.common.service.IServicePlus;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumPressingPacking;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumPressingPackingVo;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumPressingPackingDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo;
+import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumLavationReminderDto;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
@@ -18,13 +18,13 @@ import java.io.IOException;
 
 /** 
  * 类描述：基础资料-洗涤图标与温馨提示 service类
- * @address com.base.sbc.module.basicsdatum.service.BasicsdatumPressingPackingService
+ * @address com.base.sbc.module.basicsdatum.service.BasicsdatumLavationReminderService
  * @author mengfanjiang
  * @email 2915350015@qq.com
  * @date 创建时间：2023-5-19 19:15:00
  * @version 1.0  
  */
-public interface BasicsdatumPressingPackingService extends IServicePlus<BasicsdatumPressingPacking>{
+public interface BasicsdatumLavationReminderService extends IServicePlus<BasicsdatumLavationReminder>{
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -34,7 +34,7 @@ public interface BasicsdatumPressingPackingService extends IServicePlus<Basicsda
         * @param queryDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<BasicsdatumPressingPackingVo> getBasicsdatumPressingPackingList(QueryDto queryDto);
+        PageInfo<BasicsdatumLavationReminderVo> getBasicsdatumLavationReminderList(QueryDto queryDto);
 
 
         /**
@@ -42,23 +42,23 @@ public interface BasicsdatumPressingPackingService extends IServicePlus<Basicsda
         * @param file
         * @return
         */
-        Boolean basicsdatumPressingPackingImportExcel(MultipartFile file) throws IOException, Exception;
+        Boolean basicsdatumLavationReminderImportExcel(MultipartFile file) throws IOException, Exception;
 
         /**
         * 基础资料-洗涤图标与温馨提示导出
         * @param response
         * @return
         */
-        void basicsdatumPressingPackingDeriveExcel(HttpServletResponse response) throws Exception;
+        void basicsdatumLavationReminderDeriveExcel(HttpServletResponse response) throws Exception;
 
 
         /**
         * 方法描述：新增修改基础资料-洗涤图标与温馨提示
         *
-        * @param addRevampBasicsdatumPressingPackingDto 部件Dto类
+        * @param addRevampBasicsdatumLavationReminderDto 部件Dto类
         * @return boolean
         */
-        Boolean addRevampBasicsdatumPressingPacking(AddRevampBasicsdatumPressingPackingDto addRevampBasicsdatumPressingPackingDto);
+        Boolean addRevampBasicsdatumLavationReminder(AddRevampBasicsdatumLavationReminderDto addRevampBasicsdatumLavationReminderDto);
 
 
 
@@ -68,7 +68,7 @@ public interface BasicsdatumPressingPackingService extends IServicePlus<Basicsda
         * @param id （多个用，）
         * @return boolean
         */
-        Boolean delBasicsdatumPressingPacking(String id);
+        Boolean delBasicsdatumLavationReminder(String id);
 
 
 
@@ -78,7 +78,7 @@ public interface BasicsdatumPressingPackingService extends IServicePlus<Basicsda
         * @param startStopDto 启用停止Dto类
         * @return boolean
         */
-        Boolean startStopBasicsdatumPressingPacking( StartStopDto startStopDto);
+        Boolean startStopBasicsdatumLavationReminder( StartStopDto startStopDto);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/
