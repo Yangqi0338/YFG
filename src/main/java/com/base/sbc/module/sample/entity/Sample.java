@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.sample.entity.Sample
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-19 19:35:22
+ * @date 创建时间：2023-5-20 9:34:40
  * @version 1.0
  */
 @Data
@@ -142,6 +142,12 @@ public class Sample extends BaseDataEntity<String> {
     /** 价格带 */
     @ApiModelProperty(value = "价格带"  )
     private String price;
+    /** 款式风格 */
+    @ApiModelProperty(value = "款式风格"  )
+    private String style;
+    /** 款式定位 */
+    @ApiModelProperty(value = "款式定位"  )
+    private String positioning;
     /** 关联的素材库数量 */
     @ApiModelProperty(value = "关联的素材库数量"  )
     private BigDecimal materialCount;
