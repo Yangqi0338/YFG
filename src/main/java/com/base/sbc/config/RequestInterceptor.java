@@ -51,6 +51,39 @@ public class RequestInterceptor implements HandlerInterceptor {
             jsonObject.put(headerName,header);
         }
 
+        BodyHttpServletRequestWrapper servletRequestWrapper =new BodyHttpServletRequestWrapper(request);
+        //获取所有请求头
+        JSONObject reqHeaders = new JSONObject();
+        Enumeration<String> headerNames = servletRequestWrapper.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            String header = servletRequestWrapper.getHeader(headerName);
+            reqHeaders.put(headerName, header);
+        }
+
+
+        //获取请求体
+        String reqBody = null;
+        //获取请求体
+        if (servletRequestWrapper.getHeader("content-type") != null && !servletRequestWrapper.getHeader("content-type").contains("multipart/form-data")) {
+
+            byte[] requestData = servletRequestWrapper.getRequestData();
+            reqBody =new String(requestData,servletRequestWrapper.getCharacterEncoding());
+        }
+        //
+        //获取所有请求参数
+        String parameter = JSON.toJSONString(servletRequestWrapper.getParameterMap());
+
+
+        httpLog.setReqBody(reqBody);
+        httpLog.setMethod(servletRequestWrapper.getMethod());
+        httpLog.setUrl(servletRequestWrapper.getRequestURL().toString());
+        httpLog.setType(2);
+        httpLog.setReqHeaders(reqHeaders.toJSONString());
+        //httpLog.setReqQuery(parameter);
+        httpLog.setIp(servletRequestWrapper.getRemoteAddr());
+        String address = Ip2regionAnalysis.getStringAddressByIp(servletRequestWrapper.getRemoteAddr());
+        httpLog.setAddress(address);
         httpLog.setRespHeaders(jsonObject.toJSONString());
         httpLog.setIntervalNum(System.currentTimeMillis() - httpLog.getStartTime().getTime());
         httpLogService.save(httpLog);
@@ -64,6 +97,8 @@ public class RequestInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object arg2) throws IOException {
+
+
         UserCompany userCompany = companyUserInfo.get();
         if (userCompany==null){
             userCompany=new UserCompany();
@@ -72,41 +107,14 @@ public class RequestInterceptor implements HandlerInterceptor {
             userCompany.setCompanyName("0");
             companyUserInfo.set(userCompany);
         }
-        //获取所有请求头
-        JSONObject reqHeaders = new JSONObject();
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            String header = request.getHeader(headerName);
-            reqHeaders.put(headerName, header);
-        }
 
-        //获取请求体
-        StringBuilder requestBody = new StringBuilder();
-        //获取请求体
-        if (request.getHeader("content-type") != null && !request.getHeader("content-type").contains("multipart/form-data")) {
-            BufferedReader reader = request.getReader();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                requestBody.append(line);
-            }
-        }
 
-        //获取所有请求参数
-        String parameter = JSON.toJSONString(request.getParameterMap());
 
+        //
         HttpLog httpLog = new HttpLog();
         httpLog.setStartTime(new Date());
         httpLog.setThreadId(UUID.randomUUID().toString());
-        httpLog.setReqBody(requestBody.toString());
-        httpLog.setMethod(request.getMethod());
-        httpLog.setUrl(request.getRequestURI());
-        httpLog.setType(2);
-        httpLog.setReqHeaders(reqHeaders.toJSONString());
-        httpLog.setReqQuery(parameter);
-        httpLog.setIp(request.getRemoteAddr());
-        String address = Ip2regionAnalysis.getStringAddressByIp(request.getRemoteAddr());
-        httpLog.setAddress(address);
+
         httpLog.setUserCode(userCompany.getUserCode());
         companyUserInfo.get().setHttpLog(httpLog);
         return true;

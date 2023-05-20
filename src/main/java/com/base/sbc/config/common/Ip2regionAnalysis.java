@@ -88,4 +88,8 @@ public class Ip2regionAnalysis {
 		}
 
 	}
+
+	public static void main(String[] args) {
+		System.out.println(getStringAddressByIp("10.8.252.11"));
+	}
 }
