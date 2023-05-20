@@ -26,18 +26,19 @@ import cn.afterturn.easypoi.excel.annotation.Excel;
 @ApiModel("基础资料-洗涤图标与温馨提示 BasicsdatumPressingPacking")
 public class BasicsdatumPressingPackingExcelDto  {
 
-
+    @Excel(name = "id")
+    private String id;
     /** 类别 */
     @ApiModelProperty(value = "类别"  )
     @Excel(name = "类别")
     private String category;
     /** 温馨提示 */
     @ApiModelProperty(value = "温馨提示"  )
-    @Excel(name = "温馨提示")
+    @Excel(name = "温馨提示（新）")
     private String reminder;
     /** 贮藏要求 */
     @ApiModelProperty(value = "贮藏要求"  )
-    @Excel(name = "贮藏要求")
+    @Excel(name = "贮藏要求（需要就增加）")
     private String demand;
     /** 有配饰款 */
     @ApiModelProperty(value = "有配饰款"  )
@@ -57,7 +58,7 @@ public class BasicsdatumPressingPackingExcelDto  {
     private String crumple;
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
-    @Excel(name = "图片")
+    @Excel(name = "图标",type = 2)
     private String picture;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )

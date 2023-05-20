@@ -25,22 +25,22 @@ import cn.afterturn.easypoi.excel.annotation.Excel;
 @Data
 @ApiModel("基础资料-材料成分 BasicsdatumMaterialsIngredient")
 public class BasicsdatumMaterialsIngredientExcelDto  {
-
-
+    @Excel(name = "id")
+    private String id;
     /** 成分 */
     @ApiModelProperty(value = "成分"  )
     @Excel(name = "成分")
     private String ingredient;
     /** OK for Material */
     @ApiModelProperty(value = "OK for Material"  )
-    @Excel(name = "OK for Material")
+    @Excel(name = "OK for Material" , replace = {"true_0", "false_1"} )
     private String material;
     /** OK for Style */
     @ApiModelProperty(value = "OK for Style"  )
-    @Excel(name = "OK for Style")
+    @Excel(name = "OK for Style" , replace = {"true_0", "false_1"} )
     private String style;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
-    @Excel(name = "状态(0正常,1停用)")
+    @Excel(name = "状态" , replace = {"true_0", "false_1"} )
     private String status;
 }

@@ -66,14 +66,14 @@ public class BasicsdatumMeasurementController{
 		basicsdatumMeasurementService.deriveExcel(response);
 	}
 
-	@ApiOperation(value = "新增修改部件")
+	@ApiOperation(value = "新增修改测量点")
 	@PostMapping("/addRevampMeasurement")
 	public ApiResult addRevampComponent(@Valid @RequestBody AddRevampMeasurementDto addRevampMeasurementDto) {
 		return ApiResult.success("操作成功",basicsdatumMeasurementService.addRevampMeasurement(addRevampMeasurementDto)) ;
 	}
 
 
-	@ApiOperation(value = "删除部件数据")
+	@ApiOperation(value = "删除测量点数据")
 	@DeleteMapping("/delMeasurement")
 	public ApiResult delMeasurement(@Valid @NotBlank(message = "编号id不能为空") String id) {
 		return ApiResult.success("操作成功",basicsdatumMeasurementService.delMeasurement(id));

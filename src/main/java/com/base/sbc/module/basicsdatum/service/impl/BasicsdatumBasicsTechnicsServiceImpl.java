@@ -7,6 +7,7 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -18,10 +19,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumBasicsTechnicsDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumBasicsTechnicsExcelDto;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBasicsTechnics;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBasicsTechnicsMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumBasicsTechnicsService;
@@ -34,6 +32,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -105,8 +104,8 @@ public class BasicsdatumBasicsTechnicsServiceImpl extends ServicePlusImpl<Basics
         params.setNeedSave(false);
         List<BasicsdatumBasicsTechnicsExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumBasicsTechnicsExcelDto.class, params);
         /*获取字典值*/
-        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_DimType");
-        Map<String, String> map = dictInfoToMap.get("C8_DimType");
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_SewingType");
+        Map<String, String> map = dictInfoToMap.get("C8_SewingType");
         for (BasicsdatumBasicsTechnicsExcelDto basicsdatumBasicsTechnicsExcelDto : list) {
             //如果图片不为空
             if (StringUtils.isNotEmpty(basicsdatumBasicsTechnicsExcelDto.getPicture())) {
@@ -141,7 +140,7 @@ public class BasicsdatumBasicsTechnicsServiceImpl extends ServicePlusImpl<Basics
     public void basicsdatumBasicsTechnicsDeriveExcel(HttpServletResponse response) throws Exception {
         QueryWrapper<BasicsdatumBasicsTechnics> queryWrapper = new QueryWrapper<>();
         List<BasicsdatumBasicsTechnicsExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsdatumBasicsTechnicsExcelDto.class);
-        ExcelUtils.exportExcel(list, "基础资料-基础工艺", "基础资料-基础工艺", BasicsdatumBasicsTechnicsExcelDto.class, "基础资料-基础工艺.xlsx", response);
+        ExcelUtils.exportExcel(list,  BasicsdatumBasicsTechnicsExcelDto.class, "基础工艺.xlsx",new ExportParams() ,response);
     }
 
 
@@ -155,7 +154,13 @@ public class BasicsdatumBasicsTechnicsServiceImpl extends ServicePlusImpl<Basics
     public Boolean addRevampBasicsdatumBasicsTechnics(AddRevampBasicsdatumBasicsTechnicsDto addRevampBasicsdatumBasicsTechnicsDto) {
         BasicsdatumBasicsTechnics basicsdatumBasicsTechnics = new BasicsdatumBasicsTechnics();
         if (StringUtils.isEmpty(addRevampBasicsdatumBasicsTechnicsDto.getId())) {
+            /*查询数据重复*/
             QueryWrapper<BasicsdatumBasicsTechnics> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("coding",addRevampBasicsdatumBasicsTechnicsDto.getCoding());
+            queryWrapper.eq("company_code",baseController.getUserCompany());
+            if(!CollectionUtils.isEmpty(baseMapper.selectList(queryWrapper))){
+                throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
+            }
             /*新增*/
             BeanUtils.copyProperties(addRevampBasicsdatumBasicsTechnicsDto, basicsdatumBasicsTechnics);
             basicsdatumBasicsTechnics.setCompanyCode(baseController.getUserCompany());
