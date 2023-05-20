@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 @ApiModel("基础资料-号型类型 BasicsdatumModelType")
 public class BasicsdatumModelTypeVo  {
 
-
+    private String id;
     /** 号型类型 */
     @ApiModelProperty(value = "号型类型"  )
     private String modelType;

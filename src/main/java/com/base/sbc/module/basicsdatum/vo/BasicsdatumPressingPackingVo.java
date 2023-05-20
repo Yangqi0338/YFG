@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 @ApiModel("基础资料-洗涤图标与温馨提示 BasicsdatumPressingPacking")
 public class BasicsdatumPressingPackingVo  {
 
-
+    private String id;
     /** 类别 */
     @ApiModelProperty(value = "类别"  )
     private String category;

@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 @ApiModel("基础资料-材料成分 BasicsdatumMaterialsIngredient")
 public class BasicsdatumMaterialsIngredientVo  {
 
-
+    private String id;
     /** 成分 */
     @ApiModelProperty(value = "成分"  )
     private String ingredient;

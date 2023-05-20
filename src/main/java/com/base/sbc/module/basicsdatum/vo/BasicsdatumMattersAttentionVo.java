@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 @ApiModel("基础资料-注意事项 BasicsdatumMattersAttention")
 public class BasicsdatumMattersAttentionVo  {
 
-
+    private String id;
     /** 编码 */
     @ApiModelProperty(value = "编码"  )
     private String coding;
