@@ -30,6 +30,7 @@ public class HttpLog extends BaseDataEntity<String> {
     /** IP地址 */
     private String ip;
 
+
     /** 物理地址 */
     private String address;
 
@@ -73,7 +74,7 @@ public class HttpLog extends BaseDataEntity<String> {
     private Long intervalNum;
 
     /** 响应数据 */
-    private String responseBody;
+    private String respBody;
 
     /** 是否异常(0正常1异常) */
     private boolean exceptionFlag;

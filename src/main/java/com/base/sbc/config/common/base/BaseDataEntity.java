@@ -10,8 +10,9 @@ import java.util.Date;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.base.sbc.config.aspect.GetCurUserInfoAspect;
-import com.base.sbc.config.exception.RequestInterceptor;
+
+import com.base.sbc.config.RequestInterceptor;
+import com.base.sbc.config.security.UrlFilterSecurityInterceptor;
 import org.hibernate.validator.constraints.Length;
 import com.base.sbc.config.common.IdGen;
 import com.fasterxml.jackson.annotation.JsonFormat;

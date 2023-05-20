@@ -2,10 +2,11 @@ package com.base.sbc.config.utils;
 
 import java.security.Principal;
 
-import com.base.sbc.config.aspect.GetCurUserInfoAspect;
+import com.base.sbc.config.RequestInterceptor;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.Constants;
-import com.base.sbc.config.exception.RequestInterceptor;
+
+import com.base.sbc.config.security.UrlFilterSecurityInterceptor;
 import com.base.sbc.module.common.entity.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

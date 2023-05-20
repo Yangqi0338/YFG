@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Locale;
 
 import com.base.sbc.config.JacksonHttpMessageConverter;
-import com.base.sbc.config.exception.RequestInterceptor;
+import com.base.sbc.config.RequestInterceptor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;

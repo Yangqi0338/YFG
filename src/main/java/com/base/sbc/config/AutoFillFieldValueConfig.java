@@ -1,9 +1,8 @@
 package com.base.sbc.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.base.sbc.config.aspect.GetCurUserInfoAspect;
 import com.base.sbc.config.common.base.UserCompany;
-import com.base.sbc.config.exception.RequestInterceptor;
+import com.base.sbc.config.security.UrlFilterSecurityInterceptor;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
@@ -44,7 +43,7 @@ public class AutoFillFieldValueConfig implements MetaObjectHandler {
     }
 
     private void userInfo() {
-        UserCompany userCompany = RequestInterceptor.companyUserInfo.get();
+        UserCompany userCompany = 	RequestInterceptor.companyUserInfo.get();
         if (userCompany == null) {
             this.userName = "系统管理员";
             this.userId = "0";

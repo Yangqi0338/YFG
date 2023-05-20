@@ -1,18 +1,19 @@
 package com.base.sbc.config.security;
 
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-
+import java.io.*;
+import javax.servlet.*;
+import com.base.sbc.config.RequestInterceptor;
+import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.utils.UserCompanyUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.access.intercept.InterceptorStatusToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.stereotype.Service;
@@ -21,10 +22,13 @@ import org.springframework.stereotype.Service;
  * @data 创建时间:2020/2/3
  */
 @Service
+@Order(-1)
+@RequiredArgsConstructor
 public class UrlFilterSecurityInterceptor extends AbstractSecurityInterceptor implements Filter {
 
-	@Autowired
-	private FilterInvocationSecurityMetadataSource securityMetadataSource;
+	private final FilterInvocationSecurityMetadataSource securityMetadataSource;
+
+	private final UserCompanyUtils userCompanyUtils;
 
 	@Autowired
 	public void setMyAccessDecisionManager(DecideAccessDecisionManager accessDecisionManager) {
@@ -32,7 +36,7 @@ public class UrlFilterSecurityInterceptor extends AbstractSecurityInterceptor im
 	}
 
 	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
+	public void init(FilterConfig filterConfig) {
 
 	}
 
@@ -51,13 +55,16 @@ public class UrlFilterSecurityInterceptor extends AbstractSecurityInterceptor im
 		// 再调用MyAccessDecisionManager的decide方法来校验用户的权限是否足够
 		InterceptorStatusToken token = super.beforeInvocation(fi);
 		try {
+			//初始化用户数据
+			this.initUserData();
 			// 执行下一个拦截器
 			fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+
 		} finally {
 			super.afterInvocation(token, null);
+
 		}
 	}
-
 	@Override
 	public void destroy() {
 
@@ -71,5 +78,22 @@ public class UrlFilterSecurityInterceptor extends AbstractSecurityInterceptor im
 	@Override
 	public SecurityMetadataSource obtainSecurityMetadataSource() {
 		return this.securityMetadataSource;
+	}
+
+
+	/**
+	 * 初始化用户数据
+	 */
+	private void initUserData(){
+		SecurityContext context = SecurityContextHolder.getContext();
+		Authentication authentication = context.getAuthentication();
+		//当前登录者账号
+		String username = authentication.getPrincipal().toString();
+		UserCompany userCompany = userCompanyUtils.getCompanyUser();
+		if (userCompany == null) {
+			userCompany = new UserCompany();
+		}
+		userCompany.setUsername(username);
+		RequestInterceptor.companyUserInfo.set(userCompany);
 	}
 }
