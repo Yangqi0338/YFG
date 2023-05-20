@@ -12,12 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.UUID;
@@ -77,10 +74,10 @@ public class RequestInterceptor implements HandlerInterceptor {
 
         httpLog.setReqBody(reqBody);
         httpLog.setMethod(servletRequestWrapper.getMethod());
-        httpLog.setUrl(servletRequestWrapper.getRequestURL().toString());
+        httpLog.setUrl(servletRequestWrapper.getRequestURI());
         httpLog.setType(2);
         httpLog.setReqHeaders(reqHeaders.toJSONString());
-        //httpLog.setReqQuery(parameter);
+        httpLog.setReqQuery(parameter);
         httpLog.setIp(servletRequestWrapper.getRemoteAddr());
         String address = Ip2regionAnalysis.getStringAddressByIp(servletRequestWrapper.getRemoteAddr());
         httpLog.setAddress(address);
@@ -109,8 +106,6 @@ public class RequestInterceptor implements HandlerInterceptor {
         }
 
 
-
-        //
         HttpLog httpLog = new HttpLog();
         httpLog.setStartTime(new Date());
         httpLog.setThreadId(UUID.randomUUID().toString());
