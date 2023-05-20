@@ -68,7 +68,25 @@ public class SamplePageVo {
     @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板")
     private String status;
 
+    @ApiModelProperty(value = "款式图" )
+    private String stylePic;
     @ApiModelProperty(value = "用户头像", example = "https://sjkj-demo.oss-cn-shenzhen.aliyuncs.com/null/userHead/09/02/8361ea39-21d2-4944-b150-d2e69bb68254.png")
     private String aliasUserAvatar;
+    @ApiModelProperty(value = "款式名称" )
+    private String styleName;
+    @ApiModelProperty(value = "款式类型" )
+    private String styleType;
+    @ApiModelProperty(value = "生成类型" )
+    private String devtType;
+    @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)"  )
+    private String categoryName;
+    /** 品类id路径:(大类/品类/中类/小类) */
+    @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)"  )
+    private String categoryIds;
+
+
+
+
+
 
 }
