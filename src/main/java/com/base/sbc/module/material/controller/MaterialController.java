@@ -102,7 +102,7 @@ public class MaterialController extends BaseController {
         BeanUtil.copyProperties(material,materialSaveDto1);
         if ("2".equals(material.getStatus())) {
 
-            redisTemplate.opsForValue().set("MTUP-"+materialSaveDto.getId(),material);
+            redisTemplate.opsForValue().set("MTUP-"+materialSaveDto.getId(),materialSaveDto1);
         }
 
 
