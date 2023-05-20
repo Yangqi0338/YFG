@@ -68,7 +68,7 @@ public class BasicsdatumModelTypeServiceImpl extends ServicePlusImpl<Basicsdatum
 
             QueryWrapper<BasicsdatumModelType> queryWrapper = new QueryWrapper<>();
             if(!StringUtils.isEmpty(queryDto.getModelType())){
-                queryWrapper.eq("model_type",queryDto.getModelType());
+                queryWrapper.like("model_type",queryDto.getModelType());
             }
             queryWrapper.eq("company_code", baseController.getUserCompany());
             /*查询基础资料-号型类型数据*/
