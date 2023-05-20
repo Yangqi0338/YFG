@@ -93,8 +93,14 @@ public class MaterialController extends BaseController {
         //if (BasicNumber.ZERO.getNumber().equals(materialSaveDto.getStatus())){
         //    materialSaveDto.setStatus(BasicNumber.ONE.getNumber());
         //}
+
+
         // TODO: 2023/5/20 临时修改，保留之前的素材状态信息，驳回则恢复
-        redisTemplate.opsForValue().set("MTUP-"+materialSaveDto.getId(),materialSaveDto);
+        Material material = materialService.getById(materialSaveDto.getId());
+        if (material.getStatus().equals("2")) {
+            redisTemplate.opsForValue().set("MTUP-"+materialSaveDto.getId(),materialSaveDto);
+        }
+
 
 
 
