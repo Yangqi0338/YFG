@@ -56,7 +56,7 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
 
     private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
-    private final RedisTemplate<String,MaterialSaveDto> redisTemplate;
+    private final RedisTemplate<String,Object> redisTemplate;
 
 
     /**
@@ -223,7 +223,7 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
 
             if ("2".equals(material.getStatus())){
                 // TODO: 2023/5/20 临时逻辑，恢复原来的
-                MaterialSaveDto materialSaveDto = redisTemplate.opsForValue().get("MTUP-" + material.getId());
+                MaterialSaveDto materialSaveDto = (MaterialSaveDto) redisTemplate.opsForValue().get("MTUP-" + material.getId());
                 QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
                 labelQueryWrapper.eq("material_id", materialSaveDto.getId());
                 materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);

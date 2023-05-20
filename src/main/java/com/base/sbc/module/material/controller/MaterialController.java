@@ -47,7 +47,7 @@ public class MaterialController extends BaseController {
 
     private final FlowableService flowableService;
 
-    private final RedisTemplate<String,MaterialSaveDto> redisTemplate;
+    private final RedisTemplate<String,Object> redisTemplate;
 
     /**
      * 新增
