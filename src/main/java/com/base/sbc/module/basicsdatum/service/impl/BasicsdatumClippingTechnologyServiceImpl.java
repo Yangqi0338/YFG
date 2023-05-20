@@ -16,19 +16,20 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampTechnologyDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumComponentExcelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumComponent;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumTechnologyVo;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumClippingTechnologyMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumClippingTechnology;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumClippingTechnologyMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumClippingTechnologyService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumTechnologyVo;
+import com.base.sbc.module.common.service.UploadFileService;
+import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -56,8 +57,10 @@ public class BasicsdatumClippingTechnologyServiceImpl extends ServicePlusImpl<Ba
     @Autowired
     private BaseController baseController;
     @Autowired
-    private FilesUtils filesUtils;
+    private MinioUtils minioUtils;
 
+    @Autowired
+    private UploadFileService uploadFileService;
 
     @Override
     public PageInfo<BasicsdatumTechnologyVo> getTechnologyList(QueryDto queryDto) {
@@ -88,15 +91,13 @@ public class BasicsdatumClippingTechnologyServiceImpl extends ServicePlusImpl<Ba
             //如果图片不为空
             if (StringUtils.isNotEmpty(basicsdatumComponentExcelDto.getImage())) {
                 File file1 = new File(basicsdatumComponentExcelDto.getImage());
-                String s=  filesUtils.upload(filesUtils.convertFileToMultipartFile(file1), FilesUtils.PRODUCT,baseController.getUserCompany());
-                basicsdatumComponentExcelDto.setImage(s);
-
-
+                /*上传图*/
+                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
+                basicsdatumComponentExcelDto.setImage(attachmentVo.getUrl());
             }
             if (StringUtils.isBlank(basicsdatumComponentExcelDto.getDescription())) {
                 basicsdatumComponentExcelDto.setDescription("");
             }
-            basicsdatumComponentExcelDto.setStatus(basicsdatumComponentExcelDto.getStatus().equals("true")?"0":"1");
         }
         List<BasicsdatumClippingTechnology> basicsdatumComponentList = BeanUtil.copyToList(list, BasicsdatumClippingTechnology.class);
         saveOrUpdateBatch(basicsdatumComponentList);

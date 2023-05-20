@@ -17,16 +17,20 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.*;
+import com.base.sbc.module.basicsdatum.dto.AddRevampComponentDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumComponentExcelDto;
+import com.base.sbc.module.basicsdatum.dto.QueryDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumComponent;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumComponentMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumComponentService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumComponentVo;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -37,7 +41,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -56,9 +60,12 @@ public class BasicsdatumComponentServiceImpl extends ServicePlusImpl<Basicsdatum
     @Autowired
     private BaseController baseController;
     @Autowired
-    private FilesUtils filesUtils;
+    private UploadFileService uploadFileService;
     @Autowired
     private CcmFeignService ccmFeignService;
+    @Autowired
+    private MinioUtils minioUtils;
+
     @Override
     public PageInfo<BasicsdatumComponentVo> getComponentList(QueryDto queryDto) {
         /*分页*/
@@ -92,8 +99,8 @@ public class BasicsdatumComponentServiceImpl extends ServicePlusImpl<Basicsdatum
             //如果图片不为空
             if (StringUtils.isNotEmpty(basicsdatumComponentExcelDto.getImage())) {
                 File file1 = new File(basicsdatumComponentExcelDto.getImage());
-                String s = filesUtils.upload(filesUtils.convertFileToMultipartFile(file1), FilesUtils.PRODUCT, baseController.getUserCompany());
-                basicsdatumComponentExcelDto.setImage(s);
+                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
+                basicsdatumComponentExcelDto.setImage(attachmentVo.getUrl());
             }
             if (!StringUtils.isEmpty(basicsdatumComponentExcelDto.getComponentCategory())) {
                 for (Map.Entry<String, String> entry : map.entrySet()) {

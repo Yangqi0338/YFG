@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.basicsdatum.mapper.BasicsdatumPressingPackingMapper">
+    <!--
+        基础资料-洗涤图标与温馨提示
+        创建人：mengfanjiang
+        邮箱：2915350015@qq.com
+        创建时间：2023-5-19 19:15:00
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>

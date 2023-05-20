@@ -73,11 +73,18 @@ public class BasicsdatumSizeServiceImpl extends ServicePlusImpl<BasicsdatumSizeM
     @Override
     public PageInfo<BasicsdatumSizeVo> getSizeList(QueryDasicsdatumSizeDto queryDasicsdatumSizeDto) {
         /*分页*/
-        PageHelper.startPage(queryDasicsdatumSizeDto);
+        if(queryDasicsdatumSizeDto.getPageNum()!=0 && queryDasicsdatumSizeDto.getPageSize() !=0){
+            PageHelper.startPage(queryDasicsdatumSizeDto);
+        }
         QueryWrapper<BasicsdatumSize> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
-        queryWrapper.eq(!StringUtils.isEmpty(queryDasicsdatumSizeDto.getSizeLabelId()),"size_label_id", queryDasicsdatumSizeDto.getSizeLabelId());
-        queryWrapper.like(!StringUtils.isEmpty(queryDasicsdatumSizeDto.getSearch()),"hangtags", queryDasicsdatumSizeDto.getSearch()).or().like("model", queryDasicsdatumSizeDto.getSearch());
+        if(!StringUtils.isEmpty(queryDasicsdatumSizeDto.getSizeLabelId())){
+            queryWrapper.eq("size_label_id", queryDasicsdatumSizeDto.getSizeLabelId());
+        }
+        if(!StringUtils.isEmpty(queryDasicsdatumSizeDto.getSearch())){
+            queryWrapper.like("hangtags", queryDasicsdatumSizeDto.getSearch()).or().like("model", queryDasicsdatumSizeDto.getSearch());
+
+        }
         /*查询尺码数据*/
         List<BasicsdatumSize> basicsdatumSizeList = baseMapper.selectList(queryWrapper);
         PageInfo<BasicsdatumSize> pageInfo = new PageInfo(basicsdatumSizeList);
