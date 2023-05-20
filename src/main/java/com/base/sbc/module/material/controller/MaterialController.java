@@ -20,6 +20,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +46,8 @@ public class MaterialController extends BaseController {
 
 
     private final FlowableService flowableService;
+
+    private final RedisTemplate<String,MaterialSaveDto> redisTemplate;
 
     /**
      * 新增
@@ -90,10 +93,19 @@ public class MaterialController extends BaseController {
         //if (BasicNumber.ZERO.getNumber().equals(materialSaveDto.getStatus())){
         //    materialSaveDto.setStatus(BasicNumber.ONE.getNumber());
         //}
+        // TODO: 2023/5/20 临时修改，保留之前的素材状态信息，驳回则恢复
+        redisTemplate.opsForValue().set("MTUP-"+materialSaveDto.getId(),materialSaveDto);
+
+
+
+
         //修改关联标签
         QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
         labelQueryWrapper.eq("material_id", materialSaveDto.getId());
         materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
+
+
+
 
 
         ////修改关联尺码

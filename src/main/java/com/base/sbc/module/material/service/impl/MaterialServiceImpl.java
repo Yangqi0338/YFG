@@ -1,5 +1,6 @@
 package com.base.sbc.module.material.service.impl;
 
+import cn.afterturn.easypoi.cache.manager.IFileLoader;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -21,6 +22,7 @@ import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,8 +54,9 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
 
     private final AmcFeignService amcFeignService;
 
-
     private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
+
+    private final RedisTemplate<String,MaterialSaveDto> redisTemplate;
 
 
     /**
@@ -217,7 +220,17 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
             this.updateById(material);
             return true;
         } else {
-            material.setStatus("3");
+
+            if ("2".equals(material.getStatus())){
+                // TODO: 2023/5/20 临时逻辑，恢复原来的
+                MaterialSaveDto materialSaveDto = redisTemplate.opsForValue().get("MTUP-" + material.getId());
+                QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
+                labelQueryWrapper.eq("material_id", materialSaveDto.getId());
+                materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
+               this.updateById(materialSaveDto);
+            }else {
+                material.setStatus("3");
+            }
             this.updateById(material);
             return false;
         }
