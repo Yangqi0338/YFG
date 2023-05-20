@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_basicsdatumLavationReminder")
+@TableName("t_basicsdatum_pressing_packing")
 @ApiModel("基础资料-洗涤图标与温馨提示 BasicsdatumPressingPacking")
 public class BasicsdatumPressingPacking extends BaseDataEntity<String> {
 
