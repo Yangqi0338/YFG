@@ -1,8 +1,13 @@
 package com.base.sbc.config.datasource;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.config.common.annotation.DataIsolation;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.SpringContextHolder;
+import com.base.sbc.module.common.entity.HttpLog;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -29,6 +34,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
+
+import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
  * MyBatis 将mybatis要执行的sql拦截打印出来
@@ -133,6 +140,24 @@ public class SqlPrintInterceptor implements Interceptor {
         if(logger.isInfoEnabled()){
             logger.info("\n执行sql耗时:" + timing + " ms" + "  方法ID: " + statementId + "\nSQL语句:" + sql1);
         }
+
+        //记录sql信息
+        UserCompany userCompany = companyUserInfo.get();
+        HttpLog httpLog = userCompany.getHttpLog();
+
+        JSONArray jsonArray =new JSONArray();
+        if (httpLog.getSqlLog()!=null){
+            jsonArray= JSON.parseArray(httpLog.getSqlLog());
+        }
+
+        JSONObject jsonObject =new JSONObject();
+        jsonObject.put("sql",sql1);
+        jsonObject.put("time",timing);
+        jsonObject.put("statementId",statementId);
+
+        jsonArray.add(jsonObject);
+        httpLog.setSqlLog(jsonArray.toJSONString());
+
         return invocation.proceed();
     }
 

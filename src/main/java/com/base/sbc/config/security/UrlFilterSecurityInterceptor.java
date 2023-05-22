@@ -17,6 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.stereotype.Service;
+
+import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
+
 /**
  * @author Fred
  * @data 创建时间:2020/2/3
@@ -94,6 +97,6 @@ public class UrlFilterSecurityInterceptor extends AbstractSecurityInterceptor im
 			userCompany = new UserCompany();
 		}
 		userCompany.setUsername(username);
-		RequestInterceptor.companyUserInfo.set(userCompany);
+		companyUserInfo.set(userCompany);
 	}
 }

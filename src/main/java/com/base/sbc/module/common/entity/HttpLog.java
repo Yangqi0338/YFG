@@ -67,7 +67,8 @@ public class HttpLog extends BaseDataEntity<String> {
     /** 菜单权限名称 */
     private String authName;
 
-
+    /** sql 记录 */
+    private String sqlLog;
 
     //响应数据
     /** 持续时间ms */
@@ -77,10 +78,10 @@ public class HttpLog extends BaseDataEntity<String> {
     private String respBody;
 
     /** 是否异常(0正常1异常) */
-    private boolean exceptionFlag;
+    private Integer exceptionFlag;
 
     /** 异常信息 */
-    private Throwable throwableException;
+    private String throwableException;
 
     ///** 请求的cookie */
     //private Map<String, String> cookieMap;

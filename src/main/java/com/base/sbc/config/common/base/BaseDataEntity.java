@@ -17,6 +17,8 @@ import org.hibernate.validator.constraints.Length;
 import com.base.sbc.config.common.IdGen;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
+
 /**
  * @author 卞康
  * @date 2023/3/31 19:56:38
@@ -167,7 +169,7 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
     public void preInsert(String id) {
         //设置主键
         setId(id);
-        insertInit(RequestInterceptor.companyUserInfo.get());
+        insertInit(companyUserInfo.get());
     }
 
     /**
@@ -182,14 +184,14 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
      * 设置修改时间,修改人,拿当前线程中的用户信息
      */
     public void updateInit() {
-        updateInit(RequestInterceptor.companyUserInfo.get());
+        updateInit(companyUserInfo.get());
     }
 
     /**
      * 设置修改时间,修改人创建人等
      */
     public void insertInit() {
-        this.insertInit(RequestInterceptor.companyUserInfo.get());
+        this.insertInit(companyUserInfo.get());
     }
 
     /**

@@ -16,6 +16,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.client.oauth.service.OauthService;
 import com.base.sbc.config.redis.RedisUtils;
+
+import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
+
 /**
  * @author Fred
  * @data 创建时间:2020/2/3
@@ -106,7 +109,7 @@ public class UserUtils {
 	}
 
 	public UserCompany getUserCompany(){
-		return RequestInterceptor.companyUserInfo.get();
+		return companyUserInfo.get();
 	}
 
 	public String getDeptName(){

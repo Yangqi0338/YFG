@@ -1,23 +1,27 @@
 package com.base.sbc.config;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.base.sbc.config.common.Ip2regionAnalysis;
+import com.alibaba.fastjson2.JSON;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.module.common.entity.HttpLog;
 import com.base.sbc.module.common.service.HttpLogService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.Enumeration;
+import java.util.Map;
 import java.util.UUID;
+
+import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
 
 
 /**
@@ -35,7 +39,7 @@ public class RequestInterceptor implements HandlerInterceptor {
 
     private final HttpLogService httpLogService;
 
-    public static ThreadLocal<UserCompany> companyUserInfo = new ThreadLocal<>();
+
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object arg2, Exception arg3) throws Exception {
@@ -85,7 +89,6 @@ public class RequestInterceptor implements HandlerInterceptor {
         //httpLog.setIntervalNum(System.currentTimeMillis() - httpLog.getStartTime().getTime());
         //httpLogService.save(httpLog);
         //返回数据之前删除线程缓存
-        companyUserInfo.remove();
     }
 
     @Override
@@ -94,8 +97,6 @@ public class RequestInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object arg2) throws IOException {
-
-
         UserCompany userCompany = companyUserInfo.get();
         if (userCompany==null){
             userCompany=new UserCompany();
@@ -105,12 +106,31 @@ public class RequestInterceptor implements HandlerInterceptor {
             companyUserInfo.set(userCompany);
         }
 
-
         HttpLog httpLog = new HttpLog();
         httpLog.setStartTime(new Date());
-        httpLog.setThreadId(UUID.randomUUID().toString());
-
+        httpLog.setType(2);
         httpLog.setUserCode(userCompany.getUserCode());
+        httpLog.setReqQuery(JSON.toJSONString(request.getParameterMap()));
+        httpLog.setThreadId(UUID.randomUUID().toString());
+        httpLog.setUserCode(userCompany.getUserCode());
+
+
+        //获取swagger注解value值
+        if(arg2 instanceof HandlerMethod) {
+            Method method = ((HandlerMethod) arg2).getMethod();
+            ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
+            if(apiOperation != null) {
+                String value = apiOperation.value();
+                httpLog.setReqName(value);
+            }
+        }
+
+
+
+
+
+
+
         companyUserInfo.get().setHttpLog(httpLog);
         return true;
     }

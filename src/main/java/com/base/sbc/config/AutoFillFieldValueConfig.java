@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
+import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
+
 /**
  * mybatis-plus自动填充字段值配置
  *
@@ -43,7 +45,7 @@ public class AutoFillFieldValueConfig implements MetaObjectHandler {
     }
 
     private void userInfo() {
-        UserCompany userCompany = 	RequestInterceptor.companyUserInfo.get();
+        UserCompany userCompany = 	companyUserInfo.get();
         if (userCompany == null) {
             this.userName = "系统管理员";
             this.userId = "0";
