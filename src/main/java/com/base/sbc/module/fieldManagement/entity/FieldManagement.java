@@ -5,25 +5,25 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.fieldManagement.entity;
-
+import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.validator.constraints.NotBlank;
-
 /**
  * 类描述：字段管理表 实体类
  * @address com.base.sbc.module.fieldManagement.entity.FieldManagement
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-4-15 18:33:51
+ * @date 创建时间：2023-5-22 17:04:33
  * @version 1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("t_field_management")
+@ApiModel("字段管理表 FieldManagement")
 public class FieldManagement extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
@@ -45,20 +45,24 @@ public class FieldManagement extends BaseDataEntity<String> {
     /** 字段类型 */
     @ApiModelProperty(value = "字段类型"  )
     private String fieldType;
-    /** 字段类型id */
-    @ApiModelProperty(value = "字段类型id"  )
+    /** 字段类型id 对应结构管理id */
+    @ApiModelProperty(value = "字段类型id 对应结构管理id"  )
     private String fieldTypeId;
     /** 字段类型名 */
     @ApiModelProperty(value = "字段类型名"  )
     private String fieldTypeName;
+    /** 字段类型编码 */
     @ApiModelProperty(value = "字段类型编码"  )
-    private String  fieldTypeCoding;
+    private String fieldTypeCoding;
     /** 默认提示 */
     @ApiModelProperty(value = "默认提示"  )
     private String defaultHint;
-    /** 选项（0手动，1外部' */
-    @ApiModelProperty(value = "选项"  )
+    /** 选项（0:自定义选项，1字典) */
+    @ApiModelProperty(value = "选项（0:自定义选项，1字典)"  )
     private String isOption;
+    /** 字典key */
+    @ApiModelProperty(value = "字典key"  )
+    private String optionDictKey;
     /** 是否必填(0是，1否) */
     @ApiModelProperty(value = "是否必填(0是，1否)"  )
     private String isMustFill;
@@ -71,19 +75,24 @@ public class FieldManagement extends BaseDataEntity<String> {
     /** 是否检查(0是，1否) */
     @ApiModelProperty(value = "是否检查(0是，1否)"  )
     private String isExamine;
+    /** 检查顺序 */
+    @ApiModelProperty(value = "检查顺序"  )
+    private String examineOrder;
+    /** 字段说明 */
+    @ApiModelProperty(value = "字段说明"  )
+    private String fieldExplain;
     /** 是否启用(0是，1否) */
     @ApiModelProperty(value = "是否启用(0是，1否)"  )
     private String status;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remark;
-    /** 字段说明 */
-    @ApiModelProperty(value = "字段说明"  )
-    private String fieldExplain;
+    /** 顺序 */
     @ApiModelProperty(value = "顺序"  )
-    private Long sequence;
-    /** 是否能编辑0可1否 */
-    /*是否能编辑0可1否*/
+    private Integer sequence;
+    /** 是否能编辑（0可1否) */
+    @ApiModelProperty(value = "是否能编辑（0可1否)"  )
     private String isCompile;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+

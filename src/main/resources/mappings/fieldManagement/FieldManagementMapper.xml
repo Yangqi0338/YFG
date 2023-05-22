@@ -45,6 +45,7 @@
         tfm.field_type_coding,
         tfm.default_hint,
         tfm.is_option,
+        tfm.option_dict_key,
         tfm.is_must_fill,
         tfm.category_id,
         tfm.season,

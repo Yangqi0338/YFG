@@ -204,7 +204,7 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
             fieldManagement.setDefaultHint(StringUtils.isNotBlank(map.get("COLUMN_DEFAULT"))?map.get("COLUMN_DEFAULT"):"");
             fieldManagement.setFieldExplain(map.get("COLUMN_COMMENT"));
             fieldManagement.setIsMustFill(map.get("IS_NULLABLE").equals("NO")?"0":"1");
-            fieldManagement.setSequence((long) sequence++);
+            fieldManagement.setSequence(sequence++);
             fieldManagement.setIsCompile("1");
             fieldManagement.setIsExamine("0");
             fieldManagement.setSeason("");

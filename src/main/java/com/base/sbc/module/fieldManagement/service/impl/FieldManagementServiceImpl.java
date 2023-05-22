@@ -119,8 +119,8 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
     @Override
     public ApiResult adjustmentOrder(QueryFieldManagementDto queryFieldManagementDto) {
         FieldManagement fieldManagement=new FieldManagement();
-        Long  currentId =    baseMapper.selectById( queryFieldManagementDto.getCurrentId()).getSequence();
-        Long targetId =  baseMapper.selectById( queryFieldManagementDto.getTargetId()) .getSequence();
+        Integer  currentId =    baseMapper.selectById( queryFieldManagementDto.getCurrentId()).getSequence();
+        Integer targetId =  baseMapper.selectById( queryFieldManagementDto.getTargetId()) .getSequence();
         fieldManagement.setId(queryFieldManagementDto.getCurrentId());
         fieldManagement.setSequence(targetId);
         fieldManagement.updateInit();
