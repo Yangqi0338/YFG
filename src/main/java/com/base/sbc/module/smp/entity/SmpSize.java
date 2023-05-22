@@ -20,7 +20,7 @@ public class  SmpSize {
     /**基码标识*/
     private String baseSize;
     /**充绒量/克重*/
-    private String SKUFiller;
+    private String skuFiller;
     /**特殊规格*/
     private String specialSpec;
 }

@@ -41,7 +41,7 @@ public class  SmpMaterialDto extends SmpBaseDto {
     /** 开发品牌ID */
     private String seasonBrandId;
     /** 公斤米数 */
-    private String GJMS;
+    private String kilogramsAndMeters;
     /** 开发员 */
     private String developer;
     /** 采购员 */
@@ -76,6 +76,6 @@ public class  SmpMaterialDto extends SmpBaseDto {
     private List<SmpModuleSize> moduleSizeList;
     /** 报价集合 */
     private List<SmpQuot> quotList;
-    /** 图片集合 */
-    private List<String> images;
+    /**图片地址集合*/
+    private List<String> imgList;
 }

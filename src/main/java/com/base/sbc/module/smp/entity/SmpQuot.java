@@ -2,6 +2,8 @@ package com.base.sbc.module.smp.entity;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * @author 卞康
  * @date 2023/5/10 10:36:02
@@ -23,11 +25,11 @@ public class SmpQuot {
     /** 生产周期（天） */
     private String productionDay;
     /** 起订量 */
-    private String MOQInitial;
+    private Integer moqInitial;
     /** 采购报价 */
-    private String FOBFullPrice;
+    private BigDecimal fobFullPrice;
     /** 供应商物料号 */
-    private String SupplierMaterial;
+    private String supplierMaterial;
     /** 供应商编码*/
     private String supplierCode;
     /** 供应商名称 */
@@ -37,9 +39,9 @@ public class SmpQuot {
     /** 结算方式 */
     private String tradeTermKey;
     /** 默认报价标识 */
-    private String defaultQuote;
+    private Boolean defaultQuote;
     /** 结算方式名称 */
     private String tradeTermName;
     /** 单位 */
-    private String materialUOM;
+    private String materialUom;
 }

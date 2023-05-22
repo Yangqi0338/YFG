@@ -9,6 +9,7 @@ import com.base.sbc.module.httpLog.entity.HttpLog;
 import com.base.sbc.module.httpLog.service.HttpLogService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +28,7 @@ import java.util.List;
 public class HttpLogController extends BaseController {
     private final HttpLogService httpLogService;
     @GetMapping("/list")
+    @ApiOperation(value = "查询请求日志")
     public ApiResult list(HttpLog httpLog, Page page){
         PageHelper.startPage(page);
         QueryWrapper<HttpLog> queryWrapper=null;

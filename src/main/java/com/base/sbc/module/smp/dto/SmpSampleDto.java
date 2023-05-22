@@ -30,13 +30,12 @@ public class SmpSampleDto {
     /**齐套时间*/
     private String MCDate;
     /**打样URL*/
-    private String PLMID;
+    private String pmlId;
     /**打版难度编号*/
     private String patDiff;
     /**打版难度名称*/
     private String patDiffName;
-    /**打版难度编号*/
-    private String PatDiff;
+
     /**打样顺序编号*/
     private String patSeq;
     /**打样顺序名称*/
@@ -48,7 +47,7 @@ public class SmpSampleDto {
     /**大货款号*/
     private String colorwayCode;
     /**大货款号唯一标识*/
-    private String colorwayPLMID;
+    private String colorwayPlmId;
     /**样衣名*/
     private String nodeName;
     /**设计收样日期*/

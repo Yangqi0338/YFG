@@ -24,5 +24,5 @@ public class SmpProcessSheetDto extends SmpBaseDto {
     /** 同步id */
     private String syncId;
     /** plmid */
-    private String plmid;
+    private String plmId;
 }

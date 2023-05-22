@@ -20,9 +20,9 @@ public class SmpBaseDto {
     /**修改时间*/
     private Date modifiedTime;
     /**PLMID*/
-    private String PLMId;
+    private String plmId;
     /**同步ID*/
-    private String syncID;
+    private String syncId;
     /**是否启用*/
     private Boolean active;
 }

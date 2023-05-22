@@ -17,7 +17,7 @@ import java.util.List;
 @Data
 public class SmpGoodsDto extends SmpBaseDto {
     /** 款式分类id */
-    private String productTypeID;
+    private String productTypeId;
     /** 款式分类/产品类型 */
     private String productType;
     /**品牌ID*/
@@ -179,9 +179,9 @@ public class SmpGoodsDto extends SmpBaseDto {
     /**轻奢*/
     private Boolean luxury;
     /**BOM阶段*/
-    private String BOMPhase;
+    private String bomPhase;
     /**外辅工艺标识*/
-    private Boolean AUProcess;
+    private Boolean auProcess;
     /**厂家款号*/
     private String supplierArticle;
     /**厂家款色号*/
@@ -197,7 +197,7 @@ public class SmpGoodsDto extends SmpBaseDto {
     /**大货款号*/
     private String bulkNumber;
     /**成份信息*/
-    private String compsition;
+    private String composition;
     /**主款号*/
     private String mainCode;
     /**配饰款号*/
