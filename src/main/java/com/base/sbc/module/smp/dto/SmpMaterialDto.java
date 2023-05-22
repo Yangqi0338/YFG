@@ -49,9 +49,9 @@ public class  SmpMaterialDto extends SmpBaseDto {
     /** 采购组 */
     private String buyerTeam;
     /** 经缩(%) */
-    private Double longitudinalShrinkage;
+    private BigDecimal longitudinalShrinkage;
     /** 纬缩(%) */
-    private Double weftShrinkage;
+    private BigDecimal weftShrinkage;
     /** 克重(g/m2) */
     private String weight;
     /** 成分 */

@@ -94,7 +94,11 @@ public class UrlFilterSecurityInterceptor extends AbstractSecurityInterceptor im
 		String username = authentication.getPrincipal().toString();
 		UserCompany userCompany = userCompanyUtils.getCompanyUser();
 		if (userCompany == null) {
+
 			userCompany = new UserCompany();
+			userCompany.setAliasUserName("无token用户");
+			userCompany.setUserId("0");
+			userCompany.setCompanyName("0");
 		}
 		userCompany.setUsername(username);
 		companyUserInfo.set(userCompany);

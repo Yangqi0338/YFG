@@ -53,11 +53,15 @@ public class UserCompanyUtils {
      */
     public UserCompany getCompanyUser() {
         UserCompany userCompanys = new UserCompany();
-        String retomeResult = this.oauthService.getCompanyUserInfoByUserName();
-        JSONObject jsonx = JSON.parseObject(retomeResult);
-        if (jsonx.getBoolean(Constants.SUCCESS)) {
-            String data = jsonx.getJSONObject("data").toJSONString();
-            userCompanys = (UserCompany) JsonUtils.jsonToBean(data, UserCompany.class);
+        try {
+            String retomeResult = this.oauthService.getCompanyUserInfoByUserName();
+            JSONObject jsonx = JSON.parseObject(retomeResult);
+            if (jsonx.getBoolean(Constants.SUCCESS)) {
+                String data = jsonx.getJSONObject("data").toJSONString();
+                userCompanys = (UserCompany) JsonUtils.jsonToBean(data, UserCompany.class);
+            }
+        }catch (Exception e){
+            return null;
         }
         return userCompanys;
     }

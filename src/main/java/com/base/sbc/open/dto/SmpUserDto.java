@@ -20,7 +20,7 @@ public class SmpUserDto {
     /** 员工星级 */
     private String empCustom5;
     /** 部门名称 */
-    private String deptitle;
+    private String deptTitle;
     /** 岗位编号 */
     private String positionId;
     /** 人事EID */

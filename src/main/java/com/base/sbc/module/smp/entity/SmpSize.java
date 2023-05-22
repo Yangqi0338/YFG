@@ -15,10 +15,12 @@ public class  SmpSize {
     private String sizeNumber;
     /**尺寸描述*/
     private String sizeDescription;
+    /**排序code*/
+    private String code;
     /**吊牌显示*/
     private String productSizeName;
     /**基码标识*/
-    private String baseSize;
+    private Boolean baseSize;
     /**充绒量/克重*/
     private String skuFiller;
     /**特殊规格*/
