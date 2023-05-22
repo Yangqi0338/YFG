@@ -1,4 +1,4 @@
-package com.base.sbc.module.common.entity;
+package com.base.sbc.module.httpLog.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -29,7 +29,6 @@ public class HttpLog extends BaseDataEntity<String> {
 
     /** IP地址 */
     private String ip;
-
 
     /** 物理地址 */
     private String address;

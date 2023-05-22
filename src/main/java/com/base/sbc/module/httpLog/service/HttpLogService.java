@@ -1,7 +1,7 @@
-package com.base.sbc.module.common.service;
+package com.base.sbc.module.httpLog.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.base.sbc.module.common.entity.HttpLog;
+import com.base.sbc.module.httpLog.entity.HttpLog;
 /**
  * @author 卞康
  * @date 2023/5/16 18:50:03

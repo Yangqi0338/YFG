@@ -1,7 +1,7 @@
-package com.base.sbc.module.common.mapper;
+package com.base.sbc.module.httpLog.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.module.common.entity.HttpLog;
+import com.base.sbc.module.httpLog.entity.HttpLog;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

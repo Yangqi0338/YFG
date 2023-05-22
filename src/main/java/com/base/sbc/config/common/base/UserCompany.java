@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.config.common.base;
 
-import com.base.sbc.module.common.entity.HttpLog;
+import com.base.sbc.module.httpLog.entity.HttpLog;
 
 /**
  * 类描述：用户-企业 实体类

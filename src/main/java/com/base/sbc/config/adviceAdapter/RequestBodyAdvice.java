@@ -1,7 +1,7 @@
 package com.base.sbc.config.adviceAdapter;
 
 import com.alibaba.fastjson2.JSON;
-import com.base.sbc.module.common.entity.HttpLog;
+import com.base.sbc.module.httpLog.entity.HttpLog;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
