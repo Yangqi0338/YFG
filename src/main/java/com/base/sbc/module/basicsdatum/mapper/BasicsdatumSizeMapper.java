@@ -30,6 +30,10 @@ public interface BasicsdatumSizeMapper extends BaseMapper<BasicsdatumSize> {
 /** 自定义方法区 不替换的区域【other_start】 **/
     List<BasicsdatumSizeExcelDto> selectSize(@Param(Constants.WRAPPER) QueryWrapper<BasicsdatumSizeExcelDto> wrapper);
 
+    /*获取尺码标签id*/
+
+    String getSizeLabelId (String size);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }
