@@ -160,11 +160,11 @@ public class MaterialController extends BaseController {
      */
     @ApiOperation(value = "条件查询列表", notes = "条件查询列表")
     @GetMapping("/listQuery")
-    public PageInfo<MaterialVo> listQuery(MaterialQueryDto materialQueryDto) {
+    public ApiResult  listQuery(MaterialQueryDto materialQueryDto) {
         if (materialQueryDto == null) {
             throw new OtherException("参数不能为空");
         }
-        return materialService.listQuery(materialQueryDto);
+        return selectSuccess(materialService.listQuery(materialQueryDto));
     }
 
     /**

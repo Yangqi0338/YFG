@@ -4,16 +4,19 @@ import com.alibaba.fastjson2.JSON;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.module.common.entity.HttpLog;
 import com.base.sbc.module.common.service.HttpLogService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
@@ -86,7 +89,6 @@ public class RequestInterceptor implements HandlerInterceptor {
         //httpLog.setIntervalNum(System.currentTimeMillis() - httpLog.getStartTime().getTime());
         //httpLogService.save(httpLog);
         //返回数据之前删除线程缓存
-
     }
 
     @Override
@@ -111,6 +113,24 @@ public class RequestInterceptor implements HandlerInterceptor {
         httpLog.setReqQuery(JSON.toJSONString(request.getParameterMap()));
         httpLog.setThreadId(UUID.randomUUID().toString());
         httpLog.setUserCode(userCompany.getUserCode());
+
+
+        //获取swagger注解value值
+        if(arg2 instanceof HandlerMethod) {
+            Method method = ((HandlerMethod) arg2).getMethod();
+            ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
+            if(apiOperation != null) {
+                String value = apiOperation.value();
+                httpLog.setReqName(value);
+            }
+        }
+
+
+
+
+
+
+
         companyUserInfo.get().setHttpLog(httpLog);
         return true;
     }

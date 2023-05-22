@@ -1,6 +1,8 @@
 package com.base.sbc.config.adviceAdapter;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.Ip2regionAnalysis;
 import com.base.sbc.config.common.base.UserCompany;
@@ -16,11 +18,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.util.Collection;
 
 /**
  * 统一返回
@@ -68,7 +75,9 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
                                   ServerHttpResponse response) {
-        this.preHttpLog(request,response, body);
+        //if (body instanceof ApiResult){
+            this.preHttpLog(request,response, body);
+        //}
         if (body == null) {
             return ApiResult.error(localeMessages.getMessage(ERR_SELECT_NOT_FOUND), 404);
         }
@@ -102,21 +111,34 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
     private void preHttpLog(ServerHttpRequest request, ServerHttpResponse response, Object body) {
         //记录请求信息
         HttpLog httpLog = companyUserInfo.get().getHttpLog();
-        httpLog.setReqHeaders(JSON.toJSONString(request.getHeaders()));
+        URI uri = request.getURI();
+
         httpLog.setMethod(request.getMethod().toString());
         httpLog.setUrl(request.getURI().toString());
-        httpLog.setIp(request.getRemoteAddress().toString());
-        httpLog.setAddress(Ip2regionAnalysis.getStringAddressByIp(request.getRemoteAddress().getAddress().toString()));
+        httpLog.setIp(uri.getHost());
+        httpLog.setAddress(Ip2regionAnalysis.getStringAddressByIp(uri.getHost()));
+        httpLog.setReqHeaders(JSON.toJSONString(request.getHeaders()));
 
         //记录响应信息
+        HttpServletResponse httpServletResponse = ((ServletServerHttpResponse)response).getServletResponse();
         String jsonString = JSON.toJSONString(body);
-        httpLog.setRespBody(JSON.toJSONString(body));
-        httpLog.setRespHeaders(JSON.toJSONString(response.getHeaders()));
-        httpLog.setStatusCode(JSON.parseObject(jsonString).getInteger("status"));
+        if (jsonString.length()<20000){
+            httpLog.setRespBody(JSON.toJSONString(body));
+        }
+        JSONObject headers=new JSONObject();
+        Collection<String> headerNames = httpServletResponse.getHeaderNames();
+        for (String headerName : headerNames) {
+            headers.put(headerName,httpServletResponse.getHeader(headerName));
+        }
+
+        httpLog.setRespHeaders(headers.toJSONString());
+        httpLog.setStatusCode(httpServletResponse.getStatus());
         httpLog.setIntervalNum(System.currentTimeMillis() - httpLog.getStartTime().getTime());
         httpLog.setExceptionFlag(0);
+        System.out.println(JSON.parseObject(jsonString));
         if (!JSON.parseObject(jsonString).getBoolean("success")){
             httpLog.setExceptionFlag(1);
+            httpLog.setStatusCode(JSON.parseObject(jsonString).getInteger("status"));
             httpLog.setThrowableException(JSON.parseObject(jsonString).getString("message"));
         }
         httpLogService.save(httpLog);

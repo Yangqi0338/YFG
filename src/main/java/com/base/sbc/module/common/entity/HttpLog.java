@@ -67,7 +67,8 @@ public class HttpLog extends BaseDataEntity<String> {
     /** 菜单权限名称 */
     private String authName;
 
-
+    /** sql 记录 */
+    private String sqlLog;
 
     //响应数据
     /** 持续时间ms */

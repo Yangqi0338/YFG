@@ -1,7 +1,6 @@
 package com.base.sbc.config.adviceAdapter;
 
 import com.alibaba.fastjson2.JSON;
-import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.module.common.entity.HttpLog;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
@@ -14,7 +13,7 @@ import java.lang.reflect.Type;
 import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
 
 @ControllerAdvice
-public class CustomRequestBodyAdvice extends RequestBodyAdviceAdapter {
+public class RequestBodyAdvice extends RequestBodyAdviceAdapter {
 
     @Override
     public boolean supports(MethodParameter methodParameter, Type targetType,
@@ -27,7 +26,6 @@ public class CustomRequestBodyAdvice extends RequestBodyAdviceAdapter {
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter,
                                 Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
         HttpLog httpLog = companyUserInfo.get().getHttpLog();
-
         httpLog.setReqBody(JSON.toJSONString(body));
         return body;
     }
