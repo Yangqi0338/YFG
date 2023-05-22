@@ -13,6 +13,8 @@ import com.base.sbc.module.fieldManagement.entity.FieldManagement;
 import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
+
 /** 
  * 类描述：字段管理表 service类
  * @address com.base.sbc.module.fieldManagement.service.FieldManagementService
@@ -33,6 +35,8 @@ public interface FieldManagementService extends IServicePlus<FieldManagement> {
 
 
     ApiResult adjustmentOrder(QueryFieldManagementDto queryFieldManagementDto);
+
+    List<FieldManagementVo> getFieldManagementListByIds(List<String> ids);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

@@ -17,7 +17,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.fieldManagement.entity.FieldManagement
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-22 17:04:33
+ * @date 创建时间：2023-5-22 19:52:55
  * @version 1.0
  */
 @Data

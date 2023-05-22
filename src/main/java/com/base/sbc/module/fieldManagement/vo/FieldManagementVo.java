@@ -63,4 +63,6 @@ public class FieldManagementVo {
     @ApiModelProperty(value = "字典key"  )
     private String  optionDictKey;
     private List<Option> optionList;
+    @ApiModelProperty(value = "字段值"  )
+    private String value;
 }

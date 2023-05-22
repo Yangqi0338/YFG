@@ -13,12 +13,10 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
-import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
@@ -27,6 +25,11 @@ import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.fieldManagement.entity.FieldManagement;
+import com.base.sbc.module.fieldManagement.entity.FieldVal;
+import com.base.sbc.module.fieldManagement.service.FieldManagementService;
+import com.base.sbc.module.fieldManagement.service.FieldValService;
+import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
@@ -36,10 +39,7 @@ import com.base.sbc.module.sample.entity.Technology;
 import com.base.sbc.module.sample.mapper.SampleMapper;
 import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.sample.service.TechnologyService;
-import com.base.sbc.module.sample.vo.DesignDocTreeVo;
-import com.base.sbc.module.sample.vo.MaterialVo;
-import com.base.sbc.module.sample.vo.SamplePageVo;
-import com.base.sbc.module.sample.vo.SampleVo;
+import com.base.sbc.module.sample.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -66,6 +66,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
 
     private final  String SAMPLE_FILE_ATTACHMENT="SAMPLE_FILE_ATTACHMENT";
     private final  String SAMPLE_FILE_STYLE_PIC="SAMPLE_FILE_STYLE_PIC";
+    private final  String SAMPLE_TECHNOLOGY="SAMPLE_TECHNOLOGY";
 
     @Autowired
     private TechnologyService technologyService;
@@ -89,6 +90,12 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
     CcmFeignService ccmFeignService;
     @Autowired
     AmcFeignService amcFeignService;
+    @Autowired
+    private PlanningDimensionalityService planningDimensionalityService;
+    @Autowired
+    private FieldManagementService fieldManagementService;
+    @Autowired
+    private FieldValService fieldValService;
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public Sample saveSample(SampleSaveDto dto) {
@@ -113,8 +120,9 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
             technology.setStatus(BaseGlobal.STATUS_NORMAL);
             technology.copyFrom(sample);
             technologyService.saveOrUpdate(technology);
-
         }
+        // 保存工艺信息
+        saveTechnologyInfo(sample.getId(),dto.getTechnologyInfo());
         // 附件信息
         saveFiles(sample.getId(),dto.getAttachmentList(),SAMPLE_FILE_ATTACHMENT);
         // 图片信息
@@ -237,6 +245,25 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         return sample;
     }
 
+    public void saveTechnologyInfo(String sampleId,List<TechnologyInfoDto> technologyInfo){
+        //删除之前的
+        QueryWrapper<FieldVal> fvQw=new QueryWrapper<>();
+        fvQw.eq("f_id",sampleId);
+        fvQw.eq("data_group",SAMPLE_TECHNOLOGY);
+        List<Object> ids = fieldValService.listObjs(fvQw);
+        fieldValService.removeByIds(ids);
+        //新增
+        if(CollUtil.isEmpty(technologyInfo)){
+            return ;
+        }
+        List<FieldVal> fvList=new ArrayList<>(ids.size());
+        for (TechnologyInfoDto technologyInfoDto : technologyInfo) {
+            FieldVal fieldVal = BeanUtil.copyProperties(technologyInfoDto, FieldVal.class);
+            fieldVal.setDataGroup(SAMPLE_TECHNOLOGY);
+            fvList.add(fieldVal);
+        }
+        fieldValService.saveBatch(fvList);
+    }
     @Override
     public PageInfo queryPageInfo(SamplePageDto dto) {
         String companyCode = getCompanyCode();
@@ -362,7 +389,6 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         //查询工艺信息
         Technology technology = technologyService.getOne(new QueryWrapper<Technology>().eq("f_id", id));
         sampleVo.setTechnology(Optional.ofNullable(technology).orElse(new Technology()));
-
         //查询附件
         List<AttachmentVo> attachmentVoList = attachmentService.findByFId(id,SAMPLE_FILE_ATTACHMENT);
         sampleVo.setAttachmentList(attachmentVoList);
@@ -401,6 +427,41 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         }
 
         return null;
+    }
+
+    @Override
+    public List<FieldManagementVo> queryTechnology(TechnologySearchDto dto) {
+        // 1.查询企划需求管理配置的维度标签
+        QueryWrapper<PlanningDimensionality> pdQw=new QueryWrapper<>();
+        pdQw.eq("category_id",dto.getCategoryId());
+        pdQw.eq("planning_season_id",dto.getPlanningSeasonId());
+        pdQw.isNotNull("field_id");
+        pdQw.eq(DEL_FLAG,BaseGlobal.DEL_FLAG_NORMAL);
+        List<PlanningDimensionality> pdList = planningDimensionalityService.list(pdQw);
+        if(CollUtil.isEmpty(pdList)){
+            return null;
+        }
+        // 2.查询字段配置信息
+        List<String> fieldIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
+        List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fieldIds);
+        if(CollUtil.isEmpty(fieldManagementListByIds)){
+            return null;
+        }
+        // [3].查询字段值
+        if(StrUtil.isNotBlank(dto.getSampleId())){
+            QueryWrapper<FieldVal> fvQw=new QueryWrapper<>();
+            fvQw.eq("f_id",dto.getSampleId());
+            fvQw.eq("data_group",SAMPLE_TECHNOLOGY);
+            List<FieldVal> fvList = fieldValService.list(fvQw);
+            if(CollUtil.isNotEmpty(fvList)){
+                Map<String, String> valMap = fvList.stream().collect(Collectors.toMap(k -> k.getFieldName(), v -> v.getVal(), (a, b) -> b));
+                for (FieldManagementVo fieldManagementListById : fieldManagementListByIds) {
+                    fieldManagementListById.setValue(valMap.get(fieldManagementListById.getFieldName()));
+                }
+
+            }
+        }
+        return fieldManagementListByIds;
     }
 
     private List<DesignDocTreeVo> queryCategory(DesignDocTreeVo designDocTreeVo,int categoryIdx) {

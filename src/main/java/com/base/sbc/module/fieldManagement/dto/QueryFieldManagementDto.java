@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @ApiModel("查询等 QueryFieldManagementDto")
 public class QueryFieldManagementDto  extends Page {
@@ -26,4 +28,6 @@ public class QueryFieldManagementDto  extends Page {
 
     /*目标*/
      private String  targetId;
+    @ApiModelProperty(value = "字段id"  )
+    List<String> ids;
 }

@@ -65,6 +65,12 @@
         <if test="groupName !='' and groupName != null">
             and tfm.group_name=#{groupName}
         </if>
+        <if test="ids!=null">
+            and tfm.id in
+            <foreach collection="ids" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
         order By tfm.sequence desc
     </select>
 

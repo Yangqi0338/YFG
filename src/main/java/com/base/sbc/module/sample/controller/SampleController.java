@@ -8,9 +8,11 @@ package com.base.sbc.module.sample.controller;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
 import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.dto.SendSampleMakingDto;
+import com.base.sbc.module.sample.dto.TechnologySearchDto;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.sample.vo.DesignDocTreeVo;
@@ -91,6 +93,13 @@ public class SampleController{
 	@PostMapping("/queryDesignDocTree")
 	public List<DesignDocTreeVo> queryDesignDocTree(@RequestBody  DesignDocTreeVo designDocTreeVo){
 		return sampleService.queryDesignDocTree(designDocTreeVo);
+	}
+
+
+	@ApiOperation(value = "查询工艺信息数据",notes = "")
+	@PostMapping("/queryTechnology")
+	public List<FieldManagementVo> queryTechnology(@Valid @RequestBody TechnologySearchDto dto){
+		return sampleService.queryTechnology(dto);
 	}
 
 }

@@ -8,9 +8,11 @@ package com.base.sbc.module.sample.service;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
 import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.dto.SendSampleMakingDto;
+import com.base.sbc.module.sample.dto.TechnologySearchDto;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.vo.DesignDocTreeVo;
 import com.base.sbc.module.sample.vo.SampleVo;
@@ -90,6 +92,8 @@ public interface SampleService extends IServicePlus<Sample> {
      * @return
      */
     List<DesignDocTreeVo> queryDesignDocTree(DesignDocTreeVo designDocTreeVo);
+
+    List<FieldManagementVo> queryTechnology(TechnologySearchDto dto);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

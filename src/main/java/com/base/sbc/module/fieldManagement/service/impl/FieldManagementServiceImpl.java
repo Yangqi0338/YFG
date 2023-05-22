@@ -133,6 +133,15 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
         return ApiResult.success("操作成功");
     }
 
+    @Override
+    public List<FieldManagementVo> getFieldManagementListByIds(List<String> ids) {
+        QueryFieldManagementDto dto=new QueryFieldManagementDto();
+        dto.setIds(ids);
+        dto.setCompanyCode(getCompanyCode());
+        List<FieldManagementVo> list = baseMapper.getFieldManagementList(dto);
+        return list;
+    }
+
 /** 自定义方法区 不替换的区域【other_start】 **/
 
 
