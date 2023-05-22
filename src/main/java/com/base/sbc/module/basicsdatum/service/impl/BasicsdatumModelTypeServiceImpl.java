@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.module.basicsdatum.dto.*;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeMapper;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
@@ -56,6 +57,9 @@ public class BasicsdatumModelTypeServiceImpl extends ServicePlusImpl<Basicsdatum
     private BaseController baseController;
     @Autowired
     private CcmFeignService ccmFeignService;
+    @Autowired
+    private BasicsdatumSizeMapper basicsdatumSizeMapper;
+
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -105,8 +109,16 @@ public class BasicsdatumModelTypeServiceImpl extends ServicePlusImpl<Basicsdatum
         for (BasicsdatumModelTypeExcelDto basicsdatumModelTypeExcelDto : list) {
 //            获取品类id
             if (StringUtils.isNotBlank(basicsdatumModelTypeExcelDto.getCategory())) {
-                basicsdatumModelTypeExcelDto.setCategoryId(ccmFeignService.getIdsByNameAndLevel("品类",basicsdatumModelTypeExcelDto.getCategory(),"1"));
+                basicsdatumModelTypeExcelDto.setCategoryId(ccmFeignService.getIdsByNameAndLevel("品类", basicsdatumModelTypeExcelDto.getCategory(), "1"));
             }
+            /*尺码id*/
+            if (StringUtils.isNotBlank(basicsdatumModelTypeExcelDto.getSize())) {
+                String sizeLabelId = basicsdatumSizeMapper.getSizeLabelId(basicsdatumModelTypeExcelDto.getSize());
+                if (StringUtils.isNotBlank(sizeLabelId)) {
+                    basicsdatumModelTypeExcelDto.setSizeLabelId(sizeLabelId);
+                }
+            }
+
         }
         List<BasicsdatumModelType> basicsdatumModelTypeList = BeanUtil.copyToList(list, BasicsdatumModelType.class);
         saveOrUpdateBatch(basicsdatumModelTypeList);

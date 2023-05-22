@@ -34,4 +34,18 @@
           left join t_basicsdatum_size_label tbsl  on tbs.size_label_id=tbsl.id
           ${ ew.customSqlSegment}
     </select>
+      <select id="getSizeLabelId" resultType="java.lang.String">
+
+
+        select
+        tbs.size_label_id
+        from
+        (
+        SELECT size_label_id , GROUP_CONCAT(hangtags SEPARATOR ', ') AS hangtags  from t_basicsdatum_size
+        GROUP BY size_label_id
+        ) tbs
+         WHERE tbs.hangtags=#{size}
+
+
+      </select>
 </mapper>

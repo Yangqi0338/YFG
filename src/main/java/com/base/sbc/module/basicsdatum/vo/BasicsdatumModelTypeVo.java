@@ -62,6 +62,9 @@ public class BasicsdatumModelTypeVo  {
     /** 品类id */
     @ApiModelProperty(value = "品类id"  )
     private String categoryId;
+
+
+    private String  sizeLabelId;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;

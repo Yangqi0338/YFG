@@ -80,4 +80,5 @@ public class BasicsdatumModelTypeExcelDto  {
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     @Excel(name = "状态(0正常,1停用)")
     private String status;
+    private String sizeLabelId;
 }

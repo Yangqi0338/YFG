@@ -13,10 +13,12 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
@@ -28,10 +30,7 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
-import com.base.sbc.module.sample.dto.SamplePageDto;
-import com.base.sbc.module.sample.dto.SampleSaveDto;
-import com.base.sbc.module.sample.dto.SendSampleMakingDto;
-import com.base.sbc.module.sample.dto.TechnologySaveDto;
+import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.entity.Technology;
 import com.base.sbc.module.sample.mapper.SampleMapper;
@@ -65,6 +64,9 @@ import java.util.stream.Collectors;
 public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> implements SampleService {
 
 
+    private final  String SAMPLE_FILE_ATTACHMENT="SAMPLE_FILE_ATTACHMENT";
+    private final  String SAMPLE_FILE_STYLE_PIC="SAMPLE_FILE_STYLE_PIC";
+
     @Autowired
     private TechnologyService technologyService;
 
@@ -94,7 +96,8 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         if (StrUtil.isNotBlank(dto.getId())) {
             sample = getById(dto.getId());
             BeanUtil.copyProperties(dto, sample);
-            updateById(sample);
+            setMainStylePic(sample,dto.getStylePicList());
+            this.updateById(sample);
             planningCategoryItemMaterialService.saveMaterialList(dto);
         } else {
             sample =saveNewSample(dto);
@@ -113,21 +116,35 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
 
         }
         // 附件信息
+        saveFiles(sample.getId(),dto.getAttachmentList(),SAMPLE_FILE_ATTACHMENT);
+        // 图片信息
+        saveFiles(sample.getId(),dto.getStylePicList(),SAMPLE_FILE_STYLE_PIC);
+        return sample;
+    }
+
+
+    public void setMainStylePic(Sample sample,List<SampleAttachmentDto> stylePicList){
+        if(CollUtil.isNotEmpty(stylePicList)){
+            sample.setStylePic(stylePicList.get(0).getFileId());
+        }else{
+            sample.setStylePic("");
+        }
+    }
+    public void saveFiles(String id, List<SampleAttachmentDto> files,String type){
         QueryWrapper<Attachment> aqw = new QueryWrapper<>();
-        aqw.eq("f_id", dto.getId());
+        aqw.eq("f_id", id);
+        aqw.eq("type", type);
         List<Attachment> attachments = new ArrayList<>(12);
-        if (CollUtil.isNotEmpty(dto.getAttachmentList())) {
-            attachments = BeanUtil.copyToList(dto.getAttachmentList(), Attachment.class);
+        if (CollUtil.isNotEmpty(files)) {
+            attachments = BeanUtil.copyToList(files, Attachment.class);
             for (Attachment attachment : attachments) {
-                attachment.setFId(sample.getId());
-                attachment.setType("sample");
+                attachment.setFId(id);
+                attachment.setType(type);
                 attachment.setStatus(BaseGlobal.STATUS_NORMAL);
             }
         }
         attachmentService.addAndUpdateAndDelList(attachments, aqw);
-        return sample;
     }
-
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public Sample saveNewSample(SampleSaveDto dto) {
 
@@ -215,6 +232,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         // 新增样衣设计
         Sample sample =BeanUtil.copyProperties(dto,Sample.class);
         PlanningUtils.toSample(sample,planningSeason, planningBand, categoryItem);
+        setMainStylePic(sample,dto.getStylePicList());
         save(sample);
         return sample;
     }
@@ -248,10 +266,37 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         }
         Page<SamplePageVo> objects = PageHelper.startPage(dto);
         getBaseMapper().selectByQw(qw);
-        amcFeignService.addUserAvatarToList(objects.getResult(),"designerId","aliasUserAvatar");
+        List<SamplePageVo> result = objects.getResult();
+        // 设置图片
+        queryStylePic(result);
+        amcFeignService.addUserAvatarToList(result,"designerId","aliasUserAvatar");
         return objects.toPageInfo();
     }
 
+    public void queryStylePic(List<SamplePageVo> result){
+        if(CollUtil.isEmpty(result)){
+            return;
+        }
+        List<String> fileId=new ArrayList<>(12);
+        for (SamplePageVo samplePageVo : result) {
+            if(StrUtil.isNotBlank(samplePageVo.getStylePic())){
+                fileId.add(samplePageVo.getStylePic());
+            }
+        }
+        if(CollUtil.isEmpty(fileId)){
+            return;
+        }
+        QueryWrapper qw=new QueryWrapper();
+        qw.in("a.id",fileId);
+        List<AttachmentVo> byQw = attachmentService.findByQw(qw);
+        if(CollUtil.isEmpty(byQw)){
+            return;
+        }
+        Map<String, AttachmentVo> collect = byQw.stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> a));
+        for (SamplePageVo samplePageVo : result) {
+            samplePageVo.setStylePic(Optional.ofNullable(collect.get(samplePageVo.getStylePic())).map(AttachmentVo::getUrl).orElse(""));
+        }
+    }
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public boolean startApproval(String id) {
@@ -319,7 +364,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         sampleVo.setTechnology(Optional.ofNullable(technology).orElse(new Technology()));
 
         //查询附件
-        List<AttachmentVo> attachmentVoList = attachmentService.findByFId(id);
+        List<AttachmentVo> attachmentVoList = attachmentService.findByFId(id,SAMPLE_FILE_ATTACHMENT);
         sampleVo.setAttachmentList(attachmentVoList);
 
         // 关联的素材库
@@ -330,7 +375,9 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         List<MaterialVo> materialList = BeanUtil.copyToList(list,MaterialVo.class);
         sampleVo.setMaterialList(materialList);
 
-
+        // 款式图片
+        List<AttachmentVo> stylePicList = attachmentService.findByFId(id,SAMPLE_FILE_STYLE_PIC);
+        sampleVo.setStylePicList(stylePicList);
         return sampleVo;
     }
 
@@ -460,6 +507,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
       }
       return result;
     }
+
 
 
 }

@@ -25,6 +25,9 @@ public class SampleSaveDto extends Sample {
     @ApiModelProperty(value = "工艺信息")
     private TechnologySaveDto technology;
 
+    @ApiModelProperty(value = "款式图片信息")
+    private List<SampleAttachmentDto> stylePicList;
+
     @ApiModelProperty(value = "附件信息")
     private List<SampleAttachmentDto> attachmentList;
 
