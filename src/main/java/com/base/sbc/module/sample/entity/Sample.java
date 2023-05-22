@@ -7,6 +7,9 @@
 package com.base.sbc.module.sample.entity;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -114,6 +117,7 @@ public class Sample extends BaseDataEntity<String> {
     private String defaultColor;
     /** 目标成本 */
     @ApiModelProperty(value = "目标成本"  )
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal productCost;
     /** 主材料 */
     @ApiModelProperty(value = "主材料"  )

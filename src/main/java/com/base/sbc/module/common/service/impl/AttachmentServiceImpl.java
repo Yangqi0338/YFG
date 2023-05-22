@@ -6,11 +6,18 @@
  *****************************************************************************/
 package com.base.sbc.module.common.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.module.common.entity.UploadFile;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.mapper.AttachmentMapper;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +35,9 @@ import java.util.List;
 public class AttachmentServiceImpl extends ServicePlusImpl<AttachmentMapper, Attachment> implements AttachmentService {
 
 
+    @Autowired
+    private UploadFileService uploadFileService;
+
 //** 自定义方法区 不替换的区域【other_start】 **/
 
     /**
@@ -37,9 +47,32 @@ public class AttachmentServiceImpl extends ServicePlusImpl<AttachmentMapper, Att
      * @return
      */
     @Override
-    public List<AttachmentVo> findByFId(String fId) {
-        return getBaseMapper().findByFId(fId);
+    public List<AttachmentVo> findByFId(String fId,String type) {
+        return getBaseMapper().findByFId(fId,type);
     }
+
+    @Override
+    public AttachmentVo getAttachmentById(String id) {
+        Attachment attachment = getById(id);
+        QueryWrapper<UploadFile> qw =new QueryWrapper<>();
+        qw.eq("id",attachment.getFileId());
+        List<UploadFile> list = uploadFileService.list(qw);
+        if(CollUtil.isNotEmpty(list)){
+            AttachmentVo attachmentVo = BeanUtil.copyProperties(list.get(0), AttachmentVo.class);
+            attachmentVo.setId(id);
+            attachmentVo.setFileId(attachment.getFileId());
+            return attachmentVo;
+        }
+        return null;
+    }
+
+    @Override
+    public List<AttachmentVo> findByQw(QueryWrapper queryWrapper) {
+        queryWrapper.apply("a.file_id=f.id");
+        List<AttachmentVo> byQw = getBaseMapper().findByQw(queryWrapper);
+        return byQw;
+    }
+
 
 //** 自定义方法区 不替换的区域【other_end】 **/
 

@@ -3,6 +3,7 @@ package com.base.sbc.module.sample.vo;
 
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.entity.Technology;
 import io.swagger.annotations.ApiModel;
@@ -25,10 +26,10 @@ import java.util.List;
 public class SampleVo extends Sample {
     @ApiModelProperty(value = "工艺信息")
     private Technology technology;
-
     @ApiModelProperty(value = "附件")
     private List<AttachmentVo> attachmentList;
-
+    @ApiModelProperty(value = "款式图片信息")
+    private List<AttachmentVo> stylePicList;
     @ApiModelProperty(value = "关联的素材库")
     private List<MaterialVo> materialList;
 }
