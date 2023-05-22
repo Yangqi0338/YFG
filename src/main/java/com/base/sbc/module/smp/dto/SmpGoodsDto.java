@@ -51,7 +51,7 @@ public class SmpGoodsDto extends SmpBaseDto {
     /** 目标成本 */
     private BigDecimal targetCost;
     /** 企划倍率 */
-    private Double planningRate;
+    private BigDecimal planningRate;
     /** 款式品类 */
     private String styleCategory;
     /** 款式大类 */
@@ -143,7 +143,7 @@ public class SmpGoodsDto extends SmpBaseDto {
     /**波段名称*/
     private String bandName;
     /**吊牌价*/
-    private Double price;
+    private BigDecimal price;
     /**商品吊牌价确认*/
     private Boolean priceConfirm;
     /**成本*/
@@ -151,9 +151,9 @@ public class SmpGoodsDto extends SmpBaseDto {
     /**计控实际成本*/
     private BigDecimal planCost;
     /**企划实际倍率*/
-    private Double actualRate;
+    private BigDecimal actualRate;
     /**计控实际倍率*/
-    private Double planActualRate;
+    private BigDecimal planActualRate;
     /**加工标准价*/
     private BigDecimal processCost;
     /**车缝加工费*/
@@ -170,6 +170,7 @@ public class SmpGoodsDto extends SmpBaseDto {
     private Boolean accessories;
     /**厂家*/
     private String manufacture;
+
     /**上新时间*/
     private Date saleTime;
     /**系列id*/

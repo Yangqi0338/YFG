@@ -70,18 +70,18 @@ public class SmpService {
 
 
     public static void main(String[] args) {
-        SmpGoodsDto goodsDto = new SmpGoodsDto();
-        goodsDto.setDesigner("4564");
-        goodsDto.setMainPush(true);
-        goodsDto.setBrandName("4564");
-        goodsDto.setDesignNumber("545564");
-        goodsDto.setDesignScore(156465);
-        goodsDto.setRegion("sdf");
-        goodsDto.setPlanningRate(4564.0);
-        goodsDto.setSeason("sdf");
-        goodsDto.setProductType("Sdf");
-        Boolean post = RestTemplateUtils.spmPost(URL + "/goods", goodsDto);
-        System.out.println(post);
+        //SmpGoodsDto goodsDto = new SmpGoodsDto();
+        //goodsDto.setDesigner("4564");
+        //goodsDto.setMainPush(true);
+        //goodsDto.setBrandName("4564");
+        //goodsDto.setDesignNumber("545564");
+        //goodsDto.setDesignScore(156465);
+        //goodsDto.setRegion("sdf");
+        //goodsDto.setPlanningRate(4564.0);
+        //goodsDto.setSeason("sdf");
+        //goodsDto.setProductType("Sdf");
+        //Boolean post = RestTemplateUtils.spmPost(URL + "/goods", goodsDto);
+        //System.out.println(post);
     }
 
 }
