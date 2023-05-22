@@ -17,6 +17,8 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @TableName("t_material")
 public class Material extends BaseDataEntity<String> {
+    @ApiModelProperty(value = "素材编码")
+    private String materialCode;
 
     @ApiModelProperty(value = "文件信息")
     private String fileInfo;
@@ -44,6 +46,9 @@ public class Material extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "品牌")
     private String brand;
+
+    @ApiModelProperty(value = "品牌名称")
+    private String brandName;
 
     @ApiModelProperty(value = "市场")
     private String market;

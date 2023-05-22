@@ -6,6 +6,7 @@ import com.base.sbc.module.smp.entity.SmpModuleSize;
 import com.base.sbc.module.smp.entity.SmpQuot;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -64,7 +65,7 @@ public class  SmpMaterialDto extends SmpBaseDto {
     /** 采购模式 */
     private String procurementMode;
     /** 默认超收比例 */
-    private String tolerance;
+    private BigDecimal tolerance;
     /** 厂家成分 */
     private String supplierComposition;
     /** 领料方式 */
@@ -75,4 +76,6 @@ public class  SmpMaterialDto extends SmpBaseDto {
     private List<SmpModuleSize> moduleSizeList;
     /** 报价集合 */
     private List<SmpQuot> quotList;
+    /** 图片集合 */
+    private List<String> images;
 }

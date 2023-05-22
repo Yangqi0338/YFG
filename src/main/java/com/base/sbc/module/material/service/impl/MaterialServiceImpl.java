@@ -9,6 +9,7 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.Pinyin4jUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 类描述：素材库 service实现类
@@ -56,7 +58,7 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
 
     private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
-    private final RedisTemplate<String,Object> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
 
     /**
@@ -215,23 +217,28 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
     public boolean toExamine(AnswerDto dto) {
         Material material = this.getById(dto.getBusinessKey());
         if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
+
             //审核通过
             material.setStatus("2");
+            String[] split = Pinyin4jUtil.converterToFirstSpell(material.getBrandName()).split(",");
+            String time = String.valueOf(System.currentTimeMillis());
+            String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
+            material.setMaterialCode(materialCode);
             this.updateById(material);
             redisTemplate.delete("MTUP-" + material.getId());
             return true;
         } else {
             // TODO: 2023/5/20 临时逻辑，恢复原来的
             Object o = redisTemplate.opsForValue().get("MTUP-" + material.getId());
-            if (o!=null){
-                MaterialSaveDto materialSaveDto = (MaterialSaveDto)o;
+            if (o != null) {
+                MaterialSaveDto materialSaveDto = (MaterialSaveDto) o;
                 QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
                 labelQueryWrapper.eq("material_id", materialSaveDto.getId());
                 materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
                 redisTemplate.delete("MTUP-" + material.getId());
-               this.updateById(materialSaveDto);
+                this.updateById(materialSaveDto);
 
-            }else {
+            } else {
                 material.setStatus("3");
                 this.updateById(material);
             }
