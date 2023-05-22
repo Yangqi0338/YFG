@@ -134,17 +134,17 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         // 判断当前用户是否有编码
         UserCompany userInfo = amcFeignService.getUserInfo(getUserId());
         if(userInfo==null||StrUtil.isBlank(userInfo.getUserCode())){
-            throw  new OtherException("您为设置用户编码");
+            throw  new OtherException("您未设置用户编码");
         }
-
+        if(StrUtil.isBlank(dto.getPlanningSeasonId())){
+            throw  new OtherException("未选择产品季");
+        }
         PlanningSeason planningSeason=null;
         PlanningBand planningBand;
         //1 查询产品季 年份 + 季节
         QueryWrapper<PlanningSeason> seasonQw=new QueryWrapper<>();
         seasonQw.eq(COMPANY_CODE,getCompanyCode());
-        seasonQw.eq("year",dto.getYear());
-        seasonQw.eq("season",dto.getSeason());
-        seasonQw.eq("del_flag",BaseGlobal.DEL_FLAG_NORMAL);
+        seasonQw.eq("id",dto.getPlanningSeasonId());
         List<PlanningSeason> seasonList = planningSeasonService.list(seasonQw);
         if(CollUtil.isEmpty(seasonList)){
             throw  new OtherException("产品季为空");
@@ -325,6 +325,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         // 关联的素材库
         QueryWrapper mqw=new QueryWrapper<PlanningCategoryItemMaterial>();
         mqw.eq("planning_category_item_id", sample.getPlanningCategoryItemId());
+        mqw.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
         List<PlanningCategoryItemMaterial> list = planningCategoryItemMaterialService.list(mqw);
         List<MaterialVo> materialList = BeanUtil.copyToList(list,MaterialVo.class);
         sampleVo.setMaterialList(materialList);

@@ -14,7 +14,7 @@
         select * from t_attachment a ,t_upload_file f
         where a.file_id=f.id
         and a.f_id=#{fId}
-
+        and a.del_flag='0'
     </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
