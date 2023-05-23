@@ -96,12 +96,16 @@ public class SampleController{
 	}
 
 
-	@ApiOperation(value = "查询工艺信息数据",notes = "")
+	@ApiOperation(value = "查询工艺信息数据(新增时使用)",notes = "")
 	@PostMapping("/queryTechnology")
 	public List<FieldManagementVo> queryTechnology(@Valid @RequestBody TechnologySearchDto dto){
 		return sampleService.queryTechnology(dto);
 	}
-
+	@ApiOperation(value = "查询工艺信息数据(修改时使用)",notes = "")
+	@GetMapping("/queryTechnologyBySampleId")
+	public List<FieldManagementVo> queryTechnologyBySampleId(String id){
+		return sampleService.queryTechnologyBySampleId(id);
+	}
 }
 
 

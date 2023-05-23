@@ -464,6 +464,19 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         return fieldManagementListByIds;
     }
 
+    @Override
+    public List<FieldManagementVo> queryTechnologyBySampleId(String id) {
+        Sample sample = getById(id);
+        if(sample==null){
+            return null;
+        }
+        TechnologySearchDto dto=new TechnologySearchDto();
+        dto.setSampleId(id);
+        dto.setPlanningSeasonId(sample.getPlanningSeasonId());
+        dto.setCategoryId(CollUtil.get(StrUtil.split(sample.getCategoryIds(),StrUtil.COMMA),1));
+        return queryTechnology(dto);
+    }
+
     private List<DesignDocTreeVo> queryCategory(DesignDocTreeVo designDocTreeVo,int categoryIdx) {
         List<DesignDocTreeVo> result=new ArrayList<>(16);
         if(!StrUtil.isAllNotEmpty(designDocTreeVo.getYear(),designDocTreeVo.getSeason(),designDocTreeVo.getBandCode())){

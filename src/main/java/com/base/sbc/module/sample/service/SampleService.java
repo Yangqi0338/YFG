@@ -94,6 +94,8 @@ public interface SampleService extends IServicePlus<Sample> {
     List<DesignDocTreeVo> queryDesignDocTree(DesignDocTreeVo designDocTreeVo);
 
     List<FieldManagementVo> queryTechnology(TechnologySearchDto dto);
+
+    List<FieldManagementVo> queryTechnologyBySampleId(String id);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 
