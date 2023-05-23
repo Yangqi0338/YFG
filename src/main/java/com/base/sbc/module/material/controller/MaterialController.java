@@ -1,6 +1,7 @@
 package com.base.sbc.module.material.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
@@ -15,6 +16,7 @@ import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.*;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.service.*;
+import com.base.sbc.module.material.vo.AssociationMaterialVo;
 import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -208,5 +210,14 @@ public class MaterialController extends BaseController {
     @PostMapping("/toExamine")
     public boolean toExamine(@RequestBody AnswerDto dto) {
         return materialService.toExamine(dto);
+    }
+
+    @ApiOperation(value = "获取关联素材库的详细信息", notes = "组件展示用")
+    @PostMapping("/getAssociationMaterial")
+    public List<AssociationMaterialVo> getAssociationMaterial(@RequestBody List<String> ids){
+        if(CollUtil.isEmpty(ids)){
+            return null;
+        }
+        return materialService.getAssociationMaterial(ids);
     }
 }

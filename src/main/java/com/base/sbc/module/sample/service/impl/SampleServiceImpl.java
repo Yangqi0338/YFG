@@ -260,6 +260,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         for (TechnologyInfoDto technologyInfoDto : technologyInfo) {
             FieldVal fieldVal = BeanUtil.copyProperties(technologyInfoDto, FieldVal.class);
             fieldVal.setDataGroup(SAMPLE_TECHNOLOGY);
+            fieldVal.setFId(sampleId);
             fvList.add(fieldVal);
         }
         fieldValService.saveBatch(fvList);

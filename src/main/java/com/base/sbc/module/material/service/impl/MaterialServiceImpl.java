@@ -3,8 +3,10 @@ package com.base.sbc.module.material.service.impl;
 import cn.afterturn.easypoi.cache.manager.IFileLoader;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.constant.BaseConstant;
@@ -18,6 +20,7 @@ import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.*;
 import com.base.sbc.module.material.mapper.MaterialMapper;
 import com.base.sbc.module.material.service.*;
+import com.base.sbc.module.material.vo.AssociationMaterialVo;
 import com.base.sbc.module.material.vo.MaterialVo;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.github.pagehelper.PageHelper;
@@ -30,6 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 类描述：素材库 service实现类
@@ -55,6 +60,7 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
     private final MaterialColorService materialColorService;
 
     private final AmcFeignService amcFeignService;
+    private final CcmFeignService ccmFeignService;
 
     private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
@@ -316,5 +322,42 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
         //colorQueryWrapper.eq("material_id", materialSaveDto.getId());
         //materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
         return materialSaveDtoList.size();
+    }
+
+    @Override
+    public List<AssociationMaterialVo> getAssociationMaterial(List<String> ids) {
+        QueryWrapper<Material> qw=new QueryWrapper();
+        qw.in("id",ids);
+        List<Material> materials = list(qw);
+        if(CollUtil.isEmpty(materials)){
+            return null;
+        }
+        // 获取素材库
+        List<String> materialCategoryIds = materials.stream().filter(item -> StrUtil.isNotBlank(item.getMaterialCategoryId()))
+                .map(Material::getMaterialCategoryId).collect(Collectors.toList());
+        //查询素材库
+        Map<String, String> materialCategoryNames = ccmFeignService.findStructureTreeNameByCategoryIds(CollUtil.join(materialCategoryIds, ","));
+        Map<String,AssociationMaterialVo> result=new LinkedHashMap<>(16);
+        for (Material material : materials) {
+            String key=material.getMaterialCategoryId();
+            if(StrUtil.isBlank(key)){
+                key="-1";
+            }
+            List<MaterialVo> materialList=null;
+            if(result.containsKey(key)){
+                 materialList = result.get(key).getMaterialList();
+            }else{
+                materialList=new ArrayList<>(16);
+                AssociationMaterialVo r=new AssociationMaterialVo();
+                r.setMaterialCategoryId(key);
+                r.setMaterialList(materialList);
+                r.setName(Optional.ofNullable(materialCategoryNames.get(key)).orElse("其他"));
+                result.put(key,r);
+            }
+            materialList.add(BeanUtil.copyProperties(material,MaterialVo.class));
+        }
+        List<AssociationMaterialVo> collect = result.values().stream().collect(Collectors.toList());
+
+        return collect;
     }
 }

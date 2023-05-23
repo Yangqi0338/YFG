@@ -4,6 +4,7 @@ import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.Material;
+import com.base.sbc.module.material.vo.AssociationMaterialVo;
 import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageInfo;
 
@@ -39,4 +40,11 @@ public interface MaterialService extends IServicePlus<Material> {
      * @return 影响的条数
      */
     Integer updateList(List<MaterialSaveDto> materialSaveDtoList);
+
+    /**
+     * 获取关联素材库的详细信息
+     * @param ids 素材id
+     * @return
+     */
+    List<AssociationMaterialVo> getAssociationMaterial(List<String> ids);
 }
