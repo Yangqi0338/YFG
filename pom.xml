@@ -30,6 +30,12 @@
     </parent>
 
     <dependencies>
+    	<!-- 自动化测试 -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId> 
+			<artifactId>selenium-java</artifactId> 
+		</dependency> 
+
 		<dependency>
 			<groupId>org.lionsoul</groupId>
 			<artifactId>ip2region</artifactId>
