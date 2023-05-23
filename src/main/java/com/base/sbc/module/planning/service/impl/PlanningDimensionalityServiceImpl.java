@@ -13,6 +13,8 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.fieldManagement.entity.FieldManagement;
 import com.base.sbc.module.fieldManagement.mapper.FieldManagementMapper;
+import com.base.sbc.module.formType.entity.FormType;
+import com.base.sbc.module.formType.mapper.FormTypeMapper;
 import com.base.sbc.module.planning.dto.QueryPlanningDimensionalityDto;
 import com.base.sbc.module.planning.dto.SaveDelDimensionalityDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
@@ -51,6 +53,9 @@ public class PlanningDimensionalityServiceImpl extends ServicePlusImpl<PlanningD
     @Autowired
     private FieldManagementMapper fieldManagementMapper;
 
+    @Autowired
+    private  FormTypeMapper formTypeMapper;
+
 
     @Override
     public ApiResult getDimensionalityList(QueryPlanningDimensionalityDto queryPlanningDimensionalityDto) {
@@ -63,15 +68,13 @@ public class PlanningDimensionalityServiceImpl extends ServicePlusImpl<PlanningD
 
     @Override
     public ApiResult getFormDimensionality(QueryPlanningDimensionalityDto queryPlanningDimensionalityDto) {
-        QueryWrapper<PlanningDemand> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("category_id", queryPlanningDimensionalityDto.getCategoryId());
-        queryWrapper.eq("planning_season_id", queryPlanningDimensionalityDto.getPlanningSeasonId());
+        QueryWrapper<FormType> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("name","产品季");
         /*查询该品类以纯在的需求*/
-        List<PlanningDemand> planningDemandList = planningDemandMapper.selectList(queryWrapper);
-        List<String> stringList = planningDemandList.stream().map(PlanningDemand::getDemandName).collect(Collectors.toList());
+        List<FormType> planningDemandList = formTypeMapper.selectList(queryWrapper);
         QueryWrapper<FieldManagement> fieldManagementQueryWrapper = new QueryWrapper<>();
-        fieldManagementQueryWrapper.eq("form_type_id", planningDemandList.get(0).getFormTypeId());
-        fieldManagementQueryWrapper.in("group_name", stringList);
+        fieldManagementQueryWrapper.like("category_id", queryPlanningDimensionalityDto.getCategoryId());
+        fieldManagementQueryWrapper.in("form_type_id", planningDemandList.get(0).getId());
         /*查询以选择需求占比的所有字段*/
         List<FieldManagement> fieldManagementList = fieldManagementMapper.selectList(fieldManagementQueryWrapper);
         Map<String, List> map = new HashMap<>();
