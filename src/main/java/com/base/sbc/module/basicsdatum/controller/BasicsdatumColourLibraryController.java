@@ -9,16 +9,13 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumColourGroupDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourGroupService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumColourLibraryDto;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourGroupVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
 import org.hibernate.validator.constraints.NotBlank;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -54,8 +51,8 @@ public class BasicsdatumColourLibraryController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getBasicsdatumColourLibraryList")
-	public PageInfo<BasicsdatumColourLibraryVo> getBasicsdatumColourLibraryList(QueryDto queryDto) {
-		return  basicsdatumColourLibraryService.getBasicsdatumColourLibraryList(queryDto);
+	public PageInfo<BasicsdatumColourLibraryVo> getBasicsdatumColourLibraryList(QueryBasicsdatumColourLibraryDto queryBasicsdatumColourLibraryDto) {
+		return  basicsdatumColourLibraryService.getBasicsdatumColourLibraryList(queryBasicsdatumColourLibraryDto);
 	}
 
 	@ApiOperation(value = "/导入")

@@ -5,6 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
+import com.base.sbc.module.basicsdatum.dto.QueryBasicsdatumColourLibraryDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.github.pagehelper.PageInfo;
 import com.base.sbc.module.common.service.IServicePlus;
@@ -31,10 +32,10 @@ public interface BasicsdatumColourLibraryService extends IServicePlus<Basicsdatu
         /**
         * 方法描述：分页查询部件
         *
-        * @param queryDto 查询条件
+        * @param queryBasicsdatumColourLibraryDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<BasicsdatumColourLibraryVo> getBasicsdatumColourLibraryList(QueryDto queryDto);
+        PageInfo<BasicsdatumColourLibraryVo> getBasicsdatumColourLibraryList(QueryBasicsdatumColourLibraryDto queryBasicsdatumColourLibraryDto);
 
 
         /**

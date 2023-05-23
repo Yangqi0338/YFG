@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.minio.MinioUtils;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourGroup;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourGroupMapper;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -20,8 +21,6 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumColourLibraryExcelDto;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumColourLibraryDto;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.base.sbc.config.common.base.BaseController;
@@ -42,8 +41,6 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.enums.BaseErrorEnum;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.config.utils.ExcelUtils;
 
 import java.io.File;
@@ -82,19 +79,25 @@ public class BasicsdatumColourLibraryServiceImpl extends ServicePlusImpl<Basicsd
     /**
      * 基础资料-颜色库分页查询
      *
-     * @param queryDto
+     * @param queryBasicsdatumColourLibraryDto
      * @return
      */
     @Override
-    public PageInfo<BasicsdatumColourLibraryVo> getBasicsdatumColourLibraryList(QueryDto queryDto) {
+    public PageInfo<BasicsdatumColourLibraryVo> getBasicsdatumColourLibraryList(QueryBasicsdatumColourLibraryDto queryBasicsdatumColourLibraryDto) {
         /*分页*/
-        PageHelper.startPage(queryDto);
+        PageHelper.startPage(queryBasicsdatumColourLibraryDto);
         QueryWrapper<BasicsdatumColourLibrary> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
-
-        if (StringUtils.isNotBlank(queryDto.getColourGroupId())) {
-            queryWrapper.eq("colour_group_id", queryDto.getColourGroupId());
+        if (StringUtils.isNotBlank(queryBasicsdatumColourLibraryDto.getColourGroupId())) {
+            queryWrapper.eq("colour_group_id", queryBasicsdatumColourLibraryDto.getColourGroupId());
         }
+        queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColourCode()), "colour_code", queryBasicsdatumColourLibraryDto.getColourCode());
+        queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColourSpecification()), "colour_specification", queryBasicsdatumColourLibraryDto.getColourSpecification());
+        queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColourName()), "colour_name", queryBasicsdatumColourLibraryDto.getColourName());
+        queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getLibrary()), "library", queryBasicsdatumColourLibraryDto.getLibrary());
+        queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getIsStyle()), "is_style", queryBasicsdatumColourLibraryDto.getIsStyle());
+        queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getIsMaterials()), "is_materials", queryBasicsdatumColourLibraryDto.getIsMaterials());
+        queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getPantone()), "pantone", queryBasicsdatumColourLibraryDto.getPantone());
 
         /*查询基础资料-颜色库数据*/
         queryWrapper.orderByDesc("create_date");
