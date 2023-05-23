@@ -34,6 +34,7 @@ public class HttpLogController extends BaseController {
         PageHelper.startPage(page);
         QueryWrapper<HttpLog> queryWrapper=new QueryWrapper<>();;
         queryWrapper.eq(!StringUtils.isEmpty(queryHttpLogDto.getThreadId()),"thread_id",queryHttpLogDto.getThreadId());
+        queryWrapper.like(!StringUtils.isEmpty(queryHttpLogDto.getUrl()),"url",queryHttpLogDto.getUrl());
         if(StringUtils.isNotBlank(queryHttpLogDto.getStartTime())){
          List<String> list=   StringUtils.convertList(queryHttpLogDto.getStartTime());
             queryWrapper.lambda().between(HttpLog::getCreateDate, list.get(0), list.get(1));

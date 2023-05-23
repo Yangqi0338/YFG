@@ -9,4 +9,5 @@ import java.util.Date;
 public class QueryHttpLogDto {
     private  String  threadId;
     private String startTime;
+    private String url;
 }
