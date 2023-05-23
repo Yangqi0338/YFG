@@ -10,7 +10,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
@@ -25,7 +24,6 @@ import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.base.sbc.module.fieldManagement.entity.FieldManagement;
 import com.base.sbc.module.fieldManagement.entity.FieldVal;
 import com.base.sbc.module.fieldManagement.service.FieldManagementService;
 import com.base.sbc.module.fieldManagement.service.FieldValService;
@@ -35,10 +33,8 @@ import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.Sample;
-import com.base.sbc.module.sample.entity.Technology;
 import com.base.sbc.module.sample.mapper.SampleMapper;
 import com.base.sbc.module.sample.service.SampleService;
-import com.base.sbc.module.sample.service.TechnologyService;
 import com.base.sbc.module.sample.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -64,12 +60,9 @@ import java.util.stream.Collectors;
 public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> implements SampleService {
 
 
-    private final  String SAMPLE_FILE_ATTACHMENT="SAMPLE_FILE_ATTACHMENT";
-    private final  String SAMPLE_FILE_STYLE_PIC="SAMPLE_FILE_STYLE_PIC";
-    private final  String SAMPLE_TECHNOLOGY="SAMPLE_TECHNOLOGY";
-
-    @Autowired
-    private TechnologyService technologyService;
+    private final String SAMPLE_FILE_ATTACHMENT = "SAMPLE_FILE_ATTACHMENT";
+    private final String SAMPLE_FILE_STYLE_PIC = "SAMPLE_FILE_STYLE_PIC";
+    private final String SAMPLE_TECHNOLOGY = "SAMPLE_TECHNOLOGY";
 
     @Autowired
     private FlowableService flowableService;
@@ -96,6 +89,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
     private FieldManagementService fieldManagementService;
     @Autowired
     private FieldValService fieldValService;
+
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public Sample saveSample(SampleSaveDto dto) {
@@ -103,42 +97,31 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         if (StrUtil.isNotBlank(dto.getId())) {
             sample = getById(dto.getId());
             BeanUtil.copyProperties(dto, sample);
-            setMainStylePic(sample,dto.getStylePicList());
+            setMainStylePic(sample, dto.getStylePicList());
             this.updateById(sample);
             planningCategoryItemMaterialService.saveMaterialList(dto);
         } else {
-            sample =saveNewSample(dto);
-        }
-        //保存工艺信息
-        if (ObjectUtil.isNotEmpty(dto.getTechnology())) {
-            TechnologySaveDto technologyDto = dto.getTechnology();
-            Technology technology = technologyService.getOne(new QueryWrapper<Technology>().eq("f_id", sample.getId()));
-            technology = Optional.ofNullable(technology).orElse(new Technology());
-            BeanUtil.copyProperties(technologyDto, technology,"id");
-            technology.setFId(sample.getId());
-            technology.setDelFlag(BaseGlobal.DEL_FLAG_NORMAL);
-            technology.setStatus(BaseGlobal.STATUS_NORMAL);
-            technology.copyFrom(sample);
-            technologyService.saveOrUpdate(technology);
+            sample = saveNewSample(dto);
         }
         // 保存工艺信息
-        saveTechnologyInfo(sample.getId(),dto.getTechnologyInfo());
+        saveTechnologyInfo(sample.getId(), dto.getTechnologyInfo());
         // 附件信息
-        saveFiles(sample.getId(),dto.getAttachmentList(),SAMPLE_FILE_ATTACHMENT);
+        saveFiles(sample.getId(), dto.getAttachmentList(), SAMPLE_FILE_ATTACHMENT);
         // 图片信息
-        saveFiles(sample.getId(),dto.getStylePicList(),SAMPLE_FILE_STYLE_PIC);
+        saveFiles(sample.getId(), dto.getStylePicList(), SAMPLE_FILE_STYLE_PIC);
         return sample;
     }
 
 
-    public void setMainStylePic(Sample sample,List<SampleAttachmentDto> stylePicList){
-        if(CollUtil.isNotEmpty(stylePicList)){
+    public void setMainStylePic(Sample sample, List<SampleAttachmentDto> stylePicList) {
+        if (CollUtil.isNotEmpty(stylePicList)) {
             sample.setStylePic(stylePicList.get(0).getFileId());
-        }else{
+        } else {
             sample.setStylePic("");
         }
     }
-    public void saveFiles(String id, List<SampleAttachmentDto> files,String type){
+
+    public void saveFiles(String id, List<SampleAttachmentDto> files, String type) {
         QueryWrapper<Attachment> aqw = new QueryWrapper<>();
         aqw.eq("f_id", id);
         aqw.eq("type", type);
@@ -153,58 +136,59 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         }
         attachmentService.addAndUpdateAndDelList(attachments, aqw);
     }
+
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public Sample saveNewSample(SampleSaveDto dto) {
 
         // 判断当前用户是否有编码
         UserCompany userInfo = amcFeignService.getUserInfo(getUserId());
-        if(userInfo==null||StrUtil.isBlank(userInfo.getUserCode())){
-            throw  new OtherException("您未设置用户编码");
+        if (userInfo == null || StrUtil.isBlank(userInfo.getUserCode())) {
+            throw new OtherException("您未设置用户编码");
         }
-        if(StrUtil.isBlank(dto.getPlanningSeasonId())){
-            throw  new OtherException("未选择产品季");
+        if (StrUtil.isBlank(dto.getPlanningSeasonId())) {
+            throw new OtherException("未选择产品季");
         }
-        PlanningSeason planningSeason=null;
+        PlanningSeason planningSeason = null;
         PlanningBand planningBand;
         //1 查询产品季 年份 + 季节
-        QueryWrapper<PlanningSeason> seasonQw=new QueryWrapper<>();
-        seasonQw.eq(COMPANY_CODE,getCompanyCode());
-        seasonQw.eq("id",dto.getPlanningSeasonId());
+        QueryWrapper<PlanningSeason> seasonQw = new QueryWrapper<>();
+        seasonQw.eq(COMPANY_CODE, getCompanyCode());
+        seasonQw.eq("id", dto.getPlanningSeasonId());
         List<PlanningSeason> seasonList = planningSeasonService.list(seasonQw);
-        if(CollUtil.isEmpty(seasonList)){
-            throw  new OtherException("产品季为空");
+        if (CollUtil.isEmpty(seasonList)) {
+            throw new OtherException("产品季为空");
         }
 
-        planningSeason=CollUtil.getFirst(seasonList);
+        planningSeason = CollUtil.getFirst(seasonList);
         //2 查询波段企划 产品季 + 波段
-        QueryWrapper<PlanningBand> bandQw=new QueryWrapper<>();
-        bandQw.eq("planning_season_id",planningSeason.getId());
-        bandQw.eq("band_code",dto.getBandCode());
-        bandQw.eq("del_flag",BaseGlobal.DEL_FLAG_NORMAL);
+        QueryWrapper<PlanningBand> bandQw = new QueryWrapper<>();
+        bandQw.eq("planning_season_id", planningSeason.getId());
+        bandQw.eq("band_code", dto.getBandCode());
+        bandQw.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
         List<PlanningBand> bandList = planningBandService.list(bandQw);
-        if(CollUtil.isEmpty(bandList)){
-            throw  new OtherException("波段企划为空");
+        if (CollUtil.isEmpty(bandList)) {
+            throw new OtherException("波段企划为空");
         }
-        planningBand=CollUtil.getFirst(bandList);
+        planningBand = CollUtil.getFirst(bandList);
 
         //3 查询波段下的品类信息 波段 + 品类
         //品类
         List<String> categoryIds = StrUtil.split(dto.getCategoryIds(), StrUtil.COMMA);
 
-        QueryWrapper<PlanningCategory> categoryQw=new QueryWrapper<>();
-        categoryQw.eq("planning_band_id",planningBand.getId());
-        bandQw.eq("del_flag",BaseGlobal.DEL_FLAG_NORMAL);
-        bandQw.eq("category_ids",CollUtil.join(CollUtil.sub(categoryIds,0,2),StrUtil.COMMA));
+        QueryWrapper<PlanningCategory> categoryQw = new QueryWrapper<>();
+        categoryQw.eq("planning_band_id", planningBand.getId());
+        bandQw.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
+        bandQw.eq("category_ids", CollUtil.join(CollUtil.sub(categoryIds, 0, 2), StrUtil.COMMA));
         List<PlanningCategory> categoryList = planningCategoryService.list(categoryQw);
-        if(CollUtil.isEmpty(categoryList)){
-            throw  new OtherException("该波段下无此品类信息");
+        if (CollUtil.isEmpty(categoryList)) {
+            throw new OtherException("该波段下无此品类信息");
         }
-        PlanningCategory planningCategory=CollUtil.getFirst(categoryList);
+        PlanningCategory planningCategory = CollUtil.getFirst(categoryList);
         // 品类信息的需求数+1
         planningCategory.setPlanRequirementNum(planningCategory.getPlanRequirementNum().add(BigDecimal.ONE));
         planningCategoryService.updateById(planningCategory);
         // 新增坑位信息
-        PlanningCategoryItem categoryItem=new PlanningCategoryItem();
+        PlanningCategoryItem categoryItem = new PlanningCategoryItem();
         categoryItem.setPlanningSeasonId(planningSeason.getId());
         categoryItem.setPlanningBandId(planningBand.getId());
         categoryItem.setPlanningCategoryId(planningCategory.getId());
@@ -213,20 +197,20 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         categoryItem.setStatus("1");
         categoryItem.setCategoryIds(dto.getCategoryIds());
         categoryItem.setCategoryName(dto.getCategoryName());
-        categoryItem.setDesigner(userInfo.getAliasUserName()+StrUtil.COMMA+userInfo.getUserCode());
+        categoryItem.setDesigner(userInfo.getAliasUserName() + StrUtil.COMMA + userInfo.getUserCode());
         categoryItem.setDesignerId(userInfo.getUserId());
         categoryItem.setMaterialCount(new BigDecimal(String.valueOf(CollUtil.size(dto.getMaterialList()))));
         categoryItem.setHisDesignNo(dto.getHisDesignNo());
         // 设置款号
-        String designNo=planningCategoryItemService.getNextCode(dto.getBrand(),dto.getYear(),dto.getSeason(),dto.getCategoryName());
-        if(StrUtil.isBlank(designNo)){
-            throw  new OtherException("款号生成失败");
+        String designNo = planningCategoryItemService.getNextCode(dto.getBrand(), dto.getYear(), dto.getSeason(), dto.getCategoryName());
+        if (StrUtil.isBlank(designNo)) {
+            throw new OtherException("款号生成失败");
         }
-        designNo=designNo+userInfo.getUserCode();
+        designNo = designNo + userInfo.getUserCode();
         categoryItem.setDesignNo(designNo);
         planningCategoryItemService.save(categoryItem);
         // 新增坑位 信息对应的关联素材
-        if(CollUtil.isNotEmpty(dto.getMaterialList())){
+        if (CollUtil.isNotEmpty(dto.getMaterialList())) {
             List<PlanningCategoryItemMaterial> cims = dto.getMaterialList().stream().map(item -> {
                 PlanningCategoryItemMaterial p = new PlanningCategoryItemMaterial();
                 BeanUtil.copyProperties(categoryItem, p, "id");
@@ -238,25 +222,25 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
             planningCategoryItemMaterialService.saveBatch(cims);
         }
         // 新增样衣设计
-        Sample sample =BeanUtil.copyProperties(dto,Sample.class);
-        PlanningUtils.toSample(sample,planningSeason, planningBand, categoryItem);
-        setMainStylePic(sample,dto.getStylePicList());
+        Sample sample = BeanUtil.copyProperties(dto, Sample.class);
+        PlanningUtils.toSample(sample, planningSeason, planningBand, categoryItem);
+        setMainStylePic(sample, dto.getStylePicList());
         save(sample);
         return sample;
     }
 
-    public void saveTechnologyInfo(String sampleId,List<TechnologyInfoDto> technologyInfo){
+    public void saveTechnologyInfo(String sampleId, List<TechnologyInfoDto> technologyInfo) {
         //删除之前的
-        QueryWrapper<FieldVal> fvQw=new QueryWrapper<>();
-        fvQw.eq("f_id",sampleId);
-        fvQw.eq("data_group",SAMPLE_TECHNOLOGY);
+        QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
+        fvQw.eq("f_id", sampleId);
+        fvQw.eq("data_group", SAMPLE_TECHNOLOGY);
         List<Object> ids = fieldValService.listObjs(fvQw);
         fieldValService.removeByIds(ids);
         //新增
-        if(CollUtil.isEmpty(technologyInfo)){
-            return ;
+        if (CollUtil.isEmpty(technologyInfo)) {
+            return;
         }
-        List<FieldVal> fvList=new ArrayList<>(ids.size());
+        List<FieldVal> fvList = new ArrayList<>(ids.size());
         for (TechnologyInfoDto technologyInfoDto : technologyInfo) {
             FieldVal fieldVal = BeanUtil.copyProperties(technologyInfoDto, FieldVal.class);
             fieldVal.setDataGroup(SAMPLE_TECHNOLOGY);
@@ -265,6 +249,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         }
         fieldValService.saveBatch(fvList);
     }
+
     @Override
     public PageInfo queryPageInfo(SamplePageDto dto) {
         String companyCode = getCompanyCode();
@@ -297,27 +282,27 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         List<SamplePageVo> result = objects.getResult();
         // 设置图片
         queryStylePic(result);
-        amcFeignService.addUserAvatarToList(result,"designerId","aliasUserAvatar");
+        amcFeignService.addUserAvatarToList(result, "designerId", "aliasUserAvatar");
         return objects.toPageInfo();
     }
 
-    public void queryStylePic(List<SamplePageVo> result){
-        if(CollUtil.isEmpty(result)){
+    public void queryStylePic(List<SamplePageVo> result) {
+        if (CollUtil.isEmpty(result)) {
             return;
         }
-        List<String> fileId=new ArrayList<>(12);
+        List<String> fileId = new ArrayList<>(12);
         for (SamplePageVo samplePageVo : result) {
-            if(StrUtil.isNotBlank(samplePageVo.getStylePic())){
+            if (StrUtil.isNotBlank(samplePageVo.getStylePic())) {
                 fileId.add(samplePageVo.getStylePic());
             }
         }
-        if(CollUtil.isEmpty(fileId)){
+        if (CollUtil.isEmpty(fileId)) {
             return;
         }
-        QueryWrapper qw=new QueryWrapper();
-        qw.in("a.id",fileId);
+        QueryWrapper qw = new QueryWrapper();
+        qw.in("a.id", fileId);
         List<AttachmentVo> byQw = attachmentService.findByQw(qw);
-        if(CollUtil.isEmpty(byQw)){
+        if (CollUtil.isEmpty(byQw)) {
             return;
         }
         Map<String, AttachmentVo> collect = byQw.stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> a));
@@ -325,6 +310,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
             samplePageVo.setStylePic(Optional.ofNullable(collect.get(samplePageVo.getStylePic())).map(AttachmentVo::getUrl).orElse(""));
         }
     }
+
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public boolean startApproval(String id) {
@@ -332,7 +318,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         if (sample == null) {
             throw new OtherException("样衣数据不存在,请先保存");
         }
-        boolean flg = flowableService.start(FlowableService.sample_pdn, id, "/pdm/api/saas/sample/approval", "/pdm/api/saas/sample/approval","/sampleClothesDesign/sampleDesign/" + id, BeanUtil.beanToMap(sample));
+        boolean flg = flowableService.start(FlowableService.sample_pdn, id, "/pdm/api/saas/sample/approval", "/pdm/api/saas/sample/approval", "/sampleClothesDesign/sampleDesign/" + id, BeanUtil.beanToMap(sample));
         if (flg) {
             sample.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
             updateById(sample);
@@ -387,23 +373,20 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
             return null;
         }
         SampleVo sampleVo = BeanUtil.copyProperties(sample, SampleVo.class);
-        //查询工艺信息
-        Technology technology = technologyService.getOne(new QueryWrapper<Technology>().eq("f_id", id));
-        sampleVo.setTechnology(Optional.ofNullable(technology).orElse(new Technology()));
         //查询附件
-        List<AttachmentVo> attachmentVoList = attachmentService.findByFId(id,SAMPLE_FILE_ATTACHMENT);
+        List<AttachmentVo> attachmentVoList = attachmentService.findByFId(id, SAMPLE_FILE_ATTACHMENT);
         sampleVo.setAttachmentList(attachmentVoList);
 
         // 关联的素材库
-        QueryWrapper mqw=new QueryWrapper<PlanningCategoryItemMaterial>();
+        QueryWrapper mqw = new QueryWrapper<PlanningCategoryItemMaterial>();
         mqw.eq("planning_category_item_id", sample.getPlanningCategoryItemId());
         mqw.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
         List<PlanningCategoryItemMaterial> list = planningCategoryItemMaterialService.list(mqw);
-        List<MaterialVo> materialList = BeanUtil.copyToList(list,MaterialVo.class);
+        List<MaterialVo> materialList = BeanUtil.copyToList(list, MaterialVo.class);
         sampleVo.setMaterialList(materialList);
 
         // 款式图片
-        List<AttachmentVo> stylePicList = attachmentService.findByFId(id,SAMPLE_FILE_STYLE_PIC);
+        List<AttachmentVo> stylePicList = attachmentService.findByFId(id, SAMPLE_FILE_STYLE_PIC);
         sampleVo.setStylePicList(stylePicList);
         return sampleVo;
     }
@@ -411,20 +394,20 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
     @Override
     public List<DesignDocTreeVo> queryDesignDocTree(DesignDocTreeVo designDocTreeVo) {
         // 查询第0级 年份季节
-        if(designDocTreeVo.getLevel()==null){
+        if (designDocTreeVo.getLevel() == null) {
             return getAllYearSeason();
         }
         // 查询波段
-        else if(designDocTreeVo.getLevel()==0){
+        else if (designDocTreeVo.getLevel() == 0) {
             return queryBand(designDocTreeVo);
         }
         // 查询大类
-        else if(designDocTreeVo.getLevel()==1){
-            return queryCategory(designDocTreeVo,0);
+        else if (designDocTreeVo.getLevel() == 1) {
+            return queryCategory(designDocTreeVo, 0);
         }
         // 查询品类
-        else if(designDocTreeVo.getLevel()==2){
-            return queryCategory(designDocTreeVo,1);
+        else if (designDocTreeVo.getLevel() == 2) {
+            return queryCategory(designDocTreeVo, 1);
         }
 
         return null;
@@ -433,28 +416,28 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
     @Override
     public List<FieldManagementVo> queryTechnology(TechnologySearchDto dto) {
         // 1.查询企划需求管理配置的维度标签
-        QueryWrapper<PlanningDimensionality> pdQw=new QueryWrapper<>();
-        pdQw.eq("category_id",dto.getCategoryId());
-        pdQw.eq("planning_season_id",dto.getPlanningSeasonId());
+        QueryWrapper<PlanningDimensionality> pdQw = new QueryWrapper<>();
+        pdQw.eq("category_id", dto.getCategoryId());
+        pdQw.eq("planning_season_id", dto.getPlanningSeasonId());
         pdQw.isNotNull("field_id");
-        pdQw.eq(DEL_FLAG,BaseGlobal.DEL_FLAG_NORMAL);
+        pdQw.eq(DEL_FLAG, BaseGlobal.DEL_FLAG_NORMAL);
         List<PlanningDimensionality> pdList = planningDimensionalityService.list(pdQw);
-        if(CollUtil.isEmpty(pdList)){
+        if (CollUtil.isEmpty(pdList)) {
             return null;
         }
         // 2.查询字段配置信息
         List<String> fieldIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
         List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fieldIds);
-        if(CollUtil.isEmpty(fieldManagementListByIds)){
+        if (CollUtil.isEmpty(fieldManagementListByIds)) {
             return null;
         }
         // [3].查询字段值
-        if(StrUtil.isNotBlank(dto.getSampleId())){
-            QueryWrapper<FieldVal> fvQw=new QueryWrapper<>();
-            fvQw.eq("f_id",dto.getSampleId());
-            fvQw.eq("data_group",SAMPLE_TECHNOLOGY);
+        if (StrUtil.isNotBlank(dto.getSampleId())) {
+            QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
+            fvQw.eq("f_id", dto.getSampleId());
+            fvQw.eq("data_group", SAMPLE_TECHNOLOGY);
             List<FieldVal> fvList = fieldValService.list(fvQw);
-            if(CollUtil.isNotEmpty(fvList)){
+            if (CollUtil.isNotEmpty(fvList)) {
                 Map<String, String> valMap = fvList.stream().collect(Collectors.toMap(k -> k.getFieldName(), v -> v.getVal(), (a, b) -> b));
                 for (FieldManagementVo fieldManagementListById : fieldManagementListByIds) {
                     fieldManagementListById.setVal(valMap.get(fieldManagementListById.getFieldName()));
@@ -468,55 +451,55 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
     @Override
     public List<FieldManagementVo> queryTechnologyBySampleId(String id) {
         Sample sample = getById(id);
-        if(sample==null){
+        if (sample == null) {
             return null;
         }
-        TechnologySearchDto dto=new TechnologySearchDto();
+        TechnologySearchDto dto = new TechnologySearchDto();
         dto.setSampleId(id);
         dto.setPlanningSeasonId(sample.getPlanningSeasonId());
-        dto.setCategoryId(CollUtil.get(StrUtil.split(sample.getCategoryIds(),StrUtil.COMMA),1));
+        dto.setCategoryId(CollUtil.get(StrUtil.split(sample.getCategoryIds(), StrUtil.COMMA), 1));
         return queryTechnology(dto);
     }
 
-    private List<DesignDocTreeVo> queryCategory(DesignDocTreeVo designDocTreeVo,int categoryIdx) {
-        List<DesignDocTreeVo> result=new ArrayList<>(16);
-        if(!StrUtil.isAllNotEmpty(designDocTreeVo.getYear(),designDocTreeVo.getSeason(),designDocTreeVo.getBandCode())){
+    private List<DesignDocTreeVo> queryCategory(DesignDocTreeVo designDocTreeVo, int categoryIdx) {
+        List<DesignDocTreeVo> result = new ArrayList<>(16);
+        if (!StrUtil.isAllNotEmpty(designDocTreeVo.getYear(), designDocTreeVo.getSeason(), designDocTreeVo.getBandCode())) {
             return result;
         }
-        if(categoryIdx==1&&StrUtil.isBlank(designDocTreeVo.getCategoryIds())){
+        if (categoryIdx == 1 && StrUtil.isBlank(designDocTreeVo.getCategoryIds())) {
             return result;
         }
-        QueryWrapper<Sample> qw=new QueryWrapper<>();
-        qw.eq(COMPANY_CODE,getCompanyCode());
-        qw.eq(DEL_FLAG,BaseGlobal.DEL_FLAG_NORMAL);
-        qw.eq("year",designDocTreeVo.getYear());
-        qw.eq("season",designDocTreeVo.getSeason());
-        qw.eq("band_code",designDocTreeVo.getBandCode());
-        qw.likeRight(StrUtil.isNotBlank(designDocTreeVo.getCategoryIds()),"category_ids",designDocTreeVo.getCategoryIds());
+        QueryWrapper<Sample> qw = new QueryWrapper<>();
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.eq(DEL_FLAG, BaseGlobal.DEL_FLAG_NORMAL);
+        qw.eq("year", designDocTreeVo.getYear());
+        qw.eq("season", designDocTreeVo.getSeason());
+        qw.eq("band_code", designDocTreeVo.getBandCode());
+        qw.likeRight(StrUtil.isNotBlank(designDocTreeVo.getCategoryIds()), "category_ids", designDocTreeVo.getCategoryIds());
         qw.select("DISTINCT category_ids");
         List<Sample> list = list(qw);
-        if(CollUtil.isNotEmpty(list)){
-            String categoryIds= list.stream().map(item->{
+        if (CollUtil.isNotEmpty(list)) {
+            String categoryIds = list.stream().map(item -> {
                 return CollUtil.get(StrUtil.split(item.getCategoryIds(), CharUtil.COMMA), categoryIdx);
             }).collect(Collectors.joining(","));
             Map<String, String> nameMaps = ccmFeignService.findStructureTreeNameByCategoryIds(categoryIds);
-            Set<String> categoryIdsSet=new HashSet<>(16);
+            Set<String> categoryIdsSet = new HashSet<>(16);
             for (Sample sample : list) {
                 List<String> split = StrUtil.split(sample.getCategoryIds(), CharUtil.COMMA);
                 String categoryId = CollUtil.get(split, categoryIdx);
                 System.out.println(categoryId);
-                if(categoryIdsSet.contains(categoryId)){
+                if (categoryIdsSet.contains(categoryId)) {
                     continue;
                 }
                 categoryIdsSet.add(categoryId);
-                DesignDocTreeVo vo =new DesignDocTreeVo();
-                BeanUtil.copyProperties(designDocTreeVo,vo);
-                vo.setLevel(2+categoryIdx);
-                vo.setChildren(categoryIdx==0);
+                DesignDocTreeVo vo = new DesignDocTreeVo();
+                BeanUtil.copyProperties(designDocTreeVo, vo);
+                vo.setLevel(2 + categoryIdx);
+                vo.setChildren(categoryIdx == 0);
 
-                List<String> sub = CollUtil.sub(split, 0, categoryIdx+1);
-                vo.setCategoryIds(CollUtil.join(sub,StrUtil.COMMA));
-                vo.setLabel(MapUtil.getStr(nameMaps,categoryId,categoryId));
+                List<String> sub = CollUtil.sub(split, 0, categoryIdx + 1);
+                vo.setCategoryIds(CollUtil.join(sub, StrUtil.COMMA));
+                vo.setLabel(MapUtil.getStr(nameMaps, categoryId, categoryId));
                 result.add(vo);
             }
         }
@@ -524,23 +507,23 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
     }
 
 
-    private List<DesignDocTreeVo> queryBand(DesignDocTreeVo designDocTreeVo){
-        List<DesignDocTreeVo> result=new ArrayList<>(16);
-        if(StrUtil.isBlank(designDocTreeVo.getYear())||StrUtil.isBlank(designDocTreeVo.getSeason())){
+    private List<DesignDocTreeVo> queryBand(DesignDocTreeVo designDocTreeVo) {
+        List<DesignDocTreeVo> result = new ArrayList<>(16);
+        if (StrUtil.isBlank(designDocTreeVo.getYear()) || StrUtil.isBlank(designDocTreeVo.getSeason())) {
             return result;
         }
-        QueryWrapper<Sample> qw=new QueryWrapper<>();
-        qw.eq(COMPANY_CODE,getCompanyCode());
-        qw.eq(DEL_FLAG,BaseGlobal.DEL_FLAG_NORMAL);
-        qw.eq("year",designDocTreeVo.getYear());
-        qw.eq("season",designDocTreeVo.getSeason());
+        QueryWrapper<Sample> qw = new QueryWrapper<>();
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.eq(DEL_FLAG, BaseGlobal.DEL_FLAG_NORMAL);
+        qw.eq("year", designDocTreeVo.getYear());
+        qw.eq("season", designDocTreeVo.getSeason());
         qw.select("DISTINCT band_code");
         qw.orderByAsc("band_code");
         List<Sample> list = list(qw);
-        if(CollUtil.isNotEmpty(list)){
+        if (CollUtil.isNotEmpty(list)) {
             for (Sample sample : list) {
-                DesignDocTreeVo vo =new DesignDocTreeVo();
-                BeanUtil.copyProperties(designDocTreeVo,vo);
+                DesignDocTreeVo vo = new DesignDocTreeVo();
+                BeanUtil.copyProperties(designDocTreeVo, vo);
                 vo.setBandCode(sample.getBandCode());
                 vo.setLevel(1);
                 vo.setLabel(sample.getBandCode());
@@ -551,38 +534,37 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
         return result;
     }
 
-    private List<DesignDocTreeVo> getAllYearSeason(){
-      QueryWrapper<Sample> qw=new QueryWrapper<>();
-      qw.eq(COMPANY_CODE,getCompanyCode());
-      qw.eq(DEL_FLAG,BaseGlobal.DEL_FLAG_NORMAL);
-      qw.select("DISTINCT year,season");
-      List<Sample> list = list(qw);
-      List<DesignDocTreeVo> result=new ArrayList<>(16);
-      if(CollUtil.isNotEmpty(list)){
-          //根据年份季节排序
-          Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Year,C8_Quarter");
-          Map<String, String> c8Quarter = dictInfoToMap.get("C8_Quarter");
-          Map<String, String> c8Year = dictInfoToMap.get("C8_Year");
-          list.sort((a,b)->{
-              int aIdx=CollUtil.indexOf(c8Quarter.keySet(),t->t.equals(a.getSeason()));
-              int bIdx=CollUtil.indexOf(c8Quarter.keySet(),t->t.equals(b.getSeason()));
-              String aLabel=a.getYear()+ StrUtil.padPre(aIdx==-1?"9999":String.valueOf(aIdx),3,"0");
-              String bLabel=b.getYear()+ StrUtil.padPre(bIdx==-1?"9999":String.valueOf(bIdx),3,"0");
-              return bLabel.compareTo(aLabel);
-          });
+    private List<DesignDocTreeVo> getAllYearSeason() {
+        QueryWrapper<Sample> qw = new QueryWrapper<>();
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.eq(DEL_FLAG, BaseGlobal.DEL_FLAG_NORMAL);
+        qw.select("DISTINCT year,season");
+        List<Sample> list = list(qw);
+        List<DesignDocTreeVo> result = new ArrayList<>(16);
+        if (CollUtil.isNotEmpty(list)) {
+            //根据年份季节排序
+            Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Year,C8_Quarter");
+            Map<String, String> c8Quarter = dictInfoToMap.get("C8_Quarter");
+            Map<String, String> c8Year = dictInfoToMap.get("C8_Year");
+            list.sort((a, b) -> {
+                int aIdx = CollUtil.indexOf(c8Quarter.keySet(), t -> t.equals(a.getSeason()));
+                int bIdx = CollUtil.indexOf(c8Quarter.keySet(), t -> t.equals(b.getSeason()));
+                String aLabel = a.getYear() + StrUtil.padPre(aIdx == -1 ? "9999" : String.valueOf(aIdx), 3, "0");
+                String bLabel = b.getYear() + StrUtil.padPre(bIdx == -1 ? "9999" : String.valueOf(bIdx), 3, "0");
+                return bLabel.compareTo(aLabel);
+            });
 
-          for (Sample sample : list) {
-              DesignDocTreeVo vo =new DesignDocTreeVo();
-              BeanUtil.copyProperties(sample,vo);
-              vo.setLevel(0);
-              vo.setLabel(MapUtil.getStr(c8Year,vo.getYear(),vo.getYear())+MapUtil.getStr(c8Quarter,vo.getSeason(),vo.getSeason()));
-              vo.setChildren(true);
-              result.add(vo);
-          }
-      }
-      return result;
+            for (Sample sample : list) {
+                DesignDocTreeVo vo = new DesignDocTreeVo();
+                BeanUtil.copyProperties(sample, vo);
+                vo.setLevel(0);
+                vo.setLabel(MapUtil.getStr(c8Year, vo.getYear(), vo.getYear()) + MapUtil.getStr(c8Quarter, vo.getSeason(), vo.getSeason()));
+                vo.setChildren(true);
+                result.add(vo);
+            }
+        }
+        return result;
     }
-
 
 
 }
