@@ -24,7 +24,7 @@ import com.alibaba.excel.event.AnalysisEventListener;
  */
 public class YflPlanningTest {
 	public static void main(String[] args) throws InterruptedException {
-		System.setProperty("webdriver.edge.driver", "D:\\space-spring\\base\\static\\msedgedriver.exe");
+		System.setProperty("webdriver.edge.driver", "E:\\code\\shangjie\\sjs_yfg_pdm\\msedgedriver\\msedgedriver.exe");
 		WebDriver driver = new EdgeDriver();
 		// 登录系统
 		LoginSystem(driver);
@@ -32,13 +32,13 @@ public class YflPlanningTest {
 		String planName = "MM商品企划";
 		String planUrl = "C308755";
 		// 获取存放路径
-		String path = "D:\\space-spring\\base\\src\\test\\java\\com\\xiongq\\base\\selenium\\plan\\";
-
-//		System.out.println("开始获取企划文件夹数据");
-//		// 获取企划文件夹数据
-//		List<PlanFold> planFold = getPlanFold(driver, planName, planUrl);
-//		// 写入excel
-//		EasyExcel.write(path + planName + "_企划文件夹.xlsx", PlanFold.class).sheet("企划文件夹").doWrite(planFold);
+		String path = "E:\\code\\shangjie\\sjs_yfg_pdm\\src\\test\\java\\com\\base\\sbc\\selenium\\plan\\";
+		//
+		//System.out.println("开始获取企划文件夹数据");
+		//// 获取企划文件夹数据
+		//List<PlanFold> planFold = getPlanFold(driver, planName, planUrl);
+		//// 写入excel
+		//EasyExcel.write(path + planName + "_企划文件夹.xlsx", PlanFold.class).sheet("企划文件夹").doWrite(planFold);
 
 		// 读取企划文件夹excel
 //		List<PlanFold> planFold = new ArrayList<>();
@@ -52,14 +52,14 @@ public class YflPlanningTest {
 //			public void doAfterAllAnalysed(AnalysisContext context) {
 //			}
 //		}).sheet().doRead();
-//		// 获取企划目标数据
+////		// 获取企划目标数据
 //		System.out.println("开始获取企划目标数据");
 //		List<PlanTarget> targetList = getPlanTarget(driver, planFold);
 //		// 写入excel
 //		EasyExcel.write(path + planName + "_企划目标.xlsx", PlanTarget.class).sheet("企划目标").doWrite(targetList);
 
-		// System.out.println("开始获取企划计划数据");
-		// 读取企划目标excel
+		 System.out.println("开始获取企划计划数据");
+		 //读取企划目标excel
 		List<PlanTarget> planTarget = new ArrayList<>();
 		EasyExcel.read(path + planName + "_企划目标.xlsx", PlanTarget.class, new AnalysisEventListener<PlanTarget>() {
 			@Override
@@ -71,16 +71,16 @@ public class YflPlanningTest {
 			public void doAfterAllAnalysed(AnalysisContext context) {
 			}
 		}).sheet().doRead();
-		// 获取企划目标数据
+		 //获取企划目标数据
 		List<PlanPlan> planList = getPlanPlan(driver, planTarget);
-		// 写入excel
+		 //写入excel
 		EasyExcel.write(path + planName + "_企划计划.xlsx", PlanPlan.class).sheet("企划计划").doWrite(planList);
 
 	}
 
 	/**
 	 * 获取企划计划
-	 * 
+	 *
 	 * @param driver
 	 * @param planTarget
 	 * @return
@@ -123,7 +123,7 @@ public class YflPlanningTest {
 			Thread.sleep(5000);
 
 			List<WebElement> trs = driver.findElements(
-					By.xpath("//*[starts-with(@id,\"uniqName_66_\")]/div[5]/div/div[1]/table/tbody[2]/tr"));
+					By.xpath("//*[starts-with(@id,\"uniqName_65_\")]/div[5]/div/div[1]/table/tbody[2]/tr"));
 			if (trs == null || trs.size() < 2) {
 				continue;
 			}
@@ -167,7 +167,7 @@ public class YflPlanningTest {
 
 	/**
 	 * 获取企划目标
-	 * 
+	 *
 	 * @param driver
 	 * @param planFold
 	 * @return
@@ -201,7 +201,7 @@ public class YflPlanningTest {
 
 			List<WebElement> trs = driver
 					.findElements(
-							By.xpath("//*[starts-with(@id,\"uniqName_66_\")]/div[5]/div/div[1]/table/tbody[2]/tr"));
+							By.xpath("//*[starts-with(@id,\"uniqName_65_\")]/div[5]/div/div[1]/table/tbody[2]/tr"));
 			if (trs == null || trs.size() < 2) {
 				continue;
 			}
@@ -231,7 +231,7 @@ public class YflPlanningTest {
 
 	/**
 	 * 获取企划文件夹
-	 * 
+	 *
 	 * @param driver
 	 * @param name
 	 * @param urlcode
@@ -242,7 +242,7 @@ public class YflPlanningTest {
 			throws InterruptedException {
 		List<PlanFold> pfList = new ArrayList<>();
 		driver.get("http://10.8.240.175/WebAccess/home.html#URL=" + urlcode + "&RURL=&Tab=Target");
-		Thread.sleep(8000);
+		Thread.sleep(2000);
 		WebElement versionInput = driver.findElement(By.xpath("//*[@id=\"uniqName_14_0\"]"));
 		versionInput.click();
 		Thread.sleep(1000);
@@ -261,9 +261,9 @@ public class YflPlanningTest {
 			versionInput.sendKeys(v);
 			Thread.sleep(500);
 			versionInput.sendKeys(Keys.ENTER);
-			Thread.sleep(2000);
+			Thread.sleep(500);
 			List<WebElement> trs = driver
-					.findElements(By.xpath("//*[@id=\"uniqName_66_0\"]/div[5]/div/div[1]/table/tbody[2]/tr"));
+					.findElements(By.xpath("//*[@id=\"uniqName_65_0\"]/div[5]/div/div[1]/table/tbody[2]/tr"));
 			for (int i = 2; i < trs.size() - 1; i++) {
 				WebElement tr = trs.get(i);
 				WebElement fold = tr.findElement(By.className("browse"));
@@ -287,7 +287,7 @@ public class YflPlanningTest {
 
 	/**
 	 * 登录系统
-	 * 
+	 *
 	 * @param driver
 	 * @throws InterruptedException
 	 */

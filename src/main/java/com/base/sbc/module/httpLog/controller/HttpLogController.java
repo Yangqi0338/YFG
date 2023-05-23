@@ -31,9 +31,9 @@ public class HttpLogController extends BaseController {
     @ApiOperation(value = "查询请求日志")
     public ApiResult list(HttpLog httpLog, Page page){
         PageHelper.startPage(page);
-        QueryWrapper<HttpLog> queryWrapper=null;
+        QueryWrapper<HttpLog> queryWrapper=new QueryWrapper<>();
+        queryWrapper.orderByDesc("create_date");
         if (httpLog!=null){
-            queryWrapper=new QueryWrapper<>();
             if (!StringUtils.isEmpty(httpLog.getThreadId())){
                 queryWrapper.eq("thread_id",httpLog.getThreadId());
             }

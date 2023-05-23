@@ -207,10 +207,9 @@ public class SmpGoodsDto extends SmpBaseDto {
     /**配饰款号*/
     private String secCode;
     /** 领型id */
-    @ApiModelProperty(value = "领型id"  )
     private String lingXingId;
-    @ApiModelProperty(value = "领型"  )
-    private String lingXing;
+    /** 领型名称 */
+    private String lingXingName;
     /**开发BOM完整标志*/
     private Boolean integritySample;
     /**大货BOM完整标志*/
