@@ -84,7 +84,7 @@ public class SaveUpdateFieldManagementDto {
     private String remark;
 
     @ApiModelProperty(value = "顺序"  )
-    private Long sequence;
+    private Integer sequence;
 
     @ApiModelProperty(value = "选项字典"  )
     private String optionDictKey;
