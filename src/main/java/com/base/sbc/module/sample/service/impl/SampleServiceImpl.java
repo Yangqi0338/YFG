@@ -456,7 +456,7 @@ public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> imp
             if(CollUtil.isNotEmpty(fvList)){
                 Map<String, String> valMap = fvList.stream().collect(Collectors.toMap(k -> k.getFieldName(), v -> v.getVal(), (a, b) -> b));
                 for (FieldManagementVo fieldManagementListById : fieldManagementListByIds) {
-                    fieldManagementListById.setValue(valMap.get(fieldManagementListById.getFieldName()));
+                    fieldManagementListById.setVal(valMap.get(fieldManagementListById.getFieldName()));
                 }
 
             }
