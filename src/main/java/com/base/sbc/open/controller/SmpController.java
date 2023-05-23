@@ -3,6 +3,7 @@ package com.base.sbc.open.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.open.dto.MtBpReqDto;
 import com.base.sbc.open.dto.SmpDeptDto;
 import com.base.sbc.open.dto.SmpPostDto;
@@ -29,6 +30,8 @@ public class SmpController extends BaseController {
     @PostMapping("/supplierSave")
     public ApiResult supplierSave(@RequestBody JSONObject jsonObject) {
         MtBpReqDto mtBpReqDto = JSONObject.parseObject(jsonObject.toJSONString(), MtBpReqDto.class);
+        BasicsdatumSupplier basicsdatumSupplier =new BasicsdatumSupplier();
+        basicsdatumSupplier.setSupplierCode(mtBpReqDto.getGeneralData().getPartner());
         System.out.println(mtBpReqDto);
         return insertSuccess(null);
     }

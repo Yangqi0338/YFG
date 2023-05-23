@@ -45,6 +45,9 @@ public class Technology extends BaseDataEntity<String> {
     /** 领型 */
     @ApiModelProperty(value = "领型"  )
     private String lingXing;
+    /** 领型id */
+    @ApiModelProperty(value = "领型id"  )
+    private String lingXingId;
     /** 胸围 */
     @ApiModelProperty(value = "胸围"  )
     private String xiongWei;

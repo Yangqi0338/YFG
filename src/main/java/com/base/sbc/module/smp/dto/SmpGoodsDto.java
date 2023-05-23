@@ -80,6 +80,8 @@ public class SmpGoodsDto extends SmpBaseDto {
     private String middleClassName;
     /**小类名称*/
     private String minClassName;
+    /**样纸编号*/
+    private String styleCode;
     /**品类名称*/
     private String categoryName;
     /**衣长分类id*/
