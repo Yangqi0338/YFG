@@ -2,6 +2,7 @@ package com.base.sbc.module.smp.dto;
 
 import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.SmpSize;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -205,6 +206,11 @@ public class SmpGoodsDto extends SmpBaseDto {
     private String mainCode;
     /**配饰款号*/
     private String secCode;
+    /** 领型id */
+    @ApiModelProperty(value = "领型id"  )
+    private String lingXingId;
+    @ApiModelProperty(value = "领型"  )
+    private String lingXing;
     /**开发BOM完整标志*/
     private Boolean integritySample;
     /**大货BOM完整标志*/
