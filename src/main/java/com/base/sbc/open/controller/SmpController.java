@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
+import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.open.dto.MtBpReqDto;
 import com.base.sbc.open.dto.SmpDeptDto;
 import com.base.sbc.open.dto.SmpPostDto;
@@ -62,6 +63,17 @@ public class SmpController extends BaseController {
     public ApiResult hrPostSave(@RequestBody JSONObject jsonObject) {
         SmpPostDto smpPostDto = JSONObject.parseObject(jsonObject.toJSONString(), SmpPostDto.class);
         System.out.println(smpPostDto);
+        return insertSuccess(null);
+    }
+
+
+    /**
+     * smp-样衣
+     */
+    @PostMapping("/smpSampleSave")
+    public ApiResult smpSampleSave(@RequestBody JSONObject jsonObject){
+        SmpSampleDto smpSampleDto = JSONObject.parseObject(jsonObject.toJSONString(), SmpSampleDto.class);
+        System.out.println(smpSampleDto);
         return insertSuccess(null);
     }
 }
