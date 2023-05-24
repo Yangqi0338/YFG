@@ -40,8 +40,8 @@ import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.PlanningBandSummaryInfoVo;
-import com.base.sbc.module.sample.entity.Sample;
-import com.base.sbc.module.sample.service.SampleService;
+import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.service.SampleDesignService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -54,8 +54,6 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.base.sbc.config.common.base.BaseController.COMPANY_CODE;
 
 /**
  * 类描述：企划-坑位信息 service类
@@ -83,7 +81,7 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
     @Autowired
     CcmFeignService ccmFeignService;
     @Autowired
-    SampleService sampleService;
+    SampleDesignService sampleDesignService;
 
     private IdGen idGen=new IdGen();
 
@@ -417,10 +415,10 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         update(uw);
         // 3 将数据写入样衣设计
         // 查询已经下发的任务
-        QueryWrapper<Sample> existsQw=new QueryWrapper<>();
+        QueryWrapper<SampleDesign> existsQw=new QueryWrapper<>();
         existsQw.in("planning_category_item_id",itemIds);
-        List<Sample> dbItemList = sampleService.list(existsQw);
-        Map<String, Sample> dbItemMap = Optional.ofNullable(dbItemList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.toMap(k -> k.getPlanningCategoryItemId(), v -> v, (a, b) -> b));
+        List<SampleDesign> dbItemList = sampleDesignService.list(existsQw);
+        Map<String, SampleDesign> dbItemMap = Optional.ofNullable(dbItemList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.toMap(k -> k.getPlanningCategoryItemId(), v -> v, (a, b) -> b));
         // 查询产品季
         QueryWrapper<PlanningSeason> seasonQw=new QueryWrapper<>();
         seasonQw.in("id",seasonIds);
@@ -432,20 +430,20 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         List<PlanningBand> bandList = planningBandService.list(bandQw);
         Map<String, PlanningBand> bandMap = Optional.ofNullable(bandList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b));
 
-        List<Sample> sampleList=new ArrayList<>(16);
+        List<SampleDesign> sampleDesignList =new ArrayList<>(16);
 
         for (PlanningCategoryItem item : categoryItemList) {
             if(dbItemMap.containsKey(item.getId())){
                 continue;
             }
-            Sample sample = PlanningUtils.toSample(seasonMap.get(item.getPlanningSeasonId()), bandMap.get(item.getPlanningBandId()), item);
-            sample.setSender(getUserId());
-            sampleList.add(sample);
+            SampleDesign sampleDesign = PlanningUtils.toSampleDesign(seasonMap.get(item.getPlanningSeasonId()), bandMap.get(item.getPlanningBandId()), item);
+            sampleDesign.setSender(getUserId());
+            sampleDesignList.add(sampleDesign);
 
         }
         // 保存样衣设计
-        if(CollUtil.isNotEmpty(sampleList)){
-            sampleService.saveBatch(sampleList);
+        if(CollUtil.isNotEmpty(sampleDesignList)){
+            sampleDesignService.saveBatch(sampleDesignList);
         }
         return true;
     }

@@ -17,7 +17,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
- * 类描述：样衣 实体类
+ * 类描述：样衣设计 实体类
  * @address com.base.sbc.module.sample.entity.Sample
  * @author lxl
  * @email lxl.fml@gmail.com
@@ -26,9 +26,9 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_sample")
-@ApiModel("样衣 Sample")
-public class Sample extends BaseDataEntity<String> {
+@TableName("t_sample_design")
+@ApiModel("样衣设计 SampleDesign")
+public class SampleDesign extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/

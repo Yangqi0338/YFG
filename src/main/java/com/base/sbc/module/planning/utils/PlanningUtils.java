@@ -5,7 +5,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningSeason;
-import com.base.sbc.module.sample.entity.Sample;
+import com.base.sbc.module.sample.entity.SampleDesign;
 
 /**
  * 类描述：企划帮助
@@ -17,19 +17,19 @@ import com.base.sbc.module.sample.entity.Sample;
  */
 public class PlanningUtils {
 
-    public static Sample toSample(PlanningSeason season, PlanningBand band, PlanningCategoryItem item){
-        Sample sample=new Sample();
-        toSample(sample,season,band,item);
-        return sample;
+    public static SampleDesign toSampleDesign(PlanningSeason season, PlanningBand band, PlanningCategoryItem item){
+        SampleDesign sampleDesign =new SampleDesign();
+        toSampleDesign(sampleDesign,season,band,item);
+        return sampleDesign;
     }
-    public static void toSample(Sample sample,PlanningSeason season, PlanningBand band, PlanningCategoryItem item){
-        BeanUtil.copyProperties(season,sample);
-        BeanUtil.copyProperties(band,sample);
-        BeanUtil.copyProperties(item,sample);
-        sample.setPlanningCategoryItemId(item.getId());
-        sample.setId(null);
-        sample.setStatus(BaseGlobal.STATUS_NORMAL);
-        sample.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+    public static void toSampleDesign(SampleDesign sampleDesign, PlanningSeason season, PlanningBand band, PlanningCategoryItem item){
+        BeanUtil.copyProperties(season, sampleDesign);
+        BeanUtil.copyProperties(band, sampleDesign);
+        BeanUtil.copyProperties(item, sampleDesign);
+        sampleDesign.setPlanningCategoryItemId(item.getId());
+        sampleDesign.setId(null);
+        sampleDesign.setStatus(BaseGlobal.STATUS_NORMAL);
+        sampleDesign.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
 
     }
 }

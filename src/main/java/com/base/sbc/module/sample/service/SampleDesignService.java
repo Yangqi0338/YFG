@@ -9,19 +9,19 @@ package com.base.sbc.module.sample.service;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
-import com.base.sbc.module.sample.dto.SamplePageDto;
-import com.base.sbc.module.sample.dto.SampleSaveDto;
+import com.base.sbc.module.sample.dto.SampleDesignPageDto;
+import com.base.sbc.module.sample.dto.SampleDesignSaveDto;
 import com.base.sbc.module.sample.dto.SendSampleMakingDto;
 import com.base.sbc.module.sample.dto.TechnologySearchDto;
-import com.base.sbc.module.sample.entity.Sample;
+import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.vo.DesignDocTreeVo;
-import com.base.sbc.module.sample.vo.SampleVo;
+import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
 /**
- * 类描述：样衣 service类
+ * 类描述：样衣设计 service类
  *
  * @author lxl
  * @version 1.0
@@ -29,7 +29,7 @@ import java.util.List;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-5-9 11:16:15
  */
-public interface SampleService extends IServicePlus<Sample> {
+public interface SampleDesignService extends IServicePlus<SampleDesign> {
 
 
 /** 自定义方法区 不替换的区域【other_start】 **/
@@ -40,21 +40,21 @@ public interface SampleService extends IServicePlus<Sample> {
      * @param dto
      * @return
      */
-    Sample saveSample(SampleSaveDto dto);
+    SampleDesign saveSampleDesign(SampleDesignSaveDto dto);
 
     /**
      * 新增样衣设计
      * @param dto
      * @return
      */
-    Sample saveNewSample(SampleSaveDto dto);
+    SampleDesign saveNewSampleDesign(SampleDesignSaveDto dto);
 
     /**
      * 分页查询
      * @param dto
      * @return
      */
-    PageInfo queryPageInfo(SamplePageDto dto);
+    PageInfo queryPageInfo(SampleDesignPageDto dto);
 
     /**
      * 发起审批
@@ -72,19 +72,19 @@ public interface SampleService extends IServicePlus<Sample> {
 
     /**
      * 发送打板指令
-     * @param id
+     * @param dto
      * @return
      */
-    boolean sendSampleMaking(SendSampleMakingDto dto);
+    boolean sendMaking(SendSampleMakingDto dto);
 
-    Sample checkedSampleExists(String id);
+    SampleDesign checkedSampleDesignExists(String id);
 
     /**
      * 查询明细数据
      * @param id
      * @return
      */
-    SampleVo getDetail(String id);
+    SampleDesignVo getDetail(String id);
 
     /**
      * 设计档案左侧树（0级:年份季节,1级:波段,2级:大类,3级:品类）
@@ -93,9 +93,19 @@ public interface SampleService extends IServicePlus<Sample> {
      */
     List<DesignDocTreeVo> queryDesignDocTree(DesignDocTreeVo designDocTreeVo);
 
+    /**
+     * 查询工艺信息数据
+     * @param dto
+     * @return
+     */
     List<FieldManagementVo> queryTechnology(TechnologySearchDto dto);
 
-    List<FieldManagementVo> queryTechnologyBySampleId(String id);
+    /**
+     * 查询工艺信息数据
+     * @param id 样衣设计id
+     * @return
+     */
+    List<FieldManagementVo> queryTechnologyBySampleDesignId(String id);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

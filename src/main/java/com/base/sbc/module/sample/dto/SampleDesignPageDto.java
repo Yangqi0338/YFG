@@ -16,8 +16,8 @@ import lombok.Data;
  * @date 创建时间：2023-05-09 18:03
  */
 @Data
-@ApiModel("样衣分页查询 SampleDto")
-public class SamplePageDto extends Page {
+@ApiModel("样衣设计分页查询 SampleDto")
+public class SampleDesignPageDto extends Page {
 
     /**
      * 1我下发的

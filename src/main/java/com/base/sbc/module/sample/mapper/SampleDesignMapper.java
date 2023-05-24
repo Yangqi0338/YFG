@@ -9,16 +9,15 @@ package com.base.sbc.module.sample.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.base.sbc.module.planning.entity.PlanningBand;
-import com.base.sbc.module.sample.vo.SamplePageVo;
+import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.vo.SampleDesignPageVo;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.sample.entity.Sample;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
- * 类描述：样衣 dao类
+ * 类描述：样衣设计 dao类
  *
  * @author lxl
  * @version 1.0
@@ -27,12 +26,12 @@ import java.util.List;
  * @date 创建时间：2023-5-9 11:16:15
  */
 @Mapper
-public interface SampleMapper extends BaseMapper<Sample> {
+public interface SampleDesignMapper extends BaseMapper<SampleDesign> {
     /**
      * 自定义方法区 不替换的区域【other_start】
      **/
 
-    List<SamplePageVo> selectByQw(@Param(Constants.WRAPPER) QueryWrapper<Sample> wrapper);
+    List<SampleDesignPageVo> selectByQw(@Param(Constants.WRAPPER) QueryWrapper<SampleDesign> wrapper);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

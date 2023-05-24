@@ -9,14 +9,14 @@ package com.base.sbc.module.sample.controller;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
-import com.base.sbc.module.sample.dto.SamplePageDto;
-import com.base.sbc.module.sample.dto.SampleSaveDto;
+import com.base.sbc.module.sample.dto.SampleDesignSaveDto;
+import com.base.sbc.module.sample.dto.SampleDesignPageDto;
 import com.base.sbc.module.sample.dto.SendSampleMakingDto;
 import com.base.sbc.module.sample.dto.TechnologySearchDto;
-import com.base.sbc.module.sample.entity.Sample;
-import com.base.sbc.module.sample.service.SampleService;
+import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.service.SampleDesignService;
 import com.base.sbc.module.sample.vo.DesignDocTreeVo;
-import com.base.sbc.module.sample.vo.SampleVo;
+import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.*;
 import org.hibernate.validator.constraints.NotBlank;
@@ -27,12 +27,11 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
-* 类描述：样衣 Controller类
-* @address com.base.sbc.module.sample.web.SampleController
+* 类描述：样衣设计 Controller类
+* @address com.base.sbc.module.sample.web.SampleDesignController
 * @author lxl
 * @email lxl.fml@gmail.com
 * @date 创建时间：2023-5-9 11:16:15
@@ -40,34 +39,34 @@ import java.util.List;
 */
 @RestController
 @Api(tags = "样衣设计相关接口")
-@RequestMapping(value = BaseController.SAAS_URL + "/sample", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = BaseController.SAAS_URL + "/sampleDesign", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class SampleController{
+public class SampleDesignController {
 
 	@Autowired
-	private SampleService sampleService;
+	private SampleDesignService sampleDesignService;
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping()
-	public PageInfo pageInfo(@Valid SamplePageDto dto){
-		return sampleService.queryPageInfo(dto);
+	public PageInfo pageInfo(@Valid SampleDesignPageDto dto){
+		return sampleDesignService.queryPageInfo(dto);
 	}
 	@ApiOperation(value = "明细信息")
 	@GetMapping("/{id}")
-	public SampleVo getDetail(@PathVariable("id") String id){
-		return sampleService.getDetail(id);
+	public SampleDesignVo getDetail(@PathVariable("id") String id){
+		return sampleDesignService.getDetail(id);
 	}
 	@ApiOperation(value = "保存")
 	@PostMapping
-	public SampleVo save(@RequestBody SampleSaveDto dto) {
-		Sample  sample=sampleService.saveSample(dto);
-		return sampleService.getDetail(sample.getId());
+	public SampleDesignVo save(@RequestBody SampleDesignSaveDto dto) {
+		SampleDesign sampleDesign = sampleDesignService.saveSampleDesign(dto);
+		return sampleDesignService.getDetail(sampleDesign.getId());
 	}
 
 	@ApiOperation(value = "发送打板指令")
-	@PostMapping("/sendSampleMaking")
-	public boolean sendSampleMaking(@Valid @RequestBody SendSampleMakingDto dto){
-		return sampleService.sendSampleMaking(dto);
+	@PostMapping("/sendMaking")
+	public boolean sendMaking(@Valid @RequestBody SendSampleMakingDto dto){
+		return sampleDesignService.sendMaking(dto);
 	}
 	@ApiOperation(value = "发起审批")
 	@GetMapping("/startApproval")
@@ -75,7 +74,7 @@ public class SampleController{
 			@ApiImplicitParam(name = "id" ,value = "id",required = true,paramType = "query")
 	})
 	public boolean startApproval(@NotBlank(message = "编号不能为空") String id){
-		return sampleService.startApproval(id);
+		return sampleDesignService.startApproval(id);
 	}
 	/**
 	 * 处理审批
@@ -85,26 +84,26 @@ public class SampleController{
 	@ApiIgnore
 	@PostMapping("/approval")
 	public boolean approval(@RequestBody AnswerDto dto){
-		return sampleService.approval(dto);
+		return sampleDesignService.approval(dto);
 	}
 
 
 	@ApiOperation(value = "设计档案左侧树",notes = "（0级:年份季节,1级:波段,2级:大类,3级:品类）")
 	@PostMapping("/queryDesignDocTree")
 	public List<DesignDocTreeVo> queryDesignDocTree(@RequestBody  DesignDocTreeVo designDocTreeVo){
-		return sampleService.queryDesignDocTree(designDocTreeVo);
+		return sampleDesignService.queryDesignDocTree(designDocTreeVo);
 	}
 
 
 	@ApiOperation(value = "查询工艺信息数据(新增时使用)",notes = "")
 	@PostMapping("/queryTechnology")
 	public List<FieldManagementVo> queryTechnology(@Valid @RequestBody TechnologySearchDto dto){
-		return sampleService.queryTechnology(dto);
+		return sampleDesignService.queryTechnology(dto);
 	}
 	@ApiOperation(value = "查询工艺信息数据(修改时使用)",notes = "")
-	@GetMapping("/queryTechnologyBySampleId")
-	public List<FieldManagementVo> queryTechnologyBySampleId(String id){
-		return sampleService.queryTechnologyBySampleId(id);
+	@GetMapping("/queryTechnologyBySampleDesignId")
+	public List<FieldManagementVo> queryTechnologyBySampleDesignId(String id){
+		return sampleDesignService.queryTechnologyBySampleDesignId(id);
 	}
 }
 

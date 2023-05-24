@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.base.sbc.module.sample.mapper.SampleMapper">
+<mapper namespace="com.base.sbc.module.sample.mapper.SampleDesignMapper">
     <!--
         样衣
         创建人：lxl
@@ -11,7 +11,7 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
     <!-- 分页查询 -->
-    <select id="selectByQw" resultType="com.base.sbc.module.sample.vo.SamplePageVo">
+    <select id="selectByQw" resultType="com.base.sbc.module.sample.vo.SampleDesignPageVo">
         select * from t_sample s
             ${ ew.customSqlSegment}
     </select>
