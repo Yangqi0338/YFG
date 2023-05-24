@@ -2,6 +2,8 @@ package com.base.sbc.module.smp.entity;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * @author 卞康
  * @date 2023/5/10 11:23:23
@@ -18,5 +20,5 @@ public class SmpSizeQty {
     /**材料尺码URL*/
     private String matSizeUrl;
     /**单件用量*/
-    private String itemQty;
+    private BigDecimal itemQty;
 }

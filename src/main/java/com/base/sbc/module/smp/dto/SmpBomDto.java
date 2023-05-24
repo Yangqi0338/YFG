@@ -4,6 +4,7 @@ import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.SmpSizeQty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -36,7 +37,7 @@ public class SmpBomDto extends SmpBaseDto {
     /** 使用部位 */
     private String placeOfUse;
     /** 损耗率 */
-    private String lossRate;
+    private BigDecimal lossRate;
     /**供应商物料编号*/
     private String supplierMaterialCode;
     /**报价供应商编号*/

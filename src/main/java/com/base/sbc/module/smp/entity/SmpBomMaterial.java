@@ -2,6 +2,8 @@ package com.base.sbc.module.smp.entity;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * @author 卞康
  * @date 2023/5/10 11:52:25
@@ -21,7 +23,7 @@ public class SmpBomMaterial {
     /**部位*/
     private String position;
     /**损耗率*/
-    private String lossRate;
+    private BigDecimal lossRate;
     /**是否启用*/
     private Boolean active;
     /**是否下发（新增）*/
