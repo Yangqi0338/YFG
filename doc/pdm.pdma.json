@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.5.1",
   "createdTime": "2023-5-18 09:34:40",
-  "updatedTime": "2023-5-23 19:49:07",
+  "updatedTime": "2023-5-24 11:18:33",
   "dbConns": [],
   "profile": {
     "default": {
@@ -11943,16 +11943,7 @@
           "hideInGraph": true
         }
       ],
-      "correlations": [
-        {
-          "myField": "58A0F864-F8A2-4CAA-BE6E-B2066E58FB11",
-          "refEntity": "41CBBC29-ED06-44C5-BD88-91BDEE518862",
-          "refField": "EB55EE76-821B-4C45-AE13-C0AB68EA624F",
-          "myRows": "1",
-          "refRows": "n",
-          "innerType": ""
-        }
-      ],
+      "correlations": [],
       "notes": {}
     },
     {
@@ -12489,24 +12480,7 @@
           "hideInGraph": true
         }
       ],
-      "correlations": [
-        {
-          "myField": "FE3FF6E5-D2BB-4F89-B2A0-42F74506747C",
-          "refEntity": "34AD1A09-B9D9-4E84-8BFD-9D45C74A6CB8",
-          "refField": "60DBCA35-02E9-46CD-BF37-3B295804D161",
-          "myRows": "1",
-          "refRows": "n",
-          "innerType": ""
-        },
-        {
-          "myField": "FE3FF6E5-D2BB-4F89-B2A0-42F74506747C",
-          "refEntity": "AC5CEBC3-2CB8-4D8D-8651-BE55902C4598",
-          "refField": "34EE6F4D-60B4-4B63-826D-3DECD8A1A533",
-          "myRows": "1",
-          "refRows": "n",
-          "innerType": ""
-        }
-      ],
+      "correlations": [],
       "notes": {}
     },
     {
@@ -16240,32 +16214,8 @@
       "correlations": [
         {
           "myField": "948DB783-0113-4526-8165-2CBF3B3DD8BB",
-          "refEntity": "41CBBC29-ED06-44C5-BD88-91BDEE518862",
-          "refField": "DEBB5A84-1DE1-4D8D-8BF6-767B4CF88DBD",
-          "myRows": "1",
-          "refRows": "n",
-          "innerType": ""
-        },
-        {
-          "myField": "948DB783-0113-4526-8165-2CBF3B3DD8BB",
-          "refEntity": "60663E65-BD22-4A2A-9A90-57F19D94B4E1",
-          "refField": "A495918E-3B40-4D48-BE94-D3EE2C82EF55",
-          "myRows": "1",
-          "refRows": "n",
-          "innerType": ""
-        },
-        {
-          "myField": "948DB783-0113-4526-8165-2CBF3B3DD8BB",
-          "refEntity": "34AD1A09-B9D9-4E84-8BFD-9D45C74A6CB8",
-          "refField": "FF7701C4-8F76-4953-AE52-A23905C4D163",
-          "myRows": "1",
-          "refRows": "n",
-          "innerType": ""
-        },
-        {
-          "myField": "948DB783-0113-4526-8165-2CBF3B3DD8BB",
-          "refEntity": "AC5CEBC3-2CB8-4D8D-8651-BE55902C4598",
-          "refField": "BC28CDA2-760B-4E8B-B48E-E0551BFF0A1E",
+          "refEntity": "63074AFC-B7F6-4E51-8788-A74F2122CB83",
+          "refField": "3682F993-4C0C-485D-8F9B-BE301204A40F",
           "myRows": "1",
           "refRows": "n",
           "innerType": ""
@@ -37894,7 +37844,16 @@
           "hideInGraph": true
         }
       ],
-      "correlations": []
+      "correlations": [
+        {
+          "myField": "5C0D1000-89F3-4AB5-9886-A1EE3A834639",
+          "refEntity": "E425A270-4C5C-4838-B290-3B562700C821",
+          "refField": "3CF3FD55-A124-4328-A45B-D4FB50F2E57E",
+          "myRows": "1",
+          "refRows": "n",
+          "innerType": ""
+        }
+      ]
     },
     {
       "id": "E425A270-4C5C-4838-B290-3B562700C821",
@@ -38352,7 +38311,32 @@
           "hideInGraph": true
         }
       ],
-      "correlations": []
+      "correlations": [
+        {
+          "myField": "F1F1895C-2E49-44A5-A5A8-C9740AB0F36F",
+          "refEntity": "E6872678-E00F-4426-ABA1-AFE2FB80C578",
+          "refField": "B5CBA0CB-92EC-4833-ACB9-B9622F97219B",
+          "myRows": "1",
+          "refRows": "1",
+          "innerType": ""
+        },
+        {
+          "myField": "F1F1895C-2E49-44A5-A5A8-C9740AB0F36F",
+          "refEntity": "216ADB38-F0C4-457E-8308-B22EC7C40C35",
+          "refField": "B7E9F3E8-6040-4D81-9476-753EE84C7B9F",
+          "myRows": "1",
+          "refRows": "n",
+          "innerType": ""
+        },
+        {
+          "myField": "F1F1895C-2E49-44A5-A5A8-C9740AB0F36F",
+          "refEntity": "3FA56C5A-208E-463D-92FF-3031AAD2DEBC",
+          "refField": "0A550E9F-83F0-44D0-B976-134955182DBA",
+          "myRows": "1",
+          "refRows": "1",
+          "innerType": ""
+        }
+      ]
     },
     {
       "id": "53B744B3-3E3B-40B6-BA9F-E5193297117D",
@@ -100121,6 +100105,27 @@
       ],
       "refDicts": [],
       "id": "96C75CA2-D36A-4953-9CC3-0CD2329E41AB"
+    },
+    {
+      "defKey": "团队管理",
+      "defName": "",
+      "refEntities": [
+        "63074AFC-B7F6-4E51-8788-A74F2122CB83",
+        "E425A270-4C5C-4838-B290-3B562700C821",
+        "1FD483BE-97AC-4018-BCB3-B03258CC8D11",
+        "E6872678-E00F-4426-ABA1-AFE2FB80C578",
+        "216ADB38-F0C4-457E-8308-B22EC7C40C35",
+        "3FA56C5A-208E-463D-92FF-3031AAD2DEBC",
+        "6C8410EF-BABF-491B-8A3B-BA331C25BB13",
+        "AD57EAD2-D54B-4FBF-90B6-B196ADBC49DA",
+        "FD45CC00-6BDB-4B9D-B4D2-4D5DB9904730"
+      ],
+      "refViews": [],
+      "refDiagrams": [
+        "1D1CA24C-1D0A-41CB-934F-9DE783CB7723"
+      ],
+      "refDicts": [],
+      "id": "2DA14F2D-9B9A-482E-9934-47C235E07913"
     }
   ],
   "dataTypeMapping": {
@@ -101677,6 +101682,197 @@
         ]
       },
       "id": "87AD822E-2A8B-42BF-99D7-4CA50302D8E1",
+      "comment": ""
+    },
+    {
+      "defKey": "团队管理-物理模型",
+      "defName": "",
+      "relationType": "field",
+      "canvasData": {
+        "cells": [
+          {
+            "id": "080f09a6-438c-4ad3-9ba7-a78a17cee81e",
+            "shape": "erdRelation",
+            "source": {
+              "cell": "886d327d-7274-43de-a5e4-a250db4c9bec",
+              "port": "948DB783-0113-4526-8165-2CBF3B3DD8BB%in"
+            },
+            "target": {
+              "cell": "cc0df773-2990-4d97-b639-310511463b37",
+              "port": "3682F993-4C0C-485D-8F9B-BE301204A40F%in"
+            },
+            "relation": "1:n",
+            "fillColor": "#ACDAFC",
+            "router": {
+              "name": "manhattan"
+            },
+            "attrs": {
+              "line": {
+                "strokeDasharray": ""
+              }
+            }
+          },
+          {
+            "id": "8c1c32e4-7986-4931-ab1c-e06102d1c0e5",
+            "shape": "erdRelation",
+            "source": {
+              "cell": "cc0df773-2990-4d97-b639-310511463b37",
+              "port": "5C0D1000-89F3-4AB5-9886-A1EE3A834639%out"
+            },
+            "target": {
+              "cell": "a71d5ba2-46e3-4bf6-8c6d-d06d7f6d20a2",
+              "port": "3CF3FD55-A124-4328-A45B-D4FB50F2E57E%in"
+            },
+            "relation": "1:n",
+            "fillColor": "#ACDAFC",
+            "router": {
+              "name": "manhattan"
+            },
+            "attrs": {
+              "line": {
+                "strokeDasharray": ""
+              }
+            }
+          },
+          {
+            "id": "f01a1208-8ccb-40af-a500-1792963fd5c3",
+            "shape": "erdRelation",
+            "source": {
+              "cell": "a71d5ba2-46e3-4bf6-8c6d-d06d7f6d20a2",
+              "port": "F1F1895C-2E49-44A5-A5A8-C9740AB0F36F%in"
+            },
+            "target": {
+              "cell": "580dccd2-31f6-4ff0-a43a-d431e2d8d754",
+              "port": "B5CBA0CB-92EC-4833-ACB9-B9622F97219B%in"
+            },
+            "relation": "1:1",
+            "vertices": [
+              {
+                "x": 520,
+                "y": 440
+              },
+              {
+                "x": 520,
+                "y": 700
+              }
+            ],
+            "fillColor": "#ACDAFC",
+            "router": {
+              "name": "manhattan"
+            },
+            "attrs": {
+              "line": {
+                "strokeDasharray": ""
+              }
+            }
+          },
+          {
+            "id": "886d327d-7274-43de-a5e4-a250db4c9bec",
+            "shape": "table",
+            "position": {
+              "x": 100,
+              "y": 80
+            },
+            "count": 0,
+            "originKey": "1FD483BE-97AC-4018-BCB3-B03258CC8D11"
+          },
+          {
+            "id": "580dccd2-31f6-4ff0-a43a-d431e2d8d754",
+            "shape": "table",
+            "position": {
+              "x": 570,
+              "y": 660
+            },
+            "count": 0,
+            "originKey": "E6872678-E00F-4426-ABA1-AFE2FB80C578"
+          },
+          {
+            "id": "fcc7506c-e376-4d18-9e55-e5f037a290c8",
+            "shape": "erdRelation",
+            "source": {
+              "cell": "a71d5ba2-46e3-4bf6-8c6d-d06d7f6d20a2",
+              "port": "F1F1895C-2E49-44A5-A5A8-C9740AB0F36F%in"
+            },
+            "target": {
+              "cell": "45ca2370-e595-49db-a723-72d4c6b5b41e",
+              "port": "B7E9F3E8-6040-4D81-9476-753EE84C7B9F%out"
+            },
+            "relation": "1:n",
+            "fillColor": "#ACDAFC",
+            "router": {
+              "name": "manhattan"
+            },
+            "attrs": {
+              "line": {
+                "strokeDasharray": ""
+              }
+            }
+          },
+          {
+            "id": "cc0df773-2990-4d97-b639-310511463b37",
+            "shape": "table",
+            "position": {
+              "x": 33,
+              "y": 290
+            },
+            "count": 0,
+            "originKey": "63074AFC-B7F6-4E51-8788-A74F2122CB83"
+          },
+          {
+            "id": "45ca2370-e595-49db-a723-72d4c6b5b41e",
+            "shape": "table",
+            "position": {
+              "x": 60,
+              "y": 590
+            },
+            "count": 0,
+            "originKey": "216ADB38-F0C4-457E-8308-B22EC7C40C35"
+          },
+          {
+            "id": "8320a038-91c9-41f9-9fba-d8bc144d5a19",
+            "shape": "erdRelation",
+            "source": {
+              "cell": "a71d5ba2-46e3-4bf6-8c6d-d06d7f6d20a2",
+              "port": "F1F1895C-2E49-44A5-A5A8-C9740AB0F36F%out"
+            },
+            "target": {
+              "cell": "11c0deac-a78c-4599-acea-eb5fdf275c9f",
+              "port": "0A550E9F-83F0-44D0-B976-134955182DBA%out"
+            },
+            "relation": "1:1",
+            "fillColor": "#ACDAFC",
+            "router": {
+              "name": "manhattan"
+            },
+            "attrs": {
+              "line": {
+                "strokeDasharray": ""
+              }
+            }
+          },
+          {
+            "id": "a71d5ba2-46e3-4bf6-8c6d-d06d7f6d20a2",
+            "shape": "table",
+            "position": {
+              "x": 570,
+              "y": 290
+            },
+            "count": 0,
+            "originKey": "E425A270-4C5C-4838-B290-3B562700C821"
+          },
+          {
+            "id": "11c0deac-a78c-4599-acea-eb5fdf275c9f",
+            "shape": "table",
+            "position": {
+              "x": 947,
+              "y": 660
+            },
+            "count": 0,
+            "originKey": "3FA56C5A-208E-463D-92FF-3031AAD2DEBC"
+          }
+        ]
+      },
+      "id": "1D1CA24C-1D0A-41CB-934F-9DE783CB7723",
       "comment": ""
     }
   ],
