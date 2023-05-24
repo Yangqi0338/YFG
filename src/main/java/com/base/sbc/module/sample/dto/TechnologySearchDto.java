@@ -19,7 +19,7 @@ import org.hibernate.validator.constraints.NotBlank;
 public class TechnologySearchDto {
 
     @ApiModelProperty(value = "样衣设计id", example = "0")
-    private String sampleId;
+    private String sampleDesignId;
     @ApiModelProperty(value = "产品季id", example = "0")
     @NotBlank(message = "产品季不能为空")
     private String planningSeasonId;

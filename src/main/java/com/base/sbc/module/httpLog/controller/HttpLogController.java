@@ -5,6 +5,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.httpLog.dto.QueryHttpLogDto;
 import com.base.sbc.module.httpLog.entity.HttpLog;
 import com.base.sbc.module.httpLog.service.HttpLogService;
 import com.github.pagehelper.PageHelper;
@@ -29,16 +30,16 @@ public class HttpLogController extends BaseController {
     private final HttpLogService httpLogService;
     @GetMapping("/list")
     @ApiOperation(value = "查询请求日志")
-    public ApiResult list(HttpLog httpLog, Page page){
+    public ApiResult list(QueryHttpLogDto queryHttpLogDto, Page page){
         PageHelper.startPage(page);
-        QueryWrapper<HttpLog> queryWrapper=new QueryWrapper<>();
-        queryWrapper.orderByDesc("create_date");
-        if (httpLog!=null){
-            if (!StringUtils.isEmpty(httpLog.getThreadId())){
-                queryWrapper.eq("thread_id",httpLog.getThreadId());
-            }
+        QueryWrapper<HttpLog> queryWrapper=new QueryWrapper<>();;
+        queryWrapper.eq(!StringUtils.isEmpty(queryHttpLogDto.getThreadId()),"thread_id",queryHttpLogDto.getThreadId());
+        queryWrapper.like(!StringUtils.isEmpty(queryHttpLogDto.getUrl()),"url",queryHttpLogDto.getUrl());
+        if(StringUtils.isNotBlank(queryHttpLogDto.getStartTime())){
+         List<String> list=   StringUtils.convertList(queryHttpLogDto.getStartTime());
+            queryWrapper.lambda().between(HttpLog::getCreateDate, list.get(0), list.get(1));
         }
-
+        queryWrapper.orderByDesc("create_date");
         List<HttpLog> list = httpLogService.list(queryWrapper);
         PageInfo<HttpLog> pageInfo=new PageInfo<>(list);
         return selectSuccess(pageInfo);

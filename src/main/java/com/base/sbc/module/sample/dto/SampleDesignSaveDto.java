@@ -1,6 +1,6 @@
 package com.base.sbc.module.sample.dto;
 
-import com.base.sbc.module.sample.entity.Sample;
+import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.vo.MaterialVo;
 import com.base.sbc.module.sample.vo.TechnologyInfoDto;
 import io.swagger.annotations.ApiModel;
@@ -19,8 +19,8 @@ import java.util.List;
  * @date 创建时间：2023-05-09 15:41
  */
 @Data
-@ApiModel("样衣保存修改 SampleDto")
-public class SampleSaveDto extends Sample {
+@ApiModel("样衣设计保存修改 SampleDto")
+public class SampleDesignSaveDto extends SampleDesign {
 
 
     @ApiModelProperty(value = "工艺信息")

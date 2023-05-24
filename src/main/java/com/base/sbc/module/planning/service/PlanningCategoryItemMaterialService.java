@@ -6,14 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.planning.dto.PlanningCategoryItemMaterialSaveDto;
-import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
-import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
-import com.base.sbc.module.sample.dto.SampleSaveDto;
-import com.base.sbc.module.sample.vo.MaterialVo;
+import com.base.sbc.module.sample.dto.SampleDesignSaveDto;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -45,5 +41,5 @@ public interface PlanningCategoryItemMaterialService extends IServicePlus<Planni
     boolean savePlanningCategoryItemMaterial(PlanningCategoryItemMaterialSaveDto dto);
 
 
-    void saveMaterialList(SampleSaveDto dto);
+    void saveMaterialList(SampleDesignSaveDto dto);
 }

@@ -13,9 +13,9 @@ import com.base.sbc.module.planning.mapper.PlanningCategoryItemMaterialMapper;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
-import com.base.sbc.module.sample.dto.SampleSaveDto;
-import com.base.sbc.module.sample.entity.Sample;
-import com.base.sbc.module.sample.service.SampleService;
+import com.base.sbc.module.sample.dto.SampleDesignSaveDto;
+import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.service.SampleDesignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +34,7 @@ public class PlanningCategoryItemMaterialServiceImpl extends ServicePlusImpl<Pla
     @Autowired
     private PlanningCategoryItemService planningCategoryItemService;
     @Autowired
-    private SampleService sampleService;
+    private SampleDesignService sampleDesignService;
 
     /**
      * 根据传入的素材id列表查询对应收藏的数量
@@ -67,7 +67,7 @@ public class PlanningCategoryItemMaterialServiceImpl extends ServicePlusImpl<Pla
 
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public void saveMaterialList(SampleSaveDto dto) {
+    public void saveMaterialList(SampleDesignSaveDto dto) {
         // 删除之前的
         QueryWrapper<PlanningCategoryItemMaterial> qw = new QueryWrapper<>();
         qw.eq("planning_category_item_id", dto.getPlanningCategoryItemId());
@@ -90,10 +90,10 @@ public class PlanningCategoryItemMaterialServiceImpl extends ServicePlusImpl<Pla
             updateWrapper.set("material_count", materialCount);
             planningCategoryItemService.update(updateWrapper);
             //修改样衣关联数量
-            UpdateWrapper<Sample> sampleUw = new UpdateWrapper<>();
+            UpdateWrapper<SampleDesign> sampleUw = new UpdateWrapper<>();
             sampleUw.eq("id", dto.getId());
             sampleUw.set("material_count", materialCount);
-            sampleService.update(sampleUw);
+            sampleDesignService.update(sampleUw);
         }
 
     }

@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * 类描述：样衣分页返回
+ * 类描述：样衣设计分页返回
  *
  * @author lixianglin
  * @version 1.0
@@ -16,7 +16,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("样衣分页返回 SamplePageVo ")
-public class SamplePageVo {
+public class SampleDesignPageVo {
     @ApiModelProperty(value = "编号")
     private String id;
 
