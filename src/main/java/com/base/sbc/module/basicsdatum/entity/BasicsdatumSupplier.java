@@ -73,13 +73,13 @@ public class BasicsdatumSupplier extends BaseDataEntity<String> {
     @ApiModelProperty(value = "数据状态(0新增2更新"  )
     private String dataState;
     /** 是 供应商 */
-    @ApiModelProperty(value = "是 供应商"  )
+    @ApiModelProperty(value = "是否供应商"  )
     private String isSupplier;
     /** 联系人 */
     @ApiModelProperty(value = "联系人"  )
     private String contact;
     /** 个体供应商 */
-    @ApiModelProperty(value = "个体供应商"  )
+    @ApiModelProperty(value = "是否是个体供应商"  )
     private String isIndividualSupplier;
     /** 地址 */
     @ApiModelProperty(value = "地址"  )
