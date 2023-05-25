@@ -99,6 +99,7 @@ public class UrlFilterSecurityInterceptor extends AbstractSecurityInterceptor im
 			userCompany.setAliasUserName("无token用户");
 			userCompany.setUserId("0");
 			userCompany.setCompanyName("0");
+			userCompany.setCompanyCode("0");
 		}
 		userCompany.setUsername(username);
 		companyUserInfo.set(userCompany);

@@ -63,6 +63,15 @@ public class MtBpReqDto {
         private String country;
         /** 城市 */
         private String city;
+        /** 手机 */
+        private String cellphone;
+        /** 邮箱 */
+        private String email;
+        /** 街道 */
+        private String street;
+        /** 电话 */
+        private String telephone;
+
     }
 
     @Data
@@ -106,7 +115,7 @@ public class MtBpReqDto {
         BeanUtil.copyProperties(this.addressInfo,mtBqReqEntity);
         BeanUtil.copyProperties(this.bankDetails,mtBqReqEntity);
         BeanUtil.copyProperties(this.contacts,mtBqReqEntity);
-        BeanUtil.copyProperties(this,mtBqReqEntity);
+        mtBqReqEntity.setBankInfos(JSON.toJSONString(this.bankInfos));
         return mtBqReqEntity;
     }
 }

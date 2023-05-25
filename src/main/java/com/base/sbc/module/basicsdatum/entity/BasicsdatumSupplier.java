@@ -117,7 +117,7 @@ public class BasicsdatumSupplier extends BaseDataEntity<String> {
     /** 银行参考 */
     private String bankRef;
     //联系人职位
-    protected String jobTitle;
+    private String jobTitle;
     /** 合作伙伴类别（个体商户=1） */
     private String partnerCategory;
     /** 供应商分组 */
