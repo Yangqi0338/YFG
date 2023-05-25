@@ -89,8 +89,8 @@ public class AddRevampBasicsdatumSupplierDto  {
     /** 对公开户行 */
     @ApiModelProperty(value = "对公开户行"  )
     private String publicBank;
-    /** 供应商 */
-    @ApiModelProperty(value = "供应商"  )
+    /** 对公账户名 */
+    @ApiModelProperty(value = "对公账户名"  )
     private String publicAccount;
     /** 对公开户账号 */
     @ApiModelProperty(value = "对公开户账号"  )
