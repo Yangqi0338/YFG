@@ -298,12 +298,12 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
             return;
         }
         QueryWrapper qw = new QueryWrapper();
-        qw.in("a.id", fileId);
+        qw.in("f.id", fileId);
         List<AttachmentVo> byQw = attachmentService.findByQw(qw);
         if (CollUtil.isEmpty(byQw)) {
             return;
         }
-        Map<String, AttachmentVo> collect = byQw.stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> a));
+        Map<String, AttachmentVo> collect = byQw.stream().collect(Collectors.toMap(k -> k.getFileId(), v -> v, (a, b) -> a));
         for (SampleDesignPageVo sampleDesignPageVo : result) {
             sampleDesignPageVo.setStylePic(Optional.ofNullable(collect.get(sampleDesignPageVo.getStylePic())).map(AttachmentVo::getUrl).orElse(""));
         }
