@@ -1,5 +1,8 @@
 package com.base.sbc.open.dto;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson2.JSON;
+import com.base.sbc.open.entity.MtBqReqEntity;
 import lombok.Data;
 
 import java.util.List;
@@ -92,5 +95,18 @@ public class MtBpReqDto {
         private String bankAcct;
         /** 银行参考 */
         private String bankRef;
+    }
+
+    public MtBqReqEntity toMtBqReqEntity(){
+        MtBqReqEntity mtBqReqEntity =new MtBqReqEntity();
+
+        BeanUtil.copyProperties(this.generalData,mtBqReqEntity);
+        BeanUtil.copyProperties(this.purchasing,mtBqReqEntity);
+        BeanUtil.copyProperties(this.identification,mtBqReqEntity);
+        BeanUtil.copyProperties(this.addressInfo,mtBqReqEntity);
+        BeanUtil.copyProperties(this.bankDetails,mtBqReqEntity);
+        BeanUtil.copyProperties(this.contacts,mtBqReqEntity);
+        BeanUtil.copyProperties(this,mtBqReqEntity);
+        return mtBqReqEntity;
     }
 }
