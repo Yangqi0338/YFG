@@ -119,4 +119,12 @@ public class AddRevampBasicsdatumSupplierDto  {
     private String orderCurrency;
     /** 国家编码 */
     private String country;
+    /** 手机 */
+    private String cellphone;
+    /** 邮箱 */
+    private String email;
+    /** 街道 */
+    private String street;
+    /** 电话 */
+    private String telephone;
 }

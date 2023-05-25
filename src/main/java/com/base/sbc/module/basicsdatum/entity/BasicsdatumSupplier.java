@@ -126,5 +126,13 @@ public class BasicsdatumSupplier extends BaseDataEntity<String> {
     private String orderCurrency;
     /** 国家编码 */
     private String country;
+    /** 手机 */
+    private String cellphone;
+    /** 邮箱 */
+    private String email;
+    /** 街道 */
+    private String street;
+    /** 电话 */
+    private String telephone;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
