@@ -101,4 +101,22 @@ public class AddRevampBasicsdatumSupplierDto  {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+    /** 联行号 */
+    private String bankKey;
+    /** 明细行id */
+    private String bankDetailId;
+    /** 银行编码 */
+    private String bankCtry;
+    /** 银行参考 */
+    private String bankRef;
+    //联系人职位
+    protected String jobTitle;
+    /** 合作伙伴类别（个体商户=1） */
+    private String partnerCategory;
+    /** 供应商分组 */
+    private String partnerGroup;
+    /** 订单货币 */
+    private String orderCurrency;
+    /** 国家编码 */
+    private String country;
 }
