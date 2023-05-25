@@ -134,7 +134,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         if (CollUtil.isNotEmpty(files)) {
             attachments = BeanUtil.copyToList(files, Attachment.class);
             for (Attachment attachment : attachments) {
-//                attachment.setId(null);
+                attachment.setId(null);
                 attachment.setFId(id);
                 attachment.setType(type);
                 attachment.setStatus(BaseGlobal.STATUS_NORMAL);
