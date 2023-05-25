@@ -78,7 +78,7 @@ public class PlanningCategoryItemMaterialServiceImpl extends ServicePlusImpl<Pla
                 PlanningCategoryItemMaterial p = new PlanningCategoryItemMaterial();
                 BeanUtil.copyProperties(dto, p, "id");
                 p.setDelFlag(BaseGlobal.DEL_FLAG_NORMAL);
-                p.setMaterialCategoryId(dto.getPlanningCategoryItemId());
+                p.setMaterialCategoryId(item.getMaterialCategoryId());
                 p.setMaterialId(item.getMaterialId());
                 return p;
             }).collect(Collectors.toList());
