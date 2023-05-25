@@ -112,9 +112,9 @@ public class BasicsdatumSupplierExcelDto  {
     @ApiModelProperty(value = "对公开户行"  )
     @Excel(name = "对公开户行")
     private String publicBank;
-    /** 供应商 */
-    @ApiModelProperty(value = "供应商"  )
-    @Excel(name = "供应商")
+    /** 对公账户名 */
+    @ApiModelProperty(value = "对公账户名"  )
+    @Excel(name = "对公账户名")
     private String publicAccount;
     /** 对公开户账号 */
     @ApiModelProperty(value = "对公开户账号"  )
