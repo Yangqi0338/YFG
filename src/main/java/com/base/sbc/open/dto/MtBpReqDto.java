@@ -78,7 +78,7 @@ public class MtBpReqDto {
     public static class BankInfos {
         /** 明细行id */
         private String bankDetailId;
-        /** 国家编码 */
+        /** 银行编码 */
         private String bankCtry;
         /** 联行号 */
         private String bankKey;
