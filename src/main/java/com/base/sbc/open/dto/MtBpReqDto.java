@@ -20,9 +20,9 @@ public class MtBpReqDto {
 
     @Data
     public static class Contacts {
-
+        //联系人
         protected String contact;
-
+        //联系人职位
         protected String jobTitle;
 
     }
