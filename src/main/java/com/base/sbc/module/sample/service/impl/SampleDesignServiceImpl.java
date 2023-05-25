@@ -99,7 +99,6 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
             BeanUtil.copyProperties(dto, sampleDesign);
             setMainStylePic(sampleDesign, dto.getStylePicList());
             this.updateById(sampleDesign);
-            planningCategoryItemMaterialService.saveMaterialList(dto);
         } else {
             sampleDesign = saveNewSampleDesign(dto);
         }
@@ -109,6 +108,11 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         saveFiles(sampleDesign.getId(), dto.getAttachmentList(), SAMPLE_DESIGN_FILE_ATTACHMENT);
         // 图片信息
         saveFiles(sampleDesign.getId(), dto.getStylePicList(), SAMPLE_DESIGN_FILE_STYLE_PIC);
+
+        //保存关联的素材库
+        planningCategoryItemMaterialService.saveMaterialList(dto);
+
+
         return sampleDesign;
     }
 
@@ -125,16 +129,18 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         QueryWrapper<Attachment> aqw = new QueryWrapper<>();
         aqw.eq("f_id", id);
         aqw.eq("type", type);
+        attachmentService.remove(aqw);
         List<Attachment> attachments = new ArrayList<>(12);
         if (CollUtil.isNotEmpty(files)) {
             attachments = BeanUtil.copyToList(files, Attachment.class);
             for (Attachment attachment : attachments) {
+//                attachment.setId(null);
                 attachment.setFId(id);
                 attachment.setType(type);
                 attachment.setStatus(BaseGlobal.STATUS_NORMAL);
             }
+            attachmentService.saveBatch(attachments);
         }
-        attachmentService.addAndUpdateAndDelList(attachments, aqw);
     }
 
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
@@ -209,23 +215,15 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         designNo = designNo + userInfo.getUserCode();
         categoryItem.setDesignNo(designNo);
         planningCategoryItemService.save(categoryItem);
-        // 新增坑位 信息对应的关联素材
-        if (CollUtil.isNotEmpty(dto.getMaterialList())) {
-            List<PlanningCategoryItemMaterial> cims = dto.getMaterialList().stream().map(item -> {
-                PlanningCategoryItemMaterial p = new PlanningCategoryItemMaterial();
-                BeanUtil.copyProperties(categoryItem, p, "id");
-                p.setDelFlag(BaseGlobal.DEL_FLAG_NORMAL);
-                p.setMaterialCategoryId(categoryItem.getId());
-                p.setMaterialId(item.getMaterialId());
-                return p;
-            }).collect(Collectors.toList());
-            planningCategoryItemMaterialService.saveBatch(cims);
-        }
+
         // 新增样衣设计
         SampleDesign sampleDesign = BeanUtil.copyProperties(dto, SampleDesign.class);
         PlanningUtils.toSampleDesign(sampleDesign, planningSeason, planningBand, categoryItem);
         setMainStylePic(sampleDesign, dto.getStylePicList());
         save(sampleDesign);
+        dto.setPlanningCategoryItemId(categoryItem.getId());
+        dto.setPlanningBandId(planningBand.getId());
+        dto.setPlanningSeasonId(planningSeason.getId());
         return sampleDesign;
     }
 
