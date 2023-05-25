@@ -68,6 +68,8 @@ public class SampleDesignPageVo {
     @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板")
     private String status;
 
+    @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)", example = "0")
+    private String confirmStatus;
     @ApiModelProperty(value = "款式图" )
     private String stylePic;
     @ApiModelProperty(value = "用户头像", example = "https://sjkj-demo.oss-cn-shenzhen.aliyuncs.com/null/userHead/09/02/8361ea39-21d2-4944-b150-d2e69bb68254.png")
