@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 </#if>
 <#if hasDate >
 import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
 </#if>
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -45,6 +46,9 @@ public class ${className} extends BaseDataEntity<String> {
     & propertyName != 'delFlag' >
     /** ${remarks[propertyName_index]} */
     @ApiModelProperty(value = "${remarks[propertyName_index]}"  )
+    <#if columnTypes[propertyName_index]=="Date">
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    </#if>
     private ${columnTypes[propertyName_index]} ${propertyName};
     </#if>
     </#list>
