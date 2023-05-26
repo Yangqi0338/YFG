@@ -7,9 +7,7 @@
 package com.base.sbc.module.sample.entity;
 import java.math.BigDecimal;
 import java.util.Date;
-
-import com.baomidou.mybatisplus.annotation.FieldStrategy;
-import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -18,10 +16,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
  * 类描述：样衣设计 实体类
- * @address com.base.sbc.module.sample.entity.Sample
+ * @address com.base.sbc.module.sample.entity.SampleDesign
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-20 9:34:40
+ * @date 创建时间：2023-5-26 14:39:05
  * @version 1.0
  */
 @Data
@@ -73,6 +71,9 @@ public class SampleDesign extends BaseDataEntity<String> {
     /** 款式类型 */
     @ApiModelProperty(value = "款式类型"  )
     private String styleType;
+    /** 款式图id(主图) */
+    @ApiModelProperty(value = "款式图id(主图)"  )
+    private String stylePic;
     /** 品牌 */
     @ApiModelProperty(value = "品牌"  )
     private String brand;
@@ -117,7 +118,6 @@ public class SampleDesign extends BaseDataEntity<String> {
     private String defaultColor;
     /** 目标成本 */
     @ApiModelProperty(value = "目标成本"  )
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal productCost;
     /** 主材料 */
     @ApiModelProperty(value = "主材料"  )
@@ -140,9 +140,6 @@ public class SampleDesign extends BaseDataEntity<String> {
     /** 设计师id */
     @ApiModelProperty(value = "设计师id"  )
     private String designerId;
-    /** 款式图 */
-    @ApiModelProperty(value = "款式图"  )
-    private String stylePic;
     /** 价格带 */
     @ApiModelProperty(value = "价格带"  )
     private String price;
@@ -160,9 +157,11 @@ public class SampleDesign extends BaseDataEntity<String> {
     private String taskLevel;
     /** 开始时间 */
     @ApiModelProperty(value = "开始时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date startTime;
     /** 截止时间 */
     @ApiModelProperty(value = "截止时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date endTime;
     /** 设计工艺员id */
     @ApiModelProperty(value = "设计工艺员id"  )
@@ -178,6 +177,7 @@ public class SampleDesign extends BaseDataEntity<String> {
     private String fabDevelopeName;
     /** 实际出稿时间 */
     @ApiModelProperty(value = "实际出稿时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date actualPublicationDate;
     /** 下发人 */
     @ApiModelProperty(value = "下发人"  )
