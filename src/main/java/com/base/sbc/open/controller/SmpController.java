@@ -263,7 +263,7 @@ public class SmpController extends BaseController {
         size1.setEuropeCode("EU003");
         size1.setSkuFiller("200g");
         size1.setSpecialSpec("None");
-        sizeInfo.add(size3);
+        sizeInfo2.add(size3);
 
         TagPrinting.Size size4 = new TagPrinting.Size();
         size2.setSizeCode("XL");
@@ -275,7 +275,7 @@ public class SmpController extends BaseController {
         size2.setEuropeCode("EU004");
         size2.setSkuFiller("250g");
         size2.setSpecialSpec("None");
-        sizeInfo.add(size4);
+        sizeInfo2.add(size4);
 
         tagPrinting2.setSizeInfo(sizeInfo2);
 
