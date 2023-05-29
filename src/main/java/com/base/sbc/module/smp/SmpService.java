@@ -62,7 +62,7 @@ public class SmpService {
     }
 
     /**
-     * 样品下发
+     * 样衣下发
      */
     public Boolean sample(SmpSampleDto smpSampleDto) {
         return RestTemplateUtils.spmPost(URL + "/sample", smpSampleDto);
@@ -79,6 +79,12 @@ public class SmpService {
     public static void main(String[] args) {
         SmpService smpService = new SmpService();
         smpService.testGoods();
+        //smpService.testMaterials();
+        //smpService.testBom();
+        //smpService.testColor();
+        //smpService.testProcessSheet();
+        //smpService.testSample();
+        //smpService.testStyle();
     }
 
     public void testGoods() {
@@ -201,7 +207,7 @@ public class SmpService {
         smpSize.setBaseSize(true);
         smpSize.setSkuFiller("100g");
         smpSize.setSpecialSpec("N/A");
-
+        itemList.add(smpSize);
         SmpSize smpSize2 = new SmpSize();
         smpSize2.setSize("S");
         smpSize2.setSizeNumber("1");
@@ -211,7 +217,7 @@ public class SmpService {
         smpSize2.setBaseSize(false);
         smpSize2.setSkuFiller("150g");
         smpSize2.setSpecialSpec("N/A");
-
+        itemList.add(smpSize2);
         smpGoodsDto.setItemList(itemList);
 
 // 设置图片地址集合
