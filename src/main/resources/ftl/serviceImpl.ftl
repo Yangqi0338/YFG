@@ -22,10 +22,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class ${className}ServiceImpl extends ServicePlusImpl<${className}Mapper, ${className}> implements ${className}Service {
 
-/** 自定义方法区 不替换的区域【other_start】 **/
+// 自定义方法区 不替换的区域【other_start】
 
 
 
-/** 自定义方法区 不替换的区域【other_end】 **/
+// 自定义方法区 不替换的区域【other_end】
 	
 }

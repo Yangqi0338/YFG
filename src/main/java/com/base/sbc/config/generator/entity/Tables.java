@@ -19,7 +19,17 @@ public class Tables {
 	public String tableName;
 	/** 1,2,3,4,5   xml,entity,dao,service,controller  */
 	public String genType;
-	
+	/** 模块**/
+	public String project;
+
+	public String getProject() {
+		return project;
+	}
+
+	public void setProject(String project) {
+		this.project = project;
+	}
+
 	public String getTableName() {
 		return tableName;
 	}

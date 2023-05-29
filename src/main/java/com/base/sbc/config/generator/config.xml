@@ -9,15 +9,24 @@
 		<!-- 总包名 -->
 		<javapackage value="com.base.sbc.module"></javapackage>
 		<!-- 模块名称 -->
-		<project     value="planning"></project><!-- 模块名称 -->
+		<project     value="patternmaking"></project>
+<!--		<project     value="common"></project>-->
+<!--		<project     value="planning"></project>&lt;!&ndash; 模块名称 &ndash;&gt;-->
 	</params>
 	<tables>
+		<table  project="patternmaking"     value="t_pattern_making"   genType="2" ></table>
+		<table  project="nodestatus"     value="t_node_status"   genType="1,2,3,4" ></table>
+<!--		<table       value="t_field_val"   genType="2" ></table>-->
+<!--		<table       value="t_upload_file"   genType="2" ></table>-->
+<!--		<table       value="t_attachment"   genType="2" ></table>-->
+<!--		<table       value="t_sample_design"   genType="2" ></table>-->
+<!--		<table       value="t_technology"   genType="1,2" ></table>-->
 <!--		<table       value="t_tag"   genType="1,2,3,4,5" ></table>-->
 <!--		<table       value="t_band"   genType="1,2,3,4,5" ></table>-->
-<!--		<table       value="t_planning_season"   genType="4" ></table>-->
+<!--		<table       value="t_planning_season"   genType="2" ></table>-->
 <!--		<table       value="t_planning_band"   genType="2" ></table>-->
-<!--		<table       value="t_planning_category"   genType="4" ></table>-->
-		<table       value="t_planning_category_item"   genType="2" ></table>
+<!--		<table       value="t_planning_category"   genType="2" ></table>-->
+<!--		<table       value="t_planning_category_item"   genType="2" ></table>-->
 <!--		<table       value="t_planning_category_item_material"   genType="1,2" ></table>-->
 	</tables>
 

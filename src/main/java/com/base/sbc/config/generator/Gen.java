@@ -9,6 +9,7 @@ package com.base.sbc.config.generator;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
@@ -41,18 +42,20 @@ public class Gen {
 		// 1.创建目录
 		UtilXml.parseXml(configFilePath);
 		Params params = UtilXml.params;
-		UtilFile.initDirName(params);
+
 		// 2.生成文件
 		List<Tables> tables = UtilXml.tableList;
 		for (Tables table : tables) {
+			UtilFile.initDirName(params,table);
+			String project=Optional.ofNullable(table.getProject()).orElse(params.getProject());
 			//去掉前缀（T_  或者  sys_ 等   T_User变成User  sys_user 变成User  T_Bill_Log 变成 BillLog）
 			String javaClassName = UtilString.capitalize(UtilString.dbNameToVarName(table.getTableName().substring(table.getTableName().indexOf("_"))));
-			String javaPath = params.getOsdir() + File.separatorChar + params.getProject() + File.separatorChar;
+			String javaPath = params.getOsdir() + File.separatorChar + project + File.separatorChar;
 			Map<Object, Object> map = UtilFreemarker.getTableInfo(table.getTableName());
 			map.put("tableName", table.getTableName());
 			map.put("author", params.getAuthor());
 			map.put("email", params.getEmail());
-			map.put("project", params.getProject());
+			map.put("project", project);
 			map.put("className", javaClassName);
 			map.put("smallClassName", toLowerCaseFirstOne(javaClassName));
 			map.put("voClassName", javaClassName);
@@ -65,7 +68,7 @@ public class Gen {
 			//不存在  或者  包含1
 			if(StringUtils.isBlank(table.getGenType())||table.getGenType().indexOf(Tables.GENXML)!=-1) {
 				// 1.xml
-				String xmlName =  params.getXmlosdir()+ File.separatorChar +"mappings"+ File.separatorChar +params.getProject()+ File.separatorChar + javaClassName + "Mapper.xml";
+				String xmlName =  params.getXmlosdir()+ File.separatorChar +"mappings"+ File.separatorChar +project+ File.separatorChar + javaClassName + "Mapper.xml";
 				System.out.println("输出文件："+map.get("title")+"的mapper.xml件");
 				UtilFreemarker.generateFile(xmlName, "ftl/xml.ftl", map);
 			}

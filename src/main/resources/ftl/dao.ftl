@@ -19,9 +19,9 @@ import ${javapackage}.${project}.entity.${className};
  */
 @Mapper
 public interface ${className}Mapper extends BaseMapper<${className}> {
-/** 自定义方法区 不替换的区域【other_start】 **/
+// 自定义方法区 不替换的区域【other_start】
 
 
 
-/** 自定义方法区 不替换的区域【other_end】 **/
+// 自定义方法区 不替换的区域【other_end】
 }

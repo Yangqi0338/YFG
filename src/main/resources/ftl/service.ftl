@@ -18,11 +18,11 @@ import ${javapackage}.${project}.entity.${className};
  */
 public interface ${className}Service extends IServicePlus<${className}>{
 
-/** 自定义方法区 不替换的区域【other_start】 **/
+// 自定义方法区 不替换的区域【other_start】
 
 
 
-/** 自定义方法区 不替换的区域【other_end】 **/
+// 自定义方法区 不替换的区域【other_end】
 
 	
 }

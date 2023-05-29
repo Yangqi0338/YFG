@@ -96,6 +96,7 @@ public class UtilXml {
 							Tables t = new Tables();
 							t.setTableName(table.attributeValue("value"));
 							t.setGenType(table.attributeValue("genType"));
+							t.setProject(table.attributeValue("project"));
 							tableList.add(t);
 						}
 					}
