@@ -131,7 +131,7 @@ public class MaterialController extends BaseController {
         //materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
 
         boolean b = materialService.updateById(materialSaveDto);
-        flowableService.start(FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
+        flowableService.start(FlowableService.MATERIAL+materialSaveDto.getMaterialCategoryName(),FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
                 "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), BeanUtil.beanToMap(materialSaveDto));
         return updateSuccess(b);
     }
