@@ -151,9 +151,11 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
         List<String> ids = new ArrayList<>();
         List<String> userIds = new ArrayList<>();
 
+        List<String> materialCategoryIds=new ArrayList<>(16);
         for (MaterialVo materialVo : materialAllDtolist) {
             userIds.add(materialVo.getCreateId());
             ids.add(materialVo.getId());
+            materialCategoryIds.add(materialVo.getMaterialCategoryId());
         }
 
         //查询关联标签
@@ -169,9 +171,12 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
         //获取用户头像
         Map<String, String> userAvatarMap = amcFeignService.getUserAvatar(CollUtil.join(userIds, ","));
 
+        // 获取素材库功能名称
+        Map<String, String> materialCategoryNames = ccmFeignService.findStructureTreeNameByCategoryIds(CollUtil.join(materialCategoryIds,","));
 
         for (MaterialVo materialVo : materialAllDtolist) {
             materialVo.setUserAvatar(userAvatarMap.get(materialVo.getCreateId()));
+            materialVo.setMaterialCategoryName(Optional.ofNullable(materialCategoryNames.get(materialVo.getMaterialCategoryId())).orElse(materialVo.getMaterialCategoryName()));
             //标签放入对象
             List<MaterialLabel> labels = new ArrayList<>();
             for (MaterialLabel materialLabel : materialLabelList) {
