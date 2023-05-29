@@ -48,7 +48,8 @@ public class WorkbenchController {
     public boolean save(@RequestHeader(BaseController.USER_ID) String userId,@RequestBody List<Map<String,Object>> list){
         if(CollUtil.isNotEmpty(list)){
             String userRedisKey=redisKey+userId;
-            redisUtils.set(userRedisKey,JSON.toJSONString(list));
+            // 一年失效
+            redisUtils.set(userRedisKey,JSON.toJSONString(list),1*60*60*24*365);
         }
         return true;
     }

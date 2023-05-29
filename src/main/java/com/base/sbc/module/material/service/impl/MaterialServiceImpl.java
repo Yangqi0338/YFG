@@ -236,17 +236,17 @@ public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Materia
             String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
             material.setMaterialCode(materialCode);
             this.updateById(material);
-            redisTemplate.delete("MTUP-" + material.getId());
+            redisTemplate.delete("MTUP:" + material.getId());
             return true;
         } else {
             // TODO: 2023/5/20 临时逻辑，恢复原来的
-            Object o = redisTemplate.opsForValue().get("MTUP-" + material.getId());
+            Object o = redisTemplate.opsForValue().get("MTUP:" + material.getId());
             if (o != null) {
                 MaterialSaveDto materialSaveDto = (MaterialSaveDto) o;
                 QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
                 labelQueryWrapper.eq("material_id", materialSaveDto.getId());
                 materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
-                redisTemplate.delete("MTUP-" + material.getId());
+                redisTemplate.delete("MTUP:" + material.getId());
                 this.updateById(materialSaveDto);
 
             } else {
