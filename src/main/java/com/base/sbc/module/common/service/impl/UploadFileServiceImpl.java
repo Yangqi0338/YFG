@@ -27,7 +27,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：上传文件 service类
@@ -89,7 +92,21 @@ public class UploadFileServiceImpl extends ServicePlusImpl<UploadFileMapper, Upl
         return null;
     }
 
-
+    @Override
+    public Map<String, String> findMapByUrls(List<String> fileUrls) {
+        Map<String, String> result=new HashMap<>(16);
+        if(CollUtil.isEmpty(fileUrls)){
+            return result;
+        }
+        QueryWrapper<UploadFile> qw=new QueryWrapper<>();
+        qw.in("url",fileUrls);
+        List<UploadFile> list = list(qw);
+        if(CollUtil.isEmpty(list)){
+            return result;
+        }
+        result = list.stream().collect(Collectors.toMap(k -> k.getUrl(), v -> v.getId(), (a, b) -> b));
+        return result;
+    }
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

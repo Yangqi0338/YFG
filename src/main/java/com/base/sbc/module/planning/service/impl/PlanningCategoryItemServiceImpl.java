@@ -26,6 +26,7 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.vo.UserInfoVo;
 import com.base.sbc.module.planning.dto.AllocationDesignDto;
@@ -73,7 +74,8 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
     PlanningBandService planningBandService;
     @Autowired
     PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
-
+    @Autowired
+    UploadFileService uploadFileService;
     @Autowired
     CcmService ccmService;
     @Autowired
@@ -396,12 +398,17 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         List<String> seasonIds=new ArrayList<>(16);
         // 波段企划Id
         List<String> bandIds=new ArrayList<>(16);
+        //图片信息
+        List<String>fileUrls=new ArrayList<>(16);
         for (PlanningCategoryItem planningCategoryItem : categoryItemList) {
             allocationDesignDtoList.add(BeanUtil.copyProperties(planningCategoryItem, AllocationDesignDto.class));
             setTaskLevelDtoList.add(BeanUtil.copyProperties(planningCategoryItem, SetTaskLevelDto.class));
             itemIds.add(planningCategoryItem.getId());
             seasonIds.add(planningCategoryItem.getPlanningSeasonId());
             bandIds.add(planningCategoryItem.getPlanningBandId());
+            if(StrUtil.isNotBlank(planningCategoryItem.getStylePic())){
+                fileUrls.add(planningCategoryItem.getStylePic());
+            }
         }
         // 1.1 分配设计师
         this.allocationDesign(allocationDesignDtoList);
@@ -428,6 +435,8 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         QueryWrapper<PlanningBand> bandQw=new QueryWrapper<>();
         bandQw.in("id",bandIds);
         List<PlanningBand> bandList = planningBandService.list(bandQw);
+        // 图片文件id
+        Map<String,String> fileUrlId=uploadFileService.findMapByUrls(fileUrls);
         Map<String, PlanningBand> bandMap = Optional.ofNullable(bandList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b));
 
         List<SampleDesign> sampleDesignList =new ArrayList<>(16);
@@ -438,6 +447,7 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
             }
             SampleDesign sampleDesign = PlanningUtils.toSampleDesign(seasonMap.get(item.getPlanningSeasonId()), bandMap.get(item.getPlanningBandId()), item);
             sampleDesign.setSender(getUserId());
+            sampleDesign.setStylePic(Optional.ofNullable(fileUrlId.get(sampleDesign.getStylePic())).orElse(""));
             sampleDesignList.add(sampleDesign);
 
         }
