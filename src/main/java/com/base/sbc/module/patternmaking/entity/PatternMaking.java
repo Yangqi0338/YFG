@@ -1,0 +1,152 @@
+/******************************************************************************
+ * Copyright (C) 2018 广州尚捷科技有限责任公司
+ * All Rights Reserved.
+ * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
+ * 不得使用、复制、修改或发布本软件.
+ *****************************************************************************/
+package com.base.sbc.module.patternmaking.entity;
+import java.math.BigDecimal;
+import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.base.BaseDataEntity;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+/**
+ * 类描述：打版管理 实体类
+ * @address com.base.sbc.module.patternmaking.entity.PatternMaking
+ * @author lxl
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-5-29 17:34:58
+ * @version 1.0
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@TableName("t_pattern_making")
+@ApiModel("打版管理 PatternMaking")
+public class PatternMaking extends BaseDataEntity<String> {
+
+	private static final long serialVersionUID = 1L;
+	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+
+
+	/**********************************实体存放的其他字段区 【other_end】******************************************/
+
+    /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
+    /** 打版编码 */
+    @ApiModelProperty(value = "打版编码"  )
+    private String code;
+    /** 产品季节id */
+    @ApiModelProperty(value = "产品季节id"  )
+    private String planningSeasonId;
+    /** 样衣设计id */
+    @ApiModelProperty(value = "样衣设计id"  )
+    private String sampleDesignId;
+    /** 版房 */
+    @ApiModelProperty(value = "版房"  )
+    private String patternRoom;
+    /** 版房id */
+    @ApiModelProperty(value = "版房id"  )
+    private String patternRoomId;
+    /** 打版类型 */
+    @ApiModelProperty(value = "打版类型"  )
+    private String sampleType;
+    /** 打版难度 */
+    @ApiModelProperty(value = "打版难度"  )
+    private String patDiff;
+    /** 打样顺序 */
+    @ApiModelProperty(value = "打样顺序"  )
+    private String patSeq;
+    /** 紧急程度 */
+    @ApiModelProperty(value = "紧急程度"  )
+    private String urgency;
+    /** 工艺员确认齐套 */
+    @ApiModelProperty(value = "工艺员确认齐套"  )
+    private String technicianKitting;
+    /** 工艺员确认齐套时间 */
+    @ApiModelProperty(value = "工艺员确认齐套时间"  )
+    private String technicianKittingDate;
+    /** 设计确认齐套 */
+    @ApiModelProperty(value = "设计确认齐套"  )
+    private String designKitting;
+    /** 设计确认齐套时间 */
+    @ApiModelProperty(value = "设计确认齐套时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date designKittingDate;
+    /** 纸样需求完成日期 */
+    @ApiModelProperty(value = "纸样需求完成日期"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date patternReqDate;
+    /** 缺料备注 */
+    @ApiModelProperty(value = "缺料备注"  )
+    private String shortageRemarks;
+    /** 需求数 */
+    @ApiModelProperty(value = "需求数"  )
+    private BigDecimal requirementNum;
+    /** 改版原因 */
+    @ApiModelProperty(value = "改版原因"  )
+    private String revisionReason;
+    /** 改版意见 */
+    @ApiModelProperty(value = "改版意见"  )
+    private String revisionComments;
+    /** 版师名称 */
+    @ApiModelProperty(value = "版师名称"  )
+    private String patternDesignName;
+    /** 版师id */
+    @ApiModelProperty(value = "版师id"  )
+    private String patternDesignId;
+    /** 尺码 */
+    @ApiModelProperty(value = "尺码"  )
+    private String size;
+    /** 中断(0正常，1中断) */
+    @ApiModelProperty(value = "中断(0正常，1中断)"  )
+    private String breakOff;
+    /** 版房主管下发状态:(0未下发，1已下发) */
+    @ApiModelProperty(value = "版房主管下发状态:(0未下发，1已下发)"  )
+    private String prmSendStatus;
+    /** 版房主管下发时间 */
+    @ApiModelProperty(value = "版房主管下发时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date prmSendDate;
+    /** 设计下发时间 */
+    @ApiModelProperty(value = "设计下发时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date designSendDate;
+    /** 设计下发状态:(0未下发，1已下发) */
+    @ApiModelProperty(value = "设计下发状态:(0未下发，1已下发)"  )
+    private String designSendStatus;
+    /** 纸样完成数量 */
+    @ApiModelProperty(value = "纸样完成数量"  )
+    private BigDecimal patternFinishNum;
+    /** 裁剪工 */
+    @ApiModelProperty(value = "裁剪工"  )
+    private String cutterName;
+    /** 裁剪工id */
+    @ApiModelProperty(value = "裁剪工id"  )
+    private String cutterId;
+    /** 纸样完成数量 */
+    @ApiModelProperty(value = "纸样完成数量"  )
+    private BigDecimal cutterFinishNum;
+    /** 质量评分 */
+    @ApiModelProperty(value = "质量评分"  )
+    private BigDecimal qualityScore;
+    /** 车缝工名称 */
+    @ApiModelProperty(value = "车缝工名称"  )
+    private String stitcher;
+    /** 车缝工id */
+    @ApiModelProperty(value = "车缝工id"  )
+    private String stitcherId;
+    /** 二次加工 */
+    @ApiModelProperty(value = "二次加工"  )
+    private String secondProcessing;
+    /** 当前节点 */
+    @ApiModelProperty(value = "当前节点"  )
+    private String node;
+    /** 当前状态 */
+    @ApiModelProperty(value = "当前状态"  )
+    private String status;
+    /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+}
+
