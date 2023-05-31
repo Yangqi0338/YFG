@@ -68,30 +68,29 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
                                   ServerHttpResponse response) {
-        //if (body instanceof ApiResult){
+        ApiResult apiResult = ApiResult.success(localeMessages.getMessage(SUCCESS_OK), body);
 
-            this.preHttpLog(request,response, body);
-        //}
         if (body == null) {
-            return ApiResult.error(localeMessages.getMessage(ERR_SELECT_NOT_FOUND), 404);
+            apiResult= ApiResult.error(localeMessages.getMessage(ERR_SELECT_NOT_FOUND), 404);
         }
         if (body instanceof ApiResult) {
             // 进行国际化处理
             ApiResult result = (ApiResult) body;
             result.setMessage(localeMessages.getMessage(result.getMessage()));
-            return result;
+            apiResult = result;
         } else if (body instanceof String) {
             // 这样写远程调用没办法转json
             //  return JsonUtils.beanToJson(ApiResult.success(localeMessages.getMessage(SUCCESS_OK), body));
-            return ApiResult.success(localeMessages.getMessage(SUCCESS_OK), body);
+            apiResult = ApiResult.success(localeMessages.getMessage(SUCCESS_OK), body);
         } else if (body instanceof Boolean) {
             if (body.equals(true)) {
-                return ApiResult.success(localeMessages.getMessage(SUCCESS_OK), null);
+                apiResult= ApiResult.success(localeMessages.getMessage(SUCCESS_OK), null);
             } else {
-                return ApiResult.error(localeMessages.getMessage(SUCCESS_ERR), 404);
+                apiResult = ApiResult.error(localeMessages.getMessage(SUCCESS_ERR), 404);
             }
         }
-        return ApiResult.success(localeMessages.getMessage(SUCCESS_OK), body);
+        this.preHttpLog(request,response, body);
+        return apiResult;
     }
 
     /**

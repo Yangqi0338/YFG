@@ -79,11 +79,11 @@ public class SmpService {
     public static void main(String[] args) {
         SmpService smpService = new SmpService();
         smpService.testGoods();
-        //smpService.testMaterials();
-        //smpService.testBom();
-        //smpService.testColor();
-        //smpService.testProcessSheet();
-        //smpService.testSample();
+        smpService.testMaterials();
+        smpService.testBom();
+        smpService.testColor();
+        smpService.testProcessSheet();
+        smpService.testSample();
         //smpService.testStyle();
     }
 

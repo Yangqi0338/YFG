@@ -1,5 +1,6 @@
 package com.base.sbc.open.dto;
 
+import com.base.sbc.config.common.base.BaseDataEntity;
 import lombok.Data;
 
 /**
@@ -8,7 +9,7 @@ import lombok.Data;
  * @mail 247967116@qq.com
  */
 @Data
-public class SmpUserDto {
+public class SmpUserDto extends BaseDataEntity<String> {
     /** 发送状态(1:新增, 2:修改) */
     private String type;
     /** 公司编号 */
@@ -20,9 +21,9 @@ public class SmpUserDto {
     /** 员工星级 */
     private String empCustom5;
     /** 部门名称 */
-    private String deptTitle;
+    private String depTitle;
     /** 岗位编号 */
-    private String positionId;
+    private String positioId;
     /** 人事EID */
     private String eid;
     /** 工号 */
@@ -100,7 +101,7 @@ public class SmpUserDto {
     /** 银行账号 */
     private String bankCardOut;
     /** 银行支行名称 */
-    private String bankAddr;
+    private String bandAddr;
     /** 户口地址 */
     private String residentAddress;
     /** 户口类型 */
