@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.sample.entity.SampleDesign
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-26 14:39:05
+ * @date 创建时间：2023-5-31 18:02:03
  * @version 1.0
  */
 @Data
@@ -188,6 +188,12 @@ public class SampleDesign extends BaseDataEntity<String> {
     /** 模板部件 */
     @ApiModelProperty(value = "模板部件"  )
     private String patternParts;
+    /** 版师id */
+    @ApiModelProperty(value = "版师id"  )
+    private String patternDesignId;
+    /** 版师名称 */
+    @ApiModelProperty(value = "版师名称"  )
+    private String patternDesignName;
     /** 状态:0未开款，1已开款，2已下发打板(完成) */
     @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成)"  )
     private String status;

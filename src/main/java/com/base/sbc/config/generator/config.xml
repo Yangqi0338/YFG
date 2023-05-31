@@ -15,11 +15,11 @@
 	</params>
 	<tables>
 		<table  project="patternmaking"     value="t_pattern_making"   genType="2" ></table>
-		<table  project="nodestatus"     value="t_node_status"   genType="1,2,3,4" ></table>
+		<table   project="sample"    value="t_sample_design"   genType="2" ></table>
+<!--		<table  project="nodestatus"     value="t_node_status"   genType="1,2,3,4" ></table>-->
 <!--		<table       value="t_field_val"   genType="2" ></table>-->
 <!--		<table       value="t_upload_file"   genType="2" ></table>-->
 <!--		<table       value="t_attachment"   genType="2" ></table>-->
-<!--		<table       value="t_sample_design"   genType="2" ></table>-->
 <!--		<table       value="t_technology"   genType="1,2" ></table>-->
 <!--		<table       value="t_tag"   genType="1,2,3,4,5" ></table>-->
 <!--		<table       value="t_band"   genType="1,2,3,4,5" ></table>-->

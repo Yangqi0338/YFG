@@ -1,27 +1,27 @@
 package com.base.sbc.module.patternmaking.dto;
 
-import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
- * 类描述：打版管理dto
- * @address com.base.sbc.module.patternmaking.dto.PatternMakingDto
+ * 类描述：设置版师dto
+ * @address com.base.sbc.module.patternmaking.dto.SetPatternDesignDto
  * @author lixianglin
  * @email li_xianglin@126.com
- * @date 创建时间：2023-05-29 15:24
+ * @date 创建时间：2023-05-31 16:23
  * @version 1.0
  */
+
 @Data
-@ApiModel("打版管理dto PatternMakingDto ")
-public class PatternMakingDto extends PatternMaking {
+@ApiModel("制定版师dto  SetPatternDesignDto ")
+public class SetPatternDesignDto {
 
 
-    @ApiModelProperty(value = "样衣设计id"  )
-    @NotBlank(message = "样衣设计id不能为空")
-    private String sampleDesignId;
+    @ApiModelProperty(value = "打版id"  )
+    @NotBlank(message = "id不能为空")
+    private String id;
 
     @ApiModelProperty(value = "版师名称"  )
     @NotBlank(message = "版师名称不能为空")
@@ -31,4 +31,5 @@ public class PatternMakingDto extends PatternMaking {
 
     @NotBlank(message = "版师id不能为空")
     private String patternDesignId;
+
 }
