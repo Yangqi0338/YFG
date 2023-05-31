@@ -9,7 +9,7 @@ import lombok.Data;
  * @mail 247967116@qq.com
  */
 @Data
-public class SmpUserDto extends BaseDataEntity<String> {
+public class SmpUserDto extends BaseDataEntity<String>{
     /** 发送状态(1:新增, 2:修改) */
     private String type;
     /** 公司编号 */
@@ -36,6 +36,8 @@ public class SmpUserDto extends BaseDataEntity<String> {
     private String mobile;
     /** 用户状态(1:正常, 0:离职) */
     private String userStatus;
+    /** 年龄 */
+    private String age;
     /** 性别 */
     private String sex;
     /** 英文名字 */

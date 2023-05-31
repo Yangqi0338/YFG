@@ -2,6 +2,7 @@ package com.base.sbc.open.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
@@ -37,6 +38,8 @@ public class SmpController extends BaseController {
 
     private final BasicsdatumSupplierService basicsdatumSupplierService;
 
+    private final AmcService amcService;
+
     /**
      * bp供应商
      */
@@ -47,19 +50,24 @@ public class SmpController extends BaseController {
 
         //先保存传过来的数据对象
         MtBqReqEntity mtBqReqEntity = mtBpReqDto.toMtBqReqEntity();
-        mtBqReqService.saveOrUpdate(mtBqReqEntity,new QueryWrapper<MtBqReqEntity>().eq("partner", mtBqReqEntity.getPartner()));
+        mtBqReqService.saveOrUpdate(mtBqReqEntity, new QueryWrapper<MtBqReqEntity>().eq("partner", mtBqReqEntity.getPartner()));
         //再存入供应商
         BasicsdatumSupplier basicsdatumSupplier = mtBqReqEntity.toBasicsdatumSupplier();
-        basicsdatumSupplierService.saveOrUpdate(basicsdatumSupplier,new QueryWrapper<BasicsdatumSupplier>().eq("supplier_code", basicsdatumSupplier.getSupplierCode()));
+        basicsdatumSupplierService.saveOrUpdate(basicsdatumSupplier, new QueryWrapper<BasicsdatumSupplier>().eq("supplier_code", basicsdatumSupplier.getSupplierCode()));
         return insertSuccess(null);
     }
+
     /**
      * hr-人员
      */
     @PostMapping("/hrUserSave")
     public ApiResult hrSave(@RequestBody JSONObject jsonObject) {
         SmpUserDto smpUserDto = JSONObject.parseObject(jsonObject.toJSONString(), SmpUserDto.class);
-        System.out.println(smpUserDto);
+        smpUserDto.preInsert();
+        smpUserDto.setCreateName("smp请求");
+        smpUserDto.setUpdateName("smp请求");
+        smpUserDto.setCompanyCode(smpUserDto.getCompanyId());
+        amcService.hrUserSave(smpUserDto);
         return insertSuccess(null);
     }
 
@@ -88,7 +96,7 @@ public class SmpController extends BaseController {
      * smp-样衣
      */
     @PostMapping("/smpSampleSave")
-    public ApiResult smpSampleSave(@RequestBody JSONObject jsonObject){
+    public ApiResult smpSampleSave(@RequestBody JSONObject jsonObject) {
         SmpSampleDto smpSampleDto = JSONObject.parseObject(jsonObject.toJSONString(), SmpSampleDto.class);
         System.out.println(smpSampleDto);
         return insertSuccess(null);
@@ -99,8 +107,8 @@ public class SmpController extends BaseController {
      * 吊牌打印
      */
     @GetMapping("/TagPrinting")
-    public ApiResult tagPrinting(String id,Boolean bl){
-        List<TagPrinting> tagPrintings=new ArrayList<>();
+    public ApiResult tagPrinting(String id, Boolean bl) {
+        List<TagPrinting> tagPrintings = new ArrayList<>();
         TagPrinting tagPrinting = new TagPrinting();
         tagPrinting.setColorwayWareCode("ABC123");
         tagPrinting.setIsGift("No");
@@ -253,7 +261,7 @@ public class SmpController extends BaseController {
 
         // 设置尺码信息
         List<TagPrinting.Size> sizeInfo2 = new ArrayList<>();
-        TagPrinting.Size size3= new TagPrinting.Size();
+        TagPrinting.Size size3 = new TagPrinting.Size();
         size1.setSizeCode("L");
         size1.setSortCode("3");
         size1.setSizeName("Large");
