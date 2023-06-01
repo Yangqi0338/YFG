@@ -13,5 +13,26 @@
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+    <select id="technologyCenterTaskList"
+            resultType="com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo">
+        SELECT
+            p.id,
+            s.design_no,
+            s.style_pic,
+            s.category_name,
+            p.design_send_date,
+            p.prm_send_date,
+            p.prm_send_status,
+            p.urgency,
+            p.pattern_design_id,
+            p.pattern_design_name
+        FROM
+            t_pattern_making p,
+            t_sample_design s
+          where p.sample_design_id = s.id and p.design_send_status='1'
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+              and  ${ ew.customSqlSegment.substring(5)}
+            </if>
+    </select>
 </mapper>
 

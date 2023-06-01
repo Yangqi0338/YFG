@@ -15,6 +15,9 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
+import com.base.sbc.module.patternmaking.dto.SampleDesignSendDto;
+import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
+import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
@@ -48,6 +51,13 @@ public class PatternMakingController {
 
     @Autowired
     private PatternMakingService patternMakingService;
+
+
+    @ApiOperation(value = "技术中心看板-任务列表")
+    @GetMapping("/technologyCenterTaskList")
+    public PageInfo technologyCenterTaskList(TechnologyCenterTaskSearchDto dto){
+        return patternMakingService.technologyCenterTaskList(dto);
+    }
 
     @ApiOperation(value = "通过样衣设计id查询")
     @GetMapping("/findBySampleDesignId")
@@ -86,9 +96,27 @@ public class PatternMakingController {
 
 
     @ApiOperation(value = "样衣设计下发")
-    @GetMapping("/sampleDesignSend")
-    public boolean sampleDesignSend(@RequestBody  PatternMakingDto  dto) {
+    @PostMapping("/sampleDesignSend")
+    public boolean sampleDesignSend(@RequestBody SampleDesignSendDto dto) {
         return patternMakingService.sampleDesignSend(dto);
+    }
+    @ApiOperation(value = "版房主管下发")
+    @PostMapping("/prmSend")
+    public Integer prmSend(@RequestBody  List<SetPatternDesignDto>  dtos){
+        int i=0;
+        for (SetPatternDesignDto dto : dtos) {
+             if(patternMakingService.prmSend(dto)){
+                 i++;
+             }
+
+        }
+        return i;
+    }
+
+    @ApiOperation(value = "指定版师")
+    @PostMapping("/setPatternDesign")
+    public boolean setPatternDesign(@Valid @RequestBody SetPatternDesignDto dto){
+       return  patternMakingService.setPatternDesign(dto);
     }
 }
 

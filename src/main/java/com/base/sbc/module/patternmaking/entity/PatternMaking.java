@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-29 17:34:58
+ * @date 创建时间：2023-5-31 18:02:03
  * @version 1.0
  */
 @Data
@@ -126,8 +126,8 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 裁剪工id */
     @ApiModelProperty(value = "裁剪工id"  )
     private String cutterId;
-    /** 纸样完成数量 */
-    @ApiModelProperty(value = "纸样完成数量"  )
+    /** 裁剪完成数量 */
+    @ApiModelProperty(value = "裁剪完成数量"  )
     private BigDecimal cutterFinishNum;
     /** 质量评分 */
     @ApiModelProperty(value = "质量评分"  )
@@ -138,8 +138,8 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 车缝工id */
     @ApiModelProperty(value = "车缝工id"  )
     private String stitcherId;
-    /** 二次加工 */
-    @ApiModelProperty(value = "二次加工"  )
+    /** 二次加工(0否，1是) */
+    @ApiModelProperty(value = "二次加工(0否，1是)"  )
     private String secondProcessing;
     /** 当前节点 */
     @ApiModelProperty(value = "当前节点"  )

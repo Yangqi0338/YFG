@@ -279,34 +279,9 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         getBaseMapper().selectByQw(qw);
         List<SampleDesignPageVo> result = objects.getResult();
         // 设置图片
-        queryStylePic(result);
+        attachmentService.setListStylePic(result,"stylePic");
         amcFeignService.addUserAvatarToList(result, "designerId", "aliasUserAvatar");
         return objects.toPageInfo();
-    }
-
-    public void queryStylePic(List<SampleDesignPageVo> result) {
-        if (CollUtil.isEmpty(result)) {
-            return;
-        }
-        List<String> fileId = new ArrayList<>(12);
-        for (SampleDesignPageVo sampleDesignPageVo : result) {
-            if (StrUtil.isNotBlank(sampleDesignPageVo.getStylePic())) {
-                fileId.add(sampleDesignPageVo.getStylePic());
-            }
-        }
-        if (CollUtil.isEmpty(fileId)) {
-            return;
-        }
-        QueryWrapper qw = new QueryWrapper();
-        qw.in("f.id", fileId);
-        List<AttachmentVo> byQw = attachmentService.findByQw(qw);
-        if (CollUtil.isEmpty(byQw)) {
-            return;
-        }
-        Map<String, AttachmentVo> collect = byQw.stream().collect(Collectors.toMap(k -> k.getFileId(), v -> v, (a, b) -> a));
-        for (SampleDesignPageVo sampleDesignPageVo : result) {
-            sampleDesignPageVo.setStylePic(Optional.ofNullable(collect.get(sampleDesignPageVo.getStylePic())).map(AttachmentVo::getUrl).orElse(""));
-        }
     }
 
     @Override

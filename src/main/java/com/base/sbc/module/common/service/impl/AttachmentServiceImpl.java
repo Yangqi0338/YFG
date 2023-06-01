@@ -17,10 +17,15 @@ import com.base.sbc.module.common.mapper.AttachmentMapper;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：附件 service类
@@ -71,6 +76,37 @@ public class AttachmentServiceImpl extends ServicePlusImpl<AttachmentMapper, Att
         queryWrapper.apply("a.file_id=f.id");
         List<AttachmentVo> byQw = getBaseMapper().findByQw(queryWrapper);
         return byQw;
+    }
+
+    @Override
+    public void setListStylePic(List list, String fileIdKey) {
+        if (CollUtil.isEmpty(list)) {
+            return;
+        }
+        List<String> fileId = new ArrayList<>(12);
+        for (Object vo : list) {
+            String v = BeanUtil.getProperty(vo, fileIdKey);
+            if (StrUtil.isNotBlank(v)) {
+                fileId.add(v);
+            }
+        }
+        if (CollUtil.isEmpty(fileId)) {
+            return;
+        }
+        QueryWrapper qw = new QueryWrapper();
+        qw.in("f.id", fileId);
+        List<AttachmentVo> byQw = findByQw(qw);
+        if (CollUtil.isEmpty(byQw)) {
+            return;
+        }
+        Map<String, AttachmentVo> collect = byQw.stream().collect(Collectors.toMap(k -> k.getFileId(), v -> v, (a, b) -> a));
+        for (Object vo : list) {
+            String v = BeanUtil.getProperty(vo, fileIdKey);
+            if(StrUtil.isBlank(v)){
+                continue;
+            }
+            BeanUtil.setProperty(vo,fileIdKey,Optional.ofNullable(collect.get(v)).map(AttachmentVo::getUrl).orElse(""));
+        }
     }
 
 

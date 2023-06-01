@@ -89,7 +89,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
                 apiResult = ApiResult.error(localeMessages.getMessage(SUCCESS_ERR), 404);
             }
         }
-        this.preHttpLog(request,response, body);
+        this.preHttpLog(request,response, apiResult);
         return apiResult;
     }
 

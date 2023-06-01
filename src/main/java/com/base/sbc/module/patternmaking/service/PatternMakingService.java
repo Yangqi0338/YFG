@@ -7,8 +7,12 @@
 package com.base.sbc.module.patternmaking.service;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
+import com.base.sbc.module.patternmaking.dto.SampleDesignSendDto;
+import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
+import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
+import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
@@ -44,10 +48,40 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
 
     /**
      * 样衣设计下发
-     * @param dtos
+     * @param dto
      * @return
      */
-    boolean sampleDesignSend(PatternMakingDto dto);
+    boolean sampleDesignSend(SampleDesignSendDto dto);
+
+    /**
+     * 节点状态改变
+     * @param dto
+     * @param node
+     * @param status
+     * @return
+     */
+    boolean nodeStatusChange(PatternMakingDto dto,String node,String status);
+
+    /**
+     * 版房主管下发
+     * @param dto
+     * @return
+     */
+    boolean prmSend(SetPatternDesignDto dto);
+
+    /**
+     * 技术中心看板-任务列表
+     * @param dto
+     * @return
+     */
+    PageInfo technologyCenterTaskList(TechnologyCenterTaskSearchDto dto);
+
+    /**
+     * 设置版师
+     * @param dto
+     * @return
+     */
+    boolean setPatternDesign(SetPatternDesignDto dto);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

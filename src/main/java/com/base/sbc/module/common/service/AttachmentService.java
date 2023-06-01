@@ -38,6 +38,9 @@ public interface AttachmentService extends IServicePlus<Attachment>{
 
     List<AttachmentVo> findByQw(QueryWrapper queryWrapper);
 
+
+    void setListStylePic(List list,String fileIdKey);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 	
