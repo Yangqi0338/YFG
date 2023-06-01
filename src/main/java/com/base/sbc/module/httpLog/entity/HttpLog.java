@@ -1,11 +1,11 @@
 package com.base.sbc.module.httpLog.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.base.sbc.config.SqlDataInfo;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.Date;
 import java.util.List;
@@ -14,10 +14,12 @@ import java.util.List;
  * @author 卞康
  * @date 2023/5/16 18:49:25
  * @mail 247967116@qq.com
+ *
+ * riz
  */
 @Data
 @TableName("t_http_log")
-public class HttpLog extends BaseDataEntity<String> {
+public class HttpLog {
 
     //请求数据
     /** 请求开始时间 */
@@ -101,4 +103,49 @@ public class HttpLog extends BaseDataEntity<String> {
 
     /***备注*/
     private String remarks;
+
+
+
+    @TableField(exist = false)
+    private static final long serialVersionUID = 7022181519896948997L;
+
+    /** 更新者名称  */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    protected String updateName;
+
+    /**  更新者id */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    protected String updateId;
+
+    /** 更新日期 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    protected Date updateDate;
+
+    /** 创建日期 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(fill = FieldFill.INSERT)
+    protected Date createDate;
+
+    /**  创建者名称 */
+    @TableField(fill = FieldFill.INSERT)
+    protected String createName;
+
+    /** 创建者id */
+    @TableField(fill = FieldFill.INSERT)
+    protected String createId;
+
+    /**物理删除*/
+    protected String delFlag;
+
+    /** 实体主键 */
+    @TableId(type = IdType.ASSIGN_ID)
+    private String id;
+
+    /** 公司编码 */
+    @TableField(fill = FieldFill.INSERT)
+    private String companyCode;
+
 }
+
+

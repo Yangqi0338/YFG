@@ -23,6 +23,7 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeHandlerRegistry;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 
@@ -66,6 +67,7 @@ public class SqlPrintInterceptor implements Interceptor {
         //先拦截到RoutingStatementHandler，里面有个StatementHandler类型的delegate变量，其实现类是BaseStatementHandler，然后就到BaseStatementHandler的成员变量mappedStatement
         MappedStatement mappedStatement = (MappedStatement) metaObject.getValue("delegate.mappedStatement");
         //id为执行的mapper方法的全路径名，如com.uv.dao.UserMapper.insertUser
+        Object delegate = metaObject.getValue("delegate");
         String statementId = mappedStatement.getId();
         //sql语句类型 select、delete、insert、update
         String sqlCommandType = mappedStatement.getSqlCommandType().toString();
@@ -75,88 +77,93 @@ public class SqlPrintInterceptor implements Interceptor {
         String sql = boundSql.getSql();
         String mSql = sql;
 
+        //String jsonString = JSON.toJSONString(boundSql.getParameterObject());
+        //JSONObject jsonObject1 = JSON.parseObject(jsonString);
+
         try {
             //注解逻辑判断  添加注解了才拦截
             //1.获取目标类上的目标注解（可判断目标类是否存在该注解）
             String className = statementId.substring(0, statementId.lastIndexOf("."));
-            String funName = statementId.substring(statementId.lastIndexOf(".")+1);
-            Class classType =  Class.forName(className);
+            String funName = statementId.substring(statementId.lastIndexOf(".") + 1);
+            Class classType = Class.forName(className);
             DataIsolation dataIsolation = AnnotationUtils.findAnnotation(classType, DataIsolation.class);
             boolean isExecute = false;
             if (!Objects.isNull(dataIsolation) && dataIsolation.state() && sqlCommandType.equals("SELECT")) {
                 isExecute = true;
-                if(!ObjectUtils.isEmpty(dataIsolation.groups()) && ! arrSearch(dataIsolation.groups(),funName)){
+                if (!ObjectUtils.isEmpty(dataIsolation.groups()) && !arrSearch(dataIsolation.groups(), funName)) {
                     isExecute = false;
                 }
             }
-            if(isExecute){
+            if (isExecute) {
                 //获取当前用户id
                 String userId = httpServletRequest.getHeader("userId");
                 String authorization = httpServletRequest.getHeader("Authorization");
-                if(!StringUtils.isBlank(authorization) && !StringUtils.isBlank(userId)){
+                if (!StringUtils.isBlank(authorization) && !StringUtils.isBlank(userId)) {
                     sql = sql.replaceAll("[\\s]+", " ").replaceAll("\\( ", "\\(").toLowerCase();
                     //当前查询语句的主表
                     Map sqlAnalyst = getTable(sql);
                     boolean isWhere = (boolean) sqlAnalyst.get("where");
                     String whereFlag = " where ";
                     String tableFlag = (String) sqlAnalyst.get("table");
-                    String[] sqlArr = isWhere?sql.split(((String) sqlAnalyst.get("whereSql"))+"where"):null;
-                    ManageGroupRoleImp manageGroupRole =  SpringContextHolder.getBean("manageGroupRoleImp");
-                    RedisUtils redisUtils =  SpringContextHolder.getBean("redisUtils");
+                    String[] sqlArr = isWhere ? sql.split(((String) sqlAnalyst.get("whereSql")) + "where") : null;
+                    ManageGroupRoleImp manageGroupRole = SpringContextHolder.getBean("manageGroupRoleImp");
+                    RedisUtils redisUtils = SpringContextHolder.getBean("redisUtils");
                     List<String> userList = null;
-                    if(!redisUtils.hasKey("system_setting:user_isolation:"+userId)){
-                        Map entity = (Map)manageGroupRole.userDataIsolation(authorization,null,dataIsolation.toString(),userId,className);
+                    if (!redisUtils.hasKey("system_setting:user_isolation:" + userId)) {
+                        Map entity = (Map) manageGroupRole.userDataIsolation(authorization, null, dataIsolation.toString(), userId, className);
                         //默认开启角色的数据隔离
-                        userList = (Boolean)entity.get("success")?(List<String>) entity.get("data"):null;
-                        redisUtils.set("system_setting:user_isolation:"+userId,userList,60 * 3);//如果是新加入的人添加信息，数据的隔离3分钟后生效
-                    }else{
-                        userList = (List<String>) redisUtils.get("system_setting:user_isolation:"+userId);
+                        userList = (Boolean) entity.get("success") ? (List<String>) entity.get("data") : null;
+                        redisUtils.set("system_setting:user_isolation:" + userId, userList, 60 * 3);//如果是新加入的人添加信息，数据的隔离3分钟后生效
+                    } else {
+                        userList = (List<String>) redisUtils.get("system_setting:user_isolation:" + userId);
                     }
-                    if(!Objects.isNull(userList)){
-                        whereFlag += tableFlag+"create_id in ("+StringUtils.join(userList, ",")+") and ";
-                    }else{
-                        whereFlag += tableFlag+"create_id = null and ";
+                    if (!Objects.isNull(userList)) {
+                        whereFlag += tableFlag + "create_id in (" + StringUtils.join(userList, ",") + ") and ";
+                    } else {
+                        whereFlag += tableFlag + "create_id = null and ";
                     }
-                    mSql = sqlArr!=null? (sqlArr[0] +" "+(String) sqlAnalyst.get("whereSql") + whereFlag + sqlArr[1]):(sql+" "+whereFlag);
+                    mSql = sqlArr != null ? (sqlArr[0] + " " + (String) sqlAnalyst.get("whereSql") + whereFlag + sqlArr[1]) : (sql + " " + whereFlag);
                     //通过反射修改sql语句
                     Field field = boundSql.getClass().getDeclaredField("sql");
                     field.setAccessible(true);
                     field.set(boundSql, mSql);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("  方法ID: " + statementId + "数据隔离时：");
             logger.error(e.getMessage());
         }
 
         Configuration configuration = mappedStatement.getConfiguration();
         Object parameterObject = null;
-        if (invocation.getArgs().length > 1) {
-            parameterObject = invocation.getArgs()[1];
-        }
+
+        parameterObject = boundSql.getParameterObject();
         String sql1 = getSql(boundSql, parameterObject, configuration);
         long end = System.currentTimeMillis();
         long timing = end - start;
-        if(logger.isInfoEnabled()){
+        if (logger.isInfoEnabled()) {
             logger.info("\n执行sql耗时:" + timing + " ms" + "  方法ID: " + statementId + "\nSQL语句:" + sql1);
         }
 
         //记录sql信息
         UserCompany userCompany = companyUserInfo.get();
-        HttpLog httpLog = userCompany.getHttpLog();
+        if (userCompany != null) {
+            HttpLog httpLog = userCompany.getHttpLog();
 
-        JSONArray jsonArray =new JSONArray();
-        if (httpLog.getSqlLog()!=null){
-            jsonArray= JSON.parseArray(httpLog.getSqlLog());
+            JSONArray jsonArray = new JSONArray();
+            if (httpLog.getSqlLog() != null) {
+                jsonArray = JSON.parseArray(httpLog.getSqlLog());
+            }
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("sql", sql1);
+            jsonObject.put("time", timing);
+            jsonObject.put("statementId", statementId);
+
+            jsonArray.add(jsonObject);
+            httpLog.setSqlLog(jsonArray.toJSONString());
         }
 
-        JSONObject jsonObject =new JSONObject();
-        jsonObject.put("sql",sql1);
-        jsonObject.put("time",timing);
-        jsonObject.put("statementId",statementId);
-
-        jsonArray.add(jsonObject);
-        httpLog.setSqlLog(jsonArray.toJSONString());
 
         return invocation.proceed();
     }
@@ -174,47 +181,48 @@ public class SqlPrintInterceptor implements Interceptor {
     @Override
     public void setProperties(Properties properties) {
     }
+
     private boolean arrSearch(String[] arr, String targetValue) {
-        for(String s: arr){
-            if(s.equals("'"+targetValue+"'")) {
+        for (String s : arr) {
+            if (s.equals("'" + targetValue + "'")) {
                 return true;
             }
         }
         return false;
     }
 
-    private Map getTable(String sql){
+    private Map getTable(String sql) {
         Map ret = new HashMap<>();
         String[] selectArr = sql.split("\\(select");
         String table = "";
         String fromStr = "";
-        if(selectArr[0].indexOf("from") > -1){
+        if (selectArr[0].indexOf("from") > -1) {
             fromStr = (selectArr[0].split("from"))[1];
-        }else{
+        } else {
             int fromSum = 0;
             String[] fromArr = null;
             for (int i = 1; i < selectArr.length; i++) {
                 fromArr = selectArr[i].split("from");
-                fromSum  += fromArr.length-1;
-                if(fromSum == i+1){
-                    fromStr = fromArr[fromArr.length-1];
+                fromSum += fromArr.length - 1;
+                if (fromSum == i + 1) {
+                    fromStr = fromArr[fromArr.length - 1];
                     break;
                 }
             }
         }
-        if(fromStr.indexOf("join")> -1){
+        if (fromStr.indexOf("join") > -1) {
             table = fromStr.split(" ")[2];
         }
-        if(fromStr.indexOf("join")==-1 && !(fromStr.split(" ")[2].equals("where"))){
+        if (fromStr.indexOf("join") == -1 && !(fromStr.split(" ")[2].equals("where"))) {
             table = fromStr.split(" ")[2];
         }
-        if(table.equals("as")){
+        if (table.equals("as")) {
             table = fromStr.split(" ")[3];
         }
-        boolean isWhere = fromStr.indexOf("where")> -1;
-        ret.put("table",table!=""?table+".":"");
-        ret.put("where",isWhere);
-        ret.put("whereSql",isWhere?fromStr.split("where")[0]:"");
+        boolean isWhere = fromStr.indexOf("where") > -1;
+        ret.put("table", table != "" ? table + "." : "");
+        ret.put("where", isWhere);
+        ret.put("whereSql", isWhere ? fromStr.split("where")[0] : "");
         return ret;
     }
 

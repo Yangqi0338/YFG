@@ -58,7 +58,6 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
     @Length(min = 1, max = 1)
     @TableLogic(value = "0", delval = "1")
     @TableField(fill = FieldFill.INSERT)
-
     protected String delFlag;
     /**  备注 */
     //@Length(min = 0, max = 500)
