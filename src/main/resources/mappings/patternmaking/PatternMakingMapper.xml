@@ -24,15 +24,31 @@
             p.prm_send_date,
             p.prm_send_status,
             p.urgency,
-            p.pattern_design_id,
-            p.pattern_design_name
+        p.pattern_design_id,
+        p.pattern_design_name
         FROM
-            t_pattern_making p,
-            t_sample_design s
-          where p.sample_design_id = s.id and p.design_send_status='1'
-            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
-              and  ${ ew.customSqlSegment.substring(5)}
-            </if>
+        t_pattern_making p,
+        t_sample_design s
+        where p.sample_design_id = s.id and p.design_send_status='1'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            and ${ ew.customSqlSegment.substring(5)}
+        </if>
+    </select>
+    <select id="getPatternDesignSampleTypeCount"
+            resultType="com.base.sbc.module.patternmaking.vo.PatternDesignSampleTypeQtyVo">
+        SELECT
+        pattern_design_id ,sample_type ,count(id) as quantity
+        FROM
+        `t_pattern_making`
+        WHERE
+        node = '打样任务'
+        AND `status` IN ( '已接收', '打版中' )
+        AND del_flag =0
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            and ${ ew.customSqlSegment.substring(5)}
+        </if>
+        group by pattern_design_id ,sample_type
+
     </select>
 </mapper>
 

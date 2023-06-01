@@ -11,6 +11,7 @@ import com.base.sbc.module.patternmaking.dto.SampleDesignSendDto;
 import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
 import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
+import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
 import com.github.pagehelper.PageInfo;
 
@@ -78,14 +79,23 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
 
     /**
      * 设置版师
+     *
      * @param dto
      * @return
      */
     boolean setPatternDesign(SetPatternDesignDto dto);
 
+    /**
+     * 获取版师列表
+     *
+     * @param planningSeasonId
+     * @return
+     */
+    List<PatternDesignVo> getPatternDesignList(String planningSeasonId);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
-	
+
 }
 
