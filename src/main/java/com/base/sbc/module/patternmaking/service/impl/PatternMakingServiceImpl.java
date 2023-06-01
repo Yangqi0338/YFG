@@ -165,16 +165,20 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         List<PatternDesignSampleTypeQtyVo> qtyList = getBaseMapper().getPatternDesignSampleTypeCount(pmQw);
         List<PatternDesignVo> patternDesignVoList = new ArrayList<>();
         Map<String, List<PatternDesignSampleTypeQtyVo>> qtyMap = qtyList.stream().collect(Collectors.groupingBy(PatternDesignSampleTypeQtyVo::getPatternDesignId));
+        Long total = null;
         for (UserCompany user : userList) {
             PatternDesignVo patternDesignVo = BeanUtil.copyProperties(user, PatternDesignVo.class);
             LinkedHashMap<String, Long> sampleTypeCount = new LinkedHashMap<>(16);
+            total = 0L;
             for (Map.Entry<String, String> dict : sampleTypes.entrySet()) {
                 Long qty = Optional.ofNullable(qtyMap).map(qtyMap1 -> qtyMap1.get(user.getUserId())).map(qtyList2 -> {
                     PatternDesignSampleTypeQtyVo one = CollUtil.findOne(qtyList2, a -> StrUtil.equals(a.getSampleType(), dict.getKey()));
                     return Optional.ofNullable(one).map(PatternDesignSampleTypeQtyVo::getQuantity).orElse(0L);
                 }).orElse(0L);
+                total = total + qty;
                 sampleTypeCount.put(dict.getValue(), qty);
             }
+            sampleTypeCount.put("总数", total);
             String deptName = Optional.ofNullable(user.getDeptList()).map(item -> {
                 return item.stream().map(Dept::getName).collect(Collectors.joining(StrUtil.COMMA));
             }).orElse("");
