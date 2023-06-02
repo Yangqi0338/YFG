@@ -11,8 +11,8 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
-import com.base.sbc.module.nodestatus.mapper.NodeStatusMapper;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
+import com.base.sbc.module.nodestatus.mapper.NodeStatusMapper;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.github.pagehelper.PageHelper;
 import org.springframework.stereotype.Service;
@@ -90,7 +90,8 @@ public class NodeStatusServiceImpl extends ServicePlusImpl<NodeStatusMapper, Nod
     @Override
     public NodeStatus getCurrentNodeStatusByDataId(String dataId) {
         QueryWrapper<NodeStatus> qw=new QueryWrapper<>();
-        qw.eq("data_id",dataId);
+        qw.eq("data_id", dataId);
+        qw.isNull("end_date");
         qw.orderByDesc("start_date");
         PageHelper.startPage(1, 1);
         NodeStatus currentNode = getOne(qw);
