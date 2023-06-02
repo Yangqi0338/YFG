@@ -19,7 +19,7 @@ public class TagPrinting {
     /** 批次 */
     private String colorwayBatchNo;
     /** 商品吊牌价确认 */
-    private String merchApproved;
+    private Boolean merchApproved;
     /** 配饰款号 */
     private String secCode;
     /** 主款款号 */
@@ -27,11 +27,11 @@ public class TagPrinting {
     /** 吊牌价 */
     private String colorwaySalesPrice;
     /** 是否内配饰 */
-    private String isAccessories;
+    private Boolean isAccessories;
     /** 系列 */
     private String colorwaySeries;
     /** 大货款号是否激活 */
-    private String active;
+    private Boolean active;
     /** 销售类型 */
     private String colorwaySaleType;
     /** 品牌_描述 */
@@ -67,11 +67,11 @@ public class TagPrinting {
     /** 执行标准 */
     private String opStandard;
     /** 品控部确认 */
-    private String approved;
+    private Boolean approved;
     /** 温馨提示 */
     private String attention;
     /** 后技术确认 */
-    private String techApproved;
+    private Boolean techApproved;
     /** 安全技术类别 */
     private String saftyTitle;
     /** 洗唛材质备注 */
@@ -99,7 +99,7 @@ public class TagPrinting {
     /** 季节 */
     private String season;
     /** 是否主料 */
-    private String isMainMaterial;
+    private Boolean isMainMaterial;
     /** 配件颜色编码 */
     private String accessoriesColorCode;
     /** 配件颜色名称 */
@@ -113,13 +113,13 @@ public class TagPrinting {
     /** 促销描述 */
     private String promoDesc;
     /** 是否首次购买 */
-    private String isFirstBuy;
+    private Boolean isFirstBuy;
     /** 是否样品 */
-    private String isSample;
+    private Boolean isSample;
     /** 样品编码 */
     private String sampleCode;
     /** 是否样卡 */
-    private String isSampleCard;
+    private Boolean isSampleCard;
     /** 样卡编码 */
     private String sampleCardCode;
     /** 样卡等级 */
