@@ -132,6 +132,13 @@ public class PatternMakingController {
     public boolean breakOffSample(@Valid @NotBlank(message = "id不能为空") String id) {
         return patternMakingService.breakOffSample(id);
     }
+
+    @ApiOperation(value = "中断打版")
+    @GetMapping("/breakOffPattern")
+    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "编号", required = true, paramType = "query")})
+    public boolean breakOffPattern(@Valid @NotBlank(message = "id不能为空") String id) {
+        return patternMakingService.breakOffPattern(id);
+    }
 }
 
 

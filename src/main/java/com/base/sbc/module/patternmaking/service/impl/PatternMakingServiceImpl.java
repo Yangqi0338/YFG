@@ -209,6 +209,14 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         return update(uw);
     }
 
+    @Override
+    public boolean breakOffPattern(String id) {
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.in("id", StrUtil.split(id, CharUtil.COMMA));
+        uw.set("break_off_pattern", BaseGlobal.YES);
+        return update(uw);
+    }
+
     public String getNextCode(SampleDesign sampleDesign) {
         String designNo = sampleDesign.getDesignNo();
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
