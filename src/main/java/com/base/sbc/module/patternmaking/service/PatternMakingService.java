@@ -56,12 +56,13 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
 
     /**
      * 节点状态改变
+     *
      * @param dto
      * @param node
      * @param status
      * @return
      */
-    boolean nodeStatusChange(PatternMakingDto dto,String node,String status);
+    boolean nodeStatusChange(PatternMakingDto dto);
 
     /**
      * 版房主管下发

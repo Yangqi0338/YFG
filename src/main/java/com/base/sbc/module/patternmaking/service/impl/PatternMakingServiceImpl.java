@@ -110,21 +110,27 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     }
 
     @Override
-    public boolean nodeStatusChange(PatternMakingDto dto, String node, String status) {
-        return false;
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean nodeStatusChange(PatternMakingDto dto) {
+        nodeStatusService.nodeStatusChange(dto.getId(), dto.getNode(), dto.getStatus());
+        PatternMaking patternMaking = BeanUtil.copyProperties(dto, PatternMaking.class);
+        // 修改单据
+        return updateById(patternMaking);
     }
 
 
     @Override
     public boolean prmSend(SetPatternDesignDto dto) {
-        EnumNodeStatus enumNodeStatus = EnumNodeStatus.TECHNICAL_ROOM_SEND;
-        NodeStatus nodeStatus = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus());
-        UpdateWrapper<PatternMaking> uw=new UpdateWrapper<>();
-        uw.set("node",enumNodeStatus.getNode());
-        uw.set("status",enumNodeStatus.getStatus());
-        uw.set("prm_send_date",nodeStatus.getStartDate());
-        uw.set("prm_send_status",BaseGlobal.YES);
-        uw.eq("id",dto.getId());
+        EnumNodeStatus enumNodeStatus1 = EnumNodeStatus.TECHNICAL_ROOM_SEND;
+        EnumNodeStatus enumNodeStatus2 = EnumNodeStatus.SAMPLE_TASK_WAITING_RECEIVE;
+        nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus1.getNode(), enumNodeStatus1.getStatus());
+        NodeStatus nodeStatus2 = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus2.getNode(), enumNodeStatus2.getStatus());
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.set("node", enumNodeStatus2.getNode());
+        uw.set("status", enumNodeStatus2.getStatus());
+        uw.set("prm_send_date", nodeStatus2.getStartDate());
+        uw.set("prm_send_status", BaseGlobal.YES);
+        uw.eq("id", dto.getId());
         // 修改单据
         return update(uw);
     }
@@ -145,7 +151,6 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         } else {
             qw.orderBy(true, dto.isAsc(), dto.getOrderByColumn());
         }
-
         Page<TechnologyCenterTaskVo> page = PageHelper.startPage(dto);
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
         //设置图片

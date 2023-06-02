@@ -20,17 +20,19 @@ import java.util.Date;
 @ApiModel("技术中心看板-任务列表Vo TechnologyCenterTaskVo ")
 public class TechnologyCenterTaskVo {
 
-    @ApiModelProperty(value = "id"  )
+    @ApiModelProperty(value = "id")
     private String id;
+    @ApiModelProperty(value = "产品季id")
+    private String planningSeasonId;
 
-    @ApiModelProperty(value = "款号"  )
+    @ApiModelProperty(value = "款号")
     private String designNo;
 
-    @ApiModelProperty(value = "款图"  )
+    @ApiModelProperty(value = "款图")
     private String stylePic;
-    @ApiModelProperty(value = "品类"  )
+    @ApiModelProperty(value = "品类")
     private String categoryName;
-    @ApiModelProperty(value = "设计下发时间"  )
+    @ApiModelProperty(value = "设计下发时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date designSendDate;
 

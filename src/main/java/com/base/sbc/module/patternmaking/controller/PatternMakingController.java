@@ -139,6 +139,13 @@ public class PatternMakingController {
     public boolean breakOffPattern(@Valid @NotBlank(message = "id不能为空") String id) {
         return patternMakingService.breakOffPattern(id);
     }
+
+    @ApiOperation(value = "节点状态改变")
+    @PostMapping("/nodeStatusChange")
+    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "编号", required = true, paramType = "query")})
+    public boolean nodeStatusChange(@RequestBody PatternMakingDto dto) {
+        return patternMakingService.nodeStatusChange(dto);
+    }
 }
 
 
