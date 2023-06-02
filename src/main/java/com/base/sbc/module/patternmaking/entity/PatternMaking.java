@@ -5,22 +5,25 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.entity;
-import java.math.BigDecimal;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  * 类描述：打版管理 实体类
- * @address com.base.sbc.module.patternmaking.entity.PatternMaking
+ *
  * @author lxl
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-31 18:02:03
  * @version 1.0
+ * @address com.base.sbc.module.patternmaking.entity.PatternMaking
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-6-2 15:37:18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -89,29 +92,48 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "改版原因"  )
     private String revisionReason;
     /** 改版意见 */
-    @ApiModelProperty(value = "改版意见"  )
+    @ApiModelProperty(value = "改版意见")
     private String revisionComments;
-    /** 版师名称 */
-    @ApiModelProperty(value = "版师名称"  )
+    /**
+     * 版师名称
+     */
+    @ApiModelProperty(value = "版师名称")
     private String patternDesignName;
-    /** 版师id */
-    @ApiModelProperty(value = "版师id"  )
+    /**
+     * 版师id
+     */
+    @ApiModelProperty(value = "版师id")
     private String patternDesignId;
-    /** 尺码 */
-    @ApiModelProperty(value = "尺码"  )
+    /**
+     * 尺码
+     */
+    @ApiModelProperty(value = "尺码")
     private String size;
-    /** 中断(0正常，1中断) */
-    @ApiModelProperty(value = "中断(0正常，1中断)"  )
-    private String breakOff;
-    /** 版房主管下发状态:(0未下发，1已下发) */
-    @ApiModelProperty(value = "版房主管下发状态:(0未下发，1已下发)"  )
+    /**
+     * 中断样衣(0正常，1中断)
+     */
+    @ApiModelProperty(value = "中断样衣(0正常，1中断)")
+    private String breakOffSample;
+    /**
+     * 中断打版(0正常，1中断)
+     */
+    @ApiModelProperty(value = "中断打版(0正常，1中断)")
+    private String breakOffPattern;
+    /**
+     * 版房主管下发状态:(0未下发，1已下发)
+     */
+    @ApiModelProperty(value = "版房主管下发状态:(0未下发，1已下发)")
     private String prmSendStatus;
-    /** 版房主管下发时间 */
-    @ApiModelProperty(value = "版房主管下发时间"  )
+    /**
+     * 版房主管下发时间
+     */
+    @ApiModelProperty(value = "版房主管下发时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date prmSendDate;
-    /** 设计下发时间 */
-    @ApiModelProperty(value = "设计下发时间"  )
+    /**
+     * 设计下发时间
+     */
+    @ApiModelProperty(value = "设计下发时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date designSendDate;
     /** 设计下发状态:(0未下发，1已下发) */

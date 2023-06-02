@@ -99,7 +99,7 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      * @param id
      * @return
      */
-    boolean breakOff(String id);
+    boolean breakOffSample(String id);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

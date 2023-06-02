@@ -126,11 +126,11 @@ public class PatternMakingController {
         return patternMakingService.getPatternDesignList(planningSeasonId);
     }
 
-    @ApiOperation(value = "中断")
+    @ApiOperation(value = "中断样衣")
     @GetMapping("/breakOff")
     @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "编号", required = true, paramType = "query")})
-    public boolean breakOff(@Valid @NotBlank(message = "id不能为空") String id) {
-        return patternMakingService.breakOff(id);
+    public boolean breakOffSample(@Valid @NotBlank(message = "id不能为空") String id) {
+        return patternMakingService.breakOffSample(id);
     }
 }
 

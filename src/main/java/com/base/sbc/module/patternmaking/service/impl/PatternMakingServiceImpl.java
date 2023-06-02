@@ -202,10 +202,10 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public boolean breakOff(String id) {
+    public boolean breakOffSample(String id) {
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.in("id", StrUtil.split(id, CharUtil.COMMA));
-        uw.set("break_off", BaseGlobal.YES);
+        uw.set("break_off_sample", BaseGlobal.YES);
         return update(uw);
     }
 
