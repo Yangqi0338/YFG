@@ -21,7 +21,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 //开放文档地址不用权限    开放/api/open/下所有的请求
-                .mvcMatchers("/v2/api-docs","/api/open/**","/**.html","/**.js","/**.css","/swagger*/**","/null/swagger*/**").permitAll()
+                .mvcMatchers("/v2/api-docs","/api/open/**","/**.html","/**.js","/**.css","/swagger*/**","/null/swagger*/**","/excel/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic();

@@ -15,6 +15,7 @@ import com.base.sbc.open.dto.SmpPostDto;
 import com.base.sbc.open.dto.SmpUserDto;
 import com.base.sbc.open.entity.MtBqReqEntity;
 import com.base.sbc.open.service.MtBqReqService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +45,7 @@ public class SmpController extends BaseController {
      * bp供应商
      */
     @PostMapping("/supplierSave")
+    @ApiOperation(value = "bp供应商新增或者修改", notes = "bp供应商新增或者修改")
     @Transactional(rollbackFor = {Throwable.class})
     public ApiResult supplierSave(@RequestBody JSONObject jsonObject) {
         MtBpReqDto mtBpReqDto = JSONObject.parseObject(jsonObject.toJSONString(), MtBpReqDto.class);
@@ -61,6 +63,7 @@ public class SmpController extends BaseController {
      * hr-人员
      */
     @PostMapping("/hrUserSave")
+    @ApiOperation(value = "hr-人员新增或者修改", notes = "hr-人员新增或者修改")
     public ApiResult hrSave(@RequestBody JSONObject jsonObject) {
         SmpUserDto smpUserDto = JSONObject.parseObject(jsonObject.toJSONString(), SmpUserDto.class);
         smpUserDto.preInsert();
@@ -75,6 +78,7 @@ public class SmpController extends BaseController {
      * hr-部门
      */
     @PostMapping("/hrDeptSave")
+    @ApiOperation(value = "hr-部门新增或者修改", notes = "hr-部门新增或者修改")
     public ApiResult hrDeptSave(@RequestBody JSONObject jsonObject) {
         SmpDeptDto smpDeptDto = JSONObject.parseObject(jsonObject.toJSONString(), SmpDeptDto.class);
         System.out.println(smpDeptDto);
@@ -85,6 +89,7 @@ public class SmpController extends BaseController {
      * hr-岗位
      */
     @PostMapping("/hrPostSave")
+    @ApiOperation(value = "hr-岗位新增或者修改", notes = "hr-岗位新增或者修改")
     public ApiResult hrPostSave(@RequestBody JSONObject jsonObject) {
         SmpPostDto smpPostDto = JSONObject.parseObject(jsonObject.toJSONString(), SmpPostDto.class);
         System.out.println(smpPostDto);
@@ -96,6 +101,7 @@ public class SmpController extends BaseController {
      * smp-样衣
      */
     @PostMapping("/smpSampleSave")
+    @ApiOperation(value = "smp-样衣新增或者修改", notes = "smp-样衣新增或者修改")
     public ApiResult smpSampleSave(@RequestBody JSONObject jsonObject) {
         SmpSampleDto smpSampleDto = JSONObject.parseObject(jsonObject.toJSONString(), SmpSampleDto.class);
         System.out.println(smpSampleDto);
@@ -107,6 +113,7 @@ public class SmpController extends BaseController {
      * 吊牌打印
      */
     @GetMapping("/TagPrinting")
+    @ApiOperation(value = "吊牌打印获取", notes = "吊牌打印获取")
     public ApiResult tagPrinting(String id, Boolean bl) {
         List<TagPrinting> tagPrintings = new ArrayList<>();
         TagPrinting tagPrinting = new TagPrinting();
