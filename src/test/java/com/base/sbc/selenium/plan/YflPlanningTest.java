@@ -9,6 +9,7 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 
 import com.alibaba.excel.EasyExcel;
@@ -24,21 +25,21 @@ import com.alibaba.excel.event.AnalysisEventListener;
  */
 public class YflPlanningTest {
 	public static void main(String[] args) throws InterruptedException {
-		System.setProperty("webdriver.edge.driver", "E:\\code\\shangjie\\sjs_yfg_pdm\\msedgedriver\\msedgedriver.exe");
-		WebDriver driver = new EdgeDriver();
+		System.setProperty("webdriver.chrome.driver", "D:\\下载\\chromedriver.exe");
+		WebDriver driver = new ChromeDriver();
 		// 登录系统
 		LoginSystem(driver);
 		// 品牌名称和url
 		String planName = "MM商品企划";
 		String planUrl = "C308755";
 		// 获取存放路径
-		String path = "E:\\code\\shangjie\\sjs_yfg_pdm\\src\\test\\java\\com\\base\\sbc\\selenium\\plan\\";
-		//
-		//System.out.println("开始获取企划文件夹数据");
-		//// 获取企划文件夹数据
-		//List<PlanFold> planFold = getPlanFold(driver, planName, planUrl);
-		//// 写入excel
-		//EasyExcel.write(path + planName + "_企划文件夹.xlsx", PlanFold.class).sheet("企划文件夹").doWrite(planFold);
+		String path = "D:\\";
+
+//		System.out.println("开始获取企划文件夹数据");
+//		// 获取企划文件夹数据
+//		List<PlanFold> planFold = getPlanFold(driver, planName, planUrl);
+//		// 写入excel
+//		EasyExcel.write(path + planName + "_企划文件夹.xlsx", PlanFold.class).sheet("企划文件夹").doWrite(planFold);
 
 		// 读取企划文件夹excel
 //		List<PlanFold> planFold = new ArrayList<>();
@@ -58,8 +59,8 @@ public class YflPlanningTest {
 //		// 写入excel
 //		EasyExcel.write(path + planName + "_企划目标.xlsx", PlanTarget.class).sheet("企划目标").doWrite(targetList);
 
-		 System.out.println("开始获取企划计划数据");
-		 //读取企划目标excel
+//		 System.out.println("开始获取企划计划数据");
+//		 //读取企划目标excel
 		List<PlanTarget> planTarget = new ArrayList<>();
 		EasyExcel.read(path + planName + "_企划目标.xlsx", PlanTarget.class, new AnalysisEventListener<PlanTarget>() {
 			@Override
@@ -91,7 +92,7 @@ public class YflPlanningTest {
 		List<PlanPlan> ptList = new ArrayList<>();
 		PlanPlan pp = null;
 		driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
-		Thread.sleep(5000);
+		Thread.sleep(8000);
 		String nextName = "";
 		for (PlanTarget pt : planTarget) {
 			driver.get(pt.getSeriesUrl());
@@ -242,10 +243,10 @@ public class YflPlanningTest {
 			throws InterruptedException {
 		List<PlanFold> pfList = new ArrayList<>();
 		driver.get("http://10.8.240.175/WebAccess/home.html#URL=" + urlcode + "&RURL=&Tab=Target");
-		Thread.sleep(2000);
+		Thread.sleep(9000);
 		WebElement versionInput = driver.findElement(By.xpath("//*[@id=\"uniqName_14_0\"]"));
 		versionInput.click();
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 		WebElement versionSelect = driver.findElement(By.xpath("//*[@id=\"uniqName_14_0_popup\"]"));
 		String[] versionList = versionSelect.getText().split("\n");
 		System.out.println("获取下拉栏：" + versionList);
