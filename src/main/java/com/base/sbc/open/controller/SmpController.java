@@ -202,7 +202,7 @@ public class SmpController extends BaseController {
         size2.setSkuFiller("150g");
         size2.setSpecialSpec("None");
         sizeInfo.add(size2);
-        tagPrinting.setSizeInfo(sizeInfo);
+        tagPrinting.setSize(sizeInfo);
 
 
         TagPrinting tagPrinting2 = new TagPrinting();
@@ -292,7 +292,7 @@ public class SmpController extends BaseController {
         size2.setSpecialSpec("None");
         sizeInfo2.add(size4);
 
-        tagPrinting2.setSizeInfo(sizeInfo2);
+        tagPrinting2.setSize(sizeInfo2);
 
         tagPrintings.add(tagPrinting);
         tagPrintings.add(tagPrinting2);

@@ -125,7 +125,7 @@ public class TagPrinting {
     /** 样卡等级 */
     private String sampleCardGrade;
     /** 尺码信息 */
-    private List<Size> sizeInfo;
+    private List<Size> size;
 
     /**
      * 尺码信息
