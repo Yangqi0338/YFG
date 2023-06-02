@@ -99,12 +99,12 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     public boolean sampleDesignSend(SampleDesignSendDto dto) {
         EnumNodeStatus enumNodeStatus = EnumNodeStatus.DESIGN_SEND;
         NodeStatus nodeStatus = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus());
-        UpdateWrapper<PatternMaking> uw=new UpdateWrapper<>();
-        uw.set("node",enumNodeStatus.getNode());
-        uw.set("status",enumNodeStatus.getStatus());
-        uw.set("design_send_date",nodeStatus.getStartDate());
-        uw.set("design_send_status",BaseGlobal.YES);
-        uw.eq("id",dto.getId());
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.set("node", enumNodeStatus.getNode());
+        uw.set("status", enumNodeStatus.getStatus());
+        uw.set("design_send_date", nodeStatus.getStartDate());
+        uw.set("design_send_status", BaseGlobal.YES);
+        uw.eq("id", dto.getId());
         // 修改单据
         return update(uw);
     }
@@ -155,6 +155,20 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
         //设置图片
         attachmentService.setListStylePic(list, "stylePic");
+        // 设置版师列表
+        if (CollUtil.isNotEmpty(list)) {
+            Map<String, List<PatternDesignVo>> pdMap = new HashMap<>(16);
+            for (TechnologyCenterTaskVo tct : list) {
+                String key = tct.getPlanningSeasonId();
+                if (pdMap.containsKey(key)) {
+                    tct.setPdList(pdMap.get(key));
+                } else {
+                    List<PatternDesignVo> patternDesignList = getPatternDesignList(tct.getPlanningSeasonId());
+                    tct.setPdList(patternDesignList);
+                    pdMap.put(key, patternDesignList);
+                }
+            }
+        }
         return page.toPageInfo();
     }
 
