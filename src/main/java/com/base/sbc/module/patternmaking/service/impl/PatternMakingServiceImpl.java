@@ -8,6 +8,7 @@ package com.base.sbc.module.patternmaking.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -72,6 +73,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     public List<PatternMakingVo> findBySampleDesignId(String sampleDesignId) {
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
         qw.eq("sample_design_id", sampleDesignId);
+        qw.orderBy(true, true, "create_date");
         List<PatternMaking> list = list(qw);
         List<PatternMakingVo> patternMakingVos = BeanUtil.copyToList(list, PatternMakingVo.class);
         return patternMakingVos;
@@ -135,10 +137,19 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
+        qw.eq("design_send_status", BaseGlobal.YES);
+        qw.eq("s.del_flag", BaseGlobal.NO);
+        qw.eq("p.del_flag", BaseGlobal.NO);
+        if (StrUtil.isBlank(dto.getOrderBy())) {
+            qw.orderBy(true, true, "p.create_date");
+        } else {
+            qw.orderBy(true, dto.isAsc(), dto.getOrderByColumn());
+        }
+
         Page<TechnologyCenterTaskVo> page = PageHelper.startPage(dto);
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
         //设置图片
-        attachmentService.setListStylePic(list,"stylePic");
+        attachmentService.setListStylePic(list, "stylePic");
         return page.toPageInfo();
     }
 
@@ -187,6 +198,15 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
             patternDesignVoList.add(patternDesignVo);
         }
         return patternDesignVoList;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class, OtherException.class})
+    public boolean breakOff(String id) {
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.in("id", StrUtil.split(id, CharUtil.COMMA));
+        uw.set("break_off", BaseGlobal.YES);
+        return update(uw);
     }
 
     public String getNextCode(SampleDesign sampleDesign) {

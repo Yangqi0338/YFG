@@ -93,6 +93,14 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      */
     List<PatternDesignVo> getPatternDesignList(String planningSeasonId);
 
+    /**
+     * 中断
+     *
+     * @param id
+     * @return
+     */
+    boolean breakOff(String id);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

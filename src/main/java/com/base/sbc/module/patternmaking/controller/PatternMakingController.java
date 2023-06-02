@@ -19,6 +19,8 @@ import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,8 +121,16 @@ public class PatternMakingController {
 
     @ApiOperation(value = "获取版师列表")
     @GetMapping("/getPatternDesignList")
+    @ApiImplicitParams({@ApiImplicitParam(name = "planningSeasonId", value = "产品季节id", required = true, paramType = "query")})
     public List<PatternDesignVo> getPatternDesignList(@Valid @NotBlank(message = "产品季节id不能为空") String planningSeasonId) {
         return patternMakingService.getPatternDesignList(planningSeasonId);
+    }
+
+    @ApiOperation(value = "中断")
+    @GetMapping("/breakOff")
+    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "编号", required = true, paramType = "query")})
+    public boolean breakOff(@Valid @NotBlank(message = "id不能为空") String id) {
+        return patternMakingService.breakOff(id);
     }
 }
 
