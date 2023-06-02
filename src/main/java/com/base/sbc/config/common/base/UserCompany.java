@@ -6,17 +6,23 @@
  *****************************************************************************/
 package com.base.sbc.config.common.base;
 
+import com.base.sbc.client.amc.entity.CompanyPost;
+import com.base.sbc.client.amc.entity.Dept;
+import com.base.sbc.client.amc.entity.Job;
 import com.base.sbc.module.httpLog.entity.HttpLog;
+
+import java.util.List;
 
 /**
  * 类描述：用户-企业 实体类
- * @address com.base.sbc.company.entity.UserCompany
+ *
  * @author youkehai
+ * @version 1.0
+ * @address com.base.sbc.company.entity.UserCompany
  * @email 717407966@qq.com
  * @date 创建时间：2020-12-28 10:59:05
- * @version 1.0
  */
-public class UserCompany extends BaseDataEntity<String>  {
+public class UserCompany extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -29,25 +35,61 @@ public class UserCompany extends BaseDataEntity<String>  {
 	private String deptName;
 	private String jobName;
 	/** 拼音*/
-	private String shortPinyin;
-	/** 手机号码      */
-	private String phone;
-	/** 头像      */
-	private String avatar;
-	/**部门ID*/
-	private String deptId;
+    private String shortPinyin;
+    /**
+     * 手机号码
+     */
+    private String phone;
+    /**
+     * 头像
+     */
+    private String avatar;
+    /**
+     * 部门ID
+     */
+    private String deptId;
 
-	private HttpLog httpLog;
+    private HttpLog httpLog;
 
+    private List<Job> jobList;
+    private List<CompanyPost> postList;
 
-	public String getDeptName() {
-		return deptName;
-	}
-	public void setDeptName(String deptName) {
-		this.deptName = deptName;
-	}
-	public String getJobName() {
-		return jobName;
+    private List<Dept> deptList;
+
+    public List<Job> getJobList() {
+        return jobList;
+    }
+
+    public void setJobList(List<Job> jobList) {
+        this.jobList = jobList;
+    }
+
+    public List<CompanyPost> getPostList() {
+        return postList;
+    }
+
+    public void setPostList(List<CompanyPost> postList) {
+        this.postList = postList;
+    }
+
+    public List<Dept> getDeptList() {
+        return deptList;
+    }
+
+    public void setDeptList(List<Dept> deptList) {
+        this.deptList = deptList;
+    }
+
+    public String getDeptName() {
+        return deptName;
+    }
+
+    public void setDeptName(String deptName) {
+        this.deptName = deptName;
+    }
+
+    public String getJobName() {
+        return jobName;
 	}
 
 	public String getName() {

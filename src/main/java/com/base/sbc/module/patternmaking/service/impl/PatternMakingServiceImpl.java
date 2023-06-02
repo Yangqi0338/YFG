@@ -7,10 +7,16 @@
 package com.base.sbc.module.patternmaking.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.entity.Dept;
+import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
@@ -20,10 +26,12 @@ import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
 import com.base.sbc.module.patternmaking.dto.SampleDesignSendDto;
 import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
 import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
+import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
-import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
+import com.base.sbc.module.patternmaking.vo.PatternDesignSampleTypeQtyVo;
+import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
 import com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo;
 import com.base.sbc.module.sample.entity.SampleDesign;
@@ -35,7 +43,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：打版管理 service类
@@ -53,6 +62,9 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     private final SampleDesignService sampleDesignService;
     private final NodeStatusService nodeStatusService;
     private final AttachmentService attachmentService;
+    private final AmcFeignService amcFeignService;
+
+    private final CcmFeignService ccmFeignService;
 
 
 // 自定义方法区 不替换的区域【other_start】
@@ -61,6 +73,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     public List<PatternMakingVo> findBySampleDesignId(String sampleDesignId) {
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
         qw.eq("sample_design_id", sampleDesignId);
+        qw.orderBy(true, true, "create_date");
         List<PatternMaking> list = list(qw);
         List<PatternMakingVo> patternMakingVos = BeanUtil.copyToList(list, PatternMakingVo.class);
         return patternMakingVos;
@@ -124,21 +137,76 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
+        qw.eq("design_send_status", BaseGlobal.YES);
+        qw.eq("s.del_flag", BaseGlobal.NO);
+        qw.eq("p.del_flag", BaseGlobal.NO);
+        if (StrUtil.isBlank(dto.getOrderBy())) {
+            qw.orderBy(true, true, "p.create_date");
+        } else {
+            qw.orderBy(true, dto.isAsc(), dto.getOrderByColumn());
+        }
+
         Page<TechnologyCenterTaskVo> page = PageHelper.startPage(dto);
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
         //设置图片
-        attachmentService.setListStylePic(list,"stylePic");
+        attachmentService.setListStylePic(list, "stylePic");
         return page.toPageInfo();
     }
 
     @Override
     public boolean setPatternDesign(SetPatternDesignDto dto) {
-        UpdateWrapper<PatternMaking> uw=new UpdateWrapper<>();
-        uw.set("pattern_design_id",dto.getPatternDesignId());
-        uw.set("pattern_design_name",dto.getPatternDesignName());
-        uw.eq("id",dto.getId());
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.set("pattern_design_id", dto.getPatternDesignId());
+        uw.set("pattern_design_name", dto.getPatternDesignName());
+        uw.eq("id", dto.getId());
         return update(uw);
 //        return true;
+    }
+
+    @Override
+    public List<PatternDesignVo> getPatternDesignList(String planningSeasonId) {
+        List<UserCompany> userList = amcFeignService.getTeamUserListByPost(planningSeasonId, "版师");
+        if (CollUtil.isEmpty(userList)) {
+            return null;
+        }
+        List<String> userIds = userList.stream().map(UserCompany::getUserId).collect(Collectors.toList());
+        Map<String, String> sampleTypes = ccmFeignService.getDictInfoToMap("SampleType").get("SampleType");
+        QueryWrapper<PatternMaking> pmQw = new QueryWrapper<>();
+        pmQw.in("pattern_design_id", userIds);
+        List<PatternDesignSampleTypeQtyVo> qtyList = getBaseMapper().getPatternDesignSampleTypeCount(pmQw);
+        List<PatternDesignVo> patternDesignVoList = new ArrayList<>();
+        Map<String, List<PatternDesignSampleTypeQtyVo>> qtyMap = qtyList.stream().collect(Collectors.groupingBy(PatternDesignSampleTypeQtyVo::getPatternDesignId));
+        Long total = null;
+        for (UserCompany user : userList) {
+            PatternDesignVo patternDesignVo = BeanUtil.copyProperties(user, PatternDesignVo.class);
+            LinkedHashMap<String, Long> sampleTypeCount = new LinkedHashMap<>(16);
+            total = 0L;
+            for (Map.Entry<String, String> dict : sampleTypes.entrySet()) {
+                Long qty = Optional.ofNullable(qtyMap).map(qtyMap1 -> qtyMap1.get(user.getUserId())).map(qtyList2 -> {
+                    PatternDesignSampleTypeQtyVo one = CollUtil.findOne(qtyList2, a -> StrUtil.equals(a.getSampleType(), dict.getKey()));
+                    return Optional.ofNullable(one).map(PatternDesignSampleTypeQtyVo::getQuantity).orElse(0L);
+                }).orElse(0L);
+                total = total + qty;
+                sampleTypeCount.put(dict.getValue(), qty);
+            }
+            sampleTypeCount.put("总数", total);
+            String deptName = Optional.ofNullable(user.getDeptList()).map(item -> {
+                return item.stream().map(Dept::getName).collect(Collectors.joining(StrUtil.COMMA));
+            }).orElse("");
+            patternDesignVo.setDeptName(deptName);
+            patternDesignVo.setSampleTypeCount(sampleTypeCount);
+            patternDesignVoList.add(patternDesignVo);
+        }
+        return patternDesignVoList;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class, OtherException.class})
+    public boolean breakOff(String id) {
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.in("id", StrUtil.split(id, CharUtil.COMMA));
+        uw.set("break_off", BaseGlobal.YES);
+        return update(uw);
     }
 
     public String getNextCode(SampleDesign sampleDesign) {

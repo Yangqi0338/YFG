@@ -14,8 +14,8 @@ import java.util.List;
  * @author lilele
  * @data 创建时间:2021/12/24
  */
-//@FeignClient(name = "amc", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
-@FeignClient(name = "amc", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
+@FeignClient(name = "amc", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
+//@FeignClient(name = "amc", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
 public interface AmcService {
     /**
      * 获取用户信息
@@ -92,13 +92,22 @@ public interface AmcService {
      * @return
      */
     @GetMapping("/amc/api/token/team/getBySeasonId")
-    String getTeamBySeasonId( @RequestParam("seasonId") String seasonId);
-
+    String getTeamBySeasonId(@RequestParam("seasonId") String seasonId);
 
 
     /**
      * hr-人员
      */
     @PostMapping("/amc/api/open/smp/hrUserSave")
-    String hrUserSave( @RequestBody SmpUserDto smpUser);
+    String hrUserSave(@RequestBody SmpUserDto smpUser);
+
+    /**
+     * 获取团队里的人员，通过产品季id
+     *
+     * @param planningSeasonId 产品季id
+     * @param dpj              是否查询部门岗位角色
+     * @return
+     */
+    @GetMapping("/amc/api/token/team/getUsersBySeasonId")
+    String getUsersBySeasonId(@RequestParam("planningSeasonId") String planningSeasonId, @RequestParam("dpj") String dpj);
 }
