@@ -152,30 +152,6 @@ public class SmpController extends BaseController {
         tagPrinting.setTechApproved(true);
         tagPrinting.setSaftyTitle("Title A");
         tagPrinting.setAppBomComment("BOM Comment A");
-        tagPrinting.setSeriesDesc("Description A");
-        tagPrinting.setFrontFabricColor("Red");
-        tagPrinting.setBackFabricColor("Blue");
-        tagPrinting.setAppHem("Hem A");
-        tagPrinting.setAppRemark("Remark A");
-        tagPrinting.setColorwayRuleName("Rule A");
-        tagPrinting.setColorwayRuleValue("Value A");
-        tagPrinting.setDyeingComposition("Cotton");
-        tagPrinting.setTechType("Type A");
-        tagPrinting.setSaftyClass("Class A");
-        tagPrinting.setSeason("Summer");
-        tagPrinting.setIsMainMaterial(true);
-        tagPrinting.setAccessoriesColorCode("001");
-        tagPrinting.setAccessoriesColorDescription("Red");
-        tagPrinting.setStyleCodeEN("STYLE001");
-        tagPrinting.setSizeIDEN("M");
-        tagPrinting.setPromoType("Discount");
-        tagPrinting.setPromoDesc("Promotion A");
-        tagPrinting.setIsFirstBuy(true);
-        tagPrinting.setIsSample(true);
-        tagPrinting.setSampleCode("SAMPLE001");
-        tagPrinting.setIsSampleCard(true);
-        tagPrinting.setSampleCardCode("CARD001");
-        tagPrinting.setSampleCardGrade("Grade A");
 
         // 设置尺码信息
         List<TagPrinting.Size> sizeInfo = new ArrayList<>();
@@ -241,30 +217,7 @@ public class SmpController extends BaseController {
         tagPrinting2.setTechApproved(true);
         tagPrinting2.setSaftyTitle("Title B");
         tagPrinting2.setAppBomComment("BOM Comment B");
-        tagPrinting2.setSeriesDesc("Description B");
-        tagPrinting2.setFrontFabricColor("Blue");
-        tagPrinting2.setBackFabricColor("Black");
-        tagPrinting2.setAppHem("Hem B");
-        tagPrinting2.setAppRemark("Remark B");
-        tagPrinting2.setColorwayRuleName("Rule B");
-        tagPrinting2.setColorwayRuleValue("Value B");
-        tagPrinting2.setDyeingComposition("Polyester");
-        tagPrinting2.setTechType("Type B");
-        tagPrinting2.setSaftyClass("Class B");
-        tagPrinting2.setSeason("Winter");
-        tagPrinting2.setIsMainMaterial(true);
-        tagPrinting2.setAccessoriesColorCode("002");
-        tagPrinting2.setAccessoriesColorDescription("Blue");
-        tagPrinting2.setStyleCodeEN("STYLE002");
-        tagPrinting2.setSizeIDEN("L");
-        tagPrinting2.setPromoType("Free gift");
-        tagPrinting2.setPromoDesc("Promotion B");
-        tagPrinting2.setIsFirstBuy(true);
-        tagPrinting2.setIsSample(true);
-        tagPrinting2.setSampleCode("SAMPLE002");
-        tagPrinting2.setIsSampleCard(true);
-        tagPrinting2.setSampleCardCode("CARD002");
-        tagPrinting2.setSampleCardGrade("Grade B");
+
 
         // 设置尺码信息
         List<TagPrinting.Size> sizeInfo2 = new ArrayList<>();

@@ -72,58 +72,22 @@ public class TagPrinting {
     private String attention;
     /** 后技术确认 */
     private Boolean techApproved;
-    /** 安全技术类别 */
+    /** 安全标题 */
     private String saftyTitle;
     /** 洗唛材质备注 */
     private String appBomComment;
-    /** 系列描述 */
-    private String seriesDesc;
-    /** 前片色 */
-    private String frontFabricColor;
-    /** 后片色 */
-    private String backFabricColor;
-    /** 毛边 */
-    private String appHem;
-    /** 备注 */
-    private String appRemark;
-    /** 代码规则名称 */
-    private String colorwayRuleName;
-    /** 代码规则值 */
-    private String colorwayRuleValue;
-    /** 染色材质 */
-    private String dyeingComposition;
-    /** 技术类别 */
-    private String techType;
-    /** 安全类别 */
-    private String saftyClass;
-    /** 季节 */
-    private String season;
-    /** 是否主料 */
-    private Boolean isMainMaterial;
-    /** 配件颜色编码 */
-    private String accessoriesColorCode;
-    /** 配件颜色名称 */
-    private String accessoriesColorDescription;
-    /** 款式编码 */
-    private String styleCodeEN;
-    /** 码 */
-    private String sizeIDEN;
-    /** 促销类型 */
-    private String promoType;
-    /** 促销描述 */
-    private String promoDesc;
-    /** 是否首次购买 */
-    private Boolean isFirstBuy;
-    /** 是否样品 */
-    private Boolean isSample;
-    /** 样品编码 */
-    private String sampleCode;
-    /** 是否样卡 */
-    private Boolean isSampleCard;
-    /** 样卡编码 */
-    private String sampleCardCode;
-    /** 样卡等级 */
-    private String sampleCardGrade;
+    /** 贮藏要求 */
+    private String appBomStorageReq;
+    /** 入库时间 */
+    private String appBomStorageTime;
+    /** 产地 */
+    private String appBomMadeIn;
+    /** 英文成分 */
+    private String compsitionMix;
+    /** 英文温馨提示 */
+    private String warmPointEn;
+    /** 英文贮藏要求 */
+    private String storageReqEn;
     /** 尺码信息 */
     private List<Size> size;
 
