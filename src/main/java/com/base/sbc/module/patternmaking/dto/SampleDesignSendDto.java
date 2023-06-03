@@ -16,7 +16,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @Data
 @ApiModel("样衣设计下发dto SampleDesignSendDto ")
 public class SampleDesignSendDto {
-    @ApiModelProperty(value = "打版id"  )
+    @ApiModelProperty(value = "打版id", required = true)
     @NotBlank(message = "打版id不能为空")
     private String id;
 

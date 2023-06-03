@@ -19,16 +19,15 @@ import org.hibernate.validator.constraints.NotBlank;
 public class SetPatternDesignDto {
 
 
-    @ApiModelProperty(value = "打版id"  )
+    @ApiModelProperty(value = "打版id", required = true)
     @NotBlank(message = "id不能为空")
     private String id;
 
-    @ApiModelProperty(value = "版师名称"  )
+    @ApiModelProperty(value = "版师名称", required = true)
     @NotBlank(message = "版师名称不能为空")
     private String patternDesignName;
     /** 版师id */
-    @ApiModelProperty(value = "版师id"  )
-
+    @ApiModelProperty(value = "版师id", required = true)
     @NotBlank(message = "版师id不能为空")
     private String patternDesignId;
 
