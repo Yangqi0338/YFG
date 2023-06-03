@@ -71,6 +71,30 @@ public class TechnologyCenterTaskVo {
     @ApiModelProperty(value = "中断打版(0正常，1中断)")
     private String breakOffPattern;
 
+    @ApiModelProperty(value = "年份", example = "2022")
+    private String year;
+    /**
+     * 季节
+     */
+    @ApiModelProperty(value = "季节", example = "S")
+    private String season;
+    /**
+     * 月份
+     */
+    @ApiModelProperty(value = "月份", example = "1")
+    private String month;
+    /**
+     * 月份
+     */
+    @ApiModelProperty(value = "品牌", example = "1")
+    private String brand;
+    /**
+     * 月份
+     */
+    @ApiModelProperty(value = "波段", example = "1")
+    private String bandCode;
+
+
     @ApiModelProperty(value = "版师列表")
     private List<PatternDesignVo> pdList;
 
