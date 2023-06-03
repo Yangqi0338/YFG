@@ -98,10 +98,12 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public boolean sampleDesignSend(SampleDesignSendDto dto) {
         EnumNodeStatus enumNodeStatus = EnumNodeStatus.DESIGN_SEND;
-        NodeStatus nodeStatus = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
+        EnumNodeStatus enumNodeStatus2 = EnumNodeStatus.TECHNICAL_ROOM_RECEIVED;
+        nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
+        NodeStatus nodeStatus = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus2.getNode(), enumNodeStatus2.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
-        uw.set("node", enumNodeStatus.getNode());
-        uw.set("status", enumNodeStatus.getStatus());
+        uw.set("node", enumNodeStatus2.getNode());
+        uw.set("status", enumNodeStatus2.getStatus());
         uw.set("design_send_date", nodeStatus.getStartDate());
         uw.set("design_send_status", BaseGlobal.YES);
         uw.eq("id", dto.getId());
