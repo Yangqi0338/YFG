@@ -110,6 +110,23 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      */
     boolean breakOffPattern(String id);
 
+    /**
+     * 批量下发
+     *
+     * @param dtos
+     * @return
+     */
+
+    Integer prmSendBatch(List<SetPatternDesignDto> dtos);
+
+    /**
+     * 设置版师批量
+     *
+     * @param dto
+     * @return
+     */
+    boolean setPatternDesignBatch(List<SetPatternDesignDto> dto);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

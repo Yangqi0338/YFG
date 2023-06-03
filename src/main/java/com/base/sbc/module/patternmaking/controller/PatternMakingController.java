@@ -102,14 +102,7 @@ public class PatternMakingController {
     @ApiOperation(value = "版房主管下发")
     @PostMapping("/prmSend")
     public Integer prmSend(@Valid @RequestBody List<SetPatternDesignDto> dtos) {
-        int i = 0;
-        for (SetPatternDesignDto dto : dtos) {
-            if (patternMakingService.prmSend(dto)) {
-                i++;
-            }
-
-        }
-        return i;
+        return patternMakingService.prmSendBatch(dtos);
     }
 
 
@@ -119,6 +112,11 @@ public class PatternMakingController {
         return patternMakingService.setPatternDesign(dto);
     }
 
+    @ApiOperation(value = "指定版师批量")
+    @PostMapping("/setPatternDesignBatch")
+    public boolean setPatternDesignBatch(@Valid @RequestBody List<SetPatternDesignDto> dto) {
+        return patternMakingService.setPatternDesignBatch(dto);
+    }
 
     @ApiOperation(value = "获取版师列表")
     @GetMapping("/getPatternDesignList")

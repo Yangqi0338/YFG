@@ -122,7 +122,12 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
 
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public boolean prmSend(SetPatternDesignDto dto) {
+        PatternMaking byId = getById(dto.getId());
+        if (StrUtil.equals(BaseGlobal.YES, byId.getBreakOffPattern())) {
+            throw new OtherException("已中断打版,不能下发");
+        }
         EnumNodeStatus enumNodeStatus1 = EnumNodeStatus.TECHNICAL_ROOM_SEND;
         EnumNodeStatus enumNodeStatus2 = EnumNodeStatus.SAMPLE_TASK_WAITING_RECEIVE;
         nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus1.getNode(), enumNodeStatus1.getStatus(), BaseGlobal.NO, BaseGlobal.YES);
@@ -177,6 +182,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public boolean setPatternDesign(SetPatternDesignDto dto) {
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.set("pattern_design_id", dto.getPatternDesignId());
@@ -238,6 +244,27 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         uw.in("id", StrUtil.split(id, CharUtil.COMMA));
         uw.set("break_off_pattern", BaseGlobal.YES);
         return update(uw);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public Integer prmSendBatch(List<SetPatternDesignDto> dtos) {
+        int i = 0;
+        for (SetPatternDesignDto dto : dtos) {
+            if (prmSend(dto)) {
+                i++;
+            }
+        }
+        return i;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean setPatternDesignBatch(List<SetPatternDesignDto> dtos) {
+        for (SetPatternDesignDto dto : dtos) {
+            setPatternDesign(dto);
+        }
+        return true;
     }
 
     public String getNextCode(SampleDesign sampleDesign) {
