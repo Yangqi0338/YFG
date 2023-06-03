@@ -22,11 +22,12 @@ public interface NodeStatusService extends IServicePlus<NodeStatus>{
 
     /**
      * 节点状态改变（到下一个节点）
+     *
      * @param dataId
      * @param node
      * @param status
      */
-    NodeStatus nodeStatusChange(String dataId, String node, String status);
+    NodeStatus nodeStatusChange(String dataId, String node, String status, String startFlg, String endFlg);
 
     /**
      * 完成当前节点

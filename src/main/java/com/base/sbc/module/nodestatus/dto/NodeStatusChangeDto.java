@@ -36,4 +36,13 @@ public class NodeStatusChangeDto {
     @ApiModelProperty(value = "状态")
     @NotBlank(message = "状态不能为空")
     private String status;
+
+    @ApiModelProperty(value = "节点开始标志(0否，1是)")
+    private String startFlg;
+    /**
+     * 节点结束标志(0否，1是)
+     */
+    @ApiModelProperty(value = "节点结束标志(0否，1是)")
+    private String endFlg;
+
 }

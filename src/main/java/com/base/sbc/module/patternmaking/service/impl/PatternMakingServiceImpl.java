@@ -98,7 +98,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public boolean sampleDesignSend(SampleDesignSendDto dto) {
         EnumNodeStatus enumNodeStatus = EnumNodeStatus.DESIGN_SEND;
-        NodeStatus nodeStatus = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus());
+        NodeStatus nodeStatus = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.set("node", enumNodeStatus.getNode());
         uw.set("status", enumNodeStatus.getStatus());
@@ -112,7 +112,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean nodeStatusChange(PatternMakingDto dto) {
-        nodeStatusService.nodeStatusChange(dto.getId(), dto.getNode(), dto.getStatus());
+        nodeStatusService.nodeStatusChange(dto.getId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
         PatternMaking patternMaking = BeanUtil.copyProperties(dto, PatternMaking.class);
         // 修改单据
         return updateById(patternMaking);
@@ -123,13 +123,15 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     public boolean prmSend(SetPatternDesignDto dto) {
         EnumNodeStatus enumNodeStatus1 = EnumNodeStatus.TECHNICAL_ROOM_SEND;
         EnumNodeStatus enumNodeStatus2 = EnumNodeStatus.SAMPLE_TASK_WAITING_RECEIVE;
-        nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus1.getNode(), enumNodeStatus1.getStatus());
-        NodeStatus nodeStatus2 = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus2.getNode(), enumNodeStatus2.getStatus());
+        nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus1.getNode(), enumNodeStatus1.getStatus(), BaseGlobal.NO, BaseGlobal.YES);
+        NodeStatus nodeStatus2 = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus2.getNode(), enumNodeStatus2.getStatus(), BaseGlobal.YES, BaseGlobal.NO);
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.set("node", enumNodeStatus2.getNode());
         uw.set("status", enumNodeStatus2.getStatus());
         uw.set("prm_send_date", nodeStatus2.getStartDate());
         uw.set("prm_send_status", BaseGlobal.YES);
+        uw.set(StrUtil.isNotBlank(dto.getPatternDesignId()), "pattern_design_id", dto.getPatternDesignId());
+        uw.set(StrUtil.isNotBlank(dto.getPatternDesignName()), "pattern_design_name", dto.getPatternDesignName());
         uw.eq("id", dto.getId());
         // 修改单据
         return update(uw);

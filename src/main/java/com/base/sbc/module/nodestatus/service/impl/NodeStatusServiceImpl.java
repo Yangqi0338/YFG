@@ -6,8 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.nodestatus.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
@@ -36,23 +38,28 @@ public class NodeStatusServiceImpl extends ServicePlusImpl<NodeStatusMapper, Nod
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public NodeStatus nodeStatusChange(String dataId, String node, String status) {
+    public NodeStatus nodeStatusChange(String dataId, String node, String status, String startFlg, String endFlg) {
 
         // 1、修改上一个节点状态的完成时间
         NodeStatus currentNodeStatus = getCurrentNodeStatusByDataId(dataId);
         Date nowDate = new Date();
-        if(currentNodeStatus!=null){
-            UpdateWrapper<NodeStatus> uw=new UpdateWrapper<>();
+        if (currentNodeStatus != null) {
+            UpdateWrapper<NodeStatus> uw = new UpdateWrapper<>();
             uw.set("end_date", nowDate);
-            uw.eq("id",currentNodeStatus.getId());
+            uw.eq("id", currentNodeStatus.getId());
             update(uw);
         }
         // 2、 保存当前流程节点状态
-        NodeStatus nextNodeStatus=new NodeStatus();
+        NodeStatus nextNodeStatus = new NodeStatus();
         nextNodeStatus.setNode(node);
         nextNodeStatus.setStatus(status);
         nextNodeStatus.setStartDate(nowDate);
         nextNodeStatus.setDataId(dataId);
+        nextNodeStatus.setStartFlg(startFlg);
+        nextNodeStatus.setEndFlg(endFlg);
+        if (StrUtil.equals(endFlg, BaseGlobal.YES)) {
+            nextNodeStatus.setEndDate(nowDate);
+        }
         save(nextNodeStatus);
         return nextNodeStatus;
     }
