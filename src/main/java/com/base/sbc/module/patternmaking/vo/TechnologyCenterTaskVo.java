@@ -60,6 +60,17 @@ public class TechnologyCenterTaskVo {
     @ApiModelProperty(value = "版师id")
     private String patternDesignId;
 
+    /**
+     * 中断样衣(0正常，1中断)
+     */
+    @ApiModelProperty(value = "中断样衣(0正常，1中断)")
+    private String breakOffSample;
+    /**
+     * 中断打版(0正常，1中断)
+     */
+    @ApiModelProperty(value = "中断打版(0正常，1中断)")
+    private String breakOffPattern;
+
     @ApiModelProperty(value = "版师列表")
     private List<PatternDesignVo> pdList;
 
