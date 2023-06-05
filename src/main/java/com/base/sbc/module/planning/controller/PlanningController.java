@@ -5,9 +5,11 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.planning.dto.*;
@@ -20,7 +22,10 @@ import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -62,6 +67,8 @@ public class PlanningController extends BaseController {
 
     @Autowired
     private CcmService ccmService;
+    @Autowired
+    private AmcFeignService amcFeignService;
     private IdGen idGen = new IdGen();
 
     @ApiOperation(value = "保存产品季", notes = "")
@@ -182,6 +189,16 @@ public class PlanningController extends BaseController {
     @PostMapping("/savePlanningCategoryItemMaterial")
     public boolean savePlanningCategoryItemMaterial(@RequestBody PlanningCategoryItemMaterialSaveDto dto) {
         return planningCategoryItemMaterialService.savePlanningCategoryItemMaterial(dto);
+    }
+
+    @ApiOperation(value = "查询产品季用户列表", notes = "可通过岗位查询")
+    @GetMapping("/getTeamUserList")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "planningSeasonId", value = "产品季id", paramType = "query", required = true),
+            @ApiImplicitParam(name = "post", value = "岗位,名称，编码", paramType = "query"),
+    })
+    public List<UserCompany> getTeamUserList(@Valid @NotBlank(message = "产品季id不能为空") String planningSeasonId, String post) {
+        return amcFeignService.getTeamUserListByPost(planningSeasonId, post);
     }
 
 }
