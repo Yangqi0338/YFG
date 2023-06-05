@@ -158,6 +158,9 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
     boolean cancelSuspend(String id);
 
 
+    boolean setKitting(String p, SetKittingDto dto);
+
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

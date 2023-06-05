@@ -84,6 +84,9 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         PatternMaking patternMaking = BeanUtil.copyProperties(dto, PatternMaking.class);
         patternMaking.setCode(getNextCode(sampleDesign));
         patternMaking.setPlanningSeasonId(sampleDesign.getPlanningSeasonId());
+        if (StrUtil.equals(dto.getTechnicianKitting(), BaseGlobal.YES)) {
+            patternMaking.setTechnicianKittingDate(new Date());
+        }
         save(patternMaking);
         return patternMaking;
     }
@@ -330,6 +333,24 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         setUpdateInfo(uw);
         return update(uw);
     }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean setKitting(String p, SetKittingDto dto) {
+        if (!StrUtil.equalsAny(dto.getKitting(), BaseGlobal.NO, BaseGlobal.YES)) {
+            throw new OtherException("是否齐套值不符合:0 or 1");
+        }
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        if (StrUtil.equals(dto.getKitting(), BaseGlobal.YES)) {
+            uw.set(p + "kitting_date", new Date());
+        } else {
+            uw.set(p + "kitting_date", null);
+        }
+        uw.set(p + "kitting", dto.getKitting());
+        uw.eq("id", dto.getId());
+        return update(uw);
+    }
+
 
     public void setNodeStatus(List<PatternMakingTaskListVo> list) {
         if (CollUtil.isEmpty(list)) {

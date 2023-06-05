@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-5 14:31:24
+ * @date 创建时间：2023-6-5 14:35:32
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -52,15 +52,21 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "版房"  )
     private String patternRoom;
     /** 版房id */
-    @ApiModelProperty(value = "版房id"  )
+    @ApiModelProperty(value = "版房id")
     private String patternRoomId;
-    /** 打版类型 */
-    @ApiModelProperty(value = "打版类型"  )
+    /**
+     * 打版类型
+     */
+    @ApiModelProperty(value = "打版类型")
     private String sampleType;
-    /** 打版难度 */
-    @ApiModelProperty(value = "打版难度"  )
+    /**
+     * 打版难度
+     */
+    @ApiModelProperty(value = "打版难度")
     private String patDiff;
-    /** 打样顺序 */
+    /**
+     * 打样顺序
+     */
     @ApiModelProperty(value = "打样顺序")
     private String patSeq;
     /**
@@ -77,7 +83,8 @@ public class PatternMaking extends BaseDataEntity<String> {
      * 工艺员确认齐套时间
      */
     @ApiModelProperty(value = "工艺员确认齐套时间")
-    private String technicianKittingDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date technicianKittingDate;
     /**
      * 样衣组长确认齐套
      */
