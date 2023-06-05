@@ -16,11 +16,11 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
-import com.base.sbc.module.process.dto.AddRevampProcessNodeConditionDto;
-import com.base.sbc.module.process.entity.ProcessNodeCondition;
-import com.base.sbc.module.process.mapper.ProcessNodeConditionMapper;
-import com.base.sbc.module.process.service.ProcessNodeConditionService;
-import com.base.sbc.module.process.vo.ProcessNodeConditionVo;
+import com.base.sbc.module.process.dto.AddRevampProcessNodeStatusConditionDto;
+import com.base.sbc.module.process.entity.ProcessNodeStatusCondition;
+import com.base.sbc.module.process.mapper.ProcessNodeStatusConditionMapper;
+import com.base.sbc.module.process.service.ProcessNodeStatusConditionService;
+import com.base.sbc.module.process.vo.ProcessNodeStatusConditionVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -31,15 +31,15 @@ import org.springframework.util.ObjectUtils;
 import java.util.List;
 
 /**
- * 类描述：流程配置-节点条件 service类
- * @address com.base.sbc.module.process.service.ProcessNodeConditionService
+ * 类描述：流程配置-节点状态条件 service类
+ * @address com.base.sbc.module.process.service.ProcessNodeStatusConditionService
  * @author mengfanjiang
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-2 20:15:15
+ * @date 创建时间：2023-6-5 17:10:23
  * @version 1.0  
  */
 @Service
-public class ProcessNodeConditionServiceImpl extends ServicePlusImpl<ProcessNodeConditionMapper, ProcessNodeCondition> implements ProcessNodeConditionService {
+public class ProcessNodeStatusConditionServiceImpl extends ServicePlusImpl<ProcessNodeStatusConditionMapper, ProcessNodeStatusCondition> implements ProcessNodeStatusConditionService {
 
         @Autowired
         private BaseController baseController;
@@ -47,23 +47,23 @@ public class ProcessNodeConditionServiceImpl extends ServicePlusImpl<ProcessNode
 /** 自定义方法区 不替换的区域【other_start】 **/
 
         /**
-        * 流程配置-节点条件分页查询
+        * 流程配置-节点状态条件分页查询
         *
         * @param queryDto
         * @return
         */
         @Override
-        public PageInfo<ProcessNodeConditionVo> getProcessNodeConditionList(QueryDto queryDto) {
+        public PageInfo<ProcessNodeStatusConditionVo> getProcessNodeStatusConditionList(QueryDto queryDto) {
             /*分页*/
             PageHelper.startPage(queryDto);
-            QueryWrapper<ProcessNodeCondition> queryWrapper = new QueryWrapper<>();
+            QueryWrapper<ProcessNodeStatusCondition> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
-            /*查询流程配置-节点条件数据*/
-            List<ProcessNodeCondition> processNodeConditionList = baseMapper.selectList(queryWrapper);
-            PageInfo<ProcessNodeCondition> pageInfo = new PageInfo<>(processNodeConditionList);
+            /*查询流程配置-节点状态条件数据*/
+            List<ProcessNodeStatusCondition> processNodeStatusConditionList = baseMapper.selectList(queryWrapper);
+            PageInfo<ProcessNodeStatusCondition> pageInfo = new PageInfo<>(processNodeStatusConditionList);
             /*转换vo*/
-            List<ProcessNodeConditionVo> list = BeanUtil.copyToList(processNodeConditionList, ProcessNodeConditionVo.class);
-            PageInfo<ProcessNodeConditionVo> pageInfo1 = new PageInfo<>();
+            List<ProcessNodeStatusConditionVo> list = BeanUtil.copyToList(processNodeStatusConditionList, ProcessNodeStatusConditionVo.class);
+            PageInfo<ProcessNodeStatusConditionVo> pageInfo1 = new PageInfo<>();
             pageInfo1.setList(list);
             pageInfo1.setTotal(pageInfo.getTotal());
             pageInfo1.setPageNum(pageInfo.getPageNum());
@@ -76,43 +76,43 @@ public class ProcessNodeConditionServiceImpl extends ServicePlusImpl<ProcessNode
 
 
         /**
-        * 方法描述：新增修改流程配置-节点条件
+        * 方法描述：新增修改流程配置-节点状态条件
         *
-        * @param addRevampProcessNodeConditionDto 流程配置-节点条件Dto类
+        * @param addRevampProcessNodeStatusConditionDto 流程配置-节点状态条件Dto类
         * @return boolean
         */
         @Override
-        public Boolean addRevampProcessNodeCondition(AddRevampProcessNodeConditionDto addRevampProcessNodeConditionDto) {
-                ProcessNodeCondition processNodeCondition = new ProcessNodeCondition();
-            if (StringUtils.isEmpty(addRevampProcessNodeConditionDto.getId())) {
-                QueryWrapper<ProcessNodeCondition> queryWrapper=new QueryWrapper<>();
+        public Boolean addRevampProcessNodeStatusCondition(AddRevampProcessNodeStatusConditionDto addRevampProcessNodeStatusConditionDto) {
+                ProcessNodeStatusCondition processNodeStatusCondition = new ProcessNodeStatusCondition();
+            if (StringUtils.isEmpty(addRevampProcessNodeStatusConditionDto.getId())) {
+                QueryWrapper<ProcessNodeStatusCondition> queryWrapper=new QueryWrapper<>();
                 /*新增*/
-                BeanUtils.copyProperties(addRevampProcessNodeConditionDto, processNodeCondition);
-                processNodeCondition.setCompanyCode(baseController.getUserCompany());
-                processNodeCondition.insertInit();
-                baseMapper.insert(processNodeCondition);
+                BeanUtils.copyProperties(addRevampProcessNodeStatusConditionDto, processNodeStatusCondition);
+                processNodeStatusCondition.setCompanyCode(baseController.getUserCompany());
+                processNodeStatusCondition.insertInit();
+                baseMapper.insert(processNodeStatusCondition);
            } else {
                 /*修改*/
-                processNodeCondition = baseMapper.selectById(addRevampProcessNodeConditionDto.getId());
-                if (ObjectUtils.isEmpty(processNodeCondition)) {
+                processNodeStatusCondition = baseMapper.selectById(addRevampProcessNodeStatusConditionDto.getId());
+                if (ObjectUtils.isEmpty(processNodeStatusCondition)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
                 }
-                BeanUtils.copyProperties(addRevampProcessNodeConditionDto, processNodeCondition);
-                processNodeCondition.updateInit();
-                baseMapper.updateById(processNodeCondition);
+                BeanUtils.copyProperties(addRevampProcessNodeStatusConditionDto, processNodeStatusCondition);
+                processNodeStatusCondition.updateInit();
+                baseMapper.updateById(processNodeStatusCondition);
                 }
                 return true;
          }
 
 
          /**
-         * 方法描述：删除流程配置-节点条件
+         * 方法描述：删除流程配置-节点状态条件
          *
          * @param id （多个用，）
          * @return boolean
          */
          @Override
-         public Boolean delProcessNodeCondition(String id) {
+         public Boolean delProcessNodeStatusCondition(String id) {
          List<String> ids = StringUtils.convertList(id);
            /*批量删除*/
            baseMapper.deleteBatchIds(ids);
@@ -127,8 +127,8 @@ public class ProcessNodeConditionServiceImpl extends ServicePlusImpl<ProcessNode
          * @return boolean
          */
           @Override
-          public Boolean startStopProcessNodeCondition(StartStopDto startStopDto) {
-            UpdateWrapper<ProcessNodeCondition> updateWrapper = new UpdateWrapper<>();
+          public Boolean startStopProcessNodeStatusCondition(StartStopDto startStopDto) {
+            UpdateWrapper<ProcessNodeStatusCondition> updateWrapper = new UpdateWrapper<>();
             updateWrapper.in("id",StringUtils.convertList(startStopDto.getIds()));
             updateWrapper.set("status", startStopDto.getStatus());
             /*修改状态*/
