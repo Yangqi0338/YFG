@@ -10,9 +10,12 @@ import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.process.dto.AddRevampProcessNodeStatusDto;
+import com.base.sbc.module.process.dto.QueryNodeStatusDto;
 import com.base.sbc.module.process.entity.ProcessNodeStatus;
 import com.base.sbc.module.process.vo.ProcessNodeStatusVo;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /** 
  * 类描述：流程配置-节点状态 service类
@@ -29,10 +32,10 @@ public interface ProcessNodeStatusService extends IServicePlus<ProcessNodeStatus
         /**
         * 方法描述：分页查询部件
         *
-        * @param queryDto 查询条件
+        * @param queryNodeStatusDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<ProcessNodeStatusVo> getProcessNodeStatusList(QueryDto queryDto);
+        PageInfo<ProcessNodeStatusVo> getProcessNodeStatusList(QueryNodeStatusDto queryNodeStatusDto);
 
 
 
@@ -45,6 +48,14 @@ public interface ProcessNodeStatusService extends IServicePlus<ProcessNodeStatus
         */
         Boolean addRevampProcessNodeStatus(AddRevampProcessNodeStatusDto addRevampProcessNodeStatusDto);
 
+
+        /**
+         * 方法描述：批量新增修改流程配置-节点状态
+         *
+         * @param addRevampProcessNodeStatusDto 部件Dto类
+         * @return boolean
+         */
+        Boolean  batchAddRevamp(List<AddRevampProcessNodeStatusDto> addRevampProcessNodeStatusDto);
 
 
         /**

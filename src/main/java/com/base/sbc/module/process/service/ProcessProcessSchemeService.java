@@ -14,6 +14,8 @@ import com.base.sbc.module.process.entity.ProcessProcessScheme;
 import com.base.sbc.module.process.vo.ProcessProcessSchemeVo;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
+
 /** 
  * 类描述：流程配置-流程方案 service类
  * @address com.base.sbc.module.process.service.ProcessProcessSchemeService
@@ -32,7 +34,7 @@ public interface ProcessProcessSchemeService extends IServicePlus<ProcessProcess
         * @param queryDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<ProcessProcessSchemeVo> getProcessProcessSchemeList(QueryDto queryDto);
+        List<ProcessProcessSchemeVo> getProcessProcessSchemeList(QueryDto queryDto);
 
 
 

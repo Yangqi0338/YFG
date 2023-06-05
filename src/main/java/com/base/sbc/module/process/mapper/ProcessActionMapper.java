@@ -8,17 +8,17 @@ package com.base.sbc.module.process.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.process.entity.ProcessNodeCondition;
+import com.base.sbc.module.process.entity.ProcessAction;
 /** 
- * 类描述：流程配置-节点条件 dao类
- * @address com.base.sbc.module.process.dao.ProcessNodeConditionDao
+ * 类描述：流程配置-动作定义 dao类
+ * @address com.base.sbc.module.process.dao.ProcessActionDao
  * @author mengfanjiang  
  * @email  lxl.fml@gmail.com
- * @date 创建时间：2023-6-2 20:15:15 
+ * @date 创建时间：2023-6-5 11:03:08 
  * @version 1.0  
  */
 @Mapper
-public interface ProcessNodeConditionMapper extends BaseMapper<ProcessNodeCondition> {
+public interface ProcessActionMapper extends BaseMapper<ProcessAction> {
 // 自定义方法区 不替换的区域【other_start】
 
 

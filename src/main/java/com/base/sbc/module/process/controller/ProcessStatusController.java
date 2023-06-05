@@ -10,6 +10,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.process.dto.AddRevampProcessStatusDto;
+import com.base.sbc.module.process.dto.QueryStatusDto;
 import com.base.sbc.module.process.entity.ProcessStatus;
 import com.base.sbc.module.process.service.ProcessStatusService;
 import com.base.sbc.module.process.vo.ProcessStatusVo;
@@ -43,8 +44,8 @@ public class ProcessStatusController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getProcessStatusList")
-	public PageInfo<ProcessStatusVo> getProcessStatusList(QueryDto queryDto) {
-		return  processStatusService.getProcessStatusList(queryDto);
+	public PageInfo<ProcessStatusVo> getProcessStatusList(QueryStatusDto queryStatusDto) {
+		return  processStatusService.getProcessStatusList(queryStatusDto);
 	}
 
 

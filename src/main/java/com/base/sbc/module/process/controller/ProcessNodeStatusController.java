@@ -10,6 +10,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.process.dto.AddRevampProcessNodeStatusDto;
+import com.base.sbc.module.process.dto.QueryNodeStatusDto;
 import com.base.sbc.module.process.entity.ProcessNodeStatus;
 import com.base.sbc.module.process.service.ProcessNodeStatusService;
 import com.base.sbc.module.process.vo.ProcessNodeStatusVo;
@@ -23,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
 * 类描述：流程配置-节点状态 Controller类
@@ -43,8 +45,8 @@ public class ProcessNodeStatusController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getProcessNodeStatusList")
-	public PageInfo<ProcessNodeStatusVo> getProcessNodeStatusList(QueryDto queryDto) {
-		return  processNodeStatusService.getProcessNodeStatusList(queryDto);
+	public PageInfo<ProcessNodeStatusVo> getProcessNodeStatusList(QueryNodeStatusDto queryNodeStatusDto) {
+		return  processNodeStatusService.getProcessNodeStatusList(queryNodeStatusDto);
 	}
 
 
@@ -61,6 +63,13 @@ public class ProcessNodeStatusController{
 	public Boolean addRevampProcessNodeStatus(@Valid @RequestBody AddRevampProcessNodeStatusDto addRevampProcessNodeStatusDto) {
 	return processNodeStatusService.addRevampProcessNodeStatus(addRevampProcessNodeStatusDto);
 	}
+
+	@ApiOperation(value = "批量新增修改流程配置-节点状态")
+	@PostMapping("/batchAddRevamp")
+	public Boolean batchAddRevamp(@Valid @RequestBody List<AddRevampProcessNodeStatusDto> addRevampProcessNodeStatusDto) {
+		return processNodeStatusService.batchAddRevamp(addRevampProcessNodeStatusDto);
+	}
+
 
 	@ApiOperation(value = "删除流程配置-节点状态")
 	@DeleteMapping("/delProcessNodeStatus")

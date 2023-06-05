@@ -14,6 +14,8 @@ import com.base.sbc.module.process.entity.ProcessNode;
 import com.base.sbc.module.process.vo.ProcessNodeVo;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
+
 /** 
  * 类描述：流程配置-节点表 service类
  * @address com.base.sbc.module.process.service.ProcessNodeService
@@ -29,10 +31,10 @@ public interface ProcessNodeService extends IServicePlus<ProcessNode>{
         /**
         * 方法描述：分页查询部件
         *
-        * @param queryDto 查询条件
+        * @param processSchemeId 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<ProcessNodeVo> getProcessNodeList(QueryDto queryDto);
+        List<ProcessNodeVo> getProcessNodeList(String processSchemeId);
 
 
 

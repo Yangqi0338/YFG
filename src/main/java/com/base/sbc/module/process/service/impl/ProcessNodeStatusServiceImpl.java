@@ -13,10 +13,10 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.process.dto.AddRevampProcessNodeStatusDto;
+import com.base.sbc.module.process.dto.QueryNodeStatusDto;
 import com.base.sbc.module.process.entity.ProcessNodeStatus;
 import com.base.sbc.module.process.mapper.ProcessNodeStatusMapper;
 import com.base.sbc.module.process.service.ProcessNodeStatusService;
@@ -26,6 +26,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
@@ -44,20 +45,23 @@ public class ProcessNodeStatusServiceImpl extends ServicePlusImpl<ProcessNodeSta
         @Autowired
         private BaseController baseController;
 
+
 /** 自定义方法区 不替换的区域【other_start】 **/
 
         /**
         * 流程配置-节点状态分页查询
         *
-        * @param queryDto
+        * @param queryNodeStatusDto
         * @return
         */
         @Override
-        public PageInfo<ProcessNodeStatusVo> getProcessNodeStatusList(QueryDto queryDto) {
+        public PageInfo<ProcessNodeStatusVo> getProcessNodeStatusList(QueryNodeStatusDto queryNodeStatusDto) {
             /*分页*/
-            PageHelper.startPage(queryDto);
+            PageHelper.startPage(queryNodeStatusDto);
             QueryWrapper<ProcessNodeStatus> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
+            queryWrapper.eq("node_id", queryNodeStatusDto.getNodeId());
+            queryWrapper.orderByAsc("sort");
             /*查询流程配置-节点状态数据*/
             List<ProcessNodeStatus> processNodeStatusList = baseMapper.selectList(queryWrapper);
             PageInfo<ProcessNodeStatus> pageInfo = new PageInfo<>(processNodeStatusList);
@@ -104,8 +108,28 @@ public class ProcessNodeStatusServiceImpl extends ServicePlusImpl<ProcessNodeSta
                 return true;
          }
 
+    /**
+     * 方法描述：批量新增修改流程配置-节点状态
+     *
+     * @param addRevampProcessNodeStatusDto 部件Dto类
+     * @return boolean
+     */
+    @Override
+    @Transactional(readOnly = false)
+    public Boolean batchAddRevamp(List<AddRevampProcessNodeStatusDto> addRevampProcessNodeStatusDto) {
 
-         /**
+
+        /*重新给排序下标 添加节点条件流转*/
+        for (int i = 0; i < addRevampProcessNodeStatusDto.size(); i++) {
+            addRevampProcessNodeStatusDto.get(i).setSort(i+1);
+        }
+        List<ProcessNodeStatus>  processNodeStatusList = BeanUtil.copyToList(addRevampProcessNodeStatusDto, ProcessNodeStatus.class);
+        saveOrUpdateBatch(processNodeStatusList);
+        return true;
+    }
+
+
+    /**
          * 方法描述：删除流程配置-节点状态
          *
          * @param id （多个用，）

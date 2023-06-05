@@ -23,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
 * 类描述：流程配置-流程方案 Controller类
@@ -41,9 +42,9 @@ public class ProcessProcessSchemeController{
 	@Autowired
 	private ProcessProcessSchemeService processProcessSchemeService;
 
-	@ApiOperation(value = "分页查询")
+	@ApiOperation(value = "查询流程方案")
 	@GetMapping("/getProcessProcessSchemeList")
-	public PageInfo<ProcessProcessSchemeVo> getProcessProcessSchemeList(QueryDto queryDto) {
+	public List<ProcessProcessSchemeVo> getProcessProcessSchemeList(QueryDto queryDto) {
 		return  processProcessSchemeService.getProcessProcessSchemeList(queryDto);
 	}
 

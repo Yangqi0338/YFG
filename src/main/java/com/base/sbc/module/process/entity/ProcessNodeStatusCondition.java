@@ -14,18 +14,18 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
- * 类描述：流程配置-节点条件 实体类
- * @address com.base.sbc.module.process.entity.ProcessNodeCondition
+ * 类描述：流程配置-节点状态条件 实体类
+ * @address com.base.sbc.module.process.entity.ProcessNodeStatusCondition
  * @author mengfanjiang
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-2 20:15:15
+ * @date 创建时间：2023-6-5 17:10:23
  * @version 1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_process_node_condition")
-@ApiModel("流程配置-节点条件 ProcessNodeCondition")
-public class ProcessNodeCondition extends BaseDataEntity<String> {
+@TableName("t_process_node_status_condition")
+@ApiModel("流程配置-节点状态条件 ProcessNodeStatusCondition")
+public class ProcessNodeStatusCondition extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -37,15 +37,15 @@ public class ProcessNodeCondition extends BaseDataEntity<String> {
     /** 节点信息Id */
     @ApiModelProperty(value = "节点信息Id"  )
     private String nodeId;
-    /** 节点条件 */
-    @ApiModelProperty(value = "节点条件"  )
-    private String nodeCondition;
     /** 原状态 */
     @ApiModelProperty(value = "原状态"  )
     private String originalStatus;
     /** 目标状态 */
     @ApiModelProperty(value = "目标状态"  )
     private String targetStatus;
+    /** 节点条件 */
+    @ApiModelProperty(value = "节点条件"  )
+    private String nodeCondition;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;

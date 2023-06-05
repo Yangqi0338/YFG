@@ -23,6 +23,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
 * 类描述：流程配置-节点表 Controller类
@@ -41,10 +43,10 @@ public class ProcessNodeController{
 	@Autowired
 	private ProcessNodeService processNodeService;
 
-	@ApiOperation(value = "分页查询")
+	@ApiOperation(value = "查询")
 	@GetMapping("/getProcessNodeList")
-	public PageInfo<ProcessNodeVo> getProcessNodeList(QueryDto queryDto) {
-		return  processNodeService.getProcessNodeList(queryDto);
+	public List<ProcessNodeVo> getProcessNodeList(@NotNull(message = "流程方案Id不能为空") String processSchemeId) {
+		return  processNodeService.getProcessNodeList(processSchemeId);
 	}
 
 
@@ -69,8 +71,8 @@ public class ProcessNodeController{
 	}
 
 	@ApiOperation(value = "明细-通过id查询")
-	@GetMapping("/{id}")
-	public ProcessNode getById(@PathVariable("id") String id) {
+	@GetMapping("/getProcessNodeById")
+	public ProcessNode getById(@Valid @NotBlank(message = "编号id不能为空") String id) {
 		return processNodeService.getById(id);
 	}
 
