@@ -6,12 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.service;
 import com.base.sbc.module.common.service.IServicePlus;
-import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
-import com.base.sbc.module.patternmaking.dto.SampleDesignSendDto;
-import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
-import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
+import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
 import com.github.pagehelper.PageInfo;
 
@@ -62,7 +60,7 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      * @param status
      * @return
      */
-    boolean nodeStatusChange(PatternMakingDto dto);
+    boolean nodeStatusChange(NodeStatusChangeDto dto);
 
     /**
      * 版房主管下发
@@ -126,6 +124,16 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      * @return
      */
     boolean setPatternDesignBatch(List<SetPatternDesignDto> dto);
+
+    /**
+     * 打样任务 列表
+     *
+     * @param dto
+     * @return
+     */
+    List<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto);
+
+    Integer setSort(List<SetSortDto> dtoList);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

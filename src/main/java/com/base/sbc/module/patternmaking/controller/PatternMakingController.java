@@ -9,13 +9,11 @@ package com.base.sbc.module.patternmaking.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
-import com.base.sbc.module.patternmaking.dto.SampleDesignSendDto;
-import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
-import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
+import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -142,8 +140,21 @@ public class PatternMakingController {
     @ApiOperation(value = "节点状态改变")
     @PostMapping("/nodeStatusChange")
     @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "编号", required = true, paramType = "query")})
-    public boolean nodeStatusChange(@RequestBody PatternMakingDto dto) {
+    public boolean nodeStatusChange(@RequestBody NodeStatusChangeDto dto) {
         return patternMakingService.nodeStatusChange(dto);
+    }
+
+
+    @ApiOperation(value = "打版管理任务-列表", notes = "")
+    @GetMapping("/patternMakingTaskList")
+    public List<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto) {
+        return patternMakingService.patternMakingTaskList(dto);
+    }
+
+    @ApiOperation(value = "设置排序", notes = "")
+    @GetMapping("/setSort")
+    public Integer setSort(@Valid @RequestBody List<SetSortDto> dtoList) {
+        return patternMakingService.setSort(dtoList);
     }
 }
 

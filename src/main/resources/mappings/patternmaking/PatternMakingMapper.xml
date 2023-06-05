@@ -58,5 +58,46 @@
         group by pattern_design_id ,sample_type
 
     </select>
+    <select id="patternMakingTaskList"
+            resultType="com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo">
+        SELECT
+        p.id,
+        s.design_no,
+        s.style_pic,
+        s.category_name,
+        s.brand,
+        s.year,
+        s.month,
+        s.season,
+        s.band_code,
+        p.design_send_date,
+        p.prm_send_date,
+        p.prm_send_status,
+        p.urgency,
+        p.node,
+        p.status,
+        p.design_kitting,
+        p.technician_kitting,
+        p.sort,
+        p.planning_season_id,
+        p.pattern_design_id,
+        p.break_off_sample,
+        p.break_off_pattern,
+        p.pattern_design_name
+        FROM
+        t_pattern_making p,
+        t_sample_design s
+        where p.sample_design_id = s.id
+        and p.design_send_status='1'
+        and p.prm_send_status='1'
+        and p.del_flag &lt;&gt; '1'
+        and s.del_flag &lt;&gt; '1'
+
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
+
+    </select>
 </mapper>
 
