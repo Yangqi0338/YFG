@@ -7,12 +7,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabaseExcelDto;
+import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
 import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
 import com.base.sbc.module.basicsdatum.mapper.ProcessDatabaseMapper;
 import com.base.sbc.module.basicsdatum.service.ProcessDatabaseService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -103,4 +106,21 @@ public class ProcessDatabaseServiceImpl extends ServicePlusImpl<ProcessDatabaseM
         }
         return true;
     }
+
+    /**
+     * 分页查询
+     *
+     * @param pageDto 查询条件对象
+     * @return 分页对象
+     */
+    @Override
+    public PageInfo<ProcessDatabase> listPage(ProcessDatabasePageDto pageDto) {
+        QueryWrapper<ProcessDatabase> queryWrapper =new QueryWrapper<>();
+
+        PageHelper.startPage(pageDto);
+        List<ProcessDatabase> list = this.list(queryWrapper);
+        return new PageInfo<>(list);
+    }
+
+
 }
