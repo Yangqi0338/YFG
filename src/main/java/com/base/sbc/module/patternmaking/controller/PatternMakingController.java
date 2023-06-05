@@ -9,13 +9,11 @@ package com.base.sbc.module.patternmaking.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
-import com.base.sbc.module.patternmaking.dto.SampleDesignSendDto;
-import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
-import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
+import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -95,20 +93,14 @@ public class PatternMakingController {
 
     @ApiOperation(value = "样衣设计下发")
     @PostMapping("/sampleDesignSend")
-    public boolean sampleDesignSend(@RequestBody SampleDesignSendDto dto) {
+    public boolean sampleDesignSend(@Valid @RequestBody SampleDesignSendDto dto) {
         return patternMakingService.sampleDesignSend(dto);
     }
+
     @ApiOperation(value = "版房主管下发")
     @PostMapping("/prmSend")
-    public Integer prmSend(@RequestBody  List<SetPatternDesignDto>  dtos){
-        int i=0;
-        for (SetPatternDesignDto dto : dtos) {
-             if(patternMakingService.prmSend(dto)){
-                 i++;
-             }
-
-        }
-        return i;
+    public Integer prmSend(@Valid @RequestBody List<SetPatternDesignDto> dtos) {
+        return patternMakingService.prmSendBatch(dtos);
     }
 
 
@@ -118,6 +110,11 @@ public class PatternMakingController {
         return patternMakingService.setPatternDesign(dto);
     }
 
+    @ApiOperation(value = "指定版师批量")
+    @PostMapping("/setPatternDesignBatch")
+    public boolean setPatternDesignBatch(@Valid @RequestBody List<SetPatternDesignDto> dto) {
+        return patternMakingService.setPatternDesignBatch(dto);
+    }
 
     @ApiOperation(value = "获取版师列表")
     @GetMapping("/getPatternDesignList")
@@ -143,8 +140,21 @@ public class PatternMakingController {
     @ApiOperation(value = "节点状态改变")
     @PostMapping("/nodeStatusChange")
     @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "编号", required = true, paramType = "query")})
-    public boolean nodeStatusChange(@RequestBody PatternMakingDto dto) {
+    public boolean nodeStatusChange(@RequestBody NodeStatusChangeDto dto) {
         return patternMakingService.nodeStatusChange(dto);
+    }
+
+
+    @ApiOperation(value = "打版管理任务-列表", notes = "")
+    @GetMapping("/patternMakingTaskList")
+    public List<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto) {
+        return patternMakingService.patternMakingTaskList(dto);
+    }
+
+    @ApiOperation(value = "设置排序", notes = "")
+    @GetMapping("/setSort")
+    public Integer setSort(@Valid @RequestBody List<SetSortDto> dtoList) {
+        return patternMakingService.setSort(dtoList);
     }
 }
 

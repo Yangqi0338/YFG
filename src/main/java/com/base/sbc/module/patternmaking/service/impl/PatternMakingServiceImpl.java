@@ -22,18 +22,12 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
-import com.base.sbc.module.patternmaking.dto.PatternMakingDto;
-import com.base.sbc.module.patternmaking.dto.SampleDesignSendDto;
-import com.base.sbc.module.patternmaking.dto.SetPatternDesignDto;
-import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskSearchDto;
+import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
-import com.base.sbc.module.patternmaking.vo.PatternDesignSampleTypeQtyVo;
-import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
-import com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo;
+import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.github.pagehelper.Page;
@@ -98,38 +92,57 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public boolean sampleDesignSend(SampleDesignSendDto dto) {
         EnumNodeStatus enumNodeStatus = EnumNodeStatus.DESIGN_SEND;
-        NodeStatus nodeStatus = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus());
-        UpdateWrapper<PatternMaking> uw=new UpdateWrapper<>();
-        uw.set("node",enumNodeStatus.getNode());
-        uw.set("status",enumNodeStatus.getStatus());
-        uw.set("design_send_date",nodeStatus.getStartDate());
-        uw.set("design_send_status",BaseGlobal.YES);
-        uw.eq("id",dto.getId());
+        EnumNodeStatus enumNodeStatus2 = EnumNodeStatus.TECHNICAL_ROOM_RECEIVED;
+        nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
+        NodeStatus nodeStatus = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus2.getNode(), enumNodeStatus2.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.set("node", enumNodeStatus2.getNode());
+        uw.set("status", enumNodeStatus2.getStatus());
+        uw.set("design_send_date", nodeStatus.getStartDate());
+        uw.set("design_send_status", BaseGlobal.YES);
+        uw.eq("id", dto.getId());
         // 修改单据
         return update(uw);
     }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean nodeStatusChange(PatternMakingDto dto) {
-        nodeStatusService.nodeStatusChange(dto.getId(), dto.getNode(), dto.getStatus());
-        PatternMaking patternMaking = BeanUtil.copyProperties(dto, PatternMaking.class);
+    public boolean nodeStatusChange(NodeStatusChangeDto dto) {
+        nodeStatusService.nodeStatusChange(dto.getDataId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
         // 修改单据
-        return updateById(patternMaking);
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.eq("id", dto.getDataId());
+        if (CollUtil.isNotEmpty(dto.getUpdates())) {
+            for (Map.Entry<String, Object> kv : dto.getUpdates().entrySet()) {
+                uw.set(StrUtil.toUnderlineCase(kv.getKey()), kv.getValue());
+            }
+        }
+        uw.set("node", dto.getNode());
+        uw.set("status", dto.getStatus());
+
+        // 修改单据
+        return update(uw);
     }
 
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public boolean prmSend(SetPatternDesignDto dto) {
+        PatternMaking byId = getById(dto.getId());
+        if (StrUtil.equals(BaseGlobal.YES, byId.getBreakOffPattern())) {
+            throw new OtherException("已中断打版,不能下发");
+        }
         EnumNodeStatus enumNodeStatus1 = EnumNodeStatus.TECHNICAL_ROOM_SEND;
         EnumNodeStatus enumNodeStatus2 = EnumNodeStatus.SAMPLE_TASK_WAITING_RECEIVE;
-        nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus1.getNode(), enumNodeStatus1.getStatus());
-        NodeStatus nodeStatus2 = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus2.getNode(), enumNodeStatus2.getStatus());
+        nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus1.getNode(), enumNodeStatus1.getStatus(), BaseGlobal.NO, BaseGlobal.YES);
+        NodeStatus nodeStatus2 = nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus2.getNode(), enumNodeStatus2.getStatus(), BaseGlobal.YES, BaseGlobal.NO);
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.set("node", enumNodeStatus2.getNode());
         uw.set("status", enumNodeStatus2.getStatus());
         uw.set("prm_send_date", nodeStatus2.getStartDate());
         uw.set("prm_send_status", BaseGlobal.YES);
+        uw.set(StrUtil.isNotBlank(dto.getPatternDesignId()), "pattern_design_id", dto.getPatternDesignId());
+        uw.set(StrUtil.isNotBlank(dto.getPatternDesignName()), "pattern_design_name", dto.getPatternDesignName());
         uw.eq("id", dto.getId());
         // 修改单据
         return update(uw);
@@ -155,10 +168,25 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
         //设置图片
         attachmentService.setListStylePic(list, "stylePic");
+        // 设置版师列表
+        if (CollUtil.isNotEmpty(list)) {
+            Map<String, List<PatternDesignVo>> pdMap = new HashMap<>(16);
+            for (TechnologyCenterTaskVo tct : list) {
+                String key = tct.getPlanningSeasonId();
+                if (pdMap.containsKey(key)) {
+                    tct.setPdList(pdMap.get(key));
+                } else {
+                    List<PatternDesignVo> patternDesignList = getPatternDesignList(tct.getPlanningSeasonId());
+                    tct.setPdList(patternDesignList);
+                    pdMap.put(key, patternDesignList);
+                }
+            }
+        }
         return page.toPageInfo();
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public boolean setPatternDesign(SetPatternDesignDto dto) {
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.set("pattern_design_id", dto.getPatternDesignId());
@@ -220,6 +248,95 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         uw.in("id", StrUtil.split(id, CharUtil.COMMA));
         uw.set("break_off_pattern", BaseGlobal.YES);
         return update(uw);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public Integer prmSendBatch(List<SetPatternDesignDto> dtos) {
+        int i = 0;
+        for (SetPatternDesignDto dto : dtos) {
+            if (prmSend(dto)) {
+                i++;
+            }
+        }
+        return i;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean setPatternDesignBatch(List<SetPatternDesignDto> dtos) {
+        for (SetPatternDesignDto dto : dtos) {
+            setPatternDesign(dto);
+        }
+        return true;
+    }
+
+    @Override
+    public List<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto) {
+        QueryWrapper qw = new QueryWrapper();
+        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
+        qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
+        qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
+        qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
+        qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
+        qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
+        qw.orderByAsc("p.sort");
+        List<PatternMakingTaskListVo> list = getBaseMapper().patternMakingTaskList(qw);
+        //设置图片
+        attachmentService.setListStylePic(list, "stylePic");
+        // 设置节点状态
+        setNodeStatus(list);
+        return list;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public Integer setSort(List<SetSortDto> dtoList) {
+        int i = 0;
+        boolean flg = false;
+        for (SetSortDto setSortDto : dtoList) {
+            UpdateWrapper<PatternMaking> puw = new UpdateWrapper<>();
+            puw.set("sort", setSortDto.getSort());
+            puw.eq("id", setSortDto.getId());
+            flg = this.update(puw);
+            if (flg) {
+                i++;
+            }
+        }
+
+        return i;
+    }
+
+    public void setNodeStatus(List<PatternMakingTaskListVo> list) {
+        if (CollUtil.isEmpty(list)) {
+            return;
+        }
+        List<String> ids = new ArrayList<>(12);
+        for (PatternMakingTaskListVo o : list) {
+            ids.add(o.getId());
+        }
+        QueryWrapper<NodeStatus> qw = new QueryWrapper<>();
+        qw.in("data_id", ids);
+        qw.orderByAsc("start_date");
+        List<NodeStatus> nodeStatusList = nodeStatusService.list(qw);
+        if (CollUtil.isEmpty(nodeStatusList)) {
+            return;
+        }
+        Map<String, List<NodeStatus>> nodeStatusMap = nodeStatusList.stream().collect(Collectors.groupingBy(NodeStatus::getDataId));
+        for (PatternMakingTaskListVo o : list) {
+            List<NodeStatus> nodeStatusList1 = nodeStatusMap.get(o.getId());
+            if (CollUtil.isNotEmpty(nodeStatusList1)) {
+                List<NodeStatusVo> nodeStatusVos = BeanUtil.copyToList(nodeStatusList1, NodeStatusVo.class);
+                Map<String, NodeStatusVo> startDataMap = nodeStatusVos.stream().collect(Collectors.toMap(k -> k.getNode() + k.getStatus(), v -> v, (a, b) -> b));
+                o.setStartDate(Optional.ofNullable(startDataMap.get(o.getNode() + o.getStatus())).map(NodeStatusVo::getStartDate).orElse(null));
+                nodeStatusVos.sort((a, b) -> {
+                    return a.getStartDate().compareTo(b.getStartDate());
+                });
+                o.setNodeStatusList(nodeStatusVos);
+            }
+        }
+
+
     }
 
     public String getNextCode(SampleDesign sampleDesign) {

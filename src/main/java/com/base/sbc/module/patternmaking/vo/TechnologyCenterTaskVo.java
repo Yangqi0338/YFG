@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 类描述：技术中心看板-任务列表
@@ -45,16 +46,57 @@ public class TechnologyCenterTaskVo {
     @ApiModelProperty(value = "版房主管下发状态:(0未下发，1已下发)"  )
     private String prmSendStatus;
 
-    /** 紧急程度 */
-    @ApiModelProperty(value = "紧急程度"  )
+    /**
+     * 紧急程度
+     */
+    @ApiModelProperty(value = "紧急程度")
     private String urgency;
 
-    @ApiModelProperty(value = "版师名称"  )
+    @ApiModelProperty(value = "版师名称")
     private String patternDesignName;
-    /** 版师id */
-    @ApiModelProperty(value = "版师id"  )
+    /**
+     * 版师id
+     */
+    @ApiModelProperty(value = "版师id")
     private String patternDesignId;
 
+    /**
+     * 中断样衣(0正常，1中断)
+     */
+    @ApiModelProperty(value = "中断样衣(0正常，1中断)")
+    private String breakOffSample;
+    /**
+     * 中断打版(0正常，1中断)
+     */
+    @ApiModelProperty(value = "中断打版(0正常，1中断)")
+    private String breakOffPattern;
+
+    @ApiModelProperty(value = "年份", example = "2022")
+    private String year;
+    /**
+     * 季节
+     */
+    @ApiModelProperty(value = "季节", example = "S")
+    private String season;
+    /**
+     * 月份
+     */
+    @ApiModelProperty(value = "月份", example = "1")
+    private String month;
+    /**
+     * 月份
+     */
+    @ApiModelProperty(value = "品牌", example = "1")
+    private String brand;
+    /**
+     * 月份
+     */
+    @ApiModelProperty(value = "波段", example = "1")
+    private String bandCode;
+
+
+    @ApiModelProperty(value = "版师列表")
+    private List<PatternDesignVo> pdList;
 
 
 }

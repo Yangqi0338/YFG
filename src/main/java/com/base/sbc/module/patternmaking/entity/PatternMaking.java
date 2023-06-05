@@ -16,6 +16,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Date;
+
 /**
  * 类描述：打版管理 实体类
  *
@@ -23,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-2 15:37:18
+ * @date 创建时间：2023-6-5 11:36:00
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -83,15 +84,21 @@ public class PatternMaking extends BaseDataEntity<String> {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date patternReqDate;
     /** 缺料备注 */
-    @ApiModelProperty(value = "缺料备注"  )
+    @ApiModelProperty(value = "缺料备注")
     private String shortageRemarks;
-    /** 需求数 */
-    @ApiModelProperty(value = "需求数"  )
+    /**
+     * 需求数
+     */
+    @ApiModelProperty(value = "需求数")
     private BigDecimal requirementNum;
-    /** 改版原因 */
-    @ApiModelProperty(value = "改版原因"  )
+    /**
+     * 改版原因
+     */
+    @ApiModelProperty(value = "改版原因")
     private String revisionReason;
-    /** 改版意见 */
+    /**
+     * 改版意见
+     */
     @ApiModelProperty(value = "改版意见")
     private String revisionComments;
     /**
@@ -136,13 +143,19 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "设计下发时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date designSendDate;
-    /** 设计下发状态:(0未下发，1已下发) */
-    @ApiModelProperty(value = "设计下发状态:(0未下发，1已下发)"  )
+    /**
+     * 设计下发状态:(0未下发，1已下发)
+     */
+    @ApiModelProperty(value = "设计下发状态:(0未下发，1已下发)")
     private String designSendStatus;
-    /** 纸样完成数量 */
-    @ApiModelProperty(value = "纸样完成数量"  )
+    /**
+     * 纸样完成数量
+     */
+    @ApiModelProperty(value = "纸样完成数量")
     private BigDecimal patternFinishNum;
-    /** 裁剪工 */
+    /**
+     * 裁剪工
+     */
     @ApiModelProperty(value = "裁剪工"  )
     private String cutterName;
     /** 裁剪工id */
@@ -154,21 +167,34 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 质量评分 */
     @ApiModelProperty(value = "质量评分"  )
     private BigDecimal qualityScore;
-    /** 车缝工名称 */
-    @ApiModelProperty(value = "车缝工名称"  )
+    /**
+     * 车缝工名称
+     */
+    @ApiModelProperty(value = "车缝工名称")
     private String stitcher;
-    /** 车缝工id */
-    @ApiModelProperty(value = "车缝工id"  )
+    /**
+     * 车缝工id
+     */
+    @ApiModelProperty(value = "车缝工id")
     private String stitcherId;
-    /** 二次加工(0否，1是) */
-    @ApiModelProperty(value = "二次加工(0否，1是)"  )
+    /**
+     * 二次加工(0否，1是)
+     */
+    @ApiModelProperty(value = "二次加工(0否，1是)")
     private String secondProcessing;
-    /** 当前节点 */
-    @ApiModelProperty(value = "当前节点"  )
+    /**
+     * 当前节点
+     */
+    @ApiModelProperty(value = "当前节点")
     private String node;
-    /** 当前状态 */
-    @ApiModelProperty(value = "当前状态"  )
+    /**
+     * 当前状态
+     */
+    @ApiModelProperty(value = "当前状态")
     private String status;
+    /** 排序 */
+    @ApiModelProperty(value = "排序"  )
+    private BigDecimal sort;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

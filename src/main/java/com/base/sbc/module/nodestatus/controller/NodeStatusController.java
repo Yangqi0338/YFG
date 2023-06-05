@@ -36,7 +36,7 @@ public class NodeStatusController {
     @PostMapping("/change")
     @ApiOperation(value = "节点状态改变",notes = "1、设置上一节点状态结束时间,2、保存当前节点状态开始时间")
     public boolean nodeStatusChange(@Valid @RequestBody NodeStatusChangeDto dto){
-        nodeStatusService.nodeStatusChange(dto.getDataId(),dto.getNode(),dto.getStatus());
+        nodeStatusService.nodeStatusChange(dto.getDataId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
         return true;
     }
 

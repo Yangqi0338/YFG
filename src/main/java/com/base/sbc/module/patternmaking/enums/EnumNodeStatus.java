@@ -12,6 +12,7 @@ package com.base.sbc.module.patternmaking.enums;
 public enum EnumNodeStatus {
 
     DESIGN_SEND("样衣设计", "设计下发"),
+    TECHNICAL_ROOM_RECEIVED("技术中心", "已接收"),
     TECHNICAL_ROOM_SEND("技术中心", "版房主管下发"),
     SAMPLE_TASK_WAITING_RECEIVE("打样任务", "待接收"),
     SAMPLE_TASK_RECEIVED("打样任务", "已接收"),
