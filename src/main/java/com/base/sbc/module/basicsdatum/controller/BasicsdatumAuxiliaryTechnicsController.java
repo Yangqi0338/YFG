@@ -37,6 +37,8 @@ import java.util.List;
 * @date 创建时间：2023-5-20 19:08:56
 * @version 1.0
 */
+
+// TODO: 2023/6/2 待删除
 @RestController
 @Api(tags = "基础资料-外辅工艺")
 @RequestMapping(value = BaseController.SAAS_URL + "/basicsdatumAuxiliaryTechnics", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

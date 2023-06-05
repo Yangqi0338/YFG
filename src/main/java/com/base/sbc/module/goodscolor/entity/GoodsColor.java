@@ -36,12 +36,12 @@ public class GoodsColor extends BaseDataEntity<String>{
 	 */
 	public void setEntityBasicInfo(String userId, String userName, String delFlag) {
 		Date now = new Date();
-		this.createId = userId;
-		this.createName = userName;
-		this.createDate = now;
-		this.updateId = userId;
-		this.updateName = userName;
-		this.updateDate = now;
+		this.setCreateId(userId);
+		this.setCreateName(userName);
+		this.setCreateDate(now);
+		this.setUpdateId(userId);
+		this.setUpdateName(userName);
+		this.setUpdateDate(now);
 		if(delFlag == null || "".equals(delFlag)){
 			this.delFlag = "0";
 		}else {

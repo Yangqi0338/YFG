@@ -41,6 +41,9 @@ public class HttpLog {
     /** 方法类型 */
     private String method;
 
+    /**请求类型*/
+    private String reqContentType;
+
     /*** 请求头*/
     private String reqHeaders;
 

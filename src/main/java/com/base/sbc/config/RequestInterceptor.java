@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.UUID;
 
 import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
@@ -108,6 +109,8 @@ public class RequestInterceptor implements HandlerInterceptor {
         HttpLog httpLog = new HttpLog();
         httpLog.setStartTime(new Date());
         httpLog.setType(2);
+        httpLog.setReqContentType(request.getContentType());
+                //multipart/form-data
         httpLog.setUserCode(userCompany.getUserCode());
         httpLog.setReqQuery(JSON.toJSONString(request.getParameterMap()));
         httpLog.setThreadId(UUID.randomUUID().toString());

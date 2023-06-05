@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 
 import com.base.sbc.config.RequestInterceptor;
 import com.base.sbc.config.security.UrlFilterSecurityInterceptor;
+import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 import com.base.sbc.config.common.IdGen;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -23,6 +24,7 @@ import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.company
  * @author 卞康
  * @date 2023/3/31 19:56:38
  */
+@Data
 public abstract class BaseDataEntity<T> extends BaseEntity {
 
     @TableField(exist = false)
@@ -30,29 +32,29 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
 
     /** 更新者名称  */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    protected String updateName;
+    private String updateName;
 
     /**  更新者id */
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    protected String updateId;
+    private String updateId;
 
     /** 更新日期 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    protected Date updateDate;
+    private Date updateDate;
 
     /** 创建日期 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @TableField(fill = FieldFill.INSERT)
-    protected Date createDate;
+    private Date createDate;
 
     /**  创建者名称 */
     @TableField(fill = FieldFill.INSERT)
-    protected String createName;
+    private String createName;
 
     /** 创建者id */
     @TableField(fill = FieldFill.INSERT)
-    protected String createId;
+    private String createId;
 
     /**  删除标记（0：正常；1：删除；） */
     @Length(min = 1, max = 1)
@@ -65,70 +67,70 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
 
 
 
-    public BaseDataEntity() {
-        super();
-    }
-
-    public BaseDataEntity(String id) {
-        super(id);
-    }
-
-
-    public String getCreateName() {
-        return createName;
-    }
-
-    public BaseDataEntity setCreateName(String createName) {
-        this.createName = createName;
-        return this;
-    }
+    //public BaseDataEntity() {
+    //    super();
+    //}
+    //
+    //public BaseDataEntity(String id) {
+    //    super(id);
+    //}
 
 
-    public Date getCreateDate() {
-        return createDate;
-    }
+    //public String getCreateName() {
+    //    return createName;
+    //}
+    //
+    //public BaseDataEntity setCreateName(String createName) {
+    //    this.createName = createName;
+    //    return this;
+    //}
 
-    public BaseDataEntity setCreateDate(Date createDate) {
-        this.createDate = createDate;
-        return this;
-    }
+
+    //public Date getCreateDate() {
+    //    return createDate;
+    //}
+    //
+    //public BaseDataEntity setCreateDate(Date createDate) {
+    //    this.createDate = createDate;
+    //    return this;
+    //}
 
 
-    public String getCreateId() {
-        return createId;
-    }
+    //public String getCreateId() {
+    //    return createId;
+    //}
+    //
+    //public BaseDataEntity setCreateId(String createId) {
+    //    this.createId = createId;
+    //    return this;
+    //}
 
-    public BaseDataEntity setCreateId(String createId) {
-        this.createId = createId;
-        return this;
-    }
+    //public String getUpdateId() {
+    //    return updateId;
+    //}
 
-    public String getUpdateId() {
-        return updateId;
-    }
+    //public BaseDataEntity setUpdateId(String updateId) {
+    //    this.updateId = updateId;
+    //    return this;
+    //}
 
-    public BaseDataEntity setUpdateId(String updateId) {
-        this.updateId = updateId;
-        return this;
-    }
+    //public String getUpdateName() {
+    //    return updateName;
+    //}
 
-    public String getUpdateName() {
-        return updateName;
-    }
+    //public BaseDataEntity setUpdateName(String updateName) {
+    //    this.updateName = updateName;
+    //    return this;
+    //}
 
-    public BaseDataEntity setUpdateName(String updateName) {
-        this.updateName = updateName;
-        return this;
-    }
+    //public Date getUpdateDate() {
+    //    return updateDate;
+    //}
 
-    public Date getUpdateDate() {
-        return updateDate;
-    }
-
-    public BaseDataEntity setUpdateDate(Date updateDate) {
-        this.updateDate = updateDate;
-        return this;
-    }
+    //public BaseDataEntity setUpdateDate(Date updateDate) {
+    //    this.updateDate = updateDate;
+    //    return this;
+    //}
 
 
     //public String getRemarks() {
@@ -141,14 +143,14 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
     //}
 
 
-    public String getDelFlag() {
-        return delFlag;
-    }
-
-    public BaseDataEntity setDelFlag(String delFlag) {
-        this.delFlag = delFlag;
-        return this;
-    }
+    //public String getDelFlag() {
+    //    return delFlag;
+    //}
+    //
+    //public BaseDataEntity setDelFlag(String delFlag) {
+    //    this.delFlag = delFlag;
+    //    return this;
+    //}
 
     /**
      * 新增 实体前手动调用
