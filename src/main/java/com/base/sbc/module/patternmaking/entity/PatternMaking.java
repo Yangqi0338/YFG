@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-5 14:35:32
+ * @date 创建时间：2023-6-5 19:42:22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -43,15 +43,21 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "打版编码"  )
     private String code;
     /** 产品季节id */
-    @ApiModelProperty(value = "产品季节id"  )
+    @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
-    /** 样衣设计id */
-    @ApiModelProperty(value = "样衣设计id"  )
+    /**
+     * 样衣设计id
+     */
+    @ApiModelProperty(value = "样衣设计id")
     private String sampleDesignId;
-    /** 版房 */
-    @ApiModelProperty(value = "版房"  )
+    /**
+     * 版房
+     */
+    @ApiModelProperty(value = "版房")
     private String patternRoom;
-    /** 版房id */
+    /**
+     * 版房id
+     */
     @ApiModelProperty(value = "版房id")
     private String patternRoomId;
     /**
@@ -190,10 +196,15 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "裁剪完成数量")
     private BigDecimal cutterFinishNum;
     /**
-     * 质量评分
+     * 样衣制作评分
      */
-    @ApiModelProperty(value = "质量评分")
-    private BigDecimal qualityScore;
+    @ApiModelProperty(value = "样衣制作评分")
+    private BigDecimal sampleMakingScore;
+    /**
+     * 打版质量评分
+     */
+    @ApiModelProperty(value = "打版质量评分")
+    private BigDecimal patternMakingScore;
     /**
      * 车缝工名称
      */

@@ -4,9 +4,8 @@ package com.base.sbc.module.patternmaking.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
-
-import javax.validation.constraints.Max;
 
 @Data
 @ApiModel("打版挂起dto SuspendDto ")
@@ -19,7 +18,7 @@ public class SuspendDto {
     private String suspendStatus;
 
     @ApiModelProperty(value = "挂起备注", example = "")
-    @Max(value = 10, message = "超过长度")
+    @Length(max = 255, message = "超过长度")
     private String suspendRemarks;
 
 
