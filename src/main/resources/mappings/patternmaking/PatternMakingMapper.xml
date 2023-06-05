@@ -76,7 +76,7 @@
         p.urgency,
         p.node,
         p.status,
-        p.design_kitting,
+        p.sgl_kitting,
         p.technician_kitting,
         p.sort,
         p.planning_season_id,

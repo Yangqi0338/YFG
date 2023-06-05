@@ -133,7 +133,29 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      */
     List<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto);
 
+    /**
+     * 设置顺序
+     *
+     * @param dtoList
+     * @return
+     */
     Integer setSort(List<SetSortDto> dtoList);
+
+    /**
+     * 挂起
+     *
+     * @param dto
+     * @return
+     */
+    boolean suspend(SuspendDto dto);
+
+    /**
+     * 取消挂起
+     *
+     * @param id
+     * @return
+     */
+    boolean cancelSuspend(String id);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

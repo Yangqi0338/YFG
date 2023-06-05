@@ -101,6 +101,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         uw.set("design_send_date", nodeStatus.getStartDate());
         uw.set("design_send_status", BaseGlobal.YES);
         uw.eq("id", dto.getId());
+        setUpdateInfo(uw);
         // 修改单据
         return update(uw);
     }
@@ -119,7 +120,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         }
         uw.set("node", dto.getNode());
         uw.set("status", dto.getStatus());
-
+        setUpdateInfo(uw);
         // 修改单据
         return update(uw);
     }
@@ -145,7 +146,8 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         uw.set(StrUtil.isNotBlank(dto.getPatternDesignName()), "pattern_design_name", dto.getPatternDesignName());
         uw.eq("id", dto.getId());
         // 修改单据
-        return update(uw);
+        update(uw);
+        return true;
     }
 
     @Override
@@ -298,6 +300,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
             UpdateWrapper<PatternMaking> puw = new UpdateWrapper<>();
             puw.set("sort", setSortDto.getSort());
             puw.eq("id", setSortDto.getId());
+            setUpdateInfo(puw);
             flg = this.update(puw);
             if (flg) {
                 i++;
@@ -305,6 +308,27 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         }
 
         return i;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean suspend(SuspendDto dto) {
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.set("suspend", BaseGlobal.YES);
+        uw.set("suspend_status", dto.getSuspendStatus());
+        uw.set("suspend_remarks", dto.getSuspendRemarks());
+        uw.eq("id", dto.getId());
+        setUpdateInfo(uw);
+        return update(uw);
+    }
+
+    @Override
+    public boolean cancelSuspend(String id) {
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.set("suspend", BaseGlobal.NO);
+        uw.eq("id", id);
+        setUpdateInfo(uw);
+        return update(uw);
     }
 
     public void setNodeStatus(List<PatternMakingTaskListVo> list) {
@@ -348,6 +372,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         return designNo + StrUtil.DASHED + code;
 
     }// 自定义方法区 不替换的区域【other_end】
+
 
 }
 
