@@ -5,12 +5,14 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.service;
+
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingDetailVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -31,12 +33,14 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      * 初版样(头版样)值
      */
     String firstSampleType="初版样";
+
     /**
      * 通过样衣设计id 查找
+     *
      * @param sampleDesignId
      * @return
      */
-    List<PatternMakingVo> findBySampleDesignId(String sampleDesignId);
+    List<PatternMakingListVo> findBySampleDesignId(String sampleDesignId);
 
     /**
      * 保存
@@ -56,8 +60,6 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      * 节点状态改变
      *
      * @param dto
-     * @param node
-     * @param status
      * @return
      */
     boolean nodeStatusChange(NodeStatusChangeDto dto);
@@ -158,7 +160,30 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
     boolean cancelSuspend(String id);
 
 
+    /**
+     * 设置齐套
+     *
+     * @param p
+     * @param dto
+     * @return
+     */
     boolean setKitting(String p, SetKittingDto dto);
+
+    /**
+     * 查询明细
+     *
+     * @param id
+     * @return
+     */
+    PatternMakingDetailVo getDetailById(String id);
+
+    /**
+     * 保存附件
+     *
+     * @param dtos
+     * @return
+     */
+    boolean saveAttachment(SaveAttachmentDto dto);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

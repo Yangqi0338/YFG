@@ -10,16 +10,17 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.module.common.entity.UploadFile;
-import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
-import com.base.sbc.module.common.mapper.AttachmentMapper;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.module.common.dto.AttachmentSaveDto;
 import com.base.sbc.module.common.entity.Attachment;
+import com.base.sbc.module.common.entity.UploadFile;
+import com.base.sbc.module.common.mapper.AttachmentMapper;
 import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,11 +103,34 @@ public class AttachmentServiceImpl extends ServicePlusImpl<AttachmentMapper, Att
         Map<String, AttachmentVo> collect = byQw.stream().collect(Collectors.toMap(k -> k.getFileId(), v -> v, (a, b) -> a));
         for (Object vo : list) {
             String v = BeanUtil.getProperty(vo, fileIdKey);
-            if(StrUtil.isBlank(v)){
+            if (StrUtil.isBlank(v)) {
                 continue;
             }
-            BeanUtil.setProperty(vo,fileIdKey,Optional.ofNullable(collect.get(v)).map(AttachmentVo::getUrl).orElse(""));
+            BeanUtil.setProperty(vo, fileIdKey, Optional.ofNullable(collect.get(v)).map(AttachmentVo::getUrl).orElse(""));
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public Integer saveAttachment(List<AttachmentSaveDto> dtos, String fid, String type) {
+        // 删除之前的
+        QueryWrapper<Attachment> removeQw = new QueryWrapper<>();
+        removeQw.eq("f_id", fid);
+        removeQw.eq("type", type);
+        remove(removeQw);
+        if (CollUtil.isEmpty(dtos)) {
+            return 0;
+        }
+        List<Attachment> attachmentList = new ArrayList<>();
+        for (AttachmentSaveDto dto : dtos) {
+            Attachment attachment = BeanUtil.copyProperties(dto, Attachment.class);
+            attachment.setFId(fid);
+            attachment.setType(type);
+            attachment.setStatus(BaseGlobal.STATUS_NORMAL);
+            attachmentList.add(attachment);
+        }
+        saveBatch(attachmentList);
+        return attachmentList.size();
     }
 
 

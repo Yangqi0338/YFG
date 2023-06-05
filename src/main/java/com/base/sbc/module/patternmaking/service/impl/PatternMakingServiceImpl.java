@@ -20,6 +20,7 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.patternmaking.dto.*;
@@ -30,6 +31,7 @@ import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.service.SampleDesignService;
+import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -52,7 +54,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMapper, PatternMaking> implements PatternMakingService {
-
+    // 自定义方法区 不替换的区域【other_start】
     private final SampleDesignService sampleDesignService;
     private final NodeStatusService nodeStatusService;
     private final AttachmentService attachmentService;
@@ -60,17 +62,20 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
 
     private final CcmFeignService ccmFeignService;
 
+    /**
+     * 纸样文件
+     */
+    public final static String PATTERN_MAKING_PATTERN = "PATTERN_MAKING_PATTERN";
 
-// 自定义方法区 不替换的区域【other_start】
 
     @Override
-    public List<PatternMakingVo> findBySampleDesignId(String sampleDesignId) {
+    public List<PatternMakingListVo> findBySampleDesignId(String sampleDesignId) {
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
         qw.eq("sample_design_id", sampleDesignId);
         qw.orderBy(true, true, "create_date");
         List<PatternMaking> list = list(qw);
-        List<PatternMakingVo> patternMakingVos = BeanUtil.copyToList(list, PatternMakingVo.class);
-        return patternMakingVos;
+        List<PatternMakingListVo> patternMakingListVos = BeanUtil.copyToList(list, PatternMakingListVo.class);
+        return patternMakingListVos;
     }
 
     @Override
@@ -351,6 +356,29 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         return update(uw);
     }
 
+    @Override
+    public PatternMakingDetailVo getDetailById(String id) {
+        PatternMaking byId = getById(id);
+        if (byId == null) {
+            return null;
+        }
+        PatternMakingDetailVo vo = BeanUtil.copyProperties(byId, PatternMakingDetailVo.class);
+        //查询样衣设计信息
+        SampleDesignVo sampleDesignVo = sampleDesignService.getDetail(vo.getSampleDesignId());
+        vo.setSampleDesign(sampleDesignVo);
+        // 查询附件，纸样文件
+        List<AttachmentVo> attachmentVoList = attachmentService.findByFId(vo.getId(), PATTERN_MAKING_PATTERN);
+        vo.setAttachmentList(attachmentVoList);
+
+        return vo;
+    }
+
+    @Override
+    public boolean saveAttachment(SaveAttachmentDto dto) {
+        attachmentService.saveAttachment(dto.getAttachmentList(), dto.getId(), PATTERN_MAKING_PATTERN);
+        return true;
+    }
+
 
     public void setNodeStatus(List<PatternMakingTaskListVo> list) {
         if (CollUtil.isEmpty(list)) {
@@ -392,7 +420,9 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         String code = StrUtil.padPre(String.valueOf(count + 1), 3, "0");
         return designNo + StrUtil.DASHED + code;
 
-    }// 自定义方法区 不替换的区域【other_end】
+    }
+
+    // 自定义方法区 不替换的区域【other_end】
 
 
 }

@@ -5,8 +5,9 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.common.service;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.dto.AttachmentSaveDto;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.vo.AttachmentVo;
 
@@ -31,7 +32,7 @@ public interface AttachmentService extends IServicePlus<Attachment>{
      * @return
      */
 
-    List<AttachmentVo> findByFId(String fId,String type);
+    List<AttachmentVo> findByFId(String fId, String type);
 
 
     AttachmentVo getAttachmentById(String id);
@@ -39,9 +40,11 @@ public interface AttachmentService extends IServicePlus<Attachment>{
     List<AttachmentVo> findByQw(QueryWrapper queryWrapper);
 
 
-    void setListStylePic(List list,String fileIdKey);
+    void setListStylePic(List list, String fileIdKey);
+
+    Integer saveAttachment(List<AttachmentSaveDto> dto, String fid, String type);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
-	
+
 }

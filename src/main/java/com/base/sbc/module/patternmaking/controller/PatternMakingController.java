@@ -13,8 +13,9 @@ import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingDetailVo;
+import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -57,15 +58,21 @@ public class PatternMakingController {
 
     @ApiOperation(value = "通过样衣设计id查询")
     @GetMapping("/findBySampleDesignId")
-    public List<PatternMakingVo> findBySampleDesignId(@NotBlank(message = "(sampleDesignId)样衣设计id不能为空") String sampleDesignId) {
-        List<PatternMakingVo> list = patternMakingService.findBySampleDesignId(sampleDesignId);
+    public List<PatternMakingListVo> findBySampleDesignId(@NotBlank(message = "(sampleDesignId)样衣设计id不能为空") String sampleDesignId) {
+        List<PatternMakingListVo> list = patternMakingService.findBySampleDesignId(sampleDesignId);
         return list;
     }
 
     @ApiOperation(value = "明细-通过id查询")
     @GetMapping("/{id}")
-    public PatternMaking getById(@PathVariable("id") String id) {
-        return patternMakingService.getById(id);
+    public PatternMakingDetailVo getById(@PathVariable("id") String id) {
+        return patternMakingService.getDetailById(id);
+    }
+
+    @ApiOperation(value = "保存附件-纸样文件")
+    @PostMapping("/saveAttachment")
+    public boolean saveAttachment(@Valid @RequestBody SaveAttachmentDto dto) {
+        return patternMakingService.saveAttachment(dto);
     }
 
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")
