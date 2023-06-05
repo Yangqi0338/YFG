@@ -1,9 +1,11 @@
 package com.base.sbc.module.common.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.common.base.BaseEntity;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.IServicePlus;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -68,7 +71,7 @@ public class ServicePlusImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         queryWrapper.eq("company_code",companyCode);
         //逻辑删除传进来不存在的
         if (ids.size()>0){
-            queryWrapper.notIn("id",ids);
+            queryWrapper.notIn("id", ids);
         }
         this.remove(queryWrapper);
         //新增
@@ -77,5 +80,12 @@ public class ServicePlusImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         this.updateBatchById(updateList);
 
         return entityList.size();
+    }
+
+    public void setUpdateInfo(UpdateWrapper uw) {
+        UserCompany userCompany = userUtils.getUserCompany();
+        uw.set("update_id", userCompany.getId());
+        uw.set("update_name", userCompany.getAliasUserName());
+        uw.set("update_date", new Date());
     }
 }

@@ -152,9 +152,34 @@ public class PatternMakingController {
     }
 
     @ApiOperation(value = "设置排序", notes = "")
-    @GetMapping("/setSort")
+    @PostMapping("/setSort")
     public Integer setSort(@Valid @RequestBody List<SetSortDto> dtoList) {
         return patternMakingService.setSort(dtoList);
+    }
+
+    @ApiOperation(value = "挂起", notes = "")
+    @PostMapping("/suspend")
+    public boolean suspend(@Valid @RequestBody SuspendDto dto) {
+        return patternMakingService.suspend(dto);
+    }
+
+    @ApiOperation(value = "取消挂起", notes = "")
+    @GetMapping("/cancelSuspend")
+    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "编号", required = true, paramType = "query")})
+    public boolean cancelSuspend(@Valid @NotBlank(message = "id不能为空") String id) {
+        return patternMakingService.cancelSuspend(id);
+    }
+
+    @ApiOperation(value = "工艺员设置齐套", notes = "")
+    @PostMapping("/technicianKitting")
+    public boolean technicianKitting(@Valid @RequestBody SetKittingDto dto) {
+        return patternMakingService.setKitting("technician_", dto);
+    }
+
+    @ApiOperation(value = "样衣组长设置齐套", notes = "")
+    @PostMapping("/sglKitting")
+    public boolean sglKitting(@Valid @RequestBody SetKittingDto dto) {
+        return patternMakingService.setKitting("sgl_", dto);
     }
 }
 

@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-5 11:36:00
+ * @date 创建时间：2023-6-5 14:35:32
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -52,38 +52,59 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "版房"  )
     private String patternRoom;
     /** 版房id */
-    @ApiModelProperty(value = "版房id"  )
+    @ApiModelProperty(value = "版房id")
     private String patternRoomId;
-    /** 打版类型 */
-    @ApiModelProperty(value = "打版类型"  )
+    /**
+     * 打版类型
+     */
+    @ApiModelProperty(value = "打版类型")
     private String sampleType;
-    /** 打版难度 */
-    @ApiModelProperty(value = "打版难度"  )
+    /**
+     * 打版难度
+     */
+    @ApiModelProperty(value = "打版难度")
     private String patDiff;
-    /** 打样顺序 */
-    @ApiModelProperty(value = "打样顺序"  )
+    /**
+     * 打样顺序
+     */
+    @ApiModelProperty(value = "打样顺序")
     private String patSeq;
-    /** 紧急程度 */
-    @ApiModelProperty(value = "紧急程度"  )
+    /**
+     * 紧急程度
+     */
+    @ApiModelProperty(value = "紧急程度")
     private String urgency;
-    /** 工艺员确认齐套 */
-    @ApiModelProperty(value = "工艺员确认齐套"  )
+    /**
+     * 工艺员确认齐套
+     */
+    @ApiModelProperty(value = "工艺员确认齐套")
     private String technicianKitting;
-    /** 工艺员确认齐套时间 */
-    @ApiModelProperty(value = "工艺员确认齐套时间"  )
-    private String technicianKittingDate;
-    /** 设计确认齐套 */
-    @ApiModelProperty(value = "设计确认齐套"  )
-    private String designKitting;
-    /** 设计确认齐套时间 */
-    @ApiModelProperty(value = "设计确认齐套时间"  )
+    /**
+     * 工艺员确认齐套时间
+     */
+    @ApiModelProperty(value = "工艺员确认齐套时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date designKittingDate;
-    /** 纸样需求完成日期 */
-    @ApiModelProperty(value = "纸样需求完成日期"  )
+    private Date technicianKittingDate;
+    /**
+     * 样衣组长确认齐套
+     */
+    @ApiModelProperty(value = "样衣组长确认齐套")
+    private String sglKitting;
+    /**
+     * 样衣组长确认齐套时间
+     */
+    @ApiModelProperty(value = "样衣组长确认齐套时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sglKittingDate;
+    /**
+     * 纸样需求完成日期
+     */
+    @ApiModelProperty(value = "纸样需求完成日期")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date patternReqDate;
-    /** 缺料备注 */
+    /**
+     * 缺料备注
+     */
     @ApiModelProperty(value = "缺料备注")
     private String shortageRemarks;
     /**
@@ -156,16 +177,22 @@ public class PatternMaking extends BaseDataEntity<String> {
     /**
      * 裁剪工
      */
-    @ApiModelProperty(value = "裁剪工"  )
+    @ApiModelProperty(value = "裁剪工")
     private String cutterName;
-    /** 裁剪工id */
-    @ApiModelProperty(value = "裁剪工id"  )
+    /**
+     * 裁剪工id
+     */
+    @ApiModelProperty(value = "裁剪工id")
     private String cutterId;
-    /** 裁剪完成数量 */
-    @ApiModelProperty(value = "裁剪完成数量"  )
+    /**
+     * 裁剪完成数量
+     */
+    @ApiModelProperty(value = "裁剪完成数量")
     private BigDecimal cutterFinishNum;
-    /** 质量评分 */
-    @ApiModelProperty(value = "质量评分"  )
+    /**
+     * 质量评分
+     */
+    @ApiModelProperty(value = "质量评分")
     private BigDecimal qualityScore;
     /**
      * 车缝工名称
@@ -192,9 +219,26 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "当前状态")
     private String status;
-    /** 排序 */
-    @ApiModelProperty(value = "排序"  )
+    /**
+     * 排序
+     */
+    @ApiModelProperty(value = "排序")
     private BigDecimal sort;
+    /**
+     * 挂起(1挂起)
+     */
+    @ApiModelProperty(value = "挂起(1挂起)")
+    private String suspend;
+    /**
+     * 挂起状态(“打胚样”“打净样”“做纸样”)
+     */
+    @ApiModelProperty(value = "挂起状态(“打胚样”“打净样”“做纸样”)")
+    private String suspendStatus;
+    /**
+     * 挂起备注
+     */
+    @ApiModelProperty(value = "挂起备注")
+    private String suspendRemarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
