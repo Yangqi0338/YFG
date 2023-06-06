@@ -117,6 +117,21 @@ public class ProcessDatabaseServiceImpl extends ServicePlusImpl<ProcessDatabaseM
     public PageInfo<ProcessDatabase> listPage(ProcessDatabasePageDto pageDto) {
         QueryWrapper<ProcessDatabase> queryWrapper =new QueryWrapper<>();
 
+        queryWrapper.eq(StringUtils.isNotEmpty(pageDto.getType()),"type",pageDto.getType());
+        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getProcessType()),"process_type",pageDto.getProcessType());
+        queryWrapper.eq(StringUtils.isNotEmpty(pageDto.getStatus()),"status",pageDto.getStatus());
+
+        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getDescription()),"description",pageDto.getDescription());
+        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getProcessName()),"process_name",pageDto.getProcessName());
+        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCode()),"code",pageDto.getCode());
+
+        if (pageDto.getTime()!=null && pageDto.getTime().length>0){
+            queryWrapper.ge(StringUtils.isNotEmpty(pageDto.getTime()[0]),"create_date",pageDto.getTime()[0]);
+            if (pageDto.getTime().length>1){
+                queryWrapper.and(i->i.le(StringUtils.isNotEmpty(pageDto.getTime()[1]),"create_date",pageDto.getTime()[1]));
+            }
+        }
+
         PageHelper.startPage(pageDto);
         List<ProcessDatabase> list = this.list(queryWrapper);
         return new PageInfo<>(list);

@@ -10,5 +10,12 @@ import lombok.Data;
  */
 @Data
 public class ProcessDatabasePageDto extends Page {
-
+    private String code;
+    private String type;
+    private String processName;
+    private String processType;
+    private String description;
+    private String createName;
+    private String[] time;
+    private String status;
 }

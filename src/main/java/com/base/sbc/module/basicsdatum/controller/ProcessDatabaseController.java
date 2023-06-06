@@ -1,5 +1,6 @@
 package com.base.sbc.module.basicsdatum.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
@@ -10,13 +11,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -46,11 +45,11 @@ public class ProcessDatabaseController extends BaseController {
     /**
      * 根据列表进行分页查询
      */
-    @ApiOperation(value = "导入工艺资料库")
-    @PostMapping("/queryPage")
-    public ApiResult listPage(ProcessDatabasePageDto pageDto) throws Exception {
+    @ApiOperation(value = "查询工艺资料库")
+    @GetMapping("/listPage")
+    public ApiResult listPage(ProcessDatabasePageDto pageDto) {
         PageInfo<ProcessDatabase> pageInfo= processDatabaseService.listPage(pageDto);
-        return insertSuccess(pageInfo);
+        return selectSuccess(pageInfo);
     }
 
     /**
@@ -58,25 +57,36 @@ public class ProcessDatabaseController extends BaseController {
      */
     @ApiOperation(value = "新增或者修改工艺资料库")
     @PostMapping("/save")
-    public ApiResult save(ProcessDatabasePageDto pageDto) throws Exception {
-        PageInfo<ProcessDatabase> pageInfo= processDatabaseService.listPage(pageDto);
-        return insertSuccess(pageInfo);
+    public ApiResult save(@RequestBody ProcessDatabase processDatabase){
+        boolean b = processDatabaseService.saveOrUpdate(processDatabase);
+        return insertSuccess(b);
+    }
+
+
+    /**
+     * 批量或者修改
+     */
+    @ApiOperation(value = "批量或者修改")
+    @PostMapping("/saveList")
+    public ApiResult saveList(@RequestBody List<ProcessDatabase> processDatabaseList){
+        boolean b = processDatabaseService.saveOrUpdateBatch(processDatabaseList);
+        return insertSuccess(b);
     }
 
     /**
      * 根据id删除
      */
     @ApiOperation(value = "根据id删除")
-    @PostMapping("/delById")
-    public ApiResult delById(String id) throws Exception {
+    @DeleteMapping("/delById")
+    public ApiResult delById(String id) {
         return deleteSuccess(processDatabaseService.removeById(id));
     }
     /**
      * 根据id数组批量删除删除
      */
     @ApiOperation(value = "根据id数组批量删除删除")
-    @PostMapping("/delByIds")
-    public ApiResult delById(String[] ids) throws Exception {
+    @DeleteMapping("/delByIds")
+    public ApiResult delById(String[] ids) {
         return deleteSuccess(processDatabaseService.removeBatchByIds(Arrays.asList(ids)));
     }
 

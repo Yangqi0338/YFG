@@ -104,7 +104,9 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
     private void preHttpLog(ServerHttpRequest request, ServerHttpResponse response, Object body) {
         //记录请求信息
         HttpLog httpLog = companyUserInfo.get().getHttpLog();
-
+        if (httpLog==null){
+            httpLog =new HttpLog();
+        }
         try {
 
             URI uri = request.getURI();
