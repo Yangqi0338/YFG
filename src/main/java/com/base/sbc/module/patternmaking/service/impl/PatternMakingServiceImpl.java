@@ -113,7 +113,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         //将样衣设计状态改为已下发
         UpdateWrapper<SampleDesign> sdUw = new UpdateWrapper<>();
         sdUw.eq("id", patternMaking.getSampleDesignId());
-        sdUw.set("status", BasicNumber.TWO);
+        sdUw.set("status", BasicNumber.TWO.getNumber());
         sampleDesignService.update(sdUw);
         // 修改单据
         return update(uw);
