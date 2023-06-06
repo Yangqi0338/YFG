@@ -17,6 +17,7 @@ import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
@@ -110,6 +111,12 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         uw.set("design_send_status", BaseGlobal.YES);
         uw.eq("id", dto.getId());
         setUpdateInfo(uw);
+        PatternMaking patternMaking = getById(dto.getId());
+        //将样衣设计状态改为已下发
+        UpdateWrapper<SampleDesign> sdUw = new UpdateWrapper<>();
+        sdUw.eq("id", patternMaking.getSampleDesignId());
+        sdUw.set("status", BasicNumber.TWO);
+        sampleDesignService.update(sdUw);
         // 修改单据
         return update(uw);
     }
