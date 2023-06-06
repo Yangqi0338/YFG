@@ -21,6 +21,7 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
@@ -63,10 +64,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
 
     private final CcmFeignService ccmFeignService;
 
-    /**
-     * 纸样文件
-     */
-    public final static String PATTERN_MAKING_PATTERN = "PATTERN_MAKING_PATTERN";
+
 
 
     @Override
@@ -381,7 +379,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         SampleDesignVo sampleDesignVo = sampleDesignService.getDetail(vo.getSampleDesignId());
         vo.setSampleDesign(sampleDesignVo);
         // 查询附件，纸样文件
-        List<AttachmentVo> attachmentVoList = attachmentService.findByFId(vo.getId(), PATTERN_MAKING_PATTERN);
+        List<AttachmentVo> attachmentVoList = attachmentService.findByFId(vo.getId(), AttachmentTypeConstant.PATTERN_MAKING_PATTERN);
         vo.setAttachmentList(attachmentVoList);
 
         return vo;
@@ -389,7 +387,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
 
     @Override
     public boolean saveAttachment(SaveAttachmentDto dto) {
-        attachmentService.saveAttachment(dto.getAttachmentList(), dto.getId(), PATTERN_MAKING_PATTERN);
+        attachmentService.saveAttachment(dto.getAttachmentList(), dto.getId(), AttachmentTypeConstant.PATTERN_MAKING_PATTERN);
         return true;
     }
 

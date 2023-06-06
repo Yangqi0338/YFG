@@ -6,26 +6,40 @@
  *****************************************************************************/
 package com.base.sbc.module.fieldManagement.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
-import com.base.sbc.module.fieldManagement.mapper.FieldValMapper;
 import com.base.sbc.module.fieldManagement.entity.FieldVal;
+import com.base.sbc.module.fieldManagement.mapper.FieldValMapper;
 import com.base.sbc.module.fieldManagement.service.FieldValService;
 import org.springframework.stereotype.Service;
-/** 
+
+import java.util.List;
+
+/**
  * 类描述：字段值 service类
- * @address com.base.sbc.module.fieldManagement.service.FieldValService
+ *
  * @author lxl
+ * @version 1.0
+ * @address com.base.sbc.module.fieldManagement.service.FieldValService
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-5-22 19:41:56
- * @version 1.0  
  */
 @Service
 public class FieldValServiceImpl extends ServicePlusImpl<FieldValMapper, FieldVal> implements FieldValService {
+    /**
+     * 自定义方法区 不替换的区域【other_start】
+     **/
 
-/** 自定义方法区 不替换的区域【other_start】 **/
 
+    @Override
+    public List<FieldVal> list(String fid, String dataGroup) {
+        QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
+        fvQw.eq("f_id", fid);
+        fvQw.eq("data_group", dataGroup);
+        return list(fvQw);
+    }
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/
-	
+
 }

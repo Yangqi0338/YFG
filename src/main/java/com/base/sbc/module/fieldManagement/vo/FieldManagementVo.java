@@ -55,14 +55,18 @@ public class FieldManagementVo {
 
     private String fieldExplain;
 
-    private String  isCompile;
-    /** 备注 */
-    @ApiModelProperty(value = "备注"  )
+    private String isCompile;
+    /**
+     * 备注
+     */
+    @ApiModelProperty(value = "备注")
     private String remark;
-    private String  sequence;
-    @ApiModelProperty(value = "字典key"  )
-    private String  optionDictKey;
+    private String sequence;
+    @ApiModelProperty(value = "字典key")
+    private String optionDictKey;
     private List<Option> optionList;
-    @ApiModelProperty(value = "字段值"  )
+    @ApiModelProperty(value = "字段值")
     private String val;
+    @ApiModelProperty(value = "选中")
+    private boolean selected = true;
 }

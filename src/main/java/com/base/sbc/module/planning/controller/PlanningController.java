@@ -12,6 +12,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
+import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
@@ -199,6 +200,16 @@ public class PlanningController extends BaseController {
     })
     public List<UserCompany> getTeamUserList(@Valid @NotBlank(message = "产品季id不能为空") String planningSeasonId, String post) {
         return amcFeignService.getTeamUserListByPost(planningSeasonId, post);
+    }
+
+
+    @ApiOperation(value = "查询坑位信息的维度数据", notes = "")
+    @GetMapping("/querySeatDimension")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "坑位信息id", paramType = "query", required = true),
+    })
+    public List<FieldManagementVo> querySeatDimension(String id) {
+        return planningCategoryItemService.querySeatDimension(id);
     }
 
 }

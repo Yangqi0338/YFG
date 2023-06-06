@@ -15,12 +15,14 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.fieldManagement.dto.QueryFieldManagementDto;
 import com.base.sbc.module.fieldManagement.dto.SaveUpdateFieldManagementDto;
+import com.base.sbc.module.fieldManagement.entity.FieldManagement;
 import com.base.sbc.module.fieldManagement.entity.Option;
 import com.base.sbc.module.fieldManagement.mapper.FieldManagementMapper;
-import com.base.sbc.module.fieldManagement.entity.FieldManagement;
 import com.base.sbc.module.fieldManagement.mapper.OptionMapper;
 import com.base.sbc.module.fieldManagement.service.FieldManagementService;
 import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
+import com.base.sbc.module.formType.entity.FormType;
+import com.base.sbc.module.formType.service.FormTypeService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -34,27 +36,33 @@ import java.util.stream.Collectors;
 
 /**
  * 类描述：字段管理表 service类
- * @address com.base.sbc.module.fieldManagement.service.FieldManagementService
+ *
  * @author lxl
+ * @version 1.0
+ * @address com.base.sbc.module.fieldManagement.service.FieldManagementService
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-4-15 18:33:51
- * @version 1.0  
  */
 @Service
 public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementMapper, FieldManagement> implements FieldManagementService {
+
+    // 自定义方法区 不替换的区域【other_start】
+
     @Autowired
     private BaseController baseController;
     @Autowired
     private OptionMapper optionMapper;
+    @Autowired
+    private FormTypeService formTypeService;
 
     @Override
     public ApiResult saveUpdateField(SaveUpdateFieldManagementDto saveUpdateFieldManagementDto) {
-        if(StringUtils.isEmpty(saveUpdateFieldManagementDto.getId())) {
+        if (StringUtils.isEmpty(saveUpdateFieldManagementDto.getId())) {
             /*查询是否重复*/
             QueryWrapper<FieldManagement> queryWrapper = new QueryWrapper<>();
 
             if (!StringUtils.isEmpty(saveUpdateFieldManagementDto.getFieldName())) {
-                queryWrapper.or().eq("field_name", saveUpdateFieldManagementDto.getFieldName()).eq("form_type_id",saveUpdateFieldManagementDto.getFormTypeId());
+                queryWrapper.or().eq("field_name", saveUpdateFieldManagementDto.getFieldName()).eq("form_type_id", saveUpdateFieldManagementDto.getFormTypeId());
             }
         /*    if (!StringUtils.isEmpty(saveUpdateFieldManagementDto.getDefaultHint())) {
                 queryWrapper.or().eq("default_hint", saveUpdateFieldManagementDto.getDefaultHint()).eq("form_type_id",saveUpdateFieldManagementDto.getFormTypeId());
@@ -135,17 +143,33 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
 
     @Override
     public List<FieldManagementVo> getFieldManagementListByIds(List<String> ids) {
-        QueryFieldManagementDto dto=new QueryFieldManagementDto();
+        QueryFieldManagementDto dto = new QueryFieldManagementDto();
         dto.setIds(ids);
         dto.setCompanyCode(getCompanyCode());
         List<FieldManagementVo> list = baseMapper.getFieldManagementList(dto);
         return list;
     }
 
-/** 自定义方法区 不替换的区域【other_start】 **/
+    @Override
+    public List<FieldManagement> list(String formName, String categoryId, String season) {
+
+        QueryWrapper<FormType> qw = new QueryWrapper<>();
+        qw.eq("name", formName);
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.last("limit 1");
+        FormType formType = formTypeService.getOne(qw);
+        if (formType == null) {
+            return null;
+        }
+        QueryWrapper<FieldManagement> fmQw = new QueryWrapper<>();
+        fmQw.eq("form_type_id", formType.getId());
+        fmQw.eq("season", season);
+        fmQw.apply("FIND_IN_SET({0},category_id)", categoryId);
+
+        return list(fmQw);
+    }
 
 
+// 自定义方法区 不替换的区域【other_end】
 
-/** 自定义方法区 不替换的区域【other_end】 **/
-	
 }

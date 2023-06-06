@@ -11,17 +11,17 @@ import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.AllocationDesignDto;
 import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
 import com.base.sbc.module.planning.dto.ProductSeasonExpandByCategorySearchDto;
 import com.base.sbc.module.planning.dto.SetTaskLevelDto;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategory;
+import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.base.sbc.module.planning.entity.PlanningCategoryItem;
-
-import java.util.*;
+import java.util.List;
 
 /**
  * 类描述：企划-坑位信息 service类
@@ -97,8 +97,17 @@ public interface PlanningCategoryItemService extends IServicePlus<PlanningCatego
 
     /**
      * 坑位信息下发
+     *
      * @param categoryItemList
      * @return
      */
     boolean send(List<PlanningCategoryItem> categoryItemList);
+
+    /**
+     * 查询坑位信息的维度数据
+     *
+     * @param id 坑位id
+     * @return
+     */
+    List<FieldManagementVo> querySeatDimension(String id);
 }
