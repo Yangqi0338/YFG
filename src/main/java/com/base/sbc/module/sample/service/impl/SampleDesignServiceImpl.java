@@ -144,8 +144,11 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public SampleDesign saveNewSampleDesign(SampleDesignSaveDto dto) {
 
+        if (StrUtil.isBlank(dto.getDesignerId())) {
+            throw new OtherException("请选择设计师");
+        }
         // 判断当前用户是否有编码
-        UserCompany userInfo = amcFeignService.getUserInfo(getUserId());
+        UserCompany userInfo = amcFeignService.getUserInfo(dto.getDesignerId());
         if (userInfo == null || StrUtil.isBlank(userInfo.getUserCode())) {
             throw new OtherException("您未设置用户编码");
         }
