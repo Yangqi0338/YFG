@@ -23,24 +23,4 @@ public class PatternMakingDto extends PatternMaking {
     @NotBlank(message = "样衣设计id不能为空")
     private String sampleDesignId;
 
-    @ApiModelProperty(value = "版师名称")
-    @NotBlank(message = "版师名称不能为空")
-    private String patternDesignName;
-    /**
-     * 版师id
-     */
-    @ApiModelProperty(value = "版师id")
-
-    @NotBlank(message = "版师id不能为空")
-    private String patternDesignId;
-
-
-    @ApiModelProperty(value = "节点开始标志(0否，1是)")
-    private String startFlg;
-    /**
-     * 节点结束标志(0否，1是)
-     */
-    @ApiModelProperty(value = "节点结束标志(0否，1是)")
-    private String endFlg;
-
 }
