@@ -39,4 +39,7 @@ public class PatternMakingTaskSearchDto {
     private String patternDesignId;
     @ApiModelProperty(value = "节点", example = "打样管理")
     private String node;
+
+    @ApiModelProperty(value = "是否黑单(空：否,飞空：是)", example = "1")
+    private String isBlackList;
 }
