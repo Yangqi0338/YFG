@@ -12,6 +12,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
+
 /**
  * 类描述：新增修改流程配置-节点状态条件 dto类
  * @address com.base.sbc.module.process.dto.ProcessNodeStatusCondition
@@ -41,4 +44,8 @@ public class AddRevampProcessNodeStatusConditionDto  {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    private String ruleUserId;
+
+    private List<AddRevampProcessNodeActionDto> list;
 }

@@ -73,6 +73,13 @@ public class ProcessNodeStatusConditionController{
 	return processNodeStatusConditionService.delProcessNodeStatusCondition(id);
 	}
 
+	@ApiOperation(value = "查询明细节点状态条件")
+	@GetMapping("/getNodeStatusConditionDetail")
+	public ProcessNodeStatusConditionVo getNodeStatusConditionDetail(AddRevampProcessNodeStatusConditionDto addRevampProcessNodeStatusConditionDto) {
+		return processNodeStatusConditionService.getNodeStatusConditionDetail(addRevampProcessNodeStatusConditionDto);
+	}
+
+
 	@ApiOperation(value = "明细-通过id查询")
 	@GetMapping("/{id}")
 	public ProcessNodeStatusCondition getById(@PathVariable("id") String id) {

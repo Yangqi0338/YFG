@@ -14,6 +14,8 @@ import com.base.sbc.module.process.entity.ProcessNodeAction;
 import com.base.sbc.module.process.vo.ProcessNodeActionVo;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
+
 /** 
  * 类描述：流程配置-节点动作 service类
  * @address com.base.sbc.module.process.service.ProcessNodeActionService
@@ -34,8 +36,13 @@ public interface ProcessNodeActionService extends IServicePlus<ProcessNodeAction
          */
         PageInfo<ProcessNodeActionVo> getProcessNodeActionList(QueryDto queryDto);
 
-
-
+        /**
+         * 方法描述：批量新增修改流程配置-节点动作
+         *
+         * @param addRevampProcessNodeActionDto 部件Dto类
+         * @return boolean
+         */
+        Boolean batchAddRevampProcessNodeAction(List<AddRevampProcessNodeActionDto>  addRevampProcessNodeActionDto);
 
         /**
         * 方法描述：新增修改流程配置-节点动作

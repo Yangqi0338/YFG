@@ -49,5 +49,7 @@ public class ProcessNodeStatusCondition extends BaseDataEntity<String> {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+    /*规则用户id -1 任意人*/
+    private String ruleUserId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

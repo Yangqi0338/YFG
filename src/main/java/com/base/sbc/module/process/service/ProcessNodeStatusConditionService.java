@@ -58,6 +58,14 @@ public interface ProcessNodeStatusConditionService extends IServicePlus<ProcessN
         Boolean delProcessNodeStatusCondition(String id);
 
 
+        /**
+         * 方法描述：查询明细
+         *
+         * @param addRevampProcessNodeStatusConditionDto
+         * @return boolean
+         */
+        ProcessNodeStatusConditionVo getNodeStatusConditionDetail(AddRevampProcessNodeStatusConditionDto addRevampProcessNodeStatusConditionDto);
+
 
         /**
         * 方法描述：启用停止流程配置-节点状态条件
