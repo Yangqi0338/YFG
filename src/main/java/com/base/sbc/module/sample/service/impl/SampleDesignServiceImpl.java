@@ -293,7 +293,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
             throw new OtherException("样衣数据不存在,请先保存");
         }
         Map<String, Object> variables = BeanUtil.beanToMap(sampleDesign);
-        boolean flg = flowableService.start(FlowableService.sample_design_pdn+"["+sampleDesign.getDesignNo()+"]",FlowableService.sample_design_pdn, id, "/pdm/api/saas/sample/approval", "/pdm/api/saas/sample/approval", "/sampleClothesDesign/sampleDesign/" + id, variables);
+        boolean flg = flowableService.start(FlowableService.sample_design_pdn + "[" + sampleDesign.getDesignNo() + "]", FlowableService.sample_design_pdn, id, "/pdm/api/saas/sampleDesign/approval", "/pdm/api/saas/sampleDesign/approval", "/sampleClothesDesign/sampleDesign/" + id, variables);
         if (flg) {
             sampleDesign.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
             updateById(sampleDesign);
