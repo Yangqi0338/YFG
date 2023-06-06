@@ -414,6 +414,9 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
                 });
                 o.setNodeStatusList(nodeStatusVos);
             }
+            if (StrUtil.equals(o.getSuspend(), BaseGlobal.YES)) {
+                o.setStartDate(o.getUpdateDate());
+            }
         }
 
 

@@ -83,6 +83,7 @@
         p.pattern_design_id,
         p.break_off_sample,
         p.break_off_pattern,
+        p.update_date,
         p.pattern_design_name
         FROM
         t_pattern_making p,
