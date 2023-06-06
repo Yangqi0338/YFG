@@ -146,7 +146,6 @@ public class PatternMakingController {
 
     @ApiOperation(value = "节点状态改变")
     @PostMapping("/nodeStatusChange")
-    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "编号", required = true, paramType = "query")})
     public boolean nodeStatusChange(@RequestBody NodeStatusChangeDto dto) {
         return patternMakingService.nodeStatusChange(dto);
     }

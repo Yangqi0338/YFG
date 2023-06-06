@@ -10,6 +10,7 @@ import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.process.dto.AddRevampProcessStatusDto;
+import com.base.sbc.module.process.dto.QueryStatusDto;
 import com.base.sbc.module.process.entity.ProcessStatus;
 import com.base.sbc.module.process.vo.ProcessStatusVo;
 import com.github.pagehelper.PageInfo;
@@ -29,10 +30,10 @@ public interface ProcessStatusService extends IServicePlus<ProcessStatus>{
         /**
         * 方法描述：分页查询部件
         *
-        * @param queryDto 查询条件
+        * @param queryStatusDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<ProcessStatusVo> getProcessStatusList(QueryDto queryDto);
+        PageInfo<ProcessStatusVo> getProcessStatusList(QueryStatusDto queryStatusDto);
 
 
 

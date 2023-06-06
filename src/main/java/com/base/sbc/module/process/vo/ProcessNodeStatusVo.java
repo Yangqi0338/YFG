@@ -44,4 +44,5 @@ public class ProcessNodeStatusVo  {
     /** 结束状态(0未选中1选中) */
     @ApiModelProperty(value = "结束状态(0未选中1选中)"  )
     private String endStatus;
+    private Integer sort;
 }

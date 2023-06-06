@@ -45,11 +45,20 @@ public class PatternMakingTaskListVo {
     private String node;
     @ApiModelProperty(value = "状态")
     private String status;
+    @ApiModelProperty(value = "样衣组长确认齐套:1齐套")
+    private String sglKitting;
+    @ApiModelProperty(value = "工艺员确认齐套：1齐套")
+    private String technicianKitting;
+    @ApiModelProperty(value = "挂起状态:1挂起")
+    private String suspend;
     @ApiModelProperty(value = "排序")
     private BigDecimal sort;
 
     @ApiModelProperty(value = "开始时间")
     @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
     private Date startDate;
+    @ApiModelProperty(value = "修改时间")
+    @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
+    private Date updateDate;
     private List<NodeStatusVo> nodeStatusList;
 }

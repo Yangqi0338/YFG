@@ -12,6 +12,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.NotBlank;
+
 /**
  * 类描述：新增修改流程配置-流程方案 dto类
  * @address com.base.sbc.module.process.dto.ProcessProcessScheme
@@ -28,10 +30,14 @@ public class AddRevampProcessProcessSchemeDto  {
 
     /** 方案名称 */
     @ApiModelProperty(value = "方案名称"  )
+    @NotBlank(message = "方案名称必填")
     private String schemeName;
     /** 品牌 */
     @ApiModelProperty(value = "品牌"  )
+    @NotBlank(message = "品牌必填")
     private String brand;
+    /** 品牌id */
+    private String brandId;
     /** 描述 */
     @ApiModelProperty(value = "描述"  )
     private String description;

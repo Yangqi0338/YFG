@@ -32,6 +32,8 @@ public class ProcessProcessSchemeVo  {
     /** 品牌 */
     @ApiModelProperty(value = "品牌"  )
     private String brand;
+    /** 品牌id */
+    private String brandId;
     /** 描述 */
     @ApiModelProperty(value = "描述"  )
     private String description;
@@ -41,4 +43,6 @@ public class ProcessProcessSchemeVo  {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    private String createName;
 }

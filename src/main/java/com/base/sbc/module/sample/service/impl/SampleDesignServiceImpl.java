@@ -23,10 +23,12 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.fieldManagement.entity.FieldVal;
 import com.base.sbc.module.fieldManagement.service.FieldManagementService;
 import com.base.sbc.module.fieldManagement.service.FieldValService;
+import com.base.sbc.module.fieldManagement.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.service.*;
@@ -59,10 +61,6 @@ import java.util.stream.Collectors;
 @Service
 public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper, SampleDesign> implements SampleDesignService {
 
-
-    private final String SAMPLE_DESIGN_FILE_ATTACHMENT = "SAMPLE_DESIGN_FILE_ATTACHMENT";
-    private final String SAMPLE_DESIGN_FILE_STYLE_PIC = "SAMPLE_DESIGN_FILE_STYLE_PIC";
-    private final String SAMPLE_DESIGN_TECHNOLOGY = "SAMPLE_DESIGN_TECHNOLOGY";
 
     @Autowired
     private FlowableService flowableService;
@@ -105,9 +103,9 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         // 保存工艺信息
         saveTechnologyInfo(sampleDesign.getId(), dto.getTechnologyInfo());
         // 附件信息
-        saveFiles(sampleDesign.getId(), dto.getAttachmentList(), SAMPLE_DESIGN_FILE_ATTACHMENT);
+        saveFiles(sampleDesign.getId(), dto.getAttachmentList(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
         // 图片信息
-        saveFiles(sampleDesign.getId(), dto.getStylePicList(), SAMPLE_DESIGN_FILE_STYLE_PIC);
+        saveFiles(sampleDesign.getId(), dto.getStylePicList(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
 
         //保存关联的素材库
         planningCategoryItemMaterialService.saveMaterialList(dto);
@@ -146,8 +144,11 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public SampleDesign saveNewSampleDesign(SampleDesignSaveDto dto) {
 
+        if (StrUtil.isBlank(dto.getDesignerId())) {
+            throw new OtherException("请选择设计师");
+        }
         // 判断当前用户是否有编码
-        UserCompany userInfo = amcFeignService.getUserInfo(getUserId());
+        UserCompany userInfo = amcFeignService.getUserInfo(dto.getDesignerId());
         if (userInfo == null || StrUtil.isBlank(userInfo.getUserCode())) {
             throw new OtherException("您未设置用户编码");
         }
@@ -231,7 +232,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         //删除之前的
         QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
         fvQw.eq("f_id", sampleId);
-        fvQw.eq("data_group", SAMPLE_DESIGN_TECHNOLOGY);
+        fvQw.eq("data_group", FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         List<Object> ids = fieldValService.listObjs(fvQw);
         fieldValService.removeByIds(ids);
         //新增
@@ -241,7 +242,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         List<FieldVal> fvList = new ArrayList<>(ids.size());
         for (TechnologyInfoDto technologyInfoDto : technologyInfo) {
             FieldVal fieldVal = BeanUtil.copyProperties(technologyInfoDto, FieldVal.class);
-            fieldVal.setDataGroup(SAMPLE_DESIGN_TECHNOLOGY);
+            fieldVal.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
             fieldVal.setFId(sampleId);
             fvList.add(fieldVal);
         }
@@ -292,7 +293,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
             throw new OtherException("样衣数据不存在,请先保存");
         }
         Map<String, Object> variables = BeanUtil.beanToMap(sampleDesign);
-        boolean flg = flowableService.start(FlowableService.sample_design_pdn+"["+sampleDesign.getDesignNo()+"]",FlowableService.sample_design_pdn, id, "/pdm/api/saas/sample/approval", "/pdm/api/saas/sample/approval", "/sampleClothesDesign/sampleDesign/" + id, variables);
+        boolean flg = flowableService.start(FlowableService.sample_design_pdn + "[" + sampleDesign.getDesignNo() + "]", FlowableService.sample_design_pdn, id, "/pdm/api/saas/sampleDesign/approval", "/pdm/api/saas/sampleDesign/approval", "/sampleClothesDesign/sampleDesign/" + id, variables);
         if (flg) {
             sampleDesign.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
             updateById(sampleDesign);
@@ -348,7 +349,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         }
         SampleDesignVo sampleVo = BeanUtil.copyProperties(sampleDesign, SampleDesignVo.class);
         //查询附件
-        List<AttachmentVo> attachmentVoList = attachmentService.findByFId(id, SAMPLE_DESIGN_FILE_ATTACHMENT);
+        List<AttachmentVo> attachmentVoList = attachmentService.findByFId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
         sampleVo.setAttachmentList(attachmentVoList);
 
         // 关联的素材库
@@ -360,7 +361,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         sampleVo.setMaterialList(materialList);
 
         // 款式图片
-        List<AttachmentVo> stylePicList = attachmentService.findByFId(id, SAMPLE_DESIGN_FILE_STYLE_PIC);
+        List<AttachmentVo> stylePicList = attachmentService.findByFId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
         sampleVo.setStylePicList(stylePicList);
         return sampleVo;
     }
@@ -407,10 +408,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         }
         // [3].查询字段值
         if (StrUtil.isNotBlank(dto.getSampleDesignId())) {
-            QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
-            fvQw.eq("f_id", dto.getSampleDesignId());
-            fvQw.eq("data_group", SAMPLE_DESIGN_TECHNOLOGY);
-            List<FieldVal> fvList = fieldValService.list(fvQw);
+            List<FieldVal> fvList = fieldValService.list(dto.getSampleDesignId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
             if (CollUtil.isNotEmpty(fvList)) {
                 Map<String, String> valMap = fvList.stream().collect(Collectors.toMap(k -> k.getFieldName(), v -> v.getVal(), (a, b) -> b));
                 for (FieldManagementVo fieldManagementListById : fieldManagementListByIds) {

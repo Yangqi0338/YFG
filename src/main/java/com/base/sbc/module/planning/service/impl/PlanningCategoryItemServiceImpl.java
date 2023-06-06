@@ -9,6 +9,7 @@ package com.base.sbc.module.planning.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -29,12 +30,18 @@ import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.vo.UserInfoVo;
+import com.base.sbc.module.fieldManagement.entity.FieldManagement;
+import com.base.sbc.module.fieldManagement.entity.FieldVal;
+import com.base.sbc.module.fieldManagement.service.FieldManagementService;
+import com.base.sbc.module.fieldManagement.service.FieldValService;
+import com.base.sbc.module.fieldManagement.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.AllocationDesignDto;
 import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
 import com.base.sbc.module.planning.dto.ProductSeasonExpandByCategorySearchDto;
 import com.base.sbc.module.planning.dto.SetTaskLevelDto;
-import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
 import com.base.sbc.module.planning.entity.*;
+import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
 import com.base.sbc.module.planning.service.PlanningBandService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
@@ -84,8 +91,12 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
     CcmFeignService ccmFeignService;
     @Autowired
     SampleDesignService sampleDesignService;
+    @Autowired
+    FieldManagementService fieldManagementService;
+    @Autowired
+    FieldValService fieldValService;
 
-    private IdGen idGen=new IdGen();
+    private IdGen idGen = new IdGen();
 
     /**
      * 保存坑位信息
@@ -452,12 +463,23 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
 
         }
         // 保存样衣设计
-        if(CollUtil.isNotEmpty(sampleDesignList)){
+        if (CollUtil.isNotEmpty(sampleDesignList)) {
             sampleDesignService.saveBatch(sampleDesignList);
         }
         return true;
     }
 
+    @Override
+    public List<FieldManagementVo> querySeatDimension(String id) {
+        PlanningCategoryItem seat = getById(id);
+        PlanningSeason season = planningSeasonService.getById(seat.getPlanningSeasonId());
+        List<String> categoryIds = StrUtil.split(seat.getCategoryIds(), CharUtil.COMMA);
+        List<FieldManagement> fieldList = fieldManagementService.list("产品季", CollUtil.get(categoryIds, 1), season.getSeason());
+        List<FieldVal> valueList = fieldValService.list(id, FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION);
+
+
+        return null;
+    }
 
 
 }

@@ -5,6 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.fieldManagement.service;
+
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.fieldManagement.dto.QueryFieldManagementDto;
@@ -37,6 +38,16 @@ public interface FieldManagementService extends IServicePlus<FieldManagement> {
     ApiResult adjustmentOrder(QueryFieldManagementDto queryFieldManagementDto);
 
     List<FieldManagementVo> getFieldManagementListByIds(List<String> ids);
+
+    /**
+     * 通过表名，品类，季节查询
+     *
+     * @param tableName
+     * @param categoryId
+     * @param season
+     * @return
+     */
+    List<FieldManagement> list(String formName, String categoryId, String season);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

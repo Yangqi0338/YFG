@@ -9,6 +9,7 @@ package com.base.sbc.module.process.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：流程配置-流程方案 service类
@@ -44,6 +46,9 @@ public class ProcessProcessSchemeServiceImpl extends ServicePlusImpl<ProcessProc
         @Autowired
         private BaseController baseController;
 
+    @Autowired
+    private AmcFeignService amcFeignService;
+
 /** 自定义方法区 不替换的区域【other_start】 **/
 
         /**
@@ -53,22 +58,14 @@ public class ProcessProcessSchemeServiceImpl extends ServicePlusImpl<ProcessProc
         * @return
         */
         @Override
-        public PageInfo<ProcessProcessSchemeVo> getProcessProcessSchemeList(QueryDto queryDto) {
-            /*分页*/
-            PageHelper.startPage(queryDto);
+        public List<ProcessProcessSchemeVo> getProcessProcessSchemeList(QueryDto queryDto) {
             QueryWrapper<ProcessProcessScheme> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
             /*查询流程配置-流程方案数据*/
             List<ProcessProcessScheme> processProcessSchemeList = baseMapper.selectList(queryWrapper);
-            PageInfo<ProcessProcessScheme> pageInfo = new PageInfo<>(processProcessSchemeList);
             /*转换vo*/
             List<ProcessProcessSchemeVo> list = BeanUtil.copyToList(processProcessSchemeList, ProcessProcessSchemeVo.class);
-            PageInfo<ProcessProcessSchemeVo> pageInfo1 = new PageInfo<>();
-            pageInfo1.setList(list);
-            pageInfo1.setTotal(pageInfo.getTotal());
-            pageInfo1.setPageNum(pageInfo.getPageNum());
-            pageInfo1.setPageSize(pageInfo.getPageSize());
-            return pageInfo1;
+            return list;
         }
 
 
@@ -85,7 +82,8 @@ public class ProcessProcessSchemeServiceImpl extends ServicePlusImpl<ProcessProc
         public Boolean addRevampProcessProcessScheme(AddRevampProcessProcessSchemeDto addRevampProcessProcessSchemeDto) {
                 ProcessProcessScheme processProcessScheme = new ProcessProcessScheme();
             if (StringUtils.isEmpty(addRevampProcessProcessSchemeDto.getId())) {
-                QueryWrapper<ProcessProcessScheme> queryWrapper=new QueryWrapper<>();
+                Map<String,String> map = amcFeignService.getUserAvatar(baseController.getUserId());
+                addRevampProcessProcessSchemeDto.setCreatePicture(map.get(baseController.getUserId()));
                 /*新增*/
                 BeanUtils.copyProperties(addRevampProcessProcessSchemeDto, processProcessScheme);
                 processProcessScheme.setCompanyCode(baseController.getUserCompany());

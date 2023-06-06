@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.amc.TeamVo;
 import com.base.sbc.client.amc.entity.CompanyPost;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import lombok.extern.slf4j.Slf4j;
@@ -131,14 +132,14 @@ public class AmcFeignService {
     }
 
     public List<UserCompany> getTeamUserListByPost(String planningSeasonId, String post) {
-        List<UserCompany> userList = getUsersBySeasonId(planningSeasonId, post);
-        if (CollUtil.isNotEmpty(userList)) {
+        List<UserCompany> userList = getUsersBySeasonId(planningSeasonId, BaseGlobal.YES);
+        if (CollUtil.isNotEmpty(userList) && StrUtil.isNotBlank(post)) {
             List<UserCompany> collect = userList.stream().filter(user -> {
-                CompanyPost one = CollUtil.findOne(user.getPostList(), a -> StrUtil.equals(post, a.getName()));
+                CompanyPost one = CollUtil.findOne(user.getPostList(), a -> StrUtil.equalsAny(post, a.getName(), a.getCode()));
                 return one != null;
             }).collect(Collectors.toList());
             return collect;
         }
-        return null;
+        return userList;
     }
 }

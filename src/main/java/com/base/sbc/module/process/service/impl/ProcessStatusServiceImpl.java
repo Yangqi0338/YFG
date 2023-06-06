@@ -13,10 +13,10 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.process.dto.AddRevampProcessStatusDto;
+import com.base.sbc.module.process.dto.QueryStatusDto;
 import com.base.sbc.module.process.entity.ProcessStatus;
 import com.base.sbc.module.process.mapper.ProcessStatusMapper;
 import com.base.sbc.module.process.service.ProcessStatusService;
@@ -49,15 +49,18 @@ public class ProcessStatusServiceImpl extends ServicePlusImpl<ProcessStatusMappe
         /**
         * 流程配置-状态定义分页查询
         *
-        * @param queryDto
+        * @param queryStatusDto
         * @return
         */
         @Override
-        public PageInfo<ProcessStatusVo> getProcessStatusList(QueryDto queryDto) {
+        public PageInfo<ProcessStatusVo> getProcessStatusList(QueryStatusDto queryStatusDto) {
             /*分页*/
-            PageHelper.startPage(queryDto);
+            if(queryStatusDto.getPageNum()!=0 && queryStatusDto.getPageSize() !=0){
+                PageHelper.startPage(queryStatusDto);
+            }
             QueryWrapper<ProcessStatus> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
+            queryWrapper.like(StringUtils.isNotBlank(queryStatusDto.getStatusName()),"status_name",queryStatusDto.getStatusName());
             /*查询流程配置-状态定义数据*/
             List<ProcessStatus> processStatusList = baseMapper.selectList(queryWrapper);
             PageInfo<ProcessStatus> pageInfo = new PageInfo<>(processStatusList);

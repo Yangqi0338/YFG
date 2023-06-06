@@ -13,31 +13,28 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
- * 类描述：新增修改流程配置-节点条件 dto类
- * @address com.base.sbc.module.process.dto.ProcessNodeCondition
+ * 类描述：新增修改流程配置-动作定义 dto类
+ * @address com.base.sbc.module.process.dto.ProcessAction
  * @author mengfanjiang
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-2 20:15:15
+ * @date 创建时间：2023-6-5 11:03:08
  * @version 1.0
  */
 @Data
-@ApiModel("流程配置-节点条件 ProcessNodeCondition")
-public class AddRevampProcessNodeConditionDto  {
+@ApiModel("流程配置-动作定义 ProcessAction")
+public class AddRevampProcessActionDto  {
 
     private String id;
 
-    /** 节点信息Id */
-    @ApiModelProperty(value = "节点信息Id"  )
-    private String nodeId;
-    /** 节点条件 */
-    @ApiModelProperty(value = "节点条件"  )
-    private String nodeCondition;
-    /** 原状态 */
-    @ApiModelProperty(value = "原状态"  )
-    private String originalStatus;
-    /** 目标状态 */
-    @ApiModelProperty(value = "目标状态"  )
-    private String targetStatus;
+    /** 动作名称 */
+    @ApiModelProperty(value = "动作名称"  )
+    private String actionName;
+    /** 动作编码 */
+    @ApiModelProperty(value = "动作编码"  )
+    private String actionCode;
+    /** 动作说明 */
+    @ApiModelProperty(value = "动作说明"  )
+    private String actionDescription;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;

@@ -37,11 +37,14 @@ public class ProcessNodeVo  {
     private String description;
     /** 表单id */
     @ApiModelProperty(value = "表单id"  )
-    private String fromId;
+    private String formId;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    /*排序*/
+    private Integer sort;
 }

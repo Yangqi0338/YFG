@@ -5,22 +5,25 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.sample.entity;
-import java.math.BigDecimal;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  * 类描述：样衣设计 实体类
- * @address com.base.sbc.module.sample.entity.SampleDesign
+ *
  * @author lxl
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-31 18:02:03
  * @version 1.0
+ * @address com.base.sbc.module.sample.entity.SampleDesign
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-6-6 14:00:19
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -183,22 +186,62 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "下发人"  )
     private String sender;
     /** 是否齐套:0未齐套，1已齐套 */
-    @ApiModelProperty(value = "是否齐套:0未齐套，1已齐套"  )
+    @ApiModelProperty(value = "是否齐套:0未齐套，1已齐套")
     private String kitting;
-    /** 模板部件 */
-    @ApiModelProperty(value = "模板部件"  )
+    /**
+     * 模板部件
+     */
+    @ApiModelProperty(value = "模板部件")
     private String patternParts;
-    /** 版师id */
-    @ApiModelProperty(value = "版师id"  )
+    /**
+     * 版师id
+     */
+    @ApiModelProperty(value = "版师id")
     private String patternDesignId;
-    /** 版师名称 */
-    @ApiModelProperty(value = "版师名称"  )
+    /**
+     * 版师名称
+     */
+    @ApiModelProperty(value = "版师名称")
     private String patternDesignName;
-    /** 状态:0未开款，1已开款，2已下发打板(完成) */
-    @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成)"  )
+    /**
+     * 跟款设计师Id
+     */
+    @ApiModelProperty(value = "跟款设计师Id")
+    private String merchDesignId;
+    /**
+     * 跟款设计师
+     */
+    @ApiModelProperty(value = "跟款设计师")
+    private String merchDesignName;
+    /**
+     * 审版设计师id
+     */
+    @ApiModelProperty(value = "审版设计师id")
+    private String reviewedDesignId;
+    /**
+     * 审版设计师
+     */
+    @ApiModelProperty(value = "审版设计师")
+    private String reviewedDesignName;
+    /**
+     * 改版设计师id
+     */
+    @ApiModelProperty(value = "改版设计师id")
+    private String revisedDesignId;
+    /**
+     * 改版设计师
+     */
+    @ApiModelProperty(value = "改版设计师")
+    private String revisedDesignName;
+    /**
+     * 状态:0未开款，1已开款，2已下发打板(完成)
+     */
+    @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成)")
     private String status;
-    /** 审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1) */
-    @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)"  )
+    /**
+     * 审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)
+     */
+    @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)")
     private String confirmStatus;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

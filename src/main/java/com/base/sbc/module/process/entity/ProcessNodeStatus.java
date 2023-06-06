@@ -52,5 +52,7 @@ public class ProcessNodeStatus extends BaseDataEntity<String> {
     /** 结束状态(0未选中1选中) */
     @ApiModelProperty(value = "结束状态(0未选中1选中)"  )
     private String endStatus;
+
+    private Integer sort;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

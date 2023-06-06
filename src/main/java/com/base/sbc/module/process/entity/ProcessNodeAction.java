@@ -46,5 +46,7 @@ public class ProcessNodeAction extends BaseDataEntity<String> {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    private String nodeStatusConditionId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

@@ -5,7 +5,9 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.fieldManagement.entity;
-import java.util.Date;
+
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -36,15 +38,25 @@ public class FieldVal extends BaseDataEntity<String> {
     /** 关联id */
     @ApiModelProperty(value = "关联id"  )
     private String fId;
-    /** 数据分组 */
-    @ApiModelProperty(value = "数据分组"  )
+    /**
+     * 数据分组
+     */
+    @ApiModelProperty(value = "数据分组")
     private String dataGroup;
-    /** 字段名称 */
-    @ApiModelProperty(value = "字段名称"  )
+    /**
+     * 字段名称
+     */
+    @ApiModelProperty(value = "字段名称")
     private String fieldName;
-    /** 字段值 */
-    @ApiModelProperty(value = "字段值"  )
+    /**
+     * 字段值
+     */
+    @ApiModelProperty(value = "字段值")
     private String val;
+
+    @TableField(fill = FieldFill.INSERT)
+    @ApiModelProperty(value = "删除标记（0：正常；1：删除；）")
+    private String delFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

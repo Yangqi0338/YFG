@@ -17,9 +17,11 @@ import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
@@ -62,10 +64,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
 
     private final CcmFeignService ccmFeignService;
 
-    /**
-     * 纸样文件
-     */
-    public final static String PATTERN_MAKING_PATTERN = "PATTERN_MAKING_PATTERN";
+
 
 
     @Override
@@ -110,6 +109,12 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         uw.set("design_send_status", BaseGlobal.YES);
         uw.eq("id", dto.getId());
         setUpdateInfo(uw);
+        PatternMaking patternMaking = getById(dto.getId());
+        //将样衣设计状态改为已下发
+        UpdateWrapper<SampleDesign> sdUw = new UpdateWrapper<>();
+        sdUw.eq("id", patternMaking.getSampleDesignId());
+        sdUw.set("status", BasicNumber.TWO.getNumber());
+        sampleDesignService.update(sdUw);
         // 修改单据
         return update(uw);
     }
@@ -290,6 +295,13 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
+        if (StrUtil.isBlank(dto.getIsBlackList())) {
+            //排除黑单
+            qw.ne("p.urgency", "0");
+        } else {
+            //只查询黑单
+            qw.eq("p.urgency", "0");
+        }
         qw.orderByAsc("p.sort");
         List<PatternMakingTaskListVo> list = getBaseMapper().patternMakingTaskList(qw);
         //设置图片
@@ -367,7 +379,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         SampleDesignVo sampleDesignVo = sampleDesignService.getDetail(vo.getSampleDesignId());
         vo.setSampleDesign(sampleDesignVo);
         // 查询附件，纸样文件
-        List<AttachmentVo> attachmentVoList = attachmentService.findByFId(vo.getId(), PATTERN_MAKING_PATTERN);
+        List<AttachmentVo> attachmentVoList = attachmentService.findByFId(vo.getId(), AttachmentTypeConstant.PATTERN_MAKING_PATTERN);
         vo.setAttachmentList(attachmentVoList);
 
         return vo;
@@ -375,7 +387,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
 
     @Override
     public boolean saveAttachment(SaveAttachmentDto dto) {
-        attachmentService.saveAttachment(dto.getAttachmentList(), dto.getId(), PATTERN_MAKING_PATTERN);
+        attachmentService.saveAttachment(dto.getAttachmentList(), dto.getId(), AttachmentTypeConstant.PATTERN_MAKING_PATTERN);
         return true;
     }
 
@@ -406,6 +418,9 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
                     return a.getStartDate().compareTo(b.getStartDate());
                 });
                 o.setNodeStatusList(nodeStatusVos);
+            }
+            if (StrUtil.equals(o.getSuspend(), BaseGlobal.YES)) {
+                o.setStartDate(o.getUpdateDate());
             }
         }
 

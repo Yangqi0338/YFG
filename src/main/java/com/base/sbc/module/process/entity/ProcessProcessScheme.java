@@ -40,6 +40,8 @@ public class ProcessProcessScheme extends BaseDataEntity<String> {
     /** 品牌 */
     @ApiModelProperty(value = "品牌"  )
     private String brand;
+    /** 品牌id */
+    private String brandId;
     /** 描述 */
     @ApiModelProperty(value = "描述"  )
     private String description;

@@ -18,6 +18,7 @@ import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.process.dto.AddRevampProcessNodeActionDto;
 import com.base.sbc.module.process.entity.ProcessNodeAction;
+import com.base.sbc.module.process.entity.ProcessNodeStatus;
 import com.base.sbc.module.process.mapper.ProcessNodeActionMapper;
 import com.base.sbc.module.process.service.ProcessNodeActionService;
 import com.base.sbc.module.process.vo.ProcessNodeActionVo;
@@ -71,11 +72,21 @@ public class ProcessNodeActionServiceImpl extends ServicePlusImpl<ProcessNodeAct
             return pageInfo1;
         }
 
+    /**
+     * 方法描述：批量新增修改流程配置-节点动作
+     *
+     * @param addRevampProcessNodeActionDto 部件Dto类
+     * @return boolean
+     */
+    @Override
+    public Boolean batchAddRevampProcessNodeAction(List<AddRevampProcessNodeActionDto> addRevampProcessNodeActionDto) {
+        List<ProcessNodeAction>  processNodeActionList = BeanUtil.copyToList(addRevampProcessNodeActionDto, ProcessNodeAction.class);
+        saveOrUpdateBatch(processNodeActionList);
+        return true;
+    }
 
 
-
-
-        /**
+    /**
         * 方法描述：新增修改流程配置-节点动作
         *
         * @param addRevampProcessNodeActionDto 流程配置-节点动作Dto类

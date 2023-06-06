@@ -38,4 +38,6 @@ public class ProcessNodeActionVo  {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    private String nodeStatusConditionId;
 }
