@@ -24,9 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 类描述：流程配置-业务实例 service类
@@ -61,13 +59,11 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
     @Autowired
     private ProcessNodeStatusConditionMapper processNodeStatusConditionMapperl;
 
-
+    @Autowired
+    private ProcessNodeConditionFormulaMapper processNodeConditionFormulaMapper;
 
     @Autowired
-    private  ProcessStateRecordMapper processStateRecordMapper;
-
-
-
+    private ProcessStateRecordMapper processStateRecordMapper;
 
 
     /**
@@ -129,7 +125,7 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         }
         processNodeRecordService.batchAddition(processNodeRecordList);
         /*状态记录一条*/
-        ProcessStateRecord processStateRecord =new ProcessStateRecord();
+        ProcessStateRecord processStateRecord = new ProcessStateRecord();
         processStateRecord.insertInit();
         processStateRecord.setCompanyCode(baseController.getUserCompany());
         processStateRecord.setBusinessInstanceId(processBusinessInstance.getId());
@@ -140,7 +136,7 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
     }
 
     /**
-     * 描述- 完成操作
+     * 描述- 完成操作 返回需要修改的字段
      * businessDataId 业务数据id
      * action 动作
      * objectData 数据
@@ -149,7 +145,7 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
      */
     @Override
     @Transactional(readOnly = false)
-    public Boolean complete(String businessDataId, String action, Object objectData) {
+    public Map complete(String businessDataId, String action, Object objectData) {
         if (StringUtils.isBlank(businessDataId)) {
             throw new OtherException("业务数据id不能为空");
         }
@@ -159,7 +155,7 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("business_data_id", businessDataId);
         ProcessBusinessInstance processBusinessInstance = baseMapper.selectOne(queryWrapper);
-        if(ObjectUtils.isEmpty(processBusinessInstance)){
+        if (ObjectUtils.isEmpty(processBusinessInstance)) {
             throw new OtherException("业务数据id错误");
         }
 
@@ -168,26 +164,27 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         queryWrapper.eq("nsc.node_id", processBusinessInstance.getAtPresentNodeId());
         queryWrapper.eq("nsc.original_status", processBusinessInstance.getAtPresentStatusName());
         queryWrapper.eq("na.action_name", action);
+        queryWrapper.eq("na.status",BaseGlobal.STATUS_CLOSE);
         /*获取节点状态条件及动作*/
         ProcessNodeStatusConditionVo processNodeStatusConditionVo = processNodeStatusConditionMapperl.getCondition(queryWrapper);
         if (ObjectUtils.isEmpty(processNodeStatusConditionVo)) {
             throw new OtherException("该状态无此动作");
         }
-       // 判断规则 -1表示全员
+        // 判断规则 -1表示全员
         if (!processNodeStatusConditionVo.getRuleUserId().equals("-1") && !processNodeStatusConditionVo.getRuleUserId().equals(baseController.getUserId())) {
             throw new OtherException("该用户无此操作");
         }
         /*获取当前节点*/
-        ProcessNode processNode =   processNodeMapper.selectById(processBusinessInstance.getAtPresentNodeId());
+        ProcessNode processNode = processNodeMapper.selectById(processBusinessInstance.getAtPresentNodeId());
 
         /*获取节点记录的当前节点*/
         queryWrapper.clear();
-        queryWrapper.eq("business_instance_id",processBusinessInstance.getId());
-        queryWrapper.eq("node_id",processNode.getId());
-        ProcessNodeRecord processNodeRecord =  processNodeRecordMapper.selectOne(queryWrapper);
+        queryWrapper.eq("business_instance_id", processBusinessInstance.getId());
+        queryWrapper.eq("node_id", processNode.getId());
+        ProcessNodeRecord processNodeRecord = processNodeRecordMapper.selectOne(queryWrapper);
 
         /*条件是否满足*/
-        boolean b=  isConditionSatisfy(processNode.getFormId() ,processNodeStatusConditionVo.getNodeCondition(),objectData);
+        boolean b = isConditionSatisfy(processNode.getFormId(), processNodeStatusConditionVo.getId(), objectData);
 
         if (!b) {
             throw new OtherException("条件不满足");
@@ -200,17 +197,17 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
          * 否则流转状态 节点不变 改变状态
          */
         queryWrapper.clear();
-        queryWrapper.eq("node_id",processNodeStatusConditionVo.getNodeId());
-        queryWrapper.eq("status_name",processNodeStatusConditionVo.getTargetStatus());
+        queryWrapper.eq("node_id", processNodeStatusConditionVo.getNodeId());
+        queryWrapper.eq("status_name", processNodeStatusConditionVo.getTargetStatus());
 
-        ProcessNodeStatus  processNodeStatus = processNodeStatusMapper.selectOne(queryWrapper);
+        ProcessNodeStatus processNodeStatus = processNodeStatusMapper.selectOne(queryWrapper);
         if (ObjectUtils.isEmpty(processNodeStatus)) {
             throw new OtherException("无状态");
         }
-        ProcessStateRecord processStateRecord =new ProcessStateRecord();
+        ProcessStateRecord processStateRecord = new ProcessStateRecord();
         /*判断是否为最后一个状态*/
         if (processNodeStatus.getEndStatus().equals(BaseGlobal.STATUS_NORMAL)) {
-           /*流转状态*/
+            /*流转状态*/
             processBusinessInstance.setAtPresentStatusName(processNodeStatus.getStatusName());
             processBusinessInstance.updateInit();
             processNodeRecord.updateInit();
@@ -236,13 +233,12 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
             processStateRecord.setCompanyCode(baseController.getUserCompany());
             processStateRecord.setBusinessInstanceId(processBusinessInstance.getId());
             processStateRecord.setNodeRecordId(processNodeRecord.getId());
-            processStateRecord.setStatus(processNodeStatus.getStatusName());;
-
+            processStateRecord.setStatus(processNodeStatus.getStatusName());
             /*查询下一个节点记录*/
             queryWrapper.clear();
-            queryWrapper.eq("business_instance_id",processBusinessInstance.getId());
-            queryWrapper.eq("sort",processNodeRecord.getSort()+1);
-            ProcessNodeRecord nextNodeRecord =  processNodeRecordMapper.selectOne(queryWrapper);
+            queryWrapper.eq("business_instance_id", processBusinessInstance.getId());
+            queryWrapper.eq("sort", processNodeRecord.getSort() + 1);
+            ProcessNodeRecord nextNodeRecord = processNodeRecordMapper.selectOne(queryWrapper);
             if (ObjectUtils.isEmpty(nextNodeRecord)) {
                 /*最后一个节点*/
                 processBusinessInstance.setIsComplete(BaseGlobal.STATUS_CLOSE);
@@ -259,12 +255,12 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
                 /*修改下节点*/
                 processNodeRecordMapper.updateById(nextNodeRecord);
                 /*状态记录一条*/
-                ProcessStateRecord nextStateRecord =new ProcessStateRecord();
+                ProcessStateRecord nextStateRecord = new ProcessStateRecord();
                 nextStateRecord.insertInit();
                 nextStateRecord.setCompanyCode(baseController.getUserCompany());
                 nextStateRecord.setBusinessInstanceId(processBusinessInstance.getId());
                 nextStateRecord.setNodeRecordId(nextNodeRecord.getId());
-                nextStateRecord.setStatus(nextNodeStatus.getStatusName());;
+                nextStateRecord.setStatus(nextNodeStatus.getStatusName());
                 processStateRecordMapper.insert(nextStateRecord);
                 /*调整流程示例数据*/
                 processBusinessInstance.setAtPresentStatusName(nextNodeStatus.getStatusName());
@@ -273,7 +269,6 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
                 processBusinessInstance.updateInit();
             }
 
-
         }
         /*添加一条状态记录*/
         processStateRecordMapper.insert(processStateRecord);
@@ -281,7 +276,9 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         processNodeRecordMapper.updateById(processNodeRecord);
         /*修改实例*/
         baseMapper.updateById(processBusinessInstance);
-        return true;
+        Map map=new HashMap();
+        map.put("updateField",processNodeStatusConditionVo.getUpdateField());
+        return map;
     }
 
     /**
@@ -290,11 +287,16 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
      * nodeCondition 公式
      * objectData 数据
      */
-    boolean isConditionSatisfy(String formId,String nodeCondition, Object objectData ){
-        String[] nodeConditions =  nodeCondition.split(",");
+    boolean isConditionSatisfy(String formId, String id, Object objectData) {
+
+        /*获取条件*/
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("node_status_condition_id", id);
+//        List<ProcessNodeConditionFormula> processNodeConditionFormulaList = processNodeConditionFormulaMapper.selectList(queryWrapper);
+
+
         return true;
     }
-
 
 
 }

@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 /**
 * 类描述：流程配置-业务实例 Controller类
@@ -47,7 +48,7 @@ public class ProcessBusinessInstanceController{
 	/*完成*/
 	@ApiOperation(value = "完成" )
 	@GetMapping("/complete")
-	public Boolean complete(String businessDataId,String action,Object object) {
+	public Map complete(String businessDataId, String action, Object object) {
 		return processBusinessInstanceService.complete(businessDataId,action,object);
 	}
 

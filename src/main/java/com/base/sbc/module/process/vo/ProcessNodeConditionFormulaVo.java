@@ -12,50 +12,33 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.util.List;
-
 /**
- * 类描述：流程配置-节点状态条件 Vo类
- *
+ * 类描述：流程配置-节点条件公式 Vo类
+ * @address com.base.sbc.module.process.vo.ProcessNodeConditionFormula
  * @author mengfanjiang
- * @version 1.0
- * @address com.base.sbc.module.process.vo.ProcessNodeStatusCondition
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-5 17:10:23
+ * @date 创建时间：2023-6-7 15:47:31
+ * @version 1.0
  */
 @Data
 
-@ApiModel("流程配置-节点状态条件 ProcessNodeStatusCondition")
-public class ProcessNodeStatusConditionVo {
+@ApiModel("流程配置-节点条件公式 ProcessNodeConditionFormula")
+public class ProcessNodeConditionFormulaVo  {
 
     private String id;
-    /**
-     * 节点信息Id
-     */
-    @ApiModelProperty(value = "节点信息Id")
+    /** 节点信息Id */
+    @ApiModelProperty(value = "节点信息Id"  )
     private String nodeId;
-    /**
-     * 原状态
-     */
-    @ApiModelProperty(value = "原状态")
-    private String originalStatus;
-    /**
-     * 目标状态
-     */
-    @ApiModelProperty(value = "目标状态")
-    private String targetStatus;
-    /**
-     * 状态(0正常,1停用)
-     */
-    @ApiModelProperty(value = "状态(0正常,1停用)")
+    /** 节点状态条件id */
+    @ApiModelProperty(value = "节点状态条件id"  )
+    private String nodeStatusConditionId;
+    /** 节点条件公式 */
+    @ApiModelProperty(value = "节点条件公式"  )
+    private String nodeConditionFormula;
+    /** 节点条件 不满足时的提示 */
+    @ApiModelProperty(value = "节点条件 不满足时的提示"  )
+    private String reminder;
+    /** 状态(0正常,1停用) */
+    @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
-
-    private String ruleUserId;
-
-    private String updateField;
-
-    private List<ProcessNodeActionVo> processNodeActionVoList;
-
-
 }
