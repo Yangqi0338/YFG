@@ -25,6 +25,9 @@ public class ProcessDatabaseExcelDto {
     /**工艺类型*/
     @Excel(name = "工艺类型")
     private String processType;
+    /**工艺要求*/
+    @Excel(name = "工艺要求")
+    private String processRequire;
     /**大类*/
     @Excel(name = "大类")
     private String majorCategories;

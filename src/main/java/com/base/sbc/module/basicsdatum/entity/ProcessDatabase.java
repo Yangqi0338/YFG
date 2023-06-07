@@ -1,6 +1,5 @@
 package com.base.sbc.module.basicsdatum.entity;
 
-import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModelProperty;
@@ -26,6 +25,8 @@ public class ProcessDatabase extends BaseDataEntity<String> {
     private String brandName;
     /**工艺类型*/
     private String processType;
+    /**工艺要求*/
+    private String processRequire;
     /**描述*/
     private String description;
     /**品类id*/

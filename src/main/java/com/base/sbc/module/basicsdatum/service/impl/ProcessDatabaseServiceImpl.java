@@ -87,7 +87,7 @@ public class ProcessDatabaseServiceImpl extends ServicePlusImpl<ProcessDatabaseM
                     processDatabaseExcelDto.setPicture(attachmentVo.getUrl());
                 }
             }
-            if ("1".equals(type)){
+            if ("1".equals(type) || "7".equals(type)){
                 processDatabaseExcelDto.setProcessType(processDatabaseExcelDto.getComponentCategory());
             }
 
@@ -124,7 +124,7 @@ public class ProcessDatabaseServiceImpl extends ServicePlusImpl<ProcessDatabaseM
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getDescription()),"description",pageDto.getDescription());
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getProcessName()),"process_name",pageDto.getProcessName());
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCode()),"code",pageDto.getCode());
-
+        queryWrapper.orderByDesc("create_date");
         if (pageDto.getTime()!=null && pageDto.getTime().length>0){
             queryWrapper.ge(StringUtils.isNotEmpty(pageDto.getTime()[0]),"create_date",pageDto.getTime()[0]);
             if (pageDto.getTime().length>1){
