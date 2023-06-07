@@ -36,6 +36,8 @@ public class AddRevampProcessProcessSchemeDto  {
     @ApiModelProperty(value = "品牌"  )
     @NotBlank(message = "品牌必填")
     private String brand;
+    @NotBlank(message = "编码必填")
+    private String schemeCode;
     /** 品牌id */
     private String brandId;
     /** 描述 */

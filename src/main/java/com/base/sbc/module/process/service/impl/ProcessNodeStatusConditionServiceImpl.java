@@ -151,6 +151,7 @@ public class ProcessNodeStatusConditionServiceImpl extends ServicePlusImpl<Proce
         if (!ObjectUtils.isEmpty(processNodeStatusCondition)) {
             BeanUtils.copyProperties(processNodeStatusCondition, processNodeStatusConditionVo);
             QueryWrapper<ProcessNodeAction> queryWrapper1 = new QueryWrapper<>();
+            queryWrapper1.eq("node_status_condition_id",processNodeStatusCondition.getId());
             List<ProcessNodeAction> processNodeActionList = processNodeActionService.list(queryWrapper1);
             if (!CollectionUtils.isEmpty(processNodeActionList)) {
                 List<ProcessNodeActionVo> list = BeanUtil.copyToList(processNodeActionList, ProcessNodeActionVo.class);

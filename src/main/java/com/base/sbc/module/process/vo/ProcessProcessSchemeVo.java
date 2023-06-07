@@ -29,6 +29,9 @@ public class ProcessProcessSchemeVo  {
     /** 方案名称 */
     @ApiModelProperty(value = "方案名称"  )
     private String schemeName;
+    /** 方案编码 */
+    @ApiModelProperty(value = "方案编码"  )
+    private String schemeCode;
     /** 品牌 */
     @ApiModelProperty(value = "品牌"  )
     private String brand;
