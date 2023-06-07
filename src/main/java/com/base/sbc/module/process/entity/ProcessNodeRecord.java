@@ -14,18 +14,18 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
- * 类描述：流程配置-流程方案 实体类
- * @address com.base.sbc.module.process.entity.ProcessProcessScheme
+ * 类描述：流程配置-节点记录 实体类
+ * @address com.base.sbc.module.process.entity.ProcessNodeRecord
  * @author mengfanjiang
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-2 20:15:15
+ * @date 创建时间：2023-6-6 15:03:28
  * @version 1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_process_process_scheme")
-@ApiModel("流程配置-流程方案 ProcessProcessScheme")
-public class ProcessProcessScheme extends BaseDataEntity<String> {
+@TableName("t_process_node_record")
+@ApiModel("流程配置-节点记录 ProcessNodeRecord")
+public class ProcessNodeRecord extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -34,24 +34,29 @@ public class ProcessProcessScheme extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 方案名称 */
-    @ApiModelProperty(value = "方案名称"  )
-    private String schemeName;
-    /*方案编码*/
-    private String  schemeCode;
-    /** 品牌 */
-    @ApiModelProperty(value = "品牌"  )
-    private String brand;
-    /** 品牌id */
-    private String brandId;
-    /** 描述 */
-    @ApiModelProperty(value = "描述"  )
-    private String description;
-    /** 创建者头像 */
-    @ApiModelProperty(value = "创建者头像"  )
-    private String createPicture;
-    /** 状态(0正常,1停用) */
-    @ApiModelProperty(value = "状态(0正常,1停用)"  )
-    private String status;
+    /** 业务实例id */
+    @ApiModelProperty(value = "业务实例id"  )
+    private String businessInstanceId;
+    /** 节点名称 */
+    @ApiModelProperty(value = "节点名称"  )
+    private String nodeName;
+    /** 节点id */
+    private String nodeId;
+    /** 开始时间 */
+    @ApiModelProperty(value = "开始时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date startDate;
+    /** 结束时间 */
+    @ApiModelProperty(value = "结束时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date endDate;
+    /** 当前状态 */
+    @ApiModelProperty(value = "当前状态"  )
+    private String atPresentStatus;
+    /** 是否完成(0未完成，1已完成) */
+    @ApiModelProperty(value = "是否完成(0未完成，1已完成)"  )
+    private String isComplete;
+
+    private Integer sort;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

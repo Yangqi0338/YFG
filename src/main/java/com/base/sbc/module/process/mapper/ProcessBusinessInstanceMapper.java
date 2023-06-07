@@ -6,30 +6,22 @@
  *****************************************************************************/
 package com.base.sbc.module.process.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.base.sbc.module.process.vo.ProcessNodeStatusConditionVo;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.process.entity.ProcessNodeStatusCondition;
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
-
-/**
- * 类描述：流程配置-节点状态条件 dao类
- * @address com.base.sbc.module.process.dao.ProcessNodeStatusConditionDao
+import com.base.sbc.module.process.entity.ProcessBusinessInstance;
+/** 
+ * 类描述：流程配置-业务实例 dao类
+ * @address com.base.sbc.module.process.dao.ProcessBusinessInstanceDao
  * @author mengfanjiang  
  * @email  lxl.fml@gmail.com
- * @date 创建时间：2023-6-5 17:10:23 
+ * @date 创建时间：2023-6-6 15:03:26 
  * @version 1.0  
  */
 @Mapper
-public interface ProcessNodeStatusConditionMapper extends BaseMapper<ProcessNodeStatusCondition> {
+public interface ProcessBusinessInstanceMapper extends BaseMapper<ProcessBusinessInstance> {
 // 自定义方法区 不替换的区域【other_start】
 
-    /*获取节点状态下的所有条件*/
-  ProcessNodeStatusConditionVo  getCondition(@Param(Constants.WRAPPER) QueryWrapper qc);
+
 
 // 自定义方法区 不替换的区域【other_end】
 }

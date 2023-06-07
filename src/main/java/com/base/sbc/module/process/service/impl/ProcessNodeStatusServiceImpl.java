@@ -57,7 +57,9 @@ public class ProcessNodeStatusServiceImpl extends ServicePlusImpl<ProcessNodeSta
         @Override
         public PageInfo<ProcessNodeStatusVo> getProcessNodeStatusList(QueryNodeStatusDto queryNodeStatusDto) {
             /*分页*/
-            PageHelper.startPage(queryNodeStatusDto);
+            if(queryNodeStatusDto.getPageNum()!=0 && queryNodeStatusDto.getPageSize()!=0){
+                PageHelper.startPage(queryNodeStatusDto);
+            }
             QueryWrapper<ProcessNodeStatus> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
             queryWrapper.eq("node_id", queryNodeStatusDto.getNodeId());
