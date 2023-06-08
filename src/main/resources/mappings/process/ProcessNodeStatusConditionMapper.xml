@@ -20,7 +20,8 @@
         nsc.original_status originalStatus,
         nsc.target_status targetStatus,
         nsc.node_condition nodeCondition,
-        nsc.rule_user_id ruleUserId
+        nsc.rule_user_id ruleUserId,
+        nsc.update_field updateField
         from t_process_node_action  na
         LEFT JOIN t_process_node_status_condition  nsc on na.node_status_condition_id =nsc.id
         ${ ew.customSqlSegment}

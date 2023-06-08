@@ -9,6 +9,8 @@ import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.process.dto.InitiateProcessDto;
 import com.base.sbc.module.process.entity.ProcessBusinessInstance;
 
+import java.util.Map;
+
 /** 
  * 类描述：流程配置-业务实例 service类
  * @address com.base.sbc.module.process.service.ProcessBusinessInstanceService
@@ -33,5 +35,5 @@ public interface ProcessBusinessInstanceService extends IServicePlus<ProcessBusi
      * action 动作
      * @return
      */
-    Boolean complete(String businessDataId,String action,Object objectData);
+    Map complete(String businessDataId, String action, Object objectData);
 }
