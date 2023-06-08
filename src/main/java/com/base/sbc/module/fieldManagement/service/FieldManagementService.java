@@ -11,6 +11,7 @@ import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.fieldManagement.dto.QueryFieldManagementDto;
 import com.base.sbc.module.fieldManagement.dto.SaveUpdateFieldManagementDto;
 import com.base.sbc.module.fieldManagement.entity.FieldManagement;
+import com.base.sbc.module.fieldManagement.entity.FieldVal;
 import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
 import com.github.pagehelper.PageInfo;
 
@@ -42,12 +43,22 @@ public interface FieldManagementService extends IServicePlus<FieldManagement> {
     /**
      * 通过表名，品类，季节查询
      *
-     * @param tableName
+     * @param formName
      * @param categoryId
      * @param season
      * @return
      */
-    List<FieldManagement> list(String formName, String categoryId, String season);
+    List<FieldManagementVo> list(String formName, String categoryId, String season);
+
+
+    /**
+     * 设置val
+     *
+     * @param fieldList
+     * @param valueList
+     * @return
+     */
+    void conversion(List<FieldManagementVo> fieldList, List<FieldVal> valueList);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

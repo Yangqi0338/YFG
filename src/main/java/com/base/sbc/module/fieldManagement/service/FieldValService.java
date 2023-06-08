@@ -34,6 +34,16 @@ public interface FieldValService extends IServicePlus<FieldVal> {
      */
     List<FieldVal> list(String fid, String dataGroup);
 
+    /**
+     * 保存
+     *
+     * @param fid
+     * @param dataGroup
+     * @param fieldVals
+     * @return
+     */
+    boolean save(String fid, String dataGroup, List<FieldVal> fieldVals);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

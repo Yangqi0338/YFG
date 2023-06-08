@@ -6,43 +6,42 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.minio.MinioUtils;
-import com.base.sbc.module.basicsdatum.dto.*;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumSupplierDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumSupplierExcelDto;
+import com.base.sbc.module.basicsdatum.dto.QueryRevampBasicsdatumSupplierDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSupplierMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumSupplierVo;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSupplierMapper;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumSupplierVo;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.base.sbc.config.common.base.BaseController;
-import org.springframework.stereotype.Service;
-import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.PageHelper;
-import cn.hutool.core.bean.BeanUtil;
+import com.github.pagehelper.PageInfo;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
-import cn.afterturn.easypoi.excel.ExcelImportUtil;
-import cn.afterturn.easypoi.excel.entity.ImportParams;
 
 import javax.servlet.http.HttpServletResponse;
-
-import com.base.sbc.config.utils.StringUtils;
-import org.springframework.util.ObjectUtils;
-import org.springframework.beans.BeanUtils;
-import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.enums.BaseErrorEnum;
-import com.base.sbc.config.utils.ExcelUtils;
-
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -81,6 +80,7 @@ public class BasicsdatumSupplierServiceImpl extends ServicePlusImpl<BasicsdatumS
         PageHelper.startPage(queryRevampBasicsdatumSupplierDto);
         QueryWrapper<BasicsdatumSupplier> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
+        queryWrapper.like(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getSupplier()), "supplier", queryRevampBasicsdatumSupplierDto.getSupplier());
         queryWrapper.like(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getSupplierCode()), "supplier_code", queryRevampBasicsdatumSupplierDto.getSupplierCode());
         queryWrapper.like(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getCreditCode()), "credit_code", queryRevampBasicsdatumSupplierDto.getCreditCode());
         queryWrapper.like(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getSupplierType()), "supplier_type", queryRevampBasicsdatumSupplierDto.getSupplierType());

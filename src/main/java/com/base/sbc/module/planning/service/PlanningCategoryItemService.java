@@ -12,10 +12,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
-import com.base.sbc.module.planning.dto.AllocationDesignDto;
-import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
-import com.base.sbc.module.planning.dto.ProductSeasonExpandByCategorySearchDto;
-import com.base.sbc.module.planning.dto.SetTaskLevelDto;
+import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategory;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
@@ -51,13 +48,15 @@ public interface PlanningCategoryItemService extends IServicePlus<PlanningCatego
      * @param category
      * @return
      */
-    String getNextCode(String brand,String year,String season,String category);
+    String getNextCode(String brand, String year, String season, String category);
+
     /**
      * 修改/提交
+     *
      * @param planningBandId
      * @param item
      */
-    void updateAndCommit(String planningBandId, List<PlanningCategoryItem> item);
+    void updateAndCommit(String planningBandId, List<PlanningCategoryItemSaveDto> item);
 
     /**
      * 获取最大流水号

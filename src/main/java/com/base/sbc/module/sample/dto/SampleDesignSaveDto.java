@@ -1,8 +1,8 @@
 package com.base.sbc.module.sample.dto;
 
+import com.base.sbc.module.fieldManagement.entity.FieldVal;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.vo.MaterialVo;
-import com.base.sbc.module.sample.vo.TechnologyInfoDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -24,7 +24,7 @@ public class SampleDesignSaveDto extends SampleDesign {
 
 
     @ApiModelProperty(value = "工艺信息")
-    private List<TechnologyInfoDto> technologyInfo;
+    private List<FieldVal> technologyInfo;
 
     @ApiModelProperty(value = "款式图片信息")
     private List<SampleAttachmentDto> stylePicList;

@@ -6,12 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.fieldManagement.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.fieldManagement.entity.FieldVal;
 import com.base.sbc.module.fieldManagement.mapper.FieldValMapper;
 import com.base.sbc.module.fieldManagement.service.FieldValService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -37,6 +39,23 @@ public class FieldValServiceImpl extends ServicePlusImpl<FieldValMapper, FieldVa
         fvQw.eq("f_id", fid);
         fvQw.eq("data_group", dataGroup);
         return list(fvQw);
+    }
+
+    @Transactional(rollbackFor = {Exception.class})
+    @Override
+    public boolean save(String fid, String dataGroup, List<FieldVal> fieldVals) {
+        QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
+        fvQw.eq("f_id", fid);
+        fvQw.eq("data_group", dataGroup);
+        this.remove(fvQw);
+        if (CollUtil.isNotEmpty(fieldVals)) {
+            for (FieldVal fieldVal : fieldVals) {
+                fieldVal.setDataGroup(dataGroup);
+                fieldVal.setFId(fid);
+            }
+            this.saveBatch(fieldVals);
+        }
+        return true;
     }
 
 

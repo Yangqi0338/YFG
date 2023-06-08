@@ -16,6 +16,7 @@ import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
@@ -37,7 +38,10 @@ import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.mapper.SampleDesignMapper;
 import com.base.sbc.module.sample.service.SampleDesignService;
-import com.base.sbc.module.sample.vo.*;
+import com.base.sbc.module.sample.vo.DesignDocTreeVo;
+import com.base.sbc.module.sample.vo.MaterialVo;
+import com.base.sbc.module.sample.vo.SampleDesignPageVo;
+import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -87,6 +91,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
     private FieldManagementService fieldManagementService;
     @Autowired
     private FieldValService fieldValService;
+    private IdGen idGen = new IdGen();
 
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
@@ -101,7 +106,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
             sampleDesign = saveNewSampleDesign(dto);
         }
         // 保存工艺信息
-        saveTechnologyInfo(sampleDesign.getId(), dto.getTechnologyInfo());
+        fieldValService.save(sampleDesign.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, dto.getTechnologyInfo());
         // 附件信息
         saveFiles(sampleDesign.getId(), dto.getAttachmentList(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
         // 图片信息
@@ -228,26 +233,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         return sampleDesign;
     }
 
-    public void saveTechnologyInfo(String sampleId, List<TechnologyInfoDto> technologyInfo) {
-        //删除之前的
-        QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
-        fvQw.eq("f_id", sampleId);
-        fvQw.eq("data_group", FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-        List<Object> ids = fieldValService.listObjs(fvQw);
-        fieldValService.removeByIds(ids);
-        //新增
-        if (CollUtil.isEmpty(technologyInfo)) {
-            return;
-        }
-        List<FieldVal> fvList = new ArrayList<>(ids.size());
-        for (TechnologyInfoDto technologyInfoDto : technologyInfo) {
-            FieldVal fieldVal = BeanUtil.copyProperties(technologyInfoDto, FieldVal.class);
-            fieldVal.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-            fieldVal.setFId(sampleId);
-            fvList.add(fieldVal);
-        }
-        fieldValService.saveBatch(fvList);
-    }
+
 
     @Override
     public PageInfo queryPageInfo(SampleDesignPageDto dto) {
@@ -409,13 +395,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         // [3].查询字段值
         if (StrUtil.isNotBlank(dto.getSampleDesignId())) {
             List<FieldVal> fvList = fieldValService.list(dto.getSampleDesignId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-            if (CollUtil.isNotEmpty(fvList)) {
-                Map<String, String> valMap = fvList.stream().collect(Collectors.toMap(k -> k.getFieldName(), v -> v.getVal(), (a, b) -> b));
-                for (FieldManagementVo fieldManagementListById : fieldManagementListByIds) {
-                    fieldManagementListById.setVal(valMap.get(fieldManagementListById.getFieldName()));
-                }
-
-            }
+            fieldManagementService.conversion(fieldManagementListByIds, fvList);
         }
         return fieldManagementListByIds;
     }

@@ -15,7 +15,6 @@ import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningBand;
-import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.vo.PlanningBandVo;
@@ -128,7 +127,7 @@ public class PlanningController extends BaseController {
 
     @ApiOperation(value = "修改坑位信息/提交")
     @PostMapping("/updateCategoryItem")
-    public List<PlanningCategoryItem> updateCategoryItem(@RequestParam(value = "planningBandId", required = false) String planningBandId, @RequestBody List<PlanningCategoryItem> item) {
+    public List<PlanningCategoryItemSaveDto> updateCategoryItem(@RequestParam(value = "planningBandId", required = false) String planningBandId, @Valid @RequestBody List<PlanningCategoryItemSaveDto> item) {
         planningCategoryItemService.updateAndCommit(planningBandId, item);
         return item;
     }

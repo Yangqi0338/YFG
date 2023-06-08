@@ -30,22 +30,15 @@ import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.vo.UserInfoVo;
-import com.base.sbc.module.fieldManagement.entity.FieldManagement;
 import com.base.sbc.module.fieldManagement.entity.FieldVal;
 import com.base.sbc.module.fieldManagement.service.FieldManagementService;
 import com.base.sbc.module.fieldManagement.service.FieldValService;
 import com.base.sbc.module.fieldManagement.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
-import com.base.sbc.module.planning.dto.AllocationDesignDto;
-import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
-import com.base.sbc.module.planning.dto.ProductSeasonExpandByCategorySearchDto;
-import com.base.sbc.module.planning.dto.SetTaskLevelDto;
+import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
-import com.base.sbc.module.planning.service.PlanningBandService;
-import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
-import com.base.sbc.module.planning.service.PlanningCategoryItemService;
-import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.PlanningBandSummaryInfoVo;
 import com.base.sbc.module.sample.entity.SampleDesign;
@@ -96,6 +89,9 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
     @Autowired
     FieldValService fieldValService;
 
+
+    @Autowired
+    PlanningCategoryService planningCategoryService;
     private IdGen idGen = new IdGen();
 
     /**
@@ -213,9 +209,9 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
 
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public void updateAndCommit(String planningBandId, List<PlanningCategoryItem> item) {
-        // 修改
-        updateBatchById(item);
+    public void updateAndCommit(String planningBandId, List<PlanningCategoryItemSaveDto> item) {
+
+
         //提交
         if (StrUtil.isNotBlank(planningBandId)) {
             PlanningBand byId = planningBandService.getById(planningBandId);
@@ -224,7 +220,15 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
             }
             byId.setStatus(BaseGlobal.STOCK_STATUS_CHECKED);
             planningBandService.updateById(byId);
+        } else {
+            for (PlanningCategoryItemSaveDto dto : item) {
+                PlanningCategoryItem categoryItem = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
+                // 修改
+                updateById(categoryItem);
+                fieldValService.save(categoryItem.getId(), FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION, dto.getFieldVals());
+            }
         }
+
     }
 
     @Override
@@ -473,12 +477,12 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
     public List<FieldManagementVo> querySeatDimension(String id) {
         PlanningCategoryItem seat = getById(id);
         PlanningSeason season = planningSeasonService.getById(seat.getPlanningSeasonId());
-        List<String> categoryIds = StrUtil.split(seat.getCategoryIds(), CharUtil.COMMA);
-        List<FieldManagement> fieldList = fieldManagementService.list("产品季", CollUtil.get(categoryIds, 1), season.getSeason());
+        PlanningCategory category = planningCategoryService.getById(seat.getPlanningCategoryId());
+        List<String> categoryIds = StrUtil.split(category.getCategoryIds(), CharUtil.COMMA);
+        List<FieldManagementVo> fieldList = fieldManagementService.list("产品季", CollUtil.get(categoryIds, 1), season.getSeason());
         List<FieldVal> valueList = fieldValService.list(id, FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION);
-
-
-        return null;
+        fieldManagementService.conversion(fieldList, valueList);
+        return fieldList;
     }
 
 

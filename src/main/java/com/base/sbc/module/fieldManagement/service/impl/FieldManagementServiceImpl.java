@@ -6,8 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.fieldManagement.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -16,6 +18,7 @@ import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.fieldManagement.dto.QueryFieldManagementDto;
 import com.base.sbc.module.fieldManagement.dto.SaveUpdateFieldManagementDto;
 import com.base.sbc.module.fieldManagement.entity.FieldManagement;
+import com.base.sbc.module.fieldManagement.entity.FieldVal;
 import com.base.sbc.module.fieldManagement.entity.Option;
 import com.base.sbc.module.fieldManagement.mapper.FieldManagementMapper;
 import com.base.sbc.module.fieldManagement.mapper.OptionMapper;
@@ -31,7 +34,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -54,6 +60,8 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
     private OptionMapper optionMapper;
     @Autowired
     private FormTypeService formTypeService;
+
+    private IdGen idGen = new IdGen();
 
     @Override
     public ApiResult saveUpdateField(SaveUpdateFieldManagementDto saveUpdateFieldManagementDto) {
@@ -151,7 +159,7 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
     }
 
     @Override
-    public List<FieldManagement> list(String formName, String categoryId, String season) {
+    public List<FieldManagementVo> list(String formName, String categoryId, String season) {
 
         QueryWrapper<FormType> qw = new QueryWrapper<>();
         qw.eq("name", formName);
@@ -165,8 +173,25 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
         fmQw.eq("form_type_id", formType.getId());
         fmQw.eq("season", season);
         fmQw.apply("FIND_IN_SET({0},category_id)", categoryId);
+        fmQw.select("id");
+        List<Object> objectList = this.listObjs(fmQw);
+        List<String> ids = objectList.stream().map(item -> item.toString()).collect(Collectors.toList());
+        return getFieldManagementListByIds(ids);
+    }
 
-        return list(fmQw);
+    @Override
+    public void conversion(List<FieldManagementVo> fieldList, List<FieldVal> valueList) {
+        if (CollUtil.isEmpty(fieldList)) {
+            return;
+        }
+        Map<String, FieldVal> valMap = Optional.ofNullable(valueList).orElse(new ArrayList<>())
+                .stream().collect(Collectors.toMap(k -> k.getFieldName(), v -> v, (a, b) -> b));
+        for (FieldManagementVo vo : fieldList) {
+            vo.setId(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getVal).orElse(idGen.nextIdStr()));
+            vo.setVal(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getVal).orElse(null));
+            vo.setSelected(valMap.containsKey(vo.getFieldName()));
+        }
+
     }
 
 
