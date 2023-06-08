@@ -38,4 +38,6 @@ public class QueryDto extends Page {
 
     /**  创建者名称 */
     private String createName;
+
+    private String category;
 }

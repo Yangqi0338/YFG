@@ -73,6 +73,7 @@ public class BasicsdatumLavationReminderServiceImpl extends ServicePlusImpl<Basi
             PageHelper.startPage(queryDto);
             QueryWrapper<BasicsdatumLavationReminder> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
+            queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getCategory()),"category",queryDto.getCategory());
             /*查询基础资料-洗涤图标与温馨提示数据*/
             List<BasicsdatumLavationReminder> basicsdatumLavationReminderList = baseMapper.selectList(queryWrapper);
             PageInfo<BasicsdatumLavationReminder> pageInfo = new PageInfo<>(basicsdatumLavationReminderList);
