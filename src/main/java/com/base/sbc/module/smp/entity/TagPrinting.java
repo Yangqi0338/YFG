@@ -159,7 +159,7 @@ public class TagPrinting {
     /**
      * 品控部确认
      */
-    private String Approved;
+    private Boolean Approved;
 
     /**
      * 温馨提示
@@ -169,7 +169,7 @@ public class TagPrinting {
     /**
      * 后技术确认
      */
-    private String TechApproved;
+    private Boolean TechApproved;
 
     /**
      * 安全标题
