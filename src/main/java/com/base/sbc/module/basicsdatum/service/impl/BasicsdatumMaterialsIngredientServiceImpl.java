@@ -34,13 +34,13 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-/** 
+/**
  * 类描述：基础资料-材料成分 service类
  * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialsIngredientService
  * @author mengfanjiang
  * @email 2915350015@qq.com
  * @date 创建时间：2023-5-19 19:15:00
- * @version 1.0  
+ * @version 1.0
  */
 @Service
 public class BasicsdatumMaterialsIngredientServiceImpl extends ServicePlusImpl<BasicsdatumMaterialsIngredientMapper, BasicsdatumMaterialsIngredient> implements BasicsdatumMaterialsIngredientService {
@@ -57,11 +57,21 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends ServicePlusImpl<B
         * @return
         */
         @Override
-        public PageInfo<BasicsdatumMaterialsIngredientVo> getBasicsdatumMaterialsIngredientList(QueryDto queryDto) {
+        public PageInfo<BasicsdatumMaterialsIngredientVo> getBasicsdatumMaterialsIngredientList(BasicsdatumMaterialsIngredientDto queryDto) {
             /*分页*/
             PageHelper.startPage(queryDto);
             QueryWrapper<BasicsdatumMaterialsIngredient> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
+            queryWrapper.like(StringUtils.isNotEmpty(queryDto.getMaterial()),"material",queryDto.getMaterial());
+            queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getCreateName()),"create_name",queryDto.getCreateName());
+            if (queryDto.getCreateDate()!=null && queryDto.getCreateDate().length>0){
+                queryWrapper.ge(StringUtils.isNotEmpty(queryDto.getCreateDate()[0]),"create_date",queryDto.getCreateDate()[0]);
+                if (queryDto.getCreateDate().length>1){
+                    queryWrapper.and(i->i.le(StringUtils.isNotEmpty(queryDto.getCreateDate()[1]),"create_date",queryDto.getCreateDate()[1]));
+                }
+            }
+            queryWrapper.orderByDesc("create_date");
+
             /*查询基础资料-材料成分数据*/
             List<BasicsdatumMaterialsIngredient> basicsdatumMaterialsIngredientList = baseMapper.selectList(queryWrapper);
             PageInfo<BasicsdatumMaterialsIngredient> pageInfo = new PageInfo<>(basicsdatumMaterialsIngredientList);

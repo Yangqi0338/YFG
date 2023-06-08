@@ -23,7 +23,7 @@ import lombok.EqualsAndHashCode;
 @Data
 
 @ApiModel("基础资料-材料成分 BasicsdatumMaterialsIngredient")
-public class BasicsdatumMaterialsIngredientVo  {
+public class BasicsdatumMaterialsIngredientVo  extends BaseDataEntity<String>{
 
     private String id;
     /** 成分 */

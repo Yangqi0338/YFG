@@ -9,6 +9,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialsIngredientDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialsIngredient;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialsIngredientService;
@@ -48,7 +49,7 @@ public class BasicsdatumMaterialsIngredientController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getBasicsdatumMaterialsIngredientList")
-	public PageInfo<BasicsdatumMaterialsIngredientVo> getBasicsdatumMaterialsIngredientList(QueryDto queryDto) {
+	public PageInfo<BasicsdatumMaterialsIngredientVo> getBasicsdatumMaterialsIngredientList(BasicsdatumMaterialsIngredientDto queryDto) {
 		return  basicsdatumMaterialsIngredientService.getBasicsdatumMaterialsIngredientList(queryDto);
 	}
 
