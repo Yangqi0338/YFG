@@ -158,13 +158,15 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         if (ObjectUtils.isEmpty(processBusinessInstance)) {
             throw new OtherException("业务数据id错误");
         }
-
+        if(processBusinessInstance.getIsComplete().equals(BaseGlobal.STATUS_CLOSE)){
+            throw new OtherException("该流程已完成");
+        }
         /*获取当前节点 当前动作下的条件*/
         queryWrapper.clear();
         queryWrapper.eq("nsc.node_id", processBusinessInstance.getAtPresentNodeId());
         queryWrapper.eq("nsc.original_status", processBusinessInstance.getAtPresentStatusName());
         queryWrapper.eq("na.action_name", action);
-        queryWrapper.eq("na.status",BaseGlobal.STATUS_CLOSE);
+        queryWrapper.eq("na.status",BaseGlobal.STATUS_NORMAL);
         /*获取节点状态条件及动作*/
         ProcessNodeStatusConditionVo processNodeStatusConditionVo = processNodeStatusConditionMapperl.getCondition(queryWrapper);
         if (ObjectUtils.isEmpty(processNodeStatusConditionVo)) {
