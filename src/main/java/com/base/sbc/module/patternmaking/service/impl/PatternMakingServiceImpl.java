@@ -174,11 +174,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         qw.eq("design_send_status", BaseGlobal.YES);
         qw.eq("s.del_flag", BaseGlobal.NO);
         qw.eq("p.del_flag", BaseGlobal.NO);
-        if (StrUtil.isBlank(dto.getOrderBy())) {
-            qw.orderBy(true, true, "p.create_date");
-        } else {
-            qw.orderBy(true, dto.isAsc(), dto.getOrderByColumn());
-        }
+        qw.orderBy(true, true, "p.create_date");
         Page<TechnologyCenterTaskVo> page = PageHelper.startPage(dto);
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
         //设置图片
