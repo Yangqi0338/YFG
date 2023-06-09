@@ -28,7 +28,7 @@ public class Page implements Serializable {
     @NotNull(message = "不能为空")
     private int pageSize;
     @ApiModelProperty(value = "排序(单表)", example = "create_date desc")
-    private String orderBy = "create_date desc";
+    private String orderBy;
     @ApiModelProperty(value = "关键字搜索", example = "")
     private String search;
     @ApiModelProperty(value = "状态", example = "")
