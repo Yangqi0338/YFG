@@ -50,7 +50,7 @@
         `t_pattern_making`
         WHERE
 
-        AND del_flag =0
+        del_flag =0
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
