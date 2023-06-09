@@ -82,11 +82,24 @@
     left join t_fabric_job tfj on tfbi.id=tfj.fabric_basic_id
      where tfbi.company_code=#{companyCode}
         and tfbi.del_flag='0'
-        and tfj.user_job_id in
+
+    <if test="jobIdList!=null and jobIdList.size!=''">
+      and tfj.user_job_id in
         <foreach item="idItem" collection="jobIdList" open="(" separator="," close=")">
             #{idItem}
         </foreach>
+    </if>
+
+        <if test="fabricDetailedId!=null and fabricDetailedId!=''">
+            AND tfj.sponsor_status = '0'
+            AND tfbi.fabric_detailed_id  IS NOT NULL   AND tfbi.fabric_detailed_id  !=''
+        </if>
+
+
+    <if test="originate!=null and originate!=''">
         and tfj.sponsor_status=#{originate}
+    </if>
+
     <if test="manufacturerNumber!=null and manufacturerNumber!=''">
         and tfbi.manufacturer_number like  concat('%',#{manufacturerNumber},'%')
     </if>

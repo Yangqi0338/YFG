@@ -64,15 +64,19 @@ public class FabricBasicInformationServiceImpl extends ServicePlusImpl<FabricBas
 
     @Override
     public PageInfo<FabricInformationVo> getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto) {
-        PageHelper.startPage(queryFabricInformationDto);
+      if(queryFabricInformationDto.getPageNum() !=0 && queryFabricInformationDto.getPageSize()!=0){
+          PageHelper.startPage(queryFabricInformationDto);
+          String postString=  amcService.getJobByUserIdOrJobName(baseController.getUserId(),null);
+          List<Job> jobList= AmcUtils.parseStrTopostIdList(postString);
+          if(!CollectionUtils.isEmpty(jobList)){
+              queryFabricInformationDto.setJobIdList(jobList.stream().map(Job::getId).collect(Collectors.toList()));
+          }else {
+              throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+          }
+      }else {
+          queryFabricInformationDto.setFabricDetailedId("1");
+      }
         queryFabricInformationDto.setCompanyCode(baseController.getUserCompany());
-        String postString=  amcService.getJobByUserIdOrJobName(baseController.getUserId(),null);
-        List<Job> jobList= AmcUtils.parseStrTopostIdList(postString);
-        if(!CollectionUtils.isEmpty(jobList)){
-            queryFabricInformationDto.setJobIdList(jobList.stream().map(Job::getId).collect(Collectors.toList()));
-        }else {
-            throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
-        }
         List<FabricInformationVo> list = baseMapper.getFabricInformationList(queryFabricInformationDto);
         return new PageInfo<>(list);
     }
