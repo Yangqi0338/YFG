@@ -27,8 +27,11 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
+import com.base.sbc.module.common.entity.Attachment;
+import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.UserInfoVo;
 import com.base.sbc.module.fieldManagement.entity.FieldVal;
 import com.base.sbc.module.fieldManagement.service.FieldManagementService;
@@ -88,6 +91,8 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
     FieldManagementService fieldManagementService;
     @Autowired
     FieldValService fieldValService;
+    @Autowired
+    AttachmentService attachmentService;
 
 
     @Autowired
@@ -465,10 +470,27 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
             sampleDesign.setStylePic(Optional.ofNullable(fileUrlId.get(sampleDesign.getStylePic())).orElse(""));
             sampleDesignList.add(sampleDesign);
 
+
         }
         // 保存样衣设计
         if (CollUtil.isNotEmpty(sampleDesignList)) {
             sampleDesignService.saveBatch(sampleDesignList);
+            //保存图片附件
+            List<Attachment> attachments = new ArrayList<>();
+            for (SampleDesign sampleDesign : sampleDesignList) {
+                if (StrUtil.isNotEmpty(sampleDesign.getStylePic())) {
+                    Attachment a = new Attachment();
+                    a.setType(AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
+                    a.setStatus(BaseGlobal.NO);
+                    a.setFId(sampleDesign.getId());
+                    a.setFileId(sampleDesign.getStylePic());
+                    attachments.add(a);
+                }
+            }
+            if (CollUtil.isNotEmpty(attachments)) {
+                attachmentService.saveBatch(attachments);
+            }
+
         }
         return true;
     }

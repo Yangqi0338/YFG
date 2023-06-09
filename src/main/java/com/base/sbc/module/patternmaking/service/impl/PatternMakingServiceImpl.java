@@ -302,6 +302,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
+
         if (StrUtil.isBlank(dto.getIsBlackList())) {
             //排除黑单
             qw.ne("p.urgency", "0");
@@ -309,12 +310,13 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
             //只查询黑单
             qw.eq("p.urgency", "0");
         }
+        // 版房主管和设计师 看到全部，版师看到自己
         qw.orderByAsc("p.sort");
         List<PatternMakingTaskListVo> list = getBaseMapper().patternMakingTaskList(qw);
         //设置图片
         attachmentService.setListStylePic(list, "stylePic");
         // 设置节点状态
-        setNodeStatus(list);
+        //setNodeStatus(list);
         return list;
     }
 

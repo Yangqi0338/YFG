@@ -74,7 +74,6 @@ public class AttachmentServiceImpl extends ServicePlusImpl<AttachmentMapper, Att
 
     @Override
     public List<AttachmentVo> findByQw(QueryWrapper queryWrapper) {
-        queryWrapper.apply("a.file_id=f.id");
         List<AttachmentVo> byQw = getBaseMapper().findByQw(queryWrapper);
         return byQw;
     }
