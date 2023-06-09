@@ -70,6 +70,7 @@
         s.month,
         s.season,
         s.band_code,
+        s.style_name,
         p.design_send_date,
         p.prm_send_date,
         p.prm_send_status,
