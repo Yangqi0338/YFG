@@ -28,7 +28,8 @@ public class TechnologyCenterTaskVo {
 
     @ApiModelProperty(value = "款号")
     private String designNo;
-
+    @ApiModelProperty(value = "款式名称")
+    private String styleName;
     @ApiModelProperty(value = "款图")
     private String stylePic;
     @ApiModelProperty(value = "品类")
@@ -37,8 +38,10 @@ public class TechnologyCenterTaskVo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date designSendDate;
 
-    /** 版房主管下发时间 */
-    @ApiModelProperty(value = "版房主管下发时间"  )
+    /**
+     * 版房主管下发时间
+     */
+    @ApiModelProperty(value = "版房主管下发时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date prmSendDate;
 
