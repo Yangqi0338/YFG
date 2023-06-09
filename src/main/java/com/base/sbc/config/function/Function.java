@@ -25,10 +25,12 @@ public class Function  implements ApplicationRunner {
         AviatorEvaluator.addFunction(new AbstractFunction() {
             @Override
             public AviatorObject call(Map<String, Object> env, AviatorObject arg1, AviatorObject arg2) {
+
                 Number left = FunctionUtils.getNumberValue(arg1, env);
                 Number right = FunctionUtils.getNumberValue(arg2, env);
                 return new AviatorDouble(left.doubleValue() + right.doubleValue());
             }
+
 
             @Override
             public String getName() {

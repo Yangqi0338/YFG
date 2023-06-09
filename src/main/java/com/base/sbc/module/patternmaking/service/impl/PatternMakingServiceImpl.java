@@ -174,6 +174,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         qw.eq("design_send_status", BaseGlobal.YES);
         qw.eq("s.del_flag", BaseGlobal.NO);
         qw.eq("p.del_flag", BaseGlobal.NO);
+        amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
         if (StrUtil.isBlank(dto.getOrderBy())) {
             dto.setOrderBy(" p.create_date asc ");
         } else {
@@ -310,6 +311,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
             //只查询黑单
             qw.eq("p.urgency", "0");
         }
+        amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
         // 版房主管和设计师 看到全部，版师看到自己
         qw.orderByAsc("p.sort");
         List<PatternMakingTaskListVo> list = getBaseMapper().patternMakingTaskList(qw);

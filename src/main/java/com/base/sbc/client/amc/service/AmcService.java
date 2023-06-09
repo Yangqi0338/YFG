@@ -110,4 +110,14 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/token/team/getUsersBySeasonId")
     String getUsersBySeasonId(@RequestParam("planningSeasonId") String planningSeasonId, @RequestParam("dpj") String dpj);
+
+
+    /**
+     * 通过 用户id 查询产品季id
+     *
+     * @param userId
+     * @return
+     */
+    @GetMapping("/amc/api/token/teamRelation/getPlanningSeasonIdByUserId")
+    String getPlanningSeasonIdByUserId(@RequestParam("userId") String userId);
 }
