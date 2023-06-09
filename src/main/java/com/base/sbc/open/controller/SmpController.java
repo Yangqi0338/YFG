@@ -147,9 +147,9 @@ public class SmpController extends BaseController {
         tagPrinting.setProductName("T-Shirt");
         tagPrinting.setSaftyType("Type 1");
         tagPrinting.setOPStandard("Standard X");
-        tagPrinting.setApproved("Yes");
+        tagPrinting.setApproved(true);
         tagPrinting.setAttention("Handle with care");
-        tagPrinting.setTechApproved("Yes");
+        tagPrinting.setTechApproved(true);
         tagPrinting.setSaftyTitle("Safety First");
         tagPrinting.setC8_APPBOM_Comment("Handle with care");
         tagPrinting.setStorageRequirement("Dry place");
