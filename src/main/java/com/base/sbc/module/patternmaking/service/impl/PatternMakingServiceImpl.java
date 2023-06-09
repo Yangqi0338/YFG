@@ -222,6 +222,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         Map<String, String> sampleTypes = ccmFeignService.getDictInfoToMap("SampleType").get("SampleType");
         QueryWrapper<PatternMaking> pmQw = new QueryWrapper<>();
         pmQw.in("pattern_design_id", userIds);
+        pmQw.in("node", EnumNodeStatus.SAMPLE_TASK_WAITING_RECEIVE.getNode());
         List<PatternDesignSampleTypeQtyVo> qtyList = getBaseMapper().getPatternDesignSampleTypeCount(pmQw);
         List<PatternDesignVo> patternDesignVoList = new ArrayList<>();
         Map<String, List<PatternDesignSampleTypeQtyVo>> qtyMap = qtyList.stream().collect(Collectors.groupingBy(PatternDesignSampleTypeQtyVo::getPatternDesignId));

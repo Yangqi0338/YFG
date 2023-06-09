@@ -49,7 +49,6 @@
         FROM
         `t_pattern_making`
         WHERE
-        node = '打样任务'
         AND `status` IN ( '已接收', '打版中' )
         AND del_flag =0
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
