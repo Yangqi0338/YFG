@@ -316,7 +316,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         //设置图片
         attachmentService.setListStylePic(list, "stylePic");
         // 设置节点状态
-        //setNodeStatus(list);
+        setNodeStatus(list);
         return list;
     }
 
@@ -409,6 +409,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         for (PatternMakingTaskListVo o : list) {
             ids.add(o.getId());
         }
+        // 查询所有状态
         QueryWrapper<NodeStatus> qw = new QueryWrapper<>();
         qw.in("data_id", ids);
         qw.orderByAsc("start_date");
@@ -416,6 +417,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         if (CollUtil.isEmpty(nodeStatusList)) {
             return;
         }
+        // 设置状态
         Map<String, List<NodeStatus>> nodeStatusMap = nodeStatusList.stream().collect(Collectors.groupingBy(NodeStatus::getDataId));
         for (PatternMakingTaskListVo o : list) {
             List<NodeStatus> nodeStatusList1 = nodeStatusMap.get(o.getId());
