@@ -17,13 +17,11 @@ import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.process.dto.AddRevampProcessNodeActionDto;
-import com.base.sbc.module.process.dto.AddRevampProcessNodeConditionFormulaDto;
 import com.base.sbc.module.process.dto.AddRevampProcessNodeStatusConditionDto;
 import com.base.sbc.module.process.entity.ProcessNodeAction;
 import com.base.sbc.module.process.entity.ProcessNodeStatusCondition;
 import com.base.sbc.module.process.mapper.ProcessNodeStatusConditionMapper;
 import com.base.sbc.module.process.service.ProcessNodeActionService;
-import com.base.sbc.module.process.service.ProcessNodeConditionFormulaService;
 import com.base.sbc.module.process.service.ProcessNodeStatusConditionService;
 import com.base.sbc.module.process.vo.ProcessNodeActionVo;
 import com.base.sbc.module.process.vo.ProcessNodeStatusConditionVo;
@@ -55,8 +53,10 @@ public class ProcessNodeStatusConditionServiceImpl extends ServicePlusImpl<Proce
     @Autowired
     private ProcessNodeActionService processNodeActionService;
 
-    @Autowired
-    private ProcessNodeConditionFormulaService processNodeConditionFormulaService;
+
+
+
+
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -116,15 +116,6 @@ public class ProcessNodeStatusConditionServiceImpl extends ServicePlusImpl<Proce
         for (AddRevampProcessNodeActionDto addRevampProcessNodeActionDto : addRevampProcessNodeStatusConditionDto.getList()) {
             addRevampProcessNodeActionDto.setNodeStatusConditionId(processNodeStatusCondition.getId());
         }
-        /*保存条件*/
-        if (!CollectionUtils.isEmpty(addRevampProcessNodeStatusConditionDto.getConditionFormulaList())) {
-            for (AddRevampProcessNodeConditionFormulaDto addRevampProcessNodeConditionFormulaDto : addRevampProcessNodeStatusConditionDto.getConditionFormulaList()) {
-                addRevampProcessNodeConditionFormulaDto.setNodeStatusConditionId(processNodeStatusCondition.getId());
-                addRevampProcessNodeConditionFormulaDto.setNodeId(addRevampProcessNodeStatusConditionDto.getNodeId());
-            }
-            processNodeConditionFormulaService.batchAddRevampProcessNodeConditionFormula(addRevampProcessNodeStatusConditionDto.getConditionFormulaList());
-
-        }
         processNodeActionService.batchAddRevampProcessNodeAction(addRevampProcessNodeStatusConditionDto.getList());
         return true;
     }
@@ -161,6 +152,7 @@ public class ProcessNodeStatusConditionServiceImpl extends ServicePlusImpl<Proce
         ProcessNodeStatusCondition processNodeStatusCondition = baseMapper.selectOne(queryWrapper);
         ProcessNodeStatusConditionVo processNodeStatusConditionVo = new ProcessNodeStatusConditionVo();
         if (!ObjectUtils.isEmpty(processNodeStatusCondition)) {
+            /*获取动作*/
             BeanUtils.copyProperties(processNodeStatusCondition, processNodeStatusConditionVo);
             QueryWrapper<ProcessNodeAction> queryWrapper1 = new QueryWrapper<>();
             queryWrapper1.eq("node_status_condition_id", processNodeStatusCondition.getId());

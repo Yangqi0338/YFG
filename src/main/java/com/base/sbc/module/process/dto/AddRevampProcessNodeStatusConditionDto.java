@@ -6,13 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.process.dto;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
-import com.base.sbc.module.process.vo.ProcessNodeConditionFormulaVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -50,7 +46,11 @@ public class AddRevampProcessNodeStatusConditionDto  {
     /**/
     private String ruleUserId;
 
-    private List<AddRevampProcessNodeConditionFormulaDto> conditionFormulaList;
+    @ApiModelProperty(value = "节点条件 不满足时的提示"  )
+    private String reminder;
+    /** 节点条件公式 */
+    @ApiModelProperty(value = "节点条件公式"  )
+    private String nodeConditionFormula;
 
     private List<AddRevampProcessNodeActionDto> list;
 }

@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.process.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -19,12 +20,16 @@ import com.base.sbc.module.process.mapper.*;
 import com.base.sbc.module.process.service.ProcessBusinessInstanceService;
 import com.base.sbc.module.process.service.ProcessNodeRecordService;
 import com.base.sbc.module.process.vo.ProcessNodeStatusConditionVo;
+import com.googlecode.aviator.AviatorEvaluator;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 类描述：流程配置-业务实例 service类
@@ -59,8 +64,7 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
     @Autowired
     private ProcessNodeStatusConditionMapper processNodeStatusConditionMapperl;
 
-    @Autowired
-    private ProcessNodeConditionFormulaMapper processNodeConditionFormulaMapper;
+
 
     @Autowired
     private ProcessStateRecordMapper processStateRecordMapper;
@@ -154,6 +158,7 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         }
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("business_data_id", businessDataId);
+        queryWrapper.eq("is_complete",BaseGlobal.STATUS_NORMAL);
         ProcessBusinessInstance processBusinessInstance = baseMapper.selectOne(queryWrapper);
         if (ObjectUtils.isEmpty(processBusinessInstance)) {
             throw new OtherException("业务数据id错误");
@@ -172,6 +177,10 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         if (ObjectUtils.isEmpty(processNodeStatusConditionVo)) {
             throw new OtherException("该状态无此动作");
         }
+        boolean b1 = isConditionSatisfy(processNodeStatusConditionVo.getUpdateField(), processNodeStatusConditionVo, objectData);
+        if(b1){
+            return new HashMap();
+        }
         // 判断规则 -1表示全员
         if (!processNodeStatusConditionVo.getRuleUserId().equals("-1") && !processNodeStatusConditionVo.getRuleUserId().equals(baseController.getUserId())) {
             throw new OtherException("该用户无此操作");
@@ -186,7 +195,7 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         ProcessNodeRecord processNodeRecord = processNodeRecordMapper.selectOne(queryWrapper);
 
         /*条件是否满足*/
-        boolean b = isConditionSatisfy(processNode.getFormId(), processNodeStatusConditionVo.getId(), objectData);
+        boolean b = isConditionSatisfy(processNodeStatusConditionVo.getUpdateField(), processNodeStatusConditionVo, objectData);
 
         if (!b) {
             throw new OtherException("条件不满足");
@@ -289,16 +298,46 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
      * nodeCondition 公式
      * objectData 数据
      */
-    boolean isConditionSatisfy(String formId, String id, Object objectData) {
+    boolean isConditionSatisfy(String updateField, ProcessNodeStatusConditionVo processNodeStatusConditionVo, Object objectData) {
 
-        /*获取条件*/
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("node_status_condition_id", id);
-//        List<ProcessNodeConditionFormula> processNodeConditionFormulaList = processNodeConditionFormulaMapper.selectList(queryWrapper);
+      String nodeConditionFormula =  processNodeStatusConditionVo.getNodeConditionFormula();
+       /*表达式里面的占位符*/
+       String placeholder =  getPlaceholder(nodeConditionFormula);
+        if (!StringUtils.isBlank(placeholder)) {
+            String[] placeholders = placeholder.split(",");
+            for (String s : placeholders) {
+                JSONObject jsonObject = JSONObject.parseObject(objectData.toString());
+                nodeConditionFormula =  nodeConditionFormula.replace("${"+s+"}",jsonObject.get(s).toString());
+            }
+        }
+        boolean b = true;
+        try {
+            b = (boolean) AviatorEvaluator.execute(nodeConditionFormula);
 
-
+        } catch (Exception e) {
+            throw new OtherException(e.toString());
+        }
+        if(!b){
+            throw new OtherException(processNodeStatusConditionVo.getReminder());
+        }
         return true;
     }
 
+
+
+    /**
+     * 获取占位符字段
+     * str
+     */
+    String getPlaceholder(String str) {
+        Pattern pattern = Pattern.compile("\\$\\{(.+?)\\}");
+        Matcher matcher = pattern.matcher(str);
+        String placeholders = "";
+        while (matcher.find()) {
+            String placeholder = matcher.group(1);
+            placeholders += placeholder +",";
+        }
+        return placeholders.substring(0, placeholders.length() - 1);
+    }
 
 }

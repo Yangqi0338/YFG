@@ -50,5 +50,10 @@ public class ProcessNodeStatusCondition extends BaseDataEntity<String> {
     private String ruleUserId;
     /*修改的字段*/
     private String updateField;
+    @ApiModelProperty(value = "节点条件 不满足时的提示"  )
+    private String reminder;
+    /** 节点条件公式 */
+    @ApiModelProperty(value = "节点条件公式"  )
+    private String nodeConditionFormula;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

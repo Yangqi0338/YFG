@@ -55,6 +55,12 @@ public class ProcessNodeStatusConditionVo {
 
     private String updateField;
 
+    @ApiModelProperty(value = "节点条件 不满足时的提示"  )
+    private String reminder;
+    /** 节点条件公式 */
+    @ApiModelProperty(value = "节点条件公式"  )
+    private String nodeConditionFormula;
+
     private List<ProcessNodeActionVo> processNodeActionVoList;
 
 
