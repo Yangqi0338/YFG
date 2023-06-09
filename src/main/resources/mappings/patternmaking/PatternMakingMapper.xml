@@ -39,7 +39,7 @@
         t_sample_design s
         where p.sample_design_id = s.id and p.design_send_status='1'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
-            and ${ ew.customSqlSegment.substring(5)}
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
     </select>
     <select id="getPatternDesignSampleTypeCount"
@@ -49,10 +49,10 @@
         FROM
         `t_pattern_making`
         WHERE
-        AND `status` IN ( '已接收', '打版中' )
+
         AND del_flag =0
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
-            and ${ ew.customSqlSegment.substring(5)}
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
         group by pattern_design_id ,sample_type
 
