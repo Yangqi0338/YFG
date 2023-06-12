@@ -53,7 +53,7 @@ import java.util.Map;
  * @author mengfanjiang
  * @email 2915350015@qq.com
  * @date 创建时间：2023-5-17 9:35:14
- * @version 1.0  
+ * @version 1.0
  */
 @Service
 public class BasicsdatumMeasurementServiceImpl extends ServicePlusImpl<BasicsdatumMeasurementMapper, BasicsdatumMeasurement> implements BasicsdatumMeasurementService {
@@ -82,6 +82,17 @@ public class BasicsdatumMeasurementServiceImpl extends ServicePlusImpl<Basicsdat
 
         QueryWrapper<BasicsdatumMeasurement> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
+        queryWrapper.like(StringUtils.isNotEmpty(queryDto.getPdmType()),"PDM_type",queryDto.getPdmType());
+        queryWrapper.like(StringUtils.isNotEmpty(queryDto.getDescription()),"description",queryDto.getDescription());
+        queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCreateName()),"create_name",queryDto.getCreateName());
+        if (queryDto.getCreateDate()!=null && queryDto.getCreateDate().length>0){
+            queryWrapper.ge(StringUtils.isNotEmpty(queryDto.getCreateDate()[0]),"create_date",queryDto.getCreateDate()[0]);
+            if (queryDto.getCreateDate().length>1){
+                queryWrapper.and(i->i.le(StringUtils.isNotEmpty(queryDto.getCreateDate()[1]),"create_date",queryDto.getCreateDate()[1]));
+            }
+        }
+        queryWrapper.orderByDesc("create_date");
+
         queryWrapper.in(StrUtil.isNotEmpty(queryDto.getMeasurement()), "measurement", queryDto.getMeasurement());
         /*查询部件数据*/
         List<BasicsdatumMeasurement> basicsdatumComponentList = baseMapper.selectList(queryWrapper);

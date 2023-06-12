@@ -40,4 +40,5 @@ public class QueryDto extends Page {
     private String createName;
 
     private String category;
+    private String description;
 }
