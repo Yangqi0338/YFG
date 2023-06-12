@@ -109,4 +109,13 @@ public interface PlanningCategoryItemService extends IServicePlus<PlanningCatego
      * @return
      */
     List<FieldManagementVo> querySeatDimension(String id);
+
+    /**
+     * 修改图片
+     *
+     * @param id
+     * @param stylePic
+     * @return
+     */
+    boolean updateStylePic(String id, String stylePic);
 }

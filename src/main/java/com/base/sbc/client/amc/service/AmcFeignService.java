@@ -159,6 +159,14 @@ public class AmcFeignService {
 
     }
 
+    /**
+     * 设置权限
+     * 查询userId 所在的产品季id ，设置条件
+     *
+     * @param qw     QueryWrapper 条件构造器
+     * @param column 产品季列名
+     * @param userId 用户id
+     */
     public void teamAuth(QueryWrapper qw, String column, String userId) {
         List<String> planningSeasonIdByUserId = getPlanningSeasonIdByUserId(userId);
         if (CollUtil.isEmpty(planningSeasonIdByUserId)) {

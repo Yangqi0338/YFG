@@ -13,9 +13,9 @@ import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingDetailVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
+import com.base.sbc.module.patternmaking.vo.SampleDesignPmDetailVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -63,9 +63,9 @@ public class PatternMakingController {
         return list;
     }
 
-    @ApiOperation(value = "明细-通过id查询")
+    @ApiOperation(value = "打版指令明细", notes = "通过id查询")
     @GetMapping("/{id}")
-    public PatternMakingDetailVo getById(@PathVariable("id") String id) {
+    public SampleDesignPmDetailVo getById(@PathVariable("id") String id) {
         return patternMakingService.getDetailById(id);
     }
 
@@ -186,6 +186,12 @@ public class PatternMakingController {
     @PostMapping("/sglKitting")
     public boolean sglKitting(@Valid @RequestBody SetKittingDto dto) {
         return patternMakingService.setKitting("sgl_", dto);
+    }
+
+    @ApiOperation(value = "打版进度列表", notes = "")
+    @GetMapping("/patternMakingSteps")
+    public PageInfo patternMakingSteps(PatternMakingStepSearchDto dto) {
+        return patternMakingService.patternMakingSteps(dto);
     }
 }
 

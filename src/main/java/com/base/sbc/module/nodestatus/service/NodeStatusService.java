@@ -5,6 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.nodestatus.service;
+
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 
@@ -43,12 +44,22 @@ public interface NodeStatusService extends IServicePlus<NodeStatus>{
 
     /**
      * 获取当前节点
+     *
      * @param dataId
      */
     NodeStatus getCurrentNodeStatusByDataId(String dataId);
 
+    /**
+     * 设置节点状态数据
+     *
+     * @param obj
+     * @param listKey 集合key
+     * @param mapKey  mapkey
+     */
+    void set(Object obj, String listKey, String mapKey);
+
 
 // 自定义方法区 不替换的区域【other_end】
 
-	
+
 }

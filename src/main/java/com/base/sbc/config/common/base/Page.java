@@ -43,7 +43,7 @@ public class Page implements Serializable {
     }
 
     public String getOrderByColumn() {
-        return Opt.ofBlankAble(orderBy).map(o -> o.toUpperCase().replace("ASC", "").replace("DESC", "")).orElse("create_date");
+        return Opt.ofBlankAble(orderBy).map(o -> o.toUpperCase().replace("ASC", "").replace("DESC", "")).orElse(null);
     }
 
 }

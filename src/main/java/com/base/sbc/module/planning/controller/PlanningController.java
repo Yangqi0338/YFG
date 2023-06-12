@@ -132,6 +132,12 @@ public class PlanningController extends BaseController {
         return item;
     }
 
+    @ApiOperation(value = "修改图片")
+    @GetMapping("/updateStylePic")
+    public boolean updateStylePic(@Valid @NotBlank(message = "id不能为空") String id, String stylePic) {
+        return planningCategoryItemService.updateStylePic(id, stylePic);
+    }
+
     @ApiOperation(value = "获取下一个流水(测试)")
     @GetMapping("/nextDesignNo")
     public String nextDesignNo() {
@@ -144,7 +150,6 @@ public class PlanningController extends BaseController {
         params.put("designCode", "LD");
         List<String> planningDesignNo1 = getMaxCode.genCode("PLANNING_DESIGN_NO", 10, params);
         return CollUtil.join(planningDesignNo1, ",");
-
     }
 
     @ApiOperation(value = "获取最大流水号")

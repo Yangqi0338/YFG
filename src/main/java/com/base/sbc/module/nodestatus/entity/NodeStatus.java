@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.nodestatus.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -13,6 +15,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.Length;
 
 import java.util.Date;
 /**
@@ -30,18 +33,28 @@ import java.util.Date;
 @ApiModel("节点状态记录 NodeStatus")
 public class NodeStatus extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private static final long serialVersionUID = 1L;
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    /**
+     * 删除标记（0：正常；1：删除；）
+     */
+    @Length(min = 1, max = 1)
+    @ApiModelProperty(value = "删除标志")
+    @TableField(fill = FieldFill.INSERT)
+    private String delFlag;
 
-
-	/**********************************实体存放的其他字段区 【other_end】******************************************/
+    /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 数据Id */
-    @ApiModelProperty(value = "数据Id"  )
+    /**
+     * 数据Id
+     */
+    @ApiModelProperty(value = "数据Id")
     private String dataId;
-    /** 节点 */
-    @ApiModelProperty(value = "节点"  )
+    /**
+     * 节点
+     */
+    @ApiModelProperty(value = "节点")
     private String node;
     /** 状态 */
     @ApiModelProperty(value = "状态")

@@ -171,7 +171,7 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
         }
         QueryWrapper<FieldManagement> fmQw = new QueryWrapper<>();
         fmQw.eq("form_type_id", formType.getId());
-        fmQw.eq("season", season);
+        fmQw.apply("FIND_IN_SET({0},season)", season);
         fmQw.apply("FIND_IN_SET({0},category_id)", categoryId);
         fmQw.select("id");
         List<Object> objectList = this.listObjs(fmQw);

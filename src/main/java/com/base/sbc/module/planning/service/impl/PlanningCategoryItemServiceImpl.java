@@ -507,5 +507,13 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         return fieldList;
     }
 
+    @Override
+    public boolean updateStylePic(String id, String stylePic) {
+        UpdateWrapper<PlanningCategoryItem> uw = new UpdateWrapper<>();
+        uw.eq("id", id);
+        uw.set("style_pic", stylePic);
+        return update(uw);
+    }
+
 
 }

@@ -10,9 +10,9 @@ import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingDetailVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
+import com.base.sbc.module.patternmaking.vo.SampleDesignPmDetailVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -175,7 +175,7 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      * @param id
      * @return
      */
-    PatternMakingDetailVo getDetailById(String id);
+    SampleDesignPmDetailVo getDetailById(String id);
 
     /**
      * 保存附件
@@ -184,6 +184,17 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      * @return
      */
     boolean saveAttachment(SaveAttachmentDto dto);
+
+    /**
+     * 类描述：打版进度列表
+     *
+     * @address com.base.sbc.module.patternmaking.service.PatternMakingService
+     * @author lixianglin
+     * @email li_xianglin@126.com
+     * @date 创建时间：2023-06-12 11:37
+     * @version 1.0
+     */
+    PageInfo patternMakingSteps(PatternMakingStepSearchDto dto);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

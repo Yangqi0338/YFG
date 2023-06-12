@@ -8,6 +8,7 @@ package com.base.sbc.module.patternmaking.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -63,8 +64,6 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     private final AmcFeignService amcFeignService;
 
     private final CcmFeignService ccmFeignService;
-
-
 
 
     @Override
@@ -380,26 +379,92 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     }
 
     @Override
-    public PatternMakingDetailVo getDetailById(String id) {
+    public SampleDesignPmDetailVo getDetailById(String id) {
         PatternMaking byId = getById(id);
         if (byId == null) {
             return null;
         }
-        PatternMakingDetailVo vo = BeanUtil.copyProperties(byId, PatternMakingDetailVo.class);
+
+        PatternMakingVo vo = BeanUtil.copyProperties(byId, PatternMakingVo.class);
         //查询样衣设计信息
         SampleDesignVo sampleDesignVo = sampleDesignService.getDetail(vo.getSampleDesignId());
-        vo.setSampleDesign(sampleDesignVo);
+        SampleDesignPmDetailVo result = BeanUtil.copyProperties(sampleDesignVo, SampleDesignPmDetailVo.class);
+        result.setPatternMaking(vo);
         // 查询附件，纸样文件
         List<AttachmentVo> attachmentVoList = attachmentService.findByFId(vo.getId(), AttachmentTypeConstant.PATTERN_MAKING_PATTERN);
         vo.setAttachmentList(attachmentVoList);
-
-        return vo;
+        // 设置状态
+        nodeStatusService.set(vo, "nodeStatusList", "nodeStatus");
+        return result;
     }
 
     @Override
     public boolean saveAttachment(SaveAttachmentDto dto) {
         attachmentService.saveAttachment(dto.getAttachmentList(), dto.getId(), AttachmentTypeConstant.PATTERN_MAKING_PATTERN);
         return true;
+    }
+
+    @Override
+    public PageInfo patternMakingSteps(PatternMakingStepSearchDto dto) {
+        // 查询样衣信息
+        QueryWrapper<SampleDesign> sdQw = new QueryWrapper<>();
+        sdQw.like(StrUtil.isNotBlank(dto.getSearch()), "design_no", dto.getSearch());
+        sdQw.eq(StrUtil.isNotBlank(dto.getSeason()), "season", dto.getSeason());
+        sdQw.eq(StrUtil.isNotBlank(dto.getYear()), "year", dto.getYear());
+        sdQw.eq(StrUtil.isNotBlank(dto.getMonth()), "month", dto.getMonth());
+        sdQw.eq(StrUtil.isNotBlank(dto.getBandCode()), "band_code", dto.getBandCode());
+        sdQw.eq(StrUtil.isNotBlank(dto.getDesignerId()), "designer_id", dto.getDesignerId());
+        sdQw.eq(COMPANY_CODE, getCompanyCode());
+        sdQw.eq("del_flag", BaseGlobal.NO);
+        sdQw.eq("status", BasicNumber.TWO.getNumber());
+        if (StrUtil.isNotBlank(dto.getOrderBy())) {
+            dto.setOrderBy("create_date desc");
+        }
+        Page page = PageHelper.startPage(dto);
+        List<SampleDesign> sdList = sampleDesignService.list(sdQw);
+        PageInfo pageInfo = page.toPageInfo();
+        if (CollUtil.isEmpty(sdList)) {
+            return null;
+        }
+        List<SampleDesignStepVo> sampleDesignStepVos = BeanUtil.copyToList(sdList, SampleDesignStepVo.class);
+//        PageInfo pageInfo = BeanUtil.copyProperties(sdPageInfo, PageInfo.class, "list");
+//        pageInfo.setList(sampleDesignStepVos);
+        pageInfo.setList(sampleDesignStepVos);
+        attachmentService.setListStylePic(sampleDesignStepVos, "stylePic");
+        // 查询打版指令
+        List<String> sdIds = sampleDesignStepVos.stream().map(SampleDesignStepVo::getId).collect(Collectors.toList());
+        QueryWrapper<PatternMaking> pmQw = new QueryWrapper<>();
+        pmQw.in("sample_design_id", sdIds);
+        List<PatternMaking> pmList = this.list(pmQw);
+        if (CollUtil.isEmpty(pmList)) {
+            return pageInfo;
+        }
+        List<String> pmIds = pmList.stream().map(PatternMaking::getId).collect(Collectors.toList());
+        List<SampleDesignStepVo.PatternMakingStepVo> patternMakingStepVos = BeanUtil.copyToList(pmList, SampleDesignStepVo.PatternMakingStepVo.class);
+        //查询节点状态
+        QueryWrapper<NodeStatus> nsQw = new QueryWrapper<>();
+        nsQw.in("data_id", pmIds);
+        List<NodeStatus> nsList = nodeStatusService.list(nsQw);
+        if (CollUtil.isNotEmpty(nsList)) {
+            Map<String, List<NodeStatus>> nsMap = nsList.stream().collect(Collectors.groupingBy(NodeStatus::getDataId));
+            for (SampleDesignStepVo.PatternMakingStepVo patternMakingStepVo : patternMakingStepVos) {
+                Map<String, NodeStatus> stringNodeStatusMap = Optional.ofNullable(nsMap.get(patternMakingStepVo.getId())).map(item -> {
+                    return item.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> {
+                        if (DateUtil.compare(b.getStartDate(), a.getStartDate()) > 0) {
+                            return b;
+                        }
+                        return a;
+                    }));
+                }).orElse(null);
+                patternMakingStepVo.setNodeStatus(stringNodeStatusMap);
+            }
+        }
+        LinkedHashMap<String, List<SampleDesignStepVo.PatternMakingStepVo>> pmStepMap = patternMakingStepVos.stream().collect(Collectors.groupingBy(k -> k.getSampleDesignId(), LinkedHashMap::new, Collectors.toList()));
+        for (SampleDesignStepVo sampleDesignStepVo : sampleDesignStepVos) {
+            sampleDesignStepVo.setPatternMakingSteps(pmStepMap.get(sampleDesignStepVo.getId()));
+        }
+
+        return pageInfo;
     }
 
 
@@ -425,7 +490,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
             List<NodeStatus> nodeStatusList1 = nodeStatusMap.get(o.getId());
             if (CollUtil.isNotEmpty(nodeStatusList1)) {
                 List<NodeStatusVo> nodeStatusVos = BeanUtil.copyToList(nodeStatusList1, NodeStatusVo.class);
-                Map<String, NodeStatusVo> startDataMap = nodeStatusVos.stream().collect(Collectors.toMap(k -> k.getNode() + k.getStatus(), v -> v, (a, b) -> b));
+                Map<String, NodeStatusVo> startDataMap = nodeStatusVos.stream().collect(Collectors.toMap(k -> k.getNode() + k.getStatus(), v -> v, (a, b) -> b, LinkedHashMap::new));
                 o.setStartDate(Optional.ofNullable(startDataMap.get(o.getNode() + o.getStatus())).map(NodeStatusVo::getStartDate).orElse(null));
                 nodeStatusVos.sort((a, b) -> {
                     return a.getStartDate().compareTo(b.getStartDate());

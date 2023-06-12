@@ -23,5 +23,5 @@ public interface AttachmentTypeConstant {
     /**
      * 打版管理-纸样文件
      */
-    public final static String PATTERN_MAKING_PATTERN = "PATTERN_MAKING_PATTERN";
+    String PATTERN_MAKING_PATTERN = "PATTERN_MAKING_PATTERN";
 }
