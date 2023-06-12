@@ -191,7 +191,7 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         ProcessNodeRecord processNodeRecord = processNodeRecordMapper.selectOne(queryWrapper);
 
         /*条件是否满足*/
-        isConditionSatisfy(processNodeStatusConditionVo.getUpdateField(), processNodeStatusConditionVo, objectData);
+        isConditionSatisfy(processNodeStatusConditionVo, objectData);
 
         /**
          * 流转状态
@@ -290,8 +290,7 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
      * nodeCondition 公式
      * objectData 数据
      */
-    boolean isConditionSatisfy(String updateField, ProcessNodeStatusConditionVo processNodeStatusConditionVo, Object objectData) {
-
+    boolean isConditionSatisfy(ProcessNodeStatusConditionVo processNodeStatusConditionVo, Object objectData) {
       String nodeConditionFormula =  processNodeStatusConditionVo.getNodeConditionFormula();
        /*表达式里面的占位符*/
        String placeholder =  getPlaceholder(nodeConditionFormula);
