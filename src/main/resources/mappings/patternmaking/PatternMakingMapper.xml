@@ -80,6 +80,7 @@
         p.sgl_kitting,
         p.technician_kitting,
         p.sort,
+        p.suspend,
         p.planning_season_id,
         p.pattern_design_id,
         p.break_off_sample,
