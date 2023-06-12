@@ -53,7 +53,8 @@
         tfm.status,
         tfm.sequence,
         tfm.field_explain,
-        tfm.is_compile
+        tfm.is_compile,
+        tfm.form_object_id formObjectId
         from t_field_management tfm
         left join t_form_type tft on tfm.form_type_id = tft.id
         where tfm.company_code=#{companyCode}
