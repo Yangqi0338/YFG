@@ -17,6 +17,11 @@ public class QueryDasicsdatumSizeDto  extends Page {
 
     @ApiModelProperty(value = "尺码标签"  )
     private String labelName;
+    private String hangtags;
+    private String model;
+    private String internalSize;
+    private String createName;
+    private String[] createDate;
 
     /*1导出，0模板导出*/
     private String  isDerive;

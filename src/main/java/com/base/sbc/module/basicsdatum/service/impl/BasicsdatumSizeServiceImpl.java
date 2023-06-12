@@ -14,6 +14,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -67,27 +68,28 @@ public class BasicsdatumSizeServiceImpl extends ServicePlusImpl<BasicsdatumSizeM
     /**
      * 查询尺码列表
      *
-     * @param queryDasicsdatumSizeDto
+     * @param dto
      * @return
      */
     @Override
-    public PageInfo<BasicsdatumSizeVo> getSizeList(QueryDasicsdatumSizeDto queryDasicsdatumSizeDto) {
+    public PageInfo<BasicsdatumSizeVo> getSizeList(QueryDasicsdatumSizeDto dto) {
         /*分页*/
-        if(queryDasicsdatumSizeDto.getPageNum()!=0 && queryDasicsdatumSizeDto.getPageSize() !=0){
-            PageHelper.startPage(queryDasicsdatumSizeDto);
+        if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+            PageHelper.startPage(dto);
         }
-        QueryWrapper<BasicsdatumSize> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("company_code", baseController.getUserCompany());
-        if(!StringUtils.isEmpty(queryDasicsdatumSizeDto.getSizeLabelId())){
-            queryWrapper.eq("size_label_id", queryDasicsdatumSizeDto.getSizeLabelId());
-        }
-        if(!StringUtils.isEmpty(queryDasicsdatumSizeDto.getSearch())){
-            queryWrapper.like("hangtags", queryDasicsdatumSizeDto.getSearch()).or().like("model", queryDasicsdatumSizeDto.getSearch());
+        BaseQueryWrapper<BasicsdatumSize> queryWrapper = new BaseQueryWrapper<>();
 
-        }
+        queryWrapper.eq("company_code", baseController.getUserCompany());
+        queryWrapper.notEmptyLike("hangtags", dto.getHangtags());
+        queryWrapper.notEmptyLike("model", dto.getModel());
+        queryWrapper.notEmptyLike("internal_size", dto.getInternalSize());
+        queryWrapper.notEmptyLike("create_name", dto.getCreateName());
+        queryWrapper.notEmptyEq("status", dto.getStatus());
+        queryWrapper.dateBetween(dto.getCreateDate());
+
         /*查询尺码数据*/
         List<BasicsdatumSize> basicsdatumSizeList = baseMapper.selectList(queryWrapper);
-        PageInfo<BasicsdatumSize> pageInfo = new PageInfo(basicsdatumSizeList);
+        PageInfo<BasicsdatumSize> pageInfo = new PageInfo<>(basicsdatumSizeList);
         /*转换vo*/
         List<BasicsdatumSizeVo> list = BeanUtil.copyToList(basicsdatumSizeList, BasicsdatumSizeVo.class);
         PageInfo<BasicsdatumSizeVo> vo = new PageInfo<>();
@@ -164,10 +166,10 @@ public class BasicsdatumSizeServiceImpl extends ServicePlusImpl<BasicsdatumSizeM
         }
         ExcelUtils.exportExcel(list, fileName, fileName, BasicsdatumSizeExcelDto.class, fileName+".xlsx", response);
 */
-        QueryWrapper<BasicsdatumSizeExcelDto> queryWrapper=new QueryWrapper<>();
-        queryWrapper.eq(!StringUtils.isEmpty(queryDasicsdatumSizeDto.getSizeLabelId()),"size_label_id",queryDasicsdatumSizeDto.getSizeLabelId());
-        List<BasicsdatumSizeExcelDto>  list = baseMapper.selectSize(queryWrapper);
-        ExcelUtils.exportExcel(list,  BasicsdatumSizeExcelDto.class, "尺码.xlsx",new ExportParams() ,response);
+        QueryWrapper<BasicsdatumSizeExcelDto> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq(!StringUtils.isEmpty(queryDasicsdatumSizeDto.getSizeLabelId()), "size_label_id", queryDasicsdatumSizeDto.getSizeLabelId());
+        List<BasicsdatumSizeExcelDto> list = baseMapper.selectSize(queryWrapper);
+        ExcelUtils.exportExcel(list, BasicsdatumSizeExcelDto.class, "尺码.xlsx", new ExportParams(), response);
     }
 
     /**
@@ -181,7 +183,7 @@ public class BasicsdatumSizeServiceImpl extends ServicePlusImpl<BasicsdatumSizeM
 
         BasicsdatumSize basicsdatumSize = new BasicsdatumSize();
         if (StringUtils.isEmpty(addRevampSizeDto.getId())) {
-            if(StringUtils.isEmpty(addRevampSizeDto.getSizeLabelId())){
+            if (StringUtils.isEmpty(addRevampSizeDto.getSizeLabelId())) {
                 throw new OtherException("尺码标签为空");
             }
  /*           QueryWrapper<BasicsdatumSize> queryWrapper=new QueryWrapper<>();
