@@ -49,6 +49,11 @@ public class FieldManagementVo {
     /** 是否检查(0是，1否) */
     @ApiModelProperty(value = "是否检查(0是，1否)"  )
     private String isExamine;
+
+    /** 对象类型 对应表单类型表 */
+    @ApiModelProperty(value = "对象类型 对应表单类型表"  )
+    private String  formObjectId;
+
     /** 是否启用(0是，1否) */
     @ApiModelProperty(value = "是否启用(0是，1否)"  )
     private String status;

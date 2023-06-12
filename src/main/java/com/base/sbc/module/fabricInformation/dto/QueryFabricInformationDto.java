@@ -62,6 +62,8 @@ public class QueryFabricInformationDto extends Page {
     /*用户id*/
     private  String userId;
 
+    private  String  fabricDetailedId;
+
     /*岗位id*/
     private List<String> jobIdList;
 

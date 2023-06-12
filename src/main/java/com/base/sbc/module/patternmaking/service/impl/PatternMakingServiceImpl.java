@@ -174,6 +174,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         qw.eq("design_send_status", BaseGlobal.YES);
         qw.eq("s.del_flag", BaseGlobal.NO);
         qw.eq("p.del_flag", BaseGlobal.NO);
+        amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
         if (StrUtil.isBlank(dto.getOrderBy())) {
             dto.setOrderBy(" p.create_date asc ");
         } else {
@@ -310,13 +311,14 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
             //只查询黑单
             qw.eq("p.urgency", "0");
         }
+        amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
         // 版房主管和设计师 看到全部，版师看到自己
         qw.orderByAsc("p.sort");
         List<PatternMakingTaskListVo> list = getBaseMapper().patternMakingTaskList(qw);
         //设置图片
         attachmentService.setListStylePic(list, "stylePic");
         // 设置节点状态
-        //setNodeStatus(list);
+        setNodeStatus(list);
         return list;
     }
 
@@ -409,6 +411,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         for (PatternMakingTaskListVo o : list) {
             ids.add(o.getId());
         }
+        // 查询所有状态
         QueryWrapper<NodeStatus> qw = new QueryWrapper<>();
         qw.in("data_id", ids);
         qw.orderByAsc("start_date");
@@ -416,6 +419,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         if (CollUtil.isEmpty(nodeStatusList)) {
             return;
         }
+        // 设置状态
         Map<String, List<NodeStatus>> nodeStatusMap = nodeStatusList.stream().collect(Collectors.groupingBy(NodeStatus::getDataId));
         for (PatternMakingTaskListVo o : list) {
             List<NodeStatus> nodeStatusList1 = nodeStatusMap.get(o.getId());

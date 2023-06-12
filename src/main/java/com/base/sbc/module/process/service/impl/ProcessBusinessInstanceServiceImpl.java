@@ -177,10 +177,6 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         if (ObjectUtils.isEmpty(processNodeStatusConditionVo)) {
             throw new OtherException("该状态无此动作");
         }
-        boolean b1 = isConditionSatisfy(processNodeStatusConditionVo.getUpdateField(), processNodeStatusConditionVo, objectData);
-        if(b1){
-            return new HashMap();
-        }
         // 判断规则 -1表示全员
         if (!processNodeStatusConditionVo.getRuleUserId().equals("-1") && !processNodeStatusConditionVo.getRuleUserId().equals(baseController.getUserId())) {
             throw new OtherException("该用户无此操作");
@@ -195,11 +191,7 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         ProcessNodeRecord processNodeRecord = processNodeRecordMapper.selectOne(queryWrapper);
 
         /*条件是否满足*/
-        boolean b = isConditionSatisfy(processNodeStatusConditionVo.getUpdateField(), processNodeStatusConditionVo, objectData);
-
-        if (!b) {
-            throw new OtherException("条件不满足");
-        }
+        isConditionSatisfy(processNodeStatusConditionVo.getUpdateField(), processNodeStatusConditionVo, objectData);
 
         /**
          * 流转状态
@@ -313,9 +305,8 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         boolean b = true;
         try {
             b = (boolean) AviatorEvaluator.execute(nodeConditionFormula);
-
         } catch (Exception e) {
-            throw new OtherException(e.toString());
+            log.error("表达式异常",e);
         }
         if(!b){
             throw new OtherException(processNodeStatusConditionVo.getReminder());

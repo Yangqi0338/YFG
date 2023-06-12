@@ -60,5 +60,17 @@ public class PatternMakingTaskListVo {
     @ApiModelProperty(value = "修改时间")
     @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
     private Date updateDate;
+
+    /**
+     * 中断样衣(0正常，1中断)
+     */
+    @ApiModelProperty(value = "中断样衣(0正常，1中断)")
+    private String breakOffSample;
+    /**
+     * 中断打版(0正常，1中断)
+     */
+    @ApiModelProperty(value = "中断打版(0正常，1中断)")
+    private String breakOffPattern;
+
     private List<NodeStatusVo> nodeStatusList;
 }

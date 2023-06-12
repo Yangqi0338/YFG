@@ -8,11 +8,13 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.TeamVo;
 import com.base.sbc.client.amc.entity.CompanyPost;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.exception.OtherException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -141,5 +143,27 @@ public class AmcFeignService {
             return collect;
         }
         return userList;
+    }
+
+    public List<String> getPlanningSeasonIdByUserId(String userId) {
+        List<String> userList = null;
+        try {
+            String result = amcService.getPlanningSeasonIdByUserId(userId);
+            JSONObject jsonObject = JSON.parseObject(result);
+            userList = jsonObject.getJSONArray("data").toJavaList(String.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            userList = new ArrayList<>(2);
+        }
+        return userList;
+
+    }
+
+    public void teamAuth(QueryWrapper qw, String column, String userId) {
+        List<String> planningSeasonIdByUserId = getPlanningSeasonIdByUserId(userId);
+        if (CollUtil.isEmpty(planningSeasonIdByUserId)) {
+            throw new OtherException("您不在团队里面");
+        }
+        qw.in(column, planningSeasonIdByUserId);
     }
 }
