@@ -71,6 +71,7 @@
         s.season,
         s.band_code,
         s.style_name,
+        p.code,
         p.design_send_date,
         p.prm_send_date,
         p.prm_send_status,

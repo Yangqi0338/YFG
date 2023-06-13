@@ -26,6 +26,8 @@ public class PatternMakingTaskListVo {
 
     @ApiModelProperty(value = "id")
     private String id;
+    @ApiModelProperty(value = "编码")
+    private String code;
     @ApiModelProperty(value = "产品季id")
     private String planningSeasonId;
 
