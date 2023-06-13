@@ -16,6 +16,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.nodestatus.dto.NodeStatusChangeDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.mapper.NodeStatusMapper;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
@@ -156,6 +157,14 @@ public class NodeStatusServiceImpl extends ServicePlusImpl<NodeStatusMapper, Nod
             log.error("设置节点状态信息失败", e);
         }
 
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void nodeStatusChangeBatch(List<NodeStatusChangeDto> list) {
+        for (NodeStatusChangeDto dto : list) {
+            nodeStatusChange(dto.getDataId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
+        }
     }
 
 // 自定义方法区 不替换的区域【other_end】

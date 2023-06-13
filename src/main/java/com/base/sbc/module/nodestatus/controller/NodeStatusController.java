@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 类描述：节点状态管理
@@ -34,22 +35,29 @@ public class NodeStatusController {
     private NodeStatusService nodeStatusService;
 
     @PostMapping("/change")
-    @ApiOperation(value = "节点状态改变",notes = "1、设置上一节点状态结束时间,2、保存当前节点状态开始时间")
-    public boolean nodeStatusChange(@Valid @RequestBody NodeStatusChangeDto dto){
+    @ApiOperation(value = "节点状态改变", notes = "1、设置上一节点状态结束时间,2、保存当前节点状态开始时间")
+    public boolean nodeStatusChange(@Valid @RequestBody NodeStatusChangeDto dto) {
         nodeStatusService.nodeStatusChange(dto.getDataId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
         return true;
     }
 
+    @PostMapping("/nodeStatusChangeBatch")
+    @ApiOperation(value = "节点状态改变批量", notes = "1、设置上一节点状态结束时间,2、保存当前节点状态开始时间")
+    public boolean nodeStatusChangeBatch(@Valid @RequestBody List<NodeStatusChangeDto> list) {
+        nodeStatusService.nodeStatusChangeBatch(list);
+        return true;
+    }
+
     @PostMapping("/finishNodeStatus")
-    @ApiOperation(value = "完成指定节点状态",notes = "1、设置节点的结束时间")
-    public boolean finishNodeStatus(@Valid @RequestBody NodeStatusChangeDto dto){
-        nodeStatusService.finishNodeStatus(dto.getDataId(),dto.getNode(),dto.getStatus());
+    @ApiOperation(value = "完成指定节点状态", notes = "1、设置节点的结束时间")
+    public boolean finishNodeStatus(@Valid @RequestBody NodeStatusChangeDto dto) {
+        nodeStatusService.finishNodeStatus(dto.getDataId(), dto.getNode(), dto.getStatus());
         return true;
     }
 
     @PostMapping("/finishCurrentNodeStatus")
-    @ApiOperation(value = "完成当前节点状态",notes = "设置当前节点状态完成时间")
-    public boolean finishCurrentNodeStatus(@Valid @NotBlank(message = "数据id不能为空") String dataId){
+    @ApiOperation(value = "完成当前节点状态", notes = "设置当前节点状态完成时间")
+    public boolean finishCurrentNodeStatus(@Valid @NotBlank(message = "数据id不能为空") String dataId) {
         nodeStatusService.finishCurrentNodeStatus(dataId);
         return true;
     }

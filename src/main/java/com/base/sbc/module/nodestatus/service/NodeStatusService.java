@@ -7,7 +7,10 @@
 package com.base.sbc.module.nodestatus.service;
 
 import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.nodestatus.dto.NodeStatusChangeDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
+
+import java.util.List;
 
 /** 
  * 类描述：节点状态记录 service类
@@ -57,6 +60,13 @@ public interface NodeStatusService extends IServicePlus<NodeStatus>{
      * @param mapKey  mapkey
      */
     void set(Object obj, String listKey, String mapKey);
+
+    /**
+     * 节点状态改版 批量
+     *
+     * @param list
+     */
+    void nodeStatusChangeBatch(List<NodeStatusChangeDto> list);
 
 
 // 自定义方法区 不替换的区域【other_end】

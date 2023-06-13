@@ -144,10 +144,11 @@ public class PatternMakingController {
         return patternMakingService.breakOffPattern(id);
     }
 
+
     @ApiOperation(value = "节点状态改变")
     @PostMapping("/nodeStatusChange")
-    public boolean nodeStatusChange(@RequestBody NodeStatusChangeDto dto) {
-        return patternMakingService.nodeStatusChange(dto);
+    public boolean nodeStatusChange(@RequestBody List<NodeStatusChangeDto> list) {
+        return patternMakingService.nodeStatusChange(list);
     }
 
 

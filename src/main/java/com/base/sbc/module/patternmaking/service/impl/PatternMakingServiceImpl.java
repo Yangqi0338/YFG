@@ -467,6 +467,15 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         return pageInfo;
     }
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean nodeStatusChange(List<NodeStatusChangeDto> list) {
+        for (NodeStatusChangeDto dto : list) {
+            nodeStatusChange(dto);
+        }
+        return true;
+    }
+
 
     public void setNodeStatus(List<PatternMakingTaskListVo> list) {
         if (CollUtil.isEmpty(list)) {
