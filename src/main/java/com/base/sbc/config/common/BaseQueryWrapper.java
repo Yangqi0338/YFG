@@ -10,11 +10,11 @@ import org.springframework.util.StringUtils;
  */
 public class BaseQueryWrapper<T> extends QueryWrapper<T> {
     public void notEmptyEq(String column, Object val) {
-        super.eq(!StringUtils.isEmpty(column), column, val);
+        super.eq(!StringUtils.isEmpty(val), column, val);
     }
 
     public void notEmptyLike(String column, Object val) {
-        super.like(!StringUtils.isEmpty(column), column, val);
+        super.like(!StringUtils.isEmpty(val), column, val);
     }
 
     public void dateBetween(String[] date){

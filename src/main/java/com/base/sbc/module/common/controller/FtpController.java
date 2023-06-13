@@ -22,7 +22,7 @@ import java.io.InputStream;
 @RestController
 @RequestMapping(BaseController.SAAS_URL + "/ftp")
 @RequiredArgsConstructor
-public class FTPController extends BaseController {
+public class FtpController extends BaseController {
 
     private final FTPService ftpService;
 

@@ -50,6 +50,9 @@ public class BasicsdatumColourLibraryVo  {
     /** 潘通 */
     @ApiModelProperty(value = "潘通"  )
     private String pantone;
+    /** 16进制颜色 */
+    @ApiModelProperty(value = "16进制颜色"  )
+    private String color16;
     /** RGB三角 */
     @ApiModelProperty(value = "RGB三角"  )
     private String colorRgb;
