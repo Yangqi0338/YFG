@@ -10,6 +10,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
@@ -101,11 +102,11 @@ public class ProcessNodeServiceImpl extends ServicePlusImpl<ProcessNodeMapper, P
             /*新增*/
             BeanUtils.copyProperties(addRevampProcessNodeDto, processNode);
             processNode.setCompanyCode(baseController.getUserCompany());
-            processNode.setSort( processNode.getSort()+1);
+            if(addRevampProcessNodeDto.getIsNodeAdd().equals(BaseGlobal.STATUS_NORMAL)){
+                processNode.setSort( processNode.getSort()+1);
+            }
             processNode.insertInit();
             baseMapper.insert(processNode);
-
-
         } else {
             /*修改*/
             processNode = baseMapper.selectById(addRevampProcessNodeDto.getId());
