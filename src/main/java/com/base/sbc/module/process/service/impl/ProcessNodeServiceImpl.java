@@ -89,21 +89,12 @@ public class ProcessNodeServiceImpl extends ServicePlusImpl<ProcessNodeMapper, P
                 throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
             }
             /*后节点排序加1*/
-            queryWrapper.clear();
-            queryWrapper.eq("company_code", baseController.getUserCompany());
-            queryWrapper.eq("process_scheme_id", addRevampProcessNodeDto.getProcessSchemeId());
-            queryWrapper.ge("sort", addRevampProcessNodeDto.getSort()+1);
-
-            List<ProcessNode> processNodeList1 = baseMapper.selectList(queryWrapper);
-            if(!CollectionUtils.isEmpty(processNodeList1)){
-                processNodeList1.forEach(p -> p.setSort(p.getSort() + 1));
-                updateBatchById(processNodeList1);
-            }
+            updateSort(addRevampProcessNodeDto.getProcessSchemeId(),addRevampProcessNodeDto.getSort(),BaseGlobal.STATUS_NORMAL);
             /*新增*/
             BeanUtils.copyProperties(addRevampProcessNodeDto, processNode);
             processNode.setCompanyCode(baseController.getUserCompany());
             if(addRevampProcessNodeDto.getIsNodeAdd().equals(BaseGlobal.STATUS_NORMAL)){
-                processNode.setSort( processNode.getSort()+1);
+                processNode.setSort( processNode.getSort()+BaseGlobal.ONE);
             }
             processNode.insertInit();
             baseMapper.insert(processNode);
@@ -122,6 +113,29 @@ public class ProcessNodeServiceImpl extends ServicePlusImpl<ProcessNodeMapper, P
 
 
     /**
+     * 描述-修改该节点后的顺序字段
+     * @param processSchemeId
+     * @param sort
+     * @param adSubtract 0加 1减
+     */
+    void updateSort(String processSchemeId,Integer sort,String adSubtract){
+        QueryWrapper<ProcessNode> queryWrapper = new QueryWrapper<>();
+        queryWrapper.clear();
+        queryWrapper.eq("company_code", baseController.getUserCompany());
+        queryWrapper.eq("process_scheme_id", processSchemeId);
+        queryWrapper.ge("sort", sort + BaseGlobal.ONE);
+        List<ProcessNode> processNodeList = baseMapper.selectList(queryWrapper);
+        if(!CollectionUtils.isEmpty(processNodeList)){
+            if (adSubtract.equals(BaseGlobal.STATUS_NORMAL)){
+                processNodeList.forEach(p -> p.setSort(p.getSort() + BaseGlobal.ONE));
+            }else {
+                processNodeList.forEach(p -> p.setSort(p.getSort() - BaseGlobal.ONE));
+            }
+            updateBatchById(processNodeList);
+        }
+    }
+
+    /**
      * 方法描述：删除流程配置-节点表
      *
      * @param id （多个用，）
@@ -130,6 +144,12 @@ public class ProcessNodeServiceImpl extends ServicePlusImpl<ProcessNodeMapper, P
     @Override
     public Boolean delProcessNode(String id) {
         List<String> ids = StringUtils.convertList(id);
+        /*调整删除的顺序*/
+        ids.forEach(i ->{
+            ProcessNode processNode = baseMapper.selectById(i);
+            /*后节点排序减1*/
+            updateSort(processNode.getProcessSchemeId(),processNode.getSort(),BaseGlobal.STATUS_CLOSE);
+        });
         /*批量删除*/
         baseMapper.deleteBatchIds(ids);
         return true;
