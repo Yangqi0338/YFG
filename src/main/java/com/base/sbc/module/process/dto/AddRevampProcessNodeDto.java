@@ -46,4 +46,7 @@ public class AddRevampProcessNodeDto  {
     private String status;
 
     private Integer sort;
+
+    /** 是否节点添加(0是,1否) */
+    private String isNodeAdd;
 }

@@ -196,6 +196,14 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      */
     PageInfo patternMakingSteps(PatternMakingStepSearchDto dto);
 
+    /**
+     * 状态改版批量
+     *
+     * @param list
+     * @return
+     */
+    boolean nodeStatusChange(List<NodeStatusChangeDto> list);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
