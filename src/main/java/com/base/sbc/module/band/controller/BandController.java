@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.module.band.dto.BandSaveDto;
 import com.base.sbc.module.band.dto.BandStartStopDto;
 import com.base.sbc.module.band.vo.BandQueryReturnVo;
@@ -25,6 +26,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -51,6 +53,12 @@ public class BandController extends BaseController {
     @ApiOperation(value = "新增波段", notes = "id为空")
     public boolean add(@Valid @RequestBody BandSaveDto bandSaveDto) {
         Band band =new Band();
+        QueryWrapper<Band> qc = new QueryWrapper<>();
+        qc.eq("code", bandSaveDto.getCode());
+        List<Band> bandList = bandService.list(qc);
+        if(!CollectionUtils.isEmpty(bandList)){
+            throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
+        }
         BeanUtils.copyProperties(bandSaveDto,band);
         return bandService.save(band);
     }
