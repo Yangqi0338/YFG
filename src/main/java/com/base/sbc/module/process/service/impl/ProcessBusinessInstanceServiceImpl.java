@@ -6,6 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.process.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
@@ -14,12 +17,15 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.patternmaking.vo.PatternMakingVo;
+import com.base.sbc.module.patternmaking.vo.SampleDesignPmDetailVo;
 import com.base.sbc.module.process.dto.InitiateProcessDto;
 import com.base.sbc.module.process.entity.*;
 import com.base.sbc.module.process.mapper.*;
 import com.base.sbc.module.process.service.ProcessBusinessInstanceService;
 import com.base.sbc.module.process.service.ProcessNodeRecordService;
 import com.base.sbc.module.process.vo.ProcessNodeStatusConditionVo;
+import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.googlecode.aviator.AviatorEvaluator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -284,7 +290,8 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         baseMapper.updateById(processBusinessInstance);
         Map map=new HashMap();
         map.put("updateField",processNodeStatusConditionVo.getUpdateField());
-        return map;
+        throw new OtherException(processNodeStatusConditionVo.getUpdateField());
+//        return map;
     }
 
     /**
@@ -293,27 +300,28 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
      * nodeCondition 公式
      * objectData 数据
      */
-    boolean isConditionSatisfy(ProcessNodeStatusConditionVo processNodeStatusConditionVo, Object objectData) {
+    public void isConditionSatisfy(ProcessNodeStatusConditionVo processNodeStatusConditionVo, Object objectData) {
       String nodeConditionFormula =  processNodeStatusConditionVo.getNodeConditionFormula();
        /*表达式里面的占位符*/
        String placeholder =  getPlaceholder(nodeConditionFormula);
+        Map<String,Object> env=new HashMap<>(16);
         if (!StringUtils.isBlank(placeholder)) {
             String[] placeholders = placeholder.split(",");
             for (String s : placeholders) {
-                JSONObject jsonObject = JSONObject.parseObject(objectData.toString());
-                nodeConditionFormula =  nodeConditionFormula.replace("${"+s+"}",jsonObject.get(s).toString());
+                Object s1=  BeanUtil.getProperty(objectData,s);
+                nodeConditionFormula =  nodeConditionFormula.replace("${"+s+"}","$"+s+"$");
+                env.put("$"+s+"$",s1);
             }
         }
-        boolean b = true;
+        boolean b = false;
         try {
-            b = (boolean) AviatorEvaluator.execute(nodeConditionFormula);
+            b = (boolean) AviatorEvaluator.execute(nodeConditionFormula,env);
         } catch (Exception e) {
-            log.error("表达式异常",e);
+            throw new OtherException("表达式计算异常");
         }
         if(!b){
             throw new OtherException(processNodeStatusConditionVo.getReminder());
         }
-        return true;
     }
 
 

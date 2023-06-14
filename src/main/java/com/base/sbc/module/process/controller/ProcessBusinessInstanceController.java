@@ -9,6 +9,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.process.dto.InitiateProcessDto;
 import com.base.sbc.module.process.service.ProcessBusinessInstanceService;
+import com.base.sbc.module.process.vo.ProcessNodeStatusConditionVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +48,8 @@ public class ProcessBusinessInstanceController{
 
 	/*完成*/
 	@ApiOperation(value = "完成" )
-	@GetMapping("/complete")
-	public Map complete(String businessDataId, String action, Object object) {
+	@PostMapping("/complete")
+	public Map complete(String businessDataId, String action, @RequestBody Object object) {
 		return processBusinessInstanceService.complete(businessDataId,action,object);
 	}
 

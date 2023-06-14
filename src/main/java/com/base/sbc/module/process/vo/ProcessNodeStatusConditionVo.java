@@ -63,5 +63,5 @@ public class ProcessNodeStatusConditionVo {
 
     private List<ProcessNodeActionVo> processNodeActionVoList;
 
-
+    private   Object objectData;
 }
