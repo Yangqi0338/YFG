@@ -55,7 +55,7 @@ public interface ProcessNodeStatusService extends IServicePlus<ProcessNodeStatus
          * @param addRevampProcessNodeStatusDto 部件Dto类
          * @return boolean
          */
-        Boolean  batchAddRevamp(List<AddRevampProcessNodeStatusDto> addRevampProcessNodeStatusDto);
+        List<ProcessNodeStatusVo>   batchAddRevamp(List<AddRevampProcessNodeStatusDto> addRevampProcessNodeStatusDto);
 
 
         /**

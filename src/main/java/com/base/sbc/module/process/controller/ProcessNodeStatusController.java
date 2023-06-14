@@ -66,7 +66,7 @@ public class ProcessNodeStatusController{
 
 	@ApiOperation(value = "批量新增修改流程配置-节点状态")
 	@PostMapping("/batchAddRevamp")
-	public Boolean batchAddRevamp(@Valid @RequestBody List<AddRevampProcessNodeStatusDto> addRevampProcessNodeStatusDto) {
+	public List<ProcessNodeStatusVo>  batchAddRevamp(@Valid @RequestBody List<AddRevampProcessNodeStatusDto> addRevampProcessNodeStatusDto) {
 		return processNodeStatusService.batchAddRevamp(addRevampProcessNodeStatusDto);
 	}
 
