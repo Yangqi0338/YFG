@@ -387,7 +387,10 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
             List<FieldVal> fvList = fieldValService.list(dto.getSampleDesignId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
             fieldManagementService.conversion(fieldManagementListByIds, fvList);
         }
-        return fieldManagementListByIds;
+        if (CollUtil.isNotEmpty(fieldManagementListByIds)) {
+            return fieldManagementListByIds.stream().filter(FieldManagementVo::isSelected).collect(Collectors.toList());
+        }
+        return null;
     }
 
     @Override

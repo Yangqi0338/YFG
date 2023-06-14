@@ -211,9 +211,10 @@ public class PlanningController extends BaseController {
     @GetMapping("/querySeatDimension")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "坑位信息id", paramType = "query", required = true),
+            @ApiImplicitParam(name = "isSelected", value = "选择标识(非空只返回选择了的维度)", paramType = "query", required = true),
     })
-    public List<FieldManagementVo> querySeatDimension(String id) {
-        return planningCategoryItemService.querySeatDimension(id);
+    public List<FieldManagementVo> querySeatDimension(String id, String isSelected) {
+        return planningCategoryItemService.querySeatDimension(id, isSelected);
     }
 
 }
