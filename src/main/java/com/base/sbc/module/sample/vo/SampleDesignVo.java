@@ -2,7 +2,7 @@ package com.base.sbc.module.sample.vo;
 
 
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
+import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

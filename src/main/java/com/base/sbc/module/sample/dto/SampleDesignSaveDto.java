@@ -1,6 +1,6 @@
 package com.base.sbc.module.sample.dto;
 
-import com.base.sbc.module.fieldManagement.entity.FieldVal;
+import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.vo.MaterialVo;
 import io.swagger.annotations.ApiModel;

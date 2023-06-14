@@ -8,7 +8,7 @@ package com.base.sbc.module.sample.service;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.IServicePlus;
-import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
+import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.sample.dto.SampleDesignPageDto;
 import com.base.sbc.module.sample.dto.SampleDesignSaveDto;
 import com.base.sbc.module.sample.dto.SendSampleMakingDto;

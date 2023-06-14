@@ -1,6 +1,6 @@
 package com.base.sbc.module.planning.dto;
 
-import com.base.sbc.module.fieldManagement.entity.FieldVal;
+import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
