@@ -19,13 +19,13 @@ import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formType.dto.SaveUpdateFieldManagementDto;
 import com.base.sbc.module.formType.entity.FieldManagement;
 import com.base.sbc.module.formType.entity.FieldVal;
+import com.base.sbc.module.formType.entity.FormType;
 import com.base.sbc.module.formType.entity.Option;
 import com.base.sbc.module.formType.mapper.FieldManagementMapper;
 import com.base.sbc.module.formType.mapper.OptionMapper;
 import com.base.sbc.module.formType.service.FieldManagementService;
-import com.base.sbc.module.formType.vo.FieldManagementVo;
-import com.base.sbc.module.formType.entity.FormType;
 import com.base.sbc.module.formType.service.FormTypeService;
+import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -159,10 +159,10 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
     }
 
     @Override
-    public List<FieldManagementVo> list(String formName, String categoryId, String season) {
+    public List<FieldManagementVo> list(String code, String categoryId, String season) {
 
         QueryWrapper<FormType> qw = new QueryWrapper<>();
-        qw.eq("name", formName);
+        qw.eq("code", code);
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.last("limit 1");
         FormType formType = formTypeService.getOne(qw);

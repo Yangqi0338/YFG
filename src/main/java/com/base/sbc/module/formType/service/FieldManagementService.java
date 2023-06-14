@@ -48,7 +48,7 @@ public interface FieldManagementService extends IServicePlus<FieldManagement> {
      * @param season
      * @return
      */
-    List<FieldManagementVo> list(String formName, String categoryId, String season);
+    List<FieldManagementVo> list(String code, String categoryId, String season);
 
 
     /**

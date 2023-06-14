@@ -30,6 +30,7 @@ import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FieldValService;
 import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.formType.utils.FormTypeCodes;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.service.*;
@@ -234,7 +235,6 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
     }
 
 
-
     @Override
     public PageInfo queryPageInfo(SampleDesignPageDto dto) {
         String companyCode = getCompanyCode();
@@ -266,7 +266,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         getBaseMapper().selectByQw(qw);
         List<SampleDesignPageVo> result = objects.getResult();
         // 设置图片
-        attachmentService.setListStylePic(result,"stylePic");
+        attachmentService.setListStylePic(result, "stylePic");
         amcFeignService.addUserAvatarToList(result, "designerId", "aliasUserAvatar");
         return objects.toPageInfo();
     }
@@ -375,20 +375,10 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
     }
 
     @Override
-    public List<FieldManagementVo> queryTechnology(TechnologySearchDto dto) {
-        // 1.查询企划需求管理配置的维度标签
-        QueryWrapper<PlanningDimensionality> pdQw = new QueryWrapper<>();
-        pdQw.eq("category_id", dto.getCategoryId());
-        pdQw.eq("planning_season_id", dto.getPlanningSeasonId());
-        pdQw.isNotNull("field_id");
-        pdQw.eq(DEL_FLAG, BaseGlobal.DEL_FLAG_NORMAL);
-        List<PlanningDimensionality> pdList = planningDimensionalityService.list(pdQw);
-        if (CollUtil.isEmpty(pdList)) {
-            return null;
-        }
+    public List<FieldManagementVo> queryDimensionLabels(DimensionLabelsSearchDto dto) {
+
         // 2.查询字段配置信息
-        List<String> fieldIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
-        List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fieldIds);
+        List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.list(FormTypeCodes.DIMENSION_LABELS, dto.getCategoryId(), dto.getSeason());
         if (CollUtil.isEmpty(fieldManagementListByIds)) {
             return null;
         }
@@ -401,16 +391,16 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
     }
 
     @Override
-    public List<FieldManagementVo> queryTechnologyBySampleDesignId(String id) {
+    public List<FieldManagementVo> queryDimensionLabelsBySdId(String id) {
         SampleDesign sampleDesign = getById(id);
         if (sampleDesign == null) {
             return null;
         }
-        TechnologySearchDto dto = new TechnologySearchDto();
+        DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
         dto.setSampleDesignId(id);
-        dto.setPlanningSeasonId(sampleDesign.getPlanningSeasonId());
+        dto.setSeason(sampleDesign.getSeason());
         dto.setCategoryId(CollUtil.get(StrUtil.split(sampleDesign.getCategoryIds(), StrUtil.COMMA), 1));
-        return queryTechnology(dto);
+        return queryDimensionLabels(dto);
     }
 
     private List<DesignDocTreeVo> queryCategory(DesignDocTreeVo designDocTreeVo, int categoryIdx) {

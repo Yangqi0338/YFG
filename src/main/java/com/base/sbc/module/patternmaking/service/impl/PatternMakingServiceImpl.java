@@ -386,8 +386,12 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         }
 
         PatternMakingVo vo = BeanUtil.copyProperties(byId, PatternMakingVo.class);
+        //设置头像
+        amcFeignService.setUserAvatarToObj(vo);
         //查询样衣设计信息
         SampleDesignVo sampleDesignVo = sampleDesignService.getDetail(vo.getSampleDesignId());
+        //设置头像
+        amcFeignService.setUserAvatarToObj(sampleDesignVo);
         SampleDesignPmDetailVo result = BeanUtil.copyProperties(sampleDesignVo, SampleDesignPmDetailVo.class);
         result.setPatternMaking(vo);
         // 查询附件，纸样文件

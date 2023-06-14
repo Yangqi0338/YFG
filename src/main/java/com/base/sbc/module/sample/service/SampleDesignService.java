@@ -9,10 +9,10 @@ package com.base.sbc.module.sample.service;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.sample.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.sample.dto.SampleDesignPageDto;
 import com.base.sbc.module.sample.dto.SampleDesignSaveDto;
 import com.base.sbc.module.sample.dto.SendSampleMakingDto;
-import com.base.sbc.module.sample.dto.TechnologySearchDto;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.vo.DesignDocTreeVo;
 import com.base.sbc.module.sample.vo.SampleDesignVo;
@@ -95,17 +95,19 @@ public interface SampleDesignService extends IServicePlus<SampleDesign> {
 
     /**
      * 查询工艺信息数据
+     *
      * @param dto
      * @return
      */
-    List<FieldManagementVo> queryTechnology(TechnologySearchDto dto);
+    List<FieldManagementVo> queryDimensionLabels(DimensionLabelsSearchDto dto);
 
     /**
      * 查询工艺信息数据
+     *
      * @param id 样衣设计id
      * @return
      */
-    List<FieldManagementVo> queryTechnologyBySampleDesignId(String id);
+    List<FieldManagementVo> queryDimensionLabelsBySdId(String id);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

@@ -9,16 +9,19 @@ package com.base.sbc.module.sample.controller;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
-import com.base.sbc.module.sample.dto.SampleDesignSaveDto;
+import com.base.sbc.module.sample.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.sample.dto.SampleDesignPageDto;
+import com.base.sbc.module.sample.dto.SampleDesignSaveDto;
 import com.base.sbc.module.sample.dto.SendSampleMakingDto;
-import com.base.sbc.module.sample.dto.TechnologySearchDto;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.base.sbc.module.sample.vo.DesignDocTreeVo;
 import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -85,26 +88,27 @@ public class SampleDesignController {
 	@PostMapping("/approval")
 	public boolean approval(@RequestBody AnswerDto dto){
 		return sampleDesignService.approval(dto);
-	}
+    }
 
 
-	@ApiOperation(value = "设计档案左侧树",notes = "（0级:年份季节,1级:波段,2级:大类,3级:品类）")
-	@PostMapping("/queryDesignDocTree")
-	public List<DesignDocTreeVo> queryDesignDocTree(@RequestBody  DesignDocTreeVo designDocTreeVo){
-		return sampleDesignService.queryDesignDocTree(designDocTreeVo);
-	}
+    @ApiOperation(value = "设计档案左侧树", notes = "（0级:年份季节,1级:波段,2级:大类,3级:品类）")
+    @PostMapping("/queryDesignDocTree")
+    public List<DesignDocTreeVo> queryDesignDocTree(@RequestBody DesignDocTreeVo designDocTreeVo) {
+        return sampleDesignService.queryDesignDocTree(designDocTreeVo);
+    }
 
 
-	@ApiOperation(value = "查询工艺信息数据(新增时使用)",notes = "")
-	@PostMapping("/queryTechnology")
-	public List<FieldManagementVo> queryTechnology(@Valid @RequestBody TechnologySearchDto dto){
-		return sampleDesignService.queryTechnology(dto);
-	}
-	@ApiOperation(value = "查询工艺信息数据(修改时使用)",notes = "")
-	@GetMapping("/queryTechnologyBySampleDesignId")
-	public List<FieldManagementVo> queryTechnologyBySampleDesignId(String id){
-		return sampleDesignService.queryTechnologyBySampleDesignId(id);
-	}
+    @ApiOperation(value = "查询样衣设计维度数据(新增时使用)", notes = "")
+    @PostMapping("/queryDimensionLabels")
+    public List<FieldManagementVo> queryDimensionLabels(@Valid @RequestBody DimensionLabelsSearchDto dto) {
+        return sampleDesignService.queryDimensionLabels(dto);
+    }
+
+    @ApiOperation(value = "查询样衣设计维度数据(修改时使用)", notes = "")
+    @GetMapping("/queryDimensionLabelsBySdId")
+    public List<FieldManagementVo> queryDimensionLabelsBySdId(String id) {
+        return sampleDesignService.queryDimensionLabelsBySdId(id);
+    }
 }
 
 
