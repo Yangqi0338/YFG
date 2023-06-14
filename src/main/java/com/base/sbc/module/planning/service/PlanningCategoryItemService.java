@@ -105,10 +105,11 @@ public interface PlanningCategoryItemService extends IServicePlus<PlanningCatego
     /**
      * 查询坑位信息的维度数据
      *
-     * @param id 坑位id
+     * @param id       坑位id
+     * @param isSelect
      * @return
      */
-    List<FieldManagementVo> querySeatDimension(String id);
+    List<FieldManagementVo> querySeatDimension(String id, String isSelected);
 
     /**
      * 修改图片

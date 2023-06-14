@@ -94,7 +94,7 @@ public interface SampleDesignService extends IServicePlus<SampleDesign> {
     List<DesignDocTreeVo> queryDesignDocTree(DesignDocTreeVo designDocTreeVo);
 
     /**
-     * 查询工艺信息数据
+     * 查询维度标签
      *
      * @param dto
      * @return
@@ -102,7 +102,7 @@ public interface SampleDesignService extends IServicePlus<SampleDesign> {
     List<FieldManagementVo> queryDimensionLabels(DimensionLabelsSearchDto dto);
 
     /**
-     * 查询工艺信息数据
+     * 查询维度标签
      *
      * @param id 样衣设计id
      * @return

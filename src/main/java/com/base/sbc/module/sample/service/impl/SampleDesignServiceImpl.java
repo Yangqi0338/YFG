@@ -349,6 +349,10 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         // 款式图片
         List<AttachmentVo> stylePicList = attachmentService.findByFId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
         sampleVo.setStylePicList(stylePicList);
+
+        //维度标签
+        sampleVo.setDimensionLabels(queryDimensionLabelsBySdId(id));
+
         return sampleVo;
     }
 
@@ -387,7 +391,10 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
             List<FieldVal> fvList = fieldValService.list(dto.getSampleDesignId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
             fieldManagementService.conversion(fieldManagementListByIds, fvList);
         }
-        return fieldManagementListByIds;
+        if (CollUtil.isNotEmpty(fieldManagementListByIds)) {
+            return fieldManagementListByIds.stream().filter(FieldManagementVo::isSelected).collect(Collectors.toList());
+        }
+        return null;
     }
 
     @Override

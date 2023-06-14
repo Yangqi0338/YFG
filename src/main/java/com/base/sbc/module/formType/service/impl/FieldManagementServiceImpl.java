@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.formType.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
@@ -26,6 +27,7 @@ import com.base.sbc.module.formType.mapper.OptionMapper;
 import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FormTypeService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.process.vo.ProcessActionVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -129,6 +131,18 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
         }
         queryFieldManagementDto.setCompanyCode(baseController.getUserCompany());
         List<FieldManagementVo> list = baseMapper.getFieldManagementList(queryFieldManagementDto);
+        /*
+        * 判断字段是否是对象 是对象获取到对象里面的所有字段
+        * */
+      list.forEach(fieldManagementVo -> {
+          if(!StringUtils.isEmpty(fieldManagementVo.getFormObjectId())){
+              QueryWrapper queryWrapper=new QueryWrapper();
+              queryWrapper.eq("form_type_Id",fieldManagementVo.getFormObjectId());
+              queryWrapper.eq("company_code",baseController.getUserCompany());
+              List<FieldManagementVo> fieldManagementVoList = BeanUtil.copyToList( baseMapper.selectList(queryWrapper), FieldManagementVo.class);
+              fieldManagementVo.setList(fieldManagementVoList);
+          }
+      });
         return new PageInfo<>(list);
     }
 
@@ -151,6 +165,9 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
 
     @Override
     public List<FieldManagementVo> getFieldManagementListByIds(List<String> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return null;
+        }
         QueryFieldManagementDto dto = new QueryFieldManagementDto();
         dto.setIds(ids);
         dto.setCompanyCode(getCompanyCode());
@@ -187,7 +204,7 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
         Map<String, FieldVal> valMap = Optional.ofNullable(valueList).orElse(new ArrayList<>())
                 .stream().collect(Collectors.toMap(k -> k.getFieldName(), v -> v, (a, b) -> b));
         for (FieldManagementVo vo : fieldList) {
-            vo.setId(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getVal).orElse(idGen.nextIdStr()));
+            vo.setId(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getId).orElse(idGen.nextIdStr()));
             vo.setVal(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getVal).orElse(null));
             vo.setSelected(valMap.containsKey(vo.getFieldName()));
         }

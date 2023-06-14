@@ -511,7 +511,7 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
     }
 
     @Override
-    public List<FieldManagementVo> querySeatDimension(String id) {
+    public List<FieldManagementVo> querySeatDimension(String id, String isSelected) {
         PlanningCategoryItem seat = getById(id);
         PlanningSeason season = planningSeasonService.getById(seat.getPlanningSeasonId());
         PlanningCategory category = planningCategoryService.getById(seat.getPlanningCategoryId());
@@ -519,6 +519,9 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         List<FieldManagementVo> fieldList = fieldManagementService.list(FormTypeCodes.DIMENSION_LABELS, CollUtil.get(categoryIds, 1), season.getSeason());
         List<FieldVal> valueList = fieldValService.list(id, FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION);
         fieldManagementService.conversion(fieldList, valueList);
+        if (StrUtil.isNotBlank(isSelected) && CollUtil.isNotEmpty(fieldList)) {
+            return fieldList.stream().filter(FieldManagementVo::isSelected).collect(Collectors.toList());
+        }
         return fieldList;
     }
 

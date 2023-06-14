@@ -8,6 +8,7 @@ package com.base.sbc.module.process.service;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.process.dto.InitiateProcessDto;
 import com.base.sbc.module.process.entity.ProcessBusinessInstance;
+import com.base.sbc.module.process.vo.ProcessNodeStatusConditionVo;
 
 import java.util.Map;
 

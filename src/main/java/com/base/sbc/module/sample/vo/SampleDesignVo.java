@@ -49,8 +49,8 @@ public class SampleDesignVo extends SampleDesign {
     private String designerAvatar;
 
 
-    @ApiModelProperty(value = "工艺信息")
-    private List<FieldManagementVo> technologyInfo;
+    @ApiModelProperty(value = "维度信息")
+    private List<FieldManagementVo> dimensionLabels;
 
     @ApiModelProperty(value = "附件")
     private List<AttachmentVo> attachmentList;

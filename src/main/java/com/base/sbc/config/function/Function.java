@@ -1,19 +1,25 @@
 package com.base.sbc.config.function;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.NumberUtil;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
 import com.googlecode.aviator.runtime.function.AbstractVariadicFunction;
 import com.googlecode.aviator.runtime.function.FunctionUtils;
 import com.googlecode.aviator.runtime.type.AviatorDouble;
+import com.googlecode.aviator.runtime.type.AviatorJavaType;
 import com.googlecode.aviator.runtime.type.AviatorObject;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -27,15 +33,12 @@ public class Function  implements ApplicationRunner {
 
     public void init() {
         /*sum*/
-        AviatorEvaluator.addFunction(new AbstractVariadicFunction() {
+        AviatorEvaluator.addFunction(new AbstractFunction() {
             @Override
-            public AviatorObject variadicCall(Map<String, Object> map, AviatorObject... args) {
-                Double sum = 0D;
-                for(AviatorObject arg : args){
-                    Number number = FunctionUtils.getNumberValue(arg, map);
-                    sum+=number.doubleValue();
-                }
-                return new AviatorDouble(sum);
+            public AviatorObject call(Map<String, Object> env, AviatorObject arg1) {
+                List<Number> o = (List<Number>)env.get(((AviatorJavaType) arg1).getName());
+                BigDecimal add = NumberUtil.add(o.toArray(new Number[0]));
+                return new AviatorDouble(add.doubleValue());
             }
 
             @Override
@@ -45,19 +48,13 @@ public class Function  implements ApplicationRunner {
         });
 
         /*Avg*/
-        AviatorEvaluator.addFunction(new AbstractVariadicFunction() {
+        AviatorEvaluator.addFunction(new AbstractFunction() {
             @Override
-            public AviatorObject variadicCall(Map<String, Object> map, AviatorObject... args) {
-                Double sum = 0D;
-                Integer count = 0;
-                for(AviatorObject arg:args){
-                    Number number = FunctionUtils.getNumberValue(arg, map);
-                    sum+=number.doubleValue();
-                    count++;
-                }
-                return new AviatorDouble(sum / count);
+            public AviatorObject call(Map<String, Object> env, AviatorObject arg1) {
+                List<Number> o = (List<Number>)env.get(((AviatorJavaType) arg1).getName());
+                BigDecimal add = NumberUtil.add(o.toArray(new Number[0]));
+                return new AviatorDouble(add.doubleValue()/o.size());
             }
-
             @Override
             public String getName() {
                 return "AVG";

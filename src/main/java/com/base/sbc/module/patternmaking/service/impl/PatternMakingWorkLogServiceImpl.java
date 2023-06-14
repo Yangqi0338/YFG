@@ -57,15 +57,18 @@ public class PatternMakingWorkLogServiceImpl extends ServicePlusImpl<PatternMaki
         List<PatternMakingWorkLogVo> voList = BeanUtil.copyToList(list, PatternMakingWorkLogVo.class);
         // 设置人员名称
         PatternMaking patternMaking = patternMakingService.getById(dto.getPatternMakingId());
-        String worker = null;
-        if (StrUtil.equals("裁剪工", dto.getUserType())) {
-            worker = patternMaking.getCutterName();
-        } else if (StrUtil.equals("车缝工", dto.getUserType())) {
-            worker = patternMaking.getStitcher();
+        if (patternMaking != null) {
+            String worker = null;
+            if (StrUtil.equals("裁剪工", dto.getUserType())) {
+                worker = patternMaking.getCutterName();
+            } else if (StrUtil.equals("车缝工", dto.getUserType())) {
+                worker = patternMaking.getStitcher();
+            }
+            for (PatternMakingWorkLogVo vo : voList) {
+                vo.setWorker(worker);
+            }
         }
-        for (PatternMakingWorkLogVo vo : voList) {
-            vo.setWorker(worker);
-        }
+
         return voList;
     }
 

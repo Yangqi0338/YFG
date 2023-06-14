@@ -74,4 +74,8 @@ public class FieldManagementVo {
     private String val;
     @ApiModelProperty(value = "选中")
     private boolean selected = true;
+
+    List<FieldManagementVo> list;
+
+
 }
