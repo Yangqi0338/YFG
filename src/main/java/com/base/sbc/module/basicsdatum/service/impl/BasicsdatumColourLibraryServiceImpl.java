@@ -104,7 +104,9 @@ public class BasicsdatumColourLibraryServiceImpl extends ServicePlusImpl<Basicsd
         /*转换vo*/
         List<BasicsdatumColourLibraryVo> list = BeanUtil.copyToList(basicsdatumColourLibraryList, BasicsdatumColourLibraryVo.class);
         for (BasicsdatumColourLibraryVo basicsdatumColourLibraryVo : list) {
-            basicsdatumColourLibraryVo.setColor16(this.rgbToHex(basicsdatumColourLibraryVo.getColorRgb()));
+            if(StringUtils.isEmpty(basicsdatumColourLibraryVo.getColor16()) && StringUtils.isNotEmpty(basicsdatumColourLibraryVo.getColorRgb())){
+                basicsdatumColourLibraryVo.setColor16(this.rgbToHex(basicsdatumColourLibraryVo.getColorRgb()));
+            }
         }
         PageInfo<BasicsdatumColourLibraryVo> pageInfo1 = new PageInfo<>();
         pageInfo1.setList(list);

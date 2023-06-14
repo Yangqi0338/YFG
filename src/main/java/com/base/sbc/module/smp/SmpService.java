@@ -80,10 +80,10 @@ public class SmpService {
         SmpService smpService = new SmpService();
         smpService.testGoods();
         smpService.testMaterials();
-        smpService.testBom();
-        smpService.testColor();
-        smpService.testProcessSheet();
-        smpService.testSample();
+        //smpService.testBom();
+        //smpService.testColor();
+        //smpService.testProcessSheet();
+        //smpService.testSample();
         //smpService.testStyle();
     }
 

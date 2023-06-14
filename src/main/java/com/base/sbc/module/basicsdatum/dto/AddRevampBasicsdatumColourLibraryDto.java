@@ -50,9 +50,9 @@ public class AddRevampBasicsdatumColourLibraryDto  {
     /** 潘通 */
     @ApiModelProperty(value = "潘通"  )
     private String pantone;
-    /** RGB三角 */
-    @ApiModelProperty(value = "RGB三角"  )
-    private String colorRgb;
+    /** 16进制颜色 */
+    @ApiModelProperty(value = "16进制颜色"  )
+    private String color16;
     /** 色度 */
     @ApiModelProperty(value = "色度"  )
     private String chroma;
