@@ -151,6 +151,9 @@ public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementM
 
     @Override
     public List<FieldManagementVo> getFieldManagementListByIds(List<String> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return null;
+        }
         QueryFieldManagementDto dto = new QueryFieldManagementDto();
         dto.setIds(ids);
         dto.setCompanyCode(getCompanyCode());
