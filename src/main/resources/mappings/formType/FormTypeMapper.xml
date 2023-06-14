@@ -47,7 +47,8 @@
       select
      ft.id ,
      ft.name groupName,
-     ft.coding,
+     ft.table_name tableName,
+     ft.code,
      ft.table_explain tableExplain,
      ft.status,
      ft.group_id  groupId
@@ -58,7 +59,7 @@
 
 
 
-    <select id="getCoding" resultType="java.lang.String">
+    <select id="getTableName" resultType="java.lang.String">
      select
      table_name tableName
      from information_schema.tables

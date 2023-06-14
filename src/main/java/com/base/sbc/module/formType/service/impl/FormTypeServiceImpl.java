@@ -153,11 +153,11 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
         /*修改*/
         if(StringUtils.isNotBlank(saveUpdateFormTypeDto.getId())) {
             formType = baseMapper.selectById(saveUpdateFormTypeDto.getId());
-            if (StringUtils.isNotBlank(formType.getCoding()) && !formType.getCoding().equals(saveUpdateFormTypeDto.getCoding())) {
+            if (StringUtils.isNotBlank(formType.getTableName()) && !formType.getTableName().equals(saveUpdateFormTypeDto.getTableName())) {
                 Map<String, Object> map = new HashMap<>();
                 map.put("form_type_id", formType.getId());
                 fieldManagementMapper.deleteByMap(map);
-                addField(formType.getCoding(), formType.getId());
+                addField(formType.getTableName(), formType.getId());
             }
             BeanUtils.copyProperties(saveUpdateFormTypeDto, formType);
             formType.insertInit();
@@ -180,9 +180,9 @@ public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormTyp
             formType.insertInit();
             baseMapper.insert(formType);
             /*存在数据库名编码*/
-            if(StringUtils.isNotBlank(formType.getCoding())){
+            if(StringUtils.isNotBlank(formType.getTableName())){
                 /*当前表的字段添加到字段管理表*/
-                addField(formType.getCoding(),formType.getId());
+                addField(formType.getTableName(),formType.getId());
             }
         }
         return ApiResult.success("操作成功");

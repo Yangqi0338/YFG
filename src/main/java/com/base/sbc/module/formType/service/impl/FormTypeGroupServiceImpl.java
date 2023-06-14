@@ -74,7 +74,7 @@ public class FormTypeGroupServiceImpl extends ServicePlusImpl<FormTypeGroupMappe
     public ApiResult getGroupIsCoding() {
         QueryWrapper<FormTypeGroup> queryWrapper=new QueryWrapper<>();
         Map<String,Object> map=new HashMap<>();
-        map.put("coding",formTypeMapper.getCoding());
+        map.put("tableName",formTypeMapper.getTableName());
         map.put("formTypeGroup",baseMapper.selectList(queryWrapper) );
         return ApiResult.success("操作成功",map) ;
     }

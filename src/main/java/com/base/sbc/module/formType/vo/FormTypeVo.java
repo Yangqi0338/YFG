@@ -24,7 +24,11 @@ public class FormTypeVo {
 
     /** 编码 */
     @ApiModelProperty(value = "编码"  )
-    private String coding;
+    private String code;
+
+    /** 数据库名称 */
+    @ApiModelProperty(value = "数据库名称"  )
+    private String tableName;
 
     /** 创建时间 */
     @ApiModelProperty(value = "创建时间"  )

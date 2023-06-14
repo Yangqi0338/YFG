@@ -102,6 +102,8 @@ public class ProcessProcessSchemeServiceImpl extends ServicePlusImpl<ProcessProc
             if (ObjectUtils.isEmpty(processProcessScheme)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
+            Map<String, String> map = amcFeignService.getUserAvatar(processProcessScheme.getCreateId());
+            addRevampProcessProcessSchemeDto.setCreatePicture(map.get(processProcessScheme.getCreateId()));
             BeanUtils.copyProperties(addRevampProcessProcessSchemeDto, processProcessScheme);
             processProcessScheme.updateInit();
             baseMapper.updateById(processProcessScheme);

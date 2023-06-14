@@ -37,12 +37,15 @@ public class FormType extends BaseDataEntity<String> {
     /** 分组 */
     @ApiModelProperty(value = "分组"  )
     private String groupId;
-    /** 数据库表名 */
-    @ApiModelProperty(value = "数据库表名"  )
+    /** 名称 */
+    @ApiModelProperty(value = "名称"  )
     private String name;
     /** 编码 */
     @ApiModelProperty(value = "编码"  )
-    private String coding;
+    private String code;
+    /** 数据库表名 */
+    @ApiModelProperty(value = "数据库表名"  )
+    private String tableName;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
