@@ -6,39 +6,41 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
-import com.base.sbc.module.basicsdatum.dto.*;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeMapper;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
-import org.springframework.stereotype.Service;
-import com.github.pagehelper.PageInfo;
+import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumModelTypeDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumModelTypeExcelDto;
+import com.base.sbc.module.basicsdatum.dto.QueryDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
+import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.github.pagehelper.PageHelper;
-import cn.hutool.core.bean.BeanUtil;
+import com.github.pagehelper.PageInfo;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
-import cn.afterturn.easypoi.excel.ExcelImportUtil;
-import cn.afterturn.easypoi.excel.entity.ImportParams;
 
 import javax.servlet.http.HttpServletResponse;
-
-import com.base.sbc.config.utils.StringUtils;
-import org.springframework.util.ObjectUtils;
-import org.springframework.beans.BeanUtils;
-import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.enums.BaseErrorEnum;
-import com.base.sbc.config.utils.ExcelUtils;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,14 +53,15 @@ import java.util.List;
  * @date 创建时间：2023-5-20 9:31:14
  */
 @Service
+@RequiredArgsConstructor
 public class BasicsdatumModelTypeServiceImpl extends ServicePlusImpl<BasicsdatumModelTypeMapper, BasicsdatumModelType> implements BasicsdatumModelTypeService {
 
-    @Autowired
-    private BaseController baseController;
-    @Autowired
-    private CcmFeignService ccmFeignService;
-    @Autowired
-    private BasicsdatumSizeMapper basicsdatumSizeMapper;
+
+    private final BaseController baseController;
+    private final CcmFeignService ccmFeignService;
+
+    private final BasicsdatumSizeMapper basicsdatumSizeMapper;
+    private final BasicsdatumSizeService basicsdatumSizeService;
 
 
 /** 自定义方法区 不替换的区域【other_start】 **/
@@ -76,11 +79,15 @@ public class BasicsdatumModelTypeServiceImpl extends ServicePlusImpl<Basicsdatum
             PageHelper.startPage(queryDto);
         }
 
-        QueryWrapper<BasicsdatumModelType> queryWrapper = new QueryWrapper<>();
-        if (!StringUtils.isEmpty(queryDto.getModelType())) {
-            queryWrapper.like("model_type", queryDto.getModelType());
-        }
+        BaseQueryWrapper<BasicsdatumModelType> queryWrapper = new BaseQueryWrapper<>();
+
+        queryWrapper.notEmptyLike("model_type", queryDto.getModelType());
         queryWrapper.eq("company_code", baseController.getUserCompany());
+        queryWrapper.notEmptyLike("coding", queryDto.getCoding());
+        queryWrapper.notEmptyLike("description", queryDto.getDescription());
+        queryWrapper.notEmptyLike("dimension_type", queryDto.getDimensionType());
+        queryWrapper.notEmptyLike("status", queryDto.getStatus());
+        queryWrapper.between("create_date",queryDto.getCreateDate());
         /*查询基础资料-号型类型数据*/
         List<BasicsdatumModelType> basicsdatumModelTypeList = baseMapper.selectList(queryWrapper);
         PageInfo<BasicsdatumModelType> pageInfo = new PageInfo<>(basicsdatumModelTypeList);
@@ -157,14 +164,34 @@ public class BasicsdatumModelTypeServiceImpl extends ServicePlusImpl<Basicsdatum
             }
             /*新增*/
             BeanUtils.copyProperties(addRevampBasicsdatumModelTypeDto, basicsdatumModelType);
-            basicsdatumModelType.setCompanyCode(baseController.getUserCompany());
-            basicsdatumModelType.insertInit();
+            if (StringUtils.isNotEmpty(addRevampBasicsdatumModelTypeDto.getModelType())) {
+                String[] sizeIds = addRevampBasicsdatumModelTypeDto.getModelType().split(",");
+                String id = addRevampBasicsdatumModelTypeDto.getId();
+                QueryWrapper<BasicsdatumSize> queryWrapper1 = new BaseQueryWrapper<>();
+                queryWrapper1.in("id", sizeIds);
+                List<BasicsdatumSize> list = basicsdatumSizeService.list(queryWrapper1);
+                for (BasicsdatumSize basicsdatumSize : list) {
+                    basicsdatumSize.setModelType(id);
+                }
+                basicsdatumSizeService.updateBatchById(list);
+            }
             baseMapper.insert(basicsdatumModelType);
         } else {
             /*修改*/
             basicsdatumModelType = baseMapper.selectById(addRevampBasicsdatumModelTypeDto.getId());
             if (ObjectUtils.isEmpty(basicsdatumModelType)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+            }
+            if (StringUtils.isNotEmpty(addRevampBasicsdatumModelTypeDto.getSize())) {
+                String[] sizeIds = addRevampBasicsdatumModelTypeDto.getSize().split(",");
+                String id = addRevampBasicsdatumModelTypeDto.getId();
+                QueryWrapper<BasicsdatumSize> queryWrapper1 = new BaseQueryWrapper<>();
+                queryWrapper1.in("id", sizeIds);
+                List<BasicsdatumSize> list = basicsdatumSizeService.list(queryWrapper1);
+                for (BasicsdatumSize basicsdatumSize : list) {
+                    basicsdatumSize.setModelType(id);
+                }
+                basicsdatumSizeService.updateBatchById(list);
             }
             BeanUtils.copyProperties(addRevampBasicsdatumModelTypeDto, basicsdatumModelType);
             basicsdatumModelType.updateInit();

@@ -53,10 +53,10 @@ public class BasicsdatumSize extends BaseDataEntity<String> {
     private String externalSize;
     /** 代码 */
     @ApiModelProperty(value = "代码"  )
-    private Integer code;
+    private String code;
     /** 排序 */
     @ApiModelProperty(value = "排序"  )
-    private Integer sort;
+    private String sort;
     /** 发送状态(0未发送,1已发送) */
     @ApiModelProperty(value = "发送状态(0未发送,1已发送)"  )
     private String sendStatus;

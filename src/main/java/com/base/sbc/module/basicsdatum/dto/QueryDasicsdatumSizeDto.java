@@ -19,9 +19,12 @@ public class QueryDasicsdatumSizeDto  extends Page {
     private String labelName;
     private String hangtags;
     private String model;
+    private String modelType;
     private String internalSize;
     private String createName;
     private String[] createDate;
+
+    private String all;
 
     /*1导出，0模板导出*/
     private String  isDerive;

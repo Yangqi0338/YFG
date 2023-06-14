@@ -9,19 +9,19 @@ import org.springframework.util.StringUtils;
  * @mail 247967116@qq.com
  */
 public class BaseQueryWrapper<T> extends QueryWrapper<T> {
-    public void notEmptyEq(String column, Object val) {
-        super.eq(!StringUtils.isEmpty(val), column, val);
+    public QueryWrapper<T> notEmptyEq(String column, Object val) {
+        return super.eq(!StringUtils.isEmpty(val), column, val);
     }
 
     public void notEmptyLike(String column, Object val) {
         super.like(!StringUtils.isEmpty(val), column, val);
     }
 
-    public void dateBetween(String[] date){
-        if (date!=null && date.length>0){
-            super.ge(!StringUtils.isEmpty(date[0]),"create_date",date[0]);
-            if (date.length>1){
-                super.and(i->i.le(!StringUtils.isEmpty(date[1]),"create_date",date[1]));
+    public void between(String column,String[] strings){
+        if (strings!=null && strings.length>0){
+            super.ge(!StringUtils.isEmpty(strings[0]),column,strings[0]);
+            if (strings.length>1){
+                super.and(i->i.le(!StringUtils.isEmpty(strings[1]),column,strings[1]));
             }
         }
     }

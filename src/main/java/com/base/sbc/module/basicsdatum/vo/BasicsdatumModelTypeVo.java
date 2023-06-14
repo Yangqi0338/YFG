@@ -23,7 +23,7 @@ import lombok.EqualsAndHashCode;
 @Data
 
 @ApiModel("基础资料-号型类型 BasicsdatumModelType")
-public class BasicsdatumModelTypeVo  {
+public class BasicsdatumModelTypeVo  extends BaseDataEntity<String>{
 
     private String id;
     /** 号型类型 */
