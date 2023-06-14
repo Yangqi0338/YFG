@@ -10,6 +10,7 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourGroup;
@@ -84,11 +85,13 @@ public class BasicsdatumColourLibraryServiceImpl extends ServicePlusImpl<Basicsd
     public PageInfo<BasicsdatumColourLibraryVo> getBasicsdatumColourLibraryList(QueryBasicsdatumColourLibraryDto queryBasicsdatumColourLibraryDto) {
         /*分页*/
         PageHelper.startPage(queryBasicsdatumColourLibraryDto);
-        QueryWrapper<BasicsdatumColourLibrary> queryWrapper = new QueryWrapper<>();
+        BaseQueryWrapper<BasicsdatumColourLibrary> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
-        if (StringUtils.isNotBlank(queryBasicsdatumColourLibraryDto.getColourGroupId())) {
-            queryWrapper.eq("colour_group_id", queryBasicsdatumColourLibraryDto.getColourGroupId());
-        }
+
+
+        queryWrapper.notEmptyLike("colour_group_id", queryBasicsdatumColourLibraryDto.getColourGroupId());
+        queryWrapper.notEmptyLike("create_name",queryBasicsdatumColourLibraryDto.getCreateName());
+        queryWrapper.between("create_date",queryBasicsdatumColourLibraryDto.getCreateDate());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColourCode()), "colour_code", queryBasicsdatumColourLibraryDto.getColourCode());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColourSpecification()), "colour_specification", queryBasicsdatumColourLibraryDto.getColourSpecification());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColourName()), "colour_name", queryBasicsdatumColourLibraryDto.getColourName());
@@ -104,7 +107,7 @@ public class BasicsdatumColourLibraryServiceImpl extends ServicePlusImpl<Basicsd
         /*转换vo*/
         List<BasicsdatumColourLibraryVo> list = BeanUtil.copyToList(basicsdatumColourLibraryList, BasicsdatumColourLibraryVo.class);
         for (BasicsdatumColourLibraryVo basicsdatumColourLibraryVo : list) {
-            if(StringUtils.isEmpty(basicsdatumColourLibraryVo.getColor16()) && StringUtils.isNotEmpty(basicsdatumColourLibraryVo.getColorRgb())){
+            if (StringUtils.isEmpty(basicsdatumColourLibraryVo.getColor16()) && StringUtils.isNotEmpty(basicsdatumColourLibraryVo.getColorRgb())) {
                 basicsdatumColourLibraryVo.setColor16(this.rgbToHex(basicsdatumColourLibraryVo.getColorRgb()));
             }
         }
@@ -115,12 +118,13 @@ public class BasicsdatumColourLibraryServiceImpl extends ServicePlusImpl<Basicsd
         pageInfo1.setPageSize(pageInfo.getPageSize());
         return pageInfo1;
     }
+
     private String rgbToHex(String rgbValue) {
         int[] rgbComponents = extractRGB(rgbValue);
 
-        String redHex  = Integer.toHexString(rgbComponents[0]);
-        String greenHex  = Integer.toHexString(rgbComponents[1]);
-        String blueHex  = Integer.toHexString(rgbComponents[2]);
+        String redHex = Integer.toHexString(rgbComponents[0]);
+        String greenHex = Integer.toHexString(rgbComponents[1]);
+        String blueHex = Integer.toHexString(rgbComponents[2]);
         // 确保十六进制字符串长度为两位
         redHex = padLeft(redHex);
         greenHex = padLeft(greenHex);
@@ -128,7 +132,7 @@ public class BasicsdatumColourLibraryServiceImpl extends ServicePlusImpl<Basicsd
         return "#" + redHex + greenHex + blueHex;
     }
 
-    private  String padLeft(String str) {
+    private String padLeft(String str) {
         StringBuilder sb = new StringBuilder();
         while (sb.length() + str.length() < 2) {
             sb.append('0');
@@ -136,12 +140,13 @@ public class BasicsdatumColourLibraryServiceImpl extends ServicePlusImpl<Basicsd
         sb.append(str);
         return sb.toString();
     }
+
     public static int[] extractRGB(String rgbValue) {
         String[] components = rgbValue.replaceAll("[^\\d,]", "").split(",");
         int red = Integer.parseInt(components[0].trim());
         int green = Integer.parseInt(components[1].trim());
         int blue = Integer.parseInt(components[2].trim());
-        return new int[] { red, green, blue };
+        return new int[]{red, green, blue};
     }
 
     /**
@@ -196,8 +201,8 @@ public class BasicsdatumColourLibraryServiceImpl extends ServicePlusImpl<Basicsd
                 basicsdatumColourLibraryExcelDto.setPicture(attachmentVo.getUrl());
             }
 
-            if(StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColorRgb()) && basicsdatumColourLibraryExcelDto.getColorRgb().indexOf("rgb") ==-1 ){
-                basicsdatumColourLibraryExcelDto.setColorRgb("rgb"+basicsdatumColourLibraryExcelDto.getColorRgb());
+            if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColorRgb()) && basicsdatumColourLibraryExcelDto.getColorRgb().indexOf("rgb") == -1) {
+                basicsdatumColourLibraryExcelDto.setColorRgb("rgb" + basicsdatumColourLibraryExcelDto.getColorRgb());
             }
 
         }
@@ -216,7 +221,7 @@ public class BasicsdatumColourLibraryServiceImpl extends ServicePlusImpl<Basicsd
     @Override
     public void basicsdatumColourLibraryDeriveExcel(HttpServletResponse response) throws Exception {
         QueryWrapper<BasicsdatumColourLibraryExcelDto> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("tbcl.company_code",baseController.getUserCompany());
+        queryWrapper.eq("tbcl.company_code", baseController.getUserCompany());
         List<BasicsdatumColourLibraryExcelDto> list = BeanUtil.copyToList(baseMapper.selectColourLibrary(queryWrapper), BasicsdatumColourLibraryExcelDto.class);
         ExcelUtils.exportExcel(list, BasicsdatumColourLibraryExcelDto.class, "基础资料-颜色库.xlsx", new ExportParams(), response);
 

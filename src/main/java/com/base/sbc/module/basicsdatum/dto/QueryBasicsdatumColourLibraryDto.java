@@ -4,6 +4,8 @@ import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class QueryBasicsdatumColourLibraryDto extends Page {
 
@@ -52,4 +54,9 @@ public class QueryBasicsdatumColourLibraryDto extends Page {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    private String[] createDate;
+
+    /**  创建者名称 */
+    private String createName;
 }

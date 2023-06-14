@@ -6,12 +6,17 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.vo;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Date;
+
 /**
  * 类描述：基础资料-颜色库 Vo类
  * @address com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibrary
@@ -23,7 +28,7 @@ import lombok.EqualsAndHashCode;
 @Data
 
 @ApiModel("基础资料-颜色库 BasicsdatumColourLibrary")
-public class BasicsdatumColourLibraryVo  {
+public class BasicsdatumColourLibraryVo  extends BaseDataEntity<String>{
 
     private String id;
     /** 颜色组id */
@@ -71,4 +76,5 @@ public class BasicsdatumColourLibraryVo  {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
 }
