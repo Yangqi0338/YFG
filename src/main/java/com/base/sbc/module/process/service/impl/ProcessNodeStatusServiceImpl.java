@@ -118,16 +118,15 @@ public class ProcessNodeStatusServiceImpl extends ServicePlusImpl<ProcessNodeSta
      */
     @Override
     @Transactional(readOnly = false)
-    public Boolean batchAddRevamp(List<AddRevampProcessNodeStatusDto> addRevampProcessNodeStatusDto) {
-
-
+    public List<ProcessNodeStatusVo>  batchAddRevamp(List<AddRevampProcessNodeStatusDto> addRevampProcessNodeStatusDto) {
         /*重新给排序下标 添加节点条件流转*/
         for (int i = 0; i < addRevampProcessNodeStatusDto.size(); i++) {
             addRevampProcessNodeStatusDto.get(i).setSort(i+1);
         }
         List<ProcessNodeStatus>  processNodeStatusList = BeanUtil.copyToList(addRevampProcessNodeStatusDto, ProcessNodeStatus.class);
         saveOrUpdateBatch(processNodeStatusList);
-        return true;
+        List<ProcessNodeStatusVo>  processNodeStatusvoList = BeanUtil.copyToList(processNodeStatusList, ProcessNodeStatusVo.class);
+        return processNodeStatusvoList;
     }
 
 

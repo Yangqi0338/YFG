@@ -123,7 +123,7 @@ public class NodeStatusServiceImpl extends ServicePlusImpl<NodeStatusMapper, Nod
         QueryWrapper<NodeStatus> qw = new QueryWrapper<>();
         qw.eq("data_id", dataId);
         qw.isNull("end_date");
-        qw.orderByDesc("start_date");
+        qw.orderByDesc("id");
         PageHelper.startPage(1, 1);
         NodeStatus currentNode = getOne(qw);
         return currentNode;

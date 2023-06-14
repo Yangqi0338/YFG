@@ -33,11 +33,12 @@ import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.UserInfoVo;
-import com.base.sbc.module.fieldManagement.entity.FieldVal;
-import com.base.sbc.module.fieldManagement.service.FieldManagementService;
-import com.base.sbc.module.fieldManagement.service.FieldValService;
-import com.base.sbc.module.fieldManagement.utils.FieldValDataGroupConstant;
-import com.base.sbc.module.fieldManagement.vo.FieldManagementVo;
+import com.base.sbc.module.formType.entity.FieldVal;
+import com.base.sbc.module.formType.service.FieldManagementService;
+import com.base.sbc.module.formType.service.FieldValService;
+import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.formType.utils.FormTypeCodes;
+import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
@@ -477,6 +478,8 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
             sampleDesignService.saveBatch(sampleDesignList);
             //保存图片附件
             List<Attachment> attachments = new ArrayList<>();
+            // 保存维度信息
+            List<FieldVal> fieldVals = new ArrayList<>(16);
             for (SampleDesign sampleDesign : sampleDesignList) {
                 if (StrUtil.isNotEmpty(sampleDesign.getStylePic())) {
                     Attachment a = new Attachment();
@@ -485,10 +488,22 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
                     a.setFId(sampleDesign.getId());
                     a.setFileId(sampleDesign.getStylePic());
                     attachments.add(a);
+                    List<FieldVal> fvList = fieldValService.list(sampleDesign.getPlanningCategoryItemId(), FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION);
+                    if (CollUtil.isNotEmpty(fvList)) {
+                        fvList.forEach(item -> {
+                            item.setId(null);
+                            item.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+                            item.setFId(sampleDesign.getId());
+                        });
+                        fieldVals.addAll(fvList);
+                    }
                 }
             }
             if (CollUtil.isNotEmpty(attachments)) {
                 attachmentService.saveBatch(attachments);
+            }
+            if (CollUtil.isNotEmpty(fieldVals)) {
+                fieldValService.saveBatch(fieldVals);
             }
 
         }
@@ -501,7 +516,7 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         PlanningSeason season = planningSeasonService.getById(seat.getPlanningSeasonId());
         PlanningCategory category = planningCategoryService.getById(seat.getPlanningCategoryId());
         List<String> categoryIds = StrUtil.split(category.getCategoryIds(), CharUtil.COMMA);
-        List<FieldManagementVo> fieldList = fieldManagementService.list("产品季", CollUtil.get(categoryIds, 1), season.getSeason());
+        List<FieldManagementVo> fieldList = fieldManagementService.list(FormTypeCodes.DIMENSION_LABELS, CollUtil.get(categoryIds, 1), season.getSeason());
         List<FieldVal> valueList = fieldValService.list(id, FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION);
         fieldManagementService.conversion(fieldList, valueList);
         return fieldList;

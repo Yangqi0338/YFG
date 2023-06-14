@@ -166,7 +166,10 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         if(processBusinessInstance.getIsComplete().equals(BaseGlobal.STATUS_CLOSE)){
             throw new OtherException("该流程已完成");
         }
-        /*获取当前节点 当前动作下的条件*/
+        /**
+         * 获取当前节点 状态下的条件及动作
+         * //节点下的每个状态下的动作不对重复
+         */
         queryWrapper.clear();
         queryWrapper.eq("nsc.node_id", processBusinessInstance.getAtPresentNodeId());
         queryWrapper.eq("nsc.original_status", processBusinessInstance.getAtPresentStatusName());
@@ -177,6 +180,7 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         if (ObjectUtils.isEmpty(processNodeStatusConditionVo)) {
             throw new OtherException("该状态无此动作");
         }
+
         // 判断规则 -1表示全员
         if (!processNodeStatusConditionVo.getRuleUserId().equals("-1") && !processNodeStatusConditionVo.getRuleUserId().equals(baseController.getUserId())) {
             throw new OtherException("该用户无此操作");
@@ -202,7 +206,6 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         queryWrapper.clear();
         queryWrapper.eq("node_id", processNodeStatusConditionVo.getNodeId());
         queryWrapper.eq("status_name", processNodeStatusConditionVo.getTargetStatus());
-
         ProcessNodeStatus processNodeStatus = processNodeStatusMapper.selectOne(queryWrapper);
         if (ObjectUtils.isEmpty(processNodeStatus)) {
             throw new OtherException("无状态");
@@ -240,7 +243,7 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
             /*查询下一个节点记录*/
             queryWrapper.clear();
             queryWrapper.eq("business_instance_id", processBusinessInstance.getId());
-            queryWrapper.eq("sort", processNodeRecord.getSort() + 1);
+            queryWrapper.eq("sort", processNodeRecord.getSort() + BaseGlobal.ONE);
             ProcessNodeRecord nextNodeRecord = processNodeRecordMapper.selectOne(queryWrapper);
             if (ObjectUtils.isEmpty(nextNodeRecord)) {
                 /*最后一个节点*/

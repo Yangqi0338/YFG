@@ -32,7 +32,7 @@ public interface FormTypeMapper extends BaseMapper<FormType> {
 
     List<PagingFormTypeVo> getFormTypeIsGroup(QueryFormTypeDto queryFormTypeDto);
 
-    List<String> getCoding();
+    List<String> getTableName();
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

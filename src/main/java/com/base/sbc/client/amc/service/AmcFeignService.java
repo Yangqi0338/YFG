@@ -2,6 +2,7 @@ package com.base.sbc.client.amc.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
@@ -11,6 +12,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.TeamVo;
 import com.base.sbc.client.amc.entity.CompanyPost;
+import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
@@ -19,16 +21,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * 类描述： 用户信息
- * @address com.base.sbc.client.amc.service.AmcFeignService
+ *
  * @author lixianglin
+ * @version 1.0
+ * @address com.base.sbc.client.amc.service.AmcFeignService
  * @email li_xianglin@126.com
  * @date 创建时间：2023-04-12 13:17
- * @version 1.0
  */
 @Service
 @Slf4j
@@ -39,74 +43,78 @@ public class AmcFeignService {
 
     /**
      * 获取用户头像
+     *
      * @param ids
      * @return
      */
-    public Map<String,String> getUserAvatar(String ids){
-        Map<String,String> userAvatarMap=new HashMap<>(16);
+    public Map<String, String> getUserAvatar(String ids) {
+        Map<String, String> userAvatarMap = new HashMap<>(16);
         String userAvatarStr = amcService.getUserAvatar(ids);
         JSONObject jsonObject = JSON.parseObject(userAvatarStr);
-        if(jsonObject.getBoolean(BaseConstant.SUCCESS)){
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
             JSONArray data = jsonObject.getJSONArray(BaseConstant.DATA);
             List<UserCompany> userCompanies = data.toJavaList(UserCompany.class);
-            if(CollUtil.isNotEmpty(userCompanies)){
+            if (CollUtil.isNotEmpty(userCompanies)) {
                 for (UserCompany userCompany : userCompanies) {
-                    userAvatarMap.put(userCompany.getId(),userCompany.getAvatar());
+                    userAvatarMap.put(userCompany.getUserId(), Opt.ofBlankAble(userCompany.getAvatar()).orElse(userCompany.getAliasUserAvatar()));
                 }
             }
         }
         return userAvatarMap;
     }
 
-    public UserCompany getUserInfo(String userId){
+    public UserCompany getUserInfo(String userId) {
         String responseStr = amcService.getCompanyUserInfoByUserIds(userId);
         JSONObject jsonObject = JSON.parseObject(responseStr);
-        if(jsonObject.getBoolean(BaseConstant.SUCCESS)){
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
             JSONArray data = jsonObject.getJSONArray(BaseConstant.DATA);
             List<UserCompany> userCompanies = data.toJavaList(UserCompany.class);
-            if(CollUtil.isNotEmpty(userCompanies)){
-                 return CollUtil.getLast(userCompanies);
+            if (CollUtil.isNotEmpty(userCompanies)) {
+                return CollUtil.getLast(userCompanies);
             }
         }
         return null;
     }
+
     /**
      * 获取团队信息
+     *
      * @param seasonId 产品季节id
      * @return
      */
-    public List<TeamVo> getTeamBySeasonId(String seasonId){
+    public List<TeamVo> getTeamBySeasonId(String seasonId) {
         try {
             String str = amcService.getTeamBySeasonId(seasonId);
             JSONObject jsonObject = JSON.parseObject(str);
-            if(jsonObject.getBoolean("success")){
-              return  jsonObject.getJSONArray("data").toJavaList(TeamVo.class);
+            if (jsonObject.getBoolean("success")) {
+                return jsonObject.getJSONArray("data").toJavaList(TeamVo.class);
             }
         } catch (Exception e) {
-            log.error("获取产品季团队异常",e);
+            log.error("获取产品季团队异常", e);
         }
         return null;
     }
 
     /**
      * 添加头像
+     *
      * @param arr
      * @param userIdKey
      * @param avatarKey
      */
-    public void addUserAvatarToList(List arr,String userIdKey,String avatarKey){
+    public void addUserAvatarToList(List arr, String userIdKey, String avatarKey) {
         try {
-            if(CollUtil.isEmpty(arr)){
+            if (CollUtil.isEmpty(arr)) {
                 return;
             }
-            Set<String> userIds=new HashSet<>(arr.size());
+            Set<String> userIds = new HashSet<>(arr.size());
             for (Object o : arr) {
                 Object property = BeanUtil.getProperty(o, userIdKey);
-                if(ObjUtil.isNotNull(property)){
+                if (ObjUtil.isNotNull(property)) {
                     userIds.add(property.toString());
                 }
             }
-            if(CollUtil.isEmpty(userIds)){
+            if (CollUtil.isEmpty(userIds)) {
                 return;
             }
             Map<String, String> userAvatar = getUserAvatar(CollUtil.join(userIds, StrUtil.COMMA));
@@ -173,5 +181,66 @@ public class AmcFeignService {
             throw new OtherException("您不在团队里面");
         }
         qw.in(column, planningSeasonIdByUserId);
+    }
+
+    /**
+     * 设置头像
+     * 1先获取有UserAvatar注解的字段，拿到用户id属性，头像属性
+     * 2 去amc 查
+     * 3 设置头像
+     *
+     * @param obj
+     */
+    public void setUserAvatarToObj(Object obj) {
+        try {
+            Map<String, String> avatarUserIdKey = new HashMap<>(16);
+            Field[] fields = obj.getClass().getDeclaredFields();
+            // 遍历字段
+            for (Field field : fields) {
+                // 检查字段上是否存在UserAvatar的注解
+                if (field.isAnnotationPresent(UserAvatar.class)) {
+                    // 获取字段上的注解对象
+                    UserAvatar annotation = field.getAnnotation(UserAvatar.class);
+                    avatarUserIdKey.put(field.getName(), annotation.value());
+                }
+            }
+            setUserAvatarToObj(obj, avatarUserIdKey);
+        } catch (Exception e) {
+            log.error("获取头像失败", e);
+        }
+    }
+
+
+    /**
+     * 设置头像
+     *
+     * @param obj
+     * @param avatarUserIdKey key 用户id 属性 ,val 头像属性
+     */
+    public void setUserAvatarToObj(Object obj, Map<String, String> avatarUserIdKey) {
+        try {
+            if (MapUtil.isEmpty(avatarUserIdKey)) {
+                return;
+            }
+            List<String> userIds = new ArrayList<>(16);
+            //获取用户id
+            for (String s : avatarUserIdKey.values()) {
+                String userId = BeanUtil.getProperty(obj, s);
+                if (StrUtil.isNotBlank(userId)) {
+                    userIds.add(userId);
+                }
+            }
+            if (CollUtil.isEmpty(userIds)) {
+                return;
+            }
+            // 查询头像
+            Map<String, String> userAvatar = getUserAvatar(CollUtil.join(userIds, StrUtil.COMMA));
+            // 设置头像值
+            for (Map.Entry<String, String> kv : avatarUserIdKey.entrySet()) {
+                BeanUtil.setProperty(obj, kv.getKey(), userAvatar.get(BeanUtil.getProperty(obj, kv.getValue())));
+            }
+        } catch (Exception e) {
+            log.error("获取头像失败", e);
+        }
     }
 }

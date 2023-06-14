@@ -1,5 +1,6 @@
 package com.base.sbc.module.patternmaking.vo;
 
+import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
@@ -24,7 +25,12 @@ import java.util.Map;
 @ApiModel("打版管理Vo PatternMakingVo")
 public class PatternMakingVo extends PatternMaking {
 
-
+    @ApiModelProperty(value = "裁剪工头像")
+    @UserAvatar("cutterId")
+    private String cutterAvatar;
+    @ApiModelProperty(value = "车缝工头像")
+    @UserAvatar("stitcherId")
+    private String stitcherAvatar;
     @ApiModelProperty(value = "纸样文件")
     private List<AttachmentVo> attachmentList;
 

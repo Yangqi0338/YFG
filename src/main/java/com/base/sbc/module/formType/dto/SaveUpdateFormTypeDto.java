@@ -12,6 +12,10 @@ public class SaveUpdateFormTypeDto {
     @ApiModelProperty(name = "编号id", value = "编号:为空时新增、不为空时修改",  required = false, example = "")
     private String id;
 
+    @ApiModelProperty(value = "编码",  required = true, example = "编码")
+    @NotBlank(message = "编码必填")
+    private String code;
+
     @ApiModelProperty(value = "数据库表名",  required = true, example = "名称")
     @NotBlank(message = "数据库表名必填")
     private String name;
@@ -20,9 +24,9 @@ public class SaveUpdateFormTypeDto {
     @NotBlank(message = "分组必填")
     private String groupId;
 
-    @ApiModelProperty(value = "编码",  required = true, example = "编码")
+    @ApiModelProperty(value = "数据库名称",  required = true, example = "数据库名称")
 //    @NotBlank(message = "编码必填")
-    private String coding;
+    private String tableName;
 
     @ApiModelProperty(value = "表说明",  required = true, example = "表说明")
     private String tableExplain;
