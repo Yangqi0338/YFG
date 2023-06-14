@@ -9,7 +9,9 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.io.FileUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.minio.MinioUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumRangeDifferenceMapper;
@@ -42,13 +44,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/** 
+/**
  * 类描述：基础资料-档差 service类
  * @address com.base.sbc.module.basicsdatum.service.BasicsdatumRangeDifferenceService
  * @author mengfanjiang
  * @email 2915350015@qq.com
  * @date 创建时间：2023-5-18 19:42:16
- * @version 1.0  
+ * @version 1.0
  */
 @Service
 public class BasicsdatumRangeDifferenceServiceImpl extends ServicePlusImpl<BasicsdatumRangeDifferenceMapper, BasicsdatumRangeDifference> implements BasicsdatumRangeDifferenceService {
@@ -111,7 +113,11 @@ public class BasicsdatumRangeDifferenceServiceImpl extends ServicePlusImpl<Basic
                }
            }
            List<BasicsdatumRangeDifference> basicsdatumRangeDifferenceList = BeanUtil.copyToList(list, BasicsdatumRangeDifference.class);
-           saveOrUpdateBatch(basicsdatumRangeDifferenceList);
+           for (BasicsdatumRangeDifference basicsdatumRangeDifference : basicsdatumRangeDifferenceList) {
+               QueryWrapper<BasicsdatumRangeDifference> queryWrapper =new BaseQueryWrapper<>();
+               queryWrapper.eq("range_difference",basicsdatumRangeDifference.getRangeDifference());
+               this.saveOrUpdate(basicsdatumRangeDifference,queryWrapper);
+           }
            return true;
        }
 

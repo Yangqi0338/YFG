@@ -15,6 +15,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -149,7 +150,12 @@ public class BasicsdatumMeasurementServiceImpl extends ServicePlusImpl<Basicsdat
             }
         }
         List<BasicsdatumMeasurement> basicsdatumMeasurementList = BeanUtil.copyToList(list, BasicsdatumMeasurement.class);
-        saveOrUpdateBatch(basicsdatumMeasurementList);
+        for (BasicsdatumMeasurement basicsdatumMeasurement : basicsdatumMeasurementList) {
+            QueryWrapper<BasicsdatumMeasurement> queryWrapper =new BaseQueryWrapper<>();
+            queryWrapper.eq("id",basicsdatumMeasurement.getId());
+            this.saveOrUpdate(basicsdatumMeasurement,queryWrapper);
+        }
+
         return true;
     }
 

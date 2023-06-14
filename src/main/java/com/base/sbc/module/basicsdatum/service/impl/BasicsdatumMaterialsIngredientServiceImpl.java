@@ -12,6 +12,7 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -60,16 +61,11 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends ServicePlusImpl<B
         public PageInfo<BasicsdatumMaterialsIngredientVo> getBasicsdatumMaterialsIngredientList(BasicsdatumMaterialsIngredientDto queryDto) {
             /*分页*/
             PageHelper.startPage(queryDto);
-            QueryWrapper<BasicsdatumMaterialsIngredient> queryWrapper = new QueryWrapper<>();
+            BaseQueryWrapper<BasicsdatumMaterialsIngredient> queryWrapper = new BaseQueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
-            queryWrapper.like(StringUtils.isNotEmpty(queryDto.getMaterial()),"material",queryDto.getMaterial());
+            queryWrapper.notEmptyLike("material",queryDto.getMaterial());
             queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getCreateName()),"create_name",queryDto.getCreateName());
-            if (queryDto.getCreateDate()!=null && queryDto.getCreateDate().length>0){
-                queryWrapper.ge(StringUtils.isNotEmpty(queryDto.getCreateDate()[0]),"create_date",queryDto.getCreateDate()[0]);
-                if (queryDto.getCreateDate().length>1){
-                    queryWrapper.and(i->i.le(StringUtils.isNotEmpty(queryDto.getCreateDate()[1]),"create_date",queryDto.getCreateDate()[1]));
-                }
-            }
+            queryWrapper.between("create_date",queryDto.getCreateDate());
             queryWrapper.orderByDesc("create_date");
 
             /*查询基础资料-材料成分数据*/

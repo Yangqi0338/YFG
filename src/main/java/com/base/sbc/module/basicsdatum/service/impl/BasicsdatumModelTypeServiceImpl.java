@@ -36,6 +36,7 @@ import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -109,6 +110,7 @@ public class BasicsdatumModelTypeServiceImpl extends ServicePlusImpl<Basicsdatum
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean basicsdatumModelTypeImportExcel(MultipartFile file) throws Exception {
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
@@ -125,10 +127,14 @@ public class BasicsdatumModelTypeServiceImpl extends ServicePlusImpl<Basicsdatum
                     basicsdatumModelTypeExcelDto.setSizeLabelId(sizeLabelId);
                 }
             }
-
         }
         List<BasicsdatumModelType> basicsdatumModelTypeList = BeanUtil.copyToList(list, BasicsdatumModelType.class);
-        saveOrUpdateBatch(basicsdatumModelTypeList);
+
+        for (BasicsdatumModelType basicsdatumModelType : basicsdatumModelTypeList) {
+            QueryWrapper<BasicsdatumModelType> queryWrapper =new BaseQueryWrapper<>();
+            queryWrapper.eq("coding",basicsdatumModelType.getCoding());
+            this.saveOrUpdate(basicsdatumModelType,queryWrapper);
+        }
         return true;
     }
 

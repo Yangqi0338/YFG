@@ -12,6 +12,7 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -20,6 +21,7 @@ import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumLavationReminderMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumLavationReminderService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo;
@@ -114,7 +116,11 @@ public class BasicsdatumLavationReminderServiceImpl extends ServicePlusImpl<Basi
            }
 
             List<BasicsdatumLavationReminder> basicsdatumLavationReminderList = BeanUtil.copyToList(list, BasicsdatumLavationReminder.class);
-           saveOrUpdateBatch( basicsdatumLavationReminderList);
+           for (BasicsdatumLavationReminder basicsdatumLavationReminder : basicsdatumLavationReminderList) {
+               QueryWrapper<BasicsdatumLavationReminder> queryWrapper =new BaseQueryWrapper<>();
+               queryWrapper.eq("category",basicsdatumLavationReminder.getCategory());
+               this.saveOrUpdate(basicsdatumLavationReminder,queryWrapper);
+           }
             return true;
        }
 
