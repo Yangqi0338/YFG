@@ -42,6 +42,9 @@ public class BasicsdatumSize extends BaseDataEntity<String> {
     /** 号型 */
     @ApiModelProperty(value = "号型"  )
     private String model;
+    /** 号型类型 */
+    @ApiModelProperty(value = "号型类型"  )
+    private String modelType;
     /** Internal Size */
     @ApiModelProperty(value = "Internal Size"  )
     private String internalSize;
