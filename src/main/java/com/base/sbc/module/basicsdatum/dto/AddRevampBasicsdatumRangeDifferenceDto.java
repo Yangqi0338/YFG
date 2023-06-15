@@ -32,6 +32,12 @@ public class AddRevampBasicsdatumRangeDifferenceDto  {
     /** 测量点 */
     @ApiModelProperty(value = "测量点"  )
     private String measurement;
+    /** 测量数据集合 */
+    @ApiModelProperty(value = "测量数据集合"  )
+    private String positionData;
+    /** 测量部位id集合 */
+    @ApiModelProperty(value = "测量部位id集合"  )
+    private String measurementIds;
     /** 号型类型 */
     @ApiModelProperty(value = "号型类型"  )
     private String modelType;

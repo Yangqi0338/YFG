@@ -38,6 +38,12 @@ public class BasicsdatumRangeDifferenceVo  {
     /** 尺码 */
     @ApiModelProperty(value = "尺码"  )
     private String size;
+    /** 测量数据集合 */
+    @ApiModelProperty(value = "测量数据集合"  )
+    private String positionData;
+    /** 测量部位id集合 */
+    @ApiModelProperty(value = "测量部位id集合"  )
+    private String measurementIds;
     /** 基础尺码 */
     @ApiModelProperty(value = "基础尺码"  )
     private String basicsSize;
