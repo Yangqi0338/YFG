@@ -398,7 +398,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         List<AttachmentVo> attachmentVoList = attachmentService.findByFId(vo.getId(), AttachmentTypeConstant.PATTERN_MAKING_PATTERN);
         vo.setAttachmentList(attachmentVoList);
         // 设置状态
-        nodeStatusService.set(vo, "nodeStatusList", "nodeStatus");
+        nodeStatusService.setNodeStatusToBean(vo, "nodeStatusList", "nodeStatus");
         return result;
     }
 
@@ -409,7 +409,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     }
 
     @Override
-    public PageInfo patternMakingSteps(PatternMakingStepSearchDto dto) {
+    public PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto) {
         // 查询样衣信息
         QueryWrapper<SampleDesign> sdQw = new QueryWrapper<>();
         sdQw.like(StrUtil.isNotBlank(dto.getSearch()), "design_no", dto.getSearch());
@@ -478,6 +478,21 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
             nodeStatusChange(dto);
         }
         return true;
+    }
+
+    @Override
+    public PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto) {
+        QueryWrapper qw = new QueryWrapper();
+        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
+        qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
+        qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
+        qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
+        qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
+        Page<SampleBoardVo> objects = PageHelper.startPage(dto);
+        List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
+        // 设置节点状态数据
+        nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
+        return objects.toPageInfo();
     }
 
 

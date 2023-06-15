@@ -59,7 +59,7 @@ public interface NodeStatusService extends IServicePlus<NodeStatus>{
      * @param listKey 集合key
      * @param mapKey  mapkey
      */
-    void set(Object obj, String listKey, String mapKey);
+    void setNodeStatusToBean(Object obj, String listKey, String mapKey);
 
     /**
      * 节点状态改版 批量
@@ -67,6 +67,16 @@ public interface NodeStatusService extends IServicePlus<NodeStatus>{
      * @param list
      */
     void nodeStatusChangeBatch(List<NodeStatusChangeDto> list);
+
+    /**
+     * 设置节点状态到list
+     *
+     * @param list
+     * @param dataIdKey
+     * @param listKey
+     * @param mapKey
+     */
+    void setNodeStatusToListBean(List list, String dataIdKey, String listKey, String mapKey);
 
 
 // 自定义方法区 不替换的区域【other_end】

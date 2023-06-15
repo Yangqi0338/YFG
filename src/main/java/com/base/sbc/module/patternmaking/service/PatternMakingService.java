@@ -9,10 +9,7 @@ package com.base.sbc.module.patternmaking.service;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
-import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
-import com.base.sbc.module.patternmaking.vo.SampleDesignPmDetailVo;
+import com.base.sbc.module.patternmaking.vo.*;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -29,10 +26,7 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
-    /**
-     * 初版样(头版样)值
-     */
-    String firstSampleType="初版样";
+
 
     /**
      * 通过样衣设计id 查找
@@ -194,7 +188,7 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      * @date 创建时间：2023-06-12 11:37
      * @version 1.0
      */
-    PageInfo patternMakingSteps(PatternMakingStepSearchDto dto);
+    PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto);
 
     /**
      * 状态改版批量
@@ -203,6 +197,8 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      * @return
      */
     boolean nodeStatusChange(List<NodeStatusChangeDto> list);
+
+    PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

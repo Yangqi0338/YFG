@@ -10,13 +10,13 @@ import lombok.Data;
  *
  * @author lixianglin
  * @version 1.0
- * @address com.base.sbc.module.patternmaking.dto.PatternMakingStepSearchDto
+ * @address com.base.sbc.module.patternmaking.dto.PatternMakingCommonPageSearchDto
  * @email li_xianglin@126.com
  * @date 创建时间：2023-06-12 11:26
  */
 @Data
-@ApiModel("打版-样衣进度列表搜索条件Dto PatternMakingStepSearchDto ")
-public class PatternMakingStepSearchDto extends Page {
+@ApiModel("打版管理通用分页筛选类Dto PatternMakingCommonPageSearchDto ")
+public class PatternMakingCommonPageSearchDto extends Page {
     @ApiModelProperty(value = "关键字筛选", example = "1")
     private String search;
     @ApiModelProperty(value = "年份", example = "2022")
@@ -32,4 +32,7 @@ public class PatternMakingStepSearchDto extends Page {
 
     @ApiModelProperty(value = "设计师id", example = "1223333122223333333")
     private String designerId;
+
+    @ApiModelProperty(value = "版师id", example = "1223333122223333333")
+    private String patternDesignId;
 }

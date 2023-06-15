@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.PatternDesignSampleTypeQtyVo;
 import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
+import com.base.sbc.module.patternmaking.vo.SampleBoardVo;
 import com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -37,6 +38,8 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
     List<PatternDesignSampleTypeQtyVo> getPatternDesignSampleTypeCount(@Param(Constants.WRAPPER) QueryWrapper pmQw);
 
     List<PatternMakingTaskListVo> patternMakingTaskList(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    List<SampleBoardVo> sampleBoardList(@Param(Constants.WRAPPER) QueryWrapper qw);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/
