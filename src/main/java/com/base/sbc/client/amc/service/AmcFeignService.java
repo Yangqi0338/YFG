@@ -193,17 +193,7 @@ public class AmcFeignService {
      */
     public void setUserAvatarToObj(Object obj) {
         try {
-            Map<String, String> avatarUserIdKey = new HashMap<>(16);
-            Field[] fields = obj.getClass().getDeclaredFields();
-            // 遍历字段
-            for (Field field : fields) {
-                // 检查字段上是否存在UserAvatar的注解
-                if (field.isAnnotationPresent(UserAvatar.class)) {
-                    // 获取字段上的注解对象
-                    UserAvatar annotation = field.getAnnotation(UserAvatar.class);
-                    avatarUserIdKey.put(field.getName(), annotation.value());
-                }
-            }
+            Map<String, String> avatarUserIdKey = getUserAvatarMap(obj);
             setUserAvatarToObj(obj, avatarUserIdKey);
         } catch (Exception e) {
             log.error("获取头像失败", e);
@@ -242,5 +232,58 @@ public class AmcFeignService {
         } catch (Exception e) {
             log.error("获取头像失败", e);
         }
+    }
+
+    public void setUserAvatarToList(List list, Map<String, String> avatarUserIdKey) {
+        // 获取id
+        if (MapUtil.isEmpty(avatarUserIdKey)) {
+            return;
+        }
+        List<String> userIds = new ArrayList<>(16);
+        //获取用户id
+        for (Object obj : list) {
+            for (String s : avatarUserIdKey.values()) {
+                String userId = BeanUtil.getProperty(obj, s);
+                if (StrUtil.isNotBlank(userId)) {
+                    userIds.add(userId);
+                }
+            }
+
+        }
+        if (CollUtil.isEmpty(userIds)) {
+            return;
+        }
+        // 查询头像
+        Map<String, String> userAvatar = getUserAvatar(CollUtil.join(userIds, StrUtil.COMMA));
+        for (Object obj : list) {
+            for (Map.Entry<String, String> kv : avatarUserIdKey.entrySet()) {
+                BeanUtil.setProperty(obj, kv.getKey(), userAvatar.get(BeanUtil.getProperty(obj, kv.getValue())));
+            }
+        }
+    }
+
+    public void setUserAvatarToList(List list) {
+        if (CollUtil.isEmpty(list)) {
+            return;
+        }
+        Object obj = list.get(0);
+        Map<String, String> avatarUserIdKey = getUserAvatarMap(obj);
+        setUserAvatarToList(list, avatarUserIdKey);
+    }
+
+
+    private static Map<String, String> getUserAvatarMap(Object obj) {
+        Map<String, String> avatarUserIdKey = new HashMap<>(16);
+        Field[] fields = obj.getClass().getDeclaredFields();
+        // 遍历字段
+        for (Field field : fields) {
+            // 检查字段上是否存在UserAvatar的注解
+            if (field.isAnnotationPresent(UserAvatar.class)) {
+                // 获取字段上的注解对象
+                UserAvatar annotation = field.getAnnotation(UserAvatar.class);
+                avatarUserIdKey.put(field.getName(), annotation.value());
+            }
+        }
+        return avatarUserIdKey;
     }
 }

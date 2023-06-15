@@ -8,11 +8,13 @@ package com.base.sbc.module.patternmaking.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.*;
+import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -202,6 +204,12 @@ public class PatternMakingController {
     @GetMapping("/receiveSample")
     public boolean receiveSample(@Valid @NotBlank(message = "id不能为空") String id) {
         return patternMakingService.receiveSample(id);
+    }
+
+    @ApiOperation(value = "版师列表", notes = "")
+    @GetMapping("/getAllPatternDesignList")
+    public List<SampleUserVo> getAllPatternDesignList(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode) {
+        return patternMakingService.getAllPatternDesignList(companyCode);
     }
 }
 

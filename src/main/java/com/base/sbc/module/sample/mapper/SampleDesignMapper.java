@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.vo.SampleDesignPageVo;
+import com.base.sbc.module.sample.vo.SampleUserVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -32,6 +33,8 @@ public interface SampleDesignMapper extends BaseMapper<SampleDesign> {
      **/
 
     List<SampleDesignPageVo> selectByQw(@Param(Constants.WRAPPER) QueryWrapper<SampleDesign> wrapper);
+
+    List<SampleUserVo> getDesignerList(@Param("companyCode") String companyCode);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

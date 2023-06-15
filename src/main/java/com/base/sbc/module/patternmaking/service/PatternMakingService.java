@@ -10,6 +10,7 @@ import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.*;
+import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -207,6 +208,14 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      * @return
      */
     boolean receiveSample(String id);
+
+    /**
+     * 获取所有版师列表
+     *
+     * @param companyCode
+     * @return
+     */
+    List<SampleUserVo> getAllPatternDesignList(String companyCode);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

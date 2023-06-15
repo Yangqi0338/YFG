@@ -35,6 +35,7 @@ import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.base.sbc.module.sample.vo.SampleDesignVo;
+import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -504,6 +505,13 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         uw.set("receive_sample", BaseGlobal.YES);
         uw.set("receive_sample_date", new Date());
         return update(uw);
+    }
+
+    @Override
+    public List<SampleUserVo> getAllPatternDesignList(String companyCode) {
+        List<SampleUserVo> list = getBaseMapper().getAllPatternDesignList(companyCode);
+        amcFeignService.setUserAvatarToList(list);
+        return list;
     }
 
 

@@ -8,6 +8,7 @@ package com.base.sbc.module.sample.controller;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.sample.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.sample.dto.SampleDesignPageDto;
@@ -17,6 +18,7 @@ import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.base.sbc.module.sample.vo.DesignDocTreeVo;
 import com.base.sbc.module.sample.vo.SampleDesignVo;
+import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -108,6 +110,12 @@ public class SampleDesignController {
     @GetMapping("/queryDimensionLabelsBySdId")
     public List<FieldManagementVo> queryDimensionLabelsBySdId(String id) {
         return sampleDesignService.queryDimensionLabelsBySdId(id);
+    }
+
+    @ApiOperation(value = "设计师列表", notes = "")
+    @GetMapping("/getDesignerList")
+    public List<SampleUserVo> getDesignerList(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode) {
+        return sampleDesignService.getDesignerList(companyCode);
     }
 }
 

@@ -39,10 +39,7 @@ import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.mapper.SampleDesignMapper;
 import com.base.sbc.module.sample.service.SampleDesignService;
-import com.base.sbc.module.sample.vo.DesignDocTreeVo;
-import com.base.sbc.module.sample.vo.MaterialVo;
-import com.base.sbc.module.sample.vo.SampleDesignPageVo;
-import com.base.sbc.module.sample.vo.SampleDesignVo;
+import com.base.sbc.module.sample.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -408,6 +405,13 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         dto.setSeason(sampleDesign.getSeason());
         dto.setCategoryId(CollUtil.get(StrUtil.split(sampleDesign.getCategoryIds(), StrUtil.COMMA), 1));
         return queryDimensionLabels(dto);
+    }
+
+    @Override
+    public List<SampleUserVo> getDesignerList(String companyCode) {
+        List<SampleUserVo> list = getBaseMapper().getDesignerList(companyCode);
+        amcFeignService.setUserAvatarToList(list);
+        return list;
     }
 
     private List<DesignDocTreeVo> queryCategory(DesignDocTreeVo designDocTreeVo, int categoryIdx) {

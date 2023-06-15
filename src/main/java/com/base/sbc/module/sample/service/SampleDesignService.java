@@ -16,6 +16,7 @@ import com.base.sbc.module.sample.dto.SendSampleMakingDto;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.vo.DesignDocTreeVo;
 import com.base.sbc.module.sample.vo.SampleDesignVo;
+import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -108,6 +109,9 @@ public interface SampleDesignService extends IServicePlus<SampleDesign> {
      * @return
      */
     List<FieldManagementVo> queryDimensionLabelsBySdId(String id);
+
+    List<SampleUserVo> getDesignerList(String companyCode);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 
