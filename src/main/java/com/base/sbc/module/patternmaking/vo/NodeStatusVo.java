@@ -25,12 +25,12 @@ public class NodeStatusVo {
      * 开始时间
      */
     @ApiModelProperty(value = "开始时间")
-    @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date startDate;
     /**
      * 结束时间
      */
     @ApiModelProperty(value = "结束时间")
-    @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date endDate;
 }

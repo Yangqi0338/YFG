@@ -142,8 +142,17 @@ public class SampleBoardVo {
     @ApiModelProperty(value = "二次加工(0否，1是)")
     private String secondProcessing;
 
+    @ApiModelProperty(value = "确认收到样衣时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date receiveSampleDate;
+    /**
+     * 确认收到样衣(0否,1是)
+     */
+    @ApiModelProperty(value = "确认收到样衣(0否,1是)")
+    private String receiveSample;
     @ApiModelProperty(value = "节点状态")
     private Map<String, NodeStatusVo> nodeStatus;
+
 
     public String getId() {
         return IdUtil.fastSimpleUUID();

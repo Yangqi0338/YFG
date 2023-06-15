@@ -197,6 +197,12 @@ public class PatternMakingController {
     public PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto) {
         return patternMakingService.sampleBoardList(dto);
     }
+
+    @ApiOperation(value = "确认收到样衣", notes = "")
+    @GetMapping("/receiveSample")
+    public boolean receiveSample(@Valid @NotBlank(message = "id不能为空") String id) {
+        return patternMakingService.receiveSample(id);
+    }
 }
 
 

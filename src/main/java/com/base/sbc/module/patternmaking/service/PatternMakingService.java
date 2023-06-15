@@ -200,6 +200,14 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
 
     PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto);
 
+    /**
+     * 确认收到样衣
+     *
+     * @param id 打版id
+     * @return
+     */
+    boolean receiveSample(String id);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

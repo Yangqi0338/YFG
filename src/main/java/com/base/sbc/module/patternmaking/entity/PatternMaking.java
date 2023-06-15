@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-5 19:42:22
+ * @date 创建时间：2023-6-15 17:34:38
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -36,13 +36,17 @@ public class PatternMaking extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
-	/**********************************实体存放的其他字段区 【other_end】******************************************/
+    /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 打版编码 */
-    @ApiModelProperty(value = "打版编码"  )
+    /**
+     * 打版编码
+     */
+    @ApiModelProperty(value = "打版编码")
     private String code;
-    /** 产品季节id */
+    /**
+     * 产品季节id
+     */
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
     /**
@@ -250,6 +254,17 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "挂起备注")
     private String suspendRemarks;
+    /**
+     * 确认收到样衣时间
+     */
+    @ApiModelProperty(value = "确认收到样衣时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date receiveSampleDate;
+    /**
+     * 确认收到样衣(0否,1是)
+     */
+    @ApiModelProperty(value = "确认收到样衣(0否,1是)")
+    private String receiveSample;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

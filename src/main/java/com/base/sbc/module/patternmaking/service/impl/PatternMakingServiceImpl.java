@@ -487,6 +487,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
+        qw.in(StrUtil.isNotBlank(dto.getBandCode()), "s.band_code", StrUtil.split(dto.getBandCode(), StrUtil.COMMA));
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
         Page<SampleBoardVo> objects = PageHelper.startPage(dto);
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
@@ -494,6 +495,15 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         return objects.toPageInfo();
+    }
+
+    @Override
+    public boolean receiveSample(String id) {
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.in("id", StrUtil.split(id, StrUtil.COMMA));
+        uw.set("receive_sample", BaseGlobal.YES);
+        uw.set("receive_sample_date", new Date());
+        return update(uw);
     }
 
 
