@@ -72,6 +72,7 @@
         s.band_code,
         s.style_name,
         p.code,
+        p.sample_type,
         p.design_send_date,
         p.prm_send_date,
         p.prm_send_status,
@@ -102,6 +103,21 @@
         </if>
 
 
+    </select>
+    <select id="sampleBoardList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardVo">
+        SELECT
+        p.id AS patternMakingId,
+        s.*,
+        p.*
+        FROM
+        t_sample_design s
+        LEFT JOIN t_pattern_making p ON ( s.id = p.sample_design_id )
+        where
+        p.del_flag &lt;&gt; '1'
+        and s.del_flag &lt;&gt; '1'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
     </select>
 </mapper>
 

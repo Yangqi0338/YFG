@@ -73,6 +73,10 @@ public class PatternMakingTaskListVo {
      */
     @ApiModelProperty(value = "中断打版(0正常，1中断)")
     private String breakOffPattern;
-
+    /**
+     * 打版类型
+     */
+    @ApiModelProperty(value = "打版类型")
+    private String sampleType;
     private List<NodeStatusVo> nodeStatusList;
 }

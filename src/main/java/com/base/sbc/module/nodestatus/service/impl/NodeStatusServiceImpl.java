@@ -20,10 +20,12 @@ import com.base.sbc.module.nodestatus.dto.NodeStatusChangeDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.mapper.NodeStatusMapper;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
+import com.base.sbc.module.patternmaking.vo.NodeStatusVo;
 import com.github.pagehelper.PageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -130,7 +132,7 @@ public class NodeStatusServiceImpl extends ServicePlusImpl<NodeStatusMapper, Nod
     }
 
     @Override
-    public void set(Object obj, String listKey, String mapKey) {
+    public void setNodeStatusToBean(Object obj, String listKey, String mapKey) {
         try {
             String id = BeanUtil.getProperty(obj, "id");
             if (StrUtil.isBlank(id)) {
@@ -165,6 +167,48 @@ public class NodeStatusServiceImpl extends ServicePlusImpl<NodeStatusMapper, Nod
         for (NodeStatusChangeDto dto : list) {
             nodeStatusChange(dto.getDataId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
         }
+    }
+
+    @Override
+    public void setNodeStatusToListBean(List list, String dataIdKey, String listKey, String mapKey) {
+        if (CollUtil.isEmpty(list)) {
+            return;
+        }
+        if (StrUtil.isAllBlank(listKey, mapKey)) {
+            return;
+        }
+        // 获取dataId
+        List<String> dataIds = new ArrayList<>(16);
+        for (Object vo : list) {
+            String dataId = BeanUtil.getProperty(vo, dataIdKey);
+            if (StrUtil.isBlank(dataId)) {
+                continue;
+            }
+            dataIds.add(dataId);
+        }
+        //查询节点状态数据
+        QueryWrapper<NodeStatus> qw = new QueryWrapper<>();
+        qw.in("data_id", dataIds);
+        List<NodeStatus> nodeStatusList = list(qw);
+        if (CollUtil.isEmpty(nodeStatusList)) {
+            return;
+        }
+        List<NodeStatusVo> nodeStatusVos = BeanUtil.copyToList(nodeStatusList, NodeStatusVo.class);
+        Map<String, List<NodeStatusVo>> nsMap = nodeStatusVos.stream().collect(Collectors.groupingBy(NodeStatusVo::getDataId));
+        for (Object vo : list) {
+            List<NodeStatusVo> pmNsList = nsMap.get(BeanUtil.getProperty(vo, dataIdKey));
+            if (CollUtil.isEmpty(pmNsList)) {
+                continue;
+            }
+            Map<String, NodeStatusVo> pmNsMap = pmNsList.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> b));
+            if (StrUtil.isBlank(listKey)) {
+                BeanUtil.setProperty(vo, listKey, pmNsList);
+            }
+            if (StrUtil.isBlank(mapKey)) {
+                BeanUtil.setProperty(vo, mapKey, pmNsMap);
+            }
+        }
+
     }
 
 // 自定义方法区 不替换的区域【other_end】

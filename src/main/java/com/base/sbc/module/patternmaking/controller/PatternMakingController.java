@@ -12,10 +12,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
-import com.base.sbc.module.patternmaking.vo.PatternDesignVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
-import com.base.sbc.module.patternmaking.vo.SampleDesignPmDetailVo;
+import com.base.sbc.module.patternmaking.vo.*;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -191,8 +188,14 @@ public class PatternMakingController {
 
     @ApiOperation(value = "打版进度列表", notes = "")
     @GetMapping("/patternMakingSteps")
-    public PageInfo patternMakingSteps(PatternMakingStepSearchDto dto) {
+    public PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto) {
         return patternMakingService.patternMakingSteps(dto);
+    }
+
+    @ApiOperation(value = "样衣看板列表", notes = "")
+    @GetMapping("/sampleBoardList")
+    public PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto) {
+        return patternMakingService.sampleBoardList(dto);
     }
 }
 
