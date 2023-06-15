@@ -490,6 +490,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
         Page<SampleBoardVo> objects = PageHelper.startPage(dto);
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
+        attachmentService.setListStylePic(list, "stylePic");
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         return objects.toPageInfo();

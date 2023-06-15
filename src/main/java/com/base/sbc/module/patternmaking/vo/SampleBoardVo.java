@@ -28,11 +28,12 @@ public class SampleBoardVo {
     private String patternMakingId;
     @ApiModelProperty(value = "样衣设计id")
     private String sampleDesignId;
+
+    @ApiModelProperty(value = "款图")
+    private String stylePic;
     @ApiModelProperty(value = "品牌")
     private String brand;
-    /**
-     * 年份
-     */
+
     @ApiModelProperty(value = "年份")
     private String year;
     /**

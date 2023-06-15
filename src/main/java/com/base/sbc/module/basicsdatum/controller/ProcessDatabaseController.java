@@ -1,6 +1,5 @@
 package com.base.sbc.module.basicsdatum.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
@@ -81,6 +80,7 @@ public class ProcessDatabaseController extends BaseController {
     public ApiResult delById(String id) {
         return deleteSuccess(processDatabaseService.removeById(id));
     }
+
     /**
      * 根据id数组批量删除删除
      */
@@ -90,5 +90,9 @@ public class ProcessDatabaseController extends BaseController {
         return deleteSuccess(processDatabaseService.removeBatchByIds(Arrays.asList(ids)));
     }
 
-
+    @ApiOperation(value = "获取所有模板部件")
+    @GetMapping("/getAllPatternPartsCode")
+    public List<String> getAllPatternPartsCode() {
+        return processDatabaseService.getAllPatternPartsCode();
+    }
 }

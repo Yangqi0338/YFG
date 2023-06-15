@@ -6,7 +6,7 @@ import com.base.sbc.module.common.service.IServicePlus;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.util.List;
 
 /**
  * @author 卞康
@@ -23,8 +23,11 @@ public interface ProcessDatabaseService extends IServicePlus<ProcessDatabase> {
 
     /**
      * 分页查询
+     *
      * @param pageDto 查询条件对象
      * @return 分页对象
      */
     PageInfo<ProcessDatabase> listPage(ProcessDatabasePageDto pageDto);
+
+    List<String> getAllPatternPartsCode();
 }

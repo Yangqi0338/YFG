@@ -201,10 +201,10 @@ public class NodeStatusServiceImpl extends ServicePlusImpl<NodeStatusMapper, Nod
                 continue;
             }
             Map<String, NodeStatusVo> pmNsMap = pmNsList.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> b));
-            if (StrUtil.isBlank(listKey)) {
+            if (StrUtil.isNotBlank(listKey)) {
                 BeanUtil.setProperty(vo, listKey, pmNsList);
             }
-            if (StrUtil.isBlank(mapKey)) {
+            if (StrUtil.isNotBlank(mapKey)) {
                 BeanUtil.setProperty(vo, mapKey, pmNsMap);
             }
         }

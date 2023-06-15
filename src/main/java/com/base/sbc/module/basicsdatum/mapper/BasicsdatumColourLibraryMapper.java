@@ -10,9 +10,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumColourLibraryExcelDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumSizeExcelDto;
-import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -23,14 +22,18 @@ import java.util.List;
  * @author mengfanjiang  
  * @email  2915350015@qq.com
  * @date 创建时间：2023-5-20 20:23:02 
- * @version 1.0  
+ * @version 1.0
  */
 @Mapper
 public interface BasicsdatumColourLibraryMapper extends BaseMapper<BasicsdatumColourLibrary> {
 /** 自定义方法区 不替换的区域【other_start】 **/
 
-    /** 自定义方法区 不替换的区域【other_start】 **/
+    /**
+     * 自定义方法区 不替换的区域【other_start】
+     **/
     List<BasicsdatumColourLibraryExcelDto> selectColourLibrary(@Param(Constants.WRAPPER) QueryWrapper<BasicsdatumColourLibraryExcelDto> wrapper);
+
+    List<String> getAllColourSpecification(@Param(Constants.WRAPPER) QueryWrapper<BasicsdatumColourLibrary> qw);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

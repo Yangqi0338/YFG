@@ -5,28 +5,26 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.basicsdatum.controller;
+
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourGroupService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourGroupVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
-import org.hibernate.validator.constraints.NotBlank;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-
 import java.util.List;
 
 /**
@@ -113,9 +111,14 @@ public class BasicsdatumColourLibraryController{
 	@ApiOperation(value = "查询基础资料-颜色组")
 	@GetMapping("/getBasicsdatumColourGroupList")
 	public List<BasicsdatumColourGroupVo> getBasicsdatumColourGroupList(QueryDto queryDto) {
-		return  basicsdatumColourGroupService.getBasicsdatumColourGroupList(queryDto);
+		return basicsdatumColourGroupService.getBasicsdatumColourGroupList(queryDto);
 	}
 
+	@ApiOperation(value = "获取所有颜色规格")
+	@GetMapping("/getAllColourSpecification")
+	public List<String> getAllColourSpecification() {
+		return basicsdatumColourLibraryService.getAllColourSpecification();
+	}
 
 
 }

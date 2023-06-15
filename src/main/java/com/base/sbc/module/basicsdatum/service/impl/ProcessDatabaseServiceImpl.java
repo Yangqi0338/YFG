@@ -4,6 +4,8 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabaseExcelDto;
@@ -125,16 +127,27 @@ public class ProcessDatabaseServiceImpl extends ServicePlusImpl<ProcessDatabaseM
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getProcessName()),"process_name",pageDto.getProcessName());
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCode()),"code",pageDto.getCode());
         queryWrapper.orderByDesc("create_date");
-        if (pageDto.getTime()!=null && pageDto.getTime().length>0){
-            queryWrapper.ge(StringUtils.isNotEmpty(pageDto.getTime()[0]),"create_date",pageDto.getTime()[0]);
-            if (pageDto.getTime().length>1){
-                queryWrapper.and(i->i.le(StringUtils.isNotEmpty(pageDto.getTime()[1]),"create_date",pageDto.getTime()[1]));
+        if (pageDto.getTime() != null && pageDto.getTime().length > 0) {
+            queryWrapper.ge(StringUtils.isNotEmpty(pageDto.getTime()[0]), "create_date", pageDto.getTime()[0]);
+            if (pageDto.getTime().length > 1) {
+                queryWrapper.and(i -> i.le(StringUtils.isNotEmpty(pageDto.getTime()[1]), "create_date", pageDto.getTime()[1]));
             }
         }
 
         PageHelper.startPage(pageDto);
         List<ProcessDatabase> list = this.list(queryWrapper);
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public List<String> getAllPatternPartsCode() {
+        QueryWrapper<ProcessDatabase> qw = new QueryWrapper<>();
+        qw.select(" ");
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.ne("del_flag", BaseGlobal.YES);
+        qw.eq("type", BasicNumber.SEVEN.getNumber());
+        return getBaseMapper().getAllPatternPartsCode(qw);
+
     }
 
 

@@ -16,23 +16,27 @@
     <select id="selectColourLibrary" resultType="com.base.sbc.module.basicsdatum.dto.BasicsdatumColourLibraryExcelDto">
 
             select
-            tbcl.id,
-            tbcg.colour_name colourGroup,
-            tbcl.colour_specification colourSpecification,
-            tbcl.colour_code colourCode,
-            tbcl.colour_name colourName,
-            tbcl.library,
-            tbcl.is_style isStyle,
-            tbcl.is_materials isMaterials,
-            tbcl.pantone,
-            tbcl.color_rgb colorRgb,
-            tbcl.chroma,
-            tbcl.english_name englishName,
-            tbcl.french_name frenchName,
-            tbcl.picture
+                tbcl.id,
+                tbcg.colour_name colourGroup,
+                tbcl.colour_specification colourSpecification,
+                tbcl.colour_code colourCode,
+                tbcl.colour_name colourName,
+                tbcl.library,
+                tbcl.is_style isStyle,
+                tbcl.is_materials isMaterials,
+                tbcl.pantone,
+                tbcl.color_rgb colorRgb,
+                tbcl.chroma,
+                tbcl.english_name englishName,
+                tbcl.french_name frenchName,
+                tbcl.picture
             from t_basicsdatum_colour_library tbcl
-            left join  t_basicsdatum_colour_group tbcg  on tbcl.colour_group_id=tbcg.id
-            ${ ew.customSqlSegment}
+                     left join t_basicsdatum_colour_group tbcg on tbcl.colour_group_id = tbcg.id
+                ${ ew.customSqlSegment}
 
+    </select>
+    <select id="getAllColourSpecification" resultType="java.lang.String">
+        select DISTINCT colour_specification
+        from t_basicsdatum_colour_library ${ ew.customSqlSegment}
     </select>
 </mapper>

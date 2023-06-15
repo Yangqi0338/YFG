@@ -6,43 +6,45 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.minio.MinioUtils;
-import com.base.sbc.module.basicsdatum.dto.*;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumColourLibraryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumColourLibraryExcelDto;
+import com.base.sbc.module.basicsdatum.dto.QueryBasicsdatumColourLibraryDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourGroup;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourGroupMapper;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import org.springframework.beans.factory.annotation.Autowired;
-import com.base.sbc.config.common.base.BaseController;
-import org.springframework.stereotype.Service;
-import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.PageHelper;
-import cn.hutool.core.bean.BeanUtil;
+import com.github.pagehelper.PageInfo;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
-import cn.afterturn.easypoi.excel.ExcelImportUtil;
-import cn.afterturn.easypoi.excel.entity.ImportParams;
 
 import javax.servlet.http.HttpServletResponse;
-
-import com.base.sbc.config.utils.StringUtils;
-import org.springframework.util.ObjectUtils;
-import org.springframework.beans.BeanUtils;
-import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.enums.BaseErrorEnum;
-import com.base.sbc.config.utils.ExcelUtils;
-
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -286,6 +288,15 @@ public class BasicsdatumColourLibraryServiceImpl extends ServicePlusImpl<Basicsd
         updateWrapper.set("status", startStopDto.getStatus());
         /*修改状态*/
         return baseMapper.update(null, updateWrapper) > 0;
+    }
+
+    @Override
+    public List<String> getAllColourSpecification() {
+        QueryWrapper<BasicsdatumColourLibrary> qw = new QueryWrapper<>();
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.ne("del_flag", BaseGlobal.YES);
+        return this.getBaseMapper().getAllColourSpecification(qw);
+
     }
 
     /** 自定义方法区 不替换的区域【other_end】 **/

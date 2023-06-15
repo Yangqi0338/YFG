@@ -5,17 +5,19 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
+
+import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumColourLibraryDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBasicsdatumColourLibraryDto;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
-import com.github.pagehelper.PageInfo;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumColourLibraryDto;
-import javax.servlet.http.HttpServletResponse;
+import com.base.sbc.module.common.service.IServicePlus;
+import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /** 
  * 类描述：基础资料-颜色库 service类
@@ -72,17 +74,18 @@ public interface BasicsdatumColourLibraryService extends IServicePlus<Basicsdatu
         Boolean delBasicsdatumColourLibrary(String id);
 
 
-
         /**
-        * 方法描述：启用停止基础资料-颜色库
-        *
-        * @param startStopDto 启用停止Dto类
-        * @return boolean
-        */
-        Boolean startStopBasicsdatumColourLibrary( StartStopDto startStopDto);
+         * 方法描述：启用停止基础资料-颜色库
+         *
+         * @param startStopDto 启用停止Dto类
+         * @return boolean
+         */
+        Boolean startStopBasicsdatumColourLibrary(StartStopDto startStopDto);
+
+        List<String> getAllColourSpecification();
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
-	
+
 }
