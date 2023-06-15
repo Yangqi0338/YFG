@@ -39,10 +39,10 @@ public class BasicsdatumModelTypeVo  extends BaseDataEntity<String>{
     @ApiModelProperty(value = "Dimension 1 Type"  )
     private String dimensionType;
     /** 尺码 */
-    @ApiModelProperty(value = "尺码"  )
-    private String size;
     @ApiModelProperty(value = "尺码名称"  )
-    private String sizeNames;
+    private String size;
+    @ApiModelProperty(value = "尺码id集合"  )
+    private String sizeIds;
     /** 基础 尺码 */
     @ApiModelProperty(value = "基础 尺码"  )
     private String basicsSize;
