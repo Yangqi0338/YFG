@@ -44,4 +44,6 @@ public class QueryDto extends Page {
     private String description;
 
     private String  dimensionType;
+
+    private String rangeDifference;
 }
