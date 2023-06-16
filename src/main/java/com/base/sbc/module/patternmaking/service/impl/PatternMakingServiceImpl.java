@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.entity.Dept;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.BasicNumber;
@@ -121,7 +122,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean nodeStatusChange(NodeStatusChangeDto dto) {
+    public boolean nodeStatusChange(NodeStatusChangeDto dto, GroupUser groupUser) {
         nodeStatusService.nodeStatusChange(dto.getDataId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
         // 修改单据
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
@@ -134,10 +135,41 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         uw.set("node", dto.getNode());
         uw.set("status", dto.getStatus());
         setUpdateInfo(uw);
+        setNodeStatusPmData(dto, groupUser, uw);
         // 修改单据
         return update(uw);
     }
 
+    /**
+     * 样衣状态改变时设置 相关的值
+     *
+     * @param dto
+     * @param groupUser
+     * @param uw
+     */
+    private void setNodeStatusPmData(NodeStatusChangeDto dto, GroupUser groupUser, UpdateWrapper<PatternMaking> uw) {
+        EnumNodeStatus enumNodeStatus = EnumNodeStatus.byNodeStatus(dto.getNode(), dto.getStatus());
+        if (enumNodeStatus == null) {
+            return;
+        }
+        switch (enumNodeStatus) {
+            case GARMENT_CUTTING_RECEIVED:
+                uw.set("cutter_id", groupUser.getId());
+                uw.set("cutter_name", groupUser.getName());
+                break;
+            case GARMENT_SEWING_STARTED:
+                uw.set("stitcher_id", groupUser.getId());
+                uw.set("stitcher", groupUser.getName());
+                break;
+            case GARMENT_CUTTING_KITTING:
+                uw.set("sgl_kitting", BaseGlobal.YES);
+                uw.set("sgl_kitting_date", new Date());
+                break;
+            default:
+                break;
+        }
+
+    }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -474,9 +506,9 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean nodeStatusChange(List<NodeStatusChangeDto> list) {
+    public boolean nodeStatusChange(List<NodeStatusChangeDto> list, GroupUser groupUser) {
         for (NodeStatusChangeDto dto : list) {
-            nodeStatusChange(dto);
+            nodeStatusChange(dto, groupUser);
         }
         return true;
     }

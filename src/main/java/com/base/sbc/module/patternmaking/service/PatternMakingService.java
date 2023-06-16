@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.service;
 
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
@@ -57,7 +58,7 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      * @param dto
      * @return
      */
-    boolean nodeStatusChange(NodeStatusChangeDto dto);
+    boolean nodeStatusChange(NodeStatusChangeDto dto, GroupUser groupUser);
 
     /**
      * 版房主管下发
@@ -197,7 +198,7 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
      * @param list
      * @return
      */
-    boolean nodeStatusChange(List<NodeStatusChangeDto> list);
+    boolean nodeStatusChange(List<NodeStatusChangeDto> list, GroupUser groupUser);
 
     PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto);
 

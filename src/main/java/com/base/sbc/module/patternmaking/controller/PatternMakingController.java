@@ -7,9 +7,11 @@
 package com.base.sbc.module.patternmaking.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
@@ -27,6 +29,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -46,12 +49,12 @@ public class PatternMakingController {
 
     @Autowired
     private PatternMakingService patternMakingService;
-
-
+    @Autowired
+    private UserUtils userUtils;
 
     @ApiOperation(value = "技术中心看板-任务列表")
     @GetMapping("/technologyCenterTaskList")
-    public PageInfo technologyCenterTaskList(TechnologyCenterTaskSearchDto dto){
+    public PageInfo technologyCenterTaskList(TechnologyCenterTaskSearchDto dto) {
         return patternMakingService.technologyCenterTaskList(dto);
     }
 
@@ -146,8 +149,9 @@ public class PatternMakingController {
 
     @ApiOperation(value = "节点状态改变")
     @PostMapping("/nodeStatusChange")
-    public boolean nodeStatusChange(@RequestBody List<NodeStatusChangeDto> list) {
-        return patternMakingService.nodeStatusChange(list);
+    public boolean nodeStatusChange(Principal user, @RequestBody List<NodeStatusChangeDto> list) {
+        GroupUser groupUser = userUtils.getUserBy(user);
+        return patternMakingService.nodeStatusChange(list, groupUser);
     }
 
 

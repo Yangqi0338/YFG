@@ -346,7 +346,9 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         // 款式图片
         List<AttachmentVo> stylePicList = attachmentService.findByFId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
         sampleVo.setStylePicList(stylePicList);
-
+        if (CollUtil.isNotEmpty(stylePicList)) {
+            sampleVo.setStylePic(stylePicList.get(0).getUrl());
+        }
         //维度标签
         sampleVo.setDimensionLabels(queryDimensionLabelsBySdId(id));
 

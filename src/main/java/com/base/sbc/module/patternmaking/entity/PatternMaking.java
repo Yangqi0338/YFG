@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-15 17:34:38
+ * @date 创建时间：2023-6-16 16:04:35
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -32,8 +32,8 @@ import java.util.Date;
 @ApiModel("打版管理 PatternMaking")
 public class PatternMaking extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private static final long serialVersionUID = 1L;
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
@@ -265,6 +265,11 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "确认收到样衣(0否,1是)")
     private String receiveSample;
+    /**
+     * 是否需要外辅(0否,1是)
+     */
+    @ApiModelProperty(value = "是否需要外辅(0否,1是)")
+    private String extAuxiliary;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

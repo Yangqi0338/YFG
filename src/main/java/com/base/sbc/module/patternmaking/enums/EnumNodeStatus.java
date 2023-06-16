@@ -18,8 +18,8 @@ public enum EnumNodeStatus {
     SAMPLE_TASK_RECEIVED("打版任务", "已接收"),
     SAMPLE_TASK_IN_VERSION("打版任务", "打版中"),
     SAMPLE_TASK_VERSION_COMPLETE("打版任务", "打版完成"),
-    SAMPLE_TASK_SUSPENDED("打版任务", "挂起"),
-    SAMPLE_TASK_INTERRUPTED("打版任务", "中断"),
+    GARMENT_CUTTING_KITTING("样衣任务", "物料齐套"),
+    GARMENT_CUTTING_WAITING_RECEIVED("样衣任务", "裁剪待接收"),
     GARMENT_CUTTING_RECEIVED("样衣任务", "裁剪已接收"),
     GARMENT_CUTTING_STARTED("样衣任务", "裁剪开始"),
     GARMENT_CUTTING_COMPLETE("样衣任务", "裁剪完成"),
@@ -27,9 +27,7 @@ public enum EnumNodeStatus {
     GARMENT_ASSIGNED("样衣任务", "已分配"),
     GARMENT_SEWING_STARTED("样衣任务", "车缝开始"),
     GARMENT_SEWING_COMPLETE("样衣任务", "车缝完成"),
-    GARMENT_COMPLETE("样衣任务", "样衣完成"),
-    GARMENT_OVERDUE("样衣任务", "超期"),
-    GARMENT_INTERRUPTED("样衣任务", "中断");
+    GARMENT_COMPLETE("样衣任务", "样衣完成");
 
     private final String node;
     private final String status;
