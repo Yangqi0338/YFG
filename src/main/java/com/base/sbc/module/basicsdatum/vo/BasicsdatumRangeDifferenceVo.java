@@ -23,7 +23,7 @@ import lombok.EqualsAndHashCode;
 @Data
 
 @ApiModel("基础资料-档差 BasicsdatumRangeDifference")
-public class BasicsdatumRangeDifferenceVo  {
+public class BasicsdatumRangeDifferenceVo  extends BaseDataEntity<String>{
 
     private String id;
     /** 档差 */

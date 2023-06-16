@@ -80,7 +80,9 @@ public class BasicsdatumRangeDifferenceServiceImpl extends ServicePlusImpl<Basic
             BaseQueryWrapper<BasicsdatumRangeDifference> queryWrapper = new BaseQueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
             queryWrapper.notEmptyLike("model_type",queryDto.getModelType());
-            queryWrapper.notEmptyLike("create_name",queryDto.getModelType());
+            queryWrapper.notEmptyLike("create_name",queryDto.getCreateName());
+            queryWrapper.notEmptyLike("range_difference",queryDto.getRangeDifference());
+            queryWrapper.notEmptyEq("status",queryDto.getStatus());
             queryWrapper.between("create_date",queryDto.getCreateDate());
             queryWrapper.orderByDesc("create_date");
             /*查询基础资料-档差数据*/
