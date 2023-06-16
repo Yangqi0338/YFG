@@ -43,6 +43,11 @@ public class AddRevampProcessProcessSchemeDto  {
     /** 描述 */
     @ApiModelProperty(value = "描述"  )
     private String description;
+
+    /** 服务名称 */
+    @ApiModelProperty(value = "服务名称"  )
+    private String   serviceName;
+
     /** 创建者头像 */
     @ApiModelProperty(value = "创建者头像"  )
     private String createPicture;

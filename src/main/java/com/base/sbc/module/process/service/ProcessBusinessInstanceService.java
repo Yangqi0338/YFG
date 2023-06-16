@@ -5,12 +5,14 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.process.service;
+
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.process.dto.InitiateProcessDto;
 import com.base.sbc.module.process.entity.ProcessBusinessInstance;
+import com.base.sbc.module.process.vo.ProcessNodeRecordVo;
 import com.base.sbc.module.process.vo.ProcessNodeStatusConditionVo;
 
-import java.util.Map;
+import java.util.List;
 
 /** 
  * 类描述：流程配置-业务实例 service类
@@ -36,5 +38,20 @@ public interface ProcessBusinessInstanceService extends IServicePlus<ProcessBusi
      * action 动作
      * @return
      */
-    Map complete(String businessDataId, String action, Object objectData);
+    Boolean complete(String businessDataId, String action, Object objectData);
+
+
+    /**
+     * 描述-根据业务id查询当先下的动作
+     * @param businessDataId 业务数据id
+     * @return
+     */
+    List<ProcessNodeStatusConditionVo> getActionBybusinessDataId(String businessDataId);
+
+    /**
+     * 描述 根据业务id查询流程节点
+     * @param businessDataId 业务数据id
+     * @return
+     */
+    List<ProcessNodeRecordVo> getNodeBybusinessDataId(String businessDataId);
 }

@@ -63,5 +63,8 @@ public class ProcessNodeStatusConditionVo {
 
     private List<ProcessNodeActionVo> processNodeActionVoList;
 
+    /*修改的字段*/
+    private List<ProcessNodeStatusUpdateManagementVo> updateManagementVoList;
+
     private   Object objectData;
 }

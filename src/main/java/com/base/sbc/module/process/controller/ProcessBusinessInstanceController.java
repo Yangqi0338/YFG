@@ -5,10 +5,11 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.process.controller;
+
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.process.dto.InitiateProcessDto;
 import com.base.sbc.module.process.service.ProcessBusinessInstanceService;
+import com.base.sbc.module.process.vo.ProcessNodeRecordVo;
 import com.base.sbc.module.process.vo.ProcessNodeStatusConditionVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -18,7 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Map;
+import java.util.List;
 
 /**
 * 类描述：流程配置-业务实例 Controller类
@@ -49,11 +50,22 @@ public class ProcessBusinessInstanceController{
 	/*完成*/
 	@ApiOperation(value = "完成" )
 	@PostMapping("/complete")
-	public Map complete(String businessDataId, String action, @RequestBody Object object) {
+	public Boolean complete(String businessDataId, String action, @RequestBody Object object) {
 		return processBusinessInstanceService.complete(businessDataId,action,object);
 	}
 
+	/*根据业务id查询当先下的动作*/
+	@GetMapping("/getActionBybusinessDataId")
+	public List<ProcessNodeStatusConditionVo> getActionBybusinessDataId(String businessDataId) {
+		return processBusinessInstanceService.getActionBybusinessDataId(businessDataId);
+	}
 
+
+	/*根据业务id查询流程节点*/
+	@GetMapping("/getNodeBybusinessDataId")
+	public List<ProcessNodeRecordVo> getNodeBybusinessDataId(String businessDataId) {
+		return processBusinessInstanceService.getNodeBybusinessDataId(businessDataId);
+	}
 
 }
 

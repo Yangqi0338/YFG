@@ -6,12 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.process.vo;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 /**
  * 类描述：流程配置-流程方案 Vo类
  * @address com.base.sbc.module.process.vo.ProcessProcessScheme
@@ -40,6 +37,11 @@ public class ProcessProcessSchemeVo  {
     /** 描述 */
     @ApiModelProperty(value = "描述"  )
     private String description;
+
+    /** 服务名称 */
+    @ApiModelProperty(value = "服务名称"  )
+    private String   serviceName;
+
     /** 创建者头像 */
     @ApiModelProperty(value = "创建者头像"  )
     private String createPicture;

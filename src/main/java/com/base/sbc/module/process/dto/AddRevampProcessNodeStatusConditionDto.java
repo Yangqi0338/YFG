@@ -52,5 +52,10 @@ public class AddRevampProcessNodeStatusConditionDto  {
     @ApiModelProperty(value = "节点条件公式"  )
     private String nodeConditionFormula;
 
+    /*节点动作*/
     private List<AddRevampProcessNodeActionDto> list;
+
+    /*修改字段*/
+    private List<AddRevampProcessNodeStatusUpdateManagementDto> updateManagementDtoList;
+
 }

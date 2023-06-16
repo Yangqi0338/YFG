@@ -7,19 +7,18 @@
 package com.base.sbc.module.process.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.module.process.entity.ProcessNodeAction;
 import org.apache.ibatis.annotations.Mapper;
-
-/**
- * 类描述：流程配置-节点动作 dao类
- * @address com.base.sbc.module.process.dao.ProcessNodeActionDao
+import com.base.sbc.module.process.entity.ProcessNodeStatusUpdateManagement;
+/** 
+ * 类描述：流程配置-节点状态修改字段 dao类
+ * @address com.base.sbc.module.process.dao.ProcessNodeStatusUpdateManagementDao
  * @author mengfanjiang  
  * @email  lxl.fml@gmail.com
- * @date 创建时间：2023-6-2 20:15:14 
+ * @date 创建时间：2023-6-16 14:00:07 
  * @version 1.0  
  */
 @Mapper
-public interface ProcessNodeActionMapper extends BaseMapper<ProcessNodeAction> {
+public interface ProcessNodeStatusUpdateManagementMapper extends BaseMapper<ProcessNodeStatusUpdateManagement> {
 // 自定义方法区 不替换的区域【other_start】
 
 
