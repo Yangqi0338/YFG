@@ -10,6 +10,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
@@ -20,6 +21,7 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -414,6 +416,53 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         List<SampleUserVo> list = getBaseMapper().getDesignerList(companyCode);
         amcFeignService.setUserAvatarToList(list);
         return list;
+    }
+
+    @Override
+    public List getBandChart(String month) {
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.in(StrUtil.isNotBlank(month), "month", StrUtil.split(month, CharUtil.COMMA));
+        List<ChartBarVo> chartBarVos = getBaseMapper().getBandChart(qw);
+        return getChartList(chartBarVos);
+    }
+
+    @Override
+    public List getCategoryChart(String category) {
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.inSql(StrUtil.isNotBlank(category), "SUBSTRING_INDEX(category_ids, ',', 1) ", StrUtil.split(category, CharUtil.COMMA).stream().map(item -> "'" + item + "'").collect(Collectors.joining(StrUtil.COMMA)));
+        List<ChartBarVo> chartBarVos = getBaseMapper().getCategoryChart(qw);
+        return getChartList(chartBarVos);
+    }
+
+
+    private List getChartList(List<ChartBarVo> chartBarVos) {
+        List first = CollUtil.newArrayList("product", "总数", "未开款数", "已开款数", "已下发打版");
+        List result = new ArrayList(16);
+        result.add(first);
+        if (CollUtil.isNotEmpty(chartBarVos)) {
+            Map<String, List<ChartBarVo>> productMap = chartBarVos.stream().collect(Collectors.groupingBy(ChartBarVo::getProduct));
+            for (Map.Entry<String, List<ChartBarVo>> kv : productMap.entrySet()) {
+                List productData = new ArrayList();
+                productData.add(kv.getKey());
+                List<ChartBarVo> value = kv.getValue();
+                Map<String, BigDecimal> dm = Optional.ofNullable(value).map(cbs -> {
+                    return cbs.stream().collect(Collectors.toMap(k -> k.getDimension(), v -> v.getTotal()));
+                }).orElse(new HashMap<>(2));
+                //总数
+                productData.add(NumberUtil.add(dm.values().toArray(new BigDecimal[dm.size()])));
+                //未开款
+                productData.add(Optional.ofNullable(dm.get(BasicNumber.ZERO.getNumber())).orElse(BigDecimal.ZERO));
+                //已开款数
+                productData.add(Optional.ofNullable(dm.get(BasicNumber.ONE.getNumber())).orElse(BigDecimal.ZERO));
+                //已下发打版
+                productData.add(Optional.ofNullable(dm.get(BasicNumber.TWO.getNumber())).orElse(BigDecimal.ZERO));
+                result.add(productData);
+            }
+
+        }
+        return result;
     }
 
     private List<DesignDocTreeVo> queryCategory(DesignDocTreeVo designDocTreeVo, int categoryIdx) {

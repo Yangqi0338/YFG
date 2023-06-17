@@ -112,6 +112,16 @@ public interface SampleDesignService extends IServicePlus<SampleDesign> {
 
     List<SampleUserVo> getDesignerList(String companyCode);
 
+    /**
+     * 产品季总览-波段汇总统计图表
+     *
+     * @param month
+     * @return
+     */
+    List getBandChart(String month);
+
+    List getCategoryChart(String category);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

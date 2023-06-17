@@ -2,33 +2,21 @@ package com.base.sbc.module.planning.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.client.amc.service.AmcFeignService;
-import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.BaseEntity;
-import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.AdTree;
-import com.base.sbc.module.common.vo.UserInfoVo;
 import com.base.sbc.module.planning.dto.*;
-import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningBandService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
-import com.base.sbc.module.planning.vo.PlanningBandSummaryInfoVo;
 import com.base.sbc.module.planning.vo.YearSeasonVo;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
+import com.base.sbc.module.sample.service.SampleDesignService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,14 +26,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.sql.Struct;
-import java.util.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * 类描述：
@@ -70,15 +54,14 @@ public class ProductSeasonController extends BaseController {
     private CcmFeignService ccmFeignService;
     @Resource
     PlanningCategoryItemService planningCategoryItemService;
-
-
+    @Resource
+    SampleDesignService sampleDesignService;
 
     @ApiOperation(value = "查询产品季-分页查询")
     @GetMapping
-    public PageInfo query(PlanningSeasonSearchDto dto){
-        return planningSeasonService.queryByPage(dto,getUserCompany());
+    public PageInfo query(PlanningSeasonSearchDto dto) {
+        return planningSeasonService.queryByPage(dto, getUserCompany());
     }
-
 
 
     @ApiOperation(value = "查询年份季节")
@@ -160,15 +143,25 @@ public class ProductSeasonController extends BaseController {
          // 校验
         for (PlanningCategoryItem planningCategoryItem : categoryItemList) {
             if(StrUtil.hasBlank(planningCategoryItem.getDesigner(),planningCategoryItem.getDesignerId())){
-                throw  new OtherException("未分配设计师");
+                throw new OtherException("未分配设计师");
             }
-            if(StrUtil.isBlank(planningCategoryItem.getTaskLevel())){
-                throw  new OtherException("请设置任务等级");
+            if (StrUtil.isBlank(planningCategoryItem.getTaskLevel())) {
+                throw new OtherException("请设置任务等级");
             }
         }
         return planningCategoryItemService.send(categoryItemList);
 
     }
 
+    @ApiOperation(value = "产品季总览-波段汇总统计图表")
+    @GetMapping("/getBandChart")
+    public List getBandChart(String month) {
+        return sampleDesignService.getBandChart(month);
+    }
 
+    @ApiOperation(value = "产品季总览-品类汇总统计图表")
+    @GetMapping("/getCategoryChart")
+    public List getCategoryChart(String category) {
+        return sampleDesignService.getCategoryChart(category);
+    }
 }
