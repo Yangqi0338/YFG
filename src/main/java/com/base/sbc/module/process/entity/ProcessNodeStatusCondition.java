@@ -48,8 +48,6 @@ public class ProcessNodeStatusCondition extends BaseDataEntity<String> {
     private String status;
     /*规则用户id -1 任意人*/
     private String ruleUserId;
-    /*修改的字段*/
-    private String updateField;
     @ApiModelProperty(value = "节点条件 不满足时的提示"  )
     private String reminder;
     /** 节点条件公式 */

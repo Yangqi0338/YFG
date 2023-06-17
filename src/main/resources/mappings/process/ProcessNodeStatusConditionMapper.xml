@@ -22,7 +22,6 @@
         nsc.target_status targetStatus,
         nsc.node_condition nodeCondition,
         nsc.rule_user_id ruleUserId,
-        nsc.update_field updateField,
         nsc.node_condition_formula nodeConditionFormula,
         nsc.reminder
         from t_process_node_action  na

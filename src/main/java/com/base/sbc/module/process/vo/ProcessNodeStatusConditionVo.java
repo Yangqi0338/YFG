@@ -53,7 +53,6 @@ public class ProcessNodeStatusConditionVo {
 
     private String ruleUserId;
 
-    private String updateField;
 
     @ApiModelProperty(value = "节点条件 不满足时的提示"  )
     private String reminder;

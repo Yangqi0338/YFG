@@ -41,8 +41,6 @@ public class AddRevampProcessNodeStatusConditionDto  {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
-    /*修改的字段*/
-    private String updateField;
     /**/
     private String ruleUserId;
 
