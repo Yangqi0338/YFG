@@ -45,7 +45,7 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
 
     List<SampleUserVo> getAllPatternDesignList(@Param("companyCode") String companyCode);
 
-    List<Map<String, Long>> nsCount(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<Map<String, Object>> nsCount(@Param(Constants.WRAPPER) QueryWrapper qw);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

@@ -562,22 +562,36 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         List<String> timeRange = StrUtil.split(time, CharUtil.COMMA);
         // 打版需求总数：版房内所有打版需求的总数，包括待打版、打版中、打版完成和暂停的任务。
         QueryWrapper allQw = new QueryWrapper<>();
-        prmDataOverviewCommonQw(allQw, timeRange);
-        result.add(MapUtil.of("打版需求总数", count(allQw)));
-        List<Map<String, Long>> nsCountList = getBaseMapper().nsCount(allQw);
+        prmDataOverviewCommonQw(allQw, timeRange, BaseGlobal.NO);
+        result.add(CollUtil.newArrayList("打版需求总数", count(allQw)));
+
+        List<Map<String, Object>> nsCountList = getBaseMapper().nsCount(allQw);
         Map<String, Long> nsCountMap = new HashMap<>(16);
-        for (Map<String, Long> nsCount : nsCountList) {
-            nsCountMap.putAll(nsCount);
+        for (Map<String, Object> nsCount : nsCountList) {
+            if (!nsCount.containsKey("nodeStatus")) {
+                continue;
+            }
+            nsCountMap.put(MapUtil.getStr(nsCount, "nodeStatus"), MapUtil.getLong(nsCount, "total", 0L));
         }
-        result.add(MapUtil.of("待打版数量", Optional.ofNullable(nsCountMap.get("打版任务-待接收")).orElse(0L)));
-        result.add(MapUtil.of("打版中数量", Optional.ofNullable(nsCountMap.get("打版任务-已接受")).orElse(0L)));
-        result.add(MapUtil.of("打版完成", Optional.ofNullable(nsCountMap.get("打版任务-打板完成")).orElse(0L)));
-        return null;
+        result.add(CollUtil.newArrayList("待打版数量", MapUtil.getLong(nsCountMap, "打版任务-待接收", 0L)));
+        result.add(CollUtil.newArrayList("打版中数量", MapUtil.getLong(nsCountMap, "打版任务-打版中", 0L)));
+        result.add(CollUtil.newArrayList("打版完成", MapUtil.getLong(nsCountMap, "打版任务-打版完成", 0L)));
+        QueryWrapper suspendQw = new QueryWrapper();
+        prmDataOverviewCommonQw(suspendQw, timeRange, BaseGlobal.YES);
+        result.add(CollUtil.newArrayList("打版暂停", count(suspendQw)));
+        QueryWrapper sdQw = new QueryWrapper();
+        prmDataOverviewCommonQw(sdQw, timeRange, BaseGlobal.NO);
+        sdQw.eq("node", "样衣任务");
+        result.add(CollUtil.newArrayList("样衣制作总数", count(sdQw)));
+        result.add(CollUtil.newArrayList("裁剪中数量", MapUtil.getLong(nsCountMap, "样衣任务-裁剪开始", 0L)));
+        result.add(CollUtil.newArrayList("车缝中", MapUtil.getLong(nsCountMap, "样衣任务-车缝开始", 0L)));
+        return result;
     }
 
-    private void prmDataOverviewCommonQw(QueryWrapper qw, List timeRange) {
+    private void prmDataOverviewCommonQw(QueryWrapper qw, List timeRange, String suspend) {
         qw.ne("del_flag", BaseGlobal.YES);
         qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.eq(StrUtil.isNotBlank(suspend), "suspend", suspend);
         qw.between(CollUtil.isNotEmpty(timeRange), "create_date", CollUtil.getFirst(timeRange), CollUtil.getLast(timeRange));
     }
 

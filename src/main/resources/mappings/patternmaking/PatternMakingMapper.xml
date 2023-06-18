@@ -126,7 +126,7 @@
 
     </select>
     <select id="nsCount" resultType="java.util.Map">
-        select CONCAT(node, '-', status) as nodeSatus, count(1) as total
+        select CONCAT(node, '-', status) as nodeStatus, count(1) as total
         from t_pattern_making ${ew.customSqlSegment}
         group by node, status
 
