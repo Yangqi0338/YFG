@@ -7,10 +7,19 @@
         from t_planning_category_item ${ ew.customSqlSegment}
     </select>
     <select id="selectCategoryIdsByBand" resultType="java.lang.String">
-         select distinct category_ids from
-            t_planning_category_item c
-            left join t_planning_band b on(c.planning_band_id=b.id)
-             ${ ew.customSqlSegment}
+        select distinct category_ids
+        from t_planning_category_item c
+                 left join t_planning_band b on (c.planning_band_id = b.id)
+            ${ ew.customSqlSegment}
+    </select>
+    <select id="listSeat" resultType="com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo">
+        select s.`name`,b.band_code,b.`month`,c.* from t_planning_season s ,t_planning_band b ,t_planning_category_item
+        c
+        where s.id=c.planning_season_id and b.id=c.planning_band_id and c.del_flag='0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
     </select>
 
 

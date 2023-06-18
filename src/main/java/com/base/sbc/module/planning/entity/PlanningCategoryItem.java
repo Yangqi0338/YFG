@@ -8,20 +8,23 @@ package com.base.sbc.module.planning.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 类描述：企划-坑位信息 实体类
- * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
+ *
  * @author lxl
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-19 16:52:34
  * @version 1.0
+ * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-6-18 15:19:02
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -61,25 +64,49 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "品类id路径:(中类/小类)"  )
     private String categoryIds;
     /** 价格带 */
-    @ApiModelProperty(value = "价格带"  )
+    @ApiModelProperty(value = "价格带")
     private String price;
-    /** 关联的素材库数量 */
-    @ApiModelProperty(value = "关联的素材库数量"  )
+    /**
+     * 关联的素材库数量
+     */
+    @ApiModelProperty(value = "关联的素材库数量")
     private BigDecimal materialCount;
-    /** 关联历史款 */
-    @ApiModelProperty(value = "关联历史款"  )
+    /**
+     * 关联历史款
+     */
+    @ApiModelProperty(value = "关联历史款")
     private String hisDesignNo;
-    /** 状态:0未下发,1已下发,2已完成 */
-    @ApiModelProperty(value = "状态:0未下发,1已下发,2已完成"  )
+    /**
+     * 状态:0未下发,1已下发,2已完成
+     */
+    @ApiModelProperty(value = "状态:0未下发,1已下发,2已完成")
     private String status;
-    /** 设计师名称 */
-    @ApiModelProperty(value = "设计师名称"  )
+    /**
+     * 下发时间
+     */
+    @ApiModelProperty(value = "下发时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sendDate;
+    /**
+     * 计划完成时间
+     */
+    @ApiModelProperty(value = "计划完成时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date planningFinishDate;
+    /**
+     * 设计师名称
+     */
+    @ApiModelProperty(value = "设计师名称")
     private String designer;
-    /** 设计师id */
-    @ApiModelProperty(value = "设计师id"  )
+    /**
+     * 设计师id
+     */
+    @ApiModelProperty(value = "设计师id")
     private String designerId;
-    /** 任务等级:普通,紧急,非常紧急 */
-    @ApiModelProperty(value = "任务等级:普通,紧急,非常紧急"  )
+    /**
+     * 任务等级:普通,紧急,非常紧急
+     */
+    @ApiModelProperty(value = "任务等级:普通,紧急,非常紧急")
     private String taskLevel;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

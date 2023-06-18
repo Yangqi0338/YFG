@@ -10,9 +10,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -33,4 +33,6 @@ public interface PlanningCategoryItemMapper extends BaseMapper<PlanningCategoryI
 
 
     List<String> selectCategoryIdsByBand(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    List<PlanningSeasonOverviewVo> listSeat(@Param(Constants.WRAPPER) QueryWrapper qw);
 }

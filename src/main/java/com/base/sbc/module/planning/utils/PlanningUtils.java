@@ -30,6 +30,5 @@ public class PlanningUtils {
         sampleDesign.setId(null);
         sampleDesign.setStatus(BaseGlobal.STATUS_NORMAL);
         sampleDesign.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
-
     }
 }

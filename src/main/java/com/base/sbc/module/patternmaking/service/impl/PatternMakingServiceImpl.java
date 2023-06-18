@@ -92,6 +92,15 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         if (StrUtil.equals(dto.getTechnicianKitting(), BaseGlobal.YES)) {
             patternMaking.setTechnicianKittingDate(new Date());
         }
+        patternMaking.setSglKitting(BaseGlobal.NO);
+        patternMaking.setBreakOffPattern(BaseGlobal.NO);
+        patternMaking.setBreakOffSample(BaseGlobal.NO);
+        patternMaking.setPrmSendStatus(BaseGlobal.NO);
+        patternMaking.setDesignSendStatus(BaseGlobal.NO);
+        patternMaking.setSecondProcessing(BaseGlobal.NO);
+        patternMaking.setSuspend(BaseGlobal.NO);
+        patternMaking.setReceiveSample(BaseGlobal.NO);
+        patternMaking.setExtAuxiliary(BaseGlobal.NO);
         save(patternMaking);
         return patternMaking;
     }
@@ -546,6 +555,21 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         return list;
     }
 
+    @Override
+    public List prmDataOverview(String time) {
+        List<String> timeRange = StrUtil.split(time, CharUtil.COMMA);
+        // 打版需求总数：版房内所有打版需求的总数，包括待打版、打版中、打版完成和暂停的任务。
+        QueryWrapper allQw = new QueryWrapper<>();
+        prmDataOverviewCommonQw(allQw, timeRange);
+        count(allQw);
+        return null;
+    }
+
+    private void prmDataOverviewCommonQw(QueryWrapper qw, List timeRange) {
+        qw.ne("del_flag", BaseGlobal.YES);
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.between(CollUtil.isNotEmpty(timeRange), "create_date", CollUtil.getFirst(timeRange), CollUtil.getLast(timeRange));
+    }
 
     public void setNodeStatus(List<PatternMakingTaskListVo> list) {
         if (CollUtil.isEmpty(list)) {

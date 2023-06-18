@@ -102,9 +102,7 @@ public class ProductSeasonController extends BaseController {
     @ApiOperation(value = "查询坑位列表")
     @PostMapping("/findProductCategoryItem")
     public ApiResult findProductCategoryItem(@Valid @RequestBody ProductCategoryItemSearchDto dto){
-        if(CollUtil.isEmpty(dto.getCategoryIds())&&StrUtil.isBlank(dto.getPlanningBandId())){
-            throw  new OtherException("品类和波段必须有一个不为空");
-        }
+
         return planningCategoryItemService.findProductCategoryItem(dto);
     }
 
@@ -171,5 +169,10 @@ public class ProductSeasonController extends BaseController {
         return sampleDesignService.getDesignDataOverview(time);
     }
 
+    @ApiOperation(value = "产品季总览-修改坑位信息(局部跟新)")
+    @PutMapping("/getDesignDataOverview")
+    public boolean updateItem(@RequestBody PlanningCategoryItem item) {
+        return planningCategoryItemService.updateById(item);
+    }
 
 }

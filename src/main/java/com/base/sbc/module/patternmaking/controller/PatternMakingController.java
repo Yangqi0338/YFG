@@ -215,6 +215,12 @@ public class PatternMakingController {
     public List<SampleUserVo> getAllPatternDesignList(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode) {
         return patternMakingService.getAllPatternDesignList(companyCode);
     }
+
+    @ApiOperation(value = "板房数据总览", notes = "")
+    @GetMapping("/prmDataOverview")
+    public List prmDataOverview(String time) {
+        return patternMakingService.prmDataOverview(time);
+    }
 }
 
 

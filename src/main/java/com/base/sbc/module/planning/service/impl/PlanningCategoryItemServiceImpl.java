@@ -8,9 +8,7 @@ package com.base.sbc.module.planning.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -44,7 +42,7 @@ import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
-import com.base.sbc.module.planning.vo.PlanningBandSummaryInfoVo;
+import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.github.pagehelper.Page;
@@ -333,38 +331,27 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
 
         QueryWrapper qw = new QueryWrapper();
         // 设计款号
-        qw.like(StrUtil.isNotBlank(dto.getSearch()), "design_no", dto.getSearch());
+        qw.like(StrUtil.isNotBlank(dto.getSearch()), "c.design_no", dto.getSearch());
         //产品季
-        qw.eq("planning_season_id", dto.getPlanningSeasonId());
+        qw.eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "c.planning_season_id", dto.getPlanningSeasonId());
         // 品类
-        qw.in(CollUtil.isNotEmpty(dto.getCategoryIds()), "category_id", dto.getCategoryIds());
+        qw.in(CollUtil.isNotEmpty(dto.getCategoryIds()), "c.category_id", dto.getCategoryIds());
         // 波段企划
-        qw.eq(StrUtil.isNotBlank(dto.getPlanningBandId()), "planning_band_id", dto.getPlanningBandId());
+        qw.eq(StrUtil.isNotBlank(dto.getPlanningBandId()), "c.planning_band_id", dto.getPlanningBandId());
         // 设计师
-        qw.in(CollUtil.isNotEmpty(dto.getDesignerIds()), "designer_id", dto.getDesignerIds());
+        qw.in(CollUtil.isNotEmpty(dto.getDesignerIds()), "c.designer_id", dto.getDesignerIds());
         // 任务等级
-        qw.in(CollUtil.isNotEmpty(dto.getTaskLevels()), "task_level", dto.getTaskLevels());
+        qw.in(CollUtil.isNotEmpty(dto.getTaskLevels()), "c.task_level", dto.getTaskLevels());
         // 状态 多选
-        qw.in(CollUtil.isNotEmpty(dto.getStatusList()), "status", dto.getStatusList());
+        qw.in(CollUtil.isNotEmpty(dto.getStatusList()), "c.status", dto.getStatusList());
         // 状态 单个
-        qw.eq(StrUtil.isNotBlank(dto.getStatus()), "status", dto.getStatus());
+        qw.eq(StrUtil.isNotBlank(dto.getStatus()), "c.status", dto.getStatus());
 
-        Page<PlanningCategoryItem> objects = PageHelper.startPage(dto);
-        list(qw);
-        PageInfo<PlanningCategoryItem> pageInfo = objects.toPageInfo();
-        //查询汇总信息
-        PlanningBandSummaryInfoVo summaryInfo = new PlanningBandSummaryInfoVo();
-        summaryInfo.setPlanRequirementNum(pageInfo.getTotal());
-        qw.select("count(id) as count", "status");
-        qw.groupBy("status");
-        List<Map<String, Object>> statusCountList = listMaps(qw);
-        if (ObjectUtil.isNotEmpty(statusCountList)) {
-            Map<Object, Object> statusCountMap = statusCountList.stream().collect(Collectors.toMap(k -> k.get("status"), v -> v.get("count"), (a, b) -> a));
-            summaryInfo.setDesignCompletionNum(MapUtil.getInt(statusCountMap, "2", 0));
-            summaryInfo.setPlanReceiveNum(MapUtil.getInt(statusCountMap, "1", 0));
-        }
+        Page<PlanningSeasonOverviewVo> objects = PageHelper.startPage(dto);
+        getBaseMapper().listSeat(qw);
+        PageInfo<PlanningSeasonOverviewVo> pageInfo = objects.toPageInfo();
         //获取参与人信息
-        List<PlanningCategoryItem> planningBandList = pageInfo.getList();
+        List<PlanningSeasonOverviewVo> planningBandList = pageInfo.getList();
         if (CollUtil.isNotEmpty(planningBandList)) {
             List<String> userIds = new ArrayList<>(12);
             List<UserInfoVo> userInfoVos = new ArrayList<>(12);
@@ -383,12 +370,10 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
                 userInfoVos.forEach(item -> {
                     item.setAvatar(userAvatar.get(item.getId()));
                 });
-                summaryInfo.setUserList(userInfoVos);
+
             }
         }
-        Map<String, Object> attr = new HashMap<>(4);
-        attr.put("summaryInfo", summaryInfo);
-        return ApiResult.success("SUCCESS_OK", pageInfo, attr);
+        return ApiResult.success("SUCCESS_OK", pageInfo, null);
     }
 
     @Override
