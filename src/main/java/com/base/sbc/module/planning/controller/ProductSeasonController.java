@@ -170,7 +170,7 @@ public class ProductSeasonController extends BaseController {
     }
 
     @ApiOperation(value = "产品季总览-修改坑位信息(局部跟新)")
-    @PutMapping("/getDesignDataOverview")
+    @PutMapping("/updateItem")
     public boolean updateItem(@RequestBody PlanningCategoryItem item) {
         return planningCategoryItemService.updateById(item);
     }
