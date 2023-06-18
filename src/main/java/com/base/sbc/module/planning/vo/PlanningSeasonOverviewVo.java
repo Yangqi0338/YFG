@@ -1,9 +1,12 @@
 package com.base.sbc.module.planning.vo;
 
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.sample.vo.SampleUserVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * 类描述：产品季总览 列表vo
@@ -25,4 +28,6 @@ public class PlanningSeasonOverviewVo extends PlanningCategoryItem {
     private String month;
     @ApiModelProperty(value = "波段")
     private String bandCode;
+    @ApiModelProperty(value = "设计师")
+    public List<SampleUserVo> designers;
 }

@@ -19,6 +19,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：打版管理 dao类
@@ -43,6 +44,8 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
     List<SampleBoardVo> sampleBoardList(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     List<SampleUserVo> getAllPatternDesignList(@Param("companyCode") String companyCode);
+
+    List<Map<String, Long>> nsCount(@Param(Constants.WRAPPER) QueryWrapper qw);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

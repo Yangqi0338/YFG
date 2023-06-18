@@ -21,6 +21,7 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -30,7 +31,6 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
-import com.base.sbc.module.common.vo.UserInfoVo;
 import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FieldValService;
@@ -45,6 +45,7 @@ import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.service.SampleDesignService;
+import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -350,29 +351,33 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         Page<PlanningSeasonOverviewVo> objects = PageHelper.startPage(dto);
         getBaseMapper().listSeat(qw);
         PageInfo<PlanningSeasonOverviewVo> pageInfo = objects.toPageInfo();
-        //获取参与人信息
-        List<PlanningSeasonOverviewVo> planningBandList = pageInfo.getList();
-        if (CollUtil.isNotEmpty(planningBandList)) {
-            List<String> userIds = new ArrayList<>(12);
-            List<UserInfoVo> userInfoVos = new ArrayList<>(12);
-            for (PlanningCategoryItem planningCategoryItem : planningBandList) {
-                if (StrUtil.isNotBlank(planningCategoryItem.getDesignerId())) {
-                    userIds.add(planningCategoryItem.getDesignerId());
-                    UserInfoVo userInfoVo = new UserInfoVo();
-                    userInfoVo.setId(planningCategoryItem.getDesignerId());
-                    userInfoVo.setName(planningCategoryItem.getDesigner());
-                    userInfoVos.add(userInfoVo);
+        List<PlanningSeasonOverviewVo> list = pageInfo.getList();
+        //获取设计师信息
+        // 设置版师列表
+        if (CollUtil.isNotEmpty(list)) {
+            Map<String, List<SampleUserVo>> pdMap = new HashMap<>(16);
+            for (PlanningSeasonOverviewVo tct : list) {
+                String key = tct.getPlanningSeasonId();
+                if (pdMap.containsKey(key)) {
+                    tct.setDesigners(pdMap.get(key));
+                } else {
+                    List<UserCompany> designList = amcFeignService.getTeamUserListByPost(tct.getPlanningSeasonId(), "设计师");
+                    List<SampleUserVo> sampleUserVos = Optional.of(designList).map(dl -> {
+                        return dl.stream().map(item -> {
+                            SampleUserVo su = new SampleUserVo();
+                            su.setUserId(item.getUserId());
+                            su.setAvatar(Optional.ofNullable(item.getAvatar()).orElse(item.getAliasUserAvatar()));
+                            su.setName(item.getAliasUserName());
+                            return su;
+                        }).collect(Collectors.toList());
+                    }).orElse(null);
+                    tct.setDesigners(sampleUserVos);
+                    pdMap.put(key, sampleUserVos);
                 }
             }
-            //获取头像
-            if (CollUtil.isNotEmpty(userIds)) {
-                Map<String, String> userAvatar = amcFeignService.getUserAvatar(CollUtil.join(userIds, ","));
-                userInfoVos.forEach(item -> {
-                    item.setAvatar(userAvatar.get(item.getId()));
-                });
-
-            }
         }
+
+
         return ApiResult.success("SUCCESS_OK", pageInfo, null);
     }
 

@@ -9,6 +9,7 @@ package com.base.sbc.module.patternmaking.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -557,11 +558,20 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
 
     @Override
     public List prmDataOverview(String time) {
+        List result = new ArrayList(16);
         List<String> timeRange = StrUtil.split(time, CharUtil.COMMA);
         // 打版需求总数：版房内所有打版需求的总数，包括待打版、打版中、打版完成和暂停的任务。
         QueryWrapper allQw = new QueryWrapper<>();
         prmDataOverviewCommonQw(allQw, timeRange);
-        count(allQw);
+        result.add(MapUtil.of("打版需求总数", count(allQw)));
+        List<Map<String, Long>> nsCountList = getBaseMapper().nsCount(allQw);
+        Map<String, Long> nsCountMap = new HashMap<>(16);
+        for (Map<String, Long> nsCount : nsCountList) {
+            nsCountMap.putAll(nsCount);
+        }
+        result.add(MapUtil.of("待打版数量", Optional.ofNullable(nsCountMap.get("打版任务-待接收")).orElse(0L)));
+        result.add(MapUtil.of("打版中数量", Optional.ofNullable(nsCountMap.get("打版任务-已接受")).orElse(0L)));
+        result.add(MapUtil.of("打版完成", Optional.ofNullable(nsCountMap.get("打版任务-打板完成")).orElse(0L)));
         return null;
     }
 
