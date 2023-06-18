@@ -368,6 +368,7 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
                             su.setUserId(item.getUserId());
                             su.setAvatar(Optional.ofNullable(item.getAvatar()).orElse(item.getAliasUserAvatar()));
                             su.setName(item.getAliasUserName());
+                            su.setUserCode(item.getUserCode());
                             return su;
                         }).collect(Collectors.toList());
                     }).orElse(null);

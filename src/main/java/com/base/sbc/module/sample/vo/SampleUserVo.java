@@ -22,6 +22,8 @@ public class SampleUserVo {
     private String userId;
     @ApiModelProperty(value = "用户名称")
     private String name;
+    @ApiModelProperty(value = "用户编码")
+    private String userCode;
     @ApiModelProperty(value = "头像")
     @UserAvatar("userId")
     private String avatar;
