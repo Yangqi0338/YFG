@@ -164,4 +164,12 @@ public class ProductSeasonController extends BaseController {
     public List getCategoryChart(String category) {
         return sampleDesignService.getCategoryChart(category);
     }
+
+    @ApiOperation(value = "产品季总览-设计数据总览")
+    @GetMapping("/getDesignDataOverview")
+    public Map getDesignDataOverview(String time) {
+        return sampleDesignService.getDesignDataOverview(time);
+    }
+
+
 }

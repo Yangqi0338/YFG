@@ -436,6 +436,50 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         return getChartList(chartBarVos);
     }
 
+    @Override
+    public Map getDesignDataOverview(String time) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        List<String> timeRange = StrUtil.split(time, CharUtil.COMMA);
+        //企划下发需求总数 (统计从坑位下发的数据)
+        QueryWrapper qhxfxqzsQw = new QueryWrapper();
+        qhxfxqzsQw.isNotNull("sender");
+        qhxfxqzsQw.between(StrUtil.isNotBlank(time), "create_date", CollUtil.getFirst(timeRange), CollUtil.getLast(timeRange));
+        qhxfxqzsQw.ne("del_flag", BaseGlobal.YES);
+        long qhxfxqzs = this.count(qhxfxqzsQw);
+        result.put("企划下发需求总数", qhxfxqzs);
+        // 设计需求总数(统计从坑位下发的数据 + 新建的数据)
+        QueryWrapper sjxqzsQw = new QueryWrapper();
+        sjxqzsQw.isNull("sender");
+        sjxqzsQw.ne("del_flag", BaseGlobal.YES);
+        sjxqzsQw.between(StrUtil.isNotBlank(time), "create_date", CollUtil.getFirst(timeRange), CollUtil.getLast(timeRange));
+        long sjxqzs = this.count(sjxqzsQw);
+        result.put("设计需求总数", sjxqzs);
+        //未开款 状态为0
+        QueryWrapper wkkQw = new QueryWrapper();
+        wkkQw.eq("status", BasicNumber.ZERO.getNumber());
+        wkkQw.ne("del_flag", BaseGlobal.YES);
+        wkkQw.between(StrUtil.isNotBlank(time), "create_date", CollUtil.getFirst(timeRange), CollUtil.getLast(timeRange));
+        long wkks = this.count(wkkQw);
+        result.put("未开款", wkks);
+
+        //已开款数 状态为1
+        QueryWrapper ykkQw = new QueryWrapper();
+        ykkQw.eq("status", BasicNumber.ONE.getNumber());
+        ykkQw.ne("del_flag", BaseGlobal.YES);
+        ykkQw.between(StrUtil.isNotBlank(time), "create_date", CollUtil.getFirst(timeRange), CollUtil.getLast(timeRange));
+        long ykk = this.count(ykkQw);
+        result.put("已开款", ykk);
+
+        //已下发数 状态为2
+        QueryWrapper yxfsQw = new QueryWrapper();
+        yxfsQw.eq("status", BasicNumber.TWO.getNumber());
+        yxfsQw.ne("del_flag", BaseGlobal.YES);
+        yxfsQw.between(StrUtil.isNotBlank(time), "create_date", CollUtil.getFirst(timeRange), CollUtil.getLast(timeRange));
+        long yxfs = this.count(yxfsQw);
+        result.put("已下发打版", yxfs);
+        return result;
+    }
+
 
     private List getChartList(List<ChartBarVo> chartBarVos) {
         List first = CollUtil.newArrayList("product", "总数", "未开款数", "已开款数", "已下发打版");

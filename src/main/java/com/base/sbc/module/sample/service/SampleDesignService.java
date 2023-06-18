@@ -20,6 +20,7 @@ import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：样衣设计 service类
@@ -121,6 +122,8 @@ public interface SampleDesignService extends IServicePlus<SampleDesign> {
     List getBandChart(String month);
 
     List getCategoryChart(String category);
+
+    Map getDesignDataOverview(String time);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
