@@ -175,4 +175,10 @@ public class ProductSeasonController extends BaseController {
         return planningCategoryItemService.updateById(item);
     }
 
+    @ApiOperation(value = "产品季总览-批量修改坑位信息")
+    @PutMapping("/updateItemBatch")
+    public boolean updateItemBatch(@Valid @RequestBody PlanningCategoryItemBatchUpdateDto dto) {
+        return planningCategoryItemService.updateItemBatch(dto);
+    }
+
 }

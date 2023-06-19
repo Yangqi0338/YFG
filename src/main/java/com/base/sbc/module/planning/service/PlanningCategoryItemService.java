@@ -119,4 +119,6 @@ public interface PlanningCategoryItemService extends IServicePlus<PlanningCatego
      * @return
      */
     boolean updateStylePic(String id, String stylePic);
+
+    boolean updateItemBatch(PlanningCategoryItemBatchUpdateDto dto);
 }
