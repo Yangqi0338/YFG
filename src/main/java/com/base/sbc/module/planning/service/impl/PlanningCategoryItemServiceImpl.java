@@ -446,8 +446,8 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
 
         // 2 状态修改为已下发
         UpdateWrapper<PlanningCategoryItem> uw=new UpdateWrapper<>();
-        uw.set("status","1");
-        uw.in("id",itemIds);
+        uw.set("status", "2");
+        uw.in("id", itemIds);
         update(uw);
         // 3 将数据写入样衣设计
         // 查询已经下发的任务
