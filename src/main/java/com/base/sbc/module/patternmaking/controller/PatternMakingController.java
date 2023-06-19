@@ -7,6 +7,7 @@
 package com.base.sbc.module.patternmaking.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
@@ -220,6 +221,12 @@ public class PatternMakingController {
     @GetMapping("/prmDataOverview")
     public List prmDataOverview(String time) {
         return patternMakingService.prmDataOverview(time);
+    }
+
+    @ApiOperation(value = "获取节点状态配置", notes = "")
+    @GetMapping("/getNodeStatusConfig")
+    public JSONObject getNodeStatusConfig(String node, String status) {
+        return patternMakingService.getNodeStatusConfig(node, status);
     }
 }
 

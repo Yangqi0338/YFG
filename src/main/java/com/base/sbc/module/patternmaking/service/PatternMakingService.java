@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.patternmaking.dto.*;
@@ -219,6 +220,8 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
     List<SampleUserVo> getAllPatternDesignList(String companyCode);
 
     List prmDataOverview(String time);
+
+    JSONObject getNodeStatusConfig(String node, String status);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

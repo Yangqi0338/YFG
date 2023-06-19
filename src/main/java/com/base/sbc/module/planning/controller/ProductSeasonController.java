@@ -7,8 +7,10 @@ import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.AdTree;
+import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningSeason;
@@ -63,14 +65,19 @@ public class ProductSeasonController extends BaseController {
         return planningSeasonService.queryByPage(dto, getUserCompany());
     }
 
+    @ApiOperation(value = "查询产品季-查询所有产品季下拉选择")
+    @GetMapping("/getPlanningSeasonOptions")
+    public List<SelectOptionsVo> getPlanningSeasonOptions(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+        return planningSeasonService.getPlanningSeasonOptions(userCompany);
+    }
 
     @ApiOperation(value = "查询年份季节")
     @GetMapping("/queryYs")
-    public List<YearSeasonVo> queryYs(){
-        List<YearSeasonVo> result=new ArrayList<>(16);
+    public List<YearSeasonVo> queryYs() {
+        List<YearSeasonVo> result = new ArrayList<>(16);
         List<PlanningSeason> planningSeasons = planningSeasonService.queryYs(getUserCompany());
         Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Year,C8_Quarter");
-        if(CollUtil.isNotEmpty(planningSeasons)){
+        if (CollUtil.isNotEmpty(planningSeasons)) {
             for (PlanningSeason planningSeason : planningSeasons) {
                 YearSeasonVo yearSeasonVo = BeanUtil.copyProperties(planningSeason, YearSeasonVo.class);
                 yearSeasonVo.setSeasonDesc(Optional.ofNullable(dictInfoToMap.get("C8_Quarter"))
@@ -102,7 +109,6 @@ public class ProductSeasonController extends BaseController {
     @ApiOperation(value = "查询坑位列表")
     @PostMapping("/findProductCategoryItem")
     public ApiResult findProductCategoryItem(@Valid @RequestBody ProductCategoryItemSearchDto dto){
-
         return planningCategoryItemService.findProductCategoryItem(dto);
     }
 
