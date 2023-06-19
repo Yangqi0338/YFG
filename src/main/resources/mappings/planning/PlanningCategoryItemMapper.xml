@@ -13,9 +13,28 @@
             ${ ew.customSqlSegment}
     </select>
     <select id="listSeat" resultType="com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo">
-        select s.`name`,b.band_code,b.`month`,c.* from t_planning_season s ,t_planning_band b ,t_planning_category_item
-        c
-        where s.id=c.planning_season_id and b.id=c.planning_band_id and c.del_flag='0'
+        SELECT
+        s.`name`,
+        s.`brand`,
+        s.`year`,
+        s.`season`,
+        b.`month`,
+        b.`sex`,
+        b.band_code,
+        b.devt_type,
+        b.channel,
+        sd.`status` as sd_status,
+        sd.confirm_status as sd_confirm_status,
+        c.*
+        FROM
+        t_planning_season s,
+        t_planning_band b,
+        t_planning_category_item c left JOIN t_sample_design sd on (sd.planning_category_item_id = c.id and
+        sd.del_flag='0')
+        WHERE
+        s.id = c.planning_season_id
+        AND b.id = c.planning_band_id
+        AND c.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>

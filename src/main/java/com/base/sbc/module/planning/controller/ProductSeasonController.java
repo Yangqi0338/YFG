@@ -102,7 +102,6 @@ public class ProductSeasonController extends BaseController {
     @ApiOperation(value = "查询坑位列表")
     @PostMapping("/findProductCategoryItem")
     public ApiResult findProductCategoryItem(@Valid @RequestBody ProductCategoryItemSearchDto dto){
-
         return planningCategoryItemService.findProductCategoryItem(dto);
     }
 

@@ -24,6 +24,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.entity.Attachment;
@@ -215,14 +216,18 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public void updateAndCommit(String planningBandId, List<PlanningCategoryItemSaveDto> item) {
-
-
         //提交
         if (StrUtil.isNotBlank(planningBandId)) {
             PlanningBand byId = planningBandService.getById(planningBandId);
             if (byId == null) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
+            //将坑位信息的状态修改为1 已下发产品季看板
+            UpdateWrapper uw = new UpdateWrapper();
+            uw.set("status", BasicNumber.ONE.getNumber());
+            uw.in("id", item.stream().map(PlanningCategoryItemSaveDto::getId).collect(Collectors.toList()));
+            this.update(uw);
+            //将波段企划的状态改为  已提交
             byId.setStatus(BaseGlobal.STOCK_STATUS_CHECKED);
             planningBandService.updateById(byId);
         } else {
@@ -354,9 +359,11 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         // 任务等级
         qw.in(CollUtil.isNotEmpty(dto.getTaskLevels()), "c.task_level", dto.getTaskLevels());
         // 状态 多选
-        qw.in(CollUtil.isNotEmpty(dto.getStatusList()), "c.status", dto.getStatusList());
+        //qw.in(CollUtil.isNotEmpty(dto.getStatusList()), "c.status", dto.getStatusList());
         // 状态 单个
-        qw.eq(StrUtil.isNotBlank(dto.getStatus()), "c.status", dto.getStatus());
+        //qw.eq(StrUtil.isNotBlank(dto.getStatus()), "c.status", dto.getStatus());
+        // 坑位信息已下发
+        qw.eq(StrUtil.isNotBlank(dto.getStatus()), "c.status", BasicNumber.ONE.getNumber());
 
         Page<PlanningSeasonOverviewVo> objects = PageHelper.startPage(dto);
         getBaseMapper().listSeat(qw);

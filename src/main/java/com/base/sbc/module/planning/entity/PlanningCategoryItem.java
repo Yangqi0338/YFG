@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-18 15:19:02
+ * @date 创建时间：2023-6-19 13:33:11
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -55,15 +55,21 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "设计款号"  )
     private String designNo;
     /** 品类id(小类) */
-    @ApiModelProperty(value = "品类id(小类)"  )
+    @ApiModelProperty(value = "品类id(小类)")
     private String categoryId;
-    /** 品类名称路径:(中类/小类) */
-    @ApiModelProperty(value = "品类名称路径:(中类/小类)"  )
+    /**
+     * 品类名称路径:(中类/小类)
+     */
+    @ApiModelProperty(value = "品类名称路径:(中类/小类)")
     private String categoryName;
-    /** 品类id路径:(中类/小类) */
-    @ApiModelProperty(value = "品类id路径:(中类/小类)"  )
+    /**
+     * 品类id路径:(中类/小类)
+     */
+    @ApiModelProperty(value = "品类id路径:(中类/小类)")
     private String categoryIds;
-    /** 价格带 */
+    /**
+     * 价格带
+     */
     @ApiModelProperty(value = "价格带")
     private String price;
     /**

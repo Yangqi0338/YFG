@@ -12,6 +12,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.entity.Dept;
@@ -27,6 +28,7 @@ import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
+import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
@@ -67,6 +69,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
     private final AmcFeignService amcFeignService;
 
     private final CcmFeignService ccmFeignService;
+    private final NodeStatusConfigService nodeStatusConfigService;
 
 
     @Override
@@ -586,6 +589,20 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         result.add(CollUtil.newArrayList("裁剪中数量", MapUtil.getLong(nsCountMap, "样衣任务-裁剪开始", 0L)));
         result.add(CollUtil.newArrayList("车缝中", MapUtil.getLong(nsCountMap, "样衣任务-车缝开始", 0L)));
         return result;
+    }
+
+    @Override
+    public JSONObject getNodeStatusConfig(String node, String status) {
+        JSONObject config = nodeStatusConfigService
+                .getConfig2Json(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, getCompanyCode());
+        if (StrUtil.isNotBlank(node) && config != null) {
+            config = config.getJSONObject(node);
+            if (StrUtil.isNotBlank(status) && config != null) {
+                config = config.getJSONObject(status);
+            }
+        }
+
+        return config;
     }
 
     private void prmDataOverviewCommonQw(QueryWrapper qw, List timeRange, String suspend) {
