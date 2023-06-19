@@ -4,7 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.base.BaseEntity;
@@ -13,11 +12,12 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
 import com.base.sbc.module.planning.entity.PlanningBand;
-import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
 import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
 import com.base.sbc.module.planning.service.PlanningBandService;
 import com.base.sbc.module.planning.service.PlanningCategoryService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
@@ -32,9 +32,6 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static com.base.sbc.config.common.base.BaseController.COMPANY_CODE;
-import static com.base.sbc.config.common.base.BaseController.DEL_FLAG;
 
 /**
  * 类描述：企划-产品季 service类
@@ -228,12 +225,20 @@ public class PlanningSeasonServiceImpl extends ServicePlusImpl<PlanningSeasonMap
 
     @Override
     public PlanningSeasonVo getByName(String name) {
-        List<PlanningSeason> seasons =  getByName(name, getCompanyCode());
-        if(CollUtil.isNotEmpty(seasons)){
+        List<PlanningSeason> seasons = getByName(name, getCompanyCode());
+        if (CollUtil.isNotEmpty(seasons)) {
             PlanningSeasonVo planningSeasonVo = BeanUtil.copyProperties(seasons.get(0), PlanningSeasonVo.class);
             planningSeasonVo.setTeamList(amcFeignService.getTeamBySeasonId(planningSeasonVo.getId()));
             return planningSeasonVo;
         }
         return null;
+    }
+
+    @Override
+    public List<SelectOptionsVo> getPlanningSeasonOptions(String userCompany) {
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq(StrUtil.isNotBlank(userCompany), "COMPANY_CODE", userCompany);
+        qw.eq("del_flag", BaseGlobal.NO);
+        return getBaseMapper().getPlanningSeasonOptions(qw);
     }
 }

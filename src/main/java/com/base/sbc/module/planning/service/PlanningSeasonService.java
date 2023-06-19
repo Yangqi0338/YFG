@@ -9,6 +9,7 @@ package com.base.sbc.module.planning.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
@@ -107,8 +108,11 @@ public interface PlanningSeasonService extends IServicePlus<PlanningSeason> {
 
     /**
      * 通过名称获取
+     *
      * @param name
      * @return
      */
     PlanningSeasonVo getByName(String name);
+
+    List<SelectOptionsVo> getPlanningSeasonOptions(String userCompany);
 }

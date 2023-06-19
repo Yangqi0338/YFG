@@ -363,7 +363,7 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         // 状态 单个
         //qw.eq(StrUtil.isNotBlank(dto.getStatus()), "c.status", dto.getStatus());
         // 坑位信息已下发
-        qw.eq(StrUtil.isNotBlank(dto.getStatus()), "c.status", BasicNumber.ONE.getNumber());
+        qw.ne("c.status", BasicNumber.ZERO.getNumber());
 
         Page<PlanningSeasonOverviewVo> objects = PageHelper.startPage(dto);
         getBaseMapper().listSeat(qw);
