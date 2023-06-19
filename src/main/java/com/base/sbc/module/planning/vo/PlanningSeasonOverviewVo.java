@@ -77,7 +77,7 @@ public class PlanningSeasonOverviewVo extends PlanningCategoryItem {
         }
         Date now = new Date();
         String abs = DateUtil.compare(getPlanningFinishDate(), now) < 0 ? "-" : "";
-        return abs + DateUtil.betweenDay(getPlanningFinishDate(), now, false);
+        return abs + DateUtil.betweenDay(getPlanningFinishDate(), now, false) + "天";
 
     }
 

@@ -444,9 +444,10 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         // 1.2 设置任务等级
         this.setTaskLevel(setTaskLevelDtoList);
 
-        // 2 状态修改为已下发
+        // 2 状态修改为已下发 下发时间
         UpdateWrapper<PlanningCategoryItem> uw=new UpdateWrapper<>();
         uw.set("status", "2");
+        uw.set("send_date", new Date());
         uw.in("id", itemIds);
         update(uw);
         // 3 将数据写入样衣设计
