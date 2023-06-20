@@ -345,11 +345,17 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
     @Override
     public ApiResult findProductCategoryItem(ProductCategoryItemSearchDto dto) {
 
-        QueryWrapper qw = new QueryWrapper();
+        QueryWrapper<PlanningCategoryItem> qw = new QueryWrapper();
         // 设计款号
-        qw.like(StrUtil.isNotBlank(dto.getSearch()), "c.design_no", dto.getSearch());
+        qw.like(StrUtil.isNotBlank(dto.getSearch()), "c.design_no", dto.getSearch())
+                .or().like(StrUtil.isNotBlank(dto.getSearch()), "s.name", dto.getSearch());
         //产品季
         qw.eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "c.planning_season_id", dto.getPlanningSeasonId());
+        //月份
+        qw.eq(StrUtil.isNotBlank(dto.getMonth()), "b.month", dto.getMonth());
+        //波段
+        qw.eq(StrUtil.isNotBlank(dto.getBandCode()), "b.band_code", dto.getBandCode());
+
         // 品类
         qw.in(CollUtil.isNotEmpty(dto.getCategoryIds()), "c.category_id", dto.getCategoryIds());
         // 波段企划
