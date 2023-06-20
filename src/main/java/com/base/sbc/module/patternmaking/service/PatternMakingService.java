@@ -223,6 +223,8 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
 
     JSONObject getNodeStatusConfig(String node, String status);
 
+    boolean assignmentUser(AssignmentUserDto dto);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

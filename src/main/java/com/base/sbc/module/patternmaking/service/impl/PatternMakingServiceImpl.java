@@ -605,6 +605,18 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         return config;
     }
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean assignmentUser(AssignmentUserDto dto) {
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.eq("id", dto.getId());
+        uw.set("cutter_id", dto.getCutterId());
+        uw.set("cutter_name", dto.getCutterName());
+        uw.set("stitcher", dto.getStitcher());
+        uw.set("stitcher_id", dto.getStitcherId());
+        return this.update(uw);
+    }
+
     private void prmDataOverviewCommonQw(QueryWrapper qw, List timeRange, String suspend) {
         qw.ne("del_flag", BaseGlobal.YES);
         qw.eq(COMPANY_CODE, getCompanyCode());

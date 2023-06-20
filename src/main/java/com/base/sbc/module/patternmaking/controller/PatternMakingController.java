@@ -229,8 +229,10 @@ public class PatternMakingController {
         return patternMakingService.getNodeStatusConfig(node, status);
     }
 
-    public List getPdTaskDetail() {
-        return null;
+    @ApiOperation(value = "分配人员(裁剪工,车缝工)", notes = "")
+    @PostMapping("/assignmentUser")
+    public boolean assignmentUser(@Valid @RequestBody AssignmentUserDto dto) {
+        return patternMakingService.assignmentUser(dto);
     }
 }
 
