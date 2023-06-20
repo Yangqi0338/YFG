@@ -24,6 +24,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.entity.Attachment;
@@ -215,14 +216,18 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public void updateAndCommit(String planningBandId, List<PlanningCategoryItemSaveDto> item) {
-
-
         //提交
         if (StrUtil.isNotBlank(planningBandId)) {
             PlanningBand byId = planningBandService.getById(planningBandId);
             if (byId == null) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
+            //将坑位信息的状态修改为1 已下发产品季看板
+            UpdateWrapper uw = new UpdateWrapper();
+            uw.set("status", BasicNumber.ONE.getNumber());
+            uw.in("id", item.stream().map(PlanningCategoryItemSaveDto::getId).collect(Collectors.toList()));
+            this.update(uw);
+            //将波段企划的状态改为  已提交
             byId.setStatus(BaseGlobal.STOCK_STATUS_CHECKED);
             planningBandService.updateById(byId);
         } else {
@@ -340,11 +345,17 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
     @Override
     public ApiResult findProductCategoryItem(ProductCategoryItemSearchDto dto) {
 
-        QueryWrapper qw = new QueryWrapper();
+        QueryWrapper<PlanningCategoryItem> qw = new QueryWrapper();
         // 设计款号
-        qw.like(StrUtil.isNotBlank(dto.getSearch()), "c.design_no", dto.getSearch());
+        qw.like(StrUtil.isNotBlank(dto.getSearch()), "c.design_no", dto.getSearch())
+                .or().like(StrUtil.isNotBlank(dto.getSearch()), "s.name", dto.getSearch());
         //产品季
         qw.eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "c.planning_season_id", dto.getPlanningSeasonId());
+        //月份
+        qw.eq(StrUtil.isNotBlank(dto.getMonth()), "b.month", dto.getMonth());
+        //波段
+        qw.eq(StrUtil.isNotBlank(dto.getBandCode()), "b.band_code", dto.getBandCode());
+
         // 品类
         qw.in(CollUtil.isNotEmpty(dto.getCategoryIds()), "c.category_id", dto.getCategoryIds());
         // 波段企划
@@ -354,9 +365,11 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         // 任务等级
         qw.in(CollUtil.isNotEmpty(dto.getTaskLevels()), "c.task_level", dto.getTaskLevels());
         // 状态 多选
-        qw.in(CollUtil.isNotEmpty(dto.getStatusList()), "c.status", dto.getStatusList());
+        //qw.in(CollUtil.isNotEmpty(dto.getStatusList()), "c.status", dto.getStatusList());
         // 状态 单个
-        qw.eq(StrUtil.isNotBlank(dto.getStatus()), "c.status", dto.getStatus());
+        //qw.eq(StrUtil.isNotBlank(dto.getStatus()), "c.status", dto.getStatus());
+        // 坑位信息已下发
+        qw.ne("c.status", BasicNumber.ZERO.getNumber());
 
         Page<PlanningSeasonOverviewVo> objects = PageHelper.startPage(dto);
         getBaseMapper().listSeat(qw);
@@ -437,10 +450,11 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
         // 1.2 设置任务等级
         this.setTaskLevel(setTaskLevelDtoList);
 
-        // 2 状态修改为已下发
+        // 2 状态修改为已下发 下发时间
         UpdateWrapper<PlanningCategoryItem> uw=new UpdateWrapper<>();
-        uw.set("status","1");
-        uw.in("id",itemIds);
+        uw.set("status", "2");
+        uw.set("send_date", new Date());
+        uw.in("id", itemIds);
         update(uw);
         // 3 将数据写入样衣设计
         // 查询已经下发的任务

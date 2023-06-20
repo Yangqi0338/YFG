@@ -1,7 +1,10 @@
 package com.base.sbc.module.basicsdatum.controller;
 
+import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseService;
+import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
 import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
 import com.base.sbc.module.basicsdatum.service.ProcessDatabaseService;
@@ -56,6 +59,7 @@ public class ProcessDatabaseController extends BaseController {
      */
     @ApiOperation(value = "新增或者修改工艺资料库")
     @PostMapping("/save")
+    @OperaLog(value = "工艺资料库",operationType = OperationType.INSERT_UPDATE,service=ProcessDatabaseService.class)
     public ApiResult save(@RequestBody ProcessDatabase processDatabase){
         boolean b = processDatabaseService.saveOrUpdate(processDatabase);
         return insertSuccess(b);
@@ -77,6 +81,7 @@ public class ProcessDatabaseController extends BaseController {
      */
     @ApiOperation(value = "根据id删除")
     @DeleteMapping("/delById")
+    @OperaLog(value = "工艺资料库",operationType = OperationType.DELETE)
     public ApiResult delById(String id) {
         return deleteSuccess(processDatabaseService.removeById(id));
     }
@@ -86,6 +91,7 @@ public class ProcessDatabaseController extends BaseController {
      */
     @ApiOperation(value = "根据id数组批量删除删除")
     @DeleteMapping("/delByIds")
+    @OperaLog(value = "工艺资料库",operationType = OperationType.DELETE)
     public ApiResult delById(String[] ids) {
         return deleteSuccess(processDatabaseService.removeBatchByIds(Arrays.asList(ids)));
     }

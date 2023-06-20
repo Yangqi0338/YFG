@@ -9,6 +9,7 @@ package com.base.sbc.module.planning.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -21,13 +22,15 @@ import java.util.List;
  * @author lxl  
  * @email  lxl.fml@gmail.com
  * @date 创建时间：2023-3-27 17:42:08 
- * @version 1.0  
+ * @version 1.0
  */
 @Mapper
- public interface PlanningSeasonMapper extends BaseMapper<PlanningSeason> {
+public interface PlanningSeasonMapper extends BaseMapper<PlanningSeason> {
 
 
- List<PlanningSeason> selectProductSeason(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<PlanningSeason> selectProductSeason(@Param(Constants.WRAPPER) QueryWrapper qw);
 
- List<PlanningSeason> queryYs(@Param("companyCode") String companyCode);
+    List<PlanningSeason> queryYs(@Param("companyCode") String companyCode);
+
+    List<SelectOptionsVo> getPlanningSeasonOptions(@Param(Constants.WRAPPER) QueryWrapper qw);
 }

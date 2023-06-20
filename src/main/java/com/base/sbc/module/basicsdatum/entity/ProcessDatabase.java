@@ -16,18 +16,22 @@ import lombok.Data;
 @TableName("t_process_database")
 public class ProcessDatabase extends BaseDataEntity<String> {
     /**工艺项目(名称)*/
+    @ApiModelProperty(value = "工艺项目(名称)")
     private String processName;
     /**编码*/
+    @ApiModelProperty(value = "编码")
     private String code;
     /**品牌id*/
     private String brandId;
     /**品牌名称*/
     private String brandName;
     /**工艺类型*/
+    @ApiModelProperty(value = "工艺类型/部件类型")
     private String processType;
     /**工艺要求*/
     private String processRequire;
     /**描述*/
+    @ApiModelProperty(value = "描述")
     private String description;
     /**品类id*/
     private String categoryId;
@@ -37,6 +41,7 @@ public class ProcessDatabase extends BaseDataEntity<String> {
     @ApiModelProperty(value = "图片"  )
     private String picture;
     /**状态*/
+    @ApiModelProperty(value = "状态")
     private String status;
     /**类别 1：部件库，2：基础工艺，3：外辅工艺，4：裁剪工艺，5：注意事项，6：整烫包装，7：模板部件*/
     private String type;

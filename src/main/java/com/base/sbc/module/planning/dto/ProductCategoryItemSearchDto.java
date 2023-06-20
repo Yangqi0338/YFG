@@ -22,13 +22,19 @@ public class ProductCategoryItemSearchDto extends Page {
 
     @ApiModelProperty(value = "产品季id", example = "122222")
     private String planningSeasonId;
-    @ApiModelProperty(value = "波段企划id" ,required = false,example = "122222")
+
+    @ApiModelProperty(value = "月份", example = "01")
+    private String month;
+    @ApiModelProperty(value = "波段", example = "1A")
+    private String bandCode;
+
+    @ApiModelProperty(value = "波段企划id", required = false, example = "122222")
     private String planningBandId;
 
-    @ApiModelProperty(value = "品类ids" ,required = false,example = "['1234']")
+    @ApiModelProperty(value = "品类ids", required = false, example = "['1234']")
     private List<String> categoryIds;
 
-    @ApiModelProperty(value = "设计师ids" ,required = false,example = "['1233']")
+    @ApiModelProperty(value = "设计师ids", required = false, example = "['1233']")
     private List<String> designerIds;
 
     @ApiModelProperty(value = "任务等级" ,required = false,example = "['1']")
