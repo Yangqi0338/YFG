@@ -565,5 +565,12 @@ public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCat
 
     }
 
+    @Override
+    public List<SampleUserVo> getAllDesigner(String userCompany) {
+        List<SampleUserVo> list = getBaseMapper().getAllDesigner(userCompany);
+        amcFeignService.setUserAvatarToList(list);
+        return list;
+    }
+
 
 }

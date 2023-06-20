@@ -16,6 +16,7 @@ import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategory;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.sample.vo.SampleUserVo;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -121,4 +122,6 @@ public interface PlanningCategoryItemService extends IServicePlus<PlanningCatego
     boolean updateStylePic(String id, String stylePic);
 
     boolean updateItemBatch(PlanningCategoryItemBatchUpdateDto dto);
+
+    List<SampleUserVo> getAllDesigner(String userCompany);
 }

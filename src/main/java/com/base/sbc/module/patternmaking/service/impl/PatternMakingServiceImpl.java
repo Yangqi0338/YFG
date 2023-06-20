@@ -13,6 +13,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.entity.Dept;
@@ -596,12 +597,11 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         JSONObject config = nodeStatusConfigService
                 .getConfig2Json(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, getCompanyCode());
         if (StrUtil.isNotBlank(node) && config != null) {
-            config = config.getJSONObject(node);
+            config = config.getObject(node, JSONObject.class, Feature.OrderedField);
             if (StrUtil.isNotBlank(status) && config != null) {
-                config = config.getJSONObject(status);
+                config = config.getObject(status, JSONObject.class, Feature.OrderedField);
             }
         }
-
         return config;
     }
 

@@ -20,6 +20,8 @@
         select DISTINCT designer_id as user_id, designer as name
         from t_sample_design s
         where company_code = #{companyCode}
+          AND del_flag = '0'
+          and designer_id !='' and designer_id is not null
     </select>
     <select id="getBandChart" resultType="com.base.sbc.module.sample.vo.ChartBarVo">
 

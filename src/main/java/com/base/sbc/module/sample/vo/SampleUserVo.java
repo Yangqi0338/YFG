@@ -1,5 +1,8 @@
 package com.base.sbc.module.sample.vo;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.annotation.UserAvatar;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,4 +30,18 @@ public class SampleUserVo {
     @ApiModelProperty(value = "头像")
     @UserAvatar("userId")
     private String avatar;
+
+    public String getName() {
+        if (StrUtil.contains(name, StrUtil.COMMA)) {
+            return CollUtil.getFirst(StrUtil.split(name, CharUtil.COMMA));
+        }
+        return name;
+    }
+
+    public String getUserCode() {
+        if (StrUtil.contains(name, StrUtil.COMMA)) {
+            return CollUtil.getLast(StrUtil.split(name, CharUtil.COMMA));
+        }
+        return userCode;
+    }
 }

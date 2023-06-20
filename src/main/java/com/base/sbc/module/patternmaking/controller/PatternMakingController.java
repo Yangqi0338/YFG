@@ -228,6 +228,10 @@ public class PatternMakingController {
     public JSONObject getNodeStatusConfig(String node, String status) {
         return patternMakingService.getNodeStatusConfig(node, status);
     }
+
+    public List getPdTaskDetail() {
+        return null;
+    }
 }
 
 
