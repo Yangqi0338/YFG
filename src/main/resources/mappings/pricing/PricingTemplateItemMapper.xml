@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.pricing.mapper.PricingTemplateItemMapper">
+    <!--
+        核价模板明细表
+        创建人：xhj
+        邮箱：ch.183.g1114@gmail.com
+        创建时间：2023-6-16 15:09:36
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <select id="getByPricingTemplateId" resultType="com.base.sbc.module.pricing.vo.PricingTemplateItemVO">
+        SELECT
+        id,
+        NAME,
+        expression,
+        default_num,
+        decimal_places,
+        update_flag,
+        show_flag,
+        sort,
+        describe_say,
+        pricing_template_id,
+        expression_is_show,
+        expression_show
+        FROM
+        t_pricing_template_item
+        <where>
+            del_flag = 0
+            and pricing_template_id = #{pricingTemplateId}
+            and company_code = #{userCompany}
+        </where>
+    </select>
+
+
+
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>

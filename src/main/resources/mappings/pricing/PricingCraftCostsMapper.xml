@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.pricing.mapper.PricingCraftCostsMapper">
+    <!--
+        核价工艺费用
+        创建人：xhj
+        邮箱：ch.183.g1114@gmail.com
+        创建时间：2023-6-16 15:09:22
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <select id="getByPricingCode" resultType="com.base.sbc.module.pricing.vo.PricingCraftCostsVO">
+        SELECT
+            id,
+            pricing_code,
+            craft_name,
+            outsource,
+            processor_id,
+            currency,
+            quotation_price_currency,
+            exchange_rate,
+            quotation_price,
+            price
+        FROM
+        t_pricing_craft_costs
+        <where>
+            del_flag = 0
+            and pricing_code = #{pricingCode}
+            and company_code = #{userCompany}
+        </where>
+    </select>
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>

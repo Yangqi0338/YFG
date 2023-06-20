@@ -1,6 +1,7 @@
 package com.base.sbc.config.security;
 
 import java.io.*;
+import java.util.Objects;
 import javax.servlet.*;
 import com.base.sbc.config.RequestInterceptor;
 import com.base.sbc.config.common.base.UserCompany;
@@ -90,8 +91,6 @@ public class UrlFilterSecurityInterceptor extends AbstractSecurityInterceptor im
 	private void initUserData(){
 		SecurityContext context = SecurityContextHolder.getContext();
 		Authentication authentication = context.getAuthentication();
-		//当前登录者账号
-		String username = authentication.getPrincipal().toString();
 		UserCompany userCompany = userCompanyUtils.getCompanyUser();
 		if (userCompany == null) {
 
@@ -101,7 +100,11 @@ public class UrlFilterSecurityInterceptor extends AbstractSecurityInterceptor im
 			userCompany.setCompanyName("0");
 			userCompany.setCompanyCode("0");
 		}
-		userCompany.setUsername(username);
+		if (Objects.nonNull(authentication) && Objects.nonNull(authentication.getPrincipal())) {
+			//当前登录者账号
+			String username = authentication.getPrincipal().toString();
+			userCompany.setUsername(username);
+		}
 		companyUserInfo.set(userCompany);
 	}
 }

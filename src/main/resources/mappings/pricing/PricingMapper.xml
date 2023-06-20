@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.pricing.mapper.PricingMapper">
+    <!--
+        核价表
+        创建人：xhj
+        邮箱：ch.183.g1114@gmail.com
+        创建时间：2023-6-16 15:09:17
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <sql id="base_column">
+        tp.id,
+        tp.quote_date,
+        tp.confirm_status,
+        tp.source_type,
+        tp.CODE,
+        tp.design_style_code,
+        tp.source_id,
+        tp.source_code,
+        tp.style_code,
+        tp.style_name,
+        tp.style_pic,
+        tp.customer_style_code,
+        tp.version,
+        tp.category,
+        tp.process_cost,
+        tp.process_cost_rate,
+        tp.secondary_processing_cost,
+        tp.other_cost,
+        tp.YEAR,
+        tp.season,
+        tp.order_num,
+        tp.quote_user_id,
+        tp.quote_user_name,
+        tp.currency,
+        tp.other_currency,
+        tp.quote_desc,
+        tp.confirm_id,
+        tp.confirm_name,
+        tp.confirm_date,
+        tp.confirm_reason,
+        tp.create_date,
+        tp.create_id,
+        tp.create_name,
+        tp.update_date,
+        tp.update_id,
+        tp.update_name,
+    </sql>
+
+    <sql id="filter_conditions">
+        tp.del_flag = 0
+        AND tp.company_code = #{dto.companyCode}
+        <if test="dto.code != null and dto.code != ''">
+            AND tp.code = #{dto.code}
+        </if>
+        <if test="dto.designStyleCode != null and dto.designStyleCode != ''">
+            AND tp.design_style_code = #{dto.designStyleCode}
+        </if>
+        <if test="dto.version != null and dto.version != ''">
+            AND tp.version = #{dto.version}
+        </if>
+        <if test="dto.category != null and dto.category != ''">
+            AND tp.category = #{dto.category}
+        </if>
+        <if test="dto.year != null and dto.year != ''">
+            AND tp.year = #{dto.year}
+        </if>
+        <if test="dto.season != null and dto.season != ''">
+            AND tp.season = #{dto.season}
+        </if>
+    </sql>
+
+    <select id="getItemDimension" resultType="com.base.sbc.module.pricing.vo.PricingListVO">
+        SELECT
+        <include refid="base_column"/>
+        tpc.color as colors,
+        tpc.material_cost
+        FROM
+        t_pricing tp
+        JOIN t_pricing_color tpc ON tp.CODE = tpc.pricing_code
+        <where>
+            <include refid="filter_conditions"/>
+        </where>
+        order by tp.create_date desc
+    </select>
+
+    <select id="getSummaryDimension" resultType="com.base.sbc.module.pricing.vo.PricingListVO">
+        SELECT
+        <include refid="base_column"/>
+        sum(tpc.material_cost) as materialCost,
+        GROUP_CONCAT(tpc.color) as colors
+        FROM
+        t_pricing tp
+        JOIN t_pricing_color tpc ON tp.CODE = tpc.pricing_code
+        <where>
+            <include refid="filter_conditions"/>
+        </where>
+        GROUP BY tp.id
+        order by tp.create_date desc
+    </select>
+
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>
+

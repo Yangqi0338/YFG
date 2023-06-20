@@ -168,6 +168,12 @@ public class RestExceptionHandler {
         return error(e.getMessage());
     }
 
+    @ExceptionHandler(BusinessException.class)
+    public ApiResult handleBusinessException(BusinessException e) {
+        logger.error("业务异常-OtherException", e);
+        return error(e.getMsg());
+    }
+
     /**
      * 格式化错误返回值
      *
