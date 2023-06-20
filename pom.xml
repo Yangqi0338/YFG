@@ -35,6 +35,14 @@
 			<artifactId>aviator</artifactId>
 			<version>5.2.0</version>
 		</dependency>
+		
+		
+		<dependency>
+		    <groupId>com.bstek.ureport</groupId>
+		    <artifactId>ureport2-console</artifactId>
+		    <version>2.2.9</version>
+		</dependency>
+		
 
     	<!-- 自动化测试 -->
 		<dependency>

@@ -16,14 +16,14 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         http.
                 csrf().disable()
-                .exceptionHandling()
-                .authenticationEntryPoint(new Http401AuthenticationEntryPoint("Bearer realm=\"webrealm\""))
-                .and()
+				.exceptionHandling()
+				.authenticationEntryPoint(new Http401AuthenticationEntryPoint("Bearer realm=\"webrealm\"")).and()
                 .authorizeRequests()
                 //开放文档地址不用权限    开放/api/open/下所有的请求
-                .mvcMatchers("/v2/api-docs","/api/open/**","/**.html","/**.js","/**.css","/swagger*/**","/null/swagger*/**","/excel/**").permitAll()
-                .anyRequest().authenticated()
+				.antMatchers("/v2/api-docs", "/api/open/**", "/ureport/**", "/**.html", "/**.js", "/**.css",
+						"/swagger*/**", "/null/swagger*/**", "/excel/**")
+				.permitAll().anyRequest().authenticated()
                 .and()
-                .httpBasic();
+				.httpBasic().disable();
     }
 }
