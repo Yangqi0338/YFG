@@ -36,7 +36,12 @@
 			<version>5.2.0</version>
 		</dependency>
 		
-		
+		<!-- 对象复制拷贝 -->
+		<dependency>
+			<groupId>ma.glasnost.orika</groupId>
+			<artifactId>orika-core</artifactId>
+			<version>1.5.4</version>
+		</dependency>
 		<!-- <dependency>
 		    <groupId>com.bstek.ureport</groupId>
 		    <artifactId>ureport2-console</artifactId>
