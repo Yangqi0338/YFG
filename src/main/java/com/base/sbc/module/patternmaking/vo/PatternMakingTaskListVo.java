@@ -1,14 +1,16 @@
 package com.base.sbc.module.patternmaking.vo;
 
 
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 打样任务-列表Vo
@@ -73,10 +75,38 @@ public class PatternMakingTaskListVo {
      */
     @ApiModelProperty(value = "中断打版(0正常，1中断)")
     private String breakOffPattern;
+
+    /**
+     * 裁剪工
+     */
+    @ApiModelProperty(value = "裁剪工")
+    private String cutterName;
+    /**
+     * 裁剪工id
+     */
+    @ApiModelProperty(value = "裁剪工id")
+    private String cutterId;
+
+    /**
+     * 车缝工名称
+     */
+    @ApiModelProperty(value = "车缝工名称")
+    private String stitcher;
+    /**
+     * 车缝工id
+     */
+    @ApiModelProperty(value = "车缝工id")
+    private String stitcherId;
     /**
      * 打版类型
      */
     @ApiModelProperty(value = "打版类型")
     private String sampleType;
     private List<NodeStatusVo> nodeStatusList;
+
+    public Map<String,NodeStatusVo> getNodeStatus(){
+        return Optional.ofNullable(nodeStatusList).map(ns->{
+           return ns.stream().collect(Collectors.toMap(k->k.getNode()+ StrUtil.DASHED+k.getStatus(),v->v,(a,b)->b));
+        }).orElse(new HashMap<>(4));
+    }
 }
