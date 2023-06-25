@@ -231,8 +231,14 @@ public class PatternMakingController {
 
     @ApiOperation(value = "分配人员(裁剪工,车缝工)", notes = "")
     @PostMapping("/assignmentUser")
-    public boolean assignmentUser(@Valid @RequestBody AssignmentUserDto dto) {
-        return patternMakingService.assignmentUser(dto);
+    public boolean assignmentUser(Principal user,@Valid @RequestBody AssignmentUserDto dto) {
+        GroupUser groupUser = userUtils.getUserBy(user);
+        return patternMakingService.assignmentUser(groupUser,dto);
+    }
+    @ApiOperation(value = "版师任务明细", notes = "")
+    @GetMapping("/pdTaskDetail")
+    public List<PatternDesignVo> pdTaskDetail(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode){
+        return patternMakingService.pdTaskDetail(companyCode);
     }
 }
 

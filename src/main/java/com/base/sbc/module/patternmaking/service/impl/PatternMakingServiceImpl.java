@@ -11,7 +11,9 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -170,10 +172,12 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
             case GARMENT_CUTTING_RECEIVED:
                 uw.set("cutter_id", groupUser.getId());
                 uw.set("cutter_name", groupUser.getName());
+                uw.isNull("cutter_id");
                 break;
             case GARMENT_SEWING_STARTED:
                 uw.set("stitcher_id", groupUser.getId());
                 uw.set("stitcher", groupUser.getName());
+                uw.isNull("stitcher_id");
                 break;
             case GARMENT_CUTTING_KITTING:
                 uw.set("sgl_kitting", BaseGlobal.YES);
@@ -269,7 +273,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         Map<String, String> sampleTypes = ccmFeignService.getDictInfoToMap("SampleType").get("SampleType");
         QueryWrapper<PatternMaking> pmQw = new QueryWrapper<>();
         pmQw.in("pattern_design_id", userIds);
-        // 重新已接受 已打版的数据
+        // 查询已接受 已打版的数据
         pmQw.eq("node", EnumNodeStatus.SAMPLE_TASK_WAITING_RECEIVE.getNode());
         pmQw.in("status", CollUtil.newArrayList(
                 EnumNodeStatus.SAMPLE_TASK_RECEIVED.getStatus(),
@@ -607,20 +611,47 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean assignmentUser(AssignmentUserDto dto) {
+    public boolean assignmentUser(GroupUser groupUser, AssignmentUserDto dto) {
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.eq("id", dto.getId());
         uw.set("cutter_id", dto.getCutterId());
         uw.set("cutter_name", dto.getCutterName());
         uw.set("stitcher", dto.getStitcher());
         uw.set("stitcher_id", dto.getStitcherId());
-        return this.update(uw);
+        setUpdateInfo(uw);
+        boolean update = this.update(uw);
+        //将节点设置为已分配
+        EnumNodeStatus ens = EnumNodeStatus.GARMENT_WAITING_ASSIGNMENT;
+        JSONObject nodeStatusConfig = getNodeStatusConfig(ens.getNode(), ens.getStatus());
+        Object nextParams = nodeStatusConfig.get("nextParams");
+        if(ObjectUtil.isNotEmpty(nextParams)){
+            if(nextParams.getClass().isArray()){
+                List<NodeStatusChangeDto> nodeStatusChangeDtos = ((JSONArray) nextParams).toJavaList(NodeStatusChangeDto.class);
+                nodeStatusChangeDtos.forEach(item->{
+                    item.setDataId(dto.getId());
+                });
+                nodeStatusChange(nodeStatusChangeDtos,groupUser);
+            }else{
+                NodeStatusChangeDto nodeStatusChangeDto = ((JSONObject) nextParams).toJavaObject(NodeStatusChangeDto.class);
+                nodeStatusChangeDto.setDataId(dto.getId());
+                nodeStatusChange(nodeStatusChangeDto,groupUser);
+            }
+        }
+        return update;
+    }
+
+    @Override
+    public List<PatternDesignVo> pdTaskDetail(String companyCode) {
+
+
+        return null;
     }
 
     private void prmDataOverviewCommonQw(QueryWrapper qw, List timeRange, String suspend) {
         qw.ne("del_flag", BaseGlobal.YES);
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.eq(StrUtil.isNotBlank(suspend), "suspend", suspend);
+        amcFeignService.teamAuth(qw,"planning_season_id",getUserId());
         qw.between(CollUtil.isNotEmpty(timeRange), "create_date", CollUtil.getFirst(timeRange), CollUtil.getLast(timeRange));
     }
 

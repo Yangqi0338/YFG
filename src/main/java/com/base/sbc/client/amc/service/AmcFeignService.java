@@ -41,6 +41,7 @@ public class AmcFeignService {
     @Resource
     private AmcService amcService;
 
+    public static ThreadLocal<List<String>> userPlanningSeasonId = new ThreadLocal<>();
     /**
      * 获取用户头像
      *
@@ -156,9 +157,14 @@ public class AmcFeignService {
     public List<String> getPlanningSeasonIdByUserId(String userId) {
         List<String> userList = null;
         try {
+            List<String> cacheIds = userPlanningSeasonId.get();
+            if(CollUtil.isNotEmpty(cacheIds)){
+                return cacheIds;
+            }
             String result = amcService.getPlanningSeasonIdByUserId(userId);
             JSONObject jsonObject = JSON.parseObject(result);
             userList = jsonObject.getJSONArray("data").toJavaList(String.class);
+            userPlanningSeasonId.set(userList);
         } catch (Exception e) {
             e.printStackTrace();
             userList = new ArrayList<>(2);

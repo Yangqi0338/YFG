@@ -424,6 +424,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         QueryWrapper qw = new QueryWrapper();
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.in(StrUtil.isNotBlank(month), "month", StrUtil.split(month, CharUtil.COMMA));
+        amcFeignService.teamAuth(qw,"planning_season_id",getUserId());
         List<ChartBarVo> chartBarVos = getBaseMapper().getBandChart(qw);
         return getChartList(chartBarVos);
     }
@@ -433,6 +434,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         QueryWrapper qw = new QueryWrapper();
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.inSql(StrUtil.isNotBlank(category), "SUBSTRING_INDEX(category_ids, ',', 1) ", StrUtil.split(category, CharUtil.COMMA).stream().map(item -> "'" + item + "'").collect(Collectors.joining(StrUtil.COMMA)));
+        amcFeignService.teamAuth(qw,"planning_season_id",getUserId());
         List<ChartBarVo> chartBarVos = getBaseMapper().getCategoryChart(qw);
         return getChartList(chartBarVos);
     }
@@ -479,6 +481,7 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
     private void getDesignDataOverviewCommonQw(QueryWrapper qw, List timeRange) {
         qw.ne("del_flag", BaseGlobal.YES);
         qw.eq(COMPANY_CODE, getCompanyCode());
+        amcFeignService.teamAuth(qw,"planning_season_id",getUserId());
         qw.between(CollUtil.isNotEmpty(timeRange), "create_date", CollUtil.getFirst(timeRange), CollUtil.getLast(timeRange));
     }
 

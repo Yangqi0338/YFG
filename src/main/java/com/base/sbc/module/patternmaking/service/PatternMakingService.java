@@ -223,7 +223,9 @@ public interface PatternMakingService extends IServicePlus<PatternMaking>{
 
     JSONObject getNodeStatusConfig(String node, String status);
 
-    boolean assignmentUser(AssignmentUserDto dto);
+    boolean assignmentUser(GroupUser groupUser,AssignmentUserDto dto);
+
+    List<PatternDesignVo> pdTaskDetail(String companyCode);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/
