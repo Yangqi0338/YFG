@@ -80,8 +80,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
         qw.eq("sample_design_id", sampleDesignId);
         qw.orderBy(true, true, "create_date");
-        List<PatternMaking> list = list(qw);
-        List<PatternMakingListVo> patternMakingListVos = BeanUtil.copyToList(list, PatternMakingListVo.class);
+        List<PatternMakingListVo> patternMakingListVos = getBaseMapper().findBySampleDesignId(qw);
         return patternMakingListVos;
     }
 
