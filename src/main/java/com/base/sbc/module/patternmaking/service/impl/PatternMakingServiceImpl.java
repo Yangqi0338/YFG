@@ -168,16 +168,16 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
             return;
         }
         switch (enumNodeStatus) {
-            case GARMENT_CUTTING_RECEIVED:
-                uw.set("cutter_id", groupUser.getId());
-                uw.set("cutter_name", groupUser.getName());
-                uw.isNull("cutter_id");
-                break;
-            case GARMENT_SEWING_STARTED:
-                uw.set("stitcher_id", groupUser.getId());
-                uw.set("stitcher", groupUser.getName());
-                uw.isNull("stitcher_id");
-                break;
+//            case GARMENT_CUTTING_RECEIVED:
+//                uw.set("cutter_id", groupUser.getId());
+//                uw.set("cutter_name", groupUser.getName());
+//                uw.isNull("cutter_id");
+//                break;
+//            case GARMENT_SEWING_STARTED:
+//                uw.set("stitcher_id", groupUser.getId());
+//                uw.set("stitcher", groupUser.getName());
+//                uw.isNull("stitcher_id");
+//                break;
             case GARMENT_CUTTING_KITTING:
                 uw.set("sgl_kitting", BaseGlobal.YES);
                 uw.set("sgl_kitting_date", new Date());
