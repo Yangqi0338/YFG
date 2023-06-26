@@ -64,7 +64,13 @@ public interface PricingService extends IServicePlus<Pricing> {
      */
     PricingVO getDetailsById(String id, String userCompany);
 
-    // TODO 提交审核
+    /**
+     * 提交审核
+     *
+     * @param id
+     * @param userCompany
+     */
+    void submitApprove(String id, String userCompany);
 
     // TODO 反审核
 

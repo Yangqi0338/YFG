@@ -25,6 +25,8 @@ import java.math.BigDecimal;
 public class PricingCraftCostsDTO {
     private static final long serialVersionUID = -8339989056778611115L;
 
+    private String id;
+
     /**
      * 工艺id
      */
@@ -75,4 +77,14 @@ public class PricingCraftCostsDTO {
      */
     @ApiModelProperty(value = "单价")
     private BigDecimal price;
+    /**
+     * 数量
+     */
+    @ApiModelProperty(value = "数量")
+    private BigDecimal num;
+    /**
+     * 金额
+     */
+    @ApiModelProperty(value = "金额")
+    private BigDecimal sumPrice;
 }

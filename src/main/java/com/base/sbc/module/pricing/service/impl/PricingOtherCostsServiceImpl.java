@@ -16,6 +16,7 @@ import com.base.sbc.module.pricing.mapper.PricingOtherCostsMapper;
 import com.base.sbc.module.pricing.service.PricingOtherCostsService;
 import com.base.sbc.module.pricing.vo.PricingOtherCostsVO;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,7 +63,11 @@ public class PricingOtherCostsServiceImpl extends ServicePlusImpl<PricingOtherCo
                 .map(pricingCraftCostsDTO -> {
                     PricingOtherCosts otherCosts = new PricingOtherCosts();
                     BeanUtils.copyProperties(pricingCraftCostsDTO, otherCosts);
-                    otherCosts.preInsert(idGen.nextIdStr());
+                    if (StringUtils.isNotEmpty(otherCosts.getId())) {
+                        otherCosts.updateInit();
+                    } else {
+                        otherCosts.preInsert(idGen.nextIdStr());
+                    }
                     otherCosts.setCompanyCode(userCompany);
                     otherCosts.setPricingCode(pricingCode);
                     return otherCosts;

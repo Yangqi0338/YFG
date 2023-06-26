@@ -25,9 +25,9 @@ import java.math.BigDecimal;
 public class PricingOtherCostsDTO {
 
     private static final long serialVersionUID = -1155327995524575345L;
+    private String id;
 
     /**
-     *
      * 费用类型id
      */
     @ApiModelProperty(value = "费用类型Id")

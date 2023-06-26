@@ -15,6 +15,7 @@ import com.base.sbc.module.pricing.entity.PricingCraftCosts;
 import com.base.sbc.module.pricing.mapper.PricingCraftCostsMapper;
 import com.base.sbc.module.pricing.service.PricingCraftCostsService;
 import com.base.sbc.module.pricing.vo.PricingCraftCostsVO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,7 +63,11 @@ public class PricingCraftCostsServiceImpl extends ServicePlusImpl<PricingCraftCo
                 .map(pricingCraftCostsDTO -> {
                     PricingCraftCosts pricingCraftCosts = new PricingCraftCosts();
                     BeanUtils.copyProperties(pricingCraftCostsDTO, pricingCraftCosts);
-                    pricingCraftCosts.preInsert(idGen.nextIdStr());
+                    if (StringUtils.isNotEmpty(pricingCraftCosts.getId())) {
+                        pricingCraftCosts.updateInit();
+                    } else {
+                        pricingCraftCosts.preInsert(idGen.nextIdStr());
+                    }
                     pricingCraftCosts.setCompanyCode(userCompany);
                     pricingCraftCosts.setPricingCode(pricingCode);
                     return pricingCraftCosts;

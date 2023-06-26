@@ -101,17 +101,13 @@ public class PricingServiceImpl extends ServicePlusImpl<PricingMapper, Pricing> 
                     .eq(Pricing::getId, pricingId)
                     .eq(Pricing::getCompanyCode, userCompany);
             super.update(pricing, wrapper);
-            pricingColorService.delByPricingCode(pricingCode, userCompany);
-            pricingCraftCostsService.delByPricingCode(pricingCode, userCompany);
-            pricingMaterialCostsService.delByPricingCode(pricingCode, userCompany);
-            pricingProcessCostsService.delByPricingCode(pricingCode, userCompany);
-            pricingOtherCostsService.delByPricingCode(pricingCode, userCompany);
         }
         Map<String, String> pricingColorIdMap = pricingColorService.insert(pricingDTO.getPricingColors(), pricingCode, userCompany);
         pricingCraftCostsService.insert(pricingDTO.getPricingCraftCosts(), pricingCode, userCompany);
         pricingMaterialCostsService.insert(pricingDTO.getPricingMaterialCosts(), pricingColorIdMap, pricingCode, userCompany);
         pricingProcessCostsService.insert(pricingDTO.getPricingProcessCosts(), pricingCode, userCompany);
         pricingOtherCostsService.insert(pricingDTO.getPricingOtherCosts(), pricingCode, userCompany);
+        // TODO 发起审批流程
         return pricingId;
     }
 
@@ -145,6 +141,25 @@ public class PricingServiceImpl extends ServicePlusImpl<PricingMapper, Pricing> 
         pricingVO.setPricingMaterialCosts(pricingMaterialCostsService.getByPricingCode(pricingCode, userCompany));
         pricingVO.setPricingOtherCosts(pricingOtherCostsService.getByPricingCode(pricingCode, userCompany));
         return pricingVO;
+    }
+
+    @Override
+    public void submitApprove(String id, String userCompany) {
+        logger.info("PricingService#submitApprove 提交审核 id:{}, userCompany:{}", id, userCompany);
+        Pricing pricing = super.getById(id);
+        if (Objects.isNull(pricing)) {
+            throw new BusinessException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+        }
+        if (!BaseGlobal.STOCK_STATUS_DRAFT.equals(pricing.getConfirmStatus()) && !BaseGlobal.STOCK_STATUS_REJECT.equals(pricing.getConfirmStatus())) {
+            throw new BusinessException(BaseErrorEnum.ERR_STATUS_DELETE);
+        }
+        LambdaUpdateWrapper<Pricing> updateWrapper = new LambdaUpdateWrapper<Pricing>()
+                .set(Pricing::getConfirmStatus, BaseGlobal.STOCK_STATUS_WAIT_CHECK)
+                .eq(Pricing::getId, id);
+        super.update(updateWrapper);
+        // TODO 发起审批
+
+
     }
 
     private void checkIsExistAuditing(String id, List<String> ids, String userCompany) {

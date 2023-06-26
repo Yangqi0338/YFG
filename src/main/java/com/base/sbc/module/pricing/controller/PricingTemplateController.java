@@ -24,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 /**
  * 类描述：核价模板 Controller类
@@ -117,6 +118,19 @@ public class PricingTemplateController extends BaseController {
     public ApiResult updateStatus(@Valid @RequestBody PricingUpdateStatusDTO dto) {
         pricingTemplateService.updateStatus(dto, super.getUserCompany());
         return updateSuccess("操作成功");
+    }
+
+    /**
+     * 核价公式模板计算
+     *
+     * @param id
+     * @param map
+     * @return
+     */
+    @ApiOperation(value = "核价公式模板计算")
+    @PostMapping(value = "/formulaCount")
+    public ApiResult formulaCount(@Valid @NotBlank(message = "核价模板id不可为空") @RequestParam("id") String id, @RequestBody Map<String, Object> map) {
+        return selectSuccess(pricingTemplateService.formulaCount(id, map, super.getUserCompany()));
     }
 }
 

@@ -16,6 +16,7 @@ import com.base.sbc.module.pricing.mapper.PricingMaterialCostsMapper;
 import com.base.sbc.module.pricing.service.PricingMaterialCostsService;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -64,7 +65,11 @@ public class PricingMaterialCostsServiceImpl extends ServicePlusImpl<PricingMate
                 .map(pricingCraftCostsDTO -> {
                     PricingMaterialCosts pricingMaterialCosts = new PricingMaterialCosts();
                     BeanUtils.copyProperties(pricingCraftCostsDTO, pricingMaterialCosts);
-                    pricingMaterialCosts.preInsert(idGen.nextIdStr());
+                    if (StringUtils.isNotEmpty(pricingMaterialCosts.getId())) {
+                        pricingMaterialCosts.updateInit();
+                    } else {
+                        pricingMaterialCosts.preInsert(idGen.nextIdStr());
+                    }
                     pricingMaterialCosts.setCompanyCode(userCompany);
                     pricingMaterialCosts.setPricingCode(pricingCode);
                     pricingMaterialCosts.setPricingColorId(pricingColorMap.get(pricingCraftCostsDTO.getColorCode()));

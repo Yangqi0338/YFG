@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 public class PricingMaterialCostsDTO {
 
     private static final long serialVersionUID = -2216380117556202240L;
+    private String id;
     /**
      * 类别（物料分类id）
      */

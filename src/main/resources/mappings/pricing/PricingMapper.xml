@@ -11,7 +11,6 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
     <sql id="base_column">
-        tp.id,
         tp.quote_date,
         tp.confirm_status,
         tp.source_type,
@@ -75,6 +74,8 @@
     <select id="getItemDimension" resultType="com.base.sbc.module.pricing.vo.PricingListVO">
         SELECT
         <include refid="base_column"/>
+        tpc.id,
+        tp.id as pricingId,
         tpc.color as colors,
         tpc.material_cost
         FROM
@@ -89,6 +90,8 @@
     <select id="getSummaryDimension" resultType="com.base.sbc.module.pricing.vo.PricingListVO">
         SELECT
         <include refid="base_column"/>
+        tp.id,
+        tp.id as pricingId,
         sum(tpc.material_cost) as materialCost,
         GROUP_CONCAT(tpc.color) as colors
         FROM

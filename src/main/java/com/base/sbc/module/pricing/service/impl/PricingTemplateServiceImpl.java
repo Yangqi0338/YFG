@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service.impl;
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -25,12 +25,14 @@ import com.base.sbc.module.pricing.entity.PricingTemplate;
 import com.base.sbc.module.pricing.mapper.PricingTemplateMapper;
 import com.base.sbc.module.pricing.service.PricingTemplateItemService;
 import com.base.sbc.module.pricing.service.PricingTemplateService;
+import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
 import com.base.sbc.module.pricing.vo.PricingTemplateVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.nfunk.jep.JEP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -38,7 +40,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：核价模板 service类
@@ -64,8 +71,9 @@ public class PricingTemplateServiceImpl extends ServicePlusImpl<PricingTemplateM
     @Override
     public PageInfo<PricingTemplateVO> queryPageInfo(PricingTemplateSearchDTO dto, String userCompany) {
         QueryWrapper<PricingTemplate> qc = new QueryWrapper<>();
-        qc.like(StrUtil.isNotBlank(dto.getTemplateCode()), "template_code", dto.getTemplateCode());
-        qc.like(StrUtil.isNotBlank(dto.getTemplateName()), "template_name", dto.getTemplateName());
+        qc.like(StringUtils.isNotEmpty(dto.getTemplateCode()), "template_code", dto.getTemplateCode());
+        qc.like(StringUtils.isNotEmpty(dto.getTemplateName()), "template_name", dto.getTemplateName());
+        qc.eq(StringUtils.isNotEmpty(dto.getStatus()), "status", dto.getStatus());
         qc.eq("company_code", userCompany);
         qc.eq("del_flag", YesOrNoEnum.NO.getValueStr());
         qc.orderByDesc("create_date");
@@ -166,6 +174,73 @@ public class PricingTemplateServiceImpl extends ServicePlusImpl<PricingTemplateM
                 .eq(PricingTemplate::getCompanyCode, userCompany)
                 .eq(PricingTemplate::getDelFlag, YesOrNoEnum.NO.getValueStr());
         super.update(pricingTemplate, updateWrapper);
+    }
+
+    @Override
+    public List<PricingTemplateItemVO> formulaCount(String id, Map<String, Object> map, String userCompany) {
+        PricingTemplateVO templateVO = this.getDetailsById(id, userCompany);
+        List<PricingTemplateItemVO> pricingTemplateItems = templateVO.getPricingTemplateItems();
+        if (CollectionUtils.isEmpty(pricingTemplateItems)) {
+            return null;
+        }
+        Map<String, PricingTemplateItemVO> nameMap = pricingTemplateItems.stream()
+                .peek(item -> {
+                    Object o = map.get(item.getName());
+                    if (Objects.nonNull(o)) {
+                        item.setDefaultNum(o.toString());
+                    }
+                }).collect(Collectors.toMap(PricingTemplateItemVO::getName, Function.identity(), (k1, k2) -> k2));
+
+        for (Map.Entry<String, PricingTemplateItemVO> item : nameMap.entrySet()) {
+            count(item.getKey(), nameMap);
+        }
+        return new ArrayList<>(nameMap.values());
+    }
+
+    /**
+     * 用于递归计算
+     *
+     * @param name    子表中自定义字段名称
+     * @param nameMap key -> name value -> 子表对象
+     */
+    private void count(String name, Map<String, PricingTemplateItemVO> nameMap) {
+        if (CollectionUtil.isEmpty(nameMap)) {
+            return;
+        }
+        // 使用jep进行公式解析
+        JEP jep = new JEP();
+        PricingTemplateItemVO pri = nameMap.get(name);
+        if (com.base.sbc.config.utils.StringUtils.isBlank(pri.getExpressionShow())) {
+            pri.setCountResult(StringUtils.isEmpty(pri.getDefaultNum()) ? 0 : Double.parseDouble(pri.getDefaultNum()));
+            return;
+        }
+        // 已经计算过
+        if (pri.getCountResult() != null) {
+            return;
+        }
+        // 取出公式中字段
+        String[] fields = pri.getExpressionShow().split(",");
+        for (String field : fields) {
+            PricingTemplateItemVO pricingTemplateItemVO = nameMap.get(field);
+            if (pricingTemplateItemVO == null) {
+                continue;
+            }
+            // 如果是公式 递归解析
+            if (StringUtils.isNotBlank(pricingTemplateItemVO.getExpressionShow()) && (pricingTemplateItemVO.getCountResult() == null)) {
+                this.count(field, nameMap);
+                // 有默认值不是公式 结果就是自己的值
+            } else if (StringUtils.isNotBlank(pricingTemplateItemVO.getDefaultNum())) {
+                pricingTemplateItemVO.setCountResult(Double.parseDouble(pricingTemplateItemVO.getDefaultNum()));
+            } else if (pricingTemplateItemVO.getCountResult() == null) {
+                pricingTemplateItemVO.setCountResult(0d);
+            }
+            // 设置公式中拆分字段的 计算结果值-> 不是嵌套公式 计算结果就是自己的默认值
+            jep.addVariable(field, pricingTemplateItemVO.getCountResult());
+        }
+        // jep 计算
+        jep.parseExpression(pri.getExpression());
+        // 设置计算结果
+        pri.setCountResult(jep.getValue());
     }
 
 

@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 public class PricingProcessCostsDTO {
 
     private static final long serialVersionUID = -5299387355896455301L;
+    private String id;
     /**
      * 序号
      */

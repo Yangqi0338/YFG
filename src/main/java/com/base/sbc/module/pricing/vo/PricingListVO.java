@@ -30,13 +30,22 @@ public class PricingListVO extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = -4920262612455280732L;
 
-    @ApiModelProperty(value = "id")
+    /**
+     * 明细维度查询时该字段是核价颜色id
+     */
+    @ApiModelProperty(value = "明细维度查询时该字段是核价颜色id")
     private String id;
+
+    /**
+     * 核价id
+     */
+    @ApiModelProperty(value = "核价id")
+    private String pricingId;
     /**
      * 报价日期
      */
     @ApiModelProperty(value = "报价日期")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date quoteDate;
 
     /**

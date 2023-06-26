@@ -68,6 +68,7 @@ public class PricingDTO {
     private String sourceCode;
     /**
      * 来源类型
+     *
      * @see com.base.sbc.module.pricing.enums.PricingSourceTypeEnum
      */
     @ApiModelProperty(value = "来源类型")
@@ -246,6 +247,11 @@ public class PricingDTO {
      */
     @ApiModelProperty(value = "核价模板id")
     private String pricingTemplateId;
+    /**
+     * 核价模板名称
+     */
+    @ApiModelProperty(value = "核价模板")
+    private String pricingTemplateName;
     /**
      * 版本号(核价次数)
      */
