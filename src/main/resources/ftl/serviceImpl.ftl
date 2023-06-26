@@ -6,7 +6,7 @@
  *****************************************************************************/
 package ${javapackage}.${project}.service.impl;
 
-import ${javapackage}.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import ${javapackage}.${project}.mapper.${className}Mapper;
 import ${javapackage}.${project}.entity.${className};
 import ${javapackage}.${project}.service.${className}Service;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
  * @version 1.0  
  */
 @Service
-public class ${className}ServiceImpl extends ServicePlusImpl<${className}Mapper, ${className}> implements ${className}Service {
+public class ${className}ServiceImpl extends BaseServiceImpl<${className}Mapper, ${className}> implements ${className}Service {
 
 // 自定义方法区 不替换的区域【other_start】
 
