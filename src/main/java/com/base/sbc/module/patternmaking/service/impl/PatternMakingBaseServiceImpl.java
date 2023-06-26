@@ -641,9 +641,12 @@ public class PatternMakingBaseServiceImpl extends BaseServiceImpl<PatternMakingM
 
     @Override
     public List<PatternDesignVo> pdTaskDetail(String companyCode) {
-
-
-        return null;
+        List<String> planningSeasonIdByUserId = amcFeignService.getPlanningSeasonIdByUserId(getUserId());
+        if(CollUtil.isEmpty(planningSeasonIdByUserId)){
+            return null;
+        }
+        List<PatternDesignVo> patternDesignList = getPatternDesignList(CollUtil.join(planningSeasonIdByUserId, StrUtil.COMMA));
+        return patternDesignList;
     }
 
     private void prmDataOverviewCommonQw(QueryWrapper qw, List timeRange, String suspend) {

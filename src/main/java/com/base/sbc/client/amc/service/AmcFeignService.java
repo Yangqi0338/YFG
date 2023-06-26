@@ -151,6 +151,7 @@ public class AmcFeignService {
             }).collect(Collectors.toList());
             return collect;
         }
+
         return userList;
     }
 

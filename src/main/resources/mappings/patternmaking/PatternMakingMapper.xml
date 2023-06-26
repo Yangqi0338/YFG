@@ -71,6 +71,8 @@
         s.season,
         s.band_code,
         s.style_name,
+        s.designer,
+        s.designer_id,
         p.code,
         p.sample_type,
         p.design_send_date,
