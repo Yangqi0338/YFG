@@ -1,5 +1,6 @@
 package com.base.sbc.module.basicsdatum.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import lombok.Data;
 
@@ -7,6 +8,7 @@ import lombok.Data;
  * 色号和色型
  */
 @Data
+@TableName("t_color_model_number")
 public class ColorModelNumber extends BaseDataEntity<String> {
     /**状态*/
     private String status;
@@ -16,6 +18,8 @@ public class ColorModelNumber extends BaseDataEntity<String> {
 
     /**名称*/
     private String name;
+
+    private String fileName;
 
     /**备注*/
     private String remark;

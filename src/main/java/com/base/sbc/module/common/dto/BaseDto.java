@@ -10,4 +10,5 @@ import lombok.Data;
  */
 @Data
 public class BaseDto extends Page {
+    private String ids;
 }

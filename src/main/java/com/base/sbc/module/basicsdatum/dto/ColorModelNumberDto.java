@@ -10,4 +10,5 @@ import lombok.Data;
  */
 @Data
 public class ColorModelNumberDto extends BaseDto {
+    private String fileName;
 }
