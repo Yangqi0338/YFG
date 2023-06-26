@@ -10,7 +10,7 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampComponentDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumComponentVo;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumComponent;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
  * @email 2915350015@qq.com
  * @date 创建时间：2023-5-10 11:37:55
  */
-public interface BasicsdatumComponentService extends IServicePlus<BasicsdatumComponent> {
+public interface BasicsdatumComponentService extends BaseService<BasicsdatumComponent> {
 
     /**
      * 方法描述：分页查询部件

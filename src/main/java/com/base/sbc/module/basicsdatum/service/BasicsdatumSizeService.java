@@ -9,14 +9,13 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampSizeDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDasicsdatumSizeDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumSizeVo;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 /** 
  * 类描述：基础资料-尺码表 service类
@@ -26,7 +25,7 @@ import java.io.UnsupportedEncodingException;
  * @date 创建时间：2023-5-17 14:01:34
  * @version 1.0  
  */
-public interface BasicsdatumSizeService extends IServicePlus<BasicsdatumSize>{
+public interface BasicsdatumSizeService extends BaseService<BasicsdatumSize> {
 
     /**
      * 查询尺码列表

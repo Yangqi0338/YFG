@@ -8,11 +8,10 @@ package com.base.sbc.module.process.service;
 
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.process.dto.AddRevampProcessProcessSchemeDto;
 import com.base.sbc.module.process.entity.ProcessProcessScheme;
 import com.base.sbc.module.process.vo.ProcessProcessSchemeVo;
-import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
@@ -24,7 +23,7 @@ import java.util.List;
  * @date 创建时间：2023-6-2 20:15:15
  * @version 1.0  
  */
-public interface ProcessProcessSchemeService extends IServicePlus<ProcessProcessScheme>{
+public interface ProcessProcessSchemeService extends BaseService<ProcessProcessScheme> {
 
 // 自定义方法区 不替换的区域【other_start】
 

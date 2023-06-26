@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service;
 
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pricing.dto.PricingDelDTO;
 import com.base.sbc.module.pricing.dto.PricingTemplateDTO;
 import com.base.sbc.module.pricing.dto.PricingTemplateSearchDTO;
@@ -24,7 +24,7 @@ import com.github.pagehelper.PageInfo;
  * @email ch.183.g1114@gmail.com
  * @date 创建时间：2023-6-16 15:21:48
  */
-public interface PricingTemplateService extends IServicePlus<PricingTemplate> {
+public interface PricingTemplateService extends BaseService<PricingTemplate> {
 
     // 自定义方法区 不替换的区域【other_start】
 

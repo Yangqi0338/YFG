@@ -7,7 +7,7 @@
 package com.base.sbc.module.planning.service;
 
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planning.dto.SaveUpdateDemandProportionDataDto;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
 
@@ -20,7 +20,7 @@ import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-4-26 17:42:22
  */
-public interface PlanningDemandProportionDataService extends IServicePlus<PlanningDemandProportionData> {
+public interface PlanningDemandProportionDataService extends BaseService<PlanningDemandProportionData> {
 
     /**
      * 自定义方法区 不替换的区域【other_start】

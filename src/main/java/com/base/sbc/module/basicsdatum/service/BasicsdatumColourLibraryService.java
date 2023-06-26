@@ -11,7 +11,7 @@ import com.base.sbc.module.basicsdatum.dto.QueryBasicsdatumColourLibraryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,7 +27,7 @@ import java.util.List;
  * @date 创建时间：2023-5-20 20:23:02
  * @version 1.0  
  */
-public interface BasicsdatumColourLibraryService extends IServicePlus<BasicsdatumColourLibrary>{
+public interface BasicsdatumColourLibraryService extends BaseService<BasicsdatumColourLibrary> {
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 

@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.process.service;
 
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.process.dto.InitiateProcessDto;
 import com.base.sbc.module.process.entity.ProcessBusinessInstance;
 import com.base.sbc.module.process.vo.ProcessNodeRecordVo;
@@ -22,7 +22,7 @@ import java.util.List;
  * @date 创建时间：2023-6-6 15:03:26
  * @version 1.0  
  */
-public interface ProcessBusinessInstanceService extends IServicePlus<ProcessBusinessInstance>{
+public interface ProcessBusinessInstanceService extends BaseService<ProcessBusinessInstance> {
 
     /**
      * 描述- 发起流程

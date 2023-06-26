@@ -7,7 +7,7 @@
 package com.base.sbc.module.basicsdatum.service;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.github.pagehelper.PageInfo;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumAuxiliaryTechnics;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumAuxiliaryTechnicsVo;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumAuxiliaryTechnicsDto;
@@ -24,7 +24,7 @@ import java.io.IOException;
  * @date 创建时间：2023-5-20 19:08:56
  * @version 1.0  
  */
-public interface BasicsdatumAuxiliaryTechnicsService extends IServicePlus<BasicsdatumAuxiliaryTechnics>{
+public interface BasicsdatumAuxiliaryTechnicsService extends BaseService<BasicsdatumAuxiliaryTechnics> {
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 

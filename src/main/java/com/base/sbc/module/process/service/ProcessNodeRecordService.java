@@ -5,8 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.process.service;
-import com.base.sbc.module.common.service.IServicePlus;
-import com.base.sbc.module.process.dto.InitiateProcessDto;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.process.entity.ProcessNodeRecord;
 
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.List;
  * @date 创建时间：2023-6-6 15:03:28
  * @version 1.0  
  */
-public interface ProcessNodeRecordService extends IServicePlus<ProcessNodeRecord> {
+public interface ProcessNodeRecordService extends BaseService<ProcessNodeRecord> {
 
 
     /**

@@ -1,8 +1,6 @@
 package com.base.sbc.module.material.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.material.entity.MaterialColor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -12,7 +10,7 @@ import java.util.List;
  * @date 2023/3/31 16:08:52
  */
 @Service
-public interface MaterialColorService extends IServicePlus<MaterialColor> {
+public interface MaterialColorService extends BaseService<MaterialColor> {
 
     /**
      * 获取素材列表相关联的列表

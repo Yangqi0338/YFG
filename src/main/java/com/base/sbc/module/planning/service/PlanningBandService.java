@@ -7,7 +7,7 @@
 package com.base.sbc.module.planning.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planning.dto.PlanningBandDto;
 import com.base.sbc.module.planning.dto.PlanningBandSearchDto;
 import com.base.sbc.module.planning.dto.ProductSeasonExpandByBandSearchDto;
@@ -26,7 +26,7 @@ import java.util.List;
  * @date 创建时间：2023-3-27 17:42:11
  * @version 1.0  
  */
-public interface PlanningBandService extends IServicePlus<PlanningBand> {
+public interface PlanningBandService extends BaseService<PlanningBand> {
 
 
 	/**

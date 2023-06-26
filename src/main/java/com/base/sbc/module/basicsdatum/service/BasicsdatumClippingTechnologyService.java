@@ -9,7 +9,7 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampTechnologyDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumTechnologyVo;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumClippingTechnology;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse;
  * @date 创建时间：2023-5-15 17:31:31
  * @version 1.0  
  */
-public interface BasicsdatumClippingTechnologyService extends IServicePlus<BasicsdatumClippingTechnology>{
+public interface BasicsdatumClippingTechnologyService extends BaseService<BasicsdatumClippingTechnology> {
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 

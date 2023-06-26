@@ -5,7 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.process.service;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.process.entity.ProcessStateRecord;
 
 /** 
@@ -16,7 +16,7 @@ import com.base.sbc.module.process.entity.ProcessStateRecord;
  * @date 创建时间：2023-6-6 15:03:27
  * @version 1.0  
  */
-public interface ProcessStateRecordService extends IServicePlus<ProcessStateRecord>{
+public interface ProcessStateRecordService extends BaseService<ProcessStateRecord> {
 
 
 }

@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.formType.service;
 
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.entity.FieldVal;
 
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-5-22 19:41:56
  */
-public interface FieldValService extends IServicePlus<FieldVal> {
+public interface FieldValService extends BaseService<FieldVal> {
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 

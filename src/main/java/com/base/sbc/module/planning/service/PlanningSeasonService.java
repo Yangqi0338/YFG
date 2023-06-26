@@ -8,7 +8,7 @@ package com.base.sbc.module.planning.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.dto.AdTree;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
@@ -27,7 +27,7 @@ import java.util.List;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-3-27 17:42:08
  */
-public interface PlanningSeasonService extends IServicePlus<PlanningSeason> {
+public interface PlanningSeasonService extends BaseService<PlanningSeason> {
 
     /**
      * 删除产品季

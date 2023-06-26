@@ -7,7 +7,7 @@
 package com.base.sbc.module.nodestatus.service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.nodestatus.entity.NodeStatusConfig;
 
 /**
@@ -19,7 +19,7 @@ import com.base.sbc.module.nodestatus.entity.NodeStatusConfig;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-6-19 13:33:10
  */
-public interface NodeStatusConfigService extends IServicePlus<NodeStatusConfig> {
+public interface NodeStatusConfigService extends BaseService<NodeStatusConfig> {
 
 // 自定义方法区 不替换的区域【other_start】
 

@@ -5,7 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package ${javapackage}.${project}.service;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import ${javapackage}.${project}.entity.${className};
 
 /** 

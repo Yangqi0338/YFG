@@ -6,15 +6,12 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
-import com.github.pagehelper.PageInfo;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourGroup;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourGroupVo;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumColourGroupDto;
-import javax.servlet.http.HttpServletResponse;
-import org.springframework.web.multipart.MultipartFile;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import java.io.IOException;
+
 import java.util.List;
 
 /** 
@@ -25,7 +22,7 @@ import java.util.List;
  * @date 创建时间：2023-5-20 20:23:03
  * @version 1.0  
  */
-public interface BasicsdatumColourGroupService extends IServicePlus<BasicsdatumColourGroup>{
+public interface BasicsdatumColourGroupService extends BaseService<BasicsdatumColourGroup> {
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 

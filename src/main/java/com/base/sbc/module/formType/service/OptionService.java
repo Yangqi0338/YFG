@@ -5,7 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.formType.service;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.entity.Option;
 
 /** 
@@ -16,7 +16,7 @@ import com.base.sbc.module.formType.entity.Option;
  * @date 创建时间：2023-4-15 18:33:55
  * @version 1.0  
  */
-public interface OptionService extends IServicePlus<Option>{
+public interface OptionService extends BaseService<Option> {
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 

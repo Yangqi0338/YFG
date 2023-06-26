@@ -21,7 +21,7 @@ import java.util.List;
  * @date 创建时间：2023-5-12 16:05:59
  * @version 1.0  
  */
-public interface AttachmentService extends IServicePlus<Attachment>{
+public interface AttachmentService extends BaseService<Attachment> {
 
 
 /** 自定义方法区 不替换的区域【other_start】 **/
