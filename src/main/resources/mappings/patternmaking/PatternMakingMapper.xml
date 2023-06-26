@@ -129,6 +129,7 @@
         select DISTINCT pattern_design_id as user_id, pattern_design_name as name
         from t_pattern_making s
         where company_code = #{companyCode}
+          and pattern_design_id is not null
 
     </select>
     <select id="nsCount" resultType="java.util.Map">
