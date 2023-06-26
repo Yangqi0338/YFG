@@ -7,7 +7,7 @@
 package com.base.sbc.module.basicsdatum.service;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.github.pagehelper.PageInfo;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumLavationReminderDto;
@@ -24,7 +24,7 @@ import java.io.IOException;
  * @date 创建时间：2023-5-19 19:15:00
  * @version 1.0  
  */
-public interface BasicsdatumLavationReminderService extends IServicePlus<BasicsdatumLavationReminder>{
+public interface BasicsdatumLavationReminderService extends BaseService<BasicsdatumLavationReminder> {
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 

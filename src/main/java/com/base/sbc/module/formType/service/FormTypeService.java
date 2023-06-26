@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.formType.service;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.dto.FormDeleteDto;
 import com.base.sbc.module.formType.dto.FormStartStopDto;
 import com.base.sbc.module.formType.dto.QueryFormTypeDto;
@@ -23,7 +23,7 @@ import com.github.pagehelper.PageInfo;
  * @date 创建时间：2023-4-15 9:17:01
  * @version 1.0  
  */
-public interface FormTypeService extends IServicePlus<FormType>{
+public interface FormTypeService extends BaseService<FormType> {
 
     /**
      * 表单类型及分组 启动 停止

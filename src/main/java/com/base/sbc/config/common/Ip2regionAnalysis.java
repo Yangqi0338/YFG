@@ -1,9 +1,8 @@
 package com.base.sbc.config.common;
 
-import com.base.sbc.config.utils.StringUtils;
 import org.lionsoul.ip2region.xdb.Searcher;
 
-
+import com.base.sbc.config.utils.StringUtils;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -73,7 +72,7 @@ public class Ip2regionAnalysis {
 	public static String[] getAddressByIp(String ip) {
 		//String[] result = { "中国", "广东省", "广州市" };
 		String[] result = { "本机" };
-		if ("127.0.0.1".equals(ip)) {
+		if ("127.0.0.1".equals(ip) || "localhost".equals(ip)) {
 			return result;
 		}
 		try {

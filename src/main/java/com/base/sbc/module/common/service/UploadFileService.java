@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.common.service;
 
-import com.base.sbc.module.common.service.IServicePlus;
 import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,7 +22,7 @@ import java.util.Map;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-5-12 15:16:14
  */
-public interface UploadFileService extends IServicePlus<UploadFile> {
+public interface UploadFileService extends BaseService<UploadFile> {
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 

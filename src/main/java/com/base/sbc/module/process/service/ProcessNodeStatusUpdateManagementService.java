@@ -8,7 +8,7 @@ package com.base.sbc.module.process.service;
 
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.process.dto.AddRevampProcessNodeStatusUpdateManagementDto;
 import com.base.sbc.module.process.entity.ProcessNodeStatusUpdateManagement;
 import com.base.sbc.module.process.vo.ProcessNodeStatusUpdateManagementVo;
@@ -24,7 +24,7 @@ import java.util.List;
  * @date 创建时间：2023-6-16 14:00:08
  * @version 1.0  
  */
-public interface ProcessNodeStatusUpdateManagementService extends IServicePlus<ProcessNodeStatusUpdateManagement>{
+public interface ProcessNodeStatusUpdateManagementService extends BaseService<ProcessNodeStatusUpdateManagement> {
 
 // 自定义方法区 不替换的区域【other_start】
 

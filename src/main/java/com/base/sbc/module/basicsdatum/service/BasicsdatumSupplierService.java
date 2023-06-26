@@ -5,10 +5,9 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.QueryRevampBasicsdatumSupplierDto;
 import com.github.pagehelper.PageInfo;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumSupplierVo;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumSupplierDto;
@@ -25,7 +24,7 @@ import java.io.IOException;
  * @date 创建时间：2023-5-22 10:51:07
  * @version 1.0  
  */
-public interface BasicsdatumSupplierService extends IServicePlus<BasicsdatumSupplier>{
+public interface BasicsdatumSupplierService extends BaseService<BasicsdatumSupplier> {
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 

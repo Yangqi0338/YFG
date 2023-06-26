@@ -6,12 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.process.service;
 
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.process.dto.AddRevampProcessActionDto;
 import com.base.sbc.module.process.dto.QueryActionDto;
-import com.base.sbc.module.process.dto.QueryStatusDto;
 import com.base.sbc.module.process.entity.ProcessAction;
 import com.base.sbc.module.process.vo.ProcessActionVo;
 import com.github.pagehelper.PageInfo;
@@ -24,7 +22,7 @@ import com.github.pagehelper.PageInfo;
  * @date 创建时间：2023-6-5 11:03:08
  * @version 1.0  
  */
-public interface ProcessActionService extends IServicePlus<ProcessAction>{
+public interface ProcessActionService extends BaseService<ProcessAction> {
 
 // 自定义方法区 不替换的区域【other_start】
 

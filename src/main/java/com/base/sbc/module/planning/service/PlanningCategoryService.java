@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
 
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +23,7 @@ import java.util.Map;
  * @date 创建时间：2023-3-29 10:36:59
  * @version 1.0  
  */
-public interface PlanningCategoryService extends IServicePlus<PlanningCategory> {
+public interface PlanningCategoryService extends BaseService<PlanningCategory> {
 
 
 	/**

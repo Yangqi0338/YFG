@@ -1,6 +1,6 @@
 package com.base.sbc.module.material.service;
 import com.base.sbc.client.flowable.entity.AnswerDto;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.Material;
@@ -16,7 +16,7 @@ import java.util.List;
  * @version 1.0
  * @date 创建时间：2023-3-24 16:26:15
  */
-public interface MaterialService extends IServicePlus<Material> {
+public interface MaterialService extends BaseService<Material> {
 
     /**
      * 条件查询

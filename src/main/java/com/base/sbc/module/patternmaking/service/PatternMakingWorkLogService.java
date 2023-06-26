@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.service;
 
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.patternmaking.dto.PatternMakingWorkLogSaveDto;
 import com.base.sbc.module.patternmaking.dto.PatternMakingWorkLogSearchDto;
 import com.base.sbc.module.patternmaking.entity.PatternMakingWorkLog;
@@ -23,7 +23,7 @@ import java.util.List;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-6-5 19:42:22
  */
-public interface PatternMakingWorkLogService extends IServicePlus<PatternMakingWorkLog> {
+public interface PatternMakingWorkLogService extends BaseService<PatternMakingWorkLog> {
 
 // 自定义方法区 不替换的区域【other_start】
 

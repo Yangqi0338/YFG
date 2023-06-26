@@ -7,7 +7,7 @@
 package com.base.sbc.module.planning.service;
 
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planning.dto.QueryPlanningDimensionalityDto;
 import com.base.sbc.module.planning.dto.SaveDelDimensionalityDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
@@ -24,7 +24,7 @@ import java.util.List;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-4-27 11:15:30
  */
-public interface PlanningDimensionalityService extends IServicePlus<PlanningDimensionality> {
+public interface PlanningDimensionalityService extends BaseService<PlanningDimensionality> {
 
     /**
      * 自定义方法区 不替换的区域【other_start】

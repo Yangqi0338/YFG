@@ -2,7 +2,7 @@ package com.base.sbc.module.basicsdatum.service;
 
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
 import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +13,7 @@ import java.util.List;
  * @date 2023/6/5 9:23:54
  * @mail 247967116@qq.com
  */
-public interface ProcessDatabaseService extends IServicePlus<ProcessDatabase> {
+public interface ProcessDatabaseService extends BaseService<ProcessDatabase> {
     /**
      * 导入
      * @param file 文件

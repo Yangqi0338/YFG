@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.sample.mapper.SampleDesignMapper">
+    <!--
+        样衣
+        创建人：lxl
+        邮箱：lxl.fml@gmail.com
+        创建时间：2023-5-9 17:32:40
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <!-- 分页查询 -->
+    <select id="selectByQw" resultType="com.base.sbc.module.sample.vo.SampleDesignPageVo">
+        select *
+        from t_sample_design s
+            ${ ew.customSqlSegment}
+    </select>
+    <select id="getDesignerList" resultType="com.base.sbc.module.sample.vo.SampleUserVo">
+        select DISTINCT designer_id as user_id, designer as name
+        from t_sample_design s
+        where company_code = #{companyCode}
+          AND del_flag = '0'
+          and designer_id !='' and designer_id is not null
+    </select>
+    <select id="getBandChart" resultType="com.base.sbc.module.sample.vo.ChartBarVo">
+
+        SELECT band_code AS product,
+               STATUS    AS dimension,
+               count(id) AS total
+        FROM t_sample_design ${ ew.customSqlSegment}
+        GROUP BY band_code,
+                 STATUS;
+    </select>
+    <select id="getCategoryChart" resultType="com.base.sbc.module.sample.vo.ChartBarVo">
+        SELECT SUBSTRING_INDEX(category_name, ',', 1) AS product,
+               STATUS                                 AS dimension,
+               count(id)                              AS total
+        FROM t_sample_design ${ ew.customSqlSegment}
+        GROUP BY product,
+                 dimension;
+
+    </select>
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>
+

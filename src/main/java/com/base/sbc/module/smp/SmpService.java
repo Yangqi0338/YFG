@@ -1,9 +1,9 @@
 package com.base.sbc.module.smp;
 
-import com.base.sbc.config.restTemplate.RestTemplateUtils;
-import com.base.sbc.module.smp.base.SmpBaseDto;
+import com.base.sbc.config.restTemplate.RestTemplateService;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,7 +19,10 @@ import java.util.List;
  * 对接下发Smp主数据
  */
 @Service
+@RequiredArgsConstructor
 public class SmpService {
+
+    private final RestTemplateService restTemplateService;
 
 
     //private  static final String URL ="http://10.88.34.25:7006/pdm";
@@ -30,62 +33,62 @@ public class SmpService {
      * 商品主数据下发
      */
     public Boolean goods(SmpGoodsDto smpGoodsDto) {
-        return RestTemplateUtils.spmPost(URL + "/goods", smpGoodsDto);
+        return restTemplateService.spmPost(URL + "/goods", smpGoodsDto);
     }
 
     /**
      * 物料主数据下发
      */
     public Boolean materials(SmpMaterialDto smpMaterialDto) {
-        return RestTemplateUtils.spmPost(URL + "/materials", smpMaterialDto);
+        return restTemplateService.spmPost(URL + "/materials", smpMaterialDto);
     }
 
     /**
      * bom下发
      */
     public Boolean bom(SmpBomDto smpBomDto) {
-        return RestTemplateUtils.spmPost(URL + "/bom", smpBomDto);
+        return restTemplateService.spmPost(URL + "/bom", smpBomDto);
     }
 
     /**
      * 颜色主数据下发
      */
     public Boolean color(SmpColorDto smpColorDto) {
-        return RestTemplateUtils.spmPost(URL + "/color", smpColorDto);
+        return restTemplateService.spmPost(URL + "/color", smpColorDto);
     }
 
     /**
      * 工艺单下发
      */
     public Boolean processSheet(SmpProcessSheetDto smpProcessSheetDto) {
-        return RestTemplateUtils.spmPost(URL + "/processSheet", smpProcessSheetDto);
+        return restTemplateService.spmPost(URL + "/processSheet", smpProcessSheetDto);
     }
 
     /**
      * 样衣下发
      */
     public Boolean sample(SmpSampleDto smpSampleDto) {
-        return RestTemplateUtils.spmPost(URL + "/sample", smpSampleDto);
+        return restTemplateService.spmPost(URL + "/sample", smpSampleDto);
     }
 
     /**
      * 修改尺码的时候验证
      */
     public Boolean style(PlmStyleSizeParam param) {
-        return RestTemplateUtils.spmPost("http://10.8.250.100:1980/escm-app/information/plm/style", param);
+        return restTemplateService.spmPost("http://10.8.250.100:1980/escm-app/information/plm/style", param);
     }
 
 
-    public static void main(String[] args) {
-        SmpService smpService = new SmpService();
-        smpService.testGoods();
-        smpService.testMaterials();
-        //smpService.testBom();
-        //smpService.testColor();
-        //smpService.testProcessSheet();
-        //smpService.testSample();
-        //smpService.testStyle();
-    }
+//    public static void main(String[] args) {
+//        SmpService smpService = new SmpService();
+//        smpService.testGoods();
+//        smpService.testMaterials();
+//        //smpService.testBom();
+//        //smpService.testColor();
+//        //smpService.testProcessSheet();
+//        //smpService.testSample();
+//        //smpService.testStyle();
+//    }
 
     public void testGoods() {
         SmpGoodsDto smpGoodsDto = new SmpGoodsDto();

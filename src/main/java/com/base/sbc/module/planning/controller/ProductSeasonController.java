@@ -19,6 +19,7 @@ import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.YearSeasonVo;
 import com.base.sbc.module.sample.service.SampleDesignService;
+import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -185,6 +186,12 @@ public class ProductSeasonController extends BaseController {
     @PutMapping("/updateItemBatch")
     public boolean updateItemBatch(@Valid @RequestBody PlanningCategoryItemBatchUpdateDto dto) {
         return planningCategoryItemService.updateItemBatch(dto);
+    }
+
+    @ApiOperation(value = "产品季总览-获取坑位数据所有设计师")
+    @GetMapping("/getAllDesigner")
+    public List<SampleUserVo> getAllDesigner(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+        return planningCategoryItemService.getAllDesigner(userCompany);
     }
 
 }

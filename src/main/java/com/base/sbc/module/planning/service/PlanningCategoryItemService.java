@@ -10,12 +10,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategory;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.sample.vo.SampleUserVo;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.List;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-3-31 13:40:49
  */
-public interface PlanningCategoryItemService extends IServicePlus<PlanningCategoryItem>{
+public interface PlanningCategoryItemService extends BaseService<PlanningCategoryItem> {
     public int saveCategoryItem(PlanningBand band, PlanningCategory category,List<PlanningCategoryItem> dbCategoryItemList);
     @Transactional(readOnly = false)
     public boolean delByPlanningCategory(String companyCode,List<String> ids);
@@ -121,4 +122,6 @@ public interface PlanningCategoryItemService extends IServicePlus<PlanningCatego
     boolean updateStylePic(String id, String stylePic);
 
     boolean updateItemBatch(PlanningCategoryItemBatchUpdateDto dto);
+
+    List<SampleUserVo> getAllDesigner(String userCompany);
 }

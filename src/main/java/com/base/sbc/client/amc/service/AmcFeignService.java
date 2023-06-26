@@ -41,6 +41,7 @@ public class AmcFeignService {
     @Resource
     private AmcService amcService;
 
+    public static ThreadLocal<List<String>> userPlanningSeasonId = new ThreadLocal<>();
     /**
      * 获取用户头像
      *
@@ -150,15 +151,21 @@ public class AmcFeignService {
             }).collect(Collectors.toList());
             return collect;
         }
+
         return userList;
     }
 
     public List<String> getPlanningSeasonIdByUserId(String userId) {
         List<String> userList = null;
         try {
+            List<String> cacheIds = userPlanningSeasonId.get();
+            if(CollUtil.isNotEmpty(cacheIds)){
+                return cacheIds;
+            }
             String result = amcService.getPlanningSeasonIdByUserId(userId);
             JSONObject jsonObject = JSON.parseObject(result);
             userList = jsonObject.getJSONArray("data").toJavaList(String.class);
+            userPlanningSeasonId.set(userList);
         } catch (Exception e) {
             e.printStackTrace();
             userList = new ArrayList<>(2);
@@ -256,6 +263,9 @@ public class AmcFeignService {
         // 查询头像
         Map<String, String> userAvatar = getUserAvatar(CollUtil.join(userIds, StrUtil.COMMA));
         for (Object obj : list) {
+            if (obj == null) {
+                continue;
+            }
             for (Map.Entry<String, String> kv : avatarUserIdKey.entrySet()) {
                 BeanUtil.setProperty(obj, kv.getKey(), userAvatar.get(BeanUtil.getProperty(obj, kv.getValue())));
             }

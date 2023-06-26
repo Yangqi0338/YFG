@@ -71,6 +71,8 @@
         s.season,
         s.band_code,
         s.style_name,
+        s.designer,
+        s.designer_id,
         p.code,
         p.sample_type,
         p.design_send_date,
@@ -85,6 +87,10 @@
         p.suspend,
         p.planning_season_id,
         p.pattern_design_id,
+        p.stitcher,
+        p.stitcher_id,
+        p.cutter_name,
+        p.cutter_id,
         p.break_off_sample,
         p.break_off_pattern,
         p.update_date,
@@ -123,6 +129,7 @@
         select DISTINCT pattern_design_id as user_id, pattern_design_name as name
         from t_pattern_making s
         where company_code = #{companyCode}
+          and pattern_design_id is not null
 
     </select>
     <select id="nsCount" resultType="java.util.Map">
@@ -130,6 +137,10 @@
         from t_pattern_making ${ew.customSqlSegment}
         group by node, status
 
+    </select>
+    <select id="findBySampleDesignId" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingListVo">
+        select m.*,d.product_sizes  ,d.pat_diff as sd_pat_diff
+        from t_pattern_making m  join t_sample_design d on (m.sample_design_id=d.id)  ${ew.customSqlSegment}
     </select>
 </mapper>
 

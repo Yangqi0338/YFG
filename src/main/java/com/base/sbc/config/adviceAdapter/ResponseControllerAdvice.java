@@ -2,6 +2,7 @@ package com.base.sbc.config.adviceAdapter;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.Ip2regionAnalysis;
 import com.base.sbc.config.common.base.UserCompany;
@@ -148,9 +149,12 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
         }finally {
             httpLogService.save(httpLog);
             companyUserInfo.remove();
+            AmcFeignService.userPlanningSeasonId.remove();
         }
 
 
     }
+
+
 
 }

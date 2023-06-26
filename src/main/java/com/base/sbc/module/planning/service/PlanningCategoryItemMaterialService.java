@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
 
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planning.dto.PlanningCategoryItemMaterialSaveDto;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.sample.dto.SampleDesignSaveDto;
@@ -24,7 +24,7 @@ import java.util.Map;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-3-31 13:47:43
  */
-public interface PlanningCategoryItemMaterialService extends IServicePlus<PlanningCategoryItemMaterial> {
+public interface PlanningCategoryItemMaterialService extends BaseService<PlanningCategoryItemMaterial> {
 
 
  

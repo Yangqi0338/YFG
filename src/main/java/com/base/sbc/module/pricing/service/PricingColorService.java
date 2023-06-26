@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service;
 
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pricing.dto.PricingColorDTO;
 import com.base.sbc.module.pricing.entity.PricingColor;
 import com.base.sbc.module.pricing.vo.PricingColorVO;
@@ -23,7 +23,7 @@ import java.util.Map;
  * @email ch.183.g1114@gmail.com
  * @date 创建时间：2023-6-16 15:09:20
  */
-public interface PricingColorService extends IServicePlus<PricingColor> {
+public interface PricingColorService extends BaseService<PricingColor> {
 
     // 自定义方法区 不替换的区域【other_start】
 
