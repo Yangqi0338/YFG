@@ -2,10 +2,19 @@ package com.base.sbc.module.basicsdatum.dto;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+/**
+ * 保存打印模板实体
+ * 
+ * @author shenzhixiong
+ * @email 731139982@qq.com
+ * @date 2023年6月26日
+ */
 @Data
+@ApiModel("保存打印模板实体")
 public class AddRevampConfigPrintDto {
 	@NotBlank(message = "ID必填,新增-1")
 	@ApiModelProperty(value = "id", required = true)

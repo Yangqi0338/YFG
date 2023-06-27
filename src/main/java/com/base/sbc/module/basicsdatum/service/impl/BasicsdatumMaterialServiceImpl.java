@@ -1,0 +1,212 @@
+/******************************************************************************
+ * Copyright (C) 2018 广州尚捷科技有限责任公司
+ * All Rights Reserved.
+ * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
+ * 不得使用、复制、修改或发布本软件.
+ *****************************************************************************/
+package com.base.sbc.module.basicsdatum.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+
+/**
+ * 类描述：基础资料-物料档案 service类
+ * 
+ * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService
+ * @author shenzhixiong
+ * @email 731139982@qq.com
+ * @date 创建时间：2023-6-26 17:57:17
+ * @version 1.0
+ */
+@Service
+public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumMaterialMapper, BasicsdatumMaterial>
+		implements BasicsdatumMaterialService {
+
+	@Autowired
+	private BasicsdatumMaterialColorService materialColorService;
+	@Autowired
+	private BasicsdatumMaterialWidthService materialWidthService;
+	@Autowired
+	private BasicsdatumMaterialPriceService materialPriceService;
+
+	@Override
+	public PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialList(BasicsdatumMaterialQueryDto dto) {
+		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+			PageHelper.startPage(dto);
+		}
+		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
+		qc.eq("company_code", this.getCompanyCode());
+		qc.notEmptyEq("category_id", dto.getCategoryId());
+		qc.notEmptyLike("material_code", dto.getMaterialCode());
+		qc.notEmptyLike("material_name", dto.getMaterialName());
+		List<BasicsdatumMaterial> list = this.list(qc);
+		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
+	}
+
+	@Override
+	public Boolean saveBasicsdatumMaterial(BasicsdatumMaterialSaveDto dto) {
+		BasicsdatumMaterial entity = CopyUtil.copy(dto, BasicsdatumMaterial.class);
+		if ("-1".equals(entity.getId())) {
+			entity.setId(null);
+		}
+		return this.saveOrUpdate(entity);
+	}
+
+	@Override
+	public Boolean startStopBasicsdatumMaterial(StartStopDto dto) {
+		UpdateWrapper<BasicsdatumMaterial> uw = new UpdateWrapper<>();
+		uw.in("id", StringUtils.convertList(dto.getIds()));
+		uw.set("status", dto.getStatus());
+		return this.update(null, uw);
+	}
+
+	@Override
+	public Boolean delBasicsdatumMaterial(String id) {
+		return this.removeBatchByIds(StringUtils.convertList(id));
+	}
+
+	@Override
+	public BasicsdatumMaterialVo getBasicsdatumMaterial(String id) {
+		return CopyUtil.copy(this.getById(id), BasicsdatumMaterialVo.class);
+	}
+
+
+	@Override
+	public PageInfo<BasicsdatumMaterialWidthPageVo> getBasicsdatumMaterialWidthList(
+			BasicsdatumMaterialWidthQueryDto dto) {
+		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+			PageHelper.startPage(dto);
+		}
+		BaseQueryWrapper<BasicsdatumMaterialWidth> qc = new BaseQueryWrapper<>();
+		qc.eq("company_code", this.getCompanyCode());
+		qc.notEmptyEq("material_code", dto.getMaterialCode());
+		List<BasicsdatumMaterialWidth> list = this.materialWidthService.list(qc);
+		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialWidthPageVo.class);
+	}
+
+	@Override
+	public Boolean saveBasicsdatumMaterialWidth(BasicsdatumMaterialWidthSaveDto dto) {
+		BasicsdatumMaterialWidth entity = CopyUtil.copy(dto, BasicsdatumMaterialWidth.class);
+		if ("-1".equals(entity.getId())) {
+			entity.setId(null);
+		}
+		return this.materialWidthService.saveOrUpdate(entity);
+	}
+
+	@Override
+	public Boolean startStopBasicsdatumMaterialWidth(StartStopDto dto) {
+		UpdateWrapper<BasicsdatumMaterialWidth> uw = new UpdateWrapper<>();
+		uw.in("id", StringUtils.convertList(dto.getIds()));
+		uw.set("status", dto.getStatus());
+		return this.materialWidthService.update(null, uw);
+	}
+
+	@Override
+	public Boolean delBasicsdatumMaterialWidth(String id) {
+		return this.materialWidthService.removeBatchByIds(StringUtils.convertList(id));
+	}
+
+	@Override
+	public PageInfo<BasicsdatumMaterialColorPageVo> getBasicsdatumMaterialColorList(
+			BasicsdatumMaterialColorQueryDto dto) {
+		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+			PageHelper.startPage(dto);
+		}
+		BaseQueryWrapper<BasicsdatumMaterialColor> qc = new BaseQueryWrapper<>();
+		qc.eq("company_code", this.getCompanyCode());
+		qc.notEmptyEq("material_code", dto.getMaterialCode());
+		List<BasicsdatumMaterialColor> list = this.materialColorService.list(qc);
+		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialColorPageVo.class);
+	}
+
+	@Override
+	public Boolean saveBasicsdatumMaterialColor(BasicsdatumMaterialColorSaveDto dto) {
+		BasicsdatumMaterialColor entity = CopyUtil.copy(dto, BasicsdatumMaterialColor.class);
+		if ("-1".equals(entity.getId())) {
+			entity.setId(null);
+		}
+		return this.materialColorService.saveOrUpdate(entity);
+	}
+
+	@Override
+	public Boolean delBasicsdatumMaterialColor(String id) {
+		return this.materialColorService.removeBatchByIds(StringUtils.convertList(id));
+	}
+
+	@Override
+	public Boolean startStopBasicsdatumMaterialColor(StartStopDto dto) {
+		UpdateWrapper<BasicsdatumMaterialColor> uw = new UpdateWrapper<>();
+		uw.in("id", StringUtils.convertList(dto.getIds()));
+		uw.set("status", dto.getStatus());
+		return this.materialColorService.update(null, uw);
+	}
+
+	@Override
+	public PageInfo<BasicsdatumMaterialPricePageVo> getBasicsdatumMaterialPriceList(
+			BasicsdatumMaterialPriceQueryDto dto) {
+		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+			PageHelper.startPage(dto);
+		}
+		BaseQueryWrapper<BasicsdatumMaterialPrice> qc = new BaseQueryWrapper<>();
+		qc.eq("company_code", this.getCompanyCode());
+		qc.notEmptyEq("material_code", dto.getMaterialCode());
+		List<BasicsdatumMaterialPrice> list = this.materialPriceService.list(qc);
+		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPricePageVo.class);
+	}
+
+	@Override
+	public Boolean saveBasicsdatumMaterialPrice(BasicsdatumMaterialPriceSaveDto dto) {
+		BasicsdatumMaterialPrice entity = CopyUtil.copy(dto, BasicsdatumMaterialPrice.class);
+		if ("-1".equals(entity.getId())) {
+			entity.setId(null);
+		}
+		return this.materialPriceService.saveOrUpdate(entity);
+	}
+
+	@Override
+	public Boolean startStopBasicsdatumMaterialPrice(StartStopDto dto) {
+		UpdateWrapper<BasicsdatumMaterialPrice> uw = new UpdateWrapper<>();
+		uw.in("id", StringUtils.convertList(dto.getIds()));
+		uw.set("status", dto.getStatus());
+		return this.materialPriceService.update(null, uw);
+	}
+
+	@Override
+	public Boolean delBasicsdatumMaterialPrice(String id) {
+		return this.materialPriceService.removeBatchByIds(StringUtils.convertList(id));
+	}
+
+}
