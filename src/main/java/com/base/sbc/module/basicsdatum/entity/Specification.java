@@ -1,12 +1,10 @@
 package com.base.sbc.module.basicsdatum.entity;
 
-import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
  * @author 卞康
@@ -16,7 +14,6 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @Api(tags = "基础资料-色号和色型")
-@EqualsAndHashCode(callSuper = true)
 @TableName("t_specification")
 public class Specification extends BaseDataEntity<String> {
 
