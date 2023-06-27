@@ -418,7 +418,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
     public List getCategoryChart(String category) {
         QueryWrapper qw = new QueryWrapper();
         qw.eq(COMPANY_CODE, getCompanyCode());
-        qw.in(StrUtil.isNotBlank(category), "prod_category", StrUtil.split(category, CharUtil.COMMA).stream().map(item -> "'" + item + "'").collect(Collectors.toList()));
+        qw.in(StrUtil.isNotBlank(category), "prod_category", StrUtil.split(category, CharUtil.COMMA));
         amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
         List<ChartBarVo> chartBarVos = getBaseMapper().getCategoryChart(qw);
         ccmFeignService.setCategoryName(chartBarVos, "product", "product");
