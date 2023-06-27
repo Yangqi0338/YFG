@@ -131,7 +131,7 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	private String checkResult;
 	/** 质检日期 */
 	@ApiModelProperty(value = "质检日期")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
 	private Date checkDate;
 	/** 公斤米数 */
 	@ApiModelProperty(value = "公斤米数")

@@ -70,6 +70,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
 		qc.eq("company_code", this.getCompanyCode());
 		qc.notEmptyEq("category_id", dto.getCategoryId());
+		qc.notEmptyEq("status", dto.getStatus());
 		qc.notEmptyLike("material_code", dto.getMaterialCode());
 		qc.notEmptyLike("material_name", dto.getMaterialName());
 		List<BasicsdatumMaterial> list = this.list(qc);
@@ -77,12 +78,13 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	}
 
 	@Override
-	public Boolean saveBasicsdatumMaterial(BasicsdatumMaterialSaveDto dto) {
+	public BasicsdatumMaterialVo saveBasicsdatumMaterial(BasicsdatumMaterialSaveDto dto) {
 		BasicsdatumMaterial entity = CopyUtil.copy(dto, BasicsdatumMaterial.class);
 		if ("-1".equals(entity.getId())) {
 			entity.setId(null);
 		}
-		return this.saveOrUpdate(entity);
+		this.saveOrUpdate(entity);
+		return CopyUtil.copy(entity, BasicsdatumMaterialVo.class);
 	}
 
 	@Override
