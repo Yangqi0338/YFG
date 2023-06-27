@@ -66,7 +66,7 @@ public class BasicsdatumMaterialController {
 
 	@ApiOperation(value = "主物料:保存主信息")
 	@PostMapping("/saveBasicsdatumMaterial")
-	public Boolean saveBasicsdatumMaterial(@Valid @RequestBody BasicsdatumMaterialSaveDto dto) {
+	public BasicsdatumMaterialVo saveBasicsdatumMaterial(@Valid @RequestBody BasicsdatumMaterialSaveDto dto) {
 		return basicsdatumMaterialService.saveBasicsdatumMaterial(dto);
 	}
 

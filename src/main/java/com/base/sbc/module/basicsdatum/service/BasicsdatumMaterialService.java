@@ -36,7 +36,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 
 	PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialList(BasicsdatumMaterialQueryDto dto);
 
-	Boolean saveBasicsdatumMaterial(BasicsdatumMaterialSaveDto dto);
+	BasicsdatumMaterialVo saveBasicsdatumMaterial(BasicsdatumMaterialSaveDto dto);
 
 	Boolean startStopBasicsdatumMaterial(StartStopDto dto);
 
