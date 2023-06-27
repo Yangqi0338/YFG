@@ -16,7 +16,6 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Date;
-
 /**
  * 类描述：企划-坑位信息 实体类
  *
@@ -24,7 +23,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-19 16:06:51
+ * @date 创建时间：2023-6-27 15:54:28
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -39,13 +38,19 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 产品季节id */
-    @ApiModelProperty(value = "产品季节id"  )
+    /**
+     * 产品季节id
+     */
+    @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
-    /** 波段企划id */
-    @ApiModelProperty(value = "波段企划id"  )
+    /**
+     * 波段企划id
+     */
+    @ApiModelProperty(value = "波段企划id")
     private String planningBandId;
-    /** 品类信息id */
+    /**
+     * 品类信息id
+     */
     @ApiModelProperty(value = "品类信息id")
     private String planningCategoryId;
     /**
@@ -59,20 +64,35 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "设计款号")
     private String designNo;
     /**
-     * 品类id(小类)
+     * 品类名称路径:(大类/品类/中类/小类)
      */
-    @ApiModelProperty(value = "品类id(小类)")
-    private String categoryId;
-    /**
-     * 品类名称路径:(中类/小类)
-     */
-    @ApiModelProperty(value = "品类名称路径:(中类/小类)")
+    @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)")
     private String categoryName;
     /**
-     * 品类id路径:(中类/小类)
+     * 品类id路径:(大类/品类/中类/小类)
      */
-    @ApiModelProperty(value = "品类id路径:(中类/小类)")
+    @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)")
     private String categoryIds;
+    /**
+     * 大类id
+     */
+    @ApiModelProperty(value = "大类id")
+    private String prodCategory1st;
+    /**
+     * 品类id
+     */
+    @ApiModelProperty(value = "品类id")
+    private String prodCategory;
+    /**
+     * 中类id
+     */
+    @ApiModelProperty(value = "中类id")
+    private String prodCategory2nd;
+    /**
+     * 小类
+     */
+    @ApiModelProperty(value = "小类")
+    private String prodCategory3rd;
     /**
      * 价格带
      */

@@ -23,7 +23,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-6 14:00:19
+ * @date 创建时间：2023-6-27 15:54:22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -45,28 +45,57 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "波段企划id"  )
     private String planningBandId;
     /** 品类信息id */
-    @ApiModelProperty(value = "品类信息id"  )
+    @ApiModelProperty(value = "品类信息id")
     private String planningCategoryId;
-    /** 坑位信息id */
-    @ApiModelProperty(value = "坑位信息id"  )
+    /**
+     * 坑位信息id
+     */
+    @ApiModelProperty(value = "坑位信息id")
     private String planningCategoryItemId;
-    /** 品类名称路径:(大类/品类/中类/小类) */
-    @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)"  )
+    /**
+     * 品类名称路径:(大类/品类/中类/小类)
+     */
+    @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)")
     private String categoryName;
-    /** 品类id路径:(大类/品类/中类/小类) */
-    @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)"  )
+    /**
+     * 品类id路径:(大类/品类/中类/小类)
+     */
+    @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)")
     private String categoryIds;
-    /** 品类id(最后一级) */
-    @ApiModelProperty(value = "品类id(最后一级)"  )
-    private String categoryId;
-    /** 款式(大货款号) */
-    @ApiModelProperty(value = "款式(大货款号)"  )
+    /**
+     * 大类id
+     */
+    @ApiModelProperty(value = "大类id")
+    private String prodCategory1st;
+    /**
+     * 品类id
+     */
+    @ApiModelProperty(value = "品类id")
+    private String prodCategory;
+    /**
+     * 中类id
+     */
+    @ApiModelProperty(value = "中类id")
+    private String prodCategory2nd;
+    /**
+     * 小类
+     */
+    @ApiModelProperty(value = "小类")
+    private String prodCategory3rd;
+    /**
+     * 款式(大货款号)
+     */
+    @ApiModelProperty(value = "款式(大货款号)")
     private String styleNo;
-    /** 设计款号 */
-    @ApiModelProperty(value = "设计款号"  )
+    /**
+     * 设计款号
+     */
+    @ApiModelProperty(value = "设计款号")
     private String designNo;
-    /** 旧设计款号 */
-    @ApiModelProperty(value = "旧设计款号"  )
+    /**
+     * 旧设计款号
+     */
+    @ApiModelProperty(value = "旧设计款号")
     private String hisDesignNo;
     /** 款式名称 */
     @ApiModelProperty(value = "款式名称"  )
@@ -175,17 +204,25 @@ public class SampleDesign extends BaseDataEntity<String> {
     /** 材料专员id */
     @ApiModelProperty(value = "材料专员id"  )
     private String fabDevelopeId;
-    /** 材料专员名称 */
-    @ApiModelProperty(value = "材料专员名称"  )
+    /**
+     * 材料专员名称
+     */
+    @ApiModelProperty(value = "材料专员名称")
     private String fabDevelopeName;
-    /** 实际出稿时间 */
-    @ApiModelProperty(value = "实际出稿时间"  )
+    /**
+     * 实际出稿时间
+     */
+    @ApiModelProperty(value = "实际出稿时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date actualPublicationDate;
-    /** 下发人 */
-    @ApiModelProperty(value = "下发人"  )
+    /**
+     * 下发人
+     */
+    @ApiModelProperty(value = "下发人")
     private String sender;
-    /** 是否齐套:0未齐套，1已齐套 */
+    /**
+     * 是否齐套:0未齐套，1已齐套
+     */
     @ApiModelProperty(value = "是否齐套:0未齐套，1已齐套")
     private String kitting;
     /**
