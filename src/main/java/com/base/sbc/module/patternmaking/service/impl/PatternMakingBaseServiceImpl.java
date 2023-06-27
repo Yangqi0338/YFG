@@ -624,16 +624,16 @@ public class PatternMakingBaseServiceImpl extends BaseServiceImpl<PatternMakingM
         JSONObject nodeStatusConfig = getNodeStatusConfig(ens.getNode(), ens.getStatus());
         Object nextParams = nodeStatusConfig.get("nextParams");
         if(ObjectUtil.isNotEmpty(nextParams)){
-            if(nextParams.getClass().isArray()){
+            if (nextParams instanceof List) {
                 List<NodeStatusChangeDto> nodeStatusChangeDtos = ((JSONArray) nextParams).toJavaList(NodeStatusChangeDto.class);
-                nodeStatusChangeDtos.forEach(item->{
+                nodeStatusChangeDtos.forEach(item -> {
                     item.setDataId(dto.getId());
                 });
-                nodeStatusChange(nodeStatusChangeDtos,groupUser);
-            }else{
+                nodeStatusChange(nodeStatusChangeDtos, groupUser);
+            } else {
                 NodeStatusChangeDto nodeStatusChangeDto = ((JSONObject) nextParams).toJavaObject(NodeStatusChangeDto.class);
                 nodeStatusChangeDto.setDataId(dto.getId());
-                nodeStatusChange(nodeStatusChangeDto,groupUser);
+                nodeStatusChange(nodeStatusChangeDto, groupUser);
             }
         }
         return update;
