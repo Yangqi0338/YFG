@@ -12,7 +12,6 @@ import com.base.sbc.module.basicsdatum.dto.ColorModelNumberDto;
 import com.base.sbc.module.basicsdatum.dto.ColorModelNumberExcelDto;
 import com.base.sbc.module.basicsdatum.entity.ColorModelNumber;
 import com.base.sbc.module.basicsdatum.service.ColorModelNumberService;
-import com.base.sbc.module.basicsdatum.service.impl.SpecificationExcelDto;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;

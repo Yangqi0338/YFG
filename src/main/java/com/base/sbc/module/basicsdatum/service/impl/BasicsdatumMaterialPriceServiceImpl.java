@@ -6,12 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
-import org.springframework.stereotype.Service;
-
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialPriceMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import org.springframework.stereotype.Service;
 /** 
  * 类描述：基础资料-物料档案-供应商报价 service类
  * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService

@@ -8,9 +8,9 @@ package com.base.sbc.module.basicsdatum.service;
 
 import com.base.sbc.module.basicsdatum.dto.AddRevampSizeLabelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDasicsdatumSizeDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSizeLabel;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumSizeLabelVo;
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSizeLabel;
 
 import java.util.List;
 

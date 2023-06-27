@@ -7,8 +7,8 @@ package com.base.sbc.config.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.client.oauth.service.OauthService;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.redis.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;

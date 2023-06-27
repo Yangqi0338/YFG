@@ -6,6 +6,7 @@ import com.base.sbc.module.material.entity.MaterialLabel;
 import com.base.sbc.module.material.mapper.MaterialLabelMapper;
 import com.base.sbc.module.material.service.MaterialLabelService;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
 import java.util.List;
 

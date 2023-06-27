@@ -8,13 +8,11 @@ package com.base.sbc.module.formType.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.formType.dto.QueryFormTypeDto;
-import com.base.sbc.module.formType.vo.PagingFormTypeVo;
-import org.apache.ibatis.annotations.MapKey;
-import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.formType.entity.FormType;
+import com.base.sbc.module.formType.vo.PagingFormTypeVo;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 类描述：表单类型 dao类

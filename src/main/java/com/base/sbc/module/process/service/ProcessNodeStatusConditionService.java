@@ -5,13 +5,14 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.process.service;
+
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
-import com.github.pagehelper.PageInfo;
+import com.base.sbc.module.process.dto.AddRevampProcessNodeStatusConditionDto;
 import com.base.sbc.module.process.entity.ProcessNodeStatusCondition;
 import com.base.sbc.module.process.vo.ProcessNodeStatusConditionVo;
-import com.base.sbc.module.process.dto.AddRevampProcessNodeStatusConditionDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.github.pagehelper.PageInfo;
 
 /** 
  * 类描述：流程配置-节点状态条件 service类

@@ -1,13 +1,10 @@
 package com.base.sbc.module.planning.dto;
 
 
-import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
-
-import javax.validation.constraints.NotNull;
 
 /**
  * 类描述：产品季总览-波段展开查询

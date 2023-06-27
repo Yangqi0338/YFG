@@ -6,13 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.config.generator;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
 import com.base.sbc.config.generator.entity.Params;
 import com.base.sbc.config.generator.entity.Tables;
 import com.base.sbc.config.generator.utils.UtilFile;
@@ -20,6 +14,11 @@ import com.base.sbc.config.generator.utils.UtilFreemarker;
 import com.base.sbc.config.generator.utils.UtilString;
 import com.base.sbc.config.generator.utils.UtilXml;
 import com.base.sbc.config.utils.StringUtils;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * 类描述：代码生成 总控制枢纽

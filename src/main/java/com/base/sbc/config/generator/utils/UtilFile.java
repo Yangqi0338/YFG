@@ -1,10 +1,10 @@
 package com.base.sbc.config.generator.utils;
 
-import java.io.File;
-import java.util.Optional;
-
 import com.base.sbc.config.generator.entity.Params;
 import com.base.sbc.config.generator.entity.Tables;
+
+import java.io.File;
+import java.util.Optional;
 
 /** 
  * 类描述：

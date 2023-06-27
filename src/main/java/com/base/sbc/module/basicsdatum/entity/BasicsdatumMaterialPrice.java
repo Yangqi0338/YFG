@@ -6,15 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
 
-import java.math.BigDecimal;
-
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
 
 /**
  * 类描述：基础资料-物料档案-供应商报价 实体类

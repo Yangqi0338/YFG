@@ -7,8 +7,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.validation.constraints.NotNull;
-
 /**
  * 类描述：产品季总览-波段展开查询
  * @address com.base.sbc.module.planning.dto.ProductSeasonBandSearchDto

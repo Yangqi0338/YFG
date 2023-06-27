@@ -1,7 +1,6 @@
 package com.base.sbc.selenium.plan;
 
 import com.alibaba.excel.annotation.ExcelProperty;
-
 import lombok.Data;
 
 /**

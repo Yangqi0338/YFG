@@ -7,7 +7,6 @@
 package com.base.sbc.module.pricing.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.module.pricing.dto.PricingDelDTO;
 import com.base.sbc.module.pricing.entity.PricingTemplateItem;
 import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
 import org.apache.ibatis.annotations.Mapper;

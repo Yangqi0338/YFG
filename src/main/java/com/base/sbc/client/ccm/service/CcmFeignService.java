@@ -9,10 +9,11 @@ import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.config.constant.BaseConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：ccm 远程调用

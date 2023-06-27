@@ -9,12 +9,10 @@ package com.base.sbc.module.process.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.module.process.entity.ProcessNodeStatusCondition;
 import com.base.sbc.module.process.vo.ProcessNodeStatusConditionVo;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.process.entity.ProcessNodeStatusCondition;
 import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
 
 /**
  * 类描述：流程配置-节点状态条件 dao类

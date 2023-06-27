@@ -1,10 +1,7 @@
 package com.base.sbc.config.security;
 
-import java.util.Collection;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.base.sbc.client.oauth.service.OauthService;
+import com.base.sbc.config.constant.BaseConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.stereotype.Service;
 
-import com.base.sbc.client.oauth.service.OauthService;
-import com.base.sbc.config.constant.BaseConstant;
-import com.base.sbc.config.enums.BaseErrorEnum;
-import com.base.sbc.config.exception.BusinessException;
-import com.google.common.collect.Maps;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 /**
  * @author Fred
  * @data 创建时间:2020/2/3

@@ -6,12 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.config.common.base;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
 import com.base.sbc.config.common.QueryCondition;
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -19,8 +15,9 @@ import org.mybatis.spring.support.SqlSessionDaoSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.base.sbc.config.common.QueryCondition;
-import com.google.common.collect.Lists;
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.Map;
 
 
 

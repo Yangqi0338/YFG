@@ -1,12 +1,11 @@
 package com.base.sbc.config.utils;
 
-import java.util.List;
-
 import com.github.pagehelper.PageInfo;
-
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import ma.glasnost.orika.metadata.ClassMapBuilder;
+
+import java.util.List;
 
 /**
  * Orika是一个简单、快速的JavaBean拷贝框架，Orika使用字节代码生成来创建具有最小开销的快速映射器。

@@ -240,6 +240,13 @@ public class PatternMakingController {
     public List<PatternDesignVo> pdTaskDetail(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode){
         return patternMakingService.pdTaskDetail(companyCode);
     }
+
+    @ApiOperation(value = "获取制版单-样衣新增", notes = "")
+    @GetMapping("/getAllList")
+    public PageInfo getAllList(PatternMakingCommonPageSearchDto dto){
+        return patternMakingService.queryPageInfo(dto);
+    }
+
 }
 
 

@@ -5,8 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.validation.constraints.NotNull;
-
 /*编辑维度标签*/
 @Data
 @ApiModel("企划维度-编辑维度标签 SaveUpdateDemandProportionDataDto")

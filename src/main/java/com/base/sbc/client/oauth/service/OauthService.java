@@ -1,7 +1,5 @@
 package com.base.sbc.client.oauth.service;
 
-import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
