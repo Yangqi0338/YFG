@@ -35,4 +35,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
 
     @ApiModelProperty(value = "版师id", example = "1223333122223333333")
     private String patternDesignId;
+
+    @ApiModelProperty(value = "状态", example = "打版中")
+    private String status;
 }

@@ -9,40 +9,26 @@ package com.base.sbc.module.sample.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.module.sample.dto.SamplePageDto;
+import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.vo.ChartBarVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingForSampleVo;
-import com.base.sbc.module.sample.vo.SampleDesignPageVo;
+import com.base.sbc.module.sample.vo.SamplePageByDesignNoVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
+import com.base.sbc.module.sample.vo.SampleVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
- * 类描述：样衣设计 dao类
- *
- * @author lxl
- * @version 1.0
- * @address com.base.sbc.module.sample.dao.SampleDao
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-9 11:16:15
+ * 类描述：样衣 dao类
+ * @address com.base.sbc.module.sample.dao.SampleMapper
  */
 @Mapper
-public interface SampleDesignMapper extends BaseMapper<SampleDesign> {
-    /**
-     * 自定义方法区 不替换的区域【other_start】
-     **/
+public interface SampleMapper extends BaseMapper<Sample> {
+    List<SamplePageByDesignNoVo> getListByDesignNo(SamplePageDto dto);
 
-    List<SampleDesignPageVo> selectByQw(@Param(Constants.WRAPPER) QueryWrapper<SampleDesign> wrapper);
-
-    List<SampleUserVo> getDesignerList(@Param("companyCode") String companyCode);
-
-    List<ChartBarVo> getBandChart(@Param(Constants.WRAPPER) QueryWrapper qw);
-
-    List<ChartBarVo> getCategoryChart(@Param(Constants.WRAPPER) QueryWrapper qw);
-
-/** 自定义方法区 不替换的区域【other_end】 **/
-    List<PatternMakingForSampleVo> getAllList(String status);
+    SampleVo getDetail(String id);
 }
 

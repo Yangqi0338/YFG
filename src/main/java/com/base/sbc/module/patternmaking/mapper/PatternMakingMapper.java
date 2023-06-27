@@ -10,10 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
-import com.base.sbc.module.patternmaking.vo.PatternDesignSampleTypeQtyVo;
-import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
-import com.base.sbc.module.patternmaking.vo.SampleBoardVo;
-import com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo;
+import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -47,7 +44,7 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
 
     List<Map<String, Object>> nsCount(@Param(Constants.WRAPPER) QueryWrapper qw);
 
-
+    List<PatternMakingForSampleVo> getAllList(@Param(Constants.WRAPPER) QueryWrapper qw);
 /** 自定义方法区 不替换的区域【other_end】 **/
 }
 

@@ -702,8 +702,21 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
 
     }
 
+
+    @Override
+    public PageInfo queryPageInfo(PatternMakingCommonPageSearchDto dto) {
+        String companyCode = getCompanyCode();
+        QueryWrapper qw = new QueryWrapper<>();
+        qw.eq(StrUtil.isNotBlank(dto.getStatus()), "pk.status", dto.getStatus());
+        qw.eq("pk.company_code", companyCode);
+
+        Page<PatternMakingForSampleVo> objects = PageHelper.startPage(dto);
+        getBaseMapper().getAllList(qw);
+        List<PatternMakingForSampleVo> result = objects.getResult();
+
+        return objects.toPageInfo();
+    }
+
     // 自定义方法区 不替换的区域【other_end】
-
-
 }
 

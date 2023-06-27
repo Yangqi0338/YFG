@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.sample.mapper.SampleItemLogMapper">
+    <!-- 分页查询 -->
+    <select id="getListBySampleItemId" resultType="com.base.sbc.module.sample.entity.SampleItemLog">
+        SELECT * FROM t_sample_item_log
+        <where>
+            company_code = #{companyCode}
+            <if test="sampleItemId != null and sampleItemId != ''">
+                and sample_item_id = #{sampleItemId}
+            </if>
+        </where>
+        ORDER BY create_date DESC
+    </select>
+</mapper>
+
