@@ -27,7 +27,7 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.AttachmentService;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMapper, PatternMaking> implements PatternMakingService {
+public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMapper, PatternMaking> implements PatternMakingService {
     // 自定义方法区 不替换的区域【other_start】
     private final SampleDesignService sampleDesignService;
     private final NodeStatusService nodeStatusService;
@@ -80,8 +80,7 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
         qw.eq("sample_design_id", sampleDesignId);
         qw.orderBy(true, true, "create_date");
-        List<PatternMaking> list = list(qw);
-        List<PatternMakingListVo> patternMakingListVos = BeanUtil.copyToList(list, PatternMakingListVo.class);
+        List<PatternMakingListVo> patternMakingListVos = getBaseMapper().findBySampleDesignId(qw);
         return patternMakingListVos;
     }
 
@@ -169,16 +168,16 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
             return;
         }
         switch (enumNodeStatus) {
-            case GARMENT_CUTTING_RECEIVED:
-                uw.set("cutter_id", groupUser.getId());
-                uw.set("cutter_name", groupUser.getName());
-                uw.isNull("cutter_id");
-                break;
-            case GARMENT_SEWING_STARTED:
-                uw.set("stitcher_id", groupUser.getId());
-                uw.set("stitcher", groupUser.getName());
-                uw.isNull("stitcher_id");
-                break;
+//            case GARMENT_CUTTING_RECEIVED:
+//                uw.set("cutter_id", groupUser.getId());
+//                uw.set("cutter_name", groupUser.getName());
+//                uw.isNull("cutter_id");
+//                break;
+//            case GARMENT_SEWING_STARTED:
+//                uw.set("stitcher_id", groupUser.getId());
+//                uw.set("stitcher", groupUser.getName());
+//                uw.isNull("stitcher_id");
+//                break;
             case GARMENT_CUTTING_KITTING:
                 uw.set("sgl_kitting", BaseGlobal.YES);
                 uw.set("sgl_kitting_date", new Date());
@@ -625,16 +624,16 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
         JSONObject nodeStatusConfig = getNodeStatusConfig(ens.getNode(), ens.getStatus());
         Object nextParams = nodeStatusConfig.get("nextParams");
         if(ObjectUtil.isNotEmpty(nextParams)){
-            if(nextParams.getClass().isArray()){
+            if (nextParams instanceof List) {
                 List<NodeStatusChangeDto> nodeStatusChangeDtos = ((JSONArray) nextParams).toJavaList(NodeStatusChangeDto.class);
-                nodeStatusChangeDtos.forEach(item->{
+                nodeStatusChangeDtos.forEach(item -> {
                     item.setDataId(dto.getId());
                 });
-                nodeStatusChange(nodeStatusChangeDtos,groupUser);
-            }else{
+                nodeStatusChange(nodeStatusChangeDtos, groupUser);
+            } else {
                 NodeStatusChangeDto nodeStatusChangeDto = ((JSONObject) nextParams).toJavaObject(NodeStatusChangeDto.class);
                 nodeStatusChangeDto.setDataId(dto.getId());
-                nodeStatusChange(nodeStatusChangeDto,groupUser);
+                nodeStatusChange(nodeStatusChangeDto, groupUser);
             }
         }
         return update;
@@ -642,9 +641,12 @@ public class PatternMakingServiceImpl extends ServicePlusImpl<PatternMakingMappe
 
     @Override
     public List<PatternDesignVo> pdTaskDetail(String companyCode) {
-
-
-        return null;
+        List<String> planningSeasonIdByUserId = amcFeignService.getPlanningSeasonIdByUserId(getUserId());
+        if(CollUtil.isEmpty(planningSeasonIdByUserId)){
+            return null;
+        }
+        List<PatternDesignVo> patternDesignList = getPatternDesignList(CollUtil.join(planningSeasonIdByUserId, StrUtil.COMMA));
+        return patternDesignList;
     }
 
     private void prmDataOverviewCommonQw(QueryWrapper qw, List timeRange, String suspend) {

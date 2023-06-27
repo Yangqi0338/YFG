@@ -63,7 +63,7 @@ public class PricingTemplateItemDTO {
      * 是否显示:0.否, 1.是
      */
     @ApiModelProperty(value = "是否显示:0.否, 1.是")
-        private String showFlag;
+    private String showFlag;
     /**
      * 排序行
      */

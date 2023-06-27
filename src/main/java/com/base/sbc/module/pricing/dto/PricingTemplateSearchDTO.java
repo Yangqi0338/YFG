@@ -17,5 +17,7 @@ public class PricingTemplateSearchDTO extends Page {
     private String templateCode;
     @ApiModelProperty(value = "模板名称", example = "123")
     private String templateName;
+    @ApiModelProperty(value = "启用停用状态", example = "123")
+    private String status;
 
 }

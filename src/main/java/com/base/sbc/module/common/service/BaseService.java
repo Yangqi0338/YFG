@@ -10,7 +10,7 @@ import java.util.List;
  * @date 2023/4/13 11:49:17
  * 自定义增强
  */
-public interface IServicePlus<T> extends IService<T> {
+public interface BaseService<T> extends IService<T> {
 
     /**
      * 批量提交修改，逻辑删除新增修改

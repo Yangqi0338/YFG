@@ -6,13 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.process.service;
 
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.process.dto.AddRevampProcessNodeDto;
 import com.base.sbc.module.process.entity.ProcessNode;
 import com.base.sbc.module.process.vo.ProcessNodeVo;
-import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
@@ -24,7 +22,7 @@ import java.util.List;
  * @date 创建时间：2023-6-2 20:15:14
  * @version 1.0  
  */
-public interface ProcessNodeService extends IServicePlus<ProcessNode>{
+public interface ProcessNodeService extends BaseService<ProcessNode> {
 
 // 自定义方法区 不替换的区域【other_start】
 

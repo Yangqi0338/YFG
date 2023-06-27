@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.formType.service;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.dto.SaveUpdateFormTypeGroupDto;
 import com.base.sbc.module.formType.entity.FormTypeGroup;
 
@@ -18,7 +18,7 @@ import com.base.sbc.module.formType.entity.FormTypeGroup;
  * @date 创建时间：2023-4-15 9:17:05
  * @version 1.0  
  */
-public interface FormTypeGroupService extends IServicePlus<FormTypeGroup>{
+public interface FormTypeGroupService extends BaseService<FormTypeGroup> {
 
 
 

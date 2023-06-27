@@ -15,8 +15,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.generator.utils.UtilString;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
-import com.base.sbc.module.sample.entity.FabricBasicInformation;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.entity.FieldManagement;
 import com.base.sbc.module.formType.mapper.FieldManagementMapper;
 import com.base.sbc.module.formType.dto.FormDeleteDto;
@@ -49,7 +48,7 @@ import java.util.stream.Collectors;
  * @version 1.0  
  */
 @Service
-public class FormTypeServiceImpl extends ServicePlusImpl<FormTypeMapper, FormType> implements FormTypeService {
+public class FormTypeServiceImpl extends BaseServiceImpl<FormTypeMapper, FormType> implements FormTypeService {
     @Autowired
     private FormTypeGroupMapper formTypeGroupMapper;
     @Autowired

@@ -15,7 +15,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formType.dto.SaveUpdateFieldManagementDto;
 import com.base.sbc.module.formType.entity.FieldManagement;
@@ -27,7 +27,6 @@ import com.base.sbc.module.formType.mapper.OptionMapper;
 import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FormTypeService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
-import com.base.sbc.module.process.vo.ProcessActionVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -52,7 +51,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-4-15 18:33:51
  */
 @Service
-public class FieldManagementServiceImpl extends ServicePlusImpl<FieldManagementMapper, FieldManagement> implements FieldManagementService {
+public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementMapper, FieldManagement> implements FieldManagementService {
 
     // 自定义方法区 不替换的区域【other_start】
 

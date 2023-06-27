@@ -14,14 +14,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-
 /**
  * 类描述：企划-品类信息 实体类
- * @address com.base.sbc.module.planning.entity.PlanningCategory
+ *
  * @author lxl
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-19 17:57:45
  * @version 1.0
+ * @address com.base.sbc.module.planning.entity.PlanningCategory
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-6-27 15:54:25
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -37,28 +37,47 @@ public class PlanningCategory extends BaseDataEntity<String> {
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 产品季节id */
-    @ApiModelProperty(value = "产品季节id"  )
+    @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
-    /** 波段企划id */
-    @ApiModelProperty(value = "波段企划id"  )
+    /**
+     * 波段企划id
+     */
+    @ApiModelProperty(value = "波段企划id")
     private String planningBandId;
-    /** 品类id(品类) */
-    @ApiModelProperty(value = "品类id(品类)"  )
-    private String categoryId;
-    /** 品类名称路径(大类/品类) */
-    @ApiModelProperty(value = "品类名称路径(大类/品类)"  )
+    /**
+     * 品类名称路径(大类/品类)
+     */
+    @ApiModelProperty(value = "品类名称路径(大类/品类)")
     private String categoryName;
-    /** 品类id路径(大类/品类) */
-    @ApiModelProperty(value = "品类id路径(大类/品类)"  )
+    /**
+     * 品类id路径(大类/品类)
+     */
+    @ApiModelProperty(value = "品类id路径(大类/品类)")
     private String categoryIds;
-    /** 品类规划SKC数 */
-    @ApiModelProperty(value = "品类规划SKC数"  )
+    /**
+     * 大类id
+     */
+    @ApiModelProperty(value = "大类id")
+    private String prodCategory1st;
+    /**
+     * 品类id
+     */
+    @ApiModelProperty(value = "品类id")
+    private String prodCategory;
+    /**
+     * 品类规划SKC数
+     */
+    @ApiModelProperty(value = "品类规划SKC数")
     private BigDecimal categoryPlanSkcNum;
-    /** 款色数SKC数 */
-    @ApiModelProperty(value = "款色数SKC数"  )
+    /**
+     * 款色数SKC数
+     */
+    @ApiModelProperty(value = "款色数SKC数")
     private BigDecimal styleColorSkcNum;
-    /** 每款SKC数 */
-    @ApiModelProperty(value = "每款SKC数"  )
+    /**
+     * 每款SKC数
+     */
+    @ApiModelProperty(value = "每款SKC数")
     private BigDecimal styleSkcNum;
     /** 企划需求数 */
     @ApiModelProperty(value = "企划需求数"  )

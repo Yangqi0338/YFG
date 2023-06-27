@@ -12,11 +12,10 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumAuxiliaryTechnicsMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumAuxiliaryTechnics;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumAuxiliaryTechnicsVo;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumAuxiliaryTechnics;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumAuxiliaryTechnicsService;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,6 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.utils.ExcelUtils;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,7 +52,7 @@ import java.util.List;
  * @date 创建时间：2023-5-20 19:08:56
  */
 @Service
-public class BasicsdatumAuxiliaryTechnicsServiceImpl extends ServicePlusImpl<BasicsdatumAuxiliaryTechnicsMapper, BasicsdatumAuxiliaryTechnics> implements BasicsdatumAuxiliaryTechnicsService {
+public class BasicsdatumAuxiliaryTechnicsServiceImpl extends BaseServiceImpl<BasicsdatumAuxiliaryTechnicsMapper, BasicsdatumAuxiliaryTechnics> implements BasicsdatumAuxiliaryTechnicsService {
 
     @Autowired
     private BaseController baseController;

@@ -15,7 +15,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.process.dto.AddRevampProcessNodeActionDto;
 import com.base.sbc.module.process.dto.AddRevampProcessNodeStatusConditionDto;
 import com.base.sbc.module.process.dto.AddRevampProcessNodeStatusUpdateManagementDto;
@@ -38,6 +38,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：流程配置-节点状态条件 service类
@@ -49,7 +50,7 @@ import java.util.List;
  * @date 创建时间：2023-6-5 17:10:23
  */
 @Service
-public class ProcessNodeStatusConditionServiceImpl extends ServicePlusImpl<ProcessNodeStatusConditionMapper, ProcessNodeStatusCondition> implements ProcessNodeStatusConditionService {
+public class ProcessNodeStatusConditionServiceImpl extends BaseServiceImpl<ProcessNodeStatusConditionMapper, ProcessNodeStatusCondition> implements ProcessNodeStatusConditionService {
 
     @Autowired
     private BaseController baseController;
@@ -117,10 +118,25 @@ public class ProcessNodeStatusConditionServiceImpl extends ServicePlusImpl<Proce
         }
         /*保存动作*/
         if(!CollectionUtils.isEmpty(addRevampProcessNodeStatusConditionDto.getList())){
-            for (AddRevampProcessNodeActionDto addRevampProcessNodeActionDto : addRevampProcessNodeStatusConditionDto.getList()) {
+            //前端传入数据
+            List<AddRevampProcessNodeActionDto> list =addRevampProcessNodeStatusConditionDto.getList();
+            /*数据库查询数据*/
+            QueryWrapper queryWrapper= new QueryWrapper();
+            queryWrapper.eq("node_status_condition_id",processNodeStatusCondition.getId());
+            queryWrapper.eq("company_code",baseController.getUserCompany());
+            List<ProcessNodeAction> processNodeActionList =  processNodeActionService.list(queryWrapper);
+            List<String> stringList = list.stream().map(AddRevampProcessNodeActionDto::getActionId).collect(Collectors.toList());
+            /*需要删除的数据*/
+            List<ProcessNodeAction> delNodeActionList = processNodeActionList.stream().filter(s -> !stringList.contains(s.getActionId())).collect(Collectors.toList());
+            if(!CollectionUtils.isEmpty(delNodeActionList)){
+                List<String> delIdList = delNodeActionList.stream().filter(s -> StringUtils.isNotBlank(s.getId())).map(ProcessNodeAction::getId).collect(Collectors.toList());
+                /*批量删除*/
+                processNodeActionService.delProcessNodeAction(String.join(",", delIdList));
+            }
+            for (AddRevampProcessNodeActionDto addRevampProcessNodeActionDto : list) {
                 addRevampProcessNodeActionDto.setNodeStatusConditionId(processNodeStatusCondition.getId());
             }
-            processNodeActionService.batchAddRevampProcessNodeAction(addRevampProcessNodeStatusConditionDto.getList());
+            processNodeActionService.batchAddRevampProcessNodeAction(list);
         }
         /*保存修改的字段*/
         if(!CollectionUtils.isEmpty(addRevampProcessNodeStatusConditionDto.getUpdateManagementDtoList())){

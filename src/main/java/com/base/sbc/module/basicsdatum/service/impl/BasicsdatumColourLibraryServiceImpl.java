@@ -32,7 +32,7 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
 import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -59,7 +59,7 @@ import java.util.Map;
  * @date 创建时间：2023-5-20 20:23:02
  */
 @Service
-public class BasicsdatumColourLibraryServiceImpl extends ServicePlusImpl<BasicsdatumColourLibraryMapper, BasicsdatumColourLibrary> implements BasicsdatumColourLibraryService {
+public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<BasicsdatumColourLibraryMapper, BasicsdatumColourLibrary> implements BasicsdatumColourLibraryService {
 
     @Autowired
     private BaseController baseController;

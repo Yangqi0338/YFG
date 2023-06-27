@@ -15,7 +15,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.QueryDetailFabricDto;
 import com.base.sbc.module.sample.dto.QueryFabricInformationDto;
 import com.base.sbc.module.sample.dto.SaveUpdateFabricBasicInformationDto;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * @version 1.0  
  */
 @Service
-public class FabricBasicInformationServiceImpl extends ServicePlusImpl<FabricBasicInformationMapper, FabricBasicInformation> implements FabricBasicInformationService {
+public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBasicInformationMapper, FabricBasicInformation> implements FabricBasicInformationService {
 
     @Autowired
     private BaseController baseController;

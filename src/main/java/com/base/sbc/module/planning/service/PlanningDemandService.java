@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.dto.SaveDelDemandDto;
 import com.base.sbc.module.planning.entity.PlanningDemand;
@@ -21,7 +21,7 @@ import java.util.List;
  * @date 创建时间：2023-4-26 17:42:18
  * @version 1.0  
  */
-public interface PlanningDemandService extends IServicePlus<PlanningDemand>{
+public interface PlanningDemandService extends BaseService<PlanningDemand> {
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 

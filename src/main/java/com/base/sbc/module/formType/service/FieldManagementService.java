@@ -7,7 +7,7 @@
 package com.base.sbc.module.formType.service;
 
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formType.dto.SaveUpdateFieldManagementDto;
 import com.base.sbc.module.formType.entity.FieldManagement;
@@ -25,7 +25,7 @@ import java.util.List;
  * @date 创建时间：2023-4-15 18:33:51
  * @version 1.0  
  */
-public interface FieldManagementService extends IServicePlus<FieldManagement> {
+public interface FieldManagementService extends BaseService<FieldManagement> {
 
     /**
      * 自定义方法区 不替换的区域【other_start】

@@ -15,10 +15,9 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.process.dto.AddRevampProcessNodeActionDto;
 import com.base.sbc.module.process.entity.ProcessNodeAction;
-import com.base.sbc.module.process.entity.ProcessNodeStatus;
 import com.base.sbc.module.process.mapper.ProcessNodeActionMapper;
 import com.base.sbc.module.process.service.ProcessNodeActionService;
 import com.base.sbc.module.process.vo.ProcessNodeActionVo;
@@ -40,7 +39,7 @@ import java.util.List;
  * @version 1.0  
  */
 @Service
-public class ProcessNodeActionServiceImpl extends ServicePlusImpl<ProcessNodeActionMapper, ProcessNodeAction> implements ProcessNodeActionService {
+public class ProcessNodeActionServiceImpl extends BaseServiceImpl<ProcessNodeActionMapper, ProcessNodeAction> implements ProcessNodeActionService {
 
         @Autowired
         private BaseController baseController;

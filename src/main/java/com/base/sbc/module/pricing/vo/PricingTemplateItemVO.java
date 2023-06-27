@@ -87,4 +87,11 @@ public class PricingTemplateItemVO extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "公式(逗号拼接,用于前端回显)")
     private String expressionShow;
+
+    /**
+     * 计算结果
+     */
+    @ApiModelProperty(value = "计算结果")
+    private Double countResult;
+
 }

@@ -11,7 +11,7 @@ import com.base.sbc.module.basicsdatum.dto.QueryRevampConfigPrintDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.ConfigPrint;
 import com.base.sbc.module.basicsdatum.vo.ConfigPrintVo;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.github.pagehelper.PageInfo;
 
 /** 
@@ -22,7 +22,7 @@ import com.github.pagehelper.PageInfo;
  * @date 创建时间：2023-6-21 10:29:11
  * @version 1.0  
  */
-public interface ConfigPrintService extends IServicePlus<ConfigPrint>{
+public interface ConfigPrintService extends BaseService<ConfigPrint> {
 
 
 // 自定义方法区 不替换的区域【other_start】

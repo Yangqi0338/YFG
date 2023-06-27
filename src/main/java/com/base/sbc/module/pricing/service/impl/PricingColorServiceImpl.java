@@ -9,7 +9,7 @@ package com.base.sbc.module.pricing.service.impl;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pricing.dto.PricingColorDTO;
 import com.base.sbc.module.pricing.entity.PricingColor;
 import com.base.sbc.module.pricing.mapper.PricingColorMapper;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-6-16 15:09:20
  */
 @Service
-public class PricingColorServiceImpl extends ServicePlusImpl<PricingColorMapper, PricingColor> implements PricingColorService {
+public class PricingColorServiceImpl extends BaseServiceImpl<PricingColorMapper, PricingColor> implements PricingColorService {
     // 自定义方法区 不替换的区域【other_start】
     @Autowired
     private PricingColorMapper pricingColorMapper;

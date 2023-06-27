@@ -13,12 +13,10 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.process.dto.AddRevampProcessActionDto;
 import com.base.sbc.module.process.dto.QueryActionDto;
-import com.base.sbc.module.process.dto.QueryStatusDto;
 import com.base.sbc.module.process.entity.ProcessAction;
 import com.base.sbc.module.process.entity.ProcessNodeAction;
 import com.base.sbc.module.process.mapper.ProcessActionMapper;
@@ -45,7 +43,7 @@ import java.util.List;
  * @date 创建时间：2023-6-5 11:03:08
  */
 @Service
-public class ProcessActionServiceImpl extends ServicePlusImpl<ProcessActionMapper, ProcessAction> implements ProcessActionService {
+public class ProcessActionServiceImpl extends BaseServiceImpl<ProcessActionMapper, ProcessAction> implements ProcessActionService {
 
     @Autowired
     private BaseController baseController;

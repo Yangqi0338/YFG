@@ -16,14 +16,12 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.process.dto.AddRevampProcessProcessSchemeDto;
 import com.base.sbc.module.process.entity.ProcessProcessScheme;
 import com.base.sbc.module.process.mapper.ProcessProcessSchemeMapper;
 import com.base.sbc.module.process.service.ProcessProcessSchemeService;
 import com.base.sbc.module.process.vo.ProcessProcessSchemeVo;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,7 +41,7 @@ import java.util.Map;
  * @date 创建时间：2023-6-2 20:15:15
  */
 @Service
-public class ProcessProcessSchemeServiceImpl extends ServicePlusImpl<ProcessProcessSchemeMapper, ProcessProcessScheme> implements ProcessProcessSchemeService {
+public class ProcessProcessSchemeServiceImpl extends BaseServiceImpl<ProcessProcessSchemeMapper, ProcessProcessScheme> implements ProcessProcessSchemeService {
 
     @Autowired
     private BaseController baseController;

@@ -7,7 +7,7 @@
 package com.base.sbc.module.sample.service;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.sample.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.sample.dto.SampleDesignPageDto;
@@ -31,7 +31,7 @@ import java.util.Map;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-5-9 11:16:15
  */
-public interface SampleDesignService extends IServicePlus<SampleDesign> {
+public interface SampleDesignService extends BaseService<SampleDesign> {
 
 
 /** 自定义方法区 不替换的区域【other_start】 **/

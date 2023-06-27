@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourGroupMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourGroup;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourGroupVo;
@@ -19,9 +19,6 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumColourGroupDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.base.sbc.config.common.base.BaseController;
 import org.springframework.stereotype.Service;
-import com.github.pagehelper.PageInfo;
-import com.github.pagehelper.PageHelper;
-import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.config.utils.StringUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -44,7 +41,7 @@ import java.util.List;
  * @date 创建时间：2023-5-20 20:23:03
  */
 @Service
-public class BasicsdatumColourGroupServiceImpl extends ServicePlusImpl<BasicsdatumColourGroupMapper, BasicsdatumColourGroup> implements BasicsdatumColourGroupService {
+public class BasicsdatumColourGroupServiceImpl extends BaseServiceImpl<BasicsdatumColourGroupMapper, BasicsdatumColourGroup> implements BasicsdatumColourGroupService {
 
     @Autowired
     private BaseController baseController;

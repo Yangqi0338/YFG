@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.process.service.impl;
 
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.process.entity.ProcessStateRecord;
 import com.base.sbc.module.process.mapper.ProcessStateRecordMapper;
 import com.base.sbc.module.process.service.ProcessStateRecordService;
@@ -21,6 +21,6 @@ import org.springframework.stereotype.Service;
  * @version 1.0  
  */
 @Service
-public class ProcessStateRecordServiceImpl extends ServicePlusImpl<ProcessStateRecordMapper, ProcessStateRecord> implements ProcessStateRecordService {
+public class ProcessStateRecordServiceImpl extends BaseServiceImpl<ProcessStateRecordMapper, ProcessStateRecord> implements ProcessStateRecordService {
 
 }

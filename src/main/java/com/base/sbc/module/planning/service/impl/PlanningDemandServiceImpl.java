@@ -11,12 +11,10 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formType.entity.FieldManagement;
-import com.base.sbc.module.formType.entity.Option;
 import com.base.sbc.module.formType.mapper.FieldManagementMapper;
-import com.base.sbc.module.formType.mapper.OptionMapper;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.formType.entity.FormType;
 import com.base.sbc.module.formType.mapper.FormTypeMapper;
@@ -48,7 +46,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-4-26 17:42:18
  */
 @Service
-public class PlanningDemandServiceImpl extends ServicePlusImpl<PlanningDemandMapper, PlanningDemand> implements PlanningDemandService {
+public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMapper, PlanningDemand> implements PlanningDemandService {
     @Autowired
     private BaseController baseController;
     @Autowired

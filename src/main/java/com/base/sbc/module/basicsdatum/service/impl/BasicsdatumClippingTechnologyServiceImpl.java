@@ -28,7 +28,7 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumClippingTechnologyMappe
 import com.base.sbc.module.basicsdatum.service.BasicsdatumClippingTechnologyService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumTechnologyVo;
 import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -52,7 +52,7 @@ import java.util.List;
  * @version 1.0  
  */
 @Service
-public class BasicsdatumClippingTechnologyServiceImpl extends ServicePlusImpl<BasicsdatumClippingTechnologyMapper, BasicsdatumClippingTechnology> implements BasicsdatumClippingTechnologyService {
+public class BasicsdatumClippingTechnologyServiceImpl extends BaseServiceImpl<BasicsdatumClippingTechnologyMapper, BasicsdatumClippingTechnology> implements BasicsdatumClippingTechnologyService {
 
     @Autowired
     private BaseController baseController;

@@ -15,7 +15,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.SpringContextHolder;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.entity.FieldManagement;
 import com.base.sbc.module.formType.mapper.FieldManagementMapper;
 import com.base.sbc.module.process.dto.InitiateProcessDto;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-6-6 15:03:26
  */
 @Service
-public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessBusinessInstanceMapper, ProcessBusinessInstance> implements ProcessBusinessInstanceService {
+public class ProcessBusinessInstanceServiceImpl extends BaseServiceImpl<ProcessBusinessInstanceMapper, ProcessBusinessInstance> implements ProcessBusinessInstanceService {
 
     @Autowired
     private BaseController baseController;
@@ -387,7 +387,7 @@ public class ProcessBusinessInstanceServiceImpl extends ServicePlusImpl<ProcessB
         List<ProcessNodeStatusUpdateManagement> updateManagementList = processNodeStatusUpdateManagementMapper.selectList(queryWrapper);
         try {
             /*获取到修改的Service服务*/
-            ServicePlusImpl servicePlus = SpringContextHolder.getBean(processProcessScheme.getServiceName());
+            BaseServiceImpl servicePlus = SpringContextHolder.getBean(processProcessScheme.getServiceName());
             /*修改*/
             UpdateWrapper updateWrapper = new UpdateWrapper();
             /*组装数据*/

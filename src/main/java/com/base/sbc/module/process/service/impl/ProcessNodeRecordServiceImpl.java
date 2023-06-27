@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.process.service.impl;
 
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.process.entity.ProcessNodeRecord;
 import com.base.sbc.module.process.mapper.ProcessNodeRecordMapper;
 import com.base.sbc.module.process.service.ProcessNodeRecordService;
@@ -23,7 +23,7 @@ import java.util.List;
  * @version 1.0  
  */
 @Service
-public class ProcessNodeRecordServiceImpl extends ServicePlusImpl<ProcessNodeRecordMapper, ProcessNodeRecord> implements ProcessNodeRecordService {
+public class ProcessNodeRecordServiceImpl extends BaseServiceImpl<ProcessNodeRecordMapper, ProcessNodeRecord> implements ProcessNodeRecordService {
 
     /**
      * 描述- 批量新增

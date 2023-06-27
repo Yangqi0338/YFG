@@ -11,10 +11,8 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.minio.MinioUtils;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.common.mapper.UploadFileMapper;
 import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -25,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +39,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class UploadFileServiceImpl extends ServicePlusImpl<UploadFileMapper, UploadFile> implements UploadFileService {
+public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, UploadFile> implements UploadFileService {
 
     /** 自定义方法区 不替换的区域【other_start】 **/
 

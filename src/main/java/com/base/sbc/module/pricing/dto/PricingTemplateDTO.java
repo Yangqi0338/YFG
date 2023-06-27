@@ -48,9 +48,9 @@ public class PricingTemplateDTO {
     @NotBlank(message = "模板名称不可为空")
     private String templateName;
     /**
-     * 状态(0)启用,(1)停用
+     * 状态(0)停用,(1)启用
      */
-    @ApiModelProperty(value = "状态(0)启用,(1)停用")
+    @ApiModelProperty(value = "状态(0)停用,(1)启用")
     private String status;
     /**
      * 是否默认0.否,1.是

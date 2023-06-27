@@ -9,7 +9,7 @@ package com.base.sbc.module.nodestatus.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatusConfig;
 import com.base.sbc.module.nodestatus.mapper.NodeStatusConfigMapper;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
  * @date 创建时间：2023-6-19 13:33:10
  */
 @Service
-public class NodeStatusConfigServiceImpl extends ServicePlusImpl<NodeStatusConfigMapper, NodeStatusConfig> implements NodeStatusConfigService {
+public class NodeStatusConfigServiceImpl extends BaseServiceImpl<NodeStatusConfigMapper, NodeStatusConfig> implements NodeStatusConfigService {
 
 // 自定义方法区 不替换的区域【other_start】
 

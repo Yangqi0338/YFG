@@ -15,7 +15,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.dto.NodeStatusChangeDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.mapper.NodeStatusMapper;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-5-29 17:34:59
  */
 @Service
-public class NodeStatusServiceImpl extends ServicePlusImpl<NodeStatusMapper, NodeStatus> implements NodeStatusService {
+public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, NodeStatus> implements NodeStatusService {
 
 
 // 自定义方法区 不替换的区域【other_start】

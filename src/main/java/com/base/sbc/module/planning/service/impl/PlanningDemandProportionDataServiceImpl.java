@@ -6,12 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.planning.dto.SaveUpdateDemandProportionDataDto;
 import com.base.sbc.module.planning.mapper.PlanningDemandProportionDataMapper;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
@@ -19,7 +17,6 @@ import com.base.sbc.module.planning.service.PlanningDemandProportionDataService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -33,7 +30,7 @@ import java.util.List;
  * @date 创建时间：2023-4-26 17:42:22
  */
 @Service
-public class PlanningDemandProportionDataServiceImpl extends ServicePlusImpl<PlanningDemandProportionDataMapper, PlanningDemandProportionData> implements PlanningDemandProportionDataService {
+public class PlanningDemandProportionDataServiceImpl extends BaseServiceImpl<PlanningDemandProportionDataMapper, PlanningDemandProportionData> implements PlanningDemandProportionDataService {
     @Autowired
     private BaseController baseController;
 

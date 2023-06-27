@@ -1,6 +1,6 @@
 package com.base.sbc.module.operaLog.service.impl;
 
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.mapper.OperaLogMapper;
 import com.base.sbc.module.operaLog.service.OperaLogService;
@@ -12,5 +12,5 @@ import org.springframework.stereotype.Service;
  * @mail 247967116@qq.com
  */
 @Service
-public class OperaLogServiceImpl extends ServicePlusImpl<OperaLogMapper, OperaLogEntity> implements OperaLogService {
+public class OperaLogServiceImpl extends BaseServiceImpl<OperaLogMapper, OperaLogEntity> implements OperaLogService {
 }

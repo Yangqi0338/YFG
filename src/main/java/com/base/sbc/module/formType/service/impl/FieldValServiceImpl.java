@@ -8,7 +8,7 @@ package com.base.sbc.module.formType.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.mapper.FieldValMapper;
 import com.base.sbc.module.formType.service.FieldValService;
@@ -27,7 +27,7 @@ import java.util.List;
  * @date 创建时间：2023-5-22 19:41:56
  */
 @Service
-public class FieldValServiceImpl extends ServicePlusImpl<FieldValMapper, FieldVal> implements FieldValService {
+public class FieldValServiceImpl extends BaseServiceImpl<FieldValMapper, FieldVal> implements FieldValService {
     /**
      * 自定义方法区 不替换的区域【other_start】
      **/

@@ -1,6 +1,5 @@
 package com.base.sbc.module.material.service.impl;
 
-import cn.afterturn.easypoi.cache.manager.IFileLoader;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
@@ -8,13 +7,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
-import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.Pinyin4jUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.*;
@@ -30,11 +28,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * 类描述：素材库 service实现类
@@ -45,7 +41,7 @@ import java.util.stream.Stream;
  */
 @Service
 @RequiredArgsConstructor
-public class MaterialServiceImpl extends ServicePlusImpl<MaterialMapper, Material> implements MaterialService {
+public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Material> implements MaterialService {
 
     private final MaterialMapper materialMapper;
 

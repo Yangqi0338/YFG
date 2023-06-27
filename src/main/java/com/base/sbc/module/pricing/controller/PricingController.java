@@ -90,6 +90,19 @@ public class PricingController extends BaseController {
         pricingService.delByIds(pricingIdDTO, super.getUserCompany());
         return deleteSuccess("操作成功");
     }
+
+    /**
+     * 提交审批
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "提交审批")
+    @GetMapping("/submitApprove")
+    public ApiResult submitApprove(@Valid @NotBlank(message = "核价id不可为空") String id) {
+        pricingService.submitApprove(id, super.getUserCompany());
+        return updateSuccess("操作成功");
+    }
 }
 
 

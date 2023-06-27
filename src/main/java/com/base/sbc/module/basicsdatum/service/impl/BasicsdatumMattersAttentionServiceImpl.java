@@ -24,7 +24,7 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMattersAttentionMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMattersAttentionService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMattersAttentionVo;
 import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -48,7 +48,7 @@ import java.util.List;
  * @version 1.0  
  */
 @Service
-public class BasicsdatumMattersAttentionServiceImpl extends ServicePlusImpl<BasicsdatumMattersAttentionMapper, BasicsdatumMattersAttention> implements BasicsdatumMattersAttentionService {
+public class BasicsdatumMattersAttentionServiceImpl extends BaseServiceImpl<BasicsdatumMattersAttentionMapper, BasicsdatumMattersAttention> implements BasicsdatumMattersAttentionService {
 
         @Autowired
         private BaseController baseController;

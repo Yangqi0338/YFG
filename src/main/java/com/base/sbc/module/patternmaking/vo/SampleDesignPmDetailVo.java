@@ -1,5 +1,6 @@
 package com.base.sbc.module.patternmaking.vo;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.sample.vo.SampleDesignVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -22,4 +23,11 @@ public class SampleDesignPmDetailVo extends SampleDesignVo {
     private PatternMakingVo patternMaking;
 
 
+    public String getDesignerName(){
+        String designer = getDesigner();
+        if(StrUtil.contains(designer,StrUtil.COMMA)){
+            return designer.split(",")[0];
+        }
+        return designer;
+    }
 }

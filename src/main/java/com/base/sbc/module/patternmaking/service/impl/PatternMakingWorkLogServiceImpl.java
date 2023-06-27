@@ -12,7 +12,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternmaking.dto.PatternMakingWorkLogSaveDto;
 import com.base.sbc.module.patternmaking.dto.PatternMakingWorkLogSearchDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
@@ -36,7 +36,7 @@ import java.util.List;
  * @date 创建时间：2023-6-5 19:42:22
  */
 @Service
-public class PatternMakingWorkLogServiceImpl extends ServicePlusImpl<PatternMakingWorkLogMapper, PatternMakingWorkLog> implements PatternMakingWorkLogService {
+public class PatternMakingWorkLogServiceImpl extends BaseServiceImpl<PatternMakingWorkLogMapper, PatternMakingWorkLog> implements PatternMakingWorkLogService {
 
 
 // 自定义方法区 不替换的区域【other_start】

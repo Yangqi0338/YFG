@@ -11,7 +11,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.AdTree;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
@@ -43,7 +43,7 @@ import java.util.Map;
  * @date 创建时间：2023-3-27 17:42:08
  */
 @Service
-public class PlanningSeasonServiceImpl extends ServicePlusImpl<PlanningSeasonMapper, PlanningSeason> implements PlanningSeasonService {
+public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMapper, PlanningSeason> implements PlanningSeasonService {
     @Resource
     private AmcFeignService amcFeignService;
     @Resource

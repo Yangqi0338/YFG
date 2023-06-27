@@ -11,7 +11,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.SaveUpdateFabricDetailedInformationDto;
 import com.base.sbc.module.sample.entity.FabricBasicInformation;
 import com.base.sbc.module.sample.entity.FabricDetailedInformation;
@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
  * @version 1.0  
  */
 @Service
-public class FabricDetailedInformationServiceImpl extends ServicePlusImpl<FabricDetailedInformationMapper, FabricDetailedInformation> implements FabricDetailedInformationService {
+public class FabricDetailedInformationServiceImpl extends BaseServiceImpl<FabricDetailedInformationMapper, FabricDetailedInformation> implements FabricDetailedInformationService {
     @Autowired
     private FabricBasicInformationMapper fabricBasicInformationMapper;
     @Autowired

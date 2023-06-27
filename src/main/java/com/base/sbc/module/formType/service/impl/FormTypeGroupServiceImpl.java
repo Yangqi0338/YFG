@@ -12,7 +12,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.dto.SaveUpdateFormTypeGroupDto;
 import com.base.sbc.module.formType.mapper.FormTypeGroupMapper;
 import com.base.sbc.module.formType.entity.FormTypeGroup;
@@ -36,7 +36,7 @@ import java.util.Map;
  * @version 1.0  
  */
 @Service
-public class FormTypeGroupServiceImpl extends ServicePlusImpl<FormTypeGroupMapper, FormTypeGroup> implements FormTypeGroupService {
+public class FormTypeGroupServiceImpl extends BaseServiceImpl<FormTypeGroupMapper, FormTypeGroup> implements FormTypeGroupService {
     @Autowired
     private BaseController baseController;
     @Autowired

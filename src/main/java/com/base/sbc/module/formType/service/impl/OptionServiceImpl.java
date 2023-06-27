@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.formType.service.impl;
 
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.entity.Option;
 import com.base.sbc.module.formType.mapper.OptionMapper;
 import com.base.sbc.module.formType.service.OptionService;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
  * @version 1.0  
  */
 @Service
-public class OptionServiceImpl extends ServicePlusImpl<OptionMapper, Option> implements OptionService {
+public class OptionServiceImpl extends BaseServiceImpl<OptionMapper, Option> implements OptionService {
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 

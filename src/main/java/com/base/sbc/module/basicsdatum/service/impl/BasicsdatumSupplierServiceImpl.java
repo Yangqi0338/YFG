@@ -28,7 +28,7 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSupplierMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumSupplierVo;
 import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -55,7 +55,7 @@ import java.util.Map;
  * @date 创建时间：2023-5-22 10:51:07
  */
 @Service
-public class BasicsdatumSupplierServiceImpl extends ServicePlusImpl<BasicsdatumSupplierMapper, BasicsdatumSupplier> implements BasicsdatumSupplierService {
+public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumSupplierMapper, BasicsdatumSupplier> implements BasicsdatumSupplierService {
 
     @Autowired
     private BaseController baseController;

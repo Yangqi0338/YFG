@@ -10,11 +10,10 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.module.basicsdatum.dto.*;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumPressingPackagingMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumPressingPackaging;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumPressingPackagingVo;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumPressingPackaging;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumPressingPackagingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.base.sbc.config.common.base.BaseController;
@@ -36,7 +35,6 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.utils.ExcelUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,7 +47,7 @@ import java.util.List;
  * @date 创建时间：2023-5-20 19:08:55
  */
 @Service
-public class BasicsdatumPressingPackagingServiceImpl extends ServicePlusImpl<BasicsdatumPressingPackagingMapper, BasicsdatumPressingPackaging> implements BasicsdatumPressingPackagingService {
+public class BasicsdatumPressingPackagingServiceImpl extends BaseServiceImpl<BasicsdatumPressingPackagingMapper, BasicsdatumPressingPackaging> implements BasicsdatumPressingPackagingService {
 
     @Autowired
     private BaseController baseController;

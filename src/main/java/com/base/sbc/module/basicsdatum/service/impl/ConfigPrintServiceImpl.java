@@ -25,7 +25,7 @@ import com.base.sbc.module.basicsdatum.entity.ConfigPrint;
 import com.base.sbc.module.basicsdatum.mapper.ConfigPrintMapper;
 import com.base.sbc.module.basicsdatum.service.ConfigPrintService;
 import com.base.sbc.module.basicsdatum.vo.ConfigPrintVo;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
@@ -39,7 +39,7 @@ import com.github.pagehelper.PageInfo;
  * @version 1.0
  */
 @Service
-public class ConfigPrintServiceImpl extends ServicePlusImpl<ConfigPrintMapper, ConfigPrint>
+public class ConfigPrintServiceImpl extends BaseServiceImpl<ConfigPrintMapper, ConfigPrint>
 		implements ConfigPrintService {
 	// 自定义方法区 不替换的区域【other_start】
 

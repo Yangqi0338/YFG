@@ -71,5 +71,16 @@ public class PricingCraftCosts extends BaseDataEntity<String> {
     /** 单价 */
     @ApiModelProperty(value = "单价"  )
     private BigDecimal price;
+    /**
+     * 数量
+     *
+     */
+    @ApiModelProperty(value = "数量")
+    private BigDecimal num;
+    /**
+     * 金额
+     */
+    @ApiModelProperty(value = "金额")
+    private BigDecimal sumPrice;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

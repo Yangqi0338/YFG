@@ -30,7 +30,7 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +55,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class BasicsdatumModelTypeServiceImpl extends ServicePlusImpl<BasicsdatumModelTypeMapper, BasicsdatumModelType> implements BasicsdatumModelTypeService {
+public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<BasicsdatumModelTypeMapper, BasicsdatumModelType> implements BasicsdatumModelTypeService {
 
 
     private final BaseController baseController;

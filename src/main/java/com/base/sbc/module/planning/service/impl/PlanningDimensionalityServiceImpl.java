@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.entity.FieldManagement;
 import com.base.sbc.module.formType.mapper.FieldManagementMapper;
 import com.base.sbc.module.formType.entity.FormType;
@@ -18,7 +18,6 @@ import com.base.sbc.module.formType.mapper.FormTypeMapper;
 import com.base.sbc.module.planning.dto.QueryPlanningDimensionalityDto;
 import com.base.sbc.module.planning.dto.SaveDelDimensionalityDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
-import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
@@ -45,7 +44,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-4-27 11:15:30
  */
 @Service
-public class PlanningDimensionalityServiceImpl extends ServicePlusImpl<PlanningDimensionalityMapper, PlanningDimensionality> implements PlanningDimensionalityService {
+public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningDimensionalityMapper, PlanningDimensionality> implements PlanningDimensionalityService {
     @Autowired
     private BaseController baseController;
     @Autowired

@@ -13,7 +13,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.planning.mapper.PlanningCategoryMapper;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategory;
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  * @version 1.0  
  */
 @Service
-public class PlanningCategoryServiceImpl extends ServicePlusImpl<PlanningCategoryMapper, PlanningCategory> implements PlanningCategoryService {
+public class PlanningCategoryServiceImpl extends BaseServiceImpl<PlanningCategoryMapper, PlanningCategory> implements PlanningCategoryService {
 	private IdGen idGen = new IdGen();
 	@Autowired
 	private PlanningCategoryMapper planningCategoryMapper;

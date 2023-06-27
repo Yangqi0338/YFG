@@ -14,14 +14,11 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampSizeLabelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDasicsdatumSizeDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumSizeLabelVo;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeLabelMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSizeLabel;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeLabelService;
-import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,7 +36,7 @@ import java.util.List;
  * @version 1.0  
  */
 @Service
-public class BasicsdatumSizeLabelServiceImpl extends ServicePlusImpl<BasicsdatumSizeLabelMapper, BasicsdatumSizeLabel> implements BasicsdatumSizeLabelService {
+public class BasicsdatumSizeLabelServiceImpl extends BaseServiceImpl<BasicsdatumSizeLabelMapper, BasicsdatumSizeLabel> implements BasicsdatumSizeLabelService {
 
     @Autowired
     private BaseController baseController;

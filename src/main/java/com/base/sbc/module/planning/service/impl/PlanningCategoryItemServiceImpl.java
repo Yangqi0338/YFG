@@ -30,7 +30,7 @@ import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.service.FieldManagementService;
@@ -70,7 +70,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-3-31 13:40:49
  */
 @Service
-public class PlanningCategoryItemServiceImpl extends ServicePlusImpl<PlanningCategoryItemMapper, PlanningCategoryItem> implements PlanningCategoryItemService {
+public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCategoryItemMapper, PlanningCategoryItem> implements PlanningCategoryItemService {
 
     @Autowired
     PlanningSeasonService planningSeasonService;

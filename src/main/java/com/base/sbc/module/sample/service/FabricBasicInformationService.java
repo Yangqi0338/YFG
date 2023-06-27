@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.sample.dto.QueryDetailFabricDto;
 import com.base.sbc.module.sample.dto.QueryFabricInformationDto;
 import com.base.sbc.module.sample.dto.SaveUpdateFabricBasicInformationDto;
@@ -22,7 +22,7 @@ import com.github.pagehelper.PageInfo;
  * @date 创建时间：2023-4-19 18:23:26
  * @version 1.0  
  */
-public interface FabricBasicInformationService extends IServicePlus<FabricBasicInformation>{
+public interface FabricBasicInformationService extends BaseService<FabricBasicInformation> {
 
    PageInfo<FabricInformationVo> getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto);
 

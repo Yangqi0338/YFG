@@ -14,16 +14,13 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.process.dto.AddRevampProcessNodeDto;
 import com.base.sbc.module.process.entity.ProcessNode;
 import com.base.sbc.module.process.mapper.ProcessNodeMapper;
 import com.base.sbc.module.process.service.ProcessNodeService;
 import com.base.sbc.module.process.vo.ProcessNodeVo;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,7 +39,7 @@ import java.util.List;
  * @date 创建时间：2023-6-2 20:15:14
  */
 @Service
-public class ProcessNodeServiceImpl extends ServicePlusImpl<ProcessNodeMapper, ProcessNode> implements ProcessNodeService {
+public class ProcessNodeServiceImpl extends BaseServiceImpl<ProcessNodeMapper, ProcessNode> implements ProcessNodeService {
 
     @Autowired
     private BaseController baseController;

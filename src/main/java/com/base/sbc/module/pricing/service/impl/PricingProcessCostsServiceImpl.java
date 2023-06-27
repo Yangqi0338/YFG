@@ -9,13 +9,14 @@ package com.base.sbc.module.pricing.service.impl;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pricing.dto.PricingProcessCostsDTO;
 import com.base.sbc.module.pricing.entity.PricingProcessCosts;
 import com.base.sbc.module.pricing.mapper.PricingProcessCostsMapper;
 import com.base.sbc.module.pricing.service.PricingProcessCostsService;
 import com.base.sbc.module.pricing.vo.PricingProcessCostsVO;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-6-16 15:09:31
  */
 @Service
-public class PricingProcessCostsServiceImpl extends ServicePlusImpl<PricingProcessCostsMapper, PricingProcessCosts> implements PricingProcessCostsService {
+public class PricingProcessCostsServiceImpl extends BaseServiceImpl<PricingProcessCostsMapper, PricingProcessCosts> implements PricingProcessCostsService {
     @Autowired
     private PricingProcessCostsMapper pricingProcessCostsMapper;
 
@@ -62,7 +63,11 @@ public class PricingProcessCostsServiceImpl extends ServicePlusImpl<PricingProce
                 .map(pricingCraftCostsDTO -> {
                     PricingProcessCosts pricingProcessCosts = new PricingProcessCosts();
                     BeanUtils.copyProperties(pricingCraftCostsDTO, pricingProcessCosts);
-                    pricingProcessCosts.preInsert(idGen.nextIdStr());
+                    if (StringUtils.isNotEmpty(pricingProcessCosts.getId())) {
+                        pricingProcessCosts.updateInit();
+                    } else {
+                        pricingProcessCosts.preInsert(idGen.nextIdStr());
+                    }
                     pricingProcessCosts.setCompanyCode(userCompany);
                     pricingProcessCosts.setPricingCode(pricingCode);
                     return pricingProcessCosts;

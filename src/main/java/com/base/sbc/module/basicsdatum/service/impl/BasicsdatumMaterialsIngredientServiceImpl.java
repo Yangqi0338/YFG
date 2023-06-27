@@ -23,7 +23,7 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialsIngredient;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialsIngredientMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialsIngredientService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialsIngredientVo;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -44,7 +44,7 @@ import java.util.List;
  * @version 1.0
  */
 @Service
-public class BasicsdatumMaterialsIngredientServiceImpl extends ServicePlusImpl<BasicsdatumMaterialsIngredientMapper, BasicsdatumMaterialsIngredient> implements BasicsdatumMaterialsIngredientService {
+public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<BasicsdatumMaterialsIngredientMapper, BasicsdatumMaterialsIngredient> implements BasicsdatumMaterialsIngredientService {
 
         @Autowired
         private BaseController baseController;

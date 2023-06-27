@@ -10,7 +10,6 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -21,15 +20,12 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumComponent;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumComponentVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMeasurementVo;
 import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMeasurementMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMeasurementService;
@@ -57,7 +53,7 @@ import java.util.Map;
  * @version 1.0
  */
 @Service
-public class BasicsdatumMeasurementServiceImpl extends ServicePlusImpl<BasicsdatumMeasurementMapper, BasicsdatumMeasurement> implements BasicsdatumMeasurementService {
+public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<BasicsdatumMeasurementMapper, BasicsdatumMeasurement> implements BasicsdatumMeasurementService {
 
     @Autowired
     private BaseController baseController;

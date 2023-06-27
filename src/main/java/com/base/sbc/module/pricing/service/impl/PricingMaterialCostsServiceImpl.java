@@ -9,13 +9,14 @@ package com.base.sbc.module.pricing.service.impl;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pricing.dto.PricingMaterialCostsDTO;
 import com.base.sbc.module.pricing.entity.PricingMaterialCosts;
 import com.base.sbc.module.pricing.mapper.PricingMaterialCostsMapper;
 import com.base.sbc.module.pricing.service.PricingMaterialCostsService;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-6-16 15:09:25
  */
 @Service
-public class PricingMaterialCostsServiceImpl extends ServicePlusImpl<PricingMaterialCostsMapper, PricingMaterialCosts> implements PricingMaterialCostsService {
+public class PricingMaterialCostsServiceImpl extends BaseServiceImpl<PricingMaterialCostsMapper, PricingMaterialCosts> implements PricingMaterialCostsService {
     // 自定义方法区 不替换的区域【other_start】
     @Autowired
     private PricingMaterialCostsMapper pricingMaterialCostsMapper;
@@ -64,7 +65,11 @@ public class PricingMaterialCostsServiceImpl extends ServicePlusImpl<PricingMate
                 .map(pricingCraftCostsDTO -> {
                     PricingMaterialCosts pricingMaterialCosts = new PricingMaterialCosts();
                     BeanUtils.copyProperties(pricingCraftCostsDTO, pricingMaterialCosts);
-                    pricingMaterialCosts.preInsert(idGen.nextIdStr());
+                    if (StringUtils.isNotEmpty(pricingMaterialCosts.getId())) {
+                        pricingMaterialCosts.updateInit();
+                    } else {
+                        pricingMaterialCosts.preInsert(idGen.nextIdStr());
+                    }
                     pricingMaterialCosts.setCompanyCode(userCompany);
                     pricingMaterialCosts.setPricingCode(pricingCode);
                     pricingMaterialCosts.setPricingColorId(pricingColorMap.get(pricingCraftCostsDTO.getColorCode()));

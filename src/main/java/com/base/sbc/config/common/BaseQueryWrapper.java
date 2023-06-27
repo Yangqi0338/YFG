@@ -10,19 +10,20 @@ import org.springframework.util.StringUtils;
  */
 public class BaseQueryWrapper<T> extends QueryWrapper<T> {
     public QueryWrapper<T> notEmptyEq(String column, Object val) {
-        return super.eq(!StringUtils.isEmpty(val), column, val);
+        return this.eq(!StringUtils.isEmpty(val), column, val);
     }
 
-    public void notEmptyLike(String column, Object val) {
-        super.like(!StringUtils.isEmpty(val), column, val);
+    public QueryWrapper<T> notEmptyLike(String column, Object val) {
+        return this.like(!StringUtils.isEmpty(val), column, val);
     }
 
-    public void between(String column,String[] strings){
-        if (strings!=null && strings.length>0){
-            super.ge(!StringUtils.isEmpty(strings[0]),column,strings[0]);
-            if (strings.length>1){
-                super.and(i->i.le(!StringUtils.isEmpty(strings[1]),column,strings[1]));
+    public QueryWrapper<T> between(String column, String[] strings) {
+        if (strings != null && strings.length > 0) {
+            this.ge(!StringUtils.isEmpty(strings[0]), column, strings[0]);
+            if (strings.length > 1) {
+                return this.and(i -> i.le(!StringUtils.isEmpty(strings[1]), column, strings[1]));
             }
         }
+        return this;
     }
 }

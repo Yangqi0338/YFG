@@ -1,7 +1,7 @@
 package com.base.sbc.module.material.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.material.entity.MaterialLabel;
 import com.base.sbc.module.material.mapper.MaterialLabelMapper;
 import com.base.sbc.module.material.service.MaterialLabelService;
@@ -14,7 +14,7 @@ import java.util.List;
  * @date 2023/4/1 10:38:14
  */
 @Service
-public class MaterialLabelServiceImpl extends ServicePlusImpl<MaterialLabelMapper,MaterialLabel> implements MaterialLabelService {
+public class MaterialLabelServiceImpl extends BaseServiceImpl<MaterialLabelMapper,MaterialLabel> implements MaterialLabelService {
     @Resource
     private MaterialLabelMapper materialLabelMapper;
 

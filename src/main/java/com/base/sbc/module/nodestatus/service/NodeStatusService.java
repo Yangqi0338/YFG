@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.nodestatus.service;
 
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.nodestatus.dto.NodeStatusChangeDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 
@@ -20,7 +20,7 @@ import java.util.List;
  * @date 创建时间：2023-5-29 17:34:59
  * @version 1.0  
  */
-public interface NodeStatusService extends IServicePlus<NodeStatus>{
+public interface NodeStatusService extends BaseService<NodeStatus> {
 
 // 自定义方法区 不替换的区域【other_start】
 

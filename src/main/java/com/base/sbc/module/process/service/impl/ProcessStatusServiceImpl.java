@@ -14,7 +14,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.process.dto.AddRevampProcessStatusDto;
 import com.base.sbc.module.process.dto.QueryStatusDto;
 import com.base.sbc.module.process.entity.ProcessStatus;
@@ -39,7 +39,7 @@ import java.util.List;
  * @version 1.0  
  */
 @Service
-public class ProcessStatusServiceImpl extends ServicePlusImpl<ProcessStatusMapper, ProcessStatus> implements ProcessStatusService {
+public class ProcessStatusServiceImpl extends BaseServiceImpl<ProcessStatusMapper, ProcessStatus> implements ProcessStatusService {
 
         @Autowired
         private BaseController baseController;

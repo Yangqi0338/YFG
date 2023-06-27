@@ -14,7 +14,7 @@ import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
 import com.base.sbc.module.basicsdatum.mapper.ProcessDatabaseMapper;
 import com.base.sbc.module.basicsdatum.service.ProcessDatabaseService;
 import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -33,7 +33,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class ProcessDatabaseServiceImpl extends ServicePlusImpl<ProcessDatabaseMapper, ProcessDatabase> implements ProcessDatabaseService {
+public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseMapper, ProcessDatabase> implements ProcessDatabaseService {
 
     private final UploadFileService uploadFileService;
 

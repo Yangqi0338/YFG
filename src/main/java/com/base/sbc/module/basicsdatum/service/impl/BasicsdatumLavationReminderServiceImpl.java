@@ -21,12 +21,11 @@ import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumLavationReminderMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumLavationReminderService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo;
 import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -50,7 +49,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  */
 @Service
-public class BasicsdatumLavationReminderServiceImpl extends ServicePlusImpl<BasicsdatumLavationReminderMapper, BasicsdatumLavationReminder> implements BasicsdatumLavationReminderService {
+public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<BasicsdatumLavationReminderMapper, BasicsdatumLavationReminder> implements BasicsdatumLavationReminderService {
 
         @Autowired
         private BaseController baseController;

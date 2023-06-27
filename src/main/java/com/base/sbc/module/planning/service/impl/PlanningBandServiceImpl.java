@@ -10,7 +10,7 @@ import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.planning.dto.PlanningBandDto;
 import com.base.sbc.module.planning.dto.PlanningBandSearchDto;
 import com.base.sbc.module.planning.dto.ProductSeasonExpandByBandSearchDto;
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  */
 @Service
-public class PlanningBandServiceImpl extends ServicePlusImpl<PlanningBandMapper, PlanningBand> implements PlanningBandService {
+public class PlanningBandServiceImpl extends BaseServiceImpl<PlanningBandMapper, PlanningBand> implements PlanningBandService {
 
 
     @Autowired

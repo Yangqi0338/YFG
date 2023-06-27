@@ -7,7 +7,6 @@
 package com.base.sbc.module.pricing.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.module.pricing.dto.PricingDelDTO;
 import com.base.sbc.module.pricing.entity.PricingProcessCosts;
 import com.base.sbc.module.pricing.vo.PricingProcessCostsVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -31,6 +30,21 @@ public interface PricingProcessCostsMapper extends BaseMapper<PricingProcessCost
     /**
      * 通过核价单号查询
      *
+     * @param pricingCode
+     * @param userCompany
+     * @return
+     */
+
+    /**
+     *   SELECT
+     *         <include refid="base_column"/>
+     *         tpc.id,
+     *         tp.id as pricingId,
+     *         tpc.color as colors,
+     *         tpc.material_cost
+     *         FROM
+     *         t_pricing tp
+     *         JOIN t_pricing_color tpc ON tp.CODE = tpc.pricing_code
      * @param pricingCode
      * @param userCompany
      * @return

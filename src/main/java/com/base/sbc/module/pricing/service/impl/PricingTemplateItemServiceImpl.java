@@ -9,7 +9,7 @@ package com.base.sbc.module.pricing.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pricing.dto.PricingTemplateItemDTO;
 import com.base.sbc.module.pricing.entity.PricingTemplateItem;
 import com.base.sbc.module.pricing.mapper.PricingTemplateItemMapper;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-6-16 15:09:36
  */
 @Service
-public class PricingTemplateItemServiceImpl extends ServicePlusImpl<PricingTemplateItemMapper, PricingTemplateItem> implements PricingTemplateItemService {
+public class PricingTemplateItemServiceImpl extends BaseServiceImpl<PricingTemplateItemMapper, PricingTemplateItem> implements PricingTemplateItemService {
     // 自定义方法区 不替换的区域【other_start】
     @Autowired
     private PricingTemplateItemMapper pricingTemplateItemMapper;

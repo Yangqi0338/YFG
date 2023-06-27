@@ -6,14 +6,12 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.hutool.core.io.FileUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.minio.MinioUtils;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
 import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumRangeDifferenceMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumRangeDifferenceVo;
@@ -41,7 +39,6 @@ import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.config.utils.ExcelUtils;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,7 +50,7 @@ import java.util.List;
  * @version 1.0
  */
 @Service
-public class BasicsdatumRangeDifferenceServiceImpl extends ServicePlusImpl<BasicsdatumRangeDifferenceMapper, BasicsdatumRangeDifference> implements BasicsdatumRangeDifferenceService {
+public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<BasicsdatumRangeDifferenceMapper, BasicsdatumRangeDifference> implements BasicsdatumRangeDifferenceService {
 
         @Autowired
         private BaseController baseController;

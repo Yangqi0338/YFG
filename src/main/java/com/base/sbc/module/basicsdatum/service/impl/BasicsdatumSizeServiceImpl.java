@@ -23,7 +23,7 @@ import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSizeLabel;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeLabelMapper;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumSizeVo;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
@@ -50,7 +50,7 @@ import java.util.List;
  * @date 创建时间：2023-5-17 14:01:34
  */
 @Service
-public class BasicsdatumSizeServiceImpl extends ServicePlusImpl<BasicsdatumSizeMapper, BasicsdatumSize> implements BasicsdatumSizeService {
+public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeMapper, BasicsdatumSize> implements BasicsdatumSizeService {
 
     @Autowired
     private BaseController baseController;

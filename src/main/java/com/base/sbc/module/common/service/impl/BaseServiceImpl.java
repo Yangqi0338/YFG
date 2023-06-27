@@ -3,12 +3,11 @@ package com.base.sbc.module.common.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -21,7 +20,7 @@ import java.util.List;
  * @author 卞康
  * @date 2023/4/13 11:50:06
  */
-public class ServicePlusImpl<M extends BaseMapper<T>, T extends BaseEntity> extends ServiceImpl<M,T> implements IServicePlus<T> {
+public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> extends com.baomidou.mybatisplus.extension.service.impl.ServiceImpl<M,T> implements BaseService<T> {
 
     @Resource
     private UserUtils userUtils;

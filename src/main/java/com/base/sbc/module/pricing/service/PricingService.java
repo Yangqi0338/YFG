@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service;
 
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pricing.dto.PricingDTO;
 import com.base.sbc.module.pricing.dto.PricingDelDTO;
 import com.base.sbc.module.pricing.dto.PricingSearchDTO;
@@ -24,7 +24,7 @@ import com.github.pagehelper.PageInfo;
  * @email ch.183.g1114@gmail.com
  * @date 创建时间：2023-6-16 15:09:17
  */
-public interface PricingService extends IServicePlus<Pricing> {
+public interface PricingService extends BaseService<Pricing> {
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -64,7 +64,13 @@ public interface PricingService extends IServicePlus<Pricing> {
      */
     PricingVO getDetailsById(String id, String userCompany);
 
-    // TODO 提交审核
+    /**
+     * 提交审核
+     *
+     * @param id
+     * @param userCompany
+     */
+    void submitApprove(String id, String userCompany);
 
     // TODO 反审核
 

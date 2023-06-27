@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-5-12 16:05:59
  */
 @Service
-public class AttachmentServiceImpl extends ServicePlusImpl<AttachmentMapper, Attachment> implements AttachmentService {
+public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Attachment> implements AttachmentService {
 
 
     @Autowired

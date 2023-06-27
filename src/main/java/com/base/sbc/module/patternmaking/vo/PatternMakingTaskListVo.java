@@ -97,6 +97,14 @@ public class PatternMakingTaskListVo {
      */
     @ApiModelProperty(value = "车缝工id")
     private String stitcherId;
+
+    /** 设计师名称 */
+    @ApiModelProperty(value = "设计师名称"  )
+    private String designer;
+    /** 设计师id */
+    @ApiModelProperty(value = "设计师id"  )
+    private String designerId;
+
     /**
      * 打版类型
      */
@@ -108,5 +116,12 @@ public class PatternMakingTaskListVo {
         return Optional.ofNullable(nodeStatusList).map(ns->{
            return ns.stream().collect(Collectors.toMap(k->k.getNode()+ StrUtil.DASHED+k.getStatus(),v->v,(a,b)->b));
         }).orElse(new HashMap<>(4));
+    }
+
+    public String getDesigner() {
+        if(StrUtil.contains(designer,StrUtil.COMMA)){
+            return designer.split(",")[0];
+        }
+        return designer;
     }
 }

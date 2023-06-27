@@ -9,12 +9,13 @@ package com.base.sbc.module.pricing.service.impl;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pricing.dto.PricingCraftCostsDTO;
 import com.base.sbc.module.pricing.entity.PricingCraftCosts;
 import com.base.sbc.module.pricing.mapper.PricingCraftCostsMapper;
 import com.base.sbc.module.pricing.service.PricingCraftCostsService;
 import com.base.sbc.module.pricing.vo.PricingCraftCostsVO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-6-16 15:09:22
  */
 @Service
-public class PricingCraftCostsServiceImpl extends ServicePlusImpl<PricingCraftCostsMapper, PricingCraftCosts> implements PricingCraftCostsService {
+public class PricingCraftCostsServiceImpl extends BaseServiceImpl<PricingCraftCostsMapper, PricingCraftCosts> implements PricingCraftCostsService {
     // 自定义方法区 不替换的区域【other_start】
     @Autowired
     private PricingCraftCostsMapper pricingCraftCostsMapper;
@@ -62,7 +63,11 @@ public class PricingCraftCostsServiceImpl extends ServicePlusImpl<PricingCraftCo
                 .map(pricingCraftCostsDTO -> {
                     PricingCraftCosts pricingCraftCosts = new PricingCraftCosts();
                     BeanUtils.copyProperties(pricingCraftCostsDTO, pricingCraftCosts);
-                    pricingCraftCosts.preInsert(idGen.nextIdStr());
+                    if (StringUtils.isNotEmpty(pricingCraftCosts.getId())) {
+                        pricingCraftCosts.updateInit();
+                    } else {
+                        pricingCraftCosts.preInsert(idGen.nextIdStr());
+                    }
                     pricingCraftCosts.setCompanyCode(userCompany);
                     pricingCraftCosts.setPricingCode(pricingCode);
                     return pricingCraftCosts;

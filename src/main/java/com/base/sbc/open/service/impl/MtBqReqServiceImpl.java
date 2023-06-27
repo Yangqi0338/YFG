@@ -1,6 +1,6 @@
 package com.base.sbc.open.service.impl;
 
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.open.entity.MtBqReqEntity;
 import com.base.sbc.open.mapper.MtBqReqMapper;
 import com.base.sbc.open.service.MtBqReqService;
@@ -12,5 +12,5 @@ import org.springframework.stereotype.Service;
  * @mail 247967116@qq.com
  */
 @Service
-public class MtBqReqServiceImpl extends ServicePlusImpl<MtBqReqMapper, MtBqReqEntity> implements MtBqReqService {
+public class MtBqReqServiceImpl extends BaseServiceImpl<MtBqReqMapper, MtBqReqEntity> implements MtBqReqService {
 }

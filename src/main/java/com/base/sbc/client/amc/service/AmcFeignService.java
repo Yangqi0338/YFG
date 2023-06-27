@@ -151,6 +151,7 @@ public class AmcFeignService {
             }).collect(Collectors.toList());
             return collect;
         }
+
         return userList;
     }
 
@@ -262,6 +263,9 @@ public class AmcFeignService {
         // 查询头像
         Map<String, String> userAvatar = getUserAvatar(CollUtil.join(userIds, StrUtil.COMMA));
         for (Object obj : list) {
+            if (obj == null) {
+                continue;
+            }
             for (Map.Entry<String, String> kv : avatarUserIdKey.entrySet()) {
                 BeanUtil.setProperty(obj, kv.getKey(), userAvatar.get(BeanUtil.getProperty(obj, kv.getValue())));
             }

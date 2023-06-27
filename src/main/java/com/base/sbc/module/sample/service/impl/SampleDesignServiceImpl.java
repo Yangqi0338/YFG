@@ -25,7 +25,7 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formType.entity.FieldVal;
@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-5-9 11:16:15
  */
 @Service
-public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper, SampleDesign> implements SampleDesignService {
+public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper, SampleDesign> implements SampleDesignService {
 
 
     @Autowired
@@ -205,7 +205,6 @@ public class SampleDesignServiceImpl extends ServicePlusImpl<SampleDesignMapper,
         categoryItem.setPlanningBandId(planningBand.getId());
         categoryItem.setPlanningCategoryId(planningCategory.getId());
         categoryItem.setStylePic(dto.getStylePic());
-        categoryItem.setCategoryId(CollUtil.getLast(categoryIds));
         categoryItem.setStatus("1");
         categoryItem.setCategoryIds(dto.getCategoryIds());
         categoryItem.setCategoryName(dto.getCategoryName());
