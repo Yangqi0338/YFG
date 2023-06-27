@@ -13,4 +13,6 @@ import java.io.IOException;
  */
 public interface SpecificationService extends BaseService<Specification> {
     Boolean importExcel(MultipartFile file) throws Exception;
+
+    boolean saveSpecification(Specification specification);
 }

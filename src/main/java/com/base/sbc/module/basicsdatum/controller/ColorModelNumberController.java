@@ -1,12 +1,18 @@
 package com.base.sbc.module.basicsdatum.controller;
 
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.basicsdatum.dto.ColorModelNumberDto;
+import com.base.sbc.module.basicsdatum.dto.ColorModelNumberExcelDto;
 import com.base.sbc.module.basicsdatum.entity.ColorModelNumber;
 import com.base.sbc.module.basicsdatum.service.ColorModelNumberService;
+import com.base.sbc.module.basicsdatum.service.impl.SpecificationExcelDto;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -16,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.List;
 
@@ -102,5 +109,18 @@ public class ColorModelNumberController extends BaseController {
     public ApiResult importExcel(@RequestParam("file") MultipartFile file) throws Exception {
         Boolean b = colorModelNumberService.importExcel(file);
         return insertSuccess(b);
+    }
+
+
+    /**
+     * 导出
+     */
+    @ApiOperation(value = "导出Excel")
+    @GetMapping("/exportExcel")
+    public void exportExcel(HttpServletResponse response,ColorModelNumberDto colorModelNumberDto) throws Exception {
+        QueryWrapper<ColorModelNumber> queryWrapper =new BaseQueryWrapper<>();
+        queryWrapper.eq("file_name",colorModelNumberDto.getFileName());
+        List<ColorModelNumberExcelDto> list = BeanUtil.copyToList(colorModelNumberService.list(queryWrapper), ColorModelNumberExcelDto.class);
+        ExcelUtils.exportExcel(list,  ColorModelNumberExcelDto.class, "色号和色型.xlsx",new ExportParams() ,response);
     }
 }

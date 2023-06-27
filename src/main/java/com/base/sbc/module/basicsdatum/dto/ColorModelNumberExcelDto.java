@@ -17,7 +17,7 @@ public class ColorModelNumberExcelDto {
     private String name;
 
     @Excel(name = "描述")
-    private String remark;
+    private String remarks;
 
     @Excel(name = "依赖于")
     private String mat2ndCategoryName;
