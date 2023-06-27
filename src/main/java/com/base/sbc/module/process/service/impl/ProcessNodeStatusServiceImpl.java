@@ -27,9 +27,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：流程配置-节点状态 service类
@@ -119,6 +121,19 @@ public class ProcessNodeStatusServiceImpl extends BaseServiceImpl<ProcessNodeSta
     @Override
     @Transactional(readOnly = false)
     public List<ProcessNodeStatusVo>  batchAddRevamp(List<AddRevampProcessNodeStatusDto> addRevampProcessNodeStatusDto) {
+        /*查询数据库已有数据*/
+        QueryWrapper queryWrapper=new QueryWrapper();
+        queryWrapper.eq("node_id",addRevampProcessNodeStatusDto.get(0).getNodeId());
+        queryWrapper.eq("company_code",baseController.getUserCompany());
+        List<ProcessNodeStatus> list =  baseMapper.selectList(queryWrapper);
+        List<String> stringList = addRevampProcessNodeStatusDto.stream().map(AddRevampProcessNodeStatusDto::getStatusId).collect(Collectors.toList());
+        /*需要删除的数据*/
+        List<ProcessNodeStatus> delNodeStatusList = list.stream().filter(s -> !stringList.contains(s.getStatusId())).collect(Collectors.toList());
+        if(!CollectionUtils.isEmpty(delNodeStatusList)){
+          List<String> delIdList = delNodeStatusList.stream().filter(s -> StringUtils.isNotBlank(s.getId())).map(ProcessNodeStatus::getId).collect(Collectors.toList());
+            /*批量删除*/
+            baseMapper.deleteBatchIds(delIdList);
+        }
         /*重新给排序下标 添加节点条件流转*/
         for (int i = 0; i < addRevampProcessNodeStatusDto.size(); i++) {
             addRevampProcessNodeStatusDto.get(i).setSort(i+1);
