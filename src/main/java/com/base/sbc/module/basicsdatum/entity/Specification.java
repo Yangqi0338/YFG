@@ -1,5 +1,6 @@
 package com.base.sbc.module.basicsdatum.entity;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.Api;
@@ -42,6 +43,12 @@ public class Specification extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "类型")
     private String type;
+
+    /**
+     * 排序
+     */
+    @ApiModelProperty(value = "排序")
+    private String sort;
 
     /**
      * 备注

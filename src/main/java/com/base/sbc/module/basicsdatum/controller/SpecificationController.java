@@ -1,13 +1,20 @@
 package com.base.sbc.module.basicsdatum.controller;
 
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumComponentExcelDto;
 import com.base.sbc.module.basicsdatum.dto.SpecificationDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumComponent;
 import com.base.sbc.module.basicsdatum.entity.ColorModelNumber;
 import com.base.sbc.module.basicsdatum.entity.Specification;
 import com.base.sbc.module.basicsdatum.service.SpecificationService;
+import com.base.sbc.module.basicsdatum.service.impl.SpecificationExcelDto;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -18,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.List;
 
@@ -50,14 +58,14 @@ public class SpecificationController extends BaseController {
     }
     @PostMapping("/save")
     @ApiOperation(value = "修改或者新增")
-    public ApiResult save(Specification specification){
-        BaseQueryWrapper<Specification> queryWrapper =new BaseQueryWrapper<>();
-        boolean save = specificationService.saveOrUpdate(specification,queryWrapper);
+    public ApiResult save(@RequestBody Specification specification){
+
+        boolean save = specificationService.saveSpecification(specification);
         return selectSuccess(save);
     }
     @PutMapping("/startStop")
     @ApiOperation(value = "启用或者停用")
-    public ApiResult startStop(SpecificationDto specificationDto){
+    public ApiResult startStop(@RequestBody SpecificationDto specificationDto){
         UpdateWrapper<Specification> updateWrapper = new UpdateWrapper<>();
         updateWrapper.set("status", specificationDto.getStatus());
         updateWrapper.in("id", Arrays.asList(specificationDto.getIds().split(",")));
@@ -82,5 +90,15 @@ public class SpecificationController extends BaseController {
     public ApiResult importExcel(@RequestParam("file") MultipartFile file) throws Exception {
         Boolean b = specificationService.importExcel(file);
         return insertSuccess(b);
+    }
+
+    /**
+     * 导出
+     */
+    @ApiOperation(value = "导出Excel")
+    @GetMapping("/exportExcel")
+    public void exportExcel(HttpServletResponse response) throws Exception {
+        List<SpecificationExcelDto> list = BeanUtil.copyToList(specificationService.list(), SpecificationExcelDto.class);
+        ExcelUtils.exportExcel(list,  SpecificationExcelDto.class, "规格/门幅.xlsx",new ExportParams() ,response);
     }
 }
