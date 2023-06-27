@@ -205,7 +205,6 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         categoryItem.setPlanningBandId(planningBand.getId());
         categoryItem.setPlanningCategoryId(planningCategory.getId());
         categoryItem.setStylePic(dto.getStylePic());
-        categoryItem.setCategoryId(CollUtil.getLast(categoryIds));
         categoryItem.setStatus("1");
         categoryItem.setCategoryIds(dto.getCategoryIds());
         categoryItem.setCategoryName(dto.getCategoryName());
