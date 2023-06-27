@@ -13,7 +13,6 @@ import com.base.sbc.module.process.dto.AddRevampProcessProcessSchemeDto;
 import com.base.sbc.module.process.entity.ProcessProcessScheme;
 import com.base.sbc.module.process.service.ProcessProcessSchemeService;
 import com.base.sbc.module.process.vo.ProcessProcessSchemeVo;
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;

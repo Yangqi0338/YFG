@@ -7,8 +7,8 @@
 package com.base.sbc.module.nodestatus.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
+import org.apache.ibatis.annotations.Mapper;
 /** 
  * 类描述：节点状态记录 dao类
  * @address com.base.sbc.module.nodestatus.dao.NodeStatusDao

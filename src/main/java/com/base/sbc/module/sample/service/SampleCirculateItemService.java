@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service;
 
-import com.base.sbc.module.common.service.IServicePlus;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.sample.dto.SampleCirculatePageDto;
 import com.base.sbc.module.sample.entity.SampleCirculateItem;
 import com.github.pagehelper.PageInfo;
@@ -15,7 +15,7 @@ import com.github.pagehelper.PageInfo;
  * 类描述：样衣借还明细 service类
  * @address com.base.sbc.module.sample.service.SampleCirculateItemService
  */
-public interface SampleCirculateItemService extends IServicePlus<SampleCirculateItem> {
+public interface SampleCirculateItemService extends BaseService<SampleCirculateItem> {
 
     /** 分页查询 */
     PageInfo queryPageInfo(SampleCirculatePageDto dto);

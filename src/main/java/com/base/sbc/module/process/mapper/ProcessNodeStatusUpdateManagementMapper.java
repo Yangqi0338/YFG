@@ -7,8 +7,8 @@
 package com.base.sbc.module.process.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.process.entity.ProcessNodeStatusUpdateManagement;
+import org.apache.ibatis.annotations.Mapper;
 /** 
  * 类描述：流程配置-节点状态修改字段 dao类
  * @address com.base.sbc.module.process.dao.ProcessNodeStatusUpdateManagementDao

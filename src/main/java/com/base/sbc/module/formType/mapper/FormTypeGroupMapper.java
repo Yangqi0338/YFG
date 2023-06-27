@@ -7,8 +7,8 @@
 package com.base.sbc.module.formType.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.formType.entity.FormTypeGroup;
+import org.apache.ibatis.annotations.Mapper;
 /** 
  * 类描述：表单类型分组 dao类
  * @address com.base.sbc.module.formType.dao.FormTypeGroupDao

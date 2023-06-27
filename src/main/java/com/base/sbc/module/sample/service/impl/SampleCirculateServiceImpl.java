@@ -7,11 +7,11 @@
 package com.base.sbc.module.sample.service.impl;
 
 import com.base.sbc.config.common.IdGen;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
-import com.base.sbc.module.patternmaking.entity.PatternMaking;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.SampleCirculatePageDto;
 import com.base.sbc.module.sample.dto.SampleCirculateSaveDto;
-import com.base.sbc.module.sample.entity.*;
+import com.base.sbc.module.sample.entity.SampleCirculate;
+import com.base.sbc.module.sample.entity.SampleCirculateItem;
 import com.base.sbc.module.sample.mapper.SampleCirculateItemMapper;
 import com.base.sbc.module.sample.mapper.SampleCirculateMapper;
 import com.base.sbc.module.sample.service.SampleCirculateService;
@@ -20,7 +20,6 @@ import com.base.sbc.module.sample.vo.SampleCirculateVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.github.pagehelper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +31,7 @@ import java.util.List;
  * @address com.base.sbc.module.sample.service.SampleCirulateServiceImpl
  */
 @Service
-public class SampleCirculateServiceImpl extends ServicePlusImpl<SampleCirculateMapper, SampleCirculate> implements SampleCirculateService {
+public class SampleCirculateServiceImpl extends BaseServiceImpl<SampleCirculateMapper, SampleCirculate> implements SampleCirculateService {
     @Autowired
     SampleCirculateMapper mapper;
     @Autowired

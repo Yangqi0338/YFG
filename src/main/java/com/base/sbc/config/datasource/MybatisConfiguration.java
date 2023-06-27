@@ -1,14 +1,11 @@
 package com.base.sbc.config.datasource;
 
-import java.io.IOException;
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
+import com.alibaba.druid.support.http.WebStatFilter;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.base.sbc.config.AutoFillFieldValueConfig;
+import com.github.pagehelper.PageHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ibatis.plugin.Interceptor;
@@ -28,8 +25,10 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.TransactionManagementConfigurer;
-import com.alibaba.druid.support.http.WebStatFilter;
-import com.github.pagehelper.PageHelper;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * mybatis的相关配置设置

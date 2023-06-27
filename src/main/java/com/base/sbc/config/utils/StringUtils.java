@@ -3,6 +3,11 @@
  */
 package com.base.sbc.config.utils;
 
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.text.StringEscapeUtils;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,13 +15,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.text.StringEscapeUtils;
-
-import com.google.common.collect.Lists;
 
 
 /**

@@ -1,21 +1,17 @@
 package com.base.sbc.config.utils;
 
-import java.security.Principal;
-
-import com.base.sbc.config.RequestInterceptor;
-import com.base.sbc.config.common.base.UserCompany;
-import com.base.sbc.config.constant.Constants;
-
-import com.base.sbc.config.security.UrlFilterSecurityInterceptor;
-import com.base.sbc.module.common.entity.UserInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.client.oauth.service.OauthService;
+import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.redis.RedisUtils;
+import com.base.sbc.module.common.entity.UserInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.security.Principal;
 
 import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
 

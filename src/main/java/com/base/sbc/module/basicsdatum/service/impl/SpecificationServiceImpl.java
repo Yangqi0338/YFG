@@ -7,8 +7,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.ColorModelNumberExcelDto;
-import com.base.sbc.module.basicsdatum.entity.ColorModelNumber;
 import com.base.sbc.module.basicsdatum.entity.Specification;
 import com.base.sbc.module.basicsdatum.mapper.SpecificationMapper;
 import com.base.sbc.module.basicsdatum.service.SpecificationService;
@@ -16,7 +14,6 @@ import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 /**

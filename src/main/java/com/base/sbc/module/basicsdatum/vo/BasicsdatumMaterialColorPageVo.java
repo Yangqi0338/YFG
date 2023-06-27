@@ -1,7 +1,6 @@
 package com.base.sbc.module.basicsdatum.vo;
 
 import com.base.sbc.config.common.base.BaseDataEntity;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

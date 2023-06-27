@@ -5,8 +5,6 @@ import com.base.sbc.config.constant.BaseConstant;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 /**
  * @author Youkehai
  * @data 创建时间:2021/1/4

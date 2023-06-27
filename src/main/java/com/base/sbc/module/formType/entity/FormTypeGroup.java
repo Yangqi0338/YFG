@@ -12,8 +12,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
-
 /**
  * 类描述：表单类型分组 实体类
  * @address com.base.sbc.module.formType.entity.FormTypeGroup

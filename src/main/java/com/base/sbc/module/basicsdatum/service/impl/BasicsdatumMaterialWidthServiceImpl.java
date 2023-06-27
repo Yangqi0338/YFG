@@ -6,12 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
-import org.springframework.stereotype.Service;
-
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialWidthMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import org.springframework.stereotype.Service;
 /** 
  * 类描述：基础资料-物料档案-物料规格 service类
  * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService

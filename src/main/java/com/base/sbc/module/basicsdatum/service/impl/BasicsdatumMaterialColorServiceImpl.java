@@ -6,12 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
-import org.springframework.stereotype.Service;
-
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialColorMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import org.springframework.stereotype.Service;
 /** 
  * 类描述：基础资料-物料档案-物料颜色 service类
  * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService

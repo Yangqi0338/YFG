@@ -6,7 +6,6 @@ import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 /*新增删除需求维度*/
 @Data

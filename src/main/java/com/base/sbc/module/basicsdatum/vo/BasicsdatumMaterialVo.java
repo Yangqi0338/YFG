@@ -1,14 +1,13 @@
 package com.base.sbc.module.basicsdatum.vo;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 

@@ -1,16 +1,14 @@
 package com.base.sbc.config.feign;
 
-import java.util.Enumeration;
-
-import javax.servlet.http.HttpServletRequest;
-
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import feign.RequestInterceptor;
-import feign.RequestTemplate;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 
 /**
  * 防止Feign请求 头部token丢失

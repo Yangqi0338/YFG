@@ -4,8 +4,6 @@ import com.base.sbc.module.basicsdatum.entity.Specification;
 import com.base.sbc.module.common.service.BaseService;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 /**
  * @author 卞康
  * @date 2023/6/27 10:44

@@ -6,21 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
 
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
+import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.service.BaseService;
 import com.github.pagehelper.PageInfo;
 

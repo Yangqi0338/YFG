@@ -1,12 +1,6 @@
 package com.base.sbc.config.generator.utils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 
 /**
  * 不替换 xml和entity的部分字段 或者其他的 需要将不替换的 内容 放在 other_start other_end 所在行之间

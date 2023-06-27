@@ -6,26 +6,18 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service;
 
-import com.base.sbc.client.flowable.entity.AnswerDto;
-import com.base.sbc.module.common.service.IServicePlus;
-import com.base.sbc.module.formType.vo.FieldManagementVo;
-import com.base.sbc.module.sample.dto.*;
+import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.sample.dto.SamplePageDto;
+import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.entity.Sample;
-import com.base.sbc.module.sample.entity.SampleDesign;
-import com.base.sbc.module.sample.vo.DesignDocTreeVo;
-import com.base.sbc.module.sample.vo.SampleDesignVo;
-import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.sample.vo.SampleVo;
 import com.github.pagehelper.PageInfo;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * 类描述：样衣管理 service类
  * @address com.base.sbc.module.sample.service.SampleService
  */
-public interface SampleService extends IServicePlus<Sample> {
+public interface SampleService extends BaseService<Sample> {
 
     /** 分页查询 */
     PageInfo queryPageInfo(SamplePageDto dto);

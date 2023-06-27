@@ -7,8 +7,8 @@
 package com.base.sbc.module.basicsdatum.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.basicsdatum.entity.ConfigPrint;
+import org.apache.ibatis.annotations.Mapper;
 /** 
  * 类描述：打印配置 dao类
  * @address com.base.sbc.module.basicsdatum.dao.ConfigPrintDao

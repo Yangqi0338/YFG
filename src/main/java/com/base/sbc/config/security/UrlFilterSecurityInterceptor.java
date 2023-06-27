@@ -1,9 +1,5 @@
 package com.base.sbc.config.security;
 
-import java.io.*;
-import java.util.Objects;
-import javax.servlet.*;
-import com.base.sbc.config.RequestInterceptor;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.UserCompanyUtils;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +14,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.stereotype.Service;
+
+import javax.servlet.*;
+import java.io.IOException;
+import java.util.Objects;
 
 import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
 

@@ -6,16 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.config.generator.utils;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import com.base.sbc.config.generator.entity.Constants;
+
+import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
-
-import com.base.sbc.config.generator.entity.Constants;
 /** 
  * 类描述：
  * @address com.celizi.base.common.generator.untils.UntilDB

@@ -6,18 +6,12 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.entity.Sample;
-import com.base.sbc.module.sample.entity.SampleDesign;
-import com.base.sbc.module.sample.vo.ChartBarVo;
 import com.base.sbc.module.sample.vo.SamplePageByDesignNoVo;
-import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.sample.vo.SampleVo;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 

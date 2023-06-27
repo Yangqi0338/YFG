@@ -4,8 +4,6 @@ import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
 public class QueryBasicsdatumColourLibraryDto extends Page {
 

@@ -1,12 +1,11 @@
 package com.base.sbc.module.basicsdatum.dto;
 
-import java.math.BigDecimal;
-
-import org.hibernate.validator.constraints.NotBlank;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
+
+import java.math.BigDecimal;
 
 /**
  * 

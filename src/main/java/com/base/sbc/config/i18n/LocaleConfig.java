@@ -1,8 +1,5 @@
 package com.base.sbc.config.i18n;
 
-import java.util.List;
-import java.util.Locale;
-
 import com.base.sbc.config.JacksonHttpMessageConverter;
 import com.base.sbc.config.RequestInterceptor;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -17,6 +14,8 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * @author Fred

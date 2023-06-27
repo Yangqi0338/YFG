@@ -7,9 +7,9 @@
 package com.base.sbc.module.sample.service.impl;
 
 import com.base.sbc.config.common.IdGen;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.SampleCirculatePageDto;
-import com.base.sbc.module.sample.entity.*;
+import com.base.sbc.module.sample.entity.SampleCirculateItem;
 import com.base.sbc.module.sample.mapper.SampleCirculateItemMapper;
 import com.base.sbc.module.sample.mapper.SampleCirculateMapper;
 import com.base.sbc.module.sample.service.SampleCirculateItemService;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
  * @address com.base.sbc.module.sample.service.SampleCirculateItemServiceImpl
  */
 @Service
-public class SampleCirculateItemServiceImpl extends ServicePlusImpl<SampleCirculateItemMapper, SampleCirculateItem> implements SampleCirculateItemService {
+public class SampleCirculateItemServiceImpl extends BaseServiceImpl<SampleCirculateItemMapper, SampleCirculateItem> implements SampleCirculateItemService {
     @Autowired
     SampleCirculateMapper mapper;
     @Autowired

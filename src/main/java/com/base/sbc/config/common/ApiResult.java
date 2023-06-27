@@ -1,9 +1,9 @@
 package com.base.sbc.config.common;
 
+import com.google.common.collect.Maps;
+
 import java.io.Serializable;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 
 /**
  * 项目统一返回对象

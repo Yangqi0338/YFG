@@ -6,13 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.dto;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import cn.afterturn.easypoi.excel.annotation.Excel;
 
 /**
  * 类描述：导入导出基础资料-基础工艺 dto类

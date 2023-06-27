@@ -6,8 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service;
 
-import com.base.sbc.module.common.service.IServicePlus;
-import com.base.sbc.module.sample.dto.*;
+import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.entity.SampleItem;
 import com.github.pagehelper.PageInfo;
 
@@ -15,7 +15,7 @@ import com.github.pagehelper.PageInfo;
  * 类描述：样衣明细 service类
  * @address com.base.sbc.module.sample.service.SampleItemService
  */
-public interface SampleItemService extends IServicePlus<SampleItem> {
+public interface SampleItemService extends BaseService<SampleItem> {
 
     /** 分页查询 */
     PageInfo queryPageInfo(SamplePageDto dto);

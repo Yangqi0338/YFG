@@ -6,12 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.dto;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 /**
  * 类描述：新增修改基础资料-品类测量组 dto类
  * @address com.base.sbc.module.basicsdatum.dto.BasicsdatumCategoryMeasure

@@ -6,30 +6,21 @@
 *****************************************************************************/
 package com.base.sbc.module.sample.controller;
 
-import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.constant.BaseConstant;
-import com.base.sbc.module.formType.vo.FieldManagementVo;
-import com.base.sbc.module.sample.dto.*;
-import com.base.sbc.module.sample.entity.Sample;
-import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.dto.SamplePageDto;
+import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.entity.SampleItemLog;
-import com.base.sbc.module.sample.service.SampleDesignService;
 import com.base.sbc.module.sample.service.SampleItemLogService;
 import com.base.sbc.module.sample.service.SampleItemService;
 import com.base.sbc.module.sample.service.SampleService;
-import com.base.sbc.module.sample.vo.*;
+import com.base.sbc.module.sample.vo.SampleVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;

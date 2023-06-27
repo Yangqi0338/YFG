@@ -7,8 +7,8 @@
 package com.base.sbc.module.basicsdatum.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import org.apache.ibatis.annotations.Mapper;
 /** 
  * 类描述：基础资料-物料档案 dao类
  * @address com.base.sbc.module.basicsdatum.dao.BasicsdatumMaterialDao

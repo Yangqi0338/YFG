@@ -14,16 +14,16 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formType.entity.FieldManagement;
-import com.base.sbc.module.formType.mapper.FieldManagementMapper;
-import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.formType.entity.FormType;
+import com.base.sbc.module.formType.mapper.FieldManagementMapper;
 import com.base.sbc.module.formType.mapper.FormTypeMapper;
+import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.dto.SaveDelDemandDto;
-import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
-import com.base.sbc.module.planning.mapper.PlanningDemandProportionDataMapper;
-import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.entity.PlanningDemand;
+import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
+import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
+import com.base.sbc.module.planning.mapper.PlanningDemandProportionDataMapper;
 import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.vo.PlanningDemandVo;
 import org.springframework.beans.BeanUtils;
@@ -33,7 +33,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**

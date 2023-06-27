@@ -7,10 +7,11 @@
 package com.base.sbc.module.sample.service.impl;
 
 import com.base.sbc.config.common.IdGen;
-import com.base.sbc.module.common.service.impl.ServicePlusImpl;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
-import com.base.sbc.module.sample.dto.*;
+import com.base.sbc.module.sample.dto.SamplePageDto;
+import com.base.sbc.module.sample.dto.SampleSaveDto;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleItem;
@@ -20,7 +21,8 @@ import com.base.sbc.module.sample.mapper.SampleItemMapper;
 import com.base.sbc.module.sample.mapper.SampleMapper;
 import com.base.sbc.module.sample.service.SampleItemLogService;
 import com.base.sbc.module.sample.service.SampleService;
-import com.base.sbc.module.sample.vo.*;
+import com.base.sbc.module.sample.vo.SamplePageByDesignNoVo;
+import com.base.sbc.module.sample.vo.SampleVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -28,14 +30,14 @@ import com.github.pagehelper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * 类描述：样衣 service类
  * @address com.base.sbc.module.sample.service.SampleService
  */
 @Service
-public class SampleServiceImpl extends ServicePlusImpl<SampleMapper, Sample> implements SampleService {
+public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> implements SampleService {
     @Autowired
     SampleMapper mapper;
     @Autowired

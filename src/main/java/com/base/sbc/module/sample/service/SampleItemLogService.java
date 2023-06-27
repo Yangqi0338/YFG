@@ -6,13 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service;
 
-import com.base.sbc.module.common.service.IServicePlus;
-import com.base.sbc.module.sample.dto.SamplePageDto;
-import com.base.sbc.module.sample.dto.SampleSaveDto;
-import com.base.sbc.module.sample.entity.Sample;
+import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.sample.entity.SampleItemLog;
-import com.base.sbc.module.sample.vo.SampleVo;
-import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
@@ -20,7 +15,7 @@ import java.util.List;
  * 类描述：样衣明细日志 service类
  * @address com.base.sbc.module.sample.service.SampleItemLogService
  */
-public interface SampleItemLogService extends IServicePlus<SampleItemLog> {
+public interface SampleItemLogService extends BaseService<SampleItemLog> {
 
     /** 查询样衣明细数据 */
     List<SampleItemLog> getListBySampleItemId(String sampleItemId);

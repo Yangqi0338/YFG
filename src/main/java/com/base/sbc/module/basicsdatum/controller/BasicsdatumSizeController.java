@@ -5,17 +5,16 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.basicsdatum.controller;
+
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.*;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.dto.AddRevampSizeDto;
+import com.base.sbc.module.basicsdatum.dto.AddRevampSizeLabelDto;
+import com.base.sbc.module.basicsdatum.dto.QueryDasicsdatumSizeDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeLabelService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumSizeLabelVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumSizeVo;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.List;
 
 /**
 * 类描述：基础资料-尺码表 Controller类
