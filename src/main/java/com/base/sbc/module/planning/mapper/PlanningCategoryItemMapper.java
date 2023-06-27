@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import org.apache.ibatis.annotations.Mapper;
@@ -38,4 +39,6 @@ public interface PlanningCategoryItemMapper extends BaseMapper<PlanningCategoryI
     List<PlanningSeasonOverviewVo> listSeat(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     List<SampleUserVo> getAllDesigner(@Param("companyCode") String userCompany);
+
+    List<DimensionTotalVo> dimensionTotal(@Param(Constants.WRAPPER) QueryWrapper qw);
 }

@@ -10,10 +10,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
+import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.vo.PlanningSeasonVo;
+import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -115,4 +117,12 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
     PlanningSeasonVo getByName(String name);
 
     List<SelectOptionsVo> getPlanningSeasonOptions(String userCompany);
+
+    /**
+     * 企划汇总
+     *
+     * @param dto 筛选条件
+     * @return
+     */
+    PlanningSummaryVo planningSummary(PlanningBoardSearchDto dto);
 }

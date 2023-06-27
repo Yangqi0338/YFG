@@ -43,6 +43,7 @@ import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
+import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.service.SampleDesignService;
@@ -139,6 +140,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             String designCode = Optional.ofNullable(CollUtil.get(dbCategoryItemList, i)).map(PlanningCategoryItem::getDesignNo).orElse(getMaxCode.genCode("PLANNING_DESIGN_NO", params));
             System.out.println("planningDesignNo:" + designCode);
             item.setDesignNo(designCode);
+            PlanningUtils.setCategory(item);
             insertCount += save(item) ? 1 : 0;
 
         }
@@ -234,6 +236,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             for (PlanningCategoryItemSaveDto dto : item) {
                 PlanningCategoryItem categoryItem = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
                 // 修改
+                PlanningUtils.setCategory(categoryItem);
                 updateById(categoryItem);
                 fieldValService.save(categoryItem.getId(), FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION, dto.getFieldVals());
             }
@@ -560,6 +563,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                 planningCategoryItem.setDesignNo(newDesignNO);
             }
             BeanUtil.copyProperties(dto, planningCategoryItem);
+            PlanningUtils.setCategory(planningCategoryItem);
         }
         return updateBatchById(planningCategoryItems);
 
@@ -570,6 +574,11 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         List<SampleUserVo> list = getBaseMapper().getAllDesigner(userCompany);
         amcFeignService.setUserAvatarToList(list);
         return list;
+    }
+
+    @Override
+    public List<DimensionTotalVo> dimensionTotal(QueryWrapper qw) {
+        return getBaseMapper().dimensionTotal(qw);
     }
 
 

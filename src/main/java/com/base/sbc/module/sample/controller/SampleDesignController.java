@@ -107,16 +107,22 @@ public class SampleDesignController {
     }
 
     @ApiOperation(value = "查询样衣设计维度数据(修改时使用)", notes = "")
-    @GetMapping("/queryDimensionLabelsBySdId")
-    public List<FieldManagementVo> queryDimensionLabelsBySdId(String id) {
-        return sampleDesignService.queryDimensionLabelsBySdId(id);
-    }
+	@GetMapping("/queryDimensionLabelsBySdId")
+	public List<FieldManagementVo> queryDimensionLabelsBySdId(String id) {
+		return sampleDesignService.queryDimensionLabelsBySdId(id);
+	}
 
-    @ApiOperation(value = "设计师列表", notes = "")
-    @GetMapping("/getDesignerList")
-    public List<SampleUserVo> getDesignerList(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode) {
-        return sampleDesignService.getDesignerList(companyCode);
-    }
+	@ApiOperation(value = "设计师列表", notes = "")
+	@GetMapping("/getDesignerList")
+	public List<SampleUserVo> getDesignerList(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode) {
+		return sampleDesignService.getDesignerList(companyCode);
+	}
+
+	@GetMapping("/handleOldCategory")
+	@ApiOperation(value = "处理旧品类数据结构", notes = "")
+	public boolean handleOldCategory() {
+		return sampleDesignService.handleOldCategory();
+	}
 }
 
 

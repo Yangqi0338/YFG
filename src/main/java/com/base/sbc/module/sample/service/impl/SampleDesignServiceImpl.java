@@ -11,6 +11,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
@@ -101,6 +102,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
             sampleDesign = getById(dto.getId());
             BeanUtil.copyProperties(dto, sampleDesign);
             setMainStylePic(sampleDesign, dto.getStylePicList());
+            PlanningUtils.setCategory(sampleDesign);
             this.updateById(sampleDesign);
         } else {
             sampleDesign = saveNewSampleDesign(dto);
@@ -160,42 +162,24 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         if (StrUtil.isBlank(dto.getPlanningSeasonId())) {
             throw new OtherException("未选择产品季");
         }
-        PlanningSeason planningSeason = null;
+        //查询产品季
+        PlanningSeason planningSeason = planningSeasonService.getById(dto.getPlanningSeasonId());
         PlanningBand planningBand;
-        //1 查询产品季 年份 + 季节
-        QueryWrapper<PlanningSeason> seasonQw = new QueryWrapper<>();
-        seasonQw.eq(COMPANY_CODE, getCompanyCode());
-        seasonQw.eq("id", dto.getPlanningSeasonId());
-        List<PlanningSeason> seasonList = planningSeasonService.list(seasonQw);
-        if (CollUtil.isEmpty(seasonList)) {
+        if (ObjectUtil.isEmpty(planningSeason)) {
             throw new OtherException("产品季为空");
         }
-
-        planningSeason = CollUtil.getFirst(seasonList);
-        //2 查询波段企划 产品季 + 波段
-        QueryWrapper<PlanningBand> bandQw = new QueryWrapper<>();
-        bandQw.eq("planning_season_id", planningSeason.getId());
-        bandQw.eq("band_code", dto.getBandCode());
-        bandQw.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
-        List<PlanningBand> bandList = planningBandService.list(bandQw);
-        if (CollUtil.isEmpty(bandList)) {
+        //2 查询波段企划
+        planningBand = planningBandService.getById(dto.getPlanningBandId());
+        if (ObjectUtil.isEmpty(planningBand)) {
             throw new OtherException("波段企划为空");
         }
-        planningBand = CollUtil.getFirst(bandList);
 
-        //3 查询波段下的品类信息 波段 + 品类
-        //品类
-        List<String> categoryIds = StrUtil.split(dto.getCategoryIds(), StrUtil.COMMA);
+        //3 查询波段下的品类信息
 
-        QueryWrapper<PlanningCategory> categoryQw = new QueryWrapper<>();
-        categoryQw.eq("planning_band_id", planningBand.getId());
-        bandQw.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
-        bandQw.eq("category_ids", CollUtil.join(CollUtil.sub(categoryIds, 0, 2), StrUtil.COMMA));
-        List<PlanningCategory> categoryList = planningCategoryService.list(categoryQw);
-        if (CollUtil.isEmpty(categoryList)) {
-            throw new OtherException("该波段下无此品类信息");
+        PlanningCategory planningCategory = planningCategoryService.getById(dto.getPlanningCategoryId());
+        if (ObjectUtil.isEmpty(planningCategory)) {
+            throw new OtherException("无此品类信息");
         }
-        PlanningCategory planningCategory = CollUtil.getFirst(categoryList);
         // 品类信息的需求数+1
         planningCategory.setPlanRequirementNum(planningCategory.getPlanRequirementNum().add(BigDecimal.ONE));
         planningCategoryService.updateById(planningCategory);
@@ -207,6 +191,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         categoryItem.setStylePic(dto.getStylePic());
         categoryItem.setStatus("1");
         categoryItem.setCategoryIds(dto.getCategoryIds());
+        PlanningUtils.setCategory(categoryItem);
         categoryItem.setCategoryName(dto.getCategoryName());
         categoryItem.setDesigner(userInfo.getAliasUserName() + StrUtil.COMMA + userInfo.getUserCode());
         categoryItem.setDesignerId(userInfo.getUserId());
@@ -225,6 +210,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         SampleDesign sampleDesign = BeanUtil.copyProperties(dto, SampleDesign.class);
         PlanningUtils.toSampleDesign(sampleDesign, planningSeason, planningBand, categoryItem);
         setMainStylePic(sampleDesign, dto.getStylePicList());
+        PlanningUtils.setCategory(sampleDesign);
         save(sampleDesign);
         dto.setPlanningCategoryItemId(categoryItem.getId());
         dto.setPlanningBandId(planningBand.getId());
@@ -432,9 +418,10 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
     public List getCategoryChart(String category) {
         QueryWrapper qw = new QueryWrapper();
         qw.eq(COMPANY_CODE, getCompanyCode());
-        qw.inSql(StrUtil.isNotBlank(category), "SUBSTRING_INDEX(category_ids, ',', 1) ", StrUtil.split(category, CharUtil.COMMA).stream().map(item -> "'" + item + "'").collect(Collectors.joining(StrUtil.COMMA)));
-        amcFeignService.teamAuth(qw,"planning_season_id",getUserId());
+        qw.in(StrUtil.isNotBlank(category), "prod_category", StrUtil.split(category, CharUtil.COMMA).stream().map(item -> "'" + item + "'").collect(Collectors.toList()));
+        amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
         List<ChartBarVo> chartBarVos = getBaseMapper().getCategoryChart(qw);
+        ccmFeignService.setCategoryName(chartBarVos, "product", "product");
         return getChartList(chartBarVos);
     }
 
@@ -477,10 +464,49 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         return result;
     }
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean handleOldCategory() {
+        //波段品类信息
+        List<PlanningCategory> o1List = planningCategoryService.list();
+        List<PlanningCategory> n1List = new ArrayList<>();
+        for (PlanningCategory o : o1List) {
+            PlanningCategory n = new PlanningCategory();
+            n.setId(o.getId());
+            n.setCategoryIds(o.getCategoryIds());
+            PlanningUtils.setCategory(n);
+            n1List.add(n);
+        }
+        //坑位信息
+        List<PlanningCategoryItem> o2List = planningCategoryItemService.list();
+        List<PlanningCategoryItem> n2List = new ArrayList<>();
+        for (PlanningCategoryItem o : o2List) {
+            PlanningCategoryItem n = new PlanningCategoryItem();
+            n.setId(o.getId());
+            n.setCategoryIds(o.getCategoryIds());
+            PlanningUtils.setCategory(n);
+            n2List.add(n);
+        }
+        //样衣信息
+        List<SampleDesign> o3List = list();
+        List<SampleDesign> n3List = new ArrayList<>();
+        for (SampleDesign o : o3List) {
+            SampleDesign n = new SampleDesign();
+            n.setId(o.getId());
+            n.setCategoryIds(o.getCategoryIds());
+            PlanningUtils.setCategory(n);
+            n3List.add(n);
+        }
+        planningCategoryService.updateBatchById(n1List);
+        planningCategoryItemService.updateBatchById(n2List);
+        updateBatchById(n3List);
+        return true;
+    }
+
     private void getDesignDataOverviewCommonQw(QueryWrapper qw, List timeRange) {
         qw.ne("del_flag", BaseGlobal.YES);
         qw.eq(COMPANY_CODE, getCompanyCode());
-        amcFeignService.teamAuth(qw,"planning_season_id",getUserId());
+        amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
         qw.between(CollUtil.isNotEmpty(timeRange), "create_date", CollUtil.getFirst(timeRange), CollUtil.getLast(timeRange));
     }
 

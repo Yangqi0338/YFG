@@ -33,9 +33,9 @@
                  STATUS;
     </select>
     <select id="getCategoryChart" resultType="com.base.sbc.module.sample.vo.ChartBarVo">
-        SELECT SUBSTRING_INDEX(category_name, ',', 1) AS product,
-               STATUS                                 AS dimension,
-               count(id)                              AS total
+        SELECT prod_category AS product,
+               STATUS        AS dimension,
+               count(id)     AS total
         FROM t_sample_design ${ ew.customSqlSegment}
         GROUP BY product,
                  dimension;

@@ -37,7 +37,7 @@ public class QrCodeController {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(image, "png", baos);
                 byte[] bytes = baos.toByteArray();
-                response.setContentType("image/jpeg");
+                response.setContentType("image/png");
                 OutputStream outputStream = response.getOutputStream();
                 outputStream.write(bytes);
                 outputStream.flush();

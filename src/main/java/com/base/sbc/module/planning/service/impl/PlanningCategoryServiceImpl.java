@@ -21,6 +21,7 @@ import com.base.sbc.module.planning.mapper.PlanningCategoryMapper;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningCategoryService;
+import com.base.sbc.module.planning.utils.PlanningUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,10 +83,12 @@ public class PlanningCategoryServiceImpl extends BaseServiceImpl<PlanningCategor
 			if (dbCategory==null) {
 				category.preInsert(idGen.nextIdStr());
 				category.setCompanyCode(band.getCompanyCode());
+				PlanningUtils.setCategory(category);
 				saveList.add(category);
 				addSub=true;
 			} else {
 				category.preUpdate();
+				PlanningUtils.setCategory(category);
 				updateList.add(category);
 				// 品类不一样 重新生成坑位
 				if(!StrUtil.equals(category.getManager(),dbCategory.getManager())){
@@ -118,6 +121,7 @@ public class PlanningCategoryServiceImpl extends BaseServiceImpl<PlanningCategor
 
 		return true;
 	}
+
 
 	@Transactional(readOnly = false)
 	public boolean delPlanningCategory(String userCompany, List<String> idList) {

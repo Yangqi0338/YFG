@@ -125,6 +125,8 @@ public interface SampleDesignService extends BaseService<SampleDesign> {
 
     Map getDesignDataOverview(String time);
 
+    boolean handleOldCategory();
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 
