@@ -7,11 +7,11 @@
 package com.base.sbc.module.sample.service.impl;
 
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
 import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleItem;
@@ -62,6 +62,13 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
         if (pm != null && sd != null){
             Sample sample = new Sample();
 
+            if (StringUtil.isEmpty(dto.getId())) {
+                sample.setId(idGen.nextIdStr());
+                id = sample.getId();
+            } else {
+                id = dto.getId();
+            }
+
             sample.setImages(dto.getImages());
             sample.setPatternMakingId(pm.getId());
             sample.setPatternMakingCode(pm.getCode());
@@ -83,14 +90,15 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
             sample.setRemarks(dto.getRemarks());
 
             Integer count = 0, borrowCount = 0;
-            for (SampleItem item : dto.getItemList()){
+            for (SampleItem item : dto.getSampleItemList()){
                 if (StringUtil.isNotEmpty(item.getId())){
                     count += item.getCount();
-                    borrowCount += item.getBorrowCount();
+                    borrowCount += item.getBorrowCount() == null ? 0 : item.getBorrowCount();
 
                     item.setId(idGen.nextIdStr());
                     item.setSampleId(sample.getId());
                     item.setBorrowCount(0);
+                    item.setCode("YY" + System.currentTimeMillis() + (int)((Math.random()*9+1)*1000));
                     sampleItemMapper.insert(item);
 
                     SampleItemLog log = new SampleItemLog();
@@ -120,14 +128,12 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
 
             sample.setCount(count);
             sample.setBorrowCount(borrowCount);
-            if (StringUtil.isNotEmpty(dto.getId())) {
-                sample.setId(idGen.nextIdStr());
+            if (StringUtil.isEmpty(dto.getId())) {
                 mapper.insert(sample);
-                id = sample.getId();
             } else {
                 mapper.updateById(sample);
-                id = dto.getId();
             }
+
         }
 
         return mapper.getDetail(id);
