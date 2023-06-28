@@ -149,7 +149,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
         SamplePageDto dto = new SamplePageDto();
         dto.setSampleId(id);
         List<SampleItem> list = sampleItemMapper.getListBySampleId(dto);
-        vo.setItemList(list);
+        vo.setSampleItemList(list);
 
         return vo;
     }
