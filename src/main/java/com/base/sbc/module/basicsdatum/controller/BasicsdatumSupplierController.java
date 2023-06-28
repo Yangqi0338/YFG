@@ -62,7 +62,7 @@ public class BasicsdatumSupplierController{
 
 	@ApiOperation(value = "下拉组件查询")
 	@GetMapping("/getBasicsdatumSupplierSelect")
-	public List<SelectVo> getBasicsdatumSupplierSelect() {
+	public List<SelectVo> getBasicsdatumSupplierSelect(@RequestParam(value = "name", required = false) String name) {
 		List<BasicsdatumSupplier> list = basicsdatumSupplierService
 				.list(new QueryWrapper<BasicsdatumSupplier>().select("supplier_code,supplier")
 						.eq("company_code", baseController.getUserCompany()).eq("status", "0"));
