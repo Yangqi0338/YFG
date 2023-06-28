@@ -112,11 +112,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
 			PageHelper.startPage(dto);
 		}
-		BaseQueryWrapper<BasicsdatumMaterialWidth> qc = new BaseQueryWrapper<>();
-		qc.eq("company_code", this.getCompanyCode());
-		qc.notEmptyEq("material_code", dto.getMaterialCode());
-		List<BasicsdatumMaterialWidth> list = this.materialWidthService.list(qc);
-		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialWidthPageVo.class);
+		List<BasicsdatumMaterialWidthPageVo> list = this.baseMapper
+				.getBasicsdatumMaterialWidthList(this.getCompanyCode(), dto.getMaterialCode());
+		return new PageInfo<>(list);
 	}
 
 	@Override
@@ -180,6 +178,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
 			PageHelper.startPage(dto);
 		}
+
 		BaseQueryWrapper<BasicsdatumMaterialPrice> qc = new BaseQueryWrapper<>();
 		qc.eq("company_code", this.getCompanyCode());
 		qc.notEmptyEq("material_code", dto.getMaterialCode());
