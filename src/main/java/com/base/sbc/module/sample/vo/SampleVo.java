@@ -17,5 +17,5 @@ import java.util.List;
 public class SampleVo extends Sample {
 
     @ApiModelProperty(value = "关联的明细")
-    private List<SampleItem> itemList;
+    private List<SampleItem> sampleItemList;
 }
