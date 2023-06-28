@@ -138,6 +138,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             item.setPlanningSeasonId(category.getPlanningSeasonId());
             item.setPlanningBandId(category.getPlanningBandId());
             item.setPlanningCategoryId(category.getId());
+            item.setCategoryIds(category.getCategoryIds());
             GetMaxCodeRedis getMaxCode = new GetMaxCodeRedis(ccmService);
             String designCode = Optional.ofNullable(CollUtil.get(dbCategoryItemList, i)).map(PlanningCategoryItem::getDesignNo).orElse(getMaxCode.genCode("PLANNING_DESIGN_NO", params));
             System.out.println("planningDesignNo:" + designCode);
