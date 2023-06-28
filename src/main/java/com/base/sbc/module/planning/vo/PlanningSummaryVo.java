@@ -28,7 +28,7 @@ public class PlanningSummaryVo {
     private List<DimensionTotalVo> categoryTotal;
 
     @ApiModelProperty(value = "明细数据")
-    private Map<String, PlanningSummaryDetailVo> seatData;
+    private Map<String, List<PlanningSummaryDetailVo>> seatData;
 
 
 }

@@ -45,6 +45,7 @@ import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
+import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.base.sbc.module.sample.vo.SampleUserVo;
@@ -579,6 +580,11 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     @Override
     public List<DimensionTotalVo> dimensionTotal(QueryWrapper qw) {
         return getBaseMapper().dimensionTotal(qw);
+    }
+
+    @Override
+    public List<PlanningSummaryDetailVo> planningSummaryDetail(QueryWrapper detailQw) {
+        return getBaseMapper().planningSummaryDetail(detailQw);
     }
 
 

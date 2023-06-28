@@ -27,6 +27,7 @@ import com.base.sbc.module.planning.service.PlanningCategoryService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonVo;
+import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -271,6 +272,17 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         List<DimensionTotalVo> categoryTotal = planningCategoryItemService.dimensionTotal(categoryQw);
         ccmFeignService.setCategoryName(categoryTotal, "name", "name");
         vo.setCategoryTotal(removeEmptyAndSort(categoryTotal));
+        //查询明细
+        QueryWrapper detailQw = new QueryWrapper();
+        planningSummaryQw(detailQw, dto);
+        List<PlanningSummaryDetailVo> detailVoList = planningCategoryItemService.planningSummaryDetail(detailQw);
+        if (CollUtil.isNotEmpty(detailVoList)) {
+            amcFeignService.setUserAvatarToList(detailVoList);
+            ccmFeignService.setCategoryName(detailVoList, "prodCategory", "prodCategory");
+            Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getProdCategory() + StrUtil.DASHED + k.getBandCode()));
+            vo.setSeatData(seatData);
+        }
+
         return vo;
     }
 
@@ -293,9 +305,9 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
 
     private void planningSummaryQw(QueryWrapper qw, PlanningBoardSearchDto dto) {
         qw.eq("ci.planning_season_id", dto.getPlanningSeasonId());
-        qw.in(CollUtil.isNotEmpty(dto.getBand()), "band_code", dto.getBand());
-        qw.in(CollUtil.isNotEmpty(dto.getMonth()), "month", dto.getMonth());
-        qw.in(CollUtil.isNotEmpty(dto.getCategory()), "prod_category", dto.getCategory());
+        qw.in(CollUtil.isNotEmpty(dto.getBand()), "b.band_code", dto.getBand());
+        qw.in(CollUtil.isNotEmpty(dto.getMonth()), "b.month", dto.getMonth());
+        qw.in(CollUtil.isNotEmpty(dto.getCategory()), "b.prod_category", dto.getCategory());
 
     }
 }
