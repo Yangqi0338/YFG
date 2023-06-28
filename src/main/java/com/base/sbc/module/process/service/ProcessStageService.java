@@ -10,6 +10,7 @@ import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.process.dto.AddRevampProcessStageDto;
+import com.base.sbc.module.process.dto.QueryStageDto;
 import com.base.sbc.module.process.entity.ProcessStage;
 import com.base.sbc.module.process.vo.ProcessStageVo;
 import com.github.pagehelper.PageInfo;
@@ -32,7 +33,7 @@ public interface ProcessStageService extends BaseService<ProcessStage>{
         * @param queryDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<ProcessStageVo> getProcessStageList(QueryDto queryDto);
+        PageInfo<ProcessStageVo> getProcessStageList(QueryStageDto queryDto);
 
 
 

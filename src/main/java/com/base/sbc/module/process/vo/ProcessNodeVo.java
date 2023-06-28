@@ -35,6 +35,9 @@ public class ProcessNodeVo  {
     /** 表单id */
     @ApiModelProperty(value = "表单id"  )
     private String formId;
+    /** 阶段id */
+    @ApiModelProperty(value = "阶段id"  )
+    private String stageId;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;

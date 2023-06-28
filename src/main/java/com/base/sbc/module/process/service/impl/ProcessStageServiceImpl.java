@@ -17,6 +17,7 @@ import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.process.dto.AddRevampProcessStageDto;
+import com.base.sbc.module.process.dto.QueryStageDto;
 import com.base.sbc.module.process.entity.ProcessStage;
 import com.base.sbc.module.process.mapper.ProcessStageMapper;
 import com.base.sbc.module.process.service.ProcessStageService;
@@ -26,6 +27,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
@@ -53,11 +55,16 @@ public class ProcessStageServiceImpl extends BaseServiceImpl<ProcessStageMapper,
         * @return
         */
         @Override
-        public PageInfo<ProcessStageVo> getProcessStageList(QueryDto queryDto) {
+        public PageInfo<ProcessStageVo> getProcessStageList(QueryStageDto queryDto) {
             /*分页*/
+            if(queryDto.getPageSize()!=0 && queryDto.getPageNum()!=0){
+                PageHelper.startPage(queryDto);
+            }
             PageHelper.startPage(queryDto);
             QueryWrapper<ProcessStage> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
+            queryWrapper.like(StringUtils.isNotBlank(queryDto.getStageName()),"stage_name",queryDto.getStageName());
+            queryWrapper.orderByAsc("sort");
             /*查询流程配置-阶段数据*/
             List<ProcessStage> processStageList = baseMapper.selectList(queryWrapper);
             PageInfo<ProcessStage> pageInfo = new PageInfo<>(processStageList);
@@ -86,6 +93,11 @@ public class ProcessStageServiceImpl extends BaseServiceImpl<ProcessStageMapper,
                 ProcessStage processStage = new ProcessStage();
             if (StringUtils.isEmpty(addRevampProcessStageDto.getId())) {
                 QueryWrapper<ProcessStage> queryWrapper=new QueryWrapper<>();
+                queryWrapper.eq("stage_name",addRevampProcessStageDto.getStageName());
+               List<ProcessStage> processStageList = baseMapper.selectList(queryWrapper);
+               if(!CollectionUtils.isEmpty(processStageList)){
+                   throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
+               }
                 /*新增*/
                 BeanUtils.copyProperties(addRevampProcessStageDto, processStage);
                 processStage.setCompanyCode(baseController.getUserCompany());

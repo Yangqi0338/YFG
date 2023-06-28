@@ -44,6 +44,8 @@ public class ProcessNodeRecord extends BaseDataEntity<String> {
     private String nodeName;
     /** 节点id */
     private String nodeId;
+    /*阶段id*/
+    private String stageId;
     /** 开始时间 */
     @ApiModelProperty(value = "开始时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

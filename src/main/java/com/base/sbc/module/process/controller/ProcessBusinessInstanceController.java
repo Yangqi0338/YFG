@@ -67,6 +67,9 @@ public class ProcessBusinessInstanceController{
 		return processBusinessInstanceService.getNodeBybusinessDataId(businessDataId);
 	}
 
+	/*根据业务id 节点名称 查询流程中的上节点，下节点*/
+
+
 }
 
 

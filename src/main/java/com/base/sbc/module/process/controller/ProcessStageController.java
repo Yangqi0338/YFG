@@ -10,6 +10,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.process.dto.AddRevampProcessStageDto;
+import com.base.sbc.module.process.dto.QueryStageDto;
 import com.base.sbc.module.process.entity.ProcessStage;
 import com.base.sbc.module.process.service.ProcessStageService;
 import com.base.sbc.module.process.vo.ProcessStageVo;
@@ -43,8 +44,8 @@ public class ProcessStageController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getProcessStageList")
-	public PageInfo<ProcessStageVo> getProcessStageList(QueryDto queryDto) {
-		return  processStageService.getProcessStageList(queryDto);
+	public PageInfo<ProcessStageVo> getProcessStageList(QueryStageDto queryStageDto) {
+		return  processStageService.getProcessStageList(queryStageDto);
 	}
 
 

@@ -9,6 +9,7 @@ package com.base.sbc.module.process.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.event.sample.SampleEvent;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -33,6 +34,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -60,6 +62,9 @@ public class ProcessNodeStatusConditionServiceImpl extends BaseServiceImpl<Proce
 
     @Autowired
     private ProcessNodeStatusUpdateManagementService processNodeStatusUpdateManagementService;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
 
 /** 自定义方法区 不替换的区域【other_start】 **/
@@ -137,6 +142,8 @@ public class ProcessNodeStatusConditionServiceImpl extends BaseServiceImpl<Proce
                 addRevampProcessNodeActionDto.setNodeStatusConditionId(processNodeStatusCondition.getId());
             }
             processNodeActionService.batchAddRevampProcessNodeAction(list);
+//            节点事件发布
+            applicationEventPublisher.publishEvent(new SampleEvent(this,"11","22",""));
         }
         /*保存修改的字段*/
         if(!CollectionUtils.isEmpty(addRevampProcessNodeStatusConditionDto.getUpdateManagementDtoList())){

@@ -155,19 +155,19 @@ public class ProcessBusinessInstanceServiceImpl extends BaseServiceImpl<ProcessB
     /**
      * 描述- 完成操作 返回需要修改的字段
      * businessDataId 业务数据id
-     * action 动作
+     * actionCode 动作
      * objectData 数据
      *
      * @return
      */
     @Override
     @Transactional(readOnly = false)
-    public Boolean complete(String businessDataId, String action, Object objectData) {
+    public Boolean complete(String businessDataId, String actionCode, Object objectData) {
         if (StringUtils.isBlank(businessDataId)) {
             throw new OtherException("业务数据id不能为空");
         }
-        if (StringUtils.isBlank(action)) {
-            throw new OtherException("动作不能为空");
+        if (StringUtils.isBlank(actionCode)) {
+            throw new OtherException("动作编码不能为空");
         }
         /*获取示例流程*/
         ProcessBusinessInstance processBusinessInstance = getProcessBusinessInstance(businessDataId);
@@ -179,7 +179,7 @@ public class ProcessBusinessInstanceServiceImpl extends BaseServiceImpl<ProcessB
         queryWrapper.clear();
         queryWrapper.eq("nsc.node_id", processBusinessInstance.getAtPresentNodeId());
         queryWrapper.eq("nsc.original_status", processBusinessInstance.getAtPresentStatusName());
-        queryWrapper.eq("na.action_name", action);
+        queryWrapper.eq("na.action_code", actionCode);
         queryWrapper.eq("na.status", BaseGlobal.STATUS_NORMAL);
         /*获取节点状态条件及动作*/
         ProcessNodeStatusConditionVo processNodeStatusConditionVo = processNodeStatusConditionMapperl.getCondition(queryWrapper);
