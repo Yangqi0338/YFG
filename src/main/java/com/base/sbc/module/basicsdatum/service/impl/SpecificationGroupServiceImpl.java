@@ -10,6 +10,9 @@ import com.base.sbc.module.basicsdatum.service.SpecificationGroupService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author 卞康
  * @date 2023/6/27 17:24
@@ -50,5 +53,11 @@ public class SpecificationGroupServiceImpl extends BaseServiceImpl<Specification
             }
             return this.save(specificationGroup);
         }
+    }
+
+    @Override
+    public List<Map<String, String>> listIdName() {
+        return  baseMapper.listIdName();
+
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 卞康
@@ -43,6 +44,17 @@ public class SpecificationGroupController extends BaseController {
         PageHelper.startPage(specificationGroupDto);
         List<SpecificationGroup> list = specificationGroupService.list(queryWrapper);
         return selectSuccess(new PageInfo<>(list));
+    }
+
+
+    /**
+     * 查询id和name列表
+     */
+    @GetMapping("/listIdName")
+    @ApiOperation(value = "查询id和name列表")
+    public ApiResult listIdName(){
+        List<Map<String,String>> list= specificationGroupService.listIdName();
+        return selectSuccess(list);
     }
 
     @PostMapping("/save")
