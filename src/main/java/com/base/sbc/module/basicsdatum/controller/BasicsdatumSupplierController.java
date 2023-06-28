@@ -65,7 +65,7 @@ public class BasicsdatumSupplierController{
 	public List<SelectVo> getBasicsdatumSupplierSelect(@RequestParam(value = "name", required = false) String name) {
 		List<BasicsdatumSupplier> list = basicsdatumSupplierService
 				.list(new QueryWrapper<BasicsdatumSupplier>().select("supplier_code,supplier")
-						.eq("company_code", baseController.getUserCompany()).eq("status", "0"));
+						.eq("company_code", baseController.getUserCompany()).eq("status", "0").like("supplier", name));
 		List<SelectVo> newList = new ArrayList<>();
 		SelectVo vo;
 		for (BasicsdatumSupplier bs : list) {
