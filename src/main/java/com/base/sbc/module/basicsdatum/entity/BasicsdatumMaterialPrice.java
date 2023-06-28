@@ -6,14 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
 
+import java.math.BigDecimal;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.math.BigDecimal;
 
 /**
  * 类描述：基础资料-物料档案-供应商报价 实体类
@@ -70,4 +71,10 @@ public class BasicsdatumMaterialPrice extends BaseDataEntity<String> {
 	/** 每色起订量 */
 	@ApiModelProperty(value = "每色起订量")
 	private Integer minimumOrderQuantityColor;
+	/** 颜色 */
+	@ApiModelProperty(value = "颜色")
+	private String colorName;
+	/** 规格 */
+	@ApiModelProperty(value = "规格")
+	private String widthName;
 }

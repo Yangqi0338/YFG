@@ -1,11 +1,12 @@
 package com.base.sbc.module.basicsdatum.dto;
 
+import java.math.BigDecimal;
+
+import org.hibernate.validator.constraints.NotBlank;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.hibernate.validator.constraints.NotBlank;
-
-import java.math.BigDecimal;
 
 /**
  * 
@@ -59,4 +60,10 @@ public class BasicsdatumMaterialPriceSaveDto {
 	/** 每色起订量 */
 	@ApiModelProperty(value = "每色起订量")
 	private Integer minimumOrderQuantityColor;
+	/** 颜色 */
+	@ApiModelProperty(value = "颜色")
+	private String colorName;
+	/** 规格 */
+	@ApiModelProperty(value = "规格")
+	private String widthName;
 }

@@ -14,6 +14,7 @@ import org.apache.ibatis.annotations.Param;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
 /** 
  * 类描述：基础资料-物料档案 dao类
  * @address com.base.sbc.module.basicsdatum.dao.BasicsdatumMaterialDao
@@ -29,6 +30,8 @@ public interface BasicsdatumMaterialMapper extends BaseMapper<BasicsdatumMateria
 	List<BasicsdatumMaterialColorPageVo> getBasicsdatumMaterialColorList(@Param("companyCode") String companyCode,
 			@Param("materialCode") String materialCode);
 
+	List<BasicsdatumMaterialWidthPageVo> getBasicsdatumMaterialWidthList(@Param("companyCode") String companyCode,
+			@Param("materialCode") String materialCode);
 // 自定义方法区 不替换的区域【other_end】
 }
 

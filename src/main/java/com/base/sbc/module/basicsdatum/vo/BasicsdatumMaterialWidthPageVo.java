@@ -1,6 +1,7 @@
 package com.base.sbc.module.basicsdatum.vo;
 
 import com.base.sbc.config.common.base.BaseDataEntity;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -29,4 +30,7 @@ public class BasicsdatumMaterialWidthPageVo extends BaseDataEntity<String> {
 	/** 规格代码 */
 	@ApiModelProperty(value = "规格代码")
 	private String widthCode;
+	/** 规格代码 */
+	@ApiModelProperty(value = "规格名称")
+	private String name;
 }
