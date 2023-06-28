@@ -2,6 +2,7 @@ package com.base.sbc.module.planning.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -29,6 +30,7 @@ import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
+import com.base.sbc.module.sample.vo.ChartBarVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -286,6 +288,33 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         return vo;
     }
 
+    @Override
+    public List categorySummary(PlanningBoardSearchDto dto) {
+        QueryWrapper qw = new QueryWrapper();
+        planningSummaryQw(qw, dto);
+        List result = new ArrayList();
+        result.add(CollUtil.newArrayList("product", "总数"));
+        List<ChartBarVo> data = planningCategoryItemService.categorySummary(qw);
+        if (CollUtil.isNotEmpty(data)) {
+            data.forEach(item -> {
+                result.add(CollUtil.newArrayList(item.getDimension(), item.getTotal()));
+            });
+        }
+        return result;
+    }
+
+    @Override
+    public PlanningSummaryDetailVo hisDetail(String hisDesignNo) {
+        QueryWrapper<PlanningSummaryDetailVo> detailQw = new QueryWrapper();
+        detailQw.eq("ci.design_no", hisDesignNo).or().eq("style_no", hisDesignNo);
+        detailQw.last("limit 1");
+        List<PlanningSummaryDetailVo> detailVoList = planningCategoryItemService.planningSummaryDetail(detailQw);
+        if (CollUtil.isNotEmpty(detailVoList)) {
+            return detailVoList.get(0);
+        }
+        return null;
+    }
+
     /**
      * 删除空元素和排序
      *
@@ -304,10 +333,10 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     }
 
     private void planningSummaryQw(QueryWrapper qw, PlanningBoardSearchDto dto) {
-        qw.eq("ci.planning_season_id", dto.getPlanningSeasonId());
-        qw.in(CollUtil.isNotEmpty(dto.getBand()), "b.band_code", dto.getBand());
-        qw.in(CollUtil.isNotEmpty(dto.getMonth()), "b.month", dto.getMonth());
-        qw.in(CollUtil.isNotEmpty(dto.getCategory()), "b.prod_category", dto.getCategory());
+        qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "ci.planning_season_id", dto.getPlanningSeasonId());
+        qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "b.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotEmpty(dto.getMonth()), "b.month", StrUtil.split(dto.getMonth(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotEmpty(dto.getProdCategoryId()), "ci.prod_category", StrUtil.split(dto.getProdCategoryId(), CharUtil.COMMA));
 
     }
 }

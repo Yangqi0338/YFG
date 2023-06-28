@@ -3,18 +3,22 @@ package com.base.sbc.module.planning.controller;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 类描述：企划看板相关接口
@@ -37,10 +41,23 @@ public class PlanningBoardController {
 
 
     @ApiOperation(value = "企划汇总", notes = "")
-    @PostMapping("/planningSummary")
-    public PlanningSummaryVo planningSummary(@Valid @RequestBody PlanningBoardSearchDto dto) {
+    @GetMapping("/planningSummary")
+    public PlanningSummaryVo planningSummary(@Valid PlanningBoardSearchDto dto) {
         return planningSeasonService.planningSummary(dto);
     }
 
+    @ApiOperation(value = "品类汇总", notes = "")
+    @GetMapping("/categorySummary")
+    public List categorySummary(PlanningBoardSearchDto dto) {
+        return planningSeasonService.categorySummary(dto);
+    }
 
+    @ApiOperation(value = "参考历史款明细", notes = "")
+    @GetMapping("/hisDetail")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "hisDesignNo", value = "历史款", required = true, paramType = "query")
+    })
+    public PlanningSummaryDetailVo hisDetail(@Valid @NotBlank(message = "历史款id不能为空") String hisDesignNo) {
+        return planningSeasonService.hisDetail(hisDesignNo);
+    }
 }

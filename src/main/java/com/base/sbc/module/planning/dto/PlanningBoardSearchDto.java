@@ -6,8 +6,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
-import java.util.List;
-
 /**
  * 类描述：企划看板筛选条件
  *
@@ -30,12 +28,12 @@ public class PlanningBoardSearchDto {
     private String search;
 
     @ApiModelProperty(value = "月份", required = false, example = "01")
-    private List<String> month;
+    private String month;
 
     @ApiModelProperty(value = "波段", required = false, example = "1A")
-    private List<String> band;
+    private String bandCode;
 
     @ApiModelProperty(value = "品类", required = false, example = "700655279267643450")
-    private List<String> category;
+    private String prodCategoryId;
 
 }
