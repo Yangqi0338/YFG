@@ -101,6 +101,14 @@ public class Sample extends BaseDataEntity<String> {
     @ApiModelProperty(value = "样衣类型：1-内部研发，2-外采，2-ODM提供")
     private Integer type;
 
+    /** 样衣数量 */
+    @ApiModelProperty(value = "样衣数量")
+    private Integer count;
+
+    /** 借出数量 */
+    @ApiModelProperty(value = "借出数量")
+    private Integer borrowCount;
+
     /** 状态：0-禁用，1-启用，2-删除 */
     @ApiModelProperty(value = "状态：0-禁用，1-启用，2-删除")
     private Integer status;

@@ -52,7 +52,11 @@ public class SampleItem extends BaseDataEntity<String> {
 
     /** 数量 */
     @ApiModelProperty(value = "数量")
-    private String count;
+    private Integer count;
+
+    /** 借出数量 */
+    @ApiModelProperty(value = "借出数量")
+    private Integer borrowCount;
 
     /** 价格 */
     @ApiModelProperty(value = "价格")
@@ -76,7 +80,7 @@ public class SampleItem extends BaseDataEntity<String> {
 
     /** 状态：0-未入库，1-在库，2-借出，3-删除 */
     @ApiModelProperty(value = "状态：0-未入库，1-在库，2-借出，3-删除")
-    private String status;
+    private Integer status;
 
     /** 入仓时间 */
     @ApiModelProperty(value = "入仓时间")

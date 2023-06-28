@@ -10,11 +10,13 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.SampleCirculatePageDto;
 import com.base.sbc.module.sample.dto.SampleCirculateSaveDto;
-import com.base.sbc.module.sample.entity.SampleCirculate;
-import com.base.sbc.module.sample.entity.SampleCirculateItem;
+import com.base.sbc.module.sample.entity.*;
 import com.base.sbc.module.sample.mapper.SampleCirculateItemMapper;
 import com.base.sbc.module.sample.mapper.SampleCirculateMapper;
+import com.base.sbc.module.sample.mapper.SampleItemMapper;
+import com.base.sbc.module.sample.mapper.SampleMapper;
 import com.base.sbc.module.sample.service.SampleCirculateService;
+import com.base.sbc.module.sample.service.SampleItemLogService;
 import com.base.sbc.module.sample.vo.SampleCirculateItemVo;
 import com.base.sbc.module.sample.vo.SampleCirculateVo;
 import com.github.pagehelper.Page;
@@ -36,6 +38,12 @@ public class SampleCirculateServiceImpl extends BaseServiceImpl<SampleCirculateM
     SampleCirculateMapper mapper;
     @Autowired
     SampleCirculateItemMapper itemMapper;
+    @Autowired
+    SampleMapper sampleMapper;
+    @Autowired
+    SampleItemMapper sampleItemMapper;
+    @Autowired
+    SampleItemLogService sampleItemLogService;
 
     private IdGen idGen = new IdGen();
 
@@ -94,12 +102,37 @@ public class SampleCirculateServiceImpl extends BaseServiceImpl<SampleCirculateM
             item.setCompanyCode(sc.getCompanyCode());
             itemMapper.insert(item);
 
-            // 处理库存
+            // 处理样衣
+            SampleItem si = sampleItemMapper.selectById(dto.getSampleItemId());
+            if (si.getBorrowCount() + item.getCount() <= si.getCount()) {
+                si.setBorrowCount(si.getBorrowCount() + item.getCount());
+                si.setStatus(2);
+                sampleItemMapper.updateById(si);
 
-            // 处理日志
+                // 处理日志
+                SampleItemLog log = new SampleItemLog();
+                log.setId(item.getId());
+                log.setSampleItemId(si.getId());
+                log.setType(2);
+                log.setRemarks("借出：id-" + item.getId() + ", 借出单号："
+                        + sc.getBorrowCode() + ", 借出数量：" + item.getCount());
+                sampleItemLogService.save(log);
+
+                // 处理样衣主表
+                Sample sample = sampleMapper.selectById(si.getSampleId());
+                sample.setBorrowCount(sample.getBorrowCount() + item.getCount());
+                if (sample.getCount().equals(sample.getBorrowCount())) {
+                    sample.setCompleteStatus(0);
+                } else if (sample.getBorrowCount() < sample.getCount()) {
+                    sample.setCompleteStatus(1);
+                } else if (sample.getBorrowCount() == 0 && sample.getCount() > 0) {
+                    sample.setCompleteStatus(2);
+                }
+                sampleMapper.updateById(sample);
+            }
         }
 
-        return null;
+        return mapper.getDetail(sc.getId());
     }
 
     @Override
@@ -117,11 +150,35 @@ public class SampleCirculateServiceImpl extends BaseServiceImpl<SampleCirculateM
         for (SampleCirculateItem item : dto.getItemList()){
             itemMapper.updateById(item);
 
-            // 处理库存
+            // 处理样衣
+            SampleItem si = sampleItemMapper.selectById(dto.getSampleItemId());
+            if (si.getBorrowCount() - item.getCount() <= si.getCount()) {
+                si.setBorrowCount(si.getBorrowCount() - item.getCount());
+                si.setStatus(1);
+                sampleItemMapper.updateById(si);
 
-            // 处理日志
+                // 处理日志
+                SampleItemLog log = new SampleItemLog();
+                log.setId(item.getId());
+                log.setSampleItemId(si.getId());
+                log.setType(2);
+                log.setRemarks("归还：id-" + item.getId() + ", 借出单号："
+                        + sc.getBorrowCode() + ", 归还数量：" + item.getCount());
+                sampleItemLogService.save(log);
+
+                // 处理样衣主表
+                Sample sample = sampleMapper.selectById(si.getSampleId());
+                sample.setBorrowCount(sample.getBorrowCount() - item.getCount());
+                if (sample.getCount().equals(sample.getBorrowCount())) {
+                    sample.setCompleteStatus(0);
+                } else if (sample.getBorrowCount() < sample.getCount()) {
+                    sample.setCompleteStatus(1);
+                } else if (sample.getBorrowCount() == 0 && sample.getCount() > 0) {
+                    sample.setCompleteStatus(2);
+                }
+                sampleMapper.updateById(sample);
+            }
         }
-
-        return null;
+        return mapper.getDetail(sc.getId());
     }
 }

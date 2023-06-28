@@ -82,19 +82,15 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
             sample.setType(dto.getType());
             sample.setRemarks(dto.getRemarks());
 
-            if (StringUtil.isNotEmpty(dto.getId())) {
-                sample.setId(idGen.nextIdStr());
-                mapper.insert(sample);
-                id = sample.getId();
-            } else {
-                mapper.updateById(sample);
-                id = dto.getId();
-            }
-
+            Integer count = 0, borrowCount = 0;
             for (SampleItem item : dto.getItemList()){
                 if (StringUtil.isNotEmpty(item.getId())){
+                    count += item.getCount();
+                    borrowCount += item.getBorrowCount();
+
                     item.setId(idGen.nextIdStr());
                     item.setSampleId(sample.getId());
+                    item.setBorrowCount(0);
                     sampleItemMapper.insert(item);
 
                     SampleItemLog log = new SampleItemLog();
@@ -120,6 +116,17 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
                     log.setRemarks("更新样衣明细：id-" + item.getId() + "，变更前：【" + beforRemark + "】，变更后：【" + afterRemark + "】");
                     sampleItemLogService.save(log);
                 }
+            }
+
+            sample.setCount(count);
+            sample.setBorrowCount(borrowCount);
+            if (StringUtil.isNotEmpty(dto.getId())) {
+                sample.setId(idGen.nextIdStr());
+                mapper.insert(sample);
+                id = sample.getId();
+            } else {
+                mapper.updateById(sample);
+                id = dto.getId();
             }
         }
 

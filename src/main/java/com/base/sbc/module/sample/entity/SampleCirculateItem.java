@@ -45,5 +45,9 @@ public class SampleCirculateItem extends BaseDataEntity<String> {
     /** 备注 */
     @ApiModelProperty(value = "备注")
     private String remarks;
+
+    /** 数量 */
+    @ApiModelProperty(value = "数量")
+    private Integer count;
 }
 
