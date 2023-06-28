@@ -73,6 +73,10 @@ public class Sample extends BaseDataEntity<String> {
     @ApiModelProperty(value = "款式品类")
     private String categoryName;
 
+    /** 款式品类Ids */
+    @ApiModelProperty(value = "款式品类Ids")
+    private String categoryIds;
+
     /** 季节ID */
     @ApiModelProperty(value = "季节ID")
     private String seasonId;

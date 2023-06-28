@@ -70,6 +70,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
             sample.setStyleName(sd.getStyleName());
             sample.setDesignNo(sd.getDesignNo());
             sample.setCategoryName(dto.getCategoryName());
+            sample.setCategoryIds(dto.getCategoryIds());
             sample.setSeasonId(dto.getSeasonId());
             sample.setSeason(dto.getSeason());
             sample.setFromType(dto.getFromType());
