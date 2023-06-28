@@ -91,7 +91,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
 
             Integer count = 0, borrowCount = 0;
             for (SampleItem item : dto.getSampleItemList()){
-                if (StringUtil.isNotEmpty(item.getId())){
+                if (StringUtil.isEmpty(item.getId())){
                     count += item.getCount();
                     borrowCount += item.getBorrowCount() == null ? 0 : item.getBorrowCount();
 
