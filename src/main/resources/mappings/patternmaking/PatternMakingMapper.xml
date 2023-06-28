@@ -145,7 +145,8 @@
 
     <select id="getAllList" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingForSampleVo">
         SELECT pk.id, pk.`code`, pk.sample_type, sd.style_name, sd.design_no, sd.category_name, sd.category_ids,
-               ps.id AS seasonId, ps.season, sd.designer, sd.designer_id, sd.pattern_design_id, sd.pattern_design_name
+            ps.id AS seasonId, ps.season, sd.designer, sd.designer_id, sd.pattern_design_id, sd.pattern_design_name,
+            pk.sample_design_id
         FROM t_pattern_making pk
         JOIN t_sample_design sd ON sd.id = pk.sample_design_id
         JOIN t_planning_season ps ON ps.id = pk.planning_season_id
