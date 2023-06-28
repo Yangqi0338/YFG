@@ -21,6 +21,7 @@
 			AND t.color_code = t1.color_code
 		WHERE
 			t.company_code = #{companyCode}
+			and t.del_flag = "0"
 			and t.material_code = #{materialCode}
 	</select>
 	<select id="getBasicsdatumMaterialColorSelect" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo">
@@ -33,6 +34,7 @@
 			AND t.color_code = t1.color_code
 		WHERE
 			t.company_code = #{companyCode}
+			and t.del_flag = "0"
 			and t.material_code = #{materialCode}
 	</select>
 	
@@ -46,6 +48,7 @@
 			AND t.width_code = t1.`code`
 		WHERE
 			t.company_code = #{companyCode}
+			and t.del_flag = "0"
 			and t.material_code = #{materialCode}
 	</select>
 	
@@ -59,6 +62,7 @@
 			AND t.width_code = t1.`code`
 		WHERE
 			t.company_code = #{companyCode}
+			and t.del_flag = "0"
 			and t.material_code = #{materialCode}
 	</select>
 
