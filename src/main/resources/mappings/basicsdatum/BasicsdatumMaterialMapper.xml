@@ -23,10 +23,35 @@
 			t.company_code = #{companyCode}
 			and t.material_code = #{materialCode}
 	</select>
+	<select id="getBasicsdatumMaterialColorSelect" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo">
+		SELECT
+			t.color_code,
+			t1.color
+		FROM
+			t_basicsdatum_material_color t
+			LEFT JOIN t_goods_color t1 ON t.company_code = t1.company_code 
+			AND t.color_code = t1.color_code
+		WHERE
+			t.company_code = #{companyCode}
+			and t.material_code = #{materialCode}
+	</select>
 	
 	<select id="getBasicsdatumMaterialWidthList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo">
 		SELECT
 			t.*,
+			t1.`name`
+		FROM
+			t_basicsdatum_material_width t
+			LEFT JOIN t_specification t1 ON t.company_code = t1.company_code 
+			AND t.width_code = t1.`code`
+		WHERE
+			t.company_code = #{companyCode}
+			and t.material_code = #{materialCode}
+	</select>
+	
+	<select id="getBasicsdatumMaterialWidthSelect" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo">
+		SELECT
+			t.width_code,
 			t1.`name`
 		FROM
 			t_basicsdatum_material_width t

@@ -6,7 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,10 +36,12 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -184,6 +188,18 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		qc.notEmptyEq("material_code", dto.getMaterialCode());
 		List<BasicsdatumMaterialPrice> list = this.materialPriceService.list(qc);
 		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPricePageVo.class);
+	}
+
+	@Override
+	public Map<String, Object> getBasicsdatumMaterialPriceColorWidthSelect(String materialCode) {
+		Map<String, Object> map = new HashMap<>();
+		List<BasicsdatumMaterialColorSelectVo> select = this.baseMapper
+				.getBasicsdatumMaterialColorSelect(this.getCompanyCode(), materialCode);
+		List<BasicsdatumMaterialWidthSelectVo> select2 = this.baseMapper
+				.getBasicsdatumMaterialWidthSelect(this.getCompanyCode(), materialCode);
+		map.put("colorSelect", select);
+		map.put("widthSelect", select2);
+		return map;
 	}
 
 	@Override
