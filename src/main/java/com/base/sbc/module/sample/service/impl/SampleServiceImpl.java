@@ -89,6 +89,10 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
             sample.setType(dto.getType());
             sample.setRemarks(dto.getRemarks());
 
+            sample.setStatus(dto.getStatus());
+            sample.setCompleteStatus(2); //库存状态：0-完全借出，1-部分借出，2-全部在库
+            sample.setExamineStatus(0);  //审核状态：0-草稿，1-待审核、2-审核通过、3-驳回
+
             Integer count = 0, borrowCount = 0;
             for (SampleItem item : dto.getSampleItemList()){
                 if (StringUtil.isEmpty(item.getId())){
