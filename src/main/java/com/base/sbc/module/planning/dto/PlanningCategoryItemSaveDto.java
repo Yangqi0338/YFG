@@ -22,22 +22,17 @@ import java.util.List;
 @Data
 @ApiModel("坑位信息保存dto PlanningCategoryItemSaveDto")
 public class PlanningCategoryItemSaveDto extends PlanningCategoryItem {
-    /**
-     * 品类id(小类)
-     */
-    @ApiModelProperty(value = "品类id(小类)")
-    @NotBlank(message = "品类不能为空")
-    private String categoryId;
+
     /**
      * 品类名称路径:(中类/小类)
      */
     @NotBlank(message = "品类不能为空")
-    @ApiModelProperty(value = "品类名称路径:(中类/小类)")
+    @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)")
     private String categoryName;
     /**
      * 品类id路径:(中类/小类)
      */
-    @ApiModelProperty(value = "品类id路径:(中类/小类)")
+    @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)")
     @NotBlank(message = "品类不能为空")
     private String categoryIds;
 
