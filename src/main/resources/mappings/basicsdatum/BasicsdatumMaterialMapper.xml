@@ -51,7 +51,7 @@
 	
 	<select id="getBasicsdatumMaterialWidthSelect" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo">
 		SELECT
-			t.width_code,
+			t.width_code as code,
 			t1.`name`
 		FROM
 			t_basicsdatum_material_width t

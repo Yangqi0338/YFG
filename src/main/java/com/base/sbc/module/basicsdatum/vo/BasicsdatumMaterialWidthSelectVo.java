@@ -17,7 +17,7 @@ import lombok.Data;
 public class BasicsdatumMaterialWidthSelectVo {
 
 	@ApiModelProperty(value = "规格代码")
-	private String widthCode;
+	private String code;
 
 	@ApiModelProperty(value = "名称")
 	private String name;
