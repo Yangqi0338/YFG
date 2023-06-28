@@ -137,7 +137,6 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
             } else {
                 mapper.updateById(sample);
             }
-
         }
 
         return mapper.getDetail(id);

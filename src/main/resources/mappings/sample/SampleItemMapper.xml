@@ -55,7 +55,6 @@
                 OR si.`code` like concat('%',#{search,jdbcType=VARCHAR},'%'))
             </if>
         </where>
-        GROUP BY s.id
         ORDER BY s.create_date DESC
     </select>
 
