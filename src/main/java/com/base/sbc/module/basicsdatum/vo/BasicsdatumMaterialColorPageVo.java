@@ -1,6 +1,7 @@
 package com.base.sbc.module.basicsdatum.vo;
 
 import com.base.sbc.config.common.base.BaseDataEntity;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -29,6 +30,12 @@ public class BasicsdatumMaterialColorPageVo extends BaseDataEntity<String> {
 	/** 颜色代码 */
 	@ApiModelProperty(value = "颜色代码")
 	private String colorCode;
+	/** 颜色代码 */
+	@ApiModelProperty(value = "颜色")
+	private String color;
+	/** 颜色hex */
+	@ApiModelProperty(value = "颜色hex")
+	private String colorHex;
 	/** 供应商色号 */
 	@ApiModelProperty(value = "供应商色号")
 	private String supplierColorCode;
