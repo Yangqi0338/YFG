@@ -1,7 +1,9 @@
 package com.base.sbc.open.dto;
 
-import com.base.sbc.config.common.base.BaseDataEntity;
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import lombok.Data;
+
+
 
 /**
  * @author 卞康
@@ -9,119 +11,250 @@ import lombok.Data;
  * @mail 247967116@qq.com
  */
 @Data
-public class SmpUserDto extends BaseDataEntity<String>{
-    /** 发送状态(1:新增, 2:修改) */
-    private String type;
-    /** 公司编号 */
-    private String companyId;
-    /** 部门编号 */
-    private String department;
-    /** 组别 */
-    private String depGroup;
-    /** 员工星级 */
-    private String empCustom5;
-    /** 部门名称 */
-    private String depTitle;
-    /** 岗位编号 */
-    private String positioId;
-    /** 人事EID */
-    private String eid;
-    /** 工号 */
-    private String userId;
-    /** 入职日期 */
-    private String entryDate;
-    /** 姓名 */
-    private String name;
-    /** 手机号 */
-    private String mobile;
-    /** 用户状态(1:正常, 0:离职) */
-    private String userStatus;
-    /** 年龄 */
-    private String age;
-    /** 性别 */
-    private String sex;
-    /** 英文名字 */
-    private String enName;
-    /** 居住所在省 */
-    private String nativePlaceProvince;
-    /** 居住所在市 */
-    private String nativePlaceCity;
-    /** 出生日期 */
+public class SmpUserDto{
+    /**
+     * 生日
+     */
+    @Excel(name = "birthday")
     private String birthday;
-    /** 民族 */
-    private String nation;
-    /** 身份证号 */
+
+    /**
+     * id
+     */
+    @Excel(name = "id")
+    private String id;
+
+    /**
+     * 身份证号码
+     */
+    @Excel(name = "certno")
     private String cardId;
-    /** 婚姻状态 */
-    private String marriageStatus;
-    /** 政治面貌 */
-    private String politicalStatus;
-    /** 入党日期 */
-    private String joinPartyDate;
-    /** 户口所在省 */
-    private String registeredResidenceProvince;
-    /** 户口所在市 */
-    private String registeredResidenceCity;
-    /** 户口类型 */
-    private String registeredResidenceType;
-    /** 学历 */
-    private String education;
-    /** 健康状态 */
-    private String health;
-    /** 学位 */
-    private String degree;
-    /** 毕业学校 */
-    private String school;
-    /** 专业 */
-    private String subject;
-    /** 毕业日期 */
-    private String graduatingDate;
-    /** 电子邮件地址 */
+
+    /**
+     * 公司ID
+     */
+    @Excel(name = "compid")
+    private String companyId;
+
+    /**
+     * 手机号
+     */
+    @Excel(name = "mobile")
+    private String mobile;
+
+    /**
+     * 部门ID
+     */
+    @Excel(name = "depcode")
+    private String department;
+
+    /**
+     * 部门名称
+     */
+    @Excel(name = "deptitle")
+    private String depTitle;
+
+    /**
+     * 部门组别
+     */
+    @Excel(name = "depgroup")
+    private String depGroup;
+
+    /**
+     * 姓名
+     */
+    @Excel(name = "name")
+    private String name;
+
+    /**
+     * 民族
+     */
+    @Excel(name = "nation")
+    private String nation;
+
+    /**
+     * 岗位ID
+     */
+    @Excel(name = "jobcode")
+    private String positioId;
+
+    /**
+     * 性别 1男 2女
+     */
+    @Excel(name = "gender")
+    private String sex;
+
+    /**
+     * 工号
+     */
+    @Excel(name = "badge")
+    private String userId;
+
+    /**
+     * 人事ID,钉钉ID
+     */
+    @Excel(name = "eid")
+    private String eid;
+
+    /**
+     * 状态,1正常,0不正常
+     */
+    @Excel(name = "empstatus")
+    private String empstatus;
+
+    @Excel(name = "pwd")
+    private String pwd;
+
+    @Excel(name = "u_type")
+    private String u_type;
+
+    @Excel(name = "login_type")
+    private String login_type;
+
+    @Excel(name = "login_def")
+    private String login_def;
+
+    @Excel(name = "email")
     private String email;
-    /** 联系手机 */
-    private String contactMobile;
-    /** QQ号 */
-    private String qq;
-    /** 微信号 */
-    private String wechat;
-    /** 家庭住址 */
+
+    @Excel(name = "post")
+    private String post;
+
+    @Excel(name = "address")
     private String liveAddress;
-    /** 员工状态(3:作废,其他正常) */
-    private String objStatus;
-    /** 钉钉部门ID */
-    private String ddDepId;
-    /** 钉钉上级部门ID */
-    private String ddAdminId;
-    /** 部门ID */
-    private String depId;
-    /** 离职日期 */
-    private String leaveDate;
-    /** 开始工作日期 */
+
+    @Excel(name = "create_dt")
+    private String createDate;
+
+    @Excel(name = "modify_dt")
+    private String updateDate;
+
+    @Excel(name = "last_login")
+    private String last_login;
+
+    @Excel(name = "nickname")
+    private String nickname;
+
+    @Excel(name = "nick_portrait")
+    private String nick_portrait;
+
+    @Excel(name = "is_valid")
+    private String is_valid;
+
+    /**
+     * 外埠钉钉ID,对应EID
+     */
+    @Excel(name = "dd_id")
+    private String dd_id;
+
+    /**
+     * 员工星级
+     */
+    @Excel(name = "empcustom5")
+    private String empCustom5;
+
+    /**
+     * 年龄
+     */
+    @Excel(name = "age")
+    private String age;
+
+    /**
+     * 开始工作日期
+     */
+    @Excel(name = "WorkBeginDate")
     private String workBeginDate;
-    /** 银行名称 */
+
+    /**
+     * 银行名称
+     */
+    @Excel(name = "bankname")
     private String bankName;
-    /** 银行账号 */
+
+    /**
+     * 银行卡号
+     */
+    @Excel(name = "bankcardout")
     private String bankCardOut;
-    /** 银行支行名称 */
+
+    /**
+     * 开户行
+     */
+    @Excel(name = "bandaddr")
     private String bandAddr;
-    /** 户口地址 */
+
+    /**
+     * 户籍地
+     */
+    @Excel(name = "residentAddress")
     private String residentAddress;
-    /** 户口类型 */
+
+    /**
+     * 户口性质
+     */
+    @Excel(name = "Resident")
     private String resident;
-    /** 社保类型 */
+
+    /**
+     * 入职日期
+     */
+    @Excel(name = "entry_date")
+    private String entryDate;
+
+    /**
+     * 社保类型
+     */
+    @Excel(name = "InsuranceType")
     private String insuranceType;
-    /** 参保日期 */
+
+    /**
+     * 社保起缴年月
+     */
+    @Excel(name = "canbaodate")
     private String canBaoDate;
-    /** 停保日期 */
+
+    /**
+     * 离职日期
+     */
+    @Excel(name = "LeaveDate")
+    private String leaveDate;
+
+    /**
+     * 停保日期
+     */
+    @Excel(name = "stopsocialdate")
     private String stopSocialDate;
-    /** 最后工作日期 */
+
+    /**
+     * 最后工作日期
+     */
+    @Excel(name = "WorkLastDate")
     private String workLastDate;
-    /** 离职原因 */
+
+    /**
+     * 离职原因
+     */
+    @Excel(name = "LeaveReason")
     private String leaveReason;
-    /** 岗位类型 */
+
+    /**
+     * 在岗状态
+     */
+    @Excel(name = "JobStatus")
     private String jobStatus;
-    /** 员工状态 */
+
+    /**
+     * 员工在职离职状态,1:在职,2:离职
+     */
+    @Excel(name = "staffStatus")
     private String staffStatus;
-    /** OA同步日期 */
+
+    @Excel(name = "highlevel")
+    private String education;
+
+    /**
+     * OA同步日期
+     */
+    @Excel(name = "oa_sync_date")
     private String oaSyncDate;
 }

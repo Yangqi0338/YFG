@@ -1,5 +1,6 @@
 package com.base.sbc.open.dto;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import lombok.Data;
 
 /**
@@ -9,50 +10,44 @@ import lombok.Data;
  */
 @Data
 public class SmpDeptDto {
-    /** 公司编号 */
-    private String companyId;
-    /** 部门编号 */
-    private String departmentId;
-    /** 部门名称 */
-    private String name;
-    /** 组别 */
-    private String depGroup;
-    /** 发送状态(1:新增, 2:修改) */
-    private String type;
-    /** 上级部门编号 */
-    private String parentId;
-    /** 品牌 */
-    private String brand;
-    /** 店长 */
-    private String shopOwner;
-    /** 大区经理 */
-    private String admin1;
-    /** 区经主管 */
-    private String admin2;
-    /** 区域经理 */
-    private String director3;
-    /** 运营经理 */
-    private String director5;
-    /** HRBP */
-    private String depEmp;
-    /** 总部人事 */
-    private String headquartersHr;
-    /** 钉钉部门ID */
-    private String ddDepId;
-    /** 钉钉上级部门ID */
-    private String ddAdminId;
-    /** 飞书部门ID */
-    private String feishuDepId;
-    /** 飞书上级部门ID */
-    private String feishuAdminId;
-    /** 部门层级 */
-    private String depGrade;
-    /** 部门编号 */
-    private String depNum;
+
+    @Excel(name = "id")
+    private String id;
+    /** 公司ID */
+    @Excel(name = "compid")
+    private Integer companyId;
     /** 部门ID */
+    @Excel(name = "depcode")
+    private String departmentId;
+    /** 嘉扬部门ID */
+    @Excel(name = "depid")
     private String depId;
-    /** standard_id */
-    private String standardId;
-    /** 部门状态(3:作废,其他正常) */
-    private String objStatus;
+    /** 部门名称 */
+    @Excel(name = "title")
+    private String name;
+    /** 钉钉部门ID */
+    @Excel(name = "dd_depid")
+    private Integer ddDepId;
+    /** 钉钉部门父ID */
+    @Excel(name = "dd_adminid")
+    private Integer ddAdminId;
+    /** 父类ID */
+    @Excel(name = "parent_code")
+    private String parentId;
+    /** 部门组别 */
+    @Excel(name = "depgroup")
+    private String depGroup;
+    /** 部门级别 */
+    @Excel(name = "depgrade")
+    private Integer depGrade;
+    /** 部门负责人工号 */
+    @Excel(name = "incharge_badge")
+    private String inChargeBadge;
+    /** 是否叶子节点  0不是,1是 */
+    @Excel(name = "isleaf")
+    private Integer isLeaf;
+    /** 状态,1正常,0不正常 */
+    @Excel(name = "depstatus")
+    private Integer objStatus;
+
 }

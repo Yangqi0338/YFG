@@ -14,6 +14,9 @@ import com.base.sbc.open.dto.SmpDeptDto;
 import com.base.sbc.open.dto.SmpPostDto;
 import com.base.sbc.open.dto.SmpUserDto;
 import com.base.sbc.open.entity.MtBqReqEntity;
+import com.base.sbc.open.entity.SmpDept;
+import com.base.sbc.open.entity.SmpPost;
+import com.base.sbc.open.entity.SmpUser;
 import com.base.sbc.open.service.MtBqReqService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -64,12 +67,12 @@ public class SmpController extends BaseController {
     @PostMapping("/hrUserSave")
     @ApiOperation(value = "hr-人员新增或者修改", notes = "hr-人员新增或者修改")
     public ApiResult hrSave(@RequestBody JSONObject jsonObject) {
-        SmpUserDto smpUserDto = JSONObject.parseObject(jsonObject.toJSONString(), SmpUserDto.class);
-        smpUserDto.preInsert();
-        smpUserDto.setCreateName("smp请求");
-        smpUserDto.setUpdateName("smp请求");
-        smpUserDto.setCompanyCode(smpUserDto.getCompanyId());
-        amcService.hrUserSave(smpUserDto);
+        SmpUser smpUser = JSONObject.parseObject(jsonObject.toJSONString(), SmpUser.class);
+        smpUser.preInsert();
+        smpUser.setCreateName("smp请求");
+        smpUser.setUpdateName("smp请求");
+        smpUser.setCompanyCode(smpUser.getCompanyId());
+        amcService.hrUserSave(smpUser);
         return insertSuccess(null);
     }
 
@@ -79,8 +82,8 @@ public class SmpController extends BaseController {
     @PostMapping("/hrDeptSave")
     @ApiOperation(value = "hr-部门新增或者修改", notes = "hr-部门新增或者修改")
     public ApiResult hrDeptSave(@RequestBody JSONObject jsonObject) {
-        SmpDeptDto smpDeptDto = JSONObject.parseObject(jsonObject.toJSONString(), SmpDeptDto.class);
-        System.out.println(smpDeptDto);
+        SmpDept smpDept = JSONObject.parseObject(jsonObject.toJSONString(), SmpDept.class);
+        System.out.println(smpDept);
         return insertSuccess(null);
     }
 
@@ -90,8 +93,8 @@ public class SmpController extends BaseController {
     @PostMapping("/hrPostSave")
     @ApiOperation(value = "hr-岗位新增或者修改", notes = "hr-岗位新增或者修改")
     public ApiResult hrPostSave(@RequestBody JSONObject jsonObject) {
-        SmpPostDto smpPostDto = JSONObject.parseObject(jsonObject.toJSONString(), SmpPostDto.class);
-        System.out.println(smpPostDto);
+        SmpPost smpPost = JSONObject.parseObject(jsonObject.toJSONString(), SmpPost.class);
+        System.out.println(smpPost);
         return insertSuccess(null);
     }
 
