@@ -1,13 +1,15 @@
 package com.base.sbc.module.basicsdatum.vo;
 
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 
@@ -22,6 +24,9 @@ import java.util.Date;
 public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
+
+	private List<BasicsdatumMaterialColorSelectVo> colorList;
+	private List<BasicsdatumMaterialWidthSelectVo> widthList;
 
 	/** 状态(0正常,1停用) */
 	@ApiModelProperty(value = "状态(0正常,1停用)")
