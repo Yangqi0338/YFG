@@ -8,6 +8,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -19,6 +20,7 @@ import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
+import com.base.sbc.module.planning.dto.ProductSeasonExpandByCategorySearchDto;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
@@ -31,11 +33,14 @@ import com.base.sbc.module.planning.vo.PlanningSeasonVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.base.sbc.module.sample.vo.ChartBarVo;
+import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
+import com.base.sbc.module.process.vo.ProcessActionVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -314,7 +319,34 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         }
         return null;
     }
+    /**
+     * 获取产品季品类树
+     *
+     * @param userCompany
+     */
+    @Override
+    public List<ProductCategoryTreeVo> getProductCategoryTree(String userCompany) {
 
+        QueryWrapper qc = new QueryWrapper();
+        qc.eq("company_code",userCompany);
+        /*查询到的产品季*/
+        List<PlanningSeason> planningSeasonList = baseMapper.selectList(qc);
+        /*返回的数据*/
+        List<ProductCategoryTreeVo> list = null;
+        if(!CollectionUtils.isEmpty(planningSeasonList)){
+            list= BeanUtil.copyToList(planningSeasonList, ProductCategoryTreeVo.class);
+            list.forEach(productCategoryTreeVo -> {
+                ProductSeasonExpandByCategorySearchDto productSeasonExpandByCategorySearchDto=new ProductSeasonExpandByCategorySearchDto();
+                /*查询产品下的品类*/
+                productSeasonExpandByCategorySearchDto.setPlanningSeasonId(productCategoryTreeVo.getId());
+                List<BasicStructureTreeVo> basicStructureTreeVoList =  planningCategoryItemService.expandByCategory(productSeasonExpandByCategorySearchDto);
+                if(!CollectionUtils.isEmpty(basicStructureTreeVoList)){
+                    productCategoryTreeVo.setChildren(basicStructureTreeVoList);
+                }
+            });
+        }
+        return list;
+    }
     /**
      * 删除空元素和排序
      *

@@ -38,9 +38,12 @@ import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
+import com.base.sbc.module.process.vo.ProcessNodeStatusConditionVo;
 import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.mapper.SampleDesignMapper;
+import com.base.sbc.module.sample.mapper.SampleStyleColorMapper;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.base.sbc.module.sample.vo.*;
 import com.github.pagehelper.Page;
@@ -49,6 +52,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -81,6 +85,9 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
     private PlanningCategoryService planningCategoryService;
     @Autowired
     private PlanningCategoryItemService planningCategoryItemService;
+
+    @Autowired
+    private SampleStyleColorMapper sampleStyleColorMapper;
 
     @Autowired
     CcmFeignService ccmFeignService;
@@ -254,6 +261,30 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         attachmentService.setListStylePic(result, "stylePic");
         amcFeignService.addUserAvatarToList(result, "designerId", "aliasUserAvatar");
         return objects.toPageInfo();
+    }
+
+    /**
+     * 查询样衣设计及款式配色
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public PageInfo sampleSampleStyle(SampleDesignPageDto dto) {
+        PageInfo pageInfo = queryPageInfo(dto);
+        List<SampleDesignPageVo> list = pageInfo.getList();
+        if (!CollectionUtils.isEmpty(list)) {
+            list.forEach(sampleDesignPageVo -> {
+                QueryWrapper queryWrapper = new QueryWrapper();
+                queryWrapper.eq("design_id", sampleDesignPageVo.getId());
+                List<SampleStyleColor> sampleStyleColorList = sampleStyleColorMapper.selectList(queryWrapper);
+                if (!CollectionUtils.isEmpty(sampleStyleColorList)) {
+                    List<SampleStyleColorVo> sampleStyleColorVoList = BeanUtil.copyToList(sampleStyleColorList, SampleStyleColorVo.class);
+                    sampleDesignPageVo.setSampleStyleColorVoList(sampleStyleColorVoList);
+                }
+            });
+        }
+        return pageInfo;
     }
 
     @Override

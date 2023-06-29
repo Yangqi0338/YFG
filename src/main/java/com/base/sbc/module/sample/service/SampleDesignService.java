@@ -59,6 +59,12 @@ public interface SampleDesignService extends BaseService<SampleDesign> {
     PageInfo queryPageInfo(SampleDesignPageDto dto);
 
     /**
+     * 查询样衣设计及款式配色
+     * @param dto
+     * @return
+     */
+    PageInfo sampleSampleStyle(SampleDesignPageDto dto);
+    /**
      * 发起审批
      * @param id
      * @return

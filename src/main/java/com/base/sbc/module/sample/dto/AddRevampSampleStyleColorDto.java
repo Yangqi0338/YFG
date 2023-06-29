@@ -28,13 +28,17 @@ public class AddRevampSampleStyleColorDto  {
 
     /** 样衣id */
     @ApiModelProperty(value = "样衣id"  )
-    private String designId;
+    private String sampleDesignId;
     /** 样衣图(主图) */
     @ApiModelProperty(value = "样衣图(主图)"  )
-    private String designPic;
+    private String sampleDesignPic;
+    /*配色*/
+    private String  colorName;
     /** 颜色规格 */
     @ApiModelProperty(value = "颜色规格"  )
     private String colorSpecification;
+    /*颜色库id*/
+    private String colourLibraryId;
     /** 款式(大货款号) */
     @ApiModelProperty(value = "款式(大货款号)"  )
     private String styleNo;
