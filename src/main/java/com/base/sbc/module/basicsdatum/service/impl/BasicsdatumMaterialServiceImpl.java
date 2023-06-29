@@ -106,7 +106,15 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
 	@Override
 	public BasicsdatumMaterialVo getBasicsdatumMaterial(String id) {
-		return CopyUtil.copy(this.getById(id), BasicsdatumMaterialVo.class);
+		BasicsdatumMaterial material = this.getById(id);
+		List<BasicsdatumMaterialColorSelectVo> select = this.baseMapper
+				.getBasicsdatumMaterialColorSelect(this.getCompanyCode(), material.getMaterialCode());
+		List<BasicsdatumMaterialWidthSelectVo> select2 = this.baseMapper
+				.getBasicsdatumMaterialWidthSelect(this.getCompanyCode(), material.getMaterialCode());
+		BasicsdatumMaterialVo copy = CopyUtil.copy(material, BasicsdatumMaterialVo.class);
+		copy.setColorList(select);
+		copy.setWidthList(select2);
+		return copy;
 	}
 
 
