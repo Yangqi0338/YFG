@@ -3,15 +3,18 @@ package com.base.sbc.module.planning.utils;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategory;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.sample.entity.SampleDesign;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：企划帮助
@@ -68,5 +71,22 @@ public class PlanningUtils {
         bean.setProdCategory(Opt.ofBlankAble(CollUtil.get(categoryIdList, 1)).orElse(""));
         bean.setProdCategory2nd(Opt.ofBlankAble(CollUtil.get(categoryIdList, 2)).orElse(""));
         bean.setProdCategory3rd(Opt.ofBlankAble(CollUtil.get(categoryIdList, 3)).orElse(""));
+    }
+
+    /**
+     * 删除空元素和排序
+     *
+     * @param list
+     * @return
+     */
+    public static List<DimensionTotalVo> removeEmptyAndSort(List<DimensionTotalVo> list) {
+        if (CollUtil.isEmpty(list)) {
+            return list;
+        }
+        return list.stream().filter(item -> {
+            return StrUtil.isNotBlank(item.getName());
+        }).sorted((a, b) -> {
+            return NumberUtil.compare(b.getTotal(), a.getTotal());
+        }).collect(Collectors.toList());
     }
 }

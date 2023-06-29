@@ -23,7 +23,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-27 15:54:22
+ * @date 创建时间：2023-6-29 10:12:51
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -38,13 +38,19 @@ public class SampleDesign extends BaseDataEntity<String> {
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 产品季节id */
-    @ApiModelProperty(value = "产品季节id"  )
+    /**
+     * 产品季节id
+     */
+    @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
-    /** 波段企划id */
-    @ApiModelProperty(value = "波段企划id"  )
+    /**
+     * 波段企划id
+     */
+    @ApiModelProperty(value = "波段企划id")
     private String planningBandId;
-    /** 品类信息id */
+    /**
+     * 品类信息id
+     */
     @ApiModelProperty(value = "品类信息id")
     private String planningCategoryId;
     /**
@@ -97,14 +103,20 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "旧设计款号")
     private String hisDesignNo;
-    /** 款式名称 */
-    @ApiModelProperty(value = "款式名称"  )
+    /**
+     * 款式名称
+     */
+    @ApiModelProperty(value = "款式名称")
     private String styleName;
-    /** 款式类型 */
-    @ApiModelProperty(value = "款式类型"  )
+    /**
+     * 款式类型
+     */
+    @ApiModelProperty(value = "款式类型")
     private String styleType;
-    /** 款式图id(主图) */
-    @ApiModelProperty(value = "款式图id(主图)"  )
+    /**
+     * 款式图id(主图)
+     */
+    @ApiModelProperty(value = "款式图id(主图)")
     private String stylePic;
     /** 品牌 */
     @ApiModelProperty(value = "品牌"  )
@@ -191,18 +203,26 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "开始时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date startTime;
-    /** 截止时间 */
-    @ApiModelProperty(value = "截止时间"  )
+    /**
+     * 截止时间
+     */
+    @ApiModelProperty(value = "截止时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date endTime;
-    /** 设计工艺员id */
-    @ApiModelProperty(value = "设计工艺员id"  )
+    /**
+     * 设计工艺员id
+     */
+    @ApiModelProperty(value = "设计工艺员id")
     private String technicianId;
-    /** 设计工艺员名称 */
-    @ApiModelProperty(value = "设计工艺员名称"  )
+    /**
+     * 设计工艺员名称
+     */
+    @ApiModelProperty(value = "设计工艺员名称")
     private String technicianName;
-    /** 材料专员id */
-    @ApiModelProperty(value = "材料专员id"  )
+    /**
+     * 材料专员id
+     */
+    @ApiModelProperty(value = "材料专员id")
     private String fabDevelopeId;
     /**
      * 材料专员名称
@@ -271,6 +291,16 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "改版设计师")
     private String revisedDesignName;
     /**
+     * 应季节
+     */
+    @ApiModelProperty(value = "应季节")
+    private String seasonal;
+    /**
+     * 延续点
+     */
+    @ApiModelProperty(value = "延续点")
+    private String continuationPoint;
+    /**
      * 状态:0未开款，1已开款，2已下发打板(完成)
      */
     @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成)")
@@ -278,7 +308,7 @@ public class SampleDesign extends BaseDataEntity<String> {
     /**
      * 审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)
      */
-    @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)")
+    @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)"  )
     private String confirmStatus;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

@@ -20,7 +20,7 @@ import org.hibernate.validator.constraints.NotBlank;
 public class PlanningBoardSearchDto {
 
 
-    @ApiModelProperty(value = "关键字筛选", required = true, example = "1667076468196474882")
+    @ApiModelProperty(value = "产品季id", required = true, example = "1667076468196474882")
     @NotBlank(message = "产品季不能为空")
     private String planningSeasonId;
 

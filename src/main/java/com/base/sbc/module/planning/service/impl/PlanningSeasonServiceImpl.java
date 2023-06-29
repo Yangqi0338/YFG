@@ -3,7 +3,6 @@ package com.base.sbc.module.planning.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
@@ -28,13 +27,9 @@ import com.base.sbc.module.planning.service.PlanningBandService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningCategoryService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
-import com.base.sbc.module.planning.vo.DimensionTotalVo;
-import com.base.sbc.module.planning.vo.PlanningSeasonVo;
-import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
-import com.base.sbc.module.planning.vo.PlanningSummaryVo;
+import com.base.sbc.module.planning.utils.PlanningUtils;
+import com.base.sbc.module.planning.vo.*;
 import com.base.sbc.module.sample.vo.ChartBarVo;
-import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
-import com.base.sbc.module.process.vo.ProcessActionVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -270,7 +265,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         brandTotalQw.groupBy("name");
         planningSummaryQw(brandTotalQw, dto);
         List<DimensionTotalVo> bandTotal = planningCategoryItemService.dimensionTotal(brandTotalQw);
-        vo.setBandTotal(removeEmptyAndSort(bandTotal));
+        vo.setBandTotal(PlanningUtils.removeEmptyAndSort(bandTotal));
         //查询品类统计
         QueryWrapper categoryQw = new QueryWrapper();
         categoryQw.select("prod_category as name,count(1) as total");
@@ -278,7 +273,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         planningSummaryQw(categoryQw, dto);
         List<DimensionTotalVo> categoryTotal = planningCategoryItemService.dimensionTotal(categoryQw);
         ccmFeignService.setCategoryName(categoryTotal, "name", "name");
-        vo.setCategoryTotal(removeEmptyAndSort(categoryTotal));
+        vo.setCategoryTotal(PlanningUtils.removeEmptyAndSort(categoryTotal));
         //查询明细
         QueryWrapper detailQw = new QueryWrapper();
         planningSummaryQw(detailQw, dto);
@@ -289,7 +284,6 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getProdCategory() + StrUtil.DASHED + k.getBandCode()));
             vo.setSeatData(seatData);
         }
-
         return vo;
     }
 
@@ -347,22 +341,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         }
         return list;
     }
-    /**
-     * 删除空元素和排序
-     *
-     * @param list
-     * @return
-     */
-    private List<DimensionTotalVo> removeEmptyAndSort(List<DimensionTotalVo> list) {
-        if (CollUtil.isEmpty(list)) {
-            return list;
-        }
-        return list.stream().filter(item -> {
-            return StrUtil.isNotBlank(item.getName());
-        }).sorted((a, b) -> {
-            return NumberUtil.compare(b.getTotal(), a.getTotal());
-        }).collect(Collectors.toList());
-    }
+
 
     private void planningSummaryQw(QueryWrapper qw, PlanningBoardSearchDto dto) {
         qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "ci.planning_season_id", dto.getPlanningSeasonId());
