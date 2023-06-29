@@ -118,9 +118,15 @@ public class BasicsdatumMaterialSaveDto {
 	/** 采购单位 */
 	@ApiModelProperty(value = "采购单位")
 	private String purchaseUnitCode;
+	/** 采购单位 */
+	@ApiModelProperty(value = "采购单位")
+	private String purchaseUnitName;
 	/** 库存单位 */
 	@ApiModelProperty(value = "库存单位")
 	private String stockUnitCode;
+	/** 库存单位 */
+	@ApiModelProperty(value = "库存单位")
+	private String stockUnitName;
 	/** 采购转库存 */
 	@ApiModelProperty(value = "采购转库存")
 	private String purchaseConvertStock;
