@@ -4,12 +4,13 @@
     <!-- 分页查询 -->
     <select id="getListByItemVo" resultType="com.base.sbc.module.sample.vo.SamplePageByItemVo">
         SELECT si.id, si.company_code, s.images, s.`status`, s.style_name, si.`code`, s.pattern_making_code,
-        s.sampla_type, s.category_name, s.season, s.customer_no, s.examine_status, sc.borrow_code, s.type,
+        s.sample_type, s.category_name, s.season, s.customer_no, s.examine_status, sc.borrow_code, s.type,
         si.`status` AS storeStatus, si.from_type, si.color, si.size, sc.borrow_name, sc.borrow_date,
         sc.operate_name, sc.expect_return_date, sc.return_date, s.design_no, si.price, si.`count`,
-        (TO_DAYS(sc.expect_return_date) - TO_DAYS(sc.borrow_date)) AS borrowDays, si.size,
+        (TO_DAYS(sc.expect_return_date) - TO_DAYS(sc.borrow_date)) AS borrowDays, si.size, si.sample_id,
         (TO_DAYS(sc.expect_return_date) - TO_DAYS(NOW())) AS remainingDays, s.from_name, si.position,
-        si.create_name, si.create_date, si.update_id, si.update_name, si.update_date, si.remarks
+        si.create_name, si.create_date, si.update_id, si.update_name, si.update_date, si.remarks,
+        si.position_id, si.position
         FROM t_sample_item si
         JOIN t_sample s ON s.id = si.sample_id
         LEFT JOIN t_sample_circulate_item sci ON sci.sample_item_id = si.id

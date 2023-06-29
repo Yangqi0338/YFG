@@ -40,7 +40,7 @@ public class SamplePageByDesignNoVo {
 
     /** 样衣版 */
     @ApiModelProperty(value = "样衣版")
-    private String samplaType;
+    private String sampleType;
 
     /** 款式品类 */
     @ApiModelProperty(value = "款式品类")

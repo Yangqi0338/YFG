@@ -7,23 +7,25 @@
 package com.base.sbc.module.sample.service;
 
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.sample.dto.SamplePageDto;
-import com.base.sbc.module.sample.entity.SampleItem;
+import com.base.sbc.module.sample.dto.SampleSalePageDto;
+import com.base.sbc.module.sample.dto.SampleSaleSaveDto;
+import com.base.sbc.module.sample.entity.SampleSale;
+import com.base.sbc.module.sample.vo.SampleSaleVo;
 import com.github.pagehelper.PageInfo;
 
 /**
- * 类描述：样衣明细 service类
- * @address com.base.sbc.module.sample.service.SampleItemService
+ * 类描述：样衣销售 service类
+ * @address com.base.sbc.module.sample.service.SampleSaleService
  */
-public interface SampleItemService extends BaseService<SampleItem> {
+public interface SampleSaleService extends BaseService<SampleSale> {
 
     /** 分页查询 */
-    PageInfo queryPageInfo(SamplePageDto dto);
+    PageInfo queryPageInfo(SampleSalePageDto dto);
 
-    /** 调整数量
-     * @param id: 样衣明细ID
-     * @param type: 类型：1-借，2-还，3-销售，4-调拨，5-盘点
-     * @param count： 数量*/
-    Boolean updateCount(String id, Integer type, Integer count);
+    /** 保存样衣及明细 */
+    SampleSaleVo save(SampleSaleSaveDto dto);
+
+    /** 查询明细数据 */
+    SampleSaleVo getDetail(String id);
 }
 

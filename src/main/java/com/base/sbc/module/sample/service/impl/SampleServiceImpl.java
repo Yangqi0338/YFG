@@ -7,6 +7,7 @@
 package com.base.sbc.module.sample.service.impl;
 
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
@@ -15,7 +16,6 @@ import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleItem;
-import com.base.sbc.module.sample.entity.SampleItemLog;
 import com.base.sbc.module.sample.mapper.SampleDesignMapper;
 import com.base.sbc.module.sample.mapper.SampleItemMapper;
 import com.base.sbc.module.sample.mapper.SampleMapper;
@@ -60,36 +60,23 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
         // 获取样衣设计
         SampleDesign sd = sampleDesignMapper.selectById(pm.getSampleDesignId());
         if (pm != null && sd != null){
-            Sample sample = new Sample();
+            Sample sample = CopyUtil.copy(dto, Sample.class);
 
-            if (StringUtil.isEmpty(dto.getId())) {
+            if (StringUtil.isEmpty(sample.getId())) {
                 sample.setId(idGen.nextIdStr());
                 id = sample.getId();
             } else {
                 id = dto.getId();
             }
 
-            sample.setImages(dto.getImages());
             sample.setPatternMakingId(pm.getId());
             sample.setPatternMakingCode(pm.getCode());
             sample.setSampleType(pm.getSampleType());
-            sample.setCustomerNo(dto.getCustomerNo());
             sample.setStyleName(sd.getStyleName());
             sample.setDesignNo(sd.getDesignNo());
-            sample.setCategoryName(dto.getCategoryName());
-            sample.setCategoryIds(dto.getCategoryIds());
-            sample.setSeasonId(dto.getSeasonId());
-            sample.setSeason(dto.getSeason());
-            sample.setFromType(dto.getFromType());
-            sample.setFromId(dto.getFromId());
-            sample.setFromName(dto.getFromName());
             sample.setSampleDesignId(pm.getSampleDesignId());
             sample.setPatternDesignId(pm.getPatternDesignId());
             sample.setPatternDesignName(pm.getPatternDesignName());
-            sample.setType(dto.getType());
-            sample.setRemarks(dto.getRemarks());
-
-            sample.setStatus(dto.getStatus());
             sample.setCompleteStatus(2); //库存状态：0-完全借出，1-部分借出，2-全部在库
             sample.setExamineStatus(0);  //审核状态：0-草稿，1-待审核、2-审核通过、3-驳回
 
@@ -105,28 +92,20 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
                     item.setCode("YY" + System.currentTimeMillis() + (int)((Math.random()*9+1)*1000));
                     sampleItemMapper.insert(item);
 
-                    SampleItemLog log = new SampleItemLog();
-                    log.setId(item.getId());
-                    log.setSampleItemId(item.getId());
-                    log.setType(1);
-                    log.setRemarks("新增样衣明细：id-" + item.getId());
-
-                    sampleItemLogService.save(log);
+                    // 保存样衣操作日志
+                    sampleItemLogService.save(item.getId(), 1, "新增样衣明细：id-" + item.getId());
                 } else {
                     SampleItem si = sampleItemMapper.selectById(item.getId());
                     String beforRemark = "状态：" + si.getStatus() + "颜色：" + si.getColor() + "尺码：" + si.getSize()
                             + "价格：" + si.getPrice() + "位置：" + si.getPosition() + "备注：" + si.getRemarks();
 
                     sampleItemMapper.updateById(item);
+
                     String afterRemark = "状态：" + item.getStatus() + "，颜色：" + item.getColor() + "，尺码：" + item.getSize()
                             + "，价格：" + item.getPrice() + "，位置：" + item.getPosition() + "，备注：" + item.getRemarks();
 
-                    SampleItemLog log = new SampleItemLog();
-                    log.setId(idGen.nextIdStr());
-                    log.setSampleItemId(item.getId());
-                    log.setType(2);
-                    log.setRemarks("更新样衣明细：id-" + item.getId() + "，变更前：【" + beforRemark + "】，变更后：【" + afterRemark + "】");
-                    sampleItemLogService.save(log);
+                    String remarks = "更新样衣明细：id-" + item.getId() + "，变更前：【" + beforRemark + "】，变更后：【" + afterRemark + "】";
+                    sampleItemLogService.save(item.getId(), 2, remarks);
                 }
             }
 
