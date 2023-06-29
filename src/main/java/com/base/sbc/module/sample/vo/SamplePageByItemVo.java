@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -142,4 +143,13 @@ public class SamplePageByItemVo {
     @ApiModelProperty(value = "修改时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateDate;
+
+    /** 价格 */
+    @ApiModelProperty(value = "价格")
+    private BigDecimal price;
+
+    /** 数量 */
+    @ApiModelProperty(value = "数量")
+    private Integer count;
+
 }
