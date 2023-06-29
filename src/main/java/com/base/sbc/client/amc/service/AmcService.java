@@ -105,6 +105,19 @@ public interface AmcService {
     @PostMapping("/amc/api/open/smp/hrUserSave")
     String hrUserSave(@RequestBody SmpUser smpUser);
 
+    /**
+     * hr-部门
+     */
+    @PostMapping("/amc/api/open/smp/hrUserSave")
+    String hrDeptSave(@RequestBody SmpDept smpUser);
+
+    /**
+     * hr-岗位
+     */
+    @PostMapping("/amc/api/open/smp/hrUserSave")
+    String hrPostSave(@RequestBody SmpPost smpUser);
+
+
     @PostMapping(value = "/amc/api/open/initData/dept",headers = {"Content-type=application/json"})
     String dept(@RequestBody List<SmpDept> list);
 

@@ -83,7 +83,10 @@ public class SmpController extends BaseController {
     @ApiOperation(value = "hr-部门新增或者修改", notes = "hr-部门新增或者修改")
     public ApiResult hrDeptSave(@RequestBody JSONObject jsonObject) {
         SmpDept smpDept = JSONObject.parseObject(jsonObject.toJSONString(), SmpDept.class);
-        System.out.println(smpDept);
+        smpDept.preInsert();
+        smpDept.setCreateName("smp请求");
+        smpDept.setUpdateName("smp请求");
+        amcService.hrDeptSave(smpDept);
         return insertSuccess(null);
     }
 
@@ -94,7 +97,7 @@ public class SmpController extends BaseController {
     @ApiOperation(value = "hr-岗位新增或者修改", notes = "hr-岗位新增或者修改")
     public ApiResult hrPostSave(@RequestBody JSONObject jsonObject) {
         SmpPost smpPost = JSONObject.parseObject(jsonObject.toJSONString(), SmpPost.class);
-        System.out.println(smpPost);
+        amcService.hrPostSave(smpPost);
         return insertSuccess(null);
     }
 
