@@ -72,7 +72,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
             sample.setImages(dto.getImages());
             sample.setPatternMakingId(pm.getId());
             sample.setPatternMakingCode(pm.getCode());
-            sample.setSamplaType(pm.getSampleType());
+            sample.setSampleType(pm.getSampleType());
             sample.setCustomerNo(dto.getCustomerNo());
             sample.setStyleName(sd.getStyleName());
             sample.setDesignNo(sd.getDesignNo());
