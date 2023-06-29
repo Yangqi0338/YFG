@@ -94,6 +94,8 @@ public class SampleItemServiceImpl extends BaseServiceImpl<SampleItemMapper, Sam
                 sample.setCount(sample.getCount() - count);
                 sampleMapper.updateById(sample);
             }
+        } else if (type == 4){  // 调拨
+
         }
 
         return index > 0 ? true : false;
