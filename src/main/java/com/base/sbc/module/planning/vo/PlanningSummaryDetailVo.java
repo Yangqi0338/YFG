@@ -32,6 +32,9 @@ public class PlanningSummaryDetailVo {
     @ApiModelProperty(value = "大货款号", example = "5CA232731")
     private String styleNo;
 
+    @ApiModelProperty(value = "关联历史款号", example = "5CA232731")
+    private String hisDesignNo;
+
     @ApiModelProperty(value = "款号", example = "5CA232731")
     @FieldDisplay(value = "款号", display = true)
     private String finalNo;
@@ -43,7 +46,7 @@ public class PlanningSummaryDetailVo {
     @ApiModelProperty(value = "品类", example = "上衣")
     private String prodCategory;
 
-    @ApiModelProperty(value = "图片", example = "上衣")
+    @ApiModelProperty(value = "图片", example = "http://sdr.saas123.com/static/img/defaultUser.png")
     private String stylePic;
 
     @ApiModelProperty(value = "价格带", example = "100-200")

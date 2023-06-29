@@ -15,7 +15,9 @@ import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.vo.PlanningSeasonVo;
+import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
+import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -125,4 +127,27 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
      * @return
      */
     PlanningSummaryVo planningSummary(PlanningBoardSearchDto dto);
+
+    /**
+     * 品类汇总
+     *
+     * @param dto
+     * @return
+     */
+    List categorySummary(PlanningBoardSearchDto dto);
+
+    /**
+     * 历史款明细
+     *
+     * @param hisDesignNo
+     * @return
+     */
+    PlanningSummaryDetailVo hisDetail(String hisDesignNo);
+
+
+    /**
+     * 获取产品季品类树
+     *
+     */
+    List<ProductCategoryTreeVo> getProductCategoryTree(String userCompany);
 }

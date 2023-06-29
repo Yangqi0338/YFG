@@ -56,6 +56,13 @@ public class SampleDesignController {
 	public PageInfo pageInfo(@Valid SampleDesignPageDto dto){
 		return sampleDesignService.queryPageInfo(dto);
 	}
+
+	@ApiOperation(value = "查询样衣设计及款式配色")
+	@GetMapping("/sampleSampleStyle")
+	public PageInfo sampleSampleStyle(@Valid SampleDesignPageDto dto){
+		return sampleDesignService.sampleSampleStyle(dto);
+	}
+
 	@ApiOperation(value = "明细信息")
 	@GetMapping("/{id}")
 	public SampleDesignVo getDetail(@PathVariable("id") String id){

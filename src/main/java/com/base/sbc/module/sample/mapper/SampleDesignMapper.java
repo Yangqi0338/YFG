@@ -10,10 +10,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.patternmaking.vo.PatternMakingForSampleVo;
+import com.base.sbc.module.planning.vo.DimensionTotalVo;
+import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.vo.ChartBarVo;
 import com.base.sbc.module.sample.vo.SampleDesignPageVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
+import com.base.sbc.module.sample.vo.StyleBoardCategorySummaryVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -42,7 +45,17 @@ public interface SampleDesignMapper extends BaseMapper<SampleDesign> {
 
     List<ChartBarVo> getCategoryChart(@Param(Constants.WRAPPER) QueryWrapper qw);
 
-/** 自定义方法区 不替换的区域【other_end】 **/
+    /**
+     * 自定义方法区 不替换的区域【other_end】
+     **/
     List<PatternMakingForSampleVo> getAllList(String status);
+
+    List<DimensionTotalVo> dimensionTotal(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    List<PlanningSummaryDetailVo> categoryBandSummary(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    List<StyleBoardCategorySummaryVo> categorySummary(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    Long colorCount(@Param(Constants.WRAPPER) QueryWrapper prsQw);
 }
 

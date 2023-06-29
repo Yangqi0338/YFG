@@ -40,6 +40,6 @@ public class PatternMakingTaskSearchDto {
     @ApiModelProperty(value = "节点", example = "打样管理")
     private String node;
 
-    @ApiModelProperty(value = "是否黑单(空：否,飞空：是)", example = "1")
+    @ApiModelProperty(value = "黑单(0:排除黑单数据,1只查黑单数据,空：都查)", example = "1")
     private String isBlackList;
 }

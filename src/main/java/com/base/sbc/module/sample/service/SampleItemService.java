@@ -19,5 +19,11 @@ public interface SampleItemService extends BaseService<SampleItem> {
 
     /** 分页查询 */
     PageInfo queryPageInfo(SamplePageDto dto);
+
+    /** 调整数量
+     * @param id: 样衣明细ID
+     * @param type: 类型：1-借，2-还，3-销售，4-调拨，5-盘点
+     * @param count： 数量*/
+    Boolean updateCount(String id, Integer type, Integer count);
 }
 

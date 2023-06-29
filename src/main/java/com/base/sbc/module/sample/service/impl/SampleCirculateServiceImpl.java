@@ -7,6 +7,7 @@
 package com.base.sbc.module.sample.service.impl;
 
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.SampleCirculatePageDto;
 import com.base.sbc.module.sample.dto.SampleCirculateSaveDto;
@@ -17,6 +18,7 @@ import com.base.sbc.module.sample.mapper.SampleItemMapper;
 import com.base.sbc.module.sample.mapper.SampleMapper;
 import com.base.sbc.module.sample.service.SampleCirculateService;
 import com.base.sbc.module.sample.service.SampleItemLogService;
+import com.base.sbc.module.sample.service.SampleItemService;
 import com.base.sbc.module.sample.vo.SampleCirculateItemVo;
 import com.base.sbc.module.sample.vo.SampleCirculateVo;
 import com.github.pagehelper.Page;
@@ -44,6 +46,8 @@ public class SampleCirculateServiceImpl extends BaseServiceImpl<SampleCirculateM
     SampleItemMapper sampleItemMapper;
     @Autowired
     SampleItemLogService sampleItemLogService;
+    @Autowired
+    SampleItemService sampleItemService;
 
     private IdGen idGen = new IdGen();
 
@@ -77,22 +81,11 @@ public class SampleCirculateServiceImpl extends BaseServiceImpl<SampleCirculateM
     @Override
     public SampleCirculateVo borrow(SampleCirculateSaveDto dto) {
         // 保存主表
-        SampleCirculate sc = new SampleCirculate();
+        SampleCirculate sc = CopyUtil.copy(dto, SampleCirculate.class);
 
         sc.setId(idGen.nextIdStr());
         sc.setCompanyCode(getCompanyCode());
-        sc.setType(dto.getType());
-        sc.setBorrowCode("B" + sc.getId());
-        sc.setBorrowType(dto.getBorrowType());
-        sc.setExpectReturnDate(dto.getExpectReturnDate());
-        sc.setBorrowReason(dto.getBorrowReason());
-        sc.setBorrowDate(dto.getBorrowDate());
-        sc.setBorrowId(dto.getBorrowId());
-        sc.setBorrowName(dto.getBorrowName());
-        sc.setBorrowCount(dto.getBorrowCount());
-        sc.setBorrowRemarks(dto.getBorrowRemarks());
-        sc.setOperateId(dto.getOperateId());
-        sc.setOperateName(dto.getOperateName());
+        sc.setBorrowCode("B" + System.currentTimeMillis() + (int)((Math.random() * 9 + 1) * 1000));
 
         mapper.insert(sc);
 
@@ -103,33 +96,11 @@ public class SampleCirculateServiceImpl extends BaseServiceImpl<SampleCirculateM
             itemMapper.insert(item);
 
             // 处理样衣
-            SampleItem si = sampleItemMapper.selectById(dto.getSampleItemId());
-            if (si.getBorrowCount() + item.getCount() <= si.getCount()) {
-                si.setBorrowCount(si.getBorrowCount() + item.getCount());
-                si.setStatus(2);
-                sampleItemMapper.updateById(si);
+            sampleItemService.updateCount(dto.getSampleItemId(), 1, item.getCount());
 
-                // 处理日志
-                SampleItemLog log = new SampleItemLog();
-                log.setId(item.getId());
-                log.setSampleItemId(si.getId());
-                log.setType(2);
-                log.setRemarks("借出：id-" + item.getId() + ", 借出单号："
-                        + sc.getBorrowCode() + ", 借出数量：" + item.getCount());
-                sampleItemLogService.save(log);
-
-                // 处理样衣主表
-                Sample sample = sampleMapper.selectById(si.getSampleId());
-                sample.setBorrowCount(sample.getBorrowCount() + item.getCount());
-                if (sample.getCount().equals(sample.getBorrowCount())) {
-                    sample.setCompleteStatus(0);
-                } else if (sample.getBorrowCount() < sample.getCount()) {
-                    sample.setCompleteStatus(1);
-                } else if (sample.getBorrowCount() == 0 && sample.getCount() > 0) {
-                    sample.setCompleteStatus(2);
-                }
-                sampleMapper.updateById(sample);
-            }
+            // 处理日志
+            String remarks = "借出：id-" + item.getId() + ", 借出单号：" + sc.getBorrowCode() + ", 借出数量：" + item.getCount();
+            sampleItemLogService.save(dto.getSampleItemId(), 2, remarks);
         }
 
         return mapper.getDetail(sc.getId());
@@ -138,10 +109,7 @@ public class SampleCirculateServiceImpl extends BaseServiceImpl<SampleCirculateM
     @Override
     public SampleCirculateVo return1(SampleCirculateSaveDto dto) {
         // 保存主表
-        SampleCirculate sc = new SampleCirculate();
-
-        sc.setType(dto.getType());
-        sc.setReturnRemarks(dto.getReturnRemarks());
+        SampleCirculate sc = CopyUtil.copy(dto, SampleCirculate.class);
         sc.setReturnDate(new Date());
 
         mapper.updateById(sc);
@@ -151,33 +119,11 @@ public class SampleCirculateServiceImpl extends BaseServiceImpl<SampleCirculateM
             itemMapper.updateById(item);
 
             // 处理样衣
-            SampleItem si = sampleItemMapper.selectById(dto.getSampleItemId());
-            if (si.getBorrowCount() - item.getCount() <= si.getCount()) {
-                si.setBorrowCount(si.getBorrowCount() - item.getCount());
-                si.setStatus(1);
-                sampleItemMapper.updateById(si);
+            sampleItemService.updateCount(dto.getSampleItemId(), 2, item.getCount());
 
-                // 处理日志
-                SampleItemLog log = new SampleItemLog();
-                log.setId(item.getId());
-                log.setSampleItemId(si.getId());
-                log.setType(2);
-                log.setRemarks("归还：id-" + item.getId() + ", 借出单号："
-                        + sc.getBorrowCode() + ", 归还数量：" + item.getCount());
-                sampleItemLogService.save(log);
-
-                // 处理样衣主表
-                Sample sample = sampleMapper.selectById(si.getSampleId());
-                sample.setBorrowCount(sample.getBorrowCount() - item.getCount());
-                if (sample.getCount().equals(sample.getBorrowCount())) {
-                    sample.setCompleteStatus(0);
-                } else if (sample.getBorrowCount() < sample.getCount()) {
-                    sample.setCompleteStatus(1);
-                } else if (sample.getBorrowCount() == 0 && sample.getCount() > 0) {
-                    sample.setCompleteStatus(2);
-                }
-                sampleMapper.updateById(sample);
-            }
+            // 处理日志
+            String remarks = "归还：id-" + item.getId() + ", 借出单号：" + sc.getBorrowCode() + ", 归还数量：" + item.getCount();
+            sampleItemLogService.save(dto.getSampleItemId(), 2, remarks);
         }
         return mapper.getDetail(sc.getId());
     }

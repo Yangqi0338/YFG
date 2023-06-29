@@ -13,11 +13,14 @@ import java.util.List;
 
 /**
  * 类描述：样衣明细日志 service类
+ * @author linnuo
  * @address com.base.sbc.module.sample.service.SampleItemLogService
  */
 public interface SampleItemLogService extends BaseService<SampleItemLog> {
 
     /** 查询样衣明细数据 */
     List<SampleItemLog> getListBySampleItemId(String sampleItemId);
+
+    boolean save(String sampleItemId, Integer type, String remarks);
 }
 

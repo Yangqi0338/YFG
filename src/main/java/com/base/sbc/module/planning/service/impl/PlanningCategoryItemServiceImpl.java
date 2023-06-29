@@ -48,6 +48,7 @@ import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.service.SampleDesignService;
+import com.base.sbc.module.sample.vo.ChartBarVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -137,6 +138,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             item.setPlanningSeasonId(category.getPlanningSeasonId());
             item.setPlanningBandId(category.getPlanningBandId());
             item.setPlanningCategoryId(category.getId());
+            item.setCategoryIds(category.getCategoryIds());
             GetMaxCodeRedis getMaxCode = new GetMaxCodeRedis(ccmService);
             String designCode = Optional.ofNullable(CollUtil.get(dbCategoryItemList, i)).map(PlanningCategoryItem::getDesignNo).orElse(getMaxCode.genCode("PLANNING_DESIGN_NO", params));
             System.out.println("planningDesignNo:" + designCode);
@@ -585,6 +587,11 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     @Override
     public List<PlanningSummaryDetailVo> planningSummaryDetail(QueryWrapper detailQw) {
         return getBaseMapper().planningSummaryDetail(detailQw);
+    }
+
+    @Override
+    public List<ChartBarVo> categorySummary(QueryWrapper qw) {
+        return getBaseMapper().categorySummary(qw);
     }
 
 

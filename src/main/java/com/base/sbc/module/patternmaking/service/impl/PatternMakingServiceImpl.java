@@ -9,6 +9,7 @@ package com.base.sbc.module.patternmaking.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -18,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.entity.CompanyPost;
 import com.base.sbc.client.amc.entity.Dept;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -138,6 +140,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean nodeStatusChange(NodeStatusChangeDto dto, GroupUser groupUser) {
+        hasNextNodeStatusAuth(dto.getDataId());
         nodeStatusService.nodeStatusChange(dto.getDataId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
         // 修改单据
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
@@ -352,13 +355,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
+        if (StrUtil.isNotBlank(dto.getIsBlackList())) {
+            if (StrUtil.equals(dto.getIsBlackList(), BasicNumber.ONE.getNumber())) {
+                //只查询黑单
+                qw.eq("p.urgency", "0");
+            } else {
+                //排除黑单
+                qw.ne("p.urgency", "0");
 
-        if (StrUtil.isBlank(dto.getIsBlackList())) {
-            //排除黑单
-            qw.ne("p.urgency", "0");
-        } else {
-            //只查询黑单
-            qw.eq("p.urgency", "0");
+            }
         }
         amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
         // 版房主管和设计师 看到全部，版师看到自己
@@ -596,7 +601,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public JSONObject getNodeStatusConfig(String node, String status) {
+    public JSONObject getNodeStatusConfig(String node, String status, String dataId) {
+        // 如果所有不为空 则判断是否有此节点状态的权限
+        if (StrUtil.isNotBlank(dataId)) {
+            PatternMaking patternMaking = hasNextNodeStatusAuth(dataId);
+            node = patternMaking.getNode();
+            status = patternMaking.getStatus();
+        }
         JSONObject config = nodeStatusConfigService
                 .getConfig2Json(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, getCompanyCode());
         if (StrUtil.isNotBlank(node) && config != null) {
@@ -621,9 +632,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         boolean update = this.update(uw);
         //将节点设置为已分配
         EnumNodeStatus ens = EnumNodeStatus.GARMENT_WAITING_ASSIGNMENT;
-        JSONObject nodeStatusConfig = getNodeStatusConfig(ens.getNode(), ens.getStatus());
+        JSONObject nodeStatusConfig = getNodeStatusConfig(ens.getNode(), ens.getStatus(), null);
         Object nextParams = nodeStatusConfig.get("nextParams");
-        if(ObjectUtil.isNotEmpty(nextParams)){
+        if (ObjectUtil.isNotEmpty(nextParams)) {
             if (nextParams instanceof List) {
                 List<NodeStatusChangeDto> nodeStatusChangeDtos = ((JSONArray) nextParams).toJavaList(NodeStatusChangeDto.class);
                 nodeStatusChangeDtos.forEach(item -> {
@@ -642,7 +653,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public List<PatternDesignVo> pdTaskDetail(String companyCode) {
         List<String> planningSeasonIdByUserId = amcFeignService.getPlanningSeasonIdByUserId(getUserId());
-        if(CollUtil.isEmpty(planningSeasonIdByUserId)){
+        if (CollUtil.isEmpty(planningSeasonIdByUserId)) {
             return null;
         }
         List<PatternDesignVo> patternDesignList = getPatternDesignList(CollUtil.join(planningSeasonIdByUserId, StrUtil.COMMA));
@@ -653,7 +664,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.ne("del_flag", BaseGlobal.YES);
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.eq(StrUtil.isNotBlank(suspend), "suspend", suspend);
-        amcFeignService.teamAuth(qw,"planning_season_id",getUserId());
+        amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
         qw.between(CollUtil.isNotEmpty(timeRange), "create_date", CollUtil.getFirst(timeRange), CollUtil.getLast(timeRange));
     }
 
@@ -717,6 +728,52 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         List<PatternMakingForSampleVo> result = objects.getResult();
 
         return objects.toPageInfo();
+    }
+
+    @Override
+    public PatternMaking hasNextNodeStatusAuth(String id) {
+        // 获取当前节点
+        // 0 查询打版数据
+        PatternMaking pm = getById(id);
+        if (pm == null) {
+            throw new OtherException("打版指令数据不存在");
+        }
+        // 1判断是否有产品季权限
+        List<String> planningSeasonIds = amcFeignService.getPlanningSeasonIdByUserId(getUserId());
+        if (CollUtil.isEmpty(planningSeasonIds) || !CollUtil.contains(planningSeasonIds, pm.getPlanningSeasonId())) {
+            throw new OtherException("你不在该产品季人员当中");
+        }
+        // 2 判断是否有下一步岗位权限
+        // 2.0 获取当前节点需要的角色权限
+        JSONObject nodeStatusConfig = getNodeStatusConfig(pm.getNode(), pm.getStatus(), null);
+        if (nodeStatusConfig == null) {
+            return pm;
+        }
+        JSONObject auth = nodeStatusConfig.getJSONObject("auth");
+        if (auth == null) {
+            return pm;
+        }
+        if (auth.containsKey("userId")) {
+            //判断当前userId是否和授权的userId相等
+            String authUserIdKey = auth.getString("userId");
+            String authUserId = BeanUtil.getProperty(pm, authUserIdKey);
+            if (!StrUtil.equals(authUserId, getUserId())) {
+                throw new OtherException("你无权限操作!用户不匹配");
+            }
+        }
+        if (auth.containsKey("post")) {
+            // 2.1 获取当前登录人员岗位
+            UserCompany userInfo = amcFeignService.getUserInfo(getUserId(), BaseGlobal.YES);
+            List<String> userPostName = Opt.ofNullable(userInfo.getPostList()).map(pl -> pl.stream().map(CompanyPost::getName).collect(Collectors.toList())).orElse(new ArrayList<>());
+            List<String> authPost = auth.getJSONArray("post").toJavaList(String.class);
+            // 是否有交集
+            Collection<String> intersection = CollUtil.intersection(userPostName, authPost);
+            if (CollUtil.isEmpty(intersection)) {
+                throw new OtherException("岗位不匹配,需要[" + StrUtil.join(StrUtil.COMMA, authPost) + "]");
+            }
+        }
+        return pm;
+
     }
 
     // 自定义方法区 不替换的区域【other_end】

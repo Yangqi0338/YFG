@@ -225,8 +225,13 @@ public class PatternMakingController {
 
     @ApiOperation(value = "获取节点状态配置", notes = "")
     @GetMapping("/getNodeStatusConfig")
-    public JSONObject getNodeStatusConfig(String node, String status) {
-        return patternMakingService.getNodeStatusConfig(node, status);
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "node", value = "节点", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "status", value = "状态", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "dataId", value = "打版id", required = false, dataType = "String", paramType = "query"),
+    })
+    public JSONObject getNodeStatusConfig(String node, String status, String dataId) {
+        return patternMakingService.getNodeStatusConfig(node, status, dataId);
     }
 
     @ApiOperation(value = "分配人员(裁剪工,车缝工)", notes = "")

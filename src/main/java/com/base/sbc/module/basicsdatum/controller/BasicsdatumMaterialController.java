@@ -6,10 +6,12 @@
 *****************************************************************************/
 package com.base.sbc.module.basicsdatum.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -22,7 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
@@ -32,10 +36,12 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialSelectVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
 import com.github.pagehelper.PageInfo;
@@ -59,6 +65,21 @@ public class BasicsdatumMaterialController {
 
 	@Autowired
 	private BasicsdatumMaterialService basicsdatumMaterialService;
+
+	@Autowired
+	private BaseController baseController;
+
+	@ApiOperation(value = "主物料:查询下拉,search:按编码或名称检索,status状态默认全部")
+	@GetMapping("/getBasicsdatumMaterialSelect")
+	public List<BasicsdatumMaterialSelectVo> getBasicsdatumMaterialSelect(
+			@RequestParam(value = "search", required = false) String search,
+			@RequestParam(value = "status", required = false) String status) {
+		List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(new BaseQueryWrapper<BasicsdatumMaterial>()
+				.select("id,material_name,material_code").eq("company_code", baseController.getUserCompany())
+				.like(StringUtils.isNotBlank(search), "material_code_name", search)
+				.eq(StringUtils.isNotBlank(status), "status", status).last(" limit 0,50 "));
+		return CopyUtil.copy(list, BasicsdatumMaterialSelectVo.class);
+	}
 
 	@ApiOperation(value = "主物料:查询列表")
 	@GetMapping("/getBasicsdatumMaterialList")

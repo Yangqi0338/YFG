@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -40,7 +41,7 @@ public class SamplePageByItemVo {
 
     /** 样衣版 */
     @ApiModelProperty(value = "样衣版")
-    private String samplaType;
+    private String sampleType;
 
     /** 款式品类 */
     @ApiModelProperty(value = "款式品类")
@@ -53,6 +54,10 @@ public class SamplePageByItemVo {
     /** 客款号 */
     @ApiModelProperty(value = "客款号")
     private String customerNo;
+
+    /** 样衣ID */
+    @ApiModelProperty(value = "样衣ID")
+    private String sampleId;
 
     /** 审核状态：0-草稿，1-待审核、2-审核通过、3-驳回 */
     @ApiModelProperty(value = "审核状态：0-草稿，1-待审核、2-审核通过、3-驳回")
@@ -113,6 +118,10 @@ public class SamplePageByItemVo {
     @ApiModelProperty(value = "剩余天数")
     private String remainingDays;
 
+    /** 位置信息ID */
+    @ApiModelProperty(value = "位置信息ID")
+    private String positionId;
+
     /** 位置信息 */
     @ApiModelProperty(value = "位置信息")
     private String position;
@@ -142,4 +151,13 @@ public class SamplePageByItemVo {
     @ApiModelProperty(value = "修改时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateDate;
+
+    /** 价格 */
+    @ApiModelProperty(value = "价格")
+    private BigDecimal price;
+
+    /** 数量 */
+    @ApiModelProperty(value = "数量")
+    private Integer count;
+
 }

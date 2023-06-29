@@ -1,13 +1,15 @@
 package com.base.sbc.module.basicsdatum.vo;
 
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 
@@ -22,6 +24,9 @@ import java.util.Date;
 public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
+
+	private List<BasicsdatumMaterialColorSelectVo> colorList;
+	private List<BasicsdatumMaterialWidthSelectVo> widthList;
 
 	/** 状态(0正常,1停用) */
 	@ApiModelProperty(value = "状态(0正常,1停用)")
@@ -38,6 +43,9 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 物料属性 */
 	@ApiModelProperty(value = "物料属性")
 	private String materialType;
+	/** 物料属性名称 */
+	@ApiModelProperty(value = "物料属性名称")
+	private String materialTypeName;
 	/** 图片地址 */
 	@ApiModelProperty(value = "图片地址")
 	private String imageUrl;
@@ -53,18 +61,30 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 品牌 */
 	@ApiModelProperty(value = "品牌")
 	private String brand;
+	/** 品牌名称 */
+	@ApiModelProperty(value = "品牌名称")
+	private String brandName;
 	/** 旧料号 */
 	@ApiModelProperty(value = "旧料号")
 	private String materialCodeOld;
 	/** 年份 */
 	@ApiModelProperty(value = "年份")
 	private String year;
+	/** 年份名称 */
+	@ApiModelProperty(value = "年份名称")
+	private String yearName;
 	/** 季节 */
 	@ApiModelProperty(value = "季节")
 	private String season;
+	/** 季节名称 */
+	@ApiModelProperty(value = "季节名称")
+	private String seasonName;
 	/** 材料类型 */
 	@ApiModelProperty(value = "材料类型")
 	private String materialCategory;
+	/** 材料类型名称 */
+	@ApiModelProperty(value = "材料类型名称")
+	private String materialCategoryName;
 	/** 形状功能描述 */
 	@ApiModelProperty(value = "形状功能描述")
 	private String shapeFunctionDescription;
@@ -101,9 +121,15 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 采购单位 */
 	@ApiModelProperty(value = "采购单位")
 	private String purchaseUnitCode;
+	/** 采购单位 */
+	@ApiModelProperty(value = "采购单位")
+	private String purchaseUnitName;
 	/** 库存单位 */
 	@ApiModelProperty(value = "库存单位")
 	private String stockUnitCode;
+	/** 库存单位 */
+	@ApiModelProperty(value = "库存单位")
+	private String stockUnitName;
 	/** 采购转库存 */
 	@ApiModelProperty(value = "采购转库存")
 	private String purchaseConvertStock;
@@ -125,6 +151,9 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 送检单位 */
 	@ApiModelProperty(value = "送检单位")
 	private String checkCompany;
+	/** 送检单位名称 */
+	@ApiModelProperty(value = "送检单位名称")
+	private String checkCompanyName;
 	/** 质检结果 */
 	@ApiModelProperty(value = "质检结果")
 	private String checkResult;
@@ -141,6 +170,9 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 物料来源 */
 	@ApiModelProperty(value = "物料来源")
 	private String materialSource;
+	/** 物料来源 */
+	@ApiModelProperty(value = "物料来源")
+	private String materialSourceName;
 	/** 直径 */
 	@ApiModelProperty(value = "直径")
 	private String diameter;
@@ -156,6 +188,9 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 采购组 */
 	@ApiModelProperty(value = "采购组")
 	private String purchaseDept;
+	/** 采购组名称 */
+	@ApiModelProperty(value = "采购组名称")
+	private String purchaseDeptName;
 	/** 采购员id */
 	@ApiModelProperty(value = "采购员id")
 	private String purchaseId;
@@ -174,5 +209,8 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 门幅/规格组 */
 	@ApiModelProperty(value = "门幅/规格组")
 	private String widthGroup;
+	/** 门幅/规格组名称 */
+	@ApiModelProperty(value = "门幅/规格组名称")
+	private String widthGroupName;
 }
 

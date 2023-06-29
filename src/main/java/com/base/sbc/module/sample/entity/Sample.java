@@ -43,7 +43,7 @@ public class Sample extends BaseDataEntity<String> {
 
     /** 样衣版 */
     @ApiModelProperty(value = "样衣版")
-    private String samplaType;
+    private String sampleType;
 
     /** 纸样师ID */
     @ApiModelProperty(value = "纸样师ID")

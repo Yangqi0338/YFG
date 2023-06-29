@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 类描述：样衣设计分页返回
  *
@@ -85,10 +87,10 @@ public class SampleDesignPageVo {
     /** 品类id路径:(大类/品类/中类/小类) */
     @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)"  )
     private String categoryIds;
-
-
-
-
+    /*创建人*/
+    private String createName;
+    /*款式配色*/
+    private List<SampleStyleColorVo> sampleStyleColorVoList;
 
 
 }

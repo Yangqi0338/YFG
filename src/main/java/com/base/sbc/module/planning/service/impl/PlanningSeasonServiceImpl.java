@@ -2,11 +2,12 @@ package com.base.sbc.module.planning.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -18,6 +19,7 @@ import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
+import com.base.sbc.module.planning.dto.ProductSeasonExpandByCategorySearchDto;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
@@ -25,15 +27,15 @@ import com.base.sbc.module.planning.service.PlanningBandService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningCategoryService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
-import com.base.sbc.module.planning.vo.DimensionTotalVo;
-import com.base.sbc.module.planning.vo.PlanningSeasonVo;
-import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
-import com.base.sbc.module.planning.vo.PlanningSummaryVo;
+import com.base.sbc.module.planning.utils.PlanningUtils;
+import com.base.sbc.module.planning.vo.*;
+import com.base.sbc.module.sample.vo.ChartBarVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -263,7 +265,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         brandTotalQw.groupBy("name");
         planningSummaryQw(brandTotalQw, dto);
         List<DimensionTotalVo> bandTotal = planningCategoryItemService.dimensionTotal(brandTotalQw);
-        vo.setBandTotal(removeEmptyAndSort(bandTotal));
+        vo.setBandTotal(PlanningUtils.removeEmptyAndSort(bandTotal));
         //查询品类统计
         QueryWrapper categoryQw = new QueryWrapper();
         categoryQw.select("prod_category as name,count(1) as total");
@@ -271,7 +273,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         planningSummaryQw(categoryQw, dto);
         List<DimensionTotalVo> categoryTotal = planningCategoryItemService.dimensionTotal(categoryQw);
         ccmFeignService.setCategoryName(categoryTotal, "name", "name");
-        vo.setCategoryTotal(removeEmptyAndSort(categoryTotal));
+        vo.setCategoryTotal(PlanningUtils.removeEmptyAndSort(categoryTotal));
         //查询明细
         QueryWrapper detailQw = new QueryWrapper();
         planningSummaryQw(detailQw, dto);
@@ -282,32 +284,70 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getProdCategory() + StrUtil.DASHED + k.getBandCode()));
             vo.setSeatData(seatData);
         }
-
         return vo;
     }
 
-    /**
-     * 删除空元素和排序
-     *
-     * @param list
-     * @return
-     */
-    private List<DimensionTotalVo> removeEmptyAndSort(List<DimensionTotalVo> list) {
-        if (CollUtil.isEmpty(list)) {
-            return list;
+    @Override
+    public List categorySummary(PlanningBoardSearchDto dto) {
+        QueryWrapper qw = new QueryWrapper();
+        planningSummaryQw(qw, dto);
+        List result = new ArrayList();
+        result.add(CollUtil.newArrayList("product", "总数"));
+        List<ChartBarVo> data = planningCategoryItemService.categorySummary(qw);
+        if (CollUtil.isNotEmpty(data)) {
+            data.forEach(item -> {
+                result.add(CollUtil.newArrayList(item.getDimension(), item.getTotal()));
+            });
         }
-        return list.stream().filter(item -> {
-            return StrUtil.isNotBlank(item.getName());
-        }).sorted((a, b) -> {
-            return NumberUtil.compare(b.getTotal(), a.getTotal());
-        }).collect(Collectors.toList());
+        return result;
     }
 
+    @Override
+    public PlanningSummaryDetailVo hisDetail(String hisDesignNo) {
+        QueryWrapper<PlanningSummaryDetailVo> detailQw = new QueryWrapper();
+        detailQw.eq("ci.design_no", hisDesignNo).or().eq("style_no", hisDesignNo);
+        detailQw.last("limit 1");
+        List<PlanningSummaryDetailVo> detailVoList = planningCategoryItemService.planningSummaryDetail(detailQw);
+        if (CollUtil.isNotEmpty(detailVoList)) {
+            return detailVoList.get(0);
+        }
+        return null;
+    }
+    /**
+     * 获取产品季品类树
+     *
+     * @param userCompany
+     */
+    @Override
+    public List<ProductCategoryTreeVo> getProductCategoryTree(String userCompany) {
+
+        QueryWrapper qc = new QueryWrapper();
+        qc.eq("company_code",userCompany);
+        /*查询到的产品季*/
+        List<PlanningSeason> planningSeasonList = baseMapper.selectList(qc);
+        /*返回的数据*/
+        List<ProductCategoryTreeVo> list = null;
+        if(!CollectionUtils.isEmpty(planningSeasonList)){
+            list= BeanUtil.copyToList(planningSeasonList, ProductCategoryTreeVo.class);
+            list.forEach(productCategoryTreeVo -> {
+                ProductSeasonExpandByCategorySearchDto productSeasonExpandByCategorySearchDto=new ProductSeasonExpandByCategorySearchDto();
+                /*查询产品下的品类*/
+                productSeasonExpandByCategorySearchDto.setPlanningSeasonId(productCategoryTreeVo.getId());
+                List<BasicStructureTreeVo> basicStructureTreeVoList =  planningCategoryItemService.expandByCategory(productSeasonExpandByCategorySearchDto);
+                if(!CollectionUtils.isEmpty(basicStructureTreeVoList)){
+                    productCategoryTreeVo.setChildren(basicStructureTreeVoList);
+                }
+            });
+        }
+        return list;
+    }
+
+
     private void planningSummaryQw(QueryWrapper qw, PlanningBoardSearchDto dto) {
-        qw.eq("ci.planning_season_id", dto.getPlanningSeasonId());
-        qw.in(CollUtil.isNotEmpty(dto.getBand()), "b.band_code", dto.getBand());
-        qw.in(CollUtil.isNotEmpty(dto.getMonth()), "b.month", dto.getMonth());
-        qw.in(CollUtil.isNotEmpty(dto.getCategory()), "b.prod_category", dto.getCategory());
+        qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "ci.planning_season_id", dto.getPlanningSeasonId());
+        qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "b.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotEmpty(dto.getMonth()), "b.month", StrUtil.split(dto.getMonth(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotEmpty(dto.getProdCategoryId()), "ci.prod_category", StrUtil.split(dto.getProdCategoryId(), CharUtil.COMMA));
 
     }
 }

@@ -35,12 +35,18 @@ import com.base.sbc.module.formType.service.FieldValService;
 import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.utils.FormTypeCodes;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
+import com.base.sbc.module.planning.vo.DimensionTotalVo;
+import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
+import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.mapper.SampleDesignMapper;
+import com.base.sbc.module.sample.mapper.SampleStyleColorMapper;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.base.sbc.module.sample.vo.*;
 import com.github.pagehelper.Page;
@@ -49,6 +55,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -81,6 +88,9 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
     private PlanningCategoryService planningCategoryService;
     @Autowired
     private PlanningCategoryItemService planningCategoryItemService;
+
+    @Autowired
+    private SampleStyleColorMapper sampleStyleColorMapper;
 
     @Autowired
     CcmFeignService ccmFeignService;
@@ -256,6 +266,30 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         return objects.toPageInfo();
     }
 
+    /**
+     * 查询样衣设计及款式配色
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public PageInfo sampleSampleStyle(SampleDesignPageDto dto) {
+        PageInfo pageInfo = queryPageInfo(dto);
+        List<SampleDesignPageVo> list = pageInfo.getList();
+        if (!CollectionUtils.isEmpty(list)) {
+            list.forEach(sampleDesignPageVo -> {
+                QueryWrapper queryWrapper = new QueryWrapper();
+                queryWrapper.eq("design_id", sampleDesignPageVo.getId());
+                List<SampleStyleColor> sampleStyleColorList = sampleStyleColorMapper.selectList(queryWrapper);
+                if (!CollectionUtils.isEmpty(sampleStyleColorList)) {
+                    List<SampleStyleColorVo> sampleStyleColorVoList = BeanUtil.copyToList(sampleStyleColorList, SampleStyleColorVo.class);
+                    sampleDesignPageVo.setSampleStyleColorVoList(sampleStyleColorVoList);
+                }
+            });
+        }
+        return pageInfo;
+    }
+
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public boolean startApproval(String id) {
@@ -409,7 +443,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         QueryWrapper qw = new QueryWrapper();
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.in(StrUtil.isNotBlank(month), "month", StrUtil.split(month, CharUtil.COMMA));
-        amcFeignService.teamAuth(qw,"planning_season_id",getUserId());
+        amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
         List<ChartBarVo> chartBarVos = getBaseMapper().getBandChart(qw);
         return getChartList(chartBarVos);
     }
@@ -501,6 +535,99 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         planningCategoryItemService.updateBatchById(n2List);
         updateBatchById(n3List);
         return true;
+    }
+
+    @Override
+    public PlanningSummaryVo categoryBandSummary(PlanningBoardSearchDto dto) {
+        PlanningSummaryVo vo = new PlanningSummaryVo();
+        //查询波段统计
+        QueryWrapper brandTotalQw = new QueryWrapper();
+        brandTotalQw.select("sd.band_code as name,count(1) as total");
+        brandTotalQw.groupBy("name");
+        stylePlanningCommonQw(brandTotalQw, dto);
+        List<DimensionTotalVo> bandTotal = getBaseMapper().dimensionTotal(brandTotalQw);
+        vo.setBandTotal(PlanningUtils.removeEmptyAndSort(bandTotal));
+        //查询品类统计
+        QueryWrapper categoryQw = new QueryWrapper();
+        categoryQw.select("prod_category as name,count(1) as total");
+        categoryQw.groupBy("name");
+        stylePlanningCommonQw(categoryQw, dto);
+        List<DimensionTotalVo> categoryTotal = getBaseMapper().dimensionTotal(categoryQw);
+        ccmFeignService.setCategoryName(categoryTotal, "name", "name");
+        vo.setCategoryTotal(PlanningUtils.removeEmptyAndSort(categoryTotal));
+        //查询明细
+        QueryWrapper detailQw = new QueryWrapper();
+        stylePlanningCommonQw(detailQw, dto);
+        List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw);
+        if (CollUtil.isNotEmpty(detailVoList)) {
+            amcFeignService.setUserAvatarToList(detailVoList);
+            ccmFeignService.setCategoryName(detailVoList, "prodCategory", "prodCategory");
+            Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getProdCategory() + StrUtil.DASHED + k.getBandCode()));
+            vo.setSeatData(seatData);
+        }
+        return vo;
+    }
+
+    @Override
+    public List<StyleBoardCategorySummaryVo> categorySummary(PlanningBoardSearchDto dto) {
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "sd.planning_season_id", dto.getPlanningSeasonId());
+        qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "b.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotEmpty(dto.getMonth()), "b.month", StrUtil.split(dto.getMonth(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotEmpty(dto.getProdCategoryId()), "sd.prod_category", StrUtil.split(dto.getProdCategoryId(), CharUtil.COMMA));
+        List<StyleBoardCategorySummaryVo> styleBoardCategorySummaryVos = getBaseMapper().categorySummary(qw);
+        // 统计大类数量
+        if (CollUtil.isNotEmpty(styleBoardCategorySummaryVos)) {
+            Map<String, Long> category1stTotal = styleBoardCategorySummaryVos.stream().collect(Collectors.groupingBy(StyleBoardCategorySummaryVo::getProdCategory1st))
+                    .entrySet().stream().collect(Collectors.toMap(k -> k.getKey(), v -> {
+                        return v.getValue().stream().map(StyleBoardCategorySummaryVo::getSkc).reduce((a, b) -> a + b).orElse(0L);
+                    }));
+            //反写品类名称
+            Set<String> categoryIds = new HashSet<>(16);
+            for (StyleBoardCategorySummaryVo vo : styleBoardCategorySummaryVos) {
+                categoryIds.add(vo.getProdCategory());
+                categoryIds.add(vo.getProdCategory1st());
+                categoryIds.add(vo.getProdCategory2nd());
+            }
+            Map<String, String> categoryNames = ccmFeignService.findStructureTreeNameByCategoryIds(CollUtil.join(categoryIds, StrUtil.COMMA));
+            for (StyleBoardCategorySummaryVo vo : styleBoardCategorySummaryVos) {
+                vo.setTotal(category1stTotal.getOrDefault(vo.getProdCategory1st(), 0L));
+                vo.setProdCategory1st(categoryNames.getOrDefault(vo.getProdCategory1st(), vo.getProdCategory1st()));
+                vo.setProdCategory2nd(categoryNames.getOrDefault(vo.getProdCategory2nd(), vo.getProdCategory2nd()));
+                vo.setProdCategory(categoryNames.getOrDefault(vo.getProdCategory(), vo.getProdCategory()));
+            }
+        }
+        return styleBoardCategorySummaryVos;
+    }
+
+    @Override
+    public CategoryStylePlanningVo categoryStylePlanning(PlanningBoardSearchDto dto) {
+        CategoryStylePlanningVo vo = new CategoryStylePlanningVo();
+        // 企划需求数
+        QueryWrapper prsQw = new QueryWrapper();
+        stylePlanningCommonQw(prsQw, dto);
+        prsQw.isNotNull("sender");
+        Long planRequirementSkc = getBaseMapper().colorCount(prsQw);
+        vo.setPlanRequirementSkc(planRequirementSkc);
+        //设计需求数
+        QueryWrapper<CategoryStylePlanningVo> drsQw = new QueryWrapper();
+        stylePlanningCommonQw(drsQw, dto);
+        Long designRequirementSkc = getBaseMapper().colorCount(drsQw);
+        vo.setDesignRequirementSkc(designRequirementSkc);
+        vo.setBandCode(dto.getBandCode());
+        if (StrUtil.isNotBlank(dto.getProdCategoryId())) {
+            Map<String, String> prodCategoryNames = ccmFeignService.findStructureTreeNameByCategoryIds(dto.getProdCategoryId());
+            vo.setProdCategory(CollUtil.join(prodCategoryNames.values(), StrUtil.COMMA));
+        }
+        return vo;
+    }
+
+    private void stylePlanningCommonQw(QueryWrapper qw, PlanningBoardSearchDto dto) {
+        qw.eq("sd." + COMPANY_CODE, getCompanyCode());
+        qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "sd.planning_season_id", dto.getPlanningSeasonId());
+        qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "sd.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotEmpty(dto.getMonth()), "sd.month", StrUtil.split(dto.getMonth(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotEmpty(dto.getProdCategoryId()), "sd.prod_category", StrUtil.split(dto.getProdCategoryId(), CharUtil.COMMA));
     }
 
     private void getDesignDataOverviewCommonQw(QueryWrapper qw, List timeRange) {
