@@ -139,8 +139,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean nodeStatusChange(NodeStatusChangeDto dto, GroupUser groupUser) {
-        hasNextNodeStatusAuth(dto.getDataId());
+    public boolean nodeStatusChange(String userId, NodeStatusChangeDto dto, GroupUser groupUser) {
+        hasNextNodeStatusAuth(userId, dto.getDataId());
         nodeStatusService.nodeStatusChange(dto.getDataId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
         // 修改单据
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
@@ -366,7 +366,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             }
         }
         amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
-        // 版房主管和设计师 看到全部，版师看到自己
+        // 版房主管和设计师 看到全部，版师、裁剪工、车缝工、样衣组长看到自己,
+
+
         qw.orderByAsc("p.sort");
         List<PatternMakingTaskListVo> list = getBaseMapper().patternMakingTaskList(qw);
         //设置图片
@@ -528,9 +530,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean nodeStatusChange(List<NodeStatusChangeDto> list, GroupUser groupUser) {
+    public boolean nodeStatusChange(String userId, List<NodeStatusChangeDto> list, GroupUser groupUser) {
         for (NodeStatusChangeDto dto : list) {
-            nodeStatusChange(dto, groupUser);
+            nodeStatusChange(userId, dto, groupUser);
         }
         return true;
     }
@@ -601,10 +603,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public JSONObject getNodeStatusConfig(String node, String status, String dataId) {
+    public JSONObject getNodeStatusConfig(String userId, String node, String status, String dataId) {
         // 如果所有不为空 则判断是否有此节点状态的权限
         if (StrUtil.isNotBlank(dataId)) {
-            PatternMaking patternMaking = hasNextNodeStatusAuth(dataId);
+            PatternMaking patternMaking = hasNextNodeStatusAuth(userId, dataId);
             node = patternMaking.getNode();
             status = patternMaking.getStatus();
         }
@@ -632,7 +634,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         boolean update = this.update(uw);
         //将节点设置为已分配
         EnumNodeStatus ens = EnumNodeStatus.GARMENT_WAITING_ASSIGNMENT;
-        JSONObject nodeStatusConfig = getNodeStatusConfig(ens.getNode(), ens.getStatus(), null);
+        JSONObject nodeStatusConfig = getNodeStatusConfig(groupUser.getId(), ens.getNode(), ens.getStatus(), null);
         Object nextParams = nodeStatusConfig.get("nextParams");
         if (ObjectUtil.isNotEmpty(nextParams)) {
             if (nextParams instanceof List) {
@@ -640,11 +642,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 nodeStatusChangeDtos.forEach(item -> {
                     item.setDataId(dto.getId());
                 });
-                nodeStatusChange(nodeStatusChangeDtos, groupUser);
+                nodeStatusChange(groupUser.getId(), nodeStatusChangeDtos, groupUser);
             } else {
                 NodeStatusChangeDto nodeStatusChangeDto = ((JSONObject) nextParams).toJavaObject(NodeStatusChangeDto.class);
                 nodeStatusChangeDto.setDataId(dto.getId());
-                nodeStatusChange(nodeStatusChangeDto, groupUser);
+                nodeStatusChange(groupUser.getId(), nodeStatusChangeDto, groupUser);
             }
         }
         return update;
@@ -731,7 +733,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public PatternMaking hasNextNodeStatusAuth(String id) {
+    public PatternMaking hasNextNodeStatusAuth(String userId, String id) {
         // 获取当前节点
         // 0 查询打版数据
         PatternMaking pm = getById(id);
@@ -745,7 +747,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         // 2 判断是否有下一步岗位权限
         // 2.0 获取当前节点需要的角色权限
-        JSONObject nodeStatusConfig = getNodeStatusConfig(pm.getNode(), pm.getStatus(), null);
+        JSONObject nodeStatusConfig = getNodeStatusConfig(userId, pm.getNode(), pm.getStatus(), null);
         if (nodeStatusConfig == null) {
             return pm;
         }

@@ -59,7 +59,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @param dto
      * @return
      */
-    boolean nodeStatusChange(NodeStatusChangeDto dto, GroupUser groupUser);
+    boolean nodeStatusChange(String userId, NodeStatusChangeDto dto, GroupUser groupUser);
 
     /**
      * 版房主管下发
@@ -199,7 +199,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @param list
      * @return
      */
-    boolean nodeStatusChange(List<NodeStatusChangeDto> list, GroupUser groupUser);
+    boolean nodeStatusChange(String userId, List<NodeStatusChangeDto> list, GroupUser groupUser);
 
     PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto);
 
@@ -221,7 +221,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     List prmDataOverview(String time);
 
-    JSONObject getNodeStatusConfig(String node, String status, String dataId);
+    JSONObject getNodeStatusConfig(String userId, String node, String status, String dataId);
 
     boolean assignmentUser(GroupUser groupUser, AssignmentUserDto dto);
 
@@ -232,9 +232,10 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
     /**
      * 是否有下一个节点状态的权限
      *
+     * @param userId
      * @param id
      */
-    PatternMaking hasNextNodeStatusAuth(String id);
+    PatternMaking hasNextNodeStatusAuth(String userId, String id);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

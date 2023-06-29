@@ -152,7 +152,7 @@ public class PatternMakingController {
     @PostMapping("/nodeStatusChange")
     public boolean nodeStatusChange(Principal user, @RequestBody List<NodeStatusChangeDto> list) {
         GroupUser groupUser = userUtils.getUserBy(user);
-        return patternMakingService.nodeStatusChange(list, groupUser);
+        return patternMakingService.nodeStatusChange(groupUser.getId(), list, groupUser);
     }
 
 
@@ -230,8 +230,9 @@ public class PatternMakingController {
             @ApiImplicitParam(name = "status", value = "状态", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "dataId", value = "打版id", required = false, dataType = "String", paramType = "query"),
     })
-    public JSONObject getNodeStatusConfig(String node, String status, String dataId) {
-        return patternMakingService.getNodeStatusConfig(node, status, dataId);
+    public JSONObject getNodeStatusConfig(Principal user, String node, String status, String dataId) {
+        GroupUser userBy = userUtils.getUserBy(user);
+        return patternMakingService.getNodeStatusConfig(userBy.getId(), node, status, dataId);
     }
 
     @ApiOperation(value = "分配人员(裁剪工,车缝工)", notes = "")
