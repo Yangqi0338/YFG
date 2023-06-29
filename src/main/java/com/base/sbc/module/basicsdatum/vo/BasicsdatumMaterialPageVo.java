@@ -1,13 +1,14 @@
 package com.base.sbc.module.basicsdatum.vo;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 
@@ -38,6 +39,9 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	/** 物料属性 */
 	@ApiModelProperty(value = "物料属性")
 	private String materialType;
+	/** 物料属性名称 */
+	@ApiModelProperty(value = "物料属性名称")
+	private String materialTypeName;
 	/** 图片地址 */
 	@ApiModelProperty(value = "图片地址")
 	private String imageUrl;
@@ -53,18 +57,30 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	/** 品牌 */
 	@ApiModelProperty(value = "品牌")
 	private String brand;
+	/** 品牌名称 */
+	@ApiModelProperty(value = "品牌名称")
+	private String brandName;
 	/** 旧料号 */
 	@ApiModelProperty(value = "旧料号")
 	private String materialCodeOld;
 	/** 年份 */
 	@ApiModelProperty(value = "年份")
 	private String year;
+	/** 年份名称 */
+	@ApiModelProperty(value = "年份名称")
+	private String yearName;
 	/** 季节 */
 	@ApiModelProperty(value = "季节")
 	private String season;
+	/** 季节名称 */
+	@ApiModelProperty(value = "季节名称")
+	private String seasonName;
 	/** 材料类型 */
 	@ApiModelProperty(value = "材料类型")
 	private String materialCategory;
+	/** 材料类型名称 */
+	@ApiModelProperty(value = "材料类型名称")
+	private String materialCategoryName;
 	/** 形状功能描述 */
 	@ApiModelProperty(value = "形状功能描述")
 	private String shapeFunctionDescription;
@@ -125,12 +141,15 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	/** 送检单位 */
 	@ApiModelProperty(value = "送检单位")
 	private String checkCompany;
+	/** 送检单位名称 */
+	@ApiModelProperty(value = "送检单位名称")
+	private String checkCompanyName;
 	/** 质检结果 */
 	@ApiModelProperty(value = "质检结果")
 	private String checkResult;
 	/** 质检日期 */
 	@ApiModelProperty(value = "质检日期")
-	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date checkDate;
 	/** 公斤米数 */
 	@ApiModelProperty(value = "公斤米数")
@@ -156,6 +175,9 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	/** 采购组 */
 	@ApiModelProperty(value = "采购组")
 	private String purchaseDept;
+	/** 采购组名称 */
+	@ApiModelProperty(value = "采购组名称")
+	private String purchaseDeptName;
 	/** 采购员id */
 	@ApiModelProperty(value = "采购员id")
 	private String purchaseId;
@@ -174,4 +196,7 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	/** 门幅/规格组 */
 	@ApiModelProperty(value = "门幅/规格组")
 	private String widthGroup;
+	/** 门幅/规格组名称 */
+	@ApiModelProperty(value = "门幅/规格组名称")
+	private String widthGroupName;
 }
