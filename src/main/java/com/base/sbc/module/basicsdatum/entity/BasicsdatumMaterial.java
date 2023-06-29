@@ -181,6 +181,9 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	/** 物料来源 */
 	@ApiModelProperty(value = "物料来源")
 	private String materialSource;
+	/** 物料来源 */
+	@ApiModelProperty(value = "物料来源")
+	private String materialSourceName;
 	/** 直径 */
 	@ApiModelProperty(value = "直径")
 	private String diameter;
