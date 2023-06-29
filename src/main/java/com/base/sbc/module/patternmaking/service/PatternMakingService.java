@@ -221,14 +221,20 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     List prmDataOverview(String time);
 
-    JSONObject getNodeStatusConfig(String node, String status);
+    JSONObject getNodeStatusConfig(String node, String status, String dataId);
 
-    boolean assignmentUser(GroupUser groupUser,AssignmentUserDto dto);
+    boolean assignmentUser(GroupUser groupUser, AssignmentUserDto dto);
 
     List<PatternDesignVo> pdTaskDetail(String companyCode);
 
     PageInfo queryPageInfo(PatternMakingCommonPageSearchDto dto);
 
+    /**
+     * 是否有下一个节点状态的权限
+     *
+     * @param id
+     */
+    PatternMaking hasNextNodeStatusAuth(String id);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

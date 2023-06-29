@@ -53,7 +53,7 @@ public interface AmcService {
     public String getDeptList(@RequestHeader("Authorization") String token,@RequestParam("userIds") String[] userIds);
 
     @GetMapping("/amc/api/token/companyUser/getCompanyUserInfoByUserIds")
-    public String getCompanyUserInfoByUserIds( @RequestParam("userIds") String userIds);
+    public String getCompanyUserInfoByUserIds(@RequestParam("userIds") String userIds, @RequestParam("dpj") String dpj);
 
     /**
      * 获取用户头像

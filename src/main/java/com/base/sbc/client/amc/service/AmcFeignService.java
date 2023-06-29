@@ -65,7 +65,16 @@ public class AmcFeignService {
     }
 
     public UserCompany getUserInfo(String userId) {
-        String responseStr = amcService.getCompanyUserInfoByUserIds(userId);
+        return getUserInfo(userId, null);
+    }
+
+    /**
+     * @param userId
+     * @param dpj    非空 查询部门岗位角色
+     * @return
+     */
+    public UserCompany getUserInfo(String userId, String dpj) {
+        String responseStr = amcService.getCompanyUserInfoByUserIds(userId, dpj);
         JSONObject jsonObject = JSON.parseObject(responseStr);
         if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
             JSONArray data = jsonObject.getJSONArray(BaseConstant.DATA);
