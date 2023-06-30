@@ -33,6 +33,9 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	/** 类别（物料分类id） */
 	@ApiModelProperty(value = "类别（物料分类id）")
 	private String categoryId;
+	/** 类别（物料分类ids） */
+	@ApiModelProperty(value = "类别（物料分类ids）")
+	private String categoryIds;
 	/** 类别名称（物料分类名称） */
 	@ApiModelProperty(value = "类别名称（物料分类名称）")
 	private String categoryName;

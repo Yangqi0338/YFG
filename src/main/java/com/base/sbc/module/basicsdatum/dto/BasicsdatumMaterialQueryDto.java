@@ -1,6 +1,7 @@
 package com.base.sbc.module.basicsdatum.dto;
 
 import com.base.sbc.config.common.base.Page;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -28,6 +29,9 @@ public class BasicsdatumMaterialQueryDto extends Page {
 	/** 类别（物料分类id） */
 	@ApiModelProperty(value = "类别（物料分类id）")
 	private String categoryId;
+	/** 类别（物料分类ids） */
+	@ApiModelProperty(value = "类别（物料分类ids）")
+	private String categoryIds;
 	/** 类别名称（物料分类名称） */
 	@ApiModelProperty(value = "类别名称（物料分类名称）")
 	private String categoryName;
