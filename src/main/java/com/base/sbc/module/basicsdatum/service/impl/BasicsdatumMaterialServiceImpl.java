@@ -156,7 +156,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 					dto.getCategoryId()));
 		}
 		List<BasicsdatumMaterialExcelVo> list = CopyUtil.copy(this.list(qc), BasicsdatumMaterialExcelVo.class);
-		ExcelUtils.exportExcel(list, BasicsdatumMaterialExcelVo.class, "物料档案.xlsx", new ExportParams(), response);
+		ExcelUtils.exportExcel(list, BasicsdatumMaterialExcelVo.class, "物料档案.xls", new ExportParams(), response);
 	}
 
 	@Override
