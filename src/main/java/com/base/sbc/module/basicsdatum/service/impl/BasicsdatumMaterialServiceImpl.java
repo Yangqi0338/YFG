@@ -6,9 +6,12 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
@@ -39,6 +43,7 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialExcelVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
@@ -47,6 +52,8 @@ import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 
 /**
  * 类描述：基础资料-物料档案 service类
@@ -132,6 +139,24 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	@Override
 	public Boolean delBasicsdatumMaterial(String id) {
 		return this.removeBatchByIds(StringUtils.convertList(id));
+	}
+
+	@Override
+	public void exportBasicsdatumMaterial(HttpServletResponse response, BasicsdatumMaterialQueryDto dto)
+			throws IOException {
+		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
+		qc.eq("company_code", this.getCompanyCode());
+		qc.notEmptyEq("status", dto.getStatus());
+		qc.notEmptyLike("material_code_name", dto.getMaterialCodeName());
+		qc.notEmptyLike("supplier_name", dto.getSupplierName());
+		qc.notEmptyLike("material_code", dto.getMaterialCode());
+		qc.notEmptyLike("material_name", dto.getMaterialName());
+		if (StringUtils.isNotEmpty(dto.getCategoryId())) {
+			qc.and(Wrapper -> Wrapper.eq("category_id", dto.getCategoryId()).or().like("category_ids ",
+					dto.getCategoryId()));
+		}
+		List<BasicsdatumMaterialExcelVo> list = CopyUtil.copy(this.list(qc), BasicsdatumMaterialExcelVo.class);
+		ExcelUtils.exportExcel(list, BasicsdatumMaterialExcelVo.class, "物料档案.xlsx", new ExportParams(), response);
 	}
 
 	@Override
@@ -272,5 +297,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	public Boolean delBasicsdatumMaterialPrice(String id) {
 		return this.materialPriceService.removeBatchByIds(StringUtils.convertList(id));
 	}
+
 
 }
