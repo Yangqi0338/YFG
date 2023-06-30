@@ -13,8 +13,10 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
@@ -80,7 +82,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		qc.notEmptyLike("material_name", dto.getMaterialName());
 		if (StringUtils.isNotEmpty(dto.getCategoryId())) {
 			qc.and(Wrapper -> Wrapper.eq("category_id", dto.getCategoryId()).or().like("category_ids ",
-				dto.getCategoryId()));
+					dto.getCategoryId()));
 		}
 		List<BasicsdatumMaterial> list = this.list(qc);
 		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
@@ -145,7 +147,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		return copy;
 	}
 
-
 	@Override
 	public PageInfo<BasicsdatumMaterialWidthPageVo> getBasicsdatumMaterialWidthList(
 			BasicsdatumMaterialWidthQueryDto dto) {
@@ -159,6 +160,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
 	@Override
 	public Boolean saveBasicsdatumMaterialWidth(BasicsdatumMaterialWidthSaveDto dto) {
+		long count = this.materialWidthService.count(new QueryWrapper<BasicsdatumMaterialWidth>().ne("id", dto.getId())
+				.eq("company_code", this.getCompanyCode()).eq("Material_Code", dto.getMaterialCode())
+				.eq("Width_Code", dto.getWidthCode()));
+		if (count > 0) {
+			throw new OtherException("当前规格已存在");
+		}
 		BasicsdatumMaterialWidth entity = CopyUtil.copy(dto, BasicsdatumMaterialWidth.class);
 		if ("-1".equals(entity.getId())) {
 			entity.setId(null);
@@ -192,6 +199,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
 	@Override
 	public Boolean saveBasicsdatumMaterialColor(BasicsdatumMaterialColorSaveDto dto) {
+		long count = this.materialColorService.count(new QueryWrapper<BasicsdatumMaterialColor>().ne("id", dto.getId())
+				.eq("company_code", this.getCompanyCode()).eq("Material_Code", dto.getMaterialCode())
+				.eq("color_Code", dto.getColorCode()));
+		if (count > 0) {
+			throw new OtherException("当前颜色已存在");
+		}
 		BasicsdatumMaterialColor entity = CopyUtil.copy(dto, BasicsdatumMaterialColor.class);
 		if ("-1".equals(entity.getId())) {
 			entity.setId(null);
