@@ -82,7 +82,7 @@ public class SampleSaleServiceImpl extends BaseServiceImpl<SampleSaleMapper, Sam
                 }
 
                 // 处理样衣
-                sampleItemService.updateCount(item.getSampleItemId(), 3, item.getCount());
+                sampleItemService.updateCount(item.getSampleItemId(), 3, item.getCount(), "", "");
 
                 // 日志
                 String remarks = "样衣销售：id-" + item.getSampleItemId() + ", 销售单号：" + sale.getCode() + ", 数量：" + item.getCount();

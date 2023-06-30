@@ -4,7 +4,7 @@
     <!-- 分页查询 -->
     <select id="getList" resultType="com.base.sbc.module.sample.vo.SampleAllocateItemVo">
         SELECT si.`code`, s.images, s.design_no, s.style_name, si.color, si.size, si.position,
-            si.count, sai.allocate_count, sai.remarks
+            si.count, sai.count AS allocateCount, sai.remarks
         FROM t_sample_allocate_item sai
         JOIN t_sample_allocate sa ON sa.id = sai.sample_allocate_id
         JOIN t_sample_item si ON si.id = sai.sample_id

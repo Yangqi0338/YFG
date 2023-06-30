@@ -81,10 +81,11 @@ public class SampleAllocateServiceImpl extends BaseServiceImpl<SampleAllocateMap
                 }
 
                 // 处理样衣
-                sampleItemService.updateCount(item.getSampleItemId(), 4, item.getAllocateCount());
+                sampleItemService.updateCount(item.getSampleItemId(), 4, item.getCount(),
+                        dto.getToPositionId(), dto.getToPosition());
 
                 // 日志
-                String remarks = "样衣调拨：id-" + item.getSampleItemId() + ", 调拨单号：" + allocate.getCode() + ", 数量：" + item.getAllocateCount();
+                String remarks = "样衣调拨：id-" + item.getSampleItemId() + ", 调拨单号：" + allocate.getCode() + ", 数量：" + item.getCount();
                 sampleItemLogService.save(item.getId(), 2, remarks);
             }
 

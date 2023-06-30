@@ -48,7 +48,7 @@ public class SampleAllocateItem extends BaseDataEntity<String> {
 
     /** 调拨数量 */
     @ApiModelProperty(value = "调拨数量")
-    private Integer allocateCount;
+    private Integer count;
 
     /** 备注 */
     @ApiModelProperty(value = "备注")

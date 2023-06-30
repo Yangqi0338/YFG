@@ -1,7 +1,7 @@
 package com.base.sbc.module.sample.dto;
 
+import com.base.sbc.module.sample.entity.SampleAllocate;
 import com.base.sbc.module.sample.entity.SampleAllocateItem;
-import com.base.sbc.module.sample.entity.SampleSale;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Data
 @ApiModel("样衣调拨保存修改 SampleAllocateSaveDto")
-public class SampleAllocateSaveDto extends SampleSale {
+public class SampleAllocateSaveDto extends SampleAllocate {
 
     @ApiModelProperty(value = "关联的明细")
     private List<SampleAllocateItem> sampleItemList;

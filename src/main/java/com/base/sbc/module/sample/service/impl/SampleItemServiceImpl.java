@@ -7,6 +7,7 @@
 package com.base.sbc.module.sample.service.impl;
 
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.entity.Sample;
@@ -45,7 +46,7 @@ public class SampleItemServiceImpl extends BaseServiceImpl<SampleItemMapper, Sam
     }
 
     @Override
-    public Boolean updateCount(String id, Integer type, Integer count) {
+    public Boolean updateCount(String id, Integer type, Integer count, String toPositionId, String toPosition) {
         // 样衣明细表
         SampleItem si = mapper.selectById(id);
         // 样衣主表
@@ -95,7 +96,26 @@ public class SampleItemServiceImpl extends BaseServiceImpl<SampleItemMapper, Sam
                 sampleMapper.updateById(sample);
             }
         } else if (type == 4){  // 调拨
+            // 全调拨
+            if (si.getCount() == count && si.getBorrowCount() == 0){
+                si.setPosition(toPosition);
+                si.setPositionId(toPositionId);
+                mapper.updateById(si);
+            // 调拨部分
+            } else {
+                // 新对象
+                SampleItem item = CopyUtil.copy(si, SampleItem.class);
+                item.setId(idGen.nextIdStr());
+                item.setCount(count);
+                item.setBorrowCount(0);
+                item.setPosition(toPosition);
+                item.setPositionId(toPositionId);
+                mapper.insert(item);
 
+                // 老对象
+                si.setCount(si.getCount() - count);
+                mapper.updateById(si);
+            }
         }
 
         return index > 0 ? true : false;

@@ -96,7 +96,7 @@ public class SampleCirculateServiceImpl extends BaseServiceImpl<SampleCirculateM
             itemMapper.insert(item);
 
             // 处理样衣
-            sampleItemService.updateCount(dto.getSampleItemId(), 1, item.getCount());
+            sampleItemService.updateCount(dto.getSampleItemId(), 1, item.getCount(), "", "");
 
             // 处理日志
             String remarks = "借出：id-" + item.getId() + ", 借出单号：" + sc.getBorrowCode() + ", 借出数量：" + item.getCount();
@@ -119,7 +119,7 @@ public class SampleCirculateServiceImpl extends BaseServiceImpl<SampleCirculateM
             itemMapper.updateById(item);
 
             // 处理样衣
-            sampleItemService.updateCount(dto.getSampleItemId(), 2, item.getCount());
+            sampleItemService.updateCount(dto.getSampleItemId(), 2, item.getCount(), "", "");
 
             // 处理日志
             String remarks = "归还：id-" + item.getId() + ", 借出单号：" + sc.getBorrowCode() + ", 归还数量：" + item.getCount();
