@@ -23,6 +23,18 @@ public class SampleSaleItemVo{
     @ApiModelProperty(value = "id")
     private String id;
 
+    /** 设计款号 */
+    @ApiModelProperty(value = "设计款号")
+    private String designNo;
+
+    /** 款式名称 */
+    @ApiModelProperty(value = "款式名称")
+    private String styleName;
+
+    /** 数量 */
+    @ApiModelProperty(value = "数量")
+    private String count;
+
     /** 样衣销售主键ID */
     @ApiModelProperty(value = "样衣销售主键ID")
     private String sampleSaleId;
@@ -50,6 +62,14 @@ public class SampleSaleItemVo{
     /** 总价（数量*单价（售价）*折扣） */
     @ApiModelProperty(value = "总价（数量*单价（售价）*折扣）")
     private BigDecimal totalPrice;
+
+    /** 尺码 */
+    @ApiModelProperty(value = "尺码")
+    private String size;
+
+    /** 颜色 */
+    @ApiModelProperty(value = "颜色")
+    private String color;
 
     /** 备注 */
     @ApiModelProperty(value = "备注")

@@ -68,6 +68,19 @@ public class SampleSaleServiceImpl extends BaseServiceImpl<SampleSaleMapper, Sam
 
             Integer count = 0, borrowCount = 0;
             for (SampleSaleItem item : dto.getSampleItemList()){
+                // 处理明细
+                // 新增
+                if (StringUtil.isEmpty(item.getId())){
+                    item.setId(idGen.nextIdStr());
+                    item.setCompanyCode(getCompanyCode());
+                    item.setSampleSaleId(id);
+
+                    sampleSaleItemMapper.insert(item);
+                    // 修改
+                } else {
+
+                }
+
                 // 处理样衣
                 sampleItemService.updateCount(item.getSampleItemId(), 3, item.getCount());
 
