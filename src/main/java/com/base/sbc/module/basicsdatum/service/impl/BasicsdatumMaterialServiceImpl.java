@@ -89,6 +89,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BasicsdatumMaterial entity = CopyUtil.copy(dto, BasicsdatumMaterial.class);
 		if ("-1".equals(entity.getId())) {
 			entity.setId(null);
+			entity.setStatus("0");
 			String categoryCode = entity.getMaterialCode();
 			// 获取并放入最大code
 			entity.setMaterialCode(getMaxCode(categoryCode));
@@ -109,7 +110,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BasicsdatumMaterial one = this.baseMapper.selectOne(qc);
 		if (one != null) {
 			String code = one.getMaterialCode();// code.replace(categoryCode, "")
-			Integer replace = Integer.parseInt(code.substring(code.length() - 5)) + 1;
+			Integer replace = Integer.parseInt(code.substring(code.length() - 5));
 			return categoryCode + String.format("%05d", replace + 1);
 		} else {
 			return categoryCode + "00001";
