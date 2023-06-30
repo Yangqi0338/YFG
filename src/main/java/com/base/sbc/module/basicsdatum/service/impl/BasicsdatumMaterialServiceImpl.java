@@ -109,7 +109,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BasicsdatumMaterial one = this.baseMapper.selectOne(qc);
 		if (one != null) {
 			String code = one.getMaterialCode();// code.replace(categoryCode, "")
-			Integer replace = Integer.parseInt(code) + 1;
+			Integer replace = Integer.parseInt(code.substring(code.length() - 5)) + 1;
 			return categoryCode + String.format("%05d", replace + 1);
 		} else {
 			return categoryCode + "00001";
