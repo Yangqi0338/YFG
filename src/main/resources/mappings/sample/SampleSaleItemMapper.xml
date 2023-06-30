@@ -8,8 +8,8 @@
         FROM t_sample_sale_item ssi
         JOIN t_sample s ON s.id = ssi.sample_id
         JOIN t_sample_item si ON si.id = ssi.sample_item_id
-        WHERE sample_sale_id = #{sampleSaleId}
-        ORDER BY create_date DESC
+        WHERE ssi.sample_sale_id = #{sampleSaleId}
+        ORDER BY ssi.create_date DESC
     </select>
 </mapper>
 
