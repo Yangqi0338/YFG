@@ -561,6 +561,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw);
         if (CollUtil.isNotEmpty(detailVoList)) {
             amcFeignService.setUserAvatarToList(detailVoList);
+            attachmentService.setListStylePic(detailVoList, "stylePic");
             ccmFeignService.setCategoryName(detailVoList, "prodCategory", "prodCategory");
             Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getProdCategory() + StrUtil.DASHED + k.getBandCode()));
             vo.setSeatData(seatData);
