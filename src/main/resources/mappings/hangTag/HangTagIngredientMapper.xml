@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.hangTag.mapper.HangTagIngredientMapper">
+    <!--
+        吊牌成分表
+        创建人：xhj
+        邮箱：ch.183.g1114@gmail.com
+        创建时间：2023-6-26 17:15:55
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <select id="getIngredientListByHangTagId" resultType="com.base.sbc.module.hangTag.vo.HangTagIngredientVO">
+        select
+        id,
+        remarks,
+        type_code,
+        type,
+        percentage,
+        ingredient_description,
+        description_remarks
+        from t_hang_tag_ingredient
+        <where>
+            del_flag = 0
+            and company_code = #{companyCode}
+            and hang_tag_id = #{hangTagId}
+        </where>
+    </select>
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>
+
