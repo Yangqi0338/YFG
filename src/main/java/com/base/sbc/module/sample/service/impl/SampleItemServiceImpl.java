@@ -86,7 +86,7 @@ public class SampleItemServiceImpl extends BaseServiceImpl<SampleItemMapper, Sam
                 sampleMapper.updateById(sample);
             }
         } else if (type == 3) { // 销售
-            if (si.getCount() - count <= 0) {
+            if (si.getCount() - count >= 0) {
                 si.setCount(si.getCount() - count);
                 si.setStatus(4);
                 index = mapper.updateById(si);

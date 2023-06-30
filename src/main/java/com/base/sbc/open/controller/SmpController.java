@@ -7,6 +7,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
+import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.open.dto.MtBpReqDto;
@@ -20,6 +21,7 @@ import com.base.sbc.open.entity.SmpUser;
 import com.base.sbc.open.service.MtBqReqService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +44,8 @@ public class SmpController extends BaseController {
     private final BasicsdatumSupplierService basicsdatumSupplierService;
 
     private final AmcService amcService;
+    @Autowired
+    private HangTagService hangTagService;
 
     /**
      * bp供应商

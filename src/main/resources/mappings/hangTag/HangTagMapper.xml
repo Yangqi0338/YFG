@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.hangTag.mapper.HangTagMapper">
+    <!--
+        吊牌表
+        创建人：xhj
+        邮箱：ch.183.g1114@gmail.com
+        创建时间：2023-6-26 17:15:52
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+
+    <select id="queryList" resultType="com.base.sbc.module.hangTag.vo.HangTagListVO">
+        SELECT
+        st.id as styleId,
+        st.style as style,
+        st.produce_type as produceType,
+        st.style_type as styleType,
+        st.style_no as bulkStyleNo,
+        st.size_type as modelType,
+        st.style_name as productName,
+        st.tag_price as tagPrice,
+        st.color_spec as artBagColorSpec,
+        ht.id,
+        ht.color_code,
+        ht.color,
+        ht.confirm_date,
+        ht.execute_standard_code,
+        ht.execute_standard,
+        ht.safty_title,
+        ht.safty_title_code,
+        ht.safty_type_code,
+        ht.safty_type,
+        ht.quality_grade,
+        GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) as ingredient,
+        ht.warm_tips,
+        ht.washing_label,
+        ht.producer,
+        ht.down_content,
+        ht.special_spec,
+        ht.washing_material_remarks,
+        ht.grading_name,
+        ht.technologist_name,
+        ht.sample_maker_name,
+        ht.place_order_staff_name,
+        ht.place_order_date,
+        ht.status
+        FROM
+        t_style_test st
+        LEFT JOIN t_hang_tag ht ON st.id = ht.style_id
+        LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
+        <where>
+            st.del_flag = 0
+            AND st.company_code = #{dto.companyCode}
+            <if test="dto.style != null and dto.style != ''">
+                AND st.style like concat('%',#{dto.style},'%')
+            </if>
+            <if test="dto.bulkStyleNo != null and dto.bulkStyleNo != ''">
+                AND st.style_no like concat('%',#{dto.bulkStyleNo},'%')
+            </if>
+            <if test="dto.ingredient != null and dto.ingredient != ''">
+                AND hti.type = like concat('%',#{dto.ingredient},'%')
+            </if>
+            <if test="dto.status != null and dto.status != ''">
+                AND ht.status = #{dto.status}
+            </if>
+
+            <if test="dto.confirmDate != null and dto.confirmDate != ''">
+                AND ht.confirm_date = #{dto.confirmDate}
+            </if>
+        </where>
+        GROUP BY st.id, ht.color
+    </select>
+
+
+    <select id="getDetailsById" resultType="com.base.sbc.module.hangTag.vo.HangTagVO">
+        SELECT
+        st.id AS styleId,
+        st.style_no AS bulkStyleNo,
+        st.size_type AS modelType,
+        st.designer AS designer,
+        st.typewriter as patternDesign,
+        st.describe as `describe`,
+        GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) AS ingredient,
+        ht.*
+        FROM
+        t_style_test st
+        LEFT JOIN t_hang_tag ht ON st.id = ht.style_id
+        LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
+        <where>
+            st.del_flag = 0
+            AND st.company_code = #{companyCode}
+            and ht.id = #{id}
+        </where>
+    </select>
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>
+

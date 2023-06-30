@@ -29,9 +29,17 @@ public class SampleSaleVo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date saleDate;
 
+    /** 业务员ID */
+    @ApiModelProperty(value = "业务员ID")
+    private String saleId;
+
     /** 业务员 */
     @ApiModelProperty(value = "业务员")
     private String saleName;
+
+    /** 客户ID */
+    @ApiModelProperty(value = "客户ID")
+    private String custmerId;
 
     /** 客户 */
     @ApiModelProperty(value = "客户")

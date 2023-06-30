@@ -68,13 +68,15 @@ public class SampleSaleServiceImpl extends BaseServiceImpl<SampleSaleMapper, Sam
 
             Integer count = 0, borrowCount = 0;
             for (SampleSaleItem item : dto.getSampleItemList()){
+                // 处理明细
                 // 新增
                 if (StringUtil.isEmpty(item.getId())){
                     item.setId(idGen.nextIdStr());
+                    item.setCompanyCode(getCompanyCode());
                     item.setSampleSaleId(id);
 
                     sampleSaleItemMapper.insert(item);
-                // 修改
+                    // 修改
                 } else {
 
                 }
@@ -88,6 +90,7 @@ public class SampleSaleServiceImpl extends BaseServiceImpl<SampleSaleMapper, Sam
             }
 
             if (StringUtil.isEmpty(dto.getId())) {
+                sale.setCompanyCode(getCompanyCode());
                 mapper.insert(sale);
             } else {
                 mapper.updateById(sale);
@@ -113,9 +116,12 @@ public class SampleSaleServiceImpl extends BaseServiceImpl<SampleSaleMapper, Sam
     public PageInfo queryPageInfo(SampleSalePageDto dto) {
         QueryWrapper<SampleSaleVo> qw = new QueryWrapper<>();
         qw.eq("ss.company_code", getCompanyCode());
-        qw.ge(StrUtil.isNotEmpty(dto.getStartDate().toString()),"ss.sale_date", dto.getStartDate());
-        qw.le(StrUtil.isNotEmpty(dto.getEndDate().toString()),"ss.sale_date", dto.getEndDate());
-        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch()).
+        if (null != dto.getStartDate())
+            qw.ge("ss.sale_date", dto.getStartDate());
+        if (null != dto.getEndDate())
+            qw.le("ss.sale_date", dto.getEndDate());
+        if (null != dto.getSearch())
+            qw.like("s.design_no", dto.getSearch()).
                 or().like(StrUtil.isNotBlank(dto.getSearch()), "si.code", dto.getSearch()).
                 or().like(StrUtil.isNotBlank(dto.getSearch()), "ss.code", dto.getSearch()).
                 or().like(StrUtil.isNotBlank(dto.getSearch()), "ss.custmer_name", dto.getSearch());

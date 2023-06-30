@@ -73,10 +73,15 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		}
 		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
 		qc.eq("company_code", this.getCompanyCode());
-		qc.notEmptyEq("category_id", dto.getCategoryId());
 		qc.notEmptyEq("status", dto.getStatus());
+		qc.notEmptyLike("material_code_name", dto.getMaterialCodeName());
+		qc.notEmptyLike("supplier_name", dto.getSupplierName());
 		qc.notEmptyLike("material_code", dto.getMaterialCode());
 		qc.notEmptyLike("material_name", dto.getMaterialName());
+		if (StringUtils.isNotEmpty(dto.getCategoryId())) {
+			qc.and(Wrapper -> Wrapper.eq("category_id", dto.getCategoryId()).or().like("category_ids ",
+				dto.getCategoryId()));
+		}
 		List<BasicsdatumMaterial> list = this.list(qc);
 		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
 	}
@@ -86,9 +91,32 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BasicsdatumMaterial entity = CopyUtil.copy(dto, BasicsdatumMaterial.class);
 		if ("-1".equals(entity.getId())) {
 			entity.setId(null);
+			entity.setStatus("0");
+			String categoryCode = entity.getMaterialCode();
+			// 获取并放入最大code
+			entity.setMaterialCode(getMaxCode(categoryCode));
 		}
+		entity.setMaterialCodeName(entity.getMaterialCode() + entity.getMaterialName());
 		this.saveOrUpdate(entity);
 		return CopyUtil.copy(entity, BasicsdatumMaterialVo.class);
+	}
+
+	private String getMaxCode(String categoryCode) {
+		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
+		qc.select("material_code");
+		qc.eq("company_code", this.getCompanyCode());
+//		qc.eq(" length(material_code)", categoryCode.length() + 5);
+//		qc.likeRight("material_code", categoryCode);
+		qc.orderByDesc(" create_date ");
+		qc.last(" limit 1 ");
+		BasicsdatumMaterial one = this.baseMapper.selectOne(qc);
+		if (one != null) {
+			String code = one.getMaterialCode();// code.replace(categoryCode, "")
+			Integer replace = Integer.parseInt(code.substring(code.length() - 5));
+			return categoryCode + String.format("%05d", replace + 1);
+		} else {
+			return categoryCode + "00001";
+		}
 	}
 
 	@Override
