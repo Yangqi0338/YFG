@@ -3,13 +3,13 @@
 <mapper namespace="com.base.sbc.module.sample.mapper.SampleAllocateItemMapper">
     <!-- 分页查询 -->
     <select id="getList" resultType="com.base.sbc.module.sample.vo.SampleAllocateItemVo">
-        SELECT si.`code`, s.images, s.design_no, s.style_name, si.color, si.size, si.position,
-            si.count, sai.count AS allocateCount, sai.remarks
+        SELECT si.`code`, s.images, s.design_no, s.style_name, si.color, si.size, si.position, si.count,
+               sai.count AS allocateCount, sai.remarks, sai.id, sai.sample_allocate_id, sai.sample_item_id
         FROM t_sample_allocate_item sai
-        JOIN t_sample_allocate sa ON sa.id = sai.sample_allocate_id
-        JOIN t_sample_item si ON si.id = sai.sample_id
-        JOIN t_sample s ON s.id = sai.sample_id
-        WHERE sample_allocate_id = #{sampleAllocateId}
+        LEFT JOIN t_sample_allocate sa ON sa.id = sai.sample_allocate_id
+        LEFT JOIN t_sample_item si ON si.id = sai.sample_item_id
+        LEFT JOIN t_sample s ON s.id = sai.sample_id
+        WHERE sai.sample_allocate_id = #{sampleAllocateId}
         ORDER BY sai.create_date DESC
     </select>
 </mapper>
