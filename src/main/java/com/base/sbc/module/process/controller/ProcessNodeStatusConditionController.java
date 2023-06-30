@@ -5,29 +5,24 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.process.controller;
+
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.process.dto.AddRevampProcessNodeStatusConditionDto;
 import com.base.sbc.module.process.entity.ProcessNodeStatusCondition;
 import com.base.sbc.module.process.service.ProcessNodeStatusConditionService;
-import com.base.sbc.module.process.dto.AddRevampProcessNodeStatusConditionDto;
 import com.base.sbc.module.process.vo.ProcessNodeStatusConditionVo;
-import org.hibernate.validator.constraints.NotBlank;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 
-import java.util.List;
+import javax.validation.Valid;
 
 /**
 * 类描述：流程配置-节点状态条件 Controller类

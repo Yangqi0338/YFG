@@ -12,13 +12,14 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.material.dto.CategoryIdDto;
-import com.base.sbc.module.material.dto.MaterialSaveDto;
-import com.base.sbc.module.material.entity.*;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
-import com.base.sbc.module.material.service.*;
+import com.base.sbc.module.material.dto.MaterialSaveDto;
+import com.base.sbc.module.material.entity.Material;
+import com.base.sbc.module.material.entity.MaterialLabel;
+import com.base.sbc.module.material.entity.Test;
+import com.base.sbc.module.material.service.MaterialLabelService;
+import com.base.sbc.module.material.service.MaterialService;
 import com.base.sbc.module.material.vo.AssociationMaterialVo;
-import com.base.sbc.module.material.vo.MaterialVo;
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +28,12 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author 卞康

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.sample.mapper.SampleWarehouseMapper">
+    <!-- 分页查询 -->
+    <select id="getList" resultType="com.base.sbc.module.sample.vo.SampleWarehouseVo">
+        SELECT * FROM t_sample_warehouse
+        <where>
+            company_code = #{companyCode}
+            <if test="status != null">
+                AND `status` = #{status}
+            </if>
+        </where>
+        ORDER BY create_date DESC
+    </select>
+
+    <select id="getDetail" resultType="com.base.sbc.module.sample.vo.SampleWarehouseVo">
+        SELECT * FROM t_sample_warehouse WHERE id = #{id}
+    </select>
+</mapper>
+

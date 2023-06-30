@@ -1,7 +1,6 @@
 package com.base.sbc.module.planning.vo;
 
 import com.base.sbc.client.amc.TeamVo;
-import com.base.sbc.module.planning.entity.PlanningSeason;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

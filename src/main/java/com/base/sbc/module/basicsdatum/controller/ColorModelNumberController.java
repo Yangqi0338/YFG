@@ -1,13 +1,15 @@
 package com.base.sbc.module.basicsdatum.controller;
 
-import cn.hutool.core.collection.ListUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.basicsdatum.dto.ColorModelNumberDto;
+import com.base.sbc.module.basicsdatum.dto.ColorModelNumberExcelDto;
 import com.base.sbc.module.basicsdatum.entity.ColorModelNumber;
 import com.base.sbc.module.basicsdatum.service.ColorModelNumberService;
 import com.github.pagehelper.PageHelper;
@@ -15,12 +17,13 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author 卞康
@@ -42,9 +45,15 @@ public class ColorModelNumberController extends BaseController {
      * @return 列表
      */
     @GetMapping("/queryList")
+    @ApiOperation(value = "查询列表")
     public ApiResult queryList(ColorModelNumberDto colorModelNumberDto) {
         BaseQueryWrapper<ColorModelNumber> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.eq("file_name",colorModelNumberDto.getFileName());
+        queryWrapper.notEmptyLike("file_name",colorModelNumberDto.getFileName());
+        queryWrapper.notEmptyLike("name",colorModelNumberDto.getName());
+        queryWrapper.notEmptyLike("code",colorModelNumberDto.getCode());
+        queryWrapper.notEmptyLike("status",colorModelNumberDto.getStatus());
+        queryWrapper.notEmptyLike("mat2nd_category_name",colorModelNumberDto.getMat2ndCategoryName());
+        queryWrapper.between("create_date",colorModelNumberDto.getCreateDate());
         PageHelper.startPage(colorModelNumberDto);
         List<ColorModelNumber> list = colorModelNumberService.list(queryWrapper);
         return selectSuccess(new PageInfo<>(list));
@@ -54,6 +63,7 @@ public class ColorModelNumberController extends BaseController {
      * 单个新增或者修改
      */
     @PostMapping("/save")
+    @ApiOperation(value = "单个新增或者修改")
     public ApiResult save(@RequestBody ColorModelNumber colorModelNumber) {
         return updateSuccess(colorModelNumberService.saveColorModelNumber(colorModelNumber));
     }
@@ -62,16 +72,17 @@ public class ColorModelNumberController extends BaseController {
     /**
      * 批量修改
      */
-    @PutMapping("/updateList")
-    public ApiResult updateList(List<ColorModelNumber> colorModelNumberList) {
-        colorModelNumberService.updateBatchById(colorModelNumberList);
-        return updateSuccess("操作成功");
-    }
+//    @PutMapping("/updateList")
+//    public ApiResult updateList(List<ColorModelNumber> colorModelNumberList) {
+//        colorModelNumberService.updateBatchById(colorModelNumberList);
+//        return updateSuccess("操作成功");
+//    }
 
     /**
      * 启用或者停用
      */
     @PutMapping("/startStop")
+    @ApiOperation(value = "启用或者停用")
     public ApiResult startStop(@RequestBody ColorModelNumberDto colorModelNumberDto) {
         UpdateWrapper<ColorModelNumber> updateWrapper = new UpdateWrapper<>();
         updateWrapper.set("status", colorModelNumberDto.getStatus());
@@ -84,6 +95,7 @@ public class ColorModelNumberController extends BaseController {
      * 根据Ids删除
      */
     @PutMapping("/detByIds")
+    @ApiOperation(value = "根据数组删除")
     public ApiResult detByIds(String[] ids) {
         return deleteSuccess(colorModelNumberService.removeByIds(Arrays.asList(ids)));
     }
@@ -91,10 +103,23 @@ public class ColorModelNumberController extends BaseController {
     /**
      * 导入
      */
-    @ApiOperation(value = "导入")
+    @ApiOperation(value = "导入Excel")
     @PostMapping("/importExcel")
     public ApiResult importExcel(@RequestParam("file") MultipartFile file) throws Exception {
         Boolean b = colorModelNumberService.importExcel(file);
         return insertSuccess(b);
+    }
+
+
+    /**
+     * 导出
+     */
+    @ApiOperation(value = "导出Excel")
+    @GetMapping("/exportExcel")
+    public void exportExcel(HttpServletResponse response,ColorModelNumberDto colorModelNumberDto) throws Exception {
+        QueryWrapper<ColorModelNumber> queryWrapper =new BaseQueryWrapper<>();
+        queryWrapper.eq("file_name",colorModelNumberDto.getFileName());
+        List<ColorModelNumberExcelDto> list = BeanUtil.copyToList(colorModelNumberService.list(queryWrapper), ColorModelNumberExcelDto.class);
+        ExcelUtils.exportExcel(list,  ColorModelNumberExcelDto.class, "色号和色型.xlsx",new ExportParams() ,response);
     }
 }

@@ -9,9 +9,9 @@ package com.base.sbc.module.common.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.common.entity.Attachment;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

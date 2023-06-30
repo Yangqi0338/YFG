@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialMapper">
+    <!--
+        基础资料-物料档案
+        创建人：shenzhixiong
+        邮箱：731139982@qq.com
+        创建时间：2023-6-26 17:57:17
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+	<select id="getBasicsdatumMaterialColorList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo">
+		SELECT
+			t.*,
+			t1.color,
+			t1.color_hex
+		FROM
+			t_basicsdatum_material_color t
+			LEFT JOIN t_goods_color t1 ON t.company_code = t1.company_code 
+			AND t.color_code = t1.color_code
+		WHERE
+			t.company_code = #{companyCode}
+			and t.del_flag = "0"
+			and t.material_code = #{materialCode}
+	</select>
+	<select id="getBasicsdatumMaterialColorSelect" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo">
+		SELECT
+			t.color_code,
+			t1.color
+		FROM
+			t_basicsdatum_material_color t
+			LEFT JOIN t_goods_color t1 ON t.company_code = t1.company_code 
+			AND t.color_code = t1.color_code
+		WHERE
+			t.company_code = #{companyCode}
+			and t.del_flag = "0"
+			and t.material_code = #{materialCode}
+	</select>
+	
+	<select id="getBasicsdatumMaterialWidthList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo">
+		SELECT
+			t.*,
+			t1.`name`
+		FROM
+			t_basicsdatum_material_width t
+			LEFT JOIN t_specification t1 ON t.company_code = t1.company_code 
+			AND t.width_code = t1.`code`
+		WHERE
+			t.company_code = #{companyCode}
+			and t.del_flag = "0"
+			and t.material_code = #{materialCode}
+	</select>
+	
+	<select id="getBasicsdatumMaterialWidthSelect" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo">
+		SELECT
+			t.width_code as code,
+			t1.`name`
+		FROM
+			t_basicsdatum_material_width t
+			LEFT JOIN t_specification t1 ON t.company_code = t1.company_code 
+			AND t.width_code = t1.`code`
+		WHERE
+			t.company_code = #{companyCode}
+			and t.del_flag = "0"
+			and t.material_code = #{materialCode}
+	</select>
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>
+

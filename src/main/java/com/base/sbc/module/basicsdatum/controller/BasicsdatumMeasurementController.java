@@ -5,16 +5,13 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.basicsdatum.controller;
+
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.AddRevampComponentDto;
 import com.base.sbc.module.basicsdatum.dto.AddRevampMeasurementDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMeasurementService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumComponentVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMeasurementVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -28,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.List;
 
 /**
 * 类描述：基础资料-测量点 Controller类

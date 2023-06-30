@@ -1,9 +1,9 @@
 package com.base.sbc.client.oauth.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
 import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 /**
  * @author Fred
  * @data 创建时间:2020/2/3

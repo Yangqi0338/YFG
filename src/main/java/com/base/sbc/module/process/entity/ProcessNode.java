@@ -5,8 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.process.entity;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -46,6 +45,9 @@ public class ProcessNode extends BaseDataEntity<String> {
     /** 表单id */
     @ApiModelProperty(value = "表单id"  )
     private String formId;
+    /** 阶段id */
+    @ApiModelProperty(value = "阶段id"  )
+    private String stageId;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;

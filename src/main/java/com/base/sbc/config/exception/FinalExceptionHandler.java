@@ -1,12 +1,10 @@
 package com.base.sbc.config.exception;
 
-import java.io.IOException;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import cn.hutool.http.HttpStatus;
+import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.i18n.LocaleMessages;
+import com.base.sbc.config.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.enums.BaseErrorEnum;
-import com.base.sbc.config.i18n.LocaleMessages;
-import com.base.sbc.config.utils.StringUtils;
-
 import springfox.documentation.annotations.ApiIgnore;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Map;
 /**
  * @author Fred
  * @data 创建时间:2020/2/3

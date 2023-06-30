@@ -1,6 +1,7 @@
 package com.base.sbc.module.sample.vo;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -17,8 +18,13 @@ import java.math.BigDecimal;
 @Data
 @ApiModel("设计档案左侧树 vo ChartBarVo ")
 public class ChartBarVo {
+
+    @ApiModelProperty(value = "项目")
     private String product;
+
+    @ApiModelProperty(value = "维度")
     private String dimension;
 
+    @ApiModelProperty(value = "数量")
     private BigDecimal total;
 }

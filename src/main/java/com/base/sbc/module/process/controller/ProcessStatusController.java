@@ -7,7 +7,6 @@
 package com.base.sbc.module.process.controller;
 
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.process.dto.AddRevampProcessStatusDto;
 import com.base.sbc.module.process.dto.QueryStatusDto;

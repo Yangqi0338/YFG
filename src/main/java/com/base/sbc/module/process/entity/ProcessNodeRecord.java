@@ -5,14 +5,16 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.process.entity;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Date;
 /**
  * 类描述：流程配置-节点记录 实体类
  * @address com.base.sbc.module.process.entity.ProcessNodeRecord
@@ -42,6 +44,8 @@ public class ProcessNodeRecord extends BaseDataEntity<String> {
     private String nodeName;
     /** 节点id */
     private String nodeId;
+    /*阶段id*/
+    private String stageId;
     /** 开始时间 */
     @ApiModelProperty(value = "开始时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

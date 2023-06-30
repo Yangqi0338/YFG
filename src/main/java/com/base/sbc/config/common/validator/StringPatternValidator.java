@@ -1,11 +1,10 @@
 package com.base.sbc.config.common.validator;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-
+import com.base.sbc.config.common.annotation.StringPattern;
 import org.springframework.util.StringUtils;
 
-import com.base.sbc.config.common.annotation.StringPattern;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
 /**
  * @author Fred

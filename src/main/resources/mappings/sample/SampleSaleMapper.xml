@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.sample.mapper.SampleSaleMapper">
+    <!-- 分页查询 -->
+    <select id="getList" resultType="com.base.sbc.module.sample.vo.SampleSaleVo">
+        SELECT ss.id, ss.`code`, ss.total_count, ss.custmer_name, ss.total_price, ss.sale_name, ss.sale_date, ss.remarks
+        FROM t_sample_sale ss
+        JOIN t_sample_sale_item ssi ON ssi.sample_sale_id = ss.id
+        JOIN t_sample s ON ssi.sample_id = s.id
+        JOIN t_sample_item si ON si.sample_id = s.id
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="getDetail" resultType="com.base.sbc.module.sample.vo.SampleSaleVo">
+        SELECT ss.id, ss.`code`, ss.total_count, ss.custmer_name, ss.total_price, ss.sale_name, ss.sale_date, ss.remarks
+        FROM t_sample_sale ss
+        JOIN t_sample_sale_item ssi ON ssi.sample_sale_id = ss.id
+        JOIN t_sample s ON ssi.sample_id = s.id
+        JOIN t_sample_item si ON si.sample_id = s.id
+        WHERE id = #{id}
+    </select>
+</mapper>
+

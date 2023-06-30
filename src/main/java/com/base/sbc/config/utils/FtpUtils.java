@@ -1,7 +1,5 @@
 package com.base.sbc.config.utils;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -13,7 +11,6 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import static com.base.sbc.config.utils.FilesUtils.logger;
 import static org.eclipse.jetty.util.StringUtil.CRLF;

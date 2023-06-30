@@ -35,10 +35,10 @@ public interface ProcessBusinessInstanceService extends BaseService<ProcessBusin
     /**
      * 描述- 完成操作
      * businessDataId 业务数据id
-     * action 动作
+     * actionCode 动作
      * @return
      */
-    Boolean complete(String businessDataId, String action, Object objectData);
+    Boolean complete(String businessDataId, String actionCode, Object objectData);
 
 
     /**

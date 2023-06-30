@@ -2,10 +2,8 @@ package com.base.sbc.module.httpLog.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.base.sbc.config.SqlDataInfo;
-import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
 
 import java.util.Date;
 import java.util.List;

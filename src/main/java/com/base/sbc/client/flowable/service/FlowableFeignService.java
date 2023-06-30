@@ -1,6 +1,5 @@
 package com.base.sbc.client.flowable.service;
 
-import com.base.sbc.config.common.ApiResult;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;

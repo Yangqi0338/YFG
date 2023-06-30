@@ -152,7 +152,7 @@ public class PatternMakingController {
     @PostMapping("/nodeStatusChange")
     public boolean nodeStatusChange(Principal user, @RequestBody List<NodeStatusChangeDto> list) {
         GroupUser groupUser = userUtils.getUserBy(user);
-        return patternMakingService.nodeStatusChange(list, groupUser);
+        return patternMakingService.nodeStatusChange(groupUser.getId(), list, groupUser);
     }
 
 
@@ -225,8 +225,14 @@ public class PatternMakingController {
 
     @ApiOperation(value = "获取节点状态配置", notes = "")
     @GetMapping("/getNodeStatusConfig")
-    public JSONObject getNodeStatusConfig(String node, String status) {
-        return patternMakingService.getNodeStatusConfig(node, status);
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "node", value = "节点", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "status", value = "状态", required = false, dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "dataId", value = "打版id", required = false, dataType = "String", paramType = "query"),
+    })
+    public JSONObject getNodeStatusConfig(Principal user, String node, String status, String dataId) {
+        GroupUser userBy = userUtils.getUserBy(user);
+        return patternMakingService.getNodeStatusConfig(userBy.getId(), node, status, dataId);
     }
 
     @ApiOperation(value = "分配人员(裁剪工,车缝工)", notes = "")
@@ -240,6 +246,13 @@ public class PatternMakingController {
     public List<PatternDesignVo> pdTaskDetail(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode){
         return patternMakingService.pdTaskDetail(companyCode);
     }
+
+    @ApiOperation(value = "获取制版单-样衣新增", notes = "")
+    @GetMapping("/getAllList")
+    public PageInfo getAllList(PatternMakingCommonPageSearchDto dto){
+        return patternMakingService.queryPageInfo(dto);
+    }
+
 }
 
 

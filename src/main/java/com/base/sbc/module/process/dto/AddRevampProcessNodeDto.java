@@ -6,12 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.process.dto;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 /**
  * 类描述：新增修改流程配置-节点表 dto类
  * @address com.base.sbc.module.process.dto.ProcessNode
@@ -38,6 +35,9 @@ public class AddRevampProcessNodeDto  {
     /** 表单id */
     @ApiModelProperty(value = "表单id"  )
     private String formId;
+    /** 阶段id */
+    @ApiModelProperty(value = "阶段id"  )
+    private String stageId;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;

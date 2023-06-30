@@ -44,6 +44,7 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
 
     List<Map<String, Object>> nsCount(@Param(Constants.WRAPPER) QueryWrapper qw);
 
+    List<PatternMakingForSampleVo> getAllList(@Param(Constants.WRAPPER) QueryWrapper qw);
     List<PatternMakingListVo> findBySampleDesignId(@Param(Constants.WRAPPER) QueryWrapper<PatternMaking> qw);
 
 

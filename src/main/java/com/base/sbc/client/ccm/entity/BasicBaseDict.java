@@ -6,9 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.client.ccm.entity;
 
-import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.math.BigDecimal;

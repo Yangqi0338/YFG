@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.UUID;
 
 import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;

@@ -3,8 +3,12 @@ package com.base.sbc.client.amc.service;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.open.dto.SmpUserDto;
+import com.base.sbc.open.entity.SmpDept;
+import com.base.sbc.open.entity.SmpPost;
+import com.base.sbc.open.entity.SmpUser;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -53,7 +57,7 @@ public interface AmcService {
     public String getDeptList(@RequestHeader("Authorization") String token,@RequestParam("userIds") String[] userIds);
 
     @GetMapping("/amc/api/token/companyUser/getCompanyUserInfoByUserIds")
-    public String getCompanyUserInfoByUserIds( @RequestParam("userIds") String userIds);
+    public String getCompanyUserInfoByUserIds(@RequestParam("userIds") String userIds, @RequestParam("dpj") String dpj);
 
     /**
      * 获取用户头像
@@ -78,7 +82,7 @@ public interface AmcService {
      * @return
      */
     @GetMapping("/amc/api/token/companyJob/getJobByUserIdOrJobName")
-    public String getJobByUserIdOrJobName(  @RequestParam("userId") String userId,  @RequestParam("jobName") String jobName);
+    public String getJobByUserIdOrJobName(@RequestParam("userId") String userId,  @RequestParam("jobName") String jobName);
 
     /**
      * 查询企业列表树
@@ -99,7 +103,29 @@ public interface AmcService {
      * hr-人员
      */
     @PostMapping("/amc/api/open/smp/hrUserSave")
-    String hrUserSave(@RequestBody SmpUserDto smpUser);
+    String hrUserSave(@RequestBody SmpUser smpUser);
+
+    /**
+     * hr-部门
+     */
+    @PostMapping("/amc/api/open/smp/hrUserSave")
+    String hrDeptSave(@RequestBody SmpDept smpUser);
+
+    /**
+     * hr-岗位
+     */
+    @PostMapping("/amc/api/open/smp/hrUserSave")
+    String hrPostSave(@RequestBody SmpPost smpUser);
+
+
+    @PostMapping(value = "/amc/api/open/initData/dept",headers = {"Content-type=application/json"})
+    String dept(@RequestBody List<SmpDept> list);
+
+    @PostMapping(value = "/amc/api/open/initData/user",headers = {"Content-type=application/json"})
+    String user(@RequestBody List<SmpUser> list);
+
+    @PostMapping(value = "/amc/api/open/initData/post",headers = {"Content-type=application/json"})
+    String post(@RequestBody List<SmpPost> list);
 
     /**
      * 获取团队里的人员，通过产品季id
@@ -120,4 +146,6 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/token/teamRelation/getPlanningSeasonIdByUserId")
     String getPlanningSeasonIdByUserId(@RequestParam("userId") String userId);
+
+
 }

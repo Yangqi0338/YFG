@@ -6,18 +6,17 @@
  *****************************************************************************/
 package com.base.sbc.config.generator.utils;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.base.sbc.config.generator.entity.DataSource;
+import com.base.sbc.config.generator.entity.Params;
+import com.base.sbc.config.generator.entity.Tables;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-import com.base.sbc.config.generator.entity.DataSource;
-import com.base.sbc.config.generator.entity.Params;
-import com.base.sbc.config.generator.entity.Tables;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /** 
  * 类描述：

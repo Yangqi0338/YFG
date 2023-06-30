@@ -2,7 +2,6 @@ package com.base.sbc.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.base.sbc.config.common.base.UserCompany;
-import com.base.sbc.config.security.UrlFilterSecurityInterceptor;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +38,7 @@ public class AutoFillFieldValueConfig implements MetaObjectHandler {
     @Override
     public void updateFill(MetaObject metaObject) {
         userInfo();
-        this.strictUpdateFill(metaObject, "updateDate", Date.class, new Date());
+        this.setFieldValByName("updateDate", new Date(),metaObject);
         this.strictInsertFill(metaObject, "updateName", String.class, userName);
         this.strictInsertFill(metaObject, "updateId", String.class, userId);
     }

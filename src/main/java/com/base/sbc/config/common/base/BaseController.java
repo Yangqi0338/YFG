@@ -1,12 +1,12 @@
 package com.base.sbc.config.common.base;
 
-import java.beans.PropertyEditorSupport;
-import java.util.Date;
-import java.util.Map;
-
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.i18n.LocaleMessages;
+import com.base.sbc.config.utils.DateUtils;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,15 +14,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
-import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.enums.BaseErrorEnum;
-import com.base.sbc.config.i18n.LocaleMessages;
-import com.base.sbc.config.utils.DateUtils;
-import com.base.sbc.config.utils.StringUtils;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.beans.PropertyEditorSupport;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * @author fred

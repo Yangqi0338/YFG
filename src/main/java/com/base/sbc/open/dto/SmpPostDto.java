@@ -1,5 +1,6 @@
 package com.base.sbc.open.dto;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import lombok.Data;
 
 /**
@@ -9,18 +10,25 @@ import lombok.Data;
  */
 @Data
 public class SmpPostDto {
-    /** 发送状态(1:新增, 2:修改) */
-    private String type;
-    /** 岗位状态(3:作废,其他正常) */
-    private String objStatus;
+    @Excel(name = "id")
+    private String id;
     /** 中心编号 */
+    @Excel(name = "centercode")
     private String centerId;
     /** 公司编号 */
+    @Excel(name = "compid")
     private String companyId;
     /** 岗位ID */
+    @Excel(name = "jobcode")
     private String positionId;
     /** 岗位名称 */
+    @Excel(name = "title")
     private String name;
     /** 中心名称 */
+    @Excel(name = "centername")
     private String centerName;
+
+    /** 岗位状态(1正常,0不正常) */
+    @Excel(name = "poststatus")
+    private String objStatus;
 }

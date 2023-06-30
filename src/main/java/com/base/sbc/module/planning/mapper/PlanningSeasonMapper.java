@@ -33,4 +33,5 @@ public interface PlanningSeasonMapper extends BaseMapper<PlanningSeason> {
     List<PlanningSeason> queryYs(@Param("companyCode") String companyCode);
 
     List<SelectOptionsVo> getPlanningSeasonOptions(@Param(Constants.WRAPPER) QueryWrapper qw);
+
 }

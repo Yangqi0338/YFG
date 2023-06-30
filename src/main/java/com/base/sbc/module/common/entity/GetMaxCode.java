@@ -3,7 +3,6 @@ package com.base.sbc.module.common.entity;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 

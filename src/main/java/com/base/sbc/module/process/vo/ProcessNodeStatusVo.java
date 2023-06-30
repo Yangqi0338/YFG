@@ -6,12 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.process.vo;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 /**
  * 类描述：流程配置-节点状态 Vo类
  * @address com.base.sbc.module.process.vo.ProcessNodeStatus

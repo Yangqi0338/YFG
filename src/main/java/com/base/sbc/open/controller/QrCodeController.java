@@ -4,7 +4,6 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import com.base.sbc.config.common.base.BaseController;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,7 +37,7 @@ public class QrCodeController {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(image, "png", baos);
                 byte[] bytes = baos.toByteArray();
-                response.setContentType("image/jpeg");
+                response.setContentType("image/png");
                 OutputStream outputStream = response.getOutputStream();
                 outputStream.write(bytes);
                 outputStream.flush();

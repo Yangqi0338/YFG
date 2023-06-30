@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.sample.mapper.SampleItemMapper">
+    <!-- 分页查询 -->
+    <select id="getListByItemVo" resultType="com.base.sbc.module.sample.vo.SamplePageByItemVo">
+        SELECT si.id, si.company_code, s.images, s.`status`, s.style_name, si.`code`, s.pattern_making_code,
+        s.sample_type, s.category_name, s.season, s.customer_no, s.examine_status, sc.borrow_code, s.type,
+        si.`status` AS storeStatus, si.from_type, si.color, si.size, sc.borrow_name, sc.borrow_date,
+        sc.operate_name, sc.expect_return_date, sc.return_date, s.design_no, si.price, si.`count`,
+        (TO_DAYS(sc.expect_return_date) - TO_DAYS(sc.borrow_date)) AS borrowDays, si.size, si.sample_id,
+        (TO_DAYS(sc.expect_return_date) - TO_DAYS(NOW())) AS remainingDays, s.from_name, si.position,
+        si.create_name, si.create_date, si.update_id, si.update_name, si.update_date, si.remarks,
+        si.position_id, si.position, si.borrow_count
+        FROM t_sample_item si
+        JOIN t_sample s ON s.id = si.sample_id
+        LEFT JOIN t_sample_circulate_item sci ON sci.sample_item_id = si.id
+        LEFT JOIN t_sample_circulate sc ON sc.id = sci.sample_circulate_id
+        <where>
+            s.company_code = #{companyCode}
+            <if test="type != null">
+                and s.type = #{type}
+            </if>
+            <if test="status != null">
+                AND s.`status` = #{status}
+            </if>
+            <if test="fromType != null">
+                AND si.from_type = #{fromType}
+            </if>
+            <if test="positionId != null">
+                AND si.position_id = #{positionId}
+            </if>
+            <if test="daysRemaining == 1">    -- 剩余1天
+                AND (sc.return_date IS NULL and TO_DAYS(sc.expect_return_date) - TO_DAYS(NOW()) = 1)
+            </if>
+            <if test="daysRemaining == 2">    -- 剩余2天
+                AND (sc.return_date IS NULL and TO_DAYS(sc.expect_return_date) - TO_DAYS(NOW()) = 2)
+            </if>
+            <if test="daysRemaining == 3">    -- 剩余3天
+                AND (sc.return_date IS NULL and TO_DAYS(sc.expect_return_date) - TO_DAYS(NOW()) = 3)
+            </if>
+            <if test="daysRemaining == 4">    -- 剩余7天
+                AND (sc.return_date IS NULL and TO_DAYS(sc.expect_return_date) - TO_DAYS(NOW()) = 7)
+            </if>
+            <if test="daysRemaining == 5">    -- 超过7天
+                AND (sc.return_date IS NULL and TO_DAYS(sc.expect_return_date) - TO_DAYS(NOW()) &gt; 7)
+            </if>
+            <if test="isOverdue == 0">    -- 未逾期
+                AND (sc.return_date IS NULL and TO_DAYS(NOW()) - TO_DAYS(sc.expect_return_date) &lt;= 0)
+            </if>
+            <if test="isOverdue == 1">    -- 逾期
+                AND (sc.return_date IS NULL and TO_DAYS(NOW()) - TO_DAYS(sc.expect_return_date) &gt; 0)
+            </if>
+            <if test="search != null and search != ''">
+                AND (s.design_no like concat('%',#{search,jdbcType=VARCHAR},'%')
+                OR s.customer_no like concat('%',#{search,jdbcType=VARCHAR},'%')
+                OR si.`code` like concat('%',#{search,jdbcType=VARCHAR},'%'))
+            </if>
+        </where>
+        ORDER BY s.create_date DESC
+    </select>
+
+    <select id="getListBySampleId" resultType="com.base.sbc.module.sample.entity.SampleItem">
+        SELECT * FROM t_sample_item WHERE sample_id = #{sampleId}
+    </select>
+</mapper>
+

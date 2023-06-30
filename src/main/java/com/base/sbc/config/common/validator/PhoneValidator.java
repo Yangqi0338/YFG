@@ -1,11 +1,10 @@
 package com.base.sbc.config.common.validator;
 
-import java.util.regex.Pattern;
+import com.base.sbc.config.common.annotation.IsPhone;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
-import com.base.sbc.config.common.annotation.IsPhone;
+import java.util.regex.Pattern;
 
 /**
  * @author Fred

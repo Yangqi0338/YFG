@@ -16,6 +16,9 @@ import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategory;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.planning.vo.DimensionTotalVo;
+import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
+import com.base.sbc.module.sample.vo.ChartBarVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -124,4 +127,15 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
     boolean updateItemBatch(PlanningCategoryItemBatchUpdateDto dto);
 
     List<SampleUserVo> getAllDesigner(String userCompany);
+
+    /**
+     * 维度统计
+     *
+     * @param qw@return
+     */
+    List<DimensionTotalVo> dimensionTotal(QueryWrapper qw);
+
+    List<PlanningSummaryDetailVo> planningSummaryDetail(QueryWrapper detailQw);
+
+    List<ChartBarVo> categorySummary(QueryWrapper qw);
 }

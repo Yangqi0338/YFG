@@ -22,7 +22,7 @@ public class ColorModelNumber extends BaseDataEntity<String> {
     private String fileName;
 
     /**备注*/
-    private String remark;
+    private String remarks;
 
     /**材料种类id*/
     private String mat2ndCategoryId;

@@ -1,11 +1,9 @@
 package com.base.sbc.config.common;
 
-import org.lionsoul.ip2region.xdb.Searcher;
-
 import com.base.sbc.config.utils.StringUtils;
-
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.lionsoul.ip2region.xdb.Searcher;
 
 /**
  *

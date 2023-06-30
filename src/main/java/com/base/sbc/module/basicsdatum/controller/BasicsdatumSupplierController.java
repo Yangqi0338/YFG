@@ -5,30 +5,40 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.basicsdatum.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumSupplierDto;
 import com.base.sbc.module.basicsdatum.dto.QueryRevampBasicsdatumSupplierDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumSupplierDto;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumSupplierVo;
-import org.hibernate.validator.constraints.NotBlank;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
+import com.base.sbc.module.basicsdatum.vo.SelectVo;
 import com.github.pagehelper.PageInfo;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
-import java.util.List;
 
 /**
 * 类描述：基础资料-供应商 Controller类
@@ -46,6 +56,26 @@ public class BasicsdatumSupplierController{
 
 	@Autowired
 	private BasicsdatumSupplierService basicsdatumSupplierService;
+
+	@Autowired
+	private BaseController baseController;
+
+	@ApiOperation(value = "下拉组件查询")
+	@GetMapping("/getBasicsdatumSupplierSelect")
+	public List<SelectVo> getBasicsdatumSupplierSelect(@RequestParam(value = "name", required = false) String name) {
+		List<BasicsdatumSupplier> list = basicsdatumSupplierService
+				.list(new QueryWrapper<BasicsdatumSupplier>().select("supplier_code,supplier")
+						.eq("company_code", baseController.getUserCompany()).eq("status", "0").like("supplier", name));
+		List<SelectVo> newList = new ArrayList<>();
+		SelectVo vo;
+		for (BasicsdatumSupplier bs : list) {
+			vo = new SelectVo();
+			vo.setCode(bs.getSupplierCode());
+			vo.setName(bs.getSupplier());
+			newList.add(vo);
+		}
+		return newList;
+	}
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getBasicsdatumSupplierList")

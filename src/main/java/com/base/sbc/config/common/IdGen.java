@@ -1,8 +1,8 @@
 package com.base.sbc.config.common;
 
-import java.util.List;
-
 import com.google.common.collect.Lists;
+
+import java.util.List;
 /**
  * @author Fred
  * @data 创建时间:2020/2/3

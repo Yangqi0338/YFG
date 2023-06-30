@@ -7,11 +7,9 @@
 package com.base.sbc.module.pricing.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.module.pricing.dto.PricingDelDTO;
-import com.base.sbc.module.pricing.vo.PricingColorVO;
+import com.base.sbc.module.pricing.entity.PricingCraftCosts;
 import com.base.sbc.module.pricing.vo.PricingCraftCostsVO;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.pricing.entity.PricingCraftCosts;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
