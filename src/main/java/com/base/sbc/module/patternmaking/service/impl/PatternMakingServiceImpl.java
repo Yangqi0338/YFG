@@ -755,24 +755,42 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (auth == null) {
             return pm;
         }
-        if (auth.containsKey("userId")) {
-            //判断当前userId是否和授权的userId相等
-            String authUserIdKey = auth.getString("userId");
-            String authUserId = BeanUtil.getProperty(pm, authUserIdKey);
-            if (!StrUtil.equals(authUserId, getUserId())) {
-                throw new OtherException("你无权限操作!用户不匹配");
-            }
+        //角色or岗位匹配会+1
+        int flg = 0;
+        List<String> msg = new ArrayList<>(4);
+        JSONArray authUserIdArr = auth.getJSONArray("userId");
+        JSONArray authPostArr = auth.getJSONArray("post");
+        if (ObjectUtil.isEmpty(authUserIdArr) && ObjectUtil.isEmpty(authPostArr)) {
+            return pm;
         }
-        if (auth.containsKey("post")) {
+        if (ObjectUtil.isNotEmpty(authUserIdArr)) {
+            //判断当前userId是否和授权的userId相等
+            List<String> authUserIds = authUserIdArr.toJavaList(String.class).stream().map(item -> {
+                return (String) BeanUtil.getProperty(pm, item);
+            }).collect(Collectors.toList());
+            if (authUserIds.contains(userId)) {
+                flg++;
+            } else {
+                msg.add("用户不匹配");
+            }
+
+        }
+        if (ObjectUtil.isNotEmpty(authPostArr) && flg == 0) {
             // 2.1 获取当前登录人员岗位
             UserCompany userInfo = amcFeignService.getUserInfo(getUserId(), BaseGlobal.YES);
             List<String> userPostName = Opt.ofNullable(userInfo.getPostList()).map(pl -> pl.stream().map(CompanyPost::getName).collect(Collectors.toList())).orElse(new ArrayList<>());
-            List<String> authPost = auth.getJSONArray("post").toJavaList(String.class);
+            List<String> authPost = authPostArr.toJavaList(String.class);
             // 是否有交集
             Collection<String> intersection = CollUtil.intersection(userPostName, authPost);
-            if (CollUtil.isEmpty(intersection)) {
-                throw new OtherException("岗位不匹配,需要[" + StrUtil.join(StrUtil.COMMA, authPost) + "]");
+            if (CollUtil.isNotEmpty(intersection)) {
+                flg++;
+            } else {
+                msg.add("岗位不匹配,需要[" + StrUtil.join(StrUtil.COMMA, authPost) + "]");
             }
+        }
+        //无匹配项抛出异常
+        if (flg == 0) {
+            throw new OtherException(CollUtil.join(msg, StrUtil.COMMA));
         }
         return pm;
 
