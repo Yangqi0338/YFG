@@ -10,12 +10,12 @@ import java.util.Date;
 
 
 /**
- * 类描述： 样衣销售分页查询
- * @address com.base.sbc.module.sample.dto.SampleSalePageDto
+ * 类描述： 样衣盘点分页查询
+ * @address com.base.sbc.module.sample.dto.SampleInventoryPageDto
  */
 @Data
-@ApiModel("样衣销售分页查询 SampleSalePageDto")
-public class SampleSalePageDto extends Page {
+@ApiModel("样衣盘点分页查询 SampleInventoryPageDto")
+public class SampleInventoryPageDto extends Page {
 
     /** 开始时间 */
     @ApiModelProperty(value = "开始时间")
@@ -31,11 +31,11 @@ public class SampleSalePageDto extends Page {
     @ApiModelProperty(value = "企业编号", example = "680014765321355265")
     private String companyCode;
 
-    /** 样衣销售ID */
-    @ApiModelProperty(value = "样衣销售ID", example = "680014765321355265")
-    private String sampleSaleId;
+    /** 样衣盘点ID */
+    @ApiModelProperty(value = "样衣盘点ID", example = "680014765321355265")
+    private String sampleInventoryId;
 
-    /** 在库状态：0-未入库，1-在库，2-借出，3-删除，4-售出 */
-    @ApiModelProperty(value = "在库状态", example = "1")
+    /** 状态：1-正常，2-作废，3-删除 */
+    @ApiModelProperty(value = "状态：1-正常，2-作废，3-删除", example = "1")
     private String status;
 }

@@ -9,24 +9,19 @@ package com.base.sbc.module.sample.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.base.sbc.module.sample.entity.SampleSale;
-import com.base.sbc.module.sample.vo.SampleSaleSampleItemVo;
-import com.base.sbc.module.sample.vo.SampleSaleVo;
+import com.base.sbc.module.sample.entity.SampleInventoryItem;
+import com.base.sbc.module.sample.vo.SampleInventoryItemVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
- * 类描述：样衣销售 dao类
- * @address com.base.sbc.module.sample.dao.SampleSaleMapper
+ * 类描述：样衣盘点明细 dao类
+ * @address com.base.sbc.module.sample.dao.SampleInventoryItemMapper
  */
 @Mapper
-public interface SampleSaleMapper extends BaseMapper<SampleSale> {
-    List<SampleSaleVo> getList(@Param(Constants.WRAPPER) QueryWrapper qw);
-
-    List<SampleSaleSampleItemVo> getListBySampleItem(@Param(Constants.WRAPPER) QueryWrapper qw);
-
-    SampleSaleVo getDetail(String id);
+public interface SampleInventoryItemMapper extends BaseMapper<SampleInventoryItem> {
+    List<SampleInventoryItemVo> getList(@Param(Constants.WRAPPER) QueryWrapper qw);
 }
 
