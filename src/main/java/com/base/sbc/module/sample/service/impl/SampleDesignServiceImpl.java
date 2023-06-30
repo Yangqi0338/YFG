@@ -24,6 +24,7 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -102,6 +103,8 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
     private FieldManagementService fieldManagementService;
     @Autowired
     private FieldValService fieldValService;
+    @Autowired
+    private BandService bandService;
     private IdGen idGen = new IdGen();
 
     @Override
@@ -234,7 +237,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         String companyCode = getCompanyCode();
         String userId = getUserId();
         QueryWrapper<SampleDesign> qw = new QueryWrapper<>();
-        qw.like(StrUtil.isNotBlank(dto.getSearch()), "design_no", dto.getSearch()).or().like(StrUtil.isNotBlank(dto.getSearch()), "his_design_no", dto.getSearch());
+        qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("design_no", dto.getSearch()).or().like("his_design_no", dto.getSearch()));
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "year", dto.getYear());
         qw.eq(StrUtil.isNotBlank(dto.getDesignerId()), "designer_id", dto.getDesignerId());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "month", dto.getMonth());
@@ -571,10 +574,11 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
 
     @Override
     public List<StyleBoardCategorySummaryVo> categorySummary(PlanningBoardSearchDto dto) {
-        QueryWrapper qw = new QueryWrapper();
+        QueryWrapper<SampleDesign> qw = new QueryWrapper();
         qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "sd.planning_season_id", dto.getPlanningSeasonId());
-        qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "b.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
-        qw.in(StrUtil.isNotEmpty(dto.getMonth()), "b.month", StrUtil.split(dto.getMonth(), CharUtil.COMMA));
+        qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("sd.design_no", dto.getSearch()).or().like("sd.style_no", dto.getSearch()));
+        qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "sd.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotEmpty(dto.getMonth()), "sd.month", StrUtil.split(dto.getMonth(), CharUtil.COMMA));
         qw.in(StrUtil.isNotEmpty(dto.getProdCategoryId()), "sd.prod_category", StrUtil.split(dto.getProdCategoryId(), CharUtil.COMMA));
         List<StyleBoardCategorySummaryVo> styleBoardCategorySummaryVos = getBaseMapper().categorySummary(qw);
         // 统计大类数量
@@ -616,6 +620,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         Long designRequirementSkc = getBaseMapper().colorCount(drsQw);
         vo.setDesignRequirementSkc(designRequirementSkc);
         vo.setBandCode(dto.getBandCode());
+        vo.setBandName(bandService.getNameByCode(dto.getBandCode()));
         if (StrUtil.isNotBlank(dto.getProdCategoryId())) {
             Map<String, String> prodCategoryNames = ccmFeignService.findStructureTreeNameByCategoryIds(dto.getProdCategoryId());
             vo.setProdCategory(CollUtil.join(prodCategoryNames.values(), StrUtil.COMMA));
@@ -623,8 +628,9 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         return vo;
     }
 
-    private void stylePlanningCommonQw(QueryWrapper qw, PlanningBoardSearchDto dto) {
+    private void stylePlanningCommonQw(QueryWrapper<?> qw, PlanningBoardSearchDto dto) {
         qw.eq("sd." + COMPANY_CODE, getCompanyCode());
+        qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("sd.design_no", dto.getSearch()).or().like("sd.style_no", dto.getSearch()));
         qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "sd.planning_season_id", dto.getPlanningSeasonId());
         qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "sd.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
         qw.in(StrUtil.isNotEmpty(dto.getMonth()), "sd.month", StrUtil.split(dto.getMonth(), CharUtil.COMMA));
