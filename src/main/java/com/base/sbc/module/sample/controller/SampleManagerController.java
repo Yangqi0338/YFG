@@ -45,7 +45,7 @@ public class SampleManagerController {
 	@ApiOperation(value = "保存")
 	@PostMapping("/save")
 	public SampleVo save(@RequestBody SampleSaveDto dto) {
-		return sampleService.saveSample(dto);
+		return sampleService.save(dto);
 	}
 
 	@ApiOperation(value = "分页查询-设计款号维度")

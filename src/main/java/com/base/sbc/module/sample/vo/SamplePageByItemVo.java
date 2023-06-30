@@ -160,4 +160,8 @@ public class SamplePageByItemVo {
     @ApiModelProperty(value = "数量")
     private Integer count;
 
+    /** 借出数量 */
+    @ApiModelProperty(value = "借出数量")
+    private Integer borrowCount;
+
 }

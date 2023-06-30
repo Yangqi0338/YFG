@@ -23,7 +23,7 @@ public interface SampleService extends BaseService<Sample> {
     PageInfo queryPageInfo(SamplePageDto dto);
 
     /** 保存样衣及明细 */
-    SampleVo saveSample(SampleSaveDto dto);
+    SampleVo save(SampleSaveDto dto);
 
     /** 查询明细数据 */
     SampleVo getDetail(String id);

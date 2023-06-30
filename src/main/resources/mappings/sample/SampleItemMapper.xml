@@ -10,7 +10,7 @@
         (TO_DAYS(sc.expect_return_date) - TO_DAYS(sc.borrow_date)) AS borrowDays, si.size, si.sample_id,
         (TO_DAYS(sc.expect_return_date) - TO_DAYS(NOW())) AS remainingDays, s.from_name, si.position,
         si.create_name, si.create_date, si.update_id, si.update_name, si.update_date, si.remarks,
-        si.position_id, si.position
+        si.position_id, si.position, si.borrow_count
         FROM t_sample_item si
         JOIN t_sample s ON s.id = si.sample_id
         LEFT JOIN t_sample_circulate_item sci ON sci.sample_item_id = si.id

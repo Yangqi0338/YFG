@@ -52,7 +52,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
     private IdGen idGen = new IdGen();
 
     @Override
-    public SampleVo saveSample(SampleSaveDto dto) {
+    public SampleVo save(SampleSaveDto dto) {
         String id = "";
 
         // 获取制版单
