@@ -76,8 +76,10 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		qc.notEmptyEq("status", dto.getStatus());
 		qc.notEmptyLike("material_code", dto.getMaterialCode());
 		qc.notEmptyLike("material_name", dto.getMaterialName());
-		qc.and(Wrapper -> Wrapper.eq("category_id", dto.getCategoryId()).or().like("category_ids ",
+		if (StringUtils.isNotEmpty(dto.getCategoryId())) {
+			qc.and(Wrapper -> Wrapper.eq("category_id", dto.getCategoryId()).or().like("category_ids ",
 				dto.getCategoryId()));
+		}
 		List<BasicsdatumMaterial> list = this.list(qc);
 		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
 	}
