@@ -6,22 +6,26 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.basicsdatum.dto.ColorModelNumberDto;
 import com.base.sbc.module.basicsdatum.dto.ColorModelNumberExcelDto;
 import com.base.sbc.module.basicsdatum.entity.ColorModelNumber;
 import com.base.sbc.module.basicsdatum.service.ColorModelNumberService;
+import com.base.sbc.module.basicsdatum.vo.ColorModelNumberBaseSelectVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
 
@@ -121,5 +125,18 @@ public class ColorModelNumberController extends BaseController {
         queryWrapper.eq("file_name",colorModelNumberDto.getFileName());
         List<ColorModelNumberExcelDto> list = BeanUtil.copyToList(colorModelNumberService.list(queryWrapper), ColorModelNumberExcelDto.class);
         ExcelUtils.exportExcel(list,  ColorModelNumberExcelDto.class, "色号和色型.xlsx",new ExportParams() ,response);
+    }
+
+    /**
+     * 查询色号和型号拉下框组件基本信息
+     *
+     * @param distCode
+     * @param fileName
+     * @return
+     */
+    @ApiOperation(value = "查询色号和型号拉下框组件基本信息")
+    @GetMapping("/getByDistCode")
+    public ApiResult getByDistCode(@Valid @NotBlank(message = "依赖编码不可为空") String distCode, @NotBlank(message = "类型不可为空") String fileName) {
+        return selectSuccess(colorModelNumberService.getByDistCode(distCode, fileName, super.getUserCompany()));
     }
 }

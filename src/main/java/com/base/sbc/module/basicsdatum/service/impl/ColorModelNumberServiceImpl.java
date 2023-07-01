@@ -3,16 +3,21 @@ package com.base.sbc.module.basicsdatum.service.impl;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.ColorModelNumberExcelDto;
 import com.base.sbc.module.basicsdatum.entity.ColorModelNumber;
 import com.base.sbc.module.basicsdatum.mapper.ColorModelNumberMapper;
 import com.base.sbc.module.basicsdatum.service.ColorModelNumberService;
+import com.base.sbc.module.basicsdatum.vo.ColorModelNumberBaseSelectVO;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.google.common.collect.Lists;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -76,5 +81,19 @@ public class ColorModelNumberServiceImpl extends BaseServiceImpl<ColorModelNumbe
             this.saveOrUpdate(colorModelNumber,queryWrapper);
         }
         return true;
+    }
+
+    @Override
+    public List<ColorModelNumberBaseSelectVO> getByDistCode(String distCode, String fileName, String userCompany) {
+        LambdaQueryWrapper<ColorModelNumber> queryWrapper = new LambdaQueryWrapper<ColorModelNumber>()
+                .like(ColorModelNumber::getMat2ndCategoryId, distCode)
+                .eq(ColorModelNumber::getFileName, fileName)
+                .eq(ColorModelNumber::getCompanyCode, userCompany)
+                .select(ColorModelNumber::getCode, ColorModelNumber::getName);
+        List<ColorModelNumber> list = super.list(queryWrapper);
+        if (CollectionUtils.isEmpty(list)) {
+            return Lists.newArrayList();
+        }
+        return CopyUtil.copy(list, ColorModelNumberBaseSelectVO.class);
     }
 }
