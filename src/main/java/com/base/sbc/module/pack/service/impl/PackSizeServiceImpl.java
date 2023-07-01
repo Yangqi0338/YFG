@@ -82,7 +82,8 @@ public class PackSizeServiceImpl extends BaseServiceImpl<PackSizeMapper, PackSiz
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean del(String id) {
-        return removeBatchByIds(StrUtil.split(id, CharUtil.COMMA));
+        removeBatchByIds(StrUtil.split(id, CharUtil.COMMA));
+        return true;
     }
 
     @Override
