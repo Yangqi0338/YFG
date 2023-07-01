@@ -14,7 +14,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 /**
  * 类描述：字段值 实体类
  *
@@ -22,7 +21,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.formType.entity.FieldVal
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-8 14:03:39
+ * @date 创建时间：2023-7-1 11:57:03
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -43,7 +42,7 @@ public class FieldVal extends BaseDataEntity<String> {
      * 关联id
      */
     @ApiModelProperty(value = "关联id")
-    private String fId;
+    private String foreignId;
     /**
      * 数据分组
      */

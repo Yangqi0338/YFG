@@ -91,6 +91,11 @@ public class HangTagListVO {
     private Date confirmDate;
 
     /**
+     * 品名编码
+     */
+    @ApiModelProperty(value = "品名编码")
+    private String productCode;
+    /**
      * 品名
      */
     @ApiModelProperty(value = "品名")

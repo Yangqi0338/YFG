@@ -116,6 +116,22 @@ public class SampleItemServiceImpl extends BaseServiceImpl<SampleItemMapper, Sam
                 si.setCount(si.getCount() - count);
                 mapper.updateById(si);
             }
+        } else if (type == 5){ //盘点
+            // 差额
+            Integer differ = si.getCount() - count;
+            si.setCount(count);
+            si.setStatus(1);
+            index = mapper.updateById(si);
+
+            sample.setCount(sample.getCount() - differ);
+            if (sample.getCount().equals(sample.getBorrowCount())) {
+                sample.setCompleteStatus(0);
+            } else if (sample.getBorrowCount() < sample.getCount()) {
+                sample.setCompleteStatus(1);
+            } else if (sample.getBorrowCount() == 0 && sample.getCount() > 0) {
+                sample.setCompleteStatus(2);
+            }
+            sampleMapper.updateById(sample);
         }
 
         return index > 0 ? true : false;

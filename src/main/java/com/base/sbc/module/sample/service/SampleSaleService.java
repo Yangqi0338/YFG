@@ -22,6 +22,9 @@ public interface SampleSaleService extends BaseService<SampleSale> {
     /** 分页查询 */
     PageInfo queryPageInfo(SampleSalePageDto dto);
 
+    /** -样衣明细维度 */
+    PageInfo getListBySampleItem(SampleSalePageDto dto);
+
     /** 保存样衣及明细 */
     SampleSaleVo save(SampleSaleSaveDto dto);
 

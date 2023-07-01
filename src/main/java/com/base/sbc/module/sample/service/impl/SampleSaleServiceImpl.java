@@ -132,4 +132,22 @@ public class SampleSaleServiceImpl extends BaseServiceImpl<SampleSaleMapper, Sam
 
         return objects.toPageInfo();
     }
+
+    @Override
+    public PageInfo getListBySampleItem(SampleSalePageDto dto) {
+        QueryWrapper<SampleSaleVo> qw = new QueryWrapper<>();
+        qw.eq("ss.company_code", getCompanyCode());
+        if (null != dto.getStatus())
+            qw.eq("si.status", dto.getStatus());
+        if (null != dto.getSampleSaleItemId())
+            qw.eq("ssi.id", dto.getSampleSaleItemId());
+        if (null != dto.getSampleSaleId())
+            qw.eq("ssi.sample_sale_id", dto.getSampleSaleId());
+        qw.orderByDesc("ss.create_date");
+
+        Page<SampleSaleVo> objects = PageHelper.startPage(dto);
+        getBaseMapper().getListBySampleItem(qw);
+
+        return objects.toPageInfo();
+    }
 }

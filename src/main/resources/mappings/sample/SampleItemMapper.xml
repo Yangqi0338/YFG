@@ -17,6 +17,9 @@
         LEFT JOIN t_sample_circulate sc ON sc.id = sci.sample_circulate_id
         <where>
             s.company_code = #{companyCode}
+            <if test="sampleItemId != null">
+                and si.id = #{sampleItemId}
+            </if>
             <if test="type != null">
                 and s.type = #{type}
             </if>

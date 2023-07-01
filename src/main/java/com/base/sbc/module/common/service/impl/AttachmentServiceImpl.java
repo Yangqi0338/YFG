@@ -49,12 +49,12 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
     /**
      * 通过fid 查询
      *
-     * @param fId
+     * @param foreignId
      * @return
      */
     @Override
-    public List<AttachmentVo> findByFId(String fId,String type) {
-        return getBaseMapper().findByFId(fId,type);
+    public List<AttachmentVo> findByforeignId(String foreignId, String type) {
+        return getBaseMapper().findByFId(foreignId, type);
     }
 
     @Override
@@ -111,10 +111,10 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public Integer saveAttachment(List<AttachmentSaveDto> dtos, String fid, String type) {
+    public Integer saveAttachment(List<AttachmentSaveDto> dtos, String foreignId, String type) {
         // 删除之前的
         QueryWrapper<Attachment> removeQw = new QueryWrapper<>();
-        removeQw.eq("f_id", fid);
+        removeQw.eq("foreign_id", foreignId);
         removeQw.eq("type", type);
         remove(removeQw);
         if (CollUtil.isEmpty(dtos)) {
@@ -123,7 +123,7 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
         List<Attachment> attachmentList = new ArrayList<>();
         for (AttachmentSaveDto dto : dtos) {
             Attachment attachment = BeanUtil.copyProperties(dto, Attachment.class);
-            attachment.setFId(fid);
+            attachment.setForeignId(foreignId);
             attachment.setType(type);
             attachment.setStatus(BaseGlobal.STATUS_NORMAL);
             attachmentList.add(attachment);

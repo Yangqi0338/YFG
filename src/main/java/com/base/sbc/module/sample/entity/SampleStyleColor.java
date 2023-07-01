@@ -35,6 +35,9 @@ public class SampleStyleColor extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
+    /** 产品季节id */
+    @ApiModelProperty(value = "产品季节id"  )
+    private String planningSeasonId;
     /** 样衣id */
     @ApiModelProperty(value = "样衣id"  )
     private String sampleDesignId;
@@ -59,7 +62,7 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     private String subdivide;
     /** 波段 */
     @ApiModelProperty(value = "波段"  )
-    private String band;
+    private String bandCode;
     /** bom */
     @ApiModelProperty(value = "bom"  )
     private String bom;
@@ -93,6 +96,12 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     /** 厂家颜色 */
     @ApiModelProperty(value = "厂家颜色"  )
     private String manufacturerColor;
+    /** 是否主推(0否,1:是) */
+    @ApiModelProperty(value = "是否主推(0否,1:是)"  )
+    private String isMainly;
+    /** 次品编号 */
+    @ApiModelProperty(value = "次品编号"  )
+    private String defectiveNo;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;

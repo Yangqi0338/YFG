@@ -32,9 +32,9 @@ public class SampleInventoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "企业编码")
     private String companyCode;
 
-    /** 样衣调拨主键ID */
-    @ApiModelProperty(value = "样衣调拨主键ID")
-    private String sampleAllocateId;
+    /** 样衣盘点主键ID */
+    @ApiModelProperty(value = "样衣盘点主键ID")
+    private String sampleInventoryId;
 
     /** 样衣主键ID */
     @ApiModelProperty(value = "样衣主键ID")

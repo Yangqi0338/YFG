@@ -23,10 +23,10 @@ public class Page implements Serializable {
 
     @ApiModelProperty(value = "第几页", example = "1")
     @NotNull(message = "不能为空")
-    private int pageNum;
+    private Integer pageNum;
     @ApiModelProperty(value = "每页数量", example = "10")
     @NotNull(message = "不能为空")
-    private int pageSize;
+    private Integer pageSize;
     @ApiModelProperty(value = "排序(单表)", example = "create_date desc")
     private String orderBy;
     @ApiModelProperty(value = "关键字搜索", example = "")
@@ -45,5 +45,20 @@ public class Page implements Serializable {
     public String getOrderByColumn() {
         return Opt.ofBlankAble(orderBy).map(o -> o.toUpperCase().replace("ASC", "").replace("DESC", "")).orElse(null);
     }
+
+    public Integer getPageSize() {
+        if (pageSize == null) {
+            pageSize = 0;
+        }
+        return pageSize;
+    }
+
+    public Boolean getPageSizeZero() {
+        if (getPageSize() == 0) {
+            return true;
+        }
+        return false;
+    }
+
 
 }

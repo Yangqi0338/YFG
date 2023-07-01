@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.sample.mapper.SampleInventoryMapper">
+    <!-- 分页查询 -->
+    <select id="getList" resultType="com.base.sbc.module.sample.vo.SampleInventoryVo">
+        SELECT si2.id, si2.`code`, si2.inventory_status, si2.examine_status, si2.`name`,
+           si2.operate_name, si2.operate_id, si2.start_date, si2.end_date, si2.create_date,
+           si2.create_id, si2.create_name, si2.update_id, si2.update_date, si2.update_name,
+           si2.examine_reason, si2.remarks
+        FROM t_sample_inventory si2
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="getDetail" resultType="com.base.sbc.module.sample.vo.SampleInventoryVo">
+        SELECT si2.id, si2.`code`, si2.inventory_status, si2.examine_status, si2.`name`,
+               si2.operate_name, si2.operate_id, si2.start_date, si2.end_date, si2.create_date,
+               si2.create_id, si2.create_name, si2.update_id, si2.update_date, si2.update_name,
+               si2.examine_reason, si2.remarks
+        FROM t_sample_inventory si2
+        WHERE si2.id = #{id}
+    </select>
+</mapper>
+

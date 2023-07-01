@@ -22,11 +22,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -39,8 +41,9 @@ import java.util.List;
  * @date 2023/3/18 17:54:12
  */
 @RestController
-@Api(tags = "1.2 SAAS接口[标签]")
+@Api(tags = "波段管理相关接口")
 @RequestMapping(value = BaseController.SAAS_URL + "/band", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@Validated
 public class BandController extends BaseController {
     @Resource
     private BandService bandService;
@@ -152,15 +155,20 @@ public class BandController extends BaseController {
 
     @GetMapping("/queryBand")
     public ApiResult queryBand(BandSaveDto dto){
-        QueryWrapper<Band> qc=new QueryWrapper<>();
-        qc.eq("company_code",getUserCompany());
-        qc.eq(StrUtil.isNotBlank(dto.getStatus()),"status", BaseGlobal.STATUS_NORMAL);
-        qc.eq(StrUtil.isNotBlank(dto.getParticularYear()),"particular_year",dto.getParticularYear());
-        qc.eq(StrUtil.isNotBlank(dto.getSeason()),"season",dto.getSeason());
-        qc.eq(StrUtil.isNotBlank(dto.getCode()),"code",dto.getCode());
-        qc.eq(StrUtil.isNotBlank(dto.getMonth()),"month",dto.getMonth());
+        QueryWrapper<Band> qc = new QueryWrapper<>();
+        qc.eq("company_code", getUserCompany());
+        qc.eq(StrUtil.isNotBlank(dto.getStatus()), "status", BaseGlobal.STATUS_NORMAL);
+        qc.eq(StrUtil.isNotBlank(dto.getParticularYear()), "particular_year", dto.getParticularYear());
+        qc.eq(StrUtil.isNotBlank(dto.getSeason()), "season", dto.getSeason());
+        qc.eq(StrUtil.isNotBlank(dto.getCode()), "code", dto.getCode());
+        qc.eq(StrUtil.isNotBlank(dto.getMonth()), "month", dto.getMonth());
         List<Band> bandList = bandService.list(qc);
         return selectSuccess(bandList);
     }
 
+    @GetMapping("/getNameByCode")
+    @ApiOperation(value = "通过编码获取名称", notes = "")
+    public String getNameByCode(@RequestParam(value = "name", required = true) @Valid @NotBlank(message = "波段名称不能为空") String name) {
+        return bandService.getNameByCode(name);
+    }
 }

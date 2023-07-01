@@ -14,11 +14,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
  * 类描述：附件 实体类
- * @address com.base.sbc.module.common.entity.Attachment
+ *
  * @author lxl
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-12 16:25:34
  * @version 1.0
+ * @address com.base.sbc.module.common.entity.Attachment
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-7-1 11:57:00
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -33,14 +34,20 @@ public class Attachment extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 上传文件id */
-    @ApiModelProperty(value = "上传文件id"  )
+    /**
+     * 上传文件id
+     */
+    @ApiModelProperty(value = "上传文件id")
     private String fileId;
-    /** 外键 */
-    @ApiModelProperty(value = "外键"  )
-    private String fId;
-    /** 类型:样衣/制版/等 */
-    @ApiModelProperty(value = "类型:样衣/制版/等"  )
+    /**
+     * 外键
+     */
+    @ApiModelProperty(value = "外键")
+    private String foreignId;
+    /**
+     * 类型:样衣/制版/等
+     */
+    @ApiModelProperty(value = "类型:样衣/制版/等")
     private String type;
     /** 状态:(0正常,1停用) */
     @ApiModelProperty(value = "状态:(0正常,1停用)"  )

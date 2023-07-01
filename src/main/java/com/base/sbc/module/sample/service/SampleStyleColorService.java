@@ -6,13 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service;
 
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.sample.dto.AddRevampSampleStyleColorDto;
+import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.vo.SampleStyleColorVo;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * 类描述：样衣-款式配色 service类
@@ -32,9 +34,21 @@ public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
         * @param queryDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<SampleStyleColorVo> getSampleStyleColorList(QueryDto queryDto);
+        PageInfo<SampleStyleColorVo> getSampleStyleColorList(QuerySampleStyleColorDto queryDto);
 
+        /**
+         * 方法描述: 获取款式或配饰
+         * @param styleNo 款式编号
+         * @return
+         */
+        List<SampleStyleColorVo> getStyleAccessoryBystyleNo(String designNo);
 
+        /**
+         * 方法描述: 批量新增款式配色-款式配色
+         * @param
+         * @return
+         */
+        Boolean  batchAddSampleStyleColor(List<AddRevampSampleStyleColorDto> list);
 
 
         /**

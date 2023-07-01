@@ -46,6 +46,12 @@ public class SampleSaleController {
 		return sampleSaleService.queryPageInfo(dto);
 	}
 
+	@ApiOperation(value = "分页查询-样衣明细维度")
+	@GetMapping("/getListBySampleItem")
+	public PageInfo getListBySampleItem(@Valid SampleSalePageDto dto){
+		return sampleSaleService.getListBySampleItem(dto);
+	}
+
 	@ApiOperation(value = "详情")
 	@GetMapping("/{id}")
 	public SampleSaleVo getDetail(@PathVariable("id") String id) {

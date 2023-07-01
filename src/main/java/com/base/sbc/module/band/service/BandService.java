@@ -6,15 +6,23 @@
  *****************************************************************************/
 package com.base.sbc.module.band.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.module.band.entity.Band;
+import com.base.sbc.module.common.service.BaseService;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 /**
  * 类描述： service类
+ *
  * @author 卞康
  * @date 创建时间：2023-3-17 18:08:53
  */
 @Service
-public interface BandService extends IService<Band> {
+public interface BandService extends BaseService<Band> {
+
+
+    String getNameByCode(String bandCode);
+
+    Map<String, String> getNamesByCodes(String bandCodes);
 }

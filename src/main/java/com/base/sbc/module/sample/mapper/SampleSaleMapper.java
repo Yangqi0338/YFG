@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.sample.entity.SampleSale;
+import com.base.sbc.module.sample.vo.SampleSaleSampleItemVo;
 import com.base.sbc.module.sample.vo.SampleSaleVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -23,6 +24,8 @@ import java.util.List;
 @Mapper
 public interface SampleSaleMapper extends BaseMapper<SampleSale> {
     List<SampleSaleVo> getList(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    List<SampleSaleSampleItemVo> getListBySampleItem(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     SampleSaleVo getDetail(String id);
 }

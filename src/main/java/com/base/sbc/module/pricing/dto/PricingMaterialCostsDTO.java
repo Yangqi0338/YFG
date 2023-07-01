@@ -79,6 +79,12 @@ public class PricingMaterialCostsDTO {
     @ApiModelProperty(value = "单位")
     private String unitCode;
     /**
+     * 单位名称
+     * TODo
+     */
+    @ApiModelProperty(value = "单位名称")
+    private String unit;
+    /**
      * 损耗%
      */
     @ApiModelProperty(value = "损耗%")
@@ -88,6 +94,12 @@ public class PricingMaterialCostsDTO {
      */
     @ApiModelProperty(value = "额定单耗")
     private String ratedUnitConsumption;
+    /**
+     * 购买货币编码
+     * TODO 币种
+     */
+    @ApiModelProperty(value = "购买货币编码")
+    private String purchaseCurrencyCode;
     /**
      * 购买货币
      */

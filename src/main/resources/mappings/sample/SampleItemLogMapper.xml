@@ -5,7 +5,6 @@
     <select id="getListBySampleItemId" resultType="com.base.sbc.module.sample.entity.SampleItemLog">
         SELECT * FROM t_sample_item_log
         <where>
-            company_code = #{companyCode}
             <if test="sampleItemId != null and sampleItemId != ''">
                 and sample_item_id = #{sampleItemId}
             </if>

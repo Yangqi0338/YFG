@@ -100,6 +100,9 @@ public class BasicsdatumMaterialSaveDto {
 	/** 面料成分说明 */
 	@ApiModelProperty(value = "面料成分说明")
 	private String ingredientSay;
+	/** 门幅 */
+	@ApiModelProperty(value = "门幅")
+	private BigDecimal translate;
 	/** 克重 */
 	@ApiModelProperty(value = "克重")
 	private BigDecimal gramWeight;
@@ -163,7 +166,7 @@ public class BasicsdatumMaterialSaveDto {
 	private Date checkDate;
 	/** 公斤米数 */
 	@ApiModelProperty(value = "公斤米数")
-	private String kgMNum;
+	private BigDecimal kgMNum;
 	/** 长度 */
 	@ApiModelProperty(value = "长度")
 	private String length;

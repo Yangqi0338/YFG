@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.sample.mapper.SampleInventoryItemMapper">
+    <!-- 分页查询 -->
+    <select id="getList" resultType="com.base.sbc.module.sample.vo.SampleInventoryItemVo">
+        SELECT sii.id, s.images, si.`code`, s.design_no, s.style_name, si.color, si.size,
+            si.count, sii.old_count, sii.new_count, sii.differ_type, sii.differ_count,
+            sii.price, sii.old_total_price, sii.new_total_price, sii.differ_total_price
+        FROM t_sample_inventory_item sii
+        LEFT JOIN t_sample_inventory si2 ON si2.id = sii.sample_inventory_id
+        LEFT JOIN t_sample_item si ON si.id = sii.sample_item_id
+        LEFT JOIN t_sample s ON s.id = sii.sample_id
+        ${ew.customSqlSegment}
+    </select>
+</mapper>
+

@@ -33,6 +33,7 @@ import com.base.sbc.module.sample.vo.ChartBarVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -343,8 +344,9 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     }
 
 
-    private void planningSummaryQw(QueryWrapper qw, PlanningBoardSearchDto dto) {
+    private void planningSummaryQw(QueryWrapper<T> qw, PlanningBoardSearchDto dto) {
         qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "ci.planning_season_id", dto.getPlanningSeasonId());
+        qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("ci.design_no", dto.getSearch()).or().like("ci.his_design_no", dto.getSearch()));
         qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "b.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
         qw.in(StrUtil.isNotEmpty(dto.getMonth()), "b.month", StrUtil.split(dto.getMonth(), CharUtil.COMMA));
         qw.in(StrUtil.isNotEmpty(dto.getProdCategoryId()), "ci.prod_category", StrUtil.split(dto.getProdCategoryId(), CharUtil.COMMA));
