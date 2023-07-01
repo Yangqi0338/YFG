@@ -66,6 +66,10 @@ public class SampleDesignPageDto extends Page {
     private String categoryIds;
     @ApiModelProperty(value = "设计师id",example = "680014765321355265" )
     private String designerId;
-
+    /*小类*/
     private String prodCategory3rd;
+    /*设计款号*/
+    private String designNo;
+    /*生产模式*/
+    private String devtType;
 }
