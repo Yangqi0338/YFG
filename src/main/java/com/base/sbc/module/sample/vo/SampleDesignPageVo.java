@@ -91,6 +91,8 @@ public class SampleDesignPageVo {
     private String createName;
     /*款式配色*/
     private List<SampleStyleColorVo> sampleStyleColorVoList;
+    /*轮廓*/
+    private String silhouette;
 
 
 }

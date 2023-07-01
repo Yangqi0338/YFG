@@ -47,6 +47,12 @@ public class SampleDesignPageDto extends Page {
     @ApiModelProperty(value = "月份", example = "1")
     private String month;
 
+    /**
+     * 是否是款式 0否,1:是
+     */
+    @ApiModelProperty(value = "是否是款式", example = "0")
+    private String isTrim;
+
     @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成,引用历史款)", example = "0")
     private String status;
 
@@ -60,4 +66,10 @@ public class SampleDesignPageDto extends Page {
     private String categoryIds;
     @ApiModelProperty(value = "设计师id",example = "680014765321355265" )
     private String designerId;
+    /*小类*/
+    private String prodCategory3rd;
+    /*设计款号*/
+    private String designNo;
+    /*生产模式*/
+    private String devtType;
 }

@@ -505,7 +505,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                     Attachment a = new Attachment();
                     a.setType(AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
                     a.setStatus(BaseGlobal.NO);
-                    a.setFId(sampleDesign.getId());
+                    a.setForeignId(sampleDesign.getId());
                     a.setFileId(sampleDesign.getStylePic());
                     attachments.add(a);
                     List<FieldVal> fvList = fieldValService.list(sampleDesign.getPlanningCategoryItemId(), FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION);
@@ -513,7 +513,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                         fvList.forEach(item -> {
                             item.setId(null);
                             item.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-                            item.setFId(sampleDesign.getId());
+                            item.setForeignId(sampleDesign.getId());
                         });
                         fieldVals.addAll(fvList);
                     }

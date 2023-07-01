@@ -57,6 +57,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -145,7 +146,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
 
     public void saveFiles(String id, List<SampleAttachmentDto> files, String type) {
         QueryWrapper<Attachment> aqw = new QueryWrapper<>();
-        aqw.eq("f_id", id);
+        aqw.eq("foreign_id", id);
         aqw.eq("type", type);
         attachmentService.remove(aqw);
         List<Attachment> attachments = new ArrayList<>(12);
@@ -153,7 +154,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
             attachments = BeanUtil.copyToList(files, Attachment.class);
             for (Attachment attachment : attachments) {
                 attachment.setId(null);
-                attachment.setFId(id);
+                attachment.setForeignId(id);
                 attachment.setType(type);
                 attachment.setStatus(BaseGlobal.STATUS_NORMAL);
             }
@@ -244,6 +245,18 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "season", dto.getSeason());
         qw.in(StrUtil.isNotBlank(dto.getStatus()), "status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getKitting()), "kitting", StrUtil.split(dto.getKitting(), CharUtil.COMMA));
+        qw.eq(StrUtil.isNotBlank(dto.getProdCategory3rd()), "prod_category3rd", dto.getProdCategory3rd());
+        qw.like(StrUtil.isNotBlank(dto.getDesignNo()), "design_no", dto.getDesignNo());
+        qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "devt_type", dto.getDevtType());
+        if(!StringUtils.isEmpty(dto.getIsTrim())){
+            if(dto.getIsTrim().equals(BaseGlobal.STATUS_NORMAL)){
+                /*查询主款*/
+                qw.notLike("category_name","配饰");
+            }else {
+                /*查询配饰*/
+                qw.like ("category_name","配饰");
+            }
+        }
         qw.likeRight(StrUtil.isNotBlank(dto.getCategoryIds()), "category_ids", dto.getCategoryIds());
         qw.eq(BaseConstant.COMPANY_CODE, companyCode);
         amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
@@ -282,7 +295,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         if (!CollectionUtils.isEmpty(list)) {
             list.forEach(sampleDesignPageVo -> {
                 QueryWrapper queryWrapper = new QueryWrapper();
-                queryWrapper.eq("design_id", sampleDesignPageVo.getId());
+                queryWrapper.eq("sample_design_id", sampleDesignPageVo.getId());
                 List<SampleStyleColor> sampleStyleColorList = sampleStyleColorMapper.selectList(queryWrapper);
                 if (!CollectionUtils.isEmpty(sampleStyleColorList)) {
                     List<SampleStyleColorVo> sampleStyleColorVoList = BeanUtil.copyToList(sampleStyleColorList, SampleStyleColorVo.class);
