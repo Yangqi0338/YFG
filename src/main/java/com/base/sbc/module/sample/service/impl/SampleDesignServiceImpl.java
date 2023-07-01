@@ -248,6 +248,8 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory3rd()), "prod_category3rd", dto.getProdCategory3rd());
         qw.like(StrUtil.isNotBlank(dto.getDesignNo()), "design_no", dto.getDesignNo());
         qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "devt_type", dto.getDevtType());
+        qw.eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "planning_season_id", dto.getPlanningSeasonId());
+
         if(!StringUtils.isEmpty(dto.getIsTrim())){
             if(dto.getIsTrim().equals(BaseGlobal.STATUS_NORMAL)){
                 /*查询主款*/

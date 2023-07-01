@@ -68,6 +68,8 @@ public class SampleDesignPageDto extends Page {
     private String designerId;
     /*小类*/
     private String prodCategory3rd;
+//    产品季节id
+    private String planningSeasonId;
     /*设计款号*/
     private String designNo;
     /*生产模式*/

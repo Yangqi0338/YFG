@@ -26,6 +26,9 @@ public class AddRevampSampleStyleColorDto  {
 
     private String id;
 
+    /** 产品季节id */
+    @ApiModelProperty(value = "产品季节id"  )
+    private String planningSeasonId;
     /** 样衣id */
     @ApiModelProperty(value = "样衣id"  )
     private String sampleDesignId;
