@@ -20,6 +20,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
@@ -106,8 +107,37 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			entity.setMaterialCode(getMaxCode(categoryCode));
 		}
 		entity.setMaterialCodeName(entity.getMaterialCode() + entity.getMaterialName());
+
+		// 特殊逻辑： 如果是面料的时候，需要增加门幅幅宽的数据 给到物料规格
+		if ("fabric".equals(entity.getMaterialType())) {
+			this.saveFabricWidth(entity.getMaterialCode(), BigDecimalUtil.convertString(entity.getTranslate()));
+		}
+
 		this.saveOrUpdate(entity);
 		return CopyUtil.copy(entity, BasicsdatumMaterialVo.class);
+	}
+
+	/**
+	 * 如果是面料的时候，需要增加门幅幅宽的数据 给到物料规格并保持一个规格
+	 * 
+	 * @param materialCode
+	 * @param widthCode
+	 */
+	private void saveFabricWidth(String materialCode, String widthCode) {
+		BasicsdatumMaterialWidth one = this.materialWidthService.getOne(new QueryWrapper<BasicsdatumMaterialWidth>()
+				.eq("company_code", this.getCompanyCode()).eq("material_code", materialCode));
+		if (one != null) {
+			if (!one.getWidthCode().equals(widthCode)) {
+				one.setWidthCode(widthCode);
+				this.materialWidthService.updateById(one);
+			}
+		} else {
+			one = new BasicsdatumMaterialWidth();
+			one.setCompanyCode(this.getCompanyCode());
+			one.setWidthCode(widthCode);
+			one.setMaterialCode(materialCode);
+			this.materialWidthService.save(one);
+		}
 	}
 
 	private String getMaxCode(String categoryCode) {
