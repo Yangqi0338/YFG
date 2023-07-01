@@ -7,6 +7,7 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,15 +125,27 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	 * @param widthCode
 	 */
 	private void saveFabricWidth(String materialCode, String widthCode) {
-		BasicsdatumMaterialWidth one = this.materialWidthService.getOne(new QueryWrapper<BasicsdatumMaterialWidth>()
-				.eq("company_code", this.getCompanyCode()).eq("material_code", materialCode));
-		if (one != null) {
-			if (!one.getWidthCode().equals(widthCode)) {
-				one.setWidthCode(widthCode);
-				this.materialWidthService.updateById(one);
+		List<BasicsdatumMaterialWidth> list = this.materialWidthService
+				.list(new QueryWrapper<BasicsdatumMaterialWidth>().eq("company_code", this.getCompanyCode())
+						.eq("material_code", materialCode));
+		if (list != null && list.size() > 0) {
+			// 如果存在多个，第一个如果不同则修改
+			BasicsdatumMaterialWidth width = list.get(0);
+			if (!width.getWidthCode().equals(widthCode)) {
+				width.setWidthCode(widthCode);
+				this.materialWidthService.updateById(width);
 			}
+			// 如果还有其他的进行移除
+			if (list.size() > 1) {
+				List<String> ids = new ArrayList<>();
+				for (int i = 1; i < list.size(); i++) {
+					ids.add(list.get(i).getId());
+				}
+				this.materialWidthService.removeBatchByIds(ids);
+			}
+
 		} else {
-			one = new BasicsdatumMaterialWidth();
+			BasicsdatumMaterialWidth one = new BasicsdatumMaterialWidth();
 			one.setCompanyCode(this.getCompanyCode());
 			one.setWidthCode(widthCode);
 			one.setMaterialCode(materialCode);
@@ -327,6 +340,5 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	public Boolean delBasicsdatumMaterialPrice(String id) {
 		return this.materialPriceService.removeBatchByIds(StringUtils.convertList(id));
 	}
-
 
 }
