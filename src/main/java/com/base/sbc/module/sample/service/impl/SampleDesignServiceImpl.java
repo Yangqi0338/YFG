@@ -146,7 +146,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
 
     public void saveFiles(String id, List<SampleAttachmentDto> files, String type) {
         QueryWrapper<Attachment> aqw = new QueryWrapper<>();
-        aqw.eq("f_id", id);
+        aqw.eq("foreign_id", id);
         aqw.eq("type", type);
         attachmentService.remove(aqw);
         List<Attachment> attachments = new ArrayList<>(12);
@@ -154,7 +154,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
             attachments = BeanUtil.copyToList(files, Attachment.class);
             for (Attachment attachment : attachments) {
                 attachment.setId(null);
-                attachment.setFId(id);
+                attachment.setForeignId(id);
                 attachment.setType(type);
                 attachment.setStatus(BaseGlobal.STATUS_NORMAL);
             }
