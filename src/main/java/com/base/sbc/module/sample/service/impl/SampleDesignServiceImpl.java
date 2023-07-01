@@ -372,7 +372,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         }
         SampleDesignVo sampleVo = BeanUtil.copyProperties(sampleDesign, SampleDesignVo.class);
         //查询附件
-        List<AttachmentVo> attachmentVoList = attachmentService.findByFId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
+        List<AttachmentVo> attachmentVoList = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
         sampleVo.setAttachmentList(attachmentVoList);
 
         // 关联的素材库
@@ -384,7 +384,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         sampleVo.setMaterialList(materialList);
 
         // 款式图片
-        List<AttachmentVo> stylePicList = attachmentService.findByFId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
+        List<AttachmentVo> stylePicList = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
         sampleVo.setStylePicList(stylePicList);
         if (CollUtil.isNotEmpty(stylePicList)) {
             sampleVo.setStylePic(stylePicList.get(0).getUrl());

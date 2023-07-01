@@ -63,6 +63,7 @@ public class PackSizeServiceImpl extends BaseServiceImpl<PackSizeMapper, PackSiz
         //新增
         if (StrUtil.isBlank(dto.getId()) || StrUtil.contains(dto.getId(), StrUtil.DASHED)) {
             PackSize pageData = BeanUtil.copyProperties(dto, PackSize.class);
+            pageData.setId(null);
             save(pageData);
             return BeanUtil.copyProperties(pageData, PackSizeVo.class);
         }
@@ -73,7 +74,7 @@ public class PackSizeServiceImpl extends BaseServiceImpl<PackSizeMapper, PackSiz
                 throw new OtherException(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND);
             }
             BeanUtil.copyProperties(dto, dbData);
-            updateById(dbData);
+            boolean b = updateById(dbData);
             return BeanUtil.copyProperties(dbData, PackSizeVo.class);
         }
     }
@@ -90,7 +91,7 @@ public class PackSizeServiceImpl extends BaseServiceImpl<PackSizeMapper, PackSiz
         List<PackSize> packSizes = BeanUtil.copyToList(dtoList, PackSize.class);
         if (CollUtil.isNotEmpty(packSizes)) {
             for (PackSize packSize : packSizes) {
-                packSize.setForeignId(commonDto.getFId());
+                packSize.setForeignId(commonDto.getForeignId());
                 packSize.setPackType(commonDto.getPackType());
             }
         }

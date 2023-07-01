@@ -23,7 +23,7 @@ public class PackUtils {
      * @param dto
      */
     public static void commonQw(QueryWrapper<?> qw, PackCommonSearchDto dto) {
-        qw.eq(StrUtil.isNotBlank(dto.getFId()), "foreign_id", dto.getFId());
+        qw.eq(StrUtil.isNotBlank(dto.getForeignId()), "foreign_id", dto.getForeignId());
         qw.eq(StrUtil.isNotBlank(dto.getPackType()), "pack_type", dto.getPackType());
     }
 
@@ -34,7 +34,7 @@ public class PackUtils {
      * @param dto
      */
     public static void commonQw(QueryWrapper<?> qw, PackCommonPageSearchDto dto) {
-        qw.eq(StrUtil.isNotBlank(dto.getFId()), "foreign_id", dto.getFId());
+        qw.eq(StrUtil.isNotBlank(dto.getForeignId()), "foreign_id", dto.getForeignId());
         qw.eq(StrUtil.isNotBlank(dto.getPackType()), "pack_type", dto.getPackType());
     }
 }

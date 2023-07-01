@@ -28,11 +28,12 @@ public interface AttachmentService extends BaseService<Attachment> {
 
     /**
      * 通过fid 查询
-     * @param fId
+     *
+     * @param foreignId
      * @return
      */
 
-    List<AttachmentVo> findByFId(String fId, String type);
+    List<AttachmentVo> findByforeignId(String foreignId, String type);
 
 
     AttachmentVo getAttachmentById(String id);
@@ -42,7 +43,7 @@ public interface AttachmentService extends BaseService<Attachment> {
 
     void setListStylePic(List list, String fileIdKey);
 
-    Integer saveAttachment(List<AttachmentSaveDto> dto, String fid, String type);
+    Integer saveAttachment(List<AttachmentSaveDto> dto, String foreignId, String type);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

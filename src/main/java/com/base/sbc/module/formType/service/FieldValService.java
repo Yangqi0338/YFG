@@ -28,21 +28,21 @@ public interface FieldValService extends BaseService<FieldVal> {
     /**
      * 通过fid 和dataGroup查找
      *
-     * @param fid
+     * @param foreignId
      * @param dataGroup
      * @return
      */
-    List<FieldVal> list(String fid, String dataGroup);
+    List<FieldVal> list(String foreignId, String dataGroup);
 
     /**
      * 保存
      *
-     * @param fid
+     * @param foreignId
      * @param dataGroup
      * @param fieldVals
      * @return
      */
-    boolean save(String fid, String dataGroup, List<FieldVal> fieldVals);
+    boolean save(String foreignId, String dataGroup, List<FieldVal> fieldVals);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/
