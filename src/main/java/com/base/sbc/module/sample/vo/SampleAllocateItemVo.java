@@ -45,9 +45,9 @@ public class SampleAllocateItemVo {
     @ApiModelProperty(value = "尺码")
     private String size;
 
-    /** 样衣销售主键ID */
-    @ApiModelProperty(value = "样衣销售主键ID")
-    private String sampleSaleId;
+    /** 样衣调拨主键ID */
+    @ApiModelProperty(value = "样衣调拨主键ID")
+    private String sampleAllocateId;
 
     /** 样衣明细主键ID */
     @ApiModelProperty(value = "样衣明细主键ID")

@@ -6,7 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
 
+import java.io.IOException;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
@@ -71,6 +74,8 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	Boolean delBasicsdatumMaterialPrice(String id);
 
 	Map<String, Object> getBasicsdatumMaterialPriceColorWidthSelect(String materialCode);
+
+	void exportBasicsdatumMaterial(HttpServletResponse response, BasicsdatumMaterialQueryDto dto) throws IOException;
 	
 }
 

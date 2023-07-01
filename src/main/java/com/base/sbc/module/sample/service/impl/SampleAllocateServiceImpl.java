@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.utils.CopyUtil;
@@ -54,22 +53,23 @@ public class SampleAllocateServiceImpl extends BaseServiceImpl<SampleAllocateMap
     @Override
     public SampleAllocateVo save(SampleAllocateSaveDto dto) {
         String id = "";
-        SampleAllocate sale = CopyUtil.copy(dto, SampleAllocate.class);
+        SampleAllocate allocate = CopyUtil.copy(dto, SampleAllocate.class);
 
-        if (sale != null){
-            if (StringUtil.isEmpty(sale.getId())) {
-                sale.setId(idGen.nextIdStr());
-                sale.setCode("DB" + System.currentTimeMillis() + (int)((Math.random()*9+1)*1000));
+        if (allocate != null){
+            if (StringUtil.isEmpty(allocate.getId())) {
+                allocate.setId(idGen.nextIdStr());
+                allocate.setCode("DB" + System.currentTimeMillis() + (int)((Math.random()*9+1)*1000));
 
-                id = sale.getId();
+                id = allocate.getId();
             } else {
-                id = sale.getId();
+                id = allocate.getId();
             }
 
             Integer count = 0, borrowCount = 0;
             for (SampleAllocateItem item : dto.getSampleItemList()){
                 // 新增
                 if (StringUtil.isEmpty(item.getId())){
+                    item.setCompanyCode(getCompanyCode());
                     item.setId(idGen.nextIdStr());
                     item.setSampleAllocateId(id);
 
@@ -80,17 +80,19 @@ public class SampleAllocateServiceImpl extends BaseServiceImpl<SampleAllocateMap
                 }
 
                 // 处理样衣
-                sampleItemService.updateCount(item.getSampleItemId(), 4, item.getAllocateCount());
+                sampleItemService.updateCount(item.getSampleItemId(), 4, item.getCount(),
+                        dto.getToPositionId(), dto.getToPosition());
 
                 // 日志
-                String remarks = "样衣调拨：id-" + item.getSampleItemId() + ", 调拨单号：" + sale.getCode() + ", 数量：" + item.getAllocateCount();
+                String remarks = "样衣调拨：id-" + item.getSampleItemId() + ", 调拨单号：" + allocate.getCode() + ", 数量：" + item.getCount();
                 sampleItemLogService.save(item.getId(), 2, remarks);
             }
 
             if (StringUtil.isEmpty(dto.getId())) {
-                mapper.insert(sale);
+                allocate.setCompanyCode(getCompanyCode());
+                mapper.insert(allocate);
             } else {
-                mapper.updateById(sale);
+                mapper.updateById(allocate);
             }
         }
 
@@ -112,14 +114,8 @@ public class SampleAllocateServiceImpl extends BaseServiceImpl<SampleAllocateMap
     @Override
     public PageInfo queryPageInfo(SampleAllocatePageDto dto) {
         QueryWrapper<SampleAllocateVo> qw = new QueryWrapper<>();
-        qw.eq("ss.company_code", getCompanyCode());
-        qw.ge(StrUtil.isNotEmpty(dto.getStartDate().toString()),"ss.sale_date", dto.getStartDate());
-        qw.le(StrUtil.isNotEmpty(dto.getEndDate().toString()),"ss.sale_date", dto.getEndDate());
-        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch()).
-                or().like(StrUtil.isNotBlank(dto.getSearch()), "si.code", dto.getSearch()).
-                or().like(StrUtil.isNotBlank(dto.getSearch()), "ss.code", dto.getSearch()).
-                or().like(StrUtil.isNotBlank(dto.getSearch()), "ss.custmer_name", dto.getSearch());
-        qw.orderByDesc("ss.create_date");
+        qw.eq("sa.company_code", getCompanyCode());
+        qw.orderByDesc("sa.create_date");
 
         Page<SampleAllocateVo> objects = PageHelper.startPage(dto);
         getBaseMapper().getList(qw);

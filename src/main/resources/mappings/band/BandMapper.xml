@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.base.sbc.module.band.mapper.BandMapper">
+    <select id="getNameByCode" resultType="java.lang.String">
+        select band_name
+        from t_band ${ ew.customSqlSegment}
+    </select>
 </mapper>

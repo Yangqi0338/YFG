@@ -22,6 +22,9 @@ public class CategoryStylePlanningVo {
     @ApiModelProperty(value = "波段")
     private String bandCode;
 
+    @ApiModelProperty(value = "波段名称")
+    private String bandName;
+
     @ApiModelProperty(value = "品类")
     private String prodCategory;
 

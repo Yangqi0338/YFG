@@ -6,16 +6,24 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
@@ -37,6 +45,7 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialExcelVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
@@ -45,6 +54,8 @@ import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 
 /**
  * 类描述：基础资料-物料档案 service类
@@ -74,10 +85,14 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
 		qc.eq("company_code", this.getCompanyCode());
 		qc.notEmptyEq("status", dto.getStatus());
+		qc.notEmptyLike("material_code_name", dto.getMaterialCodeName());
+		qc.notEmptyLike("supplier_name", dto.getSupplierName());
 		qc.notEmptyLike("material_code", dto.getMaterialCode());
 		qc.notEmptyLike("material_name", dto.getMaterialName());
-		qc.and(Wrapper -> Wrapper.eq("category_id", dto.getCategoryId()).or().like("category_ids ",
-				dto.getCategoryId()));
+		if (StringUtils.isNotEmpty(dto.getCategoryId())) {
+			qc.and(Wrapper -> Wrapper.eq("category_id", dto.getCategoryId()).or().like("category_ids ",
+					dto.getCategoryId()));
+		}
 		List<BasicsdatumMaterial> list = this.list(qc);
 		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
 	}
@@ -87,9 +102,73 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BasicsdatumMaterial entity = CopyUtil.copy(dto, BasicsdatumMaterial.class);
 		if ("-1".equals(entity.getId())) {
 			entity.setId(null);
+			entity.setStatus("0");
+			String categoryCode = entity.getMaterialCode();
+			// 获取并放入最大code
+			entity.setMaterialCode(getMaxCode(categoryCode));
 		}
+		entity.setMaterialCodeName(entity.getMaterialCode() + entity.getMaterialName());
+
+		// 特殊逻辑： 如果是面料的时候，需要增加门幅幅宽的数据 给到物料规格
+		if ("fabric".equals(entity.getMaterialType())) {
+			this.saveFabricWidth(entity.getMaterialCode(), BigDecimalUtil.convertString(entity.getTranslate()));
+		}
+
 		this.saveOrUpdate(entity);
 		return CopyUtil.copy(entity, BasicsdatumMaterialVo.class);
+	}
+
+	/**
+	 * 如果是面料的时候，需要增加门幅幅宽的数据 给到物料规格并保持一个规格
+	 * 
+	 * @param materialCode
+	 * @param widthCode
+	 */
+	private void saveFabricWidth(String materialCode, String widthCode) {
+		List<BasicsdatumMaterialWidth> list = this.materialWidthService
+				.list(new QueryWrapper<BasicsdatumMaterialWidth>().eq("company_code", this.getCompanyCode())
+						.eq("material_code", materialCode));
+		if (list != null && list.size() > 0) {
+			// 如果存在多个，第一个如果不同则修改
+			BasicsdatumMaterialWidth width = list.get(0);
+			if (!width.getWidthCode().equals(widthCode)) {
+				width.setWidthCode(widthCode);
+				this.materialWidthService.updateById(width);
+			}
+			// 如果还有其他的进行移除
+			if (list.size() > 1) {
+				List<String> ids = new ArrayList<>();
+				for (int i = 1; i < list.size(); i++) {
+					ids.add(list.get(i).getId());
+				}
+				this.materialWidthService.removeBatchByIds(ids);
+			}
+
+		} else {
+			BasicsdatumMaterialWidth one = new BasicsdatumMaterialWidth();
+			one.setCompanyCode(this.getCompanyCode());
+			one.setWidthCode(widthCode);
+			one.setMaterialCode(materialCode);
+			this.materialWidthService.save(one);
+		}
+	}
+
+	private String getMaxCode(String categoryCode) {
+		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
+		qc.select("material_code");
+		qc.eq("company_code", this.getCompanyCode());
+//		qc.eq(" length(material_code)", categoryCode.length() + 5);
+//		qc.likeRight("material_code", categoryCode);
+		qc.orderByDesc(" create_date ");
+		qc.last(" limit 1 ");
+		BasicsdatumMaterial one = this.baseMapper.selectOne(qc);
+		if (one != null) {
+			String code = one.getMaterialCode();// code.replace(categoryCode, "")
+			Integer replace = Integer.parseInt(code.substring(code.length() - 5));
+			return categoryCode + String.format("%05d", replace + 1);
+		} else {
+			return categoryCode + "00001";
+		}
 	}
 
 	@Override
@@ -106,6 +185,24 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	}
 
 	@Override
+	public void exportBasicsdatumMaterial(HttpServletResponse response, BasicsdatumMaterialQueryDto dto)
+			throws IOException {
+		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
+		qc.eq("company_code", this.getCompanyCode());
+		qc.notEmptyEq("status", dto.getStatus());
+		qc.notEmptyLike("material_code_name", dto.getMaterialCodeName());
+		qc.notEmptyLike("supplier_name", dto.getSupplierName());
+		qc.notEmptyLike("material_code", dto.getMaterialCode());
+		qc.notEmptyLike("material_name", dto.getMaterialName());
+		if (StringUtils.isNotEmpty(dto.getCategoryId())) {
+			qc.and(Wrapper -> Wrapper.eq("category_id", dto.getCategoryId()).or().like("category_ids ",
+					dto.getCategoryId()));
+		}
+		List<BasicsdatumMaterialExcelVo> list = CopyUtil.copy(this.list(qc), BasicsdatumMaterialExcelVo.class);
+		ExcelUtils.exportExcel(list, BasicsdatumMaterialExcelVo.class, "物料档案.xls", new ExportParams(), response);
+	}
+
+	@Override
 	public BasicsdatumMaterialVo getBasicsdatumMaterial(String id) {
 		BasicsdatumMaterial material = this.getById(id);
 		List<BasicsdatumMaterialColorSelectVo> select = this.baseMapper
@@ -117,7 +214,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		copy.setWidthList(select2);
 		return copy;
 	}
-
 
 	@Override
 	public PageInfo<BasicsdatumMaterialWidthPageVo> getBasicsdatumMaterialWidthList(
@@ -132,6 +228,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
 	@Override
 	public Boolean saveBasicsdatumMaterialWidth(BasicsdatumMaterialWidthSaveDto dto) {
+		long count = this.materialWidthService.count(new QueryWrapper<BasicsdatumMaterialWidth>().ne("id", dto.getId())
+				.eq("company_code", this.getCompanyCode()).eq("Material_Code", dto.getMaterialCode())
+				.eq("Width_Code", dto.getWidthCode()));
+		if (count > 0) {
+			throw new OtherException("当前规格已存在");
+		}
 		BasicsdatumMaterialWidth entity = CopyUtil.copy(dto, BasicsdatumMaterialWidth.class);
 		if ("-1".equals(entity.getId())) {
 			entity.setId(null);
@@ -165,6 +267,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
 	@Override
 	public Boolean saveBasicsdatumMaterialColor(BasicsdatumMaterialColorSaveDto dto) {
+		long count = this.materialColorService.count(new QueryWrapper<BasicsdatumMaterialColor>().ne("id", dto.getId())
+				.eq("company_code", this.getCompanyCode()).eq("Material_Code", dto.getMaterialCode())
+				.eq("color_Code", dto.getColorCode()));
+		if (count > 0) {
+			throw new OtherException("当前颜色已存在");
+		}
 		BasicsdatumMaterialColor entity = CopyUtil.copy(dto, BasicsdatumMaterialColor.class);
 		if ("-1".equals(entity.getId())) {
 			entity.setId(null);

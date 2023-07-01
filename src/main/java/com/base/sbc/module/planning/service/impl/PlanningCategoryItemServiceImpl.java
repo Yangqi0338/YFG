@@ -353,8 +353,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
         QueryWrapper<PlanningCategoryItem> qw = new QueryWrapper();
         // 设计款号
-        qw.like(StrUtil.isNotBlank(dto.getSearch()), "c.design_no", dto.getSearch())
-                .or().like(StrUtil.isNotBlank(dto.getSearch()), "s.name", dto.getSearch());
+        qw.and(StrUtil.isNotBlank(dto.getSearch()), qwi -> qwi.like("c.design_no", dto.getSearch()).or().like("s.name", dto.getSearch()));
         //产品季
         qw.eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "c.planning_season_id", dto.getPlanningSeasonId());
         //月份
@@ -376,7 +375,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         //qw.eq(StrUtil.isNotBlank(dto.getStatus()), "c.status", dto.getStatus());
         // 坑位信息已下发
         qw.ne("c.status", BasicNumber.ZERO.getNumber());
-
+        dto.setOrderBy("c.status asc ,c.update_date asc ");
         Page<PlanningSeasonOverviewVo> objects = PageHelper.startPage(dto);
         getBaseMapper().listSeat(qw);
         PageInfo<PlanningSeasonOverviewVo> pageInfo = objects.toPageInfo();

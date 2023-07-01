@@ -9,6 +9,7 @@ package com.base.sbc.module.basicsdatum.controller;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
@@ -103,6 +104,13 @@ public class BasicsdatumMaterialController {
 	@DeleteMapping("/delBasicsdatumMaterial")
 	public Boolean delBasicsdatumMaterial(@RequestParam(value = "id") @NotBlank(message = "id不能为空") String id) {
 		return basicsdatumMaterialService.delBasicsdatumMaterial(id);
+	}
+
+	@ApiOperation(value = "主物料：按筛选条件导出")
+	@GetMapping("/exportBasicsdatumMaterial")
+	public void exportBasicsdatumMaterial(HttpServletResponse response, BasicsdatumMaterialQueryDto dto)
+			throws Exception {
+		basicsdatumMaterialService.exportBasicsdatumMaterial(response, dto);
 	}
 
 	@ApiOperation(value = "主物料:查询物料详情(不包括详情)")
