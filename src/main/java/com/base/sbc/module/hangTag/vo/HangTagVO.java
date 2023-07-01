@@ -98,6 +98,16 @@ public class HangTagVO {
     private Date confirmDate;
 
     /**
+     * 品名编码
+     */
+    @ApiModelProperty(value = "品名编码")
+    private String productCode;
+    /**
+     * 品名
+     */
+    @ApiModelProperty(value = "品名")
+    private String productName;
+    /**
      * 执行标准编码
      */
     @ApiModelProperty(value = "执行标准编码")

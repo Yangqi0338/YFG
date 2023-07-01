@@ -108,6 +108,12 @@ public class PricingVO extends BaseDataEntity<String> {
     private BigDecimal orderNum;
 
     /**
+     * 品牌编码
+     * TODO
+     */
+    @ApiModelProperty(value = "品牌编码")
+    private String brandCode;
+    /**
      * 品牌
      */
     @ApiModelProperty(value = "品牌")
@@ -124,20 +130,44 @@ public class PricingVO extends BaseDataEntity<String> {
     @ApiModelProperty(value = "款式图")
     private String stylePic;
     /**
+     * 季节编码
+     * TODO
+     */
+    @ApiModelProperty(value = "季节编码")
+    private String seasonCode;
+    /**
      * 季节
      */
     @ApiModelProperty(value = "季节")
     private String season;
+    /**
+     * 年份编码
+     * TODO
+     */
+    @ApiModelProperty(value = "年份编码")
+    private String yearCode;
     /**
      * 年份
      */
     @ApiModelProperty(value = "年份")
     private String year;
     /**
+     * 合作方式编码
+     * TODO
+     */
+    @ApiModelProperty(value = "合作方式编码")
+    private String cooperationMethodsCode;
+    /**
      * 合作方式
      */
     @ApiModelProperty(value = "合作方式")
     private String cooperationMethods;
+    /**
+     * 付款方式编码
+     * TODO
+     */
+    @ApiModelProperty(value = "付款方式编码")
+    private String payMethodsCode;
     /**
      * 付款方式
      */
@@ -197,10 +227,22 @@ public class PricingVO extends BaseDataEntity<String> {
     @ApiModelProperty(value = "销售渠道名称(多个逗号分隔)")
     private String salesChannelName;
     /**
+     * 货币编码
+     * TODO
+     */
+    @ApiModelProperty(value = "货币编码")
+    private String currencyCode;
+
+    /**
      * 货币
      */
     @ApiModelProperty(value = "货币")
     private String currency;
+    /**
+     * 货币2编码
+     */
+    @ApiModelProperty(value = "货币2编码")
+    private String otherCurrencyCode;
     /**
      * 货币2
      */
