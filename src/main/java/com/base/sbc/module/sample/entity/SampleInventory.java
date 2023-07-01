@@ -38,7 +38,7 @@ public class SampleInventory extends BaseDataEntity<String> {
 
     /** 状态：1-正常，2-作废，3-删除 */
     @ApiModelProperty(value = "状态：1-正常，2-作废，3-删除")
-    private Integer tatus;
+    private Integer status;
 
     /** 盘点状态：0-未开始，1-盘点中，2-完成，3-过期 */
     @ApiModelProperty(value = "盘点状态：0-未开始，1-盘点中，2-完成，3-过期")

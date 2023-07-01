@@ -137,7 +137,7 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
         QueryWrapper<SampleInventoryVo> qw = new QueryWrapper<>();
         qw.eq("si2.company_code", getCompanyCode());
         if (null != dto.getStatus())
-            qw.ge("si2.status", dto.getStatus());
+            qw.eq("si2.status", dto.getStatus());
         qw.orderByDesc("si2.create_date");
 
         Page<SampleSaleVo> objects = PageHelper.startPage(dto);

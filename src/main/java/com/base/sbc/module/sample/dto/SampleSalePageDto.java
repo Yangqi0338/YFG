@@ -35,6 +35,10 @@ public class SampleSalePageDto extends Page {
     @ApiModelProperty(value = "样衣销售ID", example = "680014765321355265")
     private String sampleSaleId;
 
+    /** 样衣销售明细ID */
+    @ApiModelProperty(value = "样衣销售明细ID", example = "680014765321355265")
+    private String sampleSaleItemId;
+
     /** 在库状态：0-未入库，1-在库，2-借出，3-删除，4-售出 */
     @ApiModelProperty(value = "在库状态", example = "1")
     private String status;
