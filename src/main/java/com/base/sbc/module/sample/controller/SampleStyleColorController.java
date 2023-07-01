@@ -7,9 +7,9 @@
 package com.base.sbc.module.sample.controller;
 
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.sample.dto.AddRevampSampleStyleColorDto;
+import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.service.SampleStyleColorService;
 import com.base.sbc.module.sample.vo.SampleStyleColorVo;
@@ -23,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
 * 类描述：样衣-款式配色 Controller类
@@ -43,10 +44,21 @@ public class SampleStyleColorController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getSampleStyleColorList")
-	public PageInfo<SampleStyleColorVo> getSampleStyleColorList(QueryDto queryDto) {
-		return  sampleStyleColorService.getSampleStyleColorList(queryDto);
+	public PageInfo<SampleStyleColorVo> getSampleStyleColorList(QuerySampleStyleColorDto querySampleStyleColorDto) {
+		return  sampleStyleColorService.getSampleStyleColorList(querySampleStyleColorDto);
 	}
 
+	@ApiOperation(value = "款式编号查找款式配色")
+	@GetMapping("/getStyleAccessoryBystyleNo")
+	public  List<SampleStyleColorVo> getStyleAccessoryBystyleNo(@Valid @NotBlank(message = "款式编号不能为空") String designNo) {
+		return  sampleStyleColorService.getStyleAccessoryBystyleNo(designNo);
+	}
+
+	@ApiOperation(value = "批量新增款式配色-款式配色")
+	@PostMapping("/batchAddSampleStyleColor")
+	public Boolean batchAddSampleStyleColor(@Valid @RequestBody List<AddRevampSampleStyleColorDto> list) {
+		return sampleStyleColorService.batchAddSampleStyleColor(list);
+	}
 
 
 	@ApiOperation(value = "批量启用/停用", notes = "ids:, status:0启用1停用")
@@ -56,13 +68,13 @@ public class SampleStyleColorController{
 	}
 
 
-	@ApiOperation(value = "新增修改样衣-款式配色")
+	@ApiOperation(value = "新增修改款式配色-款式配色")
 	@PostMapping("/addRevampSampleStyleColor")
 	public Boolean addRevampSampleStyleColor(@Valid @RequestBody AddRevampSampleStyleColorDto addRevampSampleStyleColorDto) {
 	return sampleStyleColorService.addRevampSampleStyleColor(addRevampSampleStyleColorDto);
 	}
 
-	@ApiOperation(value = "删除样衣-款式配色")
+	@ApiOperation(value = "删除款式配色-款式配色")
 	@DeleteMapping("/delSampleStyleColor")
 	public Boolean delSampleStyleColor(@Valid @NotBlank(message = "编号id不能为空") String id) {
 	return sampleStyleColorService.delSampleStyleColor(id);
