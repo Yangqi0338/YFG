@@ -17,6 +17,9 @@ public class SamplePageDto extends Page {
     @ApiModelProperty(value = "样衣ID", example = "680014765321355265")
     private String sampleId;
 
+    @ApiModelProperty(value = "样衣明细ID", example = "680014765321355265")
+    private String sampleItemId;
+
     @ApiModelProperty(value = "位置ID", example = "680014765321355265")
     private String positionId;
 
