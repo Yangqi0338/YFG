@@ -45,9 +45,7 @@ public class SampleCirculateController {
 
 	@ApiOperation(value = "还样")
 	@PostMapping("/return")
-	public SampleCirculateVo return1(@RequestBody SampleCirculateSaveDto dto) {
-		return sampleCirulateService.return1(dto);
-	}
+	public SampleCirculateVo return1(@RequestBody SampleCirculateSaveDto dto) { return sampleCirulateService.return1(dto); }
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getList")

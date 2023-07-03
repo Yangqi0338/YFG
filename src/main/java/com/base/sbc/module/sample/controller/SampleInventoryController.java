@@ -57,4 +57,10 @@ public class SampleInventoryController {
 	public SampleInventoryVo getDetail(@PathVariable("id") String id) {
 		return sampleInventoryService.getDetail(id);
 	}
+
+	@ApiOperation(value = "更新状态")
+	@PostMapping("/updateStatus")
+	public SampleInventoryVo updateStatus(@RequestBody SampleInventorySaveDto dto) {
+		return sampleInventoryService.updateStatus(dto);
+	}
 }

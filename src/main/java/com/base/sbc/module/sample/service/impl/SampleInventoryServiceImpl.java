@@ -14,6 +14,7 @@ import com.base.sbc.module.sample.dto.SampleInventoryPageDto;
 import com.base.sbc.module.sample.dto.SampleInventorySaveDto;
 import com.base.sbc.module.sample.entity.SampleInventory;
 import com.base.sbc.module.sample.entity.SampleInventoryItem;
+import com.base.sbc.module.sample.entity.SampleItem;
 import com.base.sbc.module.sample.mapper.SampleInventoryItemMapper;
 import com.base.sbc.module.sample.mapper.SampleInventoryMapper;
 import com.base.sbc.module.sample.mapper.SampleItemMapper;
@@ -121,6 +122,8 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
             qw.ge("si2.start_date", dto.getStartDate());
         if (null != dto.getEndDate())
             qw.le("si2.end_date", dto.getEndDate());
+        if (null != dto.getEndDate())
+            qw.le("si2.code", dto.getCode());
         if (null != dto.getSearch())
             qw.like("si2.name", dto.getSearch()).
                 or().like("si2.code", dto.getSearch());
@@ -144,5 +147,62 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
         sampleInventoryItemMapper.getList(qw);
 
         return objects.toPageInfo();
+    }
+
+    @Override
+    public SampleInventoryVo updateStatus(SampleInventorySaveDto dto) {
+        SampleInventory si = mapper.selectById(dto.getId());
+        QueryWrapper qw = new QueryWrapper<>();
+        qw.eq("si2.id", dto.getId());
+        List<SampleInventoryItemVo> siiList = sampleInventoryItemMapper.getList(qw);
+
+        // 样衣明细
+        List<SampleItem> itemList = null;
+        for (SampleInventoryItemVo itemVo : siiList){
+            SampleItem item = sampleItemMapper.selectById(itemVo.getSampleItemId());
+            itemList.add(item);
+        }
+
+        // 盘点单作废
+        if (dto.getStatus() != null && dto.getStatus() == 2){
+            si.setStatus(2);
+
+            // 处理样衣
+            for (SampleItem sampleItem : itemList){
+                if (sampleItem.getStatus() == 5) sampleItem.setStatus(1);
+            }
+        // 盘点状态
+        } else if (dto.getInventoryStatus() != null && dto.getInventoryStatus() > 0){
+            si.setInventoryStatus(dto.getInventoryStatus());
+
+            // 盘点中
+            if (dto.getInventoryStatus() == 1){
+                // 处理样衣
+                for (SampleItem sampleItem : itemList){
+                    if (sampleItem.getStatus() == 1) sampleItem.setStatus(5);
+                }
+            // 完成
+            } else if (dto.getInventoryStatus() == 2){
+                // 处理样衣
+                for (SampleItem sampleItem : itemList){
+                    if (sampleItem.getStatus() == 5) sampleItem.setStatus(1);
+                }
+            }
+        // 审核
+        } else if (dto.getExamineStatus() != null && dto.getExamineStatus() > 0){
+            si.setExamineStatus(dto.getExamineStatus());
+        }
+
+        mapper.updateById(si);
+        sampleItemService.updateBatchById(itemList);
+
+        QueryWrapper<SampleInventoryVo> qw2 = new QueryWrapper<>();
+        qw2.eq("sii.company_code", getCompanyCode());
+        qw2.eq("si2.id", dto.getId());
+        List<SampleInventoryItemVo> list = sampleInventoryItemMapper.getList(qw2);
+        SampleInventoryVo vo = mapper.getDetail(dto.getId());
+        vo.setSampleItemList(list);
+
+        return vo;
     }
 }

@@ -30,5 +30,7 @@ public interface SampleInventoryService extends BaseService<SampleInventory> {
 
     /** 查询明细数据 */
     SampleInventoryVo getDetail(String id);
+
+    SampleInventoryVo updateStatus(SampleInventorySaveDto dto);
 }
 
