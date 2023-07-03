@@ -6,11 +6,21 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.mapper.PackBomSizeMapper;
 import com.base.sbc.module.pack.service.PackBomSizeService;
+import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：资料包-物料清单-配码 service类
@@ -24,7 +34,27 @@ import org.springframework.stereotype.Service;
 @Service
 public class PackBomSizeServiceImpl extends BaseServiceImpl<PackBomSizeMapper, PackBomSize> implements PackBomSizeService {
 
-// 自定义方法区 不替换的区域【other_start】
+    // 自定义方法区 不替换的区域【other_start】
+
+    @Override
+    public Map<String, List<PackBomSizeVo>> getByBomIdsToMap(List<String> bomIds) {
+        List<PackBomSizeVo> packBomSizeList = getByBomIds(bomIds);
+        Map<String, List<PackBomSizeVo>> packBomSizeMap = Optional.ofNullable(packBomSizeList).map((pbsl -> {
+            return pbsl.stream().collect(Collectors.groupingBy(PackBomSizeVo::getBomId));
+        })).orElse(new HashMap<>(2));
+        return packBomSizeMap;
+    }
+
+    @Override
+    public List<PackBomSizeVo> getByBomIds(List<String> bomIds) {
+        if (CollUtil.isEmpty(bomIds)) {
+            return null;
+        }
+        QueryWrapper<PackBomSize> pbsQw = new QueryWrapper<>();
+        pbsQw.in("bom_id", bomIds);
+        List<PackBomSize> packBomSizeList = list(pbsQw);
+        return BeanUtil.copyToList(packBomSizeList, PackBomSizeVo.class);
+    }
 
 
 // 自定义方法区 不替换的区域【other_end】

@@ -8,6 +8,10 @@ package com.base.sbc.module.pack.service;
 
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.entity.PackBomSize;
+import com.base.sbc.module.pack.vo.PackBomSizeVo;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：资料包-物料清单-配码 service类
@@ -22,6 +26,15 @@ public interface PackBomSizeService extends BaseService<PackBomSize> {
 
 // 自定义方法区 不替换的区域【other_start】
 
+    /**
+     * 通过bomId查询
+     *
+     * @param bomIds
+     * @return
+     */
+    Map<String, List<PackBomSizeVo>> getByBomIdsToMap(List<String> bomIds);
+
+    List<PackBomSizeVo> getByBomIds(List<String> bomIds);
 
 // 自定义方法区 不替换的区域【other_end】
 

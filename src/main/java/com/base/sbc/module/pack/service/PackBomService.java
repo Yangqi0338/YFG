@@ -7,7 +7,13 @@
 package com.base.sbc.module.pack.service;
 
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.pack.dto.PackBomDto;
+import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
 import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.vo.PackBomVo;
+import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * 类描述：资料包-物料清单 service类
@@ -21,6 +27,50 @@ import com.base.sbc.module.pack.entity.PackBom;
 public interface PackBomService extends BaseService<PackBom> {
 
 // 自定义方法区 不替换的区域【other_start】
+
+
+    /**
+     * 分页查询
+     *
+     * @param dto
+     * @return
+     */
+    PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto);
+
+    /**
+     * 物料清单-保存单个
+     *
+     * @param dto
+     * @return
+     */
+    PackBomVo saveByDto(PackBomDto dto);
+
+    /**
+     * 物料清单-全部保存
+     *
+     * @param versionId
+     * @param dtoList
+     * @return
+     */
+    boolean saveBatchByDto(String versionId, List<PackBomDto> dtoList);
+
+
+    /**
+     * 通过版本id 查询bom id
+     *
+     * @param bomVersionId
+     * @return
+     */
+    List<String> getBomIdsByVersionId(String bomVersionId);
+
+    /**
+     * 物料不可用状态改变
+     *
+     * @param id
+     * @param unusableFlag
+     * @return
+     */
+    boolean unusableChange(String id, String unusableFlag);
 
 
 // 自定义方法区 不替换的区域【other_end】

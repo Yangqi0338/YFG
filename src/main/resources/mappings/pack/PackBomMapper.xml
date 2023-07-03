@@ -11,6 +11,11 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
+    <select id="getBomIdsByVersionId" resultType="java.lang.String">
+        select id
+        from t_pack_bom
+        where bom_version_id = #{bomVersionId}
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

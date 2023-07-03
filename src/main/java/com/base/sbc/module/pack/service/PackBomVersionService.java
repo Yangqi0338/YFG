@@ -51,6 +51,31 @@ public interface PackBomVersionService extends BaseService<PackBomVersion> {
      */
     boolean changeVersionStatus(String id);
 
+    /**
+     * 启用
+     *
+     * @param version
+     * @return
+     */
+    boolean enable(PackBomVersion version);
+
+    /**
+     * 锁定解锁
+     *
+     * @param id
+     * @param lockFlag 0正常 1锁定
+     * @return
+     */
+    boolean lockChange(String id, String lockFlag);
+
+    /**
+     * 转大货
+     *
+     * @param idDto
+     * @return
+     */
+    boolean toBigGoods(String id);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

@@ -1,0 +1,23 @@
+package com.base.sbc.module.common.dto;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
+
+/**
+ * 类描述： IdsDto
+ *
+ * @author lixianglin
+ * @version 1.0
+ * @address com.base.sbc.module.common.dto.IdDto
+ * @email li_xianglin@126.com
+ * @date 创建时间：2023-07-03 16:39
+ */
+@Data
+@ApiModel("IdsDto")
+public class IdsDto {
+    @ApiModelProperty(value = "id,多个逗号分开", required = true, example = "1675770402093846529,1675770402093846528")
+    @NotBlank(message = "id不能为空")
+    private String id;
+}

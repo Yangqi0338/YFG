@@ -9,6 +9,9 @@ package com.base.sbc.module.pack.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.pack.entity.PackBom;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 类描述：资料包-物料清单 dao类
@@ -23,6 +26,7 @@ import org.apache.ibatis.annotations.Mapper;
 public interface PackBomMapper extends BaseMapper<PackBom> {
 // 自定义方法区 不替换的区域【other_start】
 
+    List<String> getBomIdsByVersionId(@Param("bomVersionId") String bomVersionId);
 
 // 自定义方法区 不替换的区域【other_end】
 }
