@@ -6,9 +6,9 @@
         SELECT sci.id, si.`status`, s.images, s.design_no, si.`code`, s.style_name, s.category_name,
             si.color, si.size, s.type, si.store_date, si.position, s.from_name, sci.remarks
         FROM t_sample_circulate_item sci
-        JOIN t_sample s ON s.id = sic.sample_id
+        JOIN t_sample s ON s.id = sci.sample_id
         JOIN t_sample_circulate sc ON sc.id = sci.sample_circulate_id
-        JOIN t_sample_item si ON si.id = sic.sample_item_id
+        JOIN t_sample_item si ON si.id = sci.sample_item_id
         <where>
             s.company_code = #{companyCode}
             <if test="status != null">
