@@ -6,10 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.base.sbc.module.sample.dto.SampleStyleGroupQueryDto;
 import com.base.sbc.module.sample.entity.SampleStyleGroup;
+import com.base.sbc.module.sample.vo.SampleStyleGroupPageVo;
 
 /**
  * 类描述：款式管理-款式搭配 dao类
@@ -20,6 +24,31 @@ import com.base.sbc.module.sample.entity.SampleStyleGroup;
  */
 @Mapper
 public interface SampleStyleGroupMapper extends BaseMapper<SampleStyleGroup> {
+	/**
+	 * 搭配列表页面查询
+	 * 
+	 * @param companyCode
+	 * @param dto
+	 * @return
+	 */
+	List<SampleStyleGroupPageVo> getStyleGroupList(SampleStyleGroupQueryDto dto);
 
+	/**
+	 * 搭配明细查询
+	 * 
+	 * @param companyCode
+	 * @param groupCode
+	 * @return
+	 */
+	List<SampleStyleGroupPageVo> getStyleGroupItemByGroupCode(SampleStyleGroupQueryDto dto);
+
+	/**
+	 * 搭配主信息查询
+	 * 
+	 * @param companyCode
+	 * @param groupCode
+	 * @return
+	 */
+	SampleStyleGroupPageVo getSampleStyleGroup(SampleStyleGroupQueryDto dto);
 
 }

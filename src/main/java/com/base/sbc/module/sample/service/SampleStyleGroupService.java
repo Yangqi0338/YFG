@@ -5,8 +5,15 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.sample.service;
+
+import java.util.List;
+
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.sample.dto.SampleStyleGroupQueryDto;
+import com.base.sbc.module.sample.dto.SampleStyleGroupSaveDto;
 import com.base.sbc.module.sample.entity.SampleStyleGroup;
+import com.base.sbc.module.sample.vo.SampleStyleGroupPageVo;
+import com.github.pagehelper.PageInfo;
 
 /**
  * 类描述：款式管理-款式搭配 service类
@@ -17,5 +24,16 @@ import com.base.sbc.module.sample.entity.SampleStyleGroup;
  */
 public interface SampleStyleGroupService extends BaseService<SampleStyleGroup>{
 
+	PageInfo<SampleStyleGroupPageVo> getStyleGroupList(SampleStyleGroupQueryDto dto);
+
+	Boolean delSampleStyleGroup(String id);
+
+	SampleStyleGroupPageVo saveSampleStyleGroup(SampleStyleGroupSaveDto dto);
+
+	SampleStyleGroupPageVo getSampleStyleGroup(String id);
+
+	List<SampleStyleGroupPageVo> getStyleGroupItemByGroupCode(String groupCode);
+
+	Boolean delSampleStyleGroupItem(String id);
 	
 }
