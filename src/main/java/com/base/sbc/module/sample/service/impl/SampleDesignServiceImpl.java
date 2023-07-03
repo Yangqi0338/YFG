@@ -298,6 +298,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
             list.forEach(sampleDesignPageVo -> {
                 QueryWrapper queryWrapper = new QueryWrapper();
                 queryWrapper.eq("sample_design_id", sampleDesignPageVo.getId());
+                queryWrapper.eq(StrUtil.isNotBlank(dto.getStyleStatus()), "status", dto.getStyleStatus());
                 List<SampleStyleColor> sampleStyleColorList = sampleStyleColorMapper.selectList(queryWrapper);
                 if (!CollectionUtils.isEmpty(sampleStyleColorList)) {
                     List<SampleStyleColorVo> sampleStyleColorVoList = BeanUtil.copyToList(sampleStyleColorList, SampleStyleColorVo.class);

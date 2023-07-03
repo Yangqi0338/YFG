@@ -74,4 +74,6 @@ public class SampleDesignPageDto extends Page {
     private String designNo;
     /*生产模式*/
     private String devtType;
+//    款式状态
+    private String  styleStatus;
 }

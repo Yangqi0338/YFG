@@ -10,6 +10,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.sample.dto.AddRevampSampleStyleColorDto;
 import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
+import com.base.sbc.module.sample.dto.updateTagPriceDto;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.service.SampleStyleColorService;
 import com.base.sbc.module.sample.vo.SampleStyleColorVo;
@@ -53,6 +54,19 @@ public class SampleStyleColorController{
 	public  List<SampleStyleColorVo> getStyleAccessoryBystyleNo(@Valid @NotBlank(message = "款式编号不能为空") String designNo) {
 		return  sampleStyleColorService.getStyleAccessoryBystyleNo(designNo);
 	}
+
+	@ApiOperation(value = "修改吊牌价-款式配色")
+	@PostMapping("/updateTagPrice")
+	public Boolean updateTagPrice(@Valid @RequestBody updateTagPriceDto updateTagPriceDto) {
+		return sampleStyleColorService.updateTagPrice(updateTagPriceDto);
+	}
+
+	@ApiOperation(value = "大货款号查询-款式配色")
+	@GetMapping("/getByStyleNo")
+	public List<SampleStyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto) {
+		return sampleStyleColorService.getByStyleNo(querySampleStyleColorDto);
+	}
+
 
 	@ApiOperation(value = "批量新增款式配色-款式配色")
 	@PostMapping("/batchAddSampleStyleColor")
