@@ -10,4 +10,7 @@ public class QuerySampleStyleColorDto extends Page {
     /** 样衣id */
     @ApiModelProperty(value = "样衣id"  )
     private String sampleDesignId;
+
+    @ApiModelProperty(value = "大货编号多个使用，分割"  )
+    private String styleNo;
 }

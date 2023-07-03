@@ -10,6 +10,7 @@ import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.sample.dto.AddRevampSampleStyleColorDto;
 import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
+import com.base.sbc.module.sample.dto.updateTagPriceDto;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.vo.SampleStyleColorVo;
 import com.github.pagehelper.PageInfo;
@@ -42,6 +43,21 @@ public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
          * @return
          */
         List<SampleStyleColorVo> getStyleAccessoryBystyleNo(String designNo);
+
+
+        /**
+         * 修改吊牌价-款式配色
+         * @param updateTagPriceDto
+         * @return
+         */
+        Boolean updateTagPrice( updateTagPriceDto updateTagPriceDto);
+
+        /**
+         *  大货款号查询
+         * @param querySampleStyleColorDto
+         * @return
+         */
+        List<SampleStyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto);
 
         /**
          * 方法描述: 批量新增款式配色-款式配色

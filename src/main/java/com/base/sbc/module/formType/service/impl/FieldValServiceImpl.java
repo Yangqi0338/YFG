@@ -34,24 +34,24 @@ public class FieldValServiceImpl extends BaseServiceImpl<FieldValMapper, FieldVa
 
 
     @Override
-    public List<FieldVal> list(String fid, String dataGroup) {
+    public List<FieldVal> list(String foreignId, String dataGroup) {
         QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
-        fvQw.eq("foreign_id", fid);
+        fvQw.eq("foreign_id", foreignId);
         fvQw.eq("data_group", dataGroup);
         return list(fvQw);
     }
 
     @Transactional(rollbackFor = {Exception.class})
     @Override
-    public boolean save(String fid, String dataGroup, List<FieldVal> fieldVals) {
+    public boolean save(String foreignId, String dataGroup, List<FieldVal> fieldVals) {
         QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
-        fvQw.eq("foreign_id", fid);
+        fvQw.eq("foreign_id", foreignId);
         fvQw.eq("data_group", dataGroup);
         this.remove(fvQw);
         if (CollUtil.isNotEmpty(fieldVals)) {
             for (FieldVal fieldVal : fieldVals) {
                 fieldVal.setDataGroup(dataGroup);
-                fieldVal.setForeignId(fid);
+                fieldVal.setForeignId(foreignId);
             }
             this.saveBatch(fieldVals);
         }

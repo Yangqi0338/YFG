@@ -21,6 +21,7 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.AddRevampSampleStyleColorDto;
 import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
+import com.base.sbc.module.sample.dto.updateTagPriceDto;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.mapper.SampleDesignMapper;
@@ -32,6 +33,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
@@ -121,6 +123,42 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
         /*转换vo*/
         List<SampleStyleColorVo> list = BeanUtil.copyToList(sampleStyleColorList, SampleStyleColorVo.class);
         return list;
+    }
+
+    /**
+     * 修改吊牌价-款式配色
+     *
+     * @param updateTagPriceDto
+     * @return
+     */
+    @Override
+    public Boolean updateTagPrice(updateTagPriceDto updateTagPriceDto) {
+        UpdateWrapper updateWrapper=new UpdateWrapper();
+        updateWrapper.set("tag_price",updateTagPriceDto.getTagPrice());
+        updateWrapper.eq("id",updateTagPriceDto.getId());
+        baseMapper.update(null,updateWrapper);
+        return true;
+    }
+
+    /**
+     * 大货款号查询
+     *
+     * @param querySampleStyleColorDto
+     * @return
+     */
+    @Override
+    public List<SampleStyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto) {
+        if(StringUtils.isNotBlank(querySampleStyleColorDto.getStyleNo())){
+            throw new OtherException(BaseErrorEnum.ERR_MISSING_SERVLET_REQUEST_PARAMETER_EXCEPTION);
+        }
+        QueryWrapper queryWrapper =new QueryWrapper();
+        queryWrapper.in("style_no", StringUtils.convertList(querySampleStyleColorDto.getSampleDesignId()));
+        List<SampleStyleColor> list= baseMapper.selectList(queryWrapper);
+        if(CollectionUtils.isEmpty(list)){
+            throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+        }
+        List<SampleStyleColorVo> sampleStyleColorVoList =  BeanUtil.copyToList(list, SampleStyleColorVo.class);
+        return sampleStyleColorVoList;
     }
 
     /**

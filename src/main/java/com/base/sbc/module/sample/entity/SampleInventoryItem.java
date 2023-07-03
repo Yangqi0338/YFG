@@ -52,10 +52,6 @@ public class SampleInventoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "盘点数量（新）")
     private Integer newCount;
 
-    /** 调拨数量 */
-    @ApiModelProperty(value = "调拨数量")
-    private Integer allocateCount;
-
     /** 差异类型：0-盘亏，1-正常，2-盘盈 */
     @ApiModelProperty(value = "差异类型：0-盘亏，1-正常，2-盘盈")
     private Integer differType;

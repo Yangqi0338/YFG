@@ -82,10 +82,10 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
                 }
 
                 // 处理样衣
-                sampleItemService.updateCount(item.getSampleItemId(), 5, item.getAllocateCount(), "", "");
+                sampleItemService.updateCount(item.getSampleItemId(), 5, item.getNewCount(), "", "");
 
                 // 日志
-                String remarks = "样衣盘点：id-" + item.getSampleItemId() + ", 盘点单号：" + inventory.getCode() + ", 数量：" + item.getAllocateCount();
+                String remarks = "样衣盘点：id-" + item.getSampleItemId() + ", 盘点单号：" + inventory.getCode() + ", 数量：" + item.getNewCount();
                 sampleItemLogService.save(item.getId(), 2, remarks);
             }
 
@@ -137,7 +137,7 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
         QueryWrapper<SampleInventoryVo> qw = new QueryWrapper<>();
         qw.eq("si2.company_code", getCompanyCode());
         if (null != dto.getStatus())
-            qw.ge("si2.status", dto.getStatus());
+            qw.eq("si2.status", dto.getStatus());
         qw.orderByDesc("si2.create_date");
 
         Page<SampleSaleVo> objects = PageHelper.startPage(dto);

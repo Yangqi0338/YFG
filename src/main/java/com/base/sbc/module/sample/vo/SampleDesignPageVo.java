@@ -94,5 +94,7 @@ public class SampleDesignPageVo {
     /*轮廓*/
     private String silhouette;
 
-
+    /** 产品季节id */
+    @ApiModelProperty(value = "产品季节id"  )
+    private String planningSeasonId;
 }

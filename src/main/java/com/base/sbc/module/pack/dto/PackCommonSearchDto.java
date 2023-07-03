@@ -20,7 +20,7 @@ public class PackCommonSearchDto {
 
     @ApiModelProperty(value = "外键id")
     @NotBlank(message = "主数据id为空")
-    private String fId;
+    private String foreignId;
 
     @ApiModelProperty(value = "资料包类型:design:设计资料包/bigGoods:标准资料包(大货资料包)")
     @NotBlank(message = "资料包类型为空")

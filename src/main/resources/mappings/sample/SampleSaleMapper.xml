@@ -3,23 +3,23 @@
 <mapper namespace="com.base.sbc.module.sample.mapper.SampleSaleMapper">
     <!-- 分页查询 -->
     <select id="getList" resultType="com.base.sbc.module.sample.vo.SampleSaleVo">
-        SELECT ss.id, ss.`code`, ss.total_count, ss.custmer_name, ss.total_price,
-               ss.sale_name, ss.sale_date, ss.remarks, ss.sale_id, ss.custmer_id
+        SELECT DISTINCT ss.id, ss.`code`, ss.total_count, ss.custmer_name, ss.total_price,
+            ss.sale_name, ss.sale_date, ss.remarks, ss.sale_id, ss.custmer_id
         FROM t_sample_sale ss
         LEFT JOIN t_sample_sale_item ssi ON ssi.sample_sale_id = ss.id
-        LEFT JOIN t_sample s ON ssi.sample_id = s.id
+        LEFT JOIN t_sample s ON s.id = ssi.sample_id
         LEFT JOIN t_sample_item si ON si.sample_id = s.id
         ${ew.customSqlSegment}
     </select>
 
     <!-- 分页查询 -->
     <select id="getListBySampleItem" resultType="com.base.sbc.module.sample.vo.SampleSaleSampleItemVo">
-        SELECT ssi.id, si.`code`, s.images, s.design_no, s.category_name, s.type, s.style_name,
+        SELECT DISTINCT ssi.id, si.`code`, s.images, s.design_no, s.category_name, s.type, s.style_name,
             si.color, si.size, ss.custmer_name, ssi.count, ssi.price, ssi.discount, ssi.total_price
         FROM t_sample_sale_item ssi
-        LEFT JOIN t_sample_sale ss ON ssi.sample_sale_id = ss.id
-        LEFT JOIN t_sample s ON ssi.sample_id = s.id
-        LEFT JOIN t_sample_item si ON si.sample_id = s.id
+        LEFT JOIN t_sample_sale ss ON ss.id = ssi.sample_sale_id
+        LEFT JOIN t_sample_item si ON si.id = ssi.sample_item_id
+        LEFT JOIN t_sample s ON s.id = ssi.sample_id
         ${ew.customSqlSegment}
     </select>
 

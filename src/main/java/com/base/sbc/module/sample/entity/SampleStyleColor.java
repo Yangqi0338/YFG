@@ -35,6 +35,9 @@ public class SampleStyleColor extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
+    /** 产品季节id */
+    @ApiModelProperty(value = "产品季节id"  )
+    private String planningSeasonId;
     /** 样衣id */
     @ApiModelProperty(value = "样衣id"  )
     private String sampleDesignId;

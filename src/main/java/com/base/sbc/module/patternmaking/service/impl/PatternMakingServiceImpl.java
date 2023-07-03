@@ -452,7 +452,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         SampleDesignPmDetailVo result = BeanUtil.copyProperties(sampleDesignVo, SampleDesignPmDetailVo.class);
         result.setPatternMaking(vo);
         // 查询附件，纸样文件
-        List<AttachmentVo> attachmentVoList = attachmentService.findByFId(vo.getId(), AttachmentTypeConstant.PATTERN_MAKING_PATTERN);
+        List<AttachmentVo> attachmentVoList = attachmentService.findByforeignId(vo.getId(), AttachmentTypeConstant.PATTERN_MAKING_PATTERN);
         vo.setAttachmentList(attachmentVoList);
         // 设置状态
         nodeStatusService.setNodeStatusToBean(vo, "nodeStatusList", "nodeStatus");

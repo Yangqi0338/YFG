@@ -9,10 +9,7 @@ package com.base.sbc.module.sample.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -27,6 +24,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -80,6 +78,8 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
     private FlowableService flowableService;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private UploadFileService uploadFileService;
     @Autowired
     private PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
     @Autowired
@@ -248,6 +248,8 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory3rd()), "prod_category3rd", dto.getProdCategory3rd());
         qw.like(StrUtil.isNotBlank(dto.getDesignNo()), "design_no", dto.getDesignNo());
         qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "devt_type", dto.getDevtType());
+        qw.eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "planning_season_id", dto.getPlanningSeasonId());
+
         if(!StringUtils.isEmpty(dto.getIsTrim())){
             if(dto.getIsTrim().equals(BaseGlobal.STATUS_NORMAL)){
                 /*查询主款*/
@@ -296,6 +298,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
             list.forEach(sampleDesignPageVo -> {
                 QueryWrapper queryWrapper = new QueryWrapper();
                 queryWrapper.eq("sample_design_id", sampleDesignPageVo.getId());
+                queryWrapper.eq(StrUtil.isNotBlank(dto.getStyleStatus()), "status", dto.getStyleStatus());
                 List<SampleStyleColor> sampleStyleColorList = sampleStyleColorMapper.selectList(queryWrapper);
                 if (!CollectionUtils.isEmpty(sampleStyleColorList)) {
                     List<SampleStyleColorVo> sampleStyleColorVoList = BeanUtil.copyToList(sampleStyleColorList, SampleStyleColorVo.class);
@@ -370,7 +373,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         }
         SampleDesignVo sampleVo = BeanUtil.copyProperties(sampleDesign, SampleDesignVo.class);
         //查询附件
-        List<AttachmentVo> attachmentVoList = attachmentService.findByFId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
+        List<AttachmentVo> attachmentVoList = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
         sampleVo.setAttachmentList(attachmentVoList);
 
         // 关联的素材库
@@ -382,11 +385,22 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         sampleVo.setMaterialList(materialList);
 
         // 款式图片
-        List<AttachmentVo> stylePicList = attachmentService.findByFId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
+        List<AttachmentVo> stylePicList = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
         sampleVo.setStylePicList(stylePicList);
-        if (CollUtil.isNotEmpty(stylePicList)) {
-            sampleVo.setStylePic(stylePicList.get(0).getUrl());
+        if (StrUtil.isNotBlank(sampleVo.getStylePic())) {
+            String fileId = sampleVo.getStylePic();
+            AttachmentVo one = CollUtil.findOne(stylePicList, (a) -> StrUtil.equals(a.getFileId(), fileId));
+            sampleVo.setStylePic(Optional.ofNullable(one).map(AttachmentVo::getUrl).orElse(uploadFileService.getUrlById(sampleVo.getStylePic())));
+            //旧数据处理
+            if (CollUtil.isEmpty(stylePicList)) {
+                AttachmentVo attachmentVo = new AttachmentVo();
+                attachmentVo.setFileId(fileId);
+                attachmentVo.setUrl(sampleVo.getStylePic());
+                attachmentVo.setId(IdUtil.randomUUID());
+                sampleVo.setStylePicList(CollUtil.newArrayList(attachmentVo));
+            }
         }
+
         //维度标签
         sampleVo.setDimensionLabels(queryDimensionLabelsBySdId(id));
 

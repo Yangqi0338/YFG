@@ -44,10 +44,13 @@ public interface UploadFileService extends BaseService<UploadFile> {
 
     /**
      * 获取文件id
+     *
      * @param fileUrls
      * @return key = url,val=id
      */
     Map<String, String> findMapByUrls(List<String> fileUrls);
+
+    String getUrlById(String id);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

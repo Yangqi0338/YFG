@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -95,17 +96,23 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         if(CollUtil.isEmpty(fileUrls)){
             return result;
         }
-        QueryWrapper<UploadFile> qw=new QueryWrapper<>();
-        qw.in("url",fileUrls);
+        QueryWrapper<UploadFile> qw = new QueryWrapper<>();
+        qw.in("url", fileUrls);
         List<UploadFile> list = list(qw);
-        if(CollUtil.isEmpty(list)){
+        if (CollUtil.isEmpty(list)) {
             return result;
         }
         result = list.stream().collect(Collectors.toMap(k -> k.getUrl(), v -> v.getId(), (a, b) -> b));
         return result;
     }
 
+    @Override
+    public String getUrlById(String id) {
+        UploadFile byId = getById(id);
+        return Optional.ofNullable(byId).map(UploadFile::getUrl).orElse("");
+    }
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
-	
+
 }

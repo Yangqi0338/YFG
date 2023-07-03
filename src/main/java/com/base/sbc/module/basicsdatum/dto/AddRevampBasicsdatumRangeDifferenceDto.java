@@ -6,9 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.dto;
 
+import com.base.sbc.module.difference.entity.Difference;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.List;
+
 /**
  * 类描述：新增修改基础资料-档差 dto类
  * @address com.base.sbc.module.basicsdatum.dto.BasicsdatumRangeDifference
@@ -35,7 +39,7 @@ public class AddRevampBasicsdatumRangeDifferenceDto  {
 
     /** 测量数据集合 */
     @ApiModelProperty(value = "测量数据集合"  )
-    private String positionData;
+    private List<Difference> differenceList;
     /** 测量部位id集合 */
     @ApiModelProperty(value = "测量部位id集合"  )
     private String measurementIds;

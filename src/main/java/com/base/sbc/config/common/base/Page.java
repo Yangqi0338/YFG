@@ -46,4 +46,19 @@ public class Page implements Serializable {
         return Opt.ofBlankAble(orderBy).map(o -> o.toUpperCase().replace("ASC", "").replace("DESC", "")).orElse(null);
     }
 
+    public Integer getPageSize() {
+        if (pageSize == null) {
+            pageSize = 0;
+        }
+        return pageSize;
+    }
+
+    public Boolean getPageSizeZero() {
+        if (getPageSize() == 0) {
+            return true;
+        }
+        return false;
+    }
+
+
 }
