@@ -44,11 +44,11 @@ public interface HangTagService extends BaseService<HangTag> {
     /**
      * 详情
      *
-     * @param id
+     * @param bulkStyleNo
      * @param userCompany
      * @return
      */
-    HangTagVO getDetailsById(String id, String userCompany);
+    HangTagVO getDetailsByBulkStyleNo(String bulkStyleNo, String userCompany);
 
 
     /**
@@ -59,15 +59,6 @@ public interface HangTagService extends BaseService<HangTag> {
      */
     String save(HangTagDTO hangTagDTO, String userCompany);
 
-    /**
-     * 款式生成吊牌
-     *
-     * @param styleId     款式id
-     * @param bulkStyleNo 大货款号
-     * @param colorMap    颜色（k:颜色编码，v:颜色名称）
-     * @return
-     */
-    void generateHangTag(String styleId, String bulkStyleNo, Map<String, String> colorMap, String userCompany);
 
 
     /**

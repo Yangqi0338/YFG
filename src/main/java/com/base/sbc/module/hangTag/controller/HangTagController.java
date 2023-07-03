@@ -55,11 +55,10 @@ public class HangTagController extends BaseController {
     }
 
 
-
     @ApiOperation(value = "查询详情")
-    @GetMapping("/getDetailsById")
-    public ApiResult getDetailsById(@Valid @NotBlank(message = "吊牌id不可为空") String id) {
-        return selectSuccess(hangTagService.getDetailsById(id, super.getUserCompany()));
+    @GetMapping("/getDetailsByBulkStyleNo")
+    public ApiResult getDetailsByBulkStyleNo(@Valid @NotBlank(message = "大货款号不可为空") String bulkStyleNo) {
+        return selectSuccess(hangTagService.getDetailsByBulkStyleNo(bulkStyleNo, super.getUserCompany()));
     }
 
     @ApiOperation(value = "保存")
@@ -89,8 +88,6 @@ public class HangTagController extends BaseController {
     public ApiResult getIngredientList(@Valid @NotBlank(message = "吊牌id不可为空") String hangTagId) {
         return selectSuccess(hangTagIngredientService.getIngredientListByHangTagId(hangTagId, super.getUserCompany()));
     }
-
-
 
 
 }

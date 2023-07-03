@@ -46,18 +46,13 @@ public class HangTag extends BaseDataEntity<String> {
     @ApiModelProperty(value = "确认时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date confirmDate;
-    /** 款式id */
-    @ApiModelProperty(value = "款式id"  )
-    private String styleId;
+    /** 款式 */
+    @ApiModelProperty(value = "款式"  )
+    private String styleNo;
     /** 大货款号 */
     @ApiModelProperty(value = "大货款号"  )
     private String bulkStyleNo;
-    /** 颜色编码 */
-    @ApiModelProperty(value = "颜色编码"  )
-    private String colorCode;
-    /** 颜色 */
-    @ApiModelProperty(value = "颜色"  )
-    private String color;
+
     /**
      * 品名编码
      */

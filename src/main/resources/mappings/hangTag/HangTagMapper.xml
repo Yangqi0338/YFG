@@ -13,20 +13,17 @@
 
     <select id="queryList" resultType="com.base.sbc.module.hangTag.vo.HangTagListVO">
         SELECT
-        st.id as styleId,
-        st.style as style,
-        st.produce_type as produceType,
-        st.style_type as styleType,
-        st.style_no as bulkStyleNo,
-        st.size_type as modelType,
-        st.tag_price as tagPrice,
-        st.color_spec as artBagColorSpec,
+        tsd.style_no AS style,
+        tsd.devt_type AS produceType,
+        tsd.style_type AS styleType,
+        tsd.size_range AS modelType,
+        tssc.style_no AS bulkStyleNo,
+        tssc.color_name AS color,
+        tssc.tag_price AS tagPrice,
         ht.id,
-        ht.color_code,
-        ht.color,
         ht.confirm_date,
-        ht.product_name as productName,
-        ht.product_code as productCode,
+        ht.product_name AS productName,
+        ht.product_code AS productCode,
         ht.execute_standard_code,
         ht.execute_standard,
         ht.safty_title,
@@ -34,7 +31,7 @@
         ht.safty_type_code,
         ht.safty_type,
         ht.quality_grade,
-        GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) as ingredient,
+        GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) AS ingredient,
         ht.warm_tips,
         ht.washing_label,
         ht.producer,
@@ -46,19 +43,20 @@
         ht.sample_maker_name,
         ht.place_order_staff_name,
         ht.place_order_date,
-        ht.status
+        ht.STATUS
         FROM
-        t_style_test st
-        LEFT JOIN t_hang_tag ht ON st.id = ht.style_id
+        t_sample_style_color tssc
+        JOIN t_sample_design tsd ON tssc.sample_design_id = tsd.id
+        LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
         LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
         <where>
-            st.del_flag = 0
-            AND st.company_code = #{dto.companyCode}
+            tssc.del_flag = 0
+            AND tssc.company_code = #{dto.companyCode}
             <if test="dto.style != null and dto.style != ''">
-                AND st.style like concat('%',#{dto.style},'%')
+                AND tsd.style_no like concat('%',#{dto.style},'%')
             </if>
             <if test="dto.bulkStyleNo != null and dto.bulkStyleNo != ''">
-                AND st.style_no like concat('%',#{dto.bulkStyleNo},'%')
+                AND tssc.style_no like concat('%',#{dto.bulkStyleNo},'%')
             </if>
             <if test="dto.ingredient != null and dto.ingredient != ''">
                 AND hti.type = like concat('%',#{dto.ingredient},'%')
@@ -71,28 +69,31 @@
                 AND ht.confirm_date = #{dto.confirmDate}
             </if>
         </where>
-        GROUP BY st.id, ht.color
+        GROUP BY tssc.style_no
     </select>
 
 
-    <select id="getDetailsById" resultType="com.base.sbc.module.hangTag.vo.HangTagVO">
+    <select id="getDetailsByBulkStyleNo" resultType="com.base.sbc.module.hangTag.vo.HangTagVO">
         SELECT
-        st.id AS styleId,
-        st.style_no AS bulkStyleNo,
-        st.size_type AS modelType,
-        st.designer AS designer,
-        st.typewriter as patternDesign,
-        st.describe as `describe`,
+        tsd.style_no AS style,
+        tsd.devt_type AS produceType,
+        tsd.style_type AS styleType,
+        tsd.size_range AS modelType,
+        tssc.style_no AS bulkStyleNo,
+        tssc.color_name AS color,
+        tssc.tag_price AS tagPrice,
+        <!--        st.describe as `describe`,-->
         GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) AS ingredient,
         ht.*
         FROM
-        t_style_test st
-        LEFT JOIN t_hang_tag ht ON st.id = ht.style_id
+        t_sample_style_color tssc
+        JOIN t_sample_design tsd ON tssc.sample_design_id = tsd.id
+        LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
         LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
         <where>
-            st.del_flag = 0
-            AND st.company_code = #{companyCode}
-            and ht.id = #{id}
+            tssc.del_flag = 0
+            AND tssc.company_code = #{companyCode}
+            and tssc.style_no = #{bulkStyleNo}
         </where>
     </select>
 

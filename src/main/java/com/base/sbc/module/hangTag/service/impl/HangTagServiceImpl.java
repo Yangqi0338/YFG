@@ -70,8 +70,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     }
 
     @Override
-    public HangTagVO getDetailsById(String id, String userCompany) {
-        return hangTagMapper.getDetailsById(id, userCompany);
+    public HangTagVO getDetailsByBulkStyleNo(String bulkStyleNo, String userCompany) {
+        HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(bulkStyleNo, userCompany);
+        if (StringUtils.isEmpty(hangTagVO.getStatus())) {
+            hangTagVO.setStatus(HangTagStatusEnum.NOT_SUBMIT.getK());
+        }
+        return hangTagVO;
     }
 
     @Override
@@ -83,34 +87,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         super.saveOrUpdate(hangTag);
         String id = hangTag.getId();
         hangTagIngredientService.save(hangTagDTO.getHangTagIngredients(), id, userCompany);
-        hangTagLogService.save(id, OperationDescriptionEnum.SAVE.getK(), userCompany);
+        hangTagLogService.save(id, OperationDescriptionEnum.SAVE.getV(), userCompany);
         return id;
     }
 
-    @Override
-    public void generateHangTag(String styleId, String bulkStyleNo, Map<String, String> colorMap, String userCompany) {
-        logger.info("HangTagService#generateHangTag 生成款式吊牌 styleId:{}, bulkStyleNo:{}，colorMap：{},userCompany:{}", styleId, bulkStyleNo, JSON.toJSONString(colorMap), userCompany);
-
-        if (StringUtils.isEmpty(styleId) || StringUtils.isEmpty(bulkStyleNo) || Objects.isNull(colorMap)) {
-            throw new BusinessException(BaseErrorEnum.ERR_INSERT_ATTRIBUTE_NOT_REQUIREMENTS);
-        }
-        List<HangTag> hangTags = colorMap.keySet().stream()
-                .map(k -> {
-                    HangTag hangTag = new HangTag();
-                    hangTag.insertInit();
-                    hangTag.setStyleId(styleId);
-                    hangTag.setBulkStyleNo(bulkStyleNo);
-                    hangTag.setColorCode(k);
-                    hangTag.setColor(colorMap.get(k));
-                    hangTag.setStatus(HangTagStatusEnum.UNWRITTEN.getK());
-                    return hangTag;
-                }).collect(Collectors.toList());
-        super.saveBatch(hangTags);
-        List<String> ids = hangTags.stream()
-                .map(HangTag::getId)
-                .collect(Collectors.toList());
-        hangTagLogService.saveBatch(ids, OperationDescriptionEnum.SAVE.getK(), userCompany);
-    }
 
     @Override
     public void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, String userCompany) {
