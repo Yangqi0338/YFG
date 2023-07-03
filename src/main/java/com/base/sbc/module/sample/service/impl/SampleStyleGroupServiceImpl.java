@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,11 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.sample.dto.SampleStyleGroupItemSaveDto;
 import com.base.sbc.module.sample.dto.SampleStyleGroupQueryDto;
 import com.base.sbc.module.sample.dto.SampleStyleGroupSaveDto;
 import com.base.sbc.module.sample.entity.SampleStyleGroup;
+import com.base.sbc.module.sample.entity.SampleStyleGroupColor;
 import com.base.sbc.module.sample.mapper.SampleStyleGroupMapper;
 import com.base.sbc.module.sample.service.SampleStyleGroupColorService;
 import com.base.sbc.module.sample.service.SampleStyleGroupService;
@@ -98,8 +101,35 @@ public class SampleStyleGroupServiceImpl extends BaseServiceImpl<SampleStyleGrou
 	}
 
 	@Override
+	public Boolean saveSampleStyleGroupItem(SampleStyleGroupItemSaveDto dto) {
+		if (dto.getStyleNo().indexOf(",") > 0) {
+			String[] styles = dto.getStyleNo().split(",");
+			SampleStyleGroupColor entity;
+			List<SampleStyleGroupColor> list = new ArrayList<>();
+			for (int i = 0; i < styles.length; i++) {
+				if (StringUtils.isBlank(styles[i])) {
+					continue;
+				}
+				entity = new SampleStyleGroupColor();
+				entity.setCompanyCode(this.getCompanyCode());
+				entity.setStyleNo(styles[i]);
+				entity.setGroupCode(dto.getGroupCode());
+				list.add(entity);
+			}
+			this.sampleStyleGroupColorService.saveBatch(list);
+		} else {
+			SampleStyleGroupColor entity = CopyUtil.copy(dto, SampleStyleGroupColor.class);
+			entity.setCompanyCode(this.getCompanyCode());
+			this.sampleStyleGroupColorService.save(entity);
+
+		}
+		return true;
+	}
+
+	@Override
 	public Boolean delSampleStyleGroupItem(String id) {
 		return this.sampleStyleGroupColorService.removeBatchByIds(StringUtils.convertList(id));
 	}
+
 	
 }

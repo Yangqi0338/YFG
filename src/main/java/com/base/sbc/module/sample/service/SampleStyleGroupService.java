@@ -9,6 +9,7 @@ package com.base.sbc.module.sample.service;
 import java.util.List;
 
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.sample.dto.SampleStyleGroupItemSaveDto;
 import com.base.sbc.module.sample.dto.SampleStyleGroupQueryDto;
 import com.base.sbc.module.sample.dto.SampleStyleGroupSaveDto;
 import com.base.sbc.module.sample.entity.SampleStyleGroup;
@@ -35,5 +36,7 @@ public interface SampleStyleGroupService extends BaseService<SampleStyleGroup>{
 	List<SampleStyleGroupPageVo> getStyleGroupItemByGroupCode(String groupCode);
 
 	Boolean delSampleStyleGroupItem(String id);
+
+	Boolean saveSampleStyleGroupItem(SampleStyleGroupItemSaveDto dto);
 	
 }

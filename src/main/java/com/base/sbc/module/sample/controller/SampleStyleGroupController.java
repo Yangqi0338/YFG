@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.sample.dto.SampleStyleGroupItemSaveDto;
 import com.base.sbc.module.sample.dto.SampleStyleGroupQueryDto;
 import com.base.sbc.module.sample.dto.SampleStyleGroupSaveDto;
 import com.base.sbc.module.sample.service.SampleStyleGroupService;
@@ -69,11 +70,18 @@ public class SampleStyleGroupController {
 		return sampleStyleGroupService.getSampleStyleGroup(id);
 	}
 
+
 	@ApiOperation(value = "款式搭配详情表格:详情左关联配色表(排除主款)")
 	@GetMapping("/getStyleGroupItemByGroupCode")
 	public List<SampleStyleGroupPageVo> getStyleGroupItemByGroupCode(
 			@RequestParam(value = "groupCode") @NotBlank(message = "搭配编码不能为空") String groupCode) {
 		return sampleStyleGroupService.getStyleGroupItemByGroupCode(groupCode);
+	}
+
+	@ApiOperation(value = "款式搭配详情：添加保存明细")
+	@PostMapping("/saveSampleStyleGroupItem")
+	public Boolean saveSampleStyleGroupItem(@Valid @RequestBody SampleStyleGroupItemSaveDto dto) {
+		return sampleStyleGroupService.saveSampleStyleGroupItem(dto);
 	}
 
 	@ApiOperation(value = "款式搭配详情表格：删除")
