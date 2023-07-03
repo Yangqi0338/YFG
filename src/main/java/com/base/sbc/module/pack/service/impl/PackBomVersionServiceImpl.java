@@ -7,6 +7,7 @@
 package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -86,6 +87,9 @@ public class PackBomVersionServiceImpl extends BaseServiceImpl<PackBomVersionMap
     @Transactional(rollbackFor = {Exception.class})
     public boolean changeVersionStatus(String id) {
         PackBomVersion version = getById(id);
+        if (version == null) {
+            throw new OtherException("未找到版本信息");
+        }
         String status = version.getStatus();
 
         //停用操作
@@ -104,15 +108,49 @@ public class PackBomVersionServiceImpl extends BaseServiceImpl<PackBomVersionMap
         //启用操作
         else {
             // 1.将当前启用的停用 2.启用当前的
-            UpdateWrapper<PackBomVersion> qw = new UpdateWrapper<>();
-            PackUtils.commonQw(qw, version);
-            qw.eq("status", BaseGlobal.NO);
-            qw.set("status", BaseGlobal.YES);
-            update(qw);
-            version.setStatus(BaseGlobal.NO);
-            updateById(version);
+            enable(version);
         }
         return true;
+    }
+
+    @Override
+    public boolean enable(PackBomVersion version) {
+        UpdateWrapper<PackBomVersion> qw = new UpdateWrapper<>();
+        PackUtils.commonQw(qw, version);
+        qw.eq("status", BaseGlobal.NO);
+        qw.set("status", BaseGlobal.YES);
+        setUpdateInfo(qw);
+        update(qw);
+        version.setStatus(BaseGlobal.NO);
+        return updateById(version);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean lockChange(String id, String lockFlag) {
+        UpdateWrapper<PackBomVersion> uw = new UpdateWrapper<>();
+        uw.in("id", StrUtil.split(id, CharUtil.COMMA));
+        uw.set("lock_flag", lockFlag);
+        setUpdateInfo(uw);
+        return update(uw);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean toBigGoods(String id) {
+        PackBomVersion version = getById(id);
+        if (version == null) {
+            throw new OtherException("找不到版本信息");
+        }
+        if (StrUtil.equals(version.getPackType(), PackUtils.PACK_TYPE_BIG_GOODS)) {
+            throw new OtherException("已经是大货版本");
+        }
+        // 新建版本
+        // 复制bom
+        //复制尺码
+
+
+        return false;
     }
 
 // 自定义方法区 不替换的区域【other_end】

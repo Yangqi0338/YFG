@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -22,10 +21,8 @@ public class Page implements Serializable {
 
 
     @ApiModelProperty(value = "第几页", example = "1")
-    @NotNull(message = "不能为空")
     private Integer pageNum;
     @ApiModelProperty(value = "每页数量", example = "10")
-    @NotNull(message = "不能为空")
     private Integer pageSize;
     @ApiModelProperty(value = "排序(单表)", example = "create_date desc")
     private String orderBy;

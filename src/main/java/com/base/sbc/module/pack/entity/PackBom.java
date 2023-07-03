@@ -14,7 +14,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-
 /**
  * 类描述：资料包-物料清单 实体类
  *
@@ -22,7 +21,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-1 16:37:22
+ * @date 创建时间：2023-7-3 16:57:35
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -156,7 +155,7 @@ public class PackBom extends BaseDataEntity<String> {
      * 不能使用(0否,1是)
      */
     @ApiModelProperty(value = "不能使用(0否,1是)")
-    private String unusable;
+    private String unusableFlag;
     /**
      * 备注
      */
@@ -164,3 +163,4 @@ public class PackBom extends BaseDataEntity<String> {
     private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+

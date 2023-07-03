@@ -1,5 +1,7 @@
 package com.base.sbc.config.utils;
 
+import cn.hutool.core.util.StrUtil;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -33,5 +35,17 @@ public class CommonUtils {
             commonSet.retainAll(set);
         }
         return commonSet;
+    }
+
+
+    /**
+     * 判断是否是初始化id
+     * 为空 或者包含 -
+     *
+     * @param id
+     * @return
+     */
+    public static boolean isInitId(String id) {
+        return StringUtils.isBlank(id) || StringUtils.contains(id, StrUtil.DASHED);
     }
 }

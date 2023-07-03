@@ -7,11 +7,14 @@
 package com.base.sbc.module.pack.controller;
 
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.pack.dto.PackBomVersionDto;
-import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.module.common.dto.IdDto;
+import com.base.sbc.module.common.dto.IdsDto;
+import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -24,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 类描述：资料包-物料清单 Controller类
@@ -58,8 +62,20 @@ public class PackBomController {
         return packBomVersionService.saveVersion(dto);
     }
 
-    @ApiOperation(value = "启用停用")
-    @GetMapping("/changeVersionStatus")
+    @ApiOperation(value = "版本锁定")
+    @GetMapping("/version/lock")
+    public boolean versionLock(@Valid IdsDto ids) {
+        return packBomVersionService.lockChange(ids.getId(), BaseGlobal.YES);
+    }
+
+    @ApiOperation(value = "版本解锁")
+    @GetMapping("/version/unlock")
+    public boolean versionUnlock(@Valid IdsDto ids) {
+        return packBomVersionService.lockChange(ids.getId(), BaseGlobal.NO);
+    }
+
+    @ApiOperation(value = "版本启用/停用")
+    @GetMapping("/version/changeStatus")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "版本id", required = true, dataType = "String", paramType = "query"),
     })
@@ -67,6 +83,42 @@ public class PackBomController {
         return packBomVersionService.changeVersionStatus(id);
     }
 
+
+    @ApiOperation(value = "物料清单分页查询")
+    @GetMapping()
+    public PageInfo<PackBomVo> versionPage(@Valid PackBomPageSearchDto dto) {
+        return packBomService.pageInfo(dto);
+    }
+
+    @PostMapping("/save")
+    @ApiOperation(value = "保存单个物料清单")
+    public PackBomVo save(@Valid @RequestBody PackBomDto dto) {
+        return packBomService.saveByDto(dto);
+    }
+
+    @PostMapping("/saveBatch")
+    @ApiOperation(value = "保存全部物料清单")
+    public boolean save(@Valid PackBomSearchDto search, @RequestBody List<PackBomDto> dtoList) {
+        return packBomService.saveBatchByDto(search.getVersionId(), dtoList);
+    }
+
+    @ApiOperation(value = "物料不可用")
+    @GetMapping("/unusable")
+    public boolean bomUnusable(@Valid IdsDto dto) {
+        return packBomService.unusableChange(dto.getId(), BaseGlobal.YES);
+    }
+
+    @ApiOperation(value = "物料可用")
+    @GetMapping("/usable")
+    public boolean usable(@Valid IdsDto dto) {
+        return packBomService.unusableChange(dto.getId(), BaseGlobal.NO);
+    }
+
+    @ApiOperation(value = "转大货")
+    @GetMapping("/version/toBigGoods")
+    public boolean toBigGoods(@Valid IdDto idDto) {
+        return packBomVersionService.toBigGoods(idDto.getId());
+    }
 }
 
 
