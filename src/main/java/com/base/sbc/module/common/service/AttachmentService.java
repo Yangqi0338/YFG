@@ -10,6 +10,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.dto.AttachmentSaveDto;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.dto.PackPatternAttachmentSaveDto;
+import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
@@ -44,6 +47,40 @@ public interface AttachmentService extends BaseService<Attachment> {
     void setListStylePic(List list, String fileIdKey);
 
     Integer saveAttachment(List<AttachmentSaveDto> dto, String foreignId, String type);
+
+    /**
+     * 资料包-图样附件-分页查询
+     *
+     * @param dto
+     * @return
+     */
+    PageInfo<AttachmentVo> patternAttachmentPageInfo(PackCommonPageSearchDto dto);
+
+    /**
+     * 删除
+     *
+     * @param id
+     * @return
+     */
+    boolean del(String id);
+
+    /**
+     * 保存资料包 -图样附件
+     *
+     * @param dto
+     * @return
+     */
+    AttachmentVo saveByPack(PackPatternAttachmentSaveDto dto);
+
+    /**
+     * 修改备注
+     *
+     * @param id
+     * @param remarks
+     * @return
+     */
+    boolean updateRemarks(String id, String remarks);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.common.entity.Attachment
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-1 11:57:00
+ * @date 创建时间：2023-7-4 17:14:15
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -27,11 +27,11 @@ import lombok.EqualsAndHashCode;
 @ApiModel("附件 Attachment")
 public class Attachment extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private static final long serialVersionUID = 1L;
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
-	/**********************************实体存放的其他字段区 【other_end】******************************************/
+    /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /**
@@ -49,9 +49,16 @@ public class Attachment extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "类型:样衣/制版/等")
     private String type;
-    /** 状态:(0正常,1停用) */
-    @ApiModelProperty(value = "状态:(0正常,1停用)"  )
+    /**
+     * 状态:(0正常,1停用)
+     */
+    @ApiModelProperty(value = "状态:(0正常,1停用)")
     private String status;
+    /**
+     * 备注
+     */
+    @ApiModelProperty(value = "备注")
+    private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

@@ -8,8 +8,10 @@ package com.base.sbc.module.common.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.module.common.dto.AttachmentSaveDto;
 import com.base.sbc.module.common.entity.Attachment;
@@ -18,6 +20,11 @@ import com.base.sbc.module.common.mapper.AttachmentMapper;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.dto.PackPatternAttachmentSaveDto;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -130,6 +137,42 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
         }
         saveBatch(attachmentList);
         return attachmentList.size();
+    }
+
+    @Override
+    public PageInfo<AttachmentVo> patternAttachmentPageInfo(PackCommonPageSearchDto dto) {
+        QueryWrapper<Attachment> qw = new QueryWrapper<>();
+        qw.eq("foreign_id", dto.getForeignId());
+        qw.eq("a.type", dto.getPackType());
+        qw.eq("a.del_flag", BaseGlobal.NO);
+        Page<AttachmentVo> page = PageHelper.startPage(dto);
+        getBaseMapper().findByQw(qw);
+        return page.toPageInfo();
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean del(String id) {
+        removeBatchByIds(StrUtil.split(id, CharUtil.COMMA));
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public AttachmentVo saveByPack(PackPatternAttachmentSaveDto dto) {
+        Attachment attachment = BeanUtil.copyProperties(dto, Attachment.class);
+        attachment.setType(dto.getPackType());
+        return getAttachmentById(attachment.getId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean updateRemarks(String id, String remarks) {
+        UpdateWrapper<Attachment> uw = new UpdateWrapper<>();
+        uw.eq("id", id);
+        uw.set("remarks", remarks);
+        setUpdateInfo(uw);
+        return update(uw);
     }
 
 

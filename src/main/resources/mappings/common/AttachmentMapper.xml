@@ -30,7 +30,10 @@
                f.url,
                f.name,
                f.type,
-               f.size
+               f.size,
+               a.create_name,
+               a.remarks,
+               a.create_date
         from t_upload_file f
                  left join t_attachment a on (a.file_id = f.id)
             ${ ew.customSqlSegment}

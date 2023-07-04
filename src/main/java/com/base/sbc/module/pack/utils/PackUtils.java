@@ -3,6 +3,7 @@ package com.base.sbc.module.pack.utils;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 
@@ -21,11 +22,11 @@ public class PackUtils {
     /**
      * 资料包类型 设计资料包
      */
-    public static final String PACK_TYPE_DESIGN = "design";
+    public static final String PACK_TYPE_DESIGN = "packDesign";
     /**
      * 资料包类型 大货资料包
      */
-    public static final String PACK_TYPE_BIG_GOODS = "bigGoods";
+    public static final String PACK_TYPE_BIG_GOODS = "packBigGoods";
 
     /**
      * 公共条件
@@ -35,6 +36,7 @@ public class PackUtils {
      */
     public static void commonQw(AbstractWrapper qw, Object dto) {
         String foreignId = BeanUtil.getProperty(dto, "foreignId");
+        qw.eq("del_flag", BaseGlobal.NO);
         if (StrUtil.isNotBlank(foreignId)) {
             qw.eq("foreign_id", foreignId);
         }
