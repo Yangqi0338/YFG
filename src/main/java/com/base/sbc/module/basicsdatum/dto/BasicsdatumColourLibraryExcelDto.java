@@ -50,11 +50,11 @@ public class BasicsdatumColourLibraryExcelDto  {
     private String library;
     /** 可用于款式 */
     @ApiModelProperty(value = "可用于款式"  )
-    @Excel(name = "可用于款式" , replace = {"true_0", "false_1"} )
+    @Excel(name = "可用于款式" , replace = {"false_0", "true_1"} )
     private String isStyle;
     /** 可用于材料 */
     @ApiModelProperty(value = "可用于材料"  )
-    @Excel(name = "可用于材料" , replace = {"true_0", "false_1"} )
+    @Excel(name = "可用于材料" , replace = {"false_0", "true_1"} )
     private String isMaterials;
     /** 潘通 */
     @ApiModelProperty(value = "潘通"  )

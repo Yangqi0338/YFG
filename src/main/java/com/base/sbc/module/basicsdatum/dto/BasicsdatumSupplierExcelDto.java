@@ -43,11 +43,11 @@ public class BasicsdatumSupplierExcelDto  {
     private String supplierType;
     /** 是否是内部供应商 */
     @ApiModelProperty(value = "是否是内部供应商"  )
-    @Excel(name = "是否是内部供应商", replace = {"false_1","true_0"})
+    @Excel(name = "是否是内部供应商", replace = {"false_0","true_1"})
     private String isInteriorSupplier;
     /** 是否是虚拟供应商 */
     @ApiModelProperty(value = "是否是虚拟供应商"  )
-    @Excel(name = "是否是虚拟供应商", replace = {"false_1","true_0"})
+    @Excel(name = "是否是虚拟供应商", replace = {"false_0","true_1"})
     private String isVirtualSupplier;
     /** 旧供应商编码 */
     @ApiModelProperty(value = "旧供应商编码"  )
@@ -79,7 +79,7 @@ public class BasicsdatumSupplierExcelDto  {
     private String dataState;
     /** 是 供应商 */
     @ApiModelProperty(value = "是 供应商"  )
-    @Excel(name = "是 供应商", replace = {"false_1","true_0"})
+    @Excel(name = "是 供应商", replace = {"false_0","true_1"})
     private String isSupplier;
     /** 联系人 */
     @ApiModelProperty(value = "联系人"  )
@@ -87,7 +87,7 @@ public class BasicsdatumSupplierExcelDto  {
     private String contact;
     /** 个体供应商 */
     @ApiModelProperty(value = "个体供应商"  )
-    @Excel(name = "个体供应商", replace = {"false_1","true_0"})
+    @Excel(name = "个体供应商", replace = {"false_0","true_1"})
     private String isIndividualSupplier;
     /** 地址 */
     @ApiModelProperty(value = "地址"  )

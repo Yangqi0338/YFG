@@ -30,11 +30,11 @@ public class BasicsdatumMaterialsIngredientExcelDto  {
     private String ingredient;
     /** OK for Material */
     @ApiModelProperty(value = "OK for Material"  )
-    @Excel(name = "OK for Material" , replace = {"true_0", "false_1"} )
+    @Excel(name = "OK for Material" , replace = {"false_0", "true_1"} )
     private String material;
     /** OK for Style */
     @ApiModelProperty(value = "OK for Style"  )
-    @Excel(name = "OK for Style" , replace = {"true_0", "false_1"} )
+    @Excel(name = "OK for Style" , replace = {"false_0", "true_1"} )
     private String style;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )

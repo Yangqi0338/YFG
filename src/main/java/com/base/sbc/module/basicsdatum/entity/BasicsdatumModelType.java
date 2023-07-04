@@ -53,17 +53,17 @@ public class BasicsdatumModelType extends BaseDataEntity<String> {
     /** 基础 尺码 */
     @ApiModelProperty(value = "基础 尺码"  )
     private String basicsSize;
-    /** 款式确认(0确定，1未确认) */
-    @ApiModelProperty(value = "款式确认(0确定，1未确认)"  )
+    /** 款式确认(1确定，0未确认) */
+    @ApiModelProperty(value = "款式确认(1确定，0未确认)"  )
     private String styleConfirmation;
     /** 材料确认(0确定，1未确认) */
-    @ApiModelProperty(value = "材料确认(0确定，1未确认)"  )
+    @ApiModelProperty(value = "材料确认(1确定，0未确认)"  )
     private String materialsConfirmation;
     /** 尺寸确认(0确定，1未确认) */
-    @ApiModelProperty(value = "尺寸确认(0确定，1未确认)"  )
+    @ApiModelProperty(value = "尺寸确认(1确定，0未确认)"  )
     private String sizeConfirmation;
     /** 发送状态(0发送，1未发送) */
-    @ApiModelProperty(value = "发送状态(0发送，1未发送)"  )
+    @ApiModelProperty(value = "发送状态(1发送，0未发送)"  )
     private String sendStatus;
     /** 品类 */
     @ApiModelProperty(value = "品类"  )

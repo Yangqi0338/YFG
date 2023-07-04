@@ -169,13 +169,13 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
     @Override
     public Boolean batchAddSampleStyleColor(List<AddRevampSampleStyleColorDto> list) {
 
-        int i=0;
+
         for (AddRevampSampleStyleColorDto addRevampSampleStyleColorDto : list) {
             BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(addRevampSampleStyleColorDto.getColourLibraryId());
             SampleDesign sampleDesign = sampleDesignMapper.selectById(addRevampSampleStyleColorDto.getSampleDesignId());
             addRevampSampleStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampSampleStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
-            addRevampSampleStyleColorDto.setStyleNo(getNextCode(sampleDesign.getBrand(),sampleDesign.getYear(),sampleDesign.getMonth(),sampleDesign.getBandCode(),sampleDesign.getCategoryName(),sampleDesign.getSeason(),String.valueOf(++i)));
+            addRevampSampleStyleColorDto.setStyleNo(getNextCode(addRevampSampleStyleColorDto.getSampleDesignId(), sampleDesign.getBrand(),sampleDesign.getYear(),sampleDesign.getMonth(),sampleDesign.getBandCode(),sampleDesign.getCategoryName(),sampleDesign.getSeason()));
         }
         List<SampleStyleColor> sampleStyleColorList = BeanUtil.copyToList(list, SampleStyleColor.class);
         saveBatch(sampleStyleColorList);
@@ -183,11 +183,10 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
     }
 
 
-    public String getNextCode(String brand,String year,String month,String band,String category,String season,String sku) {
+    public String getNextCode(String sampleDesignId,String brand,String year,String month,String band,String category,String season) {
         if (StrUtil.contains(category, StrUtil.COMMA)) {
             category = getCategory(category);
         }
-        String number="";
         String yearOn ="";
         try {
 //        获取年份
@@ -204,14 +203,16 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             /*波段*/
             String bandName =  bandService.getNameByCode(band);
             // 使用正则表达式匹配字母
-            Pattern pattern = Pattern.compile("[A-Z]");
+            Pattern pattern = Pattern.compile("[a-z||A-Z]");
             Matcher matcher = pattern.matcher(bandName);
             String Letter="";
             // 打印匹配到的字母
             while (matcher.find()) {
                 Letter+=matcher.group();
             }
-            if(StringUtils.isEmpty(Letter)){
+
+            if(!StringUtils.isEmpty(Letter)){
+                Letter = Letter.toUpperCase();
                 char[] charArray = Letter.toCharArray();
                 int char1 = (int) charArray[0];
                 band = String.valueOf(char1-64);
@@ -219,7 +220,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
                 band="";
             }
             /*序号*/
-            int i = Integer.parseInt(sku);
+           /* int i = Integer.parseInt(sku);
 
             if(i%3==1){
                 number = brand;
@@ -227,11 +228,19 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
                 number = String.valueOf(c);
             }if(i%3==0) {
                 number = season;
-            }
+            }*/
         } catch (Exception e) {
             throw new OtherException("大货编码生成失败");
         }
-        return brand + yearOn + month + band + category + number + sku;
+//        获取款式下的配色
+        int number = baseMapper.getStyleColorNumber(sampleDesignId);
+        String styleNo =brand + yearOn + month + band + category +"" + (number+1);
+        /*查询编码是否重复*/
+       int i = baseMapper.isStyleNoExist(styleNo);
+       if(i!=0){
+           throw new OtherException("编码重复");
+       }
+        return styleNo;
     }
     private String getCategory(String categoryName) {
         if (StrUtil.isBlank(categoryName)) {

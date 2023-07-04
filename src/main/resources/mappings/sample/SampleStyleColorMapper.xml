@@ -13,4 +13,11 @@
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+    <select id="isStyleNoExist" resultType="java.lang.Integer">
+        select count(1) from t_sample_style_color where  style_no=#{styleNo}
+    </select>
+
+    <select id="getStyleColorNumber" resultType="java.lang.Integer">
+         select count(1) from t_sample_style_color where  sample_design_id=#{styleNo}
+    </select>
 </mapper>
