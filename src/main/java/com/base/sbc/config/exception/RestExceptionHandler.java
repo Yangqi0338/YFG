@@ -1,6 +1,8 @@
 package com.base.sbc.config.exception;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.EnumUtil;
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -29,6 +31,8 @@ import javax.validation.ValidationException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * @author Fred
  * @data 创建时间:2020/2/3
@@ -82,11 +86,11 @@ public class RestExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ApiResult handleServiceException(ConstraintViolationException e) {
         Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
-        ConstraintViolation<?> violation = violations.iterator().next();
-        String message = violation.getMessage();
+        Set<String> messages = violations.stream().map(item -> item.getMessage()).collect(Collectors.toSet());
+        String message = CollUtil.join(messages, StrUtil.COMMA);
         logger.error("参数验证失败(@Validated验证实体的异常)", e);
 //        return error(BaseErrorEnum.ERR_CONSTRAINT_VIOLATIONEXCEPTION.getErrorMessage(),message);
-        return ApiResult.error(message,BaseErrorEnum.ERR_CONSTRAINT_VIOLATIONEXCEPTION.getErrorCode());
+        return ApiResult.error(message, BaseErrorEnum.ERR_CONSTRAINT_VIOLATIONEXCEPTION.getErrorCode());
     }
 
     

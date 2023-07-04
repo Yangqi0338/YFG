@@ -50,6 +50,7 @@ public class FieldValServiceImpl extends BaseServiceImpl<FieldValMapper, FieldVa
         this.remove(fvQw);
         if (CollUtil.isNotEmpty(fieldVals)) {
             for (FieldVal fieldVal : fieldVals) {
+                fieldVal.setId(null);
                 fieldVal.setDataGroup(dataGroup);
                 fieldVal.setForeignId(foreignId);
             }

@@ -132,6 +132,13 @@ public class PlanningController extends BaseController {
         return item;
     }
 
+    @ApiOperation(value = "坑位信息下发(坑位信息下发到产品季总览)")
+    @PostMapping("/seatSend")
+    public boolean seatSend(@Valid @RequestBody List<PlanningCategoryItemSaveDto> item) {
+        return planningCategoryItemService.seatSend(item);
+
+    }
+
     @ApiOperation(value = "修改图片")
     @GetMapping("/updateStylePic")
     public boolean updateStylePic(@Valid @NotBlank(message = "id不能为空") String id, String stylePic) {

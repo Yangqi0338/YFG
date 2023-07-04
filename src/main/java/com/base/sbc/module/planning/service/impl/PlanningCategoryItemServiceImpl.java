@@ -230,6 +230,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             //将坑位信息的状态修改为1 已下发产品季看板
             UpdateWrapper uw = new UpdateWrapper();
             uw.set("status", BasicNumber.ONE.getNumber());
+            uw.eq("status", BasicNumber.ZERO.getNumber());
             uw.in("id", item.stream().map(PlanningCategoryItemSaveDto::getId).collect(Collectors.toList()));
             this.update(uw);
             //将波段企划的状态改为  已提交
@@ -591,6 +592,28 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     @Override
     public List<ChartBarVo> categorySummary(QueryWrapper qw) {
         return getBaseMapper().categorySummary(qw);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean seatSend(List<PlanningCategoryItemSaveDto> list) {
+        List<String> bandIds = new ArrayList<>(2);
+        List<String> seatIds = new ArrayList<>(2);
+        for (PlanningCategoryItem planningCategoryItem : list) {
+            seatIds.add(planningCategoryItem.getId());
+            bandIds.add(planningCategoryItem.getPlanningBandId());
+        }
+        UpdateWrapper<PlanningCategoryItem> seatUw = new UpdateWrapper<>();
+        seatUw.set("status", BasicNumber.ONE.getNumber());
+        seatUw.eq("status", BasicNumber.ZERO.getNumber());
+        seatUw.in("id", seatIds);
+        update(seatUw);
+        //修改波段为已下发
+        UpdateWrapper<PlanningBand> bandUw = new UpdateWrapper<>();
+        bandUw.set("status", BaseGlobal.STOCK_STATUS_CHECKED);
+        bandUw.in("id", bandIds);
+        planningBandService.update(bandUw);
+        return true;
     }
 
 

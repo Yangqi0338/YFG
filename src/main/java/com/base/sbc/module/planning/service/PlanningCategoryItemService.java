@@ -138,4 +138,12 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
     List<PlanningSummaryDetailVo> planningSummaryDetail(QueryWrapper detailQw);
 
     List<ChartBarVo> categorySummary(QueryWrapper qw);
+
+    /**
+     * 坑位信息下发(坑位信息下发到产品季总览)
+     *
+     * @param list 坑位信息列表
+     * @return
+     */
+    boolean seatSend(List<PlanningCategoryItemSaveDto> list);
 }
