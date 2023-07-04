@@ -6,6 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.utils.CopyUtil;
@@ -28,10 +33,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * 类描述：样衣盘点 service类
@@ -122,8 +123,8 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
             qw.ge("si2.start_date", dto.getStartDate());
         if (null != dto.getEndDate())
             qw.le("si2.end_date", dto.getEndDate());
-        if (null != dto.getEndDate())
-            qw.le("si2.code", dto.getCode());
+//        if (null != dto.getEndDate())
+//            qw.le("si2.code", dto.getCode());
         if (null != dto.getSearch())
             qw.like("si2.name", dto.getSearch()).
                 or().like("si2.code", dto.getSearch());
