@@ -14,86 +14,145 @@ import java.math.BigDecimal;
 
 /**
  * 类描述：新增修改样衣-款式配色 dto类
- * @address com.base.sbc.module.sample.dto.SampleStyleColor
+ *
  * @author mengfanjiang
+ * @version 1.0
+ * @address com.base.sbc.module.sample.dto.SampleStyleColor
  * @email XX.com
  * @date 创建时间：2023-6-28 15:02:46
- * @version 1.0
  */
 @Data
 @ApiModel("样衣-款式配色 SampleStyleColor")
-public class AddRevampSampleStyleColorDto  {
+public class AddRevampSampleStyleColorDto {
 
     private String id;
 
-    /** 产品季节id */
-    @ApiModelProperty(value = "产品季节id"  )
+    /**
+     * 产品季节id
+     */
+    @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
-    /** 样衣id */
-    @ApiModelProperty(value = "样衣id"  )
+    /**
+     * 样衣id
+     */
+    @ApiModelProperty(value = "样衣id")
     private String sampleDesignId;
-    /** 样衣图(主图) */
-    @ApiModelProperty(value = "样衣图(主图)"  )
+    /**
+     * 样衣图(主图)
+     */
+    @ApiModelProperty(value = "样衣图(主图)")
     private String sampleDesignPic;
     /*配色*/
-    private String  colorName;
-    /** 颜色规格 */
-    @ApiModelProperty(value = "颜色规格"  )
+    private String colorName;
+    /**
+     * 颜色规格
+     */
+    @ApiModelProperty(value = "颜色规格")
     private String colorSpecification;
     /*颜色库id*/
     private String colourLibraryId;
-    /** 款式(大货款号) */
-    @ApiModelProperty(value = "款式(大货款号)"  )
+    /**
+     * 款式(大货款号)
+     */
+    @ApiModelProperty(value = "款式(大货款号)")
     private String styleNo;
-    /** 轻奢款(0否,1:是) */
-    @ApiModelProperty(value = "轻奢款(0否,1:是)"  )
+    /**
+     * 轻奢款(0否,1:是)
+     */
+    @ApiModelProperty(value = "轻奢款(0否,1:是)")
     private String isLuxury;
-    /** 细分 */
-    @ApiModelProperty(value = "细分"  )
+    /**
+     * 细分
+     */
+    @ApiModelProperty(value = "细分")
     private String subdivide;
-    /** 波段 */
-    @ApiModelProperty(value = "波段"  )
+    /**
+     * 波段
+     */
+    @ApiModelProperty(value = "波段")
     private String bandCode;
-    /** bom */
-    @ApiModelProperty(value = "bom"  )
+    /**
+     * bom
+     */
+    @ApiModelProperty(value = "bom")
     private String bom;
-    /** 销售类型 */
-    @ApiModelProperty(value = "销售类型"  )
+    /**
+     * 销售类型
+     */
+    @ApiModelProperty(value = "销售类型")
     private String salesType;
-    /** 是否是内饰款(0否,1:是) */
-    @ApiModelProperty(value = "是否是内饰款(0否,1:是)"  )
+    /**
+     * 是否是内饰款(0否,1:是)
+     */
+    @ApiModelProperty(value = "是否是内饰款(0否,1:是)")
     private String isTrim;
-    /** 主款 */
-    @ApiModelProperty(value = "主款"  )
+    /**
+     * 主款
+     */
+    @ApiModelProperty(value = "主款")
     private String principalStyle;
-    /** 主款款号 */
-    @ApiModelProperty(value = "主款款号"  )
+    /**
+     * 主款款号
+     */
+    @ApiModelProperty(value = "主款款号")
     private String principalStyleNo;
-    /** 配饰 */
-    @ApiModelProperty(value = "配饰"  )
+    /**
+     * 配饰
+     */
+    @ApiModelProperty(value = "配饰")
     private String accessory;
-    /** 配饰款号 */
-    @ApiModelProperty(value = "配饰款号"  )
+    /**
+     * 配饰款号
+     */
+    @ApiModelProperty(value = "配饰款号")
     private String accessoryNo;
-    /** 吊牌价 */
-    @ApiModelProperty(value = "吊牌价"  )
+    /**
+     * 吊牌价
+     */
+    @ApiModelProperty(value = "吊牌价")
     private BigDecimal tagPrice;
-    /** 厂家 */
-    @ApiModelProperty(value = "厂家"  )
+    /**
+     * 厂家
+     */
+    @ApiModelProperty(value = "厂家")
     private String manufacturer;
-    /** 厂家款号 */
-    @ApiModelProperty(value = "厂家款号"  )
+    /**
+     * 厂家款号
+     */
+    @ApiModelProperty(value = "厂家款号")
     private String manufacturerNo;
-    /** 厂家颜色 */
-    @ApiModelProperty(value = "厂家颜色"  )
+    /**
+     * 厂家颜色
+     */
+    @ApiModelProperty(value = "厂家颜色")
     private String manufacturerColor;
-    /** 是否主推(0否,1:是) */
-    @ApiModelProperty(value = "是否主推(0否,1:是)"  )
+    /**
+     * 是否主推(0否,1:是)
+     */
+    @ApiModelProperty(value = "是否主推(0否,1:是)")
     private String isMainly;
-    /** 次品编号 */
-    @ApiModelProperty(value = "次品编号"  )
+    /**
+     * 次品编号
+     */
+    @ApiModelProperty(value = "次品编号")
     private String defectiveNo;
-    /** 状态(0正常,1停用) */
-    @ApiModelProperty(value = "状态(0正常,1停用)"  )
+    /*波段企划id'*/
+    @ApiModelProperty(value = "波段企划id")
+    private String planningBandId;
+    /**
+     * 品类信息id
+     */
+    @ApiModelProperty(value = "品类信息id")
+    private String planningCategoryId;
+    /**
+     * 坑位信息id
+     */
+    @ApiModelProperty(value = "坑位信息id")
+    private String planningCategoryItemId;
+
+    /**
+     * 状态(0正常,1停用)
+     */
+    @ApiModelProperty(value = "状态(0正常,1停用)")
     private String status;
 }

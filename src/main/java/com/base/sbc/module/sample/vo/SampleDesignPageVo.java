@@ -97,4 +97,17 @@ public class SampleDesignPageVo {
     /** 产品季节id */
     @ApiModelProperty(value = "产品季节id"  )
     private String planningSeasonId;
+    /*波段企划id'*/
+    @ApiModelProperty(value = "波段企划id")
+    private String planningBandId;
+    /**
+     * 品类信息id
+     */
+    @ApiModelProperty(value = "品类信息id")
+    private String planningCategoryId;
+    /**
+     * 坑位信息id
+     */
+    @ApiModelProperty(value = "坑位信息id")
+    private String planningCategoryItemId;
 }

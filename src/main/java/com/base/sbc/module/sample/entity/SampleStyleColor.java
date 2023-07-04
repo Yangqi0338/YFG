@@ -102,6 +102,19 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     /** 次品编号 */
     @ApiModelProperty(value = "次品编号"  )
     private String defectiveNo;
+    /*波段企划id'*/
+    @ApiModelProperty(value = "波段企划id")
+    private String planningBandId;
+    /**
+     * 品类信息id
+     */
+    @ApiModelProperty(value = "品类信息id")
+    private String planningCategoryId;
+    /**
+     * 坑位信息id
+     */
+    @ApiModelProperty(value = "坑位信息id")
+    private String planningCategoryItemId;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
