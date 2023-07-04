@@ -30,6 +30,9 @@
 			<if test="styleNo != null and styleNo != ''">
 				and t.style_no like "%"#{styleNo}"%"
 			</if>
+			<if test="remarks != null and remarks != ''">
+				and t.remarks like "%"#{remarks}"%"
+			</if>
 	</select>
 	
 	

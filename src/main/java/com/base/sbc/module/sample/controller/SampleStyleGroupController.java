@@ -6,8 +6,6 @@
 *****************************************************************************/
 package com.base.sbc.module.sample.controller;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -73,9 +71,8 @@ public class SampleStyleGroupController {
 
 	@ApiOperation(value = "款式搭配详情表格:详情左关联配色表(排除主款)")
 	@GetMapping("/getStyleGroupItemByGroupCode")
-	public List<SampleStyleGroupPageVo> getStyleGroupItemByGroupCode(
-			@RequestParam(value = "groupCode") @NotBlank(message = "搭配编码不能为空") String groupCode) {
-		return sampleStyleGroupService.getStyleGroupItemByGroupCode(groupCode);
+	public PageInfo<SampleStyleGroupPageVo> getStyleGroupItemByGroupCode(SampleStyleGroupQueryDto dto) {
+		return sampleStyleGroupService.getStyleGroupItemByGroupCode(dto);
 	}
 
 	@ApiOperation(value = "款式搭配详情：添加保存明细")

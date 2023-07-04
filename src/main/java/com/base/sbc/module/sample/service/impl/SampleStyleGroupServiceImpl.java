@@ -93,11 +93,13 @@ public class SampleStyleGroupServiceImpl extends BaseServiceImpl<SampleStyleGrou
 	}
 
 	@Override
-	public List<SampleStyleGroupPageVo> getStyleGroupItemByGroupCode(String groupCode) {
-		SampleStyleGroupQueryDto dto = new SampleStyleGroupQueryDto();
+	public PageInfo<SampleStyleGroupPageVo> getStyleGroupItemByGroupCode(SampleStyleGroupQueryDto dto) {
+		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+			PageHelper.startPage(dto);
+		}
 		dto.setCompanyCode(this.getCompanyCode());
-		dto.setGroupCode(groupCode);
-		return this.baseMapper.getStyleGroupItemByGroupCode(dto);
+		List<SampleStyleGroupPageVo> list = this.baseMapper.getStyleGroupItemByGroupCode(dto);
+		return new PageInfo<>(list);
 	}
 
 	@Override
