@@ -219,31 +219,14 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     }
 
     @Override
-    @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public void updateAndCommit(String planningBandId, List<PlanningCategoryItemSaveDto> item) {
-        //提交
-        if (StrUtil.isNotBlank(planningBandId)) {
-            PlanningBand byId = planningBandService.getById(planningBandId);
-            if (byId == null) {
-                throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
-            }
-            //将坑位信息的状态修改为1 已下发产品季看板
-            UpdateWrapper uw = new UpdateWrapper();
-            uw.set("status", BasicNumber.ONE.getNumber());
-            uw.eq("status", BasicNumber.ZERO.getNumber());
-            uw.in("id", item.stream().map(PlanningCategoryItemSaveDto::getId).collect(Collectors.toList()));
-            this.update(uw);
-            //将波段企划的状态改为  已提交
-            byId.setStatus(BaseGlobal.STOCK_STATUS_CHECKED);
-            planningBandService.updateById(byId);
-        } else {
-            for (PlanningCategoryItemSaveDto dto : item) {
-                PlanningCategoryItem categoryItem = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
-                // 修改
-                PlanningUtils.setCategory(categoryItem);
-                updateById(categoryItem);
-                fieldValService.save(categoryItem.getId(), FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION, dto.getFieldVals());
-            }
+    @Transactional(rollbackFor = {Exception.class})
+    public void updateCategoryItem(String planningBandId, List<PlanningCategoryItemSaveDto> item) {
+        for (PlanningCategoryItemSaveDto dto : item) {
+            PlanningCategoryItem categoryItem = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
+            // 修改
+            PlanningUtils.setCategory(categoryItem);
+            updateById(categoryItem);
+            fieldValService.save(categoryItem.getId(), FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION, dto.getFieldVals());
         }
 
     }

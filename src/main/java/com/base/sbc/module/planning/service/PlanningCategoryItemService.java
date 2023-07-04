@@ -60,7 +60,7 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
      * @param planningBandId
      * @param item
      */
-    void updateAndCommit(String planningBandId, List<PlanningCategoryItemSaveDto> item);
+    void updateCategoryItem(String planningBandId, List<PlanningCategoryItemSaveDto> item);
 
     /**
      * 获取最大流水号

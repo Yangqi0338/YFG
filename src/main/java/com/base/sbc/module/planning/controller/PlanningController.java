@@ -125,10 +125,10 @@ public class PlanningController extends BaseController {
         return BeanUtil.copyProperties(bean, PlanningBandVo.class);
     }
 
-    @ApiOperation(value = "修改坑位信息/提交")
+    @ApiOperation(value = "修改坑位信息")
     @PostMapping("/updateCategoryItem")
-    public List<PlanningCategoryItemSaveDto> updateCategoryItem(@RequestParam(value = "planningBandId", required = false) String planningBandId, @Valid @RequestBody List<PlanningCategoryItemSaveDto> item) {
-        planningCategoryItemService.updateAndCommit(planningBandId, item);
+    public List<PlanningCategoryItemSaveDto> updateCategoryItem(@RequestParam(value = "planningBandId", required = false) String planningBandId, @RequestBody List<PlanningCategoryItemSaveDto> item) {
+        planningCategoryItemService.updateCategoryItem(planningBandId, item);
         return item;
     }
 
