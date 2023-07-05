@@ -114,6 +114,7 @@ public class PackBomVersionServiceImpl extends BaseServiceImpl<PackBomVersionMap
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public boolean enable(PackBomVersion version) {
         UpdateWrapper<PackBomVersion> qw = new UpdateWrapper<>();
         PackUtils.commonQw(qw, version);

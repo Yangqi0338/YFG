@@ -8,9 +8,9 @@ package com.base.sbc.module.pack.service;
 
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.dto.PackSampleReviewDto;
 import com.base.sbc.module.pack.entity.PackSampleReview;
 import com.base.sbc.module.pack.vo.PackSampleReviewVo;
-import com.base.sbc.module.planning.dto.PackSampleReviewDto;
 import com.github.pagehelper.PageInfo;
 
 /**

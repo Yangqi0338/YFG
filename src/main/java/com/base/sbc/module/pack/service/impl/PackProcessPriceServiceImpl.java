@@ -16,12 +16,12 @@ import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.PackProcessPriceDto;
 import com.base.sbc.module.pack.entity.PackProcessPrice;
 import com.base.sbc.module.pack.mapper.PackProcessPriceMapper;
 import com.base.sbc.module.pack.service.PackProcessPriceService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackProcessPriceVo;
-import com.base.sbc.module.planning.dto.PackProcessPriceDto;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -82,6 +82,7 @@ public class PackProcessPriceServiceImpl extends BaseServiceImpl<PackProcessPric
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public boolean saveBatchByDto(PackCommonSearchDto commonDto, List<PackProcessPriceDto> dtoList) {
         List<PackProcessPrice> dataList = BeanUtil.copyToList(dtoList, PackProcessPrice.class);
         if (CollUtil.isNotEmpty(dataList)) {

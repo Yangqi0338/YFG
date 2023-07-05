@@ -1,8 +1,10 @@
-package com.base.sbc.module.planning.dto;
+package com.base.sbc.module.pack.dto;
 
 import com.base.sbc.module.pack.entity.PackSampleReview;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * 类描述：资料包-样衣评审 Dto
@@ -15,4 +17,12 @@ import lombok.Data;
 @Data
 @ApiModel("资料包-样衣评审 PackSampleReviewDto")
 public class PackSampleReviewDto extends PackSampleReview {
+
+    @ApiModelProperty(value = "主数据id")
+    @NotBlank(message = "主数据id为空")
+    private String foreignId;
+
+    @ApiModelProperty(value = "资料包类型")
+    @NotBlank(message = "资料包类型为空")
+    private String packType;
 }

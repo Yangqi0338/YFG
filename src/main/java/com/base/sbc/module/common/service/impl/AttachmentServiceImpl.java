@@ -22,6 +22,7 @@ import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackPatternAttachmentSaveDto;
+import com.base.sbc.module.pack.dto.PackTechSpecSavePicDto;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -159,9 +160,11 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public AttachmentVo saveByPack(PackPatternAttachmentSaveDto dto) {
+    public AttachmentVo saveByPA(PackPatternAttachmentSaveDto dto) {
         Attachment attachment = BeanUtil.copyProperties(dto, Attachment.class);
         attachment.setType(dto.getPackType());
+        attachment.setId(null);
+        save(attachment);
         return getAttachmentById(attachment.getId());
     }
 
@@ -173,6 +176,15 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
         uw.set("remarks", remarks);
         setUpdateInfo(uw);
         return update(uw);
+    }
+
+    @Override
+    public AttachmentVo savePackTechSpecPic(PackTechSpecSavePicDto dto) {
+        Attachment attachment = BeanUtil.copyProperties(dto, Attachment.class);
+        attachment.setType(dto.getPackType() + StrUtil.DASHED + dto.getSpecType());
+        attachment.setId(null);
+        save(attachment);
+        return getAttachmentById(attachment.getId());
     }
 
 

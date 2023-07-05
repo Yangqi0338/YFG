@@ -12,6 +12,7 @@ import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackPatternAttachmentSaveDto;
+import com.base.sbc.module.pack.dto.PackTechSpecSavePicDto;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -70,7 +71,7 @@ public interface AttachmentService extends BaseService<Attachment> {
      * @param dto
      * @return
      */
-    AttachmentVo saveByPack(PackPatternAttachmentSaveDto dto);
+    AttachmentVo saveByPA(PackPatternAttachmentSaveDto dto);
 
     /**
      * 修改备注
@@ -80,6 +81,14 @@ public interface AttachmentService extends BaseService<Attachment> {
      * @return
      */
     boolean updateRemarks(String id, String remarks);
+
+    /**
+     * 保存工艺说明图片
+     *
+     * @param dto
+     * @return
+     */
+    AttachmentVo savePackTechSpecPic(PackTechSpecSavePicDto dto);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

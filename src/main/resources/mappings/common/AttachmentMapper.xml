@@ -16,7 +16,10 @@
                f.url,
                f.name,
                f.type,
-               f.size
+               f.size,
+               a.create_name,
+               a.remarks,
+               a.create_date
         from t_attachment a,
              t_upload_file f
         where a.file_id = f.id

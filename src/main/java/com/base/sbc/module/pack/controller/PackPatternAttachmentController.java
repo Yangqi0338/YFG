@@ -46,7 +46,7 @@ public class PackPatternAttachmentController {
     @ApiOperation(value = "保存")
     @PostMapping()
     public AttachmentVo save(@Valid @RequestBody PackPatternAttachmentSaveDto dto) {
-        return attachmentService.saveByPack(dto);
+        return attachmentService.saveByPA(dto);
     }
 
     @ApiOperation(value = "修改备注")

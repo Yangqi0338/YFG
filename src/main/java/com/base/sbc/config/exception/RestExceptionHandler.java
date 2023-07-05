@@ -106,12 +106,12 @@ public class RestExceptionHandler {
     public ApiResult handleBindException(BindException e) {
         BindingResult result = e.getBindingResult();
         FieldError error = result.getFieldError();
-        String field = error.getField();
-        String code = error.getDefaultMessage();
-        String message = String.format("%s:%s", field, code);
+        List<FieldError> fieldErrors = result.getFieldErrors();
+        String message = fieldErrors.stream().map(fieldError -> String.format("%s:%s", fieldError.getField(), fieldError.getDefaultMessage()))
+                .collect(Collectors.joining(StrUtil.COMMA));
         logger.error("参数绑定失败(检查参数名称)", e);
 //        return error(BaseErrorEnum.ERR_BIND_EXCEPTION.getErrorMessage(),message);
-        return ApiResult.error(message,BaseErrorEnum.ERR_BIND_EXCEPTION.getErrorCode());
+        return ApiResult.error(message, BaseErrorEnum.ERR_BIND_EXCEPTION.getErrorCode());
     }
     
     @ResponseStatus(HttpStatus.NOT_FOUND)
