@@ -6,9 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.Date;
+
 /**
  * 类描述：基础资料-供应商 Vo类
  * @address com.base.sbc.module.basicsdatum.vo.BasicsdatumSupplier
@@ -124,4 +128,24 @@ public class BasicsdatumSupplierVo  {
     private String street;
     /** 电话 */
     private String telephone;
+    /** 更新者名称  */
+
+    private String updateName;
+
+    /**  更新者id */
+    private String updateId;
+
+    /** 更新日期 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date updateDate;
+
+    /** 创建日期 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date createDate;
+
+    /**  创建者名称 */
+    private String createName;
+
+    /** 创建者id */
+    private String createId;
 }
