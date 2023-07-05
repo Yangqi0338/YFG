@@ -23,8 +23,6 @@ import lombok.Data;
 @ApiModel("基础资料-号型类型 BasicsdatumModelType")
 public class BasicsdatumModelTypeExcelDto  {
 
-    @Excel(name = "id")
-    private String id;
     /** 号型类型 */
     @ApiModelProperty(value = "号型类型"  )
     @Excel(name = "号型类型")

@@ -13,6 +13,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -23,6 +24,7 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumSupplierDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumSupplierExcelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryRevampBasicsdatumSupplierDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSupplierMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
@@ -158,7 +160,12 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
 
         }
         List<BasicsdatumSupplier> basicsdatumSupplierList = BeanUtil.copyToList(list, BasicsdatumSupplier.class);
-        saveOrUpdateBatch(basicsdatumSupplierList);
+        for (BasicsdatumSupplier basicsdatumSupplier : basicsdatumSupplierList) {
+            QueryWrapper<BasicsdatumSupplier> queryWrapper =new BaseQueryWrapper<>();
+            queryWrapper.eq("supplier_code",basicsdatumSupplier.getSupplierCode());
+            this.saveOrUpdate(basicsdatumSupplier,queryWrapper);
+        }
+//        saveOrUpdateBatch(basicsdatumSupplierList);
         return true;
     }
 
