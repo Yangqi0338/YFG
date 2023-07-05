@@ -121,8 +121,8 @@ public class BasicsdatumSupplierExcelDto  {
     @ApiModelProperty(value = "代理商 Images"  )
     @Excel(name = "代理商 Images",type = 2)
     private String agentImages;
-    /** 状态(0正常,1停用) */
+/*    *//** 状态(0正常,1停用) *//*
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     @Excel(name = "状态", replace = {"false_1","true_0"})
-    private String status;
+    private String status;*/
 }
