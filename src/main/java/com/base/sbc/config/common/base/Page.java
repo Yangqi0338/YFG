@@ -50,6 +50,13 @@ public class Page implements Serializable {
         return pageSize;
     }
 
+    public Integer getPageNum() {
+        if (pageNum == null) {
+            pageNum = 0;
+        }
+        return pageNum;
+    }
+
     public Boolean getPageSizeZero() {
         if (getPageSize() == 0) {
             return true;
