@@ -9,7 +9,10 @@ package com.base.sbc.module.band.service;
 import com.base.sbc.module.band.entity.Band;
 import com.base.sbc.module.common.service.BaseService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -21,6 +24,17 @@ import java.util.Map;
 @Service
 public interface BandService extends BaseService<Band> {
 
+    /**
+     * 导出
+     * @return
+     */
+    boolean bandImportExcel(MultipartFile file) throws Exception;
+
+    /**
+     * 导入
+     * @param response
+     */
+    void bandDeriveExcel(HttpServletResponse response) throws IOException;
 
     String getNameByCode(String bandCode);
 

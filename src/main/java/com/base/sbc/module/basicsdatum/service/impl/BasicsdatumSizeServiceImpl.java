@@ -194,12 +194,12 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
             if (StringUtils.isEmpty(addRevampSizeDto.getSizeLabelId())) {
                 throw new OtherException("尺码标签为空");
             }
-            QueryWrapper<BasicsdatumSize> queryWrapper =new QueryWrapper<>();
+/*            QueryWrapper<BasicsdatumSize> queryWrapper =new QueryWrapper<>();
             queryWrapper.eq("code",addRevampSizeDto.getCode());
             BasicsdatumSize one = this.getOne(queryWrapper);
             if (one!=null){
                 throw new OtherException("code重复");
-            }
+            }*/
  /*           QueryWrapper<BasicsdatumSize> queryWrapper=new QueryWrapper<>();
 //            queryWrapper.eq("",addRevampSizeDto.getCoding());
               queryWrapper.eq("",addRevampSizeDto.getCoding());
@@ -220,14 +220,14 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
             if (ObjectUtils.isEmpty(basicsdatumSize)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
-            if (!basicsdatumSize.getCode().equals(addRevampSizeDto.getCode())){
+ /*           if (!basicsdatumSize.getCode().equals(addRevampSizeDto.getCode())){
                 QueryWrapper<BasicsdatumSize> queryWrapper =new QueryWrapper<>();
                 queryWrapper.eq("code",basicsdatumSize.getCode());
                 BasicsdatumSize one = this.getOne(queryWrapper);
                 if (one!=null){
                     throw new OtherException("code重复");
                 }
-            }
+            }*/
             BeanUtils.copyProperties(addRevampSizeDto, basicsdatumSize);
             basicsdatumSize.setSendStatus(BaseGlobal.STATUS_CLOSE);
             basicsdatumSize.updateInit();

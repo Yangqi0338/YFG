@@ -13,6 +13,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.band.dto.BandSaveDto;
 import com.base.sbc.module.band.dto.BandStartStopDto;
+import com.base.sbc.module.band.dto.queryBandDto;
 import com.base.sbc.module.band.entity.Band;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.band.vo.BandQueryReturnVo;
@@ -30,8 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
@@ -76,19 +79,19 @@ public class BandController extends BaseController {
             @ApiImplicitParam(name = "search", value = "查询字段", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "order", value = "排序", required = false, dataType = "String", paramType = "query")
     })
-    public ApiResult listQuery(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, Page page) {
+    public ApiResult listQuery(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, queryBandDto queryBandDto) {
         QueryWrapper<Band> qc = new QueryWrapper<>();
         qc.eq("company_code", userCompany);
-        if (StringUtils.isNotBlank(page.getSearch())) {
-            qc.like("band_name",page.getSearch()).or().like("code",page.getSearch());
-        }
-        if (!StringUtils.isEmpty(page.getOrderBy())){
-            qc.orderByAsc(page.getOrderBy());
+        qc.like(StringUtils.isNotBlank(queryBandDto.getBandName()),"band_name",queryBandDto.getBandName());
+        qc.eq(StringUtils.isNotBlank(queryBandDto.getMonth()),"month",queryBandDto.getMonth());
+        qc.eq(StringUtils.isNotBlank(queryBandDto.getSeason()),"season",queryBandDto.getSeason());
+        if (!StringUtils.isEmpty(queryBandDto.getOrderBy())){
+            qc.orderByAsc(queryBandDto.getOrderBy());
         }else {
             qc.orderByDesc("create_date");
         }
-        if (page.getPageNum() != 0 && page.getPageSize() != 0) {
-            com.github.pagehelper.Page<BandQueryReturnVo> basicLabelUseScopePage = PageHelper.startPage(page.getPageNum(), page.getPageSize());
+        if (queryBandDto.getPageNum() != 0 && queryBandDto.getPageSize() != 0) {
+            com.github.pagehelper.Page<BandQueryReturnVo> basicLabelUseScopePage = PageHelper.startPage(queryBandDto.getPageNum(), queryBandDto.getPageSize());
             bandService.list(qc);
             PageInfo<BandQueryReturnVo> pages = basicLabelUseScopePage.toPageInfo();
             List<BandQueryReturnVo> list = pages.getList();
@@ -113,6 +116,17 @@ public class BandController extends BaseController {
         return selectSuccess(bandQueryReturnVo);
     }
 
+    @ApiOperation(value = "/导入")
+    @PostMapping("/bandImportExcel")
+    public Boolean bandImportExcel(@RequestParam("file") MultipartFile file) throws Exception {
+        return bandService.bandImportExcel(file);
+    }
+
+    @ApiOperation(value = "/导出")
+    @GetMapping("/bandDeriveExcel")
+    public void bandDeriveExcel(HttpServletResponse response) throws Exception {
+        bandService.bandDeriveExcel(response);
+    }
     /**
      * 批量删除
      */
