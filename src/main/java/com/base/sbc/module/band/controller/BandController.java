@@ -94,10 +94,7 @@ public class BandController extends BaseController {
             com.github.pagehelper.Page<BandQueryReturnVo> basicLabelUseScopePage = PageHelper.startPage(queryBandDto.getPageNum(), queryBandDto.getPageSize());
             bandService.list(qc);
             PageInfo<BandQueryReturnVo> pages = basicLabelUseScopePage.toPageInfo();
-            List<BandQueryReturnVo> list = pages.getList();
-            if (list != null && list.size() > 0) {
-                return ApiResult.success("success", pages);
-            }
+            return ApiResult.success("success", pages);
         }
         return ApiResult.error(HttpStatus.NOT_FOUND.getReasonPhrase(), HttpStatus.NOT_FOUND.value());
 
@@ -118,7 +115,7 @@ public class BandController extends BaseController {
 
     @ApiOperation(value = "/导入")
     @PostMapping("/bandImportExcel")
-    public Boolean bandImportExcel(@RequestParam("file") MultipartFile file) throws Exception {
+    public ApiResult bandImportExcel(@RequestParam("file") MultipartFile file) throws Exception {
         return bandService.bandImportExcel(file);
     }
 

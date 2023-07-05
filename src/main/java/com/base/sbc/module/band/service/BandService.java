@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.band.service;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.band.entity.Band;
 import com.base.sbc.module.common.service.BaseService;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public interface BandService extends BaseService<Band> {
      * 导出
      * @return
      */
-    boolean bandImportExcel(MultipartFile file) throws Exception;
+    ApiResult bandImportExcel(MultipartFile file) throws Exception;
 
     /**
      * 导入
