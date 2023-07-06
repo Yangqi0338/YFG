@@ -66,6 +66,9 @@ public class PackInfoServiceImpl extends BaseServiceImpl<PackInfoMapper, PackInf
         sdQw.in("status", "1", "2");
         sdQw.notEmptyEq("prod_category1st", pageDto.getProdCategory1st());
         sdQw.notEmptyEq("prod_category", pageDto.getProdCategory());
+        sdQw.notEmptyEq("prod_category2nd", pageDto.getProdCategory2nd());
+        sdQw.notEmptyEq("prod_category3rd", pageDto.getProdCategory3rd());
+        sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
         sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
         sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
         Page<SampleDesign> page = PageHelper.startPage(pageDto);

@@ -27,4 +27,15 @@ public class PackInfoSearchPageDto extends Page {
 
     @ApiModelProperty(value = "品类id")
     private String prodCategory;
+
+    @ApiModelProperty(value = "中类id")
+    private String prodCategory2nd;
+
+    @ApiModelProperty(value = "小类")
+    private String prodCategory3rd;
+
+    @ApiModelProperty(value = "产品季id")
+    private String planningSeasonId;
+
+
 }
