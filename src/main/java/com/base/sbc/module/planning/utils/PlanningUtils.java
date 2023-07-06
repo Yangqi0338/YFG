@@ -3,6 +3,7 @@ package com.base.sbc.module.planning.utils;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -27,9 +28,9 @@ import java.util.stream.Collectors;
  */
 public class PlanningUtils {
 
-    public static SampleDesign toSampleDesign(PlanningSeason season, PlanningBand band, PlanningCategoryItem item){
-        SampleDesign sampleDesign =new SampleDesign();
-        toSampleDesign(sampleDesign,season,band,item);
+    public static SampleDesign toSampleDesign(PlanningSeason season, PlanningBand band, PlanningCategoryItem item) {
+        SampleDesign sampleDesign = new SampleDesign();
+        toSampleDesign(sampleDesign, season, band, item);
         return sampleDesign;
     }
 
@@ -88,5 +89,26 @@ public class PlanningUtils {
         }).sorted((a, b) -> {
             return NumberUtil.compare(b.getTotal(), a.getTotal());
         }).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取品类名称(第二级别)
+     *
+     * @param categoryName eg:外套,A01/风衣,6/风衣,61/短风衣,6101
+     * @return
+     */
+    public static String getProdCategoryName(String categoryName) {
+        return getCategoryName(categoryName, 1);
+    }
+
+    /**
+     * 获取品类名称
+     *
+     * @param categoryName eg:外套,A01/风衣,6/风衣,61/短风衣,6101
+     * @param idx          0 大类,1 品类,2 中类,3 小类
+     * @return
+     */
+    public static String getCategoryName(String categoryName, int idx) {
+        return CollUtil.get(StrUtil.split(CollUtil.get(StrUtil.split(categoryName, CharUtil.SLASH), idx), CharUtil.COMMA), 0);
     }
 }
