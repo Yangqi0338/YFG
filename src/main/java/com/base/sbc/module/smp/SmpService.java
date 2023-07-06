@@ -1,15 +1,20 @@
 package com.base.sbc.module.smp;
 
+import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.restTemplate.RestTemplateService;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
+import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -77,6 +82,51 @@ public class SmpService {
     public Boolean style(PlmStyleSizeParam param) {
         return restTemplateService.spmPost(URL+"style", param);
     }
+
+    /*------------------------------------------*/
+
+    /**
+     * 方法描述——颜色下发
+     * @param basicsdatumColourLibrary 颜色库
+     * @param mapColorChroma 字典色度map
+     * @param mapColorType 字典色系map
+     * @param baseController  baseController
+     */
+//    @Async
+    public void issueColor(BasicsdatumColourLibrary basicsdatumColourLibrary, Map<String, String> mapColorChroma, Map<String, String> mapColorType , BaseController baseController){
+        /*拼接下发数据*/
+        SmpColorDto smpColorDto =new SmpColorDto();
+        smpColorDto.setColorChroma(mapColorChroma.get(basicsdatumColourLibrary.getChroma()));
+        smpColorDto.setColorChromaId(basicsdatumColourLibrary.getChroma());
+        smpColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
+        smpColorDto.setColorName(basicsdatumColourLibrary.getColourName());
+        smpColorDto.setColorType(basicsdatumColourLibrary.getColorType());
+        smpColorDto.setColorTypeName(mapColorType.get(basicsdatumColourLibrary.getColorType()));
+        smpColorDto.setRange(basicsdatumColourLibrary.getIsStyle());
+        smpColorDto.setCreator(baseController.getUser().getName());
+        smpColorDto.setCreateTime(new Date());
+        smpColorDto.setModifiedPerson(baseController.getUser().getName());
+        smpColorDto.setModifiedTime(new Date());
+        smpColorDto.setActive(true);
+        color(smpColorDto);
+    }
+
+//    @Async
+    public void issueGoods(SampleDesign sampleDesign, Map<String, Map<String, String>> dictInfoToMap ){
+        Map<String, String> mapBrand = dictInfoToMap.get("C8_Brand");
+        Map<String, String> mapStyleType = dictInfoToMap.get("StyleType");
+        SmpGoodsDto smpGoodsDto = new  SmpGoodsDto();
+        smpGoodsDto.setProductTypeId(sampleDesign.getStyleType());
+        smpGoodsDto.setProductType(mapStyleType.get(sampleDesign.getStyleType()));
+        smpGoodsDto.setBrandId(sampleDesign.getBrand());
+        smpGoodsDto.setBrandName(mapBrand.get(sampleDesign.getBrand()));
+        smpGoodsDto.setYear(sampleDesign.getYear());
+        smpGoodsDto.setSeason(sampleDesign.getSeason());
+        smpGoodsDto.setTheme(sampleDesign.getSubject());
+//        smpGoodsDto.setUnit(sampleDesign.get);
+        smpGoodsDto.setStyleMiddleClass(sampleDesign.getCategoryName());
+    }
+
 
 
 //    public static void main(String[] args) {

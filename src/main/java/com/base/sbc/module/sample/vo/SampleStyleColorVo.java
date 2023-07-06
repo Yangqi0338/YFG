@@ -45,12 +45,9 @@ public class SampleStyleColorVo  {
     private String colorSpecification;
     /*颜色库id*/
     private String colourLibraryId;
-    /** 款式 */
-    @ApiModelProperty(value = "款式"  )
+    /** 款式(大货款号)  */
+    @ApiModelProperty(value = "款式(大货款号) "  )
     private String styleNo;
-    /** (大货款号) */
-    @ApiModelProperty(value = "(大货款号)"  )
-    private String  largeStyleNo;
     /** 轻奢款(0否,1:是) */
     @ApiModelProperty(value = "轻奢款(0否,1:是)"  )
     private String isLuxury;
@@ -73,7 +70,7 @@ public class SampleStyleColorVo  {
     @ApiModelProperty(value = "是否下发scm(0否,1:是)"  )
     private String  isIssueScm;
     /** bom状态 */
-    @ApiModelProperty(value = "bom状态"  )
+    @ApiModelProperty(value = "bom状态(0大货，1样品"  )
     private String   bomStatus;
     /** 生产类型 */
     @ApiModelProperty(value = "生产类型"  )

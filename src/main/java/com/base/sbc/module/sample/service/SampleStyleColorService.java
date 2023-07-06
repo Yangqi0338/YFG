@@ -95,6 +95,13 @@ public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
         */
         Boolean startStopSampleStyleColor( StartStopDto startStopDto);
 
+        /**
+         * 方法描述 下发scm
+         * @param ids
+         * @return
+         */
+        Boolean  issueScm(String ids);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

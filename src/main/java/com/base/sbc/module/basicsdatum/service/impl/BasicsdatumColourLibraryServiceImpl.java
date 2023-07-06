@@ -93,8 +93,7 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         queryWrapper.eq("company_code", baseController.getUserCompany());
 
 
-        queryWrapper.notEmptyLike("colour_group_id", queryBasicsdatumColourLibraryDto.getColourGroupId());
-        queryWrapper.notEmptyLike("create_name",queryBasicsdatumColourLibraryDto.getCreateName());
+         queryWrapper.notEmptyLike("create_name",queryBasicsdatumColourLibraryDto.getCreateName());
         queryWrapper.between("create_date",queryBasicsdatumColourLibraryDto.getCreateDate());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColourCode()), "colour_code", queryBasicsdatumColourLibraryDto.getColourCode());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColourSpecification()), "colour_specification", queryBasicsdatumColourLibraryDto.getColourSpecification());
@@ -103,6 +102,7 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getIsStyle()), "is_style", queryBasicsdatumColourLibraryDto.getIsStyle());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getIsMaterials()), "is_materials", queryBasicsdatumColourLibraryDto.getIsMaterials());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getPantone()), "pantone", queryBasicsdatumColourLibraryDto.getPantone());
+        queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColorType()),"color_type", queryBasicsdatumColourLibraryDto.getColorType());
 
         /*查询基础资料-颜色库数据*/
         queryWrapper.orderByDesc("create_date");
@@ -166,30 +166,19 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         params.setNeedSave(false);
         List<BasicsdatumColourLibraryExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumColourLibraryExcelDto.class, params);
         /*获取字典值*/
-        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_ColorChroma");
-        Map<String, String> map = dictInfoToMap.get("C8_ColorChroma");
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_ColorChroma,C8_ColorType");
+        /*色度*/
+        Map<String, String> mapColorChroma = dictInfoToMap.get("C8_ColorChroma");
+        /*色系*/
+        Map<String, String> mapColorType = dictInfoToMap.get("C8_ColorType");
         /*只保存有颜色编码数据*/
         List<BasicsdatumColourLibraryExcelDto> libraryExcelDtoList = new ArrayList<>();
         for (BasicsdatumColourLibraryExcelDto basicsdatumColourLibraryExcelDto : list) {
         if(StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColourCode())){
-            if (StringUtils.isBlank(basicsdatumColourLibraryExcelDto.getColourGroup())) {
-                basicsdatumColourLibraryExcelDto.setColourGroup("其他");
-            }
-            QueryWrapper<BasicsdatumColourGroup> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("colour_name", basicsdatumColourLibraryExcelDto.getColourGroup());
-            List<BasicsdatumColourGroup> basicsdatumColourGroupList = basicsdatumColourGroupMapper.selectList(queryWrapper);
-            if (CollectionUtils.isEmpty(basicsdatumColourGroupList)) {
-                BasicsdatumColourGroup basicsdatumColourGroup = new BasicsdatumColourGroup();
-                basicsdatumColourGroup.setColourName(basicsdatumColourLibraryExcelDto.getColourGroup());
-                basicsdatumColourGroup.insertInit();
-                basicsdatumColourGroupMapper.insert(basicsdatumColourGroup);
-                basicsdatumColourLibraryExcelDto.setColourGroupId(basicsdatumColourGroup.getId());
-            } else {
-                basicsdatumColourLibraryExcelDto.setColourGroupId(basicsdatumColourGroupList.get(0).getId());
-            }
+
             /*色度*/
             if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getChroma())) {
-                for (Map.Entry<String, String> entry : map.entrySet()) {
+                for (Map.Entry<String, String> entry : mapColorChroma.entrySet()) {
                     String key = entry.getKey();
                     String value = entry.getValue();
                     if (value.equals(basicsdatumColourLibraryExcelDto.getChroma())) {
@@ -198,7 +187,17 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
                     }
                 }
             }
-
+            /*色系*/
+            if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColorType())) {
+                for (Map.Entry<String, String> entry : mapColorType.entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                    if (value.equals(basicsdatumColourLibraryExcelDto.getColorType())) {
+                        basicsdatumColourLibraryExcelDto.setColorType(key);
+                        break;
+                    }
+                }
+            }
             //如果图片不为空
             if (StringUtils.isNotEmpty(basicsdatumColourLibraryExcelDto.getPicture())) {
                 File file1 = new File(basicsdatumColourLibraryExcelDto.getPicture());
@@ -206,7 +205,6 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
                 AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
                 basicsdatumColourLibraryExcelDto.setPicture(attachmentVo.getUrl());
             }
-
             if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColorRgb()) && basicsdatumColourLibraryExcelDto.getColorRgb().indexOf("rgb") == -1) {
                 basicsdatumColourLibraryExcelDto.setColorRgb("rgb" + basicsdatumColourLibraryExcelDto.getColorRgb());
             }
@@ -252,6 +250,11 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         BasicsdatumColourLibrary basicsdatumColourLibrary = new BasicsdatumColourLibrary();
         if (StringUtils.isEmpty(addRevampBasicsdatumColourLibraryDto.getId())) {
             QueryWrapper<BasicsdatumColourLibrary> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("colour_code", addRevampBasicsdatumColourLibraryDto.getColourCode());
+            List<BasicsdatumColourLibrary> libraryList = baseMapper.selectList(queryWrapper);
+            if (!CollectionUtils.isEmpty(libraryList)) {
+                throw new OtherException("代码重复");
+            }
             /*新增*/
             BeanUtils.copyProperties(addRevampBasicsdatumColourLibraryDto, basicsdatumColourLibrary);
             basicsdatumColourLibrary.setCompanyCode(baseController.getUserCompany());

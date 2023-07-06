@@ -25,9 +25,9 @@ import lombok.Data;
 public class BasicsdatumColourLibraryVo  extends BaseDataEntity<String>{
 
     private String id;
-    /** 颜色组id */
-    @ApiModelProperty(value = "颜色组id"  )
-    private String colourGroupId;
+    /** 色系 */
+    @ApiModelProperty(value = "色系"  )
+    private String colorType;
     /** 颜色规格 */
     @ApiModelProperty(value = "颜色规格"  )
     private String colourSpecification;

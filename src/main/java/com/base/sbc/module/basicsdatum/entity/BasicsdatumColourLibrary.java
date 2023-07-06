@@ -33,9 +33,9 @@ public class BasicsdatumColourLibrary extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 颜色组id */
-    @ApiModelProperty(value = "颜色组id"  )
-    private String colourGroupId;
+    /** 色系 */
+    @ApiModelProperty(value = "色系"  )
+    private String colorType;
     /** 颜色规格 */
     @ApiModelProperty(value = "颜色规格"  )
     private String colourSpecification;

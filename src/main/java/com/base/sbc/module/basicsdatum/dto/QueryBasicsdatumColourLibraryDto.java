@@ -12,7 +12,7 @@ public class QueryBasicsdatumColourLibraryDto extends Page {
 
     /** 颜色组id */
     @ApiModelProperty(value = "颜色组id"  )
-    private String colourGroupId;
+    private String colorType;
     /** 颜色规格 */
     @ApiModelProperty(value = "颜色规格"  )
     private String colourSpecification;

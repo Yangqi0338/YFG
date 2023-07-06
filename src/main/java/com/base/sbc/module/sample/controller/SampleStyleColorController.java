@@ -17,6 +17,7 @@ import com.base.sbc.module.sample.vo.SampleStyleColorVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -62,7 +63,7 @@ public class SampleStyleColorController{
 	}
 
 	@ApiOperation(value = "大货款号查询-款式配色")
-	@GetMapping("/getByLargeStyleNo")
+	@GetMapping("/getByStyleNo")
 	public List<SampleStyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto) {
 		return sampleStyleColorService.getByStyleNo(querySampleStyleColorDto);
 	}
@@ -100,6 +101,13 @@ public class SampleStyleColorController{
 		return sampleStyleColorService.getById(id);
 	}
 
+
+
+	@ApiOperation(value = "下发-款式配色")
+	@PostMapping("/issueScm")
+	public Boolean issueScm(@Valid @RequestBody QuerySampleStyleColorDto querySampleStyleColorDto) {
+		return sampleStyleColorService.issueScm(querySampleStyleColorDto.getIds());
+	}
 
 }
 

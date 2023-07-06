@@ -26,12 +26,10 @@ public class BasicsdatumColourLibraryExcelDto  {
    @Excel(name = "id")
    private String id;
 
-    private String colourGroupId;
-
     /** 颜色系 */
     @ApiModelProperty(value = "颜色系"  )
     @Excel(name = "颜色系")
-    private String colourGroup;
+    private String colorType;
     /** 颜色规格 */
     @ApiModelProperty(value = "颜色规格"  )
     @Excel(name = "颜色规格")

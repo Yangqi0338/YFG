@@ -551,4 +551,19 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return result.toString();
 	}
 
+	/**
+	 * 方法描述 ming
+	 * @param categoryName 品类名称路径:(大类/品类/中类/小类)
+	 * @param index 0大类，1品类，2中类，3小类
+	 * @param typeIndex 0label,1 value
+	 * @return
+	 */
+	public static String getCategory(String categoryName,int index,int typeIndex){
+		if(StringUtils.isBlank(categoryName)){
+			return  "";
+		}
+	   String[] strings = categoryName.split("/");
+		return strings[index].split(",")[typeIndex] ;
+	}
+
 }
