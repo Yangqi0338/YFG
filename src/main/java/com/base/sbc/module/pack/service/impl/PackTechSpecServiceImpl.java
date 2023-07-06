@@ -17,7 +17,10 @@ import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
+import com.base.sbc.module.operaLog.service.OperaLogService;
 import com.base.sbc.module.pack.dto.PackTechSpecDto;
+import com.base.sbc.module.pack.dto.PackTechSpecPageDto;
 import com.base.sbc.module.pack.dto.PackTechSpecSavePicDto;
 import com.base.sbc.module.pack.dto.PackTechSpecSearchDto;
 import com.base.sbc.module.pack.entity.PackTechSpec;
@@ -25,6 +28,9 @@ import com.base.sbc.module.pack.mapper.PackTechSpecMapper;
 import com.base.sbc.module.pack.service.PackTechSpecService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackTechSpecVo;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +52,8 @@ public class PackTechSpecServiceImpl extends BaseServiceImpl<PackTechSpecMapper,
 
     @Resource
     private AttachmentService attachmentService;
+    @Resource
+    private OperaLogService operaLogService;
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -110,6 +118,16 @@ public class PackTechSpecServiceImpl extends BaseServiceImpl<PackTechSpecMapper,
     @Override
     public AttachmentVo savePic(PackTechSpecSavePicDto dto) {
         return attachmentService.savePackTechSpecPic(dto);
+    }
+
+    @Override
+    public PageInfo<OperaLogEntity> operationLog(PackTechSpecPageDto pageDto) {
+        QueryWrapper<OperaLogEntity> qw = new QueryWrapper<>();
+        qw.eq("name", "资料包-工艺说明-" + pageDto.getPackType() + "-" + pageDto.getSpecType() + "-" + pageDto.getForeignId());
+        qw.orderByDesc("id");
+        Page<OperaLogEntity> objects = PageHelper.startPage(pageDto);
+        operaLogService.list(qw);
+        return objects.toPageInfo();
     }
 
 // 自定义方法区 不替换的区域【other_end】

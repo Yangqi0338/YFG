@@ -48,4 +48,5 @@ public class CommonUtils {
     public static boolean isInitId(String id) {
         return StringUtils.isBlank(id) || StringUtils.contains(id, StrUtil.DASHED);
     }
+
 }

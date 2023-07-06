@@ -1,6 +1,10 @@
 package com.base.sbc.config.aspect;
 
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
@@ -8,6 +12,8 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.enums.OperationType;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.SpElParseUtil;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
 import io.swagger.annotations.ApiModelProperty;
@@ -38,6 +44,14 @@ public class OperaAspect {
 
     private final OperaLogService operaLogService;
 
+    /**
+     * 操作日志切面
+     * 新增 在controller层保存返回对象时单据id取返回对象id,
+     * 修改 去方法参数的id属性
+     *
+     * @param joinPoint
+     * @return
+     */
     @Around("@annotation(com.base.sbc.config.annotation.OperaLog)")
     public Object logMethod(ProceedingJoinPoint joinPoint) {
         Object proceed = null;
@@ -46,25 +60,27 @@ public class OperaAspect {
             OperaLog operaLog = getOperaLog(joinPoint);
 
             OperaLogEntity operaLogEntity = new OperaLogEntity();
-
-            operaLogEntity.setName(operaLog.value());
-
+            if (operaLog.SqEL()) {
+                operaLogEntity.setName(SpElParseUtil.generateKeyBySpEL(operaLog.value(), joinPoint));
+            } else {
+                operaLogEntity.setName(operaLog.value());
+            }
             // 获取传入数据
             Object[] args = joinPoint.getArgs();
-
-
-
             StringBuilder stringBuilder = new StringBuilder();
             // 获取操作类型
             if (operaLog.operationType() == OperationType.INSERT_UPDATE) {
+                String documentId = "";
                 JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(args[0]));
+                boolean isNew = false;
                 for (Object arg : args) {
                     if (null != arg) {
                         TableInfo tableInfo = TableInfoHelper.getTableInfo(arg.getClass());
                         Object idVal = tableInfo.getPropertyValue(arg, tableInfo.getKeyProperty());
                         JSONObject fieldJson = this.getFieldJson(arg);
 
-                        if (StringUtils.isEmpty(idVal)) {
+                        if (idVal == null || CommonUtils.isInitId(idVal.toString())) {
+                            isNew = true;
                             operaLogEntity.setType("新增");
                             stringBuilder.append("新增{");
                             ArrayList<String> arrayList = new ArrayList<>(fieldJson.keySet());
@@ -78,6 +94,7 @@ public class OperaAspect {
                             }
 
                         } else {
+                            documentId = jsonObject.getString("id");
                             operaLogEntity.setType("修改");
                             Class<?> service = operaLog.service();
                             IService<?> bean = (IService<?>) applicationContext.getBean(service);
@@ -91,19 +108,29 @@ public class OperaAspect {
                 }
 
                 proceed = joinPoint.proceed();
-                operaLogEntity.setDocumentId(jsonObject.getString("id"));
+                //新增是获取id
+                if (isNew && !ObjectUtil.isBasicType(proceed)) {
+                    documentId = BeanUtil.getProperty(proceed, "id");
+                }
+                operaLogEntity.setDocumentId(documentId);
                 operaLogEntity.setDocumentName(jsonObject.getString("name"));
             } else {
                 //说明是删除操作
+                String documentId = "";
                 proceed = joinPoint.proceed();
-                operaLogEntity.setType("删除");
-                Object[] arg1 = (Object[]) args[0];
-                ArrayList<String> arrayList =new ArrayList<>();
-                for (Object arg : arg1) {
-                    arrayList.add((String) arg);
+                if (StrUtil.isNotBlank(operaLog.delIdSpEL())) {
+                    documentId = SpElParseUtil.generateKeyBySpEL(operaLog.delIdSpEL(), joinPoint);
+                } else {
+                    Object[] arg1 = (Object[]) args[0];
+                    ArrayList<String> arrayList = new ArrayList<>();
+                    for (Object arg : arg1) {
+                        arrayList.add((String) arg);
+                    }
+                    documentId = String.join(",", arrayList);
                 }
-                operaLogEntity.setDocumentId(String.join(",",arrayList));
-                operaLogEntity.setContent("删除id：{"+operaLogEntity.getDocumentId()+"}");
+                operaLogEntity.setType("删除");
+                operaLogEntity.setDocumentId(documentId);
+                operaLogEntity.setContent("删除id：{" + operaLogEntity.getDocumentId() + "}");
             }
 
             // 记录操作日志
@@ -122,15 +149,18 @@ public class OperaAspect {
     /**
      * 获取所有ApiModelProperty注解字段
      */
-    private JSONObject getFieldJson(Object model) throws IllegalAccessException {
+    private JSONObject getFieldJson(Object model) {
         Class<?> clazz = model.getClass();
-        Field[] declaredFields = clazz.getDeclaredFields();
+        Field[] declaredFields = ReflectUtil.getFields(clazz);
+//        Field[] fields = ReflectUtil.getFields(clazz);
         JSONObject jsonObject = new JSONObject();
         for (Field field : declaredFields) {
             field.setAccessible(true);
             ApiModelProperty annotation = field.getAnnotation(ApiModelProperty.class);
             if (annotation != null) {
-                jsonObject.put(annotation.value(), field.getName());
+                String value = annotation.value();
+                value = value.split("[:：(（;]")[0];
+                jsonObject.put(value, field.getName());
             }
         }
         return jsonObject;

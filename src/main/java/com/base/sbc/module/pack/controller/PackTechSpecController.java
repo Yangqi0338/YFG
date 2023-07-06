@@ -6,16 +6,21 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.PackTechSpecDto;
+import com.base.sbc.module.pack.dto.PackTechSpecPageDto;
 import com.base.sbc.module.pack.dto.PackTechSpecSavePicDto;
 import com.base.sbc.module.pack.dto.PackTechSpecSearchDto;
 import com.base.sbc.module.pack.service.PackTechSpecService;
 import com.base.sbc.module.pack.vo.PackTechSpecVo;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,12 +78,14 @@ public class PackTechSpecController {
 
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")
     @DeleteMapping()
-    public Boolean removeById(@Valid IdsDto dto) {
+    @OperaLog(value = "'资料包-工艺说明-'+#search.packType+'-'+#search.specType+'-'+#search.foreignId", delIdSpEL = "#dto.id", operationType = OperationType.DELETE, service = PackTechSpecService.class, SqEL = true)
+    public Boolean removeById(@Valid PackTechSpecSearchDto search, @Valid IdsDto dto) {
         return packTechSpecService.removeByIds(StringUtils.convertList(dto.getId()));
     }
 
     @ApiOperation(value = "保存")
     @PostMapping
+    @OperaLog(value = "'资料包-工艺说明-'+#dto.packType+'-'+#dto.specType+'-'+#dto.foreignId", operationType = OperationType.INSERT_UPDATE, service = PackTechSpecService.class, SqEL = true)
     public PackTechSpecVo save(@Valid @RequestBody PackTechSpecDto dto) {
         return packTechSpecService.saveByDto(dto);
     }
@@ -87,6 +94,12 @@ public class PackTechSpecController {
     @GetMapping("/sort")
     public boolean sort(@Valid IdsDto dto) {
         return packTechSpecService.sort(dto.getId());
+    }
+
+    @ApiOperation(value = "变更日志")
+    @GetMapping("/operationLog")
+    public PageInfo<OperaLogEntity> operationLog(@Valid PackTechSpecPageDto pageDto) {
+        return packTechSpecService.operationLog(pageDto);
     }
 }
 
