@@ -8,6 +8,7 @@ package com.base.sbc.module.basicsdatum.controller;
 
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumCategoryMeasureDto;
+import com.base.sbc.module.basicsdatum.dto.QueryCategoryMeasureDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumCategoryMeasure;
@@ -45,7 +46,7 @@ public class BasicsdatumCategoryMeasureController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getBasicsdatumCategoryMeasureList")
-	public PageInfo<BasicsdatumCategoryMeasureVo> getBasicsdatumCategoryMeasureList(QueryDto queryDto) {
+	public PageInfo<BasicsdatumCategoryMeasureVo> getBasicsdatumCategoryMeasureList(QueryCategoryMeasureDto queryDto) {
 		return  basicsdatumCategoryMeasureService.getBasicsdatumCategoryMeasureList(queryDto);
 	}
 

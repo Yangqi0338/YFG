@@ -8,11 +8,14 @@ package com.base.sbc.module.pack.service;
 
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.PackTechSpecDto;
+import com.base.sbc.module.pack.dto.PackTechSpecPageDto;
 import com.base.sbc.module.pack.dto.PackTechSpecSavePicDto;
 import com.base.sbc.module.pack.dto.PackTechSpecSearchDto;
 import com.base.sbc.module.pack.entity.PackTechSpec;
 import com.base.sbc.module.pack.vo.PackTechSpecVo;
+import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
@@ -68,6 +71,14 @@ public interface PackTechSpecService extends BaseService<PackTechSpec> {
      * @return
      */
     AttachmentVo savePic(PackTechSpecSavePicDto dto);
+
+    /**
+     * 查询变更日志
+     *
+     * @param pageDto
+     * @return
+     */
+    PageInfo<OperaLogEntity> operationLog(PackTechSpecPageDto pageDto);
 
 // 自定义方法区 不替换的区域【other_end】
 

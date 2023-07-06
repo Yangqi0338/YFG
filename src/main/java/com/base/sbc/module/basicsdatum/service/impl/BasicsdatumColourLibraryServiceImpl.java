@@ -27,6 +27,7 @@ import com.base.sbc.module.basicsdatum.dto.QueryBasicsdatumColourLibraryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourGroup;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourGroupMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
@@ -46,6 +47,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -166,8 +168,10 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         /*获取字典值*/
         Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_ColorChroma");
         Map<String, String> map = dictInfoToMap.get("C8_ColorChroma");
-
+        /*只保存有颜色编码数据*/
+        List<BasicsdatumColourLibraryExcelDto> libraryExcelDtoList = new ArrayList<>();
         for (BasicsdatumColourLibraryExcelDto basicsdatumColourLibraryExcelDto : list) {
+        if(StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColourCode())){
             if (StringUtils.isBlank(basicsdatumColourLibraryExcelDto.getColourGroup())) {
                 basicsdatumColourLibraryExcelDto.setColourGroup("其他");
             }
@@ -206,11 +210,18 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
             if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColorRgb()) && basicsdatumColourLibraryExcelDto.getColorRgb().indexOf("rgb") == -1) {
                 basicsdatumColourLibraryExcelDto.setColorRgb("rgb" + basicsdatumColourLibraryExcelDto.getColorRgb());
             }
-
+         }
+            libraryExcelDtoList.add(basicsdatumColourLibraryExcelDto);
         }
 
-        List<BasicsdatumColourLibrary> basicsdatumColourLibraryList = BeanUtil.copyToList(list, BasicsdatumColourLibrary.class);
-        saveOrUpdateBatch(basicsdatumColourLibraryList);
+        List<BasicsdatumColourLibrary> basicsdatumColourLibraryList = BeanUtil.copyToList(libraryExcelDtoList, BasicsdatumColourLibrary.class);
+//        saveOrUpdateBatch(basicsdatumColourLibraryList);
+        /*按颜色编码修改*/
+        for (BasicsdatumColourLibrary basicsdatumColourLibrary : basicsdatumColourLibraryList) {
+            QueryWrapper<BasicsdatumColourLibrary> queryWrapper =new BaseQueryWrapper<>();
+            queryWrapper.eq("colour_code",basicsdatumColourLibrary.getColourCode());
+            this.saveOrUpdate(basicsdatumColourLibrary,queryWrapper);
+        }
         return true;
     }
 

@@ -39,7 +39,7 @@
 		<password    value="yfg123456."></password>
 	</dataSource>
 	<author>
-		<name  		 value="lxl" ></name>
-		<email  	 value="lxl.fml@gmail.com" ></email>
+		<name value="your name"></name>
+		<email value="your email"></email>
 	</author>
 </config>

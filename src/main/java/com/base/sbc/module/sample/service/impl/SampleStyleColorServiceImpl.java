@@ -148,11 +148,11 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
      */
     @Override
     public List<SampleStyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto) {
-        if(StringUtils.isNotBlank(querySampleStyleColorDto.getStyleNo())){
+        if(StringUtils.isNotBlank(querySampleStyleColorDto.getLargeStyleNo())){
             throw new OtherException(BaseErrorEnum.ERR_MISSING_SERVLET_REQUEST_PARAMETER_EXCEPTION);
         }
         QueryWrapper queryWrapper =new QueryWrapper();
-        queryWrapper.in("style_no", StringUtils.convertList(querySampleStyleColorDto.getSampleDesignId()));
+        queryWrapper.in("large_style_no", StringUtils.convertList(querySampleStyleColorDto.getSampleDesignId()));
         List<SampleStyleColor> list= baseMapper.selectList(queryWrapper);
         if(CollectionUtils.isEmpty(list)){
             throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
@@ -175,7 +175,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             SampleDesign sampleDesign = sampleDesignMapper.selectById(addRevampSampleStyleColorDto.getSampleDesignId());
             addRevampSampleStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampSampleStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
-            addRevampSampleStyleColorDto.setStyleNo(getNextCode(addRevampSampleStyleColorDto.getSampleDesignId(), sampleDesign.getBrand(),sampleDesign.getYear(),sampleDesign.getMonth(),sampleDesign.getBandCode(),sampleDesign.getCategoryName(),sampleDesign.getSeason()));
+            addRevampSampleStyleColorDto.setLargeStyleNo(getNextCode(addRevampSampleStyleColorDto.getSampleDesignId(), sampleDesign.getBrand(),sampleDesign.getYear(),sampleDesign.getMonth(),sampleDesign.getBandCode(),sampleDesign.getCategoryName(),sampleDesign.getSeason()));
         }
         List<SampleStyleColor> sampleStyleColorList = BeanUtil.copyToList(list, SampleStyleColor.class);
         saveBatch(sampleStyleColorList);

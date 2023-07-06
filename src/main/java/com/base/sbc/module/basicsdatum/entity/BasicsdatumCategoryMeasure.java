@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -33,6 +34,10 @@ public class BasicsdatumCategoryMeasure extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
+    /** 编码 */
+    @ApiModelProperty(value = "编码"  )
+    @Excel(name = "编码")
+    private String code;
     /** 品类测量组 */
     @ApiModelProperty(value = "品类测量组"  )
     private String name;

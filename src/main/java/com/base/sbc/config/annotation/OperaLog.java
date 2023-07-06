@@ -16,7 +16,22 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface OperaLog {
     String value() default "";
+
     OperationType operationType() default OperationType.INSERT_UPDATE;
+
     Class<?> service() default BaseService.class;
 
+    /**
+     * value是否使用SpEL表达式
+     *
+     * @return
+     */
+    boolean SqEL() default false;
+
+    /**
+     * 删除时id获取方式 通过SpEL
+     *
+     * @return
+     */
+    String delIdSpEL() default "";
 }

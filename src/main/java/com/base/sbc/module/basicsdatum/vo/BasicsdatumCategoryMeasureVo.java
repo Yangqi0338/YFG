@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.vo;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -23,6 +24,10 @@ import lombok.Data;
 public class BasicsdatumCategoryMeasureVo  {
 
     private String id;
+    /** 编码 */
+    @ApiModelProperty(value = "编码"  )
+    @Excel(name = "编码")
+    private String code;
     /** 品类测量组 */
     @ApiModelProperty(value = "品类测量组"  )
     private String name;

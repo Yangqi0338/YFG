@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.dto;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -22,7 +23,8 @@ import lombok.Data;
 public class AddRevampBasicsdatumMaterialsIngredientDto  {
 
     private String id;
-
+    @ApiModelProperty(value = "编码"  )
+    private String code;
     /** 成分 */
     @ApiModelProperty(value = "成分"  )
     private String ingredient;

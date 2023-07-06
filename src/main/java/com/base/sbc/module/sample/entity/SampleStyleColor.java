@@ -51,9 +51,12 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     private String colorSpecification;
     /*颜色库id*/
     private String colourLibraryId;
-    /** 款式(大货款号) */
-    @ApiModelProperty(value = "款式(大货款号)"  )
+    /** 款式 */
+    @ApiModelProperty(value = "款式"  )
     private String styleNo;
+    /** (大货款号) */
+    @ApiModelProperty(value = "(大货款号)"  )
+    private String  largeStyleNo;
     /** 轻奢款(0否,1:是) */
     @ApiModelProperty(value = "轻奢款(0否,1:是)"  )
     private String isLuxury;
@@ -69,6 +72,21 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     /** 销售类型 */
     @ApiModelProperty(value = "销售类型"  )
     private String salesType;
+    /*品类名称路径:(大类/品类/中类/小类)'*/
+    @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)"  )
+    private String categoryName;
+    /** 是否下发scm(0否,1:是) */
+    @ApiModelProperty(value = "是否下发scm(0否,1:是)"  )
+    private String  isIssueScm;
+    /** bom状态 */
+    @ApiModelProperty(value = "bom状态"  )
+    private String   bomStatus;
+    /** 生产类型 */
+    @ApiModelProperty(value = "生产类型"  )
+    private String devtType;
+    /*设计款号*/
+    @ApiModelProperty(value = "设计款号"  )
+    private String   designNo;
     /** 是否是内饰款(0否,1:是) */
     @ApiModelProperty(value = "是否是内饰款(0否,1:是)"  )
     private String isTrim;
