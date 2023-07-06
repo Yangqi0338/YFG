@@ -5,6 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.sample.entity;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 
@@ -27,18 +28,18 @@ import lombok.EqualsAndHashCode;
 public class SampleStyleOrderBook extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
-    /** 订货本编号 */
-    @ApiModelProperty(value = "订货本编号"  )
-    private String orderBookCode;
-    /** 图片地址 */
-    @ApiModelProperty(value = "图片地址"  )
-    private String imageUrl;
-    /** 上会标记(0未上会，1已上会) */
-    @ApiModelProperty(value = "上会标记(0未上会，1已上会)"  )
-    private String meetFlag;
-    /** 锁定标记(0未锁定，1已锁定) */
-    @ApiModelProperty(value = "锁定标记(0未锁定，1已锁定)"  )
-    private String lockFlag;
+	/** 订货本编号 */
+	@ApiModelProperty(value = "订货本编号")
+	private String orderBookCode;
+	/** 图片地址 */
+	@ApiModelProperty(value = "图片地址")
+	private String imageUrl;
+	/** 上会标记(0未上会，1已上会) */
+	@ApiModelProperty(value = "上会标记(0未上会，1已上会)")
+	private String meetFlag;
+	/** 锁定标记(0未锁定，1已锁定) */
+	@ApiModelProperty(value = "锁定标记(0未锁定，1已锁定)")
+	private String lockFlag;
 	/** 备注信息 */
 	@ApiModelProperty(value = "备注信息")
 	private String remarks;

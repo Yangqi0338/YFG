@@ -6,7 +6,12 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookQueryDto;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookSaveDto;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookUpdateDto;
 import com.base.sbc.module.sample.entity.SampleStyleOrderBook;
+import com.base.sbc.module.sample.vo.SampleStyleOrderBookPageVo;
+import com.github.pagehelper.PageInfo;
 
 /**
  * 类描述：款式管理-订货本 service类
@@ -17,5 +22,12 @@ import com.base.sbc.module.sample.entity.SampleStyleOrderBook;
  */
 public interface SampleStyleOrderBookService extends BaseService<SampleStyleOrderBook>{
 
+	PageInfo<SampleStyleOrderBookPageVo> getStyleOrderBookList(SampleStyleOrderBookQueryDto dto);
+
+	Boolean saveSampleStyleOrderBook(SampleStyleOrderBookSaveDto dto);
+
+	Boolean updateSampleStyleOrderBook(SampleStyleOrderBookUpdateDto dto);
+
+	Boolean delSampleStyleOrderBookItem(String id);
 	
 }

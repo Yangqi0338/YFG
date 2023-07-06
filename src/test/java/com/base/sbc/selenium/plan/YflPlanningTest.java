@@ -1,14 +1,17 @@
 package com.base.sbc.selenium.plan;
 
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.context.AnalysisContext;
-import com.alibaba.excel.event.AnalysisEventListener;
-import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.edge.EdgeDriver;
+
+import com.alibaba.excel.EasyExcel;
 
 /**
  * 企划数据抓取
@@ -19,8 +22,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class YflPlanningTest {
 	public static void main(String[] args) throws InterruptedException {
-		System.setProperty("webdriver.chrome.driver", "D:\\下载\\chromedriver.exe");
-		WebDriver driver = new ChromeDriver();
+//		System.setProperty("webdriver.chrome.driver", "D:\\下载\\chromedriver.exe");
+//		WebDriver driver = new ChromeDriver();
+
+		System.setProperty("webdriver.edge.driver", "D:\\msedgedriver.exe");
+		WebDriver driver = new EdgeDriver();
+
 		// 登录系统
 		LoginSystem(driver);
 		// 品牌名称和url
@@ -29,11 +36,12 @@ public class YflPlanningTest {
 		// 获取存放路径
 		String path = "D:\\";
 
-//		System.out.println("开始获取企划文件夹数据");
-//		// 获取企划文件夹数据
-//		List<PlanFold> planFold = getPlanFold(driver, planName, planUrl);
-//		// 写入excel
-//		EasyExcel.write(path + planName + "_企划文件夹.xlsx", PlanFold.class).sheet("企划文件夹").doWrite(planFold);
+		System.out.println("开始获取企划文件夹数据");
+		// 获取企划文件夹数据
+		List<PlanFold> planFold = getPlanFold(driver, planName, planUrl);
+		// 写入excel
+		EasyExcel.write(path + planName + "_企划文件夹.xlsx", PlanFold.class).sheet("企划文件夹").doWrite(planFold);
+
 
 		// 读取企划文件夹excel
 //		List<PlanFold> planFold = new ArrayList<>();
@@ -53,23 +61,24 @@ public class YflPlanningTest {
 //		// 写入excel
 //		EasyExcel.write(path + planName + "_企划目标.xlsx", PlanTarget.class).sheet("企划目标").doWrite(targetList);
 
+
 //		 System.out.println("开始获取企划计划数据");
 //		 //读取企划目标excel
-		List<PlanTarget> planTarget = new ArrayList<>();
-		EasyExcel.read(path + planName + "_企划目标.xlsx", PlanTarget.class, new AnalysisEventListener<PlanTarget>() {
-			@Override
-			public void invoke(PlanTarget data, AnalysisContext context) {
-				planTarget.add(data);
-			}
-
-			@Override
-			public void doAfterAllAnalysed(AnalysisContext context) {
-			}
-		}).sheet().doRead();
-		 //获取企划目标数据
-		List<PlanPlan> planList = getPlanPlan(driver, planTarget);
-		 //写入excel
-		EasyExcel.write(path + planName + "_企划计划.xlsx", PlanPlan.class).sheet("企划计划").doWrite(planList);
+//		List<PlanTarget> planTarget = new ArrayList<>();
+//		EasyExcel.read(path + planName + "_企划目标.xlsx", PlanTarget.class, new AnalysisEventListener<PlanTarget>() {
+//			@Override
+//			public void invoke(PlanTarget data, AnalysisContext context) {
+//				planTarget.add(data);
+//			}
+//
+//			@Override
+//			public void doAfterAllAnalysed(AnalysisContext context) {
+//			}
+//		}).sheet().doRead();
+//		 //获取企划目标数据
+//		List<PlanPlan> planList = getPlanPlan(driver, planTarget);
+//		 //写入excel
+//		EasyExcel.write(path + planName + "_企划计划.xlsx", PlanPlan.class).sheet("企划计划").doWrite(planList);
 
 	}
 

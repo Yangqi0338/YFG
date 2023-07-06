@@ -6,16 +6,30 @@
 *****************************************************************************/
 package com.base.sbc.module.sample.controller;
 
+import javax.validation.Valid;
+
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookQueryDto;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookSaveDto;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookUpdateDto;
 import com.base.sbc.module.sample.service.SampleStyleOrderBookService;
+import com.base.sbc.module.sample.vo.SampleStyleOrderBookPageVo;
+import com.github.pagehelper.PageInfo;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * 类描述：样衣款式订货本相关接口
@@ -29,4 +43,27 @@ public class SampleStyleOrderBookController {
 	@Autowired
 	private SampleStyleOrderBookService sampleStyleOrderBookService;
 
+	@ApiOperation(value = "款式订货本列表:子表左关联主表和配色表等")
+	@GetMapping("/getStyleOrderBookList")
+	public PageInfo<SampleStyleOrderBookPageVo> getStyleOrderBookList(SampleStyleOrderBookQueryDto dto) {
+		return sampleStyleOrderBookService.getStyleOrderBookList(dto);
+	}
+
+	@ApiOperation(value = "款式订货本列表:创建选择集合、添加新款到集合(订货本编码)")
+	@PostMapping("/saveSampleStyleOrderBook")
+	public Boolean saveSampleStyleOrderBook(@Valid @RequestBody SampleStyleOrderBookSaveDto dto) {
+		return sampleStyleOrderBookService.saveSampleStyleOrderBook(dto);
+	}
+
+	@ApiOperation(value = "款式订货本列表:修改图片/修改状态：锁定、解锁/修改状态：上会、撤销")
+	@PostMapping("/updateSampleStyleOrderBook")
+	public Boolean updateSampleStyleOrderBook(@Valid @RequestBody SampleStyleOrderBookUpdateDto dto) {
+		return sampleStyleOrderBookService.updateSampleStyleOrderBook(dto);
+	}
+
+	@ApiOperation(value = "款式订货本列表：删除明细")
+	@DeleteMapping("/delSampleStyleOrderBookItem")
+	public Boolean delSampleStyleOrderBookItem(@RequestParam(value = "id") @NotBlank(message = "id不能为空") String id) {
+		return sampleStyleOrderBookService.delSampleStyleOrderBookItem(id);
+	}
 }
