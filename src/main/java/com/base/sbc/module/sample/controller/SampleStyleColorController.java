@@ -62,7 +62,7 @@ public class SampleStyleColorController{
 	}
 
 	@ApiOperation(value = "大货款号查询-款式配色")
-	@GetMapping("/getByStyleNo")
+	@GetMapping("/getByLargeStyleNo")
 	public List<SampleStyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto) {
 		return sampleStyleColorService.getByStyleNo(querySampleStyleColorDto);
 	}

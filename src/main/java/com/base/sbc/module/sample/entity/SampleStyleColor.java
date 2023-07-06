@@ -51,9 +51,12 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     private String colorSpecification;
     /*颜色库id*/
     private String colourLibraryId;
-    /** 款式(大货款号) */
-    @ApiModelProperty(value = "款式(大货款号)"  )
+    /** 款式 */
+    @ApiModelProperty(value = "款式"  )
     private String styleNo;
+    /** (大货款号) */
+    @ApiModelProperty(value = "(大货款号)"  )
+    private String  largeStyleNo;
     /** 轻奢款(0否,1:是) */
     @ApiModelProperty(value = "轻奢款(0否,1:是)"  )
     private String isLuxury;

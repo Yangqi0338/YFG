@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.vo;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,6 +25,8 @@ import lombok.Data;
 public class BasicsdatumMaterialsIngredientVo  extends BaseDataEntity<String>{
 
     private String id;
+    @ApiModelProperty(value = "编码"  )
+    private String code;
     /** 成分 */
     @ApiModelProperty(value = "成分"  )
     private String ingredient;

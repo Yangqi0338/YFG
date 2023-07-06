@@ -24,6 +24,9 @@ import lombok.Data;
 public class BasicsdatumMaterialsIngredientExcelDto  {
     @Excel(name = "id")
     private String id;
+    @ApiModelProperty(value = "编码"  )
+    @Excel(name = "编码")
+    private String code;
     /** 成分 */
     @ApiModelProperty(value = "成分"  )
     @Excel(name = "成分")

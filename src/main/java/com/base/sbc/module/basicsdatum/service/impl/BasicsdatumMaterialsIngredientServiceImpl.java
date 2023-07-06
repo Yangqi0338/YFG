@@ -99,9 +99,11 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<B
             List<BasicsdatumMaterialsIngredientExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumMaterialsIngredientExcelDto.class, params);
             List<BasicsdatumMaterialsIngredient> basicsdatumMaterialsIngredientList = BeanUtil.copyToList(list, BasicsdatumMaterialsIngredient.class);
            for (BasicsdatumMaterialsIngredient basicsdatumMaterialsIngredient : basicsdatumMaterialsIngredientList) {
-               QueryWrapper<BasicsdatumMaterialsIngredient> queryWrapper =new QueryWrapper<>();
-               queryWrapper.eq("ingredient",basicsdatumMaterialsIngredient.getIngredient());
-               this.saveOrUpdate(basicsdatumMaterialsIngredient,queryWrapper);
+               if(StringUtils.isNotBlank(basicsdatumMaterialsIngredient.getCode())) {
+                   QueryWrapper<BasicsdatumMaterialsIngredient> queryWrapper = new QueryWrapper<>();
+                   queryWrapper.eq("code", basicsdatumMaterialsIngredient.getIngredient());
+                   this.saveOrUpdate(basicsdatumMaterialsIngredient, queryWrapper);
+               }
            }
             return true;
        }

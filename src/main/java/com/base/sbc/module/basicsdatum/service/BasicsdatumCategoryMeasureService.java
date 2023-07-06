@@ -7,6 +7,7 @@
 package com.base.sbc.module.basicsdatum.service;
 
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumCategoryMeasureDto;
+import com.base.sbc.module.basicsdatum.dto.QueryCategoryMeasureDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumCategoryMeasure;
@@ -36,7 +37,7 @@ public interface BasicsdatumCategoryMeasureService extends BaseService<Basicsdat
         * @param queryDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<BasicsdatumCategoryMeasureVo> getBasicsdatumCategoryMeasureList(QueryDto queryDto);
+        PageInfo<BasicsdatumCategoryMeasureVo> getBasicsdatumCategoryMeasureList(QueryCategoryMeasureDto queryDto);
 
 
         /**

@@ -12,16 +12,15 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumCategoryMeasureDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumCategoryMeasureExcelDto;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumCategoryMeasure;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumCategoryMeasureMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumRangeDifferenceMapper;
@@ -39,6 +38,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,11 +69,14 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
      * @return
      */
     @Override
-    public PageInfo<BasicsdatumCategoryMeasureVo> getBasicsdatumCategoryMeasureList(QueryDto queryDto) {
+    public PageInfo<BasicsdatumCategoryMeasureVo> getBasicsdatumCategoryMeasureList(QueryCategoryMeasureDto queryDto) {
         /*分页*/
         PageHelper.startPage(queryDto);
         QueryWrapper<BasicsdatumCategoryMeasure> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getCode()),"code",queryDto.getCode());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getName()),"name",queryDto.getName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getRangeDifferenceName()),"range_difference_name",queryDto.getRangeDifferenceName());
         /*查询基础资料-品类测量组数据*/
         List<BasicsdatumCategoryMeasure> basicsdatumCategoryMeasureList = baseMapper.selectList(queryWrapper);
         PageInfo<BasicsdatumCategoryMeasure> pageInfo = new PageInfo<>(basicsdatumCategoryMeasureList);
@@ -103,17 +106,27 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
         QueryWrapper<BasicsdatumRangeDifference> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
         List<BasicsdatumRangeDifference> basicsdatumRangeDifferenceList = basicsdatumRangeDifferenceMapper.selectList(queryWrapper);
+//        操作存在编码数据
+        List<BasicsdatumCategoryMeasureExcelDto> basicsdatumCategoryMeasureExcelDtoList =new ArrayList<>();
         for (BasicsdatumCategoryMeasureExcelDto basicsdatumCategoryMeasureExcelDto : list) {
-            if (StringUtils.isNotBlank(basicsdatumCategoryMeasureExcelDto.getRangeDifferenceName())) {
-                List<BasicsdatumRangeDifference> differenceList = basicsdatumRangeDifferenceList.stream().filter(r -> r.getRangeDifference().equals(basicsdatumCategoryMeasureExcelDto.getRangeDifferenceName())).collect(Collectors.toList());
-                if (!CollectionUtils.isEmpty(differenceList)) {
-                    basicsdatumCategoryMeasureExcelDto.setRangeDifferenceId(differenceList.get(0).getId());
+            if(StringUtils.isNotBlank(basicsdatumCategoryMeasureExcelDto.getCode())){
+                if (StringUtils.isNotBlank(basicsdatumCategoryMeasureExcelDto.getRangeDifferenceName())) {
+                    List<BasicsdatumRangeDifference> differenceList = basicsdatumRangeDifferenceList.stream().filter(r -> r.getRangeDifference().equals(basicsdatumCategoryMeasureExcelDto.getRangeDifferenceName())).collect(Collectors.toList());
+                    if (!CollectionUtils.isEmpty(differenceList)) {
+                        basicsdatumCategoryMeasureExcelDto.setRangeDifferenceId(differenceList.get(0).getId());
+                    }
                 }
+                basicsdatumCategoryMeasureExcelDtoList.add(basicsdatumCategoryMeasureExcelDto);
             }
         }
-
-        List<BasicsdatumCategoryMeasure> basicsdatumCategoryMeasureList = BeanUtil.copyToList(list, BasicsdatumCategoryMeasure.class);
-        saveOrUpdateBatch(basicsdatumCategoryMeasureList);
+        /*按编码操作*/
+        List<BasicsdatumCategoryMeasure> basicsdatumColourLibraryList = BeanUtil.copyToList(basicsdatumCategoryMeasureExcelDtoList, BasicsdatumCategoryMeasure.class);
+        for (BasicsdatumCategoryMeasure basicsdatumCategoryMeasure : basicsdatumColourLibraryList) {
+            QueryWrapper<BasicsdatumCategoryMeasure> queryWrapper1 =new BaseQueryWrapper<>();
+            queryWrapper.eq("code",basicsdatumCategoryMeasure.getCode());
+            this.saveOrUpdate(basicsdatumCategoryMeasure,queryWrapper1);
+        }
+//        saveOrUpdateBatch(basicsdatumCategoryMeasureList);
         return true;
     }
 
