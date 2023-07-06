@@ -34,7 +34,7 @@
 
 	<dataSource>
 		<driver      value="com.mysql.jdbc.Driver"></driver>
-		<url         value="jdbc:mysql://10.8.252.11:3306/s_pdm_data?useSSL=false&amp;useUnicode=true&amp;characterEncoding=utf-8"></url>
+		<url         value="jdbc:mysql://10.98.250.44:3306/s_pdm_data?useSSL=false&amp;useUnicode=true&amp;characterEncoding=utf-8"></url>
 		<username    value="root"></username>
 		<password    value="yfg123456."></password>
 	</dataSource>
