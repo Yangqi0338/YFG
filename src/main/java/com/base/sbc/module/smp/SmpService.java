@@ -2,13 +2,18 @@ package com.base.sbc.module.smp;
 
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.restTemplate.RestTemplateService;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
 import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -28,6 +33,8 @@ import java.util.Map;
 public class SmpService {
 
     private final RestTemplateService restTemplateService;
+
+    private final BasicsdatumModelTypeMapper basicsdatumModelTypeMapper;
 
 
     //private  static final String URL ="http://10.88.34.25:7006/pdm";
@@ -108,13 +115,18 @@ public class SmpService {
         smpColorDto.setModifiedPerson(baseController.getUser().getName());
         smpColorDto.setModifiedTime(new Date());
         smpColorDto.setActive(true);
-        color(smpColorDto);
+//        color(smpColorDto);
     }
 
 //    @Async
-    public void issueGoods(SampleDesign sampleDesign, Map<String, Map<String, String>> dictInfoToMap ){
+    public void issueGoods(SampleStyleColor sampleStyleColor, SampleDesign sampleDesign, Map<String, Map<String, String>> dictInfoToMap ){
+
+        /*品牌*/
         Map<String, String> mapBrand = dictInfoToMap.get("C8_Brand");
+        /*款式类型*/
         Map<String, String> mapStyleType = dictInfoToMap.get("StyleType");
+        /*销售类型*/
+//        Map<String, String> mapSaleType = dictInfoToMap.get("C8_SaleType");
         SmpGoodsDto smpGoodsDto = new  SmpGoodsDto();
         smpGoodsDto.setProductTypeId(sampleDesign.getStyleType());
         smpGoodsDto.setProductType(mapStyleType.get(sampleDesign.getStyleType()));
@@ -124,7 +136,53 @@ public class SmpService {
         smpGoodsDto.setSeason(sampleDesign.getSeason());
         smpGoodsDto.setTheme(sampleDesign.getSubject());
 //        smpGoodsDto.setUnit(sampleDesign.get);
-        smpGoodsDto.setStyleMiddleClass(sampleDesign.getCategoryName());
+        smpGoodsDto.setStyleMiddleClass(StringUtils.getCategory( sampleDesign.getCategoryName(),2,1));
+        smpGoodsDto.setStyleSmallClass(StringUtils.getCategory( sampleDesign.getCategoryName(),3,1));
+        smpGoodsDto.setDesignNumber(sampleDesign.getDesignNo());
+        smpGoodsDto.setStyleName(sampleDesign.getStyleName());
+        smpGoodsDto.setDesignerId(sampleDesign.getDesignerId());
+        smpGoodsDto.setDesigner(sampleDesign.getMerchDesignName());
+        smpGoodsDto.setTechnician(sampleDesign.getTechnicianName());
+        smpGoodsDto.setTechnicianId(sampleDesign.getTechnicianId());
+        smpGoodsDto.setTargetCost(sampleDesign.getProductCost());
+//        smpGoodsDto.setPlanningRate();
+        smpGoodsDto.setStyleCategory(StringUtils.getCategory( sampleDesign.getCategoryName(),1,1));
+        smpGoodsDto.setStyleBigClass(StringUtils.getCategory( sampleDesign.getCategoryName(),0,1));
+        smpGoodsDto.setMainPush(sampleStyleColor.getIsMainly().equals("0")?false:true);
+        smpGoodsDto.setProductionType(sampleDesign.getDevtType());
+//        smpGoodsDto.setRegion();
+        smpGoodsDto.setSalesGroup(sampleStyleColor.getSalesType());
+//        smpGoodsDto.setDesignScore();
+        /*获取号型类型*/
+        if(StringUtils.isNotBlank(sampleDesign.getSizeRange())){
+            BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeMapper.selectById(sampleDesign.getSizeRange());
+            if(!ObjectUtils.isEmpty(basicsdatumModelType)){
+                smpGoodsDto.setSizeGroupId(basicsdatumModelType.getCode());
+                smpGoodsDto.setSizeGroupName(basicsdatumModelType.getModelType());
+            }
+        }
+        smpGoodsDto.setPatternMakerName(sampleDesign.getPatternDesignName());
+        smpGoodsDto.setPatternMakerId(sampleDesign.getPatternDesignId());
+        smpGoodsDto.setMaxClassName(StringUtils.getCategory( sampleDesign.getCategoryName(),0,0));
+        smpGoodsDto.setMiddleClassName(StringUtils.getCategory( sampleDesign.getCategoryName(),2,0));
+        smpGoodsDto.setMinClassName(StringUtils.getCategory( sampleDesign.getCategoryName(),3,0));
+//        smpGoodsDto.setStyleCode();
+        smpGoodsDto.setCategoryName(StringUtils.getCategory( sampleDesign.getCategoryName(),1,0));
+//        smpGoodsDto.setLengthRangeId();
+//        smpGoodsDto.setLengthRangeName();
+
+/*        smpGoodsDto.setCoatLength();
+        smpGoodsDto.setWaistTypeId();
+        smpGoodsDto.setWaistTypeName();
+        smpGoodsDto.setSleeveLengthId();
+        smpGoodsDto.setSleeveLengthName();
+        smpGoodsDto.setSleeveId();
+        smpGoodsDto.setSleeveName();
+        smpGoodsDto.setBust();
+        smpGoodsDto.setPlacketId();
+        smpGoodsDto.setPlacketName()
+        smpGoodsDto.setYarnNeedleTypeId();
+        smpGoodsDto.set*/
     }
 
 

@@ -84,7 +84,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
 
         queryWrapper.notEmptyLike("model_type", queryDto.getModelType());
         queryWrapper.eq("company_code", baseController.getUserCompany());
-        queryWrapper.notEmptyLike("coding", queryDto.getCoding());
+        queryWrapper.notEmptyLike("code", queryDto.getCoding());
         queryWrapper.notEmptyLike("description", queryDto.getDescription());
         queryWrapper.notEmptyLike("dimension_type", queryDto.getDimensionType());
         queryWrapper.notEmptyLike("status", queryDto.getStatus());
@@ -132,7 +132,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
 
         for (BasicsdatumModelType basicsdatumModelType : basicsdatumModelTypeList) {
             QueryWrapper<BasicsdatumModelType> queryWrapper =new BaseQueryWrapper<>();
-            queryWrapper.eq("coding",basicsdatumModelType.getCoding());
+            queryWrapper.eq("code",basicsdatumModelType.getCode());
             this.saveOrUpdate(basicsdatumModelType,queryWrapper);
         }
         return true;
@@ -163,7 +163,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         BasicsdatumModelType basicsdatumModelType = new BasicsdatumModelType();
         if (StringUtils.isEmpty(addRevampBasicsdatumModelTypeDto.getId())) {
             QueryWrapper<BasicsdatumModelType> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("coding", addRevampBasicsdatumModelTypeDto.getCategory());
+            queryWrapper.eq("code", addRevampBasicsdatumModelTypeDto.getCode());
             queryWrapper.eq("company_code", baseController.getUserCompany());
             if (!CollectionUtils.isEmpty(baseMapper.selectList(queryWrapper))) {
                 throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);

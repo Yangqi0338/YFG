@@ -30,7 +30,7 @@ public class BasicsdatumModelTypeExcelDto  {
     /** 编码 */
     @ApiModelProperty(value = "编码"  )
     @Excel(name = "号型编码")
-    private String coding;
+    private String code;
     /** 描述 */
     @ApiModelProperty(value = "描述"  )
     @Excel(name = "描述")

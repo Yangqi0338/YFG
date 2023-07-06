@@ -28,7 +28,7 @@ public class AddRevampBasicsdatumModelTypeDto  {
     private String modelType;
     /** 编码 */
     @ApiModelProperty(value = "编码"  )
-    private String coding;
+    private String code;
     /** 描述 */
     @ApiModelProperty(value = "描述"  )
     private String description;

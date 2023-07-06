@@ -353,16 +353,14 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(sampleStyleColor.getColourLibraryId());
             /*下发颜色*/
             smpService.issueColor(basicsdatumColourLibrary,mapColorChroma,mapColorType,baseController);
-
            /*查询样衣数据*/
-
             SampleDesign sampleDesign =  sampleDesignMapper.selectById(sampleStyleColor.getSampleDesignId());
             /*下发商品*/
-            smpService.issueGoods(sampleDesign,dictInfoToMap);
+            smpService.issueGoods(sampleStyleColor,sampleDesign,dictInfoToMap);
 
 
         });
-        return null;
+        return true;
     }
 
     /** 自定义方法区 不替换的区域【other_end】 **/
