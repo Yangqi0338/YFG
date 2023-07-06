@@ -139,16 +139,6 @@ public class PackBomVersionServiceImpl extends BaseServiceImpl<PackBomVersionMap
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean toBigGoods(String id) {
-        PackBomVersion version = getById(id);
-        if (version == null) {
-            throw new OtherException("找不到版本信息");
-        }
-        if (StrUtil.equals(version.getPackType(), PackUtils.PACK_TYPE_BIG_GOODS)) {
-            throw new OtherException("已经是大货版本");
-        }
-        // 新建版本
-        // 复制bom
-        //复制尺码
 
 
         return false;

@@ -50,6 +50,9 @@ public class PackSizeServiceImpl extends BaseServiceImpl<PackSizeMapper, PackSiz
     public PageInfo<PackSizeVo> pageInfo(PackCommonPageSearchDto dto) {
         QueryWrapper<PackSize> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
+        if (StrUtil.isBlank(dto.getOrderBy())) {
+            qw.orderByDesc("id");
+        }
         Page<PackSize> page = PageHelper.startPage(dto);
         list(qw);
         PageInfo<PackSize> pageInfo = page.toPageInfo();

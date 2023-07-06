@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -49,6 +50,9 @@ public class PackProcessPriceServiceImpl extends BaseServiceImpl<PackProcessPric
     public PageInfo<PackProcessPriceVo> pageInfo(PackCommonPageSearchDto dto) {
         QueryWrapper<PackProcessPrice> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
+        if (StrUtil.isBlank(dto.getOrderBy())) {
+            qw.orderByDesc("id");
+        }
         Page<PackProcessPrice> page = PageHelper.startPage(dto);
         list(qw);
         PageInfo<PackProcessPrice> pageInfo = page.toPageInfo();

@@ -87,4 +87,6 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         uw.set("update_name", userCompany.getAliasUserName());
         uw.set("update_date", new Date());
     }
+
+
 }

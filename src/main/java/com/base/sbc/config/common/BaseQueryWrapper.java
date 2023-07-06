@@ -1,5 +1,6 @@
 package com.base.sbc.config.common;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.util.StringUtils;
 
@@ -24,6 +25,20 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                 return this.and(i -> i.le(!StringUtils.isEmpty(strings[1]), column, strings[1]));
             }
         }
+        return this;
+    }
+
+    public QueryWrapper<T> andLike(String value, String... columns) {
+        if (StrUtil.isBlank(value)) {
+            return this;
+        }
+        this.and(wrapper -> {
+            wrapper.and(i -> {
+                for (int j = 0; j < columns.length; j++) {
+                    i.like(columns[j], value).or(j < columns.length - 1);
+                }
+            });
+        });
         return this;
     }
 }

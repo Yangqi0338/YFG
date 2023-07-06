@@ -7,6 +7,7 @@
 package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -44,6 +45,9 @@ public class PackSampleReviewServiceImpl extends BaseServiceImpl<PackSampleRevie
     public PageInfo<PackSampleReviewVo> pageInfo(PackCommonPageSearchDto dto) {
         QueryWrapper<PackSampleReview> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
+        if (StrUtil.isBlank(dto.getOrderBy())) {
+            qw.orderByDesc("id");
+        }
         Page<PackSampleReview> page = PageHelper.startPage(dto);
         list(qw);
         PageInfo<PackSampleReview> pageInfo = page.toPageInfo();

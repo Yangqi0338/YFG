@@ -1,0 +1,30 @@
+package com.base.sbc.module.pack.dto;
+
+import com.base.sbc.config.common.base.Page;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+/**
+ * 类描述：资料包-基础信息-分页查询dto
+ *
+ * @author lixianglin
+ * @version 1.0
+ * @address com.base.sbc.module.pack.dto.PackInfoSearchPageDto
+ * @email li_xianglin@126.com
+ * @date 创建时间：2023-07-06 17:17
+ */
+@Data
+@ApiModel("资料包-基础信息-分页查询dto PackInfoSearchPageDto")
+public class PackInfoSearchPageDto extends Page {
+
+
+    @ApiModelProperty(value = "生产模式")
+    private String devtType;
+
+    @ApiModelProperty(value = "大类id")
+    private String prodCategory1st;
+
+    @ApiModelProperty(value = "品类id")
+    private String prodCategory;
+}
