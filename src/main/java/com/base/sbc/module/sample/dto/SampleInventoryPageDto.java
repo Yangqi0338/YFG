@@ -35,6 +35,10 @@ public class SampleInventoryPageDto extends Page {
     @ApiModelProperty(value = "样衣盘点ID", example = "680014765321355265")
     private String sampleInventoryId;
 
+    /** 样衣盘点编码 */
+    @ApiModelProperty(value = "样衣盘点编码", example = "680014765321355265")
+    private String code;
+
     /** 状态：1-正常，2-作废，3-删除 */
     @ApiModelProperty(value = "状态：1-正常，2-作废，3-删除", example = "1")
     private String status;

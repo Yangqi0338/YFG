@@ -12,6 +12,7 @@ import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.vo.SampleVo;
 import com.github.pagehelper.PageInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 类描述：样衣管理 service类
@@ -27,5 +28,10 @@ public interface SampleService extends BaseService<Sample> {
 
     /** 查询明细数据 */
     SampleVo getDetail(String id);
+
+    Boolean importExcel(MultipartFile file) throws Exception;
+
+    /** 修改状态 */
+    SampleVo updateStatus(SampleSaveDto dto);
 }
 

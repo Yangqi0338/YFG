@@ -6,6 +6,7 @@
 *****************************************************************************/
 package com.base.sbc.module.sample.controller;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -33,7 +35,7 @@ import java.util.List;
 @Api(tags = "样衣管理相关接口")
 @RequestMapping(value = BaseController.SAAS_URL + "/sampleManager", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class SampleManagerController {
+public class SampleManagerController extends BaseController {
 
 	@Autowired
 	private SampleService sampleService;
@@ -70,5 +72,18 @@ public class SampleManagerController {
 	@GetMapping("getLogList/{id}")
 	public List<SampleItemLog> getLogListBySampleItemId(@PathVariable("id") String id) {
 		return sampleItemLogService.getListBySampleItemId(id);
+	}
+
+	@ApiOperation(value = "导入Excel")
+	@PostMapping("/importExcel")
+	public ApiResult importExcel(@RequestParam("file") MultipartFile file) throws Exception {
+		Boolean b = sampleService.importExcel(file);
+		return insertSuccess(b);
+	}
+
+	@ApiOperation(value = "更新状态")
+	@PostMapping("/updateStatus")
+	public SampleVo updateStatus(@RequestBody SampleSaveDto dto) {
+		return sampleService.updateStatus(dto);
 	}
 }

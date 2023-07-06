@@ -6,8 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.module.basicsdatum.dto.ColorModelNumberExcelDto;
+import com.base.sbc.module.basicsdatum.entity.ColorModelNumber;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
@@ -29,6 +36,7 @@ import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -141,5 +149,40 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
         getBaseMapper().getListByDesignNo(dto);
 
         return objects.toPageInfo();
+    }
+
+    @Override
+    public Boolean importExcel(MultipartFile file) throws Exception {
+        String originalFilename = file.getOriginalFilename();
+        String[] split = originalFilename.split("\\.");
+        ImportParams params = new ImportParams();
+        params.setNeedSave(false);
+
+        List<ColorModelNumberExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), ColorModelNumberExcelDto.class, params);
+
+        List<ColorModelNumber> colorModelNumbers = BeanUtil.copyToList(list, ColorModelNumber.class);
+        for (ColorModelNumber colorModelNumber : colorModelNumbers) {
+            colorModelNumber.setFileName(split[0]);
+            colorModelNumber.setStatus("1");
+            QueryWrapper<ColorModelNumber> queryWrapper =new BaseQueryWrapper<>();
+            queryWrapper.eq("code",colorModelNumber.getCode());
+            // this.saveOrUpdate(colorModelNumber,queryWrapper);
+        }
+        return true;
+    }
+
+    @Override
+    public SampleVo updateStatus(SampleSaveDto dto) {
+        Sample s = mapper.selectById(dto.getId());
+        s.setStatus(dto.getStatus());
+        mapper.updateById(s);
+
+        SampleVo vo = mapper.getDetail(dto.getId());
+        SamplePageDto dto2 = new SamplePageDto();
+        dto2.setSampleId(dto.getId());
+        List<SampleItem> list = sampleItemMapper.getListBySampleId(dto2);
+        vo.setSampleItemList(list);
+
+        return vo;
     }
 }
