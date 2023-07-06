@@ -75,7 +75,7 @@ public class SmpService {
      * 修改尺码的时候验证
      */
     public Boolean style(PlmStyleSizeParam param) {
-        return restTemplateService.spmPost("http://10.8.250.100:1980/escm-app/information/plm/style", param);
+        return restTemplateService.spmPost(URL+"style", param);
     }
 
 
