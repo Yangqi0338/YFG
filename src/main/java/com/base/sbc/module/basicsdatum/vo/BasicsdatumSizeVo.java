@@ -11,9 +11,8 @@ import lombok.Data;
 public class BasicsdatumSizeVo extends BaseDataEntity<String> {
 
     private String id;
-    /** 尺码标签Id */
-    @ApiModelProperty(value = "尺码标签Id"  )
-    private String sizeLabelId;
+    /*号型类型编码*/
+    private String modelTypeCode;
     /** 吊牌显示 */
     @ApiModelProperty(value = "吊牌显示"  )
     private String hangtags;

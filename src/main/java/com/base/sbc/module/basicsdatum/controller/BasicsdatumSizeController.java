@@ -86,7 +86,6 @@ public class BasicsdatumSizeController{
 
 
 	/*标签相关接口*/
-
 	@ApiOperation(value = "查询尺码标签")
 	@GetMapping("/getSizeLabelList")
 	public ApiResult getSizeLabelList(QueryDasicsdatumSizeDto queryDasicsdatumSizeDto) {
@@ -106,7 +105,12 @@ public class BasicsdatumSizeController{
 		return ApiResult.success("操作成功",sizeLabelService.delSizeLabel(id));
 	}
 
-
+	/*获取尺码*/
+	@ApiOperation(value = "查询尺码标签")
+	@GetMapping("/getSizeName")
+	public ApiResult getSizeName(@Valid @NotBlank(message = "编号id不能为空") String ids) {
+		return	ApiResult.success("操作成功",basicsdatumSizeService.getSizeName(ids)) ;
+	}
 
 
 

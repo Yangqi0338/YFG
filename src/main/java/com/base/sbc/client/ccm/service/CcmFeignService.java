@@ -95,7 +95,7 @@ public class CcmFeignService {
         JSONObject jsonObject = JSON.parseObject(dictInfo);
         String ids = "";
         if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
-            ids = jsonObject.getJSONArray("data").toString();
+            ids =jsonObject.get("data").toString();
         }
         return ids;
     }

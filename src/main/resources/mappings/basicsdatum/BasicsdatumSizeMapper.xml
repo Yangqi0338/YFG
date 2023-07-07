@@ -29,7 +29,7 @@
           tbs.european_size,
           tbs.show_size_status,
           tbs.status,
-          tbsl.label_name
+          tbsl.model_type
           from  t_basicsdatum_size tbs
           left join t_basicsdatum_size_label tbsl  on tbs.size_label_id=tbsl.id
           ${ ew.customSqlSegment}

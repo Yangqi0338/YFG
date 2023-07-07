@@ -33,9 +33,6 @@ public class BasicsdatumSize extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 尺码标签Id */
-    @ApiModelProperty(value = "尺码标签Id"  )
-    private String sizeLabelId;
     /** 吊牌显示 */
     @ApiModelProperty(value = "吊牌显示"  )
     private String hangtags;
@@ -45,6 +42,8 @@ public class BasicsdatumSize extends BaseDataEntity<String> {
     /** 号型类型 */
     @ApiModelProperty(value = "号型类型"  )
     private String modelType;
+    /*号型类型编码*/
+    private String modelTypeCode;
     /** Internal Size */
     @ApiModelProperty(value = "Internal Size"  )
     private String internalSize;

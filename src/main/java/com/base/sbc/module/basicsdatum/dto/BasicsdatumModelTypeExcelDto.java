@@ -61,7 +61,7 @@ public class BasicsdatumModelTypeExcelDto  {
     private String sizeConfirmation;
     /** 发送状态(0发送，1未发送) */
     @ApiModelProperty(value = "发送状态(1发送，0未发送)"  )
-    @Excel(name = "发送状态", replace = {"false_0", "true_1"} )
+    @Excel(name = "发送状态", replace = {"未发送_0", "已发送_1"} )
     private String sendStatus;
     /** 品类 */
     @ApiModelProperty(value = "品类"  )
@@ -75,5 +75,5 @@ public class BasicsdatumModelTypeExcelDto  {
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     @Excel(name = "状态(0正常,1停用)")
     private String status;
-    private String sizeLabelId;
+    private String sizeIds;
 }

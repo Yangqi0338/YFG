@@ -43,6 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：基础资料-号型类型 service类
@@ -120,12 +121,16 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             if (StringUtils.isNotBlank(basicsdatumModelTypeExcelDto.getCategory())) {
                 basicsdatumModelTypeExcelDto.setCategoryId(ccmFeignService.getIdsByNameAndLevel("品类", basicsdatumModelTypeExcelDto.getCategory(), "1"));
             }
-            /*尺码id*/
             if (StringUtils.isNotBlank(basicsdatumModelTypeExcelDto.getSize())) {
-                String sizeLabelId = basicsdatumSizeMapper.getSizeLabelId(basicsdatumModelTypeExcelDto.getSize());
-                if (StringUtils.isNotBlank(sizeLabelId)) {
-                    basicsdatumModelTypeExcelDto.setSizeLabelId(sizeLabelId);
-                }
+//                获取尺码id
+               String[] strings =  basicsdatumModelTypeExcelDto.getSize().split(", ");
+               QueryWrapper queryWrapper=new QueryWrapper();
+               queryWrapper.in("hangtags",strings);
+               List<BasicsdatumSize> basicsdatumSizeList =basicsdatumSizeMapper.selectList(queryWrapper);
+               if(!CollectionUtils.isEmpty(basicsdatumSizeList)){
+                  List<String> stringList =  basicsdatumSizeList.stream().map(BasicsdatumSize::getId).collect(Collectors.toList());
+                  basicsdatumModelTypeExcelDto.setSizeIds( StringUtils.join(stringList,","));
+               }
             }
         }
         List<BasicsdatumModelType> basicsdatumModelTypeList = BeanUtil.copyToList(list, BasicsdatumModelType.class);

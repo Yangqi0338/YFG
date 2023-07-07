@@ -17,15 +17,16 @@ public class BasicsdatumSizeExcelDto {
 
     @Excel(name = "id")
     private String id;
-
+    /*号型类型编码*/
+    private String modelTypeCode;
     /**
-     * 编码
+     * 吊牌显示
      */
     @Excel(name = "吊牌显示")
     private String hangtags;
 
     /**
-     * 部件类别
+     * 号型
      */
     @Excel(name = "号型")
     private String model;
@@ -37,13 +38,13 @@ public class BasicsdatumSizeExcelDto {
     private String internalSize;
 
     /**
-     * 描述
+     * External Size
      */
     @Excel(name = "External Size")
     private String externalSize;
 
     /**
-     * 图片
+     * 代码
      */
     @Excel(name = "代码")
     private String code;
@@ -73,8 +74,9 @@ public class BasicsdatumSizeExcelDto {
     @Excel(name = "欧码")
     private String europeanSize;
 
+    /*号型类型*/
     @Excel(name = "US标签")
-    private String labelName;
+    private String modelType;
 
     @Excel(name = "显示尺码标识",replace = {"false_1","true_0"})
     private String showSizeStatus;

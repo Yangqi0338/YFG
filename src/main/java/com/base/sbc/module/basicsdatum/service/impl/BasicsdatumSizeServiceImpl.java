@@ -23,8 +23,10 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampSizeDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumSizeExcelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDasicsdatumSizeDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSizeLabel;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeLabelMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
@@ -42,6 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：基础资料-尺码表 service类
@@ -59,7 +62,8 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
     private BaseController baseController;
 
     @Autowired
-    private BasicsdatumSizeLabelMapper basicsdatumSizeLabelMapper;
+    private BasicsdatumModelTypeMapper basicsdatumModelTypeMapper;
+
 
     /**
      * 查询尺码列表
@@ -113,23 +117,17 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
         params.setNeedSave(false);
         List<BasicsdatumSizeExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumSizeExcelDto.class, params);
         for (BasicsdatumSizeExcelDto basicsdatumSizeExcelDto : list) {
-            if (StringUtils.isEmpty(basicsdatumSizeExcelDto.getLabelName())) {
-                basicsdatumSizeExcelDto.setLabelName("其他");
+            if (!StringUtils.isEmpty(basicsdatumSizeExcelDto.getModelType())) {
+                /*查询号型类型*/
+                QueryWrapper<BasicsdatumModelType> queryWrapper = new QueryWrapper<>();
+                queryWrapper.eq("model_type", basicsdatumSizeExcelDto.getModelType());
+                /*关联号型类型*/
+                List<BasicsdatumModelType> modelTypeList = basicsdatumModelTypeMapper.selectList(queryWrapper);
+                if(!CollectionUtils.isEmpty(modelTypeList)){
+                    basicsdatumSizeExcelDto.setModelTypeCode(modelTypeList.get(0).getCode());
+                }
             }
-            /*查询在尺码标签是否存在*/
-            QueryWrapper<BasicsdatumSizeLabel> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("label_name", basicsdatumSizeExcelDto.getLabelName());
-            /*校验数据*/
-            List<BasicsdatumSizeLabel> verifyList = basicsdatumSizeLabelMapper.selectList(queryWrapper);
-            BasicsdatumSizeLabel basicsdatumSizeLabel = new BasicsdatumSizeLabel();
-            if (CollectionUtils.isEmpty(verifyList)) {
-                basicsdatumSizeLabel.setLabelName(basicsdatumSizeExcelDto.getLabelName());
 
-                basicsdatumSizeLabelMapper.insert(basicsdatumSizeLabel);
-                basicsdatumSizeExcelDto.setSizeLabelId(basicsdatumSizeLabel.getId());
-            } else {
-                basicsdatumSizeExcelDto.setSizeLabelId(verifyList.get(0).getId());
-            }
         }
         List<BasicsdatumSize> basicsdatumSizeList = BeanUtil.copyToList(list, BasicsdatumSize.class);
         /*每次添加500条数据*/
@@ -157,23 +155,6 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
      */
     @Override
     public void deriveExcel(QueryDasicsdatumSizeDto queryDasicsdatumSizeDto, HttpServletResponse response) throws IOException {
-  /*      if(StringUtils.isEmpty( queryDasicsdatumSizeDto.getIsDerive())){
-            throw new OtherException("失败");
-        }
-        String fileName="";
-        List<BasicsdatumSizeExcelDto> list =null;
-        if(queryDasicsdatumSizeDto.getIsDerive().equals(BaseGlobal.STATUS_NORMAL)){
-            *//*模板导出*//*
-            fileName="尺码模板";
-            list =new ArrayList<>();
-        }else {
-            fileName="尺码";
-            QueryWrapper<BasicsdatumSizeExcelDto> queryWrapper=new QueryWrapper<>();
-            queryWrapper.eq(!StringUtils.isEmpty(queryDasicsdatumSizeDto.getSizeLabelId()),"size_label_id",queryDasicsdatumSizeDto.getSizeLabelId());
-            list = baseMapper.selectSize(queryWrapper);
-        }
-        ExcelUtils.exportExcel(list, fileName, fileName, BasicsdatumSizeExcelDto.class, fileName+".xlsx", response);
-*/
         QueryWrapper<BasicsdatumSizeExcelDto> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(!StringUtils.isEmpty(queryDasicsdatumSizeDto.getSizeLabelId()), "size_label_id", queryDasicsdatumSizeDto.getSizeLabelId());
         List<BasicsdatumSizeExcelDto> list = baseMapper.selectSize(queryWrapper);
@@ -190,24 +171,22 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
     public Boolean addRevampSize(AddRevampSizeDto addRevampSizeDto) {
 
         BasicsdatumSize basicsdatumSize = new BasicsdatumSize();
-        if (StringUtils.isEmpty(addRevampSizeDto.getId())) {
-            if (StringUtils.isEmpty(addRevampSizeDto.getSizeLabelId())) {
-                throw new OtherException("尺码标签为空");
+        /*获取号型类型*/
+        if(StringUtils.isNotBlank(addRevampSizeDto.getModelTypeCode()) ){
+            QueryWrapper qw=new QueryWrapper();
+            qw.eq("code",addRevampSizeDto.getModelTypeCode());
+            BasicsdatumModelType basicsdatumModelType =  basicsdatumModelTypeMapper.selectOne(qw);
+            if(!ObjectUtils.isEmpty(basicsdatumModelType)){
+                addRevampSizeDto.setModelType(basicsdatumModelType.getModelType());
             }
+        }
+        if (StringUtils.isEmpty(addRevampSizeDto.getId())) {
             QueryWrapper<BasicsdatumSize> queryWrapper =new QueryWrapper<>();
             queryWrapper.eq("sort",addRevampSizeDto.getSort());
             BasicsdatumSize one = this.getOne(queryWrapper);
             if (one!=null){
                 throw new OtherException("排序重复");
             }
- /*           QueryWrapper<BasicsdatumSize> queryWrapper=new QueryWrapper<>();
-//            queryWrapper.eq("",addRevampSizeDto.getCoding());
-              queryWrapper.eq("",addRevampSizeDto.getCoding());
-            *//*查询数据是否存在*//*
-            List<BasicsdatumSize> list = baseMapper.selectList(queryWrapper);
-            if(!CollectionUtils.isEmpty(list)){
-                throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
-            }*/
             /*新增*/
             BeanUtils.copyProperties(addRevampSizeDto, basicsdatumSize);
             basicsdatumSize.setCompanyCode(baseController.getUserCompany());
@@ -263,6 +242,24 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
         /*批量删除*/
         baseMapper.deleteBatchIds(ids);
         return true;
+    }
+
+    /**
+     * 获取尺码名
+     *
+     * @param ids
+     * @return
+     */
+    @Override
+    public String getSizeName(String ids) {
+        QueryWrapper queryWrapper =new QueryWrapper();
+        queryWrapper.in("id",StringUtils.convertList(ids));
+        List<BasicsdatumSize> basicsdatumSizeList =baseMapper.selectList(queryWrapper);
+       if(!CollectionUtils.isEmpty(basicsdatumSizeList)){
+           List<String> stringList =  basicsdatumSizeList.stream().map(BasicsdatumSize::getHangtags).collect(Collectors.toList());
+           return   StringUtils.join(stringList, ",");
+       }
+        return "";
     }
 
 
