@@ -11,8 +11,10 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -58,6 +60,7 @@ public class PackBomVersionServiceImpl extends BaseServiceImpl<PackBomVersionMap
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
+    @OperaLog(value = "物料清单版本", operationType = OperationType.INSERT_UPDATE, parentIdSpEl = "#p0.foreignId")
     public PackBomVersionVo saveVersion(PackBomVersionDto dto) {
         //新增
         if (StrUtil.isBlank(dto.getId()) || StrUtil.contains(dto.getId(), StrUtil.DASHED)) {

@@ -28,6 +28,7 @@ public class PackUtils {
      */
     public static final String PACK_TYPE_BIG_GOODS = "packBigGoods";
 
+
     /**
      * 公共条件
      *

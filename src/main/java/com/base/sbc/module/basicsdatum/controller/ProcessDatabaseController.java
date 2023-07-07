@@ -80,7 +80,7 @@ public class ProcessDatabaseController extends BaseController {
      */
     @ApiOperation(value = "根据id删除")
     @DeleteMapping("/delById")
-    @OperaLog(value = "工艺资料库",operationType = OperationType.DELETE)
+    @OperaLog(value = "工艺资料库", operationType = OperationType.DELETE, service = ProcessDatabaseService.class)
     public ApiResult delById(String id) {
         return deleteSuccess(processDatabaseService.removeById(id));
     }
@@ -90,7 +90,7 @@ public class ProcessDatabaseController extends BaseController {
      */
     @ApiOperation(value = "根据id数组批量删除删除")
     @DeleteMapping("/delByIds")
-    @OperaLog(value = "工艺资料库",operationType = OperationType.DELETE)
+    @OperaLog(value = "工艺资料库", operationType = OperationType.DELETE, service = ProcessDatabaseService.class)
     public ApiResult delById(String[] ids) {
         return deleteSuccess(processDatabaseService.removeBatchByIds(Arrays.asList(ids)));
     }

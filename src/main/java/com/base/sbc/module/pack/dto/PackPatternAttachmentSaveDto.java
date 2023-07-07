@@ -22,7 +22,7 @@ public class PackPatternAttachmentSaveDto {
     @NotBlank(message = "文件id不能为空")
     private String fileId;
 
-    @ApiModelProperty(value = "外键id")
+    @ApiModelProperty(value = "主数据id")
     @NotBlank(message = "主数据id为空")
     private String foreignId;
 

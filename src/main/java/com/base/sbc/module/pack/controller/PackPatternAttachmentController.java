@@ -1,7 +1,9 @@
 package com.base.sbc.module.pack.controller;
 
 
+import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -45,6 +47,7 @@ public class PackPatternAttachmentController {
 
     @ApiOperation(value = "保存")
     @PostMapping()
+    @OperaLog(value = "图样附件", operationType = OperationType.INSERT_UPDATE, parentIdSpEl = "#p0.foreignId", service = AttachmentService.class)
     public AttachmentVo save(@Valid @RequestBody PackPatternAttachmentSaveDto dto) {
         return attachmentService.saveByPA(dto);
     }

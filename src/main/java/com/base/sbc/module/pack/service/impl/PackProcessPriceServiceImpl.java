@@ -15,6 +15,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackProcessPriceDto;
@@ -97,7 +98,11 @@ public class PackProcessPriceServiceImpl extends BaseServiceImpl<PackProcessPric
         }
         QueryWrapper<PackProcessPrice> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, commonDto);
-        addAndUpdateAndDelList(dataList, qw);
+        OperaLogEntity log = new OperaLogEntity();
+        log.setName("工序工价");
+        log.setParentId(commonDto.getForeignId());
+
+        addAndUpdateAndDelList(dataList, qw, log);
         return true;
     }
 

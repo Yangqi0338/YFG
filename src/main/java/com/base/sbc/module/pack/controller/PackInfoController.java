@@ -53,6 +53,7 @@ public class PackInfoController {
 
 	@ApiOperation(value = "新建BOM(通过样衣设计)")
 	@GetMapping("/createBySampleDesign")
+
 	public PackInfoListVo createBySampleDesign(@Valid IdDto idDto) {
 		return packInfoService.createBySampleDesign(idDto.getId());
 	}

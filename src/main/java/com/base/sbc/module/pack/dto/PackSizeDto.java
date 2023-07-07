@@ -19,7 +19,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @ApiModel("资料包-尺寸表dto PackSizeDto")
 public class PackSizeDto extends PackSize {
 
-    @ApiModelProperty(value = "外键id")
+    @ApiModelProperty(value = "主数据id")
     @NotBlank(message = "主数据id为空")
     private String foreignId;
 

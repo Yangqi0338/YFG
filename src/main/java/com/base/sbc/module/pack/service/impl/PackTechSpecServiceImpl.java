@@ -7,6 +7,7 @@
 package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -14,6 +15,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.SpElParseUtil;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -123,7 +125,9 @@ public class PackTechSpecServiceImpl extends BaseServiceImpl<PackTechSpecMapper,
     @Override
     public PageInfo<OperaLogEntity> operationLog(PackTechSpecPageDto pageDto) {
         QueryWrapper<OperaLogEntity> qw = new QueryWrapper<>();
-        qw.eq("name", "资料包-工艺说明-" + pageDto.getPackType() + "-" + pageDto.getSpecType() + "-" + pageDto.getForeignId());
+        //"'资料包-'+#search.packType+'-'+#search.foreignId+'-工艺说明-'+#search.specType"
+        String path = SpElParseUtil.generateKeyBySpEL(PackTechSpecService.pathSqEL, MapUtil.of("p0", pageDto));
+        qw.eq("path", path);
         qw.orderByDesc("id");
         Page<OperaLogEntity> objects = PageHelper.startPage(pageDto);
         operaLogService.list(qw);

@@ -16,7 +16,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @Data
 @ApiModel("资料包-工艺说明-图片信息保存dto PackTechSpecSavePicDto")
 public class PackTechSpecSavePicDto {
-    @ApiModelProperty(value = "外键id")
+    @ApiModelProperty(value = "主数据id")
     @NotBlank(message = "主数据id为空")
     private String foreignId;
 

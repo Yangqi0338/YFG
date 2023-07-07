@@ -6,7 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackSizeDto;
@@ -61,6 +63,7 @@ public class PackSizeController {
 
     @PostMapping("/save")
     @ApiOperation(value = "保存单个")
+    @OperaLog(value = "尺寸表", operationType = OperationType.INSERT_UPDATE, parentIdSpEl = "#p0.foreignId", service = PackSizeService.class)
     public PackSizeVo save(@Valid @RequestBody PackSizeDto dto) {
         return packSizeService.saveByDto(dto);
     }

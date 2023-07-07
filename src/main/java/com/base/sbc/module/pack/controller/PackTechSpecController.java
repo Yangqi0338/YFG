@@ -78,14 +78,14 @@ public class PackTechSpecController {
 
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")
     @DeleteMapping()
-    @OperaLog(value = "'资料包-工艺说明-'+#search.packType+'-'+#search.specType+'-'+#search.foreignId", delIdSpEL = "#dto.id", operationType = OperationType.DELETE, service = PackTechSpecService.class, SqEL = true)
+    @OperaLog(value = "工艺说明", delIdSpEL = "#dto.id", operationType = OperationType.DELETE, service = PackTechSpecService.class, pathSpEL = PackTechSpecService.pathSqEL)
     public Boolean removeById(@Valid PackTechSpecSearchDto search, @Valid IdsDto dto) {
         return packTechSpecService.removeByIds(StringUtils.convertList(dto.getId()));
     }
 
     @ApiOperation(value = "保存")
     @PostMapping
-    @OperaLog(value = "'资料包-工艺说明-'+#dto.packType+'-'+#dto.specType+'-'+#dto.foreignId", operationType = OperationType.INSERT_UPDATE, service = PackTechSpecService.class, SqEL = true)
+    @OperaLog(value = "工艺说明", pathSpEL = PackTechSpecService.pathSqEL, parentIdSpEl = "#dto.foreignId", operationType = OperationType.INSERT_UPDATE, service = PackTechSpecService.class)
     public PackTechSpecVo save(@Valid @RequestBody PackTechSpecDto dto) {
         return packTechSpecService.saveByDto(dto);
     }

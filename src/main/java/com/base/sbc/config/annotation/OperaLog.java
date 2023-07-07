@@ -17,16 +17,23 @@ import java.lang.annotation.Target;
 public @interface OperaLog {
     String value() default "";
 
+    /**
+     * value spel
+     *
+     * @return
+     */
+    String valueSpEL() default "";
+
     OperationType operationType() default OperationType.INSERT_UPDATE;
 
     Class<?> service() default BaseService.class;
 
     /**
-     * value是否使用SpEL表达式
+     * 路径的SpEL表达式
      *
      * @return
      */
-    boolean SqEL() default false;
+    String pathSpEL() default "";
 
     /**
      * 删除时id获取方式 通过SpEL
@@ -34,4 +41,18 @@ public @interface OperaLog {
      * @return
      */
     String delIdSpEL() default "";
+
+    /**
+     * 父id sqEl
+     *
+     * @return
+     */
+    String parentIdSpEl() default "";
+
+    /**
+     * 主键key
+     *
+     * @return
+     */
+    String idKey() default "id";
 }

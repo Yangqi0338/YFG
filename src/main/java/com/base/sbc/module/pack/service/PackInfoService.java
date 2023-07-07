@@ -54,6 +54,16 @@ public interface PackInfoService extends BaseService<PackInfo> {
      */
     Map<String, List<PackInfoListVo>> queryListToMapGroupByForeignId(List<String> foreignIds, String packType);
 
+    /**
+     * 记录日志
+     *
+     * @param name      模块名称
+     * @param foreignId 父id
+     * @param id        数据id
+     * @param content   修改内容
+     */
+    void log(String name, String foreignId, String id, String content);
+
 // 自定义方法区 不替换的区域【other_end】
 
 

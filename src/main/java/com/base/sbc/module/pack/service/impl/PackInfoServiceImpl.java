@@ -19,9 +19,13 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
+import com.base.sbc.module.operaLog.service.OperaLogService;
+import com.base.sbc.module.pack.dto.PackBomVersionDto;
 import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
+import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
@@ -57,6 +61,10 @@ public class PackInfoServiceImpl extends BaseServiceImpl<PackInfoMapper, PackInf
     private SampleDesignService sampleDesignService;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private OperaLogService operaLogService;
+    @Autowired
+    private PackBomVersionService packBomVersionService;
 
     @Override
     public PageInfo<SampleDesignPackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -111,6 +119,9 @@ public class PackInfoServiceImpl extends BaseServiceImpl<PackInfoMapper, PackInf
         long count = count(codeQw);
         packInfo.setCode(sampleDesign.getDesignNo() + StrUtil.DASHED + (count + 1));
         save(packInfo);
+        //新建bom版本
+        PackBomVersionDto versionDto = BeanUtil.copyProperties(packInfo, PackBomVersionDto.class, "id");
+        packBomVersionService.saveVersion(versionDto);
         return BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
     }
 
@@ -121,6 +132,20 @@ public class PackInfoServiceImpl extends BaseServiceImpl<PackInfoMapper, PackInf
         qw.eq("pack_type", packType);
         List<PackInfoListVo> list = BeanUtil.copyToList(list(qw), PackInfoListVo.class);
         return Opt.ofNullable(list).map(l -> l.stream().collect(Collectors.groupingBy(PackInfoListVo::getForeignId))).orElse(MapUtil.empty());
+    }
+
+    @Override
+    public void log(String name, String foreignId, String id, String content) {
+        try {
+            OperaLogEntity log = new OperaLogEntity();
+            log.setParentId(foreignId);
+            log.setDocumentId(id);
+            log.setContent(content);
+            log.setName(name);
+            operaLogService.save(log);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 // 自定义方法区 不替换的区域【other_end】

@@ -6,7 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
@@ -62,6 +64,7 @@ public class PackSampleReviewController {
 
 	@ApiOperation(value = "保存/修改", notes = "id为空新增、不为空修改")
 	@PostMapping
+	@OperaLog(value = "样衣评审", operationType = OperationType.INSERT_UPDATE, parentIdSpEl = "#p0.foreignId", service = PackSampleReviewService.class)
 	public PackSampleReviewVo save(@RequestBody PackSampleReviewDto dto) {
 		return packSampleReviewService.saveByDto(dto);
 	}

@@ -32,6 +32,8 @@ public interface PackTechSpecService extends BaseService<PackTechSpec> {
 
 // 自定义方法区 不替换的区域【other_start】
 
+    String pathSqEL = "'资料包-'+#p0.packType+'-'+#p0.foreignId+'-工艺说明-'+#p0.specType";
+
     /**
      * 列表
      *

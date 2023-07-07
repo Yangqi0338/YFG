@@ -1,5 +1,6 @@
 package com.base.sbc.config.utils;
 
+import cn.hutool.core.util.StrUtil;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.DefaultParameterNameDiscoverer;
@@ -9,7 +10,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.lang.reflect.Method;
-import java.util.Objects;
+import java.util.Map;
 
 /**
  * 类描述： SpEL 帮助类
@@ -25,21 +26,46 @@ public class SpElParseUtil {
     private static DefaultParameterNameDiscoverer nameDiscoverer = new DefaultParameterNameDiscoverer();
 
     public static String generateKeyBySpEL(String spelString, JoinPoint joinPoint) {
-        // 通过joinPoint获取被注解方法
-        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
-        Method method = methodSignature.getMethod();
-        // 使用spring的DefaultParameterNameDiscoverer获取方法形参名数组
-        String[] paramNames = nameDiscoverer.getParameterNames(method);
-        // 解析过后的Spring表达式对象
-        Expression expression = parser.parseExpression(spelString);
-        // spring的表达式上下文对象
-        EvaluationContext context = new StandardEvaluationContext();
-        // 通过joinPoint获取被注解方法的形参
-        Object[] args = joinPoint.getArgs();
-        // 给上下文赋值
-        for (int i = 0; i < args.length; i++) {
-            context.setVariable(paramNames[i], args[i]);
+        if (StrUtil.isBlank(spelString)) {
+            return spelString;
         }
-        return Objects.requireNonNull(expression.getValue(context)).toString();
+        try {
+            // 通过joinPoint获取被注解方法
+            MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+            Method method = methodSignature.getMethod();
+            // 使用spring的DefaultParameterNameDiscoverer获取方法形参名数组
+            String[] paramNames = nameDiscoverer.getParameterNames(method);
+            // 解析过后的Spring表达式对象
+            Expression expression = parser.parseExpression(spelString);
+            // spring的表达式上下文对象
+            EvaluationContext context = new StandardEvaluationContext();
+            // 通过joinPoint获取被注解方法的形参
+            Object[] args = joinPoint.getArgs();
+            // 给上下文赋值
+            for (int i = 0; i < args.length; i++) {
+                context.setVariable(paramNames[i], args[i]);
+                context.setVariable("p" + i, args[i]);
+            }
+            return expression.getValue(context).toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public static String generateKeyBySpEL(String spelString, Map<String, Object> variable) {
+
+        try {
+            Expression expression = parser.parseExpression(spelString);
+            // spring的表达式上下文对象
+            EvaluationContext context = new StandardEvaluationContext();
+            variable.entrySet().forEach(item -> {
+                context.setVariable(item.getKey(), item.getValue());
+            });
+            return expression.getValue(context).toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }

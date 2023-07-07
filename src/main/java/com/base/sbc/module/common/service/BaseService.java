@@ -2,6 +2,7 @@ package com.base.sbc.module.common.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 
 import java.util.List;
 
@@ -14,9 +15,20 @@ public interface BaseService<T> extends IService<T> {
 
     /**
      * 批量提交修改，逻辑删除新增修改
-     * @param entityList 实体列表
+     *
+     * @param entityList   实体列表
      * @param queryWrapper 构造器
      * @return 传入实体列表的总长度
      */
     Integer addAndUpdateAndDelList(List<T> entityList, QueryWrapper<T> queryWrapper);
+
+    /**
+     * 批量提交修改，逻辑删除新增修改  并记录日志
+     *
+     * @param entityList   实体列表
+     * @param queryWrapper 构造器
+     * @param log          记录日志
+     * @return 传入实体列表的总长度
+     */
+    Integer addAndUpdateAndDelList(List<T> entityList, QueryWrapper<T> queryWrapper, OperaLogEntity log);
 }

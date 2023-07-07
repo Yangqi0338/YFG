@@ -19,7 +19,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @ApiModel("资料包-物料清单Dto PackBomVersionDto")
 public class PackBomVersionDto extends PackBomVersion {
 
-    @ApiModelProperty(value = "外键id")
+    @ApiModelProperty(value = "主数据id")
     @NotBlank(message = "主数据id为空")
     private String foreignId;
 

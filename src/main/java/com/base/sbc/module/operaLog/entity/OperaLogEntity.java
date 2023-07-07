@@ -18,7 +18,7 @@ public class OperaLogEntity extends BaseDataEntity<String> {
      */
     private String documentId;
     /**
-     * 单据
+     * 单据名称
      */
     private String documentName;
     /**
@@ -33,5 +33,15 @@ public class OperaLogEntity extends BaseDataEntity<String> {
      * 内容变更
      */
     private String content;
+
+    /**
+     * 路径
+     */
+    private String path;
+
+    /**
+     * 父id
+     */
+    private String parentId;
 
 }

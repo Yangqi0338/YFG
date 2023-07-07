@@ -1,7 +1,13 @@
 package com.base.sbc.config.utils;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSONObject;
+import io.swagger.annotations.ApiModelProperty;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -47,6 +53,78 @@ public class CommonUtils {
      */
     public static boolean isInitId(String id) {
         return StringUtils.isBlank(id) || StringUtils.contains(id, StrUtil.DASHED);
+    }
+
+    public static StringBuilder newStr(JSONObject fieldJson, Object newObj) {
+        StringBuilder istr = new StringBuilder();
+        istr.append("{");
+        ArrayList<String> arrayList = new ArrayList<>(fieldJson.keySet());
+        for (int i = 0; i < arrayList.size(); i++) {
+            Object val = BeanUtil.getProperty(newObj, fieldJson.getString(arrayList.get(i)));
+            if (ObjectUtil.isEmpty(val)) {
+                continue;
+            }
+            istr.append(arrayList.get(i)).append(":").append(val);
+            istr.append(";");
+        }
+        istr.append("}");
+        return istr;
+    }
+
+    /**
+     * 获取所有ApiModelProperty注解字段
+     */
+    public static JSONObject getFieldJson(Object model) {
+        Class<?> clazz = model.getClass();
+        return getFieldJson(clazz);
+    }
+
+    public static JSONObject getFieldJson(Class<?> clazz) {
+        Field[] declaredFields = ReflectUtil.getFields(clazz);
+//        Field[] fields = ReflectUtil.getFields(clazz);
+        JSONObject jsonObject = new JSONObject();
+        for (Field field : declaredFields) {
+            field.setAccessible(true);
+            ApiModelProperty annotation = field.getAnnotation(ApiModelProperty.class);
+            if (annotation != null) {
+                String value = annotation.value();
+                value = value.split("[:：(（;]")[0];
+                jsonObject.put(value, field.getName());
+            }
+        }
+        return jsonObject;
+    }
+
+    /**
+     * 比较变更字段
+     *
+     * @param oldObj
+     * @param newObj
+     * @return
+     */
+    public static StringBuilder updateStr(Object oldObj, Object newObj, JSONObject fieldJson) {
+        ArrayList<String> arrayList = new ArrayList<>(fieldJson.keySet());
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("{(id=" + BeanUtil.getProperty(oldObj, "id") + ")");
+        for (int i = 0; i < arrayList.size(); i++) {
+            String name = arrayList.get(i);
+            String key = fieldJson.getString(name);
+            Object oldStr = BeanUtil.getProperty(oldObj, key);
+            Object newStr = BeanUtil.getProperty(newObj, key);
+            if (org.springframework.util.StringUtils.isEmpty(oldStr) && org.springframework.util.StringUtils.isEmpty(newStr)) {
+                continue;
+            }
+            if (newStr.equals(oldStr)) {
+                continue;
+            }
+            stringBuilder.append(name).append(":");
+            stringBuilder.append(oldStr).append("->").append(newStr);
+
+            stringBuilder.append(";");
+        }
+        stringBuilder.append("}");
+        return stringBuilder;
     }
 
 }
