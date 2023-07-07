@@ -58,6 +58,9 @@ public class AttachmentVo {
      * @return
      */
     public String getSizeDesc() {
+        if (size == null) {
+            return "";
+        }
         return DataSizeUtil.format(size.toBigInteger().longValue());
     }
 }

@@ -11,6 +11,12 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
+    <select id="getNameById" resultType="java.lang.String">
+        select model_type
+        from t_basicsdatum_model_type
+        where id = #{id}
+
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

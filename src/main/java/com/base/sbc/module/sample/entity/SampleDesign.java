@@ -23,7 +23,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
  * @email your email
- * @date 创建时间：2023-7-7 14:13:11
+ * @date 创建时间：2023-7-7 15:52:31
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -38,109 +38,71 @@ public class SampleDesign extends BaseDataEntity<String> {
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /**
-     * 产品季节id
-     */
+    /** 产品季节id */
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
-    /**
-     * 波段企划id
-     */
+    /** 波段企划id */
     @ApiModelProperty(value = "波段企划id")
     private String planningBandId;
-    /**
-     * 品类信息id
-     */
+    /** 品类信息id */
     @ApiModelProperty(value = "品类信息id")
     private String planningCategoryId;
-    /**
-     * 坑位信息id
-     */
+    /** 坑位信息id */
     @ApiModelProperty(value = "坑位信息id")
     private String planningCategoryItemId;
-    /**
-     * 品类名称路径:(大类/品类/中类/小类)
-     */
+    /** 品类名称路径:(大类/品类/中类/小类) */
     @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)")
     private String categoryName;
-    /**
-     * 品类id路径:(大类/品类/中类/小类)
-     */
+    /** 品类id路径:(大类/品类/中类/小类) */
     @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)")
     private String categoryIds;
-    /**
-     * 大类id
-     */
+    /** 大类id */
     @ApiModelProperty(value = "大类id")
     private String prodCategory1st;
-    /**
-     * 品类id
-     */
+    /** 品类id */
     @ApiModelProperty(value = "品类id")
     private String prodCategory;
-    /**
-     * 中类id
-     */
+    /** 中类id */
     @ApiModelProperty(value = "中类id")
     private String prodCategory2nd;
-    /**
-     * 小类
-     */
+    /** 小类 */
     @ApiModelProperty(value = "小类")
     private String prodCategory3rd;
-    /**
-     * 大货款号
-     */
+    /** 大货款号 */
     @ApiModelProperty(value = "大货款号")
     private String styleNo;
-    /**
-     * 设计款号
-     */
+    /** 设计款号 */
     @ApiModelProperty(value = "设计款号")
     private String designNo;
-    /**
-     * 旧设计款号
-     */
+    /** 旧设计款号 */
     @ApiModelProperty(value = "旧设计款号")
     private String hisDesignNo;
-    /**
-     * 款式名称
-     */
+    /** 款式名称 */
     @ApiModelProperty(value = "款式名称")
     private String styleName;
-    /**
-     * 款式类型
-     */
+    /** 款式类型 */
     @ApiModelProperty(value = "款式类型")
     private String styleType;
-    /**
-     * 款式图id(主图)
-     */
+    /** 款式图id(主图) */
     @ApiModelProperty(value = "款式图id(主图)")
     private String stylePic;
-    /**
-     * 品牌
-     */
+    /** 品牌 */
     @ApiModelProperty(value = "品牌")
     private String brand;
-    /**
-     * 年份
-     */
+    /** 年份 */
     @ApiModelProperty(value = "年份")
     private String year;
-    /**
-     * 季节
-     */
+    /** 季节 */
     @ApiModelProperty(value = "季节")
     private String season;
     /** 月份 */
-    @ApiModelProperty(value = "月份"  )
+    @ApiModelProperty(value = "月份")
     private String month;
     /** 性别 */
-    @ApiModelProperty(value = "性别"  )
+    @ApiModelProperty(value = "性别")
     private String sex;
     /** 波段(编码) */
-    @ApiModelProperty(value = "波段(编码)"  )
+    @ApiModelProperty(value = "波段(编码)")
     private String bandCode;
     /** 生产模式 */
     @ApiModelProperty(value = "生产模式"  )
@@ -173,15 +135,21 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "主材料"  )
     private String mainMaterials;
     /** 研发材料 */
-    @ApiModelProperty(value = "研发材料"  )
+    @ApiModelProperty(value = "研发材料")
     private String rdMat;
-    /** 廓形 */
-    @ApiModelProperty(value = "廓形"  )
+    /**
+     * 廓形
+     */
+    @ApiModelProperty(value = "廓形")
     private String silhouette;
-    /** 打板难度 */
-    @ApiModelProperty(value = "打板难度"  )
+    /**
+     * 打板难度
+     */
+    @ApiModelProperty(value = "打板难度")
     private String patDiff;
-    /** 尺码 */
+    /**
+     * 尺码
+     */
     @ApiModelProperty(value = "尺码")
     private String productSizes;
     /**
@@ -203,7 +171,7 @@ public class SampleDesign extends BaseDataEntity<String> {
      * 款式风格
      */
     @ApiModelProperty(value = "款式风格")
-    private String styleMode;
+    private String styleFlavour;
     /**
      * 款式定位
      */
@@ -327,8 +295,10 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成)")
     private String status;
-    /** 审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1) */
-    @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)"  )
+    /**
+     * 审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)
+     */
+    @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)")
     private String confirmStatus;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

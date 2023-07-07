@@ -18,72 +18,81 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/** 
+/**
  * 类描述：基础资料-号型类型 service类
- * @address com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService
+ *
  * @author mengfanjiang
+ * @version 1.0
+ * @address com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService
  * @email 2915350015@qq.com
  * @date 创建时间：2023-5-20 9:31:14
- * @version 1.0  
  */
 public interface BasicsdatumModelTypeService extends BaseService<BasicsdatumModelType> {
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
-        /**
-        * 方法描述：分页查询部件
-        *
-        * @param queryDto 查询条件
-        * @return PageInfo<BasicsdatumComponentVo>
-         */
-        PageInfo<BasicsdatumModelTypeVo> getBasicsdatumModelTypeList(QueryDto queryDto);
+    /**
+     * 方法描述：分页查询部件
+     *
+     * @param queryDto 查询条件
+     * @return PageInfo<BasicsdatumComponentVo>
+     */
+    PageInfo<BasicsdatumModelTypeVo> getBasicsdatumModelTypeList(QueryDto queryDto);
 
 
-        /**
-        * 基础资料-号型类型导入
-        * @param file
-        * @return
-        */
-        Boolean basicsdatumModelTypeImportExcel(MultipartFile file) throws IOException, Exception;
+    /**
+     * 基础资料-号型类型导入
+     *
+     * @param file
+     * @return
+     */
+    Boolean basicsdatumModelTypeImportExcel(MultipartFile file) throws IOException, Exception;
 
-        /**
-        * 基础资料-号型类型导出
-        * @param response
-        * @return
-        */
-        void basicsdatumModelTypeDeriveExcel(HttpServletResponse response) throws Exception;
-
-
-        /**
-        * 方法描述：新增修改基础资料-号型类型
-        *
-        * @param addRevampBasicsdatumModelTypeDto 部件Dto类
-        * @return boolean
-        */
-        Boolean addRevampBasicsdatumModelType(AddRevampBasicsdatumModelTypeDto addRevampBasicsdatumModelTypeDto);
+    /**
+     * 基础资料-号型类型导出
+     *
+     * @param response
+     * @return
+     */
+    void basicsdatumModelTypeDeriveExcel(HttpServletResponse response) throws Exception;
 
 
-
-        /**
-        * 方法描述：删除基础资料-号型类型
-        *
-        * @param id （多个用，）
-        * @return boolean
-        */
-        Boolean delBasicsdatumModelType(String id);
-
+    /**
+     * 方法描述：新增修改基础资料-号型类型
+     *
+     * @param addRevampBasicsdatumModelTypeDto 部件Dto类
+     * @return boolean
+     */
+    Boolean addRevampBasicsdatumModelType(AddRevampBasicsdatumModelTypeDto addRevampBasicsdatumModelTypeDto);
 
 
-        /**
-        * 方法描述：启用停止基础资料-号型类型
-        *
-        * @param startStopDto 启用停止Dto类
-        * @return boolean
-        */
-        Boolean startStopBasicsdatumModelType( StartStopDto startStopDto);
+    /**
+     * 方法描述：删除基础资料-号型类型
+     *
+     * @param id （多个用，）
+     * @return boolean
+     */
+    Boolean delBasicsdatumModelType(String id);
+
+
+    /**
+     * 方法描述：启用停止基础资料-号型类型
+     *
+     * @param startStopDto 启用停止Dto类
+     * @return boolean
+     */
+    Boolean startStopBasicsdatumModelType(StartStopDto startStopDto);
+
+    /**
+     * 通过id获取名称
+     *
+     * @param id
+     * @return
+     */
+    String getNameById(String id);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
-	
+
 }

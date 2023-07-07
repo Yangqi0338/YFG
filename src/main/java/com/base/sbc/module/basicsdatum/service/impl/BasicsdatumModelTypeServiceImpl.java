@@ -10,6 +10,7 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -240,6 +241,14 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         updateWrapper.set("status", startStopDto.getStatus());
         /*修改状态*/
         return baseMapper.update(null, updateWrapper) > 0;
+    }
+
+    @Override
+    public String getNameById(String id) {
+        if (StrUtil.isBlank(id)) {
+            return null;
+        }
+        return getBaseMapper().getNameById(id);
     }
 
     /** 自定义方法区 不替换的区域【other_end】 **/

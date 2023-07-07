@@ -47,7 +47,10 @@ public class SampleDesignVo extends SampleDesign {
 
     @UserAvatar("designerId")
     private String designerAvatar;
-
+    @ApiModelProperty(value = "波段名称")
+    private String bandName;
+    @ApiModelProperty(value = "号型类型名称")
+    private String sizeRangeName;
 
     @ApiModelProperty(value = "维度信息")
     private List<FieldManagementVo> dimensionLabels;

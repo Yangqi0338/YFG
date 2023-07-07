@@ -22,6 +22,7 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.band.service.BandService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -99,7 +100,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
     @Autowired
     AmcFeignService amcFeignService;
     @Autowired
-    private PlanningDimensionalityService planningDimensionalityService;
+    private BasicsdatumModelTypeService basicsdatumModelTypeService;
     @Autowired
     private FieldManagementService fieldManagementService;
     @Autowired
@@ -383,7 +384,10 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         List<PlanningCategoryItemMaterial> list = planningCategoryItemMaterialService.list(mqw);
         List<MaterialVo> materialList = BeanUtil.copyToList(list, MaterialVo.class);
         sampleVo.setMaterialList(materialList);
-
+        //号型类型
+        sampleVo.setSizeRangeName(basicsdatumModelTypeService.getNameById(sampleVo.getSizeRange()));
+        //波段
+        sampleVo.setBandName(bandService.getNameByCode(sampleVo.getBandCode()));
         // 款式图片
         List<AttachmentVo> stylePicList = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
         sampleVo.setStylePicList(stylePicList);
