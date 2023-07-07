@@ -7,7 +7,7 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackPatternAttachmentSaveDto;
-import com.base.sbc.module.pack.dto.PackPatternAttachmentUpdateRemarksDto;
+import com.base.sbc.module.pack.dto.PackUpdateRemarksDto;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,7 +51,7 @@ public class PackPatternAttachmentController {
 
     @ApiOperation(value = "修改备注")
     @PostMapping("/updateRemarks")
-    public boolean updateRemarks(@Valid @RequestBody PackPatternAttachmentUpdateRemarksDto dto) {
+    public boolean updateRemarks(@Valid @RequestBody PackUpdateRemarksDto dto) {
         return attachmentService.updateRemarks(dto.getId(), dto.getRemarks());
     }
 

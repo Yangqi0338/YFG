@@ -6,7 +6,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
- * 类描述：资料包-图样附件修改备注Dto
+ * 类描述：资料包-修改备注Dto
  *
  * @author lixianglin
  * @version 1.0
@@ -15,8 +15,8 @@ import org.hibernate.validator.constraints.NotBlank;
  * @date 创建时间：2023-07-01 10:33
  */
 @Data
-@ApiModel("资料包-图样附件修改备注Dto PackPatternAttachmentUpdateRemarksDto")
-public class PackPatternAttachmentUpdateRemarksDto {
+@ApiModel("资料包-图样附件修改备注Dto PackUpdateRemarksDto")
+public class PackUpdateRemarksDto {
 
     @ApiModelProperty(value = "id")
     @NotBlank(message = "id不能为空")

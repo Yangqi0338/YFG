@@ -58,4 +58,9 @@ public class SampleDesignVo extends SampleDesign {
     private List<AttachmentVo> stylePicList;
     @ApiModelProperty(value = "关联的素材库")
     private List<MaterialVo> materialList;
+
+    @ApiModelProperty(value = "款式")
+    public String getStyle() {
+        return getDesignNo() + getStyleName();
+    }
 }

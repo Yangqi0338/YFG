@@ -19,11 +19,11 @@ import java.util.Date;
 /**
  * 类描述：样衣设计 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-29 10:12:51
+ * @email your email
+ * @date 创建时间：2023-7-7 14:13:11
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -31,8 +31,8 @@ import java.util.Date;
 @ApiModel("样衣设计 SampleDesign")
 public class SampleDesign extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private static final long serialVersionUID = 1L;
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
@@ -89,9 +89,9 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "小类")
     private String prodCategory3rd;
     /**
-     * 款式(大货款号)
+     * 大货款号
      */
-    @ApiModelProperty(value = "款式(大货款号)")
+    @ApiModelProperty(value = "大货款号")
     private String styleNo;
     /**
      * 设计款号
@@ -118,14 +118,20 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "款式图id(主图)")
     private String stylePic;
-    /** 品牌 */
-    @ApiModelProperty(value = "品牌"  )
+    /**
+     * 品牌
+     */
+    @ApiModelProperty(value = "品牌")
     private String brand;
-    /** 年份 */
-    @ApiModelProperty(value = "年份"  )
+    /**
+     * 年份
+     */
+    @ApiModelProperty(value = "年份")
     private String year;
-    /** 季节 */
-    @ApiModelProperty(value = "季节"  )
+    /**
+     * 季节
+     */
+    @ApiModelProperty(value = "季节")
     private String season;
     /** 月份 */
     @ApiModelProperty(value = "月份"  )
@@ -176,31 +182,47 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "打板难度"  )
     private String patDiff;
     /** 尺码 */
-    @ApiModelProperty(value = "尺码"  )
+    @ApiModelProperty(value = "尺码")
     private String productSizes;
-    /** 设计师名称 */
-    @ApiModelProperty(value = "设计师名称"  )
+    /**
+     * 设计师名称
+     */
+    @ApiModelProperty(value = "设计师名称")
     private String designer;
-    /** 设计师id */
-    @ApiModelProperty(value = "设计师id"  )
+    /**
+     * 设计师id
+     */
+    @ApiModelProperty(value = "设计师id")
     private String designerId;
-    /** 价格带 */
-    @ApiModelProperty(value = "价格带"  )
+    /**
+     * 价格带
+     */
+    @ApiModelProperty(value = "价格带")
     private String price;
-    /** 款式风格 */
-    @ApiModelProperty(value = "款式风格"  )
-    private String style;
-    /** 款式定位 */
-    @ApiModelProperty(value = "款式定位"  )
+    /**
+     * 款式风格
+     */
+    @ApiModelProperty(value = "款式风格")
+    private String styleMode;
+    /**
+     * 款式定位
+     */
+    @ApiModelProperty(value = "款式定位")
     private String positioning;
-    /** 关联的素材库数量 */
-    @ApiModelProperty(value = "关联的素材库数量"  )
+    /**
+     * 关联的素材库数量
+     */
+    @ApiModelProperty(value = "关联的素材库数量")
     private BigDecimal materialCount;
-    /** 任务等级:普通,紧急,非常紧急 */
-    @ApiModelProperty(value = "任务等级:普通,紧急,非常紧急"  )
+    /**
+     * 任务等级:普通,紧急,非常紧急
+     */
+    @ApiModelProperty(value = "任务等级:普通,紧急,非常紧急")
     private String taskLevel;
-    /** 开始时间 */
-    @ApiModelProperty(value = "开始时间"  )
+    /**
+     * 开始时间
+     */
+    @ApiModelProperty(value = "开始时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date startTime;
     /**
@@ -305,9 +327,7 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成)")
     private String status;
-    /**
-     * 审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)
-     */
+    /** 审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1) */
     @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)"  )
     private String confirmStatus;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
