@@ -13,7 +13,6 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackSampleReviewDto;
 import com.base.sbc.module.pack.entity.PackSampleReview;
@@ -37,7 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @date 创建时间：2023-7-5 11:09:05
  */
 @Service
-public class PackSampleReviewServiceImpl extends BaseServiceImpl<PackSampleReviewMapper, PackSampleReview> implements PackSampleReviewService {
+public class PackSampleReviewServiceImpl extends PackBaseServiceImpl<PackSampleReviewMapper, PackSampleReview> implements PackSampleReviewService {
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -78,6 +77,11 @@ public class PackSampleReviewServiceImpl extends BaseServiceImpl<PackSampleRevie
             updateById(dbData);
         }
         return getDetail(dto.getId());
+    }
+
+    @Override
+    String getModeName() {
+        return "样衣评审";
     }
 
 

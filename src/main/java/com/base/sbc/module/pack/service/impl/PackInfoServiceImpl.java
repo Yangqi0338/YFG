@@ -18,10 +18,10 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.AttachmentService;
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
 import com.base.sbc.module.pack.dto.PackBomVersionDto;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-7-6 17:13:01
  */
 @Service
-public class PackInfoServiceImpl extends BaseServiceImpl<PackInfoMapper, PackInfo> implements PackInfoService {
+public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, PackInfo> implements PackInfoService {
 
 
 // 自定义方法区 不替换的区域【other_start】
@@ -135,18 +135,21 @@ public class PackInfoServiceImpl extends BaseServiceImpl<PackInfoMapper, PackInf
     }
 
     @Override
-    public void log(String name, String foreignId, String id, String content) {
-        try {
-            OperaLogEntity log = new OperaLogEntity();
-            log.setParentId(foreignId);
-            log.setDocumentId(id);
-            log.setContent(content);
-            log.setName(name);
-            operaLogService.save(log);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public PageInfo<OperaLogEntity> operationLog(PackCommonPageSearchDto pageDto) {
+        QueryWrapper<OperaLogEntity> qw = new QueryWrapper<>();
+        qw.eq("parent_id", pageDto.getForeignId());
+        qw.orderByDesc("id");
+        Page<OperaLogEntity> objects = PageHelper.startPage(pageDto);
+        operaLogService.list(qw);
+        return objects.toPageInfo();
     }
+
+    @Override
+    String getModeName() {
+        return "资料包明细";
+    }
+
+
 
 // 自定义方法区 不替换的区域【other_end】
 

@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
-import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
 
@@ -22,7 +21,7 @@ import java.util.Map;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-7-1 16:37:24
  */
-public interface PackBomSizeService extends BaseService<PackBomSize> {
+public interface PackBomSizeService extends PackBaseService<PackBomSize> {
 
 // 自定义方法区 不替换的区域【other_start】
 

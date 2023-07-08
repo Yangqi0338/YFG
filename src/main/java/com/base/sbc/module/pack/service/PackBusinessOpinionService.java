@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
-import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.dto.PackBusinessOpinionDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.entity.PackBusinessOpinion;
@@ -22,7 +21,7 @@ import com.github.pagehelper.PageInfo;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-7-5 11:09:08
  */
-public interface PackBusinessOpinionService extends BaseService<PackBusinessOpinion> {
+public interface PackBusinessOpinionService extends PackBaseService<PackBusinessOpinion> {
 
 // 自定义方法区 不替换的区域【other_start】
 

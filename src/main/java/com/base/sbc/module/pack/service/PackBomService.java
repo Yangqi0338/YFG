@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
-import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.dto.PackBomDto;
 import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
 import com.base.sbc.module.pack.entity.PackBom;
@@ -24,7 +23,7 @@ import java.util.List;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-7-1 16:37:22
  */
-public interface PackBomService extends BaseService<PackBom> {
+public interface PackBomService extends PackBaseService<PackBom> {
 
 // 自定义方法区 不替换的区域【other_start】
 

@@ -6,7 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
-import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
@@ -25,7 +26,7 @@ import java.util.Map;
  * @email your email
  * @date 创建时间：2023-7-6 17:13:01
  */
-public interface PackInfoService extends BaseService<PackInfo> {
+public interface PackInfoService extends PackBaseService<PackInfo> {
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -55,14 +56,12 @@ public interface PackInfoService extends BaseService<PackInfo> {
     Map<String, List<PackInfoListVo>> queryListToMapGroupByForeignId(List<String> foreignIds, String packType);
 
     /**
-     * 记录日志
-     *
-     * @param name      模块名称
-     * @param foreignId 父id
-     * @param id        数据id
-     * @param content   修改内容
+     * 修改日志
+     * @param pageDto
+     * @return
      */
-    void log(String name, String foreignId, String id, String content);
+    PageInfo<OperaLogEntity> operationLog(PackCommonPageSearchDto pageDto);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

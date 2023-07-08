@@ -10,6 +10,8 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
@@ -62,6 +64,12 @@ public class PackInfoController {
 	@DeleteMapping()
 	public Boolean removeById(@Valid IdsDto ids) {
 		return packInfoService.removeByIds(StringUtils.convertList(ids.getId()));
+	}
+
+	@ApiOperation(value = "变更日志")
+	@GetMapping("/operationLog")
+	public PageInfo<OperaLogEntity> operationLog(@Valid PackCommonPageSearchDto pageDto) {
+		return packInfoService.operationLog(pageDto);
 	}
 }
 

@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
-import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackSampleReviewDto;
 import com.base.sbc.module.pack.entity.PackSampleReview;
@@ -22,7 +21,7 @@ import com.github.pagehelper.PageInfo;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-7-5 11:09:05
  */
-public interface PackSampleReviewService extends BaseService<PackSampleReview> {
+public interface PackSampleReviewService extends PackBaseService<PackSampleReview> {
 
 // 自定义方法区 不替换的区域【other_start】
 

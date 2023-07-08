@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
-import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.dto.PackBomVersionDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.entity.PackBomVersion;
@@ -22,7 +21,7 @@ import com.github.pagehelper.PageInfo;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-7-1 16:37:20
  */
-public interface PackBomVersionService extends BaseService<PackBomVersion> {
+public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -71,7 +70,7 @@ public interface PackBomVersionService extends BaseService<PackBomVersion> {
     /**
      * 转大货
      *
-     * @param idDto
+     * @param id
      * @return
      */
     boolean toBigGoods(String id);

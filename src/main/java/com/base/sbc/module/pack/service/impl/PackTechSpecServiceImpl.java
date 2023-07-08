@@ -17,7 +17,6 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.SpElParseUtil;
 import com.base.sbc.module.common.service.AttachmentService;
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
@@ -50,7 +49,7 @@ import java.util.List;
  * @date 创建时间：2023-7-5 15:41:45
  */
 @Service
-public class PackTechSpecServiceImpl extends BaseServiceImpl<PackTechSpecMapper, PackTechSpec> implements PackTechSpecService {
+public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMapper, PackTechSpec> implements PackTechSpecService {
 
     @Resource
     private AttachmentService attachmentService;
@@ -132,6 +131,11 @@ public class PackTechSpecServiceImpl extends BaseServiceImpl<PackTechSpecMapper,
         Page<OperaLogEntity> objects = PageHelper.startPage(pageDto);
         operaLogService.list(qw);
         return objects.toPageInfo();
+    }
+
+    @Override
+    String getModeName() {
+        return "工艺说明";
     }
 
 // 自定义方法区 不替换的区域【other_end】

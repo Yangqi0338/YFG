@@ -14,7 +14,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackSizeDto;
@@ -41,7 +40,7 @@ import java.util.List;
  * @date 创建时间：2023-7-1 10:14:51
  */
 @Service
-public class PackSizeServiceImpl extends BaseServiceImpl<PackSizeMapper, PackSize> implements PackSizeService {
+public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, PackSize> implements PackSizeService {
 
 
 // 自定义方法区 不替换的区域【other_start】
@@ -103,6 +102,11 @@ public class PackSizeServiceImpl extends BaseServiceImpl<PackSizeMapper, PackSiz
         PackUtils.commonQw(qw, commonDto);
         addAndUpdateAndDelList(packSizes, qw);
         return true;
+    }
+
+    @Override
+    String getModeName() {
+        return "尺寸表";
     }
 
 // 自定义方法区 不替换的区域【other_end】

@@ -9,7 +9,6 @@ package com.base.sbc.module.pack.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.mapper.PackBomSizeMapper;
 import com.base.sbc.module.pack.service.PackBomSizeService;
@@ -32,7 +31,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-7-1 16:37:24
  */
 @Service
-public class PackBomSizeServiceImpl extends BaseServiceImpl<PackBomSizeMapper, PackBomSize> implements PackBomSizeService {
+public class PackBomSizeServiceImpl extends PackBaseServiceImpl<PackBomSizeMapper, PackBomSize> implements PackBomSizeService {
 
     // 自定义方法区 不替换的区域【other_start】
 
@@ -54,6 +53,11 @@ public class PackBomSizeServiceImpl extends BaseServiceImpl<PackBomSizeMapper, P
         pbsQw.in("bom_id", bomIds);
         List<PackBomSize> packBomSizeList = list(pbsQw);
         return BeanUtil.copyToList(packBomSizeList, PackBomSizeVo.class);
+    }
+
+    @Override
+    String getModeName() {
+        return "物料配码";
     }
 
 

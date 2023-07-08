@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
-import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackSizeDto;
@@ -25,7 +24,7 @@ import java.util.List;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-7-1 10:14:51
  */
-public interface PackSizeService extends BaseService<PackSize> {
+public interface PackSizeService extends PackBaseService<PackSize> {
 
 // 自定义方法区 不替换的区域【other_start】
 

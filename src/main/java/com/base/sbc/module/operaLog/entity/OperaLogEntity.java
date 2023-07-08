@@ -13,6 +13,7 @@ import lombok.Data;
 @Data
 @TableName("t_opera_log")
 public class OperaLogEntity extends BaseDataEntity<String> {
+
     /**
      * 单据id
      */

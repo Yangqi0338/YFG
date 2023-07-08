@@ -16,7 +16,6 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.dto.PackBomDto;
 import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
 import com.base.sbc.module.pack.dto.PackBomSizeDto;
@@ -53,7 +52,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-7-1 16:37:22
  */
 @Service
-public class PackBomServiceImpl extends BaseServiceImpl<PackBomMapper, PackBom> implements PackBomService {
+public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackBom> implements PackBomService {
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -152,6 +151,9 @@ public class PackBomServiceImpl extends BaseServiceImpl<PackBomMapper, PackBom> 
                 for (PackBomSize packBomSize : packBomSizeList) {
                     packBomSize.setId(null);
                     packBomSize.setBomId(packBom.getId());
+                    packBomSize.setPackType(version.getPackType());
+                    packBomSize.setForeignId(version.getForeignId());
+                    packBomSize.setBomVersionId(version.getId());
                 }
                 bomSizeList.addAll(packBomSizeList);
             }
@@ -183,6 +185,11 @@ public class PackBomServiceImpl extends BaseServiceImpl<PackBomMapper, PackBom> 
         uw.set("unusable_flag", unusableFlag);
         setUpdateInfo(uw);
         return update(uw);
+    }
+
+    @Override
+    String getModeName() {
+        return "物料清单";
     }
 
 

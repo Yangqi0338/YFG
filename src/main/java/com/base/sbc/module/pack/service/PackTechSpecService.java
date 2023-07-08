@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
-import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.PackTechSpecDto;
@@ -28,7 +27,7 @@ import java.util.List;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-7-5 15:41:45
  */
-public interface PackTechSpecService extends BaseService<PackTechSpec> {
+public interface PackTechSpecService extends PackBaseService<PackTechSpec> {
 
 // 自定义方法区 不替换的区域【other_start】
 

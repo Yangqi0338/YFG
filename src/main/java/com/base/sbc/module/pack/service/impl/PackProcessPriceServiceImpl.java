@@ -14,8 +14,6 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackProcessPriceDto;
@@ -42,7 +40,7 @@ import java.util.List;
  * @date 创建时间：2023-7-5 14:12:07
  */
 @Service
-public class PackProcessPriceServiceImpl extends BaseServiceImpl<PackProcessPriceMapper, PackProcessPrice> implements PackProcessPriceService {
+public class PackProcessPriceServiceImpl extends PackBaseServiceImpl<PackProcessPriceMapper, PackProcessPrice> implements PackProcessPriceService {
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -98,12 +96,13 @@ public class PackProcessPriceServiceImpl extends BaseServiceImpl<PackProcessPric
         }
         QueryWrapper<PackProcessPrice> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, commonDto);
-        OperaLogEntity log = new OperaLogEntity();
-        log.setName("工序工价");
-        log.setParentId(commonDto.getForeignId());
-
-        addAndUpdateAndDelList(dataList, qw, log);
+        addAndUpdateAndDelList(dataList, qw);
         return true;
+    }
+
+    @Override
+    String getModeName() {
+        return "工序工价";
     }
 
 // 自定义方法区 不替换的区域【other_end】

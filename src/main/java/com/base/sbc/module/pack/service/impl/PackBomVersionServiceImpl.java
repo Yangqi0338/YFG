@@ -17,7 +17,6 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.dto.PackBomVersionDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.entity.PackBomVersion;
@@ -41,7 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @date 创建时间：2023-7-1 16:37:20
  */
 @Service
-public class PackBomVersionServiceImpl extends BaseServiceImpl<PackBomVersionMapper, PackBomVersion> implements PackBomVersionService {
+public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersionMapper, PackBomVersion> implements PackBomVersionService {
 
 
 // 自定义方法区 不替换的区域【other_start】
@@ -107,11 +106,13 @@ public class PackBomVersionServiceImpl extends BaseServiceImpl<PackBomVersionMap
             }
             version.setStatus(BaseGlobal.YES);
             updateById(version);
+            log(id,"停用");
         }
         //启用操作
         else {
             // 1.将当前启用的停用 2.启用当前的
             enable(version);
+            log(id,"启用");
         }
         return true;
     }
@@ -136,6 +137,7 @@ public class PackBomVersionServiceImpl extends BaseServiceImpl<PackBomVersionMap
         uw.in("id", StrUtil.split(id, CharUtil.COMMA));
         uw.set("lock_flag", lockFlag);
         setUpdateInfo(uw);
+        log(id,StrUtil.equals(lockFlag,BaseGlobal.YES)?"版本锁定":"版本解锁");
         return update(uw);
     }
 
@@ -145,6 +147,11 @@ public class PackBomVersionServiceImpl extends BaseServiceImpl<PackBomVersionMap
 
 
         return false;
+    }
+
+    @Override
+    String getModeName() {
+        return "物料清单版本";
     }
 
 // 自定义方法区 不替换的区域【other_end】
