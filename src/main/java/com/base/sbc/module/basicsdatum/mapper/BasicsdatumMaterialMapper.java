@@ -6,17 +6,19 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.mapper;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo;
+import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 /** 
  * 类描述：基础资料-物料档案 dao类
  * @address com.base.sbc.module.basicsdatum.dao.BasicsdatumMaterialDao
@@ -30,16 +32,18 @@ public interface BasicsdatumMaterialMapper extends BaseMapper<BasicsdatumMateria
 // 自定义方法区 不替换的区域【other_start】
 
 	List<BasicsdatumMaterialColorPageVo> getBasicsdatumMaterialColorList(@Param("companyCode") String companyCode,
-			@Param("materialCode") String materialCode);
+																		 @Param("materialCode") String materialCode);
 
 	List<BasicsdatumMaterialWidthPageVo> getBasicsdatumMaterialWidthList(@Param("companyCode") String companyCode,
-			@Param("materialCode") String materialCode);
+																		 @Param("materialCode") String materialCode);
 
 	List<BasicsdatumMaterialColorSelectVo> getBasicsdatumMaterialColorSelect(@Param("companyCode") String companyCode,
-			@Param("materialCode") String materialCode);
+																			 @Param("materialCode") String materialCode);
 
 	List<BasicsdatumMaterialWidthSelectVo> getBasicsdatumMaterialWidthSelect(@Param("companyCode") String companyCode,
-			@Param("materialCode") String materialCode);
+																			 @Param("materialCode") String materialCode);
+
+	List<BomSelMaterialVo> getBomSelMaterialList(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 // 自定义方法区 不替换的区域【other_end】
 }
 

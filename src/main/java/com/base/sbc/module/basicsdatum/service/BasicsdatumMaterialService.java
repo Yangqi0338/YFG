@@ -6,36 +6,25 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
 
+import com.base.sbc.module.basicsdatum.dto.*;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.vo.*;
+import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+import com.github.pagehelper.PageInfo;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
-
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
-import com.base.sbc.module.common.service.BaseService;
-import com.github.pagehelper.PageInfo;
-
-/** 
+/**
  * 类描述：基础资料-物料档案 service类
- * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService
+ *
  * @author shenzhixiong
+ * @version 1.0
+ * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService
  * @email 731139982@qq.com
  * @date 创建时间：2023-6-26 17:57:17
- * @version 1.0  
  */
 public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMaterial> {
 
@@ -76,6 +65,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	Map<String, Object> getBasicsdatumMaterialPriceColorWidthSelect(String materialCode);
 
 	void exportBasicsdatumMaterial(HttpServletResponse response, BasicsdatumMaterialQueryDto dto) throws IOException;
-	
+
+	PageInfo<BomSelMaterialVo> getBomSelMaterialList(BasicsdatumMaterialQueryDto dto);
 }
 
