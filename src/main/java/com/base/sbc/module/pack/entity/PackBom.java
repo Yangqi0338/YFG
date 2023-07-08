@@ -144,7 +144,7 @@ public class PackBom extends BaseDataEntity<String> {
     /**
      * 状态(0正常,1停用)
      */
-    @ApiModelProperty(value = "状态(0正常,1停用)")
+    @ApiModelProperty(value = "状态(0停用,1启用)")
     private String status;
     /**
      * 发送状态(0未发送,1已发送)

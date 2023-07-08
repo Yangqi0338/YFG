@@ -95,16 +95,16 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         String status = version.getStatus();
 
         //停用操作
-        if (StrUtil.equals(status, BaseGlobal.NO)) {
+        if (StrUtil.equals(status, BaseGlobal.YES)) {
             QueryWrapper<PackBomVersion> qw = new QueryWrapper<>();
             PackUtils.commonQw(qw, version);
             qw.ne("id", id);
-            qw.eq("status", BaseGlobal.NO);
+            qw.eq("status", BaseGlobal.YES);
             long count = count(qw);
             if (count == 0) {
                 throw new OtherException("必须有一个是启用的");
             }
-            version.setStatus(BaseGlobal.YES);
+            version.setStatus(BaseGlobal.NO);
             updateById(version);
             log(id,"停用");
         }
@@ -122,11 +122,11 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
     public boolean enable(PackBomVersion version) {
         UpdateWrapper<PackBomVersion> qw = new UpdateWrapper<>();
         PackUtils.commonQw(qw, version);
-        qw.eq("status", BaseGlobal.NO);
-        qw.set("status", BaseGlobal.YES);
+        qw.eq("status", BaseGlobal.YES);
+        qw.set("status", BaseGlobal.NO);
         setUpdateInfo(qw);
         update(qw);
-        version.setStatus(BaseGlobal.NO);
+        version.setStatus(BaseGlobal.YES);
         return updateById(version);
     }
 
