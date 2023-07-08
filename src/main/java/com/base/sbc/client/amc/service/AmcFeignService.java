@@ -138,10 +138,10 @@ public class AmcFeignService {
 
     }
 
-    public List<UserCompany> getUsersBySeasonId(String planningSeasonId, String dpj) {
+    public List<UserCompany> getUsersBySeasonId(String planningSeasonId, String dpj, String post) {
         List<UserCompany> userList = null;
         try {
-            String result = amcService.getUsersBySeasonId(planningSeasonId, dpj);
+            String result = amcService.getUsersBySeasonId(planningSeasonId, dpj, post);
             JSONObject jsonObject = JSON.parseObject(result);
             userList = jsonObject.getJSONArray("data").toJavaList(UserCompany.class);
         } catch (Exception e) {
@@ -152,7 +152,7 @@ public class AmcFeignService {
     }
 
     public List<UserCompany> getTeamUserListByPost(String planningSeasonId, String post) {
-        List<UserCompany> userList = getUsersBySeasonId(planningSeasonId, BaseGlobal.YES);
+        List<UserCompany> userList = getUsersBySeasonId(planningSeasonId, BaseGlobal.YES, post);
         if (CollUtil.isNotEmpty(userList) && StrUtil.isNotBlank(post)) {
             List<UserCompany> collect = userList.stream().filter(user -> {
                 CompanyPost one = CollUtil.findOne(user.getPostList(), a -> StrUtil.equalsAny(post, a.getName(), a.getCode()));

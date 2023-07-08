@@ -152,6 +152,9 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             }
         } else {
             //追加
+            for (PackBom packBom : packBoms) {
+                packBom.setId(null);
+            }
             this.saveBatch(packBoms);
         }
 

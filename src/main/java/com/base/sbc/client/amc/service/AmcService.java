@@ -2,13 +2,11 @@ package com.base.sbc.client.amc.service;
 
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.common.dto.AdTree;
-import com.base.sbc.open.dto.SmpUserDto;
 import com.base.sbc.open.entity.SmpDept;
 import com.base.sbc.open.entity.SmpPost;
 import com.base.sbc.open.entity.SmpUser;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -135,7 +133,7 @@ public interface AmcService {
      * @return
      */
     @GetMapping("/amc/api/token/team/getUsersBySeasonId")
-    String getUsersBySeasonId(@RequestParam("planningSeasonId") String planningSeasonId, @RequestParam("dpj") String dpj);
+    String getUsersBySeasonId(@RequestParam("planningSeasonId") String planningSeasonId, @RequestParam("dpj") String dpj, @RequestParam("post") String post);
 
 
     /**
