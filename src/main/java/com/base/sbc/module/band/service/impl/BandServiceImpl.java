@@ -15,6 +15,7 @@ import com.base.sbc.module.band.dto.BandExcelDto;
 import com.base.sbc.module.band.entity.Band;
 import com.base.sbc.module.band.mapper.BandMapper;
 import com.base.sbc.module.band.service.BandService;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumCategoryMeasure;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,25 +49,10 @@ public class BandServiceImpl extends BaseServiceImpl<BandMapper, Band> implement
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
         List<BandExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BandExcelDto.class, params);
-        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_DimType");
-        Map<String, String> map = dictInfoToMap.get("C8_DimType");
-        /*查询数据库所有数据用于判断新增的数据是否在数据库中存在*/
-        QueryWrapper queryWrapper = new QueryWrapper();
-        List<Band> bandList = baseMapper.selectList(queryWrapper);
-        List<String> stringList = bandList.stream().map(Band::getCode).collect(Collectors.toList());
-//     没问题的数据
-        List<BandExcelDto> bandExcelDtoList = new ArrayList<>();
-        /*重复的数据*/
-        List<String> repetitionData=new ArrayList<>();
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Quarter");
+        Map<String, String> map = dictInfoToMap.get("C8_Quarter");
+        list =list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
         for (BandExcelDto bandExcelDto : list) {
-            if (StringUtils.isBlank(bandExcelDto.getId())) {
-                /*查询新增数据的编码是否和数据库中的数据重复*/
-                if (stringList.contains(bandExcelDto.getCode())) {
-                    /*去掉重复编码数据*/
-                    repetitionData.add(bandExcelDto.getCode());
-                    continue;
-                }
-            }
             if (StringUtils.isNotEmpty(bandExcelDto.getSeason())) {
                 for (Map.Entry<String, String> entry : map.entrySet()) {
                     String key = entry.getKey();
@@ -77,12 +63,12 @@ public class BandServiceImpl extends BaseServiceImpl<BandMapper, Band> implement
                     }
                 }
             }
-            bandExcelDtoList.add(bandExcelDto);
         }
-        List<Band> bandList1 = BeanUtil.copyToList(bandExcelDtoList, Band.class);
-        saveOrUpdateBatch(bandList1);
-        if(!CollectionUtils.isEmpty(repetitionData)){
-            return ApiResult.error("编码数据重复"+StringUtils.join(repetitionData, ","),500);
+        List<Band> bandList1 = BeanUtil.copyToList(list, Band.class);
+        for (Band band : bandList1) {
+            QueryWrapper<Band> queryWrapper1 = new QueryWrapper<>();
+            queryWrapper1.eq("code", band.getCode());
+            this.saveOrUpdate(band, queryWrapper1);
         }
         return ApiResult.success();
 

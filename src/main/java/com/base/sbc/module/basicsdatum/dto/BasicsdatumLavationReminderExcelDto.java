@@ -23,42 +23,37 @@ import lombok.Data;
 @ApiModel("基础资料-洗涤图标与温馨提示 BasicsdatumLavationReminder")
 public class BasicsdatumLavationReminderExcelDto  {
 
-    @Excel(name = "id")
     private String id;
+    /** 编码 */
+    @ApiModelProperty(value = "编码"  )
+    @Excel(name = "洗标编码")
+    private String code;
     /** 类别 */
-    @ApiModelProperty(value = "类别"  )
-    @Excel(name = "类别")
-    private String category;
-    /** 温馨提示 */
-    @ApiModelProperty(value = "温馨提示"  )
-    @Excel(name = "温馨提示（新）")
-    private String reminder;
+    @ApiModelProperty(value = "洗标"  )
+    @Excel(name = "洗标")
+    private String careLabel;
     /** 贮藏要求 */
-    @ApiModelProperty(value = "贮藏要求"  )
-    @Excel(name = "贮藏要求（需要就增加）")
-    private String demand;
+    @ApiModelProperty(value = "描述"  )
+    @Excel(name = "描述")
+    private String description;
     /** 有配饰款 */
-    @ApiModelProperty(value = "有配饰款"  )
-    @Excel(name = "有配饰款")
-    private String accessories;
-    /** 有毛领款 */
-    @ApiModelProperty(value = "有毛领款"  )
-    @Excel(name = "有毛领款")
-    private String neckline;
-    /** 有印花款 */
-    @ApiModelProperty(value = "有印花款"  )
-    @Excel(name = "有印花款")
-    private String printing;
-    /** 压皱款、辅料除外款 */
-    @ApiModelProperty(value = "压皱款、辅料除外款"  )
-    @Excel(name = "压皱款、辅料除外款")
-    private String crumple;
+    @ApiModelProperty(value = "洗护类别"  )
+    @Excel(name = "洗护类别")
+    private String washType;
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
     @Excel(name = "图标",type = 2)
     private String picture;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
-    @Excel(name = "状态(0正常,1停用)")
+    @Excel(name  = "可用的" , replace = {"true_0", "false_1"} )
     private String status;
+    /** 温馨提示 */
+    @ApiModelProperty(value = "语言"  )
+    @Excel(name = "语言")
+    private String language;
+    /** 温馨提示 */
+    @ApiModelProperty(value = "温馨提示"  )
+    @Excel(name = "温馨提示")
+    private String reminderCode;
 }

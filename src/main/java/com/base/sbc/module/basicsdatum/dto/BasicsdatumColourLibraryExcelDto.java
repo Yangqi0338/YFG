@@ -23,7 +23,7 @@ import lombok.Data;
 @ApiModel("基础资料-颜色库 BasicsdatumColourLibrary")
 public class BasicsdatumColourLibraryExcelDto  {
 
-   @Excel(name = "id")
+   // @Excel(name = "id")
    private String id;
 
     /** 颜色系 */

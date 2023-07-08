@@ -21,6 +21,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumCategoryMeasure;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialsIngredient;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumCategoryMeasureMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumRangeDifferenceMapper;
@@ -107,7 +108,7 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
         queryWrapper.eq("company_code", baseController.getUserCompany());
         List<BasicsdatumRangeDifference> basicsdatumRangeDifferenceList = basicsdatumRangeDifferenceMapper.selectList(queryWrapper);
 //        操作存在编码数据
-        List<BasicsdatumCategoryMeasureExcelDto> basicsdatumCategoryMeasureExcelDtoList =new ArrayList<>();
+        list = list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
         for (BasicsdatumCategoryMeasureExcelDto basicsdatumCategoryMeasureExcelDto : list) {
             if(StringUtils.isNotBlank(basicsdatumCategoryMeasureExcelDto.getCode())){
                 if (StringUtils.isNotBlank(basicsdatumCategoryMeasureExcelDto.getRangeDifferenceName())) {
@@ -116,15 +117,14 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
                         basicsdatumCategoryMeasureExcelDto.setRangeDifferenceId(differenceList.get(0).getId());
                     }
                 }
-                basicsdatumCategoryMeasureExcelDtoList.add(basicsdatumCategoryMeasureExcelDto);
             }
         }
         /*按编码操作*/
-        List<BasicsdatumCategoryMeasure> basicsdatumColourLibraryList = BeanUtil.copyToList(basicsdatumCategoryMeasureExcelDtoList, BasicsdatumCategoryMeasure.class);
+        List<BasicsdatumCategoryMeasure> basicsdatumColourLibraryList = BeanUtil.copyToList(list, BasicsdatumCategoryMeasure.class);
         for (BasicsdatumCategoryMeasure basicsdatumCategoryMeasure : basicsdatumColourLibraryList) {
-            QueryWrapper<BasicsdatumCategoryMeasure> queryWrapper1 =new BaseQueryWrapper<>();
-            queryWrapper.eq("code",basicsdatumCategoryMeasure.getCode());
-            this.saveOrUpdate(basicsdatumCategoryMeasure,queryWrapper1);
+            QueryWrapper<BasicsdatumCategoryMeasure> queryWrapper1 = new QueryWrapper<>();
+            queryWrapper1.eq("code", basicsdatumCategoryMeasure.getCode());
+            this.saveOrUpdate(basicsdatumCategoryMeasure, queryWrapper1);
         }
 //        saveOrUpdateBatch(basicsdatumCategoryMeasureList);
         return true;

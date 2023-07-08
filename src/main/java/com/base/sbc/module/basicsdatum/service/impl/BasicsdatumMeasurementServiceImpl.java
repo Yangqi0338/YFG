@@ -46,6 +46,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：基础资料-测量点 service类
@@ -85,6 +86,7 @@ public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<Basicsdat
         queryWrapper.like(StringUtils.isNotEmpty(queryDto.getPdmType()),"PDM_type",queryDto.getPdmType());
         queryWrapper.like(StringUtils.isNotEmpty(queryDto.getDescription()),"description",queryDto.getDescription());
         queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCreateName()),"create_name",queryDto.getCreateName());
+        queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCode()),"code",queryDto.getCode());
         if (queryDto.getCreateDate()!=null && queryDto.getCreateDate().length>0){
             queryWrapper.ge(StringUtils.isNotEmpty(queryDto.getCreateDate()[0]),"create_date",queryDto.getCreateDate()[0]);
             if (queryDto.getCreateDate().length>1){
@@ -148,10 +150,11 @@ public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<Basicsdat
 
             }
         }
+        list = list.stream().filter(m -> StringUtils.isNotBlank(m.getCode())).collect(Collectors.toList());
         List<BasicsdatumMeasurement> basicsdatumMeasurementList = BeanUtil.copyToList(list, BasicsdatumMeasurement.class);
         for (BasicsdatumMeasurement basicsdatumMeasurement : basicsdatumMeasurementList) {
             QueryWrapper<BasicsdatumMeasurement> queryWrapper =new BaseQueryWrapper<>();
-            queryWrapper.eq("id",basicsdatumMeasurement.getId());
+            queryWrapper.eq("code",basicsdatumMeasurement.getCode());
             this.saveOrUpdate(basicsdatumMeasurement,queryWrapper);
         }
 
@@ -180,15 +183,15 @@ public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<Basicsdat
     @Override
     public Boolean addRevampMeasurement(AddRevampMeasurementDto addRevampMeasurementDto) {
         BasicsdatumMeasurement basicsdatumMeasurement = new BasicsdatumMeasurement();
+        QueryWrapper<BasicsdatumMeasurement> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("code",addRevampMeasurementDto.getCode());
+        /*查询数据是否存在*/
+        List<BasicsdatumMeasurement> list = baseMapper.selectList(queryWrapper);
         if (StringUtils.isEmpty(addRevampMeasurementDto.getId())) {
-            QueryWrapper<BasicsdatumMeasurement> queryWrapper=new QueryWrapper<>();
-            queryWrapper.eq("measurement",addRevampMeasurementDto.getMeasurement());
-            /*查询数据是否存在*/
-            List<BasicsdatumMeasurement> list = baseMapper.selectList(queryWrapper);
+            /*新增*/
             if(!CollectionUtils.isEmpty(list)){
                 throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
             }
-            /*新增*/
             BeanUtils.copyProperties(addRevampMeasurementDto, basicsdatumMeasurement);
             basicsdatumMeasurement.setCompanyCode(baseController.getUserCompany());
             basicsdatumMeasurement.insertInit();
@@ -198,6 +201,9 @@ public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<Basicsdat
             basicsdatumMeasurement = baseMapper.selectById(addRevampMeasurementDto.getId());
             if (ObjectUtils.isEmpty(basicsdatumMeasurement)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+            }
+            if(!basicsdatumMeasurement.getCode().equals(addRevampMeasurementDto.getCode()) && !CollectionUtils.isEmpty(list)){
+                throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
             }
             BeanUtils.copyProperties(addRevampMeasurementDto, basicsdatumMeasurement);
             basicsdatumMeasurement.updateInit();

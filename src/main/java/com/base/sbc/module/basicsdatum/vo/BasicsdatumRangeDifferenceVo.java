@@ -24,6 +24,9 @@ import lombok.Data;
 public class BasicsdatumRangeDifferenceVo  extends BaseDataEntity<String>{
 
     private String id;
+    /** 编码 */
+    @ApiModelProperty(value = "编码"  )
+    private String code;
     /** 档差 */
     @ApiModelProperty(value = "档差"  )
     private String rangeDifference;

@@ -22,7 +22,7 @@ import lombok.Data;
 @Data
 @ApiModel("基础资料-基础工艺 BasicsdatumBasicsTechnics")
 public class BasicsdatumBasicsTechnicsExcelDto  {
-    @Excel(name = "id")
+//    // @Excel(name = "id")
     private String id;
     /** 编码 */
     @ApiModelProperty(value = "编码"  )

@@ -83,6 +83,7 @@ public class BandController extends BaseController {
         QueryWrapper<Band> qc = new QueryWrapper<>();
         qc.eq("company_code", userCompany);
         qc.like(StringUtils.isNotBlank(queryBandDto.getBandName()),"band_name",queryBandDto.getBandName());
+        qc.like(StringUtils.isNotBlank(queryBandDto.getCode()),"code",queryBandDto.getCode());
         qc.eq(StringUtils.isNotBlank(queryBandDto.getMonth()),"month",queryBandDto.getMonth());
         qc.eq(StringUtils.isNotBlank(queryBandDto.getSeason()),"season",queryBandDto.getSeason());
         if (!StringUtils.isEmpty(queryBandDto.getOrderBy())){

@@ -23,8 +23,13 @@ import lombok.Data;
 @ApiModel("基础资料-档差 BasicsdatumRangeDifference")
 public class BasicsdatumRangeDifferenceExcelDto  {
 
-    @Excel(name = "id")
+    // @Excel(name = "id")
     private String id;
+    private String measurementIds;
+    /** 编码 */
+    @ApiModelProperty(value = "编码"  )
+    @Excel(name = "编码")
+    private String code;
     /** 档差 */
     @ApiModelProperty(value = "档差"  )
     @Excel(name = "档差")

@@ -24,6 +24,7 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumLavationReminderExcelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialsIngredient;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumLavationReminderMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumLavationReminderService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo;
@@ -35,6 +36,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -78,7 +80,7 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
             QueryWrapper<BasicsdatumLavationReminder> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
             queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getStatus()), "status", queryDto.getStatus());
-            queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getCategory()),"category",queryDto.getCategory());
+            queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getCareLabel()),"care_label",queryDto.getCareLabel());
             /*查询基础资料-洗涤图标与温馨提示数据*/
             List<BasicsdatumLavationReminder> basicsdatumLavationReminderList = baseMapper.selectList(queryWrapper);
             PageInfo<BasicsdatumLavationReminder> pageInfo = new PageInfo<>(basicsdatumLavationReminderList);
@@ -105,9 +107,8 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
             ImportParams params = new ImportParams();
             params.setNeedSave(false);
             List<BasicsdatumLavationReminderExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumLavationReminderExcelDto.class, params);
-           list=     list.stream().filter(p -> StringUtils.isNotBlank(p.getCategory())).collect(Collectors.toList());
+           list =  list.stream().filter(p -> StringUtils.isNotBlank(p.getCode())).collect(Collectors.toList());
            for (BasicsdatumLavationReminderExcelDto basicsdatumLavationReminderExcelDto : list) {
-
                if(!StringUtils.isEmpty(basicsdatumLavationReminderExcelDto.getPicture())){
                    if (StringUtils.isNotEmpty(basicsdatumLavationReminderExcelDto.getPicture())) {
                        File file1 = new File(basicsdatumLavationReminderExcelDto.getPicture());
@@ -121,7 +122,7 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
             List<BasicsdatumLavationReminder> basicsdatumLavationReminderList = BeanUtil.copyToList(list, BasicsdatumLavationReminder.class);
            for (BasicsdatumLavationReminder basicsdatumLavationReminder : basicsdatumLavationReminderList) {
                QueryWrapper<BasicsdatumLavationReminder> queryWrapper =new BaseQueryWrapper<>();
-               queryWrapper.eq("category",basicsdatumLavationReminder.getCategory());
+               queryWrapper.eq("code",basicsdatumLavationReminder.getCode());
                this.saveOrUpdate(basicsdatumLavationReminder,queryWrapper);
            }
             return true;
@@ -150,9 +151,15 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
         */
         @Override
         public Boolean addRevampBasicsdatumLavationReminder(AddRevampBasicsdatumLavationReminderDto addRevampBasicsdatumLavationReminderDto) {
-                BasicsdatumLavationReminder basicsdatumLavationReminder = new BasicsdatumLavationReminder();
+            BasicsdatumLavationReminder basicsdatumLavationReminder = new BasicsdatumLavationReminder();
+            QueryWrapper<BasicsdatumLavationReminder> queryWrapper=new QueryWrapper<>();
+            queryWrapper.eq("code",addRevampBasicsdatumLavationReminderDto.getCode());
+            /*查询数据是否存在*/
+            List<BasicsdatumLavationReminder> list = baseMapper.selectList(queryWrapper);
             if (StringUtils.isEmpty(addRevampBasicsdatumLavationReminderDto.getId())) {
-                QueryWrapper<BasicsdatumLavationReminder> queryWrapper=new QueryWrapper<>();
+                if(!CollectionUtils.isEmpty(list)){
+                    throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
+                }
                 /*新增*/
                 BeanUtils.copyProperties(addRevampBasicsdatumLavationReminderDto, basicsdatumLavationReminder);
                 basicsdatumLavationReminder.setCompanyCode(baseController.getUserCompany());
@@ -163,6 +170,9 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
                 basicsdatumLavationReminder = baseMapper.selectById(addRevampBasicsdatumLavationReminderDto.getId());
                 if (ObjectUtils.isEmpty(basicsdatumLavationReminder)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+                }
+                if(!addRevampBasicsdatumLavationReminderDto.getCode().equals(addRevampBasicsdatumLavationReminderDto.getCode()) && !CollectionUtils.isEmpty(list)){
+                    throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
                 }
                 BeanUtils.copyProperties(addRevampBasicsdatumLavationReminderDto, basicsdatumLavationReminder);
                 basicsdatumLavationReminder.updateInit();

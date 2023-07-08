@@ -16,6 +16,9 @@ public class BasicsdatumMeasurementExcelDto {
     @Excel(name  = "ID"  )
     private String id;
 
+    @Excel(name  = "编码"  )
+    private String code;
+
     /** 编码 */
     @Excel(name  = "测量点"  )
     private String measurement;

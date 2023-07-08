@@ -10,7 +10,9 @@ import lombok.Data;
 public class AddRevampMeasurementDto {
 
     private String id;
-
+    /** 编码 */
+    @ApiModelProperty(value = "编码"  )
+    private String code;
     @ApiModelProperty(value = "测量点"  )
     private String measurement;
     /** POM类型 */

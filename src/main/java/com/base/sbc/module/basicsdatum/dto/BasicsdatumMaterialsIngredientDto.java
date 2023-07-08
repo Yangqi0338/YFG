@@ -11,5 +11,6 @@ import lombok.Data;
 public class BasicsdatumMaterialsIngredientDto extends QueryDto{
     private String material;
     private String ingredient;
+    private String code;
 
 }

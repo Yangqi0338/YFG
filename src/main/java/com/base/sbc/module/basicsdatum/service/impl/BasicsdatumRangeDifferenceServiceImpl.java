@@ -23,7 +23,10 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumRangeDifferenceDt
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumRangeDifferenceExcelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMeasurementMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumRangeDifferenceMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumRangeDifferenceService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumRangeDifferenceVo;
@@ -39,12 +42,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：基础资料-档差 service类
@@ -69,6 +74,8 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
 
     private final DifferenceService differenceService;
 
+    private final BasicsdatumMeasurementMapper basicsdatumMeasurementMapper;
+
 /** 自定义方法区 不替换的区域【other_start】 **/
 
     /**
@@ -87,6 +94,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.notEmptyLike("model_type", queryDto.getModelType());
         queryWrapper.notEmptyLike("create_name", queryDto.getCreateName());
+        queryWrapper.notEmptyLike("code", queryDto.getCode());
         queryWrapper.notEmptyLike("range_difference", queryDto.getRangeDifference());
         queryWrapper.notEmptyEq("status", queryDto.getStatus());
         queryWrapper.between("create_date", queryDto.getCreateDate());
@@ -114,6 +122,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
         List<BasicsdatumRangeDifferenceExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumRangeDifferenceExcelDto.class, params);
+        list = list.stream().filter(d -> StringUtils.isNotBlank(d.getCode())).collect(Collectors.toList());
         for (BasicsdatumRangeDifferenceExcelDto basicsdatumRangeDifferenceExcelDto : list) {
             if (!StringUtils.isEmpty(basicsdatumRangeDifferenceExcelDto.getPicture())) {
                 File file1 = new File(basicsdatumRangeDifferenceExcelDto.getPicture());
@@ -121,11 +130,27 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
                 AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
                 basicsdatumRangeDifferenceExcelDto.setPicture(attachmentVo.getUrl());
             }
+            /*去掉空格*/
+            if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getSize())){
+                basicsdatumRangeDifferenceExcelDto.setSize(basicsdatumRangeDifferenceExcelDto.getSize().replaceAll(" ",""));
+            }
+            /*获取测量点id*/
+            if(!StringUtils.isEmpty(basicsdatumRangeDifferenceExcelDto.getMeasurement())){
+              basicsdatumRangeDifferenceExcelDto.setMeasurement(basicsdatumRangeDifferenceExcelDto.getMeasurement().replaceAll(" ",""));
+              String[] measurement =  basicsdatumRangeDifferenceExcelDto.getMeasurement().split(",");
+                QueryWrapper queryWrapper=new QueryWrapper();
+                queryWrapper.in("measurement",measurement);
+                List<BasicsdatumMeasurement> basicsdatumSizeList =basicsdatumMeasurementMapper.selectList(queryWrapper);
+                if(!CollectionUtils.isEmpty(basicsdatumSizeList)){
+                    List<String> stringList =  basicsdatumSizeList.stream().map(BasicsdatumMeasurement::getId).collect(Collectors.toList());
+                    basicsdatumRangeDifferenceExcelDto.setMeasurementIds( StringUtils.join(stringList,","));
+                }
+            }
         }
         List<BasicsdatumRangeDifference> basicsdatumRangeDifferenceList = BeanUtil.copyToList(list, BasicsdatumRangeDifference.class);
         for (BasicsdatumRangeDifference basicsdatumRangeDifference : basicsdatumRangeDifferenceList) {
             QueryWrapper<BasicsdatumRangeDifference> queryWrapper = new BaseQueryWrapper<>();
-            queryWrapper.eq("range_difference", basicsdatumRangeDifference.getRangeDifference());
+            queryWrapper.eq("code", basicsdatumRangeDifference.getCode());
             this.saveOrUpdate(basicsdatumRangeDifference, queryWrapper);
         }
         return true;
@@ -155,8 +180,14 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
     @Transactional
     public Boolean addRevamp(AddRevampBasicsdatumRangeDifferenceDto addRevampBasicsdatumRangeDifferenceDto) {
         BasicsdatumRangeDifference basicsdatumRangeDifference = new BasicsdatumRangeDifference();
+        QueryWrapper<BasicsdatumRangeDifference> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("code", addRevampBasicsdatumRangeDifferenceDto.getCode());
+        /*查询数据是否存在*/
+        List<BasicsdatumRangeDifference> list = baseMapper.selectList(queryWrapper);
         if (StringUtils.isEmpty(addRevampBasicsdatumRangeDifferenceDto.getId())) {
-            QueryWrapper<BasicsdatumRangeDifference> queryWrapper = new QueryWrapper<>();
+            if (!CollectionUtils.isEmpty(list)) {
+                throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
+            }
             /*新增*/
             BeanUtils.copyProperties(addRevampBasicsdatumRangeDifferenceDto, basicsdatumRangeDifference);
             basicsdatumRangeDifference.setCompanyCode(baseController.getUserCompany());
@@ -167,6 +198,9 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
             basicsdatumRangeDifference = baseMapper.selectById(addRevampBasicsdatumRangeDifferenceDto.getId());
             if (ObjectUtils.isEmpty(basicsdatumRangeDifference)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+            }
+            if (!addRevampBasicsdatumRangeDifferenceDto.getCode().equals(addRevampBasicsdatumRangeDifferenceDto.getCode()) && !CollectionUtils.isEmpty(list)) {
+                throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
             }
             BeanUtils.copyProperties(addRevampBasicsdatumRangeDifferenceDto, basicsdatumRangeDifference);
             basicsdatumRangeDifference.updateInit();

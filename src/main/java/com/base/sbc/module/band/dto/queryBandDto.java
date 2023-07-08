@@ -11,4 +11,5 @@ public class queryBandDto extends Page {
     private String season;
     /*月份*/
     private String month;
+    private String code;
 }

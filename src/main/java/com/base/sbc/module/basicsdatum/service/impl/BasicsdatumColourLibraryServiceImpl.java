@@ -231,9 +231,20 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
      */
     @Override
     public void basicsdatumColourLibraryDeriveExcel(HttpServletResponse response) throws Exception {
-        QueryWrapper<BasicsdatumColourLibraryExcelDto> queryWrapper = new QueryWrapper<>();
+        /*获取字典值*/
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_ColorChroma,C8_ColorType");
+        /*色度*/
+        Map<String, String> mapColorChroma = dictInfoToMap.get("C8_ColorChroma");
+        /*色系*/
+        Map<String, String> mapColorType = dictInfoToMap.get("C8_ColorType");
+        QueryWrapper<BasicsdatumColourLibrary> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("tbcl.company_code", baseController.getUserCompany());
-        List<BasicsdatumColourLibraryExcelDto> list = BeanUtil.copyToList(baseMapper.selectColourLibrary(queryWrapper), BasicsdatumColourLibraryExcelDto.class);
+        List<BasicsdatumColourLibrary> libraryList = baseMapper.selectList(queryWrapper);
+        libraryList.forEach(l ->{
+            l.setChroma(mapColorChroma.get(l.getChroma()));
+            l.setColorType(mapColorType.get(l.getColorType()));
+        });
+        List<BasicsdatumColourLibraryExcelDto> list = BeanUtil.copyToList( libraryList, BasicsdatumColourLibraryExcelDto.class);
         ExcelUtils.exportExcel(list, BasicsdatumColourLibraryExcelDto.class, "基础资料-颜色库.xlsx", new ExportParams(), response);
 
     }

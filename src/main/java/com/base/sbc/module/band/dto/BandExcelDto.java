@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @ApiModel("基础资料-波段导入 BandExcelDto")
 public class BandExcelDto {
-    @Excel(name = "id",width = 20)
+//    @Excel(name = "id",width = 20)
     private String id;
     /** 编码 */
     @Excel(name = "编码",width = 20)

@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -33,32 +34,30 @@ public class BasicsdatumLavationReminder extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
+    private String id;
+    /** 编码 */
+    @ApiModelProperty(value = "编码"  )
+    private String code;
     /** 类别 */
-    @ApiModelProperty(value = "类别"  )
-    private String category;
-    /** 温馨提示 */
-    @ApiModelProperty(value = "温馨提示"  )
-    private String reminder;
+    @ApiModelProperty(value = "洗标"  )
+    private String careLabel;
     /** 贮藏要求 */
-    @ApiModelProperty(value = "贮藏要求"  )
-    private String demand;
+    @ApiModelProperty(value = "描述"  )
+    private String description;
     /** 有配饰款 */
-    @ApiModelProperty(value = "有配饰款"  )
-    private String accessories;
-    /** 有毛领款 */
-    @ApiModelProperty(value = "有毛领款"  )
-    private String neckline;
-    /** 有印花款 */
-    @ApiModelProperty(value = "有印花款"  )
-    private String printing;
-    /** 压皱款、辅料除外款 */
-    @ApiModelProperty(value = "压皱款、辅料除外款"  )
-    private String crumple;
+    @ApiModelProperty(value = "洗护类别"  )
+    private String washType;
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
     private String picture;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+    /** 温馨提示 */
+    @ApiModelProperty(value = "语言"  )
+    private String language;
+    /** 温馨提示 */
+    @ApiModelProperty(value = "温馨提示"  )
+    private String reminderCode;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

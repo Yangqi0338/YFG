@@ -23,6 +23,7 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampSizeDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumSizeExcelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDasicsdatumSizeDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSizeLabel;
@@ -116,6 +117,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
         List<BasicsdatumSizeExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumSizeExcelDto.class, params);
+        list = list.stream().filter(s -> s.getSort()!=null).collect(Collectors.toList());
         for (BasicsdatumSizeExcelDto basicsdatumSizeExcelDto : list) {
             if (!StringUtils.isEmpty(basicsdatumSizeExcelDto.getModelType())) {
                 /*查询号型类型*/
@@ -135,9 +137,10 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
         for (int i = 0; i < basicsdatumSizeList.size(); i += batchSize) {
             int endIndex = Math.min(i + batchSize, basicsdatumSizeList.size());
             List<BasicsdatumSize> list1 = basicsdatumSizeList.subList(i, endIndex);
-            List<AddRevampSizeDto> addRevampSizeDtos = BeanUtil.copyToList(list1, AddRevampSizeDto.class);
-            for (AddRevampSizeDto addRevampSizeDto: addRevampSizeDtos) {
-                this.addRevampSize(addRevampSizeDto);
+            for (BasicsdatumSize basicsdatumSize : list1) {
+                QueryWrapper<BasicsdatumSize> queryWrapper =new BaseQueryWrapper<>();
+                queryWrapper.eq("sort",basicsdatumSize.getSort());
+                this.saveOrUpdate(basicsdatumSize,queryWrapper);
             }
 
 
@@ -155,9 +158,8 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
      */
     @Override
     public void deriveExcel(QueryDasicsdatumSizeDto queryDasicsdatumSizeDto, HttpServletResponse response) throws IOException {
-        QueryWrapper<BasicsdatumSizeExcelDto> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq(!StringUtils.isEmpty(queryDasicsdatumSizeDto.getSizeLabelId()), "size_label_id", queryDasicsdatumSizeDto.getSizeLabelId());
-        List<BasicsdatumSizeExcelDto> list = baseMapper.selectSize(queryWrapper);
+        QueryWrapper<BasicsdatumSize> queryWrapper = new QueryWrapper<>();
+        List<BasicsdatumSize> list = baseMapper.selectList(queryWrapper);
         ExcelUtils.exportExcel(list, BasicsdatumSizeExcelDto.class, "尺码.xlsx", new ExportParams(), response);
     }
 

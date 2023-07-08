@@ -23,7 +23,7 @@ import lombok.Data;
 @ApiModel("基础资料-供应商 BasicsdatumSupplier")
 public class BasicsdatumSupplierExcelDto  {
 
-   @Excel(name = "id")
+   // @Excel(name = "id")
    private String id;
     /** 图片 */
     @ApiModelProperty(value = "图片"  )

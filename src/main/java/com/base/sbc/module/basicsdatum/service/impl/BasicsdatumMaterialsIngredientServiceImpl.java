@@ -23,6 +23,7 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialsIngredientDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialsIngredientExcelDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialsIngredient;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialsIngredientMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialsIngredientService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialsIngredientVo;
@@ -32,6 +33,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -67,6 +69,7 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<B
             BaseQueryWrapper<BasicsdatumMaterialsIngredient> queryWrapper = new BaseQueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
             queryWrapper.notEmptyLike("material",queryDto.getMaterial());
+            queryWrapper.notEmptyLike("code",queryDto.getCode());
             queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getCreateName()),"create_name",queryDto.getCreateName());
             queryWrapper.between("create_date",queryDto.getCreateDate());
             queryWrapper.orderByDesc("create_date");
@@ -101,7 +104,7 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<B
            for (BasicsdatumMaterialsIngredient basicsdatumMaterialsIngredient : basicsdatumMaterialsIngredientList) {
                if(StringUtils.isNotBlank(basicsdatumMaterialsIngredient.getCode())) {
                    QueryWrapper<BasicsdatumMaterialsIngredient> queryWrapper = new QueryWrapper<>();
-                   queryWrapper.eq("code", basicsdatumMaterialsIngredient.getIngredient());
+                   queryWrapper.eq("code", basicsdatumMaterialsIngredient.getCode());
                    this.saveOrUpdate(basicsdatumMaterialsIngredient, queryWrapper);
                }
            }
@@ -131,10 +134,16 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<B
         */
         @Override
         public Boolean addRevampBasicsdatumMaterialsIngredient(AddRevampBasicsdatumMaterialsIngredientDto addRevampBasicsdatumMaterialsIngredientDto) {
-                BasicsdatumMaterialsIngredient basicsdatumMaterialsIngredient = new BasicsdatumMaterialsIngredient();
+            BasicsdatumMaterialsIngredient basicsdatumMaterialsIngredient = new BasicsdatumMaterialsIngredient();
+            QueryWrapper<BasicsdatumMaterialsIngredient> queryWrapper=new QueryWrapper<>();
+            queryWrapper.eq("code",addRevampBasicsdatumMaterialsIngredientDto.getCode());
+            /*查询数据是否存在*/
+            List<BasicsdatumMaterialsIngredient> list = baseMapper.selectList(queryWrapper);
             if (StringUtils.isEmpty(addRevampBasicsdatumMaterialsIngredientDto.getId())) {
-                QueryWrapper<BasicsdatumMaterialsIngredient> queryWrapper=new QueryWrapper<>();
                 /*新增*/
+                if(!CollectionUtils.isEmpty(list)){
+                    throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
+                }
                 BeanUtils.copyProperties(addRevampBasicsdatumMaterialsIngredientDto, basicsdatumMaterialsIngredient);
                 basicsdatumMaterialsIngredient.setCompanyCode(baseController.getUserCompany());
                 basicsdatumMaterialsIngredient.insertInit();
@@ -144,6 +153,9 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<B
                 basicsdatumMaterialsIngredient = baseMapper.selectById(addRevampBasicsdatumMaterialsIngredientDto.getId());
                 if (ObjectUtils.isEmpty(basicsdatumMaterialsIngredient)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+                }
+                if(!basicsdatumMaterialsIngredient.getCode().equals(addRevampBasicsdatumMaterialsIngredientDto.getCode()) && !CollectionUtils.isEmpty(list)){
+                    throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
                 }
                 BeanUtils.copyProperties(addRevampBasicsdatumMaterialsIngredientDto, basicsdatumMaterialsIngredient);
                 basicsdatumMaterialsIngredient.updateInit();

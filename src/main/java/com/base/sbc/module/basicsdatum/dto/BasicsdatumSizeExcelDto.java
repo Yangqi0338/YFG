@@ -15,7 +15,7 @@ import java.util.Date;
 @TableName(value = "BasicsdatumComponentExcelDto")
 public class BasicsdatumSizeExcelDto {
 
-    @Excel(name = "id")
+    // @Excel(name = "id")
     private String id;
     /*号型类型编码*/
     private String modelTypeCode;

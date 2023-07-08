@@ -33,6 +33,9 @@ public class BasicsdatumMeasurement extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
+    /** 编码 */
+    @ApiModelProperty(value = "编码"  )
+    private String code;
     /** 测量点 */
     @ApiModelProperty(value = "测量点"  )
     private String measurement;
@@ -48,8 +51,8 @@ public class BasicsdatumMeasurement extends BaseDataEntity<String> {
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
     private String image;
-    /** 状态(0正常,1停用) */
-    @ApiModelProperty(value = "状态(0正常,1停用)"  )
+    /** 状态(1正常,0停用) */
+    @ApiModelProperty(value = "状态(1正常,0停用)"  )
     private String status;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
