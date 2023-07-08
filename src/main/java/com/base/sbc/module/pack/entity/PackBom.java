@@ -17,11 +17,11 @@ import java.math.BigDecimal;
 /**
  * 类描述：资料包-物料清单 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-3 16:57:35
+ * @email your email
+ * @date 创建时间：2023-7-8 15:30:01
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -42,9 +42,9 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "主数据id")
     private String foreignId;
     /**
-     * 资料包类型:packDesign:设计资料包
+     * 资料包类型:packDesign:设计资料包/packBigGoods:标准资料包(大货资料包)
      */
-    @ApiModelProperty(value = "资料包类型:packDesign:设计资料包")
+    @ApiModelProperty(value = "资料包类型:packDesign:设计资料包/packBigGoods:标准资料包(大货资料包)")
     private String packType;
     /**
      * 版本id
@@ -60,7 +60,7 @@ public class PackBom extends BaseDataEntity<String> {
      * 搭配
      */
     @ApiModelProperty(value = "搭配")
-    private String collocation;
+    private String categoryName;
     /**
      * 材料
      */
@@ -102,6 +102,16 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "颜色名称")
     private String color;
     /**
+     * 颜色hex
+     */
+    @ApiModelProperty(value = "颜色hex")
+    private String colorHex;
+    /**
+     * 颜色代码
+     */
+    @ApiModelProperty(value = "颜色代码")
+    private String colorCode;
+    /**
      * 颜色图片
      */
     @ApiModelProperty(value = "颜色图片")
@@ -142,7 +152,7 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "供应商物料号")
     private String supplierMaterialCode;
     /**
-     * 状态(0正常,1停用)
+     * 状态(0停用,1启用)
      */
     @ApiModelProperty(value = "状态(0停用,1启用)")
     private String status;
@@ -161,6 +171,26 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "备注")
     private String remarks;
+    /**
+     * 采购单位
+     */
+    @ApiModelProperty(value = "采购单位")
+    private String purchaseUnitCode;
+    /**
+     * 采购单位名称
+     */
+    @ApiModelProperty(value = "采购单位名称")
+    private String purchaseUnitName;
+    /**
+     * 库存单位
+     */
+    @ApiModelProperty(value = "库存单位")
+    private String stockUnitCode;
+    /**
+     * 库存单位名称
+     */
+    @ApiModelProperty(value = "库存单位名称")
+    private String stockUnitName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
