@@ -359,7 +359,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         //qw.eq(StrUtil.isNotBlank(dto.getStatus()), "c.status", dto.getStatus());
         // 坑位信息已下发
         qw.ne("c.status", BasicNumber.ZERO.getNumber());
-        dto.setOrderBy("c.status asc ,c.update_date asc ");
+        dto.setOrderBy("c.status asc ,c.id desc ");
         Page<PlanningSeasonOverviewVo> objects = PageHelper.startPage(dto);
         getBaseMapper().listSeat(qw);
         PageInfo<PlanningSeasonOverviewVo> pageInfo = objects.toPageInfo();

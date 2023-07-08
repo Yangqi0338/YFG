@@ -13,6 +13,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
@@ -122,7 +123,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean saveBatchByDto(String bomVersionId, List<PackBomDto> dtoList) {
+    public boolean saveBatchByDto(String bomVersionId, String overlayFlg, List<PackBomDto> dtoList) {
         // 校验版本
         PackBomVersion version = packBomVersionService.getById(bomVersionId);
         if (version == null) {
@@ -140,7 +141,20 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         QueryWrapper<PackBom> bomQw = new QueryWrapper<>();
         bomQw.eq("bom_version_id", version.getId());
         //保存
-        addAndUpdateAndDelList(packBoms, bomQw);
+        //覆盖
+        if (StrUtil.equals(overlayFlg, BasicNumber.ONE.getNumber())) {
+            addAndUpdateAndDelList(packBoms, bomQw);
+            //删除之前的尺寸信息
+            if (CollUtil.isNotEmpty(bomIds)) {
+                QueryWrapper delSizeQw = new QueryWrapper();
+                delSizeQw.in("bom_id", bomIds);
+                packBomSizeService.remove(delSizeQw);
+            }
+        } else {
+            //追加
+            this.saveBatch(packBoms);
+        }
+
         // 处理尺码
         List<PackBomSize> bomSizeList = new ArrayList<>(16);
         for (int i = 0; i < dtoList.size(); i++) {
@@ -159,12 +173,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                 bomSizeList.addAll(packBomSizeList);
             }
         }
-        //删除之前的尺寸信息
-        if (CollUtil.isNotEmpty(bomIds)) {
-            QueryWrapper delSizeQw = new QueryWrapper();
-            delSizeQw.in("bom_id", bomIds);
-            packBomSizeService.remove(delSizeQw);
-        }
+
         //保存
         if (CollUtil.isNotEmpty(bomSizeList)) {
             packBomSizeService.saveBatch(bomSizeList);

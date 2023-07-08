@@ -102,7 +102,7 @@ public class PackBomController {
     @PostMapping("/saveBatch")
     @ApiOperation(value = "保存全部物料清单")
     public boolean save(@Valid PackBomSearchDto search, @RequestBody List<PackBomDto> dtoList) {
-        return packBomService.saveBatchByDto(search.getBomVersionId(), dtoList);
+        return packBomService.saveBatchByDto(search.getBomVersionId(), search.getOverlayFlg(), dtoList);
     }
 
     @ApiOperation(value = "物料不可用")

@@ -48,10 +48,11 @@ public interface PackBomService extends PackBaseService<PackBom> {
      * 物料清单-全部保存
      *
      * @param bomVersionId
+     * @param overlayFlg
      * @param dtoList
      * @return
      */
-    boolean saveBatchByDto(String bomVersionId, List<PackBomDto> dtoList);
+    boolean saveBatchByDto(String bomVersionId, String overlayFlg, List<PackBomDto> dtoList);
 
 
     /**

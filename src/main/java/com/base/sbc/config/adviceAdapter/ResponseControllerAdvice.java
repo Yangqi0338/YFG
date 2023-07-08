@@ -87,7 +87,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
             if (body.equals(true)) {
                 apiResult = ApiResult.success(localeMessages.getMessage(SUCCESS_OK), true, null);
             } else {
-                apiResult = ApiResult.success(localeMessages.getMessage(SUCCESS_ERR), false, null);
+                apiResult = ApiResult.error(localeMessages.getMessage(SUCCESS_ERR), 500, null);
             }
         }
         this.preHttpLog(request,response, apiResult);

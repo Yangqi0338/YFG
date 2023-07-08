@@ -20,4 +20,7 @@ public class PackBomSearchDto {
     @ApiModelProperty(value = "版本id")
     @NotBlank(message = "版本id为空")
     private String bomVersionId;
+
+    @ApiModelProperty(value = "保存类型:1覆盖,0或者空为不覆盖（追加）")
+    private String overlayFlg;
 }
