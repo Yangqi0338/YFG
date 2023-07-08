@@ -157,10 +157,19 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
      * @param response
      */
     @Override
-    public void deriveExcel(QueryDasicsdatumSizeDto queryDasicsdatumSizeDto, HttpServletResponse response) throws IOException {
-        QueryWrapper<BasicsdatumSize> queryWrapper = new QueryWrapper<>();
+    public void deriveExcel(QueryDasicsdatumSizeDto dto, HttpServletResponse response) throws IOException {
+        BaseQueryWrapper<BasicsdatumSize> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("company_code", baseController.getUserCompany());
+        queryWrapper.notEmptyLike("hangtags", dto.getHangtags());
+        queryWrapper.notEmptyLike("model", dto.getModel());
+        queryWrapper.notEmptyLike("internal_size", dto.getInternalSize());
+        queryWrapper.notEmptyLike("create_name", dto.getCreateName());
+        queryWrapper.notEmptyEq("status", dto.getStatus());
+        queryWrapper.between("create_date",dto.getCreateDate());
         List<BasicsdatumSize> list = baseMapper.selectList(queryWrapper);
-        ExcelUtils.exportExcel(list, BasicsdatumSizeExcelDto.class, "尺码.xlsx", new ExportParams(), response);
+
+      List<BasicsdatumSizeExcelDto> basicsdatumSizeExcelDtoList =  BeanUtil.copyToList(list, BasicsdatumSizeExcelDto.class);
+        ExcelUtils.exportExcel(basicsdatumSizeExcelDtoList, BasicsdatumSizeExcelDto.class, "尺码.xlsx", new ExportParams(), response);
     }
 
     /**

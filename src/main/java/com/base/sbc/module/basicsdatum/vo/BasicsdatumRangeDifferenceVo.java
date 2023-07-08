@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.vo;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -45,6 +46,12 @@ public class BasicsdatumRangeDifferenceVo  extends BaseDataEntity<String>{
     /** 测量部位id集合 */
     @ApiModelProperty(value = "测量部位id集合"  )
     private String measurementIds;
+    /**  品类id */
+    @ApiModelProperty(value = "品类id"  )
+    private String categoryId;
+    /**  品类名 */
+    @ApiModelProperty(value = "品类名"  )
+    private String categoryName;
     /** 基础尺码 */
     @ApiModelProperty(value = "基础尺码"  )
     private String basicsSize;

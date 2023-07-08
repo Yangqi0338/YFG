@@ -39,7 +39,12 @@ public class AddRevampBasicsdatumRangeDifferenceDto  {
     /**  备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
-
+    /**  品类id */
+    @ApiModelProperty(value = "品类id"  )
+    private String categoryId;
+    /**  品类名 */
+    @ApiModelProperty(value = "品类名"  )
+    private String categoryName;
     /** 测量数据集合 */
     @ApiModelProperty(value = "测量数据集合"  )
     private List<Difference> differenceList;

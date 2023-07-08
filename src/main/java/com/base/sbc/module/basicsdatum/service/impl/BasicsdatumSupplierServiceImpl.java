@@ -87,6 +87,12 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
         queryWrapper.like(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getCreditCode()), "credit_code", queryRevampBasicsdatumSupplierDto.getCreditCode());
         queryWrapper.like(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getSupplierType()), "supplier_type", queryRevampBasicsdatumSupplierDto.getSupplierType());
         queryWrapper.like(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getFormerSupplierCode()), "former_supplier_code", queryRevampBasicsdatumSupplierDto.getFormerSupplierCode());
+        queryWrapper.like(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getCreateName()), "create_name", queryRevampBasicsdatumSupplierDto.getCreateName());
+       if(StringUtils.isNotBlank(queryRevampBasicsdatumSupplierDto.getCreateDate())){
+          String[] strings = queryRevampBasicsdatumSupplierDto.getCreateDate().split(",");
+           queryWrapper.ge("create_date",strings[0]);
+           queryWrapper.le("create_date",strings[1]);
+       }
 
         /*查询基础资料-供应商数据*/
         List<BasicsdatumSupplier> basicsdatumSupplierList = baseMapper.selectList(queryWrapper);

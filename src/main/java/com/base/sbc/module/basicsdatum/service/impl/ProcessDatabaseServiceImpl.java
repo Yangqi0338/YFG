@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -49,9 +50,25 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
 
         String originalFilename = file.getOriginalFilename();
         String[] split = originalFilename.split("\\.");
-        String type = null;
+        String type = "";
         /*类别 1：部件库，2：基础工艺，3：外辅工艺，4：裁剪工艺，5：注意事项，6：整烫包装，7：模板部件*/
-        switch (split[0]){
+        String name = split[0];
+        if(name.indexOf("部件库")!= -1){
+            type="1";
+        }else if(name.indexOf("基础工艺")!= -1){
+            type="2";
+        }else if(name.indexOf("外辅工艺")!= -1){
+            type="3";
+        }else if(name.indexOf("裁剪工艺")!= -1){
+            type="4";
+        }else if(name.indexOf("注意事项")!= -1){
+            type="5";
+        }else if(name.indexOf("整烫包装")!= -1){
+            type="6";
+        }else if(name.indexOf("模板部件")!= -1){
+            type="7";
+        }
+        /*switch (split[0]){
             case "部件库":
                 type="1";
                 break;
@@ -75,10 +92,11 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
                 break;
             default:
                 break;
-        }
+        }*/
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
         List<ProcessDatabaseExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), ProcessDatabaseExcelDto.class, params);
+        list = list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
         for (ProcessDatabaseExcelDto processDatabaseExcelDto : list) {
             processDatabaseExcelDto.setType(type);
             if (!StringUtils.isEmpty(processDatabaseExcelDto.getPicture())) {

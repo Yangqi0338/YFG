@@ -91,4 +91,8 @@ public class QueryRevampBasicsdatumSupplierDto extends Page {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    private String createName;
+
+    private String   createDate;
 }

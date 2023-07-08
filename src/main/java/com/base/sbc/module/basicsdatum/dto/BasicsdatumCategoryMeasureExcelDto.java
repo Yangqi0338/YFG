@@ -33,10 +33,17 @@ public class BasicsdatumCategoryMeasureExcelDto  {
     @ApiModelProperty(value = "品类测量组"  )
     @Excel(name = "品类测量组")
     private String name;
-    /** 档差名 */
+ /*   *//** 档差名 *//*
     @ApiModelProperty(value = "档差"  )
     @Excel(name = "档差")
-    private String rangeDifferenceName;
+    private String rangeDifferenceName;*/
+    /** 品类id */
+    private String categoryId;
+    @Excel(name = "品类")
+    private String  categoryName;
+    /** 品牌 */
+    @Excel(name = "品牌")
+    private String  brandCode;
     /** 档差id */
     @ApiModelProperty(value = "档差id"  )
     private String rangeDifferenceId;

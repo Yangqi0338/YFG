@@ -70,6 +70,7 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<B
             queryWrapper.eq("company_code", baseController.getUserCompany());
             queryWrapper.notEmptyLike("material",queryDto.getMaterial());
             queryWrapper.notEmptyLike("code",queryDto.getCode());
+            queryWrapper.notEmptyLike("ingredient",queryDto.getIngredient());
             queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getCreateName()),"create_name",queryDto.getCreateName());
             queryWrapper.between("create_date",queryDto.getCreateDate());
             queryWrapper.orderByDesc("create_date");

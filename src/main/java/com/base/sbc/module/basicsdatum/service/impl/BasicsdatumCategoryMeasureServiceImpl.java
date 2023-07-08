@@ -12,6 +12,7 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -41,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -59,7 +61,8 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
     private BaseController baseController;
 
     @Autowired
-    private BasicsdatumRangeDifferenceMapper basicsdatumRangeDifferenceMapper;
+    private CcmFeignService ccmFeignService;
+
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -76,6 +79,7 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
         QueryWrapper<BasicsdatumCategoryMeasure> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getCode()),"code",queryDto.getCode());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getCategoryId()),"category_id",queryDto.getCategoryId());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getName()),"name",queryDto.getName());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getRangeDifferenceName()),"range_difference_name",queryDto.getRangeDifferenceName());
         /*查询基础资料-品类测量组数据*/
@@ -104,19 +108,15 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
         List<BasicsdatumCategoryMeasureExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumCategoryMeasureExcelDto.class, params);
-        QueryWrapper<BasicsdatumRangeDifference> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("company_code", baseController.getUserCompany());
-        List<BasicsdatumRangeDifference> basicsdatumRangeDifferenceList = basicsdatumRangeDifferenceMapper.selectList(queryWrapper);
+   /*     *//*获取字典值*//*
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Brand");
+        Map<String, String> map =   dictInfoToMap.get("C8_Brand");*/
 //        操作存在编码数据
         list = list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
         for (BasicsdatumCategoryMeasureExcelDto basicsdatumCategoryMeasureExcelDto : list) {
-            if(StringUtils.isNotBlank(basicsdatumCategoryMeasureExcelDto.getCode())){
-                if (StringUtils.isNotBlank(basicsdatumCategoryMeasureExcelDto.getRangeDifferenceName())) {
-                    List<BasicsdatumRangeDifference> differenceList = basicsdatumRangeDifferenceList.stream().filter(r -> r.getRangeDifference().equals(basicsdatumCategoryMeasureExcelDto.getRangeDifferenceName())).collect(Collectors.toList());
-                    if (!CollectionUtils.isEmpty(differenceList)) {
-                        basicsdatumCategoryMeasureExcelDto.setRangeDifferenceId(differenceList.get(0).getId());
-                    }
-                }
+            basicsdatumCategoryMeasureExcelDto.setMeasurement(basicsdatumCategoryMeasureExcelDto.getMeasurement().replaceAll(" ",""));
+            if (StringUtils.isNotBlank(basicsdatumCategoryMeasureExcelDto.getCategoryName())) {
+                basicsdatumCategoryMeasureExcelDto.setCategoryId(ccmFeignService.getIdsByNameAndLevel("品类", basicsdatumCategoryMeasureExcelDto.getCategoryName(), "1"));
             }
         }
         /*按编码操作*/

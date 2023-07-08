@@ -43,6 +43,12 @@ public class BasicsdatumCategoryMeasure extends BaseDataEntity<String> {
     /** 档差名 */
     @ApiModelProperty(value = "档差名"  )
     private String rangeDifferenceName;
+    /** 品类id */
+    private String  categoryId;
+    /** 品类id */
+    private String  categoryName;
+    /** 品牌 */
+    private String  brandCode;
     /** 档差id */
     @ApiModelProperty(value = "档差id"  )
     private String rangeDifferenceId;
