@@ -19,5 +19,5 @@ import org.hibernate.validator.constraints.NotBlank;
 public class PackBomSearchDto {
     @ApiModelProperty(value = "版本id")
     @NotBlank(message = "版本id为空")
-    private String versionId;
+    private String bomVersionId;
 }

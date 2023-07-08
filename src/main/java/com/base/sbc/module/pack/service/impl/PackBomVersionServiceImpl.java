@@ -69,7 +69,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             PackUtils.commonQw(qw, dto);
             long count = count(qw);
             pageData.setVersion("BOM " + (count + 1));
-            pageData.setStatus(BaseGlobal.YES);
+            pageData.setStatus(BaseGlobal.NO);
             save(pageData);
             return BeanUtil.copyProperties(pageData, PackBomVersionVo.class);
         }

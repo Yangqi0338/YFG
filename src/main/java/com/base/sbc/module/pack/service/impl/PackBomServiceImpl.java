@@ -66,6 +66,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
         QueryWrapper<PackBom> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
+        qw.eq("bom_version_id", dto.getBomVersionId());
         Page<PackBom> page = PageHelper.startPage(dto);
         list(qw);
         PageInfo<PackBom> pageInfo = page.toPageInfo();
@@ -121,9 +122,9 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean saveBatchByDto(String versionId, List<PackBomDto> dtoList) {
+    public boolean saveBatchByDto(String bomVersionId, List<PackBomDto> dtoList) {
         // 校验版本
-        PackBomVersion version = packBomVersionService.getById(versionId);
+        PackBomVersion version = packBomVersionService.getById(bomVersionId);
         if (version == null) {
             throw new OtherException("找不到版本信息");
         }

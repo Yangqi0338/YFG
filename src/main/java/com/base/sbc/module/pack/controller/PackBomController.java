@@ -88,7 +88,7 @@ public class PackBomController {
 
     @ApiOperation(value = "物料清单分页查询")
     @GetMapping()
-    public PageInfo<PackBomVo> versionPage(@Valid PackBomPageSearchDto dto) {
+    public PageInfo<PackBomVo> packBomPage(@Valid PackBomPageSearchDto dto) {
         return packBomService.pageInfo(dto);
     }
 
@@ -102,7 +102,7 @@ public class PackBomController {
     @PostMapping("/saveBatch")
     @ApiOperation(value = "保存全部物料清单")
     public boolean save(@Valid PackBomSearchDto search, @RequestBody List<PackBomDto> dtoList) {
-        return packBomService.saveBatchByDto(search.getVersionId(), dtoList);
+        return packBomService.saveBatchByDto(search.getBomVersionId(), dtoList);
     }
 
     @ApiOperation(value = "物料不可用")
