@@ -15,7 +15,7 @@ public class TestController extends BaseController {
     private final SmpService smpService;
     @RequestMapping("/smp")
     public ApiResult Smp(){
-        smpService.testBom();
+        //smpService.testBom();
      return   selectSuccess("123");
     }
 }

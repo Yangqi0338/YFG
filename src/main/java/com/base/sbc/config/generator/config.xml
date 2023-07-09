@@ -3,21 +3,21 @@
 
 	<params>
 		<!-- Java总路径  生成java文件包的目录 -->
-		<osdir       value="e:\code\sjs_yfg_pdm\src\main\java\com\base\sbc\module"></osdir>
+		<osdir       value="e:\code\shangjie\sjs_yfg_pdm\src\main\java\com\base\sbc\module"></osdir>
 		<!-- xml总路径 -->
-		<xmlosdir    value="e:\code\sjs_yfg_pdm\src\main\resources"></xmlosdir>
+		<xmlosdir    value="e:\code\shangjie\sjs_yfg_pdm\src\main\resources"></xmlosdir>
 		<!-- 总包名 -->
 		<javapackage value="com.base.sbc.module"></javapackage>
 		<!-- 模块名称 -->
-		<project     value="difference"></project>
+		<project     value="pushRecords"></project>
 <!--		<project     value="common"></project>-->
 <!--		<project     value="planning"></project>&lt;!&ndash; 模块名称 &ndash;&gt;-->
 	</params>
 	<tables>
-		<table  project="difference"     value="t_difference"   genType="2" ></table>
-		<table   project="difference"    value="t_difference"   genType="1" ></table>
-		<table   project="difference"    value="t_difference"   genType="3" ></table>
-		<table   project="difference"    value="t_difference"   genType="4" ></table>
+		<table  project="pushRecords"     value="t_push_records"   genType="2" ></table>
+		<table   project="pushRecords"    value="t_push_records"   genType="1" ></table>
+		<table   project="pushRecords"    value="t_push_records"   genType="3" ></table>
+		<table   project="pushRecords"    value="t_push_records"   genType="4" ></table>
 <!--		<table  project="nodestatus"     value="t_node_status"   genType="1,2,3,4" ></table>-->
 <!--		<table       value="t_field_val"   genType="2" ></table>-->
 <!--		<table       value="t_upload_file"   genType="2" ></table>-->

@@ -11,6 +11,8 @@ import java.util.Date;
  */
 @Data
 public class SmpBaseDto {
+    private String id;
+    private String name;
     /**创建人*/
     private String creator;
     /**创建时间*/
