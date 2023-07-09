@@ -90,9 +90,15 @@ public class SampleStyleColorController{
 	}
 
 	@ApiOperation(value = "删除款式配色-款式配色")
+	@DeleteMapping("/delStyleColor")
+	public Boolean delStyleColor(@Valid @NotBlank(message = "编号id不能为空") String id) {
+	return sampleStyleColorService.delStyleColor(id);
+	}
+
+	@ApiOperation(value = "按颜色id删除样衣下款式配色-款式配色")
 	@DeleteMapping("/delSampleStyleColor")
-	public Boolean delSampleStyleColor(@Valid @NotBlank(message = "编号id不能为空") String id) {
-	return sampleStyleColorService.delSampleStyleColor(id);
+	public Boolean delSampleStyleColor(@Valid @NotBlank(message = "颜色id不能为空") String id,@Valid @NotBlank(message = "样衣id") String sampleDesignId) {
+		return sampleStyleColorService.delSampleStyleColor(id,sampleDesignId);
 	}
 
 	@ApiOperation(value = "明细-通过id查询")
@@ -108,6 +114,18 @@ public class SampleStyleColorController{
 	public Boolean issueScm(@Valid @RequestBody QuerySampleStyleColorDto querySampleStyleColorDto) {
 		return sampleStyleColorService.issueScm(querySampleStyleColorDto.getIds());
 	}
+
+	@ApiOperation(value = "获取款式下的颜色id")
+	@GetMapping("/getStyleColorId")
+	public List<String> getStyleColorId(@Valid @NotBlank(message = "样衣id") String sampleDesignId) {
+		return sampleStyleColorService.getStyleColorId(sampleDesignId);
+	}
+
+/*	@ApiOperation(value = "关联Bom")
+	@PostMapping("/relevanceBom")
+	public Boolean relevanceBom(@Valid @RequestBody QuerySampleStyleColorDto querySampleStyleColorDto) {
+		return sampleStyleColorService.relevanceBom(querySampleStyleColorDto.getIds());
+	}*/
 
 }
 
