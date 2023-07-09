@@ -41,6 +41,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -307,7 +308,26 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
      * @return boolean
      */
     @Override
-    public Boolean delSampleStyleColor(String id) {
+    public Boolean delSampleStyleColor(String id,String sampleDesignId) {
+  /*      List<String> ids = StringUtils.convertList(id);
+        *//*批量删除*//*
+        baseMapper.deleteBatchIds(ids);*/
+        UpdateWrapper updateWrapper = new UpdateWrapper();
+        updateWrapper.set("del_flag","1");
+        updateWrapper.eq("sample_design_id",sampleDesignId);
+        updateWrapper.in("colour_library_id",StringUtils.convertList(id));
+        baseMapper.update(null,updateWrapper);
+        return true;
+    }
+
+    /**
+     * 方法描述：删除样衣-款式配色
+     *
+     * @param id （多个用，）
+     * @return boolean
+     */
+    @Override
+    public Boolean delStyleColor(String id) {
         List<String> ids = StringUtils.convertList(id);
         /*批量删除*/
         baseMapper.deleteBatchIds(ids);
@@ -361,6 +381,22 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
 
         });
         return true;
+    }
+
+    /**
+     * 方法描述 获取款式下的颜色
+     *
+     * @param id
+     */
+    @Override
+    public List<String> getStyleColorId(String sampleDesignId) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("sample_design_id",sampleDesignId);
+        List<SampleStyleColor> sampleStyleColorList = baseMapper.selectList(queryWrapper);
+        if(CollectionUtils.isEmpty(sampleStyleColorList)){
+            return new ArrayList<>();
+        }
+        return sampleStyleColorList.stream().map(SampleStyleColor::getColourLibraryId).collect(Collectors.toList());
     }
 
     /** 自定义方法区 不替换的区域【other_end】 **/

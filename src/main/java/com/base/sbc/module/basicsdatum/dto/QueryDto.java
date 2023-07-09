@@ -29,6 +29,8 @@ public class QueryDto extends Page {
     private String colourGroupId;
     /*编码*/
     private String code;
+    /*品类*/
+    private String categoryId;
 
     /** 创建日期 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

@@ -80,12 +80,18 @@ public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
         /**
         * 方法描述：删除样衣-款式配色
         *
-        * @param id （多个用，）
+        * @param id （多个用，） sampleDesignId 样衣id
         * @return boolean
         */
-        Boolean delSampleStyleColor(String id);
+        Boolean delSampleStyleColor(String id,String sampleDesignId);
 
-
+        /**
+         * 方法描述：删除样衣-款式配色
+         *
+         * @param id （多个用，）
+         * @return boolean
+         */
+        Boolean delStyleColor(String id);
 
         /**
         * 方法描述：启用停止样衣-款式配色
@@ -101,6 +107,13 @@ public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
          * @return
          */
         Boolean  issueScm(String ids);
+
+
+        /**
+         * 方法描述 获取款式下的颜色
+         * @param sampleDesignId 样衣id
+         */
+        List<String> getStyleColorId(String sampleDesignId);
 
 
 // 自定义方法区 不替换的区域【other_end】

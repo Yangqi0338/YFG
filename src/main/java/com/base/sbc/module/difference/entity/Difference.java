@@ -35,6 +35,9 @@ public class Difference extends BaseDataEntity<String> {
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 制版ID */
+    @ApiModelProperty(value = "档差管理id"  )
+    private String rangeDifferenceId;
+    /** 制版ID */
     @ApiModelProperty(value = "制版ID"  )
     private String plateBillId;
     /** 制版号 */

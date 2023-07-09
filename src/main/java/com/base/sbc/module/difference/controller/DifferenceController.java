@@ -30,7 +30,7 @@ public class DifferenceController extends BaseController {
      */
     @GetMapping("/getByCode")
     public ApiResult getByCode(String code) {
-        return selectSuccess(differenceService.list(new QueryWrapper<Difference>().eq("plate_bill_code", code)));
+        return selectSuccess(differenceService.list(new QueryWrapper<Difference>().eq("range_difference_id", code)));
     }
 
     /**
@@ -39,7 +39,7 @@ public class DifferenceController extends BaseController {
     @PostMapping("/getByCode")
     public ApiResult getByCode(@RequestBody List<Difference> differenceList,String code) {
 
-        differenceService.addAndUpdateAndDelList(differenceList,new BaseQueryWrapper<Difference>().eq("plate_bill_code",code));
+        differenceService.addAndUpdateAndDelList(differenceList,new BaseQueryWrapper<Difference>().eq("range_difference_id",code));
         return insertSuccess("操作成功");
     }
 
