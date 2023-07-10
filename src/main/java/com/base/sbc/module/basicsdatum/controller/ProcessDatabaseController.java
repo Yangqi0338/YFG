@@ -7,6 +7,7 @@ import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
 import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
 import com.base.sbc.module.basicsdatum.service.ProcessDatabaseService;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -58,7 +59,7 @@ public class ProcessDatabaseController extends BaseController {
      */
     @ApiOperation(value = "新增或者修改工艺资料库")
     @PostMapping("/save")
-    @OperaLog(value = "工艺资料库",operationType = OperationType.INSERT_UPDATE,service=ProcessDatabaseService.class)
+    @OperaLog(value = "工艺资料库", operationType = OperationType.INSERT_UPDATE, pathSpEL = PackUtils.pathSqEL, service = ProcessDatabaseService.class)
     public ApiResult save(@RequestBody ProcessDatabase processDatabase){
         boolean b = processDatabaseService.saveOrUpdate(processDatabase);
         return insertSuccess(b);

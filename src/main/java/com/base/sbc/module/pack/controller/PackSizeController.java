@@ -13,6 +13,7 @@ import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackSizeDto;
 import com.base.sbc.module.pack.service.PackSizeService;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackSizeVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -63,7 +64,7 @@ public class PackSizeController {
 
     @PostMapping("/save")
     @ApiOperation(value = "保存单个")
-    @OperaLog(value = "尺寸表", operationType = OperationType.INSERT_UPDATE, parentIdSpEl = "#p0.foreignId", service = PackSizeService.class)
+    @OperaLog(value = "尺寸表", operationType = OperationType.INSERT_UPDATE, pathSpEL = PackUtils.pathSqEL, parentIdSpEl = "#p0.foreignId", service = PackSizeService.class)
     public PackSizeVo save(@Valid @RequestBody PackSizeDto dto) {
         return packSizeService.saveByDto(dto);
     }

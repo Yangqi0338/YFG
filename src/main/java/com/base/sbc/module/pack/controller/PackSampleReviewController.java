@@ -15,6 +15,7 @@ import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackSampleReviewDto;
 import com.base.sbc.module.pack.service.PackSampleReviewService;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackSampleReviewVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -64,7 +65,7 @@ public class PackSampleReviewController {
 
 	@ApiOperation(value = "保存/修改", notes = "id为空新增、不为空修改")
 	@PostMapping
-	@OperaLog(value = "样衣评审", operationType = OperationType.INSERT_UPDATE, parentIdSpEl = "#p0.foreignId", service = PackSampleReviewService.class)
+	@OperaLog(value = "样衣评审", operationType = OperationType.INSERT_UPDATE, pathSpEL = PackUtils.pathSqEL, parentIdSpEl = "#p0.foreignId", service = PackSampleReviewService.class)
 	public PackSampleReviewVo save(@RequestBody PackSampleReviewDto dto) {
 		return packSampleReviewService.saveByDto(dto);
 	}

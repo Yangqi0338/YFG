@@ -15,6 +15,7 @@ import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.github.pagehelper.PageInfo;
@@ -94,7 +95,7 @@ public class PackBomController {
 
     @PostMapping("/save")
     @ApiOperation(value = "保存单个物料清单")
-    @OperaLog(value = "物料清单", operationType = OperationType.INSERT_UPDATE, parentIdSpEl = "#p0.foreignId", service = PackBomService.class)
+    @OperaLog(value = "物料清单", operationType = OperationType.INSERT_UPDATE, pathSpEL = PackUtils.pathSqEL, parentIdSpEl = "#p0.foreignId", service = PackBomService.class)
     public PackBomVo save(@Valid @RequestBody PackBomDto dto) {
         return packBomService.saveByDto(dto);
     }
@@ -115,6 +116,12 @@ public class PackBomController {
     @GetMapping("/usable")
     public boolean usable(@Valid IdsDto dto) {
         return packBomService.unusableChange(dto.getId(), BaseGlobal.NO);
+    }
+
+    @ApiOperation(value = "删除物料清单")
+    @DeleteMapping("/delBom")
+    public boolean delBom(@Valid IdsDto dto) {
+        return packBomService.delBom(dto.getId());
     }
 
     @ApiOperation(value = "转大货")

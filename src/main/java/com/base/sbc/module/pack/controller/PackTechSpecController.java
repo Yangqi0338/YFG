@@ -78,7 +78,6 @@ public class PackTechSpecController {
 
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")
     @DeleteMapping()
-    @OperaLog(value = "工艺说明", delIdSpEL = "#dto.id", operationType = OperationType.DELETE, service = PackTechSpecService.class, pathSpEL = PackTechSpecService.pathSqEL)
     public Boolean removeById(@Valid PackTechSpecSearchDto search, @Valid IdsDto dto) {
         return packTechSpecService.removeByIds(StringUtils.convertList(dto.getId()));
     }

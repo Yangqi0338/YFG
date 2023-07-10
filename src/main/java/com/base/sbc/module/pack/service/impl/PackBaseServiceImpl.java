@@ -51,11 +51,13 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
             return;
         }
         String foreignId = BeanUtil.getProperty(byId, "foreignId");
+        String packType = BeanUtil.getProperty(byId, "packType");
         OperaLogEntity log = new OperaLogEntity();
         log.setDocumentId(id);
         log.setName(getModeName());
         log.setContent(content);
         log.setParentId(foreignId);
+        log.setPath(CollUtil.join(CollUtil.newArrayList("资料包", packType, foreignId, getModeName()), StrUtil.DASHED));
         log.setType(type);
         operaLogService.save(log);
 
@@ -101,12 +103,14 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
         List<String> istrList = new ArrayList<>();
         List<String> dstrList = new ArrayList<>();
         String parentId = Opt.ofEmptyAble(dbList).map(a -> a.get(0)).map(b -> (String) BeanUtil.getProperty(b, "foreignId")).orElse("");
+        String packType = Opt.ofEmptyAble(dbList).map(a -> a.get(0)).map(b -> (String) BeanUtil.getProperty(b, "packType")).orElse("");
         for (T entity : entityList) {
             if (StringUtils.isEmpty(entity.getId()) || entity.getId().contains("-")) {
                 //说明是新增的
                 entity.setId(null);
                 addList.add(entity);
                 parentId = Opt.ofBlankAble(parentId).orElse(BeanUtil.getProperty(entity, "foreignId"));
+                packType = Opt.ofBlankAble(packType).orElse(BeanUtil.getProperty(entity, "packType"));
                 istrList.add(CommonUtils.newStr(fieldJson, entity).toString());
             } else {
                 //说明是修改的
@@ -115,6 +119,7 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
                 ustrList.add(CommonUtils.updateStr(dbMaps.get(entity.getId()), entity, fieldJson).toString());
                 dbIds.remove(entity.getId());
                 parentId = Opt.ofBlankAble(parentId).orElse(BeanUtil.getProperty(entity, "foreignId"));
+                packType = Opt.ofBlankAble(packType).orElse(BeanUtil.getProperty(entity, "packType"));
             }
         }
         if (CollUtil.isNotEmpty(dbIds)) {
@@ -150,6 +155,8 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
         log.setType("修改");
         log.setName(getModeName());
         log.setParentId(parentId);
+        //String pathSqEL = "'资料包-'+#p0.packType+'-'+#p0.foreignId+'-工艺说明-'+#p0.specType";
+        log.setPath(CollUtil.join(CollUtil.newArrayList("资料包", packType, parentId, getModeName()), StrUtil.DASHED));
         log.setDocumentId(CollUtil.join(documentIds, StrUtil.COMMA));
         operaLogService.save(log);
         return entityList.size();
