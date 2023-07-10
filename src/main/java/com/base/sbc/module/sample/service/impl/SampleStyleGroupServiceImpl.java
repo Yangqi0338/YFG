@@ -8,10 +8,13 @@ package com.base.sbc.module.sample.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
@@ -51,9 +54,20 @@ public class SampleStyleGroupServiceImpl extends BaseServiceImpl<SampleStyleGrou
 		return new PageInfo<>(list);
 	}
 
+	@Transactional
 	@Override
 	public Boolean delSampleStyleGroup(String id) {
-		return this.removeBatchByIds(StringUtils.convertList(id));
+		List<String> list = StringUtils.convertList(id);
+		BaseQueryWrapper<SampleStyleGroup> qc = new BaseQueryWrapper<>();
+		qc.select("group_code");
+		qc.eq("company_code", this.getCompanyCode());
+		List<String> list2 = this.list(qc).stream().map(SampleStyleGroup::getGroupCode).collect(Collectors.toList());
+		// 删除主表
+		this.removeBatchByIds(list);
+		// 删除子表
+		this.sampleStyleGroupColorService.remove(new QueryWrapper<SampleStyleGroupColor>()
+				.eq("company_code", this.getCompanyCode()).in("group_code", list2));
+		return true;
 	}
 
 	@Override
