@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookPriceUpdateDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookQueryDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookSaveDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookUpdateDto;
@@ -66,4 +67,11 @@ public class SampleStyleOrderBookController {
 	public Boolean delSampleStyleOrderBookItem(@RequestParam(value = "id") @NotBlank(message = "id不能为空") String id) {
 		return sampleStyleOrderBookService.delSampleStyleOrderBookItem(id);
 	}
+
+	@ApiOperation(value = "款式订货本列表:修改吊牌价（套装-配套/单款-配色）")
+	@PostMapping("/updateSampleStyleOrderBookPrice")
+	public Boolean updateSampleStyleOrderBookPrice(@Valid @RequestBody SampleStyleOrderBookPriceUpdateDto dto) {
+		return sampleStyleOrderBookService.updateSampleStyleOrderBookPrice(dto);
+	}
+
 }

@@ -3,8 +3,6 @@
 <mapper namespace="com.base.sbc.module.sample.mapper.SampleStyleGroupMapper">
     <!--
         款式管理-款式搭配
-        创建人：lxl
-        邮箱：lxl.fml@gmail.com
         创建时间：2023-7-3 14:37:23
         版本号：1.0
       -->

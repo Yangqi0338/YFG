@@ -33,6 +33,8 @@ public class SampleStyleOrderBookPageVo {
 	private String groupCode;
 	@ApiModelProperty(value = "订货本图片")
 	private String imageUrl;
+	@ApiModelProperty(value = "吊牌价（套装-配套/单款-配色）")
+	private String tagPrice;
 	@ApiModelProperty(value = "上会状态（0下会 1上会）")
 	private String meetFlag;
 	@ApiModelProperty(value = "锁定状态（0未锁 1锁定）")

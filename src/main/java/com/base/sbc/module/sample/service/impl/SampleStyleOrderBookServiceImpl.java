@@ -20,13 +20,16 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookPriceUpdateDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookQueryDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookSaveDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookUpdateDto;
+import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.entity.SampleStyleGroup;
 import com.base.sbc.module.sample.entity.SampleStyleOrderBook;
 import com.base.sbc.module.sample.entity.SampleStyleOrderBookColor;
 import com.base.sbc.module.sample.mapper.SampleStyleOrderBookMapper;
+import com.base.sbc.module.sample.service.SampleStyleColorService;
 import com.base.sbc.module.sample.service.SampleStyleGroupService;
 import com.base.sbc.module.sample.service.SampleStyleOrderBookColorService;
 import com.base.sbc.module.sample.service.SampleStyleOrderBookService;
@@ -49,6 +52,8 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 
 	@Autowired
 	private SampleStyleGroupService sampleStyleGroupService;
+	@Autowired
+	private SampleStyleColorService sampleStyleColorService;
 
 	@Override
 	public PageInfo<SampleStyleOrderBookPageVo> getStyleOrderBookList(SampleStyleOrderBookQueryDto dto) {
@@ -146,6 +151,21 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 	@Override
 	public Boolean delSampleStyleOrderBookItem(String id) {
 		return this.sampleStyleOrderBookColorService.removeBatchByIds(StringUtils.convertList(id));
+	}
+
+	/**
+	 * 修改吊牌价
+	 */
+	@Override
+	public Boolean updateSampleStyleOrderBookPrice(SampleStyleOrderBookPriceUpdateDto dto) {
+		if ("1".equals(dto.getGroupFlag())) {
+			sampleStyleGroupService.update(new UpdateWrapper<SampleStyleGroup>().set("tag_price", dto.getTagPrice())
+					.eq(COMPANY_CODE, getCompanyCode()).eq("group_code", dto.getGroupCode()));
+		} else {
+			sampleStyleColorService.update(new UpdateWrapper<SampleStyleColor>().set("tag_price", dto.getTagPrice())
+					.eq(COMPANY_CODE, getCompanyCode()).eq("style_no", dto.getStyleNo()));
+		}
+		return true;
 	}
 
 }
