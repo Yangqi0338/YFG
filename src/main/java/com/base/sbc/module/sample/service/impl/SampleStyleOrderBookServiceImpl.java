@@ -88,7 +88,7 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 	 */
 	private void saveItem(String orderBookCode, String styleNo) {
 		// 页面选择的款号集合
-		List<String> convertList = StringUtils.convertList(styleNo);
+		List<String> convertList = StringUtils.convertList(styleNo).stream().distinct().collect(Collectors.toList());
 		// 款号 - 套装编号
 		Map<String, String> map = new HashMap<>();
 		// 查询款式对应的套装
