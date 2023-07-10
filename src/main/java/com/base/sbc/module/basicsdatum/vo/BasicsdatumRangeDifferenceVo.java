@@ -11,6 +11,9 @@ import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.List;
+
 /**
  * 类描述：基础资料-档差 Vo类
  * @address com.base.sbc.module.basicsdatum.vo.BasicsdatumRangeDifference
@@ -61,4 +64,6 @@ public class BasicsdatumRangeDifferenceVo  extends BaseDataEntity<String>{
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    private List<String> categoryIds;
 }

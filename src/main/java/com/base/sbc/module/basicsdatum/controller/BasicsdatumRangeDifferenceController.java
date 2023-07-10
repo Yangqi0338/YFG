@@ -82,7 +82,7 @@ public class BasicsdatumRangeDifferenceController{
 
 	@ApiOperation(value = "明细-通过id查询")
 	@GetMapping("/{id}")
-	public BasicsdatumRangeDifference getById(@PathVariable("id") String id) {
+	public BasicsdatumRangeDifferenceVo getById(@PathVariable("id") String id) {
 		return basicsdatumRangeDifferenceService.getById(id);
 	}
 

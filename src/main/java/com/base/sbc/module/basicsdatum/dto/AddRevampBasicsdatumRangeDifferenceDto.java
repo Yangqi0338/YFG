@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.dto;
 
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
 import com.base.sbc.module.difference.entity.Difference;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -39,12 +40,6 @@ public class AddRevampBasicsdatumRangeDifferenceDto  {
     /**  备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
-    /**  品类id */
-    @ApiModelProperty(value = "品类id"  )
-    private String categoryId;
-    /**  品类名 */
-    @ApiModelProperty(value = "品类名"  )
-    private String categoryName;
     /** 测量数据集合 */
     @ApiModelProperty(value = "测量数据集合"  )
     private List<Difference> differenceList;
@@ -66,4 +61,7 @@ public class AddRevampBasicsdatumRangeDifferenceDto  {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    private List<BasicsdatumCompanyRelation> list;
+
 }

@@ -82,6 +82,15 @@ public interface BasicsdatumRangeDifferenceService extends BaseService<Basicsdat
         */
         Boolean startStop( StartStopDto startStopDto);
 
+        /**
+         * 方法描述：
+         *
+         * @param id
+         * @return boolean
+         */
+        BasicsdatumRangeDifferenceVo getById(String id);
+
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
