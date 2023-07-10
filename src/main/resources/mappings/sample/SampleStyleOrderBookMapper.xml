@@ -8,8 +8,8 @@
       -->
 	<select id="getStyleOrderBookList" resultType="com.base.sbc.module.sample.vo.SampleStyleOrderBookPageVo">
 		SELECT
-			b.id,
-			bc.id as item_id,
+			bc.id,
+			b.id as book_id,
 			bc.order_book_code,
 			bc.style_no,
 			t1.sample_design_pic,

@@ -15,8 +15,8 @@ import lombok.Data;
 public class SampleStyleOrderBookPageVo {
 	@ApiModelProperty(value = "id")
 	private String id;
-	@ApiModelProperty(value = "明细Id")
-	private String itemId;
+	@ApiModelProperty(value = "订货Id")
+	private String bookId;
 	@ApiModelProperty(value = "订货本编号")
 	private String orderBookCode;
 	@ApiModelProperty(value = "款号")
