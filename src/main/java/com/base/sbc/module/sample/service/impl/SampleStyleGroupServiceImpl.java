@@ -61,6 +61,7 @@ public class SampleStyleGroupServiceImpl extends BaseServiceImpl<SampleStyleGrou
 		BaseQueryWrapper<SampleStyleGroup> qc = new BaseQueryWrapper<>();
 		qc.select("group_code");
 		qc.eq("company_code", this.getCompanyCode());
+		qc.in("id", list);
 		List<String> list2 = this.list(qc).stream().map(SampleStyleGroup::getGroupCode).collect(Collectors.toList());
 		// 删除主表
 		this.removeBatchByIds(list);
