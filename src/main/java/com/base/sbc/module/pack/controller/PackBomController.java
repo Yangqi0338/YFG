@@ -121,7 +121,7 @@ public class PackBomController {
     @ApiOperation(value = "删除物料清单")
     @DeleteMapping("/delBom")
     public boolean delBom(@Valid IdsDto dto) {
-        return packBomService.delBom(dto.getId());
+        return packBomService.delByIds(dto.getId());
     }
 
     @ApiOperation(value = "转大货")

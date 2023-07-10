@@ -16,8 +16,11 @@ public interface PackBaseService<T> extends BaseService<T> {
 
     /**
      * 记入操作日志
+     *
      * @param id
      * @param type
      */
     void log(String id, String type);
+
+    boolean delByIds(String id);
 }

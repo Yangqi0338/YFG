@@ -8,10 +8,12 @@ package com.base.sbc.module.pack.service;
 
 import com.base.sbc.module.pack.dto.PackBomDto;
 import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.github.pagehelper.PageInfo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -72,14 +74,9 @@ public interface PackBomService extends PackBaseService<PackBom> {
      */
     boolean unusableChange(String id, String unusableFlag);
 
-    /**
-     * 删除物料清单
-     *
-     * @param id
-     * @return
-     */
-    boolean delBom(String id);
+    BigDecimal calculateCosts(PackCommonSearchDto dto);
 
+    List<PackBom> getListByVersionId(String versionId);
 
 // 自定义方法区 不替换的区域【other_end】
 

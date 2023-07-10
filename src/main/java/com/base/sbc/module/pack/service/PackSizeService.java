@@ -44,13 +44,6 @@ public interface PackSizeService extends PackBaseService<PackSize> {
      */
     PackSizeVo saveByDto(PackSizeDto dto);
 
-    /**
-     * 删除
-     *
-     * @param id
-     * @return
-     */
-    boolean del(String id);
 
     /**
      * 保存全部

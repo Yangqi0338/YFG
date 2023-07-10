@@ -8,7 +8,6 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -81,12 +80,6 @@ public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, Pac
         }
     }
 
-    @Override
-    @Transactional(rollbackFor = {Exception.class})
-    public boolean del(String id) {
-        removeBatchByIds(StrUtil.split(id, CharUtil.COMMA));
-        return true;
-    }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})

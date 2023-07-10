@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.pack.mapper.PackPricingOtherCostsMapper">
+    <!--
+        资料包-核价信息-其他费用
+        创建人：your name
+        邮箱：your email
+        创建时间：2023-7-10 13:35:18
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+
+    <select id="costsItemTotal" resultType="com.base.sbc.module.common.vo.TotalVo">
+        select costs_item as label, sum(price) as total
+        from t_pack_pricing_other_costs ${ ew.customSqlSegment}
+        group by costs_item
+
+    </select>
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+
+</mapper>
