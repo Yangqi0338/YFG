@@ -173,6 +173,14 @@ public class BaseGlobal {
      * 批次状态 0入库完成
      */
     public static final String IN_SUCCESS = "0";
+    /**
+     * 周
+     */
+    public static final String WEEK = "week";
+    /**
+     * 月
+     */
+    public static final String MONTH = "month";
 
     /**
      * 获取当前对象实例

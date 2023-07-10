@@ -13,4 +13,23 @@
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+    <select id="selectRangeDifferenceList"
+            resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumRangeDifferenceVo">
+
+      SELECT
+        rd.*,
+        cr.category_name ,
+        cr.category_id
+      FROM
+        t_basicsdatum_range_difference rd
+        LEFT JOIN ( SELECT data_id, type, GROUP_CONCAT( category_name ) category_name, category_id FROM t_basicsdatum_company_relation
+    <where>
+        <if test="categoryId !=null and categoryId != ''">
+            category_id=#{categoryId}
+        </if>
+    </where>
+	GROUP BY type,data_id ) cr ON rd.id = cr.data_id AND cr.type = 'difference'
+    ${ ew.customSqlSegment}
+
+    </select>
 </mapper>

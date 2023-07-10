@@ -15,4 +15,5 @@ public class SampleStyleOrderBookQueryDto extends Page {
 
 	private static final long serialVersionUID = 1L;
 
+	private String companyCode;
 }

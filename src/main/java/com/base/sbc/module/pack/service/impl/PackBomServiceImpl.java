@@ -201,6 +201,12 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean delBom(String id) {
+        return removeBatchByIds(StrUtil.split(id, CharUtil.COMMA));
+    }
+
+    @Override
     String getModeName() {
         return "物料清单";
     }

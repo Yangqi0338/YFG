@@ -6,10 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookQueryDto;
 import com.base.sbc.module.sample.entity.SampleStyleOrderBook;
+import com.base.sbc.module.sample.vo.SampleStyleOrderBookPageVo;
 
 /**
  * 类描述：款式管理-订货本 dao类
@@ -20,4 +24,12 @@ import com.base.sbc.module.sample.entity.SampleStyleOrderBook;
  */
 @Mapper
 public interface SampleStyleOrderBookMapper extends BaseMapper<SampleStyleOrderBook> {
+	/**
+	 * 订货本列表页面查询
+	 * 
+	 * @param companyCode
+	 * @param dto
+	 * @return
+	 */
+	List<SampleStyleOrderBookPageVo> getStyleOrderBookList(SampleStyleOrderBookQueryDto dto);
 }

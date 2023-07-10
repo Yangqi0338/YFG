@@ -23,11 +23,13 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumRangeDifferenceDt
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumRangeDifferenceExcelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMeasurementMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumRangeDifferenceMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumCompanyRelationService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumRangeDifferenceService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumRangeDifferenceVo;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -76,6 +78,8 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
 
     private final BasicsdatumMeasurementMapper basicsdatumMeasurementMapper;
 
+    private final BasicsdatumCompanyRelationService basicsdatumCompanyRelationService;
+
 /** 自定义方法区 不替换的区域【other_start】 **/
 
     /**
@@ -91,23 +95,24 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
             PageHelper.startPage(queryDto);
         }
         BaseQueryWrapper<BasicsdatumRangeDifference> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.eq("company_code", baseController.getUserCompany());
-        queryWrapper.notEmptyLike("model_type", queryDto.getModelType());
-        queryWrapper.notEmptyLike("create_name", queryDto.getCreateName());
-        queryWrapper.notEmptyLike("code", queryDto.getCode());
-        queryWrapper.notEmptyLike("range_difference", queryDto.getRangeDifference());
-        queryWrapper.notEmptyEq("status", queryDto.getStatus());
-        queryWrapper.between("create_date", queryDto.getCreateDate());
-        queryWrapper.orderByDesc("create_date");
+        queryWrapper.eq("rd.company_code", baseController.getUserCompany());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getCategoryId()),"cr.category_id", queryDto.getCategoryId());
+        queryWrapper.notEmptyLike("rd.model_type", queryDto.getModelType());
+        queryWrapper.notEmptyLike("rd.create_name", queryDto.getCreateName());
+        queryWrapper.notEmptyLike("rd.code", queryDto.getCode());
+        queryWrapper.notEmptyLike("rd.range_difference", queryDto.getRangeDifference());
+        queryWrapper.notEmptyEq("rd.status", queryDto.getStatus());
+        queryWrapper.between("rd.create_date", queryDto.getCreateDate());
+        queryWrapper.orderByDesc("rd.create_date");
         /*查询基础资料-档差数据*/
-        List<BasicsdatumRangeDifference> basicsdatumRangeDifferenceList = baseMapper.selectList(queryWrapper);
-        PageInfo<BasicsdatumRangeDifference> pageInfo = new PageInfo<>(basicsdatumRangeDifferenceList);
-        /*转换vo*/
+        List<BasicsdatumRangeDifferenceVo> basicsdatumRangeDifferenceList = baseMapper.selectRangeDifferenceList(queryWrapper,queryDto.getCategoryId());
+        PageInfo<BasicsdatumRangeDifferenceVo> pageInfo = new PageInfo<>(basicsdatumRangeDifferenceList);
+/*        *//*转换vo*//*
         List<BasicsdatumRangeDifferenceVo> list = BeanUtil.copyToList(basicsdatumRangeDifferenceList, BasicsdatumRangeDifferenceVo.class);
         PageInfo<BasicsdatumRangeDifferenceVo> pageInfo1 = new PageInfo<>();
         pageInfo1.setList(list);
-        BeanUtil.copyProperties(pageInfo, pageInfo1, "list");
-        return pageInfo1;
+        BeanUtil.copyProperties(pageInfo, pageInfo1, "list");*/
+        return pageInfo;
     }
 
 
@@ -177,7 +182,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
      * @return boolean
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = {Exception.class})
     public Boolean addRevamp(AddRevampBasicsdatumRangeDifferenceDto addRevampBasicsdatumRangeDifferenceDto) {
         BasicsdatumRangeDifference basicsdatumRangeDifference = new BasicsdatumRangeDifference();
         QueryWrapper<BasicsdatumRangeDifference> queryWrapper = new QueryWrapper<>();
@@ -193,6 +198,11 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
             basicsdatumRangeDifference.setCompanyCode(baseController.getUserCompany());
             basicsdatumRangeDifference.insertInit();
             baseMapper.insert(basicsdatumRangeDifference);
+            /*新增*/
+            if (!CollectionUtils.isEmpty(addRevampBasicsdatumRangeDifferenceDto.getList())) {
+                basicsdatumCompanyRelationService.batchAddition(assignmentCompany(addRevampBasicsdatumRangeDifferenceDto.getList(), basicsdatumRangeDifference.getId()));
+            }
+
         } else {
             /*修改*/
             basicsdatumRangeDifference = baseMapper.selectById(addRevampBasicsdatumRangeDifferenceDto.getId());
@@ -205,6 +215,11 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
             BeanUtils.copyProperties(addRevampBasicsdatumRangeDifferenceDto, basicsdatumRangeDifference);
             basicsdatumRangeDifference.updateInit();
             baseMapper.updateById(basicsdatumRangeDifference);
+            /*新增*/
+            if (!CollectionUtils.isEmpty(addRevampBasicsdatumRangeDifferenceDto.getList())) {
+                basicsdatumCompanyRelationService.deleteBatchAddition(assignmentCompany(addRevampBasicsdatumRangeDifferenceDto.getList(), basicsdatumRangeDifference.getId()));
+            }
+
         }
         for (Difference difference : addRevampBasicsdatumRangeDifferenceDto.getDifferenceList()) {
             difference.setPlateBillCode(addRevampBasicsdatumRangeDifferenceDto.getId());
@@ -214,6 +229,15 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         return true;
     }
 
+    /*赋值*/
+    public List<BasicsdatumCompanyRelation> assignmentCompany( List<BasicsdatumCompanyRelation> list,String id) {
+        for (BasicsdatumCompanyRelation b : list) {
+            b.setCompanyCode(baseController.getUserCompany());
+            b.setDataId(id);
+            b.setType("difference");
+        }
+        return list;
+    }
 
     /**
      * 方法描述：删除基础资料-档差
@@ -243,6 +267,30 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         updateWrapper.set("status", startStopDto.getStatus());
         /*修改状态*/
         return baseMapper.update(null, updateWrapper) > 0;
+    }
+
+    /**
+     * 方法描述：
+     *
+     * @param id
+     * @return boolean
+     */
+    @Override
+    public BasicsdatumRangeDifferenceVo getById(String id) {
+        BasicsdatumRangeDifferenceVo basicsdatumRangeDifferenceVo =new BasicsdatumRangeDifferenceVo();
+        BasicsdatumRangeDifference basicsdatumRangeDifference =  baseMapper.selectById(id);
+        BeanUtils.copyProperties(basicsdatumRangeDifference, basicsdatumRangeDifferenceVo);
+
+//        查询品类
+        QueryWrapper queryWrapper=new QueryWrapper();
+        queryWrapper.eq("data_id",basicsdatumRangeDifferenceVo.getId());
+        queryWrapper.eq("type","difference");
+        queryWrapper.eq("company_code",baseController.getUserCompany());
+        List<BasicsdatumCompanyRelation> list =   basicsdatumCompanyRelationService.list(queryWrapper);
+        if (!CollectionUtils.isEmpty(list)) {
+            basicsdatumRangeDifferenceVo.setCategoryIds(list.stream().map(BasicsdatumCompanyRelation::getCategoryId).collect(Collectors.toList()));
+        }
+        return basicsdatumRangeDifferenceVo;
     }
 
     /** 自定义方法区 不替换的区域【other_end】 **/

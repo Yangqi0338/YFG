@@ -59,7 +59,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    @OperaLog(value = "物料清单版本", operationType = OperationType.INSERT_UPDATE, parentIdSpEl = "#p0.foreignId")
+    @OperaLog(value = "物料清单版本", operationType = OperationType.INSERT_UPDATE, pathSpEL = PackUtils.pathSqEL, parentIdSpEl = "#p0.foreignId")
     public PackBomVersionVo saveVersion(PackBomVersionDto dto) {
         //新增
         if (StrUtil.isBlank(dto.getId()) || StrUtil.contains(dto.getId(), StrUtil.DASHED)) {

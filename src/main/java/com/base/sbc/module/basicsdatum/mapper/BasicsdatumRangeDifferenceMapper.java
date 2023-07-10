@@ -7,9 +7,16 @@
 package com.base.sbc.module.basicsdatum.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumRangeDifferenceVo;
 import org.apache.ibatis.annotations.Mapper;
-/** 
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
  * 类描述：基础资料-档差 dao类
  * @address com.base.sbc.module.basicsdatum.dao.BasicsdatumRangeDifferenceDao
  * @author mengfanjiang  
@@ -20,6 +27,11 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface BasicsdatumRangeDifferenceMapper extends BaseMapper<BasicsdatumRangeDifference> {
 /** 自定义方法区 不替换的区域【other_start】 **/
+
+
+
+//   查询档差
+    List<BasicsdatumRangeDifferenceVo>  selectRangeDifferenceList(@Param(Constants.WRAPPER) BaseQueryWrapper qw,@Param("categoryId") String categoryId);
 
 
 

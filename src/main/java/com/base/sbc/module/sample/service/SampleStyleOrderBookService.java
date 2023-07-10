@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookPriceUpdateDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookQueryDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookSaveDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookUpdateDto;
@@ -29,5 +30,7 @@ public interface SampleStyleOrderBookService extends BaseService<SampleStyleOrde
 	Boolean updateSampleStyleOrderBook(SampleStyleOrderBookUpdateDto dto);
 
 	Boolean delSampleStyleOrderBookItem(String id);
+
+	Boolean updateSampleStyleOrderBookPrice(SampleStyleOrderBookPriceUpdateDto dto);
 	
 }

@@ -72,6 +72,14 @@ public interface PackBomService extends PackBaseService<PackBom> {
      */
     boolean unusableChange(String id, String unusableFlag);
 
+    /**
+     * 删除物料清单
+     *
+     * @param id
+     * @return
+     */
+    boolean delBom(String id);
+
 
 // 自定义方法区 不替换的区域【other_end】
 
