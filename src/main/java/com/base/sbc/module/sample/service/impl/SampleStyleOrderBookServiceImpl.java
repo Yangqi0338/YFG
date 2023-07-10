@@ -31,6 +31,7 @@ import com.base.sbc.module.sample.service.SampleStyleGroupService;
 import com.base.sbc.module.sample.service.SampleStyleOrderBookColorService;
 import com.base.sbc.module.sample.service.SampleStyleOrderBookService;
 import com.base.sbc.module.sample.vo.SampleStyleOrderBookPageVo;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -51,8 +52,12 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 
 	@Override
 	public PageInfo<SampleStyleOrderBookPageVo> getStyleOrderBookList(SampleStyleOrderBookQueryDto dto) {
-		// TODO Auto-generated method stub
-		return null;
+		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+			PageHelper.startPage(dto);
+		}
+		dto.setCompanyCode(this.getCompanyCode());
+		List<SampleStyleOrderBookPageVo> list = this.baseMapper.getStyleOrderBookList(dto);
+		return new PageInfo<>(list);
 	}
 
 	@Override
@@ -75,7 +80,7 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 	}
 
 	/**
-	 * 保存订货明细
+	 * 保存订货本明细
 	 * 
 	 * @param orderBookCode
 	 * @param styleNo

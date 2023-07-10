@@ -6,5 +6,26 @@
         创建时间：2023-7-3 14:37:29
         版本号：1.0
       -->
-	
+	<select id="getStyleOrderBookList" resultType="com.base.sbc.module.sample.vo.SampleStyleOrderBookPageVo">
+		SELECT
+			b.id,
+			bc.id as item_id,
+			bc.order_book_code,
+			bc.style_no,
+			t1.sample_design_pic,
+			t1.band_code,
+			t1.color_name,
+			bc.group_flag,
+			bc.group_code,
+			b.image_url,
+			b.meet_flag,
+			b.lock_flag 
+		FROM
+			t_sample_style_order_book_color bc
+			LEFT JOIN t_sample_style_order_book b ON bc.order_book_code = b.order_book_code
+			LEFT JOIN t_sample_style_color t1 ON bc.style_no = t1.style_no
+		WHERE
+			bc.del_flag = '0'
+			and bc.company_code =  #{companyCode}
+	</select>
 </mapper>
