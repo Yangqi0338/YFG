@@ -69,4 +69,8 @@ public class BasicsdatumMaterialPriceSaveDto {
 	/** 规格 */
 	@ApiModelProperty(value = "规格")
 	private String widthName;
+	/** 供应商料号 */
+	@ApiModelProperty(value = "供应商料号")
+	private String supplierMaterialCode;
+
 }
