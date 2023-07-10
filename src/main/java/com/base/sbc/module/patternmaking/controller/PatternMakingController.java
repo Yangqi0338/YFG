@@ -9,6 +9,7 @@ package com.base.sbc.module.patternmaking.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
@@ -221,6 +222,12 @@ public class PatternMakingController {
     @GetMapping("/prmDataOverview")
     public List prmDataOverview(String time) {
         return patternMakingService.prmDataOverview(time);
+    }
+
+    @ApiOperation(value = "版类对比统计", notes = "")
+    @GetMapping("/versionComparisonViewWeekMonth")
+    public ApiResult versionComparisonViewWeekMonth(@RequestHeader(BaseConstant.USER_COMPANY)String companyCode, String weeklyMonth, String startTime, String endTime) {
+        return ApiResult.success("查询成功",patternMakingService.versionComparisonViewWeekMonth(companyCode, weeklyMonth, startTime, endTime));
     }
 
     @ApiOperation(value = "获取节点状态配置", notes = "")

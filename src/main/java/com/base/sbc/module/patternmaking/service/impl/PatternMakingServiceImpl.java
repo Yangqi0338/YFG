@@ -8,6 +8,7 @@ package com.base.sbc.module.patternmaking.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
@@ -28,10 +29,13 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.DateUtils;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
@@ -48,6 +52,7 @@ import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -794,6 +799,72 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         return pm;
 
+    }
+
+    @Override
+    public ArrayList<ArrayList> versionComparisonViewWeekMonth(String companyCode, String weeklyMonth, String startTime, String endTime) {
+        // 1、返回数据集合
+        ArrayList<ArrayList> dataLists = new ArrayList<>();
+        // 2、时间为空 默认查询当前时间的前一个月数据
+        if(StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime) ){
+            Date date = new Date();
+            endTime = DateUtils.formatDateTime(date);
+            startTime =  DateUtils.getMonthAgo(date);
+        }
+        // 3、判断是否是根据周、月查询
+        if(StringUtils.isBlank(weeklyMonth) || (!weeklyMonth.equals(BaseGlobal.WEEK) && !weeklyMonth.equals(BaseGlobal.MONTH))){
+            weeklyMonth = BaseGlobal.WEEK;
+        }
+        List<PatternMakingWeekMonthViewVo> dataList = baseMapper.versionComparisonViewWeekMonth(companyCode, weeklyMonth, startTime, endTime);
+        // 4、判断数据是为空
+        if(CollectionUtil.isNotEmpty(dataList)){
+            // 4.1 取出所有的时间
+            List<String> yearWeekList = dataList.stream().filter(item -> StrUtil.isNotBlank(item.getYearWeek()))
+                    .map(m -> m.getYearWeek()).distinct().collect(Collectors.toList());
+
+            // 4.2根据sampleType分类
+            Map<Object, List<PatternMakingWeekMonthViewVo>> sampleTypeMap = dataList.stream().collect(Collectors.groupingBy(PatternMakingWeekMonthViewVo::getSampleType));
+
+            // 4.3 取出初版数据
+            List<PatternMakingWeekMonthViewVo> firstVersionList = null != sampleTypeMap.get("初版样") ? sampleTypeMap.get("初版样") : new ArrayList<>();
+            //  4.3.1 根据时间转换为map
+            Map<String, PatternMakingWeekMonthViewVo> firstVersionMap = Maps.newHashMap();
+            if(CollectionUtil.isNotEmpty(firstVersionList)){
+                firstVersionMap = firstVersionList.stream().filter(item -> StrUtil.isNotBlank(item.getYearWeek()))
+                        .collect(Collectors.toMap(k -> k.getYearWeek(), v -> v, (a, b) -> b));
+            }
+
+            // 4.4 取出改版样数据
+            List<PatternMakingWeekMonthViewVo> revisionList = null != sampleTypeMap.get("改版样") ? sampleTypeMap.get("改版样") : new ArrayList<>();
+            //  4.4.1 根据时间把改版样数据转换为map
+            Map<String,PatternMakingWeekMonthViewVo> revisionMap = Maps.newHashMap();
+            if(CollectionUtil.isNotEmpty(revisionList)){
+                revisionMap = revisionList.stream().filter(item -> StrUtil.isNotBlank(item.getYearWeek()))
+                        .collect(Collectors.toMap(k -> k.getYearWeek(), v -> v, (a, b) -> b));
+            }
+
+            // 5、根据数据里的拼接返回的数据
+            for (String yearWeek : yearWeekList) {
+                ArrayList<String> arrayList = new ArrayList();
+                arrayList.add(yearWeek);
+                // 5.1、初版数据
+                if(null != firstVersionMap.get(yearWeek)){
+                    PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = firstVersionMap.get(yearWeek);
+                    arrayList.add(null != patternMakingWeekMonthViewVo.getNum() ? patternMakingWeekMonthViewVo.getNum() : "0");
+                } else {
+                    arrayList.add("0");
+                }
+                // 5.2、改版样数据
+                if(null != revisionMap.get(yearWeek)){
+                    PatternMakingWeekMonthViewVo revisionTwo = revisionMap.get(yearWeek);
+                    arrayList.add(null != revisionTwo.getNum() ? revisionTwo.getNum() : "0");
+                } else {
+                    arrayList.add("0");
+                }
+                dataLists.add(arrayList);
+            }
+        }
+        return dataLists;
     }
 
     // 自定义方法区 不替换的区域【other_end】

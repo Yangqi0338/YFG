@@ -152,5 +152,58 @@
         JOIN t_planning_season ps ON ps.id = pk.planning_season_id
         ${ew.customSqlSegment}
     </select>
+
+    <select id="versionComparisonViewWeekMonth" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingWeekMonthViewVo">
+        SELECT
+            *
+        FROM
+            (
+            SELECT
+                sample_type,
+                DATE_FORMAT( create_date, IF(#{weeklyMonth} = 'week','%y年%u周', '%y年%m月') ) AS year_week,
+                min( create_date ) AS min_date,
+                count( * ) AS num
+            FROM
+                t_pattern_making
+            WHERE
+                del_flag = '0'
+                AND company_code = #{companyCode}
+                AND create_date BETWEEN #{startTime}
+                AND #{endTime}
+                AND sample_type = '初版样'
+            GROUP BY
+                DATE_FORMAT( create_date, IF(#{weeklyMonth} = 'week','%y%u', '%y%m') )
+            ORDER BY
+                year_week ASC
+            )
+        AS pmc
+        UNION
+        SELECT
+            *
+        FROM
+            (
+            SELECT
+                sample_type,
+                DATE_FORMAT( create_date, IF(#{weeklyMonth} = 'week','%y年%u周', '%y年%m月') ) AS year_week,
+                min( create_date ) AS min_date,
+                count( * ) AS num
+            FROM
+                t_pattern_making
+            WHERE
+                del_flag = '0'
+                AND company_code = #{companyCode}
+                AND create_date BETWEEN #{startTime}
+                AND #{endTime}
+                AND sample_type = '改版样'
+            GROUP BY
+                DATE_FORMAT( create_date, IF(#{weeklyMonth} = 'week','%y%u', '%y%m') )
+            ORDER BY
+                year_week ASC
+            )
+        AS pmg
+    </select>
+
+
+
 </mapper>
 

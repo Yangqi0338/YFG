@@ -47,6 +47,17 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
     List<PatternMakingForSampleVo> getAllList(@Param(Constants.WRAPPER) QueryWrapper qw);
     List<PatternMakingListVo> findBySampleDesignId(@Param(Constants.WRAPPER) QueryWrapper<PatternMaking> qw);
 
+    /**
+     * 根据时间按周月统计版类对比
+     * @param companyCode 企业编码
+     * @param weeklyMonth 周月类型 week、month 默认 week
+     * @param startTime 开始时间
+     * @param endTime 结束时间
+     * @return 根据周返回集合
+     */
+    List<PatternMakingWeekMonthViewVo> versionComparisonViewWeekMonth(@Param("companyCode") String companyCode, @Param("weeklyMonth") String weeklyMonth,
+                                                            @Param("startTime") String startTime, @Param("endTime") String endTime);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }
