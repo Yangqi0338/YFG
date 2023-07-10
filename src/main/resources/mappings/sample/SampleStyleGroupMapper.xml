@@ -46,7 +46,7 @@
 			t.update_date,
 			t2.group_code,
 			t2.group_name,
-			t1.style_no,
+			t.style_no,
 			t1.sample_design_pic,
 			t1.color_name,
 			t1.band_code 
