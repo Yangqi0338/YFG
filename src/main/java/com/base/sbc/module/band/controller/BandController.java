@@ -170,7 +170,7 @@ public class BandController extends BaseController {
         QueryWrapper<Band> qc = new QueryWrapper<>();
         qc.eq("company_code", getUserCompany());
         qc.eq(StrUtil.isNotBlank(dto.getStatus()), "status", BaseGlobal.STATUS_NORMAL);
-        qc.eq(StrUtil.isNotBlank(dto.getParticularYear()), "particular_year", dto.getParticularYear());
+//        qc.eq(StrUtil.isNotBlank(dto.getParticularYear()), "particular_year", dto.getParticularYear());
         qc.eq(StrUtil.isNotBlank(dto.getSeason()), "season", dto.getSeason());
         qc.eq(StrUtil.isNotBlank(dto.getCode()), "code", dto.getCode());
         qc.eq(StrUtil.isNotBlank(dto.getMonth()), "month", dto.getMonth());
