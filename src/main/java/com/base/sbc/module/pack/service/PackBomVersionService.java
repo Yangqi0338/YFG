@@ -68,13 +68,6 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
      */
     boolean lockChange(String id, String lockFlag);
 
-    /**
-     * 转大货
-     *
-     * @param id
-     * @return
-     */
-    boolean toBigGoods(String id);
 
     /**
      * 获取启用的版本

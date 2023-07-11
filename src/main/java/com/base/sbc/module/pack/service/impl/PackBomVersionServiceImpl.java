@@ -142,13 +142,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         return update(uw);
     }
 
-    @Override
-    @Transactional(rollbackFor = {Exception.class})
-    public boolean toBigGoods(String id) {
 
-
-        return false;
-    }
 
     @Override
     public PackBomVersion getEnableVersion(PackCommonSearchDto dto) {

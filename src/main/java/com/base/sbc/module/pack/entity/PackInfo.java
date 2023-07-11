@@ -12,7 +12,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 /**
  * 类描述：资料包 实体类
  *
@@ -20,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfo
  * @email your email
- * @date 创建时间：2023-7-6 18:28:20
+ * @date 创建时间：2023-7-11 10:05:05
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -40,11 +39,6 @@ public class PackInfo extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "主数据id(样衣设计id)")
     private String foreignId;
-    /**
-     * 资料包类型
-     */
-    @ApiModelProperty(value = "资料包类型")
-    private String packType;
     /**
      * 编号
      */
@@ -101,9 +95,14 @@ public class PackInfo extends BaseDataEntity<String> {
     @ApiModelProperty(value = "小类")
     private String prodCategory3rd;
     /**
-     * 配色
+     * 款式配色id
      */
-    @ApiModelProperty(value = "配色")
+    @ApiModelProperty(value = "款式配色id")
+    private String sampleStyleColorId;
+    /**
+     * 颜色
+     */
+    @ApiModelProperty(value = "颜色")
     private String color;
     /**
      * 生产模式
@@ -111,9 +110,9 @@ public class PackInfo extends BaseDataEntity<String> {
     @ApiModelProperty(value = "生产模式")
     private String devtType;
     /**
-     * 款式(大货款号)
+     * 大货款号
      */
-    @ApiModelProperty(value = "款式(大货款号)")
+    @ApiModelProperty(value = "大货款号")
     private String styleNo;
     /**
      * 设计款号

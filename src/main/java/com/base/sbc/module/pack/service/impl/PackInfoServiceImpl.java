@@ -13,6 +13,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
@@ -22,7 +23,9 @@ import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
 import com.base.sbc.module.pack.dto.PackBomVersionDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
+import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.PackBomVersionService;
@@ -37,6 +40,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -88,7 +92,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             //图片
             attachmentService.setListStylePic(sdpList, "stylePic");
             List<String> sdIds = sdpList.stream().map(SampleDesignPackInfoListVo::getId).collect(Collectors.toList());
-            Map<String, List<PackInfoListVo>> piMaps = queryListToMapGroupByForeignId(sdIds, PackUtils.PACK_TYPE_DESIGN);
+            Map<String, List<PackInfoListVo>> piMaps = queryListToMapGroupByForeignId(sdIds);
             for (SampleDesignPackInfoListVo sd : sdpList) {
                 List<PackInfoListVo> packInfoListVos = piMaps.get(sd.getId());
                 sd.setPackInfoList(packInfoListVos);
@@ -109,12 +113,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
         }
         PackInfo packInfo = BeanUtil.copyProperties(sampleDesign, PackInfo.class, "id", "status");
-        packInfo.setPackType(PackUtils.PACK_TYPE_DESIGN);
         packInfo.setForeignId(id);
         packInfo.setBomStatus(BasicNumber.ZERO.getNumber());
         //设置编码
         QueryWrapper codeQw = new QueryWrapper();
-        codeQw.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
         codeQw.eq("foreign_id", id);
         long count = count(codeQw);
         packInfo.setCode(sampleDesign.getDesignNo() + StrUtil.DASHED + (count + 1));
@@ -126,10 +128,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     }
 
     @Override
-    public Map<String, List<PackInfoListVo>> queryListToMapGroupByForeignId(List<String> foreignIds, String packType) {
+    public Map<String, List<PackInfoListVo>> queryListToMapGroupByForeignId(List<String> foreignIds) {
         QueryWrapper<PackInfo> qw = new QueryWrapper<>();
         qw.in("foreign_id", foreignIds);
-        qw.eq("pack_type", packType);
         List<PackInfoListVo> list = BeanUtil.copyToList(list(qw), PackInfoListVo.class);
         return Opt.ofNullable(list).map(l -> l.stream().collect(Collectors.groupingBy(PackInfoListVo::getForeignId))).orElse(MapUtil.empty());
     }
@@ -146,10 +147,35 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean toBigGoods(PackCommonSearchDto dto) {
+        //查看资料包信息是否存在
+        PackInfo byId = this.getById(dto.getForeignId());
+        //查看版本是否锁定
+        PackBomVersion version = packBomVersionService.getEnableVersion(dto);
+        if (version == null) {
+            throw new OtherException("无物料清单版本");
+        }
+        if (!StrUtil.equals(version.getLockFlag(), BaseGlobal.YES)) {
+            throw new OtherException("物料清单版本未锁定");
+        }
+        copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
+
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean copyPack(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+
+
+        return true;
+    }
+
+    @Override
     String getModeName() {
         return "资料包明细";
     }
-
 
 
 // 自定义方法区 不替换的区域【other_end】
