@@ -17,6 +17,7 @@
 			bc.group_flag,
 			bc.group_code,
 			
+			bc.order_book_status,
 			bc.design_status,
 			bc.quadruple_price,
 			bc.design_say,

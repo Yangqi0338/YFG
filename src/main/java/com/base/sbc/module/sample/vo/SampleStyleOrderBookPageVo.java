@@ -35,7 +35,9 @@ public class SampleStyleOrderBookPageVo {
 	private String groupFlag;
 	@ApiModelProperty(value = "搭配编码")
 	private String groupCode;
-
+	/** 设计状态 */
+	@ApiModelProperty(value = "订货本状态(0未分配 1已分配)")
+	private String orderBookStatus;
 	/** 设计状态 */
 	@ApiModelProperty(value = "设计状态")
 	private String designStatus;
