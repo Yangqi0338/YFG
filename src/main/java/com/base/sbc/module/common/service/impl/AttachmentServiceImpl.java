@@ -179,12 +179,41 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public AttachmentVo savePackTechSpecPic(PackTechSpecSavePicDto dto) {
         Attachment attachment = BeanUtil.copyProperties(dto, Attachment.class);
         attachment.setType(dto.getPackType() + StrUtil.DASHED + dto.getSpecType());
         attachment.setId(null);
         save(attachment);
         return getAttachmentById(attachment.getId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean delByForeignIdType(String foreignId, String type) {
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("foreign_id", foreignId);
+        qw.eq("type", type);
+        return remove(qw);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+        delByForeignIdType(targetForeignId, targetPackType);
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("foreign_id", sourceForeignId);
+        qw.eq("type", sourcePackType);
+        List<Attachment> list = list(qw);
+        if (CollUtil.isNotEmpty(list)) {
+            for (Attachment o : list) {
+                o.setId(null);
+                o.setForeignId(targetForeignId);
+                o.setType(targetPackType);
+            }
+            return saveBatch(list);
+        }
+        return true;
     }
 
 

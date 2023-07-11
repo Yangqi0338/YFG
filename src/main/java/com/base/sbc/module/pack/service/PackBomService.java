@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service;
 
 import com.base.sbc.module.pack.dto.PackBomDto;
 import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomVo;
@@ -77,6 +78,8 @@ public interface PackBomService extends PackBaseService<PackBom> {
     BigDecimal calculateCosts(PackCommonSearchDto dto);
 
     List<PackBom> getListByVersionId(String versionId);
+
+    PageInfo<PackBomVo> pageInfo(PackCommonPageSearchDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 

@@ -90,6 +90,25 @@ public interface AttachmentService extends BaseService<Attachment> {
      */
     AttachmentVo savePackTechSpecPic(PackTechSpecSavePicDto dto);
 
+    /**
+     * 注释
+     *
+     * @param foreignId
+     * @param type
+     * @return
+     */
+    boolean delByForeignIdType(String foreignId, String type);
+
+    /**
+     * 复制
+     *
+     * @param sourceForeignId
+     * @param sourcePackType
+     * @param targetForeignId
+     * @param targetPackType
+     * @return
+     */
+    boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

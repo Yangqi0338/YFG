@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.IdDto;
@@ -23,10 +24,8 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 
@@ -77,6 +76,24 @@ public class PackInfoController {
 	@GetMapping("/toBigGoods")
 	public boolean toBigGoods(@Valid PackCommonSearchDto dto) {
 		return packInfoService.toBigGoods(dto);
+	}
+
+	@ApiOperation(value = "反审")
+	@GetMapping("/startApproval")
+	public boolean startApproval(@Valid IdDto idDto) {
+		return packInfoService.startApproval(idDto.getId());
+	}
+
+	/**
+	 * 处理审批
+	 *
+	 * @param dto
+	 * @return
+	 */
+	@ApiIgnore
+	@PostMapping("/approval")
+	public boolean approval(@RequestBody AnswerDto dto) {
+		return packInfoService.approval(dto);
 	}
 }
 

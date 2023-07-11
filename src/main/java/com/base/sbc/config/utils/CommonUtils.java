@@ -5,6 +5,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONObject;
+import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.lang.reflect.Field;
@@ -125,6 +126,21 @@ public class CommonUtils {
         }
         stringBuilder.append("}");
         return stringBuilder;
+    }
+
+    /**
+     * 将创建修改信息设置为空
+     *
+     * @param t
+     * @param <T>
+     */
+    public static <T extends BaseDataEntity> void resetCreateUpdate(T t) {
+        t.setCreateId(null);
+        t.setUpdateId(null);
+        t.setCreateName(null);
+        t.setUpdateName(null);
+        t.setCreateDate(null);
+        t.setUpdateDate(null);
     }
 
 }

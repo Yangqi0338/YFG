@@ -10,13 +10,18 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
@@ -28,9 +33,9 @@ import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.pack.service.PackBomVersionService;
-import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pack.vo.SampleDesignPackInfoListVo;
 import com.base.sbc.module.sample.entity.SampleDesign;
@@ -38,10 +43,10 @@ import com.base.sbc.module.sample.service.SampleDesignService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,14 +66,40 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
 
 // 自定义方法区 不替换的区域【other_start】
 
-    @Autowired
+    @Resource
     private SampleDesignService sampleDesignService;
-    @Autowired
+    @Resource
     private AttachmentService attachmentService;
-    @Autowired
+    @Resource
     private OperaLogService operaLogService;
-    @Autowired
+    @Resource
     private PackBomVersionService packBomVersionService;
+    @Resource
+    private PackBomService packBomService;
+    @Resource
+    private PackBomSizeService packBomSizeService;
+    @Resource
+    private PackSizeService packSizeService;
+    @Resource
+    private PackProcessPriceService packProcessPriceService;
+    @Resource
+    private PackPricingService packPricingService;
+
+    @Resource
+    private PackPricingProcessCostsService packPricingProcessCostsService;
+
+    @Resource
+    private PackPricingCraftCostsService packPricingCraftCostsService;
+    @Resource
+    private PackPricingOtherCostsService packPricingOtherCostsService;
+    @Resource
+    private PackTechSpecService packTechSpecService;
+    @Resource
+    private PackSampleReviewService packSampleReviewService;
+    @Resource
+    private PackBusinessOpinionService packBusinessOpinionService;
+    @Resource
+    private FlowableService flowableService;
 
     @Override
     public PageInfo<SampleDesignPackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -113,6 +144,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
         }
         PackInfo packInfo = BeanUtil.copyProperties(sampleDesign, PackInfo.class, "id", "status");
+        CommonUtils.resetCreateUpdate(packInfo);
+        String newId = IdUtil.getSnowflake().nextIdStr();
+        packInfo.setId(newId);
         packInfo.setForeignId(id);
         packInfo.setBomStatus(BasicNumber.ZERO.getNumber());
         //设置编码
@@ -123,7 +157,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         save(packInfo);
         //新建bom版本
         PackBomVersionDto versionDto = BeanUtil.copyProperties(packInfo, PackBomVersionDto.class, "id");
-        packBomVersionService.saveVersion(versionDto);
+        versionDto.setPackType(PackUtils.PACK_TYPE_DESIGN);
+        versionDto.setForeignId(newId);
+        PackBomVersionVo packBomVersionVo = packBomVersionService.saveVersion(versionDto);
+        packBomVersionService.enable(BeanUtil.copyProperties(packBomVersionVo, PackBomVersion.class));
         return BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
     }
 
@@ -150,7 +187,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Transactional(rollbackFor = {Exception.class})
     public boolean toBigGoods(PackCommonSearchDto dto) {
         //查看资料包信息是否存在
-        PackInfo byId = this.getById(dto.getForeignId());
+        PackInfo packInfo = this.getById(dto.getForeignId());
+        if (packInfo == null) {
+            throw new OtherException("资料包信息不存在");
+        }
         //查看版本是否锁定
         PackBomVersion version = packBomVersionService.getEnableVersion(dto);
         if (version == null) {
@@ -160,15 +200,73 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException("物料清单版本未锁定");
         }
         copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
-
+        //设置为已转大货
+        packInfo.setBomStatus(BasicNumber.ONE.getNumber());
+        updateById(packInfo);
         return true;
     }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean copyPack(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+        //图样附件、物料清单、尺寸表、工序工价、核价信息、工艺说明、样衣评审、业务意见、吊牌洗唛
+        //图样附件
+        attachmentService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        //物料清单
+        packBomVersionService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        //尺寸表
+        packSizeService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        //工序工价
+        packProcessPriceService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        //核价信息
+        // 基础
+        packPricingService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        // 二次加工费
+        packPricingCraftCostsService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        //加工费
+        packPricingProcessCostsService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        // 其他费用
+        packPricingOtherCostsService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        //工艺说明
+        packTechSpecService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        //样衣评审
+        packSampleReviewService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        //业务意见
+        packBusinessOpinionService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        // TODO 吊牌洗唛
+        return true;
+    }
 
+    @Override
+    public boolean startApproval(String id) {
+        PackInfo pack = getById(id);
+        if (pack == null) {
+            throw new OtherException("样衣数据不存在,请先保存");
+        }
+        Map<String, Object> variables = BeanUtil.beanToMap(pack);
+        boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]", FlowableService.big_goods_reverse, id, "/pdm/api/saas/packInfo/approval", "/pdm/api/saas/packInfo/approval", "/sampleClothesDesign/sampleDesign/" + id, variables);
+        if (flg) {
+            pack.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+            updateById(pack);
+        }
+        return true;
+    }
 
+    @Override
+    public boolean approval(AnswerDto dto) {
+        PackInfo packInfo = getById(dto.getBusinessKey());
+        if (packInfo != null) {
+            //通过
+            if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+                copy(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS, dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN);
+                packInfo.setConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+            }
+            //驳回
+            else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
+                packInfo.setConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
+            }
+            updateById(packInfo);
+        }
         return true;
     }
 

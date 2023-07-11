@@ -9,14 +9,8 @@ package com.base.sbc.module.pack.controller;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.*;
-import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
-import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
-import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
-import com.base.sbc.module.pack.service.PackPricingService;
-import com.base.sbc.module.pack.vo.PackPricingCraftCostsVo;
-import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
-import com.base.sbc.module.pack.vo.PackPricingProcessCostsVo;
-import com.base.sbc.module.pack.vo.PackPricingVo;
+import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.vo.*;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,6 +42,8 @@ public class PackPricingController {
     private PackPricingService packPricingService;
 
     @Autowired
+    private PackBomService packBomService;
+    @Autowired
     private PackPricingOtherCostsService packPricingOtherCostsService;
     @Autowired
     private PackPricingProcessCostsService packPricingProcessCostsService;
@@ -59,6 +55,12 @@ public class PackPricingController {
     @GetMapping()
     public PackPricingVo getDetail(@Valid PackCommonSearchDto dto) {
         return packPricingService.getDetail(dto);
+    }
+
+    @ApiOperation(value = "物料费用-分页查询")
+    @GetMapping("/materialCosts")
+    public PageInfo<PackBomVo> materialCosts(PackCommonPageSearchDto dto) {
+        return packBomService.pageInfo(dto);
     }
 
     @ApiOperation(value = "其他费用-分页查询", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")

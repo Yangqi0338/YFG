@@ -23,6 +23,7 @@ public class FlowableService {
 
 
     public static final String sample_design_pdn = "样衣设计审批";
+    public static final String big_goods_reverse = "大货资料包反审";
 
     public static final String MATERIAL = "素材审批";
 

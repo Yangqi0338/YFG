@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
@@ -80,6 +81,22 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @return
      */
     boolean copyPack(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType);
+
+    /**
+     * 开启审批
+     *
+     * @param id
+     * @return
+     */
+    boolean startApproval(String id);
+
+    /**
+     * 处理反审
+     *
+     * @param dto
+     * @return
+     */
+    boolean approval(AnswerDto dto);
 
 
 // 自定义方法区 不替换的区域【other_end】

@@ -19,10 +19,7 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.module.pack.dto.PackBomDto;
-import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
-import com.base.sbc.module.pack.dto.PackBomSizeDto;
-import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackBomVersion;
@@ -233,6 +230,17 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         qw.eq("bom_version_id", versionId);
         qw.eq("unusable_flag", BaseGlobal.NO);
         return list(qw);
+    }
+
+    @Override
+    public PageInfo<PackBomVo> pageInfo(PackCommonPageSearchDto dto) {
+        PackBomVersion enableVersion = packBomVersionService.getEnableVersion(dto.getForeignId(), dto.getPackType());
+        if (enableVersion == null) {
+            return null;
+        }
+        PackBomPageSearchDto bomDto = BeanUtil.copyProperties(dto, PackBomPageSearchDto.class);
+        bomDto.setBomVersionId(enableVersion.getId());
+        return pageInfo(bomDto);
     }
 
 

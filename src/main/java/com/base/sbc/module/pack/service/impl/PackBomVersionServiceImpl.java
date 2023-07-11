@@ -7,7 +7,10 @@
 package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -20,8 +23,12 @@ import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.pack.dto.PackBomVersionDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.mapper.PackBomVersionMapper;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
@@ -30,6 +37,12 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：资料包-物料清单-物料版本 service类
@@ -45,6 +58,11 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
 
 
 // 自定义方法区 不替换的区域【other_start】
+
+    @Resource
+    private PackBomService packBomService;
+    @Resource
+    private PackBomSizeService packBomSizeService;
 
     @Override
     public PageInfo<PackBomVersionVo> pageInfo(PackCommonPageSearchDto dto) {
@@ -107,13 +125,13 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             }
             version.setStatus(BaseGlobal.NO);
             updateById(version);
-            log(id,"停用");
+            log(id, "停用");
         }
         //启用操作
         else {
             // 1.将当前启用的停用 2.启用当前的
             enable(version);
-            log(id,"启用");
+            log(id, "启用");
         }
         return true;
     }
@@ -138,10 +156,9 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         uw.in("id", StrUtil.split(id, CharUtil.COMMA));
         uw.set("lock_flag", lockFlag);
         setUpdateInfo(uw);
-        log(id,StrUtil.equals(lockFlag,BaseGlobal.YES)?"版本锁定":"版本解锁");
+        log(id, StrUtil.equals(lockFlag, BaseGlobal.YES) ? "版本锁定" : "版本解锁");
         return update(uw);
     }
-
 
 
     @Override
@@ -152,6 +169,112 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         qw.last("limit 1");
         PackBomVersion one = getOne(qw);
         return one;
+    }
+
+    @Override
+    public PackBomVersion getEnableVersion(String foreignId, String packType) {
+        PackCommonSearchDto dto = new PackCommonSearchDto();
+        dto.setPackType(packType);
+        dto.setForeignId(foreignId);
+        return getEnableVersion(dto);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+        /**
+         * eg
+         *设计A（物料版本)——大货A（物料版本），大货A（物料版本）反审——设计生成B版本，并启用。修改完成后，下发设计B（物料版本）——大货也变成B版本
+         */
+        this.del(targetForeignId, targetPackType);
+        packBomService.del(targetForeignId, targetPackType);
+        packBomSizeService.del(targetForeignId, targetPackType);
+        Snowflake snowflake = IdUtil.getSnowflake();
+        Map<String, String> newIdMaps = new HashMap<>(16);
+        // 获取源数据
+        // 1.获取版本
+        QueryWrapper query = new QueryWrapper();
+        query.eq("foreign_id", sourceForeignId);
+        query.eq("pack_type", sourcePackType);
+        List<PackBomVersion> versionsList = list(query);
+        //2.获取物料清单
+        List<PackBom> bomList = packBomService.list(query);
+        // 3获取物料尺码
+        List<PackBomSize> bomSizeList = packBomSizeService.list(query);
+
+        //保存版本
+        if (CollUtil.isNotEmpty(versionsList)) {
+            for (PackBomVersion version : versionsList) {
+                version.setPackType(targetPackType);
+                String newId = snowflake.nextIdStr();
+                newIdMaps.put(version.getId(), newId);
+                version.setId(newId);
+            }
+            saveBatch(versionsList);
+        }
+        //保存物料清单
+        if (CollUtil.isNotEmpty(bomList)) {
+            for (PackBom bom : bomList) {
+                String newId = snowflake.nextIdStr();
+                bom.setPackType(targetPackType);
+                newIdMaps.put(bom.getId(), newId);
+                bom.setId(newId);
+                bom.setBomVersionId(newIdMaps.get(bom.getBomVersionId()));
+            }
+            packBomService.saveBatch(bomList);
+        }
+        //保存尺码
+        if (CollUtil.isNotEmpty(bomSizeList)) {
+            for (PackBomSize bomSize : bomSizeList) {
+                String newId = snowflake.nextIdStr();
+                bomSize.setPackType(targetPackType);
+                bomSize.setId(newId);
+                bomSize.setBomVersionId(newIdMaps.get(bomSize.getBomVersionId()));
+                bomSize.setBomId(newIdMaps.get(bomSize.getBomId()));
+            }
+            packBomSizeService.saveBatch(bomSizeList);
+        }
+        //大货 到设计 表示反审，则新建一个bom版本
+        if (StrUtil.equals(targetPackType, PackUtils.PACK_TYPE_DESIGN) && StrUtil.equals(sourcePackType, PackUtils.PACK_TYPE_BIG_GOODS)) {
+            //创建一个新版本
+            PackBomVersionDto versionDto = new PackBomVersionDto();
+            versionDto.setForeignId(targetForeignId);
+            versionDto.setPackType(targetPackType);
+            PackBomVersionVo newVersion = saveVersion(versionDto);
+            //启动版本
+            enable(newVersion);
+            //查找启动版本
+            PackBomVersion one = CollUtil.findOne(versionsList, (a) -> StrUtil.equals(a.getStatus(), BaseGlobal.YES));
+            if (one != null) {
+                List<PackBom> newBomList = CollUtil.filter(bomList, (b) -> StrUtil.equals(b.getBomVersionId(), one.getVersion()));
+                if (CollUtil.isNotEmpty(newBomList)) {
+                    List<String> bomIds = new ArrayList<>(16);
+                    for (PackBom bom : newBomList) {
+                        String newId = snowflake.nextIdStr();
+                        bom.setPackType(targetPackType);
+                        newIdMaps.put(bom.getId(), newId);
+                        bomIds.add(bom.getId());
+                        bom.setId(newId);
+                        bom.setBomVersionId(newVersion.getId());
+                    }
+                    packBomService.saveBatch(newBomList);
+                    //保存尺码
+                    List<PackBomSize> newBomSizeList = CollUtil.filter(bomSizeList, (c) -> bomIds.contains(c.getBomId()));
+                    if (CollUtil.isNotEmpty(newBomSizeList)) {
+                        for (PackBomSize bomSize : newBomSizeList) {
+                            String newId = snowflake.nextIdStr();
+                            bomSize.setId(newId);
+                            bomSize.setBomVersionId(newVersion.getId());
+                            bomSize.setBomId(newIdMaps.get(bomSize.getBomId()));
+                        }
+                        packBomSizeService.saveBatch(newBomSizeList);
+                    }
+
+                }
+
+            }
+        }
+        return true;
     }
 
     @Override

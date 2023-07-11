@@ -164,7 +164,33 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
     }
 
     @Override
+    public boolean del(String foreignId, String packType) {
+        QueryWrapper<T> delQw = new QueryWrapper<T>();
+        delQw.eq("foreign_id", foreignId);
+        delQw.eq("pack_type", packType);
+        return remove(delQw);
+    }
+
+    @Override
     public boolean delByIds(String id) {
         return removeByIds(StrUtil.split(id, StrUtil.COMMA));
+    }
+
+    @Override
+    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+        del(targetForeignId, targetPackType);
+        QueryWrapper<T> query = new QueryWrapper<T>();
+        query.eq("foreign_id", sourceForeignId);
+        query.eq("pack_type", sourcePackType);
+        List<T> list = list(query);
+        if (CollUtil.isNotEmpty(list)) {
+            for (T t : list) {
+                t.setId(null);
+                BeanUtil.setProperty(t, "foreignId", targetForeignId);
+                BeanUtil.setProperty(t, "packType", targetPackType);
+            }
+            return saveBatch(list);
+        }
+        return true;
     }
 }

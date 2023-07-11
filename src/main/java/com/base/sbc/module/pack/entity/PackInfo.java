@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfo
  * @email your email
- * @date 创建时间：2023-7-11 10:05:05
+ * @date 创建时间：2023-7-11 15:27:28
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -144,6 +144,11 @@ public class PackInfo extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "bom状态:(0样品,1大货)")
     private String bomStatus;
+    /**
+     * 审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)
+     */
+    @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)")
+    private String confirmStatus;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

@@ -77,6 +77,14 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
      */
     PackBomVersion getEnableVersion(PackCommonSearchDto dto);
 
+    /**
+     * 获取启用的版本
+     *
+     * @param foreignId
+     * @param packType
+     * @return
+     */
+    PackBomVersion getEnableVersion(String foreignId, String packType);
 
 // 自定义方法区 不替换的区域【other_end】
 
