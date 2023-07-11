@@ -10,6 +10,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.sample.dto.AddRevampSampleStyleColorDto;
 import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
+import com.base.sbc.module.sample.dto.RelevanceBomDto;
 import com.base.sbc.module.sample.dto.updateTagPriceDto;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.service.SampleStyleColorService;
@@ -121,11 +122,11 @@ public class SampleStyleColorController{
 		return sampleStyleColorService.getStyleColorId(sampleDesignId);
 	}
 
-/*	@ApiOperation(value = "关联Bom")
+	@ApiOperation(value = "关联Bom")
 	@PostMapping("/relevanceBom")
-	public Boolean relevanceBom(@Valid @RequestBody QuerySampleStyleColorDto querySampleStyleColorDto) {
-		return sampleStyleColorService.relevanceBom(querySampleStyleColorDto.getIds());
-	}*/
+	public Boolean relevanceBom(@Valid @RequestBody RelevanceBomDto relevanceBomDto) {
+		return sampleStyleColorService.relevanceBom(relevanceBomDto);
+	}
 
 }
 

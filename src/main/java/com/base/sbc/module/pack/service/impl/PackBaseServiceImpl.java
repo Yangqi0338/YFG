@@ -162,4 +162,9 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
         return entityList.size();
 
     }
+
+    @Override
+    public boolean delByIds(String id) {
+        return removeByIds(StrUtil.split(id, StrUtil.COMMA));
+    }
 }

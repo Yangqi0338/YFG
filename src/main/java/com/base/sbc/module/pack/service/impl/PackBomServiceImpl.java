@@ -9,9 +9,11 @@ package com.base.sbc.module.pack.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
@@ -20,6 +22,7 @@ import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.pack.dto.PackBomDto;
 import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
 import com.base.sbc.module.pack.dto.PackBomSizeDto;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackBomVersion;
@@ -37,6 +40,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -96,6 +100,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         if (CommonUtils.isInitId(packBom.getId())) {
             packBom.setId(null);
             PackUtils.setBomVersionInfo(version, packBom);
+            PackUtils.bomDefaultVal(packBom);
             save(packBom);
         } else {
             PackBom db = getById(dto.getId());
@@ -136,6 +141,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         // 保存物料清单表
         List<PackBom> packBoms = BeanUtil.copyToList(dtoList, PackBom.class);
         for (PackBom packBom : packBoms) {
+            PackUtils.bomDefaultVal(packBom);
             PackUtils.setBomVersionInfo(version, packBom);
         }
         QueryWrapper<PackBom> bomQw = new QueryWrapper<>();
@@ -201,10 +207,34 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     }
 
     @Override
-    @Transactional(rollbackFor = {Exception.class})
-    public boolean delBom(String id) {
-        return removeBatchByIds(StrUtil.split(id, CharUtil.COMMA));
+    public BigDecimal calculateCosts(PackCommonSearchDto dto) {
+        BigDecimal result = BigDecimal.ZERO;
+        //查询当前启用版本
+        PackBomVersion version = packBomVersionService.getEnableVersion(dto);
+        if (version == null) {
+            return result;
+        }
+        // 查询物料列表
+        List<PackBom> bomList = getListByVersionId(version.getId());
+        if (CollUtil.isEmpty(bomList)) {
+            return result;
+        }
+        //物料费用=物料用量*物料单价*（1+损耗率)
+        return bomList.stream().map(packBom -> NumberUtil.mul(
+                packBom.getUnitUse(),
+                packBom.getPrice(),
+                BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO)))
+        ).reduce((a, b) -> a.add(b)).orElse(BigDecimal.ZERO);
     }
+
+    @Override
+    public List<PackBom> getListByVersionId(String versionId) {
+        QueryWrapper<PackBom> qw = new QueryWrapper<>();
+        qw.eq("bom_version_id", versionId);
+        qw.eq("unusable_flag", BaseGlobal.NO);
+        return list(qw);
+    }
+
 
     @Override
     String getModeName() {

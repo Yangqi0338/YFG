@@ -86,9 +86,6 @@ public class AddRevampSampleStyleColorDto {
     /** 是否下发scm(0否,1:是) */
     @ApiModelProperty(value = "是否下发scm(0否,1:是)"  )
     private String  isIssueScm;
-    /** bom状态 */
-    @ApiModelProperty(value = "bom状态(0大货，1样品"  )
-    private String   bomStatus;
     /** 生产类型 */
     @ApiModelProperty(value = "生产类型"  )
     private String devtType;

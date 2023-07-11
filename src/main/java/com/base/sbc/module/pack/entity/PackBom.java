@@ -21,7 +21,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
  * @email your email
- * @date 创建时间：2023-7-8 17:49:58
+ * @date 创建时间：2023-7-10 17:29:24
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -127,11 +127,6 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "单件用量")
     private BigDecimal unitUse;
     /**
-     * 单价
-     */
-    @ApiModelProperty(value = "单价")
-    private BigDecimal unitPrice;
-    /**
      * 损耗%
      */
     @ApiModelProperty(value = "损耗%")
@@ -172,26 +167,6 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "备注")
     private String remarks;
     /**
-     * 采购单位
-     */
-    @ApiModelProperty(value = "采购单位")
-    private String purchaseUnitCode;
-    /**
-     * 采购单位名称
-     */
-    @ApiModelProperty(value = "采购单位名称")
-    private String purchaseUnitName;
-    /**
-     * 库存单位
-     */
-    @ApiModelProperty(value = "库存单位")
-    private String stockUnitCode;
-    /**
-     * 库存单位名称
-     */
-    @ApiModelProperty(value = "库存单位名称")
-    private String stockUnitName;
-    /**
      * 供应商id
      */
     @ApiModelProperty(value = "供应商id")
@@ -201,6 +176,66 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "供应商名称")
     private String supplierName;
+    /**
+     * 单位
+     */
+    @ApiModelProperty(value = "单位")
+    private String unitCode;
+    /**
+     * 额定单耗
+     */
+    @ApiModelProperty(value = "额定单耗")
+    private String ratedUnitConsumption;
+    /**
+     * 购买货币
+     */
+    @ApiModelProperty(value = "购买货币")
+    private String purchaseCurrency;
+    /**
+     * 单价
+     */
+    @ApiModelProperty(value = "单价")
+    private BigDecimal price;
+    /**
+     * 报价货币
+     */
+    @ApiModelProperty(value = "报价货币")
+    private String quotationPriceCurrency;
+    /**
+     * 上次单价
+     */
+    @ApiModelProperty(value = "上次单价")
+    private BigDecimal lastTimePrice;
+    /**
+     * 上次报价币种
+     */
+    @ApiModelProperty(value = "上次报价币种")
+    private String lastTimeCurrency;
+    /**
+     * 联系人
+     */
+    @ApiModelProperty(value = "联系人")
+    private String contacts;
+    /**
+     * 联系人手机号
+     */
+    @ApiModelProperty(value = "联系人手机号")
+    private String contactsPhone;
+    /**
+     * 联系人地址
+     */
+    @ApiModelProperty(value = "联系人地址")
+    private String contactsAddress;
+    /**
+     * 工段分组编码
+     */
+    @ApiModelProperty(value = "工段分组编码")
+    private String workshopGroupCode;
+    /**
+     * 工段分组
+     */
+    @ApiModelProperty(value = "工段分组")
+    private String workshopGroup;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

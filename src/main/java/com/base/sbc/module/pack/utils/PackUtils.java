@@ -1,6 +1,8 @@
 package com.base.sbc.module.pack.utils;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -59,4 +61,15 @@ public class PackUtils {
         bom.setPackType(version.getPackType());
     }
 
+    public static void bomDefaultVal(PackBom... bom) {
+        if (ArrayUtil.isEmpty(bom)) {
+            return;
+        }
+        for (PackBom packBom : bom) {
+            packBom.setDelFlag(Opt.ofBlankAble(packBom.getDelFlag()).orElse(BaseGlobal.NO));
+            packBom.setStatus(Opt.ofBlankAble(packBom.getStatus()).orElse(BaseGlobal.YES));
+            packBom.setUnusableFlag(Opt.ofBlankAble(packBom.getUnusableFlag()).orElse(BaseGlobal.NO));
+            packBom.setSendFlag(Opt.ofBlankAble(packBom.getSendFlag()).orElse(BaseGlobal.NO));
+        }
+    }
 }

@@ -102,7 +102,7 @@ public class BomSelMaterialVo {
      * 单价
      */
     @ApiModelProperty(value = "单价")
-    private BigDecimal unitPrice;
+    private BigDecimal price;
     /**
      * 损耗%
      */

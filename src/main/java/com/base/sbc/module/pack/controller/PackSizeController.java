@@ -59,7 +59,7 @@ public class PackSizeController {
             @ApiImplicitParam(name = "id", value = "id,多个逗号分开", required = true, dataType = "String", paramType = "query"),
     })
     public boolean del(@Valid @NotBlank(message = "id不能为空") String id) {
-        return packSizeService.del(id);
+        return packSizeService.delByIds(id);
     }
 
     @PostMapping("/save")

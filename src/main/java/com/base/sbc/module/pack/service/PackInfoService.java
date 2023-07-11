@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service;
 
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
@@ -50,17 +51,35 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * 查询
      *
      * @param foreignIds
-     * @param packType
      * @return
      */
-    Map<String, List<PackInfoListVo>> queryListToMapGroupByForeignId(List<String> foreignIds, String packType);
+    Map<String, List<PackInfoListVo>> queryListToMapGroupByForeignId(List<String> foreignIds);
 
     /**
      * 修改日志
+     *
      * @param pageDto
      * @return
      */
     PageInfo<OperaLogEntity> operationLog(PackCommonPageSearchDto pageDto);
+
+    /**
+     * 技术BOM 转 大货
+     *
+     * @param dto@return
+     */
+    boolean toBigGoods(PackCommonSearchDto dto);
+
+    /**
+     * 资料包拷贝
+     *
+     * @param sourceForeignId 源主数据id
+     * @param sourcePackType  源资料包类型
+     * @param targetForeignId 目标主数据id
+     * @param targetPackType  目标资料包类型
+     * @return
+     */
+    boolean copyPack(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType);
 
 
 // 自定义方法区 不替换的区域【other_end】

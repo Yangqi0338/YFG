@@ -19,6 +19,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.pack.dto.PackBomVersionDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.mapper.PackBomVersionMapper;
 import com.base.sbc.module.pack.service.PackBomVersionService;
@@ -141,12 +142,16 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         return update(uw);
     }
 
+
+
     @Override
-    @Transactional(rollbackFor = {Exception.class})
-    public boolean toBigGoods(String id) {
-
-
-        return false;
+    public PackBomVersion getEnableVersion(PackCommonSearchDto dto) {
+        QueryWrapper<PackBomVersion> qw = new QueryWrapper<>();
+        PackUtils.commonQw(qw, dto);
+        qw.eq("status", BaseGlobal.YES);
+        qw.last("limit 1");
+        PackBomVersion one = getOne(qw);
+        return one;
     }
 
     @Override

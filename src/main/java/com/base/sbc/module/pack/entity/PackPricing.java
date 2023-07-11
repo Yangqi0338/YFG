@@ -13,20 +13,22 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+
 /**
- * 类描述：资料包-物料清单-物料版本 实体类
+ * 类描述：资料包-核价信息 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
- * @address com.base.sbc.module.pack.entity.PackBomVersion
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-1 16:37:20
+ * @address com.base.sbc.module.pack.entity.PackPricing
+ * @email your email
+ * @date 创建时间：2023-7-10 13:35:16
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_pack_bom_version")
-@ApiModel("资料包-物料清单-物料版本 PackBomVersion")
-public class PackBomVersion extends BaseDataEntity<String> {
+@TableName("t_pack_pricing")
+@ApiModel("资料包-核价信息 PackPricing")
+public class PackPricing extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -41,30 +43,50 @@ public class PackBomVersion extends BaseDataEntity<String> {
     @ApiModelProperty(value = "主数据id")
     private String foreignId;
     /**
-     * 资料包类型:packDesign:设计资料包
+     * 资料包类型
      */
-    @ApiModelProperty(value = "资料包类型:packDesign:设计资料包")
+    @ApiModelProperty(value = "资料包类型")
     private String packType;
     /**
-     * 版本
+     * 报价币种(1)
      */
-    @ApiModelProperty(value = "版本")
-    private String version;
+    @ApiModelProperty(value = "报价币种(1)")
+    private String currency;
     /**
-     * 状态(0正常,1停用)
+     * 汇率(1)
      */
-    @ApiModelProperty(value = "状态:(1启用,0停用)")
-    private String status;
+    @ApiModelProperty(value = "汇率(1)")
+    private String exchangeRate;
     /**
-     * 锁定状态(0正常,1锁定)
+     * 单价/件(1)
      */
-    @ApiModelProperty(value = "锁定状态(0正常,1锁定)")
-    private String lockFlag;
+    @ApiModelProperty(value = "单价/件(1)")
+    private BigDecimal costPrice;
     /**
-     * 发送状态(0未发送,1已发送)
+     * 报价币种(2)
      */
-    @ApiModelProperty(value = "发送状态(0未发送,1已发送)")
-    private String sendFlag;
+    @ApiModelProperty(value = "报价币种(2)")
+    private String otherCurrency;
+    /**
+     * 汇率(2)
+     */
+    @ApiModelProperty(value = "汇率(2)")
+    private String otherExchangeRate;
+    /**
+     * 单价/件(2)
+     */
+    @ApiModelProperty(value = "单价/件(2)")
+    private BigDecimal otherCostPrice;
+    /**
+     * 计算项的值
+     */
+    @ApiModelProperty(value = "计算项的值")
+    private String calcItemVal;
+    /**
+     * 核价模板id
+     */
+    @ApiModelProperty(value = "核价模板id")
+    private String pricingTemplateId;
     /**
      * 备注
      */

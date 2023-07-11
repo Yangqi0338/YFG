@@ -13,20 +13,22 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+
 /**
- * 类描述：资料包-物料清单-物料版本 实体类
+ * 类描述：资料包-核价信息-其他费用 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
- * @address com.base.sbc.module.pack.entity.PackBomVersion
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-1 16:37:20
+ * @address com.base.sbc.module.pack.entity.PackPricingOtherCosts
+ * @email your email
+ * @date 创建时间：2023-7-10 13:35:18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_pack_bom_version")
-@ApiModel("资料包-物料清单-物料版本 PackBomVersion")
-public class PackBomVersion extends BaseDataEntity<String> {
+@TableName("t_pack_pricing_other_costs")
+@ApiModel("资料包-核价信息-其他费用 PackPricingOtherCosts")
+public class PackPricingOtherCosts extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -41,34 +43,54 @@ public class PackBomVersion extends BaseDataEntity<String> {
     @ApiModelProperty(value = "主数据id")
     private String foreignId;
     /**
-     * 资料包类型:packDesign:设计资料包
+     * 资料包类型
      */
-    @ApiModelProperty(value = "资料包类型:packDesign:设计资料包")
+    @ApiModelProperty(value = "资料包类型")
     private String packType;
     /**
-     * 版本
+     * 类型:包装费/检测费/外协加工费/毛纱加工费/车缝加工费
      */
-    @ApiModelProperty(value = "版本")
-    private String version;
+    @ApiModelProperty(value = "类型:包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
+    private String costsItem;
     /**
-     * 状态(0正常,1停用)
+     * 费用类型id
      */
-    @ApiModelProperty(value = "状态:(1启用,0停用)")
-    private String status;
+    @ApiModelProperty(value = "费用类型id")
+    private String costsTypeId;
     /**
-     * 锁定状态(0正常,1锁定)
+     * 费用类型
      */
-    @ApiModelProperty(value = "锁定状态(0正常,1锁定)")
-    private String lockFlag;
+    @ApiModelProperty(value = "费用类型")
+    private String costsType;
     /**
-     * 发送状态(0未发送,1已发送)
+     * 名称
      */
-    @ApiModelProperty(value = "发送状态(0未发送,1已发送)")
-    private String sendFlag;
+    @ApiModelProperty(value = "名称")
+    private String name;
     /**
-     * 备注
+     * 价格
      */
-    @ApiModelProperty(value = "备注")
+    @ApiModelProperty(value = "价格")
+    private BigDecimal price;
+    /**
+     * 货币
+     */
+    @ApiModelProperty(value = "货币")
+    private String currency;
+    /**
+     * 报价货币
+     */
+    @ApiModelProperty(value = "报价货币")
+    private String quotationPriceCurrency;
+    /**
+     * 报价单价
+     */
+    @ApiModelProperty(value = "报价单价")
+    private BigDecimal quotationPrice;
+    /**
+     * 备注信息
+     */
+    @ApiModelProperty(value = "备注信息")
     private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

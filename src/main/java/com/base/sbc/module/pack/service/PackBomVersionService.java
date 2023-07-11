@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service;
 
 import com.base.sbc.module.pack.dto.PackBomVersionDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.github.pagehelper.PageInfo;
@@ -67,13 +68,14 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
      */
     boolean lockChange(String id, String lockFlag);
 
+
     /**
-     * 转大货
+     * 获取启用的版本
      *
-     * @param id
+     * @param dto
      * @return
      */
-    boolean toBigGoods(String id);
+    PackBomVersion getEnableVersion(PackCommonSearchDto dto);
 
 
 // 自定义方法区 不替换的区域【other_end】

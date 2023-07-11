@@ -10,7 +10,6 @@ import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.OperationType;
-import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.service.PackBomService;
@@ -121,14 +120,10 @@ public class PackBomController {
     @ApiOperation(value = "删除物料清单")
     @DeleteMapping("/delBom")
     public boolean delBom(@Valid IdsDto dto) {
-        return packBomService.delBom(dto.getId());
+        return packBomService.delByIds(dto.getId());
     }
 
-    @ApiOperation(value = "转大货")
-    @GetMapping("/version/toBigGoods")
-    public boolean toBigGoods(@Valid IdDto idDto) {
-        return packBomVersionService.toBigGoods(idDto.getId());
-    }
+
 }
 
 

@@ -12,6 +12,7 @@ import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
@@ -70,6 +71,12 @@ public class PackInfoController {
 	@GetMapping("/operationLog")
 	public PageInfo<OperaLogEntity> operationLog(@Valid PackCommonPageSearchDto pageDto) {
 		return packInfoService.operationLog(pageDto);
+	}
+
+	@ApiOperation(value = "转大货")
+	@GetMapping("/toBigGoods")
+	public boolean toBigGoods(@Valid PackCommonSearchDto dto) {
+		return packInfoService.toBigGoods(dto);
 	}
 }
 

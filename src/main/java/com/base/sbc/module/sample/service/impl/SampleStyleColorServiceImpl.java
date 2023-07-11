@@ -21,8 +21,11 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.entity.Specification;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.sample.dto.AddRevampSampleStyleColorDto;
 import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
+import com.base.sbc.module.sample.dto.RelevanceBomDto;
 import com.base.sbc.module.sample.dto.updateTagPriceDto;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
@@ -38,6 +41,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -78,6 +82,10 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
 
     @Autowired
     private CcmFeignService ccmFeignService;
+
+    @Autowired
+    private PackInfoMapper packInfoMapper;
+
 
 
 /** 自定义方法区 不替换的区域【other_start】 **/
@@ -180,6 +188,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
      * @param list@return
      */
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public Boolean batchAddSampleStyleColor(List<AddRevampSampleStyleColorDto> list) {
 
 
@@ -278,6 +287,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
      * @return boolean
      */
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public Boolean addRevampSampleStyleColor(AddRevampSampleStyleColorDto addRevampSampleStyleColorDto) {
         SampleStyleColor sampleStyleColor = new SampleStyleColor();
         if (StringUtils.isEmpty(addRevampSampleStyleColorDto.getId())) {
@@ -397,6 +407,42 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             return new ArrayList<>();
         }
         return sampleStyleColorList.stream().map(SampleStyleColor::getColourLibraryId).collect(Collectors.toList());
+    }
+
+    /**
+     * 方法描述 关联bom
+     *
+     * @param relevanceBomDto
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public Boolean relevanceBom(RelevanceBomDto relevanceBomDto) {
+        /*查询配色信息*/
+        SampleStyleColor  sampleStyleColor=  baseMapper.selectById(relevanceBomDto.getStyleColorId());
+        if(ObjectUtils.isEmpty(sampleStyleColor)){
+            throw new OtherException("无配色信息");
+        }
+        if (StringUtils.isNotBlank(sampleStyleColor.getBom())) {
+            throw new OtherException("该配色以关联bom");
+        }
+        /*查询bom信息*/
+        PackInfo packInfo = packInfoMapper.selectById(relevanceBomDto.getPackInfoId());
+        if(ObjectUtils.isEmpty(packInfo)){
+            throw new OtherException("无bom信息");
+        }
+        if (StringUtils.isNotBlank(packInfo.getStyleNo())) {
+            throw new OtherException("该bom以关联bom");
+        }
+        /*关联bom*/
+        sampleStyleColor.setBom(packInfo.getCode());
+        /*bom关联配色*/
+        packInfo.setStyleNo(sampleStyleColor.getStyleNo());
+        packInfo.setColor(sampleStyleColor.getColorName());
+        packInfo.setSampleStyleColorId(sampleStyleColor.getId());
+        baseMapper.updateById(sampleStyleColor);
+        packInfoMapper.updateById(packInfo);
+        return true;
     }
 
     /** 自定义方法区 不替换的区域【other_end】 **/
