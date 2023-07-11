@@ -12,15 +12,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 /**
  * 类描述：资料包-物料清单-物料版本 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBomVersion
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-1 16:37:20
+ * @email your email
+ * @date 创建时间：2023-7-11 20:23:13
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -51,7 +50,7 @@ public class PackBomVersion extends BaseDataEntity<String> {
     @ApiModelProperty(value = "版本")
     private String version;
     /**
-     * 状态(0正常,1停用)
+     * 状态:(1启用,0停用)
      */
     @ApiModelProperty(value = "状态:(1启用,0停用)")
     private String status;
@@ -70,5 +69,11 @@ public class PackBomVersion extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "备注")
     private String remarks;
+    /**
+     * 审核状态：待审核(1)、审核通过(2)、被驳回(-1)
+     */
+    @ApiModelProperty(value = "审核状态：待审核(1)、审核通过(2)、被驳回(-1)")
+    private String confirmStatus;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+

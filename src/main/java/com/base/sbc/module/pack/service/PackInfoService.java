@@ -88,7 +88,7 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @param id
      * @return
      */
-    boolean startApproval(String id);
+    boolean startReverseApproval(String id);
 
     /**
      * 处理反审
@@ -96,7 +96,7 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @param dto
      * @return
      */
-    boolean approval(AnswerDto dto);
+    boolean reverseApproval(AnswerDto dto);
 
 
 // 自定义方法区 不替换的区域【other_end】

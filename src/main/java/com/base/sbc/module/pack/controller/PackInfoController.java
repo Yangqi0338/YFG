@@ -79,21 +79,21 @@ public class PackInfoController {
 	}
 
 	@ApiOperation(value = "反审")
-	@GetMapping("/startApproval")
-	public boolean startApproval(@Valid IdDto idDto) {
-		return packInfoService.startApproval(idDto.getId());
+	@GetMapping("/startReverseApproval")
+	public boolean startReverseApproval(@Valid IdDto idDto) {
+		return packInfoService.startReverseApproval(idDto.getId());
 	}
 
 	/**
-	 * 处理审批
+	 * 处理反审批
 	 *
 	 * @param dto
 	 * @return
 	 */
 	@ApiIgnore
-	@PostMapping("/approval")
-	public boolean approval(@RequestBody AnswerDto dto) {
-		return packInfoService.approval(dto);
+	@PostMapping("/reverseApproval")
+	public boolean reverseApproval(@RequestBody AnswerDto dto) {
+		return packInfoService.reverseApproval(dto);
 	}
 }
 

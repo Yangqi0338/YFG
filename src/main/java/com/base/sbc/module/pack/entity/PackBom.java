@@ -21,7 +21,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
  * @email your email
- * @date 创建时间：2023-7-11 17:44:46
+ * @date 创建时间：2023-7-11 19:19:44
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -57,9 +57,9 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "物料档案id")
     private String materialId;
     /**
-     * 搭配
+     * 物料类别
      */
-    @ApiModelProperty(value = "搭配")
+    @ApiModelProperty(value = "物料类别")
     private String categoryName;
     /**
      * 材料
@@ -271,6 +271,11 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "金额")
     private BigDecimal amount;
+    /**
+     * 搭配
+     */
+    @ApiModelProperty(value = "搭配")
+    private String bomMatch;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

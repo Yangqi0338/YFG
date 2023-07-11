@@ -23,6 +23,7 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
@@ -199,6 +200,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (!StrUtil.equals(version.getLockFlag(), BaseGlobal.YES)) {
             throw new OtherException("物料清单版本未锁定");
         }
+        //无配色信息
+        if (StringUtils.isAnyBlank(packInfo.getStyleNo(), packInfo.getColor(), packInfo.getSampleStyleColorId())) {
+            throw new OtherException("没有配色信息");
+        }
         copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
         //设置为已转大货
         packInfo.setBomStatus(BasicNumber.ONE.getNumber());
@@ -233,37 +238,38 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packSampleReviewService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
         //业务意见
         packBusinessOpinionService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
-        // TODO 吊牌洗唛
+
         return true;
     }
 
     @Override
-    public boolean startApproval(String id) {
+    public boolean startReverseApproval(String id) {
         PackInfo pack = getById(id);
         if (pack == null) {
-            throw new OtherException("样衣数据不存在,请先保存");
+            throw new OtherException("资料包数据不存在,请先保存");
         }
         Map<String, Object> variables = BeanUtil.beanToMap(pack);
         boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]", FlowableService.big_goods_reverse, id, "/pdm/api/saas/packInfo/approval", "/pdm/api/saas/packInfo/approval", "/sampleClothesDesign/sampleDesign/" + id, variables);
         if (flg) {
-            pack.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+            pack.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
             updateById(pack);
         }
         return true;
     }
 
     @Override
-    public boolean approval(AnswerDto dto) {
+    public boolean reverseApproval(AnswerDto dto) {
         PackInfo packInfo = getById(dto.getBusinessKey());
         if (packInfo != null) {
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
                 copy(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS, dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN);
-                packInfo.setConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+                packInfo.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+                packInfo.setSendFlag(BaseGlobal.NO);
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
-                packInfo.setConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
+                packInfo.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
             }
             updateById(packInfo);
         }
