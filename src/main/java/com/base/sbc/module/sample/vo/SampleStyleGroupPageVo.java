@@ -105,6 +105,12 @@ public class SampleStyleGroupPageVo extends BaseDataEntity<String> {
 	/** 生产模式 */
 	@ApiModelProperty(value = "生产模式")
 	private String devtType;
+	/** 主材料 */
+	@ApiModelProperty(value = "主材料")
+	private String mainMaterials;
+	/** 研发材料 */
+	@ApiModelProperty(value = "研发材料")
+	private String rdMat;
 	/** 设计师名称 */
 	@ApiModelProperty(value = "设计师名称")
 	private String designer;

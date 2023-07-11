@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -76,6 +77,12 @@ public class SampleStyleGroupServiceImpl extends BaseServiceImpl<SampleStyleGrou
 		SampleStyleGroup entity = CopyUtil.copy(dto, SampleStyleGroup.class);
 		if ("-1".equals(entity.getId())) {
 			entity.setId(null);
+
+			long count = this.count(new QueryWrapper<SampleStyleGroup>().eq(COMPANY_CODE, getCompanyCode())
+					.eq("style_no", dto.getStyleNo()));
+			if (count > 0) {
+				throw new OtherException("款式已被选择：" + dto.getStyleNo());
+			}
 			// 获取并放入最大code
 			entity.setGroupCode(getMaxCode("T"));
 		}
@@ -121,6 +128,13 @@ public class SampleStyleGroupServiceImpl extends BaseServiceImpl<SampleStyleGrou
 	public Boolean saveSampleStyleGroupItem(SampleStyleGroupItemSaveDto dto) {
 		if (dto.getStyleNo().indexOf(",") > 0) {
 			String[] styles = dto.getStyleNo().split(",");
+
+			long count = this.sampleStyleGroupColorService.count(new QueryWrapper<SampleStyleGroupColor>()
+					.eq(COMPANY_CODE, getCompanyCode()).in("style_no", StringUtils.convertList(dto.getStyleNo())));
+			if (count > 0) {
+				throw new OtherException("款式已被选择：" + dto.getStyleNo());
+			}
+
 			SampleStyleGroupColor entity;
 			List<SampleStyleGroupColor> list = new ArrayList<>();
 			for (int i = 0; i < styles.length; i++) {
@@ -136,6 +150,12 @@ public class SampleStyleGroupServiceImpl extends BaseServiceImpl<SampleStyleGrou
 			this.sampleStyleGroupColorService.saveBatch(list);
 		} else {
 			SampleStyleGroupColor entity = CopyUtil.copy(dto, SampleStyleGroupColor.class);
+			long count = this.sampleStyleGroupColorService.count(new QueryWrapper<SampleStyleGroupColor>()
+					.eq(COMPANY_CODE, getCompanyCode()).eq("style_no", dto.getStyleNo()));
+			if (count > 0) {
+				throw new OtherException("款式已被选择：" + dto.getStyleNo());
+			}
+
 			entity.setCompanyCode(this.getCompanyCode());
 			this.sampleStyleGroupColorService.save(entity);
 

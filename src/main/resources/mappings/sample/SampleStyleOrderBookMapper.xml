@@ -61,6 +61,8 @@
 			t2.month,
 			t2.sex,
 			t2.devt_type,
+			t2.main_materials,
+			t2.rd_mat,
 			t2.designer,
 			t2.designer_id
 			
