@@ -10,6 +10,7 @@ import com.base.sbc.module.sample.dto.SampleStyleOrderBookPriceUpdateDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookQueryDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookSaveDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookUpdateDto;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookUserUpdateDto;
 import com.base.sbc.module.sample.entity.SampleStyleOrderBook;
 import com.base.sbc.module.sample.vo.SampleStyleOrderBookPageVo;
 import com.github.pagehelper.PageInfo;
@@ -32,5 +33,7 @@ public interface SampleStyleOrderBookService extends BaseService<SampleStyleOrde
 	Boolean delSampleStyleOrderBookItem(String id);
 
 	Boolean updateSampleStyleOrderBookPrice(SampleStyleOrderBookPriceUpdateDto dto);
+
+	Boolean updateSampleStyleOrderBookUser(SampleStyleOrderBookUserUpdateDto dto);
 	
 }

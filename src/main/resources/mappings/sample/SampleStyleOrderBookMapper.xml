@@ -12,20 +12,64 @@
 			b.id as book_id,
 			bc.order_book_code,
 			bc.style_no,
-			sc.sample_design_pic,
-			sc.band_code,
-			sc.color_name,
+			t1.sample_design_pic,
+			t1.color_name,
 			bc.group_flag,
 			bc.group_code,
+			
+			bc.design_status,
+			bc.quadruple_price,
+			bc.design_say,
+			bc.plan_status,
+			bc.plan_user_id,
+			bc.plan_user_name,
+			bc.fabric_tag_price,
+			bc.product_plan_status,
+			bc.product_plan_user_id,
+			bc.product_plan_user_name,
+			bc.production_date,
+			bc.warehous_date,
+			bc.urgency,
+			bc.magnification,
+			bc.production_total_num,
+			bc.size_nums,
+			bc.total_num,
+			
 			b.image_url,
-			IFNULL(sg.tag_price,sc.tag_price) tag_price,
+			IFNULL(sg.tag_price,t1.tag_price) tag_price,
 			b.meet_flag,
-			b.lock_flag 
+			b.lock_flag,
+			
+			t1.color_specification,
+			t1.sales_type,
+			t1.is_trim,
+			t1.manufacturer,
+			t1.manufacturer_no,
+			t1.manufacturer_color,
+			
+			t2.style_name,
+			t2.design_no,
+			t2.category_name,
+			t2.prod_category1st,
+			t2.prod_category,
+			t2.prod_category2nd,
+			t2.prod_category3rd,
+			t2.brand,
+			t2.band_code,
+			t2.year,
+			t2.season,
+			t2.month,
+			t2.sex,
+			t2.devt_type,
+			t2.designer,
+			t2.designer_id
+			
 		FROM
 			t_sample_style_order_book_color bc
 			LEFT JOIN t_sample_style_order_book b ON bc.order_book_code = b.order_book_code
-			LEFT JOIN t_sample_style_color sc ON bc.style_no = sc.style_no
-		  LEFT JOIN t_sample_style_group sg on bc.style_no =  sg.style_no
+		  	LEFT JOIN t_sample_style_group sg on bc.style_no =  sg.style_no
+			LEFT JOIN t_sample_style_color t1 ON bc.style_no = t1.style_no
+			LEFT JOIN t_sample_design t2 on t1.design_no = t2.design_no
 		WHERE
 			bc.del_flag = '0'
 			and bc.company_code =  #{companyCode}

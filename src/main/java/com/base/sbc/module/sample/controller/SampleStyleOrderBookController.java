@@ -25,6 +25,7 @@ import com.base.sbc.module.sample.dto.SampleStyleOrderBookPriceUpdateDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookQueryDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookSaveDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookUpdateDto;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookUserUpdateDto;
 import com.base.sbc.module.sample.service.SampleStyleOrderBookService;
 import com.base.sbc.module.sample.vo.SampleStyleOrderBookPageVo;
 import com.github.pagehelper.PageInfo;
@@ -72,6 +73,12 @@ public class SampleStyleOrderBookController {
 	@PostMapping("/updateSampleStyleOrderBookPrice")
 	public Boolean updateSampleStyleOrderBookPrice(@Valid @RequestBody SampleStyleOrderBookPriceUpdateDto dto) {
 		return sampleStyleOrderBookService.updateSampleStyleOrderBookPrice(dto);
+	}
+
+	@ApiOperation(value = "款式订货本列表:分配接口")
+	@PostMapping("/updateSampleStyleOrderBookUser")
+	public Boolean updateSampleStyleOrderBookUser(@Valid @RequestBody SampleStyleOrderBookUserUpdateDto dto) {
+		return sampleStyleOrderBookService.updateSampleStyleOrderBookUser(dto);
 	}
 
 }

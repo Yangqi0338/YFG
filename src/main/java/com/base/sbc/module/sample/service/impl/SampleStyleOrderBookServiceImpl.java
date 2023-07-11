@@ -24,6 +24,7 @@ import com.base.sbc.module.sample.dto.SampleStyleOrderBookPriceUpdateDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookQueryDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookSaveDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookUpdateDto;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookUserUpdateDto;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.entity.SampleStyleGroup;
 import com.base.sbc.module.sample.entity.SampleStyleOrderBook;
@@ -168,6 +169,18 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 					.eq(COMPANY_CODE, getCompanyCode()).eq("style_no", dto.getStyleNo()));
 		}
 		return true;
+	}
+
+	@Override
+	public Boolean updateSampleStyleOrderBookUser(SampleStyleOrderBookUserUpdateDto dto) {
+
+		return this.sampleStyleOrderBookColorService.update(new UpdateWrapper<SampleStyleOrderBookColor>()
+				.set("order_book_status", "1").set("design_status", "0").set("plan_status", "0")
+				.set("product_plan_status", "0").set("plan_user_id", dto.getPlanUserId())
+				.set("plan_user_name", dto.getPlanUserName()).set("product_plan_user_id", dto.getProductPlanUserId())
+				.set("product_plan_user_name", dto.getProductPlanUserName())
+
+				.eq(COMPANY_CODE, getCompanyCode()).in("id", StringUtils.convertList(dto.getId())));
 	}
 
 }

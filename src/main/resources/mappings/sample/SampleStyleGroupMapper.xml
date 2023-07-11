@@ -12,8 +12,6 @@
 			t.*,
 			t1.sample_design_pic,
 			t1.color_name,
-			t1.band_code,
-			
 			t1.color_specification,
 			t1.sales_type,
 			t1.is_trim,
@@ -29,6 +27,7 @@
 			t2.prod_category2nd,
 			t2.prod_category3rd,
 			t2.brand,
+			t2.band_code,
 			t2.year,
 			t2.season,
 			t2.month,
@@ -71,7 +70,6 @@
 			t.style_no,
 			t1.sample_design_pic,
 			t1.color_name,
-			t1.band_code,
 			
 			t1.color_specification,
 			t1.sales_type,
@@ -88,6 +86,7 @@
 			t2.prod_category2nd,
 			t2.prod_category3rd,
 			t2.brand,
+			t2.band_code,
 			t2.year,
 			t2.season,
 			t2.month,
@@ -113,7 +112,6 @@
 			t.*,
 			t1.sample_design_pic,
 			t1.color_name,
-			t1.band_code,
 			
 			t1.color_specification,
 			t1.sales_type,
@@ -130,6 +128,7 @@
 			t2.prod_category2nd,
 			t2.prod_category3rd,
 			t2.brand,
+			t2.band_code,
 			t2.year,
 			t2.season,
 			t2.month,

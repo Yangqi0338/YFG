@@ -41,7 +41,7 @@ public class SampleStyleGroupPageVo extends BaseDataEntity<String> {
 	@ApiModelProperty(value = "样衣图片")
 	private String sampleDesignPic;
 	/** 品牌 */
-	@ApiModelProperty(value = "品牌")
+	@ApiModelProperty(value = "波段(编码)")
 	private String bandCode;
 	/** 颜色 */
 	@ApiModelProperty(value = "颜色")
