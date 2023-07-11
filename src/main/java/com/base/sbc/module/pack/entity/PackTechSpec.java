@@ -14,15 +14,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-
 /**
  * 类描述：资料包-工艺说明 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackTechSpec
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-5 16:17:40
+ * @email your email
+ * @date 创建时间：2023-7-11 17:44:37
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

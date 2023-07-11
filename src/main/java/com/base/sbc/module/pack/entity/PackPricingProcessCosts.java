@@ -14,7 +14,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-
 /**
  * 类描述：资料包-加工费 实体类
  *
@@ -22,7 +21,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackPricingProcessCosts
  * @email your email
- * @date 创建时间：2023-7-10 16:09:56
+ * @date 创建时间：2023-7-11 17:44:44
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -57,6 +56,11 @@ public class PackPricingProcessCosts extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "部位")
     private String part;
+    /**
+     * 工序编号
+     */
+    @ApiModelProperty(value = "工序编号")
+    private String processSort;
     /**
      * 工序名称
      */
@@ -118,9 +122,9 @@ public class PackPricingProcessCosts extends BaseDataEntity<String> {
     @ApiModelProperty(value = "报价货币")
     private String quotationPriceCurrency;
     /**
-     * 工价
+     * 标准工价
      */
-    @ApiModelProperty(value = "工价")
+    @ApiModelProperty(value = "标准工价")
     private BigDecimal processPrice;
     /**
      * 备注
@@ -129,3 +133,4 @@ public class PackPricingProcessCosts extends BaseDataEntity<String> {
     private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+

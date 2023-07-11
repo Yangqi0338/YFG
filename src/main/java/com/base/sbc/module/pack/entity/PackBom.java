@@ -21,7 +21,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
  * @email your email
- * @date 创建时间：2023-7-10 17:29:24
+ * @date 创建时间：2023-7-11 17:44:46
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -187,9 +187,9 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "额定单耗")
     private String ratedUnitConsumption;
     /**
-     * 购买货币
+     * 购买币种
      */
-    @ApiModelProperty(value = "购买货币")
+    @ApiModelProperty(value = "购买币种")
     private String purchaseCurrency;
     /**
      * 单价
@@ -236,6 +236,41 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "工段分组")
     private String workshopGroup;
+    /**
+     * 设计单件用量
+     */
+    @ApiModelProperty(value = "设计单件用量")
+    private BigDecimal designUnitUse;
+    /**
+     * 大货单件用量
+     */
+    @ApiModelProperty(value = "大货单件用量")
+    private BigDecimal bulkUnitUse;
+    /**
+     * 设计单价
+     */
+    @ApiModelProperty(value = "设计单价")
+    private BigDecimal designPrice;
+    /**
+     * 大货单价
+     */
+    @ApiModelProperty(value = "大货单价")
+    private BigDecimal bulkPrice;
+    /**
+     * 单价税点
+     */
+    @ApiModelProperty(value = "单价税点")
+    private BigDecimal priceTax;
+    /**
+     * 总成本税点
+     */
+    @ApiModelProperty(value = "总成本税点")
+    private BigDecimal totalCostTax;
+    /**
+     * 金额
+     */
+    @ApiModelProperty(value = "金额")
+    private BigDecimal amount;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

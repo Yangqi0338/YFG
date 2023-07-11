@@ -14,7 +14,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-
 /**
  * 类描述：资料包-二次加工费(工艺费用) 实体类
  *
@@ -22,7 +21,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackPricingCraftCosts
  * @email your email
- * @date 创建时间：2023-7-10 16:09:53
+ * @date 创建时间：2023-7-11 17:44:41
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -114,3 +113,4 @@ public class PackPricingCraftCosts extends BaseDataEntity<String> {
     private BigDecimal sumprice;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+
