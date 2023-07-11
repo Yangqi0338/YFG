@@ -111,4 +111,12 @@ public class SampleStyleColorVo  {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+    //    原大货款号
+    private String hisStyleNo;
+    //    款式风格
+    private String styleFlavour;
+    //    厂家简称
+    private String manufacturerJane;
+    //    是否报次数0否 1是
+    private String isDefective;
 }

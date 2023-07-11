@@ -6,7 +6,7 @@ import org.hibernate.validator.constraints.NotBlank;
 
 /*更新吊牌价*/
 @Data
-public class updateTagPriceDto {
+public class UpdateTagPriceDto {
     @ApiModelProperty(value = "款式id", example = "")
     @NotBlank(message = "编号不能为空")
     private String id;

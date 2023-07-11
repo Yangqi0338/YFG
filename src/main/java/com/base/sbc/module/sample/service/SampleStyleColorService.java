@@ -8,10 +8,7 @@ package com.base.sbc.module.sample.service;
 
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.sample.dto.AddRevampSampleStyleColorDto;
-import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
-import com.base.sbc.module.sample.dto.RelevanceBomDto;
-import com.base.sbc.module.sample.dto.updateTagPriceDto;
+import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.vo.SampleStyleColorVo;
 import com.github.pagehelper.PageInfo;
@@ -51,7 +48,7 @@ public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
          * @param updateTagPriceDto
          * @return
          */
-        Boolean updateTagPrice( updateTagPriceDto updateTagPriceDto);
+        Boolean updateTagPrice( UpdateTagPriceDto updateTagPriceDto);
 
         /**
          *  大货款号查询
@@ -122,6 +119,13 @@ public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
          * @return
          */
         Boolean relevanceBom(RelevanceBomDto relevanceBomDto);
+
+        /**
+         * 方法描述 修改大货款号,波段
+         * @param updateStyleNoBandDto
+         * @return
+         */
+        Boolean updateStyleNoBand(UpdateStyleNoBandDto updateStyleNoBandDto);
 
 
 // 自定义方法区 不替换的区域【other_end】

@@ -6,9 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.module.sample.vo.SampleStyleColorVo;
 import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 类描述：样衣-款式配色 dao类
@@ -29,6 +35,10 @@ public interface SampleStyleColorMapper extends BaseMapper<SampleStyleColor> {
     /*查询款式下的额配色*/
     int getStyleColorNumber(String sampleDesignId);
 
+    /**
+     *
+     */
+    List<SampleStyleColorVo> getSampleStyleColorList(@Param(Constants.WRAPPER) QueryWrapper qw);
 
 // 自定义方法区 不替换的区域【other_end】
 }

@@ -16,4 +16,8 @@ public class QuerySampleStyleColorDto extends Page {
 
     private  String ids;
 
+    private String  colorSpecification;
+
+    private String subdivide;
+
 }

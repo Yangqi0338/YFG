@@ -8,17 +8,13 @@ package com.base.sbc.module.sample.controller;
 
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.sample.dto.AddRevampSampleStyleColorDto;
-import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
-import com.base.sbc.module.sample.dto.RelevanceBomDto;
-import com.base.sbc.module.sample.dto.updateTagPriceDto;
+import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.service.SampleStyleColorService;
 import com.base.sbc.module.sample.vo.SampleStyleColorVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -59,7 +55,7 @@ public class SampleStyleColorController{
 
 	@ApiOperation(value = "修改吊牌价-款式配色")
 	@PostMapping("/updateTagPrice")
-	public Boolean updateTagPrice(@Valid @RequestBody updateTagPriceDto updateTagPriceDto) {
+	public Boolean updateTagPrice(@Valid @RequestBody UpdateTagPriceDto updateTagPriceDto) {
 		return sampleStyleColorService.updateTagPrice(updateTagPriceDto);
 	}
 
@@ -126,6 +122,12 @@ public class SampleStyleColorController{
 	@PostMapping("/relevanceBom")
 	public Boolean relevanceBom(@Valid @RequestBody RelevanceBomDto relevanceBomDto) {
 		return sampleStyleColorService.relevanceBom(relevanceBomDto);
+	}
+
+	@ApiOperation(value = "修改大货款号,波段")
+	@PostMapping("/updateStyleNoBand")
+	public Boolean updateStyleNoBand(@Valid @RequestBody UpdateStyleNoBandDto updateStyleNoBandDto) {
+		return sampleStyleColorService.updateStyleNoBand(updateStyleNoBandDto);
 	}
 
 }
