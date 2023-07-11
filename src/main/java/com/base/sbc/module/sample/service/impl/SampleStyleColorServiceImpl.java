@@ -426,6 +426,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
         if (StringUtils.isNotBlank(sampleStyleColor.getBom())) {
             throw new OtherException("该配色以关联bom");
         }
+        /*查询bom信息*/
         PackInfo packInfo = packInfoMapper.selectById(relevanceBomDto.getPackInfoId());
         if(ObjectUtils.isEmpty(packInfo)){
             throw new OtherException("无bom信息");
@@ -433,10 +434,9 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
         if (StringUtils.isNotBlank(packInfo.getStyleNo())) {
             throw new OtherException("该bom以关联bom");
         }
-
-
         /*关联bom*/
         sampleStyleColor.setBom(packInfo.getCode());
+        /*bom关联配色*/
         packInfo.setStyleNo(sampleStyleColor.getStyleNo());
         packInfo.setColor(sampleStyleColor.getColorName());
         packInfo.setSampleStyleColorId(sampleStyleColor.getId());
