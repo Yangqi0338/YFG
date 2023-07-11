@@ -8,8 +8,7 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 
 /**
  * 日期工具类, 继承org.apache.commons.lang.time.DateUtils类
@@ -23,7 +22,199 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 		"yyyy/MM/dd", "yyyy/MM/dd HH:mm:ss", "yyyy/MM/dd HH:mm", "yyyy/MM",
 		"yyyy.MM.dd", "yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd HH:mm", "yyyy.MM"};
 
-		static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	/**
+	 * 秒
+	 */
+	public static final String SECONDS = "SECONDS";
+	/**
+	 * 分钟
+	 */
+	public static final String MINUTES = "MINUTES";
+	/**
+	 * 小时
+	 */
+	public static final String HOURS  = "HOURS";
+	/**
+	 * 天
+	 */
+	public static final String DAYS  =  "DAYS";
+	/** 一星期的天数 */
+	public static final int WEEK_DAYS = 7;
+	/** 一年的月份数 */
+	public static final int YEAR_MONTHS = 12;
+	/** 一天的小时数 */
+	public static final int DAY_HOURS = 24;
+	/** 一小时分钟数 */
+	public static final int HOUR_MINUTES = 60;
+	/** 一天分钟数 (24 * 60) */
+	public static final int DAY_MINUTES = 1440;
+	/** 一分钟的秒数 */
+	public static final int MINUTE_SECONDS = 60;
+	/** 一个小时的秒数 (60 * 60) */
+	public static final int HOUR_SECONDS = 3600;
+	/** 一天的秒数 (24 * 60 * 60) */
+	public static final int DAY_SECONDS = 86400;
+	/** 一秒的毫秒数 */
+	public static final long SECOND_MILLISECONDS = 1000L;
+	/** 一分钟的毫秒数（60 * 1000） */
+	public static final long MINUTE_MILLISECONDS = 60000L;
+	/** 一小时的毫秒数（60 * 60 * 1000） */
+	public static final long HOUR_MILLISECONDS = 3600000L;
+	/** 一天的毫秒数（24 * 60* 60* 1000） */
+	public static final long DAY_MILLISECONDS = 86400000L;
+	/** 星期一 */
+	public static final int WEEK_1_MONDAY = 1;
+	/** 星期二 */
+	public static final int WEEK_2_TUESDAY = 2;
+	/** 星期三 */
+	public static final int WEEK_3_WEDNESDAY = 3;
+	/** 星期四 */
+	public static final int WEEK_4_THURSDAY = 4;
+	/** 星期五 */
+	public static final int WEEK_5_FRIDAY = 5;
+	/** 星期六 */
+	public static final int WEEK_6_SATURDAY = 6;
+	/** 星期天 */
+	public static final int WEEK_7_SUNDAY = 7;
+	/** 一月 */
+	public static final int MONTH_1_JANUARY = 1;
+	/** 二月 */
+	public static final int MONTH_2_FEBRUARY = 2;
+	/** 三月 */
+	public static final int MONTH_3_MARCH = 3;
+	/** 四月 */
+	public static final int MONTH_4_APRIL= 4;
+	/** 五月 */
+	public static final int MONTH_5_MAY = 5;
+	/** 六月 */
+	public static final int MONTH_6_JUNE = 6;
+	/** 七月 */
+	public static final int MONTH_7_JULY = 7;
+	/** 八月 */
+	public static final int MONTH_8_AUGUST = 8;
+	/** 九月 */
+	public static final int MONTH_9_SEPTEMBER = 9;
+	/** 十月 */
+	public static final int MONTH_10_OCTOBER = 10;
+	/** 十一月 */
+	public static final int MONTH_11_NOVEMBER = 11;
+	/** 十二月 */
+	public static final int MONTH_12_DECEMBER= 12;
+	/** 显示到日期 */
+	public static final String FORMAT_DATE = "yyyy-MM-dd";
+	/** 显示到小时 */
+	public static final String FORMAT_HOUR = "yyyy-MM-dd HH";
+	/** 显示到分 */
+	public static final String FORMAT_MINUTE = "yyyy-MM-dd HH:mm";
+	/** 显示到秒 */
+	public static final String FORMAT_SECOND = "yyyy-MM-dd HH:mm:ss";
+	/** 显示到毫秒 */
+	public static final String FORMAT_MILLISECOND = "yyyy-MM-dd HH:mm:ss:SSS";
+	/** 显示到日期（数字格式） */
+	public static final String FORMAT_NO_DATE = "yyyyMMdd";
+	/** 显示到小时（数字格式） */
+	public static final String FORMAT_NO_HOUR = "yyyyMMddHH";
+	/** 显示到分（数字格式） */
+	public static final String FORMAT_NO_MINUTE = "yyyyMMddHHmm";
+	/** 显示到秒（数字格式） */
+	public static final String FORMAT_NO_SECOND = "yyyyMMddHHmmss";
+	/** 显示到毫秒（数字格式） */
+	public static final String FORMAT_NO_MILLISECOND = "yyyyMMddHHmmssSSS";
+	/** 时间格式化器集合 */
+	private static final Map<String, SimpleDateFormat> simpleDateFormatMap = new HashMap<String, SimpleDateFormat>();
+
+	static {
+		simpleDateFormatMap.put(FORMAT_DATE, new SimpleDateFormat(FORMAT_DATE));
+		simpleDateFormatMap.put(FORMAT_HOUR, new SimpleDateFormat(FORMAT_HOUR));
+		simpleDateFormatMap.put(FORMAT_MINUTE, new SimpleDateFormat(FORMAT_MINUTE));
+		simpleDateFormatMap.put(FORMAT_SECOND, new SimpleDateFormat(FORMAT_SECOND));
+		simpleDateFormatMap.put(FORMAT_MILLISECOND, new SimpleDateFormat(FORMAT_MILLISECOND));
+		simpleDateFormatMap.put(FORMAT_NO_DATE, new SimpleDateFormat(FORMAT_NO_DATE));
+		simpleDateFormatMap.put(FORMAT_NO_HOUR, new SimpleDateFormat(FORMAT_NO_HOUR));
+		simpleDateFormatMap.put(FORMAT_NO_MINUTE, new SimpleDateFormat(FORMAT_NO_MINUTE));
+		simpleDateFormatMap.put(FORMAT_NO_SECOND, new SimpleDateFormat(FORMAT_NO_SECOND));
+		simpleDateFormatMap.put(FORMAT_NO_MILLISECOND, new SimpleDateFormat(FORMAT_NO_MILLISECOND));
+	}
+
+	/**
+	 * 计算缓存过期时间
+	 * @param dateString 设置缓存的时间
+	 * @param dateType 缓存时间类型
+	 * @param timeOut 缓存时间
+	 * @return 缓存过期时间
+	 */
+	public static Date getDateByDateType(String dateString, String timeOut, String dateType){
+		// 1、缓存过期时间转换
+		Date date = parse(dateString, DateUtils.FORMAT_SECOND);
+		// 2、时间计算类型 默认 秒
+		long calculationType = SECOND_MILLISECONDS;
+		// 3、根据缓存时间类型
+		switch (dateType){
+			// 分
+			case MINUTES:
+				calculationType =  MINUTE_MILLISECONDS;
+				break;
+			// 小时
+			case HOURS:
+				calculationType =  HOUR_MILLISECONDS;
+				break;
+			// 天
+			case DAYS:
+				calculationType =  DAY_MILLISECONDS;
+				break;
+			// 默认秒
+			default:
+				calculationType = SECOND_MILLISECONDS;
+				break;
+		}
+		// 4、拿到设置缓存时间和缓存时间做计算，得到缓存过期时间
+		date.setTime(date.getTime() + (Long.valueOf(timeOut) * calculationType));
+		return date;
+	}
+	/**
+	 * 获取指定时间格式化器
+	 *
+	 * @param formatStyle 时间格式
+	 * @return 时间格式化器
+	 */
+	private static SimpleDateFormat getSimpleDateFormat(String formatStyle) {
+		SimpleDateFormat dateFormat = simpleDateFormatMap.get(formatStyle);
+		if (Objects.nonNull(dateFormat)) {
+			return dateFormat;
+		}
+		return new SimpleDateFormat(formatStyle);
+	}
+
+	/**
+	 * 将字符串格式时间转化为 Date 格式时间
+	 *
+	 * @param dateString 字符串时间（如：2022-06-17 16:06:17）
+	 * @return formatStyle 格式内容
+	 * @return Date 格式时间
+	 */
+	public static Date parse(String dateString, String formatStyle) {
+		String s = getString(dateString);
+		if (s.isEmpty()) {
+			return null;
+		}
+		try {
+			return getSimpleDateFormat(formatStyle).parse(dateString);
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/**
+	 * 获取字符串有效内容
+	 *
+	 * @param s 字符串
+	 * @return 有效内容
+	 */
+	private static String getString(String s) {
+		return Objects.isNull(s) ? "" : s.trim();
+	}
 
 	/**
 	 * 得到当前日期字符串 格式（yyyy-MM-dd）

@@ -249,7 +249,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @param endTime 结束时间
      * @return 根据周返回集合
      */
-    ArrayList<ArrayList> versionComparisonViewWeekMonth(String companyCode, String weeklyMonth, String startTime, String endTime);
+    ArrayList<ArrayList> versionComparisonViewWeekMonth(String companyCode, String weeklyMonth, String startTime, String endTime,String token);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

@@ -226,8 +226,8 @@ public class PatternMakingController {
 
     @ApiOperation(value = "版类对比统计", notes = "")
     @GetMapping("/versionComparisonViewWeekMonth")
-    public ApiResult versionComparisonViewWeekMonth(@RequestHeader(BaseConstant.USER_COMPANY)String companyCode, String weeklyMonth, String startTime, String endTime) {
-        return ApiResult.success("查询成功",patternMakingService.versionComparisonViewWeekMonth(companyCode, weeklyMonth, startTime, endTime));
+    public ApiResult versionComparisonViewWeekMonth(@RequestHeader(BaseConstant.AUTHORIZATION)String token,@RequestHeader(BaseConstant.USER_COMPANY)String companyCode, String weeklyMonth, String startTime, String endTime) {
+        return ApiResult.success("查询成功",patternMakingService.versionComparisonViewWeekMonth(companyCode, weeklyMonth, startTime, endTime,token));
     }
 
     @ApiOperation(value = "获取节点状态配置", notes = "")

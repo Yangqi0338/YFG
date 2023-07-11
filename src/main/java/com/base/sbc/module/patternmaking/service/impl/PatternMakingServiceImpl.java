@@ -27,8 +27,10 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.constant.TechnologyBoardConstant;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.DateUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -54,10 +56,14 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -80,6 +86,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     private final CcmFeignService ccmFeignService;
     private final NodeStatusConfigService nodeStatusConfigService;
+
+    @Autowired
+    private RedisUtils redisUtils;
 
 
     @Override
@@ -802,69 +811,170 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public ArrayList<ArrayList> versionComparisonViewWeekMonth(String companyCode, String weeklyMonth, String startTime, String endTime) {
-        // 1、返回数据集合
+    public ArrayList<ArrayList> versionComparisonViewWeekMonth(String companyCode, String weeklyMonth, String startTime, String endTime,String token) {
+        // 1、组装缓存key
+        StringBuffer key = new StringBuffer();
+        key.append(TechnologyBoardConstant.VERSION_COMPARISON);
+        key.append(companyCode);
+        key.append(weeklyMonth);
+        key.append(startTime);
+        key.append(endTime);
+        // 2、获取缓存数据，过期时间，会开启一个新的线程
+        Map<String, Object> dataMap = this.redisGetData(companyCode,weeklyMonth,startTime,endTime,key.toString(),token);
+        // 3、缓存为空则直接返回，
+        if(null == dataMap){
+            return null;
+        }
+        return (ArrayList<ArrayList>)dataMap.get("dataLists");
+    }
+
+    /**
+     *  根据时间按周月统计版类对比
+     * @param companyCode 企业编码
+     * @param weeklyMonth 周月类型 week、month 默认 week
+     * @param startTime 开始时间
+     * @param endTime 结束时间
+     * @param key 缓存KEY
+     * @return 根据周返回集合
+     */
+    public ArrayList<ArrayList> queryVersionComparisonView(String companyCode, String weeklyMonth, String startTime, String endTime, String key){
+        // 1、缓存数据格式
+        Map<String,Object> dataMap = Maps.newHashMap();
+        // 2、返回数据集合
         ArrayList<ArrayList> dataLists = new ArrayList<>();
-        // 2、时间为空 默认查询当前时间的前一个月数据
+        // 3、时间为空 默认查询当前时间的前一个月数据
         if(StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime) ){
             Date date = new Date();
             endTime = DateUtils.formatDateTime(date);
             startTime =  DateUtils.getMonthAgo(date);
         }
-        // 3、判断是否是根据周、月查询
+        // 4、判断是否是根据周、月查询
         if(StringUtils.isBlank(weeklyMonth) || (!weeklyMonth.equals(BaseGlobal.WEEK) && !weeklyMonth.equals(BaseGlobal.MONTH))){
             weeklyMonth = BaseGlobal.WEEK;
         }
+        // 5、从数据库查询数据
         List<PatternMakingWeekMonthViewVo> dataList = baseMapper.versionComparisonViewWeekMonth(companyCode, weeklyMonth, startTime, endTime);
-        // 4、判断数据是为空
+        // 6、判断数据是为空
         if(CollectionUtil.isNotEmpty(dataList)){
-            // 4.1 取出所有的时间
+            // 6.1 取出所有的时间
             List<String> yearWeekList = dataList.stream().filter(item -> StrUtil.isNotBlank(item.getYearWeek()))
                     .map(m -> m.getYearWeek()).distinct().collect(Collectors.toList());
 
-            // 4.2根据sampleType分类
+            // 6.2根据sampleType分类
             Map<Object, List<PatternMakingWeekMonthViewVo>> sampleTypeMap = dataList.stream().collect(Collectors.groupingBy(PatternMakingWeekMonthViewVo::getSampleType));
 
-            // 4.3 取出初版数据
+            // 6.3 取出初版数据
             List<PatternMakingWeekMonthViewVo> firstVersionList = null != sampleTypeMap.get("初版样") ? sampleTypeMap.get("初版样") : new ArrayList<>();
-            //  4.3.1 根据时间转换为map
+            //  6.3.1 根据时间转换为map
             Map<String, PatternMakingWeekMonthViewVo> firstVersionMap = Maps.newHashMap();
             if(CollectionUtil.isNotEmpty(firstVersionList)){
                 firstVersionMap = firstVersionList.stream().filter(item -> StrUtil.isNotBlank(item.getYearWeek()))
                         .collect(Collectors.toMap(k -> k.getYearWeek(), v -> v, (a, b) -> b));
             }
 
-            // 4.4 取出改版样数据
+            // 6.4 取出改版样数据
             List<PatternMakingWeekMonthViewVo> revisionList = null != sampleTypeMap.get("改版样") ? sampleTypeMap.get("改版样") : new ArrayList<>();
-            //  4.4.1 根据时间把改版样数据转换为map
+            //  6.4.1 根据时间把改版样数据转换为map
             Map<String,PatternMakingWeekMonthViewVo> revisionMap = Maps.newHashMap();
             if(CollectionUtil.isNotEmpty(revisionList)){
                 revisionMap = revisionList.stream().filter(item -> StrUtil.isNotBlank(item.getYearWeek()))
                         .collect(Collectors.toMap(k -> k.getYearWeek(), v -> v, (a, b) -> b));
             }
 
-            // 5、根据数据里的拼接返回的数据
+            // 7、根据数据里的拼接返回的数据
             for (String yearWeek : yearWeekList) {
                 ArrayList<String> arrayList = new ArrayList();
                 arrayList.add(yearWeek);
-                // 5.1、初版数据
+                // 7.1、初版数据
                 if(null != firstVersionMap.get(yearWeek)){
                     PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = firstVersionMap.get(yearWeek);
-                    arrayList.add(null != patternMakingWeekMonthViewVo.getNum() ? patternMakingWeekMonthViewVo.getNum() : "0");
+                    arrayList.add(null != patternMakingWeekMonthViewVo.getNum() ? patternMakingWeekMonthViewVo.getNum() : String.valueOf(BaseGlobal.ZERO));
                 } else {
-                    arrayList.add("0");
+                    arrayList.add(String.valueOf(BaseGlobal.ZERO));
                 }
-                // 5.2、改版样数据
+                // 7.2、改版样数据
                 if(null != revisionMap.get(yearWeek)){
                     PatternMakingWeekMonthViewVo revisionTwo = revisionMap.get(yearWeek);
-                    arrayList.add(null != revisionTwo.getNum() ? revisionTwo.getNum() : "0");
+                    arrayList.add(null != revisionTwo.getNum() ? revisionTwo.getNum() : String.valueOf(BaseGlobal.ZERO));
                 } else {
-                    arrayList.add("0");
+                    arrayList.add(String.valueOf(BaseGlobal.ZERO));
                 }
                 dataLists.add(arrayList);
             }
         }
+        // 8、放入Redis缓存在数据里面设置过期时间
+        dataMap.put("dataLists",dataLists);
+        // 8.1 数据里设置过期时间为一天
+        dataMap.put(TechnologyBoardConstant.TIME_OUT, DateUtils.DAY_HOURS);
+        // 8.2 设置过期时间类型
+        dataMap.put(TechnologyBoardConstant.TIME_TYPE, DateUtils.HOURS);
+        // 8.3 数据缓存时间
+        dataMap.put(TechnologyBoardConstant.TIME, DateUtils.formatDateTime(new Date()));
+        redisUtils.set(key,dataMap);
+        // 9、解除缓存锁
+        redisUtils.del(TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.VERSION_COMPARISON + companyCode);
         return dataLists;
+    }
+
+    /**
+     * 获取缓存的数据
+     * @param companyCode 企业编码
+     * @param weeklyMonth 周月类型 week、month 默认 week
+     * @param startTime 开始时间
+     * @param endTime 结束时间
+     * @param key 缓存key
+     * @return 数据
+     */
+    private Map<String,Object> redisGetData(String companyCode, String weeklyMonth, String startTime, String endTime,String key,String token){
+        Object redisData = redisUtils.get(key);
+        // 拼接锁KEY
+        String lockKey =  TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.VERSION_COMPARISON + companyCode;
+        // 如果缓存没有直接返回null，开启线程查数据
+        if(null == redisData){
+            // 获取锁，只能查询一次
+            if(null == redisUtils.get(lockKey)){
+                // 开启线程查数据
+                this.getData(companyCode,weeklyMonth,startTime,endTime,key,token,lockKey);
+            }
+            return null;
+        }
+        // 获取缓存数据
+        Map<String,Object> data = (Map<String,Object>)redisData;
+        // 获取设置的超时时间
+        String timeOut = data.get(TechnologyBoardConstant.TIME_OUT).toString();
+        // 获取缓存时间
+        String dateString = data.get(TechnologyBoardConstant.TIME).toString();
+        // 获取设置的超时时间类型
+        String timeType = data.get(TechnologyBoardConstant.TIME_TYPE).toString();
+        // 获取数据缓存过期时间
+        Date dateOut = DateUtils.getDateByDateType(dateString, timeOut, timeType);
+        Date currentDate = new Date();
+        // 设置数据的缓存时间已过 开启新的线程去查数据
+        if(dateOut.getTime() - currentDate.getTime() < 0){
+            // 设置锁，只能查询一次
+            if(null == redisUtils.get(TechnologyBoardConstant.CACHE_LOCK)){
+                // 开启线程查数据
+                this.getData(companyCode,weeklyMonth,startTime,endTime,key,token,lockKey);
+            }
+        }
+        return data;
+    }
+
+    /**
+     * 开启线程查数据
+     * @param companyCode 企业编码
+     * @param weeklyMonth 周月类型 week、month 默认 week
+     * @param startTime 开始时间
+     * @param endTime 结束时间
+     * @param key 缓存key
+     * @param token token
+     * @param lockKey 拼接的锁key
+     */
+    private void getData(String companyCode, String weeklyMonth, String startTime, String endTime,String key,String token,String lockKey){
+        new Thread(()->{
+            redisUtils.set(lockKey, token + companyCode);
+            this.queryVersionComparisonView(companyCode,weeklyMonth,startTime,endTime,key);
+        }).start();
     }
 
     // 自定义方法区 不替换的区域【other_end】
