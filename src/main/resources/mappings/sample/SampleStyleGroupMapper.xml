@@ -6,16 +6,40 @@
         创建时间：2023-7-3 14:37:23
         版本号：1.0
       -->
-
+	<!--  款式搭配：分页查询 -->
 	<select id="getStyleGroupList" resultType="com.base.sbc.module.sample.vo.SampleStyleGroupPageVo">
 		SELECT
 			t.*,
 			t1.sample_design_pic,
 			t1.color_name,
-			t1.band_code
+			t1.band_code,
+			
+			t1.color_specification,
+			t1.sales_type,
+			t1.is_trim,
+			t1.manufacturer,
+			t1.manufacturer_no,
+			t1.manufacturer_color,
+
+			t2.style_name,
+			t2.design_no,
+			t2.category_name,
+			t2.prod_category1st,
+			t2.prod_category,
+			t2.prod_category2nd,
+			t2.prod_category3rd,
+			t2.brand,
+			t2.year,
+			t2.season,
+			t2.month,
+			t2.sex,
+			t2.devt_type,
+			t2.designer,
+			t2.designer_id
 		FROM
 			t_sample_style_group t
 			LEFT JOIN t_sample_style_color t1 ON t.style_no = t1.style_no
+			LEFT JOIN t_sample_design t2 on t1.design_no = t2.design_no 
 		WHERE 
 			t.company_code = #{companyCode}
 			and t.del_flag = '0'
@@ -33,7 +57,7 @@
 			</if>
 	</select>
 	
-	
+	<!--  款式搭配：分页查询详情列表 -->
 	<select id="getStyleGroupItemByGroupCode" resultType="com.base.sbc.module.sample.vo.SampleStyleGroupPageVo">
 		SELECT
 			t.id,
@@ -42,32 +66,81 @@
 			t.create_date,
 			t.update_name,
 			t.update_date,
-			t2.group_code,
-			t2.group_name,
+			t0.group_code,
+			t0.group_name,
 			t.style_no,
 			t1.sample_design_pic,
 			t1.color_name,
-			t1.band_code 
+			t1.band_code,
+			
+			t1.color_specification,
+			t1.sales_type,
+			t1.is_trim,
+			t1.manufacturer,
+			t1.manufacturer_no,
+			t1.manufacturer_color,
+
+			t2.style_name,
+			t2.design_no,
+			t2.category_name,
+			t2.prod_category1st,
+			t2.prod_category,
+			t2.prod_category2nd,
+			t2.prod_category3rd,
+			t2.brand,
+			t2.year,
+			t2.season,
+			t2.month,
+			t2.sex,
+			t2.devt_type,
+			t2.designer,
+			t2.designer_id
+			
 		FROM
 			t_sample_style_group_color t
-			LEFT JOIN t_sample_style_group t2 ON t.group_code = t2.group_code
+			LEFT JOIN t_sample_style_group t0 ON t.group_code = t0.group_code
 			LEFT JOIN t_sample_style_color t1 ON t.style_no = t1.style_no 
+			LEFT JOIN t_sample_design t2 on t1.design_no = t2.design_no 
 		WHERE
 			t.company_code = #{companyCode}
 			and t.del_flag = '0'
 			and t.group_code = #{groupCode}
 	</select>
 	
-	
+	<!--  款式搭配：查询详情页 -->
 	<select id="getSampleStyleGroup" resultType="com.base.sbc.module.sample.vo.SampleStyleGroupPageVo">
 		SELECT
 			t.*,
 			t1.sample_design_pic,
 			t1.color_name,
-			t1.band_code
+			t1.band_code,
+			
+			t1.color_specification,
+			t1.sales_type,
+			t1.is_trim,
+			t1.manufacturer,
+			t1.manufacturer_no,
+			t1.manufacturer_color,
+
+			t2.style_name,
+			t2.design_no,
+			t2.category_name,
+			t2.prod_category1st,
+			t2.prod_category,
+			t2.prod_category2nd,
+			t2.prod_category3rd,
+			t2.brand,
+			t2.year,
+			t2.season,
+			t2.month,
+			t2.sex,
+			t2.devt_type,
+			t2.designer,
+			t2.designer_id
 		FROM
 			t_sample_style_group t
 			LEFT JOIN t_sample_style_color t1 ON t.style_no = t1.style_no
+			LEFT JOIN t_sample_design t2 on t1.design_no = t2.design_no 
 		WHERE 
 			t.company_code = #{companyCode}
 			and t.del_flag = '0'

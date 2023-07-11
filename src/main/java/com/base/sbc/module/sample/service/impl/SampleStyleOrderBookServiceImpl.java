@@ -38,10 +38,12 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
 /**
+ * 
  * 类描述：款式管理-订货本 service类
  * 
- * @date 创建时间：2023-7-3 14:37:29
- * @version 1.0
+ * @author shenzhixiong
+ * @email 731139982@qq.com
+ * @date 2023年7月11日
  */
 @Service
 public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyleOrderBookMapper, SampleStyleOrderBook>
