@@ -10,6 +10,7 @@ import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.sample.dto.AddRevampSampleStyleColorDto;
 import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
+import com.base.sbc.module.sample.dto.RelevanceBomDto;
 import com.base.sbc.module.sample.dto.updateTagPriceDto;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.vo.SampleStyleColorVo;
@@ -114,6 +115,13 @@ public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
          * @param sampleDesignId 样衣id
          */
         List<String> getStyleColorId(String sampleDesignId);
+
+        /**
+         * 方法描述 关联bom
+         * @param relevanceBomDto
+         * @return
+         */
+        Boolean relevanceBom(RelevanceBomDto relevanceBomDto);
 
 
 // 自定义方法区 不替换的区域【other_end】
