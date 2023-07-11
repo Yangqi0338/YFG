@@ -117,6 +117,16 @@ public class SmpController extends BaseController {
         return insertSuccess(null);
     }
 
+    /**
+     * smp-物料
+     */
+    @PostMapping("/smpMaterial")
+    @ApiOperation(value = "smp-物料", notes = "smp-物料")
+    public ApiResult smpMaterial(@RequestBody JSONObject jsonObject) {
+        System.out.println(jsonObject);
+        return insertSuccess(null);
+    }
+
 
     /**
      * 吊牌打印
