@@ -811,16 +811,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public ArrayList<ArrayList> versionComparisonViewWeekMonth(String companyCode, String weeklyMonth, String startTime, String endTime,String token) {
+    public ArrayList<ArrayList> versionComparisonViewWeekMonth(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String token) {
         // 1、组装缓存key
         StringBuffer key = new StringBuffer();
         key.append(TechnologyBoardConstant.VERSION_COMPARISON);
-        key.append(companyCode);
-        key.append(weeklyMonth);
-        key.append(startTime);
-        key.append(endTime);
+        key.append(patternMakingWeekMonthViewDto.getCompanyCode());
+        key.append(patternMakingWeekMonthViewDto.getWeeklyMonth());
+        key.append(patternMakingWeekMonthViewDto.getStartTime());
+        key.append(patternMakingWeekMonthViewDto.getEndTime());
         // 2、获取缓存数据，过期时间，会开启一个新的线程
-        Map<String, Object> dataMap = this.redisGetData(companyCode,weeklyMonth,startTime,endTime,key.toString(),token);
+        Map<String, Object> dataMap = this.redisGetData(patternMakingWeekMonthViewDto,key.toString(),token,TechnologyBoardConstant.VERSION_COMPARISON);
         // 3、缓存为空则直接返回，
         if(null == dataMap){
             return null;
@@ -829,31 +829,193 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     /**
-     *  根据时间按周月统计版类对比
-     * @param companyCode 企业编码
-     * @param weeklyMonth 周月类型 week、month 默认 week
-     * @param startTime 开始时间
-     * @param endTime 结束时间
-     * @param key 缓存KEY
-     * @return 根据周返回集合
+     * 品类汇总统计
+     * @param patternMakingWeekMonthViewDto 技术看板DTO
+     * @param token token
+     * @return 结果集
      */
-    public Map<String,Object> queryVersionComparisonView(String companyCode, String weeklyMonth, String startTime, String endTime, String key){
+    @Override
+    public ArrayList<ArrayList> categorySummaryCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String token) {
+        // 1、组装缓存key
+        StringBuffer key = new StringBuffer();
+        key.append(TechnologyBoardConstant.CATEGORY_SUMMARY_COUNT);
+        key.append(patternMakingWeekMonthViewDto.getCompanyCode());
+        key.append(patternMakingWeekMonthViewDto.getWeeklyMonth());
+        key.append(patternMakingWeekMonthViewDto.getStartTime());
+        key.append(patternMakingWeekMonthViewDto.getEndTime());
+        if(CollectionUtil.isNotEmpty(patternMakingWeekMonthViewDto.getCategoryIds())){
+            key.append(StringUtils.convertListToString(patternMakingWeekMonthViewDto.getCategoryIds()));
+        }
+        // 2、获取缓存数据，过期时间，会开启一个新的线程
+        Map<String, Object> dataMap = this.redisGetData(patternMakingWeekMonthViewDto,key.toString(),token,TechnologyBoardConstant.CATEGORY_SUMMARY_COUNT);
+        // 3、缓存为空则直接返回，
+        if(null == dataMap){
+            return null;
+        }
+        return (ArrayList<ArrayList>)dataMap.get("dataLists");
+    }
+
+    private Map<String,Object> queryCategorySummaryCountData(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String key){
         // 1、缓存数据格式
         Map<String,Object> dataMap = Maps.newHashMap();
         // 2、返回数据集合
         ArrayList<ArrayList> dataLists = new ArrayList<>();
         // 3、时间为空 默认查询当前时间的前一个月数据
-        if(StringUtils.isBlank(startTime) || StringUtils.isBlank(endTime) ){
+        if(StringUtils.isBlank(patternMakingWeekMonthViewDto.getStartTime()) || StringUtils.isBlank(patternMakingWeekMonthViewDto.getEndTime()) ){
             Date date = new Date();
-            endTime = DateUtils.formatDateTime(date);
-            startTime =  DateUtils.getMonthAgo(date);
+            // 获取过去一个月时间
+            patternMakingWeekMonthViewDto.setStartTime(DateUtils.getMonthAgo(date));
+            patternMakingWeekMonthViewDto.setEndTime(DateUtils.formatDateTime(date));
         }
         // 4、判断是否是根据周、月查询
-        if(StringUtils.isBlank(weeklyMonth) || (!weeklyMonth.equals(BaseGlobal.WEEK) && !weeklyMonth.equals(BaseGlobal.MONTH))){
-            weeklyMonth = BaseGlobal.WEEK;
+        if(StringUtils.isBlank(patternMakingWeekMonthViewDto.getWeeklyMonth()) || (!patternMakingWeekMonthViewDto.getWeeklyMonth().equals(BaseGlobal.WEEK) && !patternMakingWeekMonthViewDto.getWeeklyMonth().equals(BaseGlobal.MONTH))){
+            patternMakingWeekMonthViewDto.setWeeklyMonth( BaseGlobal.WEEK);
+        }
+        // 5、参数状态集合
+        List<String> statusList = new ArrayList<>();
+        // 5.1、查询未打版数据
+        statusList.add(EnumNodeStatus.SAMPLE_TASK_WAITING_RECEIVE.getStatus());
+        statusList.add(EnumNodeStatus.SAMPLE_TASK_RECEIVED.getStatus());
+        patternMakingWeekMonthViewDto.setSampleType("未打版");
+        patternMakingWeekMonthViewDto.setStatusList(statusList);
+        List<PatternMakingWeekMonthViewVo> noPatternDataList = baseMapper.categorySummaryCount(patternMakingWeekMonthViewDto);
+        // 5.1.1、未打版数据转为Map用于组装数据返回前端
+        Map<String,PatternMakingWeekMonthViewVo> noPatternDataMap = Maps.newHashMap();
+        if(CollectionUtil.isNotEmpty(noPatternDataList)){
+            noPatternDataMap = this.getDataByYearWeek(noPatternDataList);
+        }
+        // 5.1.2、清空查询数据
+        statusList.clear();
+        // 5.2、查询打版中数据
+        statusList.add(EnumNodeStatus.SAMPLE_TASK_IN_VERSION.getStatus());
+        patternMakingWeekMonthViewDto.setStatusList(statusList);
+        patternMakingWeekMonthViewDto.setSampleType(EnumNodeStatus.SAMPLE_TASK_IN_VERSION.getStatus());
+        List<PatternMakingWeekMonthViewVo> patternCentreDataList = baseMapper.categorySummaryCount(patternMakingWeekMonthViewDto);
+        // 5.2.1 打版中数据转为Map用于组装数据返回前端
+        Map<String,PatternMakingWeekMonthViewVo> patternCentreDataMap = Maps.newHashMap();
+        if(CollectionUtil.isNotEmpty(noPatternDataList)){
+            patternCentreDataMap = this.getDataByYearWeek(patternCentreDataList);
+        }
+        // 5.2.2 清空查询数据
+        statusList.clear();
+        // 5.3 查询已完成数据
+        statusList.add(EnumNodeStatus.SAMPLE_TASK_VERSION_COMPLETE.getStatus());
+        patternMakingWeekMonthViewDto.setStatusList(statusList);
+        patternMakingWeekMonthViewDto.setSampleType(EnumNodeStatus.SAMPLE_TASK_VERSION_COMPLETE.getStatus());
+        List<PatternMakingWeekMonthViewVo> completePatternDataList = baseMapper.categorySummaryCount(patternMakingWeekMonthViewDto);
+        Map<String,PatternMakingWeekMonthViewVo> completePatternDataMap = Maps.newHashMap();
+        // 5.3.1 已完成数据转为Map用于组装数据返回前端
+        if(CollectionUtil.isNotEmpty(noPatternDataList)){
+            completePatternDataMap = this.getDataByYearWeek(completePatternDataList);
+        }
+        // 5.3.2 清空查询数据
+        statusList.clear();
+        // 5.4 查询需求总数
+        patternMakingWeekMonthViewDto.setStatusList(null);
+        patternMakingWeekMonthViewDto.setSampleType("需求数总数");
+        List<PatternMakingWeekMonthViewVo> requirementNumSumDataList = baseMapper.categorySummaryCount(patternMakingWeekMonthViewDto);
+        Map<String,PatternMakingWeekMonthViewVo> requirementNumSumDataMap = Maps.newHashMap();
+        // 5.4.1  已完成数据转为Map用于组装数据返回前端
+        if(CollectionUtil.isNotEmpty(noPatternDataList)){
+            requirementNumSumDataMap = this.getDataByYearWeek(requirementNumSumDataList);
+        }
+        // 6、合并所有数据，取出有数据的年份
+        List<PatternMakingWeekMonthViewVo> patternDataAllList = new ArrayList<>();
+        // 6.1 未开版数据
+        patternDataAllList.addAll(noPatternDataList);
+        // 6.2 开版中数据
+        patternDataAllList.addAll(patternCentreDataList);
+        // 6.3 已开版数据
+        patternDataAllList.addAll(completePatternDataList);
+        // 6.4 需求总数数据
+        patternDataAllList.addAll(requirementNumSumDataList);
+        // 6.5 取出有数据的年份并去重
+        List<String> yearWeekList = patternDataAllList.stream().map(PatternMakingWeekMonthViewVo::getYearWeek).distinct().collect(Collectors.toList());
+        // 7、拼接数据
+        this.joinData(yearWeekList,dataLists,noPatternDataMap,patternCentreDataMap,completePatternDataMap,requirementNumSumDataMap);
+        // 8、放入Redis缓存在数据里面设置过期时间
+        dataMap.put("dataLists",dataLists);
+        // 8.1 数据里设置过期时间为一小时
+        dataMap.put(TechnologyBoardConstant.TIME_OUT, DateUtils.HOUR_MINUTES);
+        // 8.2 设置过期时间类型
+        dataMap.put(TechnologyBoardConstant.TIME_TYPE, DateUtils.MINUTES);
+        // 8.3 数据缓存时间
+        dataMap.put(TechnologyBoardConstant.TIME, DateUtils.formatDateTime(new Date()));
+        redisUtils.set(key,dataMap);
+        // 9、解除缓存锁
+        redisUtils.del(TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.CATEGORY_SUMMARY_COUNT + patternMakingWeekMonthViewDto.getCompanyCode());
+        return dataMap;
+    }
+
+    /**
+     * 拼接数据 (方法建议不超过80行，超过则抽出来)
+     * @param yearWeekList 年份列表
+     * @param dataLists 返回数据列表
+     * @param noPatternDataMap 未开版数据
+     * @param patternCentreDataMap 开版中数据
+     * @param completePatternDataMap 已开版数据
+     * @param requirementNumSumDataMap 需求总数数据
+     */
+    private void joinData(List<String> yearWeekList,ArrayList<ArrayList> dataLists, Map<String,PatternMakingWeekMonthViewVo> noPatternDataMap, Map<String,PatternMakingWeekMonthViewVo> patternCentreDataMap
+            , Map<String,PatternMakingWeekMonthViewVo> completePatternDataMap, Map<String,PatternMakingWeekMonthViewVo> requirementNumSumDataMap){
+        for (String yearWeek : yearWeekList) {
+            ArrayList<String> arrayList = new ArrayList();
+            arrayList.add(yearWeek);
+            // 7.1 拼接未打版数据
+            if(null != noPatternDataMap && null != noPatternDataMap.get(yearWeek)){
+                PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = noPatternDataMap.get(yearWeek);
+                arrayList.add(patternMakingWeekMonthViewVo.getNum());
+            } else {
+                arrayList.add(String.valueOf(BaseGlobal.ZERO));
+            }
+            // 7.2 拼接打版中数据
+            if(null != patternCentreDataMap && null != patternCentreDataMap.get(yearWeek)){
+                PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = patternCentreDataMap.get(yearWeek);
+                arrayList.add(patternMakingWeekMonthViewVo.getNum());
+            } else {
+                arrayList.add(String.valueOf(BaseGlobal.ZERO));
+            }
+            // 7.3 拼接打版完成数据
+            if(null != completePatternDataMap && null != completePatternDataMap.get(yearWeek)){
+                PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = completePatternDataMap.get(yearWeek);
+                arrayList.add(patternMakingWeekMonthViewVo.getNum());
+            } else {
+                arrayList.add(String.valueOf(BaseGlobal.ZERO));
+            }
+            // 7.4 拼接需求总数数据
+            if(null != requirementNumSumDataMap && null != requirementNumSumDataMap.get(yearWeek)){
+                PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = requirementNumSumDataMap.get(yearWeek);
+                arrayList.add(patternMakingWeekMonthViewVo.getRequirementNumSum());
+            } else {
+                arrayList.add(String.valueOf(BaseGlobal.ZERO));
+            }
+            dataLists.add(arrayList);
+        }
+    }
+
+    /**
+     *  根据时间按周月统计版类对比
+     * @param patternMakingWeekMonthViewDto 技术看板DTO
+     * @param key 缓存KEY
+     * @return 根据周返回集合
+     */
+    public Map<String,Object> queryVersionComparisonView(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String key){
+        // 1、缓存数据格式
+        Map<String,Object> dataMap = Maps.newHashMap();
+        // 2、返回数据集合
+        ArrayList<ArrayList> dataLists = new ArrayList<>();
+        // 3、时间为空 默认查询当前时间的前一个月数据
+        if(StringUtils.isBlank(patternMakingWeekMonthViewDto.getStartTime()) || StringUtils.isBlank(patternMakingWeekMonthViewDto.getEndTime()) ){
+            Date date = new Date();
+            patternMakingWeekMonthViewDto.setEndTime(DateUtils.formatDateTime(date));
+            patternMakingWeekMonthViewDto.setStartTime(DateUtils.getMonthAgo(date));
+        }
+        // 4、判断是否是根据周、月查询
+        if(StringUtils.isBlank(patternMakingWeekMonthViewDto.getWeeklyMonth()) || (!patternMakingWeekMonthViewDto.getWeeklyMonth().equals(BaseGlobal.WEEK) && !patternMakingWeekMonthViewDto.getWeeklyMonth().equals(BaseGlobal.MONTH))){
+            patternMakingWeekMonthViewDto.setWeeklyMonth(BaseGlobal.WEEK);
         }
         // 5、从数据库查询数据
-        List<PatternMakingWeekMonthViewVo> dataList = baseMapper.versionComparisonViewWeekMonth(companyCode, weeklyMonth, startTime, endTime);
+        List<PatternMakingWeekMonthViewVo> dataList = baseMapper.versionComparisonViewWeekMonth(patternMakingWeekMonthViewDto);
         // 6、判断数据是为空
         if(CollectionUtil.isNotEmpty(dataList)){
             // 6.1 取出所有的时间
@@ -904,39 +1066,49 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         // 8、放入Redis缓存在数据里面设置过期时间
         dataMap.put("dataLists",dataLists);
-        // 8.1 数据里设置过期时间为一天
-        dataMap.put(TechnologyBoardConstant.TIME_OUT, DateUtils.DAY_HOURS);
+        // 8.1 数据里设置过期时间为一小时
+        dataMap.put(TechnologyBoardConstant.TIME_OUT, DateUtils.HOUR_MINUTES);
         // 8.2 设置过期时间类型
-        dataMap.put(TechnologyBoardConstant.TIME_TYPE, DateUtils.HOURS);
+        dataMap.put(TechnologyBoardConstant.TIME_TYPE, DateUtils.MINUTES);
         // 8.3 数据缓存时间
         dataMap.put(TechnologyBoardConstant.TIME, DateUtils.formatDateTime(new Date()));
         redisUtils.set(key,dataMap);
         // 9、解除缓存锁
-        redisUtils.del(TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.VERSION_COMPARISON + companyCode);
+        redisUtils.del(TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.VERSION_COMPARISON + patternMakingWeekMonthViewDto.getCompanyCode());
         return dataMap;
     }
 
     /**
      * 获取缓存的数据
-     * @param companyCode 企业编码
-     * @param weeklyMonth 周月类型 week、month 默认 week
-     * @param startTime 开始时间
-     * @param endTime 结束时间
+     * @param patternMakingWeekMonthViewDto 技术看板DTO
      * @param key 缓存key
+     * @param token token
+     * @param countType 根据统计类型查询对应的方法
      * @return 数据
      */
-    private Map<String,Object> redisGetData(String companyCode, String weeklyMonth, String startTime, String endTime,String key,String token){
+    private Map<String,Object> redisGetData(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String key,String token,String countType){
         Object redisData = redisUtils.get(key);
         // 拼接锁KEY 区分企业缓存数据
-        String lockKey =  TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.VERSION_COMPARISON + companyCode;
+        String lockKey =  TechnologyBoardConstant.CACHE_LOCK + countType + patternMakingWeekMonthViewDto.getCompanyCode();
         // 如果缓存没有直接返回null，开启线程查数据
         if(null == redisData){
             // 获取锁，只能查询一次
             if(null == redisUtils.get(lockKey)){
                 // 开启线程查数据
                 // this.getData(companyCode,weeklyMonth,startTime,endTime,key,token,lockKey);
-                redisUtils.set(lockKey, token + companyCode);
-                return this.queryVersionComparisonView(companyCode,weeklyMonth,startTime,endTime,key);
+                redisUtils.set(lockKey, token + patternMakingWeekMonthViewDto.getCompanyCode());
+                try {
+                    if(countType.equals(TechnologyBoardConstant.VERSION_COMPARISON)){
+                        return this.queryVersionComparisonView(patternMakingWeekMonthViewDto,key);
+                    } else if(countType.equals(TechnologyBoardConstant.CATEGORY_SUMMARY_COUNT)){
+                        return this.queryCategorySummaryCountData(patternMakingWeekMonthViewDto,key);
+                    }
+                }catch (Exception e){
+                    log.error("统计接口报错:{}",e);
+                    redisUtils.del(lockKey);
+                }
+
+
             }
             return null;
         }
@@ -954,9 +1126,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 设置数据的缓存时间已过 开启新的线程去查数据
         if(dateOut.getTime() - currentDate.getTime() < 0){
             // 设置锁，只能查询一次
-            if(null == redisUtils.get(TechnologyBoardConstant.CACHE_LOCK)){
+            if(null == redisUtils.get(lockKey)){
                 // 开启线程查数据
-                this.getData(companyCode,weeklyMonth,startTime,endTime,key,token,lockKey);
+                this.getData(patternMakingWeekMonthViewDto,key,token,lockKey,countType);
             }
         }
         return data;
@@ -964,19 +1136,33 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     /**
      * 开启线程查数据
-     * @param companyCode 企业编码
-     * @param weeklyMonth 周月类型 week、month 默认 week
-     * @param startTime 开始时间
-     * @param endTime 结束时间
+     * @param patternMakingWeekMonthViewDto 技术看板DTO
      * @param key 缓存key
      * @param token token
      * @param lockKey 拼接的锁key
      */
-    private void getData(String companyCode, String weeklyMonth, String startTime, String endTime,String key,String token,String lockKey){
+    private void getData(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String key,String token,String lockKey,String countType){
         new Thread(()->{
-            redisUtils.set(lockKey, token + companyCode);
-            this.queryVersionComparisonView(companyCode,weeklyMonth,startTime,endTime,key);
+            redisUtils.set(lockKey, token + patternMakingWeekMonthViewDto.getCompanyCode());
+            if(countType.equals(TechnologyBoardConstant.VERSION_COMPARISON)){
+                this.queryVersionComparisonView(patternMakingWeekMonthViewDto,key);
+            } else if(countType.equals(TechnologyBoardConstant.CATEGORY_SUMMARY_COUNT)){
+               this.queryCategorySummaryCountData(patternMakingWeekMonthViewDto,key);
+            }
         }).start();
+    }
+
+    /**
+     * list转为map
+     * @param list 要转map的数据
+     * @return map
+     */
+    private Map<String,PatternMakingWeekMonthViewVo> getDataByYearWeek(List<PatternMakingWeekMonthViewVo> list){
+        if(CollectionUtil.isEmpty(list)){
+            return null;
+        }
+        return list.stream().filter(item -> StrUtil.isNotBlank(item.getYearWeek()))
+                .collect(Collectors.toMap(k -> k.getYearWeek(), v -> v, (a, b) -> b));
     }
 
     // 自定义方法区 不替换的区域【other_end】

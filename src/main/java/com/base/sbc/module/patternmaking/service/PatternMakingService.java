@@ -243,13 +243,21 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     /**
      * 根据时间按周月统计版类对比
-     * @param companyCode 企业编码
-     * @param weeklyMonth 周月类型 week、month 默认 week
-     * @param startTime 开始时间
-     * @param endTime 结束时间
+     * @param patternMakingWeekMonthViewDto
+     * @param token token
      * @return 根据周返回集合
      */
-    ArrayList<ArrayList> versionComparisonViewWeekMonth(String companyCode, String weeklyMonth, String startTime, String endTime,String token);
+    ArrayList<ArrayList> versionComparisonViewWeekMonth(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String token);
+
+
+    /**
+     * 品类汇总统计
+     * @param patternMakingWeekMonthViewDto 技术看板DTO
+     * @param token token
+     * @return 结果集
+     */
+    ArrayList<ArrayList> categorySummaryCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String token);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

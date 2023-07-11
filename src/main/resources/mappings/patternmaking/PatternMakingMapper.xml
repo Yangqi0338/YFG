@@ -153,7 +153,7 @@
         ${ew.customSqlSegment}
     </select>
 
-    <select id="versionComparisonViewWeekMonth" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingWeekMonthViewVo">
+    <select id="versionComparisonViewWeekMonth" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingWeekMonthViewVo" parameterType="com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto">
         SELECT
             *
         FROM
@@ -167,10 +167,10 @@
                 t_pattern_making
             WHERE
                 del_flag = '0'
-                AND company_code = #{companyCode}
-                AND create_date BETWEEN #{startTime}
-                AND #{endTime}
                 AND sample_type = '初版样'
+                AND node = '打版任务'
+                AND company_code = #{companyCode}
+                AND create_date BETWEEN #{startTime} AND #{endTime}
             GROUP BY
                 DATE_FORMAT( create_date, IF(#{weeklyMonth} = 'week','%y%u', '%y%m') )
             ORDER BY
@@ -191,10 +191,10 @@
                 t_pattern_making
             WHERE
                 del_flag = '0'
-                AND company_code = #{companyCode}
-                AND create_date BETWEEN #{startTime}
-                AND #{endTime}
                 AND sample_type = '改版样'
+                AND node = '打版任务'
+                AND company_code = #{companyCode}
+                AND create_date BETWEEN #{startTime} AND #{endTime}
             GROUP BY
                 DATE_FORMAT( create_date, IF(#{weeklyMonth} = 'week','%y%u', '%y%m') )
             ORDER BY
@@ -203,6 +203,47 @@
         AS pmg
     </select>
 
+    <select id="categorySummaryCount" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingWeekMonthViewVo" parameterType="com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto">
+        SELECT
+            #{sampleType} AS sample_type,
+            DATE_FORMAT( pmm.create_date, IF(#{weeklyMonth} = 'week','%y年%u周', '%y年%m月') ) AS year_week,
+            min( pmm.create_date ) AS min_date,
+            count( 1 ) AS num,
+            SUM( pmm.requirement_num ) AS requirement_num_sum
+        FROM
+            (
+            SELECT
+                sd.planning_category_id,
+                pm.*
+            FROM
+                t_pattern_making pm
+                LEFT JOIN t_sample_design sd ON pm.sample_design_id = sd.id
+                LEFT JOIN t_planning_category pc ON sd.planning_category_id = pc.id
+            WHERE
+                pm.node = '打版任务'
+                AND pm.company_code = #{companyCode}
+                AND pm.create_date BETWEEN #{startTime} AND #{endTime}
+                <if test="null != statusList and statusList.size() > 0">
+                    AND pm.`status` IN
+                    <foreach collection="statusList" item="status" separator="," open="(" close=")">
+                        #{status}
+                    </foreach>
+                </if>
+                <if test="null != categoryIds and categoryIds.size() > 0">
+                    AND
+                    <foreach collection="categoryIds" item="categoryId" separator="OR" open="(" close=")">
+                         pc.category_ids LIKE concat('%',#{categoryId,jdbcType=VARCHAR},'%')
+                    </foreach>
+                </if>
+
+            ) pmm
+        GROUP BY
+            DATE_FORMAT( pmm.create_date, IF(#{weeklyMonth} = 'week','%y%u', '%y%m') )
+        ORDER BY
+            year_week ASC;
+
+
+    </select>
 
 
 </mapper>

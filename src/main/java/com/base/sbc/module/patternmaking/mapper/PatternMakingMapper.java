@@ -9,6 +9,7 @@ package com.base.sbc.module.patternmaking.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
@@ -49,14 +50,17 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
 
     /**
      * 根据时间按周月统计版类对比
-     * @param companyCode 企业编码
-     * @param weeklyMonth 周月类型 week、month 默认 week
-     * @param startTime 开始时间
-     * @param endTime 结束时间
-     * @return 根据周返回集合
+     * @param patternMakingWeekMonthViewDto 技术看板DTO
+     * @return 返回集合数据
      */
-    List<PatternMakingWeekMonthViewVo> versionComparisonViewWeekMonth(@Param("companyCode") String companyCode, @Param("weeklyMonth") String weeklyMonth,
-                                                            @Param("startTime") String startTime, @Param("endTime") String endTime);
+    List<PatternMakingWeekMonthViewVo> versionComparisonViewWeekMonth(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto);
+
+    /**
+     * 根据时间按周月品类汇总统计
+     * @param patternMakingWeekMonthViewDto 技术看板DTO
+     * @return 返回集合数据
+     */
+    List<PatternMakingWeekMonthViewVo> categorySummaryCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

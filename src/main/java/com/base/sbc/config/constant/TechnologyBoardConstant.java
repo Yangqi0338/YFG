@@ -30,4 +30,9 @@ public class TechnologyBoardConstant {
      */
     public static String VERSION_COMPARISON = "version_comparison:";
 
+    /**
+     * 品类汇总统计KEY
+     */
+    public static String CATEGORY_SUMMARY_COUNT = "category_summary_count:";
+
 }

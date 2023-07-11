@@ -226,8 +226,9 @@ public class PatternMakingController {
 
     @ApiOperation(value = "版类对比统计", notes = "")
     @GetMapping("/versionComparisonViewWeekMonth")
-    public ApiResult versionComparisonViewWeekMonth(@RequestHeader(BaseConstant.AUTHORIZATION)String token,@RequestHeader(BaseConstant.USER_COMPANY)String companyCode, String weeklyMonth, String startTime, String endTime) {
-        return ApiResult.success("查询成功",patternMakingService.versionComparisonViewWeekMonth(companyCode, weeklyMonth, startTime, endTime,token));
+    public ApiResult versionComparisonViewWeekMonth(@RequestHeader(BaseConstant.AUTHORIZATION)String token,@RequestHeader(BaseConstant.USER_COMPANY)String companyCode, PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
+        patternMakingWeekMonthViewDto.setCompanyCode(companyCode);
+        return ApiResult.success("查询成功",patternMakingService.versionComparisonViewWeekMonth(patternMakingWeekMonthViewDto,token));
     }
 
     @ApiOperation(value = "获取节点状态配置", notes = "")
@@ -260,6 +261,13 @@ public class PatternMakingController {
         return patternMakingService.queryPageInfo(dto);
     }
 
+
+    @ApiOperation(value = "品类汇总统计", notes = "")
+    @PostMapping("/categorySummaryCount")
+    public ApiResult categorySummaryCount(@RequestHeader(BaseConstant.AUTHORIZATION)String token,@RequestHeader(BaseConstant.USER_COMPANY)String companyCode, @RequestBody PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
+        patternMakingWeekMonthViewDto.setCompanyCode(companyCode);
+        return ApiResult.success("查询成功",patternMakingService.categorySummaryCount(patternMakingWeekMonthViewDto,token));
+    }
 }
 
 
