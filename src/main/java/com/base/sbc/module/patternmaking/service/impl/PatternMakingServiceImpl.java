@@ -837,7 +837,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
      * @param key 缓存KEY
      * @return 根据周返回集合
      */
-    public ArrayList<ArrayList> queryVersionComparisonView(String companyCode, String weeklyMonth, String startTime, String endTime, String key){
+    public Map<String,Object> queryVersionComparisonView(String companyCode, String weeklyMonth, String startTime, String endTime, String key){
         // 1、缓存数据格式
         Map<String,Object> dataMap = Maps.newHashMap();
         // 2、返回数据集合
@@ -913,7 +913,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         redisUtils.set(key,dataMap);
         // 9、解除缓存锁
         redisUtils.del(TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.VERSION_COMPARISON + companyCode);
-        return dataLists;
+        return dataMap;
     }
 
     /**
@@ -927,14 +927,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
      */
     private Map<String,Object> redisGetData(String companyCode, String weeklyMonth, String startTime, String endTime,String key,String token){
         Object redisData = redisUtils.get(key);
-        // 拼接锁KEY
+        // 拼接锁KEY 区分企业缓存数据
         String lockKey =  TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.VERSION_COMPARISON + companyCode;
         // 如果缓存没有直接返回null，开启线程查数据
         if(null == redisData){
             // 获取锁，只能查询一次
             if(null == redisUtils.get(lockKey)){
                 // 开启线程查数据
-                this.getData(companyCode,weeklyMonth,startTime,endTime,key,token,lockKey);
+                // this.getData(companyCode,weeklyMonth,startTime,endTime,key,token,lockKey);
+                redisUtils.set(lockKey, token + companyCode);
+                return this.queryVersionComparisonView(companyCode,weeklyMonth,startTime,endTime,key);
             }
             return null;
         }
