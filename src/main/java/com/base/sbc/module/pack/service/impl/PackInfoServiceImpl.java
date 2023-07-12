@@ -36,6 +36,7 @@ import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pack.vo.SampleDesignPackInfoListVo;
@@ -265,7 +266,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
                 copy(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS, dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN);
                 packInfo.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
-                packInfo.setSendFlag(BaseGlobal.NO);
+                packInfo.setScmSendFlag(BaseGlobal.NO);
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
@@ -274,6 +275,23 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             updateById(packInfo);
         }
         return true;
+    }
+
+    @Override
+    public PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(PackInfoSearchPageDto pageDto) {
+        BaseQueryWrapper<PackInfo> sdQw = new BaseQueryWrapper<>();
+        sdQw.eq("bom_status", BasicNumber.ONE.getNumber());
+        sdQw.notEmptyEq("prod_category1st", pageDto.getProdCategory1st());
+        sdQw.notEmptyEq("prod_category", pageDto.getProdCategory());
+        sdQw.notEmptyEq("prod_category2nd", pageDto.getProdCategory2nd());
+        sdQw.notEmptyEq("prod_category3rd", pageDto.getProdCategory3rd());
+        sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
+        sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
+        sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
+        Page<PackInfo> page = PageHelper.startPage(pageDto);
+        list(sdQw);
+        PageInfo<BigGoodsPackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), BigGoodsPackInfoListVo.class);
+        return pageInfo;
     }
 
     @Override

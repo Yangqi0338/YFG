@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBomVersion
  * @email your email
- * @date 创建时间：2023-7-11 20:23:13
+ * @date 创建时间：2023-7-12 11:50:33
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -63,7 +63,7 @@ public class PackBomVersion extends BaseDataEntity<String> {
      * 发送状态(0未发送,1已发送)
      */
     @ApiModelProperty(value = "发送状态(0未发送,1已发送)")
-    private String sendFlag;
+    private String scmSendFlag;
     /**
      * 备注
      */

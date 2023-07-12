@@ -15,7 +15,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.Date;
-
 /**
  * 类描述：资料包 实体类
  *
@@ -23,7 +22,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfo
  * @email your email
- * @date 创建时间：2023-7-11 20:58:43
+ * @date 创建时间：2023-7-12 11:50:31
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -153,11 +152,6 @@ public class PackInfo extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "反审状态：待审核(1)、审核通过(2)、被驳回(-1)")
     private String reverseConfirmStatus;
-    /**
-     * 发送状态(0未发送,1已发送)
-     */
-    @ApiModelProperty(value = "发送状态(0未发送,1已发送)")
-    private String sendFlag;
     /**
      * 设计转后技术确认:(0未确认,1已确认)
      */

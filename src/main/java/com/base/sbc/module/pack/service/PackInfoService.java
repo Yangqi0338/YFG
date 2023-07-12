@@ -12,6 +12,7 @@ import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
 import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pack.vo.SampleDesignPackInfoListVo;
 import com.github.pagehelper.PageInfo;
@@ -97,6 +98,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @return
      */
     boolean reverseApproval(AnswerDto dto);
+
+    PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(PackInfoSearchPageDto pageDto);
 
 
 // 自定义方法区 不替换的区域【other_end】
