@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 类描述：基础资料-物料档案-物料规格 实体类
- * 
+ *
  * @address com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth
  * @author shenzhixiong
  * @email 731139982@qq.com
@@ -41,4 +41,8 @@ public class BasicsdatumMaterialWidth extends BaseDataEntity<String> {
 	/** 规格代码 */
 	@ApiModelProperty(value = "规格代码")
 	private String widthCode;
+
+	/** 规格名称 */
+	@ApiModelProperty(value = "规格名称")
+	private String name;
 }

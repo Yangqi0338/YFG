@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -47,9 +48,7 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setMaterialName(materialName);
 		smpMaterialDto.setMaterialUnit(stockUnitName);
 		smpMaterialDto.setStockUnit(stockUnitName);
-		smpMaterialDto.setThirdLevelCategory(categoryName);
 		smpMaterialDto.setMaterialSource(materialSourceName);
-		smpMaterialDto.setSecondLevelCategory(null);
 		smpMaterialDto.setSeasonYear(year);
 		smpMaterialDto.setSeasonQuarter(seasonName);
 		smpMaterialDto.setSeasonQuarterId(season);

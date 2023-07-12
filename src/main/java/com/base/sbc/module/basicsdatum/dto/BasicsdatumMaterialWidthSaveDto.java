@@ -6,9 +6,9 @@ import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
- * 
+ *
  * 物料档案规格
- * 
+ *
  * @author shenzhixiong
  * @email 731139982@qq.com
  * @date 2023年6月26日
@@ -31,4 +31,7 @@ public class BasicsdatumMaterialWidthSaveDto {
 	/** 规格代码 */
 	@ApiModelProperty(value = "规格代码")
 	private String widthCode;
+	/** 规格名称 */
+	@ApiModelProperty(value = "规格名称")
+	private String name;
 }
