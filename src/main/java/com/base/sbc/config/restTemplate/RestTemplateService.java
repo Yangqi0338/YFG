@@ -33,7 +33,6 @@ public class RestTemplateService {
         // 2.请求头 & 请求体
         HttpEntity<String> fromEntity = new HttpEntity<>(JSONUtil.toJsonStr(o), requestHeaders);
         ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(url, fromEntity, String.class);
-
         HttpResp httpResp =new HttpResp();
         httpResp.setUrl(url);
         httpResp.setStatusCode(String.valueOf(stringResponseEntity.getStatusCodeValue()));
