@@ -19,7 +19,7 @@ public class SmpModuleSize {
     /** 尺码排序码 */
     private String code;
     /** 规格是否启用 */
-    private String active;
+    private Boolean active;
     /** 尺码URL */
     private String sizeUrl;
 }

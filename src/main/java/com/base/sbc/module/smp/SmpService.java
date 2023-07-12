@@ -2,28 +2,38 @@ package com.base.sbc.module.smp;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.restTemplate.RestTemplateService;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
+import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
+import com.base.sbc.module.basicsdatum.service.SpecificationService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
 import com.base.sbc.module.pushRecords.entity.PushRecords;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
+import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.ObjectUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -42,6 +52,12 @@ public class SmpService {
 
     private final PushRecordsService pushRecordsService;
 
+    private final BasicsdatumMaterialService basicsdatumMaterialService;
+
+    private final BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
+
+    private final SpecificationService specificationService;
+
 
     //private  static final String URL ="http://10.88.34.25:7006/pdm";
     private static final String URL = "http://smp-i.eifini.com/service-manager/pdm";
@@ -51,16 +67,111 @@ public class SmpService {
      */
     public Boolean goods(SmpGoodsDto smpGoodsDto) {
         HttpResp httpResp = restTemplateService.spmPost(URL + "/goods", smpGoodsDto);
-        return pushRecordsService.pushRecordSave(httpResp, smpGoodsDto,"smp","商品主数据下发");
+        return pushRecordsService.pushRecordSave(httpResp, smpGoodsDto, "smp", "商品主数据下发");
     }
 
     /**
      * 物料主数据下发
      */
-    public Boolean materials(SmpMaterialDto smpMaterialDto) {
-        HttpResp httpResp = restTemplateService.spmPost( URL + "/materials", smpMaterialDto);
+    public Integer materials(String[] ids) {
+        QueryWrapper<BasicsdatumMaterial> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.in("id", Arrays.asList(ids));
+        List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(queryWrapper);
+        int i = 0;
+        for (BasicsdatumMaterial basicsdatumMaterial : list) {
+            if (this.sendMaterials(basicsdatumMaterial)){
+                i++;
+            }
+        }
 
-        return pushRecordsService.pushRecordSave(httpResp,smpMaterialDto,"smp","物料主数据下发");
+        return i;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean sendMaterials(BasicsdatumMaterial basicsdatumMaterial) {
+        try {
+            SmpMaterialDto smpMaterialDto = basicsdatumMaterial.toSmpMaterialDto();
+
+            //获取颜色集合
+            BasicsdatumMaterialColorQueryDto basicsdatumMaterialColorQueryDto = new BasicsdatumMaterialColorQueryDto();
+            basicsdatumMaterialColorQueryDto.setMaterialCode(basicsdatumMaterial.getMaterialCode());
+            List<BasicsdatumMaterialColorPageVo> list1 = basicsdatumMaterialService.getBasicsdatumMaterialColorList(basicsdatumMaterialColorQueryDto).getList();
+            List<SmpColor> colorList = new ArrayList<>();
+            for (BasicsdatumMaterialColorPageVo basicsdatumMaterialColorPageVo : list1) {
+                SmpColor smpColor = new SmpColor();
+                smpColor.setColorCode(basicsdatumMaterialColorPageVo.getColorCode());
+                smpColor.setColorName(basicsdatumMaterialColorPageVo.getUpdateName());
+                smpColor.setActive("0".equals(basicsdatumMaterialColorPageVo.getStatus()));
+                smpColor.setSupplierMatColor(basicsdatumMaterialColorPageVo.getSupplierColorCode());
+                colorList.add(smpColor);
+            }
+            smpMaterialDto.setColorList(colorList);
+
+            //获取材料尺码集合
+            QueryWrapper<BasicsdatumMaterialWidth> queryWrapper1 = new QueryWrapper<>();
+            queryWrapper1.eq("material_code", basicsdatumMaterial.getMaterialCode());
+            List<String> widthIds = new ArrayList<>();
+            for (BasicsdatumMaterialWidth basicsdatumMaterialWidth : basicsdatumMaterialWidthService.list(queryWrapper1)) {
+                widthIds.add(basicsdatumMaterialWidth.getWidthCode());
+            }
+            List<Specification> specifications = specificationService.list(new QueryWrapper<Specification>().in("code", widthIds));
+
+            List<SmpModuleSize> moduleSizeList = new ArrayList<>();
+            for (Specification specification : specifications) {
+                SmpModuleSize smpModuleSize = new SmpModuleSize();
+                smpModuleSize.setActive("1".equals(specification.getStatus()));
+                smpModuleSize.setSizeCode(specification.getCode());
+                smpModuleSize.setSizeUrl(null);
+                smpModuleSize.setSizeName(specification.getType());
+                smpModuleSize.setCode(specification.getSort());
+                moduleSizeList.add(smpModuleSize);
+            }
+
+            smpMaterialDto.setModuleSizeList(moduleSizeList);
+
+            //获取报价集合
+
+            BasicsdatumMaterialPriceQueryDto dto = new BasicsdatumMaterialPriceQueryDto();
+            dto.setMaterialCode(basicsdatumMaterial.getMaterialCode());
+
+            List<SmpQuot> quotList = new ArrayList<>();
+            for (BasicsdatumMaterialPricePageVo basicsdatumMaterialPricePageVo : basicsdatumMaterialService.getBasicsdatumMaterialPriceList(dto).getList()) {
+                SmpQuot smpQuot = new SmpQuot();
+                smpQuot.setSupplierSize(basicsdatumMaterialPricePageVo.getWidth());
+                smpQuot.setSizeUrl(null);
+                smpQuot.setSupplierColorId(basicsdatumMaterialPricePageVo.getColor());
+                smpQuot.setSupplierColorName(basicsdatumMaterialPricePageVo.getColorName());
+                smpQuot.setOrderGoodsDay(basicsdatumMaterialPricePageVo.getOrderDay());
+                smpQuot.setProductionDay(basicsdatumMaterialPricePageVo.getProductionDay());
+                smpQuot.setMoqInitial(basicsdatumMaterialPricePageVo.getMinimumOrderQuantity());
+                smpQuot.setFobFullPrice(basicsdatumMaterialPricePageVo.getQuotationPrice());
+                smpQuot.setSupplierMaterial(basicsdatumMaterialPricePageVo.getSupplierMaterialCode());
+                smpQuot.setSupplierCode(basicsdatumMaterialPricePageVo.getSupplierId());
+                smpQuot.setSupplierName(basicsdatumMaterialPricePageVo.getSupplierName());
+                smpQuot.setComment(null);
+                smpQuot.setTradeTermKey(null);
+                smpQuot.setDefaultQuote(null);
+                smpQuot.setTradeTermName(null);
+                smpQuot.setMaterialUom(basicsdatumMaterialPricePageVo.getWidthName());
+                quotList.add(smpQuot);
+            }
+
+            smpMaterialDto.setQuotList(quotList);
+
+
+            //下发并记录推送日志
+            HttpResp httpResp = restTemplateService.spmPost(URL + "/materials", smpMaterialDto);
+            pushRecordsService.pushRecordSave(httpResp, smpMaterialDto, "smp", "物料主数据下发");
+
+            //修改状态为已下发
+            basicsdatumMaterial.setDistribute("1");
+            basicsdatumMaterialService.updateById(basicsdatumMaterial);
+        }catch (Exception e){
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -68,7 +179,7 @@ public class SmpService {
      */
     public Boolean bom(SmpBomDto smpBomDto) {
         HttpResp httpResp = restTemplateService.spmPost(URL + "/bom", smpBomDto);
-        return pushRecordsService.pushRecordSave(httpResp,smpBomDto,"smp","bom下发");
+        return pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
     }
 
     /**
@@ -76,7 +187,7 @@ public class SmpService {
      */
     public Boolean color(SmpColorDto smpColorDto) {
         HttpResp httpResp = restTemplateService.spmPost(URL + "/color", smpColorDto);
-        return pushRecordsService.pushRecordSave(httpResp,smpColorDto,"smp","颜色主数据下发");
+        return pushRecordsService.pushRecordSave(httpResp, smpColorDto, "smp", "颜色主数据下发");
     }
 
     /**
@@ -84,7 +195,7 @@ public class SmpService {
      */
     public Boolean processSheet(SmpProcessSheetDto smpProcessSheetDto) {
         HttpResp httpResp = restTemplateService.spmPost(URL + "/processSheet", smpProcessSheetDto);
-        return pushRecordsService.pushRecordSave(httpResp,smpProcessSheetDto,"smp","工艺单下发");
+        return pushRecordsService.pushRecordSave(httpResp, smpProcessSheetDto, "smp", "工艺单下发");
     }
 
     /**
@@ -92,7 +203,7 @@ public class SmpService {
      */
     public Boolean sample(SmpSampleDto smpSampleDto) {
         HttpResp httpResp = restTemplateService.spmPost(URL + "/sample", smpSampleDto);
-        return pushRecordsService.pushRecordSave(httpResp,smpSampleDto,"smp","样衣下发");
+        return pushRecordsService.pushRecordSave(httpResp, smpSampleDto, "smp", "样衣下发");
     }
 
     /**

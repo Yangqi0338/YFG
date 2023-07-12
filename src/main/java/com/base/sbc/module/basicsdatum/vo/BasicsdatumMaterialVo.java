@@ -12,9 +12,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * 
+ *
  * 物料分页数据
- * 
+ *
  * @author shenzhixiong
  * @email 731139982@qq.com
  * @date 2023年6月26日
@@ -218,5 +218,9 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 门幅/规格组名称 */
 	@ApiModelProperty(value = "门幅/规格组名称")
 	private String widthGroupName;
+
+	/** 下发状态(0:未下发，1：已下发)*/
+	@ApiModelProperty(value = "下发状态(0:未下发，1：已下发)")
+	private String distribute;
 }
 

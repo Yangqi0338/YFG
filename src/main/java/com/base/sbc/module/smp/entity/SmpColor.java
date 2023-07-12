@@ -14,7 +14,7 @@ public class SmpColor {
     /**颜色名称*/
     private String colorName;
     /**颜色是否启用*/
-    private String active;
+    private Boolean active;
     /**供应商物料颜色*/
     private String supplierMatColor;
 }

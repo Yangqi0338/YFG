@@ -7,20 +7,25 @@
 package com.base.sbc.module.basicsdatum.entity;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.smp.dto.SmpMaterialDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 类描述：基础资料-物料档案 实体类
- * 
+ *
  * @address com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial
  * @author shenzhixiong
  * @email 731139982@qq.com
@@ -37,7 +42,47 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	/**********************************
 	 * 实体存放的其他字段区 不替换的区域 【other_start】
 	 ******************************************/
-
+	public SmpMaterialDto toSmpMaterialDto(){
+		SmpMaterialDto smpMaterialDto = new SmpMaterialDto();
+		smpMaterialDto.setMaterialCode(materialCode);
+		smpMaterialDto.setMaterialName(materialName);
+		smpMaterialDto.setMaterialUnit(stockUnitName);
+		smpMaterialDto.setStockUnit(stockUnitName);
+		smpMaterialDto.setThirdLevelCategory(categoryName);
+		smpMaterialDto.setMaterialSource(materialSourceName);
+		smpMaterialDto.setSecondLevelCategory(null);
+		smpMaterialDto.setSeasonYear(year);
+		smpMaterialDto.setSeasonQuarter(seasonName);
+		smpMaterialDto.setSeasonQuarterId(season);
+		smpMaterialDto.setSeasonBrand(brandName);
+		smpMaterialDto.setSeasonBrandId(brand);
+		smpMaterialDto.setKilogramsAndMeters(kgMNum);
+		smpMaterialDto.setDeveloper(devName);
+		smpMaterialDto.setBuyer(purchaseName);
+		smpMaterialDto.setBuyerTeam(purchaseDeptName);
+		smpMaterialDto.setLongitudinalShrinkage(longitudeShrink);
+		smpMaterialDto.setWeftShrinkage(latitudeShrink);
+		smpMaterialDto.setWeight(gramWeight);
+		smpMaterialDto.setComposition(ingredient);
+		smpMaterialDto.setJIT(null);
+		smpMaterialDto.setProductTypeId(materialCategory);
+		smpMaterialDto.setProductType(materialCategoryName);
+		smpMaterialDto.setProcurementMode(null);
+		smpMaterialDto.setTolerance(null);
+		smpMaterialDto.setSupplierComposition(factoryComposition);
+		smpMaterialDto.setPickingMethod(null);
+		smpMaterialDto.setImgList(Arrays.asList(imageUrl.split(",")));
+		smpMaterialDto.setId(id);
+		smpMaterialDto.setName(materialName);
+		smpMaterialDto.setCreator(getCreateName());
+		smpMaterialDto.setCreateTime(getCreateDate());
+		smpMaterialDto.setModifiedPerson(getUpdateName());
+		smpMaterialDto.setModifiedTime(getUpdateDate());
+		smpMaterialDto.setPlmId(null);
+		smpMaterialDto.setSyncId(String.valueOf(new IdGen().nextId()));
+		smpMaterialDto.setActive("0".equals(status));
+		return smpMaterialDto;
+	}
 	/**********************************
 	 * 实体存放的其他字段区 【other_end】
 	 ******************************************/
@@ -235,6 +280,9 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	/** 门幅/规格组名称 */
 	@ApiModelProperty(value = "门幅/规格组名称")
 	private String widthGroupName;
+	/** 下发状态(0:未下发，1：已下发)*/
+	@ApiModelProperty(value = "下发状态(0:未下发，1：已下发)")
+	private String distribute;
 	/*****************************
 	 * 数据库字段区 不包含父类公共字段(属性) 【end】
 	 ***********************************/

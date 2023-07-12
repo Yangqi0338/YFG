@@ -41,7 +41,7 @@ public class  SmpMaterialDto extends SmpBaseDto {
     /** 开发品牌ID */
     private String seasonBrandId;
     /** 公斤米数 */
-    private String kilogramsAndMeters;
+    private BigDecimal kilogramsAndMeters;
     /** 开发员 */
     private String developer;
     /** 采购员 */
@@ -53,7 +53,7 @@ public class  SmpMaterialDto extends SmpBaseDto {
     /** 纬缩(%) */
     private BigDecimal weftShrinkage;
     /** 克重(g/m2) */
-    private String weight;
+    private BigDecimal weight;
     /** 成分 */
     private String composition;
     /** JIT标识 */

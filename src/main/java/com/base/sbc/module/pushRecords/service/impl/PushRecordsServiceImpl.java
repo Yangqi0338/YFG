@@ -55,6 +55,7 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
         pushRecords.setPushStatus(httpResp.isSuccess() ? "成功" : "失败");
         pushRecords.setResponseMessage(httpResp.getMessage());
         pushRecords.setResponseStatusCode(httpResp.getCode());
+        pushRecords.setId(json.getString("syncId"));
         this.save(pushRecords);
         return httpResp.isSuccess();
     }
