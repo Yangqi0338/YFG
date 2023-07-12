@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -61,6 +60,7 @@ import com.github.pagehelper.PageInfo;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 类描述：基础资料-物料档案 service类
@@ -72,15 +72,13 @@ import cn.hutool.core.util.IdUtil;
  * @version 1.0
  */
 @Service
+@RequiredArgsConstructor
 public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumMaterialMapper, BasicsdatumMaterial>
 		implements BasicsdatumMaterialService {
 
-	@Autowired
-	private BasicsdatumMaterialColorService materialColorService;
-	@Autowired
-	private BasicsdatumMaterialWidthService materialWidthService;
-	@Autowired
-	private BasicsdatumMaterialPriceService materialPriceService;
+	private final BasicsdatumMaterialColorService materialColorService;
+	private final BasicsdatumMaterialWidthService materialWidthService;
+	private final BasicsdatumMaterialPriceService materialPriceService;
 
 	@Override
 	public PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialList(BasicsdatumMaterialQueryDto dto) {

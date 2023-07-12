@@ -14,15 +14,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookDesignUpdateDto;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookPlanUpdateDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookPriceUpdateDto;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookProductPlanUpdateDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookQueryDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookSaveDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookUpdateDto;
@@ -40,6 +43,8 @@ import com.base.sbc.module.sample.vo.SampleStyleOrderBookPageVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * 
  * 类描述：款式管理-订货本 service类
@@ -49,15 +54,13 @@ import com.github.pagehelper.PageInfo;
  * @date 2023年7月11日
  */
 @Service
+@RequiredArgsConstructor
 public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyleOrderBookMapper, SampleStyleOrderBook>
 		implements SampleStyleOrderBookService {
 
-	@Autowired
-	private SampleStyleOrderBookColorService sampleStyleOrderBookColorService;
-	@Autowired
-	private SampleStyleGroupService sampleStyleGroupService;
-	@Autowired
-	private SampleStyleColorService sampleStyleColorService;
+	private final SampleStyleOrderBookColorService sampleStyleOrderBookColorService;
+	private final SampleStyleGroupService sampleStyleGroupService;
+	private final SampleStyleColorService sampleStyleColorService;
 
 	@Override
 	public PageInfo<SampleStyleOrderBookPageVo> getStyleOrderBookList(SampleStyleOrderBookQueryDto dto) {
@@ -126,6 +129,12 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 		this.sampleStyleOrderBookColorService.saveBatch(dbList);
 	}
 
+	/**
+	 * 获取最大编号
+	 * 
+	 * @param spx
+	 * @return
+	 */
 	private String getMaxCode(String spx) {
 		BaseQueryWrapper<SampleStyleOrderBook> qc = new BaseQueryWrapper<>();
 		qc.select("order_book_code");
@@ -177,14 +186,36 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 
 	@Override
 	public Boolean updateSampleStyleOrderBookUser(SampleStyleOrderBookUserUpdateDto dto) {
-
 		return this.sampleStyleOrderBookColorService.update(new UpdateWrapper<SampleStyleOrderBookColor>()
 				.set("order_book_status", "1").set("design_status", "0").set("plan_status", "0")
 				.set("product_plan_status", "0").set("plan_user_id", dto.getPlanUserId())
 				.set("plan_user_name", dto.getPlanUserName()).set("product_plan_user_id", dto.getProductPlanUserId())
 				.set("product_plan_user_name", dto.getProductPlanUserName())
-
 				.eq(COMPANY_CODE, getCompanyCode()).in("id", StringUtils.convertList(dto.getId())));
+	}
+
+	@Override
+	public Boolean updateSampleStyleOrderBookDesign(SampleStyleOrderBookDesignUpdateDto dto) {
+		SampleStyleOrderBookColor copy = CopyUtil.copy(dto, SampleStyleOrderBookColor.class);
+		// 修改已上传
+		copy.setDesignStatus("1");
+		return this.sampleStyleOrderBookColorService.updateById(copy);
+	}
+
+	@Override
+	public Boolean updateSampleStyleOrderBookPlan(SampleStyleOrderBookPlanUpdateDto dto) {
+		SampleStyleOrderBookColor copy = CopyUtil.copy(dto, SampleStyleOrderBookColor.class);
+		// 修改已上传
+		copy.setPlanStatus("1");
+		return this.sampleStyleOrderBookColorService.updateById(copy);
+	}
+
+	@Override
+	public Boolean updateSampleStyleOrderBookProductPlan(SampleStyleOrderBookProductPlanUpdateDto dto) {
+		SampleStyleOrderBookColor copy = CopyUtil.copy(dto, SampleStyleOrderBookColor.class);
+		// 修改已上传
+		copy.setProductPlanStatus("1");
+		return this.sampleStyleOrderBookColorService.updateById(copy);
 	}
 
 }

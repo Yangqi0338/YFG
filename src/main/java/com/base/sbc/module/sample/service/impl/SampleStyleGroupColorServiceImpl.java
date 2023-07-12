@@ -6,26 +6,19 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.sample.mapper.SampleStyleGroupColorMapper;
-import com.base.sbc.module.sample.entity.SampleStyleGroupColor;
-import com.base.sbc.module.sample.service.SampleStyleGroupColorService;
 import org.springframework.stereotype.Service;
+
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.sample.entity.SampleStyleGroupColor;
+import com.base.sbc.module.sample.mapper.SampleStyleGroupColorMapper;
+import com.base.sbc.module.sample.service.SampleStyleGroupColorService;
 /** 
  * 类描述：款式管理-款式搭配 与配色中间表 service类
- * @address com.base.sbc.module.sample.service.SampleStyleGroupColorService
- * @author lxl
- * @email lxl.fml@gmail.com
  * @date 创建时间：2023-7-3 14:37:26
  * @version 1.0  
  */
 @Service
 public class SampleStyleGroupColorServiceImpl extends BaseServiceImpl<SampleStyleGroupColorMapper, SampleStyleGroupColor> implements SampleStyleGroupColorService {
 
-// 自定义方法区 不替换的区域【other_start】
-
-
-
-// 自定义方法区 不替换的区域【other_end】
 	
 }

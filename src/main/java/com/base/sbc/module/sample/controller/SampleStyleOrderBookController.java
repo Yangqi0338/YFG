@@ -21,7 +21,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookDesignUpdateDto;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookPlanUpdateDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookPriceUpdateDto;
+import com.base.sbc.module.sample.dto.SampleStyleOrderBookProductPlanUpdateDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookQueryDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookSaveDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookUpdateDto;
@@ -79,6 +82,25 @@ public class SampleStyleOrderBookController {
 	@PostMapping("/updateSampleStyleOrderBookUser")
 	public Boolean updateSampleStyleOrderBookUser(@Valid @RequestBody SampleStyleOrderBookUserUpdateDto dto) {
 		return sampleStyleOrderBookService.updateSampleStyleOrderBookUser(dto);
+	}
+
+	@ApiOperation(value = "款式订货本列表:设计师提交")
+	@PostMapping("/updateSampleStyleOrderBookDesign")
+	public Boolean updateSampleStyleOrderBookDesign(@Valid @RequestBody SampleStyleOrderBookDesignUpdateDto dto) {
+		return sampleStyleOrderBookService.updateSampleStyleOrderBookDesign(dto);
+	}
+
+	@ApiOperation(value = "款式订货本列表:企划提交")
+	@PostMapping("/updateSampleStyleOrderBookPlan")
+	public Boolean updateSampleStyleOrderBookPlan(@Valid @RequestBody SampleStyleOrderBookPlanUpdateDto dto) {
+		return sampleStyleOrderBookService.updateSampleStyleOrderBookPlan(dto);
+	}
+
+	@ApiOperation(value = "款式订货本列表:商品企划提交")
+	@PostMapping("/updateSampleStyleOrderBookProductPlan")
+	public Boolean updateSampleStyleOrderBookProductPlan(
+			@Valid @RequestBody SampleStyleOrderBookProductPlanUpdateDto dto) {
+		return sampleStyleOrderBookService.updateSampleStyleOrderBookProductPlan(dto);
 	}
 
 }
