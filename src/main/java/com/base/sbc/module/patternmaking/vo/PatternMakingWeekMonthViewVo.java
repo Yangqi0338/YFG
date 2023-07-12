@@ -38,5 +38,10 @@ public class PatternMakingWeekMonthViewVo {
      */
     @ApiModelProperty(value = "需求数求和")
     private String requirementNumSum;
+    /**
+     * 节点状态
+     */
+    @ApiModelProperty(value = "节点状态")
+    private String status;
 
 }

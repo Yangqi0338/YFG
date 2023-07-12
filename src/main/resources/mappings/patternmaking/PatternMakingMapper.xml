@@ -162,13 +162,12 @@
                 sample_type,
                 DATE_FORMAT( create_date, IF(#{weeklyMonth} = 'week','%y年%u周', '%y年%m月') ) AS year_week,
                 min( create_date ) AS min_date,
-                count( * ) AS num
+                count( 1 ) AS num
             FROM
                 t_pattern_making
             WHERE
                 del_flag = '0'
                 AND sample_type = '初版样'
-                AND node = '打版任务'
                 AND company_code = #{companyCode}
                 AND create_date BETWEEN #{startTime} AND #{endTime}
             GROUP BY
@@ -186,13 +185,12 @@
                 sample_type,
                 DATE_FORMAT( create_date, IF(#{weeklyMonth} = 'week','%y年%u周', '%y年%m月') ) AS year_week,
                 min( create_date ) AS min_date,
-                count( * ) AS num
+                count( 1 ) AS num
             FROM
                 t_pattern_making
             WHERE
                 del_flag = '0'
                 AND sample_type = '改版样'
-                AND node = '打版任务'
                 AND company_code = #{companyCode}
                 AND create_date BETWEEN #{startTime} AND #{endTime}
             GROUP BY
@@ -243,6 +241,32 @@
             year_week ASC;
 
 
+    </select>
+
+    <select id="sampleCapacityTotalCount" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingWeekMonthViewVo" parameterType="com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto">
+        SELECT
+        ns.`status`,
+		DATE_FORMAT( ns.start_date, IF(#{weeklyMonth} = 'week','%y年%u周', '%y年%m月') ) AS year_week,
+		min( ns.start_date ) AS min_date,
+		count( 1 ) AS num
+        FROM
+             t_node_status ns
+        LEFT JOIN t_pattern_making pm on ns.data_id = pm.id
+        WHERE
+            pm.del_flag = '0'
+            AND pm.company_code = #{companyCode}
+            AND ns.node = '样衣任务'
+            <if test="null != statusList and statusList.size() > 0">
+                AND ns.`status` IN
+                <foreach collection="statusList" item="status" separator="," open="(" close=")">
+                    #{status}
+                </foreach>
+            </if>
+            AND ns.start_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY
+            ns.`status`,DATE_FORMAT( ns.start_date, IF(#{weeklyMonth} = 'week','%y%u', '%y%m') )
+        ORDER BY
+            year_week ASC ;
     </select>
 
 

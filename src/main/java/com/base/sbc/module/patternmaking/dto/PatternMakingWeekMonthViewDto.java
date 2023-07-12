@@ -50,15 +50,14 @@ public class PatternMakingWeekMonthViewDto {
     private List<String> statusList;
 
     /**
+     * 节点状态
+     */
+    private String status;
+
+    /**
      * 品类id列表
      */
     @ApiModelProperty(value = "品类id列表")
     private List<String> categoryIds;
 
-    public PatternMakingWeekMonthViewDto(String companyCode, String weeklyMonth, String startTime, String endTime) {
-        this.companyCode = companyCode;
-        this.weeklyMonth = weeklyMonth;
-        this.startTime = startTime;
-        this.endTime = endTime;
-    }
 }

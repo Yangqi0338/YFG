@@ -8,7 +8,6 @@ package com.base.sbc.module.basicsdatum.entity;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -21,7 +20,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * 类描述：基础资料-物料档案 实体类
@@ -281,6 +279,18 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	/** 门幅/规格组名称 */
 	@ApiModelProperty(value = "门幅/规格组名称")
 	private String widthGroupName;
+	/** 采购模式 */
+	@ApiModelProperty(value = "采购模式")
+	private String procMode;
+	/** 采购模式名称 */
+	@ApiModelProperty(value = "采购模式名称")
+	private String procModeName;
+	/** 领料方式 */
+	@ApiModelProperty(value = "领料方式")
+	private String pickingMethod;
+	/** 领料方式名称 */
+	@ApiModelProperty(value = "领料方式名称")
+	private String pickingMethodName;
 	/** 下发状态(0:未下发，1：已下发)*/
 	@ApiModelProperty(value = "下发状态(0:未下发，1：已下发)")
 	private String distribute;

@@ -6,10 +6,12 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.OperationType;
+import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.service.PackBomService;
@@ -27,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -62,6 +65,19 @@ public class PackBomController {
     @PostMapping("/version")
     public PackBomVersionVo saveVersion(@Valid @RequestBody PackBomVersionDto dto) {
         return packBomVersionService.saveVersion(dto);
+    }
+
+    @ApiOperation(value = "版本发起审批")
+    @GetMapping("/version/startApproval")
+    public boolean startApproval(@Valid IdDto ids) {
+        return packBomVersionService.startApproval(ids.getId());
+    }
+
+    @ApiOperation(value = "版本审批")
+    @ApiIgnore
+    @PostMapping("/version/approval")
+    public boolean approval(@RequestBody AnswerDto dto) {
+        return packBomVersionService.approval(dto);
     }
 
     @ApiOperation(value = "版本锁定")

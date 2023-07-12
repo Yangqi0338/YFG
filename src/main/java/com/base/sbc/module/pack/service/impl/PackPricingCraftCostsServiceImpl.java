@@ -10,6 +10,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
@@ -56,6 +57,7 @@ public class PackPricingCraftCostsServiceImpl extends PackBaseServiceImpl<PackPr
         if (CommonUtils.isInitId(dto.getId())) {
             PackPricingCraftCosts pageData = BeanUtil.copyProperties(dto, PackPricingCraftCosts.class);
             pageData.setId(null);
+            pageData.setOutsource(BaseGlobal.NO);
             save(pageData);
             return BeanUtil.copyProperties(pageData, PackPricingCraftCostsVo.class);
         }

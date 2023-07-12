@@ -28,11 +28,16 @@ public class TechnologyBoardConstant {
     /**
      * 版类对比统计KEY
      */
-    public static String VERSION_COMPARISON = "version_comparison:";
+    public static String VERSION_COMPARISON = "version_comparison1:";
 
     /**
      * 品类汇总统计KEY
      */
     public static String CATEGORY_SUMMARY_COUNT = "category_summary_count:";
+
+    /**
+     * 样衣产能总数KEY
+     */
+    public static String SAMPLE_CAPACITY_TOTAL = "sample_capacity_total:";
 
 }

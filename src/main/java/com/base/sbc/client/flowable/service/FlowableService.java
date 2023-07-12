@@ -3,6 +3,7 @@ package com.base.sbc.client.flowable.service;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.exception.OtherException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ public class FlowableService {
 
     public static final String sample_design_pdn = "样衣设计审批";
     public static final String big_goods_reverse = "大货资料包反审";
+    public static final String design_bom_pdn = "设计BOM物料审批";
 
     public static final String MATERIAL = "素材审批";
 
@@ -53,7 +55,11 @@ public class FlowableService {
         String result = flowableFeignService.start(title,null, processDefinitionName, businessKey, null, variables);
         if (StrUtil.isNotBlank(result)) {
             ApiResult apiResult = JSONObject.parseObject(result, ApiResult.class);
-            return apiResult.getSuccess();
+            if (apiResult.getSuccess()) {
+                return true;
+            } else {
+                throw new OtherException(apiResult.getMessage());
+            }
         }
         return false;
     }

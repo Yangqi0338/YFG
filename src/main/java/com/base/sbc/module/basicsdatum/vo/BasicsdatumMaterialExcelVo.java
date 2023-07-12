@@ -206,6 +206,12 @@ public class BasicsdatumMaterialExcelVo {
 	@Excel(name = "门幅规格组")
 	@ApiModelProperty(value = "门幅/规格组名称")
 	private String widthGroupName;
+	/** 采购模式名称 */
+	@ApiModelProperty(value = "采购模式名称")
+	private String procModeName;
+	/** 领料方式名称 */
+	@ApiModelProperty(value = "领料方式名称")
+	private String pickingMethodName;
 	/** 备注信息 */
 	@Excel(name = "备注")
 	@ApiModelProperty(value = "备注信息")

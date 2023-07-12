@@ -62,6 +62,13 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
      */
     List<PatternMakingWeekMonthViewVo> categorySummaryCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto);
 
+    /**
+     * 根据时间按周月 统计样衣产能总数
+     * @param patternMakingWeekMonthViewDto 技术看板DTO
+     * @return 返回集合数据
+     */
+    List<PatternMakingWeekMonthViewVo> sampleCapacityTotalCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

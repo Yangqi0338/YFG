@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.pack.dto.PackBomVersionDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
@@ -85,6 +86,22 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
      * @return
      */
     PackBomVersion getEnableVersion(String foreignId, String packType);
+
+    /**
+     * 开始审批
+     *
+     * @param id
+     * @return
+     */
+    boolean startApproval(String id);
+
+    /**
+     * 审批处理
+     *
+     * @param dto
+     * @return
+     */
+    boolean approval(AnswerDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 
