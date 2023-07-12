@@ -60,7 +60,7 @@ public class BasicsdatumModelTypeExcelDto  {
     private String materialsConfirmation;
     /** 尺寸确认(0确定，1未确认) */
     @ApiModelProperty(value = "尺寸确认(1确定，0未确认)"  )
-    @Excel(name = "尺寸确认", replace = {"false_0", "true_1"} )
+    @Excel(name = "尺寸表确认", replace = {"false_0", "true_1"} )
     private String sizeConfirmation;
     /** 发送状态(0发送，1未发送) */
     @ApiModelProperty(value = "发送状态(1发送，0未发送)"  )
