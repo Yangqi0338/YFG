@@ -26,8 +26,11 @@ import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.ObjectUtils;
@@ -45,6 +48,10 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class SmpService {
+
+    private final DataSourceTransactionManager dataSourceTransactionManager;
+
+    private final TransactionDefinition transactionDefinition;
 
     private final RestTemplateService restTemplateService;
 
@@ -79,7 +86,7 @@ public class SmpService {
         List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(queryWrapper);
         int i = 0;
         for (BasicsdatumMaterial basicsdatumMaterial : list) {
-            if (this.sendMaterials(basicsdatumMaterial)){
+            if (this.sendMaterials(basicsdatumMaterial)) {
                 i++;
             }
         }
@@ -87,8 +94,8 @@ public class SmpService {
         return i;
     }
 
-    @Transactional(rollbackFor = Exception.class)
     public Boolean sendMaterials(BasicsdatumMaterial basicsdatumMaterial) {
+        TransactionStatus transactionStatus = null;
         try {
             SmpMaterialDto smpMaterialDto = basicsdatumMaterial.toSmpMaterialDto();
 
@@ -161,13 +168,24 @@ public class SmpService {
 
             //下发并记录推送日志
             HttpResp httpResp = restTemplateService.spmPost(URL + "/materials", smpMaterialDto);
+
+            //获取事务
+            transactionStatus = dataSourceTransactionManager.getTransaction(transactionDefinition);
             pushRecordsService.pushRecordSave(httpResp, smpMaterialDto, "smp", "物料主数据下发");
 
             //修改状态为已下发
             basicsdatumMaterial.setDistribute("1");
             basicsdatumMaterialService.updateById(basicsdatumMaterial);
-        }catch (Exception e){
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+
+            //提交事务
+            dataSourceTransactionManager.commit(transactionStatus);
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (transactionStatus != null) {
+                //回滚事务
+                dataSourceTransactionManager.rollback(transactionStatus);
+            }
+
             return false;
         }
 
