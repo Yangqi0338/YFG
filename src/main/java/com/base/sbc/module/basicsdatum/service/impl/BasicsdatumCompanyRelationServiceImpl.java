@@ -11,6 +11,7 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumCompanyRelationMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumCompanyRelationService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,9 +48,12 @@ public class BasicsdatumCompanyRelationServiceImpl extends BaseServiceImpl<Basic
      */
     @Override
     public Boolean deleteBatchAddition(List<BasicsdatumCompanyRelation> list) {
-        /*删除之前的数据*/
-        baseMapper.deleteRelation(list.get(0).getDataId(),list.get(0).getType());
-       //再次新增
-        return saveBatch(list);
+        if(!CollectionUtils.isEmpty(list)){
+            /*删除之前的数据*/
+            baseMapper.deleteRelation(list.get(0).getDataId(),list.get(0).getType());
+            //再次新增
+            return saveBatch(list);
+        }
+         return true;
     }
 }

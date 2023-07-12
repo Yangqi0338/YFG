@@ -7,9 +7,12 @@
 package com.base.sbc.module.basicsdatum.dto;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * 类描述：导入导出基础资料-档差 dto类
@@ -50,12 +53,8 @@ public class BasicsdatumRangeDifferenceExcelDto  {
     @ApiModelProperty(value = "基础尺码"  )
     @Excel(name = "基础的尺码")
     private String basicsSize;
-    /**  品类id */
-    @ApiModelProperty(value = "品类id"  )
+    @ApiModelProperty(value = "品类"  )
     @Excel(name = "品类")
-    private String categoryId;
-    /**  品类名 */
-    @ApiModelProperty(value = "品类名"  )
     private String categoryName;
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
@@ -65,4 +64,6 @@ public class BasicsdatumRangeDifferenceExcelDto  {
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     @Excel(name = "可用",replace = {"true_0", "false_1"})
     private String status;
+
+    private List<BasicsdatumCompanyRelation> basicsdatumCompanyRelation;
 }

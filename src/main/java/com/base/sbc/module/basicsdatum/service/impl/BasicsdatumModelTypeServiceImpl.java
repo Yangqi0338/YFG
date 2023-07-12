@@ -20,14 +20,14 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumModelTypeDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumModelTypeExcelDto;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.dto.*;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumCompanyRelationService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
@@ -43,6 +43,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,6 +67,8 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
     private final BasicsdatumSizeMapper basicsdatumSizeMapper;
     private final BasicsdatumSizeService basicsdatumSizeService;
 
+    private final BasicsdatumCompanyRelationService basicsdatumCompanyRelationService;
+
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -84,24 +87,18 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
 
         BaseQueryWrapper<BasicsdatumModelType> queryWrapper = new BaseQueryWrapper<>();
 
-        queryWrapper.notEmptyLike("model_type", queryDto.getModelType());
-        queryWrapper.eq("company_code", baseController.getUserCompany());
-        queryWrapper.notEmptyLike("code", queryDto.getCoding());
-        queryWrapper.notEmptyLike("description", queryDto.getDescription());
-        queryWrapper.notEmptyLike("dimension_type", queryDto.getDimensionType());
-        queryWrapper.notEmptyLike("status", queryDto.getStatus());
-        queryWrapper.between("create_date",queryDto.getCreateDate());
+        queryWrapper.notEmptyLike("mt.model_type", queryDto.getModelType());
+        queryWrapper.eq("mt.company_code", baseController.getUserCompany());
+        queryWrapper.in(StringUtils.isNotBlank(queryDto.getCategoryId()),"cr.category_id", queryDto.getCategoryId());
+        queryWrapper.notEmptyLike("mt.code", queryDto.getCoding());
+        queryWrapper.notEmptyLike("mt.description", queryDto.getDescription());
+        queryWrapper.notEmptyLike("mt.dimension_type", queryDto.getDimensionType());
+        queryWrapper.notEmptyLike("mt.status", queryDto.getStatus());
+        queryWrapper.between("mt.create_date",queryDto.getCreateDate());
         /*查询基础资料-号型类型数据*/
-        List<BasicsdatumModelType> basicsdatumModelTypeList = baseMapper.selectList(queryWrapper);
-        PageInfo<BasicsdatumModelType> pageInfo = new PageInfo<>(basicsdatumModelTypeList);
-        /*转换vo*/
-        List<BasicsdatumModelTypeVo> list = BeanUtil.copyToList(basicsdatumModelTypeList, BasicsdatumModelTypeVo.class);
-        PageInfo<BasicsdatumModelTypeVo> pageInfo1 = new PageInfo<>();
-        pageInfo1.setList(list);
-        pageInfo1.setTotal(pageInfo.getTotal());
-        pageInfo1.setPageNum(pageInfo.getPageNum());
-        pageInfo1.setPageSize(pageInfo.getPageSize());
-        return pageInfo1;
+        List<BasicsdatumModelTypeVo> basicsdatumModelTypeList = baseMapper.getBasicsdatumModelTypeList(queryWrapper,StringUtils.convertList(queryDto.getCategoryId()));
+        PageInfo<BasicsdatumModelTypeVo> pageInfo = new PageInfo<>(basicsdatumModelTypeList);
+        return pageInfo;
     }
 
 
@@ -121,7 +118,19 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         for (BasicsdatumModelTypeExcelDto basicsdatumModelTypeExcelDto : list) {
 //            获取品类id
             if (StringUtils.isNotBlank(basicsdatumModelTypeExcelDto.getCategory())) {
-                basicsdatumModelTypeExcelDto.setCategoryId(ccmFeignService.getIdsByNameAndLevel("品类", basicsdatumModelTypeExcelDto.getCategory(), "1"));
+
+                basicsdatumModelTypeExcelDto.setCategory(basicsdatumModelTypeExcelDto.getCategory().replaceAll(" ",""));
+                List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getCategorySByNameAndLevel("品类", basicsdatumModelTypeExcelDto.getCategory(), "1");
+                List<BasicsdatumCompanyRelation> basicsdatumCompanyRelationList = new ArrayList<>();
+                basicCategoryDotList.forEach(b ->{
+                    BasicsdatumCompanyRelation basicsdatumCompanyRelation =new BasicsdatumCompanyRelation();
+                    basicsdatumCompanyRelation.setCategoryId(b.getId());
+                    basicsdatumCompanyRelation.setCategoryName(b.getName());
+                    basicsdatumCompanyRelation.setCompanyCode(baseController.getUserCompany());
+                    basicsdatumCompanyRelation.setType("difference");
+                    basicsdatumCompanyRelationList.add(basicsdatumCompanyRelation);
+                });
+                basicsdatumModelTypeExcelDto.setBasicsdatumCompanyRelation(basicsdatumCompanyRelationList);
             }
             if (StringUtils.isNotBlank(basicsdatumModelTypeExcelDto.getSize())) {
 //                获取尺码id
@@ -141,6 +150,11 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             QueryWrapper<BasicsdatumModelType> queryWrapper =new BaseQueryWrapper<>();
             queryWrapper.eq("code",basicsdatumModelType.getCode());
             this.saveOrUpdate(basicsdatumModelType,queryWrapper);
+            /*添加品类关系*/
+            BasicsdatumModelType modelType =   baseMapper.selectOne(queryWrapper) ;
+            if(!ObjectUtils.isEmpty(modelType)){
+                basicsdatumCompanyRelationService.deleteBatchAddition(assignmentCompany(basicsdatumModelType.getBasicsdatumCompanyRelation(), modelType.getId()));
+            }
         }
         return true;
     }
@@ -189,6 +203,10 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
                 basicsdatumSizeService.updateBatchById(list);
             }
             baseMapper.insert(basicsdatumModelType);
+            /*新增品类*/
+            if (!CollectionUtils.isEmpty(addRevampBasicsdatumModelTypeDto.getList())) {
+                basicsdatumCompanyRelationService.batchAddition(assignmentCompany(addRevampBasicsdatumModelTypeDto.getList(), basicsdatumModelType.getId()));
+            }
         } else {
             /*修改*/
             basicsdatumModelType = baseMapper.selectById(addRevampBasicsdatumModelTypeDto.getId());
@@ -209,10 +227,26 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             BeanUtils.copyProperties(addRevampBasicsdatumModelTypeDto, basicsdatumModelType);
             basicsdatumModelType.updateInit();
             baseMapper.updateById(basicsdatumModelType);
+            /*新增品类*/
+            if (!CollectionUtils.isEmpty(addRevampBasicsdatumModelTypeDto.getList())) {
+                basicsdatumCompanyRelationService.deleteBatchAddition(assignmentCompany(addRevampBasicsdatumModelTypeDto.getList(), basicsdatumModelType.getId()));
+            }
         }
         return true;
     }
 
+    /*赋值*/
+    public List<BasicsdatumCompanyRelation> assignmentCompany(List<BasicsdatumCompanyRelation> list, String id) {
+        if(!CollectionUtils.isEmpty(list)){
+            for (BasicsdatumCompanyRelation b : list) {
+                b.setCompanyCode(baseController.getUserCompany());
+                b.setDataId(id);
+                b.setType("modelType");
+            }
+            return list;
+        }
+        return null;
+    }
 
     /**
      * 方法描述：删除基础资料-号型类型

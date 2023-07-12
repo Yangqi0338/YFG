@@ -31,7 +31,7 @@ public interface BasicsdatumRangeDifferenceMapper extends BaseMapper<Basicsdatum
 
 
 //   查询档差
-    List<BasicsdatumRangeDifferenceVo>  selectRangeDifferenceList(@Param(Constants.WRAPPER) BaseQueryWrapper qw,@Param("categoryId") String categoryId);
+    List<BasicsdatumRangeDifferenceVo>  selectRangeDifferenceList(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 
 
 
