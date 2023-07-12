@@ -6,8 +6,19 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.StrUtil;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -22,7 +33,11 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.sample.dto.*;
+import com.base.sbc.module.sample.dto.AddRevampSampleStyleColorDto;
+import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
+import com.base.sbc.module.sample.dto.RelevanceBomDto;
+import com.base.sbc.module.sample.dto.UpdateStyleNoBandDto;
+import com.base.sbc.module.sample.dto.UpdateTagPriceDto;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.mapper.SampleDesignMapper;
@@ -32,19 +47,10 @@ import com.base.sbc.module.sample.vo.SampleStyleColorVo;
 import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 类描述：样衣-款式配色 service类
@@ -56,28 +62,22 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-6-28 15:02:46
  */
 @Service
+@RequiredArgsConstructor
 public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColorMapper, SampleStyleColor> implements SampleStyleColorService {
 
-    @Autowired
-    private BaseController baseController;
+	private final BaseController baseController;
 
-    @Autowired
-    private BasicsdatumColourLibraryMapper basicsdatumColourLibraryMapper;
+	private final BasicsdatumColourLibraryMapper basicsdatumColourLibraryMapper;
 
-    @Autowired
-    private SampleDesignMapper sampleDesignMapper;
+	private final SampleDesignMapper sampleDesignMapper;
 
-    @Autowired
-    private BandService bandService;
+	private final BandService bandService;
 
-    @Autowired
-    private SmpService smpService;
+	private final SmpService smpService;
 
-    @Autowired
-    private CcmFeignService ccmFeignService;
+	private final CcmFeignService ccmFeignService;
 
-    @Autowired
-    private PackInfoMapper packInfoMapper;
+	private final PackInfoMapper packInfoMapper;
 
 
 
@@ -216,7 +216,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
 //        获取年份
             int initial = Integer.parseInt("2019");
             int year1 = Integer.parseInt(year);
-            int ascii = (int) 'A';
+            int ascii = 'A';
             char c = (char) (ascii + (year1 - initial));
             yearOn=String.valueOf(c);
             /*判断月份是否是1到九月*/
@@ -238,7 +238,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             if(!StringUtils.isEmpty(Letter)){
                 Letter = Letter.toUpperCase();
                 char[] charArray = Letter.toCharArray();
-                int char1 = (int) charArray[0];
+                int char1 = charArray[0];
                 band = String.valueOf(char1-64);
             }else {
                 band="";

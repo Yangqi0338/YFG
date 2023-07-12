@@ -53,6 +53,12 @@ public class BandServiceImpl extends BaseServiceImpl<BandMapper, Band> implement
         Map<String, String> map = dictInfoToMap.get("C8_Quarter");
         list =list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
         for (BandExcelDto bandExcelDto : list) {
+//            月份
+            if(StringUtils.isNotBlank(bandExcelDto.getMonth())){
+                int month = Integer.parseInt(bandExcelDto.getMonth());
+                bandExcelDto.setMonth(month >= 10 ? String.valueOf(month)  : "0"+String.valueOf( month) );
+            }
+            /*季节*/
             if (StringUtils.isNotEmpty(bandExcelDto.getSeason())) {
                 for (Map.Entry<String, String> entry : map.entrySet()) {
                     String key = entry.getKey();

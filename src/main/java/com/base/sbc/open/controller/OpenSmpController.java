@@ -38,7 +38,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(value = BaseController.OPEN_URL + "/smp", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-public class SmpController extends BaseController {
+public class OpenSmpController extends BaseController {
 
     private final MtBqReqService mtBqReqService;
 
