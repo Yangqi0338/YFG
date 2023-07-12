@@ -268,6 +268,12 @@ public class PatternMakingController {
         patternMakingWeekMonthViewDto.setCompanyCode(companyCode);
         return ApiResult.success("查询成功",patternMakingService.categorySummaryCount(patternMakingWeekMonthViewDto,token));
     }
+    @ApiOperation(value = "统计样衣产能总数", notes = "")
+    @PostMapping("/sampleCapacityTotalCount")
+    public ApiResult sampleCapacityTotalCount(@RequestHeader(BaseConstant.AUTHORIZATION)String token,@RequestHeader(BaseConstant.USER_COMPANY)String companyCode, @RequestBody PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
+        patternMakingWeekMonthViewDto.setCompanyCode(companyCode);
+        return ApiResult.success("查询成功",patternMakingService.sampleCapacityTotalCount(patternMakingWeekMonthViewDto,token));
+    }
 }
 
 
