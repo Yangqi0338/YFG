@@ -2,6 +2,7 @@ package com.base.sbc.module.basicsdatum.controller;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -9,6 +10,8 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.basicsdatum.dto.SpecificationDto;
 import com.base.sbc.module.basicsdatum.entity.Specification;
+import com.base.sbc.module.basicsdatum.entity.SpecificationGroup;
+import com.base.sbc.module.basicsdatum.service.SpecificationGroupService;
 import com.base.sbc.module.basicsdatum.service.SpecificationService;
 import com.base.sbc.module.basicsdatum.service.impl.SpecificationExcelDto;
 import com.github.pagehelper.PageHelper;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,31 +40,51 @@ import java.util.List;
 public class SpecificationController extends BaseController {
 
     private final SpecificationService specificationService;
+
+    private final SpecificationGroupService specificationGroupService;
+
     @GetMapping("/queryPage")
     @ApiOperation(value = "条件分页查询")
-    public ApiResult queryPage(SpecificationDto specificationDto){
-        BaseQueryWrapper<Specification> queryWrapper =new BaseQueryWrapper<>();
-        queryWrapper.notEmptyEq("status",specificationDto.getStatus());
-        queryWrapper.notEmptyEq("type",specificationDto.getType());
-        queryWrapper.notEmptyLike("name",specificationDto.getName());
-        queryWrapper.notEmptyLike("code",specificationDto.getCode());
+    public ApiResult queryPage(SpecificationDto specificationDto) {
+        BaseQueryWrapper<Specification> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.notEmptyEq("status", specificationDto.getStatus());
+        queryWrapper.notEmptyEq("type", specificationDto.getType());
+        queryWrapper.notEmptyLike("name", specificationDto.getName());
+        queryWrapper.notEmptyLike("code", specificationDto.getCode());
 
-        queryWrapper.notEmptyLike("create_name",specificationDto.getCreateName());
-        queryWrapper.notEmptyLike("create_date",specificationDto.getCreateDate());
+        queryWrapper.notEmptyLike("create_name", specificationDto.getCreateName());
+        queryWrapper.notEmptyLike("create_date", specificationDto.getCreateDate());
         PageHelper.startPage(specificationDto);
         List<Specification> list = specificationService.list(queryWrapper);
         return selectSuccess(new PageInfo<>(list));
     }
+
+    @GetMapping("/listBySpecificationGroupId")
+    @ApiOperation(value = "根据门幅/规格组id查询规格")
+    public ApiResult listBySpecificationGroupId(String id) {
+        SpecificationGroup specificationGroup = specificationGroupService.getById(id);
+
+        BaseQueryWrapper<Specification> queryWrapper = new BaseQueryWrapper<>();
+        if (specificationGroup!=null){
+            String specificationIds = specificationGroup.getSpecificationIds();
+            String[] ids = specificationIds.split(",");
+            queryWrapper.in("id", Arrays.asList(ids));
+        }
+        List<Specification> specifications = specificationService.list(queryWrapper);
+        return selectSuccess(specifications);
+    }
+
     @PostMapping("/save")
     @ApiOperation(value = "修改或者新增")
-    public ApiResult save(@RequestBody Specification specification){
+    public ApiResult save(@RequestBody Specification specification) {
 
         boolean save = specificationService.saveSpecification(specification);
         return selectSuccess(save);
     }
+
     @PutMapping("/startStop")
     @ApiOperation(value = "启用或者停用")
-    public ApiResult startStop(@RequestBody SpecificationDto specificationDto){
+    public ApiResult startStop(@RequestBody SpecificationDto specificationDto) {
         UpdateWrapper<Specification> updateWrapper = new UpdateWrapper<>();
         updateWrapper.set("status", specificationDto.getStatus());
         updateWrapper.in("id", Arrays.asList(specificationDto.getIds().split(",")));
@@ -94,6 +118,6 @@ public class SpecificationController extends BaseController {
     @GetMapping("/exportExcel")
     public void exportExcel(HttpServletResponse response) throws Exception {
         List<SpecificationExcelDto> list = BeanUtil.copyToList(specificationService.list(), SpecificationExcelDto.class);
-        ExcelUtils.exportExcel(list,  SpecificationExcelDto.class, "规格/门幅.xlsx",new ExportParams() ,response);
+        ExcelUtils.exportExcel(list, SpecificationExcelDto.class, "规格/门幅.xlsx", new ExportParams(), response);
     }
 }

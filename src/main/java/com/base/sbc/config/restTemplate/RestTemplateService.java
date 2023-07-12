@@ -31,7 +31,9 @@ public class RestTemplateService {
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.add("Content-Type", "application/json");
         // 2.请求头 & 请求体
-        HttpEntity<String> fromEntity = new HttpEntity<>(JSONUtil.toJsonStr(o), requestHeaders);
+        String jsonStr = JSONUtil.toJsonStr(o);
+        System.out.println(jsonStr);
+        HttpEntity<String> fromEntity = new HttpEntity<>(jsonStr, requestHeaders);
         ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(url, fromEntity, String.class);
         HttpResp httpResp =new HttpResp();
         httpResp.setUrl(url);
