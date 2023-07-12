@@ -215,4 +215,16 @@ public class BasicsdatumMaterialSaveDto {
 	/** 门幅/规格组名称 */
 	@ApiModelProperty(value = "门幅/规格组名称")
 	private String widthGroupName;
+	/** 采购模式 */
+	@ApiModelProperty(value = "采购模式")
+	private String procMode;
+	/** 采购模式名称 */
+	@ApiModelProperty(value = "采购模式名称")
+	private String procModeName;
+	/** 领料方式 */
+	@ApiModelProperty(value = "领料方式")
+	private String pickingMethod;
+	/** 领料方式名称 */
+	@ApiModelProperty(value = "领料方式名称")
+	private String pickingMethodName;
 }
