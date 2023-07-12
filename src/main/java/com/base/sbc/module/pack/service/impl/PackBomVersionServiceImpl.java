@@ -14,8 +14,11 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.exception.OtherException;
@@ -26,10 +29,12 @@ import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackBomVersion;
+import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.mapper.PackBomVersionMapper;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
+import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.github.pagehelper.Page;
@@ -63,6 +68,10 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
     private PackBomService packBomService;
     @Resource
     private PackBomSizeService packBomSizeService;
+    @Resource
+    private PackInfoService packInfoService;
+    @Resource
+    private FlowableService flowableService;
 
     @Override
     public PageInfo<PackBomVersionVo> pageInfo(PackCommonPageSearchDto dto) {
@@ -177,6 +186,43 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         dto.setPackType(packType);
         dto.setForeignId(foreignId);
         return getEnableVersion(dto);
+    }
+
+    @Override
+    public boolean startApproval(String id) {
+        PackBomVersion bomVersion = getById(id);
+        if (bomVersion == null) {
+            throw new OtherException("版本不存在,请先保存");
+        }
+        String foreignId = bomVersion.getForeignId();
+        PackInfo packInfo = packInfoService.getById(foreignId);
+        if (packInfo == null) {
+            throw new OtherException("资料包不存在");
+        }
+        Map<String, Object> variables = BeanUtil.beanToMap(bomVersion);
+        boolean flg = flowableService.start(FlowableService.design_bom_pdn + "[" + bomVersion.getVersion() + "]", FlowableService.design_bom_pdn, id, "/pdm/api/saas/packBom/version/approval", "/pdm/api/saas/packBom/version/approval", StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()), variables);
+        if (flg) {
+            bomVersion.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+            updateById(bomVersion);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean approval(AnswerDto dto) {
+        PackBomVersion version = getById(dto.getBusinessKey());
+        if (version != null) {
+            //通过
+            if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+                version.setConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+            }
+            //驳回
+            else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
+                version.setConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
+            }
+            updateById(version);
+        }
+        return true;
     }
 
     @Override
