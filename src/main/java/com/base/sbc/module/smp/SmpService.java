@@ -66,8 +66,8 @@ public class SmpService {
     private final SpecificationService specificationService;
 
 
-    //private  static final String URL ="http://10.88.34.25:7006/pdm";
-    private static final String URL = "http://smp-i.eifini.com/service-manager/pdm";
+    private  static final String URL ="http://10.98.250.31:7006/pdm";
+    //private static final String URL = "http://smp-i.eifini.com/service-manager/pdm";
 
     /**
      * 商品主数据下发
