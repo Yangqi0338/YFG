@@ -195,9 +195,10 @@ public class SmpService {
     /**
      * bom下发
      */
-    public Boolean bom(SmpBomDto smpBomDto) {
-        HttpResp httpResp = restTemplateService.spmPost(URL + "/bom", smpBomDto);
-        return pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
+    public Integer bom(String[] ids) {
+        //HttpResp httpResp = restTemplateService.spmPost(URL + "/bom", smpBomDto);
+        //return pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
+        return null;
     }
 
     /**

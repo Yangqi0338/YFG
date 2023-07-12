@@ -30,4 +30,13 @@ public class SmpController extends BaseController {
         Integer i = smpService.materials(ids);
         return insertSuccess("下发："+ids.length+"条，成功："+i+"条");
     }
+
+    /**
+     * bom下发
+     */
+    @PatchMapping("/bom")
+    public ApiResult bom(String[] ids) {
+        Integer i = smpService.bom(ids);
+        return insertSuccess("下发："+ids.length+"条，成功："+i+"条");
+    }
 }
