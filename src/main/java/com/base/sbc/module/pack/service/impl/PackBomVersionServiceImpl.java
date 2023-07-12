@@ -206,6 +206,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             updateById(bomVersion);
         }
         return true;
+
     }
 
     @Override

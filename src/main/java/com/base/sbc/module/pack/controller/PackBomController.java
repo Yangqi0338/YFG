@@ -75,7 +75,7 @@ public class PackBomController {
 
     @ApiOperation(value = "版本审批")
     @ApiIgnore
-    @GetMapping("/version/approval")
+    @PostMapping("/version/approval")
     public boolean approval(@RequestBody AnswerDto dto) {
         return packBomVersionService.approval(dto);
     }
