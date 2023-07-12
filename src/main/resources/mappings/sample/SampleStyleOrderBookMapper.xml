@@ -82,13 +82,13 @@
 			<if test="styleNo != null and styleNo != ''">
 				and bc.style_no like "%"#{styleNo}"%"
 			</if>
-			<if test='type = "design" and userId != null and userId != ""'>
+			<if test='type == "design" and userId != null and userId != ""'>
 				and t2.designer_id = #{userId}
 			</if>
-			<if test='type = "plan" and userId != null and userId != ""'>
+			<if test='type == "plan" and userId != null and userId != ""'>
 				and bc.plan_user_id = #{userId}
 			</if>
-			<if test='type = "productPlan" and userId != null and userId != ""'>
+			<if test='type == "productPlan" and userId != null and userId != ""'>
 				and bc.product_plan_user_id = #{userId}
 			</if>
 			
