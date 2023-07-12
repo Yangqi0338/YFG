@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
+import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +54,6 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 
 	@Autowired
 	private SampleStyleOrderBookColorService sampleStyleOrderBookColorService;
-
 	@Autowired
 	private SampleStyleGroupService sampleStyleGroupService;
 	@Autowired
@@ -63,6 +64,9 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
 			PageHelper.startPage(dto);
 		}
+		// 获取当前用户id
+		String userId = companyUserInfo.get().getUserId();
+		dto.setUserId(userId);
 		dto.setCompanyCode(this.getCompanyCode());
 		List<SampleStyleOrderBookPageVo> list = this.baseMapper.getStyleOrderBookList(dto);
 		return new PageInfo<>(list);

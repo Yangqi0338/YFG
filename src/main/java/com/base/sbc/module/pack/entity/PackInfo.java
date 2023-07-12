@@ -8,10 +8,13 @@ package com.base.sbc.module.pack.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Date;
 /**
  * 类描述：资料包 实体类
  *
@@ -19,7 +22,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfo
  * @email your email
- * @date 创建时间：2023-7-11 15:27:28
+ * @date 创建时间：2023-7-12 11:50:31
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -145,10 +148,65 @@ public class PackInfo extends BaseDataEntity<String> {
     @ApiModelProperty(value = "bom状态:(0样品,1大货)")
     private String bomStatus;
     /**
-     * 审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)
+     * 反审状态：待审核(1)、审核通过(2)、被驳回(-1)
      */
-    @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)")
-    private String confirmStatus;
+    @ApiModelProperty(value = "反审状态：待审核(1)、审核通过(2)、被驳回(-1)")
+    private String reverseConfirmStatus;
+    /**
+     * 设计转后技术确认:(0未确认,1已确认)
+     */
+    @ApiModelProperty(value = "设计转后技术确认:(0未确认,1已确认)")
+    private String designTechConfirm;
+    /**
+     * 设计转后技术确认时间
+     */
+    @ApiModelProperty(value = "设计转后技术确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date designTechConfirmDate;
+    /**
+     * 大货制单员确认:(0未确认,1已确认)
+     */
+    @ApiModelProperty(value = "大货制单员确认:(0未确认,1已确认)")
+    private String bulkOrderClerkConfirm;
+    /**
+     * 大货制单员确认时间
+     */
+    @ApiModelProperty(value = "大货制单员确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date bulkOrderClerkConfirmDate;
+    /**
+     * 大货工艺员确认:(0未确认,1已确认)
+     */
+    @ApiModelProperty(value = "大货工艺员确认:(0未确认,1已确认)")
+    private String bulkProdTechConfirm;
+    /**
+     * 大货工艺员确认时间
+     */
+    @ApiModelProperty(value = "大货工艺员确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date bulkProdTechConfirmDate;
+    /**
+     * 后技术确认:(0未确认,1已确认)
+     */
+    @ApiModelProperty(value = "后技术确认:(0未确认,1已确认)")
+    private String postTechConfirm;
+    /**
+     * 后技术确认时间
+     */
+    @ApiModelProperty(value = "后技术确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date postTechConfirmDate;
+    /**
+     * 品控部确认:(0未确认,1已确认)
+     */
+    @ApiModelProperty(value = "品控部确认:(0未确认,1已确认)")
+    private String qcConfirm;
+    /**
+     * 品控部确认时间
+     */
+    @ApiModelProperty(value = "品控部确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date qcConfirmDate;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

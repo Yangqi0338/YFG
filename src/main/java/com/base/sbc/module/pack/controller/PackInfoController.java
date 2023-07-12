@@ -16,6 +16,7 @@ import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
 import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pack.vo.SampleDesignPackInfoListVo;
 import com.github.pagehelper.PageInfo;
@@ -47,11 +48,18 @@ public class PackInfoController {
 	@Autowired
 	private PackInfoService packInfoService;
 
-	@ApiOperation(value = "分页查询")
+	@ApiOperation(value = "设计BOM管理列表-分页查询")
 	@GetMapping
 	public PageInfo<SampleDesignPackInfoListVo> pageBySampleDesign(@Valid PackInfoSearchPageDto pageDto) {
 		return packInfoService.pageBySampleDesign(pageDto);
 	}
+
+	@ApiOperation(value = "标准资料包-分页查询")
+	@GetMapping("/pageByBigGoods")
+	public PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(@Valid PackInfoSearchPageDto pageDto) {
+		return packInfoService.pageByBigGoods(pageDto);
+	}
+
 
 	@ApiOperation(value = "新建BOM(通过样衣设计)")
 	@GetMapping("/createBySampleDesign")
@@ -79,21 +87,21 @@ public class PackInfoController {
 	}
 
 	@ApiOperation(value = "反审")
-	@GetMapping("/startApproval")
-	public boolean startApproval(@Valid IdDto idDto) {
-		return packInfoService.startApproval(idDto.getId());
+	@GetMapping("/startReverseApproval")
+	public boolean startReverseApproval(@Valid IdDto idDto) {
+		return packInfoService.startReverseApproval(idDto.getId());
 	}
 
 	/**
-	 * 处理审批
+	 * 处理反审批
 	 *
 	 * @param dto
 	 * @return
 	 */
 	@ApiIgnore
-	@PostMapping("/approval")
-	public boolean approval(@RequestBody AnswerDto dto) {
-		return packInfoService.approval(dto);
+	@PostMapping("/reverseApproval")
+	public boolean reverseApproval(@RequestBody AnswerDto dto) {
+		return packInfoService.reverseApproval(dto);
 	}
 }
 

@@ -21,7 +21,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
  * @email your email
- * @date 创建时间：2023-7-11 17:44:46
+ * @date 创建时间：2023-7-12 11:50:35
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -57,9 +57,9 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "物料档案id")
     private String materialId;
     /**
-     * 搭配
+     * 物料类别
      */
-    @ApiModelProperty(value = "搭配")
+    @ApiModelProperty(value = "物料类别")
     private String categoryName;
     /**
      * 材料
@@ -151,11 +151,6 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "状态(0停用,1启用)")
     private String status;
-    /**
-     * 发送状态(0未发送,1已发送)
-     */
-    @ApiModelProperty(value = "发送状态(0未发送,1已发送)")
-    private String sendFlag;
     /**
      * 不能使用(0否,1是)
      */
@@ -271,6 +266,16 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "金额")
     private BigDecimal amount;
+    /**
+     * 搭配
+     */
+    @ApiModelProperty(value = "搭配")
+    private String bomMatch;
+    /**
+     * SCM下发状态:0未下发,1已下发
+     */
+    @ApiModelProperty(value = "SCM下发状态:0未下发,1已下发")
+    private String scmSendFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

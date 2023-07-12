@@ -9,15 +9,14 @@ package com.base.sbc.module.pack.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import org.apache.ibatis.annotations.Mapper;
-
 /**
  * 类描述：资料包-物料清单-物料版本 dao类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.pack.dao.PackBomVersionDao
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-1 16:37:20
+ * @email your email
+ * @date 创建时间：2023-7-11 20:23:13
  */
 @Mapper
 public interface PackBomVersionMapper extends BaseMapper<PackBomVersion> {
@@ -26,3 +25,4 @@ public interface PackBomVersionMapper extends BaseMapper<PackBomVersion> {
 
 // 自定义方法区 不替换的区域【other_end】
 }
+

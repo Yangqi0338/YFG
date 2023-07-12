@@ -6,9 +6,18 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.IdUtil;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -17,7 +26,15 @@ import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.*;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
@@ -27,21 +44,23 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
-import com.base.sbc.module.basicsdatum.vo.*;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialExcelVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 
 /**
  * 类描述：基础资料-物料档案 service类
@@ -167,7 +186,22 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
 	@Override
 	public Boolean delBasicsdatumMaterial(String id) {
-		return this.removeBatchByIds(StringUtils.convertList(id));
+		List<String> list = StringUtils.convertList(id);
+		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
+		qc.select("material_code");
+		qc.eq("company_code", this.getCompanyCode());
+		List<String> list2 = this.list(qc).stream().map(BasicsdatumMaterial::getMaterialCode)
+				.collect(Collectors.toList());
+		// 删除主表
+		this.removeBatchByIds(list);
+		// 删除子表颜色和规格及报价
+		this.materialWidthService.remove(new QueryWrapper<BasicsdatumMaterialWidth>()
+				.eq("company_code", this.getCompanyCode()).in("material_code", list2));
+		this.materialColorService.remove(new QueryWrapper<BasicsdatumMaterialColor>()
+				.eq("company_code", this.getCompanyCode()).in("material_code", list2));
+		this.materialPriceService.remove(new QueryWrapper<BasicsdatumMaterialPrice>()
+				.eq("company_code", this.getCompanyCode()).in("material_code", list2));
+		return true;
 	}
 
 	@Override
