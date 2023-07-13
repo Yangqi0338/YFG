@@ -7,15 +7,16 @@
 package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import cn.hutool.core.util.NumberUtil;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.PackPricingDto;
 import com.base.sbc.module.pack.entity.PackPricing;
 import com.base.sbc.module.pack.mapper.PackPricingMapper;
 import com.base.sbc.module.pack.service.*;
-import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackPricingVo;
 import org.nfunk.jep.JEP;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -49,12 +50,24 @@ public class PackPricingServiceImpl extends PackBaseServiceImpl<PackPricingMappe
 
     @Override
     public PackPricingVo getDetail(PackCommonSearchDto dto) {
-        QueryWrapper<PackPricing> qw = new QueryWrapper<>();
-        PackUtils.commonQw(qw, dto);
-        qw.last("limit 1");
-        PackPricing one = getOne(qw);
+        PackPricing one = get(dto.getForeignId(), dto.getPackType());
         PackPricingVo packPricingVo = BeanUtil.copyProperties(one, PackPricingVo.class);
         return packPricingVo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public PackPricingVo saveByDto(PackPricingDto dto) {
+        PackPricing one = get(dto.getForeignId(), dto.getPackType());
+        if (one == null) {
+            one = new PackPricing();
+            BeanUtil.copyProperties(dto, one);
+            save(one);
+        } else {
+            BeanUtil.copyProperties(dto, one);
+            updateById(one);
+        }
+        return null;
     }
 
     @Override
@@ -79,16 +92,19 @@ public class PackPricingServiceImpl extends PackBaseServiceImpl<PackPricingMappe
     }
 
     @Override
-    public BigDecimal formula(String formula, Map<String, BigDecimal> itemVal) {
+    public BigDecimal formula(String formula, Map<String, Object> itemVal) {
         JEP jep = new JEP();
-        for (Map.Entry<String, BigDecimal> item : itemVal.entrySet()) {
-            jep.addVariable(item.getKey(), item.getValue().doubleValue());
+        for (Map.Entry<String, Object> item : itemVal.entrySet()) {
+            if (NumberUtil.isNumber(String.valueOf(item.getValue()))) {
+                jep.addVariable(item.getKey(), Double.valueOf(item.getValue().toString()));
+            }
         }
         jep.parseExpression(formula);
         double value = jep.getValue();
         BigDecimal b = new BigDecimal(value);
         return b.setScale(2, RoundingMode.HALF_UP);
     }
+
 
     @Override
     String getModeName() {

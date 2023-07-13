@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 类描述：资料包-二次加工费(工艺费用) service类
@@ -94,7 +93,7 @@ public class PackPricingCraftCostsServiceImpl extends PackBaseServiceImpl<PackPr
         }
         //二次加工费=单价*数量
         return list.stream().map(item -> NumberUtil.mul(
-                Optional.ofNullable(item.getNum()).orElse(BigDecimal.ONE),
+                item.getNum(),
                 item.getPrice())
         ).reduce((a, b) -> a.add(b)).orElse(BigDecimal.ZERO);
 

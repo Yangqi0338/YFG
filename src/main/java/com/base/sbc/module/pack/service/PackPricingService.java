@@ -7,6 +7,7 @@
 package com.base.sbc.module.pack.service;
 
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.PackPricingDto;
 import com.base.sbc.module.pack.entity.PackPricing;
 import com.base.sbc.module.pack.vo.PackPricingVo;
 
@@ -31,7 +32,9 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
 
     Map<String, BigDecimal> calculateCosts(PackCommonSearchDto dto);
 
-    BigDecimal formula(String formula, Map<String, BigDecimal> itemVal);
+    BigDecimal formula(String formula, Map<String, Object> itemVal);
+
+    PackPricingVo saveByDto(PackPricingDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 

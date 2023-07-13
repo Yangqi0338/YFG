@@ -212,23 +212,24 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             return result;
         }
         // 查询物料列表
-        List<PackBom> bomList = getListByVersionId(version.getId());
+        List<PackBom> bomList = getListByVersionId(version.getId(), BaseGlobal.NO);
         if (CollUtil.isEmpty(bomList)) {
             return result;
         }
-        //物料费用=物料用量*物料单价*（1+损耗率)
+
+        //物料费用=物料大货用量*物料大货单价*（1+损耗率)
         return bomList.stream().map(packBom -> NumberUtil.mul(
-                packBom.getUnitUse(),
-                packBom.getPrice(),
+                packBom.getBulkUnitUse(),
+                packBom.getBulkPrice(),
                 BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO)))
         ).reduce((a, b) -> a.add(b)).orElse(BigDecimal.ZERO);
     }
 
     @Override
-    public List<PackBom> getListByVersionId(String versionId) {
+    public List<PackBom> getListByVersionId(String versionId, String unusableFlag) {
         QueryWrapper<PackBom> qw = new QueryWrapper<>();
         qw.eq("bom_version_id", versionId);
-        qw.eq("unusable_flag", BaseGlobal.NO);
+        qw.eq(StrUtil.isNotBlank(unusableFlag), "unusable_flag", unusableFlag);
         return list(qw);
     }
 

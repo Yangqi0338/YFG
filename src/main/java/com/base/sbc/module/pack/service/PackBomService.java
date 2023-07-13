@@ -77,7 +77,7 @@ public interface PackBomService extends PackBaseService<PackBom> {
 
     BigDecimal calculateCosts(PackCommonSearchDto dto);
 
-    List<PackBom> getListByVersionId(String versionId);
+    List<PackBom> getListByVersionId(String versionId, String unusableFlag);
 
     PageInfo<PackBomVo> pageInfo(PackCommonPageSearchDto dto);
 

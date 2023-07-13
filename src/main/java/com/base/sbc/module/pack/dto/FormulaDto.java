@@ -7,7 +7,6 @@ import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -30,5 +29,5 @@ public class FormulaDto {
 
     @ApiModelProperty(value = "各项的值")
     @NotEmpty(message = "值不能为空")
-    Map<String, BigDecimal> itemVal;
+    Map<String, Object> itemVal;
 }

@@ -57,6 +57,12 @@ public class PackPricingController {
         return packPricingService.getDetail(dto);
     }
 
+    @ApiOperation(value = "保存")
+    @PostMapping()
+    public PackPricingVo savePackPricing(@Valid @RequestBody PackPricingDto dto) {
+        return packPricingService.saveByDto(dto);
+    }
+
     @ApiOperation(value = "物料费用-分页查询")
     @GetMapping("/materialCosts")
     public PageInfo<PackBomVo> materialCosts(PackCommonPageSearchDto dto) {

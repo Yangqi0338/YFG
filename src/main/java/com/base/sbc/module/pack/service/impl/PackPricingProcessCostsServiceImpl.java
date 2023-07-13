@@ -87,9 +87,9 @@ public class PackPricingProcessCostsServiceImpl extends PackBaseServiceImpl<Pack
         if (CollUtil.isEmpty(list)) {
             return result;
         }
-        //加工费=单价*倍率
+        //加工费=单价*倍数
         return list.stream().map(item -> NumberUtil.mul(
-                Optional.ofNullable(item.getMagnification()).orElse(BigDecimal.ONE),
+                Optional.ofNullable(item.getMultiple()).orElse(BigDecimal.ONE),
                 item.getProcessPrice())
         ).reduce((a, b) -> a.add(b)).orElse(BigDecimal.ZERO);
     }
