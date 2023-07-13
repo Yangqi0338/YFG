@@ -81,7 +81,7 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
         /*分页*/
         PageHelper.startPage(queryRevampBasicsdatumSupplierDto);
         QueryWrapper<BasicsdatumSupplier> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("company_code", baseController.getUserCompany());
+        //queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.like(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getSupplier()), "supplier", queryRevampBasicsdatumSupplierDto.getSupplier());
         queryWrapper.like(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getSupplierCode()), "supplier_code", queryRevampBasicsdatumSupplierDto.getSupplierCode());
         queryWrapper.like(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getCreditCode()), "credit_code", queryRevampBasicsdatumSupplierDto.getCreditCode());
