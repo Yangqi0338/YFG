@@ -31,6 +31,7 @@
 			bc.production_date,
 			bc.warehous_date,
 			bc.urgency,
+			bc.urgency_name,
 			bc.magnification,
 			bc.production_total_num,
 			bc.size_nums,
