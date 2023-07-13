@@ -64,37 +64,44 @@
 		  and t.material_code = #{materialCode}
 	</select>
 	<select id="getBomSelMaterialList" resultType="com.base.sbc.module.pack.vo.BomSelMaterialVo">
-		SELECT
-		bm.id AS material_id,
-		bm.material_name,
-		bm.material_code,
-		bm.material_code_name,
-		bm.image_url,
-		bm.category_name,
-		bm.material_code_name,
-		bm.factory_composition,
-		bm.ingredient,
-		bmc.color_code,
-		bm.translate widthUniversal,
-		bm.loss_rate,
-		bmp.quotation_price supplierPrice,
-		bmp.supplier_id,
-		bmp.supplier_name,
-		gc.colour_name color,
-		gc.color_rgb color_hex
-		FROM
-		t_basicsdatum_material bm,
-		t_basicsdatum_material_color bmc,
-		t_basicsdatum_material_price bmp,
-		t_basicsdatum_colour_library gc
-		WHERE
-		bm.material_code = bmc.material_code
-		AND bm.material_code = bmp.material_code
-		AND gc.colour_code = bmc.color_code
-		AND bm.del_flag = '0'
-		<if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
-			${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
-		</if>
+		SELECT t.*,
+			   w.width_code,
+			   w.width_name
+		FROM (
+				 SELECT bm.company_code,
+						bm.id AS            material_id,
+						bm.material_name,
+						bm.material_code,
+						bm.material_code_name,
+						bm.image_url,
+						bm.category_name,
+						bm.factory_composition,
+						bm.ingredient,
+						bm.translate,
+						bm.loss_rate,
+						bmp.quotation_price supplierPrice,
+						bmp.supplier_id,
+						bmp.supplier_name,
+						bmc.color_code,
+						gc.colour_name      color,
+						gc.color_rgb        color_hex
+				 FROM t_basicsdatum_material bm,
+					  t_basicsdatum_material_color bmc,
+					  t_basicsdatum_material_price bmp,
+					  t_basicsdatum_colour_library gc
+				 WHERE bm.material_code = bmc.material_code
+				   AND bm.material_code = bmp.material_code
+				   AND gc.colour_code = bmc.color_code
+				   AND bm.del_flag = '0'
+				   AND bm.del_flag = '0'
+				   AND bm.del_flag = '0'
+			 ) t
+				 LEFT JOIN (select material_code,
+								   group_CONCAT(NAME)       AS width_name,
+								   group_CONCAT(width_code) AS width_code
+							FROM t_basicsdatum_material_width
+							GROUP BY material_code) w ON (t.material_code = w.material_code)
+			${ew.customSqlSegment}
 	</select>
 
 	<!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

@@ -21,7 +21,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
  * @email your email
- * @date 创建时间：2023-7-12 11:50:35
+ * @date 创建时间：2023-7-13 20:21:31
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -92,10 +92,10 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "部位")
     private String part;
     /**
-     * 门幅/规格（通用）
+     * 厂家有效门幅/规格
      */
-    @ApiModelProperty(value = "门幅/规格（通用）")
-    private String widthUniversal;
+    @ApiModelProperty(value = "厂家有效门幅/规格")
+    private String translate;
     /**
      * 颜色名称
      */

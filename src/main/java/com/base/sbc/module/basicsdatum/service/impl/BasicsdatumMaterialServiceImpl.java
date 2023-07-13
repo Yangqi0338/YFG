@@ -6,38 +6,17 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-
-import com.base.sbc.module.smp.SmpService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
@@ -47,24 +26,25 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialExcelVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo;
+import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.IdUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：基础资料-物料档案 service类
@@ -237,14 +217,14 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	@Override
 	public PageInfo<BomSelMaterialVo> getBomSelMaterialList(BasicsdatumMaterialQueryDto dto) {
 		BaseQueryWrapper<BasicsdatumMaterial> qw = new BaseQueryWrapper<>();
-		qw.andLike(dto.getSearch(), "bm.material_code", "bm.material_name");
-		qw.eq("bm.company_code", this.getCompanyCode());
-		qw.notEmptyEq("bm.status", dto.getStatus());
-		qw.notEmptyLike("bm.material_code_name", dto.getMaterialCodeName());
-		qw.notEmptyLike("bm.supplier_name", dto.getSupplierName());
-		qw.notEmptyLike("bm.material_code", dto.getMaterialCode());
-		qw.notEmptyLike("bm.material_name", dto.getMaterialName());
-		qw.andLike(dto.getCategoryId(), "bm.category_id", "bm.category_ids");
+		qw.andLike(dto.getSearch(), "t.material_code", "bm.material_name");
+		qw.eq("t.company_code", this.getCompanyCode());
+		qw.notEmptyEq("t.status", dto.getStatus());
+		qw.notEmptyLike("t.material_code_name", dto.getMaterialCodeName());
+		qw.notEmptyLike("t.supplier_name", dto.getSupplierName());
+		qw.notEmptyLike("t.material_code", dto.getMaterialCode());
+		qw.notEmptyLike("t.material_name", dto.getMaterialName());
+		qw.andLike(dto.getCategoryId(), "t.category_id", "bm.category_ids");
 		Page<BomSelMaterialVo> page = PageHelper.startPage(dto);
 		List<BomSelMaterialVo> list = getBaseMapper().getBomSelMaterialList(qw);
 		if (CollUtil.isNotEmpty(list)) {

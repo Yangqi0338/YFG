@@ -1,5 +1,6 @@
 package com.base.sbc.module.pack.vo;
 
+import cn.hutool.core.util.NumberUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -67,7 +68,7 @@ public class BomSelMaterialVo {
      * 门幅/规格（通用）
      */
     @ApiModelProperty(value = "门幅/规格（通用）")
-    private String widthUniversal;
+    private String translate;
     /**
      * 颜色名称
      */
@@ -173,4 +174,16 @@ public class BomSelMaterialVo {
      */
     @ApiModelProperty(value = "供应商名称")
     private String supplierName;
+    @ApiModelProperty(value = "规格编码")
+    private String widthCode;
+
+    @ApiModelProperty(value = "规格名称")
+    private String widthName;
+
+    public String getTranslate() {
+        if (NumberUtil.isNumber(translate)) {
+            return NumberUtil.toStr(new BigDecimal(translate));
+        }
+        return translate;
+    }
 }

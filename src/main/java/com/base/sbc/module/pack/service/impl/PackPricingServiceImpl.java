@@ -63,11 +63,12 @@ public class PackPricingServiceImpl extends PackBaseServiceImpl<PackPricingMappe
             one = new PackPricing();
             BeanUtil.copyProperties(dto, one);
             save(one);
+
         } else {
-            BeanUtil.copyProperties(dto, one);
+            BeanUtil.copyProperties(dto, one, "id");
             updateById(one);
         }
-        return null;
+        return BeanUtil.copyProperties(one, PackPricingVo.class);
     }
 
     @Override
