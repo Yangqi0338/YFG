@@ -174,9 +174,14 @@ public class SmpService {
                 smpQuot.setSupplierName(basicsdatumMaterialPricePageVo.getSupplierName());
                 smpQuot.setComment(null);
                 smpQuot.setTradeTermKey(null);
-                smpQuot.setDefaultQuote(null);
+                if(basicsdatumMaterialPricePageVo.getSupplierId().equals(basicsdatumMaterial.getSupplierId())){
+                    smpQuot.setDefaultQuote(true);
+                }else {
+                    smpQuot.setDefaultQuote(false);
+                }
+
                 smpQuot.setTradeTermName(null);
-                smpQuot.setMaterialUom(basicsdatumMaterialPricePageVo.getWidthName());
+                smpQuot.setMaterialUom(basicsdatumMaterialPricePageVo.getWidth());
                 quotList.add(smpQuot);
             }
             if (quotList.size() == 0) {
