@@ -8,8 +8,10 @@ import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.restTemplate.RestTemplateService;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
@@ -70,8 +72,10 @@ public class SmpService {
 
     private final CcmService ccmService;
 
+    private final UserUtils userUtils;
 
-    private  static final String URL ="http://10.98.250.31:7006/pdm";
+
+    private static final String URL = "http://10.98.250.31:7006/pdm";
     //private static final String URL = "http://smp-i.eifini.com/service-manager/pdm";
 
     /**
@@ -104,9 +108,9 @@ public class SmpService {
         try {
             SmpMaterialDto smpMaterialDto = basicsdatumMaterial.toSmpMaterialDto();
             ApiResult apiResult = ccmService.listByIds(basicsdatumMaterial.getCategoryId());
-            List<HashMap<String,String>> hashMapList = (List<HashMap<String, String>>) apiResult.getData();
-            for (HashMap<String,String> hashMap: hashMapList) {
-                if (basicsdatumMaterial.getCategoryId().equals(hashMap.get("id"))){
+            List<HashMap<String, String>> hashMapList = (List<HashMap<String, String>>) apiResult.getData();
+            for (HashMap<String, String> hashMap : hashMapList) {
+                if (basicsdatumMaterial.getCategoryId().equals(hashMap.get("id"))) {
                     smpMaterialDto.setThirdLevelCategory(hashMap.get("value"));
                 }
             }
@@ -123,28 +127,30 @@ public class SmpService {
                 smpColor.setSupplierMatColor(basicsdatumMaterialColorPageVo.getSupplierColorCode());
                 colorList.add(smpColor);
             }
+            if (colorList.size() == 0) {
+                throw new OtherException("颜色不能为空");
+            }
             smpMaterialDto.setColorList(colorList);
 
             //获取材料尺码集合
             QueryWrapper<BasicsdatumMaterialWidth> queryWrapper1 = new QueryWrapper<>();
             queryWrapper1.eq("material_code", basicsdatumMaterial.getMaterialCode());
-            List<String> widthIds = new ArrayList<>();
-            for (BasicsdatumMaterialWidth basicsdatumMaterialWidth : basicsdatumMaterialWidthService.list(queryWrapper1)) {
-                widthIds.add(basicsdatumMaterialWidth.getWidthCode());
-            }
-            List<Specification> specifications = specificationService.list(new QueryWrapper<Specification>().in("code", widthIds));
-
+            queryWrapper1.eq("company_code", userUtils.getCompanyCode());
             List<SmpModuleSize> moduleSizeList = new ArrayList<>();
-            for (Specification specification : specifications) {
+            for (BasicsdatumMaterialWidth basicsdatumMaterialWidth : basicsdatumMaterialWidthService.list(queryWrapper1)) {
                 SmpModuleSize smpModuleSize = new SmpModuleSize();
-                smpModuleSize.setActive("1".equals(specification.getStatus()));
-                smpModuleSize.setSizeCode(specification.getCode());
+                smpModuleSize.setActive("0".equals(basicsdatumMaterialWidth.getStatus()));
+                smpModuleSize.setSizeCode(basicsdatumMaterialWidth.getWidthCode());
                 smpModuleSize.setSizeUrl(null);
-                smpModuleSize.setSizeName(specification.getType());
-                smpModuleSize.setCode(specification.getSort());
+                smpModuleSize.setSizeName(basicsdatumMaterialWidth.getName());
+                smpModuleSize.setCode(null);
                 moduleSizeList.add(smpModuleSize);
             }
 
+
+            if (moduleSizeList.size() == 0) {
+                throw new OtherException("规格不能为空");
+            }
             smpMaterialDto.setModuleSizeList(moduleSizeList);
 
             //获取报价集合
@@ -173,7 +179,9 @@ public class SmpService {
                 smpQuot.setMaterialUom(basicsdatumMaterialPricePageVo.getWidthName());
                 quotList.add(smpQuot);
             }
-
+            if (quotList.size() == 0) {
+                throw new OtherException("报价不能为空");
+            }
             smpMaterialDto.setQuotList(quotList);
 
 
@@ -190,13 +198,18 @@ public class SmpService {
 
             //提交事务
             dataSourceTransactionManager.commit(transactionStatus);
+        } catch (OtherException otherException) {
+            if (transactionStatus != null) {
+                //回滚事务
+                dataSourceTransactionManager.rollback(transactionStatus);
+            }
+            throw new OtherException(otherException.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
             if (transactionStatus != null) {
                 //回滚事务
                 dataSourceTransactionManager.rollback(transactionStatus);
             }
-
             return false;
         }
 
