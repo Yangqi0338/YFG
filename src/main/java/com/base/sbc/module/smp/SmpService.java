@@ -3,6 +3,9 @@ package com.base.sbc.module.smp;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.ccm.entity.BasicStructureTree;
+import com.base.sbc.client.ccm.service.CcmService;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.restTemplate.RestTemplateService;
@@ -65,6 +68,8 @@ public class SmpService {
 
     private final SpecificationService specificationService;
 
+    private final CcmService ccmService;
+
 
     private  static final String URL ="http://10.98.250.31:7006/pdm";
     //private static final String URL = "http://smp-i.eifini.com/service-manager/pdm";
@@ -98,7 +103,13 @@ public class SmpService {
         TransactionStatus transactionStatus = null;
         try {
             SmpMaterialDto smpMaterialDto = basicsdatumMaterial.toSmpMaterialDto();
-
+            ApiResult apiResult = ccmService.listByIds(basicsdatumMaterial.getCategoryIds());
+            List<BasicStructureTree> basicStructureTreeList = (List<BasicStructureTree>) apiResult.getData();
+            smpMaterialDto.setThirdLevelCategory(basicStructureTreeList.get(2).getValue());
+            smpMaterialDto.setSecondLevelCategory(basicStructureTreeList.get(0).getValue());
+            if (true){
+                return null;
+            }
             //获取颜色集合
             BasicsdatumMaterialColorQueryDto basicsdatumMaterialColorQueryDto = new BasicsdatumMaterialColorQueryDto();
             basicsdatumMaterialColorQueryDto.setMaterialCode(basicsdatumMaterial.getMaterialCode());

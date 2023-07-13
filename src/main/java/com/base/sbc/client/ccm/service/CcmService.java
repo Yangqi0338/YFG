@@ -1,16 +1,19 @@
 package com.base.sbc.client.ccm.service;
 
+import com.base.sbc.client.ccm.entity.BasicStructureTree;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author Youkehai
  * @data 创建时间:2021/1/4
  */
-@FeignClient(name = "ccm", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
-//@FeignClient(name = "ccm", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
+//@FeignClient(name = "ccm", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
+@FeignClient(name = "ccm", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
 public interface CcmService {
     /**
      * 获取最后一级的品类信息
@@ -131,5 +134,12 @@ public interface CcmService {
      */
     @GetMapping(value = "/ccm/api/saas/basicStructure/getIdsByNameAndLevel")
     public String getIdsByNameAndLevel( @RequestParam("structureName") String structureName,@RequestParam("names") String names,@RequestParam("level") String level);
+
+
+    /**
+     * 通过类名id集合获取类目列表
+     */
+    @GetMapping(value = "/ccm/api/saas/basicStructure/listByIds")
+    public ApiResult listByIds(@RequestParam("ids") String ids);
 
 }
