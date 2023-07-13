@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfo
  * @email your email
- * @date 创建时间：2023-7-13 10:45:32
+ * @date 创建时间：2023-7-13 19:53:34
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -99,6 +99,11 @@ public class PackInfo extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "款式配色id")
     private String sampleStyleColorId;
+    /**
+     * 颜色编码
+     */
+    @ApiModelProperty(value = "颜色编码")
+    private String colorCode;
     /**
      * 颜色
      */
