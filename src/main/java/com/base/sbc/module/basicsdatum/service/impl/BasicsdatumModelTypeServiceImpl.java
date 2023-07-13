@@ -95,6 +95,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         queryWrapper.notEmptyLike("mt.dimension_type", queryDto.getDimensionType());
         queryWrapper.notEmptyLike("mt.status", queryDto.getStatus());
         queryWrapper.between("mt.create_date",queryDto.getCreateDate());
+        queryWrapper.eq("mt.del_flag", "0");
         /*查询基础资料-号型类型数据*/
         List<BasicsdatumModelTypeVo> basicsdatumModelTypeList = baseMapper.getBasicsdatumModelTypeList(queryWrapper,StringUtils.convertList(queryDto.getCategoryId()));
         PageInfo<BasicsdatumModelTypeVo> pageInfo = new PageInfo<>(basicsdatumModelTypeList);

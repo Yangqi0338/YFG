@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
@@ -55,7 +56,7 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @param foreignIds
      * @return
      */
-    Map<String, List<PackInfoListVo>> queryListToMapGroupByForeignId(List<String> foreignIds);
+    Map<String, List<PackInfoListVo>> queryListToMapGroupByForeignId(List<String> foreignIds, String packType);
 
     /**
      * 修改日志
@@ -98,6 +99,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @return
      */
     boolean reverseApproval(AnswerDto dto);
+
+    List<PackInfoListVo> queryByQw(QueryWrapper queryWrapper);
 
     PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(PackInfoSearchPageDto pageDto);
 

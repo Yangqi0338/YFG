@@ -102,6 +102,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         queryWrapper.notEmptyLike("rd.code", queryDto.getCode());
         queryWrapper.notEmptyLike("rd.range_difference", queryDto.getRangeDifference());
         queryWrapper.notEmptyEq("rd.status", queryDto.getStatus());
+        queryWrapper.eq("rd.del_flag", "0");
         queryWrapper.between("rd.create_date", queryDto.getCreateDate());
         queryWrapper.orderByDesc("rd.create_date");
         /*查询基础资料-档差数据*/
