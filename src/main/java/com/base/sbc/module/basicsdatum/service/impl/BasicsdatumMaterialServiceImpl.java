@@ -13,8 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
+import com.base.sbc.module.smp.SmpService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -64,7 +68,7 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * 类描述：基础资料-物料档案 service类
- * 
+ *
  * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService
  * @author shenzhixiong
  * @email 731139982@qq.com
@@ -79,6 +83,14 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	private final BasicsdatumMaterialColorService materialColorService;
 	private final BasicsdatumMaterialWidthService materialWidthService;
 	private final BasicsdatumMaterialPriceService materialPriceService;
+
+
+	/**
+	 * 解决循环依赖报错的问题
+	 */
+	@Lazy
+	@Resource
+	private SmpService smpService;
 
 	@Override
 	public PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialList(BasicsdatumMaterialQueryDto dto) {
@@ -113,17 +125,18 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		entity.setMaterialCodeName(entity.getMaterialCode() + entity.getMaterialName());
 
 		// 特殊逻辑： 如果是面料的时候，需要增加门幅幅宽的数据 给到物料规格
-		if ("fabric".equals(entity.getMaterialType())) {
-			this.saveFabricWidth(entity.getMaterialCode(), BigDecimalUtil.convertString(entity.getTranslate()));
-		}
+		//if ("fabric".equals(entity.getMaterialType())) {
+			//this.saveFabricWidth(entity.getMaterialCode(), BigDecimalUtil.convertString(entity.getTranslate()));
+		//}
 
 		this.saveOrUpdate(entity);
+		smpService.materials(entity.getId().split(","));
 		return CopyUtil.copy(entity, BasicsdatumMaterialVo.class);
 	}
 
 	/**
 	 * 如果是面料的时候，需要增加门幅幅宽的数据 给到物料规格并保持一个规格
-	 * 
+	 *
 	 * @param materialCode
 	 * @param widthCode
 	 */

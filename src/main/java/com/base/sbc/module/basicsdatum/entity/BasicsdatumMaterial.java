@@ -46,8 +46,8 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		SmpMaterialDto smpMaterialDto = new SmpMaterialDto();
 		smpMaterialDto.setMaterialCode(materialCode);
 		smpMaterialDto.setMaterialName(materialName);
-		smpMaterialDto.setMaterialUnit(stockUnitName);
-		smpMaterialDto.setStockUnit(stockUnitName);
+		smpMaterialDto.setMaterialUnit(purchaseUnitCode);
+		smpMaterialDto.setStockUnit(stockUnitCode);
 		smpMaterialDto.setMaterialSource(materialSourceName);
 		smpMaterialDto.setSeasonYear(year);
 		smpMaterialDto.setSeasonQuarter(seasonName);
