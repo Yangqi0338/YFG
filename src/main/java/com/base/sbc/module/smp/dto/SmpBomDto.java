@@ -1,6 +1,7 @@
 package com.base.sbc.module.smp.dto;
 
 import com.base.sbc.module.smp.base.SmpBaseDto;
+import com.base.sbc.module.smp.entity.BomMaterialList;
 import com.base.sbc.module.smp.entity.SmpSizeQty;
 import lombok.Data;
 
@@ -50,4 +51,6 @@ public class SmpBomDto extends SmpBaseDto {
     private Boolean mainMaterial;
     /**单件用量*/
     private List<SmpSizeQty> sizeQtyList;
+    /**bom材料清单*/
+    private List<BomMaterialList> bomMaterialLists;
 }
