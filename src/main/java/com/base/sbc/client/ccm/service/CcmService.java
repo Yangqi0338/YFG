@@ -135,11 +135,19 @@ public interface CcmService {
     @GetMapping(value = "/ccm/api/saas/basicStructure/getIdsByNameAndLevel")
     public String getIdsByNameAndLevel( @RequestParam("structureName") String structureName,@RequestParam("names") String names,@RequestParam("level") String level);
 
-
     /**
      * 通过类名id集合获取类目列表
      */
     @GetMapping(value = "/ccm/api/saas/basicStructure/listByIds")
     public ApiResult listByIds(@RequestParam("ids") String ids);
 
+    /**
+     * 通过名称,级别获取品类
+     * @param structureName
+     * @param names
+     *  @param level
+     * @return
+     */
+    @GetMapping(value = "/ccm/api/saas/basicStructure/getCategorySByNameAndLevel")
+    public String getCategorySByNameAndLevel( @RequestParam("structureName") String structureName,@RequestParam("names") String names,@RequestParam("level") String level);
 }
