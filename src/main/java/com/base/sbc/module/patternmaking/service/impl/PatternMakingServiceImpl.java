@@ -37,7 +37,6 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
@@ -60,10 +59,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -123,6 +119,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         patternMaking.setSuspend(BaseGlobal.NO);
         patternMaking.setReceiveSample(BaseGlobal.NO);
         patternMaking.setExtAuxiliary(BaseGlobal.NO);
+        patternMaking.setPatDiff(Opt.ofBlankAble(patternMaking.getPatDiff()).orElse(sampleDesign.getPatDiff()));
         save(patternMaking);
         return patternMaking;
     }

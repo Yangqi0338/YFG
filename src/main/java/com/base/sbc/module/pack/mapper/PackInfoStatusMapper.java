@@ -6,30 +6,24 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.vo.PackInfoListVo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
 
 /**
- * 类描述：资料包 dao类
+ * 类描述：资料包-状态 dao类
  *
  * @author your name
  * @version 1.0
- * @address com.base.sbc.module.pack.dao.PackInfoDao
+ * @address com.base.sbc.module.pack.dao.PackInfoStatusDao
  * @email your email
- * @date 创建时间：2023-7-6 17:13:01
+ * @date 创建时间：2023-7-13 9:17:47
  */
 @Mapper
-public interface PackInfoMapper extends BaseMapper<PackInfo> {
+public interface PackInfoStatusMapper extends BaseMapper<PackInfoStatus> {
 // 自定义方法区 不替换的区域【other_start】
 
-    List<PackInfoListVo> queryByQw(@Param(Constants.WRAPPER) QueryWrapper<PackInfo> qw);
 
 // 自定义方法区 不替换的区域【other_end】
 }
+

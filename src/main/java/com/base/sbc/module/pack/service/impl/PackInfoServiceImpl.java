@@ -33,6 +33,7 @@ import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -100,6 +101,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private PackSampleReviewService packSampleReviewService;
     @Resource
     private PackBusinessOpinionService packBusinessOpinionService;
+
+    @Resource
+    private PackInfoStatusService packInfoStatusService;
     @Resource
     private FlowableService flowableService;
 
@@ -125,7 +129,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             //图片
             attachmentService.setListStylePic(sdpList, "stylePic");
             List<String> sdIds = sdpList.stream().map(SampleDesignPackInfoListVo::getId).collect(Collectors.toList());
-            Map<String, List<PackInfoListVo>> piMaps = queryListToMapGroupByForeignId(sdIds);
+            Map<String, List<PackInfoListVo>> piMaps = queryListToMapGroupByForeignId(sdIds, PackUtils.PACK_TYPE_DESIGN);
             for (SampleDesignPackInfoListVo sd : sdpList) {
                 List<PackInfoListVo> packInfoListVos = piMaps.get(sd.getId());
                 sd.setPackInfoList(packInfoListVos);
@@ -150,7 +154,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         String newId = IdUtil.getSnowflake().nextIdStr();
         packInfo.setId(newId);
         packInfo.setForeignId(id);
-        packInfo.setBomStatus(BasicNumber.ZERO.getNumber());
+
         //设置编码
         QueryWrapper codeQw = new QueryWrapper();
         codeQw.eq("foreign_id", id);
@@ -161,16 +165,19 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         PackBomVersionDto versionDto = BeanUtil.copyProperties(packInfo, PackBomVersionDto.class, "id");
         versionDto.setPackType(PackUtils.PACK_TYPE_DESIGN);
         versionDto.setForeignId(newId);
+        // 新建资料包状态表
+        packInfoStatusService.newStatus(newId, PackUtils.PACK_TYPE_DESIGN);
         PackBomVersionVo packBomVersionVo = packBomVersionService.saveVersion(versionDto);
         packBomVersionService.enable(BeanUtil.copyProperties(packBomVersionVo, PackBomVersion.class));
         return BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
     }
 
     @Override
-    public Map<String, List<PackInfoListVo>> queryListToMapGroupByForeignId(List<String> foreignIds) {
+    public Map<String, List<PackInfoListVo>> queryListToMapGroupByForeignId(List<String> foreignIds, String packType) {
         QueryWrapper<PackInfo> qw = new QueryWrapper<>();
         qw.in("foreign_id", foreignIds);
-        List<PackInfoListVo> list = BeanUtil.copyToList(list(qw), PackInfoListVo.class);
+        qw.eq("pack_type", packType);
+        List<PackInfoListVo> list = getBaseMapper().queryByQw(qw);
         return Opt.ofNullable(list).map(l -> l.stream().collect(Collectors.groupingBy(PackInfoListVo::getForeignId))).orElse(MapUtil.empty());
     }
 
@@ -206,9 +213,11 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException("没有配色信息");
         }
         copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
         //设置为已转大货
-        packInfo.setBomStatus(BasicNumber.ONE.getNumber());
-        updateById(packInfo);
+        packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
+        packInfoStatusService.updateById(packInfoStatus);
+        //updateById(packInfo);
         return true;
     }
 
@@ -216,6 +225,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Transactional(rollbackFor = {Exception.class})
     public boolean copyPack(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
         //图样附件、物料清单、尺寸表、工序工价、核价信息、工艺说明、样衣评审、业务意见、吊牌洗唛
+
         //图样附件
         attachmentService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
         //物料清单
@@ -244,6 +254,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public boolean startReverseApproval(String id) {
         PackInfo pack = getById(id);
         if (pack == null) {
@@ -252,35 +263,45 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         Map<String, Object> variables = BeanUtil.beanToMap(pack);
         boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]", FlowableService.big_goods_reverse, id, "/pdm/api/saas/packInfo/approval", "/pdm/api/saas/packInfo/approval", "/sampleClothesDesign/sampleDesign/" + id, variables);
         if (flg) {
-            pack.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
-            updateById(pack);
+            PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
+            packInfoStatus.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+            packInfoStatusService.updateById(packInfoStatus);
         }
         return true;
     }
 
     @Override
+
+    @Transactional(rollbackFor = {Exception.class})
     public boolean reverseApproval(AnswerDto dto) {
         PackInfo packInfo = getById(dto.getBusinessKey());
         if (packInfo != null) {
+            PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS);
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
                 copy(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS, dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN);
-                packInfo.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
-                packInfo.setScmSendFlag(BaseGlobal.NO);
+                packInfoStatus.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+                packInfoStatus.setScmSendFlag(BaseGlobal.NO);
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
-                packInfo.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
+                packInfoStatus.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
             }
-            updateById(packInfo);
+            packInfoStatusService.updateById(packInfoStatus);
         }
         return true;
+    }
+
+    @Override
+    public List<PackInfoListVo> queryByQw(QueryWrapper queryWrapper) {
+        return getBaseMapper().queryByQw(queryWrapper);
     }
 
     @Override
     public PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(PackInfoSearchPageDto pageDto) {
         BaseQueryWrapper<PackInfo> sdQw = new BaseQueryWrapper<>();
         sdQw.eq("bom_status", BasicNumber.ONE.getNumber());
+        sdQw.eq("pack_type", PackUtils.PACK_TYPE_BIG_GOODS);
         sdQw.notEmptyEq("prod_category1st", pageDto.getProdCategory1st());
         sdQw.notEmptyEq("prod_category", pageDto.getProdCategory());
         sdQw.notEmptyEq("prod_category2nd", pageDto.getProdCategory2nd());
@@ -288,8 +309,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
         sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
         sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
-        Page<PackInfo> page = PageHelper.startPage(pageDto);
-        list(sdQw);
+        Page<PackInfoListVo> page = PageHelper.startPage(pageDto);
+//        list(sdQw);
+        queryByQw(sdQw);
         PageInfo<BigGoodsPackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), BigGoodsPackInfoListVo.class);
         return pageInfo;
     }
