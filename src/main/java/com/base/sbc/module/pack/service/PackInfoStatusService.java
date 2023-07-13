@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 
 /**
@@ -30,7 +31,41 @@ public interface PackInfoStatusService extends PackBaseService<PackInfoStatus> {
      */
     PackInfoStatus newStatus(String foreignId, String packType);
 
-    PackInfoStatus get(String foreignId, String packType);
+    /**
+     * 锁定工艺信息
+     *
+     * @param foreignId
+     * @param packType
+     * @return
+     */
+    boolean lockTechSpec(String foreignId, String packType);
+
+    /**
+     * 解锁
+     *
+     * @param foreignId
+     * @param packType
+     * @return
+     */
+    boolean unlockTechSpec(String foreignId, String packType);
+
+    /**
+     * 工艺说明开始审批
+     *
+     * @param foreignId
+     * @param packType
+     * @return
+     */
+    boolean startApprovalForTechSpec(String foreignId, String packType);
+
+    /**
+     * 工艺说明 处理审批
+     *
+     * @param dto
+     * @return
+     */
+    boolean approvalForTechSpec(AnswerDto dto);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

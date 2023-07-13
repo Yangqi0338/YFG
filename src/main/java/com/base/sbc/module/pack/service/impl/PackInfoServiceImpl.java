@@ -261,7 +261,12 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException("资料包数据不存在,请先保存");
         }
         Map<String, Object> variables = BeanUtil.beanToMap(pack);
-        boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]", FlowableService.big_goods_reverse, id, "/pdm/api/saas/packInfo/approval", "/pdm/api/saas/packInfo/approval", "/sampleClothesDesign/sampleDesign/" + id, variables);
+        boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]",
+                FlowableService.big_goods_reverse, id,
+                "/pdm/api/saas/packInfo/approval",
+                "/pdm/api/saas/packInfo/approval",
+                StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
+                variables);
         if (flg) {
             PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
             packInfoStatus.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
