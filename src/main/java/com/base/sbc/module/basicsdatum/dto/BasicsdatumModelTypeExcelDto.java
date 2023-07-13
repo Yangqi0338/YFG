@@ -7,9 +7,12 @@
 package com.base.sbc.module.basicsdatum.dto;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * 类描述：导入导出基础资料-号型类型 dto类
@@ -57,7 +60,7 @@ public class BasicsdatumModelTypeExcelDto  {
     private String materialsConfirmation;
     /** 尺寸确认(0确定，1未确认) */
     @ApiModelProperty(value = "尺寸确认(1确定，0未确认)"  )
-    @Excel(name = "尺寸确认", replace = {"false_0", "true_1"} )
+    @Excel(name = "尺寸表确认", replace = {"false_0", "true_1"} )
     private String sizeConfirmation;
     /** 发送状态(0发送，1未发送) */
     @ApiModelProperty(value = "发送状态(1发送，0未发送)"  )
@@ -76,4 +79,7 @@ public class BasicsdatumModelTypeExcelDto  {
     @Excel(name = "状态(0正常,1停用)")
     private String status;
     private String sizeIds;
+
+
+    private List<BasicsdatumCompanyRelation> basicsdatumCompanyRelation;
 }

@@ -12,6 +12,7 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -19,14 +20,10 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumRangeDifferenceDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumRangeDifferenceExcelDto;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMeasurementMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumRangeDifferenceMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumCompanyRelationService;
@@ -50,6 +47,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,6 +78,8 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
 
     private final BasicsdatumCompanyRelationService basicsdatumCompanyRelationService;
 
+    private final CcmFeignService ccmFeignService;
+
 /** 自定义方法区 不替换的区域【other_start】 **/
 
     /**
@@ -105,7 +105,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         queryWrapper.between("rd.create_date", queryDto.getCreateDate());
         queryWrapper.orderByDesc("rd.create_date");
         /*查询基础资料-档差数据*/
-        List<BasicsdatumRangeDifferenceVo> basicsdatumRangeDifferenceList = baseMapper.selectRangeDifferenceList(queryWrapper,queryDto.getCategoryId());
+        List<BasicsdatumRangeDifferenceVo> basicsdatumRangeDifferenceList = baseMapper.selectRangeDifferenceList(queryWrapper);
         PageInfo<BasicsdatumRangeDifferenceVo> pageInfo = new PageInfo<>(basicsdatumRangeDifferenceList);
 /*        *//*转换vo*//*
         List<BasicsdatumRangeDifferenceVo> list = BeanUtil.copyToList(basicsdatumRangeDifferenceList, BasicsdatumRangeDifferenceVo.class);
@@ -123,6 +123,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
      * @return
      */
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public Boolean importExcel(MultipartFile file) throws Exception {
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
@@ -134,6 +135,20 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
                 /*上传图*/
                 AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
                 basicsdatumRangeDifferenceExcelDto.setPicture(attachmentVo.getUrl());
+            }
+            if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getCategoryName())){
+                basicsdatumRangeDifferenceExcelDto.setCategoryName(basicsdatumRangeDifferenceExcelDto.getCategoryName().replaceAll(" ",""));
+                List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getCategorySByNameAndLevel("品类", basicsdatumRangeDifferenceExcelDto.getCategoryName(), "1");
+                List<BasicsdatumCompanyRelation> basicsdatumCompanyRelationList = new ArrayList<>();
+                basicCategoryDotList.forEach(b ->{
+                    BasicsdatumCompanyRelation basicsdatumCompanyRelation =new BasicsdatumCompanyRelation();
+                    basicsdatumCompanyRelation.setCategoryId(b.getId());
+                    basicsdatumCompanyRelation.setCategoryName(b.getName());
+                    basicsdatumCompanyRelation.setCompanyCode(baseController.getUserCompany());
+                    basicsdatumCompanyRelation.setType("difference");
+                    basicsdatumCompanyRelationList.add(basicsdatumCompanyRelation);
+                });
+                basicsdatumRangeDifferenceExcelDto.setBasicsdatumCompanyRelation(basicsdatumCompanyRelationList);
             }
             /*去掉空格*/
             if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getSize())){
@@ -157,6 +172,10 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
             QueryWrapper<BasicsdatumRangeDifference> queryWrapper = new BaseQueryWrapper<>();
             queryWrapper.eq("code", basicsdatumRangeDifference.getCode());
             this.saveOrUpdate(basicsdatumRangeDifference, queryWrapper);
+            BasicsdatumRangeDifference rangeDifference =   baseMapper.selectOne(queryWrapper) ;
+            if(!ObjectUtils.isEmpty(rangeDifference)){
+                basicsdatumCompanyRelationService.deleteBatchAddition(assignmentCompany(basicsdatumRangeDifference.getBasicsdatumCompanyRelation(), rangeDifference.getId()));
+            }
         }
         return true;
     }
@@ -198,7 +217,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
             basicsdatumRangeDifference.setCompanyCode(baseController.getUserCompany());
             basicsdatumRangeDifference.insertInit();
             baseMapper.insert(basicsdatumRangeDifference);
-            /*新增*/
+            /*新增品类*/
             if (!CollectionUtils.isEmpty(addRevampBasicsdatumRangeDifferenceDto.getList())) {
                 basicsdatumCompanyRelationService.batchAddition(assignmentCompany(addRevampBasicsdatumRangeDifferenceDto.getList(), basicsdatumRangeDifference.getId()));
             }
@@ -215,7 +234,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
             BeanUtils.copyProperties(addRevampBasicsdatumRangeDifferenceDto, basicsdatumRangeDifference);
             basicsdatumRangeDifference.updateInit();
             baseMapper.updateById(basicsdatumRangeDifference);
-            /*新增*/
+            /*新增品类*/
             if (!CollectionUtils.isEmpty(addRevampBasicsdatumRangeDifferenceDto.getList())) {
                 basicsdatumCompanyRelationService.deleteBatchAddition(assignmentCompany(addRevampBasicsdatumRangeDifferenceDto.getList(), basicsdatumRangeDifference.getId()));
             }
@@ -231,12 +250,15 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
 
     /*赋值*/
     public List<BasicsdatumCompanyRelation> assignmentCompany( List<BasicsdatumCompanyRelation> list,String id) {
-        for (BasicsdatumCompanyRelation b : list) {
-            b.setCompanyCode(baseController.getUserCompany());
-            b.setDataId(id);
-            b.setType("difference");
+        if(!CollectionUtils.isEmpty(list)){
+            for (BasicsdatumCompanyRelation b : list) {
+                b.setCompanyCode(baseController.getUserCompany());
+                b.setDataId(id);
+                b.setType("difference");
+            }
+            return list;
         }
-        return list;
+        return null;
     }
 
     /**

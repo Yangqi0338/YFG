@@ -58,7 +58,7 @@ public class BasicsdatumModelTypeVo  extends BaseDataEntity<String>{
     private String sendStatus;
     /** 品类 */
     @ApiModelProperty(value = "品类"  )
-    private String category;
+    private String categoryName;
     /** 品类id */
     @ApiModelProperty(value = "品类id"  )
     private String categoryId;

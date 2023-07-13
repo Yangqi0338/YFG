@@ -7,9 +7,14 @@
 package com.base.sbc.module.basicsdatum.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 类描述：基础资料-号型类型 dao类
@@ -26,6 +31,7 @@ public interface BasicsdatumModelTypeMapper extends BaseMapper<BasicsdatumModelT
 
     String getNameById(@Param("id") String id);
 
+   List<BasicsdatumModelTypeVo> getBasicsdatumModelTypeList(@Param(Constants.WRAPPER) BaseQueryWrapper qw,@Param("categoryList") List<String> categoryList);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

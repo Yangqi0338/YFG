@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -98,6 +99,19 @@ public class CcmFeignService {
             ids =jsonObject.get("data").toString();
         }
         return ids;
+    }
+
+    /**
+     * 查询 品类集合
+     */
+    public List<BasicCategoryDot>  getCategorySByNameAndLevel(String structureName, String names, String level) {
+        String dictInfo = ccmService.getCategorySByNameAndLevel(structureName, names, level);
+        JSONObject jsonObject = JSON.parseObject(dictInfo);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            List<BasicCategoryDot> data = jsonObject.getJSONArray("data").toJavaList(BasicCategoryDot.class);
+            return data;
+        }
+        return null;
     }
 
     public void setCategoryName(List list, String idkey, String nameKey) {

@@ -6,9 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.dto;
 
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.List;
+
 /**
  * 类描述：新增修改基础资料-号型类型 dto类
  * @address com.base.sbc.module.basicsdatum.dto.BasicsdatumModelType
@@ -55,19 +59,14 @@ public class AddRevampBasicsdatumModelTypeDto  {
     /** 发送状态(0发送，1未发送) */
     @ApiModelProperty(value = "发送状态(1发送，0未发送)"  )
     private String sendStatus;
-    /** 品类 */
-    @ApiModelProperty(value = "品类"  )
-    private String category;
-    /** 品类id */
-    @ApiModelProperty(value = "品类id"  )
-    private String categoryId;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
     /** 状态(0正常,1停用) */
 
-
     /*尺码标签id*/
     private String sizeLabelId;
+
+    private List<BasicsdatumCompanyRelation> list;
 
 }

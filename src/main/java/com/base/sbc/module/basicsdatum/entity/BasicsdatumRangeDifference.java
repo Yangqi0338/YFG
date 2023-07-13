@@ -6,12 +6,16 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
+
 /**
  * 类描述：基础资料-档差 实体类
  * @address com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference
@@ -66,5 +70,8 @@ public class BasicsdatumRangeDifference extends BaseDataEntity<String> {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    @TableField(exist = false)
+    private List<BasicsdatumCompanyRelation> basicsdatumCompanyRelation;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
