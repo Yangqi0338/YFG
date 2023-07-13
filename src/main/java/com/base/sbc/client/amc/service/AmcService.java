@@ -1,5 +1,6 @@
 package com.base.sbc.client.amc.service;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.open.entity.SmpDept;
@@ -144,6 +145,15 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/token/teamRelation/getPlanningSeasonIdByUserId")
     String getPlanningSeasonIdByUserId(@RequestParam("userId") String userId);
+
+    /**
+     * 查询用户数据权限
+     *
+     * @param businessType
+     * @return
+     */
+    @GetMapping("/amc/api/token/dataPermissions/getDataPermissions")
+    ApiResult getDataPermissions(@RequestParam("businessType") String businessType);
 
 
 }
