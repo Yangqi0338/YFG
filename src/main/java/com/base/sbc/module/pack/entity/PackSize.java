@@ -12,15 +12,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 /**
  * 类描述：资料包-尺寸表 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackSize
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-1 11:56:58
+ * @email your email
+ * @date 创建时间：2023-7-13 20:35:03
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

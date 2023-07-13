@@ -12,7 +12,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 /**
  * 类描述：资料包-工艺说明-包装方式和体积重量 实体类
  *
@@ -20,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackTechPackaging
  * @email your email
- * @date 创建时间：2023-7-13 14:24:40
+ * @date 创建时间：2023-7-13 20:34:48
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -72,3 +71,4 @@ public class PackTechPackaging extends BaseDataEntity<String> {
     private String remark;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+

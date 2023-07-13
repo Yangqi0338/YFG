@@ -21,7 +21,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackProcessPrice
  * @email your email
- * @date 创建时间：2023-7-11 17:44:35
+ * @date 创建时间：2023-7-13 20:34:41
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

@@ -75,6 +75,7 @@
 						bm.material_code_name,
 						bm.image_url,
 						bm.category_name,
+						bm.category_id,
 						bm.factory_composition,
 						bm.ingredient,
 						bm.translate,

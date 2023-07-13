@@ -22,7 +22,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfoStatus
  * @email your email
- * @date 创建时间：2023-7-13 14:14:08
+ * @date 创建时间：2023-7-13 20:34:34
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

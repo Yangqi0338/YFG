@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfo
  * @email your email
- * @date 创建时间：2023-7-13 19:53:34
+ * @date 创建时间：2023-7-13 20:34:32
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

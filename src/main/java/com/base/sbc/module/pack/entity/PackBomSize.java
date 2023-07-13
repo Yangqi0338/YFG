@@ -16,11 +16,12 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 /**
  * 类描述：资料包-物料清单-配码 实体类
- * @address com.base.sbc.module.pack.entity.PackBomSize
+ *
  * @author your name
- * @email your email
- * @date 创建时间：2023-7-8 10:19:30
  * @version 1.0
+ * @address com.base.sbc.module.pack.entity.PackBomSize
+ * @email your email
+ * @date 创建时间：2023-7-13 20:35:01
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
