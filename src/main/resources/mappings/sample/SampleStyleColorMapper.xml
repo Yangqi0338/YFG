@@ -22,32 +22,10 @@
     </select>
     <select id="getSampleStyleColorList" resultType="com.base.sbc.module.sample.vo.SampleStyleColorVo">
     SELECT
-    ssc.id,
-    ssc.is_issue_scm,
-    ssc.sample_design_pic,
-    ssc.color_specification,
-    ssc.style_no,
-    ssc.his_style_no,
-    ssc.is_luxury,
-    ssc.subdivide,
     sd.band_code,
-    ssc.bom,
-    ssc.sales_type,
-    ssc.is_trim,
-    ssc.principal_style,
-    ssc.principal_style_no,
-    ssc.accessory,
-    ssc.accessory_no,
-    ssc.tag_price,
     sd.style_flavour,
-    ssc.manufacturer,
-    ssc.manufacturer_jane,
-    ssc.manufacturer_no,
-    ssc.manufacturer_color,
     sd.category_name,
-    ssc.status,
-    ssc.is_defective,
-    ssc.defective_no
+    ssc.*
     FROM t_sample_style_color ssc
     LEFT JOIN t_sample_design sd on ssc.sample_design_id  = sd.id
     ${ew.customSqlSegment}
