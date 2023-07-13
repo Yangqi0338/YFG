@@ -103,20 +103,11 @@ public class SmpService {
         TransactionStatus transactionStatus = null;
         try {
             SmpMaterialDto smpMaterialDto = basicsdatumMaterial.toSmpMaterialDto();
-            ApiResult apiResult = ccmService.listByIds(basicsdatumMaterial.getCategoryIds());
+            ApiResult apiResult = ccmService.listByIds(basicsdatumMaterial.getCategoryId());
             List<HashMap<String,String>> hashMapList = (List<HashMap<String, String>>) apiResult.getData();
             for (HashMap<String,String> hashMap: hashMapList) {
-                String[] split = basicsdatumMaterial.getCategoryIds().split(",");
-                if (split.length>2){
-                    if ( split[2].equals(hashMap.get("id"))){
-                        smpMaterialDto.setThirdLevelCategory(hashMap.get("value"));
-                        continue;
-                    }
-                }
-                if (split.length>1){
-                    if ( split[1].equals(hashMap.get("id"))){
-                        smpMaterialDto.setSecondLevelCategory(hashMap.get("value"));
-                    }
+                if (basicsdatumMaterial.getCategoryId().equals(hashMap.get("id"))){
+                    smpMaterialDto.setThirdLevelCategory(hashMap.get("value"));
                 }
             }
             //获取颜色集合
