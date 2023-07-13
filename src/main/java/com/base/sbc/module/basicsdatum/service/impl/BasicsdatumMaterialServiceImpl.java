@@ -151,6 +151,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			BasicsdatumMaterialWidth one = new BasicsdatumMaterialWidth();
 			one.setCompanyCode(this.getCompanyCode());
 			one.setWidthCode(widthCode);
+			one.setName(widthCode);
 			one.setMaterialCode(materialCode);
 			this.materialWidthService.save(one);
 		}
