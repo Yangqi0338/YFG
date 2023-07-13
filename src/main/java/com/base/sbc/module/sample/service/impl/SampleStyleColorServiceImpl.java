@@ -13,6 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.base.sbc.module.sample.service.SampleDesignService;
+import com.base.sbc.module.sample.vo.SampleDesignVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,6 +81,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
 
 	private final PackInfoMapper packInfoMapper;
 
+    private final SampleDesignService sampleDesignService;
 
 
 /** 自定义方法区 不替换的区域【other_start】 **/
@@ -188,6 +191,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             SampleDesign sampleDesign = sampleDesignMapper.selectById(addRevampSampleStyleColorDto.getSampleDesignId());
             addRevampSampleStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampSampleStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
+            addRevampSampleStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
             addRevampSampleStyleColorDto.setStyleNo(getNextCode(addRevampSampleStyleColorDto.getSampleDesignId(), sampleDesign.getBrand(),sampleDesign.getYear(),sampleDesign.getMonth(),sampleDesign.getBandCode(),sampleDesign.getCategoryName(),sampleDesign.getDesignNo()));
         }
         List<SampleStyleColor> sampleStyleColorList = BeanUtil.copyToList(list, SampleStyleColor.class);
@@ -375,7 +379,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             /*下发颜色*/
             smpService.issueColor(basicsdatumColourLibrary,mapColorChroma,mapColorType,baseController);
            /*查询样衣数据*/
-            SampleDesign sampleDesign =  sampleDesignMapper.selectById(sampleStyleColor.getSampleDesignId());
+            SampleDesignVo sampleDesign =  sampleDesignService.getDetail(sampleStyleColor.getSampleDesignId());
             /*下发商品*/
             smpService.issueGoods(sampleStyleColor,sampleDesign,dictInfoToMap);
 
@@ -429,6 +433,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
         sampleStyleColor.setBom(packInfo.getCode());
         /*bom关联配色*/
         packInfo.setStyleNo(sampleStyleColor.getStyleNo());
+        packInfo.setColorCode(sampleStyleColor.getColorCode());
         packInfo.setColor(sampleStyleColor.getColorName());
         packInfo.setSampleStyleColorId(sampleStyleColor.getId());
         baseMapper.updateById(sampleStyleColor);

@@ -51,6 +51,8 @@ public class AddRevampSampleStyleColorDto {
     private String colorSpecification;
     /*颜色库id*/
     private String colourLibraryId;
+
+    private String colorCode;
     /** 大货款号 */
     @ApiModelProperty(value = "大货款号"  )
     private String styleNo;

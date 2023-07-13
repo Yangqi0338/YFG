@@ -45,6 +45,8 @@ public class SampleStyleColorVo  {
     private String colorSpecification;
     /*颜色库id*/
     private String colourLibraryId;
+
+    private String colorCode;
     /** 款式(大货款号)  */
     @ApiModelProperty(value = "款式(大货款号) "  )
     private String styleNo;
