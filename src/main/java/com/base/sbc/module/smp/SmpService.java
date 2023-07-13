@@ -104,11 +104,20 @@ public class SmpService {
         try {
             SmpMaterialDto smpMaterialDto = basicsdatumMaterial.toSmpMaterialDto();
             ApiResult apiResult = ccmService.listByIds(basicsdatumMaterial.getCategoryIds());
-            List<BasicStructureTree> basicStructureTreeList = (List<BasicStructureTree>) apiResult.getData();
-            smpMaterialDto.setThirdLevelCategory(basicStructureTreeList.get(2).getValue());
-            smpMaterialDto.setSecondLevelCategory(basicStructureTreeList.get(0).getValue());
-            if (true){
-                return null;
+            List<HashMap<String,String>> hashMapList = (List<HashMap<String, String>>) apiResult.getData();
+            for (HashMap<String,String> hashMap: hashMapList) {
+                String[] split = basicsdatumMaterial.getCategoryIds().split(",");
+                if (split.length>2){
+                    if ( split[2].equals(hashMap.get("id"))){
+                        smpMaterialDto.setThirdLevelCategory(hashMap.get("value"));
+                        continue;
+                    }
+                }
+                if (split.length>1){
+                    if ( split[1].equals(hashMap.get("id"))){
+                        smpMaterialDto.setSecondLevelCategory(hashMap.get("value"));
+                    }
+                }
             }
             //获取颜色集合
             BasicsdatumMaterialColorQueryDto basicsdatumMaterialColorQueryDto = new BasicsdatumMaterialColorQueryDto();
