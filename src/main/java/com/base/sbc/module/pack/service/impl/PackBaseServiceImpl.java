@@ -177,6 +177,23 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
     }
 
     @Override
+    public T get(String foreignId, String packType) {
+        QueryWrapper<T> query = new QueryWrapper<T>();
+        query.eq("foreign_id", foreignId);
+        query.eq("pack_type", packType);
+        query.last("limit 1");
+        return getOne(query);
+    }
+
+    @Override
+    public List<T> list(String foreignId, String packType) {
+        QueryWrapper<T> query = new QueryWrapper<T>();
+        query.eq("foreign_id", foreignId);
+        query.eq("pack_type", packType);
+        return list(query);
+    }
+
+    @Override
     public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
         del(targetForeignId, targetPackType);
         QueryWrapper<T> query = new QueryWrapper<T>();

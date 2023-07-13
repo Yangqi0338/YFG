@@ -6,13 +6,24 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
+import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoStatusMapper;
+import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * 类描述：资料包-状态 service类
@@ -29,6 +40,11 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
 
 // 自定义方法区 不替换的区域【other_start】
 
+    @Resource
+    private FlowableService flowableService;
+    @Resource
+    private PackInfoService packInfoService;
+
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public PackInfoStatus newStatus(String foreignId, String packType) {
@@ -42,12 +58,65 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
+    public boolean lockTechSpec(String foreignId, String packType) {
+        PackInfoStatus packInfoStatus = get(foreignId, packType);
+        packInfoStatus.setTechSpecLockFlag(BaseGlobal.YES);
+        updateById(packInfoStatus);
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean unlockTechSpec(String foreignId, String packType) {
+        PackInfoStatus packInfoStatus = get(foreignId, packType);
+        packInfoStatus.setTechSpecLockFlag(BaseGlobal.NO);
+        updateById(packInfoStatus);
+        return true;
+    }
+
+    @Override
+    public boolean startApprovalForTechSpec(String foreignId, String packType) {
+        PackInfoStatus packInfoStatus = get(foreignId, packType);
+        PackInfo packInfo = packInfoService.getById(foreignId);
+        if (packInfo == null) {
+            throw new OtherException("资料包数据不存在,请先保存");
+        }
+        Map<String, Object> variables = BeanUtil.beanToMap(packInfoStatus);
+        boolean flg = flowableService.start(FlowableService.pack_tech_pdn + "[" + packInfo.getCode() + "]",
+                FlowableService.pack_tech_pdn,
+                packInfoStatus.getId(),
+                "/pdm/api/saas/packTechSpec/approval",
+                "/pdm/api/saas/packTechSpec/approval",
+                StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()),
+                variables);
+        if (flg) {
+            packInfoStatus.setTechSpecConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+            updateById(packInfoStatus);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean approvalForTechSpec(AnswerDto dto) {
+        PackInfoStatus packInfoStatus = getById(dto.getBusinessKey());
+        if (packInfoStatus != null) {
+            //通过
+            if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+                packInfoStatus.setTechSpecConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+            }
+            //驳回
+            else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
+                packInfoStatus.setTechSpecConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
+            }
+            updateById(packInfoStatus);
+        }
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
     public PackInfoStatus get(String foreignId, String packType) {
-        QueryWrapper<PackInfoStatus> qw = new QueryWrapper<>();
-        qw.eq("foreign_id", foreignId);
-        qw.eq("pack_type", packType);
-        qw.last("limit 1");
-        PackInfoStatus one = getOne(qw);
+        PackInfoStatus one = super.get(foreignId, packType);
         if (one != null) {
             return one;
         }

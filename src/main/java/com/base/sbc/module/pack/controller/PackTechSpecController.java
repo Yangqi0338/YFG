@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.OperationType;
@@ -14,10 +15,10 @@ import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
-import com.base.sbc.module.pack.dto.PackTechSpecDto;
-import com.base.sbc.module.pack.dto.PackTechSpecPageDto;
-import com.base.sbc.module.pack.dto.PackTechSpecSavePicDto;
-import com.base.sbc.module.pack.dto.PackTechSpecSearchDto;
+import com.base.sbc.module.pack.dto.*;
+import com.base.sbc.module.pack.entity.PackTechPackaging;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.service.PackTechPackagingService;
 import com.base.sbc.module.pack.service.PackTechSpecService;
 import com.base.sbc.module.pack.vo.PackTechSpecVo;
 import com.github.pagehelper.PageInfo;
@@ -27,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -49,7 +51,11 @@ public class PackTechSpecController {
     @Autowired
     private PackTechSpecService packTechSpecService;
     @Autowired
+    private PackTechPackagingService packTechPackagingService;
+    @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private PackInfoStatusService packInfoStatusService;
 
     @ApiOperation(value = "列表")
     @GetMapping
@@ -100,6 +106,43 @@ public class PackTechSpecController {
     public PageInfo<OperaLogEntity> operationLog(@Valid PackTechSpecPageDto pageDto) {
         return packTechSpecService.operationLog(pageDto);
     }
+
+    @ApiOperation(value = "保存包装方式和体积重量")
+    @PostMapping("/packaging")
+    public PackTechPackaging savePackaging(@RequestBody PackTechPackaging packaging) {
+        return packTechPackagingService.savePackaging(packaging);
+    }
+
+    @ApiOperation(value = "查询包装方式和体积重量")
+    @GetMapping("/packaging")
+    public PackTechPackaging getPackaging(@Valid PackCommonSearchDto dto) {
+        return packTechPackagingService.get(dto.getForeignId(), dto.getPackType());
+    }
+
+    @ApiOperation(value = "锁定")
+    @GetMapping("/lock")
+    public boolean lock(@Valid PackCommonSearchDto dto) {
+        return packInfoStatusService.lockTechSpec(dto.getForeignId(), dto.getPackType());
+    }
+
+    @ApiOperation(value = "解锁")
+    @GetMapping("/unlock")
+    public boolean unlock(@Valid PackCommonSearchDto dto) {
+        return packInfoStatusService.unlockTechSpec(dto.getForeignId(), dto.getPackType());
+    }
+
+    @ApiOperation(value = "提交审批")
+    @GetMapping("/startApproval")
+    public boolean startReverseApproval(@Valid PackCommonSearchDto dto) {
+        return packInfoStatusService.startApprovalForTechSpec(dto.getForeignId(), dto.getPackType());
+    }
+
+    @ApiIgnore
+    @PostMapping("/approval")
+    public boolean approval(@RequestBody AnswerDto dto) {
+        return packInfoStatusService.approvalForTechSpec(dto);
+    }
+
 }
 
 

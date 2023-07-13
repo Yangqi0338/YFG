@@ -2,8 +2,9 @@ package com.base.sbc.module.pack.service;
 
 import com.base.sbc.module.common.service.BaseService;
 
-public interface PackBaseService<T> extends BaseService<T> {
+import java.util.List;
 
+public interface PackBaseService<T> extends BaseService<T> {
 
 
     /**
@@ -32,6 +33,24 @@ public interface PackBaseService<T> extends BaseService<T> {
      * @return
      */
     boolean del(String foreignId, String packType);
+
+    /**
+     * 获取1个
+     *
+     * @param foreignId
+     * @param packType
+     * @return
+     */
+    T get(String foreignId, String packType);
+
+    /**
+     * 获取列表
+     *
+     * @param foreignId
+     * @param packType
+     * @return
+     */
+    List<T> list(String foreignId, String packType);
 
     /**
      * 复制

@@ -15,7 +15,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.Date;
-
 /**
  * 类描述：资料包-状态 实体类
  *
@@ -23,7 +22,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfoStatus
  * @email your email
- * @date 创建时间：2023-7-13 9:17:47
+ * @date 创建时间：2023-7-13 14:14:08
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -39,7 +38,7 @@ public class PackInfoStatus extends BaseDataEntity<String> {
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /**
-     * 主数据id(样衣设计id)
+     * 主数据id
      */
     @ApiModelProperty(value = "主数据id")
     private String foreignId;
@@ -124,10 +123,20 @@ public class PackInfoStatus extends BaseDataEntity<String> {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date qcConfirmDate;
     /**
+     * 尺寸表锁定flg:(0未锁定,1锁定)
+     */
+    @ApiModelProperty(value = "尺寸表锁定flg:(0未锁定,1锁定)")
+    private String sizeLockFlag;
+    /**
      * 工艺说明锁定flg:(0未锁定,1锁定)
      */
     @ApiModelProperty(value = "工艺说明锁定flg:(0未锁定,1锁定)")
-    private String techSpecLockFlg;
+    private String techSpecLockFlag;
+    /**
+     * 工艺说明审批状态:待审核(1)、审核通过(2)、被驳回(-1)
+     */
+    @ApiModelProperty(value = "工艺说明审批状态:待审核(1)、审核通过(2)、被驳回(-1)")
+    private String techSpecConfirmStatus;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
