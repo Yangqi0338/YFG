@@ -79,6 +79,9 @@ public class SampleStyleOrderBookPageVo {
 	/** 紧急程度 */
 	@ApiModelProperty(value = "紧急程度")
 	private String urgency;
+	/** 紧急程度名称 */
+	@ApiModelProperty(value = "紧急程度名称")
+	private String urgencyName;
 	/** 倍率 */
 	@ApiModelProperty(value = "倍率")
 	private BigDecimal magnification;
