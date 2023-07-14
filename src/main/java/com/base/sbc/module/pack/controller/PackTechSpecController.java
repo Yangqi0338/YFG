@@ -66,7 +66,7 @@ public class PackTechSpecController {
 
     @ApiOperation(value = "文件列表(图片)")
     @GetMapping("/picList")
-    public List<AttachmentVo> picList(@Valid PackTechSpecSearchDto dto) {
+    public List<AttachmentVo> picList(PackTechSpecSearchDto dto) {
         return packTechSpecService.picList(dto);
     }
 
