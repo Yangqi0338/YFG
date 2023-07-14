@@ -30,6 +30,9 @@ import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pricing.dto.FabricSummaryDTO;
+import com.base.sbc.module.pricing.vo.FabricSummaryVO;
+import com.base.sbc.module.pricing.vo.MaterialSampleDesignVO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -63,6 +66,8 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
 
     @Resource
     private PackBomVersionService packBomVersionService;
+
+
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
@@ -242,6 +247,18 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         PackBomPageSearchDto bomDto = BeanUtil.copyProperties(dto, PackBomPageSearchDto.class);
         bomDto.setBomVersionId(enableVersion.getId());
         return pageInfo(bomDto);
+    }
+
+    @Override
+    public PageInfo<FabricSummaryVO> fabricSummaryList(FabricSummaryDTO fabricSummaryDTO) {
+        Page<FabricSummaryVO> page = PageHelper.startPage(fabricSummaryDTO);
+        baseMapper.fabricSummaryList(fabricSummaryDTO);
+        return page.toPageInfo();
+    }
+
+    @Override
+    public List<MaterialSampleDesignVO> querySampleDesignInfoByMaterialId(String materialId) {
+        return baseMapper.querySampleDesignInfoByMaterialId(materialId);
     }
 
 

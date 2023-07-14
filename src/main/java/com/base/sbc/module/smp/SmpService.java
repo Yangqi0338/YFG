@@ -297,6 +297,8 @@ public class SmpService {
      * 修改尺码的时候验证
      */
     public Boolean style(PlmStyleSizeParam param) {
+        // TODO: 2023/7/14 下一期7月15号以后一起做
+
         restTemplateService.spmPost(URL + "style", param);
         return true;
     }

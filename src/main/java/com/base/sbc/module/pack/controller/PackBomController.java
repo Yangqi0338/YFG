@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.controller;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.annotation.OperaLog;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.OperationType;
@@ -19,6 +20,8 @@ import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pricing.dto.FabricSummaryDTO;
+import com.base.sbc.module.pricing.vo.MaterialSampleDesignVO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -32,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -139,6 +143,18 @@ public class PackBomController {
         return packBomService.delByIds(dto.getId());
     }
 
+
+    @PostMapping("/fabricSummaryList")
+    @ApiOperation(value = "面料汇总列表")
+    public ApiResult fabricSummaryList(@RequestBody FabricSummaryDTO fabricSummaryDTO) {
+        return ApiResult.success("查询成功",packBomService.fabricSummaryList(fabricSummaryDTO));
+    }
+
+    @GetMapping("/querySampleDesignInfoByMaterialId")
+    @ApiOperation(value = "查询物料被那些样衣应用")
+    public ApiResult querySampleDesignInfoByMaterialId(@NotNull @RequestParam("materialId") String materialId) {
+        return ApiResult.success("查询成功",packBomService.querySampleDesignInfoByMaterialId(materialId));
+    }
 
 }
 
