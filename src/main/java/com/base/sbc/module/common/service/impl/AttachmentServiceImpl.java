@@ -198,7 +198,7 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
     public boolean delByForeignIdType(String foreignId, String type) {
         QueryWrapper qw = new QueryWrapper();
         qw.eq("foreign_id", foreignId);
-        qw.eq("type", type);
+        qw.likeRight("type", type + StrUtil.DASHED);
         return remove(qw);
     }
 
@@ -214,7 +214,8 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
             for (Attachment o : list) {
                 o.setId(null);
                 o.setForeignId(targetForeignId);
-                o.setType(targetPackType);
+                List<String> split = StrUtil.split(o.getType(), CharUtil.DASHED);
+                o.setType(targetPackType + StrUtil.DASHED + CollUtil.get(split, 1));
             }
             return saveBatch(list);
         }

@@ -2,6 +2,7 @@ package com.base.sbc.module.common.vo;
 
 import cn.hutool.core.io.unit.DataSizeUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -51,6 +52,9 @@ public class AttachmentVo {
 
     @ApiModelProperty(value = "上传人")
     private String createName;
+    @JsonIgnore
+    @ApiModelProperty(value = "附件类型")
+    private String attachmentType;
 
     /**
      * 获取大小

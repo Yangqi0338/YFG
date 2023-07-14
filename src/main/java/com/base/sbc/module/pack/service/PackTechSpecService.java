@@ -8,10 +8,7 @@ package com.base.sbc.module.pack.service;
 
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
-import com.base.sbc.module.pack.dto.PackTechSpecDto;
-import com.base.sbc.module.pack.dto.PackTechSpecPageDto;
-import com.base.sbc.module.pack.dto.PackTechSpecSavePicDto;
-import com.base.sbc.module.pack.dto.PackTechSpecSearchDto;
+import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackTechSpec;
 import com.base.sbc.module.pack.vo.PackTechSpecVo;
 import com.github.pagehelper.PageInfo;
@@ -63,7 +60,7 @@ public interface PackTechSpecService extends PackBaseService<PackTechSpec> {
      * @param dto
      * @return
      */
-    List<AttachmentVo> picList(PackTechSpecSearchDto dto);
+    List<PackTechAttachmentVo> picList(PackTechSpecSearchDto dto);
 
     /**
      * 保存图片

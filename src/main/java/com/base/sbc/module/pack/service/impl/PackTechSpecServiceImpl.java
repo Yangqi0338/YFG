@@ -20,10 +20,7 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
-import com.base.sbc.module.pack.dto.PackTechSpecDto;
-import com.base.sbc.module.pack.dto.PackTechSpecPageDto;
-import com.base.sbc.module.pack.dto.PackTechSpecSavePicDto;
-import com.base.sbc.module.pack.dto.PackTechSpecSearchDto;
+import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackTechSpec;
 import com.base.sbc.module.pack.mapper.PackTechSpecMapper;
 import com.base.sbc.module.pack.service.PackTechSpecService;
@@ -129,12 +126,14 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
     }
 
     @Override
-    public List<AttachmentVo> picList(PackTechSpecSearchDto dto) {
+    public List<PackTechAttachmentVo> picList(PackTechSpecSearchDto dto) {
+        List<AttachmentVo> attachmentVos = null;
         if (StrUtil.isAllNotBlank(dto.getPackType(), dto.getSpecType())) {
-            return attachmentService.findByforeignId(dto.getForeignId(), dto.getPackType() + StrUtil.DASHED + dto.getSpecType());
+            attachmentVos = attachmentService.findByforeignId(dto.getForeignId(), dto.getPackType() + StrUtil.DASHED + dto.getSpecType());
         } else {
-            return attachmentService.findByforeignIdTypeLikeStart(dto.getForeignId(), dto.getPackType() + StrUtil.DASHED + dto.getSpecType());
+            attachmentVos = attachmentService.findByforeignIdTypeLikeStart(dto.getForeignId(), dto.getPackType() + StrUtil.DASHED + dto.getSpecType());
         }
+        return BeanUtil.copyToList(attachmentVos, PackTechAttachmentVo.class);
     }
 
     @Override
