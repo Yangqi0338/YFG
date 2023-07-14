@@ -45,6 +45,8 @@ public class BasicsdatumCategoryMeasureVo  {
     /** 测量点 */
     @ApiModelProperty(value = "测量点"  )
     private String measurement;
+
+    private String measurementCode;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
