@@ -242,10 +242,10 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
 
         }
         for (Difference difference : addRevampBasicsdatumRangeDifferenceDto.getDifferenceList()) {
-            difference.setRangeDifferenceId(addRevampBasicsdatumRangeDifferenceDto.getId());
+            difference.setRangeDifferenceId(basicsdatumRangeDifference.getId());
         }
 
-        differenceService.addAndUpdateAndDelList(addRevampBasicsdatumRangeDifferenceDto.getDifferenceList(),new BaseQueryWrapper<Difference>().eq("range_difference_id",addRevampBasicsdatumRangeDifferenceDto.getId()));
+        differenceService.addAndUpdateAndDelList(addRevampBasicsdatumRangeDifferenceDto.getDifferenceList(),new BaseQueryWrapper<Difference>().eq("range_difference_id",basicsdatumRangeDifference.getId()));
         return true;
     }
 
