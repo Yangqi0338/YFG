@@ -89,6 +89,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
 
         queryWrapper.notEmptyLike("mt.model_type", queryDto.getModelType());
         queryWrapper.eq("mt.company_code", baseController.getUserCompany());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStatus()),"mt.status", queryDto.getStatus());
         queryWrapper.in(StringUtils.isNotBlank(queryDto.getCategoryId()),"cr.category_id", queryDto.getCategoryId());
         queryWrapper.notEmptyLike("mt.code", queryDto.getCoding());
         queryWrapper.notEmptyLike("mt.description", queryDto.getDescription());

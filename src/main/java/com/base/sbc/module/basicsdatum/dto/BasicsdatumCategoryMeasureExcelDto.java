@@ -54,6 +54,8 @@ public class BasicsdatumCategoryMeasureExcelDto  {
     @ApiModelProperty(value = "测量点"  )
     @Excel(name = "测量点")
     private String measurement;
+
+    private String measurementCode;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     @Excel(name= "可用的" , replace = {"true_0", "false_1"} )

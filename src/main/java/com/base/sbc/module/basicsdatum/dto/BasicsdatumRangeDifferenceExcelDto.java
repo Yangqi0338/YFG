@@ -45,6 +45,8 @@ public class BasicsdatumRangeDifferenceExcelDto  {
     @ApiModelProperty(value = "号型类型"  )
     @Excel(name = "号型类型")
     private String modelType;
+
+    private String modelTypeCode;
     /** 尺码 */
     @ApiModelProperty(value = "尺码"  )
     @Excel(name = "尺码")
@@ -56,6 +58,9 @@ public class BasicsdatumRangeDifferenceExcelDto  {
     @ApiModelProperty(value = "品类"  )
     @Excel(name = "品类")
     private String categoryName;
+
+    @Excel(name = "品牌")
+    private String brandCode;
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
     @Excel(name = "图片",type = 2)

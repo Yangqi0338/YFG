@@ -49,6 +49,12 @@ public class AddRevampBasicsdatumRangeDifferenceDto  {
     /** 号型类型 */
     @ApiModelProperty(value = "号型类型"  )
     private String modelType;
+    /** 号型类型编码 */
+    @ApiModelProperty(value = "号型类型编码"  )
+    private String modelTypeCode;
+    /** 品牌编码 */
+    @ApiModelProperty(value = "品牌编码"  )
+    private String brandCode;
     /** 尺码 */
     @ApiModelProperty(value = "尺码"  )
     private String size;

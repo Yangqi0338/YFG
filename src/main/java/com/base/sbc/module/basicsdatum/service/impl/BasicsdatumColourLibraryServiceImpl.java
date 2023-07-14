@@ -244,7 +244,7 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         /*色系*/
         Map<String, String> mapColorType = dictInfoToMap.get("C8_ColorType");
         QueryWrapper<BasicsdatumColourLibrary> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("tbcl.company_code", baseController.getUserCompany());
+        queryWrapper.eq("company_code", baseController.getUserCompany());
         List<BasicsdatumColourLibrary> libraryList = baseMapper.selectList(queryWrapper);
         libraryList.forEach(l ->{
             l.setChroma(mapColorChroma.get(l.getChroma()));

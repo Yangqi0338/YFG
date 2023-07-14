@@ -23,8 +23,10 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMeasurementMapper;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumRangeDifferenceMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumCompanyRelationService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumRangeDifferenceService;
@@ -49,6 +51,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -80,6 +83,8 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
 
     private final CcmFeignService ccmFeignService;
 
+    private final BasicsdatumModelTypeMapper basicsdatumModelTypeMapper;
+
 /** 自定义方法区 不替换的区域【other_start】 **/
 
     /**
@@ -96,7 +101,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         }
         BaseQueryWrapper<BasicsdatumRangeDifference> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("rd.company_code", baseController.getUserCompany());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getCategoryId()),"cr.category_id", queryDto.getCategoryId());
+        queryWrapper.in(StringUtils.isNotBlank(queryDto.getCategoryId()),"cr.category_id", StringUtils.convertList(queryDto.getCategoryId()));
         queryWrapper.notEmptyLike("rd.model_type", queryDto.getModelType());
         queryWrapper.notEmptyLike("rd.create_name", queryDto.getCreateName());
         queryWrapper.notEmptyLike("rd.code", queryDto.getCode());
@@ -106,13 +111,8 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         queryWrapper.between("rd.create_date", queryDto.getCreateDate());
         queryWrapper.orderByDesc("rd.create_date");
         /*查询基础资料-档差数据*/
-        List<BasicsdatumRangeDifferenceVo> basicsdatumRangeDifferenceList = baseMapper.selectRangeDifferenceList(queryWrapper);
+        List<BasicsdatumRangeDifferenceVo> basicsdatumRangeDifferenceList = baseMapper.selectRangeDifferenceList(queryWrapper,StringUtils.convertList(queryDto.getCategoryId()));
         PageInfo<BasicsdatumRangeDifferenceVo> pageInfo = new PageInfo<>(basicsdatumRangeDifferenceList);
-/*        *//*转换vo*//*
-        List<BasicsdatumRangeDifferenceVo> list = BeanUtil.copyToList(basicsdatumRangeDifferenceList, BasicsdatumRangeDifferenceVo.class);
-        PageInfo<BasicsdatumRangeDifferenceVo> pageInfo1 = new PageInfo<>();
-        pageInfo1.setList(list);
-        BeanUtil.copyProperties(pageInfo, pageInfo1, "list");*/
         return pageInfo;
     }
 
@@ -130,12 +130,41 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         params.setNeedSave(false);
         List<BasicsdatumRangeDifferenceExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumRangeDifferenceExcelDto.class, params);
         list = list.stream().filter(d -> StringUtils.isNotBlank(d.getCode())).collect(Collectors.toList());
+//             获取字典值
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Brand");
+        Map<String, String> map =   dictInfoToMap.get("C8_Brand");
         for (BasicsdatumRangeDifferenceExcelDto basicsdatumRangeDifferenceExcelDto : list) {
+            if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getModelType())){
+//                查号型类型编码
+                QueryWrapper queryWrapper=new QueryWrapper();
+                queryWrapper.eq("model_type",basicsdatumRangeDifferenceExcelDto.getModelType());
+               List<BasicsdatumModelType> basicsdatumModelTypeList =  basicsdatumModelTypeMapper.selectList(queryWrapper);
+               if(!CollectionUtils.isEmpty(basicsdatumModelTypeList)){
+                   basicsdatumRangeDifferenceExcelDto.setModelTypeCode(basicsdatumModelTypeList.get(0).getCode());
+               }
+            }
             if (!StringUtils.isEmpty(basicsdatumRangeDifferenceExcelDto.getPicture())) {
                 File file1 = new File(basicsdatumRangeDifferenceExcelDto.getPicture());
                 /*上传图*/
                 AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
                 basicsdatumRangeDifferenceExcelDto.setPicture(attachmentVo.getUrl());
+            }
+            /*获取品牌编码*/
+            if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getBrandCode())){
+             String[] strings =   basicsdatumRangeDifferenceExcelDto.getBrandCode().replaceAll(" ","").split(",");
+             List<String> stringList =new ArrayList<>();
+                for (String string : strings) {
+                    for (Map.Entry<String, String> entry : map.entrySet()) {
+                        String key = entry.getKey();
+                        String value = entry.getValue();
+                        if (value.equals(string)) {
+                            stringList.add(key);
+                            break;
+                        }
+                    }
+                }
+                basicsdatumRangeDifferenceExcelDto.setBrandCode(StringUtils.join(stringList,","));
+
             }
             if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getCategoryName())){
                 basicsdatumRangeDifferenceExcelDto.setCategoryName(basicsdatumRangeDifferenceExcelDto.getCategoryName().replaceAll(" ",""));
@@ -163,7 +192,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
                 queryWrapper.in("measurement",measurement);
                 List<BasicsdatumMeasurement> basicsdatumSizeList =basicsdatumMeasurementMapper.selectList(queryWrapper);
                 if(!CollectionUtils.isEmpty(basicsdatumSizeList)){
-                    List<String> stringList =  basicsdatumSizeList.stream().map(BasicsdatumMeasurement::getId).collect(Collectors.toList());
+                    List<String> stringList =  basicsdatumSizeList.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).map(BasicsdatumMeasurement::getCode ).collect(Collectors.toList());
                     basicsdatumRangeDifferenceExcelDto.setMeasurementIds( StringUtils.join(stringList,","));
                 }
             }

@@ -40,6 +40,12 @@ public class BasicsdatumRangeDifferenceVo  extends BaseDataEntity<String>{
     /** 号型类型 */
     @ApiModelProperty(value = "号型类型"  )
     private String modelType;
+    /** 号型类型编码 */
+    @ApiModelProperty(value = "号型类型编码"  )
+    private String modelTypeCode;
+    /** 品牌编码 */
+    @ApiModelProperty(value = "品牌编码"  )
+    private String brandCode;
     /** 尺码 */
     @ApiModelProperty(value = "尺码"  )
     private String size;
@@ -65,5 +71,6 @@ public class BasicsdatumRangeDifferenceVo  extends BaseDataEntity<String>{
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
 
+    private String  remarks;
     private List<String> categoryIds;
 }
