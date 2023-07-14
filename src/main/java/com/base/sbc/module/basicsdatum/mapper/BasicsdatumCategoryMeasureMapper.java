@@ -7,9 +7,17 @@
 package com.base.sbc.module.basicsdatum.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumCategoryMeasure;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumCategoryMeasureVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
 import org.apache.ibatis.annotations.Mapper;
-/** 
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
  * 类描述：基础资料-品类测量组 dao类
  * @address com.base.sbc.module.basicsdatum.dao.BasicsdatumCategoryMeasureDao
  * @author mengfanjiang  
@@ -22,6 +30,7 @@ public interface BasicsdatumCategoryMeasureMapper extends BaseMapper<Basicsdatum
 /** 自定义方法区 不替换的区域【other_start】 **/
 
 
+    List<BasicsdatumCategoryMeasureVo> getBasicsdatumCategoryMeasureList(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("categoryList") List<String> categoryList);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

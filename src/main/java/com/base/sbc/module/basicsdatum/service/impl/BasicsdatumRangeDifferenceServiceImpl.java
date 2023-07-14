@@ -229,7 +229,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
             if (ObjectUtils.isEmpty(basicsdatumRangeDifference)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
-            if (!addRevampBasicsdatumRangeDifferenceDto.getCode().equals(addRevampBasicsdatumRangeDifferenceDto.getCode()) && !CollectionUtils.isEmpty(list)) {
+            if (!addRevampBasicsdatumRangeDifferenceDto.getCode().equals(basicsdatumRangeDifference.getCode()) && !CollectionUtils.isEmpty(list)) {
                 throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
             }
             BeanUtils.copyProperties(addRevampBasicsdatumRangeDifferenceDto, basicsdatumRangeDifference);
