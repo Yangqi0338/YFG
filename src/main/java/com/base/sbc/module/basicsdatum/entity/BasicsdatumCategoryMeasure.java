@@ -7,12 +7,16 @@
 package com.base.sbc.module.basicsdatum.entity;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
+
 /**
  * 类描述：基础资料-品类测量组 实体类
  * @address com.base.sbc.module.basicsdatum.entity.BasicsdatumCategoryMeasure
@@ -43,10 +47,6 @@ public class BasicsdatumCategoryMeasure extends BaseDataEntity<String> {
     /** 档差名 */
     @ApiModelProperty(value = "档差名"  )
     private String rangeDifferenceName;
-    /** 品类id */
-    private String  categoryId;
-    /** 品类id */
-    private String  categoryName;
     /** 品牌 */
     private String  brandCode;
     /** 档差id */
@@ -55,9 +55,15 @@ public class BasicsdatumCategoryMeasure extends BaseDataEntity<String> {
     /** 测量点 */
     @ApiModelProperty(value = "测量点"  )
     private String measurement;
+    /** 测量点编码 */
+    @ApiModelProperty(value = "测量点编码"  )
+    private String measurementCode;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+
+    @TableField(exist = false)
+    private List<BasicsdatumCompanyRelation> basicsdatumCompanyRelation;
 }
 

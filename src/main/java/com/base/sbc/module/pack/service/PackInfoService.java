@@ -104,6 +104,19 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 
     PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(PackInfoSearchPageDto pageDto);
 
+    /**
+     * 获取明细
+     *
+     * @param id       资料包id
+     * @param packType 资料包类型,用于获取资料包状态
+     * @return
+     */
+    PackInfoListVo getDetail(String id, String packType);
+
+    boolean startApproval(String id);
+
+    boolean approval(AnswerDto dto);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

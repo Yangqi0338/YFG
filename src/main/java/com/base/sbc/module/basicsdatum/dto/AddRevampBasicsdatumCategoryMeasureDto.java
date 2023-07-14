@@ -7,9 +7,13 @@
 package com.base.sbc.module.basicsdatum.dto;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.List;
+
 /**
  * 类描述：新增修改基础资料-品类测量组 dto类
  * @address com.base.sbc.module.basicsdatum.dto.BasicsdatumCategoryMeasure
@@ -33,10 +37,6 @@ public class AddRevampBasicsdatumCategoryMeasureDto  {
     /** 档差名 */
     @ApiModelProperty(value = "档差名"  )
     private String rangeDifferenceName;
-    /** 品类id */
-    private String  categoryId;
-    /** 品类id */
-    private String  categoryName;
     /** 品牌 */
     private String  brandCode;
     /** 档差id */
@@ -45,7 +45,12 @@ public class AddRevampBasicsdatumCategoryMeasureDto  {
     /** 测量点 */
     @ApiModelProperty(value = "测量点"  )
     private String measurement;
+    /** 测量点编码 */
+    @ApiModelProperty(value = "测量点编码"  )
+    private String measurementCode;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    private List<BasicsdatumCompanyRelation> list;
 }

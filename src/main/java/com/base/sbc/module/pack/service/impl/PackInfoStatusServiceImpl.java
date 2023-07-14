@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -103,14 +104,34 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
                 packInfoStatus.setTechSpecConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+                packInfoStatus.setBulkProdTechConfirm(BaseGlobal.YES);
+                packInfoStatus.setBulkProdTechConfirmDate(new Date());
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
                 packInfoStatus.setTechSpecConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
+                packInfoStatus.setBulkProdTechConfirm(BaseGlobal.NO);
+                packInfoStatus.setBulkProdTechConfirmDate(new Date());
             }
             updateById(packInfoStatus);
         }
         return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean washSkippingFlagSetting(String foreignId, String packType, String washSkippingFlag) {
+        PackInfoStatus packInfoStatus = get(foreignId, packType);
+        packInfoStatus.setWashSkippingFlag(washSkippingFlag);
+        return updateById(packInfoStatus);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean enableFlagSetting(String foreignId, String packType, String enableFlag) {
+        PackInfoStatus packInfoStatus = get(foreignId, packType);
+        packInfoStatus.setEnableFlag(enableFlag);
+        return updateById(packInfoStatus);
     }
 
     @Override

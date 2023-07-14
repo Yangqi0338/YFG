@@ -50,6 +50,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -216,6 +217,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
         //设置为已转大货
         packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
+        packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
         packInfoStatusService.updateById(packInfoStatus);
         //updateById(packInfo);
         return true;
@@ -263,8 +265,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         Map<String, Object> variables = BeanUtil.beanToMap(pack);
         boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]",
                 FlowableService.big_goods_reverse, id,
-                "/pdm/api/saas/packInfo/approval",
-                "/pdm/api/saas/packInfo/approval",
+                "/pdm/api/saas/packInfo/reverseApproval",
+                "/pdm/api/saas/packInfo/reverseApproval",
                 StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
                 variables);
         if (flg) {
@@ -274,6 +276,49 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         }
         return true;
     }
+
+    @Override
+    public boolean startApproval(String id) {
+        PackInfo pack = getById(id);
+        if (pack == null) {
+            throw new OtherException("资料包数据不存在,请先保存");
+        }
+        Map<String, Object> variables = BeanUtil.beanToMap(pack);
+        boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]",
+                FlowableService.big_goods_reverse, id,
+                "/pdm/api/saas/packInfo/approval",
+                "/pdm/api/saas/packInfo/approval",
+                StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
+                variables);
+        if (flg) {
+            PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
+            packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+            packInfoStatusService.updateById(packInfoStatus);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean approval(AnswerDto dto) {
+        PackInfo packInfo = getById(dto.getBusinessKey());
+        if (packInfo != null) {
+            PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS);
+            //通过
+            if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+                packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+                packInfoStatus.setPostTechConfirm(BaseGlobal.YES);
+                packInfoStatus.setPostTechConfirmDate(new Date());
+            }
+            //驳回
+            else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
+                packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
+                packInfoStatus.setPostTechConfirm(BaseGlobal.NO);
+            }
+            packInfoStatusService.updateById(packInfoStatus);
+        }
+        return true;
+    }
+
 
     @Override
 
@@ -320,6 +365,25 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         PageInfo<BigGoodsPackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), BigGoodsPackInfoListVo.class);
         return pageInfo;
     }
+
+    @Override
+    public PackInfo get(String foreignId, String packType) {
+        QueryWrapper<PackInfo> qw = new QueryWrapper<>();
+        qw.in("id", foreignId);
+        qw.last("limit 1");
+        return getOne(qw);
+    }
+
+    @Override
+    public PackInfoListVo getDetail(String id, String packType) {
+        QueryWrapper<PackInfo> qw = new QueryWrapper<>();
+        qw.in("id", id);
+        qw.eq("pack_type", packType);
+        qw.last("limit 1");
+        List<PackInfoListVo> packInfoListVos = getBaseMapper().queryByQw(qw);
+        return CollUtil.get(packInfoListVos, 0);
+    }
+
 
     @Override
     String getModeName() {

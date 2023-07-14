@@ -230,14 +230,14 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	@Override
 	public PageInfo<BomSelMaterialVo> getBomSelMaterialList(BasicsdatumMaterialQueryDto dto) {
 		BaseQueryWrapper<BasicsdatumMaterial> qw = new BaseQueryWrapper<>();
-		qw.andLike(dto.getSearch(), "t.material_code", "bm.material_name");
-		qw.eq("t.company_code", this.getCompanyCode());
-		qw.notEmptyEq("t.status", dto.getStatus());
-		qw.notEmptyLike("t.material_code_name", dto.getMaterialCodeName());
-		qw.notEmptyLike("t.supplier_name", dto.getSupplierName());
-		qw.notEmptyLike("t.material_code", dto.getMaterialCode());
-		qw.notEmptyLike("t.material_name", dto.getMaterialName());
-		qw.andLike(dto.getCategoryId(), "t.category_id", "bm.category_ids");
+		qw.andLike(dto.getSearch(), "t.material_code", "material_name");
+		qw.eq("company_code", this.getCompanyCode());
+		qw.notEmptyEq("status", dto.getStatus());
+		qw.notEmptyLike("material_code_name", dto.getMaterialCodeName());
+		qw.notEmptyLike("supplier_name", dto.getSupplierName());
+		qw.notEmptyLike("material_code", dto.getMaterialCode());
+		qw.notEmptyLike("material_name", dto.getMaterialName());
+		qw.andLike(dto.getCategoryId(), "category_id", "category_ids");
 		Page<BomSelMaterialVo> page = PageHelper.startPage(dto);
 		List<BomSelMaterialVo> list = getBaseMapper().getBomSelMaterialList(qw);
 		if (CollUtil.isNotEmpty(list)) {
