@@ -6,28 +6,51 @@
 *****************************************************************************/
 package com.base.sbc.module.basicsdatum.controller;
 
-import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.module.basicsdatum.dto.*;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
-import com.base.sbc.module.basicsdatum.vo.*;
-import com.base.sbc.module.pack.vo.BomSelMaterialVo;
-import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.util.List;
-import java.util.Map;
+import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthGroupSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialSelectVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
+import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+import com.github.pagehelper.PageInfo;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * 类描述：基础资料-物料档案
@@ -116,6 +139,12 @@ public class BasicsdatumMaterialController {
 	@PostMapping("/saveBasicsdatumMaterialWidth")
 	public Boolean saveBasicsdatumMaterialWidth(@Valid @RequestBody BasicsdatumMaterialWidthSaveDto dto) {
 		return basicsdatumMaterialService.saveBasicsdatumMaterialWidth(dto);
+	}
+
+	@ApiOperation(value = "物料规格:按规格组清理并批量导入新增规格")
+	@PostMapping("/saveBasicsdatumMaterialWidthGroup")
+	public Boolean saveBasicsdatumMaterialWidthGroup(@Valid @RequestBody BasicsdatumMaterialWidthGroupSaveDto dto) {
+		return basicsdatumMaterialService.saveBasicsdatumMaterialWidthGroup(dto);
 	}
 
 	@ApiOperation(value = "物料规格:停用/启用规格")

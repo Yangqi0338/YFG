@@ -83,4 +83,10 @@ public class BasicsdatumMaterialPrice extends BaseDataEntity<String> {
 	/** 供应商料号 */
 	@ApiModelProperty(value = "供应商料号")
 	private String supplierMaterialCode;
+	/** FOB */
+	@ApiModelProperty(value = "FOB")
+	private String fob;
+	/** 是否默认 */
+	@ApiModelProperty(value = "是否默认")
+	private String selectFlag;
 }
