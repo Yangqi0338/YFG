@@ -35,10 +35,12 @@ import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -77,6 +79,10 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
 
     @Autowired
     private MinioUtils minioUtils;
+
+    @Autowired
+    @Lazy
+    private SmpService smpService;
 /** 自定义方法区 不替换的区域【other_start】 **/
 
     /**
@@ -279,6 +285,9 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
             }
             BeanUtils.copyProperties(addRevampBasicsdatumColourLibraryDto, basicsdatumColourLibrary);
             basicsdatumColourLibrary.updateInit();
+            if ("1".equals(basicsdatumColourLibrary.getScmSendFlag())){
+                smpService.color(basicsdatumColourLibrary.getId().split(","));
+            }
             baseMapper.updateById(basicsdatumColourLibrary);
         }
         return true;

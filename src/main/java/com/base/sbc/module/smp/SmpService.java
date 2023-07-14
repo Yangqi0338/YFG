@@ -270,6 +270,8 @@ public class SmpService {
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpColorDto, "smp", "颜色主数据下发");
             if (aBoolean){
                 i++;
+                basicsdatumColourLibrary.setScmSendFlag("1");
+                basicsdatumColourLibraryService.updateById(basicsdatumColourLibrary);
             }
         }
         return i;
