@@ -27,8 +27,6 @@
                      ps.bulk_prod_tech_confirm_date,
                      ps.post_tech_confirm,
                      ps.post_tech_confirm_date,
-                     ps.qc_confirm,
-                     ps.qc_confirm_date,
                      ps.size_lock_flag,
                      ps.tech_spec_confirm_status,
                      ps.wash_skipping_flag,
