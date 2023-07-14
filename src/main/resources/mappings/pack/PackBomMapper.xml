@@ -17,5 +17,137 @@
         where bom_version_id = #{bomVersionId}
     </select>
 
+    <select id="fabricSummaryList" parameterType="com.base.sbc.module.pricing.dto.FabricSummaryDTO" resultType="com.base.sbc.module.pricing.vo.FabricSummaryVO">
+        SELECT
+            *
+        FROM
+            (
+            SELECT
+                bc.id AS color_id,
+                b.id AS book_id,
+                bc.order_book_code,
+                bc.style_no,
+                t2.design_no,
+                b.meet_flag,
+                b.lock_flag
+            FROM
+                t_sample_style_order_book_color bc
+                LEFT JOIN t_sample_style_order_book b ON bc.order_book_code = b.order_book_code
+                LEFT JOIN t_sample_style_group sg ON bc.style_no = sg.style_no
+                AND sg.del_flag = '0'
+                LEFT JOIN t_sample_style_color t1 ON bc.style_no = t1.style_no
+                AND t1.del_flag = '0'
+                LEFT JOIN t_sample_design t2 ON t1.design_no = t2.design_no
+                AND t2.del_flag = '0'
+            WHERE
+                bc.del_flag = '0'
+                AND b.meet_flag = '1'
+            ) cbgcd
+            LEFT JOIN (
+            SELECT
+                pb.material_id AS id,
+                pb.material_name,
+                bm.image_url,
+                bm.category_name,
+                bm.supplier_id,
+                bm.supplier_name,
+                pb.supplier_material_code,
+                pb.material_code,
+                bm.factory_composition,
+                pb.part,
+                bm.translate,
+                pb.color,
+                pb.remarks,
+                bm.purchase_unit_name,
+                pb.price,
+                pb.loss_rate,
+                pb.cost,
+                pb.supplier_price,
+                sd.design_no AS design_no_two,
+                sd.month,
+                sd.band_code
+            FROM
+                t_pack_bom pb
+                LEFT JOIN t_basicsdatum_material bm ON bm.id = pb.material_id
+                LEFT JOIN t_pack_info pi ON pi.id = pb.foreign_id
+                AND pi.del_flag = '0'
+                LEFT JOIN t_sample_design sd ON sd.id = pi.foreign_id
+                AND sd.del_flag = '0'
+            WHERE
+                pb.pack_type = 'packDesign'
+                AND pb.del_flag = '0'
+            GROUP BY
+                pb.material_code
+            ) bid ON cbgcd.design_no = bid.design_no_two
+        WHERE
+           bid.material_code IS NOT NULL
+        <if test="null != search and '' != search">
+            AND (bid.material_code LIKE  concat('%',#{search},'%') OR bid.material_name LIKE  concat('%',#{search},'%'))
+        </if>
+        <if test="null != month">
+            AND  bid.month = #{month}
+        </if>
+        <if test="null != bandCode">
+            AND  bid.band_code = #{bandCode}
+        </if>
+        <if test="null != monthList">
+            AND  bid.month  in
+            <foreach collection="monthList" item=" month" separator="," open="(" close=")">
+                #{ month}
+            </foreach>
+        </if>
+        <if test="bandList != null and bandList.size != 0">
+            AND bid.band_code in
+            <foreach collection="bandList" item="bandCode" separator="," open="(" close=")">
+                #{bandCode}
+            </foreach>
+        </if>
+        GROUP BY
+            bid.material_code
+    </select>
+
+    <select id="querySampleDesignInfoByMaterialId" resultType="com.base.sbc.module.pricing.vo.MaterialSampleDesignVO">
+        SELECT
+            ssc.id,
+            uf.url,
+            sd.band_code,
+            b.band_name,
+            ssc.category_name,
+            ssc.style_no,
+            ssc.design_no,
+            ssc.color_name,
+            ssc.color_specification,
+            ssc.sales_type,
+            ssc.is_trim,
+            ssc.principal_style
+        FROM
+            t_sample_style_color ssc
+            LEFT JOIN t_sample_design sd ON sd.id = ssc.sample_design_id
+            LEFT JOIN t_upload_file uf ON uf.id = sd.style_pic
+            LEFT JOIN t_band b ON b.CODE = sd.band_code
+            LEFT JOIN (
+            SELECT
+                sd.design_no AS design_no_two,
+                pi.style_no,
+                pb.material_id
+            FROM
+                t_pack_bom pb
+                LEFT JOIN t_pack_info pi ON pi.id = pb.foreign_id
+                AND pi.del_flag = '0'
+                LEFT JOIN t_sample_design sd ON sd.id = pi.foreign_id
+                AND sd.del_flag = '0'
+            WHERE
+                pb.pack_type = 'packDesign'
+                AND pb.del_flag = '0'
+            GROUP BY
+                pb.material_code
+            ) AS bmid ON bmid.design_no_two = sd.design_no
+        WHERE
+            ssc.del_flag = '0'
+            AND bmid.material_id = #{materialId}
+    </select>
+
+
+
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
