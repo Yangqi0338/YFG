@@ -77,5 +77,5 @@ public class BasicsdatumMaterialPriceSaveDto {
 	private String fob;
 	/** 是否默认 */
 	@ApiModelProperty(value = "是否默认")
-	private String selectFlag;
+	private Boolean selectFlag;
 }

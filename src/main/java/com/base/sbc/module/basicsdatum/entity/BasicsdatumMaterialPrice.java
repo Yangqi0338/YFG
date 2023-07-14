@@ -88,5 +88,5 @@ public class BasicsdatumMaterialPrice extends BaseDataEntity<String> {
 	private String fob;
 	/** 是否默认 */
 	@ApiModelProperty(value = "是否默认")
-	private String selectFlag;
+	private Boolean selectFlag;
 }
