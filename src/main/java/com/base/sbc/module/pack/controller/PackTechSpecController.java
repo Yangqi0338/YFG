@@ -59,7 +59,7 @@ public class PackTechSpecController {
 
     @ApiOperation(value = "列表")
     @GetMapping
-    public List<PackTechSpecVo> page(@Valid PackTechSpecSearchDto dto) {
+    public List<PackTechSpecVo> page(PackTechSpecSearchDto dto) {
         return packTechSpecService.list(dto);
     }
 
