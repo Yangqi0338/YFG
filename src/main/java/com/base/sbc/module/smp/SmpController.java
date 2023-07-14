@@ -6,6 +6,7 @@ import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,16 +26,25 @@ public class SmpController extends BaseController {
     /**
      * 物料主数据下发(物料档案)
      */
-    @PatchMapping("/material")
+    @PutMapping("/material")
     public ApiResult material(String[] ids) {
         Integer i = smpService.materials(ids);
         return insertSuccess("下发："+ids.length+"条，成功："+i+"条");
     }
 
     /**
+     * 颜色主数据下发
+     */
+    @PutMapping("/color")
+    public ApiResult color(String[] ids) {
+        Integer i = smpService.color(ids);
+        return insertSuccess("下发："+ids.length+"条，成功："+i+"条");
+    }
+
+    /**
      * bom下发
      */
-    @PatchMapping("/bom")
+    @PutMapping("/bom")
     public ApiResult bom(String[] ids) {
         Integer i = smpService.bom(ids);
         return insertSuccess("下发："+ids.length+"条，成功："+i+"条");

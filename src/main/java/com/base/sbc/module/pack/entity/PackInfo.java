@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.smp.dto.SmpBomDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -31,6 +32,28 @@ public class PackInfo extends BaseDataEntity<String> {
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
+    public SmpBomDto toSmpBomDto(){
+        // TODO: 2023/7/14 未完成
+        SmpBomDto smpBomDto=new SmpBomDto();
+        smpBomDto.setBomCode(code);
+        smpBomDto.setPColorName(color);
+        smpBomDto.setPColorCode(colorCode);
+        smpBomDto.setBulkNumber(styleNo);
+        smpBomDto.setColorName(null);
+        smpBomDto.setColorCode(null);
+        smpBomDto.setBomStage(null);
+        smpBomDto.setMaterialCode(null);
+        smpBomDto.setMaterialName(null);
+        smpBomDto.setMaterialUnit(null);
+        smpBomDto.setPlaceOfUse(null);
+        smpBomDto.setLossRate(null);
+        smpBomDto.setSupplierMaterialCode(null);
+        smpBomDto.setQuotationSupplierCode(null);
+        smpBomDto.setCollocation(null);
+        smpBomDto.setBomLineItemId(null);
+        smpBomDto.setMainMaterial(null);
+        return smpBomDto;
+    }
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/

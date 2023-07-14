@@ -108,9 +108,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		//if ("fabric".equals(entity.getMaterialType())) {
 			//this.saveFabricWidth(entity.getMaterialCode(), BigDecimalUtil.convertString(entity.getTranslate()));
 		//}
-
+		if (entity.getId()!=null && "1".equals(entity.getDistribute())){
+			smpService.materials(entity.getId().split(","));
+		}
 		this.saveOrUpdate(entity);
-		smpService.materials(entity.getId().split(","));
+
+
 		return CopyUtil.copy(entity, BasicsdatumMaterialVo.class);
 	}
 
@@ -173,6 +176,16 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		UpdateWrapper<BasicsdatumMaterial> uw = new UpdateWrapper<>();
 		uw.in("id", StringUtils.convertList(dto.getIds()));
 		uw.set("status", dto.getStatus());
+
+		QueryWrapper<BasicsdatumMaterial> queryWrapper =new QueryWrapper<>();
+		queryWrapper.in("id",dto.getIds());
+		for (BasicsdatumMaterial basicsdatumMaterial : this.list(queryWrapper)) {
+			if ("1".equals(basicsdatumMaterial.getDistribute())){
+				smpService.materials(basicsdatumMaterial.getId().split(","));
+			}
+		}
+
+
 		return this.update(null, uw);
 	}
 

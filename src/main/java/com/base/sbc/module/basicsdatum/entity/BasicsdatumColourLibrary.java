@@ -7,7 +7,9 @@
 package com.base.sbc.module.basicsdatum.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.smp.dto.SmpColorDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -29,6 +31,27 @@ public class BasicsdatumColourLibrary extends BaseDataEntity<String> {
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
+    public SmpColorDto toSmpColorDto(){
+        IdGen idGen =new IdGen();
+        SmpColorDto smpColorDto =new SmpColorDto();
+        smpColorDto.setId(id);
+        smpColorDto.setName(colourName);
+        smpColorDto.setSyncId(String.valueOf(idGen.nextId()));
+        smpColorDto.setActive("0".equals(status));
+        smpColorDto.setCreator(getCreateName());
+        smpColorDto.setCreateTime(getCreateDate());
+        smpColorDto.setModifiedPerson(getUpdateName());
+        smpColorDto.setModifiedTime(getUpdateDate());
+
+        smpColorDto.setColorName(colourName);
+        smpColorDto.setColorCode(colourCode);
+        smpColorDto.setColorType(colorType);
+        smpColorDto.setColorTypeName(null);
+        smpColorDto.setColorChromaId(chroma);
+        smpColorDto.setColorChroma(null);
+        smpColorDto.setRange(("1".equals(isStyle)? "款式/" : "")+("1".equals(isMaterials)? "材料" : ""));
+        return smpColorDto;
+    }
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 

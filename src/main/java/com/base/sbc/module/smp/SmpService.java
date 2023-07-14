@@ -17,12 +17,18 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
 import com.base.sbc.module.basicsdatum.service.SpecificationService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
+import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomSize;
+import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pushRecords.entity.PushRecords;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.SampleDesign;
@@ -74,6 +80,12 @@ public class SmpService {
 
     private final UserUtils userUtils;
 
+    private final PackInfoService packInfoService;
+
+    private final PackBomService packBomService;
+
+    private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
+
 
     private static final String URL = "http://10.98.250.31:7006/pdm";
     //private static final String URL = "http://smp-i.eifini.com/service-manager/pdm";
@@ -90,6 +102,9 @@ public class SmpService {
      * 物料主数据下发
      */
     public Integer materials(String[] ids) {
+        if (ids.length == 0) {
+            return 0;
+        }
         QueryWrapper<BasicsdatumMaterial> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.in("id", Arrays.asList(ids));
         List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(queryWrapper);
@@ -174,9 +189,9 @@ public class SmpService {
                 smpQuot.setSupplierName(basicsdatumMaterialPricePageVo.getSupplierName());
                 smpQuot.setComment(null);
                 smpQuot.setTradeTermKey(null);
-                if(basicsdatumMaterialPricePageVo.getSupplierId().equals(basicsdatumMaterial.getSupplierId())){
+                if (basicsdatumMaterialPricePageVo.getSupplierId().equals(basicsdatumMaterial.getSupplierId())) {
                     smpQuot.setDefaultQuote(true);
-                }else {
+                } else {
                     smpQuot.setDefaultQuote(false);
                 }
 
@@ -225,7 +240,14 @@ public class SmpService {
      * bom下发
      */
     public Integer bom(String[] ids) {
-        SmpBomDto bomDto =new SmpBomDto();
+        // TODO: 2023/7/14 未完成
+        QueryWrapper<PackInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id", Arrays.asList(ids));
+        List<PackInfo> list = packInfoService.list(queryWrapper);
+        for (PackInfo packInfo : list) {
+            SmpBomDto smpBomDto = packInfo.toSmpBomDto();
+            List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getForeignId()));
+        }
         //HttpResp httpResp = restTemplateService.spmPost(URL + "/bom", smpBomDto);
         //return pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
         return null;
@@ -234,9 +256,23 @@ public class SmpService {
     /**
      * 颜色主数据下发
      */
-    public Boolean color(SmpColorDto smpColorDto) {
-        HttpResp httpResp = restTemplateService.spmPost(URL + "/color", smpColorDto);
-        return pushRecordsService.pushRecordSave(httpResp, smpColorDto, "smp", "颜色主数据下发");
+    public Integer color(String[] ids) {
+        if (ids.length == 0) {
+            return 0;
+        }
+        List<BasicsdatumColourLibrary> basicsdatumColourLibraries = basicsdatumColourLibraryService.list(new QueryWrapper<BasicsdatumColourLibrary>().in("id", Arrays.asList(ids)));
+
+        int i = 0;
+        for (BasicsdatumColourLibrary basicsdatumColourLibrary : basicsdatumColourLibraries) {
+            SmpColorDto smpColorDto = basicsdatumColourLibrary.toSmpColorDto();
+
+            HttpResp httpResp = restTemplateService.spmPost(URL + "/color", smpColorDto);
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpColorDto, "smp", "颜色主数据下发");
+            if (aBoolean){
+                i++;
+            }
+        }
+        return i;
     }
 
     /**
