@@ -62,7 +62,7 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
     public List<PackTechSpecVo> list(PackTechSpecSearchDto dto) {
         QueryWrapper<PackTechSpec> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
-        qw.eq("spec_type", dto.getSpecType());
+        qw.eq(StrUtil.isNotBlank(dto.getSpecType()), "spec_type", dto.getSpecType());
         qw.orderByAsc("sort", "id");
 
         List<PackTechSpec> list = list(qw);
@@ -113,7 +113,11 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
 
     @Override
     public List<AttachmentVo> picList(PackTechSpecSearchDto dto) {
-        return attachmentService.findByforeignId(dto.getForeignId(), dto.getPackType() + StrUtil.DASHED + dto.getSpecType());
+        if (StrUtil.isAllNotBlank(dto.getPackType(), dto.getSpecType())) {
+            return attachmentService.findByforeignId(dto.getForeignId(), dto.getPackType() + StrUtil.DASHED + dto.getSpecType());
+        } else {
+            return attachmentService.findByforeignIdTypeLikeStart(dto.getForeignId(), dto.getPackType() + StrUtil.DASHED + dto.getSpecType());
+        }
     }
 
     @Override

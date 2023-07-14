@@ -62,16 +62,21 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
      */
     @Override
     public List<AttachmentVo> findByforeignId(String foreignId, String type) {
-        return getBaseMapper().findByFId(foreignId, type);
+        return getBaseMapper().findByFId(foreignId, type, null);
+    }
+
+    @Override
+    public List<AttachmentVo> findByforeignIdTypeLikeStart(String foreignId, String typeLikeStart) {
+        return getBaseMapper().findByFId(foreignId, null, typeLikeStart);
     }
 
     @Override
     public AttachmentVo getAttachmentById(String id) {
         Attachment attachment = getById(id);
-        QueryWrapper<UploadFile> qw =new QueryWrapper<>();
-        qw.eq("id",attachment.getFileId());
+        QueryWrapper<UploadFile> qw = new QueryWrapper<>();
+        qw.eq("id", attachment.getFileId());
         List<UploadFile> list = uploadFileService.list(qw);
-        if(CollUtil.isNotEmpty(list)){
+        if (CollUtil.isNotEmpty(list)) {
             AttachmentVo attachmentVo = BeanUtil.copyProperties(list.get(0), AttachmentVo.class);
             attachmentVo.setId(id);
             attachmentVo.setFileId(attachment.getFileId());

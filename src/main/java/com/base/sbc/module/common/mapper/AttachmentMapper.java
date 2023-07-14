@@ -30,7 +30,7 @@ public interface AttachmentMapper extends BaseMapper<Attachment> {
  * 自定义方法区 不替换的区域【other_start】
  **/
 
-List<AttachmentVo> findByFId(@Param("foreignId") String foreignId, @Param("type") String type);
+List<AttachmentVo> findByFId(@Param("foreignId") String foreignId, @Param("type") String type, @Param("typeLikeStart") String typeLikeStart);
 
     List<AttachmentVo> findByQw(@Param(Constants.WRAPPER) QueryWrapper wrappe);
 /** 自定义方法区 不替换的区域【other_end】 **/

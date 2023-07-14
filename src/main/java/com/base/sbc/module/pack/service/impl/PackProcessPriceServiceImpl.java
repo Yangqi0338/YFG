@@ -8,8 +8,10 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
@@ -71,6 +73,7 @@ public class PackProcessPriceServiceImpl extends PackBaseServiceImpl<PackProcess
         PackProcessPrice pageData = BeanUtil.copyProperties(dto, PackProcessPrice.class);
         if (CommonUtils.isInitId(pageData.getId())) {
             pageData.setId(null);
+            pageData.setEndNode(Opt.ofBlankAble(pageData.getEndNode()).orElse(BaseGlobal.NO));
             save(pageData);
             dto.setId(pageData.getId());
         } else {

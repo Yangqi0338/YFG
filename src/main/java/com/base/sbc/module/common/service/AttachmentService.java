@@ -39,6 +39,14 @@ public interface AttachmentService extends BaseService<Attachment> {
 
     List<AttachmentVo> findByforeignId(String foreignId, String type);
 
+    /**
+     * 通过fid 查询
+     *
+     * @param foreignId
+     * @return
+     */
+
+    List<AttachmentVo> findByforeignIdTypeLikeStart(String foreignId, String typeLikeStart);
 
     AttachmentVo getAttachmentById(String id);
 

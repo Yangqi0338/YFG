@@ -581,6 +581,13 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         stylePlanningCommonQw(brandTotalQw, dto);
         List<DimensionTotalVo> bandTotal = getBaseMapper().dimensionTotal(brandTotalQw);
         vo.setBandTotal(PlanningUtils.removeEmptyAndSort(bandTotal));
+        Map<String, String> bandNames = new HashMap<>(4);
+        if (CollUtil.isNotEmpty(bandTotal)) {
+            bandNames = bandService.getNamesByCodes(bandTotal.stream().map(DimensionTotalVo::getName).collect(Collectors.joining(StrUtil.COMMA)));
+            for (DimensionTotalVo dimensionTotalVo : bandTotal) {
+                dimensionTotalVo.setName(bandNames.getOrDefault(dimensionTotalVo.getName(), dimensionTotalVo.getName()));
+            }
+        }
         //查询品类统计
         QueryWrapper categoryQw = new QueryWrapper();
         categoryQw.select("prod_category as name,count(1) as total");
@@ -594,6 +601,9 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         stylePlanningCommonQw(detailQw, dto);
         List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw);
         if (CollUtil.isNotEmpty(detailVoList)) {
+            for (PlanningSummaryDetailVo planningSummaryDetailVo : detailVoList) {
+                planningSummaryDetailVo.setBandCode(bandNames.getOrDefault(planningSummaryDetailVo.getBandCode(), planningSummaryDetailVo.getBandCode()));
+            }
             amcFeignService.setUserAvatarToList(detailVoList);
             attachmentService.setListStylePic(detailVoList, "stylePic");
             ccmFeignService.setCategoryName(detailVoList, "prodCategory", "prodCategory");

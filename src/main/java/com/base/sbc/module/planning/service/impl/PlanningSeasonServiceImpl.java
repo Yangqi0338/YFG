@@ -13,6 +13,7 @@ import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
@@ -40,6 +41,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -67,6 +69,8 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     private PlanningBandService planningBandService;
     @Resource
     private PlanningCategoryItemService planningCategoryItemService;
+    @Resource
+    private BandService bandService;
 
     @Override
     public boolean del(String companyCode, String id) {
@@ -267,6 +271,14 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         planningSummaryQw(brandTotalQw, dto);
         List<DimensionTotalVo> bandTotal = planningCategoryItemService.dimensionTotal(brandTotalQw);
         vo.setBandTotal(PlanningUtils.removeEmptyAndSort(bandTotal));
+        Map<String, String> bandNames = new HashMap<>(4);
+        if (CollUtil.isNotEmpty(bandTotal)) {
+            bandNames = bandService.getNamesByCodes(bandTotal.stream().map(DimensionTotalVo::getName).collect(Collectors.joining(StrUtil.COMMA)));
+            for (DimensionTotalVo dimensionTotalVo : bandTotal) {
+                dimensionTotalVo.setName(bandNames.getOrDefault(dimensionTotalVo.getName(), dimensionTotalVo.getName()));
+            }
+        }
+
         //查询品类统计
         QueryWrapper categoryQw = new QueryWrapper();
         categoryQw.select("prod_category as name,count(1) as total");
@@ -280,6 +292,9 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         planningSummaryQw(detailQw, dto);
         List<PlanningSummaryDetailVo> detailVoList = planningCategoryItemService.planningSummaryDetail(detailQw);
         if (CollUtil.isNotEmpty(detailVoList)) {
+            for (PlanningSummaryDetailVo planningSummaryDetailVo : detailVoList) {
+                planningSummaryDetailVo.setBandCode(bandNames.getOrDefault(planningSummaryDetailVo.getBandCode(), planningSummaryDetailVo.getBandCode()));
+            }
             amcFeignService.setUserAvatarToList(detailVoList);
             ccmFeignService.setCategoryName(detailVoList, "prodCategory", "prodCategory");
             Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getProdCategory() + StrUtil.DASHED + k.getBandCode()));
