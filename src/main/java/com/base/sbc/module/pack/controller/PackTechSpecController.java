@@ -76,6 +76,7 @@ public class PackTechSpecController {
         return packTechSpecService.savePic(dto);
     }
 
+
     @ApiOperation(value = "删除图片")
     @DeleteMapping("/delPic")
     public boolean del(@Valid IdsDto ids) {
@@ -93,6 +94,13 @@ public class PackTechSpecController {
     @OperaLog(value = "工艺说明", pathSpEL = PackTechSpecService.pathSqEL, parentIdSpEl = "#dto.foreignId", operationType = OperationType.INSERT_UPDATE, service = PackTechSpecService.class)
     public PackTechSpecVo save(@Valid @RequestBody PackTechSpecDto dto) {
         return packTechSpecService.saveByDto(dto);
+    }
+
+
+    @ApiOperation(value = "复制")
+    @PostMapping("/copyOther")
+    public List<PackTechSpecVo> copyOther(@Valid @RequestBody List<PackTechSpecDto> list) {
+        return packTechSpecService.copyOther(list);
     }
 
     @ApiOperation(value = "排序")

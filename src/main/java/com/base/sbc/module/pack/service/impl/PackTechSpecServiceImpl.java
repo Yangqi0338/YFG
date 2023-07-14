@@ -100,6 +100,23 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
     }
 
     @Override
+    public List<PackTechSpecVo> copyOther(List<PackTechSpecDto> list) {
+        PackTechSpecDto dto = list.get(0);
+        QueryWrapper<PackTechSpec> countQw = new QueryWrapper<>();
+        PackUtils.commonQw(countQw, dto);
+        countQw.eq(StrUtil.isNotBlank(dto.getSpecType()), "spec_type", dto.getSpecType());
+        long count = count(countQw);
+        List<PackTechSpec> packTechSpecs = BeanUtil.copyToList(list, PackTechSpec.class);
+        for (PackTechSpec packTechSpec : packTechSpecs) {
+            packTechSpec.setId(null);
+            CommonUtils.resetCreateUpdate(packTechSpec);
+            packTechSpec.setSort(new BigDecimal(++count));
+        }
+        saveBatch(packTechSpecs);
+        return BeanUtil.copyToList(packTechSpecs, PackTechSpecVo.class);
+    }
+
+    @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean sort(String id) {
         List<String> ids = StrUtil.split(id, CharUtil.COMMA);
@@ -136,6 +153,7 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
         operaLogService.list(qw);
         return objects.toPageInfo();
     }
+
 
     @Override
     String getModeName() {

@@ -81,6 +81,14 @@ public interface PackTechSpecService extends PackBaseService<PackTechSpec> {
      */
     PageInfo<OperaLogEntity> operationLog(PackTechSpecPageDto pageDto);
 
+    /**
+     * 复制
+     *
+     * @param list
+     * @return
+     */
+    List<PackTechSpecVo> copyOther(List<PackTechSpecDto> list);
+
 // 自定义方法区 不替换的区域【other_end】
 
 
