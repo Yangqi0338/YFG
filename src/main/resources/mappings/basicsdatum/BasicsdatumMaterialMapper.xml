@@ -72,6 +72,7 @@
 						bm.id AS            material_id,
 						bm.material_name,
 						bm.material_code,
+						bm.status,
 						bm.material_code_name,
 						bm.image_url,
 						bm.category_name,
