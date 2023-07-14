@@ -17,8 +17,8 @@ import lombok.Data;
 public class BasicsdatumMaterialColorSelectVo {
 	/** 颜色代码 */
 	@ApiModelProperty(value = "颜色代码")
-	private String colorCode;
+	private String colourCode;
 	/** 颜色代码 */
 	@ApiModelProperty(value = "颜色")
-	private String color;
+	private String colourName;
 }
