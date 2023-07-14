@@ -113,6 +113,10 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      */
     PackInfoListVo getDetail(String id, String packType);
 
+    boolean startApproval(String id);
+
+    boolean approval(AnswerDto dto);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

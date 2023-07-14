@@ -26,15 +26,9 @@ import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.pack.dto.PackBomVersionDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
-import com.base.sbc.module.pack.entity.PackBom;
-import com.base.sbc.module.pack.entity.PackBomSize;
-import com.base.sbc.module.pack.entity.PackBomVersion;
-import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackBomVersionMapper;
-import com.base.sbc.module.pack.service.PackBomService;
-import com.base.sbc.module.pack.service.PackBomSizeService;
-import com.base.sbc.module.pack.service.PackBomVersionService;
-import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.github.pagehelper.Page;
@@ -44,10 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 类描述：资料包-物料清单-物料版本 service类
@@ -70,6 +61,8 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
     private PackBomSizeService packBomSizeService;
     @Resource
     private PackInfoService packInfoService;
+    @Resource
+    private PackInfoStatusService packInfoStatusService;
     @Resource
     private FlowableService flowableService;
 
@@ -212,17 +205,24 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public boolean approval(AnswerDto dto) {
         PackBomVersion version = getById(dto.getBusinessKey());
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(version.getForeignId(), version.getPackType());
         if (version != null) {
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
                 version.setConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+                packInfoStatus.setBulkOrderClerkConfirm(BaseGlobal.YES);
+                packInfoStatus.setBulkOrderClerkConfirmDate(new Date());
+
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
                 version.setConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
+                packInfoStatus.setBulkOrderClerkConfirm(BaseGlobal.NO);
             }
+            packInfoStatusService.updateById(packInfoStatus);
             updateById(version);
         }
         return true;
