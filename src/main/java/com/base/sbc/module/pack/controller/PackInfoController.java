@@ -12,10 +12,9 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
-import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
-import com.base.sbc.module.pack.dto.PackCommonSearchDto;
-import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
+import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pack.vo.SampleDesignPackInfoListVo;
@@ -47,11 +46,25 @@ public class PackInfoController {
 
 	@Autowired
 	private PackInfoService packInfoService;
+	@Autowired
+	private PackInfoStatusService packInfoStatusService;
 
 	@ApiOperation(value = "设计BOM管理列表-分页查询")
 	@GetMapping
 	public PageInfo<SampleDesignPackInfoListVo> pageBySampleDesign(@Valid PackInfoSearchPageDto pageDto) {
 		return packInfoService.pageBySampleDesign(pageDto);
+	}
+
+	@ApiOperation(value = "资料包明细")
+	@GetMapping("/getDetail")
+	public PackInfoListVo getDetail(@Valid PackInfoDetailSearchDto dto) {
+		return packInfoService.getDetail(dto.getId(), dto.getPackType());
+	}
+
+	@ApiOperation(value = "资料包启用停用")
+	@PostMapping("/enableFlagSetting")
+	public boolean enableFlagSetting(@Valid @RequestBody EnableFlagSettingDto dto) {
+		return packInfoStatusService.enableFlagSetting(dto.getForeignId(), dto.getPackType(), dto.getEnableFlag());
 	}
 
 	@ApiOperation(value = "标准资料包-分页查询")
@@ -63,7 +76,6 @@ public class PackInfoController {
 
 	@ApiOperation(value = "新建BOM(通过样衣设计)")
 	@GetMapping("/createBySampleDesign")
-
 	public PackInfoListVo createBySampleDesign(@Valid IdDto idDto) {
 		return packInfoService.createBySampleDesign(idDto.getId());
 	}

@@ -115,6 +115,22 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
+    public boolean washSkippingFlagSetting(String foreignId, String packType, String washSkippingFlag) {
+        PackInfoStatus packInfoStatus = get(foreignId, packType);
+        packInfoStatus.setWashSkippingFlag(washSkippingFlag);
+        return updateById(packInfoStatus);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean enableFlagSetting(String foreignId, String packType, String enableFlag) {
+        PackInfoStatus packInfoStatus = get(foreignId, packType);
+        packInfoStatus.setEnableFlag(enableFlag);
+        return updateById(packInfoStatus);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
     public PackInfoStatus get(String foreignId, String packType) {
         PackInfoStatus one = super.get(foreignId, packType);
         if (one != null) {

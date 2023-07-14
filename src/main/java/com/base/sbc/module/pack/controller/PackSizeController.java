@@ -12,6 +12,8 @@ import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackSizeDto;
+import com.base.sbc.module.pack.dto.WashSkippingFlagSettingDto;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.service.PackSizeService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackSizeVo;
@@ -47,6 +49,9 @@ public class PackSizeController {
     @Autowired
     private PackSizeService packSizeService;
 
+    @Autowired
+    private PackInfoStatusService packInfoStatusService;
+
     @ApiOperation(value = "分页查询")
     @GetMapping
     public PageInfo<PackSizeVo> page(@Valid PackCommonPageSearchDto dto) {
@@ -75,6 +80,11 @@ public class PackSizeController {
         return packSizeService.saveBatchByDto(commonDto, dtoList);
     }
 
+    @PostMapping("/washSkippingFlagSetting")
+    @ApiOperation(value = "洗后尺寸设置")
+    public boolean washSkippingFlagSetting(@Valid WashSkippingFlagSettingDto dto) {
+        return packInfoStatusService.washSkippingFlagSetting(dto.getForeignId(), dto.getPackType(), dto.getWashSkippingFlag());
+    }
 }
 
 

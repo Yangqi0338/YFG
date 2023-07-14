@@ -22,7 +22,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfoStatus
  * @email your email
- * @date 创建时间：2023-7-13 20:34:34
+ * @date 创建时间：2023-7-14 9:13:02
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -137,6 +137,11 @@ public class PackInfoStatus extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "工艺说明审批状态:待审核(1)、审核通过(2)、被驳回(-1)")
     private String techSpecConfirmStatus;
+    /**
+     * 尺寸表洗后尺寸跳码:(0不跳，1跳)
+     */
+    @ApiModelProperty(value = "尺寸表洗后尺寸跳码:(0关闭,1开启)")
+    private String washSkippingFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

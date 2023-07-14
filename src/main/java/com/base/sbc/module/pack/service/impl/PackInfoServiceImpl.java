@@ -322,6 +322,24 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     }
 
     @Override
+    public PackInfo get(String foreignId, String packType) {
+        QueryWrapper<PackInfo> qw = new QueryWrapper<>();
+        qw.in("id", foreignId);
+        qw.last("limit 1");
+        return getOne(qw);
+    }
+
+    @Override
+    public PackInfoListVo getDetail(String id, String packType) {
+        QueryWrapper<PackInfo> qw = new QueryWrapper<>();
+        qw.in("id", id);
+        qw.eq("pack_type", packType);
+        qw.last("limit 1");
+        List<PackInfoListVo> packInfoListVos = getBaseMapper().queryByQw(qw);
+        return CollUtil.get(packInfoListVos, 0);
+    }
+
+    @Override
     String getModeName() {
         return "资料包明细";
     }

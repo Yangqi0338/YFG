@@ -66,6 +66,10 @@ public interface PackInfoStatusService extends PackBaseService<PackInfoStatus> {
      */
     boolean approvalForTechSpec(AnswerDto dto);
 
+    boolean washSkippingFlagSetting(String foreignId, String packType, String washSkippingFlag);
+
+    boolean enableFlagSetting(String foreignId, String packType, String enableFlag);
+
 
 // 自定义方法区 不替换的区域【other_end】
 
