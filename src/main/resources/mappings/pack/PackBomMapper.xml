@@ -84,10 +84,10 @@
         <if test="null != search and '' != search">
             AND (bid.material_code LIKE  concat('%',#{search},'%') OR bid.material_name LIKE  concat('%',#{search},'%'))
         </if>
-        <if test="null != month">
+        <if test="null != month and '' != month">
             AND  bid.month = #{month}
         </if>
-        <if test="null != bandCode">
+        <if test="null != bandCode and '' != bandCode">
             AND  bid.band_code = #{bandCode}
         </if>
         <if test="null != monthList">
