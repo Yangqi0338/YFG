@@ -26,6 +26,9 @@ public class AddRevampBasicsdatumColourLibraryDto  {
     /** 颜色组id */
     @ApiModelProperty(value = "颜色组id"  )
     private String colorType;
+    /** 色系名称 */
+    @ApiModelProperty(value = "色系名称"  )
+    private String colorTypeName;
     /** 颜色规格 */
     @ApiModelProperty(value = "颜色规格"  )
     private String colourSpecification;
@@ -53,6 +56,9 @@ public class AddRevampBasicsdatumColourLibraryDto  {
     /** 色度 */
     @ApiModelProperty(value = "色度"  )
     private String chroma;
+    /** 色度名称 */
+    @ApiModelProperty(value = "色度名称"  )
+    private String chromaName;
     /** 英文名称 */
     @ApiModelProperty(value = "英文名称"  )
     private String englishName;
