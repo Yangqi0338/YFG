@@ -85,8 +85,9 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
         return b;
     }
 
+
     @Override
-    public Integer addAndUpdateAndDelList(List<T> entityList, QueryWrapper<T> queryWrapper) {
+    public Integer addAndUpdateAndDelList(List<T> entityList, QueryWrapper<T> queryWrapper, boolean delFlg) {
         OperaLogEntity log = new OperaLogEntity();
         String companyCode = userUtils.getCompanyCode();
         //分类
@@ -132,16 +133,17 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
         if (CollUtil.isNotEmpty(ustrList)) {
             stringBuilder.append("修改[" + CollUtil.join(ustrList, StrUtil.COMMA) + "]");
         }
-        if (CollUtil.isNotEmpty(dstrList)) {
-            stringBuilder.append("删除[" + CollUtil.join(dstrList, StrUtil.COMMA) + "]");
+        if (delFlg) {
+            if (CollUtil.isNotEmpty(dstrList)) {
+                stringBuilder.append("删除[" + CollUtil.join(dstrList, StrUtil.COMMA) + "]");
+            }
+            queryWrapper.eq("company_code", companyCode);
+            //逻辑删除传进来不存在的
+            if (ids.size() > 0) {
+                queryWrapper.notIn("id", ids);
+            }
+            this.remove(queryWrapper);
         }
-
-        queryWrapper.eq("company_code", companyCode);
-        //逻辑删除传进来不存在的
-        if (ids.size() > 0) {
-            queryWrapper.notIn("id", ids);
-        }
-        this.remove(queryWrapper);
         //新增
         this.saveBatch(addList);
         //修改

@@ -99,7 +99,7 @@ public class PackProcessPriceServiceImpl extends PackBaseServiceImpl<PackProcess
         }
         QueryWrapper<PackProcessPrice> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, commonDto);
-        addAndUpdateAndDelList(dataList, qw);
+        addAndUpdateAndDelList(dataList, qw, false);
         return true;
     }
 

@@ -2,6 +2,7 @@ package com.base.sbc.module.pack.vo;
 
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -24,10 +25,16 @@ public class BigGoodsPackInfoListVo {
     @ApiModelProperty(value = "id")
     private String id;
 
+    @JsonIgnore
+    @ApiModelProperty(value = "主数据id(样衣设计id)")
+    private String foreignId;
+
     @ApiModelProperty(value = "设计款号")
     private String designNo;
     @ApiModelProperty(value = "大货款号")
     private String styleNo;
+    @ApiModelProperty(value = "款式名称")
+    private String styleName;
 
     @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)")
     private String categoryName;
@@ -101,5 +108,13 @@ public class BigGoodsPackInfoListVo {
 
     public String getProdCategoryName() {
         return PlanningUtils.getProdCategoryName(categoryName);
+    }
+
+    public String getStyle() {
+        return designNo + styleName;
+    }
+
+    public String getSampleDesignId() {
+        return foreignId;
     }
 }

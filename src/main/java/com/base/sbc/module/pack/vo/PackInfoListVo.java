@@ -34,7 +34,8 @@ public class PackInfoListVo {
      */
     @ApiModelProperty(value = "设计款号")
     private String designNo;
-
+    @ApiModelProperty(value = "大货款号")
+    private String styleNo;
     @ApiModelProperty(value = "款式图")
     private String stylePic;
     /**

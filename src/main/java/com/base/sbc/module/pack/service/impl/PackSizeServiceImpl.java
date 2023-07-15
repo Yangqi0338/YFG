@@ -93,7 +93,7 @@ public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, Pac
         }
         QueryWrapper<PackSize> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, commonDto);
-        addAndUpdateAndDelList(packSizes, qw);
+        addAndUpdateAndDelList(packSizes, qw, false);
         return true;
     }
 
