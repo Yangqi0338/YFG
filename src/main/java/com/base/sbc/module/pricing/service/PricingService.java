@@ -7,10 +7,12 @@
 package com.base.sbc.module.pricing.service;
 
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.pricing.dto.PricingCountDTO;
 import com.base.sbc.module.pricing.dto.PricingDTO;
 import com.base.sbc.module.pricing.dto.PricingDelDTO;
 import com.base.sbc.module.pricing.dto.PricingSearchDTO;
 import com.base.sbc.module.pricing.entity.Pricing;
+import com.base.sbc.module.pricing.vo.PricingCountVO;
 import com.base.sbc.module.pricing.vo.PricingListVO;
 import com.base.sbc.module.pricing.vo.PricingVO;
 import com.github.pagehelper.PageInfo;
@@ -76,6 +78,7 @@ public interface PricingService extends BaseService<Pricing> {
 
     // TODO 费用计算
 
+    PricingCountVO costsCount(PricingCountDTO pricingCountDTO);
     // TODO
     // TODO
 

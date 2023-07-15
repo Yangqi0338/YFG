@@ -40,10 +40,20 @@ public class PricingMaterialCostsVO {
     @ApiModelProperty(value = "类别（物料分类id）")
     private String categoryId;
     /**
+     * 类别名称（物料分类名称）
+     */
+    @ApiModelProperty(value = "类别名称（物料分类名称）")
+    private String categoryName;
+    /**
      * 供应商id
      */
     @ApiModelProperty(value = "供应商id")
     private String supplierId;
+    /**
+     * 供应商名称
+     */
+    @ApiModelProperty(value = "供应商名称")
+    private String supplierName;
     /**
      * 部位
      */
@@ -70,6 +80,11 @@ public class PricingMaterialCostsVO {
     @ApiModelProperty(value = "单件用量")
     private BigDecimal unitNum;
     /**
+     * 单位名称
+     */
+    @ApiModelProperty(value = "单位名称")
+    private String unit;
+    /**
      * 单位
      */
     @ApiModelProperty(value = "单位")
@@ -85,6 +100,16 @@ public class PricingMaterialCostsVO {
     @ApiModelProperty(value = "额定单耗")
     private String ratedUnitConsumption;
     /**
+     * 合计用量
+     */
+    @ApiModelProperty(value = "合计用量")
+    private BigDecimal totalUsage;
+    /**
+     * 购买货币编码
+     */
+    @ApiModelProperty(value = "购买货币编码")
+    private String purchaseCurrencyCode;
+    /**
      * 购买货币
      */
     @ApiModelProperty(value = "购买货币")
@@ -94,6 +119,16 @@ public class PricingMaterialCostsVO {
      */
     @ApiModelProperty(value = "单价")
     private BigDecimal price;
+    /**
+     * 合计单价
+     */
+    @ApiModelProperty(value = "合计单价")
+    private BigDecimal totalPrice;
+    /**
+     * 报价货币编码
+     */
+    @ApiModelProperty(value = "报价货币编码")
+    private String quotationPriceCurrencyCode;
     /**
      * 报价货币
      */
@@ -125,11 +160,15 @@ public class PricingMaterialCostsVO {
     @ApiModelProperty(value = "联系人地址")
     private String contactsAddress;
     /**
+     * 工段分组编码
+     */
+    @ApiModelProperty(value = "工段分组编码")
+    private String workshopGroupCode;
+    /**
      * 工段分组
      */
     @ApiModelProperty(value = "工段分组")
     private String workshopGroup;
-
     /**
      * 核价颜色id
      */
@@ -140,4 +179,5 @@ public class PricingMaterialCostsVO {
      */
     @ApiModelProperty(value = "颜色编码")
     private String colorCode;
+
 }

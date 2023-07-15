@@ -27,10 +27,10 @@ public class PricingProcessCostsDTO {
     private static final long serialVersionUID = -5299387355896455301L;
     private String id;
     /**
-     * 序号
+     * 工序编号
      */
-    @ApiModelProperty(value = "序号")
-    private String sort;
+    @ApiModelProperty(value = "工序编号")
+    private String processCode;
     /**
      * 部位
      */
@@ -42,45 +42,20 @@ public class PricingProcessCostsDTO {
     @ApiModelProperty(value = "工序名称")
     private String processName;
     /**
-     * 工序等级
+     * 工时
      */
-    @ApiModelProperty(value = "工序等级")
-    private String processLevel;
+    @ApiModelProperty(value = "工时")
+    private String workingHours;
     /**
-     * 末节点
+     * 标准单价
      */
-    @ApiModelProperty(value = "末节点")
-    private String finallyNode;
-    /**
-     * GST工价
-     */
-    @ApiModelProperty(value = "GST工价")
-    private BigDecimal gstProcessPrice;
-    /**
-     * 倍率
-     */
-    @ApiModelProperty(value = "倍率")
-    private BigDecimal magnification;
+    @ApiModelProperty(value = "标准单价")
+    private BigDecimal standardUnitPrices;
     /**
      * 倍数
      */
     @ApiModelProperty(value = "倍数")
     private BigDecimal multiple;
-    /**
-     * IE工价
-     */
-    @ApiModelProperty(value = "IE工价")
-    private BigDecimal ieProcessPrice;
-    /**
-     * 标准工时(秒)
-     */
-    @ApiModelProperty(value = "标准工时(秒)")
-    private BigDecimal processDate;
-    /**
-     * 最高标准工价
-     */
-    @ApiModelProperty(value = "最高标准工价")
-    private BigDecimal maxProcePrice;
     /**
      * 货币
      */
@@ -92,13 +67,14 @@ public class PricingProcessCostsDTO {
     @ApiModelProperty(value = "报价单价")
     private BigDecimal quotationPrice;
     /**
+     * 报价货币编码
+     */
+    @ApiModelProperty(value = "报价货币编码")
+    private String quotationPriceCurrencyCode;
+    /**
      * 报价货币
      */
     @ApiModelProperty(value = "报价货币")
     private String quotationPriceCurrency;
-    /**
-     * 工价
-     */
-    @ApiModelProperty(value = "工价")
-    private BigDecimal processPrice;
+
 }

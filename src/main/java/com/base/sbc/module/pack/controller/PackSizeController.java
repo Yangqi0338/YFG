@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.OperationType;
@@ -27,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -84,6 +86,30 @@ public class PackSizeController {
     @ApiOperation(value = "洗后尺寸设置")
     public boolean washSkippingFlagSetting(@Valid WashSkippingFlagSettingDto dto) {
         return packInfoStatusService.washSkippingFlagSetting(dto.getForeignId(), dto.getPackType(), dto.getWashSkippingFlag());
+    }
+
+    @ApiOperation(value = "锁定")
+    @GetMapping("/lock")
+    public boolean lock(@Valid PackCommonSearchDto dto) {
+        return packInfoStatusService.lockSize(dto.getForeignId(), dto.getPackType());
+    }
+
+    @ApiOperation(value = "解锁")
+    @GetMapping("/unlock")
+    public boolean unlock(@Valid PackCommonSearchDto dto) {
+        return packInfoStatusService.unlockSize(dto.getForeignId(), dto.getPackType());
+    }
+
+    @ApiOperation(value = "提交审批")
+    @GetMapping("/startApproval")
+    public boolean startReverseApproval(@Valid PackCommonSearchDto dto) {
+        return packInfoStatusService.startApprovalForSize(dto.getForeignId(), dto.getPackType());
+    }
+
+    @ApiIgnore
+    @PostMapping("/approval")
+    public boolean approval(@RequestBody AnswerDto dto) {
+        return packInfoStatusService.approvalForSize(dto);
     }
 }
 

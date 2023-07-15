@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
@@ -124,7 +125,11 @@ public class PackTechSpecController {
     @ApiOperation(value = "查询包装方式和体积重量")
     @GetMapping("/packaging")
     public PackTechPackaging getPackaging(@Valid PackCommonSearchDto dto) {
-        return packTechPackagingService.get(dto.getForeignId(), dto.getPackType());
+        PackTechPackaging packTechPackaging = packTechPackagingService.get(dto.getForeignId(), dto.getPackType());
+        if (packTechPackaging == null) {
+            return packTechPackagingService.savePackaging(BeanUtil.copyProperties(dto, PackTechPackaging.class));
+        }
+        return packTechPackaging;
     }
 
     @ApiOperation(value = "锁定")

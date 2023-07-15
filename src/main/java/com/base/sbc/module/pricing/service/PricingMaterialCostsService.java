@@ -34,7 +34,7 @@ public interface PricingMaterialCostsService extends BaseService<PricingMaterial
      * @param userCompany
      * @return
      */
-    List<PricingMaterialCostsVO> getByPricingCode(String pricingCode, String userCompany);
+    Map<String, List<PricingMaterialCostsVO>> getByPricingCode(String pricingCode, String userCompany);
 
     /**
      * 通过核价单号删除

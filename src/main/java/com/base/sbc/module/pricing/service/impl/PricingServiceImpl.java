@@ -15,14 +15,18 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.BusinessException;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.pricing.dto.PricingCountDTO;
 import com.base.sbc.module.pricing.dto.PricingDTO;
 import com.base.sbc.module.pricing.dto.PricingDelDTO;
 import com.base.sbc.module.pricing.dto.PricingSearchDTO;
 import com.base.sbc.module.pricing.entity.Pricing;
+import com.base.sbc.module.pricing.enums.PricingCountTypeEnum;
 import com.base.sbc.module.pricing.enums.PricingQueryDimensionEnum;
 import com.base.sbc.module.pricing.mapper.PricingMapper;
 import com.base.sbc.module.pricing.service.*;
+import com.base.sbc.module.pricing.vo.PricingCountVO;
 import com.base.sbc.module.pricing.vo.PricingListVO;
 import com.base.sbc.module.pricing.vo.PricingVO;
 import com.github.pagehelper.PageHelper;
@@ -36,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -160,6 +165,30 @@ public class PricingServiceImpl extends BaseServiceImpl<PricingMapper, Pricing> 
         // TODO 发起审批
 
 
+    }
+
+
+    @Override
+    public PricingCountVO costsCount(PricingCountDTO pricingCountDTO) {
+        PricingCountVO pricingCountVO = new PricingCountVO();
+        switch (PricingCountTypeEnum.getByK(pricingCountDTO.getCountType())) {
+            case MATERIAL_COSTS:
+                BigDecimal lossRate = BigDecimalUtil.add(BigDecimal.ONE, BigDecimalUtil.div(pricingCountDTO.getLossRate(), BigDecimal.valueOf(100), 2), 2);
+                pricingCountVO.setTotalPrice(Objects.isNull(pricingCountDTO.getExchangeRate()) ?
+                        BigDecimalUtil.mul(2, pricingCountDTO.getNum(), lossRate, pricingCountDTO.getPrice())
+                        : BigDecimalUtil.mul(2, pricingCountDTO.getNum(), lossRate, pricingCountDTO.getPrice(), pricingCountDTO.getExchangeRate()));
+                pricingCountVO.setTotalUsage(BigDecimalUtil.mul(2, pricingCountDTO.getNum(), lossRate));
+                break;
+            case PROCESS_COSTS:
+                pricingCountVO.setTotalPrice(BigDecimalUtil.mul(2, pricingCountDTO.getPrice(), pricingCountDTO.getMultiple()));
+                break;
+            case CRAFT_COSTS:
+                pricingCountVO.setTotalPrice(BigDecimalUtil.mul(2, pricingCountDTO.getNum(), pricingCountDTO.getPrice()));
+                break;
+            default:
+                break;
+        }
+        return pricingCountVO;
     }
 
     private void checkIsExistAuditing(String id, List<String> ids, String userCompany) {

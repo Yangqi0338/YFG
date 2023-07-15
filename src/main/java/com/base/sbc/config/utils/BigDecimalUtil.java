@@ -4,6 +4,8 @@ import com.base.sbc.config.constant.Constants;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Objects;
 
 
 /**
@@ -57,9 +59,9 @@ public class BigDecimalUtil {
 		BigDecimal b2 = new BigDecimal(Integer.toString(v2));
 		return b1.add(b2).intValue();
 	}
-	
-	
-	
+
+
+
 	/** 判断值是否相等
 	 * @param v1
 	 * @param v2
@@ -88,6 +90,23 @@ public class BigDecimalUtil {
 		}
 		return v1.add(v2);
 	}
+
+	/**
+	 * 判断是否为空
+	 * @param v1  被加数
+	 * @param v2  加数
+	 * @return 两个参数的和
+	 */
+	public static BigDecimal add(BigDecimal v1, BigDecimal v2, int scale) {
+		if(v1 == null){
+			v1 = BigDecimal.ZERO;
+		}
+		if(v2 == null){
+			v2 = BigDecimal.ZERO;
+		}
+		return v1.add(v2).setScale(scale, RoundingMode.HALF_UP);
+	}
+
 	/**
 	 * 获得绝对值
 	 * @param bigDecimal
@@ -194,7 +213,20 @@ public class BigDecimalUtil {
 		}
 		return v1.multiply(v2);
 	}
-	
+
+	/**
+	 * 提供精确的乘法运算。
+	 *
+	 * @return 两个参数的积
+	 */
+	public static BigDecimal mul(Integer scale,BigDecimal v, BigDecimal... values) {
+		BigDecimal total = Objects.isNull(v) ? BigDecimal.ZERO : v;
+		for (BigDecimal temp : values) {
+			total = total.multiply(Objects.isNull(temp) ? BigDecimal.ZERO : temp).setScale(scale, RoundingMode.HALF_UP);
+		}
+		return total;
+	}
+
 	/**
 	 * 提供精确的乘法运算。
 	 * @param v1  被乘数
@@ -273,6 +305,12 @@ public class BigDecimalUtil {
 		if (scale < 0) {
 			throw new IllegalArgumentException(
 			"The scale must be a positive integer or zero");
+		}
+		if(v1 == null){
+			v1 = BigDecimal.ZERO;
+		}
+		if(v2 == null){
+			v2 = BigDecimal.ZERO;
 		}
 		return v1.divide(v2, scale, BigDecimal.ROUND_HALF_UP);
 	}
