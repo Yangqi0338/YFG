@@ -5,7 +5,10 @@ import com.base.sbc.config.common.base.BaseController;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author 卞康
@@ -42,7 +45,7 @@ public class SmpController extends BaseController {
      * bom下发
      */
     @PutMapping("/bom")
-    public ApiResult bom(@RequestBody String[] ids) {
+    public ApiResult bom(String[] ids) {
         Integer i = smpService.bom(ids);
         return insertSuccess("下发："+ids.length+"条，成功："+i+"条");
     }
