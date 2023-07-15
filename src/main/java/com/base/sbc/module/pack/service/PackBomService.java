@@ -12,9 +12,9 @@ import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomVo;
-import com.base.sbc.module.pricing.dto.FabricSummaryDTO;
-import com.base.sbc.module.pricing.vo.FabricSummaryVO;
-import com.base.sbc.module.pricing.vo.MaterialSampleDesignVO;
+import com.base.sbc.module.sample.dto.FabricSummaryDTO;
+import com.base.sbc.module.sample.vo.FabricSummaryVO;
+import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 

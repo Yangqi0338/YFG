@@ -1,4 +1,4 @@
-package com.base.sbc.module.pricing.vo;
+package com.base.sbc.module.sample.vo;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
