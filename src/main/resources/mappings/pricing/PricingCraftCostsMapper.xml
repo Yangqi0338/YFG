@@ -12,16 +12,22 @@
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
     <select id="getByPricingCode" resultType="com.base.sbc.module.pricing.vo.PricingCraftCostsVO">
         SELECT
-            id,
-            pricing_code,
-            craft_name,
-            outsource,
-            processor_id,
-            currency,
-            quotation_price_currency,
-            exchange_rate,
-            quotation_price,
-            price
+        id,
+        pricing_code,
+        craft_id,
+        craft_name,
+        outsource,
+        processor_id,
+        processor_name,
+        currency_code,
+        currency,
+        quotation_price_currency_code,
+        quotation_price_currency,
+        exchange_rate,
+        quotation_price,
+        price,
+        num,
+        sum_price
         FROM
         t_pricing_craft_costs
         <where>

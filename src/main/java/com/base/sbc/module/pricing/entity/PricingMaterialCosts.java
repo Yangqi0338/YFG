@@ -14,13 +14,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+
 /**
  * 类描述：物料费用 实体类
- * @address com.base.sbc.module.pricing.entity.PricingMaterialCosts
- * @author xhj
- * @email ch.183.g1114@gmail.com
- * @date 创建时间：2023-6-16 15:09:25
+ *
+ * @author your name
  * @version 1.0
+ * @address com.base.sbc.module.pricing.entity.PricingMaterialCosts
+ * @email your email
+ * @date 创建时间：2023-7-15 10:22:04
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -28,91 +30,168 @@ import java.math.BigDecimal;
 @ApiModel("物料费用 PricingMaterialCosts")
 public class PricingMaterialCosts extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private static final long serialVersionUID = 1L;
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
-	/**********************************实体存放的其他字段区 【other_end】******************************************/
+    /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 备注信息 */
-    @ApiModelProperty(value = "备注信息"  )
+    /**
+     * 备注信息
+     */
+    @ApiModelProperty(value = "备注信息")
     private String remarks;
-    /** 报价单编码 */
-    @ApiModelProperty(value = "报价单编码"  )
+    /**
+     * 报价单编码
+     */
+    @ApiModelProperty(value = "报价单编码")
     private String pricingCode;
-    /** 类别（物料分类id） */
-    @ApiModelProperty(value = "类别（物料分类id）"  )
+    /**
+     * 类别（物料分类id）
+     */
+    @ApiModelProperty(value = "类别（物料分类id）")
     private String categoryId;
-    /** 类别名称（物料分类） */
-    @ApiModelProperty(value = "类别名称（物料分类）"  )
+    /**
+     * 类别名称（物料分类名称）
+     */
+    @ApiModelProperty(value = "类别名称（物料分类名称）")
     private String categoryName;
-
-    /** 供应商id */
-    @ApiModelProperty(value = "供应商id"  )
+    /**
+     * 供应商id
+     */
+    @ApiModelProperty(value = "供应商id")
     private String supplierId;
-    /** 供应商名称 */
-    @ApiModelProperty(value = "供应商名称"  )
+    /**
+     * 供应商名称
+     */
+    @ApiModelProperty(value = "供应商名称")
     private String supplierName;
-    /** 部位 */
-    @ApiModelProperty(value = "部位"  )
+    /**
+     * 部位
+     */
+    @ApiModelProperty(value = "部位")
     private String part;
-    /** 物料编号 */
-    @ApiModelProperty(value = "物料编号"  )
+    /**
+     * 物料编号
+     */
+    @ApiModelProperty(value = "物料编号")
     private String materialsCode;
-    /** 物料名称 */
-    @ApiModelProperty(value = "物料名称"  )
+    /**
+     * 物料名称
+     */
+    @ApiModelProperty(value = "物料名称")
     private String materialsName;
-    /** 幅宽(CM) */
-    @ApiModelProperty(value = "幅宽(CM)"  )
+    /**
+     * 幅宽(CM)
+     */
+    @ApiModelProperty(value = "幅宽(CM)")
     private String width;
-    /** 单件用量 */
-    @ApiModelProperty(value = "单件用量"  )
+    /**
+     * 单件用量
+     */
+    @ApiModelProperty(value = "单件用量")
     private BigDecimal unitNum;
-    /** 单位 */
-    @ApiModelProperty(value = "单位"  )
+    /**
+     * 单位名称
+     */
+    @ApiModelProperty(value = "单位名称")
+    private String unit;
+    /**
+     * 单位
+     */
+    @ApiModelProperty(value = "单位")
     private String unitCode;
-    /** 损耗% */
-    @ApiModelProperty(value = "损耗%"  )
+    /**
+     * 损耗%
+     */
+    @ApiModelProperty(value = "损耗%")
     private BigDecimal lossRate;
-    /** 额定单耗 */
-    @ApiModelProperty(value = "额定单耗"  )
+    /**
+     * 额定单耗
+     */
+    @ApiModelProperty(value = "额定单耗")
     private String ratedUnitConsumption;
-    /** 购买货币 */
-    @ApiModelProperty(value = "购买货币"  )
+    /**
+     * 合计用量
+     */
+    @ApiModelProperty(value = "合计用量")
+    private BigDecimal totalUsage;
+    /**
+     * 购买货币编码
+     */
+    @ApiModelProperty(value = "购买货币编码")
+    private String purchaseCurrencyCode;
+    /**
+     * 购买货币
+     */
+    @ApiModelProperty(value = "购买货币")
     private String purchaseCurrency;
-    /** 单价 */
-    @ApiModelProperty(value = "单价"  )
+    /**
+     * 单价
+     */
+    @ApiModelProperty(value = "单价")
     private BigDecimal price;
-    /** 报价货币 */
-    @ApiModelProperty(value = "报价货币"  )
+    /**
+     * 合计单价
+     */
+    @ApiModelProperty(value = "合计单价")
+    private BigDecimal totalPrice;
+    /**
+     * 报价货币编码
+     */
+    @ApiModelProperty(value = "报价货币编码")
+    private String quotationPriceCurrencyCode;
+    /**
+     * 报价货币
+     */
+    @ApiModelProperty(value = "报价货币")
     private String quotationPriceCurrency;
-    /** 上次单价 */
-    @ApiModelProperty(value = "上次单价"  )
+    /**
+     * 上次单价
+     */
+    @ApiModelProperty(value = "上次单价")
     private BigDecimal lastTimePrice;
-    /** 上次报价币种 */
-    @ApiModelProperty(value = "上次报价币种"  )
+    /**
+     * 上次报价币种
+     */
+    @ApiModelProperty(value = "上次报价币种")
     private String lastTimeCurrency;
-    /** 联系人 */
-    @ApiModelProperty(value = "联系人"  )
+    /**
+     * 联系人
+     */
+    @ApiModelProperty(value = "联系人")
     private String contacts;
-    /** 联系人手机号 */
-    @ApiModelProperty(value = "联系人手机号"  )
+    /**
+     * 联系人手机号
+     */
+    @ApiModelProperty(value = "联系人手机号")
     private String contactsPhone;
-    /** 联系人地址 */
-    @ApiModelProperty(value = "联系人地址"  )
+    /**
+     * 联系人地址
+     */
+    @ApiModelProperty(value = "联系人地址")
     private String contactsAddress;
-    /** 工段分组 */
-    @ApiModelProperty(value = "工段分组"  )
-    private String workshopGroup;
-    /**工段分组编码 */
-    @ApiModelProperty(value = "工段分组编码"  )
+    /**
+     * 工段分组编码
+     */
+    @ApiModelProperty(value = "工段分组编码")
     private String workshopGroupCode;
-    /** 核价颜色id */
-    @ApiModelProperty(value = "核价颜色id"  )
+    /**
+     * 工段分组
+     */
+    @ApiModelProperty(value = "工段分组")
+    private String workshopGroup;
+    /**
+     * 核价颜色id
+     */
+    @ApiModelProperty(value = "核价颜色id")
     private String pricingColorId;
-    /** 颜色编码 */
-    @ApiModelProperty(value = "颜色编码"  )
+    /**
+     * 颜色编码
+     */
+    @ApiModelProperty(value = "颜色编码")
     private String colorCode;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+

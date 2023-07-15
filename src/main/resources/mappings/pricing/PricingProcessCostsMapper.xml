@@ -14,20 +14,16 @@
         SELECT
         id,
         pricing_code,
-        sort,
+        process_code,
         part,
         process_name,
-        process_level,
-        finally_node,
-        gst_process_price,
-        magnification multiple,
-        ie_process_price,
-        process_date,
-        max_proce_price,
+        working_hours,
+        standard_unit_prices,
+        multiple,
         currency,
         quotation_price,
-        quotation_price_currency,
-        process_price
+        quotation_price_currency_code,
+        quotation_price_currency
         FROM
         t_pricing_process_costs
         <where>

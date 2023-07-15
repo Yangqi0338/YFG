@@ -7,17 +7,13 @@
 package com.base.sbc.module.pricing.service;
 
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.pricing.dto.PricingDelDTO;
-import com.base.sbc.module.pricing.dto.PricingTemplateDTO;
-import com.base.sbc.module.pricing.dto.PricingTemplateSearchDTO;
-import com.base.sbc.module.pricing.dto.PricingUpdateStatusDTO;
+import com.base.sbc.module.pricing.dto.*;
 import com.base.sbc.module.pricing.entity.PricingTemplate;
 import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
 import com.base.sbc.module.pricing.vo.PricingTemplateVO;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 类描述：核价模板 service类
@@ -86,12 +82,11 @@ public interface PricingTemplateService extends BaseService<PricingTemplate> {
     /**
      * 核价公式模板计算
      *
-     * @param id
-     * @param map
+     * @param formulaCountDTO
      * @param userCompany
      * @return
      */
-    List<PricingTemplateItemVO> formulaCount(String id, Map<String, Object> map, String userCompany);
+    List<PricingTemplateItemVO> formulaCount(FormulaCountDTO formulaCountDTO, String userCompany);
 
     // 自定义方法区 不替换的区域【other_end】
 

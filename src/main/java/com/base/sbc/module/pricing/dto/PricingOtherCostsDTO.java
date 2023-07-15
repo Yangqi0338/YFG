@@ -55,6 +55,16 @@ public class PricingOtherCostsDTO {
     @ApiModelProperty(value = "货币")
     private String currency;
     /**
+     * 货币编码
+     */
+    @ApiModelProperty(value = "货币编码")
+    private String currencyCode;
+    /**
+     * 报价货币编码
+     */
+    @ApiModelProperty(value = "报价货币编码")
+    private String quotationPriceCurrencyCode;
+    /**
      * 报价货币
      */
     @ApiModelProperty(value = "报价货币")

@@ -17,10 +17,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.BusinessException;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.pricing.dto.PricingDelDTO;
-import com.base.sbc.module.pricing.dto.PricingTemplateDTO;
-import com.base.sbc.module.pricing.dto.PricingTemplateSearchDTO;
-import com.base.sbc.module.pricing.dto.PricingUpdateStatusDTO;
+import com.base.sbc.module.pricing.dto.*;
 import com.base.sbc.module.pricing.entity.PricingTemplate;
 import com.base.sbc.module.pricing.mapper.PricingTemplateMapper;
 import com.base.sbc.module.pricing.service.PricingTemplateItemService;
@@ -177,15 +174,16 @@ public class PricingTemplateServiceImpl extends BaseServiceImpl<PricingTemplateM
     }
 
     @Override
-    public List<PricingTemplateItemVO> formulaCount(String id, Map<String, Object> map, String userCompany) {
-        PricingTemplateVO templateVO = this.getDetailsById(id, userCompany);
+    public List<PricingTemplateItemVO> formulaCount(FormulaCountDTO formulaCountDTO, String userCompany) {
+        PricingTemplateVO templateVO = this.getDetailsById(formulaCountDTO.getId(), userCompany);
         List<PricingTemplateItemVO> pricingTemplateItems = templateVO.getPricingTemplateItems();
         if (CollectionUtils.isEmpty(pricingTemplateItems)) {
             return null;
         }
+
         Map<String, PricingTemplateItemVO> nameMap = pricingTemplateItems.stream()
                 .peek(item -> {
-                    Object o = map.get(item.getName());
+                    Object o = formulaCountDTO.getMap().get(item.getName());
                     if (Objects.nonNull(o)) {
                         item.setDefaultNum(o.toString());
                     }

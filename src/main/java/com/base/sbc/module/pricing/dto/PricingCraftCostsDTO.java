@@ -53,10 +53,21 @@ public class PricingCraftCostsDTO {
     @ApiModelProperty(value = "加工商名称")
     private String processorName;
     /**
+     * 币种编码
+     */
+    @ApiModelProperty(value = "币种编码")
+    private String currencyCode;
+    /**
      * 币种
      */
     @ApiModelProperty(value = "币种")
     private String currency;
+
+    /**
+     * 报价货币编码
+     */
+    @ApiModelProperty(value = "报价货币编码")
+    private String quotationPriceCurrencyCode;
     /**
      * 报价货币
      */

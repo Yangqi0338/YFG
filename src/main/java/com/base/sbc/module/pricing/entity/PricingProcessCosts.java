@@ -14,13 +14,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+
 /**
  * 类描述：加工费用 实体类
- * @address com.base.sbc.module.pricing.entity.PricingProcessCosts
- * @author xhj
- * @email ch.183.g1114@gmail.com
- * @date 创建时间：2023-6-16 15:09:31
+ *
+ * @author your name
  * @version 1.0
+ * @address com.base.sbc.module.pricing.entity.PricingProcessCosts
+ * @email your email
+ * @date 创建时间：2023-7-15 10:22:09
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -28,63 +30,73 @@ import java.math.BigDecimal;
 @ApiModel("加工费用 PricingProcessCosts")
 public class PricingProcessCosts extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private static final long serialVersionUID = 1L;
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
-	/**********************************实体存放的其他字段区 【other_end】******************************************/
+    /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 备注信息 */
-    @ApiModelProperty(value = "备注信息"  )
+    /**
+     * 备注信息
+     */
+    @ApiModelProperty(value = "备注信息")
     private String remarks;
-    /** 报价单单号 */
-    @ApiModelProperty(value = "报价单单号"  )
+    /**
+     * 报价单单号
+     */
+    @ApiModelProperty(value = "报价单单号")
     private String pricingCode;
-    /** 序号 */
-    @ApiModelProperty(value = "序号"  )
-    private String sort;
-    /** 部位 */
-    @ApiModelProperty(value = "部位"  )
+    /**
+     * 工序编号
+     */
+    @ApiModelProperty(value = "工序编号")
+    private String processCode;
+    /**
+     * 部位
+     */
+    @ApiModelProperty(value = "部位")
     private String part;
-    /** 工序名称 */
-    @ApiModelProperty(value = "工序名称"  )
+    /**
+     * 工序名称
+     */
+    @ApiModelProperty(value = "工序名称")
     private String processName;
-    /** 工序等级 */
-    @ApiModelProperty(value = "工序等级"  )
-    private String processLevel;
-    /** 末节点 */
-    @ApiModelProperty(value = "末节点"  )
-    private String finallyNode;
-    /** GST工价 */
-    @ApiModelProperty(value = "GST工价"  )
-    private BigDecimal gstProcessPrice;
-    /** 倍率 */
-    @ApiModelProperty(value = "倍率"  )
-    private BigDecimal magnification;
-    /** 倍数 */
-    @ApiModelProperty(value = "倍数"  )
+    /**
+     * 工时
+     */
+    @ApiModelProperty(value = "工时")
+    private String workingHours;
+    /**
+     * 标准单价
+     */
+    @ApiModelProperty(value = "标准单价")
+    private BigDecimal standardUnitPrices;
+    /**
+     * 倍数
+     */
+    @ApiModelProperty(value = "倍数")
     private BigDecimal multiple;
-    /** IE工价 */
-    @ApiModelProperty(value = "IE工价"  )
-    private BigDecimal ieProcessPrice;
-    /** 标准工时(秒) */
-    @ApiModelProperty(value = "标准工时(秒)"  )
-    private BigDecimal processDate;
-    /** 最高标准工价 */
-    @ApiModelProperty(value = "最高标准工价"  )
-    private BigDecimal maxProcePrice;
-    /** 货币 */
-    @ApiModelProperty(value = "货币"  )
+    /**
+     * 货币
+     */
+    @ApiModelProperty(value = "货币")
     private String currency;
-    /** 报价单价 */
-    @ApiModelProperty(value = "报价单价"  )
+    /**
+     * 报价单价
+     */
+    @ApiModelProperty(value = "报价单价")
     private BigDecimal quotationPrice;
-    /** 报价货币 */
-    @ApiModelProperty(value = "报价货币"  )
+    /**
+     * 报价货币编码
+     */
+    @ApiModelProperty(value = "报价货币编码")
+    private String quotationPriceCurrencyCode;
+    /**
+     * 报价货币
+     */
+    @ApiModelProperty(value = "报价货币")
     private String quotationPriceCurrency;
-    /** 工价 */
-    @ApiModelProperty(value = "工价"  )
-    private BigDecimal processPrice;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+
