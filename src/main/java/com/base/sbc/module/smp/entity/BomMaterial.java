@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  * bom材料清单
  */
 @Data
-public class BomMaterialList {
+public class BomMaterial {
 
     /**材料编号*/
     private String code;

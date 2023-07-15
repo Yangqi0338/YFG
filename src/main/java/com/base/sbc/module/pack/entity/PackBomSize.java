@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.smp.entity.SmpSizeQty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -32,7 +33,11 @@ public class PackBomSize extends BaseDataEntity<String> {
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
-
+    public SmpSizeQty toSmpSizeQty(){
+        SmpSizeQty smpSizeQty =new SmpSizeQty();
+        smpSizeQty.setItemQty(quantity);
+        return smpSizeQty;
+    }
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/

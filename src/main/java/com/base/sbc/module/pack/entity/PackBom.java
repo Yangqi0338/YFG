@@ -8,6 +8,8 @@ package com.base.sbc.module.pack.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.smp.dto.SmpBomDto;
+import com.base.sbc.module.smp.entity.BomMaterial;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -31,7 +33,41 @@ public class PackBom extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    public SmpBomDto toSmpBomDto(){
+        SmpBomDto smpBomDto=new SmpBomDto();
+        smpBomDto.setColorName(color);
+        smpBomDto.setColorCode(colorCode);
+        smpBomDto.setBomStage(null);
+        smpBomDto.setMaterialCode(materialCode);
+        smpBomDto.setMaterialName(materialName);
+        smpBomDto.setMaterialUnit(unitCode);
+        smpBomDto.setPlaceOfUse(part);
+        smpBomDto.setLossRate(lossRate);
+        smpBomDto.setSupplierMaterialCode(supplierMaterialCode);
+        smpBomDto.setQuotationSupplierCode(supplierId);
+        smpBomDto.setCollocation(bomMatch);
+        smpBomDto.setBomLineItemId(id);
+        smpBomDto.setId(id);
+        smpBomDto.setActive("0".equals(status));
+        smpBomDto.setCreator(getCreateName());
+        smpBomDto.setCreateTime(getCreateDate());
+        smpBomDto.setModifiedPerson(getUpdateName());
+        smpBomDto.setModifiedTime(getUpdateDate());
+        return smpBomDto;
+    }
 
+
+    public BomMaterial toBomMaterial(){
+        BomMaterial bomMaterial =new BomMaterial();
+        bomMaterial.setCode(materialCode);
+        bomMaterial.setMatColorCode(colorCode);
+        bomMaterial.setMaterialUom(unitCode);
+        bomMaterial.setPosition(part);
+        bomMaterial.setCostRate(lossRate);
+        bomMaterial.setActive("0".equals(status));
+        bomMaterial.setPlacementName(bomMatch);
+        return bomMaterial;
+    }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 

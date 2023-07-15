@@ -1,9 +1,6 @@
 package com.base.sbc.module.smp;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.client.ccm.entity.BasicStructureTree;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -14,39 +11,30 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
-import com.base.sbc.module.basicsdatum.service.SpecificationService;
+import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pushRecords.entity.PushRecords;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
+import com.base.sbc.module.sample.service.SampleStyleColorService;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
-import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.ObjectUtils;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -74,17 +62,22 @@ public class SmpService {
 
     private final BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
 
-    private final SpecificationService specificationService;
-
     private final CcmService ccmService;
 
     private final UserUtils userUtils;
 
     private final PackInfoService packInfoService;
 
+    private final SampleStyleColorService sampleStyleColorService;
+
     private final PackBomService packBomService;
 
     private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
+
+    private final PackBomSizeService packBomSizeService;
+
+    private final BasicsdatumSizeService basicsdatumSizeService;
+
 
 
     private static final String URL = "http://10.98.250.31:7006/pdm";
@@ -240,16 +233,52 @@ public class SmpService {
      * bom下发
      */
     public Integer bom(String[] ids) {
-        // TODO: 2023/7/14 未完成
-        QueryWrapper<PackInfo> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<PackBom> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("id", Arrays.asList(ids));
-        List<PackInfo> list = packInfoService.list(queryWrapper);
-        for (PackInfo packInfo : list) {
-            SmpBomDto smpBomDto = packInfo.toSmpBomDto();
-            List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getForeignId()));
+        List<PackBom> list = packBomService.list(queryWrapper);
+        for (PackBom packBom : list) {
+            SmpBomDto smpBomDto = packBom.toSmpBomDto();
+            smpBomDto.setMainMaterial(true);
+            //bom主表
+            PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
+            //样衣-款式配色
+            SampleStyleColor sampleStyleColor = sampleStyleColorService.getById(packInfo.getSampleStyleColorId());
+            smpBomDto.setPColorCode(sampleStyleColor.getColorCode());
+            smpBomDto.setPColorName(sampleStyleColor.getColorName());
+            smpBomDto.setBulkNumber(packInfo.getStyleNo());
+            smpBomDto.setBomCode(packInfo.getCode());
+
+            List<BomMaterial> bomMaterials=new ArrayList<>();
+            for (PackBom packBom1 : packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packBom.getForeignId()))) {
+                BomMaterial bomMaterial = packBom1.toBomMaterial();
+                bomMaterial.setBomId(packInfo.getCode());
+                bomMaterials.add(bomMaterial);
+            }
+
+            smpBomDto.setBomMaterials(bomMaterials);
+
+            List<SmpSizeQty> sizeQtyList=new ArrayList<>();
+            for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("foreign_id", packBom.getForeignId()))) {
+                SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
+                //根据尺码id查询尺码
+                BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(null);
+                smpSizeQty.setPSizeCode(basicsdatumSize.getInternalSize());
+                smpSizeQty.setSizeCode(basicsdatumSize.getCode());
+                smpSizeQty.setItemSize(basicsdatumSize.getInternalSize());
+                smpSizeQty.setMatSizeUrl(basicsdatumSize.getCode());
+                sizeQtyList.add(smpSizeQty);
+            }
+            smpBomDto.setSizeQtyList(sizeQtyList);
+
+
+
+            HttpResp httpResp = restTemplateService.spmPost(URL + "/bom", smpBomDto);
+            pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
+
+            packBom.setScmSendFlag("1");
+            packBomService.save(packBom);
         }
-        //HttpResp httpResp = restTemplateService.spmPost(URL + "/bom", smpBomDto);
-        //return pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
+
         return null;
     }
 
