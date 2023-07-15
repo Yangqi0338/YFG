@@ -362,7 +362,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
         Page<PackInfoListVo> page = PageHelper.startPage(pageDto);
 //        list(sdQw);
-        queryByQw(sdQw);
+        List<PackInfoListVo> packInfoListVos = queryByQw(sdQw);
+        attachmentService.setListStylePic(packInfoListVos, "stylePic");
         PageInfo<BigGoodsPackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), BigGoodsPackInfoListVo.class);
         return pageInfo;
     }

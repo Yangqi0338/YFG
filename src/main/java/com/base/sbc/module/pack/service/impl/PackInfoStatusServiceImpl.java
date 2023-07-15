@@ -101,6 +101,7 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
     public boolean approvalForTechSpec(AnswerDto dto) {
         PackInfoStatus packInfoStatus = getById(dto.getBusinessKey());
         if (packInfoStatus != null) {
+            packInfoStatus.setSizeConfirmSay(dto.getConfirmSay());
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
                 packInfoStatus.setTechSpecConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
@@ -132,6 +133,63 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
         PackInfoStatus packInfoStatus = get(foreignId, packType);
         packInfoStatus.setEnableFlag(enableFlag);
         return updateById(packInfoStatus);
+    }
+
+    @Override
+    public boolean lockSize(String foreignId, String packType) {
+        PackInfoStatus packInfoStatus = get(foreignId, packType);
+        packInfoStatus.setSizeLockFlag(BaseGlobal.YES);
+        updateById(packInfoStatus);
+        return true;
+    }
+
+    @Override
+    public boolean unlockSize(String foreignId, String packType) {
+        PackInfoStatus packInfoStatus = get(foreignId, packType);
+        packInfoStatus.setSizeLockFlag(BaseGlobal.NO);
+        updateById(packInfoStatus);
+        return true;
+    }
+
+    @Override
+    public boolean startApprovalForSize(String foreignId, String packType) {
+        PackInfoStatus packInfoStatus = get(foreignId, packType);
+        PackInfo packInfo = packInfoService.getById(foreignId);
+        if (packInfo == null) {
+            throw new OtherException("资料包数据不存在,请先保存");
+        }
+        Map<String, Object> variables = BeanUtil.beanToMap(packInfoStatus);
+        boolean flg = flowableService.start(FlowableService.pack_tech_pdn + "[" + packInfo.getCode() + "]",
+                FlowableService.pack_tech_pdn,
+                packInfoStatus.getId(),
+                "/pdm/api/saas/packSize/approval",
+                "/pdm/api/saas/packSize/approval",
+                StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()),
+                variables);
+        if (flg) {
+            packInfoStatus.setSizeConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+            updateById(packInfoStatus);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean approvalForSize(AnswerDto dto) {
+        PackInfoStatus packInfoStatus = getById(dto.getBusinessKey());
+        if (packInfoStatus != null) {
+            packInfoStatus.setSizeConfirmSay(dto.getConfirmSay());
+            //通过
+            if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+                packInfoStatus.setSizeConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+
+            }
+            //驳回
+            else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
+                packInfoStatus.setSizeConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
+            }
+            updateById(packInfoStatus);
+        }
+        return true;
     }
 
     @Override

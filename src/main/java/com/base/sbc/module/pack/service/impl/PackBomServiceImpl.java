@@ -122,7 +122,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         }
         QueryWrapper sizeQw = new QueryWrapper();
         sizeQw.eq("bom_id", packBom.getId());
-        packBomSizeService.addAndUpdateAndDelList(packBomSizeList, sizeQw);
+        packBomSizeService.addAndUpdateAndDelList(packBomSizeList, sizeQw, true);
         PackBomVo packBomVo = BeanUtil.copyProperties(packBom, PackBomVo.class);
         packBomVo.setPackBomSizeList(BeanUtil.copyToList(packBomSizeList, PackBomSizeVo.class));
         return packBomVo;
@@ -148,24 +148,15 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         }
         QueryWrapper<PackBom> bomQw = new QueryWrapper<>();
         bomQw.eq("bom_version_id", version.getId());
-        //保存
-        //覆盖
-        if (StrUtil.equals(overlayFlg, BasicNumber.ONE.getNumber())) {
-            addAndUpdateAndDelList(packBoms, bomQw);
-            //删除之前的尺寸信息
-            if (CollUtil.isNotEmpty(bomIds)) {
-                QueryWrapper delSizeQw = new QueryWrapper();
-                delSizeQw.in("bom_id", bomIds);
-                packBomSizeService.remove(delSizeQw);
-            }
-        } else {
-            //追加
-            for (PackBom packBom : packBoms) {
-                packBom.setId(null);
-            }
-            this.saveBatch(packBoms);
+        //删除之前的尺寸信息
+        if (CollUtil.isNotEmpty(bomIds)) {
+            QueryWrapper delSizeQw = new QueryWrapper();
+            delSizeQw.in("bom_id", bomIds);
+            packBomSizeService.remove(delSizeQw);
         }
 
+        //保存
+        addAndUpdateAndDelList(packBoms, bomQw, StrUtil.equals(overlayFlg, BasicNumber.ONE.getNumber()));
         // 处理尺码
         List<PackBomSize> bomSizeList = new ArrayList<>(16);
         for (int i = 0; i < dtoList.size(); i++) {
@@ -184,12 +175,10 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                 bomSizeList.addAll(packBomSizeList);
             }
         }
-
         //保存
         if (CollUtil.isNotEmpty(bomSizeList)) {
             packBomSizeService.saveBatch(bomSizeList);
         }
-
         return true;
     }
 

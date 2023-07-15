@@ -51,7 +51,7 @@ public class SmpSampleDto {
     /**样衣名*/
     private String nodeName;
     /**设计收样日期*/
-    private String sampleReceivedDate;
+    private Date sampleReceivedDate;
     /**状态*/
     private String sampleStatus;
     /**状态名称*/

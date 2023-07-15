@@ -1,52 +1,26 @@
-/******************************************************************************
- * Copyright (C) 2018 广州尚捷科技有限责任公司
- * All Rights Reserved.
- * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
- * 不得使用、复制、修改或发布本软件.
- *****************************************************************************/
-package com.base.sbc.module.pack.entity;
+package com.base.sbc.module.pack.vo;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.Date;
+
 /**
- * 类描述：资料包-状态 实体类
+ * 类描述：资料包
  *
- * @author your name
+ * @author lixianglin
  * @version 1.0
- * @address com.base.sbc.module.pack.entity.PackInfoStatus
- * @email your email
- * @date 创建时间：2023-7-15 14:01:06
+ * @address com.base.sbc.module.pack.vo.PackInfoStatusVo
+ * @email li_xianglin@126.com
+ * @date 创建时间：2023-07-15 15:34
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@TableName("t_pack_info_status")
-@ApiModel("资料包-状态 PackInfoStatus")
-public class PackInfoStatus extends BaseDataEntity<String> {
-
-    private static final long serialVersionUID = 1L;
-    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+@ApiModel("资料包-状态 PackInfoStatusVo")
+public class PackInfoStatusVo {
 
 
-    /**********************************实体存放的其他字段区 【other_end】******************************************/
-
-    /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /**
-     * 主数据id
-     */
-    @ApiModelProperty(value = "主数据id")
-    private String foreignId;
-    /**
-     * 资料包类型:packDesign:设计资料包/packBigGoods:标准资料包(大货资料包)
-     */
-    @ApiModelProperty(value = "资料包类型:packDesign:设计资料包/packBigGoods:标准资料包(大货资料包)")
-    private String packType;
     /**
      * 状态:1启用,0未启用
      */
@@ -151,6 +125,4 @@ public class PackInfoStatus extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "尺寸表洗后尺寸跳码:(0关闭,1开启)")
     private String washSkippingFlag;
-    /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
-

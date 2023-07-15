@@ -1,6 +1,7 @@
 package com.base.sbc.module.smp;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -25,6 +26,7 @@ import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
+import com.base.sbc.module.sample.service.SampleDesignService;
 import com.base.sbc.module.sample.service.SampleStyleColorService;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
@@ -64,6 +66,8 @@ public class SmpService {
 
     private final CcmService ccmService;
 
+    private final AmcService amcService;
+
     private final UserUtils userUtils;
 
     private final PackInfoService packInfoService;
@@ -78,6 +82,7 @@ public class SmpService {
 
     private final BasicsdatumSizeService basicsdatumSizeService;
 
+    private final SampleDesignService sampleDesignService;
 
 
     private static final String URL = "http://10.98.250.31:7006/pdm";
@@ -98,9 +103,7 @@ public class SmpService {
         if (ids.length == 0) {
             return 0;
         }
-        QueryWrapper<BasicsdatumMaterial> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.in("id", Arrays.asList(ids));
-        List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(queryWrapper);
+        List<BasicsdatumMaterial> list = basicsdatumMaterialService.listByIds(Arrays.asList(ids));
         int i = 0;
         for (BasicsdatumMaterial basicsdatumMaterial : list) {
             if (this.sendMaterials(basicsdatumMaterial)) {
@@ -248,16 +251,20 @@ public class SmpService {
             smpBomDto.setBulkNumber(packInfo.getStyleNo());
             smpBomDto.setBomCode(packInfo.getCode());
 
-            List<BomMaterial> bomMaterials=new ArrayList<>();
+            List<BomMaterial> bomMaterials = new ArrayList<>();
             for (PackBom packBom1 : packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packBom.getForeignId()))) {
                 BomMaterial bomMaterial = packBom1.toBomMaterial();
+                if (packBom1.getId().equals(packBom.getId())){
+                    continue;
+                }
                 bomMaterial.setBomId(packInfo.getCode());
                 bomMaterials.add(bomMaterial);
+                smpBomDto.setMainMaterial(false);
             }
 
             smpBomDto.setBomMaterials(bomMaterials);
 
-            List<SmpSizeQty> sizeQtyList=new ArrayList<>();
+            List<SmpSizeQty> sizeQtyList = new ArrayList<>();
             for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("foreign_id", packBom.getForeignId()))) {
                 SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
                 //根据尺码id查询尺码
@@ -269,7 +276,6 @@ public class SmpService {
                 sizeQtyList.add(smpSizeQty);
             }
             smpBomDto.setSizeQtyList(sizeQtyList);
-
 
 
             HttpResp httpResp = restTemplateService.spmPost(URL + "/bom", smpBomDto);
@@ -297,7 +303,7 @@ public class SmpService {
 
             HttpResp httpResp = restTemplateService.spmPost(URL + "/color", smpColorDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpColorDto, "smp", "颜色主数据下发");
-            if (aBoolean){
+            if (aBoolean) {
                 i++;
                 basicsdatumColourLibrary.setScmSendFlag("1");
                 basicsdatumColourLibraryService.updateById(basicsdatumColourLibrary);
@@ -310,6 +316,7 @@ public class SmpService {
      * 工艺单下发
      */
     public Boolean processSheet(SmpProcessSheetDto smpProcessSheetDto) {
+        // TODO: 2023/7/15 标准资料包的工艺说明功能未做
         HttpResp httpResp = restTemplateService.spmPost(URL + "/processSheet", smpProcessSheetDto);
         return pushRecordsService.pushRecordSave(httpResp, smpProcessSheetDto, "smp", "工艺单下发");
     }
@@ -317,9 +324,39 @@ public class SmpService {
     /**
      * 样衣下发
      */
-    public Boolean sample(SmpSampleDto smpSampleDto) {
-        HttpResp httpResp = restTemplateService.spmPost(URL + "/sample", smpSampleDto);
-        return pushRecordsService.pushRecordSave(httpResp, smpSampleDto, "smp", "样衣下发");
+    public Integer sample(String[] ids) {
+        int i=0;
+        for (SampleDesign sampleDesign : sampleDesignService.listByIds(Arrays.asList(ids))) {
+            SmpSampleDto smpSampleDto = sampleDesign.toSmpSampleDto();
+            String designerId = sampleDesign.getDesignerId();
+            String technicianId = sampleDesign.getTechnicianId();
+            String patternDesignId = sampleDesign.getPatternDesignId();
+
+            String merchDesignId = sampleDesign.getMerchDesignId();
+            if (merchDesignId==null){
+                merchDesignId=designerId;
+            }
+            ArrayList<String> list =new ArrayList<>();
+            list.add(designerId);
+            list.add(technicianId);
+            list.add(patternDesignId);
+
+            list.add(merchDesignId);
+
+            Map<String, String> usernamesByIds = amcService.getUsernamesByIds(StringUtils.join(list, ","));
+            smpSampleDto.setDesignerId(usernamesByIds.get(designerId));
+            smpSampleDto.setTechnicianId(usernamesByIds.get(technicianId));
+            smpSampleDto.setPatternMakerId(usernamesByIds.get(patternDesignId));
+            smpSampleDto.setProofingDesignerId(usernamesByIds.get(merchDesignId));
+
+            HttpResp httpResp = restTemplateService.spmPost(URL + "/sample", smpSampleDto);
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpSampleDto, "smp", "样衣下发");
+            if (aBoolean){
+                i++;
+            }
+        }
+
+        return i;
     }
 
     /**
