@@ -17,7 +17,7 @@
         where bom_version_id = #{bomVersionId}
     </select>
 
-    <select id="fabricSummaryList" parameterType="com.base.sbc.module.pricing.dto.FabricSummaryDTO" resultType="com.base.sbc.module.pricing.vo.FabricSummaryVO">
+    <select id="fabricSummaryList" parameterType="com.base.sbc.module.sample.dto.FabricSummaryDTO" resultType="com.base.sbc.module.sample.vo.FabricSummaryVO">
         SELECT
             *
         FROM
@@ -106,7 +106,7 @@
             bid.material_code
     </select>
 
-    <select id="querySampleDesignInfoByMaterialId" resultType="com.base.sbc.module.pricing.vo.MaterialSampleDesignVO">
+    <select id="querySampleDesignInfoByMaterialId" resultType="com.base.sbc.module.sample.vo.MaterialSampleDesignVO">
         SELECT
             ssc.id,
             uf.url,

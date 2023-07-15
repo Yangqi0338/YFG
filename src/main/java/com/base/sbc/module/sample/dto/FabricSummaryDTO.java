@@ -1,4 +1,4 @@
-package com.base.sbc.module.pricing.dto;
+package com.base.sbc.module.sample.dto;
 
 import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
