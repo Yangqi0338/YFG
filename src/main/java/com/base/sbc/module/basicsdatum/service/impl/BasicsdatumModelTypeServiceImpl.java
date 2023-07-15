@@ -225,7 +225,6 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
 
             if (StringUtils.isNotEmpty(addRevampBasicsdatumModelTypeDto.getSizeIds())) {
                 String[] sizeIds = addRevampBasicsdatumModelTypeDto.getSizeIds().split(",");
-                String id = addRevampBasicsdatumModelTypeDto.getId();
 
                 List<BasicsdatumSize> list = basicsdatumSizeService.listByIds( Arrays.asList(sizeIds));
                 for (BasicsdatumSize basicsdatumSize : list) {
