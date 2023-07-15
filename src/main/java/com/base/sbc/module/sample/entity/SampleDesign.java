@@ -62,10 +62,23 @@ public class SampleDesign extends BaseDataEntity<String> {
         smpSampleDto.setSampleStatusName("0".equals(status) ? "未开款" : "1".equals(status) ?  "已开款" : "已下发打板(完成)");
         smpSampleDto.setSampleType(null);
         smpSampleDto.setSampleTypeName(null);
-        smpSampleDto.setMajorCategories(prodCategory1st);
-        smpSampleDto.setMajorCategoriesName(null);
-        smpSampleDto.setCategory(prodCategory);
-        smpSampleDto.setCategoryName(null);
+
+        String[] split = categoryName.split("/");
+
+        try {
+            smpSampleDto.setMajorCategoriesName(split[0].split(",")[0]);
+            smpSampleDto.setMajorCategories(split[0].split(",")[1]);
+            smpSampleDto.setCategoryName(split[1].split(",")[0]);
+            smpSampleDto.setCategory(split[1].split(",")[1]);
+            smpSampleDto.setMiddleClassName(split[2].split(",")[0]);
+            smpSampleDto.setMiddleClassId(split[2].split(",")[1]);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+
+
         smpSampleDto.setBrandCode(brand);
         smpSampleDto.setBrandName(null);
         smpSampleDto.setQuarterCode(season);
@@ -75,8 +88,6 @@ public class SampleDesign extends BaseDataEntity<String> {
 
         smpSampleDto.setTechnician(technicianName);
 
-        smpSampleDto.setMiddleClassId(prodCategory2nd);
-        smpSampleDto.setMiddleClassName(null);
         smpSampleDto.setStyleUrl(stylePic);
         smpSampleDto.setStyleCode(designNo);
         smpSampleDto.setSupplier(null);
