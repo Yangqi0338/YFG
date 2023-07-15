@@ -27,20 +27,14 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
-import com.base.sbc.module.pack.dto.PackBomVersionDto;
-import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
-import com.base.sbc.module.pack.dto.PackCommonSearchDto;
-import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
+import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
-import com.base.sbc.module.pack.vo.PackBomVersionVo;
-import com.base.sbc.module.pack.vo.PackInfoListVo;
-import com.base.sbc.module.pack.vo.SampleDesignPackInfoListVo;
+import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.github.pagehelper.Page;
@@ -317,6 +311,13 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             packInfoStatusService.updateById(packInfoStatus);
         }
         return true;
+    }
+
+    @Override
+    public PageInfo<PricingSelectListVO> pricingSelectList(PricingSelectSearchDTO pricingSelectSearchDTO) {
+        Page<PricingSelectListVO> voPage = PageHelper.startPage(pricingSelectSearchDTO);
+        super.getBaseMapper().pricingSelectList(pricingSelectSearchDTO);
+        return CopyUtil.copy(voPage.toPageInfo(), PricingSelectListVO.class);
     }
 
 

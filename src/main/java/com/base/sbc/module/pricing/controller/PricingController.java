@@ -68,6 +68,18 @@ public class PricingController extends BaseController {
     }
 
     /**
+     * 通过制版单id组装制版单核价信息
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "通过制版单id组装制版单核价信息")
+    @GetMapping("/getPlateMakingPricing")
+    public ApiResult getPlateMakingPricing(@Valid @NotBlank(message = "制版单id不可为空") String id) {
+        return selectSuccess(pricingService.getPlateMakingPricing(id, super.getUserCompany()));
+    }
+
+    /**
      * 保存
      *
      * @param pricingDTO
@@ -108,6 +120,7 @@ public class PricingController extends BaseController {
 
     /**
      * 费用计算
+     *
      * @param pricingCountDTO
      * @return
      */

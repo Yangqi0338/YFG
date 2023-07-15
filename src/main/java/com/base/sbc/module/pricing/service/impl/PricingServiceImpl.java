@@ -149,6 +149,12 @@ public class PricingServiceImpl extends BaseServiceImpl<PricingMapper, Pricing> 
     }
 
     @Override
+    public PricingVO getPlateMakingPricing(String id, String userCompany) {
+
+        return null;
+    }
+
+    @Override
     public void submitApprove(String id, String userCompany) {
         logger.info("PricingService#submitApprove 提交审核 id:{}, userCompany:{}", id, userCompany);
         Pricing pricing = super.getById(id);
