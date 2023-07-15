@@ -261,7 +261,7 @@ public class SmpService {
             for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("foreign_id", packBom.getForeignId()))) {
                 SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
                 //根据尺码id查询尺码
-                BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(null);
+                BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());
                 smpSizeQty.setPSizeCode(basicsdatumSize.getInternalSize());
                 smpSizeQty.setSizeCode(basicsdatumSize.getCode());
                 smpSizeQty.setItemSize(basicsdatumSize.getInternalSize());
