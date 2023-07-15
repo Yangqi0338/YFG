@@ -44,6 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -193,18 +194,18 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             }
             /*新增*/
             BeanUtils.copyProperties(addRevampBasicsdatumModelTypeDto, basicsdatumModelType);
-            if (StringUtils.isNotEmpty(addRevampBasicsdatumModelTypeDto.getModelType())) {
-                String[] sizeIds = addRevampBasicsdatumModelTypeDto.getModelType().split(",");
-                String id = addRevampBasicsdatumModelTypeDto.getId();
+            baseMapper.insert(basicsdatumModelType);
+            if (StringUtils.isNotEmpty(addRevampBasicsdatumModelTypeDto.getSizeIds())) {
+                String[] sizeIds = addRevampBasicsdatumModelTypeDto.getSizeIds().split(",");
                 QueryWrapper<BasicsdatumSize> queryWrapper1 = new BaseQueryWrapper<>();
-                queryWrapper1.in("id", sizeIds);
+                queryWrapper1.in("id", Arrays.asList(sizeIds));
                 List<BasicsdatumSize> list = basicsdatumSizeService.list(queryWrapper1);
                 for (BasicsdatumSize basicsdatumSize : list) {
-                    basicsdatumSize.setModelType(id);
+                    basicsdatumSize.setModelTypeCode(addRevampBasicsdatumModelTypeDto.getCode());
                 }
                 basicsdatumSizeService.updateBatchById(list);
             }
-            baseMapper.insert(basicsdatumModelType);
+
             /*新增品类*/
             if (!CollectionUtils.isEmpty(addRevampBasicsdatumModelTypeDto.getList())) {
                 basicsdatumCompanyRelationService.batchAddition(assignmentCompany(addRevampBasicsdatumModelTypeDto.getList(), basicsdatumModelType.getId()));
@@ -215,14 +216,20 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             if (ObjectUtils.isEmpty(basicsdatumModelType)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
-            if (StringUtils.isNotEmpty(addRevampBasicsdatumModelTypeDto.getSize())) {
-                String[] sizeIds = addRevampBasicsdatumModelTypeDto.getSize().split(",");
+
+            List<BasicsdatumSize> list1 = basicsdatumSizeService.list(new QueryWrapper<BasicsdatumSize>().eq("model_type_code", addRevampBasicsdatumModelTypeDto.getCode()));
+            for (BasicsdatumSize basicsdatumSize : list1) {
+                basicsdatumSize.setModelType("");
+                basicsdatumSizeService.updateBatchById(list1);
+            }
+
+            if (StringUtils.isNotEmpty(addRevampBasicsdatumModelTypeDto.getSizeIds())) {
+                String[] sizeIds = addRevampBasicsdatumModelTypeDto.getSizeIds().split(",");
                 String id = addRevampBasicsdatumModelTypeDto.getId();
-                QueryWrapper<BasicsdatumSize> queryWrapper1 = new BaseQueryWrapper<>();
-                queryWrapper1.in("id", sizeIds);
-                List<BasicsdatumSize> list = basicsdatumSizeService.list(queryWrapper1);
+
+                List<BasicsdatumSize> list = basicsdatumSizeService.listByIds( Arrays.asList(sizeIds));
                 for (BasicsdatumSize basicsdatumSize : list) {
-                    basicsdatumSize.setModelType(id);
+                    basicsdatumSize.setModelTypeCode(addRevampBasicsdatumModelTypeDto.getCode());;
                 }
                 basicsdatumSizeService.updateBatchById(list);
             }
