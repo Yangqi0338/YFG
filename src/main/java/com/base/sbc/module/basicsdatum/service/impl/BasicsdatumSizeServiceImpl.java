@@ -44,7 +44,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -88,9 +90,12 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
         queryWrapper.between("create_date",dto.getCreateDate());
 
         if (StringUtils.isNotEmpty(dto.getAll())){
-            queryWrapper.notEmptyEq("model_type",dto.getModelType()).or().isNull("model_type");
-        }else {
-            queryWrapper.notEmptyEq("model_type",dto.getModelType());
+            if(dto.getAll().equals("0")){
+                queryWrapper.eq("model_type_code","").or().isNull("model_type_code");
+            }else {
+                queryWrapper.notEmptyEq("model_type_code", dto.getModelType()).or().eq("model_type_code","").or().isNull("model_type_code");
+
+            }
         }
 
         /*查询尺码数据*/
@@ -153,7 +158,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
     /**
      * 导出
      *
-     * @param queryDasicsdatumSizeDto isDerive 1导出，0模板导出,sizeLabelId 为空导出所有数据
+     * @param dto isDerive 1导出，0模板导出,sizeLabelId 为空导出所有数据
      * @param response
      */
     @Override
@@ -262,15 +267,18 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
      * @return
      */
     @Override
-    public String getSizeName(String ids) {
+    public Map<String,String> getSizeName(String ids) {
         QueryWrapper queryWrapper =new QueryWrapper();
         queryWrapper.in("id",StringUtils.convertList(ids));
         List<BasicsdatumSize> basicsdatumSizeList =baseMapper.selectList(queryWrapper);
+        Map<String,String> map =new HashMap<>();
        if(!CollectionUtils.isEmpty(basicsdatumSizeList)){
-           List<String> stringList =  basicsdatumSizeList.stream().map(BasicsdatumSize::getHangtags).collect(Collectors.toList());
-           return   StringUtils.join(stringList, ",");
+           List<String> naem =  basicsdatumSizeList.stream().map(BasicsdatumSize::getHangtags).collect(Collectors.toList());
+           List<String> code =  basicsdatumSizeList.stream().map(BasicsdatumSize::getCode).collect(Collectors.toList());
+           map.put("name",StringUtils.join(naem,","));
+           map.put("code",StringUtils.join(code,","));
        }
-        return "";
+        return map;
     }
 
 
