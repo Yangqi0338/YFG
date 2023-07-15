@@ -99,6 +99,7 @@ public interface PackBomService extends PackBaseService<PackBom> {
      */
     List<MaterialSampleDesignVO> querySampleDesignInfoByMaterialId(@Param("materialId") String materialId);
 
+
 // 自定义方法区 不替换的区域【other_end】
 
 

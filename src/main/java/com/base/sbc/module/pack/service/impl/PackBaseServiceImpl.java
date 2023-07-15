@@ -3,9 +3,11 @@ package com.base.sbc.module.pack.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.utils.CommonUtils;
@@ -209,6 +211,32 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
                 BeanUtil.setProperty(t, "packType", targetPackType);
             }
             return saveBatch(list);
+        }
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean move(String id, String column, int moveType) {
+        T byId = getById(id);
+        QueryWrapper<T> query = new QueryWrapper<T>();
+        query.eq("foreign_id", BeanUtil.getProperty(byId, "foreignId"));
+        query.eq("pack_type", BeanUtil.getProperty(byId, "packType"));
+        query.orderByAsc(column);
+        List<Object> objects = listObjs(query);
+        if (CollUtil.size(objects) < 1) {
+            return true;
+        }
+        int i = CollUtil.indexOf(objects, (a) -> ObjectUtil.equals(a, id));
+        int moveIndex = i + moveType;
+        if (moveIndex >= 0 && moveIndex < objects.size()) {
+            Collections.swap(objects, i, moveIndex);
+        }
+        for (int j = 0; j < objects.size(); j++) {
+            UpdateWrapper<T> uw = new UpdateWrapper<T>();
+            uw.set(column, j + 1);
+            uw.eq("id", objects.get(j));
+            update(uw);
         }
         return true;
     }

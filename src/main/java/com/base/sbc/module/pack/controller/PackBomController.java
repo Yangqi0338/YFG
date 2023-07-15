@@ -15,6 +15,7 @@ import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.*;
+import com.base.sbc.module.pack.service.PackBaseService;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -146,15 +147,26 @@ public class PackBomController {
     @PostMapping("/fabricSummaryList")
     @ApiOperation(value = "面料汇总列表")
     public ApiResult fabricSummaryList(@RequestBody FabricSummaryDTO fabricSummaryDTO) {
-        return ApiResult.success("查询成功",packBomService.fabricSummaryList(fabricSummaryDTO));
+        return ApiResult.success("查询成功", packBomService.fabricSummaryList(fabricSummaryDTO));
     }
 
     @GetMapping("/querySampleDesignInfoByMaterialId")
     @ApiOperation(value = "查询物料被那些样衣应用")
     public ApiResult querySampleDesignInfoByMaterialId(@NotNull @RequestParam("materialId") String materialId) {
-        return ApiResult.success("查询成功",packBomService.querySampleDesignInfoByMaterialId(materialId));
+        return ApiResult.success("查询成功", packBomService.querySampleDesignInfoByMaterialId(materialId));
     }
 
+    @GetMapping("/moveUp")
+    @ApiOperation(value = "上移")
+    public boolean moveUp(@Valid IdDto dto) {
+        return packBomService.move(dto.getId(), "sort", PackBaseService.MOVE_UP);
+    }
+
+    @GetMapping("/moveDown")
+    @ApiOperation(value = "下移")
+    public boolean moveDown(@Valid IdDto dto) {
+        return packBomService.move(dto.getId(), "sort", PackBaseService.MOVE_DOWN);
+    }
 }
 
 

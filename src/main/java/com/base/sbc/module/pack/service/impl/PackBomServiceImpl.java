@@ -74,6 +74,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         QueryWrapper<PackBom> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
         qw.eq("bom_version_id", dto.getBomVersionId());
+        qw.orderByAsc("sort");
         Page<PackBom> page = PageHelper.startPage(dto);
         list(qw);
         PageInfo<PackBom> pageInfo = page.toPageInfo();
