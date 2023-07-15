@@ -149,9 +149,12 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         QueryWrapper<PackBom> bomQw = new QueryWrapper<>();
         bomQw.eq("bom_version_id", version.getId());
         //删除之前的尺寸信息
-        QueryWrapper delSizeQw = new QueryWrapper();
-        delSizeQw.in("bom_id", bomIds);
-        packBomSizeService.remove(delSizeQw);
+        if (CollUtil.isNotEmpty(bomIds)) {
+            QueryWrapper delSizeQw = new QueryWrapper();
+            delSizeQw.in("bom_id", bomIds);
+            packBomSizeService.remove(delSizeQw);
+        }
+
         //保存
         addAndUpdateAndDelList(packBoms, bomQw, StrUtil.equals(overlayFlg, BasicNumber.ONE.getNumber()));
         // 处理尺码
