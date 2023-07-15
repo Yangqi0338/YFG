@@ -15,7 +15,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-
 /**
  * 类描述：资料包-物料清单-配码 实体类
  *
@@ -23,7 +22,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBomSize
  * @email your email
- * @date 创建时间：2023-7-15 9:33:19
+ * @date 创建时间：2023-7-15 10:24:01
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -32,10 +31,11 @@ import java.math.BigDecimal;
 public class PackBomSize extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
+
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
-    public SmpSizeQty toSmpSizeQty(){
-        SmpSizeQty smpSizeQty =new SmpSizeQty();
+    public SmpSizeQty toSmpSizeQty() {
+        SmpSizeQty smpSizeQty = new SmpSizeQty();
         smpSizeQty.setItemQty(quantity);
         return smpSizeQty;
     }
@@ -71,7 +71,7 @@ public class PackBomSize extends BaseDataEntity<String> {
      * 尺码id
      */
     @ApiModelProperty(value = "尺码id")
-    private Integer sizeId;
+    private String sizeId;
     /**
      * 数量
      */
