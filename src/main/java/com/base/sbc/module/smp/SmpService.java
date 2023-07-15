@@ -236,6 +236,7 @@ public class SmpService {
      * bom下发
      */
     public Integer bom(String[] ids) {
+        int i=0;
         QueryWrapper<PackBom> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("id", Arrays.asList(ids));
         List<PackBom> list = packBomService.list(queryWrapper);
@@ -269,23 +270,28 @@ public class SmpService {
                 SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
                 //根据尺码id查询尺码
                 BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());
-                smpSizeQty.setPSizeCode(basicsdatumSize.getInternalSize());
-                smpSizeQty.setSizeCode(basicsdatumSize.getCode());
-                smpSizeQty.setItemSize(basicsdatumSize.getInternalSize());
-                smpSizeQty.setMatSizeUrl(basicsdatumSize.getCode());
-                sizeQtyList.add(smpSizeQty);
+                if (basicsdatumSize!=null){
+                    smpSizeQty.setPSizeCode(basicsdatumSize.getInternalSize());
+                    smpSizeQty.setSizeCode(basicsdatumSize.getCode());
+                    smpSizeQty.setItemSize(basicsdatumSize.getInternalSize());
+                    smpSizeQty.setMatSizeUrl(basicsdatumSize.getCode());
+                    sizeQtyList.add(smpSizeQty);
+                }
+
             }
             smpBomDto.setSizeQtyList(sizeQtyList);
 
 
             HttpResp httpResp = restTemplateService.spmPost(URL + "/bom", smpBomDto);
-            pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
-
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
             packBom.setScmSendFlag("1");
-            packBomService.save(packBom);
+            packBomService.updateById(packBom);
+            if (aBoolean){
+                i++;
+            }
         }
 
-        return null;
+        return i;
     }
 
     /**
