@@ -17,6 +17,7 @@ import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
+import com.base.sbc.module.pack.vo.PricingSelectListVO;
 import com.base.sbc.module.pack.vo.SampleDesignPackInfoListVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -126,6 +127,18 @@ public class PackInfoController {
 	@PostMapping("/approval")
 	public boolean approval(@RequestBody AnswerDto dto) {
 		return packInfoService.approval(dto);
+	}
+
+	/**
+	 * 核价管理选择制版单列表
+	 *
+	 * @param pricingSelectSearchDTO
+	 * @return
+	 */
+	@ApiIgnore
+	@PostMapping("/pricingSelectList")
+	public PageInfo<PricingSelectListVO> pricingSelectList(@RequestBody PricingSelectSearchDTO pricingSelectSearchDTO) {
+		return packInfoService.pricingSelectList(pricingSelectSearchDTO);
 	}
 
 

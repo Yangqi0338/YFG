@@ -67,6 +67,15 @@ public interface PricingService extends BaseService<Pricing> {
     PricingVO getDetailsById(String id, String userCompany);
 
     /**
+     * 组装制版单核价信息
+     *
+     * @param id
+     * @param userCompany
+     * @return
+     */
+    PricingVO getPlateMakingPricing(String id, String userCompany);
+
+    /**
      * 提交审核
      *
      * @param id
