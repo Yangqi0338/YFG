@@ -86,6 +86,19 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
     }
 
     @Override
+    public AttachmentVo getAttachmentByFileId(String fileId) {
+        QueryWrapper<UploadFile> qw = new QueryWrapper<>();
+        qw.eq("id", fileId);
+        List<UploadFile> list = uploadFileService.list(qw);
+        if (CollUtil.isNotEmpty(list)) {
+            AttachmentVo attachmentVo = BeanUtil.copyProperties(list.get(0), AttachmentVo.class);
+            attachmentVo.setFileId(fileId);
+            return attachmentVo;
+        }
+        return null;
+    }
+
+    @Override
     public List<AttachmentVo> findByQw(QueryWrapper queryWrapper) {
         List<AttachmentVo> byQw = getBaseMapper().findByQw(queryWrapper);
         return byQw;

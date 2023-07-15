@@ -1,5 +1,6 @@
 package com.base.sbc.module.material.entity;
 
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.excel.annotation.ExcelProperty;
 import lombok.Data;
 
@@ -15,4 +16,8 @@ public class Test {
     private String name;
     @ExcelProperty("说明")
     private String explain;
+
+    public static void main(String[] args) {
+        System.out.println(FileUtil.getMimeType("12.pdf"));
+    }
 }

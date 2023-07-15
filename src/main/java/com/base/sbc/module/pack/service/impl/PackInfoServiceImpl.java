@@ -25,6 +25,9 @@ import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.service.UploadFileService;
+import com.base.sbc.module.common.service.UreportService;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
 import com.base.sbc.module.pack.dto.*;
@@ -45,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -68,6 +72,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private SampleDesignService sampleDesignService;
     @Resource
     private AttachmentService attachmentService;
+    @Resource
+    private UploadFileService uploadFileService;
     @Resource
     private OperaLogService operaLogService;
     @Resource
@@ -101,6 +107,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private PackInfoStatusService packInfoStatusService;
     @Resource
     private FlowableService flowableService;
+    @Resource
+    private UreportService ureportService;
 
     @Override
     public PageInfo<SampleDesignPackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -320,6 +328,22 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         return CopyUtil.copy(voPage.toPageInfo(), PricingSelectListVO.class);
     }
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public AttachmentVo genTechSpecFile(PackCommonSearchDto dto) {
+        //获取样衣设计id
+        PackInfo byId = this.getById(dto.getForeignId());
+        Map<String, String> params = new HashMap<>(12);
+        params.put("sampleDesignId", byId.getForeignId());
+        // 下载文件并上传到minio
+        AttachmentVo attachmentVo = ureportService.downFileAndUploadMinio("process", "工艺单", byId.getCode() + ".pdf", params);
+        // 将文件id保存到状态表
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), dto.getPackType());
+        packInfoStatus.setTechSpecFileId(attachmentVo.getFileId());
+        packInfoStatusService.updateById(packInfoStatus);
+        return attachmentVo;
+    }
+
 
     @Override
 
@@ -383,9 +407,12 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         qw.eq("pack_type", packType);
         qw.last("limit 1");
         List<PackInfoListVo> packInfoListVos = getBaseMapper().queryByQw(qw);
-        return CollUtil.get(packInfoListVos, 0);
+        PackInfoListVo packInfoListVo = CollUtil.get(packInfoListVos, 0);
+        if (packInfoListVo != null && StrUtil.isNotBlank(packInfoListVo.getTechSpecFileId())) {
+            packInfoListVo.setTechSpecFile(attachmentService.getAttachmentByFileId(packInfoListVo.getTechSpecFileId()));
+        }
+        return packInfoListVo;
     }
-
 
     @Override
     String getModeName() {

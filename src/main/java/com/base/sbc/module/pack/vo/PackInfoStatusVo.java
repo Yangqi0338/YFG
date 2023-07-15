@@ -125,4 +125,7 @@ public class PackInfoStatusVo {
      */
     @ApiModelProperty(value = "尺寸表洗后尺寸跳码:(0关闭,1开启)")
     private String washSkippingFlag;
+
+    @ApiModelProperty(value = "工艺说明文件id")
+    private String techSpecFileId;
 }
