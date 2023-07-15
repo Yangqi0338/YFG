@@ -10,6 +10,7 @@ import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * amc 远程调用
@@ -154,6 +155,12 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/token/dataPermissions/getDataPermissions")
     ApiResult getDataPermissions(@RequestParam("businessType") String businessType);
+
+    /**
+     * 根据用户id集合获取用户工号(登录账号)集合
+     */
+    @GetMapping("/amc/api/token/user/getUsernamesByIds")
+    Map<String,String> getUsernamesByIds(@RequestParam("ids") String ids);
 
 
 }

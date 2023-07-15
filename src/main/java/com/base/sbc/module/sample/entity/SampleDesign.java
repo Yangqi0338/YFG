@@ -8,6 +8,7 @@ package com.base.sbc.module.sample.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -33,8 +34,58 @@ import java.util.Date;
 public class SampleDesign extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
-    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    public SmpSampleDto toSmpSampleDto() {
+        SmpSampleDto smpSampleDto = new SmpSampleDto();
+        // TODO: 2023/7/15 未完成
+        //取跟款设计师，如果跟款设计师不存在就取设计师
+        smpSampleDto.setProofingDesigner(merchDesignName == null ? designer : merchDesignName);
+        smpSampleDto.setBExtAuxiliary(null);
+        smpSampleDto.setBarcode(null);
+        smpSampleDto.setEAValidFromTime(null);
+        smpSampleDto.setEAValidToTime(null);
+        smpSampleDto.setFinished(null);
+        smpSampleDto.setMCDate(null);
+        smpSampleDto.setPmlId(null);
+        smpSampleDto.setPatDiff(patDiff);
+        smpSampleDto.setPatSeqName(patDiff);
+        smpSampleDto.setPatSeq(null);
+        smpSampleDto.setPatSeqName(null);
+        smpSampleDto.setSampleNumber(null);
+        smpSampleDto.setSampleNumberName(null);
+        smpSampleDto.setColorwayCode(styleNo);
+        smpSampleDto.setColorwayPlmId(styleName);
+        smpSampleDto.setNodeName(null);
+        smpSampleDto.setSampleReceivedDate(getCreateDate());
+        smpSampleDto.setSampleStatus(status);
+        smpSampleDto.setSampleStatusName("0".equals(status) ? "未开款" : "1".equals(status) ?  "已开款" : "已下发打板(完成)");
+        smpSampleDto.setSampleType(null);
+        smpSampleDto.setSampleTypeName(null);
+        smpSampleDto.setMajorCategories(prodCategory1st);
+        smpSampleDto.setMajorCategoriesName(null);
+        smpSampleDto.setCategory(prodCategory);
+        smpSampleDto.setCategoryName(null);
+        smpSampleDto.setBrandCode(brand);
+        smpSampleDto.setBrandName(null);
+        smpSampleDto.setQuarterCode(season);
+        smpSampleDto.setYear(year);
+        smpSampleDto.setDesigner(designer);
+        smpSampleDto.setPatternMaker(patternDesignName);
+
+        smpSampleDto.setTechnician(technicianName);
+
+        smpSampleDto.setMiddleClassId(prodCategory2nd);
+        smpSampleDto.setMiddleClassName(null);
+        smpSampleDto.setStyleUrl(stylePic);
+        smpSampleDto.setStyleCode(designNo);
+        smpSampleDto.setSupplier(null);
+        smpSampleDto.setSupplierNumber(null);
+        smpSampleDto.setImgList(null);
+
+        return smpSampleDto;
+
+    }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
