@@ -25,6 +25,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.common.eumns.UreportDownEnum;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.UreportService;
@@ -266,6 +267,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (pack == null) {
             throw new OtherException("资料包数据不存在,请先保存");
         }
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
+        packInfoStatus.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+        packInfoStatusService.updateById(packInfoStatus);
         Map<String, Object> variables = BeanUtil.beanToMap(pack);
         boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]",
                 FlowableService.big_goods_reverse, id,
@@ -273,11 +277,6 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 "/pdm/api/saas/packInfo/reverseApproval",
                 StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
                 variables);
-        if (flg) {
-            PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
-            packInfoStatus.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
-            packInfoStatusService.updateById(packInfoStatus);
-        }
         return true;
     }
 
@@ -287,6 +286,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (pack == null) {
             throw new OtherException("资料包数据不存在,请先保存");
         }
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
+        packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+        packInfoStatusService.updateById(packInfoStatus);
         Map<String, Object> variables = BeanUtil.beanToMap(pack);
         boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]",
                 FlowableService.big_goods_reverse, id,
@@ -294,11 +296,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 "/pdm/api/saas/packInfo/approval",
                 StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
                 variables);
-        if (flg) {
-            PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
-            packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
-            packInfoStatusService.updateById(packInfoStatus);
-        }
+
         return true;
     }
 
@@ -338,7 +336,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         Map<String, String> params = new HashMap<>(12);
         params.put("sampleDesignId", byId.getForeignId());
         // 下载文件并上传到minio
-        AttachmentVo attachmentVo = ureportService.downFileAndUploadMinio("process", "工艺单", byId.getCode() + ".pdf", params);
+        AttachmentVo attachmentVo = ureportService.downFileAndUploadMinio(UreportDownEnum.PDF, "process", "工艺单", byId.getCode() + ".pdf", params);
         // 将文件id保存到状态表
         PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), dto.getPackType());
         packInfoStatus.setTechSpecFileId(attachmentVo.getFileId());

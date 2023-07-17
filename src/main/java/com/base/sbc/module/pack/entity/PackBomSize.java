@@ -7,6 +7,7 @@
 package com.base.sbc.module.pack.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.smp.entity.SmpSizeQty;
 import io.swagger.annotations.ApiModel;
@@ -36,6 +37,8 @@ public class PackBomSize extends BaseDataEntity<String> {
 
     public SmpSizeQty toSmpSizeQty() {
         SmpSizeQty smpSizeQty = new SmpSizeQty();
+        IdGen idGen =new IdGen();
+        smpSizeQty.setSyncId(String.valueOf(idGen.nextId()));
         smpSizeQty.setItemQty(quantity);
         return smpSizeQty;
     }

@@ -83,6 +83,8 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
             throw new OtherException("资料包数据不存在,请先保存");
         }
         Map<String, Object> variables = BeanUtil.beanToMap(packInfoStatus);
+        packInfoStatus.setTechSpecConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+        updateById(packInfoStatus);
         boolean flg = flowableService.start(FlowableService.pack_tech_pdn + "[" + packInfo.getCode() + "]",
                 FlowableService.pack_tech_pdn,
                 packInfoStatus.getId(),
@@ -90,10 +92,6 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
                 "/pdm/api/saas/packTechSpec/approval",
                 StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()),
                 variables);
-        if (flg) {
-            packInfoStatus.setTechSpecConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
-            updateById(packInfoStatus);
-        }
         return true;
     }
 
@@ -158,6 +156,8 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
         if (packInfo == null) {
             throw new OtherException("资料包数据不存在,请先保存");
         }
+        packInfoStatus.setSizeConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+        updateById(packInfoStatus);
         Map<String, Object> variables = BeanUtil.beanToMap(packInfoStatus);
         boolean flg = flowableService.start(FlowableService.pack_tech_pdn + "[" + packInfo.getCode() + "]",
                 FlowableService.pack_tech_pdn,
@@ -166,10 +166,6 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
                 "/pdm/api/saas/packSize/approval",
                 StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()),
                 variables);
-        if (flg) {
-            packInfoStatus.setSizeConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
-            updateById(packInfoStatus);
-        }
         return true;
     }
 
