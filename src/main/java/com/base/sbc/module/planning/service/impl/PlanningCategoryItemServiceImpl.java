@@ -124,12 +124,6 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         PlanningSeason planningSeason = planningSeasonService.getById(band.getPlanningSeasonId());
         IdGen idGen = new IdGen();
         int insertCount = 0;
-        //编码规则条件
-        Map<String, String> params = new HashMap<>(12);
-        params.put("brand", planningSeason.getBrand());
-        params.put("year", planningSeason.getYear());
-        params.put("season", planningSeason.getSeason());
-        params.put("category", getCategory(category.getCategoryName()));
         for (int i = 0; i < planRequirementNum.intValue(); i++) {
             PlanningCategoryItem item = new PlanningCategoryItem();
             item.setCompanyCode(companyCode);
@@ -139,8 +133,12 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             item.setPlanningBandId(category.getPlanningBandId());
             item.setPlanningCategoryId(category.getId());
             item.setCategoryIds(category.getCategoryIds());
-            GetMaxCodeRedis getMaxCode = new GetMaxCodeRedis(ccmService);
-            String designCode = Optional.ofNullable(CollUtil.get(dbCategoryItemList, i)).map(PlanningCategoryItem::getDesignNo).orElse(getMaxCode.genCode("PLANNING_DESIGN_NO", params));
+            String designCode = Optional.ofNullable(CollUtil.get(dbCategoryItemList, i)).map(PlanningCategoryItem::getDesignNo).orElse(
+                    getNextCode(
+                            planningSeason.getBrand(),
+                            planningSeason.getYear(),
+                            planningSeason.getSeason(),
+                            category.getCategoryName()));
             System.out.println("planningDesignNo:" + designCode);
             item.setDesignNo(designCode);
             PlanningUtils.setCategory(item);
@@ -150,12 +148,18 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         return insertCount;
     }
 
-    public String getNextCode(String brand,String year,String season,String category){
-        if(StrUtil.contains(category,StrUtil.COMMA)){
-            category=getCategory(category);
+    @Override
+    public String getNextCode(String brand, String year, String season, String category) {
+        if (StrUtil.contains(category, StrUtil.COMMA)) {
+            category = getCategory(category);
         }
         Map<String, String> params = new HashMap<>(12);
-        params.put("brand", brand);
+        // ED 品牌取E品牌的编码 （暂时这么做，后续优化）
+        if (StrUtil.equals(brand, "ED")) {
+            params.put("brand", "1");
+        } else {
+            params.put("brand", brand);
+        }
         params.put("year", year);
         params.put("season", season);
         params.put("category", category);
