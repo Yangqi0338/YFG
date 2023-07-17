@@ -18,6 +18,7 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackTechPackaging;
+import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.service.PackTechPackagingService;
 import com.base.sbc.module.pack.service.PackTechSpecService;
@@ -57,6 +58,8 @@ public class PackTechSpecController {
     private AttachmentService attachmentService;
     @Autowired
     private PackInfoStatusService packInfoStatusService;
+    @Autowired
+    private PackInfoService packInfoService;
 
     @ApiOperation(value = "列表")
     @GetMapping
@@ -156,6 +159,18 @@ public class PackTechSpecController {
         return packInfoStatusService.approvalForTechSpec(dto);
     }
 
+
+    @ApiOperation(value = "生成工艺说明文件")
+    @PostMapping("/genTechSpecFile")
+    public AttachmentVo genTechSpecFile(@Valid PackCommonSearchDto dto) {
+        return packInfoService.genTechSpecFile(dto);
+    }
+
+    @ApiOperation(value = "删除工艺说明文件")
+    @DeleteMapping("/delTechSpecFile")
+    public boolean delTechSpecFile(@Valid PackCommonSearchDto dto) {
+        return packInfoService.delTechSpecFile(dto);
+    }
 }
 
 

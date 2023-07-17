@@ -92,7 +92,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         queryWrapper.eq("mt.company_code", baseController.getUserCompany());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStatus()),"mt.status", queryDto.getStatus());
         queryWrapper.in(StringUtils.isNotBlank(queryDto.getCategoryId()),"cr.category_id", queryDto.getCategoryId());
-        queryWrapper.notEmptyLike("mt.code", queryDto.getCoding());
+        queryWrapper.notEmptyLike("mt.code", queryDto.getCode());
         queryWrapper.notEmptyLike("mt.description", queryDto.getDescription());
         queryWrapper.notEmptyLike("mt.dimension_type", queryDto.getDimensionType());
         queryWrapper.notEmptyLike("mt.status", queryDto.getStatus());
@@ -201,6 +201,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
                 queryWrapper1.in("id", Arrays.asList(sizeIds));
                 List<BasicsdatumSize> list = basicsdatumSizeService.list(queryWrapper1);
                 for (BasicsdatumSize basicsdatumSize : list) {
+                    basicsdatumSize.setModelType(addRevampBasicsdatumModelTypeDto.getModelType());
                     basicsdatumSize.setModelTypeCode(addRevampBasicsdatumModelTypeDto.getCode());
                 }
                 basicsdatumSizeService.updateBatchById(list);
@@ -220,6 +221,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             List<BasicsdatumSize> list1 = basicsdatumSizeService.list(new QueryWrapper<BasicsdatumSize>().eq("model_type_code", addRevampBasicsdatumModelTypeDto.getCode()));
             for (BasicsdatumSize basicsdatumSize : list1) {
                 basicsdatumSize.setModelType("");
+                basicsdatumSize.setModelTypeCode("");
                 basicsdatumSizeService.updateBatchById(list1);
             }
 
@@ -228,6 +230,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
 
                 List<BasicsdatumSize> list = basicsdatumSizeService.listByIds( Arrays.asList(sizeIds));
                 for (BasicsdatumSize basicsdatumSize : list) {
+                    basicsdatumSize.setModelType(addRevampBasicsdatumModelTypeDto.getModelType());
                     basicsdatumSize.setModelTypeCode(addRevampBasicsdatumModelTypeDto.getCode());;
                 }
                 basicsdatumSizeService.updateBatchById(list);

@@ -1,5 +1,6 @@
 package com.base.sbc.module.pack.vo;
 
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -72,5 +73,8 @@ public class PackInfoListVo extends PackInfoStatusVo {
     public String getStyle() {
         return designNo + styleName;
     }
+
+    @ApiModelProperty(value = "工艺说明文件信息")
+    private AttachmentVo techSpecFile;
 
 }

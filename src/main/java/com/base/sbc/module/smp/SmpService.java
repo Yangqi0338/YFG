@@ -1,7 +1,9 @@
 package com.base.sbc.module.smp;
 
+import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
+import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -13,10 +15,16 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
 import com.base.sbc.module.basicsdatum.entity.*;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeMapper;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
+import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.hangTag.entity.HangTag;
+import com.base.sbc.module.hangTag.mapper.HangTagMapper;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackInfo;
@@ -28,6 +36,7 @@ import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.base.sbc.module.sample.service.SampleStyleColorService;
+import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +47,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.util.ObjectUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -83,6 +93,15 @@ public class SmpService {
     private final BasicsdatumSizeService basicsdatumSizeService;
 
     private final SampleDesignService sampleDesignService;
+
+    private final BasicsdatumColourLibraryMapper basicsdatumColourLibraryMapper;
+
+    private final BasicsdatumSizeMapper basicsdatumSizeMapper;
+
+    private final HangTagMapper hangTagMapper;
+
+
+
 
 
     private static final String URL = "http://10.98.250.31:7006/pdm";
@@ -386,7 +405,7 @@ public class SmpService {
      * @param baseController           baseController
      */
 //    @Async
-    public void issueColor(BasicsdatumColourLibrary basicsdatumColourLibrary, Map<String, String> mapColorChroma, Map<String, String> mapColorType, BaseController baseController) {
+    public boolean issueColor(BasicsdatumColourLibrary basicsdatumColourLibrary, Map<String, String> mapColorChroma, Map<String, String> mapColorType, BaseController baseController) {
         /*拼接下发数据*/
         SmpColorDto smpColorDto = new SmpColorDto();
         smpColorDto.setColorChroma(mapColorChroma.get(basicsdatumColourLibrary.getChroma()));
@@ -401,11 +420,11 @@ public class SmpService {
         smpColorDto.setModifiedPerson(baseController.getUser().getName());
         smpColorDto.setModifiedTime(new Date());
         smpColorDto.setActive(true);
-//        color(smpColorDto);
+       return true;
     }
 
     //    @Async
-    public void issueGoods(SampleStyleColor sampleStyleColor, SampleDesign sampleDesign, Map<String, Map<String, String>> dictInfoToMap) {
+    public boolean issueGoods(SampleStyleColor sampleStyleColor, SampleDesignVo sampleDesign, Map<String, Map<String, String>> dictInfoToMap) {
 
         /*品牌*/
         Map<String, String> mapBrand = dictInfoToMap.get("C8_Brand");
@@ -413,6 +432,12 @@ public class SmpService {
         Map<String, String> mapStyleType = dictInfoToMap.get("StyleType");
         /*销售类型*/
 //        Map<String, String> mapSaleType = dictInfoToMap.get("C8_SaleType");
+
+        Map<String, String> styleStatus = dictInfoToMap.get("C8_StyleStatus");
+
+        BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(sampleStyleColor.getColourLibraryId());
+
+
         SmpGoodsDto smpGoodsDto = new SmpGoodsDto();
         smpGoodsDto.setProductTypeId(sampleDesign.getStyleType());
         smpGoodsDto.setProductType(mapStyleType.get(sampleDesign.getStyleType()));
@@ -445,6 +470,22 @@ public class SmpService {
             if (!ObjectUtils.isEmpty(basicsdatumModelType)) {
                 smpGoodsDto.setSizeGroupId(basicsdatumModelType.getCode());
                 smpGoodsDto.setSizeGroupName(basicsdatumModelType.getModelType());
+                /*查询号型类型下尺码*/
+                QueryWrapper queryWrapper = new QueryWrapper();
+                queryWrapper.eq("model_type_code", basicsdatumModelType.getCode());
+                List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeMapper.selectList(queryWrapper);
+                List<SmpSize> itemList = new ArrayList<>();
+                for (BasicsdatumSize basicsdatumSize : basicsdatumSizeList) {
+                    SmpSize smpSize = new SmpSize();
+                    smpSize.setSize(basicsdatumSize.getModel());
+                    smpSize.setSizeNumber(basicsdatumSize.getCode());
+//                smpSize.setSizeDescription();
+                    smpSize.setCode(basicsdatumSize.getCode());
+                    smpSize.setProductSizeName(basicsdatumSize.getHangtags());
+                    smpSize.setBaseSize(basicsdatumSize.getShowSizeStatus().equals("1"));
+                    itemList.add(smpSize);
+                }
+                smpGoodsDto.setItemList(itemList);
             }
         }
         smpGoodsDto.setPatternMakerName(sampleDesign.getPatternDesignName());
@@ -452,12 +493,25 @@ public class SmpService {
         smpGoodsDto.setMaxClassName(StringUtils.getCategory(sampleDesign.getCategoryName(), 0, 0));
         smpGoodsDto.setMiddleClassName(StringUtils.getCategory(sampleDesign.getCategoryName(), 2, 0));
         smpGoodsDto.setMinClassName(StringUtils.getCategory(sampleDesign.getCategoryName(), 3, 0));
-//        smpGoodsDto.setStyleCode();
         smpGoodsDto.setCategoryName(StringUtils.getCategory(sampleDesign.getCategoryName(), 1, 0));
-//        smpGoodsDto.setLengthRangeId();
-//        smpGoodsDto.setLengthRangeName();
+        //        smpGoodsDto.setStyleCode();
+        /**
+         * 维度数据
+         */
+        if (!CollectionUtils.isEmpty(sampleDesign.getDimensionLabels())) {
+            List<FieldManagementVo> fieldManagementVoList = sampleDesign.getDimensionLabels();
+            fieldManagementVoList.forEach(m -> {
+                try {
+                    BeanUtil.setProperty(smpGoodsDto, m.getFieldName(), m.getVal());
+                } catch (Exception e) {
 
-/*        smpGoodsDto.setCoatLength();
+                }
+            });
+        }
+
+/*        smpGoodsDto.setLengthRangeId();
+        smpGoodsDto.setLengthRangeName();
+        smpGoodsDto.setCoatLength();
         smpGoodsDto.setWaistTypeId();
         smpGoodsDto.setWaistTypeName();
         smpGoodsDto.setSleeveLengthId();
@@ -468,7 +522,67 @@ public class SmpService {
         smpGoodsDto.setPlacketId();
         smpGoodsDto.setPlacketName()
         smpGoodsDto.setYarnNeedleTypeId();
-        smpGoodsDto.set*/
+        smpGoodsDto.setYarnNeedleTypeName();
+        smpGoodsDto.setYarnNeedleId();
+        smpGoodsDto.setYarnNeedleName()
+        smpGoodsDto.setProfileId()
+        smpGoodsDto.setProfileName()
+        smpGoodsDto.setFlowerId();
+        smpGoodsDto.setFlowerName()
+        smpGoodsDto.setShapeName();
+        smpGoodsDto.setTextureId();
+        smpGoodsDto.setTextureName();
+        smpGoodsDto.setPatternName()*/
+        smpGoodsDto.setPriorityId(sampleDesign.getTaskLevel());
+        smpGoodsDto.setPriorityName(styleStatus.get(sampleDesign.getTaskLevel()));
+        smpGoodsDto.setColorCode(basicsdatumColourLibrary.getColourCode());
+        smpGoodsDto.setColorName(basicsdatumColourLibrary.getColourName());
+        smpGoodsDto.setBandId(sampleDesign.getBandCode());
+//        smpGoodsDto.setBandName();
+        smpGoodsDto.setPrice(sampleStyleColor.getTagPrice());
+
+//        吊牌查询
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("bulk_style_no",sampleStyleColor.getStyleNo());
+        HangTag hangTag =  hangTagMapper.selectOne(queryWrapper);
+/*        smpGoodsDto.setPriceConfirm();
+        smpGoodsDto.setCost();
+        smpGoodsDto.setPlanCost();
+        smpGoodsDto.setActualRate()
+        smpGoodsDto.setPlanActualRate();
+        smpGoodsDto.setProcessCost();
+        smpGoodsDto.setLaborCosts();
+        smpGoodsDto.setMaterialCost();
+        smpGoodsDto.setProductName(hangTag.getProductName());
+        smpGoodsDto.setUniqueCode();
+        smpGoodsDto.setSeries();
+        smpGoodsDto.setAccessories(sampleStyleColor.getIsTrim().equals("1"));
+        smpGoodsDto.setManufacture(sampleStyleColor.getManufacturer());
+        smpGoodsDto.setSaleTime();
+        smpGoodsDto.setSeriesId();
+        smpGoodsDto.setSeriesName();
+        smpGoodsDto.setLuxury(sampleStyleColor.getIsLuxury().equals("1"));
+        smpGoodsDto.setBomPhase();
+        smpGoodsDto.setAuProcess();
+        smpGoodsDto.setSupplierArticle(sampleStyleColor.getManufacturerNo());
+        smpGoodsDto.setSupplierArticleColor(sampleStyleColor.getManufacturerColor());
+        smpGoodsDto.setPackageType();
+        smpGoodsDto.setPackageSize();
+        smpGoodsDto.setProdSeg(sampleStyleColor.getSubdivide());
+        smpGoodsDto.setSaleType(sampleStyleColor.getSalesType());
+        smpGoodsDto.setBulkNumber(sampleStyleColor.getStyleNo());
+        smpGoodsDto.setComposition();
+        smpGoodsDto.setMainCode(sampleStyleColor.getPrincipalStyleNo());
+        smpGoodsDto.setSecCode(sampleStyleColor.getAccessoryNo());
+        smpGoodsDto.setLingXingId();
+        smpGoodsDto.setLingXingName();
+        smpGoodsDto.setIntegritySample();
+        smpGoodsDto.setIntegrityProduct();*/
+        /*图*/
+        if (!CollectionUtils.isEmpty(sampleDesign.getStylePicList())) {
+            smpGoodsDto.setImgList( sampleDesign.getStylePicList().stream().map(AttachmentVo::getUrl).collect(Collectors.toList()));
+        }
+       return goods(smpGoodsDto);
     }
 
 

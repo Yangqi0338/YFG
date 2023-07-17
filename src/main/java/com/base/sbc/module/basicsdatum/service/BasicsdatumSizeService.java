@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 
 /** 
  * 类描述：基础资料-尺码表 service类
@@ -76,7 +77,7 @@ public interface BasicsdatumSizeService extends BaseService<BasicsdatumSize> {
      * @param ids
      * @return
      */
-    String  getSizeName(String ids);
+   Map<String,String>  getSizeName(String ids);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

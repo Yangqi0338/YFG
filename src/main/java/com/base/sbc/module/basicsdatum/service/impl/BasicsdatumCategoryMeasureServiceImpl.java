@@ -83,6 +83,7 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
         PageHelper.startPage(queryDto);
         BaseQueryWrapper<BasicsdatumCategoryMeasure> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("cm.company_code", baseController.getUserCompany());
+        queryWrapper.eq("cm.del_flag", "0");
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getCode()),"cm.code",queryDto.getCode());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getCategoryId()),"cr.category_id",queryDto.getCategoryId());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getName()),"cm.name",queryDto.getName());

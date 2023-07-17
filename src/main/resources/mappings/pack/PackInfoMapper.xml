@@ -35,7 +35,8 @@
                      ps.tech_spec_lock_flag,
                      ps.tech_spec_confirm_say,
                      ps.tech_spec_confirm_status,
-                     ps.wash_skipping_flag
+                     ps.wash_skipping_flag,
+                     ps.tech_spec_file_id
               FROM t_pack_info p
                        LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0')
                        left join t_sample_design sd on (sd.id = p.foreign_id)
