@@ -42,7 +42,7 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	 * 实体存放的其他字段区 不替换的区域 【other_start】
 	 ******************************************/
 	public SmpMaterialDto toSmpMaterialDto(){
-		IdGen IdGen =new IdGen();
+		IdGen idGen =new IdGen();
 		SmpMaterialDto smpMaterialDto = new SmpMaterialDto();
 		smpMaterialDto.setMaterialCode(materialCode);
 		smpMaterialDto.setMaterialName(materialName);
@@ -77,7 +77,7 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setModifiedPerson(getUpdateName());
 		smpMaterialDto.setModifiedTime(getUpdateDate());
 		smpMaterialDto.setPlmId(null);
-		smpMaterialDto.setSyncId(String.valueOf(IdGen.nextId()));
+		smpMaterialDto.setSyncId(String.valueOf(idGen.nextId()));
 		smpMaterialDto.setActive("0".equals(status));
 		return smpMaterialDto;
 	}
