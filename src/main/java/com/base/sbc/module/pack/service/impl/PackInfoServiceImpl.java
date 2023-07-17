@@ -265,6 +265,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (pack == null) {
             throw new OtherException("资料包数据不存在,请先保存");
         }
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
+        packInfoStatus.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+        packInfoStatusService.updateById(packInfoStatus);
         Map<String, Object> variables = BeanUtil.beanToMap(pack);
         boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]",
                 FlowableService.big_goods_reverse, id,
@@ -272,11 +275,6 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 "/pdm/api/saas/packInfo/reverseApproval",
                 StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
                 variables);
-        if (flg) {
-            PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
-            packInfoStatus.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
-            packInfoStatusService.updateById(packInfoStatus);
-        }
         return true;
     }
 
@@ -286,6 +284,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (pack == null) {
             throw new OtherException("资料包数据不存在,请先保存");
         }
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
+        packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+        packInfoStatusService.updateById(packInfoStatus);
         Map<String, Object> variables = BeanUtil.beanToMap(pack);
         boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]",
                 FlowableService.big_goods_reverse, id,
@@ -293,11 +294,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 "/pdm/api/saas/packInfo/approval",
                 StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
                 variables);
-        if (flg) {
-            PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
-            packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
-            packInfoStatusService.updateById(packInfoStatus);
-        }
+
         return true;
     }
 
