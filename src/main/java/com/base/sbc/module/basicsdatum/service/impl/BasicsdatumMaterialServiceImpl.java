@@ -428,14 +428,17 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	public Boolean saveBasicsdatumMaterialWidthGroup(BasicsdatumMaterialWidthGroupSaveDto dto) {
 
 		// 1、 获取规格组的规格集合
-		SpecificationGroup specificationGroup = specificationGroupService.getById(dto.getWidthGroupCode());
+		List<Specification> specifications = null;
+		SpecificationGroup specificationGroup = specificationGroupService
+				.getOne(new QueryWrapper<SpecificationGroup>().eq(COMPANY_CODE, getCompanyCode()).eq("code",
+						dto.getWidthGroupCode()));
 		BaseQueryWrapper<Specification> queryWrapper = new BaseQueryWrapper<>();
 		if (specificationGroup != null) {
 			String specificationIds = specificationGroup.getSpecificationIds();
 			String[] ids = specificationIds.split(",");
 			queryWrapper.in("id", Arrays.asList(ids));
+			specifications = specificationService.list(queryWrapper);
 		}
-		List<Specification> specifications = specificationService.list(queryWrapper);
 		// 2、清理现有物料规格
 		this.materialWidthService.remove(new QueryWrapper<BasicsdatumMaterialWidth>().eq(COMPANY_CODE, getCompanyCode())
 				.eq("material_code", dto.getMaterialCode()));
