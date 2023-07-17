@@ -19,20 +19,20 @@ public class HtmlToImgTest {
 		String saveImageLocation = "D:\\space-spring\\sjs_yfg_pdm\\src\\test\\java\\com\\base\\sbc\\mdToImg\\md.png";
 
 		Parser parser = Parser.builder().build();
-		Node document = parser.parse("**排版要求（常规面料）**\r\n"
-				+ "单件一顺排版，避色差；拉布按明细单小样和（样衣参考）为正面，拉布顺直，拉平，注意布次，纬斜，刀口准确，不偏刀，印花和绣花面料需编号。衬胶点朝上裁剪\r\n" + "\r\n"
-				+ "**粘衬要求1**\r\n" + "\"粘衬编号：4166 粘衬颜色: ( 白 )色\r\n" + "粘衬机器温度：130- 135度，压力2.5- 3kg,时间：10- 12秒\r\n"
-				+ "根据实际机器温度适当调整温度与压力\"\r\n" + "\r\n" + "**落朴位**\r\n" + "前腰*4，后腰*2，后袋唇*2，门襟*1，里襟*1，日子袢包布*1");
+		Node document = parser.parse("粘衬编号：4121#（水洗衬）粘衬颜色: (      )色\r\n"
+				+ "粘衬机器温度：**130-135**度，压力**2.5-3kg**,时间：**10-12**秒\r\n" + "根据面料特性适当调整机器温度与压力");
 		HtmlRenderer renderer = HtmlRenderer.builder().build();
 		String content = renderer.render(document);
 		content = content.replace("\n", "<br/>");
 		if (content.endsWith("<br/>")) {
 			content = content.substring(0, content.length() - 5);
 		}
-//		System.out.println(content);
+		System.out.println(content);
 		content = "<div style=\"font-size:20px;width:600px\">" + content + "</div>";
 		content = content.replace("<p>", "<p style=\"line-height:28px;margin:0px\">");
-//		System.out.println(content);
+		content = content.replace("<strong>", "<strong style=\"line-height:28px;color:red\">");
+
+		System.out.println(content);
 		HtmlImageGenerator gen = new HtmlImageGenerator();
 		gen.loadHtml(content);
 		gen.saveAsImage(saveImageLocation);
