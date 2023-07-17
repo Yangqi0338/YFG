@@ -7,6 +7,7 @@
 package com.base.sbc.module.pack.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.smp.dto.SmpBomDto;
 import com.base.sbc.module.smp.entity.BomMaterial;
@@ -49,6 +50,8 @@ public class PackBom extends BaseDataEntity<String> {
         smpBomDto.setCollocation(bomMatch);
         smpBomDto.setBomLineItemId(id);
         smpBomDto.setId(id);
+        IdGen idGen =new IdGen();
+        smpBomDto.setSyncId(String.valueOf(idGen.nextId()));
         smpBomDto.setActive("0".equals(status));
         smpBomDto.setCreator(getCreateName());
         smpBomDto.setCreateTime(getCreateDate());

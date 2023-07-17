@@ -53,4 +53,6 @@ public class SmpBomDto extends SmpBaseDto {
     private List<SmpSizeQty> sizeQtyList;
     /**bom材料清单*/
     private List<BomMaterial> bomMaterials;
+    /**同步ID*/
+    private String syncId;
 }

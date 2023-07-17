@@ -21,4 +21,6 @@ public class SmpSizeQty {
     private String matSizeUrl;
     /**单件用量*/
     private BigDecimal itemQty;
+    /**同步ID*/
+    private String syncId;
 }
