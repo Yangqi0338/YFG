@@ -20,3 +20,4 @@ ftp:
   port: 21
   username: spuser
   password: '!qaz2wsx'
+  upload-dir: upload-dir
