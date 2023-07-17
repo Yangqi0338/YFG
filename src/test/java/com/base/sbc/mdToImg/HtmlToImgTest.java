@@ -35,6 +35,7 @@ public class HtmlToImgTest {
 		System.out.println(content);
 		HtmlImageGenerator gen = new HtmlImageGenerator();
 		gen.loadHtml(content);
+		gen.getBufferedImage();// 获取图片流
 		gen.saveAsImage(saveImageLocation);
 
 //		BufferedImage sourceImg = ImageIO.read(new File(saveImageLocation));
