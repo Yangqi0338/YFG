@@ -25,6 +25,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.common.eumns.UreportDownEnum;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.UreportService;
@@ -334,7 +335,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         Map<String, String> params = new HashMap<>(12);
         params.put("sampleDesignId", byId.getForeignId());
         // 下载文件并上传到minio
-        AttachmentVo attachmentVo = ureportService.downFileAndUploadMinio("process", "工艺单", byId.getCode() + ".pdf", params);
+        AttachmentVo attachmentVo = ureportService.downFileAndUploadMinio(UreportDownEnum.PDF, "process", "工艺单", byId.getCode() + ".pdf", params);
         // 将文件id保存到状态表
         PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), dto.getPackType());
         packInfoStatus.setTechSpecFileId(attachmentVo.getFileId());

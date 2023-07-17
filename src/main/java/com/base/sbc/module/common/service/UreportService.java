@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.common.eumns.UreportDownEnum;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,8 +41,6 @@ public class UreportService {
     @Autowired
     private UploadFileService uploadFileService;
 
-    public static final String PDF_DOWN_URL_TEMPLATE = "http://{url}:{port}/ureport/pdf?_u=mysql:{mysql}-{name}.ureport.xml&billType={billType}&";
-
 
     /**
      * 从Ureport 下载文件 并上传到minio
@@ -52,7 +51,7 @@ public class UreportService {
      * @param params   报表参数
      * @return
      */
-    public AttachmentVo downFileAndUploadMinio(String billType, String name, String fileName, Map<String, String> params) {
+    public AttachmentVo downFileAndUploadMinio(UreportDownEnum ureportDown, String billType, String name, String fileName, Map<String, String> params) {
 
         try {
             //1 组装url eg http://10.98.250.44:9111/ureport/pdf?_u=mysql:677447590605750272-%25E5%25B7%25A5%25E8%2589%25BA%25E5%258D%2595.ureport.xml&billType=process&sampleDesignId=1670714798356213761
@@ -61,8 +60,9 @@ public class UreportService {
             paramsMap.put("port", port);
             paramsMap.put("mysql", mysql);
             paramsMap.put("billType", billType);
+            paramsMap.put("downType", ureportDown.getDownType());
             paramsMap.put("name", URLUtil.encode(URLUtil.encode(name)));
-            String url1 = StrUtil.format(PDF_DOWN_URL_TEMPLATE, paramsMap);
+            String url1 = StrUtil.format(ureportDown.getUrlTemplate(), paramsMap);
             String urlParams = URLUtil.buildQuery(params, Charset.defaultCharset());
             String url = url1 + urlParams;
             System.out.println("url:" + url);
