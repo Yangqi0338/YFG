@@ -274,6 +274,13 @@ public class PatternMakingController {
         patternMakingWeekMonthViewDto.setCompanyCode(companyCode);
         return ApiResult.success("查询成功",patternMakingService.sampleCapacityTotalCount(patternMakingWeekMonthViewDto,token));
     }
+
+    @ApiOperation(value = "产能对比", notes = "")
+    @PostMapping("/capacityContrastStatistics")
+    public ApiResult capacityContrastStatistics(@RequestHeader(BaseConstant.AUTHORIZATION)String token,@RequestHeader(BaseConstant.USER_COMPANY)String companyCode, @RequestBody PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
+        patternMakingWeekMonthViewDto.setCompanyCode(companyCode);
+        return ApiResult.success("查询成功",patternMakingService.capacityContrastStatistics(patternMakingWeekMonthViewDto,token));
+    }
 }
 
 
