@@ -17,8 +17,8 @@ import java.util.Map;
  * @email li_xianglin@126.com
  * @date 创建时间：2023-05-11 09:43
  */
-@FeignClient(name = "flowable", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
-//@FeignClient(name = "flowable", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
+//@FeignClient(name = "flowable", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
+@FeignClient(name = "flowable", url = "http://" + "10.88.34.217" + ":9151/", decode404 = true)
 public interface FlowableFeignService {
 
 

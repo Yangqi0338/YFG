@@ -40,5 +40,9 @@ public interface SampleStyleColorMapper extends BaseMapper<SampleStyleColor> {
      */
     List<SampleStyleColorVo> getSampleStyleColorList(@Param(Constants.WRAPPER) QueryWrapper qw);
 
+//    修改大货款号
+   Boolean reviseAllStyleNo(@Param("styleNo") String styleNo ,@Param("nweStyleNo") String nweStyleNo);
+
+
 // 自定义方法区 不替换的区域【other_end】
 }

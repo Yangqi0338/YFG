@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.FilesUtils;
+import com.base.sbc.config.utils.FtpUtil;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import io.swagger.annotations.Api;
@@ -28,12 +29,20 @@ public class SaasUploadController extends BaseController {
     @Autowired
     private UploadFileService uploadFileService;
 
+    @Autowired
+    private FtpUtil util;
+
     @ApiOperation(value = "产品图片上传", notes = "用于产品图片上传，返回上传成功的地址")
     @RequestMapping(value = "/productPic", method = RequestMethod.POST)
     public ApiResult uploadPicFile(@RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request) throws Throwable {
 //        return filesUtils.uploadBigData(file, FilesUtils.PRODUCT, request);
         AttachmentVo attachmentVo = uploadFileService.uploadToMinio(file);
         return ApiResult.success(FilesUtils.SUCCESS, attachmentVo.getUrl(), BeanUtil.beanToMap(attachmentVo));
+    }
+    @ApiOperation(value = "大货款图上传", notes = "用于大货图片上传，返回上传成功的地址")
+    @RequestMapping(value = "/bulkStylePic", method = RequestMethod.POST)
+    public ApiResult bulkStylePic(@RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request) throws Throwable {
+        return ApiResult.success(FilesUtils.SUCCESS, util.uploadFile(file));
     }
     @ApiOperation(value = "上传文件", notes = "上传文件")
     @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)

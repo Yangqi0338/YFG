@@ -91,11 +91,10 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         queryWrapper.notEmptyLike("mt.model_type", queryDto.getModelType());
         queryWrapper.eq("mt.company_code", baseController.getUserCompany());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStatus()),"mt.status", queryDto.getStatus());
-        queryWrapper.in(StringUtils.isNotBlank(queryDto.getCategoryId()),"cr.category_id", queryDto.getCategoryId());
+        queryWrapper.in(StringUtils.isNotBlank(queryDto.getCategoryId()),"cr.category_ids", StringUtils.convertList(queryDto.getCategoryId()) );
         queryWrapper.notEmptyLike("mt.code", queryDto.getCode());
         queryWrapper.notEmptyLike("mt.description", queryDto.getDescription());
         queryWrapper.notEmptyLike("mt.dimension_type", queryDto.getDimensionType());
-        queryWrapper.notEmptyLike("mt.status", queryDto.getStatus());
         queryWrapper.between("mt.create_date",queryDto.getCreateDate());
         queryWrapper.eq("mt.del_flag", "0");
         /*查询基础资料-号型类型数据*/
