@@ -7,7 +7,6 @@
 package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
@@ -33,18 +32,14 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 类描述：资料包-工艺说明 service类
@@ -123,15 +118,11 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
         }
         try {
             BufferedImage bufferedImage = MdUtils.mdToImage(newContent);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(bufferedImage, "PNG", baos);
-            byte[] bytes = baos.toByteArray();
             String fileName = bean.getForeignId() + StrUtil.DASHED + bean.getPackType() + bean.getSpecType() + ".png";
-            MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(bytes));
-            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile);
+            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(bufferedImage, fileName);
             uploadFileService.delByUrl(bean.getContentImgUrl());
-            bean.setContentImgUrl(attachmentVo.getUrl());
-        } catch (IOException e) {
+            bean.setContentImgUrl(Optional.ofNullable(attachmentVo).map(AttachmentVo::getUrl).orElse(""));
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

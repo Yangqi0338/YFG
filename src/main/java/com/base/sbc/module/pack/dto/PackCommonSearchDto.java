@@ -18,6 +18,14 @@ import org.hibernate.validator.constraints.NotBlank;
 @ApiModel("资料包-公共筛选条件 PackCommonSearchDto")
 public class PackCommonSearchDto {
 
+    public PackCommonSearchDto() {
+    }
+
+    public PackCommonSearchDto(String foreignId, String packType) {
+        this.foreignId = foreignId;
+        this.packType = packType;
+    }
+
     @ApiModelProperty(value = "主数据id")
     @NotBlank(message = "主数据id为空")
     private String foreignId;

@@ -53,6 +53,12 @@ public interface PackSizeService extends PackBaseService<PackSize> {
      */
     boolean saveBatchByDto(PackCommonSearchDto commonDto, List<PackSizeDto> dtoList);
 
+    /**
+     * 将尺寸表转为html table
+     *
+     * @return
+     */
+    void sizeToHtml(PackCommonSearchDto commonDto);
 
 // 自定义方法区 不替换的区域【other_end】
 

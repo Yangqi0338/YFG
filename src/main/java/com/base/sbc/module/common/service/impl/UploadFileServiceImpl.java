@@ -22,11 +22,16 @@ import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +83,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             newFile.setStatus(BaseGlobal.STATUS_NORMAL);
             newFile.setSize(new BigDecimal(String.valueOf(file.getSize())));
             save(newFile);
-            AttachmentVo attachmentVo= BeanUtil.copyProperties(newFile,AttachmentVo.class,"id");
+            AttachmentVo attachmentVo = BeanUtil.copyProperties(newFile, AttachmentVo.class, "id");
             attachmentVo.setFileId(newFile.getId());
             return attachmentVo;
         } catch (Exception e) {
@@ -88,11 +93,27 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     }
 
     @Override
+    public AttachmentVo uploadToMinio(BufferedImage bufferedImage, String fileName) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "PNG", baos);
+            byte[] bytes = baos.toByteArray();
+
+            MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(bytes));
+            AttachmentVo attachmentVo = uploadToMinio(mockMultipartFile);
+            return attachmentVo;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
     public UploadFile findByMd5(String md5) {
-        QueryWrapper<UploadFile> qw=new QueryWrapper<>();
-        qw.eq("md5",md5);
+        QueryWrapper<UploadFile> qw = new QueryWrapper<>();
+        qw.eq("md5", md5);
         List<UploadFile> list = list(qw);
-        if(CollUtil.isNotEmpty(list)){
+        if (CollUtil.isNotEmpty(list)) {
             return CollUtil.getFirst(list);
         }
         return null;
