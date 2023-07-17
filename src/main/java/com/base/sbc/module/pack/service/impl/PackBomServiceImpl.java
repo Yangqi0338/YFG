@@ -68,7 +68,6 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     private PackBomVersionService packBomVersionService;
 
 
-
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
         QueryWrapper<PackBom> qw = new QueryWrapper<>();
@@ -140,24 +139,40 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         if (CollUtil.isEmpty(dtoList)) {
             dtoList = new ArrayList<>(2);
         }
-        List<String> bomIds = getBomIdsByVersionId(version.getId());
+        List<String> dbBomIds = getBomIdsByVersionId(version.getId());
+        List<String> pageBomIds = new ArrayList<>();
         // 保存物料清单表
         List<PackBom> packBoms = BeanUtil.copyToList(dtoList, PackBom.class);
         for (PackBom packBom : packBoms) {
             PackUtils.bomDefaultVal(packBom);
             PackUtils.setBomVersionInfo(version, packBom);
+            if (!CommonUtils.isInitId(packBom.getId())) {
+                pageBomIds.add(packBom.getId());
+            }
         }
         QueryWrapper<PackBom> bomQw = new QueryWrapper<>();
         bomQw.eq("bom_version_id", version.getId());
-        //删除之前的尺寸信息
-        if (CollUtil.isNotEmpty(bomIds)) {
-            QueryWrapper delSizeQw = new QueryWrapper();
-            delSizeQw.in("bom_id", bomIds);
-            packBomSizeService.remove(delSizeQw);
+        //覆盖标识
+        boolean fg = StrUtil.equals(overlayFlg, BasicNumber.ONE.getNumber());
+        if (fg) {
+            //删除之前的尺寸信息
+            if (CollUtil.isNotEmpty(dbBomIds)) {
+                QueryWrapper delSizeQw = new QueryWrapper();
+                delSizeQw.in("bom_id", dbBomIds);
+                packBomSizeService.remove(delSizeQw);
+            }
+        } else {
+            //删除之前的尺寸信息
+            if (CollUtil.isNotEmpty(pageBomIds)) {
+                QueryWrapper delSizeQw = new QueryWrapper();
+                delSizeQw.in("bom_id", pageBomIds);
+                packBomSizeService.remove(delSizeQw);
+            }
         }
 
         //保存
-        addAndUpdateAndDelList(packBoms, bomQw, StrUtil.equals(overlayFlg, BasicNumber.ONE.getNumber()));
+
+        addAndUpdateAndDelList(packBoms, bomQw, fg);
         // 处理尺码
         List<PackBomSize> bomSizeList = new ArrayList<>(16);
         for (int i = 0; i < dtoList.size(); i++) {
