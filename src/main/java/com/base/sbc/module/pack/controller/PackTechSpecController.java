@@ -166,6 +166,11 @@ public class PackTechSpecController {
         return packInfoService.genTechSpecFile(dto);
     }
 
+    @ApiOperation(value = "删除工艺说明文件")
+    @DeleteMapping("/delTechSpecFile")
+    public boolean delTechSpecFile(@Valid PackCommonSearchDto dto) {
+        return packInfoService.delTechSpecFile(dto);
+    }
 }
 
 

@@ -13,6 +13,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -342,6 +343,15 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packInfoStatus.setTechSpecFileId(attachmentVo.getFileId());
         packInfoStatusService.updateById(packInfoStatus);
         return attachmentVo;
+    }
+
+    @Override
+    public boolean delTechSpecFile(PackCommonSearchDto dto) {
+        UpdateWrapper qw = new UpdateWrapper();
+        PackUtils.commonQw(qw, dto);
+        qw.set("tech_spec_file_id", null);
+        packInfoStatusService.update(qw);
+        return true;
     }
 
 

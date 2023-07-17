@@ -136,6 +136,14 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      */
     AttachmentVo genTechSpecFile(PackCommonSearchDto dto);
 
+    /**
+     * 删除工艺说明文件
+     *
+     * @param dto
+     * @return
+     */
+    boolean delTechSpecFile(PackCommonSearchDto dto);
+
 
 // 自定义方法区 不替换的区域【other_end】
 
