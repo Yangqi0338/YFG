@@ -7,6 +7,7 @@
 package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
@@ -15,8 +16,10 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.MdUtils;
 import com.base.sbc.config.utils.SpElParseUtil;
 import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
@@ -29,10 +32,17 @@ import com.base.sbc.module.pack.vo.PackTechSpecVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -48,12 +58,15 @@ import java.util.List;
 @Service
 public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMapper, PackTechSpec> implements PackTechSpecService {
 
+
+    // 自定义方法区 不替换的区域【other_start】
     @Resource
     private AttachmentService attachmentService;
     @Resource
     private OperaLogService operaLogService;
 
-// 自定义方法区 不替换的区域【other_start】
+    @Autowired
+    private UploadFileService uploadFileService;
 
     @Override
     public List<PackTechSpecVo> list(PackTechSpecSearchDto dto) {
@@ -81,6 +94,7 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
                 long count = count(countQw);
                 pageData.setSort(new BigDecimal(String.valueOf(count + 1)));
             }
+            genContentImgUrl(dto.getContent(), null, pageData);
             save(pageData);
             return BeanUtil.copyProperties(pageData, PackTechSpecVo.class);
         }
@@ -90,9 +104,35 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
             if (dbData == null) {
                 throw new OtherException(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND);
             }
+            String oldContent = dbData.getContent();
             BeanUtil.copyProperties(dto, dbData);
+            genContentImgUrl(dto.getContent(), oldContent, dbData);
             updateById(dbData);
             return BeanUtil.copyProperties(dbData, PackTechSpecVo.class);
+        }
+    }
+
+    @Override
+    public void genContentImgUrl(String newContent, String oldContent, PackTechSpec bean) {
+        if (StrUtil.equals(newContent, oldContent) && StrUtil.isNotBlank(bean.getContentImgUrl())) {
+            return;
+        }
+        if (StrUtil.isBlank(newContent)) {
+            bean.setContentImgUrl("");
+            return;
+        }
+        try {
+            BufferedImage bufferedImage = MdUtils.mdToImage(newContent);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(bufferedImage, "PNG", baos);
+            byte[] bytes = baos.toByteArray();
+            String fileName = bean.getForeignId() + StrUtil.DASHED + bean.getPackType() + bean.getSpecType() + ".png";
+            MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(bytes));
+            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile);
+            uploadFileService.delByUrl(bean.getContentImgUrl());
+            bean.setContentImgUrl(attachmentVo.getUrl());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

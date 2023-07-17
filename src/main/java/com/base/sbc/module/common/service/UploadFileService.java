@@ -52,6 +52,7 @@ public interface UploadFileService extends BaseService<UploadFile> {
 
     String getUrlById(String id);
 
+    boolean delByUrl(String url);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

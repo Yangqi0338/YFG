@@ -9,17 +9,21 @@ package com.base.sbc.module.common.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.minio.MinioUtils;
+import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.mapper.UploadFileMapper;
+import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,17 +40,21 @@ import java.util.stream.Collectors;
  * @author lxl
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-5-12 15:16:14
- * @version 1.0  
+ * @version 1.0
  */
 @Service
 @Slf4j
 public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, UploadFile> implements UploadFileService {
 
-    /** 自定义方法区 不替换的区域【other_start】 **/
+    /**
+     * 自定义方法区 不替换的区域【other_start】
+     **/
 
 
     @Autowired
     private MinioUtils minioUtils;
+    @Autowired
+    private AttachmentService attachmentService;
 
     @Override
     public AttachmentVo uploadToMinio(MultipartFile file) {
@@ -110,6 +118,30 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     public String getUrlById(String id) {
         UploadFile byId = getById(id);
         return Optional.ofNullable(byId).map(UploadFile::getUrl).orElse("");
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean delByUrl(String url) {
+        if (StrUtil.isBlank(url)) {
+            return true;
+        }
+        QueryWrapper fuQw = new QueryWrapper();
+        fuQw.eq("url", url);
+        fuQw.last("limit 1");
+        UploadFile one = getOne(fuQw);
+        if (one != null) {
+            removeById(one.getId());
+            QueryWrapper aqw = new QueryWrapper();
+            aqw.eq("file_id", one.getId());
+            List<Attachment> list = attachmentService.list(aqw);
+            if (CollUtil.isNotEmpty(list)) {
+                attachmentService.removeByIds(list.stream().map(Attachment::getId).collect(Collectors.toList()));
+            }
+        }
+        minioUtils.delFile(url);
+
+        return true;
     }
 
 
