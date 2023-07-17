@@ -11,7 +11,9 @@ import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackProcessPriceDto;
 import com.base.sbc.module.pack.entity.PackProcessPrice;
 import com.base.sbc.module.pack.vo.PackProcessPriceVo;
+import com.base.sbc.module.pricing.vo.PricingProcessCostsVO;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -60,6 +62,13 @@ public interface PackProcessPriceService extends PackBaseService<PackProcessPric
      * @return
      */
     boolean saveBatchByDto(PackCommonSearchDto commonDto, List<PackProcessPriceDto> dtoList);
+
+    /**
+     * 获取核价工序费用
+     * @param foreignId
+     * @return
+     */
+    List<PricingProcessCostsVO> getPricingProcessCostsByForeignId(String foreignId);
 
 // 自定义方法区 不替换的区域【other_end】
 

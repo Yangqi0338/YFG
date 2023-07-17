@@ -13,6 +13,7 @@ import com.base.sbc.module.pack.dto.PricingSelectSearchDTO;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pack.vo.PricingSelectListVO;
+import com.base.sbc.module.pricing.vo.PricingVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -39,6 +40,14 @@ public interface PackInfoMapper extends BaseMapper<PackInfo> {
      * @return
      */
     List<PricingSelectListVO> pricingSelectList(@Param("dto") PricingSelectSearchDTO dto);
+
+    /**
+     * 通过id获取核价对象
+     *
+     * @param id
+     * @return
+     */
+    PricingVO getPricingVoById(@Param("id") String id);
 
 // 自定义方法区 不替换的区域【other_end】
 }

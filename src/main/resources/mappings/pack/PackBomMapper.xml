@@ -147,6 +147,35 @@
             AND bmid.material_id = #{materialId}
     </select>
 
+    <select id="getPricingMaterialCostsByForeignId" resultType="com.base.sbc.module.pricing.vo.PricingMaterialCostsVO">
+        SELECT
+            id AS sourceId,
+            category_name AS categoryName,
+            supplier_id AS supplierId,
+            supplier_name AS supplierName,
+            part AS part,
+            material_name AS materialsName,
+            material_code AS materialsCode,
+            translate AS width,
+            unit_use AS unitNum,
+            unit_code AS unitCode,
+            loss_rate AS lossRate,
+            rated_unit_consumption AS ratedUnitConsumption,
+            purchase_currency AS purchaseCurrency,
+            price AS price,
+            last_time_price AS lastTimePrice,
+            contacts AS contacts,
+            contacts_phone AS contactsPhone,
+            contacts_address AS contactsAddress,
+            workshop_group_code AS workshopGroupCode,
+            workshop_group AS workshopGroup
+        FROM
+            t_pack_bom
+        WHERE
+            del_flag = '0'
+          AND foreign_id = #{foreignId}
+    </select>
+
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

@@ -30,6 +30,7 @@ import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
 import com.base.sbc.module.sample.dto.FabricSummaryDTO;
 import com.base.sbc.module.sample.vo.FabricSummaryVO;
 import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
@@ -264,6 +265,11 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     @Override
     public List<MaterialSampleDesignVO> querySampleDesignInfoByMaterialId(String materialId) {
         return baseMapper.querySampleDesignInfoByMaterialId(materialId);
+    }
+
+    @Override
+    public List<PricingMaterialCostsVO> getPricingMaterialCostsByForeignId(String foreignId) {
+        return baseMapper.getPricingMaterialCostsByForeignId(foreignId);
     }
 
 
