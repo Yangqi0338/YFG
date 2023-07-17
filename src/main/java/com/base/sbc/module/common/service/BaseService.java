@@ -20,6 +20,4 @@ public interface BaseService<T> extends IService<T> {
      * @return 传入实体列表的总长度
      */
     Integer addAndUpdateAndDelList(List<T> entityList, QueryWrapper<T> queryWrapper);
-
-
 }

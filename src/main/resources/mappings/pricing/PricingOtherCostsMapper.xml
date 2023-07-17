@@ -15,10 +15,13 @@
         SELECT
         id,
         pricing_code,
+        costs_type_id,
         costs_type,
         NAME,
         price,
         currency,
+        currency_code,
+        quotation_price_currency_code,
         quotation_price_currency,
         quotation_price
         FROM

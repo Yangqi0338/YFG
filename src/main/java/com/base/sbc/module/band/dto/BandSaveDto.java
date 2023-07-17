@@ -13,7 +13,7 @@ public class BandSaveDto {
     private String id;
 
     @ApiModelProperty(value = "年份",  required = true, example = "2023")
-    @NotBlank(message = "年份必填")
+//    @NotBlank(message = "年份必填")
     private String particularYear;
 
     @ApiModelProperty(value = "月份", required = false, example = "01")

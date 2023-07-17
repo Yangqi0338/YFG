@@ -23,6 +23,15 @@
       FROM
         t_basicsdatum_range_difference rd
         LEFT JOIN ( SELECT data_id, type, GROUP_CONCAT( category_name ) category_name, category_id FROM t_basicsdatum_company_relation
+        <where>
+            <if test="categoryList != null and categoryList.size != 0">
+                category_id in
+                <foreach collection="categoryList" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+
+        </where>
 	GROUP BY type,data_id ) cr ON rd.id = cr.data_id AND cr.type = 'difference'
     ${ ew.customSqlSegment}
 

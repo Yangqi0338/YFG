@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.pack.entity.PackTechPackaging;
@@ -34,7 +35,17 @@ public class PackTechPackagingServiceImpl extends PackBaseServiceImpl<PackTechPa
         if (StringUtils.isAnyBlank(packaging.getPackType(), packaging.getForeignId())) {
             throw new OtherException("PackType、ForeignId必填");
         }
-        return null;
+        PackTechPackaging db = get(packaging.getForeignId(), packaging.getPackType());
+        if (db == null) {
+            packaging.setId(null);
+            save(packaging);
+            return packaging;
+        } else {
+            BeanUtil.copyProperties(packaging, db, "id");
+            updateById(db);
+            return db;
+        }
+
     }
 
     @Override

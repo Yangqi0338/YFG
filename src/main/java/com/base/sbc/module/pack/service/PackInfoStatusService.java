@@ -70,6 +70,14 @@ public interface PackInfoStatusService extends PackBaseService<PackInfoStatus> {
 
     boolean enableFlagSetting(String foreignId, String packType, String enableFlag);
 
+    boolean lockSize(String foreignId, String packType);
+
+    boolean unlockSize(String foreignId, String packType);
+
+    boolean startApprovalForSize(String foreignId, String packType);
+
+    boolean approvalForSize(AnswerDto dto);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

@@ -7,7 +7,10 @@
 package com.base.sbc.module.pack.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.smp.dto.SmpBomDto;
+import com.base.sbc.module.smp.entity.BomMaterial;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -21,7 +24,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
  * @email your email
- * @date 创建时间：2023-7-13 20:34:59
+ * @date 创建时间：2023-7-15 16:44:10
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -30,8 +33,45 @@ import java.math.BigDecimal;
 public class PackBom extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
-    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    public SmpBomDto toSmpBomDto() {
+        SmpBomDto smpBomDto = new SmpBomDto();
+        smpBomDto.setColorName(color);
+        smpBomDto.setColorCode(colorCode);
+        smpBomDto.setBomStage(null);
+        smpBomDto.setMaterialCode(materialCode);
+        smpBomDto.setMaterialName(materialName);
+        smpBomDto.setMaterialUnit(unitCode);
+        smpBomDto.setPlaceOfUse(part);
+        smpBomDto.setLossRate(lossRate);
+        smpBomDto.setSupplierMaterialCode(supplierMaterialCode);
+        smpBomDto.setQuotationSupplierCode(supplierId);
+        smpBomDto.setCollocation(bomMatch);
+        smpBomDto.setBomLineItemId(id);
+        smpBomDto.setId(id);
+        IdGen idGen =new IdGen();
+        smpBomDto.setSyncId(String.valueOf(idGen.nextId()));
+        smpBomDto.setActive("0".equals(status));
+        smpBomDto.setCreator(getCreateName());
+        smpBomDto.setCreateTime(getCreateDate());
+        smpBomDto.setModifiedPerson(getUpdateName());
+        smpBomDto.setModifiedTime(getUpdateDate());
+        return smpBomDto;
+    }
+
+
+    public BomMaterial toBomMaterial(){
+        BomMaterial bomMaterial =new BomMaterial();
+        bomMaterial.setCode(materialCode);
+        bomMaterial.setMatColorCode(colorCode);
+        bomMaterial.setMaterialUom(unitCode);
+        bomMaterial.setPosition(part);
+        bomMaterial.setCostRate(lossRate);
+        bomMaterial.setActive("0".equals(status));
+        bomMaterial.setPlacementName(bomMatch);
+        return bomMaterial;
+    }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
@@ -276,6 +316,11 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "SCM下发状态:0未下发,1已下发")
     private String scmSendFlag;
+    /**
+     * 排序
+     */
+    @ApiModelProperty(value = "排序")
+    private Integer sort;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

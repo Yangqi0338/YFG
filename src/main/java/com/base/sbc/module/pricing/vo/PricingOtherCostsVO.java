@@ -33,6 +33,11 @@ public class PricingOtherCostsVO {
     @ApiModelProperty(value = "报价单编码")
     private String pricingCode;
     /**
+     * 费用类型id
+     */
+    @ApiModelProperty(value = "费用类型id")
+    private String costsTypeId;
+    /**
      * 费用类型
      */
     @ApiModelProperty(value = "费用类型")
@@ -52,6 +57,16 @@ public class PricingOtherCostsVO {
      */
     @ApiModelProperty(value = "货币")
     private String currency;
+    /**
+     * 货币编码
+     */
+    @ApiModelProperty(value = "货币编码")
+    private String currencyCode;
+    /**
+     * 报价货币编码
+     */
+    @ApiModelProperty(value = "报价货币编码")
+    private String quotationPriceCurrencyCode;
     /**
      * 报价货币
      */

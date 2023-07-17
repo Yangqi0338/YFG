@@ -1,9 +1,9 @@
 package com.base.sbc.module.smp;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.client.ccm.entity.BasicStructureTree;
+import com.base.sbc.client.amc.service.AmcService;
+import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -14,40 +14,40 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
 import com.base.sbc.module.basicsdatum.entity.*;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
-import com.base.sbc.module.basicsdatum.service.SpecificationService;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeMapper;
+import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
+import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.hangTag.entity.HangTag;
+import com.base.sbc.module.hangTag.mapper.HangTagMapper;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pushRecords.entity.PushRecords;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
+import com.base.sbc.module.sample.service.SampleDesignService;
+import com.base.sbc.module.sample.service.SampleStyleColorService;
+import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
-import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.ObjectUtils;
 
-import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -74,17 +74,34 @@ public class SmpService {
 
     private final BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
 
-    private final SpecificationService specificationService;
-
     private final CcmService ccmService;
+
+    private final AmcService amcService;
 
     private final UserUtils userUtils;
 
     private final PackInfoService packInfoService;
 
+    private final SampleStyleColorService sampleStyleColorService;
+
     private final PackBomService packBomService;
 
     private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
+
+    private final PackBomSizeService packBomSizeService;
+
+    private final BasicsdatumSizeService basicsdatumSizeService;
+
+    private final SampleDesignService sampleDesignService;
+
+    private final BasicsdatumColourLibraryMapper basicsdatumColourLibraryMapper;
+
+    private final BasicsdatumSizeMapper basicsdatumSizeMapper;
+
+    private final HangTagMapper hangTagMapper;
+
+
+
 
 
     private static final String URL = "http://10.98.250.31:7006/pdm";
@@ -105,9 +122,7 @@ public class SmpService {
         if (ids.length == 0) {
             return 0;
         }
-        QueryWrapper<BasicsdatumMaterial> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.in("id", Arrays.asList(ids));
-        List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(queryWrapper);
+        List<BasicsdatumMaterial> list = basicsdatumMaterialService.listByIds(Arrays.asList(ids));
         int i = 0;
         for (BasicsdatumMaterial basicsdatumMaterial : list) {
             if (this.sendMaterials(basicsdatumMaterial)) {
@@ -240,17 +255,62 @@ public class SmpService {
      * bom下发
      */
     public Integer bom(String[] ids) {
-        // TODO: 2023/7/14 未完成
-        QueryWrapper<PackInfo> queryWrapper = new QueryWrapper<>();
+        int i=0;
+        QueryWrapper<PackBom> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("id", Arrays.asList(ids));
-        List<PackInfo> list = packInfoService.list(queryWrapper);
-        for (PackInfo packInfo : list) {
-            SmpBomDto smpBomDto = packInfo.toSmpBomDto();
-            List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getForeignId()));
+        List<PackBom> list = packBomService.list(queryWrapper);
+        for (PackBom packBom : list) {
+            SmpBomDto smpBomDto = packBom.toSmpBomDto();
+            smpBomDto.setMainMaterial(true);
+            //bom主表
+            PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
+            //样衣-款式配色
+            SampleStyleColor sampleStyleColor = sampleStyleColorService.getById(packInfo.getSampleStyleColorId());
+            smpBomDto.setPColorCode(sampleStyleColor.getColorCode());
+            smpBomDto.setPColorName(sampleStyleColor.getColorName());
+            smpBomDto.setBulkNumber(packInfo.getStyleNo());
+            smpBomDto.setBomCode(packInfo.getCode());
+
+            List<BomMaterial> bomMaterials = new ArrayList<>();
+            for (PackBom packBom1 : packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packBom.getForeignId()))) {
+                BomMaterial bomMaterial = packBom1.toBomMaterial();
+                if (packBom1.getId().equals(packBom.getId())){
+                    continue;
+                }
+                bomMaterial.setBomId(packInfo.getCode());
+                bomMaterials.add(bomMaterial);
+                smpBomDto.setMainMaterial(false);
+            }
+
+            smpBomDto.setBomMaterials(bomMaterials);
+
+            List<SmpSizeQty> sizeQtyList = new ArrayList<>();
+            for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("foreign_id", packBom.getForeignId()))) {
+                SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
+                //根据尺码id查询尺码
+                BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());
+                if (basicsdatumSize!=null){
+                    smpSizeQty.setPSizeCode(basicsdatumSize.getInternalSize());
+                    smpSizeQty.setSizeCode(basicsdatumSize.getCode());
+                    smpSizeQty.setItemSize(basicsdatumSize.getInternalSize());
+                    smpSizeQty.setMatSizeUrl(basicsdatumSize.getCode());
+                    sizeQtyList.add(smpSizeQty);
+                }
+
+            }
+            smpBomDto.setSizeQtyList(sizeQtyList);
+
+
+            HttpResp httpResp = restTemplateService.spmPost(URL + "/bom", smpBomDto);
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
+            packBom.setScmSendFlag("1");
+            packBomService.updateById(packBom);
+            if (aBoolean){
+                i++;
+            }
         }
-        //HttpResp httpResp = restTemplateService.spmPost(URL + "/bom", smpBomDto);
-        //return pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
-        return null;
+
+        return i;
     }
 
     /**
@@ -268,7 +328,7 @@ public class SmpService {
 
             HttpResp httpResp = restTemplateService.spmPost(URL + "/color", smpColorDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpColorDto, "smp", "颜色主数据下发");
-            if (aBoolean){
+            if (aBoolean) {
                 i++;
                 basicsdatumColourLibrary.setScmSendFlag("1");
                 basicsdatumColourLibraryService.updateById(basicsdatumColourLibrary);
@@ -281,6 +341,7 @@ public class SmpService {
      * 工艺单下发
      */
     public Boolean processSheet(SmpProcessSheetDto smpProcessSheetDto) {
+        // TODO: 2023/7/15 标准资料包的工艺说明功能未做
         HttpResp httpResp = restTemplateService.spmPost(URL + "/processSheet", smpProcessSheetDto);
         return pushRecordsService.pushRecordSave(httpResp, smpProcessSheetDto, "smp", "工艺单下发");
     }
@@ -288,15 +349,47 @@ public class SmpService {
     /**
      * 样衣下发
      */
-    public Boolean sample(SmpSampleDto smpSampleDto) {
-        HttpResp httpResp = restTemplateService.spmPost(URL + "/sample", smpSampleDto);
-        return pushRecordsService.pushRecordSave(httpResp, smpSampleDto, "smp", "样衣下发");
+    public Integer sample(String[] ids) {
+        int i=0;
+        for (SampleDesign sampleDesign : sampleDesignService.listByIds(Arrays.asList(ids))) {
+            SmpSampleDto smpSampleDto = sampleDesign.toSmpSampleDto();
+            String designerId = sampleDesign.getDesignerId();
+            String technicianId = sampleDesign.getTechnicianId();
+            String patternDesignId = sampleDesign.getPatternDesignId();
+
+            String merchDesignId = sampleDesign.getMerchDesignId();
+            if (merchDesignId==null){
+                merchDesignId=designerId;
+            }
+            ArrayList<String> list =new ArrayList<>();
+            list.add(designerId);
+            list.add(technicianId);
+            list.add(patternDesignId);
+
+            list.add(merchDesignId);
+
+            Map<String, String> usernamesByIds = amcService.getUsernamesByIds(StringUtils.join(list, ","));
+            smpSampleDto.setDesignerId(usernamesByIds.get(designerId));
+            smpSampleDto.setTechnicianId(usernamesByIds.get(technicianId));
+            smpSampleDto.setPatternMakerId(usernamesByIds.get(patternDesignId));
+            smpSampleDto.setProofingDesignerId(usernamesByIds.get(merchDesignId));
+
+            HttpResp httpResp = restTemplateService.spmPost(URL + "/sample", smpSampleDto);
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpSampleDto, "smp", "样衣下发");
+            if (aBoolean){
+                i++;
+            }
+        }
+
+        return i;
     }
 
     /**
      * 修改尺码的时候验证
      */
     public Boolean style(PlmStyleSizeParam param) {
+        // TODO: 2023/7/14 下一期7月15号以后一起做
+
         restTemplateService.spmPost(URL + "style", param);
         return true;
     }
@@ -312,7 +405,7 @@ public class SmpService {
      * @param baseController           baseController
      */
 //    @Async
-    public void issueColor(BasicsdatumColourLibrary basicsdatumColourLibrary, Map<String, String> mapColorChroma, Map<String, String> mapColorType, BaseController baseController) {
+    public boolean issueColor(BasicsdatumColourLibrary basicsdatumColourLibrary, Map<String, String> mapColorChroma, Map<String, String> mapColorType, BaseController baseController) {
         /*拼接下发数据*/
         SmpColorDto smpColorDto = new SmpColorDto();
         smpColorDto.setColorChroma(mapColorChroma.get(basicsdatumColourLibrary.getChroma()));
@@ -327,11 +420,11 @@ public class SmpService {
         smpColorDto.setModifiedPerson(baseController.getUser().getName());
         smpColorDto.setModifiedTime(new Date());
         smpColorDto.setActive(true);
-//        color(smpColorDto);
+       return true;
     }
 
     //    @Async
-    public void issueGoods(SampleStyleColor sampleStyleColor, SampleDesign sampleDesign, Map<String, Map<String, String>> dictInfoToMap) {
+    public boolean issueGoods(SampleStyleColor sampleStyleColor, SampleDesignVo sampleDesign, Map<String, Map<String, String>> dictInfoToMap) {
 
         /*品牌*/
         Map<String, String> mapBrand = dictInfoToMap.get("C8_Brand");
@@ -339,6 +432,12 @@ public class SmpService {
         Map<String, String> mapStyleType = dictInfoToMap.get("StyleType");
         /*销售类型*/
 //        Map<String, String> mapSaleType = dictInfoToMap.get("C8_SaleType");
+
+        Map<String, String> styleStatus = dictInfoToMap.get("C8_StyleStatus");
+
+        BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(sampleStyleColor.getColourLibraryId());
+
+
         SmpGoodsDto smpGoodsDto = new SmpGoodsDto();
         smpGoodsDto.setProductTypeId(sampleDesign.getStyleType());
         smpGoodsDto.setProductType(mapStyleType.get(sampleDesign.getStyleType()));
@@ -371,6 +470,22 @@ public class SmpService {
             if (!ObjectUtils.isEmpty(basicsdatumModelType)) {
                 smpGoodsDto.setSizeGroupId(basicsdatumModelType.getCode());
                 smpGoodsDto.setSizeGroupName(basicsdatumModelType.getModelType());
+                /*查询号型类型下尺码*/
+                QueryWrapper queryWrapper = new QueryWrapper();
+                queryWrapper.eq("model_type_code", basicsdatumModelType.getCode());
+                List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeMapper.selectList(queryWrapper);
+                List<SmpSize> itemList = new ArrayList<>();
+                for (BasicsdatumSize basicsdatumSize : basicsdatumSizeList) {
+                    SmpSize smpSize = new SmpSize();
+                    smpSize.setSize(basicsdatumSize.getModel());
+                    smpSize.setSizeNumber(basicsdatumSize.getCode());
+//                smpSize.setSizeDescription();
+                    smpSize.setCode(basicsdatumSize.getCode());
+                    smpSize.setProductSizeName(basicsdatumSize.getHangtags());
+                    smpSize.setBaseSize(basicsdatumSize.getShowSizeStatus().equals("1"));
+                    itemList.add(smpSize);
+                }
+                smpGoodsDto.setItemList(itemList);
             }
         }
         smpGoodsDto.setPatternMakerName(sampleDesign.getPatternDesignName());
@@ -378,12 +493,25 @@ public class SmpService {
         smpGoodsDto.setMaxClassName(StringUtils.getCategory(sampleDesign.getCategoryName(), 0, 0));
         smpGoodsDto.setMiddleClassName(StringUtils.getCategory(sampleDesign.getCategoryName(), 2, 0));
         smpGoodsDto.setMinClassName(StringUtils.getCategory(sampleDesign.getCategoryName(), 3, 0));
-//        smpGoodsDto.setStyleCode();
         smpGoodsDto.setCategoryName(StringUtils.getCategory(sampleDesign.getCategoryName(), 1, 0));
-//        smpGoodsDto.setLengthRangeId();
-//        smpGoodsDto.setLengthRangeName();
+        //        smpGoodsDto.setStyleCode();
+        /**
+         * 维度数据
+         */
+        if (!CollectionUtils.isEmpty(sampleDesign.getDimensionLabels())) {
+            List<FieldManagementVo> fieldManagementVoList = sampleDesign.getDimensionLabels();
+            fieldManagementVoList.forEach(m -> {
+                try {
+                    BeanUtil.setProperty(smpGoodsDto, m.getFieldName(), m.getVal());
+                } catch (Exception e) {
 
-/*        smpGoodsDto.setCoatLength();
+                }
+            });
+        }
+
+/*        smpGoodsDto.setLengthRangeId();
+        smpGoodsDto.setLengthRangeName();
+        smpGoodsDto.setCoatLength();
         smpGoodsDto.setWaistTypeId();
         smpGoodsDto.setWaistTypeName();
         smpGoodsDto.setSleeveLengthId();
@@ -394,7 +522,67 @@ public class SmpService {
         smpGoodsDto.setPlacketId();
         smpGoodsDto.setPlacketName()
         smpGoodsDto.setYarnNeedleTypeId();
-        smpGoodsDto.set*/
+        smpGoodsDto.setYarnNeedleTypeName();
+        smpGoodsDto.setYarnNeedleId();
+        smpGoodsDto.setYarnNeedleName()
+        smpGoodsDto.setProfileId()
+        smpGoodsDto.setProfileName()
+        smpGoodsDto.setFlowerId();
+        smpGoodsDto.setFlowerName()
+        smpGoodsDto.setShapeName();
+        smpGoodsDto.setTextureId();
+        smpGoodsDto.setTextureName();
+        smpGoodsDto.setPatternName()*/
+        smpGoodsDto.setPriorityId(sampleDesign.getTaskLevel());
+        smpGoodsDto.setPriorityName(styleStatus.get(sampleDesign.getTaskLevel()));
+        smpGoodsDto.setColorCode(basicsdatumColourLibrary.getColourCode());
+        smpGoodsDto.setColorName(basicsdatumColourLibrary.getColourName());
+        smpGoodsDto.setBandId(sampleDesign.getBandCode());
+//        smpGoodsDto.setBandName();
+        smpGoodsDto.setPrice(sampleStyleColor.getTagPrice());
+
+//        吊牌查询
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("bulk_style_no",sampleStyleColor.getStyleNo());
+        HangTag hangTag =  hangTagMapper.selectOne(queryWrapper);
+/*        smpGoodsDto.setPriceConfirm();
+        smpGoodsDto.setCost();
+        smpGoodsDto.setPlanCost();
+        smpGoodsDto.setActualRate()
+        smpGoodsDto.setPlanActualRate();
+        smpGoodsDto.setProcessCost();
+        smpGoodsDto.setLaborCosts();
+        smpGoodsDto.setMaterialCost();
+        smpGoodsDto.setProductName(hangTag.getProductName());
+        smpGoodsDto.setUniqueCode();
+        smpGoodsDto.setSeries();
+        smpGoodsDto.setAccessories(sampleStyleColor.getIsTrim().equals("1"));
+        smpGoodsDto.setManufacture(sampleStyleColor.getManufacturer());
+        smpGoodsDto.setSaleTime();
+        smpGoodsDto.setSeriesId();
+        smpGoodsDto.setSeriesName();
+        smpGoodsDto.setLuxury(sampleStyleColor.getIsLuxury().equals("1"));
+        smpGoodsDto.setBomPhase();
+        smpGoodsDto.setAuProcess();
+        smpGoodsDto.setSupplierArticle(sampleStyleColor.getManufacturerNo());
+        smpGoodsDto.setSupplierArticleColor(sampleStyleColor.getManufacturerColor());
+        smpGoodsDto.setPackageType();
+        smpGoodsDto.setPackageSize();
+        smpGoodsDto.setProdSeg(sampleStyleColor.getSubdivide());
+        smpGoodsDto.setSaleType(sampleStyleColor.getSalesType());
+        smpGoodsDto.setBulkNumber(sampleStyleColor.getStyleNo());
+        smpGoodsDto.setComposition();
+        smpGoodsDto.setMainCode(sampleStyleColor.getPrincipalStyleNo());
+        smpGoodsDto.setSecCode(sampleStyleColor.getAccessoryNo());
+        smpGoodsDto.setLingXingId();
+        smpGoodsDto.setLingXingName();
+        smpGoodsDto.setIntegritySample();
+        smpGoodsDto.setIntegrityProduct();*/
+        /*图*/
+        if (!CollectionUtils.isEmpty(sampleDesign.getStylePicList())) {
+            smpGoodsDto.setImgList( sampleDesign.getStylePicList().stream().map(AttachmentVo::getUrl).collect(Collectors.toList()));
+        }
+       return goods(smpGoodsDto);
     }
 
 

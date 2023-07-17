@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
@@ -17,6 +18,7 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackTechPackaging;
+import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.service.PackTechPackagingService;
 import com.base.sbc.module.pack.service.PackTechSpecService;
@@ -56,6 +58,8 @@ public class PackTechSpecController {
     private AttachmentService attachmentService;
     @Autowired
     private PackInfoStatusService packInfoStatusService;
+    @Autowired
+    private PackInfoService packInfoService;
 
     @ApiOperation(value = "列表")
     @GetMapping
@@ -66,7 +70,7 @@ public class PackTechSpecController {
 
     @ApiOperation(value = "文件列表(图片)")
     @GetMapping("/picList")
-    public List<AttachmentVo> picList(PackTechSpecSearchDto dto) {
+    public List<PackTechAttachmentVo> picList(PackTechSpecSearchDto dto) {
         return packTechSpecService.picList(dto);
     }
 
@@ -75,6 +79,7 @@ public class PackTechSpecController {
     public AttachmentVo savePic(@Valid @RequestBody PackTechSpecSavePicDto dto) {
         return packTechSpecService.savePic(dto);
     }
+
 
     @ApiOperation(value = "删除图片")
     @DeleteMapping("/delPic")
@@ -93,6 +98,13 @@ public class PackTechSpecController {
     @OperaLog(value = "工艺说明", pathSpEL = PackTechSpecService.pathSqEL, parentIdSpEl = "#dto.foreignId", operationType = OperationType.INSERT_UPDATE, service = PackTechSpecService.class)
     public PackTechSpecVo save(@Valid @RequestBody PackTechSpecDto dto) {
         return packTechSpecService.saveByDto(dto);
+    }
+
+
+    @ApiOperation(value = "复制")
+    @PostMapping("/copyOther")
+    public List<PackTechSpecVo> copyOther(@Valid @RequestBody List<PackTechSpecDto> list) {
+        return packTechSpecService.copyOther(list);
     }
 
     @ApiOperation(value = "排序")
@@ -116,7 +128,11 @@ public class PackTechSpecController {
     @ApiOperation(value = "查询包装方式和体积重量")
     @GetMapping("/packaging")
     public PackTechPackaging getPackaging(@Valid PackCommonSearchDto dto) {
-        return packTechPackagingService.get(dto.getForeignId(), dto.getPackType());
+        PackTechPackaging packTechPackaging = packTechPackagingService.get(dto.getForeignId(), dto.getPackType());
+        if (packTechPackaging == null) {
+            return packTechPackagingService.savePackaging(BeanUtil.copyProperties(dto, PackTechPackaging.class));
+        }
+        return packTechPackaging;
     }
 
     @ApiOperation(value = "锁定")
@@ -143,6 +159,18 @@ public class PackTechSpecController {
         return packInfoStatusService.approvalForTechSpec(dto);
     }
 
+
+    @ApiOperation(value = "生成工艺说明文件")
+    @PostMapping("/genTechSpecFile")
+    public AttachmentVo genTechSpecFile(@Valid PackCommonSearchDto dto) {
+        return packInfoService.genTechSpecFile(dto);
+    }
+
+    @ApiOperation(value = "删除工艺说明文件")
+    @DeleteMapping("/delTechSpecFile")
+    public boolean delTechSpecFile(@Valid PackCommonSearchDto dto) {
+        return packInfoService.delTechSpecFile(dto);
+    }
 }
 
 

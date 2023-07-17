@@ -113,10 +113,11 @@ public class CommonUtils {
             String key = fieldJson.getString(name);
             Object oldStr = BeanUtil.getProperty(oldObj, key);
             Object newStr = BeanUtil.getProperty(newObj, key);
-            if (org.springframework.util.StringUtils.isEmpty(oldStr) && org.springframework.util.StringUtils.isEmpty(newStr)) {
+            if (ObjectUtil.isEmpty(oldStr) && ObjectUtil.isEmpty(newStr)) {
                 continue;
             }
-            if (newStr.equals(oldStr)) {
+
+            if (ObjectUtil.equals(newStr, oldStr)) {
                 continue;
             }
             stringBuilder.append(name).append(":");

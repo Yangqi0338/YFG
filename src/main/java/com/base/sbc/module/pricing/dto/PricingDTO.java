@@ -114,25 +114,50 @@ public class PricingDTO {
     @ApiModelProperty(value = "订单数量")
     private BigDecimal orderNum;
     /**
+     * 品牌编码
+     */
+    @ApiModelProperty(value = "品牌编码")
+    private String brandCode;
+    /**
      * 品牌
      */
     @ApiModelProperty(value = "品牌")
     private String brand;
+    /**
+     * 季节编码
+     */
+    @ApiModelProperty(value = "季节编码")
+    private String seasonCode;
     /**
      * 季节
      */
     @ApiModelProperty(value = "季节")
     private String season;
     /**
+     * 年份编码
+     */
+    @ApiModelProperty(value = "年份编码")
+    private String yearCode;
+    /**
      * 年份
      */
     @ApiModelProperty(value = "年份")
     private String year;
     /**
+     * 合作方式编码
+     */
+    @ApiModelProperty(value = "合作方式编码")
+    private String cooperationMethodsCode;
+    /**
      * 合作方式
      */
     @ApiModelProperty(value = "合作方式")
     private String cooperationMethods;
+    /**
+     * 付款方式编码
+     */
+    @ApiModelProperty(value = "付款方式编码")
+    private String payMethodsCode;
     /**
      * 付款方式
      */
@@ -156,6 +181,11 @@ public class PricingDTO {
     @ApiModelProperty(value = "生产周期")
     private BigDecimal yieldDay;
     /**
+     * 面料系数编码
+     */
+    @ApiModelProperty(value = "面料系数编码")
+    private String fabricCoefficientCode;
+    /**
      * 面料系数
      */
     @ApiModelProperty(value = "面料系数")
@@ -176,37 +206,60 @@ public class PricingDTO {
     @ApiModelProperty(value = "品类")
     private String category;
     /**
+     * 品类编码
+     */
+    @ApiModelProperty(value = "品类编码")
+    private String categoryCode;
+    /**
      * 报价说明
      */
     @ApiModelProperty(value = "报价说明")
     private String quoteDesc;
     /**
-     * 销售渠道id(多个逗号分隔)
+     * 销售渠道(多个逗号分隔)
      */
-    @ApiModelProperty(value = "销售渠道id(多个逗号分隔)")
-    private String salesChannelId;
-    /**
-     * 销售渠道名称(多个逗号分隔)
-     */
-    @ApiModelProperty(value = "销售渠道名称(多个逗号分隔)")
+    @ApiModelProperty(value = "销售渠道(多个逗号分隔)")
     private String salesChannelName;
+    /**
+     * 销售渠道code(多个逗号分隔)
+     */
+    @ApiModelProperty(value = "销售渠道code(多个逗号分隔)")
+    private String salesChannelCode;
     /**
      * 货币
      */
     @ApiModelProperty(value = "货币")
     private String currency;
-    // TODO 单价/件
+    /**
+     * 货币编码
+     */
+    @ApiModelProperty(value = "货币编码")
+    private String currencyCode;
     /**
      * 货币2
      */
     @ApiModelProperty(value = "货币2")
     private String otherCurrency;
     /**
+     * 报价单价
+     */
+    @ApiModelProperty(value = "报价单价")
+    private BigDecimal quotationUnitPrice;
+    /**
+     * 货币2编码
+     */
+    @ApiModelProperty(value = "货币2编码")
+    private String otherCurrencyCode;
+    /**
      * 汇率
      */
     @ApiModelProperty(value = "汇率")
     private BigDecimal exchangeRate;
-
+    /**
+     * 其他报价单价
+     */
+    @ApiModelProperty(value = "其他报价单价")
+    private BigDecimal otherQuotationUnitPrice;
     /**
      * 加工费
      */

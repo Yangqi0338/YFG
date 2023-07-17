@@ -66,6 +66,7 @@ public class MtBqReqEntity extends BaseDataEntity<String> {
         BasicsdatumSupplier basicsdatumSupplier =new BasicsdatumSupplier();
         BeanUtil.copyProperties(this,basicsdatumSupplier);
         basicsdatumSupplier.setSupplierCode(partner);
+        basicsdatumSupplier.setSupplierType(partnerType);
         basicsdatumSupplier.setCreditCode(identificationNumber);
         basicsdatumSupplier.setSupplier(bpName);
         basicsdatumSupplier.setSupplierAbbreviation(searchTerm1);

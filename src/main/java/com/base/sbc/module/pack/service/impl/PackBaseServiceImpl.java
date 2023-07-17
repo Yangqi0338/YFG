@@ -3,9 +3,11 @@ package com.base.sbc.module.pack.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.utils.CommonUtils;
@@ -85,8 +87,9 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
         return b;
     }
 
+
     @Override
-    public Integer addAndUpdateAndDelList(List<T> entityList, QueryWrapper<T> queryWrapper) {
+    public Integer addAndUpdateAndDelList(List<T> entityList, QueryWrapper<T> queryWrapper, boolean delFlg) {
         OperaLogEntity log = new OperaLogEntity();
         String companyCode = userUtils.getCompanyCode();
         //分类
@@ -132,16 +135,17 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
         if (CollUtil.isNotEmpty(ustrList)) {
             stringBuilder.append("修改[" + CollUtil.join(ustrList, StrUtil.COMMA) + "]");
         }
-        if (CollUtil.isNotEmpty(dstrList)) {
-            stringBuilder.append("删除[" + CollUtil.join(dstrList, StrUtil.COMMA) + "]");
+        if (delFlg) {
+            if (CollUtil.isNotEmpty(dstrList)) {
+                stringBuilder.append("删除[" + CollUtil.join(dstrList, StrUtil.COMMA) + "]");
+            }
+            queryWrapper.eq("company_code", companyCode);
+            //逻辑删除传进来不存在的
+            if (ids.size() > 0) {
+                queryWrapper.notIn("id", ids);
+            }
+            this.remove(queryWrapper);
         }
-
-        queryWrapper.eq("company_code", companyCode);
-        //逻辑删除传进来不存在的
-        if (ids.size() > 0) {
-            queryWrapper.notIn("id", ids);
-        }
-        this.remove(queryWrapper);
         //新增
         this.saveBatch(addList);
         //修改
@@ -207,6 +211,32 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
                 BeanUtil.setProperty(t, "packType", targetPackType);
             }
             return saveBatch(list);
+        }
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean move(String id, String column, int moveType) {
+        T byId = getById(id);
+        QueryWrapper<T> query = new QueryWrapper<T>();
+        query.eq("foreign_id", BeanUtil.getProperty(byId, "foreignId"));
+        query.eq("pack_type", BeanUtil.getProperty(byId, "packType"));
+        query.orderByAsc(column);
+        List<Object> objects = listObjs(query);
+        if (CollUtil.size(objects) < 1) {
+            return true;
+        }
+        int i = CollUtil.indexOf(objects, (a) -> ObjectUtil.equals(a, id));
+        int moveIndex = i + moveType;
+        if (moveIndex >= 0 && moveIndex < objects.size()) {
+            Collections.swap(objects, i, moveIndex);
+        }
+        for (int j = 0; j < objects.size(); j++) {
+            UpdateWrapper<T> uw = new UpdateWrapper<T>();
+            uw.set(column, j + 1);
+            uw.eq("id", objects.get(j));
+            update(uw);
         }
         return true;
     }

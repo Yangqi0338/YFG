@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.base.sbc.module.sample.vo.SampleDesignVo;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -54,6 +55,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 
+import javax.annotation.Resource;
+
 /**
  * 类描述：样衣-款式配色 service类
  *
@@ -75,7 +78,9 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
 
 	private final BandService bandService;
 
-	private final SmpService smpService;
+    @Lazy
+    @Resource
+	private SmpService smpService;
 
 	private final CcmFeignService ccmFeignService;
 

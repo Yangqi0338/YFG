@@ -16,6 +16,7 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：核价
@@ -100,16 +101,13 @@ public class PricingVO extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "客户名称")
     private String customName;
-
     /**
      * 订单数量
      */
     @ApiModelProperty(value = "订单数量")
     private BigDecimal orderNum;
-
     /**
      * 品牌编码
-     * TODO
      */
     @ApiModelProperty(value = "品牌编码")
     private String brandCode;
@@ -131,7 +129,6 @@ public class PricingVO extends BaseDataEntity<String> {
     private String stylePic;
     /**
      * 季节编码
-     * TODO
      */
     @ApiModelProperty(value = "季节编码")
     private String seasonCode;
@@ -142,7 +139,6 @@ public class PricingVO extends BaseDataEntity<String> {
     private String season;
     /**
      * 年份编码
-     * TODO
      */
     @ApiModelProperty(value = "年份编码")
     private String yearCode;
@@ -153,7 +149,6 @@ public class PricingVO extends BaseDataEntity<String> {
     private String year;
     /**
      * 合作方式编码
-     * TODO
      */
     @ApiModelProperty(value = "合作方式编码")
     private String cooperationMethodsCode;
@@ -164,7 +159,6 @@ public class PricingVO extends BaseDataEntity<String> {
     private String cooperationMethods;
     /**
      * 付款方式编码
-     * TODO
      */
     @ApiModelProperty(value = "付款方式编码")
     private String payMethodsCode;
@@ -173,7 +167,6 @@ public class PricingVO extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "付款方式")
     private String payMethods;
-
     /**
      * 计划下单时间
      */
@@ -191,6 +184,11 @@ public class PricingVO extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "生产周期")
     private BigDecimal yieldDay;
+    /**
+     * 面料系数编码
+     */
+    @ApiModelProperty(value = "面料系数编码")
+    private String fabricCoefficientCode;
     /**
      * 面料系数
      */
@@ -212,15 +210,20 @@ public class PricingVO extends BaseDataEntity<String> {
     @ApiModelProperty(value = "品类")
     private String category;
     /**
+     * 品类编码
+     */
+    @ApiModelProperty(value = "品类编码")
+    private String categoryCode;
+    /**
      * 报价说明
      */
     @ApiModelProperty(value = "报价说明")
     private String quoteDesc;
     /**
-     * 销售渠道id(多个逗号分隔)
+     * 销售渠道code(多个逗号分隔)
      */
-    @ApiModelProperty(value = "销售渠道id(多个逗号分隔)")
-    private String salesChannelId;
+    @ApiModelProperty(value = "销售渠道code(多个逗号分隔)")
+    private String salesChannelCode;
     /**
      * 销售渠道名称(多个逗号分隔)
      */
@@ -228,7 +231,6 @@ public class PricingVO extends BaseDataEntity<String> {
     private String salesChannelName;
     /**
      * 货币编码
-     * TODO
      */
     @ApiModelProperty(value = "货币编码")
     private String currencyCode;
@@ -347,7 +349,7 @@ public class PricingVO extends BaseDataEntity<String> {
      * 物料费用
      */
     @ApiModelProperty(value = "物料费用")
-    private List<PricingMaterialCostsVO> pricingMaterialCosts;
+    private Map<String, List<PricingMaterialCostsVO>> pricingMaterialCosts;
     /**
      * 其他费用
      */

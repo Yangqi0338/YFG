@@ -72,6 +72,7 @@
 						bm.id AS            material_id,
 						bm.material_name,
 						bm.material_code,
+						bm.status,
 						bm.material_code_name,
 						bm.image_url,
 						bm.category_name,
@@ -86,7 +87,7 @@
 						bmp.supplier_name,
 						bmc.color_code,
 						gc.colour_name      color,
-						gc.color16        color_hex
+						gc.color16          color_hex
 				 FROM t_basicsdatum_material bm,
 					  t_basicsdatum_material_color bmc,
 					  t_basicsdatum_material_price bmp,
@@ -95,13 +96,14 @@
 				   AND bm.material_code = bmp.material_code
 				   AND gc.colour_code = bmc.color_code
 				   AND bm.del_flag = '0'
-				   AND bm.del_flag = '0'
-				   AND bm.del_flag = '0'
+				   AND bmp.del_flag = '0'
+				   AND bmc.del_flag = '0'
 			 ) t
 				 LEFT JOIN (select material_code,
 								   group_CONCAT(NAME)       AS width_name,
 								   group_CONCAT(width_code) AS width_code
 							FROM t_basicsdatum_material_width
+							where del_flag = '0'
 							GROUP BY material_code) w ON (t.material_code = w.material_code)
 			${ew.customSqlSegment}
 	</select>

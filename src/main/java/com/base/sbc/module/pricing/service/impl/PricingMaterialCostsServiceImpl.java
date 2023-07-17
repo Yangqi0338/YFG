@@ -21,6 +21,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,8 +42,13 @@ public class PricingMaterialCostsServiceImpl extends BaseServiceImpl<PricingMate
     private PricingMaterialCostsMapper pricingMaterialCostsMapper;
 
     @Override
-    public List<PricingMaterialCostsVO> getByPricingCode(String pricingCode, String userCompany) {
-        return pricingMaterialCostsMapper.getByPricingCode(pricingCode, userCompany);
+    public Map<String, List<PricingMaterialCostsVO>> getByPricingCode(String pricingCode, String userCompany) {
+        List<PricingMaterialCostsVO> pricingMaterialCostsVOS = pricingMaterialCostsMapper.getByPricingCode(pricingCode, userCompany);
+        if (CollectionUtils.isEmpty(pricingMaterialCostsVOS)) {
+            return new HashMap<>(0);
+        }
+        return pricingMaterialCostsVOS.stream()
+                .collect(Collectors.groupingBy(PricingMaterialCostsVO::getColorCode));
     }
 
     @Override

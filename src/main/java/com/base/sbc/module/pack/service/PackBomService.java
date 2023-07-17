@@ -12,7 +12,11 @@ import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.sample.dto.FabricSummaryDTO;
+import com.base.sbc.module.sample.vo.FabricSummaryVO;
+import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -80,6 +84,21 @@ public interface PackBomService extends PackBaseService<PackBom> {
     List<PackBom> getListByVersionId(String versionId, String unusableFlag);
 
     PageInfo<PackBomVo> pageInfo(PackCommonPageSearchDto dto);
+
+    /**
+     * 面料汇总列表
+     * @param fabricSummaryDTO 参数
+     * @return 数据列表
+     */
+    PageInfo<FabricSummaryVO> fabricSummaryList(FabricSummaryDTO fabricSummaryDTO);
+
+    /**
+     * 根据物料id查询被应用的样衣-款式
+     * @param materialId 物料ID
+     * @return 物料下样式设计数据
+     */
+    List<MaterialSampleDesignVO> querySampleDesignInfoByMaterialId(@Param("materialId") String materialId);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

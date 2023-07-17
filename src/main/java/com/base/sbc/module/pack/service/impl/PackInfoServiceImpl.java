@@ -13,6 +13,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -25,22 +26,19 @@ import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.service.UploadFileService;
+import com.base.sbc.module.common.service.UreportService;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
-import com.base.sbc.module.pack.dto.PackBomVersionDto;
-import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
-import com.base.sbc.module.pack.dto.PackCommonSearchDto;
-import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
+import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
-import com.base.sbc.module.pack.vo.PackBomVersionVo;
-import com.base.sbc.module.pack.vo.PackInfoListVo;
-import com.base.sbc.module.pack.vo.SampleDesignPackInfoListVo;
+import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.github.pagehelper.Page;
@@ -51,6 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -74,6 +73,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private SampleDesignService sampleDesignService;
     @Resource
     private AttachmentService attachmentService;
+    @Resource
+    private UploadFileService uploadFileService;
     @Resource
     private OperaLogService operaLogService;
     @Resource
@@ -107,6 +108,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private PackInfoStatusService packInfoStatusService;
     @Resource
     private FlowableService flowableService;
+    @Resource
+    private UreportService ureportService;
 
     @Override
     public PageInfo<SampleDesignPackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -319,6 +322,38 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         return true;
     }
 
+    @Override
+    public PageInfo<PricingSelectListVO> pricingSelectList(PricingSelectSearchDTO pricingSelectSearchDTO) {
+        Page<PricingSelectListVO> voPage = PageHelper.startPage(pricingSelectSearchDTO);
+        super.getBaseMapper().pricingSelectList(pricingSelectSearchDTO);
+        return CopyUtil.copy(voPage.toPageInfo(), PricingSelectListVO.class);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public AttachmentVo genTechSpecFile(PackCommonSearchDto dto) {
+        //获取样衣设计id
+        PackInfo byId = this.getById(dto.getForeignId());
+        Map<String, String> params = new HashMap<>(12);
+        params.put("sampleDesignId", byId.getForeignId());
+        // 下载文件并上传到minio
+        AttachmentVo attachmentVo = ureportService.downFileAndUploadMinio("process", "工艺单", byId.getCode() + ".pdf", params);
+        // 将文件id保存到状态表
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), dto.getPackType());
+        packInfoStatus.setTechSpecFileId(attachmentVo.getFileId());
+        packInfoStatusService.updateById(packInfoStatus);
+        return attachmentVo;
+    }
+
+    @Override
+    public boolean delTechSpecFile(PackCommonSearchDto dto) {
+        UpdateWrapper qw = new UpdateWrapper();
+        PackUtils.commonQw(qw, dto);
+        qw.set("tech_spec_file_id", null);
+        packInfoStatusService.update(qw);
+        return true;
+    }
+
 
     @Override
 
@@ -361,7 +396,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
         Page<PackInfoListVo> page = PageHelper.startPage(pageDto);
 //        list(sdQw);
-        queryByQw(sdQw);
+        List<PackInfoListVo> packInfoListVos = queryByQw(sdQw);
+        attachmentService.setListStylePic(packInfoListVos, "stylePic");
         PageInfo<BigGoodsPackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), BigGoodsPackInfoListVo.class);
         return pageInfo;
     }
@@ -381,9 +417,12 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         qw.eq("pack_type", packType);
         qw.last("limit 1");
         List<PackInfoListVo> packInfoListVos = getBaseMapper().queryByQw(qw);
-        return CollUtil.get(packInfoListVos, 0);
+        PackInfoListVo packInfoListVo = CollUtil.get(packInfoListVos, 0);
+        if (packInfoListVo != null && StrUtil.isNotBlank(packInfoListVo.getTechSpecFileId())) {
+            packInfoListVo.setTechSpecFile(attachmentService.getAttachmentByFileId(packInfoListVo.getTechSpecFileId()));
+        }
+        return packInfoListVo;
     }
-
 
     @Override
     String getModeName() {

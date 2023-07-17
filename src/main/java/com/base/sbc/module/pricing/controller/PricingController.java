@@ -8,6 +8,7 @@ package com.base.sbc.module.pricing.controller;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.pricing.dto.PricingCountDTO;
 import com.base.sbc.module.pricing.dto.PricingDTO;
 import com.base.sbc.module.pricing.dto.PricingDelDTO;
 import com.base.sbc.module.pricing.dto.PricingSearchDTO;
@@ -67,6 +68,18 @@ public class PricingController extends BaseController {
     }
 
     /**
+     * 通过制版单id组装制版单核价信息
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "通过制版单id组装制版单核价信息")
+    @GetMapping("/getPlateMakingPricing")
+    public ApiResult getPlateMakingPricing(@Valid @NotBlank(message = "制版单id不可为空") String id) {
+        return selectSuccess(pricingService.getPlateMakingPricing(id, super.getUserCompany()));
+    }
+
+    /**
      * 保存
      *
      * @param pricingDTO
@@ -103,35 +116,17 @@ public class PricingController extends BaseController {
         pricingService.submitApprove(id, super.getUserCompany());
         return updateSuccess("操作成功");
     }
+
+
+    /**
+     * 费用计算
+     *
+     * @param pricingCountDTO
+     * @return
+     */
+    @ApiOperation(value = "费用计算")
+    @PostMapping("/costsCount")
+    public ApiResult costsCount(@Valid @RequestBody PricingCountDTO pricingCountDTO) {
+        return selectSuccess(pricingService.costsCount(pricingCountDTO));
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

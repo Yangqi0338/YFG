@@ -8,10 +8,7 @@ package com.base.sbc.module.pricing.controller;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.pricing.dto.PricingDelDTO;
-import com.base.sbc.module.pricing.dto.PricingTemplateDTO;
-import com.base.sbc.module.pricing.dto.PricingTemplateSearchDTO;
-import com.base.sbc.module.pricing.dto.PricingUpdateStatusDTO;
+import com.base.sbc.module.pricing.dto.*;
 import com.base.sbc.module.pricing.service.PricingTemplateService;
 import com.base.sbc.module.pricing.vo.PricingTemplateVO;
 import com.github.pagehelper.PageInfo;
@@ -24,7 +21,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Map;
 
 /**
  * 类描述：核价模板 Controller类
@@ -123,44 +119,12 @@ public class PricingTemplateController extends BaseController {
     /**
      * 核价公式模板计算
      *
-     * @param id
-     * @param map
+     * @param formulaCountDTO
      * @return
      */
     @ApiOperation(value = "核价公式模板计算")
     @PostMapping(value = "/formulaCount")
-    public ApiResult formulaCount(@Valid @NotBlank(message = "核价模板id不可为空") @RequestParam("id") String id, @RequestBody Map<String, Object> map) {
-        return selectSuccess(pricingTemplateService.formulaCount(id, map, super.getUserCompany()));
+    public ApiResult formulaCount(@Valid @RequestBody FormulaCountDTO formulaCountDTO) {
+        return selectSuccess(pricingTemplateService.formulaCount(formulaCountDTO, super.getUserCompany()));
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

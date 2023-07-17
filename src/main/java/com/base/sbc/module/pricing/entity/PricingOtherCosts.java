@@ -14,13 +14,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+
 /**
  * 类描述：其他费用 实体类
- * @address com.base.sbc.module.pricing.entity.PricingOtherCosts
- * @author xhj
- * @email ch.183.g1114@gmail.com
- * @date 创建时间：2023-6-16 15:09:28
+ *
+ * @author your name
  * @version 1.0
+ * @address com.base.sbc.module.pricing.entity.PricingOtherCosts
+ * @email your email
+ * @date 创建时间：2023-7-15 10:22:06
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -28,42 +30,68 @@ import java.math.BigDecimal;
 @ApiModel("其他费用 PricingOtherCosts")
 public class PricingOtherCosts extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private static final long serialVersionUID = 1L;
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
-	/**********************************实体存放的其他字段区 【other_end】******************************************/
+    /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 备注信息 */
-    @ApiModelProperty(value = "备注信息"  )
+    /**
+     * 备注信息
+     */
+    @ApiModelProperty(value = "备注信息")
     private String remarks;
-    /** 报价单编码 */
-    @ApiModelProperty(value = "报价单编码"  )
+    /**
+     * 报价单编码
+     */
+    @ApiModelProperty(value = "报价单编码")
     private String pricingCode;
     /**
-     *
      * 费用类型id
      */
-    @ApiModelProperty(value = "费用类型Id")
+    @ApiModelProperty(value = "费用类型id")
     private String costsTypeId;
-    /** 费用类型 */
-    @ApiModelProperty(value = "费用类型"  )
+    /**
+     * 费用类型
+     */
+    @ApiModelProperty(value = "费用类型")
     private String costsType;
-    /** 名称 */
-    @ApiModelProperty(value = "名称"  )
+    /**
+     * 名称
+     */
+    @ApiModelProperty(value = "名称")
     private String name;
-    /** 价格 */
-    @ApiModelProperty(value = "价格"  )
+    /**
+     * 价格
+     */
+    @ApiModelProperty(value = "价格")
     private BigDecimal price;
-    /** 货币 */
-    @ApiModelProperty(value = "货币"  )
+    /**
+     * 货币
+     */
+    @ApiModelProperty(value = "货币")
     private String currency;
-    /** 报价货币 */
-    @ApiModelProperty(value = "报价货币"  )
+    /**
+     * 货币编码
+     */
+    @ApiModelProperty(value = "货币编码")
+    private String currencyCode;
+    /**
+     * 报价货币编码
+     */
+    @ApiModelProperty(value = "报价货币编码")
+    private String quotationPriceCurrencyCode;
+    /**
+     * 报价货币
+     */
+    @ApiModelProperty(value = "报价货币")
     private String quotationPriceCurrency;
-    /** 报价单价 */
-    @ApiModelProperty(value = "报价单价"  )
+    /**
+     * 报价单价
+     */
+    @ApiModelProperty(value = "报价单价")
     private BigDecimal quotationPrice;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+

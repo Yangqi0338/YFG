@@ -30,6 +30,9 @@ import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.sample.dto.FabricSummaryDTO;
+import com.base.sbc.module.sample.vo.FabricSummaryVO;
+import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -64,11 +67,13 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     @Resource
     private PackBomVersionService packBomVersionService;
 
+
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
         QueryWrapper<PackBom> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
         qw.eq("bom_version_id", dto.getBomVersionId());
+        qw.orderByAsc("sort");
         Page<PackBom> page = PageHelper.startPage(dto);
         list(qw);
         PageInfo<PackBom> pageInfo = page.toPageInfo();
@@ -117,7 +122,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         }
         QueryWrapper sizeQw = new QueryWrapper();
         sizeQw.eq("bom_id", packBom.getId());
-        packBomSizeService.addAndUpdateAndDelList(packBomSizeList, sizeQw);
+        packBomSizeService.addAndUpdateAndDelList(packBomSizeList, sizeQw, true);
         PackBomVo packBomVo = BeanUtil.copyProperties(packBom, PackBomVo.class);
         packBomVo.setPackBomSizeList(BeanUtil.copyToList(packBomSizeList, PackBomSizeVo.class));
         return packBomVo;
@@ -134,33 +139,40 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         if (CollUtil.isEmpty(dtoList)) {
             dtoList = new ArrayList<>(2);
         }
-        List<String> bomIds = getBomIdsByVersionId(version.getId());
+        List<String> dbBomIds = getBomIdsByVersionId(version.getId());
+        List<String> pageBomIds = new ArrayList<>();
         // 保存物料清单表
         List<PackBom> packBoms = BeanUtil.copyToList(dtoList, PackBom.class);
         for (PackBom packBom : packBoms) {
             PackUtils.bomDefaultVal(packBom);
             PackUtils.setBomVersionInfo(version, packBom);
+            if (!CommonUtils.isInitId(packBom.getId())) {
+                pageBomIds.add(packBom.getId());
+            }
         }
         QueryWrapper<PackBom> bomQw = new QueryWrapper<>();
         bomQw.eq("bom_version_id", version.getId());
-        //保存
-        //覆盖
-        if (StrUtil.equals(overlayFlg, BasicNumber.ONE.getNumber())) {
-            addAndUpdateAndDelList(packBoms, bomQw);
+        //覆盖标识
+        boolean fg = StrUtil.equals(overlayFlg, BasicNumber.ONE.getNumber());
+        if (fg) {
             //删除之前的尺寸信息
-            if (CollUtil.isNotEmpty(bomIds)) {
+            if (CollUtil.isNotEmpty(dbBomIds)) {
                 QueryWrapper delSizeQw = new QueryWrapper();
-                delSizeQw.in("bom_id", bomIds);
+                delSizeQw.in("bom_id", dbBomIds);
                 packBomSizeService.remove(delSizeQw);
             }
         } else {
-            //追加
-            for (PackBom packBom : packBoms) {
-                packBom.setId(null);
+            //删除之前的尺寸信息
+            if (CollUtil.isNotEmpty(pageBomIds)) {
+                QueryWrapper delSizeQw = new QueryWrapper();
+                delSizeQw.in("bom_id", pageBomIds);
+                packBomSizeService.remove(delSizeQw);
             }
-            this.saveBatch(packBoms);
         }
 
+        //保存
+
+        addAndUpdateAndDelList(packBoms, bomQw, fg);
         // 处理尺码
         List<PackBomSize> bomSizeList = new ArrayList<>(16);
         for (int i = 0; i < dtoList.size(); i++) {
@@ -179,12 +191,10 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                 bomSizeList.addAll(packBomSizeList);
             }
         }
-
         //保存
         if (CollUtil.isNotEmpty(bomSizeList)) {
             packBomSizeService.saveBatch(bomSizeList);
         }
-
         return true;
     }
 
@@ -242,6 +252,18 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         PackBomPageSearchDto bomDto = BeanUtil.copyProperties(dto, PackBomPageSearchDto.class);
         bomDto.setBomVersionId(enableVersion.getId());
         return pageInfo(bomDto);
+    }
+
+    @Override
+    public PageInfo<FabricSummaryVO> fabricSummaryList(FabricSummaryDTO fabricSummaryDTO) {
+        Page<FabricSummaryVO> page = PageHelper.startPage(fabricSummaryDTO);
+        baseMapper.fabricSummaryList(fabricSummaryDTO);
+        return page.toPageInfo();
+    }
+
+    @Override
+    public List<MaterialSampleDesignVO> querySampleDesignInfoByMaterialId(String materialId) {
+        return baseMapper.querySampleDesignInfoByMaterialId(materialId);
     }
 
 

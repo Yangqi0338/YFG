@@ -1,5 +1,6 @@
 package com.base.sbc.module.pack.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.BaseService;
 
 import java.util.List;
@@ -7,8 +8,22 @@ import java.util.List;
 public interface PackBaseService<T> extends BaseService<T> {
 
 
+    int MOVE_UP = -1;
+    int MOVE_DOWN = 1;
+
+    /**
+     * 新增 修改 删除
+     *
+     * @param entityList
+     * @param queryWrapper
+     * @param delFlg       是否删除
+     * @return
+     */
+    Integer addAndUpdateAndDelList(List<T> entityList, QueryWrapper<T> queryWrapper, boolean delFlg);
+
     /**
      * 记入操作日志
+     *
      * @param id
      * @param type
      * @param content
@@ -62,4 +77,15 @@ public interface PackBaseService<T> extends BaseService<T> {
      * @return
      */
     boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType);
+
+
+    /**
+     * 移动
+     *
+     * @param id
+     * @param column
+     * @param moveType
+     * @return
+     */
+    boolean move(String id, String column, int moveType);
 }

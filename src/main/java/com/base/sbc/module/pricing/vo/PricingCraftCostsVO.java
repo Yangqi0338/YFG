@@ -32,6 +32,11 @@ public class PricingCraftCostsVO {
     @ApiModelProperty(value = "报价单编码")
     private String pricingCode;
     /**
+     * 工艺id
+     */
+    @ApiModelProperty(value = "工艺id")
+    private String craftId;
+    /**
      * 工艺名称
      */
     @ApiModelProperty(value = "工艺名称")
@@ -47,10 +52,26 @@ public class PricingCraftCostsVO {
     @ApiModelProperty(value = "加工商id")
     private String processorId;
     /**
+     * 加工商名称
+     */
+    @ApiModelProperty(value = "加工商名称")
+    private String processorName;
+    /**
+     * 币种编码
+     */
+    @ApiModelProperty(value = "币种编码")
+    private String currencyCode;
+    /**
      * 币种
      */
     @ApiModelProperty(value = "币种")
     private String currency;
+
+    /**
+     * 报价货币编码
+     */
+    @ApiModelProperty(value = "报价货币编码")
+    private String quotationPriceCurrencyCode;
     /**
      * 报价货币
      */
@@ -71,4 +92,14 @@ public class PricingCraftCostsVO {
      */
     @ApiModelProperty(value = "单价")
     private BigDecimal price;
+    /**
+     * 数量
+     */
+    @ApiModelProperty(value = "数量")
+    private BigDecimal num;
+    /**
+     * 金额
+     */
+    @ApiModelProperty(value = "金额")
+    private BigDecimal sumPrice;
 }

@@ -8,6 +8,9 @@ package com.base.sbc.module.pack.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.sample.dto.FabricSummaryDTO;
+import com.base.sbc.module.sample.vo.FabricSummaryVO;
+import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -27,6 +30,20 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
 // 自定义方法区 不替换的区域【other_start】
 
     List<String> getBomIdsByVersionId(@Param("bomVersionId") String bomVersionId);
+
+    /**
+     * 面料汇总列表
+     * @param fabricSummaryDTO
+     * @return
+     */
+    List<FabricSummaryVO> fabricSummaryList(FabricSummaryDTO fabricSummaryDTO);
+
+    /**
+     * 根据物料id查询被应用的样衣-款式
+     * @param materialId 物料ID
+     * @return 物料下样式设计数据
+     */
+    List<MaterialSampleDesignVO> querySampleDesignInfoByMaterialId(@Param("materialId") String materialId);
 
 // 自定义方法区 不替换的区域【other_end】
 }
