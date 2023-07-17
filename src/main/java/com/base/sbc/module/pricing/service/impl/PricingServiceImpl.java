@@ -16,7 +16,13 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.BusinessException;
 import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.common.utils.AttachmentTypeConstant;
+import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackProcessPriceService;
 import com.base.sbc.module.pricing.dto.PricingCountDTO;
 import com.base.sbc.module.pricing.dto.PricingDTO;
 import com.base.sbc.module.pricing.dto.PricingDelDTO;
@@ -24,13 +30,13 @@ import com.base.sbc.module.pricing.dto.PricingSearchDTO;
 import com.base.sbc.module.pricing.entity.Pricing;
 import com.base.sbc.module.pricing.enums.PricingCountTypeEnum;
 import com.base.sbc.module.pricing.enums.PricingQueryDimensionEnum;
+import com.base.sbc.module.pricing.enums.PricingSourceTypeEnum;
 import com.base.sbc.module.pricing.mapper.PricingMapper;
 import com.base.sbc.module.pricing.service.*;
-import com.base.sbc.module.pricing.vo.PricingCountVO;
-import com.base.sbc.module.pricing.vo.PricingListVO;
-import com.base.sbc.module.pricing.vo.PricingVO;
+import com.base.sbc.module.pricing.vo.*;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -41,9 +47,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：核价表 service类
@@ -70,6 +78,14 @@ public class PricingServiceImpl extends BaseServiceImpl<PricingMapper, Pricing> 
     private PricingOtherCostsService pricingOtherCostsService;
     @Autowired
     private PricingMapper pricingMapper;
+    @Autowired
+    private PackInfoService packInfoService;
+    @Autowired
+    private AttachmentService attachmentService;
+    @Autowired
+    private PackBomService packBomService;
+    @Autowired
+    private PackProcessPriceService packProcessPriceService;
 
     @Override
     public PageInfo<PricingListVO> queryPageInfo(PricingSearchDTO dto, String userCompany) {
@@ -150,8 +166,65 @@ public class PricingServiceImpl extends BaseServiceImpl<PricingMapper, Pricing> 
 
     @Override
     public PricingVO getPlateMakingPricing(String id, String userCompany) {
+        PricingVO pricingVO = packInfoService.getPricingVoById(id);
+// COde
+        pricingVO.setCode("HJ" + System.currentTimeMillis() + (int) ((Math.random() * 9 + 1) * 1000));
 
-        return null;
+        pricingVO.setSourceType(PricingSourceTypeEnum.PLATE_MAKING.getK());
+        pricingVO.setStylePic(this.getStylePic(id));
+        Map<String, List<PricingMaterialCostsVO>> pricingMaterialCostsMap = this.getPricingMaterialCostsMap(id, pricingVO.getColorCode());
+
+        pricingVO.setPricingMaterialCosts(pricingMaterialCostsMap);
+
+        BigDecimal totalPrice = new BigDecimal(0);
+        List<PricingMaterialCostsVO> pricingMaterialCostsVOS = pricingMaterialCostsMap.get(pricingVO.getColorCode());
+        if (CollectionUtils.isNotEmpty(pricingMaterialCostsVOS)) {
+            pricingMaterialCostsVOS.forEach(e -> totalPrice.add(e.getTotalPrice()));
+        }
+
+        pricingVO.setPricingMaterialCosts(pricingMaterialCostsMap);
+        PricingColorVO pricingColorVO = new PricingColorVO();
+        pricingColorVO.setColor(pricingVO.getColor());
+        pricingColorVO.setColorCode(pricingVO.getColorCode());
+        pricingColorVO.setMaterialCost(totalPrice);
+        pricingVO.setPricingColors(Lists.newArrayList(pricingColorVO));
+        pricingVO.setPricingProcessCosts(this.getPricingProcessCostsVOS(id));
+        return pricingVO;
+    }
+
+    private Map<String, List<PricingMaterialCostsVO>> getPricingMaterialCostsMap(String id, String colorCode) {
+        List<PricingMaterialCostsVO> pricingMaterialCostsVOS = packBomService.getPricingMaterialCostsByForeignId(id);
+        if (CollectionUtils.isEmpty(pricingMaterialCostsVOS)) {
+            return new HashMap<>(0);
+        }
+        return pricingMaterialCostsVOS.stream()
+                .peek(e -> {
+                    BigDecimal lossRate = BigDecimalUtil.add(BigDecimal.ONE, BigDecimalUtil.div(e.getLossRate(), BigDecimal.valueOf(100), 2), 2);
+                    e.setTotalPrice(BigDecimalUtil.mul(2, e.getUnitNum(), lossRate, e.getPrice()));
+                    e.setTotalUsage(BigDecimalUtil.mul(2, e.getUnitNum(), lossRate));
+                    e.setColorCode(colorCode);
+                }).filter(x -> StringUtils.isNotEmpty(x.getColorCode()))
+                .collect(Collectors.groupingBy(PricingMaterialCostsVO::getColorCode));
+    }
+
+    private List<PricingProcessCostsVO> getPricingProcessCostsVOS(String id) {
+        List<PricingProcessCostsVO> pricingProcessCostsVOS = packProcessPriceService.getPricingProcessCostsByForeignId(id);
+        if (CollectionUtils.isEmpty(pricingProcessCostsVOS)) {
+            return Lists.newArrayList();
+        }
+        return pricingProcessCostsVOS.stream()
+                .peek(e -> e.setQuotationPrice(BigDecimalUtil.mul(2, e.getStandardUnitPrices(), e.getMultiple())))
+                .collect(Collectors.toList());
+    }
+
+    private String getStylePic(String id) {
+        List<AttachmentVo> attachmentVos = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
+        if (CollectionUtils.isEmpty(attachmentVos)) {
+            return null;
+        }
+        return attachmentVos.stream()
+                .map(AttachmentVo::getUrl)
+                .collect(Collectors.joining(","));
     }
 
     @Override

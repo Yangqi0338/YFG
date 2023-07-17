@@ -39,6 +39,7 @@ import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.pricing.vo.PricingVO;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.github.pagehelper.Page;
@@ -352,6 +353,11 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         qw.set("tech_spec_file_id", null);
         packInfoStatusService.update(qw);
         return true;
+    }
+
+    @Override
+    public PricingVO getPricingVoById(String id) {
+        return this.getBaseMapper().getPricingVoById(id);
     }
 
 
