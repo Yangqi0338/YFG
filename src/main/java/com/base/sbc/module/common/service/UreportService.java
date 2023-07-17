@@ -65,6 +65,7 @@ public class UreportService {
             String url1 = StrUtil.format(PDF_DOWN_URL_TEMPLATE, paramsMap);
             String urlParams = URLUtil.buildQuery(params, Charset.defaultCharset());
             String url = url1 + urlParams;
+            System.out.println("url:" + url);
             //2 下载
             byte[] bytes = HttpUtil.downloadBytes(url);
             //3 上传到minio
