@@ -40,6 +40,7 @@ import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.pricing.vo.PricingVO;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.github.pagehelper.Page;
@@ -334,6 +335,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         PackInfo byId = this.getById(dto.getForeignId());
         Map<String, String> params = new HashMap<>(12);
         params.put("sampleDesignId", byId.getForeignId());
+        params.put("foreignId", dto.getForeignId());
+        params.put("packType", dto.getPackType());
         // 下载文件并上传到minio
         AttachmentVo attachmentVo = ureportService.downFileAndUploadMinio(UreportDownEnum.PDF, "process", "工艺单", byId.getCode() + ".pdf", params);
         // 将文件id保存到状态表
@@ -350,6 +353,11 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         qw.set("tech_spec_file_id", null);
         packInfoStatusService.update(qw);
         return true;
+    }
+
+    @Override
+    public PricingVO getPricingVoById(String id) {
+        return this.getBaseMapper().getPricingVoById(id);
     }
 
 

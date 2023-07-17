@@ -20,6 +20,10 @@ import lombok.Data;
 public class SampleDesignPageDto extends Page {
 
     /**
+     * 所有
+     */
+    public static final String userType0 = "0";
+    /**
      * 1我下发的
      */
     public static final String userType1 = "1";

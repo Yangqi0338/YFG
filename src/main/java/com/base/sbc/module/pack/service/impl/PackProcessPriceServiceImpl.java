@@ -24,6 +24,7 @@ import com.base.sbc.module.pack.mapper.PackProcessPriceMapper;
 import com.base.sbc.module.pack.service.PackProcessPriceService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackProcessPriceVo;
+import com.base.sbc.module.pricing.vo.PricingProcessCostsVO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -101,6 +102,11 @@ public class PackProcessPriceServiceImpl extends PackBaseServiceImpl<PackProcess
         PackUtils.commonQw(qw, commonDto);
         addAndUpdateAndDelList(dataList, qw, false);
         return true;
+    }
+
+    @Override
+    public List<PricingProcessCostsVO> getPricingProcessCostsByForeignId(String foreignId) {
+        return super.getBaseMapper().getPricingProcessCostsByForeignId(foreignId);
     }
 
     @Override

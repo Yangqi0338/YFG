@@ -11,6 +11,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
@@ -262,7 +263,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         }
         qw.likeRight(StrUtil.isNotBlank(dto.getCategoryIds()), "category_ids", dto.getCategoryIds());
         qw.eq(BaseConstant.COMPANY_CODE, companyCode);
-        amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
+
         //1我下发的
         if (StrUtil.equals(dto.getUserType(), SampleDesignPageDto.userType1)) {
             qw.eq("sender", userId);
@@ -275,6 +276,13 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         //3我负责的
         else if (StrUtil.equals(dto.getUserType(), SampleDesignPageDto.userType3)) {
             qw.eq("designer_id", userId);
+        }
+        // 所有
+        else if (StrUtil.equals(dto.getUserType(), SampleDesignPageDto.userType0)) {
+            amcFeignService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
+        } else {
+//            amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
+            amcFeignService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
         }
         Page<SampleDesignPageVo> objects = PageHelper.startPage(dto);
         getBaseMapper().selectByQw(qw);
@@ -317,12 +325,10 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         if (sampleDesign == null) {
             throw new OtherException("样衣数据不存在,请先保存");
         }
+        sampleDesign.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+        updateById(sampleDesign);
         Map<String, Object> variables = BeanUtil.beanToMap(sampleDesign);
         boolean flg = flowableService.start(FlowableService.sample_design_pdn + "[" + sampleDesign.getDesignNo() + "]", FlowableService.sample_design_pdn, id, "/pdm/api/saas/sampleDesign/approval", "/pdm/api/saas/sampleDesign/approval", "/sampleClothesDesign/sampleDesign/" + id, variables);
-        if (flg) {
-            sampleDesign.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
-            updateById(sampleDesign);
-        }
         return flg;
     }
 

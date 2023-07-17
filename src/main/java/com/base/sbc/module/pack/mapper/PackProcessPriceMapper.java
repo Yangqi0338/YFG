@@ -8,7 +8,11 @@ package com.base.sbc.module.pack.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.pack.entity.PackProcessPrice;
+import com.base.sbc.module.pricing.vo.PricingProcessCostsVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 类描述：资料包-工序工价 dao类
@@ -23,6 +27,12 @@ import org.apache.ibatis.annotations.Mapper;
 public interface PackProcessPriceMapper extends BaseMapper<PackProcessPrice> {
 // 自定义方法区 不替换的区域【other_start】
 
+    /**
+     * 获取核价工序费用
+     * @param foreignId
+     * @return
+     */
+    List<PricingProcessCostsVO> getPricingProcessCostsByForeignId(@Param("foreignId") String foreignId);
 
 // 自定义方法区 不替换的区域【other_end】
 }

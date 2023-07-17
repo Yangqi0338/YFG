@@ -12,6 +12,7 @@ import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
 import com.base.sbc.module.sample.dto.FabricSummaryDTO;
 import com.base.sbc.module.sample.vo.FabricSummaryVO;
 import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
@@ -98,6 +99,15 @@ public interface PackBomService extends PackBaseService<PackBom> {
      * @return 物料下样式设计数据
      */
     List<MaterialSampleDesignVO> querySampleDesignInfoByMaterialId(@Param("materialId") String materialId);
+
+
+    /**
+     * 通过主id获取核价物料信息
+     *
+     * @param foreignId
+     * @return
+     */
+    List<PricingMaterialCostsVO> getPricingMaterialCostsByForeignId(@Param("foreignId") String foreignId);
 
 
 // 自定义方法区 不替换的区域【other_end】

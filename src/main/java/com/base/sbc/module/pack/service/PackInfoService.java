@@ -19,6 +19,7 @@ import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pack.vo.PricingSelectListVO;
 import com.base.sbc.module.pack.vo.SampleDesignPackInfoListVo;
+import com.base.sbc.module.pricing.vo.PricingVO;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -143,6 +144,14 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @return
      */
     boolean delTechSpecFile(PackCommonSearchDto dto);
+
+    /**
+     * 通过id获取核价对象
+     *
+     * @param id
+     * @return
+     */
+    PricingVO getPricingVoById(String id);
 
 
 // 自定义方法区 不替换的区域【other_end】

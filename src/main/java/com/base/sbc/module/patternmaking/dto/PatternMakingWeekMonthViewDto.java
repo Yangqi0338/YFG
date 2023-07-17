@@ -60,4 +60,10 @@ public class PatternMakingWeekMonthViewDto {
     @ApiModelProperty(value = "品类id列表")
     private List<String> categoryIds;
 
+    /**
+     * 节点
+     */
+    @ApiModelProperty(value = "节点")
+    private String node;
+
 }

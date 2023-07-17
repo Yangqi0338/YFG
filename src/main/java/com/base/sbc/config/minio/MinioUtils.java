@@ -2,10 +2,7 @@ package com.base.sbc.config.minio;
 
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.DateUtils;
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
-import io.minio.ObjectWriteResponse;
-import io.minio.PutObjectArgs;
+import io.minio.*;
 import io.minio.http.Method;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -78,5 +75,20 @@ public class MinioUtils {
         String contentType = "multipart/form-data"; // or find contentType using some utility
         byte[] content = FileCopyUtils.copyToByteArray(file);
         return new MockMultipartFile(fileName, fileName, contentType, content);
+    }
+
+    public boolean delFile(String url) {
+        try {
+            String objectName = url.replace(minioConfig.getEndpoint(), "");
+            RemoveObjectArgs removeObjectArgs = RemoveObjectArgs.builder()
+                    .bucket(minioConfig.getBucketName())
+                    .object(objectName)
+                    .build();
+            minioClient.removeObject(removeObjectArgs);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }

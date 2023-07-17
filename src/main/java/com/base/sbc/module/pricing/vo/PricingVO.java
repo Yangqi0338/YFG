@@ -361,5 +361,9 @@ public class PricingVO extends BaseDataEntity<String> {
     @ApiModelProperty(value = "加工费用")
     private List<PricingProcessCostsVO> pricingProcessCosts;
 
+    private String colorCode;
+    private String color;
+
+
 }
 

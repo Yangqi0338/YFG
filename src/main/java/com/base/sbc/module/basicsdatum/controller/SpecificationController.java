@@ -1,7 +1,20 @@
 package com.base.sbc.module.basicsdatum.controller;
 
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.hutool.core.bean.BeanUtil;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
@@ -16,17 +29,12 @@ import com.base.sbc.module.basicsdatum.service.SpecificationService;
 import com.base.sbc.module.basicsdatum.service.impl.SpecificationExcelDto;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.hutool.core.bean.BeanUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author 卞康
@@ -61,9 +69,9 @@ public class SpecificationController extends BaseController {
 
     @GetMapping("/listBySpecificationGroupId")
     @ApiOperation(value = "根据门幅/规格组id查询规格")
-    public ApiResult listBySpecificationGroupId(String id) {
-        SpecificationGroup specificationGroup = specificationGroupService.getById(id);
-
+	public ApiResult listBySpecificationGroupId(String code) {
+		SpecificationGroup specificationGroup = specificationGroupService
+				.getOne(new QueryWrapper<SpecificationGroup>().eq(COMPANY_CODE, getUserCompany()).eq("code", code));
         BaseQueryWrapper<Specification> queryWrapper = new BaseQueryWrapper<>();
         if (specificationGroup!=null){
             String specificationIds = specificationGroup.getSpecificationIds();
