@@ -6,10 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
@@ -23,10 +26,6 @@ import com.base.sbc.module.basicsdatum.vo.ConfigPrintVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * 类描述：打印配置 service类
@@ -42,16 +41,13 @@ public class ConfigPrintServiceImpl extends BaseServiceImpl<ConfigPrintMapper, C
 		implements ConfigPrintService {
 	// 自定义方法区 不替换的区域【other_start】
 
-	@Autowired
-	private BaseController baseController;
-
 	@Override
 	public PageInfo<ConfigPrintVo> getConfigPrintList(QueryRevampConfigPrintDto queryDto) {
 		if (queryDto.getPageNum() != 0 && queryDto.getPageSize() != 0) {
 			PageHelper.startPage(queryDto);
 		}
 		BaseQueryWrapper<ConfigPrint> qc = new BaseQueryWrapper<>();
-		qc.eq("company_code", baseController.getUserCompany());
+		qc.eq("company_code", getCompanyCode());
 		qc.notEmptyEq("bill_type", queryDto.getBillType());
 		qc.notEmptyLike("code", queryDto.getCode());
 		qc.notEmptyLike("name", queryDto.getName());
@@ -78,12 +74,14 @@ public class ConfigPrintServiceImpl extends BaseServiceImpl<ConfigPrintMapper, C
 	@Override
 	public Boolean addRevampConfigPrint(AddRevampConfigPrintDto dto) {
 		// 验证名称是否重复
-		long count = this.count(new QueryWrapper<ConfigPrint>().eq("name", dto.getName()).ne("id", dto.getId()));
+		long count = this.count(
+				new QueryWrapper<ConfigPrint>().and(i -> i.eq("name", dto.getName()).or().eq("code", dto.getCode()))
+						.eq(COMPANY_CODE, getCompanyCode()).ne("id", dto.getId()));
 		if (count > 0) {
-			throw new OtherException("名称重复");
+			throw new OtherException("编码或名称重复");
 		}
 		ConfigPrint print = CopyUtil.copy(dto, ConfigPrint.class);
-		print.setFileName(baseController.getUserCompany() + "-" + print.getName() + ".ureport.xml");
+		print.setFileName(getCompanyCode() + "-" + print.getName() + ".ureport.xml");
 
 		if ("-1".equals(print.getId())) {
 			print.setId(null);
