@@ -22,7 +22,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfoStatus
  * @email your email
- * @date 创建时间：2023-7-15 20:33:04
+ * @date 创建时间：2023-7-17 20:22:06
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -116,6 +116,11 @@ public class PackInfoStatus extends BaseDataEntity<String> {
     @ApiModelProperty(value = "后技术确认时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date postTechConfirmDate;
+    /**
+     * 尺寸表图片路径
+     */
+    @ApiModelProperty(value = "尺寸表图片路径")
+    private String sizeExportImg;
     /**
      * 尺寸表锁定flg:(0未锁定,1锁定)
      */

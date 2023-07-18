@@ -87,6 +87,7 @@ public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<Basicsdat
         queryWrapper.like(StringUtils.isNotEmpty(queryDto.getDescription()),"description",queryDto.getDescription());
         queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCreateName()),"create_name",queryDto.getCreateName());
         queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCode()),"code",queryDto.getCode());
+        queryWrapper.in(StringUtils.isNotEmpty(queryDto.getCodes()),"code",StringUtils.convertList(queryDto.getCodes()));
         queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getStatus()),"status", queryDto.getStatus());
         if (queryDto.getCreateDate()!=null && queryDto.getCreateDate().length>0){
             queryWrapper.ge(StringUtils.isNotEmpty(queryDto.getCreateDate()[0]),"create_date",queryDto.getCreateDate()[0]);

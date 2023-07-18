@@ -40,4 +40,9 @@ public class TechnologyBoardConstant {
      */
     public static String SAMPLE_CAPACITY_TOTAL = "sample_capacity_total:";
 
+    /**
+     * 产能对比KEY
+     */
+    public static String CAPACITY_CONTRAST = "capacity_contrast:";
+
 }

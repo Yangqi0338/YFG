@@ -25,7 +25,7 @@
         cr.category_id
         FROM
         t_basicsdatum_model_type mt
-        LEFT JOIN ( SELECT data_id, type, GROUP_CONCAT( category_name ) category_name, GROUP_CONCAT( category_id )  category_id FROM t_basicsdatum_company_relation
+        LEFT JOIN ( SELECT data_id, type, GROUP_CONCAT( category_name ) category_name, category_id category_ids  , GROUP_CONCAT( category_id )  category_id FROM t_basicsdatum_company_relation
         <where>
             <if test="categoryList != null and categoryList.size != 0">
                 category_id in

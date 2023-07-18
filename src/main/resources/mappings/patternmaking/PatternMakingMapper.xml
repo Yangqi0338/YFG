@@ -268,6 +268,60 @@
         ORDER BY
             year_week ASC ;
     </select>
+    <!-- 产能对比 》打版需求 -->
+    <select id="capacityContrastDemandStatistics" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingWeekMonthViewVo" parameterType="com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto">
+        SELECT
+            DATE_FORMAT( pm.create_date, IF ( #{weeklyMonth} = 'week', '%y年%u周', '%y年%m月' ) ) AS year_week,
+            sum( pm.requirement_num ) as requirement_num_sum
+        FROM
+            (SELECT pm.* FROM t_pattern_making pm
+                INNER JOIN t_node_status ns on ns.data_id = pm.id AND ns.node = #{node} WHERE pm.del_flag = '0' GROUP BY pm.id) AS pm
+        WHERE
+            pm.del_flag = '0'
+            AND pm.company_code = #{companyCode}
+            AND pm.create_date BETWEEN #{startTime} AND #{endTime}
+        GROUP BY
+            DATE_FORMAT( pm.create_date, IF ( #{weeklyMonth} = 'week', '%y%u', '%y%m' ) )
+        ORDER BY
+            year_week ASC
+    </select>
+
+    <!-- 产能对比 》打版产能 先拿到打版管理中版师id，去人员技能去找对应的人员产量多少，计算格式如下： 单位产量 除以 单位内小时数 * 一周168小时 -->
+    <select id="capacityContrastCapacityStatistics" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingWeekMonthViewVo" parameterType="com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto">
+        SELECT
+            DATE_FORMAT( pm.create_date, IF ( #{weeklyMonth} = 'week', '%y年%u周', '%y年%m月' ) ) AS year_week,
+            ROUND(
+                sum(
+                (
+                u.output /
+                IF
+                ( u.hours_within_unit = NULL OR u.hours_within_unit = 0, 1, u.hours_within_unit ) * 168
+                )
+                ),
+                2
+            ) as requirement_num_sum
+        FROM
+             (SELECT pm.* FROM t_pattern_making pm
+                INNER JOIN t_node_status ns on ns.data_id = pm.id AND ns.node = #{node} WHERE pm.del_flag = '0' GROUP BY pm.id) AS pm
+            INNER JOIN (
+            SELECT DISTINCT
+                ( substring_index( substring_index( a.user_ids,',', b.help_topic_id + 1 ), ',',- 1 ) ) AS user_id,
+                a.*
+            FROM
+                ( SELECT * FROM `t_personnel_skills` ) AS a
+                JOIN mysql.help_topic AS b ON b.help_topic_id &lt;  ( char_length( a.user_ids ) - char_length( REPLACE ( a.user_ids, ',', '' ) ) + 1 )
+                GROUP BY
+                user_id
+        ) u ON pm.pattern_design_id = u.user_id
+        WHERE
+            pm.del_flag = '0'
+            AND pm.company_code = #{companyCode}
+            AND pm.create_date BETWEEN  #{startTime} AND #{endTime}
+        GROUP BY
+            DATE_FORMAT( pm.create_date, IF ( #{weeklyMonth} = 'week', '%y%u', '%y%m' ) )
+        ORDER BY  year_week ASC
+
+    </select>
 
 
 </mapper>

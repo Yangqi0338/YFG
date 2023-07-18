@@ -10,6 +10,7 @@ import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,14 @@ public interface UploadFileService extends BaseService<UploadFile> {
     AttachmentVo uploadToMinio(MultipartFile file);
 
     /**
+     * 上传到minio
+     *
+     * @param bufferedImage
+     * @return
+     */
+    AttachmentVo uploadToMinio(BufferedImage bufferedImage, String fileName);
+
+    /**
      * 通过md5查找文件
      *
      * @param md5
@@ -52,6 +61,7 @@ public interface UploadFileService extends BaseService<UploadFile> {
 
     String getUrlById(String id);
 
+    boolean delByUrl(String url);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

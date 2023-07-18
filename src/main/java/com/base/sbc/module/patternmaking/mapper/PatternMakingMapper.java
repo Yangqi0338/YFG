@@ -69,6 +69,21 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
      */
     List<PatternMakingWeekMonthViewVo> sampleCapacityTotalCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto);
 
+    /**
+     * 根据时间按周月 统计 产能对比 》打版需求
+     * @param patternMakingWeekMonthViewDto 技术看板DTO
+     * @return 返回集合数据
+     */
+    List<PatternMakingWeekMonthViewVo> capacityContrastDemandStatistics(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto);
+
+
+    /**
+     * 根据时间按周月 产能对比 》打版产能
+     * @param patternMakingWeekMonthViewDto 技术看板DTO
+     * @return 返回集合数据
+     */
+    List<PatternMakingWeekMonthViewVo> capacityContrastCapacityStatistics(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

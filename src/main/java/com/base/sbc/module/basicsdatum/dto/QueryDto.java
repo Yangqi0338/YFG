@@ -29,6 +29,8 @@ public class QueryDto extends Page {
     private String colourGroupId;
     /*编码*/
     private String code;
+    /*多哥编码*/
+    private String codes;
     /*品类*/
     private String categoryId;
 

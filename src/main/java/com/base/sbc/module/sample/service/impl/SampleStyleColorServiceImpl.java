@@ -111,14 +111,14 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
 
         /*查询样衣-款式配色数据*/
         List<SampleStyleColorVo> sampleStyleColorList = baseMapper.getSampleStyleColorList(queryWrapper);
-        List<String> stringList = sampleStyleColorList.stream().filter(s -> StringUtils.isNotBlank(s.getBandCode())).map(SampleStyleColorVo::getBandCode).collect(Collectors.toList());
+ /*       List<String> stringList = sampleStyleColorList.stream().filter(s -> StringUtils.isNotBlank(s.getBandCode())).map(SampleStyleColorVo::getBandCode).collect(Collectors.toList());
         String codes = String.join(",", stringList);
         Map<String, String> m = bandService.getNamesByCodes(codes);
         for (SampleStyleColorVo sampleStyleColorVo : sampleStyleColorList) {
             if (StringUtils.isNotBlank(sampleStyleColorVo.getBandCode())) {
                 sampleStyleColorVo.setBandCode(m.get(sampleStyleColorVo.getBandCode()));
             }
-        }
+        }*/
         PageInfo<SampleStyleColorVo> pageInfo = new PageInfo<>(sampleStyleColorList);
         return pageInfo;
     }
@@ -424,7 +424,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             throw new OtherException("无配色信息");
         }
         if (StringUtils.isNotBlank(sampleStyleColor.getBom())) {
-            throw new OtherException("该配色以关联bom");
+            throw new OtherException("该配色已关联bom");
         }
         /*查询bom信息*/
         PackInfo packInfo = packInfoMapper.selectById(relevanceBomDto.getPackInfoId());
@@ -456,8 +456,14 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
     @Transactional(rollbackFor = {Exception.class})
     public Boolean updateStyleNoBand(UpdateStyleNoBandDto updateStyleNoBandDto) {
         SampleStyleColor sampleStyleColor =   baseMapper.selectById(updateStyleNoBandDto.getId());
+        if(ObjectUtils.isEmpty(sampleStyleColor)){
+            throw new OtherException("id错误");
+        }
         /*修改大货款号*/
-        if(StringUtils.isNotBlank(sampleStyleColor.getStyleNo())){
+        if(StringUtils.isNotBlank(sampleStyleColor.getStyleNo()) && StringUtils.isNotBlank(updateStyleNoBandDto.getStyleNo())){
+            if(!updateStyleNoBandDto.getStyleNo().substring(0,5).equals(sampleStyleColor.getStyleNo().substring(0,5))){
+                throw new OtherException("无法修改大货款号前五位");
+            }
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("style_no",updateStyleNoBandDto.getStyleNo());
             SampleStyleColor styleColor = baseMapper.selectOne(queryWrapper);
@@ -468,20 +474,15 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             sampleStyleColor.setStyleNo(updateStyleNoBandDto.getStyleNo());
 
             /**
-             * 修改下方大货款号
+             * 修改下放大货款号
              */
-
-
+            baseMapper.reviseAllStyleNo(sampleStyleColor.getStyleNo(),updateStyleNoBandDto.getStyleNo());
         }
         /*修改波段*/
-        if(StringUtils.isNotBlank(sampleStyleColor.getBandCode())){
-            sampleStyleColor.setBandCode(updateStyleNoBandDto.getBandCode());
-            /**
-             * 修改下方波段
-             */
-
-
-
+        if(StringUtils.isNotBlank(sampleStyleColor.getBandCode()) && StringUtils.isNotBlank(updateStyleNoBandDto.getBandCode())){
+            if(!sampleStyleColor.getBandCode().equals(updateStyleNoBandDto.getBandCode())){
+                sampleStyleColor.setBandCode(updateStyleNoBandDto.getBandCode());
+            }
         }
         baseMapper.updateById(sampleStyleColor);
         return true;

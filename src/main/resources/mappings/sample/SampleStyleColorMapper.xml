@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.base.sbc.module.sample.mapper.SampleStyleColorMapper">
+    <update id="reviseAllStyleNo">
+
+      update  t_sample_style_group
+      set  style_no = #{nweStyleNo}
+      where style_no = #{styleNo} ;
+
+      update  t_sample_style_group_color
+      set  style_no = #{nweStyleNo}
+      where style_no = #{styleNo} ;
+
+      update  t_sample_style_order_book_color
+      set  style_no = #{nweStyleNo}
+      where style_no = #{styleNo} ;
+
+      update  t_pack_info
+      set  style_no = #{nweStyleNo}
+      where style_no = #{styleNo} ;
+
+    </update>
     <!--
         样衣-款式配色
         创建人：mengfanjiang
@@ -30,4 +49,5 @@
     LEFT JOIN t_sample_design sd on ssc.sample_design_id  = sd.id
     ${ew.customSqlSegment}
     </select>
+
 </mapper>

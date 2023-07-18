@@ -55,6 +55,9 @@ public class BasicsdatumRangeDifference extends BaseDataEntity<String> {
     /** 品牌编码 */
     @ApiModelProperty(value = "品牌编码"  )
     private String brandCode;
+    /** 品类测量组编码 */
+    @ApiModelProperty(value = "品类测量组编码"  )
+    private String categoryMeasureCode;
     /**  备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;

@@ -80,7 +80,9 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
     @Override
     public PageInfo<BasicsdatumCategoryMeasureVo> getBasicsdatumCategoryMeasureList(QueryCategoryMeasureDto queryDto) {
         /*分页*/
-        PageHelper.startPage(queryDto);
+        if (queryDto.getPageNum() != 0 && queryDto.getPageSize() != 0) {
+            PageHelper.startPage(queryDto);
+        }
         BaseQueryWrapper<BasicsdatumCategoryMeasure> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("cm.company_code", baseController.getUserCompany());
         queryWrapper.eq("cm.del_flag", "0");
