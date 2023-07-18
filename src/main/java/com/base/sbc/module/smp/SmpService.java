@@ -101,18 +101,114 @@ public class SmpService {
     private final HangTagMapper hangTagMapper;
 
 
-
-
-
     private static final String URL = "http://10.98.250.31:7006/pdm";
     //private static final String URL = "http://smp-i.eifini.com/service-manager/pdm";
 
     /**
      * 商品主数据下发
      */
-    public Boolean goods(SmpGoodsDto smpGoodsDto) {
-        HttpResp httpResp = restTemplateService.spmPost(URL + "/goods", smpGoodsDto);
-        return pushRecordsService.pushRecordSave(httpResp, smpGoodsDto, "smp", "商品主数据下发");
+    public Integer goods(String[] ids) {
+        int i = 0;
+        List<SampleStyleColor> sampleStyleColors = sampleStyleColorService.listByIds(Arrays.asList(ids));
+        for (SampleStyleColor sampleStyleColor : sampleStyleColors) {
+            SmpGoodsDto smpGoodsDto = sampleStyleColor.toSmpGoodsDto();
+
+            SampleDesign sampleDesign = sampleDesignService.getById(sampleStyleColor.getSampleDesignId());
+
+            //设计师id,下稿设计师,工艺员,工艺员id,版师名称,版师ID
+            smpGoodsDto.setDesigner(sampleDesign.getDesigner());
+            smpGoodsDto.setTechnician(sampleDesign.getTechnicianName());
+            smpGoodsDto.setPatternMakerName(sampleDesign.getPatternDesignName());
+
+            String designerId = sampleDesign.getDesignerId();
+            String technicianId = sampleDesign.getTechnicianId();
+            String patternDesignId = sampleDesign.getPatternDesignId();
+
+            ArrayList<String> list = new ArrayList<>();
+            list.add(designerId);
+            list.add(technicianId);
+            list.add(patternDesignId);
+
+            Map<String, String> usernamesByIds = amcService.getUsernamesByIds(StringUtils.join(list, ","));
+            smpGoodsDto.setDesignerId(usernamesByIds.get(designerId));
+            smpGoodsDto.setTechnicianId(usernamesByIds.get(technicianId));
+            smpGoodsDto.setPatternMakerId(usernamesByIds.get(patternDesignId));
+            smpGoodsDto.setYear(sampleDesign.getYear());
+            smpGoodsDto.setPatternName(sampleDesign.getDevtType());
+            smpGoodsDto.setPriorityId(sampleDesign.getTaskLevel());
+            smpGoodsDto.setPriorityName("1".equals(sampleDesign.getTaskLevel()) ? "普通" : "2".equals(sampleDesign.getTaskLevel()) ? "紧急" : "非常紧急");
+            smpGoodsDto.setSeason(sampleDesign.getSeason());
+            smpGoodsDto.setTheme(sampleDesign.getSubject());
+            smpGoodsDto.setStyleName(sampleDesign.getStyleName());
+            smpGoodsDto.setTargetCost(sampleDesign.getProductCost());
+            smpGoodsDto.setShapeName(sampleDesign.getPlateType());
+            smpGoodsDto.setBandName(null);
+
+            smpGoodsDto.setProductTypeId(null);
+            smpGoodsDto.setProductType(null);
+            smpGoodsDto.setUnit(null);
+            smpGoodsDto.setPlanningRate(null);
+            smpGoodsDto.setRegion(null);
+            smpGoodsDto.setSalesGroup(null);
+            smpGoodsDto.setSizeGroupId(null);
+            smpGoodsDto.setSizeGroupName(null);
+            smpGoodsDto.setStyleCode(null);
+            smpGoodsDto.setLengthRangeId(null);
+            smpGoodsDto.setLengthRangeName(null);
+            smpGoodsDto.setCoatLength(null);
+            smpGoodsDto.setWaistTypeId(null);
+            smpGoodsDto.setWaistTypeName(null);
+            smpGoodsDto.setSleeveLengthId(null);
+            smpGoodsDto.setSleeveLengthName(null);
+            smpGoodsDto.setSleeveId(null);
+            smpGoodsDto.setSleeveName(null);
+            smpGoodsDto.setBust(null);
+            smpGoodsDto.setPlacketId(null);
+            smpGoodsDto.setPlacketName(null);
+            smpGoodsDto.setYarnNeedleTypeId(null);
+            smpGoodsDto.setYarnNeedleTypeName(null);
+            smpGoodsDto.setYarnNeedleId(null);
+            smpGoodsDto.setYarnNeedleName(null);
+            smpGoodsDto.setProfileId(null);
+            smpGoodsDto.setProfileName(null);
+            smpGoodsDto.setFlowerId(null);
+            smpGoodsDto.setFlowerName(null);
+            smpGoodsDto.setTextureId(null);
+            smpGoodsDto.setTextureName(null);
+            smpGoodsDto.setBandName(null);
+            smpGoodsDto.setPriceConfirm(null);
+            smpGoodsDto.setCost(null);
+            smpGoodsDto.setPlanCost(null);
+            smpGoodsDto.setActualRate(null);
+            smpGoodsDto.setPlanActualRate(null);
+            smpGoodsDto.setProcessCost(null);
+            smpGoodsDto.setLaborCosts(null);
+            smpGoodsDto.setMaterialCost(null);
+            smpGoodsDto.setProductName(null);
+            smpGoodsDto.setUniqueCode(null);
+            smpGoodsDto.setSeries(null);
+            smpGoodsDto.setAccessories(null);
+            smpGoodsDto.setSaleTime(null);
+            smpGoodsDto.setSeriesId(null);
+            smpGoodsDto.setSeriesName(null);
+            smpGoodsDto.setBomPhase(null);
+            smpGoodsDto.setAuProcess(null);
+            smpGoodsDto.setPackageType(null);
+            smpGoodsDto.setPackageSize(null);
+            smpGoodsDto.setProdSeg(null);
+            smpGoodsDto.setComposition(null);
+            smpGoodsDto.setLingXingId(null);
+            smpGoodsDto.setLingXingName(null);
+            smpGoodsDto.setIntegritySample(null);
+            smpGoodsDto.setIntegrityProduct(null);
+
+            HttpResp httpResp = restTemplateService.spmPost(URL + "/goods", smpGoodsDto);
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpGoodsDto, "smp", "商品主数据下发");
+            if (aBoolean) {
+                i++;
+            }
+        }
+        return i;
     }
 
     /**
@@ -255,7 +351,7 @@ public class SmpService {
      * bom下发
      */
     public Integer bom(String[] ids) {
-        int i=0;
+        int i = 0;
         QueryWrapper<PackBom> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("id", Arrays.asList(ids));
         List<PackBom> list = packBomService.list(queryWrapper);
@@ -272,9 +368,9 @@ public class SmpService {
             smpBomDto.setBomCode(packInfo.getCode());
 
             List<BomMaterial> bomMaterials = new ArrayList<>();
-            for (PackBom packBom1 : packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packBom.getForeignId()))) {
+            for (PackBom packBom1 : packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packBom.getForeignId()).eq("pack_type", "packBigGoods"))) {
                 BomMaterial bomMaterial = packBom1.toBomMaterial();
-                if (packBom1.getId().equals(packBom.getId())){
+                if (packBom1.getId().equals(packBom.getId())) {
                     continue;
                 }
                 bomMaterial.setBomId(packInfo.getCode());
@@ -289,7 +385,7 @@ public class SmpService {
                 SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
                 //根据尺码id查询尺码
                 BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());
-                if (basicsdatumSize!=null){
+                if (basicsdatumSize != null) {
                     smpSizeQty.setPSizeCode(basicsdatumSize.getInternalSize());
                     smpSizeQty.setSizeCode(basicsdatumSize.getCode());
                     smpSizeQty.setItemSize(basicsdatumSize.getInternalSize());
@@ -305,7 +401,7 @@ public class SmpService {
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
             packBom.setScmSendFlag("1");
             packBomService.updateById(packBom);
-            if (aBoolean){
+            if (aBoolean) {
                 i++;
             }
         }
@@ -350,7 +446,7 @@ public class SmpService {
      * 样衣下发
      */
     public Integer sample(String[] ids) {
-        int i=0;
+        int i = 0;
         for (SampleDesign sampleDesign : sampleDesignService.listByIds(Arrays.asList(ids))) {
             SmpSampleDto smpSampleDto = sampleDesign.toSmpSampleDto();
             String designerId = sampleDesign.getDesignerId();
@@ -358,10 +454,10 @@ public class SmpService {
             String patternDesignId = sampleDesign.getPatternDesignId();
 
             String merchDesignId = sampleDesign.getMerchDesignId();
-            if (merchDesignId==null){
-                merchDesignId=designerId;
+            if (merchDesignId == null) {
+                merchDesignId = designerId;
             }
-            ArrayList<String> list =new ArrayList<>();
+            ArrayList<String> list = new ArrayList<>();
             list.add(designerId);
             list.add(technicianId);
             list.add(patternDesignId);
@@ -376,7 +472,7 @@ public class SmpService {
 
             HttpResp httpResp = restTemplateService.spmPost(URL + "/sample", smpSampleDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpSampleDto, "smp", "样衣下发");
-            if (aBoolean){
+            if (aBoolean) {
                 i++;
             }
         }
@@ -420,7 +516,7 @@ public class SmpService {
         smpColorDto.setModifiedPerson(baseController.getUser().getName());
         smpColorDto.setModifiedTime(new Date());
         smpColorDto.setActive(true);
-       return true;
+        return true;
     }
 
     //    @Async
@@ -543,8 +639,8 @@ public class SmpService {
 
 //        吊牌查询
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("bulk_style_no",sampleStyleColor.getStyleNo());
-        HangTag hangTag =  hangTagMapper.selectOne(queryWrapper);
+        queryWrapper.eq("bulk_style_no", sampleStyleColor.getStyleNo());
+        HangTag hangTag = hangTagMapper.selectOne(queryWrapper);
 /*        smpGoodsDto.setPriceConfirm();
         smpGoodsDto.setCost();
         smpGoodsDto.setPlanCost();
@@ -580,9 +676,9 @@ public class SmpService {
         smpGoodsDto.setIntegrityProduct();*/
         /*图*/
         if (!CollectionUtils.isEmpty(sampleDesign.getStylePicList())) {
-            smpGoodsDto.setImgList( sampleDesign.getStylePicList().stream().map(AttachmentVo::getUrl).collect(Collectors.toList()));
+            smpGoodsDto.setImgList(sampleDesign.getStylePicList().stream().map(AttachmentVo::getUrl).collect(Collectors.toList()));
         }
-       return goods(smpGoodsDto);
+        return false;
     }
 
 

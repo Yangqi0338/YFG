@@ -52,6 +52,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：基础资料-颜色库 service类
@@ -170,7 +171,10 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
     public Boolean basicsdatumColourLibraryImportExcel(MultipartFile file) throws Exception {
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
+        params.setHeadRows(2);
         List<BasicsdatumColourLibraryExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumColourLibraryExcelDto.class, params);
+//      过滤掉无编码数据
+        list = list.stream().filter(c -> StringUtils.isNotBlank(c.getColourCode())).collect(Collectors.toList());
         /*获取字典值*/
         Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_ColorChroma,C8_ColorType");
         /*色度*/

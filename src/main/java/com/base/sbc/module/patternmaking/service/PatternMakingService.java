@@ -266,6 +266,14 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     ArrayList<ArrayList> sampleCapacityTotalCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String token);
 
+    /**
+     * 产能对比统计
+     * @param patternMakingWeekMonthViewDto 技术看板DTO
+     * @param token token
+     * @return 返回集合数据
+     */
+    ArrayList<ArrayList> capacityContrastStatistics(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String token);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumSupplierDto;
 import com.base.sbc.module.basicsdatum.dto.QueryRevampBasicsdatumSupplierDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
@@ -65,7 +66,8 @@ public class BasicsdatumSupplierController{
 	public List<SelectVo> getBasicsdatumSupplierSelect(@RequestParam(value = "name", required = false) String name) {
 		List<BasicsdatumSupplier> list = basicsdatumSupplierService
 				.list(new QueryWrapper<BasicsdatumSupplier>().select("supplier_code,supplier")
-						.eq("company_code", baseController.getUserCompany()).eq("status", "0").like("supplier", name));
+						.eq("company_code", baseController.getUserCompany()).eq("status", "0")
+						.like(StringUtils.isNotBlank(name), "supplier", name));// .last("limit 50")
 		List<SelectVo> newList = new ArrayList<>();
 		SelectVo vo;
 		for (BasicsdatumSupplier bs : list) {

@@ -21,13 +21,8 @@ import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMeasurementMapper;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumRangeDifferenceMapper;
+import com.base.sbc.module.basicsdatum.entity.*;
+import com.base.sbc.module.basicsdatum.mapper.*;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumCompanyRelationService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumRangeDifferenceService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumRangeDifferenceVo;
@@ -85,6 +80,10 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
 
     private final BasicsdatumModelTypeMapper basicsdatumModelTypeMapper;
 
+    private final BasicsdatumCategoryMeasureMapper basicsdatumCategoryMeasureMapper;
+
+    private final BasicsdatumCompanyRelationMapper basicsdatumCompanyRelationMapper;
+
 /** 自定义方法区 不替换的区域【other_start】 **/
 
     /**
@@ -128,6 +127,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
     public Boolean importExcel(MultipartFile file) throws Exception {
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
+        params.setHeadRows(2);
         List<BasicsdatumRangeDifferenceExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumRangeDifferenceExcelDto.class, params);
         list = list.stream().filter(d -> StringUtils.isNotBlank(d.getCode())).collect(Collectors.toList());
 //             获取字典值
@@ -166,7 +166,20 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
                 basicsdatumRangeDifferenceExcelDto.setBrandCode(StringUtils.join(stringList,","));
 
             }
-            if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getCategoryName())){
+            if (StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getCategoryMeasureCode())) {
+                QueryWrapper q = new QueryWrapper();
+                q.eq("code",basicsdatumRangeDifferenceExcelDto.getCategoryMeasureCode());
+                BasicsdatumCategoryMeasure basicsdatumCategory = basicsdatumCategoryMeasureMapper.selectOne(q);
+                if(!ObjectUtils.isEmpty(basicsdatumCategory)){
+                    q.clear();
+                    q.eq("type","measure");
+                    q.eq("data_id",basicsdatumCategory.getId());
+                    List<BasicsdatumCompanyRelation> basicsdatumCompanyRelationList =  basicsdatumCompanyRelationMapper.selectList(q);
+                    basicsdatumRangeDifferenceExcelDto.setBasicsdatumCompanyRelation(basicsdatumCompanyRelationList);
+                }
+            }
+
+/*            if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getCategoryName())){
                 basicsdatumRangeDifferenceExcelDto.setCategoryName(basicsdatumRangeDifferenceExcelDto.getCategoryName().replaceAll(" ",""));
                 List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getCategorySByNameAndLevel("品类", basicsdatumRangeDifferenceExcelDto.getCategoryName(), "1");
                 List<BasicsdatumCompanyRelation> basicsdatumCompanyRelationList = new ArrayList<>();
@@ -179,7 +192,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
                     basicsdatumCompanyRelationList.add(basicsdatumCompanyRelation);
                 });
                 basicsdatumRangeDifferenceExcelDto.setBasicsdatumCompanyRelation(basicsdatumCompanyRelationList);
-            }
+            }*/
             /*去掉空格*/
             if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getSize())){
                 basicsdatumRangeDifferenceExcelDto.setSize(basicsdatumRangeDifferenceExcelDto.getSize().replaceAll(" ",""));
@@ -285,6 +298,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
                 b.setCompanyCode(baseController.getUserCompany());
                 b.setDataId(id);
                 b.setType("difference");
+                b.setId(null);
             }
             return list;
         }

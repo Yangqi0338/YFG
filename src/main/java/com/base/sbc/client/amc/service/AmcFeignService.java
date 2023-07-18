@@ -9,6 +9,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.TeamVo;
 import com.base.sbc.client.amc.entity.CompanyPost;
@@ -196,11 +197,11 @@ public class AmcFeignService {
      * @param userId 用户id
      */
     public void teamAuth(QueryWrapper qw, String column, String userId) {
-        List<String> planningSeasonIdByUserId = getPlanningSeasonIdByUserId(userId);
-        if (CollUtil.isEmpty(planningSeasonIdByUserId)) {
-            throw new OtherException("您不在团队里面");
-        }
-        qw.in(column, planningSeasonIdByUserId);
+//        List<String> planningSeasonIdByUserId = getPlanningSeasonIdByUserId(userId);
+//        if (CollUtil.isEmpty(planningSeasonIdByUserId)) {
+//            throw new OtherException("您不在团队里面");
+//        }
+//        qw.in(column, planningSeasonIdByUserId);
     }
 
     /**
@@ -326,5 +327,25 @@ public class AmcFeignService {
             throw new OtherException("获取用户数据权限异常");
         }
         return JSONArray.parseArray(JSON.toJSONString(apiResult.getData()), FieldDataPermissionVO.class);
+    }
+
+    /**
+     * 获取数据权限
+     *
+     * @param businessType
+     * @return
+     * @see DataPermissionsBusinessTypeEnum
+     */
+    public void getDataPermissionsForQw(String businessType, AbstractWrapper qw) {
+        List<FieldDataPermissionVO> dataPermissions = getDataPermissions(businessType);
+        if (CollUtil.isNotEmpty(dataPermissions)) {
+            for (FieldDataPermissionVO dataPermission : dataPermissions) {
+                if (CollUtil.isNotEmpty(dataPermission.getFieldValueIds())) {
+                    qw.in(dataPermission.getFieldName(), dataPermission.getFieldValueIds());
+                }
+
+            }
+        }
+
     }
 }

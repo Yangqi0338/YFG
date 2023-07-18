@@ -32,14 +32,29 @@ public class SmpGoodsDto extends SmpBaseDto {
     private String theme;
     /** 单位 */
     private String unit;
+
+    /**大类名称*/
+    private String maxClassName;
+    /** 款式大类 */
+    private String styleBigClass;
+    /**品类名称*/
+    private String categoryName;
+    /**中类名称*/
+    private String middleClassName;
+    /** 款式品类 */
+    private String styleCategory;
     /** 款式中类 */
     private String styleMiddleClass;
+    /**小类名称*/
+    private String minClassName;
     /** 款式小类 */
     private String styleSmallClass;
+
     /** 设计款号 */
     private String designNumber;
     /** 款式名称 */
     private String styleName;
+
     /** 设计师id */
     private String designerId;
     /** 下稿设计师 */
@@ -48,14 +63,19 @@ public class SmpGoodsDto extends SmpBaseDto {
     private String technician;
     /** 工艺员id */
     private String technicianId;
+    /** 版师名称 */
+    private String patternMakerName;
+    /** 版师ID */
+    private String patternMakerId;
+
+
+
     /** 目标成本 */
     private BigDecimal targetCost;
     /** 企划倍率 */
     private BigDecimal planningRate;
-    /** 款式品类 */
-    private String styleCategory;
-    /** 款式大类 */
-    private String styleBigClass;
+
+
     /** 是否主推 */
     private Boolean mainPush;
     /** 生产类型 */
@@ -70,20 +90,11 @@ public class SmpGoodsDto extends SmpBaseDto {
     private String sizeGroupId;
     /** 尺码组名称 */
     private String sizeGroupName;
-    /** 版师名称 */
-    private String patternMakerName;
-    /** 版师ID */
-    private String patternMakerId;
-    /**大类名称*/
-    private String maxClassName;
-    /**中类名称*/
-    private String middleClassName;
-    /**小类名称*/
-    private String minClassName;
+
+
     /**样纸编号*/
     private String styleCode;
-    /**品类名称*/
-    private String categoryName;
+
     /**衣长分类id*/
     private String lengthRangeId;
     /**衣长分类名称*/

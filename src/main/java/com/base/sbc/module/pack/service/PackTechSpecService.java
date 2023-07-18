@@ -47,6 +47,15 @@ public interface PackTechSpecService extends PackBaseService<PackTechSpec> {
     PackTechSpecVo saveByDto(PackTechSpecDto dto);
 
     /**
+     * 生成款式图片
+     *
+     * @param newContent
+     * @param oldContent
+     * @param bean
+     */
+    void genContentImgUrl(String newContent, String oldContent, PackTechSpec bean);
+
+    /**
      * 排序
      *
      * @param id

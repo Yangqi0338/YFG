@@ -7,7 +7,9 @@
 package com.base.sbc.module.sample.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.smp.dto.SmpGoodsDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -31,7 +33,49 @@ public class SampleStyleColor extends BaseDataEntity<String> {
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
+    public SmpGoodsDto toSmpGoodsDto(){
+        SmpGoodsDto smpGoodsDto =new SmpGoodsDto();
+        smpGoodsDto.setBandId(bandCode);
+        try {
+            String[] split = categoryName.split("/");
+            smpGoodsDto.setMaxClassName(split[0].split(",")[0]);
+            smpGoodsDto.setStyleBigClass(split[0].split(",")[1]);
+            smpGoodsDto.setCategoryName(split[1].split(",")[0]);
+            smpGoodsDto.setStyleCategory(split[1].split(",")[1]);
+            smpGoodsDto.setMiddleClassName(split[2].split(",")[0]);
+            smpGoodsDto.setStyleMiddleClass(split[2].split(",")[1]);
+            smpGoodsDto.setMinClassName(split[3].split(",")[0]);
+            smpGoodsDto.setStyleSmallClass(split[3].split(",")[1]);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        smpGoodsDto.setDesignNumber(designNo);
+        smpGoodsDto.setMainPush("1".equals(isMainly));
+        smpGoodsDto.setColorCode(colorCode);
+        smpGoodsDto.setColorName(colorName);
+        smpGoodsDto.setBandId(bandCode);
+        smpGoodsDto.setPrice(tagPrice);
+        smpGoodsDto.setManufacture(manufacturer);
+        smpGoodsDto.setLuxury("1".equals(isLuxury));
+        smpGoodsDto.setSupplierArticle(manufacturerNo);
+        smpGoodsDto.setSupplierArticleColor(manufacturerColor);
+        smpGoodsDto.setSaleType(salesType);
+        smpGoodsDto.setBulkNumber(styleNo);
+        smpGoodsDto.setMainCode(principalStyleNo);
+        smpGoodsDto.setSecCode(accessoryNo);
 
+        IdGen idGen =new IdGen();
+        smpGoodsDto.setId(id);
+        smpGoodsDto.setName(colorName);
+        smpGoodsDto.setCreator(getCreateName());
+        smpGoodsDto.setCreateTime(getCreateDate());
+        smpGoodsDto.setModifiedPerson(getUpdateName());
+        smpGoodsDto.setModifiedTime(getUpdateDate());
+        smpGoodsDto.setPlmId(null);
+        smpGoodsDto.setSyncId(String.valueOf(idGen.nextId()));
+        smpGoodsDto.setActive("0".equals(status));
+        return smpGoodsDto;
+    }
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
@@ -44,12 +88,12 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     /** 样衣图(主图) */
     @ApiModelProperty(value = "样衣图(主图)"  )
     private String sampleDesignPic;
-    /*配色*/
+    /*配色（颜色名称）*/
     private String  colorName;
     /** 颜色规格 */
     @ApiModelProperty(value = "颜色规格"  )
     private String colorSpecification;
-    /*颜色库id*/
+    /*颜色库id（颜色id）*/
     private String colourLibraryId;
     /*颜色编码*/
     private String  colorCode;

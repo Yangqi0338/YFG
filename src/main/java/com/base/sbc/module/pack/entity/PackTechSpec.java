@@ -14,7 +14,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-
 /**
  * 类描述：资料包-工艺说明 实体类
  *
@@ -22,7 +21,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackTechSpec
  * @email your email
- * @date 创建时间：2023-7-17 9:22:35
+ * @date 创建时间：2023-7-17 15:54:53
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -72,6 +71,11 @@ public class PackTechSpec extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "描述")
     private String content;
+    /**
+     * 描述图片:富文本处理生成的图片
+     */
+    @ApiModelProperty(value = "描述图片:富文本处理生成的图片")
+    private String contentImgUrl;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

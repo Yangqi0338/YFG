@@ -375,6 +375,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BaseQueryWrapper<BasicsdatumMaterialPrice> qc = new BaseQueryWrapper<>();
 		qc.eq("company_code", this.getCompanyCode());
 		qc.notEmptyEq("material_code", dto.getMaterialCode());
+		qc.orderByAsc("select_flag");
 		List<BasicsdatumMaterialPrice> list = this.materialPriceService.list(qc);
 		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPricePageVo.class);
 	}
@@ -399,10 +400,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		}
 		this.materialPriceService.saveOrUpdate(entity);
 		// 如果当前是默认：批量修改其他物料未非默认，同时修改主信息的默认物料
-		if (entity.getSelectFlag()) {
+		if (entity != null && entity.getSelectFlag() != null && entity.getSelectFlag() == true) {
 			this.materialPriceService
 					.update(new UpdateWrapper<BasicsdatumMaterialPrice>().eq(COMPANY_CODE, getCompanyCode())
-							.eq("material_code", entity.getMaterialCode()).ne("id", entity.getId()).set("status", "0"));
+							.eq("material_code", entity.getMaterialCode()).ne("id", entity.getId())
+							.set("select_flag", "0"));
+
 			this.update(new UpdateWrapper<BasicsdatumMaterial>().eq(COMPANY_CODE, getCompanyCode())
 					.eq("material_code", entity.getMaterialCode()).set("supplier_id", dto.getSupplierId())
 					.set("supplier_name", dto.getSupplierName()));
@@ -428,14 +431,17 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	public Boolean saveBasicsdatumMaterialWidthGroup(BasicsdatumMaterialWidthGroupSaveDto dto) {
 
 		// 1、 获取规格组的规格集合
-		SpecificationGroup specificationGroup = specificationGroupService.getById(dto.getWidthGroupCode());
+		List<Specification> specifications = null;
+		SpecificationGroup specificationGroup = specificationGroupService
+				.getOne(new QueryWrapper<SpecificationGroup>().eq(COMPANY_CODE, getCompanyCode()).eq("code",
+						dto.getWidthGroupCode()));
 		BaseQueryWrapper<Specification> queryWrapper = new BaseQueryWrapper<>();
 		if (specificationGroup != null) {
 			String specificationIds = specificationGroup.getSpecificationIds();
 			String[] ids = specificationIds.split(",");
 			queryWrapper.in("id", Arrays.asList(ids));
+			specifications = specificationService.list(queryWrapper);
 		}
-		List<Specification> specifications = specificationService.list(queryWrapper);
 		// 2、清理现有物料规格
 		this.materialWidthService.remove(new QueryWrapper<BasicsdatumMaterialWidth>().eq(COMPANY_CODE, getCompanyCode())
 				.eq("material_code", dto.getMaterialCode()));

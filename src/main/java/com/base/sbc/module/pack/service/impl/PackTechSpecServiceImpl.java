@@ -15,8 +15,10 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.MdUtils;
 import com.base.sbc.config.utils.SpElParseUtil;
 import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
@@ -29,12 +31,15 @@ import com.base.sbc.module.pack.vo.PackTechSpecVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 类描述：资料包-工艺说明 service类
@@ -48,12 +53,15 @@ import java.util.List;
 @Service
 public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMapper, PackTechSpec> implements PackTechSpecService {
 
+
+    // 自定义方法区 不替换的区域【other_start】
     @Resource
     private AttachmentService attachmentService;
     @Resource
     private OperaLogService operaLogService;
 
-// 自定义方法区 不替换的区域【other_start】
+    @Autowired
+    private UploadFileService uploadFileService;
 
     @Override
     public List<PackTechSpecVo> list(PackTechSpecSearchDto dto) {
@@ -81,6 +89,7 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
                 long count = count(countQw);
                 pageData.setSort(new BigDecimal(String.valueOf(count + 1)));
             }
+            genContentImgUrl(dto.getContent(), null, pageData);
             save(pageData);
             return BeanUtil.copyProperties(pageData, PackTechSpecVo.class);
         }
@@ -90,9 +99,31 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
             if (dbData == null) {
                 throw new OtherException(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND);
             }
+            String oldContent = dbData.getContent();
             BeanUtil.copyProperties(dto, dbData);
+            genContentImgUrl(dto.getContent(), oldContent, dbData);
             updateById(dbData);
             return BeanUtil.copyProperties(dbData, PackTechSpecVo.class);
+        }
+    }
+
+    @Override
+    public void genContentImgUrl(String newContent, String oldContent, PackTechSpec bean) {
+        if (StrUtil.equals(newContent, oldContent) && StrUtil.isNotBlank(bean.getContentImgUrl())) {
+            return;
+        }
+        if (StrUtil.isBlank(newContent)) {
+            bean.setContentImgUrl("");
+            return;
+        }
+        try {
+            BufferedImage bufferedImage = MdUtils.mdToImage(newContent);
+            String fileName = bean.getForeignId() + StrUtil.DASHED + bean.getPackType() + bean.getSpecType() + ".png";
+            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(bufferedImage, fileName);
+            uploadFileService.delByUrl(bean.getContentImgUrl());
+            bean.setContentImgUrl(Optional.ofNullable(attachmentVo).map(AttachmentVo::getUrl).orElse(""));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
