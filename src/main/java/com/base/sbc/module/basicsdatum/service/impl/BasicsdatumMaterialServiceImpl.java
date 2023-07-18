@@ -375,6 +375,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BaseQueryWrapper<BasicsdatumMaterialPrice> qc = new BaseQueryWrapper<>();
 		qc.eq("company_code", this.getCompanyCode());
 		qc.notEmptyEq("material_code", dto.getMaterialCode());
+		qc.orderByAsc("select_flag");
 		List<BasicsdatumMaterialPrice> list = this.materialPriceService.list(qc);
 		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPricePageVo.class);
 	}
@@ -402,7 +403,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		if (entity != null && entity.getSelectFlag() != null && entity.getSelectFlag() == true) {
 			this.materialPriceService
 					.update(new UpdateWrapper<BasicsdatumMaterialPrice>().eq(COMPANY_CODE, getCompanyCode())
-							.eq("material_code", entity.getMaterialCode()).ne("id", entity.getId()).set("status", "0"));
+							.eq("material_code", entity.getMaterialCode()).ne("id", entity.getId())
+							.set("select_flag", "0"));
+
 			this.update(new UpdateWrapper<BasicsdatumMaterial>().eq(COMPANY_CODE, getCompanyCode())
 					.eq("material_code", entity.getMaterialCode()).set("supplier_id", dto.getSupplierId())
 					.set("supplier_name", dto.getSupplierName()));
