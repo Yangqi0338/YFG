@@ -160,7 +160,8 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 		this.baseMapper.update(null, new UpdateWrapper<SampleStyleOrderBook>()
 				.set(StringUtils.isNotBlank(dto.getImageUrl()), "image_url", dto.getImageUrl())
 				.set(StringUtils.isNotBlank(dto.getLockFlag()), "lock_flag", dto.getLockFlag())
-				.set(StringUtils.isNotBlank(dto.getMeetFlag()), "meet_flag", dto.getMeetFlag()).eq("id", dto.getId()));
+				.set(StringUtils.isNotBlank(dto.getMeetFlag()), "meet_flag", dto.getMeetFlag())
+				.eq("id", StringUtils.convertList(dto.getId())));
 		return true;
 	}
 
