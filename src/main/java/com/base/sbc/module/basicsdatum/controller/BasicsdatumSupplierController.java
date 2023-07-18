@@ -67,7 +67,7 @@ public class BasicsdatumSupplierController{
 		List<BasicsdatumSupplier> list = basicsdatumSupplierService
 				.list(new QueryWrapper<BasicsdatumSupplier>().select("supplier_code,supplier")
 						.eq("company_code", baseController.getUserCompany()).eq("status", "0")
-						.like(StringUtils.isNoneBlank(name), "supplier", name).last("limit 50"));
+						.like(StringUtils.isNotBlank(name), "supplier", name));// .last("limit 50")
 		List<SelectVo> newList = new ArrayList<>();
 		SelectVo vo;
 		for (BasicsdatumSupplier bs : list) {
