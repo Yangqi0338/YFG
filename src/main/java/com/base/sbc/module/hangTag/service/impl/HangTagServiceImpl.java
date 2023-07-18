@@ -10,7 +10,6 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
-import com.base.sbc.config.exception.BusinessException;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangTag.dto.HangTagDTO;
@@ -37,8 +36,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 类描述：吊牌表 service类
@@ -147,32 +147,33 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     }
 
     @Override
-    public List<TagPrinting> hangTagPrinting() {
-        HangTagSearchDTO hangTagSearchDTO = new HangTagSearchDTO();
-        List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagSearchDTO);
-        // TODO 缺少字段
-        List<TagPrinting> tagPrintings = hangTagListVOS.stream()
-                .map(hangTagListVO -> {
-                    TagPrinting tagPrinting = new TagPrinting();
-                    tagPrinting.setColorCode(hangTagListVO.getColorCode());
-                    tagPrinting.setColorDescription(hangTagListVO.getColor());
-                    tagPrinting.setStyleCode(hangTagListVO.getBulkStyleNo());
-                    tagPrinting.setComposition(hangTagListVO.getIngredient());
-                    tagPrinting.setCareSymbols(hangTagListVO.getWashingLabel());
-                    tagPrinting.setQualityClass(hangTagListVO.getQualityGrade());
-                    tagPrinting.setSaftyType(hangTagListVO.getSaftyType());
-                    tagPrinting.setOPStandard(hangTagListVO.getExecuteStandard());
-                    boolean isApproved = HangTagStatusEnum.CONFIRMED.getK().equals(hangTagListVO.getStatus());
-                    tagPrinting.setApproved(isApproved);
-                    tagPrinting.setAttention(hangTagListVO.getWarmTips());
-                    boolean isTechApproved = HangTagStatusEnum.TO_QUALITY_CONTROL_CONFIRMED.getK().equals(hangTagListVO.getStatus());
-                    tagPrinting.setTechApproved(isApproved || isTechApproved);
-                    tagPrinting.setSaftyTitle(hangTagListVO.getSaftyTitle());
-                    tagPrinting.setC8_APPBOM_Comment(hangTagListVO.getWashingMaterialRemarks());
-                    tagPrinting.setStorageRequirement(hangTagListVO.getStorageDemand());
-                    return tagPrinting;
-                }).collect(Collectors.toList());
-        return tagPrintings;
+    public List<TagPrinting> hangTagPrinting(String styleNo, Boolean likeQueryFlag, String companyCode) {
+        String flag = Boolean.TRUE.equals(likeQueryFlag) ? "1" : "0";
+        return hangTagMapper.hangTagPrinting(companyCode, styleNo, flag);
+//        HangTagSearchDTO hangTagSearchDTO = new HangTagSearchDTO();
+//        List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagSearchDTO);
+//        List<TagPrinting> tagPrintings = hangTagListVOS.stream()
+//                .map(hangTagListVO -> {
+//                    TagPrinting tagPrinting = new TagPrinting();
+//                    tagPrinting.setColorCode(hangTagListVO.getColorCode());
+//                    tagPrinting.setColorDescription(hangTagListVO.getColor());
+//                    tagPrinting.setStyleCode(hangTagListVO.getBulkStyleNo());
+//                    tagPrinting.setComposition(hangTagListVO.getIngredient());
+//                    tagPrinting.setCareSymbols(hangTagListVO.getWashingLabel());
+//                    tagPrinting.setQualityClass(hangTagListVO.getQualityGrade());
+//                    tagPrinting.setSaftyType(hangTagListVO.getSaftyType());
+//                    tagPrinting.setOPStandard(hangTagListVO.getExecuteStandard());
+//                    boolean isApproved = HangTagStatusEnum.CONFIRMED.getK().equals(hangTagListVO.getStatus());
+//                    tagPrinting.setApproved(isApproved);
+//                    tagPrinting.setAttention(hangTagListVO.getWarmTips());
+//                    boolean isTechApproved = HangTagStatusEnum.TO_QUALITY_CONTROL_CONFIRMED.getK().equals(hangTagListVO.getStatus());
+//                    tagPrinting.setTechApproved(isApproved || isTechApproved);
+//                    tagPrinting.setSaftyTitle(hangTagListVO.getSaftyTitle());
+//                    tagPrinting.setC8_APPBOM_Comment(hangTagListVO.getWashingMaterialRemarks());
+//                    tagPrinting.setStorageRequirement(hangTagListVO.getStorageDemand());
+//                    return tagPrinting;
+//                }).collect(Collectors.toList());
+//        return tagPrintings;
     }
 
 

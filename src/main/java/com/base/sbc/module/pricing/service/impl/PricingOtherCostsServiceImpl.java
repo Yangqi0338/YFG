@@ -72,7 +72,7 @@ public class PricingOtherCostsServiceImpl extends BaseServiceImpl<PricingOtherCo
                     otherCosts.setPricingCode(pricingCode);
                     return otherCosts;
                 }).collect(Collectors.toList());
-        super.saveBatch(pricingOtherCosts);
+        super.saveOrUpdateBatch(pricingOtherCosts);
     }
 
 

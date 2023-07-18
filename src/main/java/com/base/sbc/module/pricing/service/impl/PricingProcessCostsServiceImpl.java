@@ -72,7 +72,7 @@ public class PricingProcessCostsServiceImpl extends BaseServiceImpl<PricingProce
                     pricingProcessCosts.setPricingCode(pricingCode);
                     return pricingProcessCosts;
                 }).collect(Collectors.toList());
-        super.saveBatch(processCosts);
+        super.saveOrUpdateBatch(processCosts);
     }
 
 // 自定义方法区 不替换的区域【other_start】

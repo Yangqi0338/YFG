@@ -13,13 +13,14 @@
 
     <select id="queryList" resultType="com.base.sbc.module.hangTag.vo.HangTagListVO">
         SELECT
-        tsd.style_no AS style,
+        CONCAT( tsd.design_no, tsd.style_name ) AS style,
         tsd.devt_type AS produceType,
         tsd.style_type AS styleType,
-        tsd.size_range AS modelType,
+        tsd.design_no AS designNo,
         tssc.style_no AS bulkStyleNo,
         tssc.color_name AS color,
         tssc.tag_price AS tagPrice,
+        tbmt.model_Type AS modelType,
         ht.id,
         ht.confirm_date,
         ht.product_name AS productName,
@@ -34,6 +35,7 @@
         GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) AS ingredient,
         ht.warm_tips,
         ht.washing_label,
+        ht.storage_demand,
         ht.producer,
         ht.down_content,
         ht.special_spec,
@@ -49,6 +51,7 @@
         JOIN t_sample_design tsd ON tssc.sample_design_id = tsd.id
         LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
         LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
+        LEFT JOIN t_basicsdatum_model_type tbmt ON tsd.size_range = tbmt.id
         <where>
             tssc.del_flag = 0
             AND tssc.company_code = #{dto.companyCode}
@@ -68,6 +71,64 @@
             <if test="dto.confirmDate != null and dto.confirmDate != ''">
                 AND ht.confirm_date = #{dto.confirmDate}
             </if>
+
+            <if test="dto.styleNo != null and dto.styleNo != ''">
+                <choose>
+                    <when test='dto.likeQueryFlag == "1"'>
+                        AND tssc.style_no like concat('%',#{styleNo},'%')
+                    </when>
+                    <otherwise>
+                        AND tssc.style_no = #{styleNo}
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+        GROUP BY tssc.style_no
+    </select>
+
+    <select id="hangTagPrinting" resultType="com.base.sbc.module.smp.entity.TagPrinting">
+        SELECT
+        tssc.color_name AS ColorDescription,
+        tssc.color_code AS ColorCode,
+        tssc.style_no AS StyleCode,
+        tssc.tag_price AS C8_Colorway_SalesPrice,
+        tsd.subject as Theme
+        tsd.prod_category AS C8_Collection_ProdCategory,
+        tsd.prod_category3rd AS C8_Style_3rdCategory,
+        tsd.prod_category2rd AS C8_Style_2ndCategory,
+        tsd.size_range AS SizeRangeCode,
+        tbmt.model_Type AS SizeRangeName,
+        tsd.dev_class AS ProductType,
+        tsd.prod_category1st AS C8_1stProdCategory,
+        tbmt.model_Type AS SizeRangeDimensionType,
+        GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) AS Composition,
+        ht.washing_label AS CareSymbols,
+        ht.quality_grade AS QualityClass,
+        ht.quality_grade AS ProductName,
+        ht.safty_type AS SaftyType,
+        ht.execute_standard AS OPStandard,
+        ht.warm_tips AS Attention,
+        ht.safty_title AS SaftyTitle,
+        ht.washing_material_remarks AS C8_APPBOM_Comment,
+        ht.storage_demand AS StorageRequirement,
+        ht.storage_demand AS StorageRequirement
+        FROM
+        t_sample_style_color tssc
+        JOIN t_sample_design tsd ON tssc.sample_design_id = tsd.id
+        LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
+        LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
+        LEFT JOIN t_basicsdatum_model_type tbmt ON tsd.size_range = tbmt.id
+        <where>
+            tssc.del_flag = 0
+            AND tssc.company_code = #{dto.companyCode}
+            <choose>
+                <when test='dto.likeQueryFlag == "1"'>
+                    AND tssc.style_no like concat('%',#{styleNo},'%')
+                </when>
+                <otherwise>
+                    AND tssc.style_no = #{styleNo}
+                </otherwise>
+            </choose>
         </where>
         GROUP BY tssc.style_no
     </select>

@@ -82,7 +82,7 @@ public class PricingMaterialCostsServiceImpl extends BaseServiceImpl<PricingMate
                     return pricingMaterialCosts;
                 }).collect(Collectors.toList());
 
-        super.saveBatch(materialCosts);
+        super.saveOrUpdateBatch(materialCosts);
     }
 // 自定义方法区 不替换的区域【other_end】
 

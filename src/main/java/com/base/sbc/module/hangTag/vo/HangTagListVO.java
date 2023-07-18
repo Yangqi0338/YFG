@@ -41,6 +41,11 @@ public class HangTagListVO {
      */
     @ApiModelProperty(value = "款式")
     private String style;
+    /**
+     * 设计款号
+     */
+    @ApiModelProperty(value = "设计款号")
+    private String designNo;
 
     /**
      * 生产类型

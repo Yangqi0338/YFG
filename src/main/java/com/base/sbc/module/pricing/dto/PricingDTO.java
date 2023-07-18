@@ -44,7 +44,7 @@ public class PricingDTO {
      * 报价日期
      */
     @ApiModelProperty(value = "报价日期")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date quoteDate;
     /**
      * 报价人
@@ -167,13 +167,13 @@ public class PricingDTO {
      * 计划下单时间
      */
     @ApiModelProperty(value = "计划下单时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date planBillDate;
     /**
      * 交货日期
      */
     @ApiModelProperty(value = "交货日期")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date giveDate;
     /**
      * 生产周期

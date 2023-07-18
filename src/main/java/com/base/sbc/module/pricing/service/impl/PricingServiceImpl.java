@@ -187,16 +187,28 @@ public class PricingServiceImpl extends BaseServiceImpl<PricingMapper, Pricing> 
         pricingColorVO.setColor(pricingVO.getColor());
         pricingColorVO.setColorCode(pricingVO.getColorCode());
         pricingColorVO.setMaterialCost(totalPrice);
-        pricingVO.setPricingColors(Lists.newArrayList(pricingColorVO));
+
+        PricingColorVO pricingColorVO1 = new PricingColorVO();
+        pricingColorVO1.setColor("黑色");
+        pricingColorVO1.setColorCode("000");
+        pricingColorVO1.setMaterialCost(totalPrice);
+        pricingVO.setPricingColors(Lists.newArrayList(pricingColorVO, pricingColorVO1));
         pricingVO.setPricingProcessCosts(this.getPricingProcessCostsVOS(id));
         return pricingVO;
     }
 
     private Map<String, List<PricingMaterialCostsVO>> getPricingMaterialCostsMap(String id, String colorCode) {
         List<PricingMaterialCostsVO> pricingMaterialCostsVOS = packBomService.getPricingMaterialCostsByForeignId(id);
+
         if (CollectionUtils.isEmpty(pricingMaterialCostsVOS)) {
             return new HashMap<>(0);
         }
+        List<String> categoryName = pricingMaterialCostsVOS.stream()
+                .filter(x -> StringUtils.isNotEmpty(x.getCategoryName()))
+                .map(e -> e.getCategoryName().split("-")[0])
+                .collect(Collectors.toList());
+        // TODO 通过类别名称获取类别id
+
         return pricingMaterialCostsVOS.stream()
                 .peek(e -> {
                     BigDecimal lossRate = BigDecimalUtil.add(BigDecimal.ONE, BigDecimalUtil.div(e.getLossRate(), BigDecimal.valueOf(100), 2), 2);
@@ -213,6 +225,7 @@ public class PricingServiceImpl extends BaseServiceImpl<PricingMapper, Pricing> 
             return Lists.newArrayList();
         }
         return pricingProcessCostsVOS.stream()
+                .filter(Objects::nonNull)
                 .peek(e -> e.setQuotationPrice(BigDecimalUtil.mul(2, e.getStandardUnitPrices(), e.getMultiple())))
                 .collect(Collectors.toList());
     }

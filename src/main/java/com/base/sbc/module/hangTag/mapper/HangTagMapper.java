@@ -11,6 +11,7 @@ import com.base.sbc.module.hangTag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangTag.entity.HangTag;
 import com.base.sbc.module.hangTag.vo.HangTagListVO;
 import com.base.sbc.module.hangTag.vo.HangTagVO;
+import com.base.sbc.module.smp.entity.TagPrinting;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -36,6 +37,9 @@ public interface HangTagMapper extends BaseMapper<HangTag> {
      * @return
      */
     List<HangTagListVO> queryList(@Param("dto") HangTagSearchDTO dto);
+
+
+    List<TagPrinting> hangTagPrinting(@Param("companyCode") String companyCode, @Param("styleNo") String styleNo, String likeQueryFlag);
 
     /**
      * 通过id查询详情

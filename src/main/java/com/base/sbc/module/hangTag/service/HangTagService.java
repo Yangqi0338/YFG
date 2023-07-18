@@ -75,7 +75,7 @@ public interface HangTagService extends BaseService<HangTag> {
      *
      * @return
      */
-    List<TagPrinting> hangTagPrinting();
+    List<TagPrinting> hangTagPrinting(String styleNo, Boolean likeQueryFlag, String companyCode);
 
 
 // 自定义方法区 不替换的区域【other_end】

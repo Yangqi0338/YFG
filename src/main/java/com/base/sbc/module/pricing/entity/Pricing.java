@@ -308,6 +308,11 @@ public class Pricing extends BaseDataEntity<String> {
     @ApiModelProperty(value = "核价模板id")
     private String pricingTemplateId;
     /**
+     * 核价模板名称
+     */
+    @ApiModelProperty(value = "核价模板名称")
+    private String pricingTemplateName;
+    /**
      * 版本号(核价次数)
      */
     @ApiModelProperty(value = "版本号(核价次数)")

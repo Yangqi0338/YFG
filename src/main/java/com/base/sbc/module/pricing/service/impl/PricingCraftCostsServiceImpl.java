@@ -72,7 +72,7 @@ public class PricingCraftCostsServiceImpl extends BaseServiceImpl<PricingCraftCo
                     pricingCraftCosts.setPricingCode(pricingCode);
                     return pricingCraftCosts;
                 }).collect(Collectors.toList());
-        super.saveBatch(pricingColors);
+        super.saveOrUpdateBatch(pricingColors);
     }
 
 
