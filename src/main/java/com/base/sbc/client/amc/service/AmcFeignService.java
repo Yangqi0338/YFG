@@ -197,11 +197,11 @@ public class AmcFeignService {
      * @param userId 用户id
      */
     public void teamAuth(QueryWrapper qw, String column, String userId) {
-        List<String> planningSeasonIdByUserId = getPlanningSeasonIdByUserId(userId);
-        if (CollUtil.isEmpty(planningSeasonIdByUserId)) {
-            throw new OtherException("您不在团队里面");
-        }
-        qw.in(column, planningSeasonIdByUserId);
+//        List<String> planningSeasonIdByUserId = getPlanningSeasonIdByUserId(userId);
+//        if (CollUtil.isEmpty(planningSeasonIdByUserId)) {
+//            throw new OtherException("您不在团队里面");
+//        }
+//        qw.in(column, planningSeasonIdByUserId);
     }
 
     /**
