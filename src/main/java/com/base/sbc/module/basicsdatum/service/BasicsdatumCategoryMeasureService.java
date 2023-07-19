@@ -52,7 +52,7 @@ public interface BasicsdatumCategoryMeasureService extends BaseService<Basicsdat
         * @param response
         * @return
         */
-        void basicsdatumCategoryMeasureDeriveExcel(HttpServletResponse response) throws Exception;
+        void basicsdatumCategoryMeasureDeriveExcel(HttpServletResponse response,QueryCategoryMeasureDto queryDto) throws Exception;
 
 
         /**

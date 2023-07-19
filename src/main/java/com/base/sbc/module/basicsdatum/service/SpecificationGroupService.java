@@ -1,8 +1,12 @@
 package com.base.sbc.module.basicsdatum.service;
 
+import com.base.sbc.module.basicsdatum.dto.SpecificationGroupDto;
 import com.base.sbc.module.basicsdatum.entity.SpecificationGroup;
 import com.base.sbc.module.common.service.BaseService;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -15,5 +19,24 @@ public interface SpecificationGroupService extends BaseService<SpecificationGrou
     boolean saveSpecification(SpecificationGroup specificationGroup);
 
     List<Map<String, String>> listIdName();
+
+
+
+
+    /**
+     * 基础资料-门幅组导入
+     *
+     * @param file
+     * @return
+     */
+    Boolean specificationGroupImportExcel(MultipartFile file) throws  Exception;
+
+    /**
+     * 基础资料-门幅组导出
+     *
+     * @param response
+     * @return
+     */
+    void specificationGroupDeriveExcel(HttpServletResponse response, SpecificationGroupDto specificationGroupDto) throws Exception;
 
 }

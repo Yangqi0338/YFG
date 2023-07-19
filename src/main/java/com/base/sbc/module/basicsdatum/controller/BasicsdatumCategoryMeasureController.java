@@ -58,8 +58,8 @@ public class BasicsdatumCategoryMeasureController{
 
 	@ApiOperation(value = "/导出")
 	@GetMapping("/basicsdatumCategoryMeasureDeriveExcel")
-	public void basicsdatumCategoryMeasureDeriveExcel(HttpServletResponse response) throws Exception {
-       basicsdatumCategoryMeasureService.basicsdatumCategoryMeasureDeriveExcel(response);
+	public void basicsdatumCategoryMeasureDeriveExcel(HttpServletResponse response,QueryCategoryMeasureDto queryDto) throws Exception {
+       basicsdatumCategoryMeasureService.basicsdatumCategoryMeasureDeriveExcel(response,queryDto);
 	}
 
 	@ApiOperation(value = "批量启用/停用", notes = "ids:, status:0启用1停用")
