@@ -22,7 +22,12 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeMapper;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
+import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.formType.entity.FieldVal;
+import com.base.sbc.module.formType.service.FieldValService;
+import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.hangTag.entity.HangTag;
 import com.base.sbc.module.hangTag.mapper.HangTagMapper;
@@ -103,6 +108,10 @@ public class SmpService {
 
     private final CcmFeignService ccmFeignService;
 
+    private final FieldValService fieldValService;
+
+    private final AttachmentService attachmentService;
+
 
     private static final String URL = "http://10.98.250.31:7006/pdm";
     //private static final String URL = "http://smp-i.eifini.com/service-manager/pdm";
@@ -117,6 +126,14 @@ public class SmpService {
             SmpGoodsDto smpGoodsDto = sampleStyleColor.toSmpGoodsDto();
 
             SampleDesign sampleDesign = sampleDesignService.getById(sampleStyleColor.getSampleDesignId());
+
+            // 款式图片
+            List<AttachmentVo> stylePicList = attachmentService.findByforeignId(sampleDesign.getId(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
+            List<String> imgList=new ArrayList<>();
+            for (AttachmentVo attachmentVo : stylePicList) {
+                imgList.add(attachmentVo.getUrl());
+            }
+            smpGoodsDto.setImgList(imgList);
 
             //设计师id,下稿设计师,工艺员,工艺员id,版师名称,版师ID
             smpGoodsDto.setDesigner(sampleDesign.getDesigner());
@@ -147,10 +164,21 @@ public class SmpService {
             smpGoodsDto.setShapeName(sampleDesign.getPlateType());
 
 
+
             Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Band");
             Map<String, String> map = dictInfoToMap.get("C8_Band");
             smpGoodsDto.setBandName( map.get(sampleDesign.getBandCode()));
 
+            List<FieldVal> list1 = fieldValService.list(sampleDesign.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+            for (FieldVal fieldVal : list1) {
+                if ("袖型".equals(fieldVal.getFieldName())){
+
+                }
+            }
+            System.out.println(list1);
+            if (true){
+                return null;
+            }
             smpGoodsDto.setProductTypeId(null);
             smpGoodsDto.setProductType(null);
             smpGoodsDto.setUnit(null);

@@ -24,6 +24,15 @@ public class SmpController extends BaseController {
     private final SmpService smpService;
 
     /**
+     * 商品主数据下发（款式配色）
+     */
+    @PutMapping("/goods")
+    public ApiResult goods(String[] ids){
+        Integer i = smpService.goods(ids);
+        return insertSuccess("下发："+ids.length+"条，成功："+i+"条");
+    }
+
+    /**
      * 物料主数据下发(物料档案)
      */
     @PutMapping("/material")
