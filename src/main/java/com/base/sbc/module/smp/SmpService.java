@@ -46,12 +46,14 @@ import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
 import lombok.RequiredArgsConstructor;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.util.ObjectUtils;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -116,6 +118,13 @@ public class SmpService {
     private static final String URL = "http://10.98.250.31:7006/pdm";
     //private static final String URL = "http://smp-i.eifini.com/service-manager/pdm";
 
+
+    public static void main(String[] args) throws IOException {
+
+        String[] strings = new ObjectMapper().readValue("[\"S0000\",\"S0010\",\"S0020\"]", String[].class);
+        System.out.println(strings[0]);
+    }
+
     /**
      * 商品主数据下发
      */
@@ -125,7 +134,7 @@ public class SmpService {
         for (SampleStyleColor sampleStyleColor : sampleStyleColors) {
             SmpGoodsDto smpGoodsDto = sampleStyleColor.toSmpGoodsDto();
 
-            SampleDesign sampleDesign = sampleDesignService.getById(sampleStyleColor.getSampleDesignId());
+            SampleDesignVo sampleDesign = sampleDesignService.getDetail(sampleStyleColor.getSampleDesignId());
 
             // 款式图片
             List<AttachmentVo> stylePicList = attachmentService.findByforeignId(sampleDesign.getId(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
@@ -169,25 +178,10 @@ public class SmpService {
             Map<String, String> map = dictInfoToMap.get("C8_Band");
             smpGoodsDto.setBandName( map.get(sampleDesign.getBandCode()));
 
-            List<FieldVal> list1 = fieldValService.list(sampleDesign.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-            for (FieldVal fieldVal : list1) {
-                if ("袖型".equals(fieldVal.getFieldName())){
+            //List<FieldVal> list1 = fieldValService.list(sampleDesign.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
 
-                }
-            }
-            System.out.println(list1);
-            if (true){
-                return null;
-            }
-            smpGoodsDto.setProductTypeId(null);
-            smpGoodsDto.setProductType(null);
-            smpGoodsDto.setUnit(null);
-            smpGoodsDto.setPlanningRate(null);
-            smpGoodsDto.setRegion(null);
-            smpGoodsDto.setSalesGroup(null);
-            smpGoodsDto.setSizeGroupId(null);
-            smpGoodsDto.setSizeGroupName(null);
-            smpGoodsDto.setStyleCode(null);
+
+            //动态字段
             smpGoodsDto.setLengthRangeId(null);
             smpGoodsDto.setLengthRangeName(null);
             smpGoodsDto.setCoatLength(null);
@@ -208,6 +202,43 @@ public class SmpService {
             smpGoodsDto.setProfileName(null);
             smpGoodsDto.setFlowerId(null);
             smpGoodsDto.setFlowerName(null);
+            smpGoodsDto.setLingXingId(null);
+            smpGoodsDto.setLingXingName(null);
+
+            if (!CollectionUtils.isEmpty(sampleDesign.getDimensionLabels())) {
+                List<FieldManagementVo> fieldManagementVoList = sampleDesign.getDimensionLabels();
+                fieldManagementVoList.forEach(m -> {
+                    try {
+                        BeanUtil.setProperty(smpGoodsDto, m.getFieldName(), m.getVal());
+                    } catch (Exception e) {
+
+                    }
+                });
+            }
+
+            //try {
+            //    for (FieldVal fieldVal : list1) {
+            //        if ("袖型".equals(fieldVal.getFieldName())){
+            //            smpGoodsDto.setSleeveId(new ObjectMapper().readValue(fieldVal.getVal(), String[].class)[0]);
+            //        }
+            //    }
+            //}catch (Exception e){
+            //    e.printStackTrace();
+            //}
+
+            if (true){
+                return null;
+            }
+            smpGoodsDto.setProductTypeId(null);
+            smpGoodsDto.setProductType(null);
+            smpGoodsDto.setUnit(null);
+            smpGoodsDto.setPlanningRate(null);
+            smpGoodsDto.setRegion(null);
+            smpGoodsDto.setSalesGroup(null);
+            smpGoodsDto.setSizeGroupId(null);
+            smpGoodsDto.setSizeGroupName(null);
+            smpGoodsDto.setStyleCode(null);
+
             smpGoodsDto.setTextureId(null);
             smpGoodsDto.setTextureName(null);
             smpGoodsDto.setBandName(null);
@@ -232,8 +263,7 @@ public class SmpService {
             smpGoodsDto.setPackageSize(null);
             smpGoodsDto.setProdSeg(null);
             smpGoodsDto.setComposition(null);
-            smpGoodsDto.setLingXingId(null);
-            smpGoodsDto.setLingXingName(null);
+
             smpGoodsDto.setIntegritySample(null);
             smpGoodsDto.setIntegrityProduct(null);
 
