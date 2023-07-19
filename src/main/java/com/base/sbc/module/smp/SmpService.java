@@ -4,6 +4,7 @@ import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import cn.hutool.core.bean.BeanUtil;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -100,6 +101,8 @@ public class SmpService {
 
     private final HangTagMapper hangTagMapper;
 
+    private final CcmFeignService ccmFeignService;
+
 
     private static final String URL = "http://10.98.250.31:7006/pdm";
     //private static final String URL = "http://smp-i.eifini.com/service-manager/pdm";
@@ -142,7 +145,11 @@ public class SmpService {
             smpGoodsDto.setStyleName(sampleDesign.getStyleName());
             smpGoodsDto.setTargetCost(sampleDesign.getProductCost());
             smpGoodsDto.setShapeName(sampleDesign.getPlateType());
-            smpGoodsDto.setBandName(null);
+
+
+            Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Band");
+            Map<String, String> map = dictInfoToMap.get("C8_Band");
+            smpGoodsDto.setBandName( map.get(sampleDesign.getBandCode()));
 
             smpGoodsDto.setProductTypeId(null);
             smpGoodsDto.setProductType(null);
