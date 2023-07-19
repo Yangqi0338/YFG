@@ -9,6 +9,8 @@ package com.base.sbc.module.basicsdatum.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.smp.dto.SmpColorDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -43,6 +45,18 @@ public class BasicsdatumColourLibrary extends BaseDataEntity<String> {
         smpColorDto.setModifiedPerson(getUpdateName());
         smpColorDto.setModifiedTime(getUpdateDate());
 
+        if (StringUtils.isEmpty(colourCode)){
+            throw new OtherException("颜色编码不能为空");
+        }
+        if (StringUtils.isEmpty(colourName)){
+            throw new OtherException("颜色名称不能为空");
+        }
+        if (StringUtils.isEmpty(colorType)){
+            throw new OtherException("色系编码不能为空");
+        }
+        if (StringUtils.isEmpty(colorTypeName)){
+            throw new OtherException("色系名称不能为空");
+        }
         smpColorDto.setColorName(colourName);
         smpColorDto.setColorCode(colourCode);
         smpColorDto.setColorType(colorType);
