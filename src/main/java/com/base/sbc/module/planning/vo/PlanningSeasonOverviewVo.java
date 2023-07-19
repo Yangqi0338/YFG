@@ -54,7 +54,7 @@ public class PlanningSeasonOverviewVo extends PlanningCategoryItem {
     @ApiModelProperty(value = "波段(编码)")
     private String bandCode;
     @ApiModelProperty(value = "波段(名称)")
-    private String bandCodeName;
+    private String bandName;
 
     @ApiModelProperty(value = "生产模式")
     private String devtType;

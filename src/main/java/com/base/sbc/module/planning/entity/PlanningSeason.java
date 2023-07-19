@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningSeason
  * @email your email
- * @date 创建时间：2023-7-19 15:38:02
+ * @date 创建时间：2023-7-19 19:19:10
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -27,8 +27,8 @@ import lombok.EqualsAndHashCode;
 @ApiModel("企划-产品季 PlanningSeason")
 public class PlanningSeason extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private static final long serialVersionUID = 1L;
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/

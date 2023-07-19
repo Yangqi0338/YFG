@@ -23,7 +23,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
  * @email your email
- * @date 创建时间：2023-7-19 15:38:06
+ * @date 创建时间：2023-7-19 19:19:14
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
