@@ -1,8 +1,12 @@
 package com.base.sbc.config.common;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.util.StringUtils;
+
+import java.util.Collection;
 
 /**
  * @author 卞康
@@ -12,6 +16,15 @@ import org.springframework.util.StringUtils;
 public class BaseQueryWrapper<T> extends QueryWrapper<T> {
     public QueryWrapper<T> notEmptyEq(String column, Object val) {
         return this.eq(!StringUtils.isEmpty(val), column, val);
+    }
+
+
+    public QueryWrapper<T> notEmptyIn(String column, Collection<?> coll) {
+        return this.in(CollUtil.isNotEmpty(coll), column, coll);
+    }
+
+    public QueryWrapper<T> notEmptyIn(String column, String str) {
+        return this.in(StrUtil.isNotBlank(str), column, StrUtil.split(str, CharUtil.COMMA));
     }
 
     public QueryWrapper<T> notEmptyLike(String column, Object val) {

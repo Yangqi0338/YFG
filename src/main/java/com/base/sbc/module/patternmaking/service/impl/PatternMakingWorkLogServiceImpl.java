@@ -8,19 +8,21 @@ package com.base.sbc.module.patternmaking.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternmaking.dto.PatternMakingWorkLogSaveDto;
 import com.base.sbc.module.patternmaking.dto.PatternMakingWorkLogSearchDto;
-import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.entity.PatternMakingWorkLog;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingWorkLogMapper;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.service.PatternMakingWorkLogService;
 import com.base.sbc.module.patternmaking.vo.PatternMakingWorkLogVo;
+import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +45,8 @@ public class PatternMakingWorkLogServiceImpl extends BaseServiceImpl<PatternMaki
 
     @Autowired
     private PatternMakingService patternMakingService;
-
+    @Autowired
+    private PreProductionSampleTaskService preProductionSampleTaskService;
 
     @Override
     public List<PatternMakingWorkLogVo> findList(PatternMakingWorkLogSearchDto dto) {
@@ -56,13 +59,19 @@ public class PatternMakingWorkLogServiceImpl extends BaseServiceImpl<PatternMaki
         }
         List<PatternMakingWorkLogVo> voList = BeanUtil.copyToList(list, PatternMakingWorkLogVo.class);
         // 设置人员名称
-        PatternMaking patternMaking = patternMakingService.getById(dto.getPatternMakingId());
-        if (patternMaking != null) {
+        Object o = null;
+        String dataType = Opt.ofBlankAble(voList.get(0).getDataType()).orElse(BasicNumber.ZERO.getNumber());
+        if (StrUtil.equals(dataType, BasicNumber.ZERO.getNumber())) {
+            o = patternMakingService.getById(dto.getPatternMakingId());
+        } else if (StrUtil.equals(dataType, BasicNumber.ONE.getNumber())) {
+            o = preProductionSampleTaskService.getById(dto.getPatternMakingId());
+        }
+        if (o != null) {
             String worker = null;
             if (StrUtil.equals("裁剪工", dto.getUserType())) {
-                worker = patternMaking.getCutterName();
+                worker = BeanUtil.getProperty(o, "cutterName");
             } else if (StrUtil.equals("车缝工", dto.getUserType())) {
-                worker = patternMaking.getStitcher();
+                worker = BeanUtil.getProperty(o, "stitcher");
             }
             for (PatternMakingWorkLogVo vo : voList) {
                 vo.setWorker(worker);

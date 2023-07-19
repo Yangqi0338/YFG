@@ -16,9 +16,7 @@ import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /** 
  * 类描述：打版管理 service类
@@ -231,14 +229,6 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
     List<PatternDesignVo> pdTaskDetail(String companyCode);
 
     PageInfo queryPageInfo(PatternMakingCommonPageSearchDto dto);
-
-    /**
-     * 是否有下一个节点状态的权限
-     *
-     * @param userId
-     * @param id
-     */
-    PatternMaking hasNextNodeStatusAuth(String userId, String id);
 
 
     /**

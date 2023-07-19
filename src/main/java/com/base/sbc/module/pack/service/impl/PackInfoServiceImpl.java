@@ -42,6 +42,7 @@ import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
 import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.service.PreProductionSampleService;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -112,6 +113,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private FlowableService flowableService;
     @Resource
     private UreportService ureportService;
+    @Resource
+    private PreProductionSampleService preProductionSampleService;
 
     @Override
     public PageInfo<SampleDesignPackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -225,6 +228,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
         packInfoStatusService.updateById(packInfoStatus);
         //updateById(packInfo);
+        //生成产前样
+        preProductionSampleService.createByPackInfo(packInfo);
         return true;
     }
 

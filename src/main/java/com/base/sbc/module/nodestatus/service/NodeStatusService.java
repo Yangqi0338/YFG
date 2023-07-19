@@ -6,19 +6,21 @@
  *****************************************************************************/
 package com.base.sbc.module.nodestatus.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.nodestatus.dto.NodeStatusChangeDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 
 import java.util.List;
 
-/** 
+/**
  * 类描述：节点状态记录 service类
- * @address com.base.sbc.module.nodestatus.service.NodeStatusService
+ *
  * @author lxl
+ * @version 1.0
+ * @address com.base.sbc.module.nodestatus.service.NodeStatusService
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-5-29 17:34:59
- * @version 1.0  
  */
 public interface NodeStatusService extends BaseService<NodeStatus> {
 
@@ -35,12 +37,14 @@ public interface NodeStatusService extends BaseService<NodeStatus> {
 
     /**
      * 完成当前节点
+     *
      * @param dataId
      */
     NodeStatus finishCurrentNodeStatus(String dataId);
 
     /**
      * 完成指定节点
+     *
      * @param dataId
      */
     NodeStatus finishNodeStatus(String dataId, String node, String status);
@@ -77,6 +81,12 @@ public interface NodeStatusService extends BaseService<NodeStatus> {
      * @param mapKey
      */
     void setNodeStatusToListBean(List list, String dataIdKey, String listKey, String mapKey);
+
+    Object hasNodeStatusAuth(String nodeStatusConfigKey, String userId, String dataId, BaseService baseService);
+
+    JSONObject getNodeStatusConfig(String nodeStatusConfigKey, String userId, String node, String status, String dataId, BaseService baseService);
+
+    void setNodeStatus(List list);
 
 
 // 自定义方法区 不替换的区域【other_end】
