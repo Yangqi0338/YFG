@@ -82,7 +82,6 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
     @Resource
 	private SmpService smpService;
 
-	private final CcmFeignService ccmFeignService;
 
 	private final PackInfoMapper packInfoMapper;
 
@@ -374,22 +373,21 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
         QueryWrapper queryWrapper=new QueryWrapper();
         queryWrapper.in("id",StringUtils.convertList(ids));
         List<SampleStyleColor> list =  baseMapper.selectList(queryWrapper);
-        /*获取字典值*/
-        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_ColorChroma,C8_ColorType");
-        Map<String, String> mapColorChroma = dictInfoToMap.get("C8_ColorChroma");
-        Map<String, String> mapColorType = dictInfoToMap.get("C8_ColorType");
-        list.forEach(sampleStyleColor -> {
-            /*查询颜色*/
-            BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(sampleStyleColor.getColourLibraryId());
-            /*下发颜色*/
-            smpService.issueColor(basicsdatumColourLibrary,mapColorChroma,mapColorType,baseController);
-           /*查询样衣数据*/
-            SampleDesignVo sampleDesign =  sampleDesignService.getDetail(sampleStyleColor.getSampleDesignId());
-            /*下发商品*/
-            smpService.issueGoods(sampleStyleColor,sampleDesign,dictInfoToMap);
-
-
-        });
+        if (!CollectionUtils.isEmpty(list)) {
+            /*获取未发送的数据*/
+            List<SampleStyleColor> sampleStyleColorList = list.stream().filter(s -> s.getIsIssueScm().equals("0")).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(sampleStyleColorList)) {
+                throw new OtherException("该配色已下发");
+            }
+            List<String> stringListId =  sampleStyleColorList.stream().map(SampleStyleColor::getId).collect(Collectors.toList());
+            List<String> stringListColourLibraryId =  sampleStyleColorList.stream().map(SampleStyleColor::getColourLibraryId).collect(Collectors.toList());
+            Integer i = smpService.goods(stringListId.toArray(new String[0]));
+            i += smpService.color(stringListColourLibraryId.toArray(new String[0]));
+            if (i > 0) {
+                sampleStyleColorList.forEach(s-> s.setIsIssueScm("1"));
+                this.updateBatchById(sampleStyleColorList);
+            }
+        }
         return true;
     }
 
