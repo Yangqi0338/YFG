@@ -369,6 +369,12 @@ public class PricingVO extends BaseDataEntity<String> {
     private String colorCode;
     private String color;
 
+    /**
+     * 核价公式
+     */
+    @ApiModelProperty(value = "核价公式")
+    private String pricingFormula;
+
 
 }
 

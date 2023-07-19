@@ -336,6 +336,10 @@ public class PricingDTO {
      */
     @ApiModelProperty(value = "核价加工费用")
     private List<PricingProcessCostsDTO> pricingProcessCosts;
-
+    /**
+     * 核价公式
+     */
+    @ApiModelProperty(value = "核价公式")
+    private String pricingFormula;
 }
 

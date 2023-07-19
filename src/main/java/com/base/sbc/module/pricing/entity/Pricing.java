@@ -343,6 +343,12 @@ public class Pricing extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "审核状态：0：未提交，1：待审核，2：审核通过，3：审核不通过）")
     private String confirmStatus;
+
+    /**
+     * 核价公式
+     */
+    @ApiModelProperty(value = "核价公式")
+    private String pricingFormula;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
