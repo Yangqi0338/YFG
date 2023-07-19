@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangTag.dto.HangTagDTO;
 import com.base.sbc.module.hangTag.dto.HangTagSearchDTO;
@@ -24,6 +25,7 @@ import com.base.sbc.module.hangTag.service.HangTagLogService;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.hangTag.vo.HangTagListVO;
 import com.base.sbc.module.hangTag.vo.HangTagVO;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -60,6 +62,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private HangTagIngredientService hangTagIngredientService;
     @Autowired
     private HangTagLogService hangTagLogService;
+    @Autowired
+    private PackInfoStatusService packInfoStatusService;
+    @Autowired
+    private UploadFileService uploadFileService;
 
     @Override
     public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -75,6 +81,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         if (StringUtils.isEmpty(hangTagVO.getStatus())) {
             hangTagVO.setStatus(HangTagStatusEnum.NOT_SUBMIT.getK());
         }
+
         return hangTagVO;
     }
 
@@ -174,6 +181,15 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 //                    return tagPrinting;
 //                }).collect(Collectors.toList());
 //        return tagPrintings;
+    }
+
+    @Override
+    public String getTechSpecFileByStyleNo(String styleNo) {
+        String techSpecFileId = packInfoStatusService.getTechSpecFileIdByStyleNo(styleNo);
+        if (StringUtils.isEmpty(techSpecFileId)) {
+            return null;
+        }
+        return uploadFileService.getUrlById(techSpecFileId);
     }
 
 

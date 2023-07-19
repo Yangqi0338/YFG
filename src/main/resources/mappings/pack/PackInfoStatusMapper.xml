@@ -11,6 +11,16 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
+    <select id="getTechSpecFileIdByStyleNo" resultType="java.lang.String">
+        SELECT
+            tpis.tech_spec_file_id
+        FROM
+            t_pack_info_status tpis
+                JOIN t_pack_info tpi ON tpi.id = tpis.foreign_id
+        WHERE
+            tpi.style_no = #{styleNo}
+        group by tpi.style_no
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

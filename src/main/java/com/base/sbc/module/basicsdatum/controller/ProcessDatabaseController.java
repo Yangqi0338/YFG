@@ -12,10 +12,12 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
 
@@ -100,5 +102,11 @@ public class ProcessDatabaseController extends BaseController {
     @GetMapping("/getAllPatternPartsCode")
     public List<String> getAllPatternPartsCode() {
         return processDatabaseService.getAllPatternPartsCode();
+    }
+
+    @ApiOperation(value = "通过类型查询")
+    @GetMapping("/selectProcessDatabase")
+    public ApiResult selectProcessDatabase(@Valid @NotBlank(message = "类型不可为空") String type, String categoryName) {
+        return selectSuccess(processDatabaseService.selectProcessDatabase(type, categoryName, super.getUserCompany()));
     }
 }

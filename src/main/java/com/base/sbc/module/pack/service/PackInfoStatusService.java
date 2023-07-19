@@ -78,6 +78,13 @@ public interface PackInfoStatusService extends PackBaseService<PackInfoStatus> {
 
     boolean approvalForSize(AnswerDto dto);
 
+    /**
+     * 通过大货款号获取工艺说明文件id
+     * @param styleNo
+     * @return
+     */
+    String getTechSpecFileIdByStyleNo(String styleNo);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

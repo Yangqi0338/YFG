@@ -9,6 +9,7 @@ package com.base.sbc.module.pack.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 类描述：资料包-状态 dao类
@@ -21,8 +22,13 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface PackInfoStatusMapper extends BaseMapper<PackInfoStatus> {
-// 自定义方法区 不替换的区域【other_start】
-
+    // 自定义方法区 不替换的区域【other_start】
+    /**
+     * 通过大货款号获取工艺说明文件id
+     * @param styleNo
+     * @return
+     */
+    String getTechSpecFileIdByStyleNo(@Param("styleNo") String styleNo);
 
 // 自定义方法区 不替换的区域【other_end】
 }

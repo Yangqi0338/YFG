@@ -145,7 +145,8 @@
         tssc.tag_price AS tagPrice,
         <!--        st.describe as `describe`,-->
         GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) AS ingredient,
-        ht.*
+        ht.*,
+        IFNULL(ht.template_part,tsd.pattern_parts) as templatePart
         FROM
         t_sample_style_color tssc
         JOIN t_sample_design tsd ON tssc.sample_design_id = tsd.id

@@ -77,6 +77,13 @@ public interface HangTagService extends BaseService<HangTag> {
      */
     List<TagPrinting> hangTagPrinting(String styleNo, Boolean likeQueryFlag, String companyCode);
 
+    /**
+     * 通过大货款号获取工艺包PDF
+     * @param styleNo
+     * @return
+     */
+    String getTechSpecFileByStyleNo(String styleNo);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

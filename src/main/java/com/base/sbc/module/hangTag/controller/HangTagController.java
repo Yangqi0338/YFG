@@ -89,5 +89,9 @@ public class HangTagController extends BaseController {
         return selectSuccess(hangTagIngredientService.getIngredientListByHangTagId(hangTagId, super.getUserCompany()));
     }
 
-
+    @ApiOperation(value = "通过大货款号获取工艺包PDF")
+    @GetMapping("/getTechSpecFileByStyleNo")
+    public ApiResult getTechSpecFileByStyleNo(@Valid @NotBlank(message = "大货款号不可为空") String styleNo) {
+        return selectSuccess(hangTagService.getTechSpecFileByStyleNo(styleNo));
+    }
 }

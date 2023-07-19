@@ -189,6 +189,11 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
     }
 
     @Override
+    public String getTechSpecFileIdByStyleNo(String styleNo) {
+        return super.getBaseMapper().getTechSpecFileIdByStyleNo(styleNo);
+    }
+
+    @Override
     @Transactional(rollbackFor = {Exception.class})
     public PackInfoStatus get(String foreignId, String packType) {
         PackInfoStatus one = super.get(foreignId, packType);

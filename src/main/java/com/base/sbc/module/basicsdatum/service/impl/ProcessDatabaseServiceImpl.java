@@ -13,6 +13,7 @@ import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
 import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
 import com.base.sbc.module.basicsdatum.mapper.ProcessDatabaseMapper;
 import com.base.sbc.module.basicsdatum.service.ProcessDatabaseService;
+import com.base.sbc.module.basicsdatum.vo.ProcessDatabaseSelectVO;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -166,6 +167,11 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         qw.eq("type", BasicNumber.SEVEN.getNumber());
         return getBaseMapper().getAllPatternPartsCode(qw);
 
+    }
+
+    @Override
+    public List<ProcessDatabaseSelectVO> selectProcessDatabase(String type, String categoryName, String companyCode) {
+        return super.getBaseMapper().selectProcessDatabase(type, categoryName, companyCode);
     }
 
 

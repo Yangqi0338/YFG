@@ -117,6 +117,9 @@ public class HangTagDTO {
      */
     @ApiModelProperty(value = "安全列别")
     private String saftyType;
+    /** 外辅助工艺编码 */
+    @ApiModelProperty(value = "外辅助工艺编码"  )
+    private String extAuxiliaryTechnicsCode;
     /**
      * 外辅助工艺
      */

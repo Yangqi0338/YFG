@@ -2,6 +2,7 @@ package com.base.sbc.module.basicsdatum.service;
 
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
 import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
+import com.base.sbc.module.basicsdatum.vo.ProcessDatabaseSelectVO;
 import com.base.sbc.module.common.service.BaseService;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,4 +31,11 @@ public interface ProcessDatabaseService extends BaseService<ProcessDatabase> {
     PageInfo<ProcessDatabase> listPage(ProcessDatabasePageDto pageDto);
 
     List<String> getAllPatternPartsCode();
+
+    /**
+     * 选择工艺
+     * @param type
+     * @return
+     */
+    List<ProcessDatabaseSelectVO> selectProcessDatabase(String type, String categoryName, String companyCode);
 }

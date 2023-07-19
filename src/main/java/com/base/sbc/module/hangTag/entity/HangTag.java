@@ -87,6 +87,9 @@ public class HangTag extends BaseDataEntity<String> {
     /** 安全列别 */
     @ApiModelProperty(value = "安全列别"  )
     private String saftyType;
+    /** 外辅助工艺编码 */
+    @ApiModelProperty(value = "外辅助工艺编码"  )
+    private String extAuxiliaryTechnicsCode;
     /** 外辅助工艺 */
     @ApiModelProperty(value = "外辅助工艺"  )
     private String extAuxiliaryTechnics;
