@@ -17,10 +17,8 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.Feature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.base.sbc.client.amc.entity.CompanyPost;
 import com.base.sbc.client.amc.entity.Dept;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -151,7 +149,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean nodeStatusChange(String userId, NodeStatusChangeDto dto, GroupUser groupUser) {
-        hasNextNodeStatusAuth(userId, dto.getDataId());
+        nodeStatusService.hasNodeStatusAuth(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, userId, dto.getDataId(), this);
         nodeStatusService.nodeStatusChange(dto.getDataId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
         // 修改单据
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
@@ -385,7 +383,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         //设置图片
         attachmentService.setListStylePic(list, "stylePic");
         // 设置节点状态
-        setNodeStatus(list);
+        nodeStatusService.setNodeStatus(list);
         return list;
     }
 
@@ -615,21 +613,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public JSONObject getNodeStatusConfig(String userId, String node, String status, String dataId) {
-        // 如果所有不为空 则判断是否有此节点状态的权限
-        if (StrUtil.isNotBlank(dataId)) {
-            PatternMaking patternMaking = hasNextNodeStatusAuth(userId, dataId);
-            node = patternMaking.getNode();
-            status = patternMaking.getStatus();
-        }
-        JSONObject config = nodeStatusConfigService
-                .getConfig2Json(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, getCompanyCode());
-        if (StrUtil.isNotBlank(node) && config != null) {
-            config = config.getObject(node, JSONObject.class, Feature.OrderedField);
-            if (StrUtil.isNotBlank(status) && config != null) {
-                config = config.getObject(status, JSONObject.class, Feature.OrderedField);
-            }
-        }
-        return config;
+        return nodeStatusService.getNodeStatusConfig(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, userId, node, status, dataId, this);
     }
 
     @Override
@@ -681,42 +665,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.between(CollUtil.isNotEmpty(timeRange), "create_date", CollUtil.getFirst(timeRange), CollUtil.getLast(timeRange));
     }
 
-    public void setNodeStatus(List<PatternMakingTaskListVo> list) {
-        if (CollUtil.isEmpty(list)) {
-            return;
-        }
-        List<String> ids = new ArrayList<>(12);
-        for (PatternMakingTaskListVo o : list) {
-            ids.add(o.getId());
-        }
-        // 查询所有状态
-        QueryWrapper<NodeStatus> qw = new QueryWrapper<>();
-        qw.in("data_id", ids);
-        qw.orderByAsc("start_date");
-        List<NodeStatus> nodeStatusList = nodeStatusService.list(qw);
-        if (CollUtil.isEmpty(nodeStatusList)) {
-            return;
-        }
-        // 设置状态
-        Map<String, List<NodeStatus>> nodeStatusMap = nodeStatusList.stream().collect(Collectors.groupingBy(NodeStatus::getDataId));
-        for (PatternMakingTaskListVo o : list) {
-            List<NodeStatus> nodeStatusList1 = nodeStatusMap.get(o.getId());
-            if (CollUtil.isNotEmpty(nodeStatusList1)) {
-                List<NodeStatusVo> nodeStatusVos = BeanUtil.copyToList(nodeStatusList1, NodeStatusVo.class);
-                Map<String, NodeStatusVo> startDataMap = nodeStatusVos.stream().collect(Collectors.toMap(k -> k.getNode() + k.getStatus(), v -> v, (a, b) -> b, LinkedHashMap::new));
-                o.setStartDate(Optional.ofNullable(startDataMap.get(o.getNode() + o.getStatus())).map(NodeStatusVo::getStartDate).orElse(null));
-                nodeStatusVos.sort((a, b) -> {
-                    return a.getStartDate().compareTo(b.getStartDate());
-                });
-                o.setNodeStatusList(nodeStatusVos);
-            }
-            if (StrUtil.equals(o.getSuspend(), BaseGlobal.YES)) {
-                o.setStartDate(o.getUpdateDate());
-            }
-        }
 
-
-    }
 
     public String getNextCode(SampleDesign sampleDesign) {
         String designNo = sampleDesign.getDesignNo();
@@ -743,69 +692,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return objects.toPageInfo();
     }
 
-    @Override
-    public PatternMaking hasNextNodeStatusAuth(String userId, String id) {
-        // 获取当前节点
-        // 0 查询打版数据
-        PatternMaking pm = getById(id);
-        if (pm == null) {
-            throw new OtherException("打版指令数据不存在");
-        }
-        // 1判断是否有产品季权限
-        List<String> planningSeasonIds = amcFeignService.getPlanningSeasonIdByUserId(getUserId());
-        if (CollUtil.isEmpty(planningSeasonIds) || !CollUtil.contains(planningSeasonIds, pm.getPlanningSeasonId())) {
-            throw new OtherException("你不在该产品季人员当中");
-        }
-        // 2 判断是否有下一步岗位权限
-        // 2.0 获取当前节点需要的角色权限
-        JSONObject nodeStatusConfig = getNodeStatusConfig(userId, pm.getNode(), pm.getStatus(), null);
-        if (nodeStatusConfig == null) {
-            return pm;
-        }
-        JSONObject auth = nodeStatusConfig.getJSONObject("auth");
-        if (auth == null) {
-            return pm;
-        }
-        //角色or岗位匹配会+1
-        int flg = 0;
-        List<String> msg = new ArrayList<>(4);
-        JSONArray authUserIdArr = auth.getJSONArray("userId");
-        JSONArray authPostArr = auth.getJSONArray("post");
-        if (ObjectUtil.isEmpty(authUserIdArr) && ObjectUtil.isEmpty(authPostArr)) {
-            return pm;
-        }
-        if (ObjectUtil.isNotEmpty(authUserIdArr)) {
-            //判断当前userId是否和授权的userId相等
-            List<String> authUserIds = authUserIdArr.toJavaList(String.class).stream().map(item -> {
-                return (String) BeanUtil.getProperty(pm, item);
-            }).collect(Collectors.toList());
-            if (authUserIds.contains(userId)) {
-                flg++;
-            } else {
-                msg.add("用户不匹配");
-            }
 
-        }
-        if (ObjectUtil.isNotEmpty(authPostArr) && flg == 0) {
-            // 2.1 获取当前登录人员岗位
-            UserCompany userInfo = amcFeignService.getUserInfo(getUserId(), BaseGlobal.YES);
-            List<String> userPostName = Opt.ofNullable(userInfo.getPostList()).map(pl -> pl.stream().map(CompanyPost::getName).collect(Collectors.toList())).orElse(new ArrayList<>());
-            List<String> authPost = authPostArr.toJavaList(String.class);
-            // 是否有交集
-            Collection<String> intersection = CollUtil.intersection(userPostName, authPost);
-            if (CollUtil.isNotEmpty(intersection)) {
-                flg++;
-            } else {
-                msg.add("岗位不匹配,需要[" + StrUtil.join(StrUtil.COMMA, authPost) + "]");
-            }
-        }
-        //无匹配项抛出异常
-        if (flg == 0) {
-            throw new OtherException(CollUtil.join(msg, StrUtil.COMMA));
-        }
-        return pm;
-
-    }
 
     @Override
     public ArrayList<ArrayList> versionComparisonViewWeekMonth(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String token) {

@@ -15,15 +15,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.Date;
-
 /**
  * 类描述：打版管理-工作记录 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMakingWorkLog
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-5 19:42:22
+ * @email your email
+ * @date 创建时间：2023-7-19 11:36:10
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -54,6 +53,11 @@ public class PatternMakingWorkLog extends BaseDataEntity<String> {
     @ApiModelProperty(value = "登记类型:修改、小样、其他")
     private String logType;
     /**
+     * 数据类型:0打版管理,1产前样任务
+     */
+    @ApiModelProperty(value = "数据类型:0打版管理,1产前样任务")
+    private String dataType;
+    /**
      * 记录
      */
     @ApiModelProperty(value = "记录")
@@ -72,3 +76,4 @@ public class PatternMakingWorkLog extends BaseDataEntity<String> {
     private Date endDate;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+

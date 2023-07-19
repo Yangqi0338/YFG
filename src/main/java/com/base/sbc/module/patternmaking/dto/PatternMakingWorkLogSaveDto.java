@@ -63,4 +63,8 @@ public class PatternMakingWorkLogSaveDto {
     @NotNull(message = "结束时间不能为空")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date endDate;
+
+    @ApiModelProperty(value = "数据类型:0打版管理,1产前样任务")
+    private String dataType;
+
 }

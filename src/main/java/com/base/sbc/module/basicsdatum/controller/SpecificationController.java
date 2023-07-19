@@ -59,9 +59,9 @@ public class SpecificationController extends BaseController {
         queryWrapper.notEmptyEq("type", specificationDto.getType());
         queryWrapper.notEmptyLike("name", specificationDto.getName());
         queryWrapper.notEmptyLike("code", specificationDto.getCode());
-
         queryWrapper.notEmptyLike("create_name", specificationDto.getCreateName());
         queryWrapper.notEmptyLike("create_date", specificationDto.getCreateDate());
+        queryWrapper.orderByAsc("sort");
         PageHelper.startPage(specificationDto);
         List<Specification> list = specificationService.list(queryWrapper);
         return selectSuccess(new PageInfo<>(list));

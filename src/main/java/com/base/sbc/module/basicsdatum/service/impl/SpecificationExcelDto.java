@@ -10,18 +10,21 @@ import lombok.Data;
  */
 @Data
 public class SpecificationExcelDto {
-    @Excel(name = "Internal Size")
+    @Excel(name = "编码")
     private String code;
 
-    @Excel(name = "吊牌显示")
+    @Excel(name = "名称")
     private String name;
 
-    @Excel(name = "描述")
-    private String remarks;
+    @Excel(name = "类型")
+    private String type;
 
     @Excel(name = "排序")
     private String sort;
 
-    @Excel(name = "Dimension Type")
-    private String type;
+    @Excel(name = "描述")
+    private String remarks;
+
+    @Excel(name = "状态",replace = {"true_1", "false_0"})
+    private String status;
 }

@@ -28,6 +28,11 @@ public interface NodeStatusConfigService extends BaseService<NodeStatusConfig> {
      */
     String PATTERN_MAKING_NODE_STATUS = "PATTERN_MAKING_NODE_STATUS";
 
+    /**
+     * 产前样配置 key
+     */
+    String PRE_PRODUCTION_SAMPLE_TASK = "PRE_PRODUCTION_SAMPLE_TASK";
+
     NodeStatusConfig getByType(String type, String companyCode);
 
     /**

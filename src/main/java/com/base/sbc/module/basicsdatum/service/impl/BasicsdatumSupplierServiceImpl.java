@@ -46,6 +46,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：基础资料-供应商 service类
@@ -126,7 +127,7 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
         Map<String, String> mapTradeTerm = dictInfoToMap.get("TradeTerm");
         /*供应商类型*/
         Map<String, String> mapSync = dictInfoToMap.get("C8_Sync_DataStatus");
-
+        list = list.stream().filter(s -> StringUtils.isNotBlank(s.getSupplierCode())).collect(Collectors.toList());
         for (BasicsdatumSupplierExcelDto basicsdatumSupplierExcelDto : list) {
             if (StringUtils.isNotEmpty(basicsdatumSupplierExcelDto.getPicture())) {
                 File file1 = new File(basicsdatumSupplierExcelDto.getPicture());
