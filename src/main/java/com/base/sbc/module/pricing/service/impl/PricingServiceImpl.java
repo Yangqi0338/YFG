@@ -125,7 +125,7 @@ public class PricingServiceImpl extends BaseServiceImpl<PricingMapper, Pricing> 
         }
         Map<String, String> pricingColorIdMap = pricingColorService.insert(pricingDTO.getPricingColors(), pricingCode, userCompany);
         pricingCraftCostsService.insert(pricingDTO.getPricingCraftCosts(), pricingCode, userCompany);
-        pricingMaterialCostsService.insert(pricingDTO.getPricingMaterialCosts(), pricingColorIdMap, pricingCode, userCompany);
+        pricingMaterialCostsService.insert(pricingDTO.getPricingMaterialCosts(), pricingCode, userCompany);
         pricingProcessCostsService.insert(pricingDTO.getPricingProcessCosts(), pricingCode, userCompany);
         pricingOtherCostsService.insert(pricingDTO.getPricingOtherCosts(), pricingCode, userCompany);
         // TODO 发起审批流程

@@ -14,6 +14,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：核价表
@@ -325,7 +326,7 @@ public class PricingDTO {
      * 核价物料费用
      */
     @ApiModelProperty(value = "核价物料费用")
-    private List<PricingMaterialCostsDTO> pricingMaterialCosts;
+    private Map<String, List<PricingMaterialCostsDTO>> pricingMaterialCosts;
     /**
      * 核价其他费用
      */

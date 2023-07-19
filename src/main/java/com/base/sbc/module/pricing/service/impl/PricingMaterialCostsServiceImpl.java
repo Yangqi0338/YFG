@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -61,13 +62,13 @@ public class PricingMaterialCostsServiceImpl extends BaseServiceImpl<PricingMate
     }
 
     @Override
-    public void insert(List<PricingMaterialCostsDTO> pricingMaterialCostsDTOS, Map<String, String> pricingColorMap,
+    public void insert(Map<String, List<PricingMaterialCostsDTO>> pricingMaterialCostsDTOS,
                        String pricingCode, String userCompany) {
-        if (CollectionUtils.isEmpty(pricingMaterialCostsDTOS)) {
+        if (Objects.isNull(pricingMaterialCostsDTOS)) {
             return;
         }
         IdGen idGen = new IdGen();
-        List<PricingMaterialCosts> materialCosts = pricingMaterialCostsDTOS.stream()
+        List<PricingMaterialCosts> materialCosts = pricingMaterialCostsDTOS.entrySet().stream().flatMap(e -> e.getValue().stream()
                 .map(pricingCraftCostsDTO -> {
                     PricingMaterialCosts pricingMaterialCosts = new PricingMaterialCosts();
                     BeanUtils.copyProperties(pricingCraftCostsDTO, pricingMaterialCosts);
@@ -78,10 +79,9 @@ public class PricingMaterialCostsServiceImpl extends BaseServiceImpl<PricingMate
                     }
                     pricingMaterialCosts.setCompanyCode(userCompany);
                     pricingMaterialCosts.setPricingCode(pricingCode);
-                    pricingMaterialCosts.setPricingColorId(pricingColorMap.get(pricingCraftCostsDTO.getColorCode()));
+                    pricingMaterialCosts.setColorCode(e.getKey());
                     return pricingMaterialCosts;
-                }).collect(Collectors.toList());
-
+                })).collect(Collectors.toList());
         super.saveOrUpdateBatch(materialCosts);
     }
 // 自定义方法区 不替换的区域【other_end】

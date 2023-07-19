@@ -51,8 +51,7 @@ public interface PricingMaterialCostsService extends BaseService<PricingMaterial
      * @param pricingCode
      * @param userCompany
      */
-    void insert(List<PricingMaterialCostsDTO> pricingMaterialCostsDTOS, Map<String, String> pricingColorMap,
-                String pricingCode, String userCompany);
+    void insert(Map<String, List<PricingMaterialCostsDTO>> pricingMaterialCostsDTOS, String pricingCode, String userCompany);
 
 
 // 自定义方法区 不替换的区域【other_end】
