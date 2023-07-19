@@ -375,7 +375,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BaseQueryWrapper<BasicsdatumMaterialPrice> qc = new BaseQueryWrapper<>();
 		qc.eq("company_code", this.getCompanyCode());
 		qc.notEmptyEq("material_code", dto.getMaterialCode());
-		qc.orderByAsc("select_flag");
+		qc.orderByDesc("select_flag");
 		List<BasicsdatumMaterialPrice> list = this.materialPriceService.list(qc);
 		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPricePageVo.class);
 	}
