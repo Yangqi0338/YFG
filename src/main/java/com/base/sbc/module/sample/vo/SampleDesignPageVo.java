@@ -1,10 +1,13 @@
 package com.base.sbc.module.sample.vo;
 
 
+import cn.hutool.core.date.DateUtil;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -48,6 +51,9 @@ public class SampleDesignPageVo {
     @ApiModelProperty(value = "波段(编码)")
     private String bandCode;
 
+    @ApiModelProperty(value = "波段(名称)")
+    private String bandName;
+
     @ApiModelProperty(value = "设计师名称")
     private String designer;
     /**
@@ -74,7 +80,7 @@ public class SampleDesignPageVo {
     private String confirmStatus;
     @ApiModelProperty(value = "款式图" )
     private String stylePic;
-    @ApiModelProperty(value = "用户头像", example = "https://sjkj-demo.oss-cn-shenzhen.aliyuncs.com/null/userHead/09/02/8361ea39-21d2-4944-b150-d2e69bb68254.png")
+    @ApiModelProperty(value = "设计师头像", example = "https://sjkj-demo.oss-cn-shenzhen.aliyuncs.com/null/userHead/09/02/8361ea39-21d2-4944-b150-d2e69bb68254.png")
     private String aliasUserAvatar;
     @ApiModelProperty(value = "款式名称" )
     private String styleName;
@@ -97,7 +103,7 @@ public class SampleDesignPageVo {
     /** 产品季节id */
     @ApiModelProperty(value = "产品季节id"  )
     private String planningSeasonId;
-    /*波段企划id'*/
+
     @ApiModelProperty(value = "波段企划id")
     private String planningBandId;
     /**
@@ -110,4 +116,31 @@ public class SampleDesignPageVo {
      */
     @ApiModelProperty(value = "坑位信息id")
     private String planningCategoryItemId;
+
+    @ApiModelProperty(value = "是否齐套:0未齐套，1已齐套")
+    private String kitting;
+
+    @ApiModelProperty(value = "任务等级:普通,紧急,非常紧急")
+    private String taskLevel;
+
+    @ApiModelProperty(value = "计划完成时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date planningFinishDate;
+
+    /**
+     * 创建日期
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date createDate;
+
+    @ApiModelProperty(value = "相差天数")
+    public String getRemainingTime() {
+        if (planningFinishDate == null) {
+            return "";
+        }
+        Date now = new Date();
+        String abs = DateUtil.compare(getPlanningFinishDate(), now) < 0 ? "-" : "";
+        return abs + DateUtil.betweenDay(getPlanningFinishDate(), now, false);
+
+    }
 }
