@@ -14,7 +14,9 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +48,17 @@ public class SpecificationGroupController extends BaseController {
         return selectSuccess(new PageInfo<>(list));
     }
 
+    @ApiOperation(value = "/导入")
+    @PostMapping("/specificationGroupImportExcel")
+    public Boolean specificationGroupImportExcel(@RequestParam("file") MultipartFile file) throws Exception {
+        return specificationGroupService.specificationGroupImportExcel(file);
+    }
+
+    @ApiOperation(value = "/导出")
+    @GetMapping("/specificationGroupDeriveExcel")
+    public void specificationGroupDeriveExcel(HttpServletResponse response ,SpecificationGroupDto specificationGroupDto) throws Exception {
+        specificationGroupService.specificationGroupDeriveExcel(response,specificationGroupDto);
+    }
 
     /**
      * 查询id和name列表

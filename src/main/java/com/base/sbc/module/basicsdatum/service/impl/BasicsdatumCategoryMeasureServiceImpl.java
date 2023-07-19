@@ -167,9 +167,12 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
      * @return
      */
     @Override
-    public void basicsdatumCategoryMeasureDeriveExcel(HttpServletResponse response) throws Exception {
-        QueryWrapper<BasicsdatumCategoryMeasure> queryWrapper = new QueryWrapper<>();
-        List<BasicsdatumCategoryMeasureExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsdatumCategoryMeasureExcelDto.class);
+    public void basicsdatumCategoryMeasureDeriveExcel(HttpServletResponse response,QueryCategoryMeasureDto queryDto) throws Exception {
+        BaseQueryWrapper<BasicsdatumCategoryMeasure> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("cm.company_code", baseController.getUserCompany());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getCode()),"cm.code",queryDto.getCode());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getName()),"cm.name",queryDto.getName());
+        List<BasicsdatumCategoryMeasureExcelDto> list = BeanUtil.copyToList(baseMapper.getBasicsdatumCategoryMeasureList(queryWrapper,StringUtils.convertList(queryDto.getCategoryId())), BasicsdatumCategoryMeasureExcelDto.class);
         ExcelUtils.exportExcel(list, BasicsdatumCategoryMeasureExcelDto.class, "基础资料-品类测量组.xlsx", new ExportParams(), response);
     }
 

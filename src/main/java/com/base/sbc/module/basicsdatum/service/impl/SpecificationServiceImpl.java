@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -28,6 +29,7 @@ public class SpecificationServiceImpl extends BaseServiceImpl<SpecificationMappe
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
         List<SpecificationExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), SpecificationExcelDto.class, params);
+        list = list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
         List<Specification> Specifications = BeanUtil.copyToList(list, Specification.class);
         for (Specification specification : Specifications) {
             specification.setStatus("1");
