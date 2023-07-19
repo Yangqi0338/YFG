@@ -282,7 +282,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
             amcFeignService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
         } else {
 //            amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
-            amcFeignService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
+            // amcFeignService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
         }
         Page<SampleDesignPageVo> objects = PageHelper.startPage(dto);
         getBaseMapper().selectByQw(qw);

@@ -19,11 +19,11 @@ import java.util.Date;
 /**
  * 类描述：企划-坑位信息 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-27 15:54:28
+ * @email your email
+ * @date 创建时间：2023-7-19 15:38:06
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -31,11 +31,11 @@ import java.util.Date;
 @ApiModel("企划-坑位信息 PlanningCategoryItem")
 public class PlanningCategoryItem extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private static final long serialVersionUID = 1L;
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
-	/**********************************实体存放的其他字段区 【other_end】******************************************/
+    /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /**
@@ -136,10 +136,25 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "设计师id")
     private String designerId;
     /**
+     * 任务等级名称
+     */
+    @ApiModelProperty(value = "任务等级名称")
+    private String taskLevelName;
+    /**
      * 任务等级:普通,紧急,非常紧急
      */
     @ApiModelProperty(value = "任务等级:普通,紧急,非常紧急")
     private String taskLevel;
+    /**
+     * 应季节
+     */
+    @ApiModelProperty(value = "应季节")
+    private String seasonal;
+    /**
+     * 延续点
+     */
+    @ApiModelProperty(value = "延续点")
+    private String continuationPoint;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

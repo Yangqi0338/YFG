@@ -6,16 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planning.dto.PlanningBandDto;
 import com.base.sbc.module.planning.dto.PlanningBandSearchDto;
 import com.base.sbc.module.planning.dto.ProductSeasonExpandByBandSearchDto;
 import com.base.sbc.module.planning.entity.PlanningBand;
+import com.base.sbc.module.planning.vo.PlanningBandVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
 import com.github.pagehelper.PageInfo;
-
-import java.util.List;
 
 /** 
  * 类描述：企划-波段表 service类
@@ -35,12 +33,7 @@ public interface PlanningBandService extends BaseService<PlanningBand> {
 	 */
 	boolean del(String id);
 
-	/**
-	 * 通过构造器查询
-	 * @param qw
-	 * @return
-	 */
-	 List<PlanningSeasonBandVo> selectByQw(QueryWrapper<PlanningBand> qw);
+
 
 	/**
 	 * 保存波段企划
@@ -54,25 +47,28 @@ public interface PlanningBandService extends BaseService<PlanningBand> {
 	 * @param dto
 	 * @param userCompany
 	 */
-    void checkRepeat(PlanningBandDto dto, String userCompany);
+	void checkRepeat(PlanningBandDto dto, String userCompany);
 
 	/**
 	 * 通过产品季和波段企划名称
+	 *
 	 * @param planningSeasonName 产品季名称
-	 * @param planningBandName 波段企划名称
-	 * @param userCompany 企业编码
+	 * @param planningBandName   波段企划名称
+	 * @param userCompany        企业编码
 	 * @return
 	 */
 	PlanningSeasonBandVo getBandByName(String planningSeasonName, String planningBandName, String userCompany);
 
+	PlanningBandVo getPlanningBand(String planningSeasonId, String planningBandName);
+
 	/**
 	 * 波段企划分页查询
+	 *
 	 * @param dto
 	 * @param userCompany
 	 * @return
 	 */
 	PageInfo<PlanningSeasonBandVo> queryPlanningSeasonBandPageInfo(PlanningBandSearchDto dto, String userCompany);
-
 
 
 	/**

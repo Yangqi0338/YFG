@@ -120,15 +120,12 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     }
 
     @Override
-    public List<PlanningSeason> getByName(String name, String userCompany) {
-        QueryWrapper qc = new QueryWrapper();
-        qc.eq("name", name);
-        qc.eq(COMPANY_CODE, userCompany);
-        List<PlanningSeason> seasons = list(qc);
-        if (CollUtil.isEmpty(seasons)) {
-            throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
-        }
-        return seasons;
+    public PlanningSeason getByName(String name, String userCompany) {
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("name", name);
+        qw.eq(COMPANY_CODE, userCompany);
+        qw.last("limit 1");
+        return getOne(qw);
     }
 
     @Override
@@ -244,9 +241,9 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
 
     @Override
     public PlanningSeasonVo getByName(String name) {
-        List<PlanningSeason> seasons = getByName(name, getCompanyCode());
-        if (CollUtil.isNotEmpty(seasons)) {
-            PlanningSeasonVo planningSeasonVo = BeanUtil.copyProperties(seasons.get(0), PlanningSeasonVo.class);
+        PlanningSeason season = getByName(name, getCompanyCode());
+        if (season != null) {
+            PlanningSeasonVo planningSeasonVo = BeanUtil.copyProperties(season, PlanningSeasonVo.class);
             planningSeasonVo.setTeamList(amcFeignService.getTeamBySeasonId(planningSeasonVo.getId()));
             return planningSeasonVo;
         }
