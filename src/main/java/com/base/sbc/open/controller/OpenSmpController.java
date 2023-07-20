@@ -5,15 +5,14 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
+import com.base.sbc.module.basicsdatum.entity.*;
+import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.hangTag.service.HangTagService;
+import com.base.sbc.module.smp.dto.SmpMaterialDto;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
+import com.base.sbc.module.smp.entity.SmpColor;
 import com.base.sbc.module.smp.entity.TagPrinting;
-import com.base.sbc.open.dto.MtBpReqDto;
-import com.base.sbc.open.dto.SmpDeptDto;
-import com.base.sbc.open.dto.SmpPostDto;
-import com.base.sbc.open.dto.SmpUserDto;
+import com.base.sbc.open.dto.*;
 import com.base.sbc.open.entity.MtBqReqEntity;
 import com.base.sbc.open.entity.SmpDept;
 import com.base.sbc.open.entity.SmpPost;
@@ -47,6 +46,14 @@ public class OpenSmpController extends BaseController {
     private final AmcService amcService;
 
     private final HangTagService hangTagService;
+
+    private final BasicsdatumMaterialService basicsdatumMaterialService;
+
+    private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
+
+    private final BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
+
+    private final BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
 
     /**
      * bp供应商
@@ -123,8 +130,57 @@ public class OpenSmpController extends BaseController {
      */
     @PostMapping("/smpMaterial")
     @ApiOperation(value = "smp-物料", notes = "smp-物料")
+    @Transactional(rollbackFor = Exception.class)
     public ApiResult smpMaterial(@RequestBody JSONObject jsonObject) {
-        System.out.println(jsonObject);
+        //初步逻辑：关联编码的，先去查询编码是否存在，如果不存在则返回错误，字段不存在。
+        SmpOpenMaterialDto smpOpenMaterialDto = jsonObject.toJavaObject(SmpOpenMaterialDto.class);
+        BasicsdatumMaterial basicsdatumMaterial = smpOpenMaterialDto.toBasicsdatumMaterial();
+        basicsdatumMaterialService.saveOrUpdate(basicsdatumMaterial, new QueryWrapper<BasicsdatumMaterial>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+
+
+        List<BasicsdatumMaterialColor> basicsdatumMaterialColors = new ArrayList<>();
+        //转成颜色集合
+        smpOpenMaterialDto.getCOLORITEMS().forEach(colorItem -> {
+            BasicsdatumMaterialColor basicsdatumMaterialColor = new BasicsdatumMaterialColor();
+            basicsdatumMaterialColor.setColorCode(colorItem.getColorCode());
+            basicsdatumMaterialColor.setStatus(colorItem.isActive() ? "0" : "1");
+            basicsdatumMaterialColor.setSupplierColorCode(colorItem.getSmpColor());
+            basicsdatumMaterialColor.setMaterialCode(basicsdatumMaterial.getMaterialCode());
+            basicsdatumMaterialColors.add(basicsdatumMaterialColor);
+        });
+        basicsdatumMaterialColorService.addAndUpdateAndDelList(basicsdatumMaterialColors, new QueryWrapper<BasicsdatumMaterialColor>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+
+        List<BasicsdatumMaterialWidth> basicsdatumMaterialWidths = new ArrayList<>();
+        smpOpenMaterialDto.getMODELITEMS().forEach(modelItem -> {
+            BasicsdatumMaterialWidth basicsdatumMaterialWidth = new BasicsdatumMaterialWidth();
+            basicsdatumMaterialWidth.setStatus(modelItem.isActive() ? "0" : "1");
+            basicsdatumMaterialWidth.setWidthCode(modelItem.getCODE());
+            basicsdatumMaterialWidth.setName(modelItem.getSIZENAME());
+            basicsdatumMaterialWidth.setMaterialCode(basicsdatumMaterial.getMaterialCode());
+            basicsdatumMaterialWidths.add(basicsdatumMaterialWidth);
+        });
+        basicsdatumMaterialWidthService.addAndUpdateAndDelList(basicsdatumMaterialWidths, new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+
+        List<BasicsdatumMaterialPrice> basicsdatumMaterialPrices = new ArrayList<>();
+        smpOpenMaterialDto.getQuotItems().forEach(quotItem -> {
+            BasicsdatumMaterialPrice basicsdatumMaterialPrice = new BasicsdatumMaterialPrice();
+            basicsdatumMaterialPrice.setWidth(quotItem.getSUPPLIERSIZE());
+            basicsdatumMaterialPrice.setMaterialCode(basicsdatumMaterial.getMaterialCode());
+            basicsdatumMaterialPrice.setSupplierId(quotItem.getSupplierCode());
+            basicsdatumMaterialPrice.setSupplierName(quotItem.getSupplierName());
+            basicsdatumMaterialPrice.setColor(quotItem.getSUPPLIERCOLORID());
+            basicsdatumMaterialPrice.setQuotationPrice(quotItem.getFOBFullPrice());
+            basicsdatumMaterialPrice.setOrderDay(quotItem.getLeadTime());
+            basicsdatumMaterialPrice.setProductionDay(quotItem.getC8_SupplierItemRev_MLeadTime());
+            basicsdatumMaterialPrice.setMinimumOrderQuantity(quotItem.getMOQInitial());
+            basicsdatumMaterialPrice.setColorName(quotItem.getSUPPLIERCOLORNAME());
+            basicsdatumMaterialPrice.setWidthName(quotItem.getSUPPLIERSIZE());
+            basicsdatumMaterialPrice.setSupplierMaterialCode(quotItem.getSupplierMaterial());
+            basicsdatumMaterialPrices.add(basicsdatumMaterialPrice);
+
+        });
+        basicsdatumMaterialPriceService.addAndUpdateAndDelList(basicsdatumMaterialPrices, new QueryWrapper<BasicsdatumMaterialPrice>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+
         return insertSuccess(null);
     }
 
@@ -137,63 +193,5 @@ public class OpenSmpController extends BaseController {
     public ApiResult tagPrinting(String id, Boolean bl) {
         List<TagPrinting> tagPrintings1 = hangTagService.hangTagPrinting(id, bl, super.getUserCompany());
         return selectSuccess(tagPrintings1);
-
-//        TagPrinting tagPrinting = new TagPrinting();
-//
-//        tagPrinting.setC8_Colorway_WareCode("ABC123");
-//        tagPrinting.setIsGift(false);
-//        tagPrinting.setColorDescription("Blue");
-//        tagPrinting.setColorCode("001");
-//        tagPrinting.setStyleCode("12345");
-//        tagPrinting.setC8_Colorway_BatchNo("BATCH001");
-//        tagPrinting.setMerchApproved(true);
-//        tagPrinting.setSecCode("SEC001");
-//        tagPrinting.setMainCode("MAIN001");
-//        tagPrinting.setC8_Colorway_SalesPrice("49.99");
-//        tagPrinting.setIsAccessories(false);
-//        tagPrinting.setC8_Colorway_Series("Series A");
-//        tagPrinting.setActive(true);
-//        tagPrinting.setC8_Colorway_SaleType("Retail");
-//        tagPrinting.setC8_Season_Brand("Brand X");
-//        tagPrinting.setC8_Collection_ProdCategory("123");
-//        tagPrinting.setTheme("Summer");
-//        tagPrinting.setC8_Style_3rdCategory("456");
-//        tagPrinting.setC8_Style_2ndCategory("789");
-//        tagPrinting.setSizeRangeCode("XL");
-//        tagPrinting.setSizeRangeName("Extra Large");
-//        tagPrinting.setProductType("T-Shirt");
-//        tagPrinting.setC8_1stProdCategory("Clothing");
-//        tagPrinting.setSizeRangeDimensionType("Dimensions");
-//        tagPrinting.setComposition("Cotton");
-//        tagPrinting.setCareSymbols("Wash with cold water");
-//        tagPrinting.setQualityClass("Class A");
-//        tagPrinting.setProductName("T-Shirt");
-//        tagPrinting.setSaftyType("Type 1");
-//        tagPrinting.setOPStandard("Standard X");
-//        tagPrinting.setApproved(true);
-//        tagPrinting.setAttention("Handle with care");
-//        tagPrinting.setTechApproved(true);
-//        tagPrinting.setSaftyTitle("Safety First");
-//        tagPrinting.setC8_APPBOM_Comment("Handle with care");
-//        tagPrinting.setStorageRequirement("Dry place");
-//
-//// 创建尺码明细对象
-//        TagPrinting.Size size = new TagPrinting.Size();
-//        size.setSIZECODE("XXXL");
-//        size.setSORTCODE("0");
-//        size.setSIZENAME("175/80A");
-//        size.setSizeID("10270");
-//        size.setEXTSIZECODE("");
-//        size.setShowIntSize(true);
-//        size.setEuropeCode("");
-//        size.setSKUFiller("");
-//        size.setSpecialSpec("");
-//
-//// 设置尺码明细
-//        ArrayList<TagPrinting.Size> sizes =new ArrayList<>();
-//        tagPrinting.setSize(sizes);
-//        ArrayList<TagPrinting> tagPrintings = new ArrayList<>();
-//        tagPrintings.add(tagPrinting);
-//        return selectSuccess(tagPrintings);
     }
 }
