@@ -2,6 +2,7 @@ package com.base.sbc.selenium.style;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +50,9 @@ public class StyleListTest {
 		WebDriver driver = new EdgeDriver();
 		// 登录系统
 		LoginSystem(driver);
+		Date dateStart = new Date();
+		log.info("开始");
+
 		String path = "D:\\space-spring\\sjs_yfg_pdm\\src\\test\\java\\com\\base\\sbc\\selenium\\style\\";
 
 //		// 1.1 读取PLM_STYLE设计款号excel
@@ -70,13 +74,16 @@ public class StyleListTest {
 //		EasyExcel.write(path + "PLM_STYLE_SIZE_ITEM.xlsx", StyleSizeItem.class).sheet("sheet1").doWrite(sizeItemList);
 
 
-//		// 3.1 读取PLM_STYLE_BOM
-//		List<StyleBomObj> bomObjList = getListByExcel(path + "PLM_STYLE_BOM.xlsx", StyleBomObj.class);
-//		// 3.2 抓取bom数据 (选择MM工艺员,样品和大货生产 2个版本都要)
-//		List<StyleBomItem> bomItemList = getItemListByBomObj(driver, bomObjList);
-//		// 3.3 结果存入excel
-//		EasyExcel.write(path + "PLM_STYLE_BOM_ITEM.xlsx", StyleBomItem.class).sheet("sheet1").doWrite(bomItemList);
+		// 运行注意缩放浏览器 （33%）
+		// 3.1 读取PLM_STYLE_BOM
+		List<StyleBomObj> bomObjList = getListByExcel(path + "PLM_STYLE_BOM.xlsx", StyleBomObj.class);
+		// 3.2 抓取bom数据 (选择MM工艺员,样品和大货生产 2个版本都要)
+		List<StyleBomItem> bomItemList = getItemListByBomObj(driver, bomObjList);
+		// 3.3 结果存入excel
+		EasyExcel.write(path + "PLM_STYLE_BOM_ITEM.xlsx", StyleBomItem.class).sheet("sheet1").doWrite(bomItemList);
 
+		log.info("导出完成");
+		System.out.printf("执行时长: %d 分钟", 1 + (new Date().getTime() - dateStart.getTime()) / (60 * 1000));
 	}
 
 	/**
@@ -98,6 +105,7 @@ public class StyleListTest {
 		// 选择MM工艺员视图
 		WebElement gy = driver.findElement(By.xpath("//*[starts-with(@id,\"uniqName_14_\")]"));
 		gy.click();
+		Thread.sleep(200);
 		gy.clear();
 		Thread.sleep(200);
 		gy.sendKeys("MM工艺员");
@@ -112,7 +120,7 @@ public class StyleListTest {
 			Thread.sleep(1000);
 			driver.get(driver.getCurrentUrl());
 			log.info((speed++) + "/" + bomObjList.size() + "  BOM详情路径：" + obj.getBomUrl());
-			Thread.sleep(3000);
+			Thread.sleep(6000);
 
 //			JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
 //			jsExecutor.executeScript("document.body.style.width='50000px'");
@@ -128,7 +136,7 @@ public class StyleListTest {
 				page.sendKeys("所有");
 				Thread.sleep(200);
 				page.sendKeys(Keys.ENTER);
-				Thread.sleep(5000);
+				Thread.sleep(6000);
 			}
 
 			// 数据
@@ -164,11 +172,14 @@ public class StyleListTest {
 			}
 			sizeName = sizeName.substring(1);
 			log.info("尺码数量：" + sizeNum + "-" + sizeName);
-
 			StyleBomItem o;
 			for (int i = 0; i < trs.size(); i++) {
 				WebElement tr = trs.get(i);
 				List<WebElement> tds = tr.findElements(By.tagName("td"));
+				String first = tds.get(0).getText();
+				if (StringUtils.isNotBlank(first) && (first.contains("Actions") || first.contains("Report"))) {
+					continue;
+				}
 				o = new StyleBomItem();
 				// 上级数据
 				o.setUrl(obj.getBomUrl());
@@ -177,10 +188,7 @@ public class StyleListTest {
 				o.setCode(obj.getCode());
 				o.setColor(obj.getColor());
 				o.setType(type.getText());
-				String first = tds.get(0).getText();
-				if (StringUtils.isNotBlank(first) && (first.contains("Actions") || first.contains("Report"))) {
-					continue;
-				}
+
 				o.setSendStatus(tds.get(0).getText());
 				o.setGroup(tds.get(1).getText());
 				o.setMainFabric(tds.get(2).getText());
@@ -235,7 +243,7 @@ public class StyleListTest {
 //				log.info("sizeValue: " + sizeValue);
 				o.setSizeValue(sizeValue.substring(1));
 
-//				log.info(JsonUtils.beanToJson(o));
+				log.info(JsonUtils.beanToJson(o));
 				list.add(o);
 			}
 
@@ -336,7 +344,7 @@ public class StyleListTest {
 		Thread.sleep(200);
 
 		// 遍历款号
-		int speed = 0;
+		int speed = 1;
 		for (Style style : styleList) {
 			log.info((speed++) + "/" + styleList.size() + "当前设计款号：" + style.getCode());
 			WebElement search = driver.findElement(By.xpath("//*[@id=\"headerSearchText\"]"));
