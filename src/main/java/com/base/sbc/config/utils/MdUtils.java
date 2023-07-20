@@ -35,7 +35,7 @@ public class MdUtils {
 			content = content.substring(0, content.length() - 5);
 		}
 		// 宽度600px
-		content = "<div style=\"font-size:16px;width:700px\">" + content + "</div>";
+		content = "<div style=\"font-size:16px;width:1000px\">" + content + "</div>";
 		// 间距调整
 		content = content.replace("<p>", "<p style=\"line-height:28px;margin:0px\">");
 		// 加粗同时变红
