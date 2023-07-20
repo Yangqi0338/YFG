@@ -2,6 +2,7 @@ package com.base.sbc.module.smp;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.smp.dto.SmpProcessSheetDto;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * @author 卞康
@@ -66,5 +69,14 @@ public class SmpController extends BaseController {
     public ApiResult sample(String[] ids) {
         Integer i = smpService.sample(ids);
         return insertSuccess("下发："+ids.length+"条，成功："+i+"条");
+    }
+
+    /**
+     * processSheet 下发
+     */
+    @PutMapping("/processSheet")
+    public ApiResult processSheet(List<SmpProcessSheetDto> sheetDtoList) {
+        Integer i = smpService.processSheet(sheetDtoList);
+        return insertSuccess("下发："+sheetDtoList.size()+"条，成功："+i+"条");
     }
 }
