@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -96,15 +97,25 @@ public class SpecificationGroupServiceImpl extends BaseServiceImpl<Specification
         list = list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
 
         for (SpecificationGroupExcelDto specificationGroupExcelDto : list) {
+            List<Specification> specificationList = new ArrayList<>();
             if (StringUtils.isNotBlank(specificationGroupExcelDto.getSpecificationNames())) {
                 specificationGroupExcelDto.setSpecificationNames(specificationGroupExcelDto.getSpecificationNames().replaceAll(" ", ""));
                 QueryWrapper queryWrapper = new QueryWrapper();
                 queryWrapper.in("name", StringUtils.convertList(specificationGroupExcelDto.getSpecificationNames()));
-                List<Specification> specificationList = specificationMapper.selectList(queryWrapper);
+                 specificationList = specificationMapper.selectList(queryWrapper);
                 if (!CollectionUtils.isEmpty(specificationList)) {
                     List<String> stringList = specificationList.stream().map(Specification::getId).collect(Collectors.toList());
                     specificationGroupExcelDto.setSpecificationIds(StringUtils.join(stringList, ","));
                 }
+            }
+            if(StringUtils.isNotBlank(specificationGroupExcelDto.getBasicsSpecification())){
+                if(!CollectionUtils.isEmpty(specificationList)){
+                    List<Specification> specificationList1 =   specificationList.stream().filter(s -> specificationGroupExcelDto.getBasicsSpecification().equals(s.getName())).collect(Collectors.toList());
+                    if (!CollectionUtils.isEmpty(specificationList1)) {
+                        specificationGroupExcelDto.setBasicsSpecificationCode(specificationList1.get(0).getCode());
+                    }
+                }
+
             }
         }
         List<SpecificationGroup> specificationGroups = BeanUtil.copyToList(list, SpecificationGroup.class);

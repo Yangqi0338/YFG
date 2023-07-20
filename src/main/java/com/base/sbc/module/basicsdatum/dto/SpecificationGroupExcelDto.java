@@ -35,6 +35,13 @@ public class SpecificationGroupExcelDto {
     @Excel(name = "规格名称")
     private String specificationNames;
 
+    @ApiModelProperty(value = "基础规格")
+    @Excel(name = "基础规格")
+    private String  basicsSpecification;
+
+    @ApiModelProperty(value = "规格名称集合")
+    private String  basicsSpecificationCode;
+
     @ApiModelProperty(value = "描述")
     @Excel(name = "描述")
     private String remarks;
