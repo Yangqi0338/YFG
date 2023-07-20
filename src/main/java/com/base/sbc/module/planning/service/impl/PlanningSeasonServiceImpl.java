@@ -264,7 +264,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         //查询波段统计
         QueryWrapper brandTotalQw = new QueryWrapper();
         brandTotalQw.select("band_code as name,count(1) as total");
-        brandTotalQw.groupBy("name");
+        brandTotalQw.groupBy("band_code");
         planningSummaryQw(brandTotalQw, dto);
         List<DimensionTotalVo> bandTotal = planningCategoryItemService.dimensionTotal(brandTotalQw);
         vo.setBandTotal(PlanningUtils.removeEmptyAndSort(bandTotal));
@@ -279,7 +279,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         //查询品类统计
         QueryWrapper categoryQw = new QueryWrapper();
         categoryQw.select("prod_category as name,count(1) as total");
-        categoryQw.groupBy("name");
+        categoryQw.groupBy("prod_category");
         planningSummaryQw(categoryQw, dto);
         List<DimensionTotalVo> categoryTotal = planningCategoryItemService.dimensionTotal(categoryQw);
         ccmFeignService.setCategoryName(categoryTotal, "name", "name");
