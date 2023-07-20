@@ -233,7 +233,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
                 month = month.equals("10") ? "A" : month.equals("11") ? "B" : month.equals("12") ? "C" : "";
             }
             /*波段*/
-            String bandName =  bandService.getNameByCode(band);
+            String bandName = band;
             // 使用正则表达式匹配字母
             Pattern pattern = Pattern.compile("[a-z||A-Z]");
             Matcher matcher = pattern.matcher(bandName);

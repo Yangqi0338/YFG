@@ -92,11 +92,11 @@
         prod_category2nd,
         count( 1 ) skc
         FROM
-        t_sample_design sd,
-        t_sample_style_color c
+        t_sample_design sd
+        LEFT JOIN t_sample_style_color c ON ( sd.id = c.sample_design_id )
         WHERE
-        sd.id = c.sample_design_id
-        and sd.del_flag ='0'
+        sd.del_flag = '0'
+
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
@@ -113,12 +113,10 @@
         SELECT
         count( 1 ) skc
         FROM
-        t_sample_design sd,
-        t_sample_style_color c
+        t_sample_design sd
+        left join t_sample_style_color c on(sd.id = c.sample_design_id and c.del_flag ='0')
         WHERE
-        sd.id = c.sample_design_id
-        and sd.del_flag ='0'
-        and c.del_flag ='0'
+        sd.del_flag ='0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>

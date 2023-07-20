@@ -47,10 +47,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -181,18 +178,17 @@ public class PricingServiceImpl extends BaseServiceImpl<PricingMapper, Pricing> 
         if (CollectionUtils.isNotEmpty(pricingMaterialCostsVOS)) {
             pricingMaterialCostsVOS.forEach(e -> totalPrice.add(e.getTotalPrice()));
         }
+        ArrayList<PricingColorVO> pricingColors = Lists.newArrayList();
 
-        pricingVO.setPricingMaterialCosts(pricingMaterialCostsMap);
-        PricingColorVO pricingColorVO = new PricingColorVO();
-        pricingColorVO.setColor(pricingVO.getColor());
-        pricingColorVO.setColorCode(pricingVO.getColorCode());
-        pricingColorVO.setMaterialCost(totalPrice);
-
-        PricingColorVO pricingColorVO1 = new PricingColorVO();
-        pricingColorVO1.setColor("黑色");
-        pricingColorVO1.setColorCode("000");
-        pricingColorVO1.setMaterialCost(totalPrice);
-        pricingVO.setPricingColors(Lists.newArrayList(pricingColorVO, pricingColorVO1));
+        if (StringUtils.isNotEmpty(pricingVO.getColorCode())) {
+            pricingVO.setPricingMaterialCosts(pricingMaterialCostsMap);
+            PricingColorVO pricingColorVO = new PricingColorVO();
+            pricingColorVO.setColor(pricingVO.getColor());
+            pricingColorVO.setColorCode(pricingVO.getColorCode());
+            pricingColorVO.setMaterialCost(totalPrice);
+            pricingColors.add(pricingColorVO);
+        }
+        pricingVO.setPricingColors(pricingColors);
         pricingVO.setPricingProcessCosts(this.getPricingProcessCostsVOS(id));
         return pricingVO;
     }
