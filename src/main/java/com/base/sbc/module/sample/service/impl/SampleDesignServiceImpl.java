@@ -254,11 +254,11 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
 
         if(!StringUtils.isEmpty(dto.getIsTrim())){
             if(dto.getIsTrim().equals(BaseGlobal.STATUS_NORMAL)){
-                /*查询主款*/
-                qw.notLike("category_name","配饰");
-            }else {
                 /*查询配饰*/
                 qw.like ("category_name","配饰");
+            }else {
+                /*查询主款*/
+                qw.notLike("category_name","配饰");
             }
         }
         qw.likeRight(StrUtil.isNotBlank(dto.getCategoryIds()), "category_ids", dto.getCategoryIds());
