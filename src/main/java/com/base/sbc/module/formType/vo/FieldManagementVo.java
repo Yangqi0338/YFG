@@ -72,6 +72,8 @@ public class FieldManagementVo {
     private List<Option> optionList;
     @ApiModelProperty(value = "字段值")
     private String val;
+    @ApiModelProperty(value = "字段值名称")
+    private String valName;
     @ApiModelProperty(value = "选中")
     private boolean selected = true;
 

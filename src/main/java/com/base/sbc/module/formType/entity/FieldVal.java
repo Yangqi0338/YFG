@@ -17,11 +17,11 @@ import lombok.EqualsAndHashCode;
 /**
  * 类描述：字段值 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.formType.entity.FieldVal
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-1 11:57:03
+ * @email your email
+ * @date 创建时间：2023-7-19 19:19:07
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -63,6 +63,11 @@ public class FieldVal extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "字段值")
     private String val;
+    /**
+     * 字段值名称
+     */
+    @ApiModelProperty(value = "字段值名称")
+    private String valName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

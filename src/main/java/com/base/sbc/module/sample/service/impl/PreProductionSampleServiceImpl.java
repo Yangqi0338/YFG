@@ -119,13 +119,14 @@ public class PreProductionSampleServiceImpl extends BaseServiceImpl<PreProductio
         qw.notEmptyIn("season", dto.getSeason());
         qw.notEmptyIn("pattern_design_id", dto.getPatternDesignId());
         Page<PreProductionSample> page = PageHelper.startPage(dto);
+        list(qw);
         PageInfo<PreProductionSampleVo> voPageInfo = CopyUtil.copy(page.toPageInfo(), PreProductionSampleVo.class);
         List<PreProductionSampleVo> list = voPageInfo.getList();
         if (CollUtil.isNotEmpty(list)) {
             //图片
             attachmentService.setListStylePic(list, "stylePic");
             List<String> ids = list.stream().map(PreProductionSampleVo::getId).collect(Collectors.toList());
-            List<PreProductionSampleTask> taskList = preProductionSampleTaskService.list(new QueryWrapper<PreProductionSampleTask>().in("pre_production_sample", ids));
+            List<PreProductionSampleTask> taskList = preProductionSampleTaskService.list(new QueryWrapper<PreProductionSampleTask>().in("pre_production_sample_id", ids));
             List<PreProductionSampleTaskVo> voTaskList = BeanUtil.copyToList(taskList, PreProductionSampleTaskVo.class);
             Map<String, List<PreProductionSampleTaskVo>> subMap = Opt.ofNullable(voTaskList).
                     map(a -> a.stream().collect(

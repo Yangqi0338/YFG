@@ -254,11 +254,11 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
 
         if(!StringUtils.isEmpty(dto.getIsTrim())){
             if(dto.getIsTrim().equals(BaseGlobal.STATUS_NORMAL)){
-                /*查询主款*/
-                qw.notLike("category_name","配饰");
-            }else {
                 /*查询配饰*/
                 qw.like ("category_name","配饰");
+            }else {
+                /*查询主款*/
+                qw.notLike("category_name","配饰");
             }
         }
         qw.likeRight(StrUtil.isNotBlank(dto.getCategoryIds()), "category_ids", dto.getCategoryIds());
@@ -282,7 +282,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
             amcFeignService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
         } else {
 //            amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
-            amcFeignService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
+            // amcFeignService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
         }
         Page<SampleDesignPageVo> objects = PageHelper.startPage(dto);
         getBaseMapper().selectByQw(qw);
@@ -583,7 +583,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         //查询波段统计
         QueryWrapper brandTotalQw = new QueryWrapper();
         brandTotalQw.select("sd.band_code as name,count(1) as total");
-        brandTotalQw.groupBy("name");
+        brandTotalQw.groupBy("sd.band_code");
         stylePlanningCommonQw(brandTotalQw, dto);
         List<DimensionTotalVo> bandTotal = getBaseMapper().dimensionTotal(brandTotalQw);
         vo.setBandTotal(PlanningUtils.removeEmptyAndSort(bandTotal));
@@ -597,7 +597,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         //查询品类统计
         QueryWrapper categoryQw = new QueryWrapper();
         categoryQw.select("prod_category as name,count(1) as total");
-        categoryQw.groupBy("name");
+        categoryQw.groupBy("prod_category");
         stylePlanningCommonQw(categoryQw, dto);
         List<DimensionTotalVo> categoryTotal = getBaseMapper().dimensionTotal(categoryQw);
         ccmFeignService.setCategoryName(categoryTotal, "name", "name");

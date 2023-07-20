@@ -63,10 +63,11 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
 
     /**
      * 通过名称获取
+     *
      * @param name
      * @return
      */
-    List<PlanningSeason> getByName(String name,String userCompany);
+    PlanningSeason getByName(String name, String userCompany);
 
     /**
      * 产品季分页查询

@@ -19,13 +19,11 @@ import com.base.sbc.module.planning.entity.PlanningCategory;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.mapper.PlanningBandMapper;
-import com.base.sbc.module.planning.service.PlanningBandService;
-import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
-import com.base.sbc.module.planning.service.PlanningCategoryItemService;
-import com.base.sbc.module.planning.service.PlanningCategoryService;
+import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.vo.PlanningBandVo;
 import com.base.sbc.module.planning.vo.PlanningCategoryItemVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
+import com.base.sbc.module.planning.vo.PlanningSeasonVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -58,25 +56,25 @@ public class PlanningBandServiceImpl extends BaseServiceImpl<PlanningBandMapper,
     private PlanningCategoryItemService planningCategoryItemService;
     @Autowired
     private PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
-
+    @Autowired
+    private PlanningSeasonService planningSeasonService;
     @Resource
     private AmcFeignService amcFeignService;
+
     @Override
     @Transactional
-    public boolean del( String id) {
+    public boolean del(String id) {
         this.removeById(id);
         return true;
     }
 
-    @Override
-    public List<PlanningSeasonBandVo> selectByQw(QueryWrapper<PlanningBand> qw) {
-        return getBaseMapper().selectByQw(qw);
-    }
+
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public PlanningBand savePlanningBand(PlanningBandDto dto) {
         PlanningBand bean = null;
+
         if (StrUtil.isBlank(dto.getId())) {
             bean = BeanUtil.copyProperties(dto, PlanningBand.class);
             save(bean);
@@ -125,20 +123,23 @@ public class PlanningBandServiceImpl extends BaseServiceImpl<PlanningBandMapper,
 
     @Override
     public PlanningSeasonBandVo getBandByName(String planningSeasonName, String planningBandName, String userCompany) {
-        QueryWrapper qc = new QueryWrapper();
-        qc.apply("b.planning_season_id=s.id");
-        qc.eq("s.company_code", userCompany);
-        qc.eq("s.name", planningSeasonName);
-        qc.eq("b.name", planningBandName);
-        qc.eq("b.del_flag", BaseEntity.DEL_FLAG_NORMAL);
-        qc.eq("s.del_flag", BaseEntity.DEL_FLAG_NORMAL);
-        List<PlanningSeasonBandVo> list = selectByQw(qc);
-        PlanningSeasonBandVo first = CollUtil.getFirst(list);
+        PlanningSeasonVo seasonVo = planningSeasonService.getByName(planningSeasonName);
+        if (seasonVo == null) {
+            return null;
+        }
+        PlanningBandVo planningBand = getPlanningBand(seasonVo.getId(), planningBandName);
+        if (planningBand == null) {
+            return null;
+        }
+        PlanningSeasonBandVo first = new PlanningSeasonBandVo();
+        first.setBand(planningBand);
+        first.setSeason(seasonVo);
+        first.setId(planningBand.getId());
         //查询品类列表
         QueryWrapper categoryQc = new QueryWrapper();
         categoryQc.eq(COMPANY_CODE, userCompany);
-        categoryQc.eq("planning_season_id", first.getSeason().getId());
-        categoryQc.eq("planning_band_id", first.getBand().getId());
+        categoryQc.eq("planning_season_id", seasonVo.getId());
+        categoryQc.eq("planning_band_id", planningBand.getId());
         categoryQc.eq("del_flag", BaseEntity.DEL_FLAG_NORMAL);
         List<PlanningCategory> categoryData = planningCategoryService.list(categoryQc);
         first.getBand().setCategoryData(categoryData);
@@ -172,20 +173,29 @@ public class PlanningBandServiceImpl extends BaseServiceImpl<PlanningBandMapper,
     }
 
     @Override
+    public PlanningBandVo getPlanningBand(String planningSeasonId, String planningBandName) {
+        QueryWrapper<PlanningBand> qw = new QueryWrapper<>();
+        qw.eq("planning_season_id", planningSeasonId);
+        qw.eq("name", planningBandName);
+        qw.last("limit 1");
+        PlanningBand one = getOne(qw);
+        return BeanUtil.copyProperties(one, PlanningBandVo.class);
+    }
+
+    @Override
     public PageInfo<PlanningSeasonBandVo> queryPlanningSeasonBandPageInfo(PlanningBandSearchDto dto, String userCompany) {
         // 1 查询产品季
         QueryWrapper<PlanningBand> qc = new QueryWrapper<>();
-        qc.apply("b.planning_season_id=s.id");
         qc.like(StrUtil.isNotBlank(dto.getSearch()), "b.name", dto.getSearch());
         qc.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
-        qc.in(CollUtil.isNotEmpty(dto.getMonthList()),"b.month",dto.getMonthList());
+        qc.in(CollUtil.isNotEmpty(dto.getMonthList()), "b.month", dto.getMonthList());
         qc.eq("s.company_code", userCompany);
         qc.eq("s.del_flag", BaseEntity.DEL_FLAG_NORMAL);
         qc.eq("b.del_flag", BaseEntity.DEL_FLAG_NORMAL);
         qc.eq("s.name", dto.getPlanningSeasonName());
         dto.setOrderBy("b.create_date desc ");
         PageHelper.startPage(dto);
-        List<PlanningSeasonBandVo> list = selectByQw(qc);
+        List<PlanningSeasonBandVo> list = getBaseMapper().selectByQw(qc);
         if (CollUtil.isNotEmpty(list)) {
             List<String> userIds=new ArrayList<>(16);
             List<String> columnIds=new ArrayList<>(16);

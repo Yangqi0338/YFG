@@ -17,7 +17,6 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Date;
-
 /**
  * 类描述：样衣设计 实体类
  *
@@ -25,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
  * @email your email
- * @date 创建时间：2023-7-15 9:33:21
+ * @date 创建时间：2023-7-19 15:28:45
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -187,50 +186,100 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "品牌")
     private String brand;
     /**
+     * 品牌名称
+     */
+    @ApiModelProperty(value = "品牌名称")
+    private String brandName;
+    /**
      * 年份
      */
     @ApiModelProperty(value = "年份")
     private String year;
+    /**
+     * 年份名称
+     */
+    @ApiModelProperty(value = "年份名称")
+    private String yearName;
     /**
      * 季节
      */
     @ApiModelProperty(value = "季节")
     private String season;
     /**
+     * 季节名称
+     */
+    @ApiModelProperty(value = "季节名称")
+    private String seasonName;
+    /**
      * 月份
      */
     @ApiModelProperty(value = "月份")
     private String month;
+    /**
+     * 月份名称
+     */
+    @ApiModelProperty(value = "月份名称")
+    private String monthName;
     /**
      * 性别
      */
     @ApiModelProperty(value = "性别")
     private String sex;
     /**
+     * 性别名称
+     */
+    @ApiModelProperty(value = "性别名称")
+    private String sexName;
+    /**
      * 波段(编码)
      */
     @ApiModelProperty(value = "波段(编码)")
     private String bandCode;
+    /**
+     * 波段名称
+     */
+    @ApiModelProperty(value = "波段名称")
+    private String bandName;
     /**
      * 生产模式
      */
     @ApiModelProperty(value = "生产模式")
     private String devtType;
     /**
+     * 生产模式名称
+     */
+    @ApiModelProperty(value = "生产模式名称")
+    private String devtTypeName;
+    /**
      * 渠道
      */
     @ApiModelProperty(value = "渠道")
     private String channel;
+    /**
+     * 渠道名称
+     */
+    @ApiModelProperty(value = "渠道名称")
+    private String channelName;
     /**
      * 主题
      */
     @ApiModelProperty(value = "主题")
     private String subject;
     /**
+     * 主题名称
+     */
+    @ApiModelProperty(value = "主题名称")
+    private String subjectName;
+    /**
      * 版型
      */
     @ApiModelProperty(value = "版型")
     private String plateType;
+    /**
+     * 版型名称
+     */
+    @ApiModelProperty(value = "版型名称")
+    private String plateTypeName;
     /**
      * 号型类型
      */
@@ -241,6 +290,11 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "开发分类")
     private String devClass;
+    /**
+     * 开发分类名称
+     */
+    @ApiModelProperty(value = "开发分类名称")
+    private String devClassName;
     /**
      * Default尺码
      */
@@ -272,10 +326,20 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "廓形")
     private String silhouette;
     /**
+     * 廓形名称
+     */
+    @ApiModelProperty(value = "廓形名称")
+    private String silhouetteName;
+    /**
      * 打板难度
      */
     @ApiModelProperty(value = "打板难度")
     private String patDiff;
+    /**
+     * 打版难度名称
+     */
+    @ApiModelProperty(value = "打版难度名称")
+    private String patDiffName;
     /**
      * 尺码
      */
@@ -434,6 +498,12 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)")
     private String confirmStatus;
+    /**
+     * 计划完成时间
+     */
+    @ApiModelProperty(value = "计划完成时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date planningFinishDate;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

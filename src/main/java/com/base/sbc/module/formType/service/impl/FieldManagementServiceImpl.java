@@ -205,6 +205,7 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
         for (FieldManagementVo vo : fieldList) {
             vo.setId(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getId).orElse(idGen.nextIdStr()));
             vo.setVal(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getVal).orElse(null));
+            vo.setValName(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getValName).orElse(null));
             vo.setSelected(valMap.containsKey(vo.getFieldName()));
         }
 
