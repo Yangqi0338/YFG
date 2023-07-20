@@ -113,12 +113,6 @@ public class SmpService {
     //private static final String URL = "http://smp-i.eifini.com/service-manager/pdm";
 
 
-    public static void main(String[] args) throws IOException {
-
-        String[] strings = new ObjectMapper().readValue("[\"S0000\",\"S0010\",\"S0020\"]", String[].class);
-        System.out.println(strings[0]);
-    }
-
     /**
      * 商品主数据下发
      */

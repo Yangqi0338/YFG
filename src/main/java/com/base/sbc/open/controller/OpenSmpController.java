@@ -8,11 +8,10 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.hangTag.service.HangTagService;
-import com.base.sbc.module.smp.dto.SmpMaterialDto;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
-import com.base.sbc.module.smp.entity.SmpColor;
 import com.base.sbc.module.smp.entity.TagPrinting;
-import com.base.sbc.open.dto.*;
+import com.base.sbc.open.dto.MtBpReqDto;
+import com.base.sbc.open.dto.SmpOpenMaterialDto;
 import com.base.sbc.open.entity.MtBqReqEntity;
 import com.base.sbc.open.entity.SmpDept;
 import com.base.sbc.open.entity.SmpPost;
@@ -20,7 +19,6 @@ import com.base.sbc.open.entity.SmpUser;
 import com.base.sbc.open.service.MtBqReqService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -137,49 +135,57 @@ public class OpenSmpController extends BaseController {
         BasicsdatumMaterial basicsdatumMaterial = smpOpenMaterialDto.toBasicsdatumMaterial();
         basicsdatumMaterialService.saveOrUpdate(basicsdatumMaterial, new QueryWrapper<BasicsdatumMaterial>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
 
+        if (!smpOpenMaterialDto.getCOLORITEMS().isEmpty()) {
+            List<BasicsdatumMaterialColor> basicsdatumMaterialColors = new ArrayList<>();
+            //转成颜色集合
+            smpOpenMaterialDto.getCOLORITEMS().forEach(colorItem -> {
+                BasicsdatumMaterialColor basicsdatumMaterialColor = new BasicsdatumMaterialColor();
+                basicsdatumMaterialColor.setColorCode(colorItem.getColorCode());
+                basicsdatumMaterialColor.setStatus(colorItem.isActive() ? "0" : "1");
+                basicsdatumMaterialColor.setSupplierColorCode(colorItem.getSmpColor());
+                basicsdatumMaterialColor.setMaterialCode(basicsdatumMaterial.getMaterialCode());
+                basicsdatumMaterialColors.add(basicsdatumMaterialColor);
+            });
+            basicsdatumMaterialColorService.addAndUpdateAndDelList(basicsdatumMaterialColors, new QueryWrapper<BasicsdatumMaterialColor>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
 
-        List<BasicsdatumMaterialColor> basicsdatumMaterialColors = new ArrayList<>();
-        //转成颜色集合
-        smpOpenMaterialDto.getCOLORITEMS().forEach(colorItem -> {
-            BasicsdatumMaterialColor basicsdatumMaterialColor = new BasicsdatumMaterialColor();
-            basicsdatumMaterialColor.setColorCode(colorItem.getColorCode());
-            basicsdatumMaterialColor.setStatus(colorItem.isActive() ? "0" : "1");
-            basicsdatumMaterialColor.setSupplierColorCode(colorItem.getSmpColor());
-            basicsdatumMaterialColor.setMaterialCode(basicsdatumMaterial.getMaterialCode());
-            basicsdatumMaterialColors.add(basicsdatumMaterialColor);
-        });
-        basicsdatumMaterialColorService.addAndUpdateAndDelList(basicsdatumMaterialColors, new QueryWrapper<BasicsdatumMaterialColor>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+        }
 
-        List<BasicsdatumMaterialWidth> basicsdatumMaterialWidths = new ArrayList<>();
-        smpOpenMaterialDto.getMODELITEMS().forEach(modelItem -> {
-            BasicsdatumMaterialWidth basicsdatumMaterialWidth = new BasicsdatumMaterialWidth();
-            basicsdatumMaterialWidth.setStatus(modelItem.isActive() ? "0" : "1");
-            basicsdatumMaterialWidth.setWidthCode(modelItem.getCODE());
-            basicsdatumMaterialWidth.setName(modelItem.getSIZENAME());
-            basicsdatumMaterialWidth.setMaterialCode(basicsdatumMaterial.getMaterialCode());
-            basicsdatumMaterialWidths.add(basicsdatumMaterialWidth);
-        });
-        basicsdatumMaterialWidthService.addAndUpdateAndDelList(basicsdatumMaterialWidths, new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+        if (!smpOpenMaterialDto.getMODELITEMS().isEmpty()) {
+            List<BasicsdatumMaterialWidth> basicsdatumMaterialWidths = new ArrayList<>();
+            smpOpenMaterialDto.getMODELITEMS().forEach(modelItem -> {
+                BasicsdatumMaterialWidth basicsdatumMaterialWidth = new BasicsdatumMaterialWidth();
+                basicsdatumMaterialWidth.setStatus(modelItem.isActive() ? "0" : "1");
+                basicsdatumMaterialWidth.setWidthCode(modelItem.getCODE());
+                basicsdatumMaterialWidth.setName(modelItem.getSIZENAME());
+                basicsdatumMaterialWidth.setMaterialCode(basicsdatumMaterial.getMaterialCode());
+                basicsdatumMaterialWidths.add(basicsdatumMaterialWidth);
+            });
+            basicsdatumMaterialWidthService.addAndUpdateAndDelList(basicsdatumMaterialWidths, new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
 
-        List<BasicsdatumMaterialPrice> basicsdatumMaterialPrices = new ArrayList<>();
-        smpOpenMaterialDto.getQuotItems().forEach(quotItem -> {
-            BasicsdatumMaterialPrice basicsdatumMaterialPrice = new BasicsdatumMaterialPrice();
-            basicsdatumMaterialPrice.setWidth(quotItem.getSUPPLIERSIZE());
-            basicsdatumMaterialPrice.setMaterialCode(basicsdatumMaterial.getMaterialCode());
-            basicsdatumMaterialPrice.setSupplierId(quotItem.getSupplierCode());
-            basicsdatumMaterialPrice.setSupplierName(quotItem.getSupplierName());
-            basicsdatumMaterialPrice.setColor(quotItem.getSUPPLIERCOLORID());
-            basicsdatumMaterialPrice.setQuotationPrice(quotItem.getFOBFullPrice());
-            basicsdatumMaterialPrice.setOrderDay(quotItem.getLeadTime());
-            basicsdatumMaterialPrice.setProductionDay(quotItem.getC8_SupplierItemRev_MLeadTime());
-            basicsdatumMaterialPrice.setMinimumOrderQuantity(quotItem.getMOQInitial());
-            basicsdatumMaterialPrice.setColorName(quotItem.getSUPPLIERCOLORNAME());
-            basicsdatumMaterialPrice.setWidthName(quotItem.getSUPPLIERSIZE());
-            basicsdatumMaterialPrice.setSupplierMaterialCode(quotItem.getSupplierMaterial());
-            basicsdatumMaterialPrices.add(basicsdatumMaterialPrice);
+        }
 
-        });
-        basicsdatumMaterialPriceService.addAndUpdateAndDelList(basicsdatumMaterialPrices, new QueryWrapper<BasicsdatumMaterialPrice>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+        if (!smpOpenMaterialDto.getQuotItems().isEmpty()) {
+            List<BasicsdatumMaterialPrice> basicsdatumMaterialPrices = new ArrayList<>();
+            smpOpenMaterialDto.getQuotItems().forEach(quotItem -> {
+                BasicsdatumMaterialPrice basicsdatumMaterialPrice = new BasicsdatumMaterialPrice();
+                basicsdatumMaterialPrice.setWidth(quotItem.getSUPPLIERSIZE());
+                basicsdatumMaterialPrice.setMaterialCode(basicsdatumMaterial.getMaterialCode());
+                basicsdatumMaterialPrice.setSupplierId(quotItem.getSupplierCode());
+                basicsdatumMaterialPrice.setSupplierName(quotItem.getSupplierName());
+                basicsdatumMaterialPrice.setColor(quotItem.getSUPPLIERCOLORID());
+                basicsdatumMaterialPrice.setQuotationPrice(quotItem.getFOBFullPrice());
+                basicsdatumMaterialPrice.setOrderDay(quotItem.getLeadTime());
+                basicsdatumMaterialPrice.setProductionDay(quotItem.getC8_SupplierItemRev_MLeadTime());
+                basicsdatumMaterialPrice.setMinimumOrderQuantity(quotItem.getMOQInitial());
+                basicsdatumMaterialPrice.setColorName(quotItem.getSUPPLIERCOLORNAME());
+                basicsdatumMaterialPrice.setWidthName(quotItem.getSUPPLIERSIZE());
+                basicsdatumMaterialPrice.setSupplierMaterialCode(quotItem.getSupplierMaterial());
+                basicsdatumMaterialPrices.add(basicsdatumMaterialPrice);
+
+            });
+            basicsdatumMaterialPriceService.addAndUpdateAndDelList(basicsdatumMaterialPrices, new QueryWrapper<BasicsdatumMaterialPrice>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+
+        }
 
         return insertSuccess(null);
     }
