@@ -67,7 +67,7 @@
 	</select>
 	<select id="getBomSelMaterialList" resultType="com.base.sbc.module.pack.vo.BomSelMaterialVo">
 		SELECT
-		bm.id
+		bm.id,
 		bm.company_code,
 		bm.id AS material_id,
 		bm.material_name,
