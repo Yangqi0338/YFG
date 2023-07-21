@@ -11,7 +11,7 @@ import lombok.Data;
  * 规格组
  */
 @Data
-@TableName("t_specification_group")
+@TableName("t_basicsdatum_specification_group")
 public class SpecificationGroup extends BaseDataEntity<String> {
     @ApiModelProperty(value = "状态")
     private String status;
@@ -33,6 +33,13 @@ public class SpecificationGroup extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "规格名称集合")
     private String specificationNames;
+
+
+    @ApiModelProperty(value = "基础规格")
+    private String  basicsSpecification;
+
+    @ApiModelProperty(value = "规格名称集合")
+    private String  basicsSpecificationCode;
 
     @ApiModelProperty(value = "备注")
     private String remarks;
