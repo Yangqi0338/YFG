@@ -65,6 +65,8 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Transactional(rollbackFor = {Exception.class})
     public boolean taskAssignment(PreTaskAssignmentDto dto) {
         EnumNodeStatus ens = EnumNodeStatus.GARMENT_CUTTING_WAITING_RECEIVED;
+        String node = "产前样衣任务";
+        String status = "裁剪待接收";
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
         List<String> ids = StrUtil.split(dto.getId(), CharUtil.COMMA);
         uw.lambda().in(PreProductionSampleTask::getId, ids)
@@ -76,12 +78,12 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
                 .set(PreProductionSampleTask::getGradingName, dto.getGradingName())
                 .set(PreProductionSampleTask::getStitcher, dto.getStitcher())
                 .set(PreProductionSampleTask::getStitcherId, dto.getStitcherId())
-                .set(PreProductionSampleTask::getNode, ens.getNode())
-                .set(PreProductionSampleTask::getStatus, ens.getStatus());
+                .set(PreProductionSampleTask::getNode, node)
+                .set(PreProductionSampleTask::getStatus, status);
         setUpdateInfo(uw);
         boolean flg = update(uw);
         for (String id : ids) {
-            nodeStatusService.nodeStatusChange(id, ens.getNode(), ens.getStatus(), BaseGlobal.YES, BaseGlobal.NO);
+            nodeStatusService.nodeStatusChange(id, node, status, BaseGlobal.YES, BaseGlobal.NO);
         }
         return flg;
     }
@@ -97,7 +99,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean nodeStatusChange(String userId, NodeStatusChangeDto dto, GroupUser groupUser) {
-        nodeStatusService.hasNodeStatusAuth(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, userId, dto.getDataId(), this);
+        nodeStatusService.hasNodeStatusAuth(NodeStatusConfigService.PRE_PRODUCTION_SAMPLE_TASK, userId, dto.getDataId(), this);
         nodeStatusService.nodeStatusChange(dto.getDataId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
         // 修改单据
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
