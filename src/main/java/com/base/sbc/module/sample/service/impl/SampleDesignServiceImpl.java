@@ -310,7 +310,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
                 queryWrapper.eq(StrUtil.isNotBlank(dto.getStyleStatus()), "ssc.status", dto.getStyleStatus());
                 if(StrUtil.isNotBlank(dto.getMeetFlag()) ){
                     if (dto.getMeetFlag().equals(BaseGlobal.STATUS_NORMAL)) {
-                        queryWrapper.ne( "sob.meet_flag", dto.getMeetFlag());
+                        queryWrapper.ne( "sob.meet_flag", BaseGlobal.STATUS_CLOSE);
                     }
                 }
                 List<SampleStyleColorVo> sampleStyleColorVoList = sampleStyleColorMapper.getSampleStyleColorList(queryWrapper);
