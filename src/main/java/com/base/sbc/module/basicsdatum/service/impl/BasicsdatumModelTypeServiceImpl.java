@@ -118,6 +118,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         List<BasicsdatumModelTypeExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumModelTypeExcelDto.class, params);
         list = list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
         for (BasicsdatumModelTypeExcelDto basicsdatumModelTypeExcelDto : list) {
+            List<BasicsdatumSize> basicsdatumSizeList =new ArrayList<>();
 //            获取品类id
             if (StringUtils.isNotBlank(basicsdatumModelTypeExcelDto.getCategory())) {
 
@@ -140,11 +141,23 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
                String[] strings =  basicsdatumModelTypeExcelDto.getSize().split(",");
                QueryWrapper queryWrapper=new QueryWrapper();
                queryWrapper.in("hangtags",strings);
-               List<BasicsdatumSize> basicsdatumSizeList =basicsdatumSizeMapper.selectList(queryWrapper);
+              basicsdatumSizeList =basicsdatumSizeMapper.selectList(queryWrapper);
                if(!CollectionUtils.isEmpty(basicsdatumSizeList)){
-                  List<String> stringList =  basicsdatumSizeList.stream().map(BasicsdatumSize::getId).collect(Collectors.toList());
+                  List<String> stringList =  basicsdatumSizeList.stream().map(BasicsdatumSize::getSort).collect(Collectors.toList());
                   basicsdatumModelTypeExcelDto.setSizeIds( StringUtils.join(stringList,","));
+               }else {
+                   basicsdatumModelTypeExcelDto.setSize("");
                }
+            }
+            if(StringUtils.isNotBlank(basicsdatumModelTypeExcelDto.getBasicsSize())) {
+                if (!CollectionUtils.isEmpty(basicsdatumSizeList)) {
+                    List<BasicsdatumSize> basicsdatumSizeList1 = basicsdatumSizeList.stream().filter(s -> basicsdatumModelTypeExcelDto.getBasicsSize().equals(s.getHangtags())).collect(Collectors.toList());
+                    if (!CollectionUtils.isEmpty(basicsdatumSizeList1)) {
+                        basicsdatumModelTypeExcelDto.setBasicsSizeSort(basicsdatumSizeList1.get(0).getSort());
+                    } else {
+                        basicsdatumModelTypeExcelDto.setBasicsSize("");
+                    }
+                }
             }
         }
         List<BasicsdatumModelType> basicsdatumModelTypeList = BeanUtil.copyToList(list, BasicsdatumModelType.class);

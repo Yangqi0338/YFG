@@ -104,8 +104,10 @@ public class SpecificationGroupServiceImpl extends BaseServiceImpl<Specification
                 queryWrapper.in("name", StringUtils.convertList(specificationGroupExcelDto.getSpecificationNames()));
                  specificationList = specificationMapper.selectList(queryWrapper);
                 if (!CollectionUtils.isEmpty(specificationList)) {
-                    List<String> stringList = specificationList.stream().map(Specification::getId).collect(Collectors.toList());
+                    List<String> stringList = specificationList.stream().map(Specification::getCode).collect(Collectors.toList());
                     specificationGroupExcelDto.setSpecificationIds(StringUtils.join(stringList, ","));
+                }else {
+                    specificationGroupExcelDto.setSpecificationNames("");
                 }
             }
             if(StringUtils.isNotBlank(specificationGroupExcelDto.getBasicsSpecification())){
@@ -114,6 +116,8 @@ public class SpecificationGroupServiceImpl extends BaseServiceImpl<Specification
                     if (!CollectionUtils.isEmpty(specificationList1)) {
                         specificationGroupExcelDto.setBasicsSpecificationCode(specificationList1.get(0).getCode());
                     }
+                }else {
+                    specificationGroupExcelDto.setBasicsSpecification("");
                 }
 
             }

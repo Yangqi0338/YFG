@@ -74,10 +74,10 @@ public interface BasicsdatumSizeService extends BaseService<BasicsdatumSize> {
 
     /**
      * 获取尺码名
-     * @param ids
+     * @param sort
      * @return
      */
-   Map<String,String>  getSizeName(String ids);
+   Map<String,String>  getSizeName(String sort);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

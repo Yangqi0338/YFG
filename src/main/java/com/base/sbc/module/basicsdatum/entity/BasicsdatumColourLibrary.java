@@ -63,7 +63,7 @@ public class BasicsdatumColourLibrary extends BaseDataEntity<String> {
         smpColorDto.setColorTypeName(colorTypeName);
         smpColorDto.setColorChromaId(chroma);
         smpColorDto.setColorChroma(chromaName);
-        smpColorDto.setRange(("1".equals(isStyle)? "款式/" : "")+("1".equals(isMaterials)? "材料" : ""));
+        smpColorDto.setRange("款式/");
         return smpColorDto;
     }
 
@@ -88,12 +88,12 @@ public class BasicsdatumColourLibrary extends BaseDataEntity<String> {
     /** 库 */
     @ApiModelProperty(value = "库"  )
     private String library;
-    /** 可用于款式 */
-    @ApiModelProperty(value = "可用于款式"  )
-    private String isStyle;
-    /** 可用于材料 */
-    @ApiModelProperty(value = "可用于材料"  )
-    private String isMaterials;
+//    /** 可用于款式 */
+//    @ApiModelProperty(value = "可用于款式"  )
+//    private String isStyle;
+//    /** 可用于材料 */
+//    @ApiModelProperty(value = "可用于材料"  )
+//    private String isMaterials;
     /** 潘通 */
     @ApiModelProperty(value = "潘通"  )
     private String pantone;

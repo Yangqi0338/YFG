@@ -57,6 +57,9 @@ public class BasicsdatumModelType extends BaseDataEntity<String> {
     /** 基础 尺码 */
     @ApiModelProperty(value = "基础 尺码"  )
     private String basicsSize;
+    /** 基础 尺码排序 */
+    @ApiModelProperty(value = "基础 尺码排序"  )
+    private String basicsSizeSort;
     /** 款式确认(1确定，0未确认) */
     @ApiModelProperty(value = "款式确认(1确定，0未确认)"  )
     private String styleConfirmation;

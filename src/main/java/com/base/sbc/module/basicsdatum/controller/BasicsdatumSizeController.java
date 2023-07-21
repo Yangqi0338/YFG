@@ -108,8 +108,8 @@ public class BasicsdatumSizeController{
 	/*获取尺码*/
 	@ApiOperation(value = "查询尺码标签")
 	@GetMapping("/getSizeName")
-	public ApiResult getSizeName(@Valid @NotBlank(message = "编号id不能为空") String ids) {
-		return	ApiResult.success("操作成功",basicsdatumSizeService.getSizeName(ids)) ;
+	public ApiResult getSizeName(@Valid @NotBlank(message = "编号id不能为空") String sort) {
+		return	ApiResult.success("操作成功",basicsdatumSizeService.getSizeName(sort)) ;
 	}
 
 
