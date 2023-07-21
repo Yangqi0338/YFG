@@ -14,7 +14,7 @@ import lombok.Data;
  */
 @Data
 @Api(tags = "基础资料-色号和色型")
-@TableName("t_specification")
+@TableName("t_basicsdatum_specification")
 public class Specification extends BaseDataEntity<String> {
 
     /**

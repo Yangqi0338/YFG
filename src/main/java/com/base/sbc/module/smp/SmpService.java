@@ -555,7 +555,18 @@ public class SmpService {
             fabricCompositionDto.setName(basicsdatumMaterial.getMaterialName());
             fabricCompositionDto.setMaterialCode(basicsdatumMaterial.getMaterialCode());
             fabricCompositionDto.setId(fabricCompositionDto.getId());
-            fabricCompositionDto.setIngredient(basicsdatumMaterial.getIngredient());
+            String[] split = basicsdatumMaterial.getIngredient().split(", ");
+            List<String> list =new ArrayList<>();
+            try {
+                for (String s : split) {
+                    String[] split1 = s.split(" ");
+                    list.add(split1[1]);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+            fabricCompositionDto.setIngredient(String.join(",", list));
 
 
             HttpResp httpResp = restTemplateService.spmPost(URL + "/sample", fabricCompositionDto);
