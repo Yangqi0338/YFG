@@ -17,9 +17,7 @@ import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.*;
-import com.base.sbc.module.planning.vo.PlanningBandVo;
-import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
-import com.base.sbc.module.planning.vo.PlanningSeasonVo;
+import com.base.sbc.module.planning.vo.*;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -64,7 +62,8 @@ public class PlanningController extends BaseController {
 
     @Resource
     private PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
-
+    @Resource
+    private PlanningChannelService planningChannelService;
     @Autowired
     private CcmService ccmService;
     @Autowired
@@ -98,6 +97,25 @@ public class PlanningController extends BaseController {
         }
         return new PageInfo<>();
     }
+
+    @ApiOperation(value = "产品季-查询年份品牌树")
+    @GetMapping("/queryYearBrandTree")
+    public List<YearBrandVo> queryYearBrandTree(String search) {
+        return planningSeasonService.queryYearBrandTree(search);
+    }
+
+    @ApiOperation(value = "新增渠道")
+    @PostMapping("/channel")
+    public PlanningChannelVo save(@Valid @RequestBody PlanningChannelDto dto) {
+        return planningChannelService.saveByDto(dto);
+    }
+
+    @ApiOperation(value = "渠道列表-分页查询")
+    @GetMapping("/channel")
+    public PageInfo<PlanningChannelVo> channelPageInfo(PlanningChannelSearchDto dto) {
+        return planningChannelService.channelPageInfo(dto);
+    }
+
 
     @ApiOperation(value = "查询波段企划-分页查询")
     @GetMapping("/planBand")

@@ -12,20 +12,21 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 /**
- * 类描述：企划-产品季 实体类
+ * 类描述：企划-渠道 实体类
  *
  * @author your name
  * @version 1.0
- * @address com.base.sbc.module.planning.entity.PlanningSeason
+ * @address com.base.sbc.module.planning.entity.PlanningChannel
  * @email your email
- * @date 创建时间：2023-7-21 17:59:43
+ * @date 创建时间：2023-7-21 17:59:40
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_planning_season")
-@ApiModel("企划-产品季 PlanningSeason")
-public class PlanningSeason extends BaseDataEntity<String> {
+@TableName("t_planning_channel")
+@ApiModel("企划-渠道 PlanningChannel")
+public class PlanningChannel extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -35,10 +36,10 @@ public class PlanningSeason extends BaseDataEntity<String> {
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /**
-     * 企划名称
+     * 产品季节id
      */
-    @ApiModelProperty(value = "企划名称")
-    private String name;
+    @ApiModelProperty(value = "产品季节id")
+    private String planningSeasonId;
     /**
      * 品牌
      */
@@ -55,6 +56,11 @@ public class PlanningSeason extends BaseDataEntity<String> {
     @ApiModelProperty(value = "年份")
     private String year;
     /**
+     * 年份名称
+     */
+    @ApiModelProperty(value = "年份名称")
+    private String yearName;
+    /**
      * 季节
      */
     @ApiModelProperty(value = "季节")
@@ -65,20 +71,25 @@ public class PlanningSeason extends BaseDataEntity<String> {
     @ApiModelProperty(value = "季节名称")
     private String seasonName;
     /**
-     * 年份名称
+     * 渠道
      */
-    @ApiModelProperty(value = "年份名称")
-    private String yearName;
+    @ApiModelProperty(value = "渠道")
+    private String channel;
     /**
-     * 状态(0正常,1停用)
+     * 渠道名称
      */
-    @ApiModelProperty(value = "状态(0正常,1停用)")
-    private String status;
+    @ApiModelProperty(value = "渠道名称")
+    private String channelName;
     /**
-     * 备注
+     * 性别
      */
-    @ApiModelProperty(value = "备注")
-    private String remarks;
+    @ApiModelProperty(value = "性别")
+    private String sex;
+    /**
+     * 性别名称
+     */
+    @ApiModelProperty(value = "性别名称")
+    private String sexName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

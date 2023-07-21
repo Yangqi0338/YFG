@@ -346,13 +346,47 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                 ProductSeasonExpandByCategorySearchDto productSeasonExpandByCategorySearchDto=new ProductSeasonExpandByCategorySearchDto();
                 /*查询产品下的品类*/
                 productSeasonExpandByCategorySearchDto.setPlanningSeasonId(productCategoryTreeVo.getId());
-                List<BasicStructureTreeVo> basicStructureTreeVoList =  planningCategoryItemService.expandByCategory(productSeasonExpandByCategorySearchDto);
-                if(!CollectionUtils.isEmpty(basicStructureTreeVoList)){
+                List<BasicStructureTreeVo> basicStructureTreeVoList = planningCategoryItemService.expandByCategory(productSeasonExpandByCategorySearchDto);
+                if (!CollectionUtils.isEmpty(basicStructureTreeVoList)) {
                     productCategoryTreeVo.setChildren(basicStructureTreeVoList);
                 }
             });
         }
         return list;
+    }
+
+    @Override
+    public List<YearBrandVo> queryYearBrandTree(String search) {
+        QueryWrapper<PlanningSeason> qw = new QueryWrapper<>();
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.lambda().isNotNull(PlanningSeason::getYearName).isNotNull(PlanningSeason::getBrandName);
+
+        //查询所有产品季
+        List<PlanningSeason> seasonList = list(qw);
+        if (CollUtil.isEmpty(seasonList)) {
+            return null;
+        }
+        //统计产品季skc数量
+        Map<String, Long> sckCountMap = planningCategoryItemService.totalSkcByPlanningSeason();
+
+        List<PlanningSeasonTreeVo> planningSeasonTreeVos = BeanUtil.copyToList(seasonList, PlanningSeasonTreeVo.class);
+        for (PlanningSeasonTreeVo planningSeasonTreeVo : planningSeasonTreeVos) {
+            planningSeasonTreeVo.setSkcCount(sckCountMap.getOrDefault(planningSeasonTreeVo.getId(), 0L));
+        }
+        List<YearBrandVo> result = new ArrayList<>(16);
+        Map<String, List<PlanningSeasonTreeVo>> seasonMap = planningSeasonTreeVos.stream().collect(Collectors.groupingBy(item -> item.getYearName() + item.getBrand()));
+
+        for (Map.Entry<String, List<PlanningSeasonTreeVo>> season : seasonMap.entrySet()) {
+            YearBrandVo item = new YearBrandVo();
+            List<PlanningSeasonTreeVo> value = season.getValue();
+            PlanningSeason planningSeason = value.get(0);
+            item.setYearName(planningSeason.getYearName());
+            item.setBrandName(planningSeason.getBrandName());
+            item.setTotal(value.size());
+            item.setChildren(value);
+            result.add(item);
+        }
+        return result;
     }
 
 

@@ -23,7 +23,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
  * @email your email
- * @date 创建时间：2023-7-19 19:19:14
+ * @date 创建时间：2023-7-21 17:59:45
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -53,6 +53,11 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "品类信息id")
     private String planningCategoryId;
+    /**
+     * 渠道id
+     */
+    @ApiModelProperty(value = "渠道id")
+    private String planningChannelId;
     /**
      * 款式图
      */
@@ -155,6 +160,71 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "延续点")
     private String continuationPoint;
+    /**
+     * 品牌
+     */
+    @ApiModelProperty(value = "品牌")
+    private String brand;
+    /**
+     * 品牌名称
+     */
+    @ApiModelProperty(value = "品牌名称")
+    private String brandName;
+    /**
+     * 年份
+     */
+    @ApiModelProperty(value = "年份")
+    private String year;
+    /**
+     * 年份名称
+     */
+    @ApiModelProperty(value = "年份名称")
+    private String yearName;
+    /**
+     * 季节
+     */
+    @ApiModelProperty(value = "季节")
+    private String season;
+    /**
+     * 季节名称
+     */
+    @ApiModelProperty(value = "季节名称")
+    private String seasonName;
+    /**
+     * 渠道
+     */
+    @ApiModelProperty(value = "渠道")
+    private String channel;
+    /**
+     * 渠道名称
+     */
+    @ApiModelProperty(value = "渠道名称")
+    private String channelName;
+    /**
+     * 性别
+     */
+    @ApiModelProperty(value = "性别")
+    private String sex;
+    /**
+     * 性别名称
+     */
+    @ApiModelProperty(value = "性别名称")
+    private String sexName;
+    /**
+     * 月份
+     */
+    @ApiModelProperty(value = "月份")
+    private String month;
+    /**
+     * 月份名称
+     */
+    @ApiModelProperty(value = "月份名称")
+    private String monthName;
+    /**
+     * 特别需求:(1是,0否)
+     */
+    @ApiModelProperty(value = "特别需求:(1是,0否)")
+    private String specialNeedsFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

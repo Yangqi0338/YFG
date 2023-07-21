@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
  * @email your email
- * @date 创建时间：2023-7-19 15:28:45
+ * @date 创建时间：2023-7-21 17:59:47
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -371,10 +371,20 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "款式风格")
     private String styleFlavour;
     /**
+     * 款式风格名称
+     */
+    @ApiModelProperty(value = "款式风格名称")
+    private String styleFlavourName;
+    /**
      * 款式定位
      */
     @ApiModelProperty(value = "款式定位")
     private String positioning;
+    /**
+     * 款式定位名称
+     */
+    @ApiModelProperty(value = "款式定位名称")
+    private String positioningName;
     /**
      * 关联的素材库数量
      */
@@ -504,6 +514,11 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "计划完成时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date planningFinishDate;
+    /**
+     * 特别需求:(1是,0否)
+     */
+    @ApiModelProperty(value = "特别需求:(1是,0否)")
+    private String specialNeedsFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

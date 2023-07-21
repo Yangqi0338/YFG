@@ -232,7 +232,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         return bomList.stream().map(packBom -> NumberUtil.mul(
                 packBom.getBulkUnitUse(),
                 packBom.getBulkPrice(),
-                BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO)))
+                BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO)).divide(new BigDecimal("100")))
         ).reduce((a, b) -> a.add(b)).orElse(BigDecimal.ZERO);
     }
 
