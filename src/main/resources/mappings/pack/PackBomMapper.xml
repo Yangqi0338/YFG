@@ -124,7 +124,7 @@
             t_sample_style_color ssc
             LEFT JOIN t_sample_design sd ON sd.id = ssc.sample_design_id
             LEFT JOIN t_upload_file uf ON uf.id = sd.style_pic
-            LEFT JOIN t_band b ON b.CODE = sd.band_code
+            LEFT JOIN t_basicsdatum_band b ON b.CODE = sd.band_code
             LEFT JOIN (
             SELECT
                 sd.design_no AS design_no_two,

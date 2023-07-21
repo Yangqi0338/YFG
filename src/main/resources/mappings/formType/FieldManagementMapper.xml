@@ -82,7 +82,7 @@
         option_url optionUrl,
         option_number optionNumber,
         option_date optionDate
-        from  t_option
+        from  t_field_option
          where field_id = #{id} and  del_flag='0'
     </select>
     <select id="getTableMessage" resultType="java.util.Map">

@@ -23,7 +23,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_option")
+@TableName("t_field_option")
 public class Option extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;

@@ -23,7 +23,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_difference")
+@TableName("t_basicsdatum_difference")
 @ApiModel("公差，档差 Difference")
 public class Difference extends BaseDataEntity<String> {
 
