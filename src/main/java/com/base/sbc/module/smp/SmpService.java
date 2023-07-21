@@ -593,7 +593,7 @@ public class SmpService {
     /**
      * 修改商品颜色的时候验证
      */
-    public Boolean checkColorSize(PlmStyleSizeParam param) {
+    public Boolean checkColorSize(PdmStyleCheckParam param) {
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL+"checkColorSize", param);
         return pushRecordsService.pushRecordSave(httpResp, param, "scm", "修改商品颜色的时候验证");
     }
