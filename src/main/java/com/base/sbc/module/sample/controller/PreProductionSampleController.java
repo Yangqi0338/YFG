@@ -132,7 +132,7 @@ public class PreProductionSampleController {
     }
 
     @ApiOperation(value = "获取节点状态配置", notes = "")
-    @GetMapping("/getNodeStatusConfig")
+    @GetMapping("/task/getNodeStatusConfig")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "node", value = "节点", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "status", value = "状态", required = false, dataType = "String", paramType = "query"),

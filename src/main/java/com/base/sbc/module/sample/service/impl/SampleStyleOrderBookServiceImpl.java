@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -104,6 +105,13 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 	private void saveItem(String orderBookCode, String styleNo) {
 		// 页面选择的款号集合
 		List<String> convertList = StringUtils.convertList(styleNo).stream().distinct().collect(Collectors.toList());
+		// 如果大货款号已经上订货本禁止再上会
+		long l = sampleStyleOrderBookColorService.count(new QueryWrapper<SampleStyleOrderBookColor>()
+				.eq("company_code", getCompanyCode()).in("style_no", convertList));
+		if (l > 0) {
+			throw new OtherException("款式已上订货本");
+		}
+
 		// 款号 - 套装编号
 		Map<String, String> map = new HashMap<>();
 		// 查询款式对应的套装
@@ -161,7 +169,7 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 				.set(StringUtils.isNotBlank(dto.getImageUrl()), "image_url", dto.getImageUrl())
 				.set(StringUtils.isNotBlank(dto.getLockFlag()), "lock_flag", dto.getLockFlag())
 				.set(StringUtils.isNotBlank(dto.getMeetFlag()), "meet_flag", dto.getMeetFlag())
-				.eq("id", StringUtils.convertList(dto.getId())));
+				.in("id", StringUtils.convertList(dto.getId())));
 		return true;
 	}
 
