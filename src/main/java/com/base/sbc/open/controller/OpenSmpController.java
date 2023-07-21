@@ -12,10 +12,8 @@ import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.open.dto.MtBpReqDto;
 import com.base.sbc.open.dto.SmpOpenMaterialDto;
-import com.base.sbc.open.entity.MtBqReqEntity;
-import com.base.sbc.open.entity.SmpDept;
-import com.base.sbc.open.entity.SmpPost;
-import com.base.sbc.open.entity.SmpUser;
+import com.base.sbc.open.entity.*;
+import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.base.sbc.open.service.MtBqReqService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +50,8 @@ public class OpenSmpController extends BaseController {
     private final BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
 
     private final BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
+
+    private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 
     /**
      * bp供应商
@@ -199,5 +199,16 @@ public class OpenSmpController extends BaseController {
     public ApiResult tagPrinting(String id, Boolean bl) {
         List<TagPrinting> tagPrintings1 = hangTagService.hangTagPrinting(id, bl, super.getUserCompany());
         return selectSuccess(tagPrintings1);
+    }
+
+
+    /**
+     * 面料成分检测数据接口
+     */
+    @GetMapping("/EscmMaterialCompnentInspectCompany")
+    public ApiResult EscmMaterialCompnentInspectCompanyDto(@RequestBody JSONObject jsonObject){
+        EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = jsonObject.toJavaObject(EscmMaterialCompnentInspectCompanyDto.class);
+        escmMaterialCompnentInspectCompanyService.saveOrUpdate(escmMaterialCompnentInspectCompanyDto);
+        return insertSuccess(null);
     }
 }
