@@ -98,8 +98,11 @@ public class SmpService {
     private final  BasicsdatumModelTypeService basicsdatumModelTypeService;
 
 
-    private static final String URL = "http://10.98.250.31:7006/pdm";
-    //private static final String URL = "http://smp-i.eifini.com/service-manager/pdm";
+    private static final String SMP_URL = "http://10.98.250.31:7006/pdm";
+    //private static final String PDM_URL = "http://smp-i.eifini.com/service-manager/pdm";
+
+    private static final String SCM_URL = "http://10.8.250.100:1980/escm-app/information/pdm/";
+
 
 
     /**
@@ -256,7 +259,7 @@ public class SmpService {
             smpGoodsDto.setIntegritySample(null);
             smpGoodsDto.setIntegrityProduct(null);
 
-            HttpResp httpResp = restTemplateService.spmPost(URL + "/goods", smpGoodsDto);
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", smpGoodsDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpGoodsDto, "smp", "商品主数据下发");
             if (aBoolean) {
                 i++;
@@ -371,7 +374,7 @@ public class SmpService {
 
 
             //下发并记录推送日志
-            HttpResp httpResp = restTemplateService.spmPost(URL + "/materials", smpMaterialDto);
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/materials", smpMaterialDto);
 
             //获取事务
             transactionStatus = dataSourceTransactionManager.getTransaction(transactionDefinition);
@@ -451,7 +454,7 @@ public class SmpService {
             smpBomDto.setSizeQtyList(sizeQtyList);
 
 
-            HttpResp httpResp = restTemplateService.spmPost(URL + "/bom", smpBomDto);
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/bom", smpBomDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
             packBom.setScmSendFlag("1");
             packBomService.updateById(packBom);
@@ -476,7 +479,7 @@ public class SmpService {
         for (BasicsdatumColourLibrary basicsdatumColourLibrary : basicsdatumColourLibraries) {
             SmpColorDto smpColorDto = basicsdatumColourLibrary.toSmpColorDto();
 
-            HttpResp httpResp = restTemplateService.spmPost(URL + "/color", smpColorDto);
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/color", smpColorDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpColorDto, "smp", "颜色主数据下发");
             if (aBoolean) {
                 i++;
@@ -498,7 +501,7 @@ public class SmpService {
 
             smpProcessSheetDto.setSyncId(id);
             smpProcessSheetDto.setId(id);
-            HttpResp httpResp = restTemplateService.spmPost(URL + "/processSheet", smpProcessSheetDto);
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/processSheet", smpProcessSheetDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpProcessSheetDto, "smp", "工艺单下发");
             if (aBoolean){
                 i++;
@@ -536,7 +539,7 @@ public class SmpService {
             smpSampleDto.setPatternMakerId(usernamesByIds.get(patternDesignId));
             smpSampleDto.setProofingDesignerId(usernamesByIds.get(merchDesignId));
 
-            HttpResp httpResp = restTemplateService.spmPost(URL + "/sample", smpSampleDto);
+            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/sample", smpSampleDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpSampleDto, "smp", "样衣下发");
             if (aBoolean) {
                 i++;
@@ -570,8 +573,8 @@ public class SmpService {
             fabricCompositionDto.setIngredient(String.join(",", list));
 
 
-            HttpResp httpResp = restTemplateService.spmPost(URL + "/sample", fabricCompositionDto);
-            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, fabricCompositionDto, "smp", "面料成分名称码表下发");
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL+"materialElement", fabricCompositionDto);
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, fabricCompositionDto, "scm", "面料成分名称码表下发");
             if (aBoolean) {
                 i++;
             }
@@ -580,11 +583,19 @@ public class SmpService {
     }
 
     /**
-     * 修改尺码的时候验证
+     * 修改商品尺码的时候验证
      */
-    public Boolean style(PlmStyleSizeParam param) {
-        HttpResp httpResp = restTemplateService.spmPost("http://10.8.250.100:1980/escm-app/information/plm/checkStyleSize", param);
-        return pushRecordsService.pushRecordSave(httpResp, param, "smp", "修改尺码的时候验证");
+    public Boolean checkStyleSize(PlmStyleSizeParam param) {
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL+"checkStyleSize", param);
+        return pushRecordsService.pushRecordSave(httpResp, param, "scm", "修改尺码的时候验证");
+    }
+
+    /**
+     * 修改商品颜色的时候验证
+     */
+    public Boolean checkColorSize(PlmStyleSizeParam param) {
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL+"checkColorSize", param);
+        return pushRecordsService.pushRecordSave(httpResp, param, "scm", "修改商品颜色的时候验证");
     }
 }
 
