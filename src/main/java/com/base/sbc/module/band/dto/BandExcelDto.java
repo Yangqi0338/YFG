@@ -15,9 +15,11 @@ public class BandExcelDto {
     /** 波段名称 */
     @Excel(name = "波段名称",width = 20)
     private String bandName;
+
+    private String season;
     /** 季节 */
     @Excel(name = "季节",width = 20)
-    private String season;
+    private String seasonName;
     /** 月份 */
     @Excel(name = "月份",width = 20)
     private String month;

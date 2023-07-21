@@ -139,12 +139,13 @@ public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<Basicsdat
             if (StringUtils.isBlank(basicsdatumMeasurementExcelDto.getDescriptionAlt())) {
                 basicsdatumMeasurementExcelDto.setDescriptionAlt("");
             }
-            if (!StringUtils.isBlank(basicsdatumMeasurementExcelDto.getPdmType())) {
+            if (!StringUtils.isBlank(basicsdatumMeasurementExcelDto.getPdmTypeName())) {
                 for(Map.Entry<String, String> entry : map.entrySet()){
                     String key = entry.getKey();
                     String value = entry.getValue();
                     if (value.equals(basicsdatumMeasurementExcelDto.getPdmType())){
                         basicsdatumMeasurementExcelDto.setPdmType(key);
+                        basicsdatumMeasurementExcelDto.setPdmTypeName(value);
                         break;
                     }
 

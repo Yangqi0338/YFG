@@ -3,6 +3,7 @@ package com.base.sbc.module.basicsdatum.dto;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /*
@@ -24,8 +25,13 @@ public class BasicsdatumMeasurementExcelDto {
     private String measurement;
 
     /** POM类型 */
-    @Excel(name = "POM类型"  )
+
     private String pdmType;
+
+    /** POM类型名称 */
+    @ApiModelProperty(value = "POM类型名称"  )
+    @Excel(name = "POM类型"  )
+    private String pdmTypeName;
 
     /** 描述 */
     @Excel(name  = "描述"  )

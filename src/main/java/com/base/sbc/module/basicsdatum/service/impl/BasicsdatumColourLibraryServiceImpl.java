@@ -171,7 +171,6 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
     public Boolean basicsdatumColourLibraryImportExcel(MultipartFile file) throws Exception {
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
-        params.setHeadRows(2);
         List<BasicsdatumColourLibraryExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumColourLibraryExcelDto.class, params);
 //      过滤掉无编码数据
         list = list.stream().filter(c -> StringUtils.isNotBlank(c.getColourCode())).collect(Collectors.toList());
@@ -187,23 +186,25 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         if(StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColourCode())){
 
             /*色度*/
-            if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getChroma())) {
+            if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getChromaName())) {
                 for (Map.Entry<String, String> entry : mapColorChroma.entrySet()) {
                     String key = entry.getKey();
                     String value = entry.getValue();
-                    if (value.equals(basicsdatumColourLibraryExcelDto.getChroma())) {
+                    if (value.equals(basicsdatumColourLibraryExcelDto.getChromaName())) {
                         basicsdatumColourLibraryExcelDto.setChroma(key);
+                        basicsdatumColourLibraryExcelDto.setChromaName(value);
                         break;
                     }
                 }
             }
             /*色系*/
-            if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColorType())) {
+            if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColorTypeName())) {
                 for (Map.Entry<String, String> entry : mapColorType.entrySet()) {
                     String key = entry.getKey();
                     String value = entry.getValue();
-                    if (value.equals(basicsdatumColourLibraryExcelDto.getColorType())) {
+                    if (value.equals(basicsdatumColourLibraryExcelDto.getColorTypeName())) {
                         basicsdatumColourLibraryExcelDto.setColorType(key);
+                        basicsdatumColourLibraryExcelDto.setColorTypeName(value);
                         break;
                     }
                 }
