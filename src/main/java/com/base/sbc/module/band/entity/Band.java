@@ -23,7 +23,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_band")
+@TableName("t_basicsdatum_band")
 public class Band extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;

@@ -3,6 +3,6 @@
 <mapper namespace="com.base.sbc.module.band.mapper.BandMapper">
     <select id="getNameByCode" resultType="java.lang.String">
         select band_name
-        from t_band ${ ew.customSqlSegment}
+        from t_basicsdatum_band ${ ew.customSqlSegment}
     </select>
 </mapper>
