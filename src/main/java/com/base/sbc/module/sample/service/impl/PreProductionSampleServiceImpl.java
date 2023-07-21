@@ -196,6 +196,8 @@ public class PreProductionSampleServiceImpl extends BaseServiceImpl<PreProductio
         }
         PreProductionSampleTaskDetailVo result = new PreProductionSampleTaskDetailVo();
         PreProductionSample sample = getById(task.getPreProductionSampleId());
+        PreProductionSampleVo preProductionSampleVo = BeanUtil.copyProperties(sample, PreProductionSampleVo.class);
+        result.setPre(preProductionSampleVo);
         PreProductionSampleTaskVo taskVo = BeanUtil.copyProperties(task, PreProductionSampleTaskVo.class);
         //设置头像
         amcFeignService.setUserAvatarToObj(taskVo);
