@@ -79,4 +79,14 @@ public class SmpController extends BaseController {
         Integer i = smpService.processSheet(sheetDtoList);
         return insertSuccess("下发："+sheetDtoList.size()+"条，成功："+i+"条");
     }
+
+
+    /**
+     * 面料成分名称码表下发
+     */
+    @PutMapping("/fabricComposition")
+    public ApiResult fabricComposition(String[] ids) {
+        Integer i = smpService.fabricComposition(ids);
+        return insertSuccess("下发："+ids.length+"条，成功："+i+"条");
+    }
 }

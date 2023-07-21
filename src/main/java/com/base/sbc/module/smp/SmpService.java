@@ -546,6 +546,28 @@ public class SmpService {
     }
 
     /**
+     * 面料成分名称码表下发
+     */
+    public Integer fabricComposition(String[] ids){
+        int i =0;
+        for (BasicsdatumMaterial basicsdatumMaterial : basicsdatumMaterialService.listByIds(Arrays.asList(ids))) {
+            FabricCompositionDto fabricCompositionDto =new FabricCompositionDto();
+            fabricCompositionDto.setName(basicsdatumMaterial.getMaterialName());
+            fabricCompositionDto.setMaterialCode(basicsdatumMaterial.getMaterialCode());
+            fabricCompositionDto.setId(fabricCompositionDto.getId());
+            fabricCompositionDto.setIngredient(basicsdatumMaterial.getIngredient());
+
+
+            HttpResp httpResp = restTemplateService.spmPost(URL + "/sample", fabricCompositionDto);
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, fabricCompositionDto, "smp", "面料成分名称码表下发");
+            if (aBoolean) {
+                i++;
+            }
+        }
+        return i;
+    }
+
+    /**
      * 修改尺码的时候验证
      */
     public Boolean style(PlmStyleSizeParam param) {
