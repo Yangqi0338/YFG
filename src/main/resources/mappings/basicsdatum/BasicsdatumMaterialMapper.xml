@@ -10,28 +10,30 @@
       -->
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
-	<select id="getBasicsdatumMaterialColorList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo">
+	<select id="getBasicsdatumMaterialColorList"
+		resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo">
 		SELECT
 			t.*,
-			t1.colour_name color,
-			t1.color16 color_hex
+			t1.color,
+			t1.color_hex
 		FROM
 			t_basicsdatum_material_color t
-			LEFT JOIN t_basicsdatum_colour_library t1 ON t.company_code = t1.company_code
-			AND t.color_code = t1.colour_code and t1.del_flag = '0'
+			LEFT JOIN t_goods_color t1 ON t.company_code = t1.company_code
+			AND t.color_code = t1.color_code and t1.del_flag = '0'
 		WHERE
 			t.company_code = #{companyCode}
 			and t.del_flag = "0"
 			and t.material_code = #{materialCode}
 	</select>
-	<select id="getBasicsdatumMaterialColorSelect" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo">
+	<select id="getBasicsdatumMaterialColorSelect"
+		resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo">
 		SELECT
-			t.color_code colour_code,
-			t1.colour_name
+			t.color_code,
+			t1.color
 		FROM
 			t_basicsdatum_material_color t
-			LEFT JOIN t_basicsdatum_colour_library t1 ON t.company_code = t1.company_code
-			AND t.color_code = t1.colour_code and t1.del_flag = '0'
+			LEFT JOIN t_goods_color t1 ON t.company_code = t1.company_code
+			AND t.color_code = t1.color_code and t1.del_flag = '0'
 		WHERE
 			t.company_code = #{companyCode}
 			and t.del_flag = "0"
