@@ -1,15 +1,13 @@
 package com.base.sbc.module.smp;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
-import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
-import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.restTemplate.RestTemplateService;
 import com.base.sbc.config.utils.StringUtils;
@@ -17,21 +15,14 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
 import com.base.sbc.module.basicsdatum.entity.*;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeMapper;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.base.sbc.module.formType.entity.FieldVal;
-import com.base.sbc.module.formType.service.FieldValService;
-import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
-import com.base.sbc.module.hangTag.entity.HangTag;
-import com.base.sbc.module.hangTag.mapper.HangTagMapper;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackInfo;
@@ -47,16 +38,12 @@ import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
 import lombok.RequiredArgsConstructor;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.util.ObjectUtils;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 /**
@@ -108,6 +95,8 @@ public class SmpService {
 
     private final AttachmentService attachmentService;
 
+    private final  BasicsdatumModelTypeService basicsdatumModelTypeService;
+
 
     private static final String URL = "http://10.98.250.31:7006/pdm";
     //private static final String URL = "http://smp-i.eifini.com/service-manager/pdm";
@@ -119,10 +108,22 @@ public class SmpService {
     public Integer goods(String[] ids) {
         int i = 0;
         List<SampleStyleColor> sampleStyleColors = sampleStyleColorService.listByIds(Arrays.asList(ids));
+
         for (SampleStyleColor sampleStyleColor : sampleStyleColors) {
             SmpGoodsDto smpGoodsDto = sampleStyleColor.toSmpGoodsDto();
 
             SampleDesignVo sampleDesign = sampleDesignService.getDetail(sampleStyleColor.getSampleDesignId());
+
+            //String sizeRange = sampleDesign.getSizeRange();
+            //BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeService.getById(sizeRange);
+            //PlmStyleSizeParam param = new PlmStyleSizeParam();
+            //param.setSizeCategory(sizeRange);
+            //param.setSizeNum(basicsdatumModelType.getSizeIds().split(",").length);
+            //param.setStyleNo(sampleDesign.getStyleNo());
+            //Boolean style = this.style(param);
+            //if(!style){
+            //    throw new OtherException("当前号型类型已在单据中，不允许修改");
+            //}
 
             // 款式图片
             List<AttachmentVo> stylePicList = attachmentService.findByforeignId(sampleDesign.getId(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
@@ -582,10 +583,8 @@ public class SmpService {
      * 修改尺码的时候验证
      */
     public Boolean style(PlmStyleSizeParam param) {
-        // TODO: 2023/7/14 下一期7月15号以后一起做
-
-        restTemplateService.spmPost(URL + "style", param);
-        return true;
+        HttpResp httpResp = restTemplateService.spmPost("http://10.8.250.100:1980/escm-app/information/plm/checkStyleSize", param);
+        return pushRecordsService.pushRecordSave(httpResp, param, "smp", "修改尺码的时候验证");
     }
 }
 
