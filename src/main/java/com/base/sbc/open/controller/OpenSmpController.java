@@ -205,7 +205,7 @@ public class OpenSmpController extends BaseController {
     /**
      * 面料成分检测数据接口
      */
-    @GetMapping("/EscmMaterialCompnentInspectCompany")
+    @GetMapping("/escmMaterialCompnentInspectCompany")
     public ApiResult EscmMaterialCompnentInspectCompanyDto(@RequestBody JSONObject jsonObject){
         EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = jsonObject.toJavaObject(EscmMaterialCompnentInspectCompanyDto.class);
         escmMaterialCompnentInspectCompanyService.saveOrUpdate(escmMaterialCompnentInspectCompanyDto);
