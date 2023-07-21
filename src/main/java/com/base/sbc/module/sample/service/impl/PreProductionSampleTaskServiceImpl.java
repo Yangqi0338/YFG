@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
@@ -65,12 +64,25 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean taskAssignment(PreTaskAssignmentDto dto) {
-        PreProductionSampleTask task = BeanUtil.copyProperties(dto, PreProductionSampleTask.class);
         EnumNodeStatus ens = EnumNodeStatus.GARMENT_CUTTING_WAITING_RECEIVED;
-        nodeStatusService.nodeStatusChange(dto.getId(), ens.getNode(), ens.getStatus(), BaseGlobal.YES, BaseGlobal.NO);
-        task.setNode(ens.getNode());
-        task.setStatus(ens.getStatus());
-        boolean flg = updateById(task);
+        UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
+        List<String> ids = StrUtil.split(dto.getId(), CharUtil.COMMA);
+        uw.lambda().in(PreProductionSampleTask::getId, ids)
+                .set(PreProductionSampleTask::getCutterId, dto.getCutterId())
+                .set(PreProductionSampleTask::getCutterName, dto.getCutterName())
+                .set(PreProductionSampleTask::getTechnologistId, dto.getTechnologistId())
+                .set(PreProductionSampleTask::getTechnologistName, dto.getTechnologistName())
+                .set(PreProductionSampleTask::getGradingId, dto.getGradingId())
+                .set(PreProductionSampleTask::getGradingName, dto.getGradingName())
+                .set(PreProductionSampleTask::getStitcher, dto.getStitcher())
+                .set(PreProductionSampleTask::getStitcherId, dto.getStitcherId())
+                .set(PreProductionSampleTask::getNode, ens.getNode())
+                .set(PreProductionSampleTask::getStatus, ens.getStatus());
+        setUpdateInfo(uw);
+        boolean flg = update(uw);
+        for (String id : ids) {
+            nodeStatusService.nodeStatusChange(id, ens.getNode(), ens.getStatus(), BaseGlobal.YES, BaseGlobal.NO);
+        }
         return flg;
     }
 
