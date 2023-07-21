@@ -28,8 +28,9 @@ public class BasicsdatumColourLibraryExcelDto  {
 
     /** 颜色系 */
     @ApiModelProperty(value = "颜色系"  )
-    @Excel(name = "颜色系")
     private String colorType;
+    @Excel(name = "颜色系")
+    private String colorTypeName;
     /** 颜色规格 */
     @ApiModelProperty(value = "颜色规格"  )
     @Excel(name = "颜色规格")
@@ -46,14 +47,14 @@ public class BasicsdatumColourLibraryExcelDto  {
     @ApiModelProperty(value = "库"  )
     @Excel(name = "库")
     private String library;
-    /** 可用于款式 */
+/*    *//** 可用于款式 *//*
     @ApiModelProperty(value = "可用于款式"  )
     @Excel(name = "可用于款式" , replace = {"false_0", "true_1"} )
     private String isStyle;
-    /** 可用于材料 */
+    *//** 可用于材料 *//*
     @ApiModelProperty(value = "可用于材料"  )
     @Excel(name = "可用于材料" , replace = {"false_0", "true_1"} )
-    private String isMaterials;
+    private String isMaterials;*/
     /** 潘通 */
     @ApiModelProperty(value = "潘通"  )
     @Excel(name = "潘通")
@@ -64,8 +65,9 @@ public class BasicsdatumColourLibraryExcelDto  {
     private String colorRgb;
     /** 色度 */
     @ApiModelProperty(value = "色度"  )
-    @Excel(name = "色度")
     private String chroma;
+    @Excel(name = "色度")
+    private String chromaName;
     /** 英文名称 */
     @ApiModelProperty(value = "英文名称"  )
     @Excel(name = "英文名称")

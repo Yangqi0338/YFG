@@ -54,6 +54,10 @@ public class BasicsdatumLavationReminderExcelDto  {
     private String language;
     /** 温馨提示 */
     @ApiModelProperty(value = "温馨提示"  )
-    @Excel(name = "温馨提示")
     private String reminderCode;
+
+    /** 温馨提示名称 */
+    @ApiModelProperty(value = "温馨提示名称"  )
+    @Excel(name = "温馨提示")
+    private String reminderName;
 }

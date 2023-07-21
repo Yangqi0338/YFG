@@ -42,6 +42,9 @@ public class BasicsdatumMeasurement extends BaseDataEntity<String> {
     /** POM类型 */
     @ApiModelProperty(value = "POM类型"  )
     private String pdmType;
+    /** POM类型名称 */
+    @ApiModelProperty(value = "POM类型名称"  )
+    private String pdmTypeName;
     /** 描述 */
     @ApiModelProperty(value = "描述"  )
     private String description;

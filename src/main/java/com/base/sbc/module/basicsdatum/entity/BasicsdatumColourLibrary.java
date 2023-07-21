@@ -125,6 +125,5 @@ public class BasicsdatumColourLibrary extends BaseDataEntity<String> {
     /** SCM下发状态:0未下发,1已下发 */
     @ApiModelProperty(value = "SCM下发状态:0未下发,1已下发"  )
     private String scmSendFlag;
-
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

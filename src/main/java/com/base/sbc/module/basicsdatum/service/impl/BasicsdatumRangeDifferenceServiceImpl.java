@@ -127,7 +127,6 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
     public Boolean importExcel(MultipartFile file) throws Exception {
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
-        params.setHeadRows(2);
         List<BasicsdatumRangeDifferenceExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumRangeDifferenceExcelDto.class, params);
         list = list.stream().filter(d -> StringUtils.isNotBlank(d.getCode())).collect(Collectors.toList());
 //             获取字典值
@@ -150,21 +149,23 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
                 basicsdatumRangeDifferenceExcelDto.setPicture(attachmentVo.getUrl());
             }
             /*获取品牌编码*/
-            if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getBrandCode())){
-             String[] strings =   basicsdatumRangeDifferenceExcelDto.getBrandCode().replaceAll(" ","").split(",");
+            if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getBrandName())){
+             String[] strings =   basicsdatumRangeDifferenceExcelDto.getBrandName().replaceAll(" ","").split(",");
              List<String> stringList =new ArrayList<>();
+             List<String> stringList1 =new ArrayList<>();
                 for (String string : strings) {
                     for (Map.Entry<String, String> entry : map.entrySet()) {
                         String key = entry.getKey();
                         String value = entry.getValue();
                         if (value.equals(string)) {
                             stringList.add(key);
+                            stringList1.add(value);
                             break;
                         }
                     }
                 }
                 basicsdatumRangeDifferenceExcelDto.setBrandCode(StringUtils.join(stringList,","));
-
+                basicsdatumRangeDifferenceExcelDto.setBrandName(StringUtils.join(stringList1,","));
             }
             if (StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getCategoryMeasureCode())) {
                 QueryWrapper q = new QueryWrapper();

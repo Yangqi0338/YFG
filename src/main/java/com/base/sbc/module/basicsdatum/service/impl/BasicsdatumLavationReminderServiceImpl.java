@@ -12,6 +12,7 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -43,6 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -64,6 +66,9 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
 
         @Autowired
         private MinioUtils minioUtils;
+
+        @Autowired
+        private CcmFeignService ccmFeignService;
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -109,6 +114,9 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
             params.setNeedSave(false);
             List<BasicsdatumLavationReminderExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumLavationReminderExcelDto.class, params);
            list =  list.stream().filter(p -> StringUtils.isNotBlank(p.getCode())).collect(Collectors.toList());
+           /*获取字典值*/
+           Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("wxts");
+           Map<String, String> map =   dictInfoToMap.get("wxts");
            for (BasicsdatumLavationReminderExcelDto basicsdatumLavationReminderExcelDto : list) {
                if(!StringUtils.isEmpty(basicsdatumLavationReminderExcelDto.getPicture())){
                    if (StringUtils.isNotEmpty(basicsdatumLavationReminderExcelDto.getPicture())) {
@@ -116,6 +124,17 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
                        /*上传图*/
                        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
                        basicsdatumLavationReminderExcelDto.setPicture(attachmentVo.getUrl());
+                   }
+               }
+               if(StringUtils.isNotBlank(basicsdatumLavationReminderExcelDto.getReminderName())){
+                   for(Map.Entry<String, String> entry : map.entrySet()){
+                       String key = entry.getKey();
+                       String value = entry.getValue();
+                       if (value.equals(basicsdatumLavationReminderExcelDto.getReminderName())){
+                           basicsdatumLavationReminderExcelDto.setReminderCode(key);
+                           basicsdatumLavationReminderExcelDto.setReminderName(value);
+                           break;
+                       }
                    }
                }
            }

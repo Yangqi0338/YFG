@@ -59,8 +59,11 @@ public class BasicsdatumRangeDifferenceExcelDto  {
     @Excel(name = "品类测量组编码")
     private String categoryMeasureCode;
 
-    @Excel(name = "品牌")
     private String brandCode;
+    /** 品牌名称 */
+    @ApiModelProperty(value = "品牌名称"  )
+    @Excel(name = "品牌")
+    private String brandName;
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
     @Excel(name = "图片",type = 2)

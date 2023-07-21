@@ -41,6 +41,8 @@ public class Band extends BaseDataEntity<String> {
     private String particularYear;
     /** 季节 */
     private String season;
+//    季节名称
+    private String seasonName;
     /** 月份 */
     private String month;
     /** 波段名称 */
