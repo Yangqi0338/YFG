@@ -119,8 +119,10 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     public List<PreProductionSampleTaskListVo> taskList(PreProductionSampleTaskSearchDto dto) {
         QueryWrapper<PreProductionSampleTask> qw = new QueryWrapper<>();
+        qw.eq("node", "样衣任务");
+        qw.isNotNull("status");
         List<PreProductionSampleTaskListVo> list = getBaseMapper().taskList(qw);
-        //设置图片
+        //设置图
         attachmentService.setListStylePic(list, "stylePic");
         nodeStatusService.setNodeStatus(list);
         return list;
