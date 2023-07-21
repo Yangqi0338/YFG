@@ -110,14 +110,6 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
 
         /*查询样衣-款式配色数据*/
         List<SampleStyleColorVo> sampleStyleColorList = baseMapper.getSampleStyleColorList(queryWrapper);
- /*       List<String> stringList = sampleStyleColorList.stream().filter(s -> StringUtils.isNotBlank(s.getBandCode())).map(SampleStyleColorVo::getBandCode).collect(Collectors.toList());
-        String codes = String.join(",", stringList);
-        Map<String, String> m = bandService.getNamesByCodes(codes);
-        for (SampleStyleColorVo sampleStyleColorVo : sampleStyleColorList) {
-            if (StringUtils.isNotBlank(sampleStyleColorVo.getBandCode())) {
-                sampleStyleColorVo.setBandCode(m.get(sampleStyleColorVo.getBandCode()));
-            }
-        }*/
         PageInfo<SampleStyleColorVo> pageInfo = new PageInfo<>(sampleStyleColorList);
         return pageInfo;
     }

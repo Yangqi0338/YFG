@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -89,37 +90,17 @@ public class SaasGoodsColorController extends BaseController {
         // 构造查询条件
         QueryWrapper<GoodsColor> qc = new QueryWrapper<>();
         qc.eq(COMPANY_CODE, userCompany);
-        qc.like("color", materialColor.getColor()).or().like("color_code", materialColor.getColorCode());
+        qc.eq("color_code", materialColor.getColorCode());
         List<GoodsColor> colorList = goodsColorService.list(qc);
 
-        // 获取登录用户信息
-        GroupUser groupUser = userUtils.getUserBy(user);
-        String userId = groupUser.getId();
-        String userName = groupUser.getName();
-
-        // 判断颜色是否重复
-        if (colorList != null && !colorList.isEmpty()) {
-            for (GoodsColor color : colorList) {
-                // 如果重复，且这条数据没被删除  提示数据重复
-                if ("0".equals(color.getDelFlag())) {
-                    return insertDataRepeat(materialColor.getColorCode().equals(color.getColorCode()) ? "色号重复" : "颜色名称重复");
-                }
-
-                // 否则，修改数据为未删除
-                materialColor.setId(color.getId());
-                materialColor.setCompanyCode(userCompany);
-                materialColor.setEntityBasicInfo(userId, userName, "0");
-                if (goodsColorService.updateById(materialColor)) {
-                    return insertSuccess(materialColor);
-                }
-                return updateNotFound("保存失败");
-            }
+        if(!CollectionUtils.isEmpty(colorList)){
+            return insertDataRepeat("颜色编码重复");
         }
 
         // 设置必填信息
         materialColor.preInsert();
         materialColor.setCompanyCode(userCompany);
-        materialColor.setEntityBasicInfo(userId, userName, "0");
+        materialColor.setEntityBasicInfo(getUserId(),getUser().getName() , "0");
 
         // 保存数据
         if (goodsColorService.save(materialColor)) {
@@ -178,10 +159,10 @@ public class SaasGoodsColorController extends BaseController {
         GoodsColor entity = goodsColorService.getOne(new QueryWrapper<GoodsColor>()
                 .eq(COMPANY_CODE, userCompany)
                 // .andEqualTo("color_type_id", materialColor.getColorTypeId())
-                .eq("color", materialColor.getColor()));
+                .eq("color_code", materialColor.getColorCode()));
         // 如果查到的数据的id 和 被修改的数据的id 不一致。 说明name重复
         if (entity != null && !entity.getId().equals(materialColor.getId())) {
-            return insertDataRepeat("颜色名称重复");
+            return insertDataRepeat("颜色编码重复");
         }
 
         // 获取登录用户信息

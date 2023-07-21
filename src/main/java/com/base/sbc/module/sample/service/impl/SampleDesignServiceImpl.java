@@ -306,13 +306,15 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         if (!CollectionUtils.isEmpty(list)) {
             list.forEach(sampleDesignPageVo -> {
                 QueryWrapper queryWrapper = new QueryWrapper();
-                queryWrapper.eq("sample_design_id", sampleDesignPageVo.getId());
-                queryWrapper.eq(StrUtil.isNotBlank(dto.getStyleStatus()), "status", dto.getStyleStatus());
-                List<SampleStyleColor> sampleStyleColorList = sampleStyleColorMapper.selectList(queryWrapper);
-                if (!CollectionUtils.isEmpty(sampleStyleColorList)) {
-                    List<SampleStyleColorVo> sampleStyleColorVoList = BeanUtil.copyToList(sampleStyleColorList, SampleStyleColorVo.class);
-                    sampleDesignPageVo.setSampleStyleColorVoList(sampleStyleColorVoList);
+                queryWrapper.eq("ssc.sample_design_id", sampleDesignPageVo.getId());
+                queryWrapper.eq(StrUtil.isNotBlank(dto.getStyleStatus()), "ssc.status", dto.getStyleStatus());
+                if(StrUtil.isNotBlank(dto.getMeetFlag()) ){
+                    if (dto.getMeetFlag().equals(BaseGlobal.STATUS_NORMAL)) {
+                        queryWrapper.ne( "sob.meet_flag", dto.getMeetFlag());
+                    }
                 }
+                List<SampleStyleColorVo> sampleStyleColorVoList = sampleStyleColorMapper.getSampleStyleColorList(queryWrapper);
+                sampleDesignPageVo.setSampleStyleColorVoList(sampleStyleColorVoList);
             });
         }
         return pageInfo;

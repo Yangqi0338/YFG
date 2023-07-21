@@ -121,4 +121,7 @@ public class SampleStyleColorVo  {
     private String manufacturerJane;
     //    是否报次数0否 1是
     private String isDefective;
+
+    /*是否上会*/
+    private String meetFlag;
 }
