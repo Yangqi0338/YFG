@@ -36,7 +36,7 @@ public class SmpOpenMaterialDto {
     /**
      * 库存单位（新增）
      */
-    private String XXX;
+    private String c8MaterialUomSrc;
 
     /**
      * 三级分类
@@ -215,8 +215,12 @@ public class SmpOpenMaterialDto {
         basicsdatumMaterial.setMaterialCode(Code);
         basicsdatumMaterial.setMaterialName(MaterialName);
         basicsdatumMaterial.setPurchaseUnitCode(C8_Material_UOM);
-        basicsdatumMaterial.setStockUnitCode(XXX);
+        basicsdatumMaterial.setStockUnitCode(c8MaterialUomSrc);
         basicsdatumMaterial.setMaterialSourceName(Source);
+        basicsdatumMaterial.setCategoryId(ProductTypeID);
+        basicsdatumMaterial.setMaterialCodeName(Code+MaterialName);
+        basicsdatumMaterial.setCategoryName(ProductType);
+        basicsdatumMaterial.setCategoryIds(ProductTypeID+","+C8_Material_2ndCategory+","+C8_Material_3rdCategory);
         basicsdatumMaterial.setYear(C8_Season_Year);
         basicsdatumMaterial.setSeasonName(C8_Season_Quarter);
         basicsdatumMaterial.setSeason(C8_Season_QuarterID);
@@ -230,8 +234,6 @@ public class SmpOpenMaterialDto {
         basicsdatumMaterial.setLatitudeShrink(C8_MaterialAttr_WeftShrinkage);
         basicsdatumMaterial.setGramWeight(Weight);
         basicsdatumMaterial.setIngredient( Composition);
-        basicsdatumMaterial.setMaterialCategory(ProductTypeID);
-        basicsdatumMaterial.setMaterialCategoryName(ProductType);
         basicsdatumMaterial.setFactoryComposition(SupplierComposition);
         if (Images!= null){
             String join = StringUtils.join(Images, ";");
@@ -369,23 +371,23 @@ public class SmpOpenMaterialDto {
         /**
          * 意见
          */
-        private int Comment;
+        private String Comment;
         /**
          * 结算方式
          */
-        private int TradeTermKEY;
+        private String TradeTermKEY;
         /**
          * 默认报价标识
          */
-        private int DefaultQuote;
+        private String DefaultQuote;
         /**
          * 结算方式名称
          */
-        private int TradeTermNAME;
+        private String TradeTermNAME;
         /**
          * 单位
          */
-        private int C8_Material_UOM;
+        private String C8_Material_UOM;
     }
 
 }
