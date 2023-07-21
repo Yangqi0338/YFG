@@ -555,7 +555,7 @@ public class SmpService {
             fabricCompositionDto.setName(basicsdatumMaterial.getMaterialName());
             fabricCompositionDto.setMaterialCode(basicsdatumMaterial.getMaterialCode());
             fabricCompositionDto.setId(fabricCompositionDto.getId());
-            String[] split = basicsdatumMaterial.getIngredient().split(",");
+            String[] split = basicsdatumMaterial.getIngredient().split(", ");
             List<String> list =new ArrayList<>();
             try {
                 for (String s : split) {
