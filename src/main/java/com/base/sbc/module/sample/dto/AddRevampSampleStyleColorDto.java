@@ -176,4 +176,10 @@ public class AddRevampSampleStyleColorDto {
     private String manufacturerJane;
     //    是否报次数0否 1是
     private String isDefective;
+    //次品名称
+    private String defectiveName;
+    /*细分名称*/
+    private String subdivideName;
+    //销售类型名称
+    private String salesTypeName;
 }

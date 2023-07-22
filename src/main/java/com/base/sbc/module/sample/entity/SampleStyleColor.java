@@ -106,6 +106,9 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     /** 细分 */
     @ApiModelProperty(value = "细分"  )
     private String subdivide;
+    /*细分名称*/
+    @ApiModelProperty(value = "细分名称"  )
+    private String subdivideName;
     /** 波段 */
     @ApiModelProperty(value = "波段"  )
     private String bandCode;
@@ -115,11 +118,13 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     /** 销售类型 */
     @ApiModelProperty(value = "销售类型"  )
     private String salesType;
+    //销售类型名称
+    @ApiModelProperty(value = "销售类型名称"  )
+    private String salesTypeName;
     /*品类名称路径:(大类/品类/中类/小类)'*/
     @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)"  )
     private String categoryName;
     /** 是否下发scm(0否,1:是) */
-    @ApiModelProperty(value = "是否下发scm(0否,1:是)"  )
     private String  isIssueScm;
     /** 生产类型 */
     @ApiModelProperty(value = "生产类型"  )
@@ -160,6 +165,9 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     /** 次品编号 */
     @ApiModelProperty(value = "次品编号"  )
     private String defectiveNo;
+    //次品名称
+    @ApiModelProperty(value = "次品名称"  )
+    private String defectiveName;
     /*波段企划id'*/
     @ApiModelProperty(value = "波段企划id")
     private String planningBandId;
@@ -186,6 +194,7 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     private String manufacturerJane;
 //    是否报次数0否 1是
     private String isDefective;
+
 
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
