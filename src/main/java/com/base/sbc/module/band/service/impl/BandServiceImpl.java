@@ -103,6 +103,7 @@ public class BandServiceImpl extends BaseServiceImpl<BandMapper, Band> implement
         QueryWrapper qw = new QueryWrapper();
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.eq("code", code);
+        qw.eq("del_flag", "0");
         qw.last("limit 1");
         return getBaseMapper().getNameByCode(qw);
     }

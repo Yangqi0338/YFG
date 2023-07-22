@@ -128,6 +128,16 @@ public class SampleDesignPageVo {
     private Date planningFinishDate;
 
     /**
+     * 生产模式名称
+     */
+    @ApiModelProperty(value = "生产模式名称")
+    private String devtTypeName;
+    /**
+     * 开发分类名称
+     */
+    @ApiModelProperty(value = "开发分类名称")
+    private String devClassName;
+    /**
      * 创建日期
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

@@ -307,6 +307,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
             list.forEach(sampleDesignPageVo -> {
                 QueryWrapper queryWrapper = new QueryWrapper();
                 queryWrapper.eq("ssc.sample_design_id", sampleDesignPageVo.getId());
+                queryWrapper.eq("ssc.del_flag", "0");
                 queryWrapper.eq(StrUtil.isNotBlank(dto.getStyleStatus()), "ssc.status", dto.getStyleStatus());
                 if(StrUtil.isNotBlank(dto.getMeetFlag()) ){
                     if (dto.getMeetFlag().equals(BaseGlobal.STATUS_NORMAL)) {

@@ -182,4 +182,8 @@ public class AddRevampSampleStyleColorDto {
     private String subdivideName;
     //销售类型名称
     private String salesTypeName;
+    //波段名称
+    private String bandName;
+    //生产类型名称
+    private String devtTypeName;
 }

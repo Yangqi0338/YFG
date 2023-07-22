@@ -14,4 +14,6 @@ public class UpdateStyleNoBandDto {
     private String styleNo;
     @ApiModelProperty(value = "波段", example = "10")
     private String bandCode;
+    @ApiModelProperty(value = "波段", example = "10")
+    private String bandName;
 }
