@@ -141,6 +141,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
                String[] strings =  basicsdatumModelTypeExcelDto.getSize().split(",");
                QueryWrapper queryWrapper=new QueryWrapper();
                queryWrapper.in("hangtags",strings);
+                queryWrapper.eq("model_type_code",basicsdatumModelTypeExcelDto.getCode());
               basicsdatumSizeList =basicsdatumSizeMapper.selectList(queryWrapper);
                if(!CollectionUtils.isEmpty(basicsdatumSizeList)){
                    List<String> stringListId =  basicsdatumSizeList.stream().map(BasicsdatumSize::getId).collect(Collectors.toList());
