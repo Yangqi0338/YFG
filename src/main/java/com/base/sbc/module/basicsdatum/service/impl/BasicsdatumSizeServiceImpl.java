@@ -267,9 +267,9 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
      * @return
      */
     @Override
-    public Map<String,String> getSizeName(String sort) {
+    public Map<String,String> getSizeName(String ids) {
         QueryWrapper queryWrapper =new QueryWrapper();
-        queryWrapper.in("sort",StringUtils.convertList(sort));
+        queryWrapper.in("id",StringUtils.convertList(ids));
         List<BasicsdatumSize> basicsdatumSizeList =baseMapper.selectList(queryWrapper);
         Map<String,String> map =new HashMap<>();
        if(!CollectionUtils.isEmpty(basicsdatumSizeList)){

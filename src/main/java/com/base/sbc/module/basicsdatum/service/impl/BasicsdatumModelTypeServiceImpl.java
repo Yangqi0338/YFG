@@ -143,8 +143,10 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
                queryWrapper.in("hangtags",strings);
               basicsdatumSizeList =basicsdatumSizeMapper.selectList(queryWrapper);
                if(!CollectionUtils.isEmpty(basicsdatumSizeList)){
-                  List<String> stringList =  basicsdatumSizeList.stream().map(BasicsdatumSize::getSort).collect(Collectors.toList());
-                  basicsdatumModelTypeExcelDto.setSizeIds( StringUtils.join(stringList,","));
+                   List<String> stringListId =  basicsdatumSizeList.stream().map(BasicsdatumSize::getId).collect(Collectors.toList());
+                   List<String> stringList =  basicsdatumSizeList.stream().map(BasicsdatumSize::getSort).collect(Collectors.toList());
+                   basicsdatumModelTypeExcelDto.setSizeIds( StringUtils.join(stringListId,","));
+                   basicsdatumModelTypeExcelDto.setSizeCode( StringUtils.join(stringList,","));
                }else {
                    basicsdatumModelTypeExcelDto.setSize("");
                }
@@ -197,6 +199,14 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
     @Override
     public Boolean addRevampBasicsdatumModelType(AddRevampBasicsdatumModelTypeDto addRevampBasicsdatumModelTypeDto) {
         BasicsdatumModelType basicsdatumModelType = new BasicsdatumModelType();
+        /*查找基础尺码编码*/
+        if(StringUtils.isNotBlank(addRevampBasicsdatumModelTypeDto.getBasicsSize())) {
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.eq("hangtags", addRevampBasicsdatumModelTypeDto.getBasicsSize());
+            List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeMapper.selectList(queryWrapper);
+            addRevampBasicsdatumModelTypeDto.setBasicsSizeSort(basicsdatumSizeList.get(0).getSort());
+        }
+
         if (StringUtils.isEmpty(addRevampBasicsdatumModelTypeDto.getId())) {
             QueryWrapper<BasicsdatumModelType> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("code", addRevampBasicsdatumModelTypeDto.getCode());

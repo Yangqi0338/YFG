@@ -82,7 +82,8 @@ public class BasicsdatumModelTypeExcelDto  {
     @Excel(name = "状态(0正常,1停用)")
     private String status;
     private String sizeIds;
-
+    @ApiModelProperty(value = "尺码编码"  )
+    private String  sizeCode;
 
     private List<BasicsdatumCompanyRelation> basicsdatumCompanyRelation;
 }
