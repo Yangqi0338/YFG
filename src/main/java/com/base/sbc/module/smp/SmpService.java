@@ -101,7 +101,7 @@ public class SmpService {
     private static final String SMP_URL = "http://10.98.250.31:7006/pdm";
     //private static final String PDM_URL = "http://smp-i.eifini.com/service-manager/pdm";
 
-    private static final String SCM_URL = "http://10.8.250.100:1980/escm-app/information/pdm/";
+    private static final String SCM_URL = "http://10.8.250.100:1980/escm-app/information/pdm";
 
 
 
@@ -573,7 +573,7 @@ public class SmpService {
             fabricCompositionDto.setIngredient(String.join(",", list));
 
 
-            HttpResp httpResp = restTemplateService.spmPost(SCM_URL+"materialElement", fabricCompositionDto);
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL+"/materialElement", fabricCompositionDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, fabricCompositionDto, "scm", "面料成分名称码表下发");
             if (aBoolean) {
                 i++;
@@ -586,7 +586,7 @@ public class SmpService {
      * 修改商品尺码的时候验证
      */
     public Boolean checkStyleSize(PlmStyleSizeParam param) {
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL+"checkStyleSize", param);
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL+"/checkStyleSize", param);
         return pushRecordsService.pushRecordSave(httpResp, param, "scm", "修改尺码的时候验证");
     }
 
@@ -594,7 +594,7 @@ public class SmpService {
      * 修改商品颜色的时候验证
      */
     public Boolean checkColorSize(PdmStyleCheckParam param) {
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL+"checkColorSize", param);
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL+"/checkColorSize", param);
         return pushRecordsService.pushRecordSave(httpResp, param, "scm", "修改商品颜色的时候验证");
     }
 }
