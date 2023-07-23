@@ -49,6 +49,19 @@ public class MinioUtils {
         }
     }
 
+    public String uploadFile(InputStream inputStream, String objectName, String contentType){
+        try {
+            String object=minioConfig.getDir()+"/"+ DateUtils.getDate()+"/"+objectName;
+
+            ObjectWriteResponse objectWriteResponse = minioClient.putObject(PutObjectArgs.builder().bucket(minioConfig.getBucketName()).object(object).contentType(contentType).stream(inputStream, inputStream.available(), -1).build());
+            // 获取url
+            return String.format("%s/%s/%s",minioConfig.getEndpoint(),minioConfig.getBucketName(),object);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new OtherException("文件上传失败"+e.getMessage());
+        }
+    }
+
 
     /**
      * 获得文件外链

@@ -10,6 +10,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.service.*;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
@@ -18,12 +19,16 @@ import com.base.sbc.open.dto.SmpOpenMaterialDto;
 import com.base.sbc.open.entity.*;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.base.sbc.open.service.MtBqReqService;
+import com.base.sbc.open.service.OpenSmpService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.net.ftp.FTPClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,15 +51,11 @@ public class OpenSmpController extends BaseController {
 
     private final HangTagService hangTagService;
 
-    private final BasicsdatumMaterialService basicsdatumMaterialService;
-
-    private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
-
-    private final BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
-
-    private final BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
 
     private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
+
+    private final OpenSmpService openSmpService;
+
 
     /**
      * bp供应商
@@ -64,6 +65,7 @@ public class OpenSmpController extends BaseController {
     @Transactional(rollbackFor = {Throwable.class})
     public ApiResult supplierSave(@RequestBody JSONObject jsonObject) {
         MtBpReqDto mtBpReqDto = JSONObject.parseObject(jsonObject.toJSONString(), MtBpReqDto.class);
+
 
         //先保存传过来的数据对象
         MtBqReqEntity mtBqReqEntity = mtBpReqDto.toMtBqReqEntity();
@@ -133,129 +135,8 @@ public class OpenSmpController extends BaseController {
     @ApiOperation(value = "smp-物料", notes = "smp-物料")
     @Transactional(rollbackFor = Exception.class)
     public ApiResult smpMaterial(@RequestBody JSONObject jsonObject) {
-        //初步逻辑：关联编码的，先去查询编码是否存在，如果不存在则返回错误，字段不存在。
-        SmpOpenMaterialDto smpOpenMaterialDto = jsonObject.toJavaObject(SmpOpenMaterialDto.class);
+        openSmpService.smpMaterial(jsonObject);
 
-        JSONObject images = jsonObject.getJSONObject("images");
-        if (images!=null){
-            JSONArray imagesChildren = images.getJSONArray("imagesChildren");
-            if (imagesChildren!=null){
-                List<String> list =new ArrayList<>();
-                for (Object imagesChild : imagesChildren) {
-                    JSONObject imagesChild1 = (JSONObject) JSONObject.toJSON(imagesChild);
-                    String string = imagesChild1.getString("filename");
-                    list.add(string);
-                }
-                smpOpenMaterialDto.setImages(list);
-            }
-        }
-
-        JSONObject quotItems = jsonObject.getJSONObject("quotItems");
-        if (quotItems != null) {
-            JSONArray quotItemsChildren = quotItems.getJSONArray("quotItemsChildren");
-            if (quotItemsChildren != null) {
-                List<SmpOpenMaterialDto.QuotItem> list = new ArrayList<>();
-                for (Object quotItemsChild: quotItemsChildren) {
-                    JSONObject json = (JSONObject) JSON.toJSON(quotItemsChild);
-                    SmpOpenMaterialDto.QuotItem quotItem = JSON.toJavaObject(json, SmpOpenMaterialDto.QuotItem.class);
-                    quotItem.setC8_SupplierItemRev_MLeadTime(json.getBigDecimal("c8SupplierItemRevMLeadTime"));
-                    quotItem.setLeadTime(json.getBigDecimal("leadTime"));
-
-                    list.add(quotItem);
-                }
-                smpOpenMaterialDto.setQuotItems(list);
-            }
-        }
-        JSONObject mODELITEMS = jsonObject.getJSONObject("mODELITEMS");
-        if (mODELITEMS != null) {
-            JSONArray mODELITEMSNANAnnotation = mODELITEMS.getJSONArray("mODELITEMSChildren");
-            if (mODELITEMSNANAnnotation != null) {
-                List<SmpOpenMaterialDto.ModelItem> list = new ArrayList<>();
-                for (Object object : mODELITEMSNANAnnotation) {
-                    JSONObject json = (JSONObject) JSON.toJSON(object);
-                    SmpOpenMaterialDto.ModelItem modelItem = JSON.toJavaObject(json, SmpOpenMaterialDto.ModelItem.class);
-                    list.add(modelItem);
-                }
-                smpOpenMaterialDto.setMODELITEMS(list);
-            }
-        }
-
-
-        JSONObject cOLORITEMS = jsonObject.getJSONObject("cOLORITEMS");
-         if (cOLORITEMS != null) {
-             JSONArray cOLORITEMSNANAnnotation = cOLORITEMS.getJSONArray("cOLORITEMSChildren");
-             if (cOLORITEMSNANAnnotation != null) {
-                 List<SmpOpenMaterialDto.ColorItem> list = new ArrayList<>();
-                 for (Object object : cOLORITEMSNANAnnotation) {
-                     JSONObject json = (JSONObject) JSON.toJSON(object);
-                     SmpOpenMaterialDto.ColorItem colorItem = JSON.toJavaObject(json, SmpOpenMaterialDto.ColorItem.class);
-                     colorItem.setSmpColor(json.getString("supplierColorNo"));
-                     list.add(colorItem);
-                 }
-                 smpOpenMaterialDto.setCOLORITEMS(list);
-             }
-
-         }
-
-        BasicsdatumMaterial basicsdatumMaterial = smpOpenMaterialDto.toBasicsdatumMaterial();
-            basicsdatumMaterial.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
-
-        //if (true){
-        //    return null;
-        //}
-        basicsdatumMaterialService.saveOrUpdate(basicsdatumMaterial, new QueryWrapper<BasicsdatumMaterial>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
-
-        if (!smpOpenMaterialDto.getCOLORITEMS().isEmpty()) {
-            List<BasicsdatumMaterialColor> basicsdatumMaterialColors = new ArrayList<>();
-            //转成颜色集合
-            smpOpenMaterialDto.getCOLORITEMS().forEach(colorItem -> {
-                BasicsdatumMaterialColor basicsdatumMaterialColor = new BasicsdatumMaterialColor();
-                basicsdatumMaterialColor.setColorCode(colorItem.getColorCode());
-                basicsdatumMaterialColor.setStatus(colorItem.isActive() ? "0" : "1");
-                basicsdatumMaterialColor.setSupplierColorCode(colorItem.getSmpColor());
-                basicsdatumMaterialColor.setMaterialCode(basicsdatumMaterial.getMaterialCode());
-                basicsdatumMaterialColors.add(basicsdatumMaterialColor);
-            });
-            basicsdatumMaterialColorService.addAndUpdateAndDelList(basicsdatumMaterialColors, new QueryWrapper<BasicsdatumMaterialColor>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
-
-        }
-
-        if (!smpOpenMaterialDto.getMODELITEMS().isEmpty()) {
-            List<BasicsdatumMaterialWidth> basicsdatumMaterialWidths = new ArrayList<>();
-            smpOpenMaterialDto.getMODELITEMS().forEach(modelItem -> {
-                BasicsdatumMaterialWidth basicsdatumMaterialWidth = new BasicsdatumMaterialWidth();
-                basicsdatumMaterialWidth.setStatus(modelItem.isActive() ? "0" : "1");
-                basicsdatumMaterialWidth.setWidthCode(modelItem.getCODE());
-                basicsdatumMaterialWidth.setName(modelItem.getSIZENAME());
-                basicsdatumMaterialWidth.setMaterialCode(basicsdatumMaterial.getMaterialCode());
-                basicsdatumMaterialWidths.add(basicsdatumMaterialWidth);
-            });
-            basicsdatumMaterialWidthService.addAndUpdateAndDelList(basicsdatumMaterialWidths, new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
-
-        }
-
-        if (!smpOpenMaterialDto.getQuotItems().isEmpty()) {
-            List<BasicsdatumMaterialPrice> basicsdatumMaterialPrices = new ArrayList<>();
-            smpOpenMaterialDto.getQuotItems().forEach(quotItem -> {
-                BasicsdatumMaterialPrice basicsdatumMaterialPrice = new BasicsdatumMaterialPrice();
-                basicsdatumMaterialPrice.setWidth(quotItem.getSUPPLIERSIZE());
-                basicsdatumMaterialPrice.setMaterialCode(basicsdatumMaterial.getMaterialCode());
-                basicsdatumMaterialPrice.setSupplierId(quotItem.getSupplierCode());
-                basicsdatumMaterialPrice.setSupplierName(quotItem.getSupplierName());
-                basicsdatumMaterialPrice.setColor(quotItem.getSUPPLIERCOLORID());
-                basicsdatumMaterialPrice.setQuotationPrice(quotItem.getFOBFullPrice());
-                basicsdatumMaterialPrice.setOrderDay(quotItem.getLeadTime());
-                basicsdatumMaterialPrice.setProductionDay(quotItem.getC8_SupplierItemRev_MLeadTime());
-                basicsdatumMaterialPrice.setMinimumOrderQuantity(quotItem.getMOQInitial());
-                basicsdatumMaterialPrice.setColorName(quotItem.getSUPPLIERCOLORNAME());
-                basicsdatumMaterialPrice.setWidthName(quotItem.getSUPPLIERSIZE());
-                basicsdatumMaterialPrice.setSupplierMaterialCode(quotItem.getSupplierMaterial());
-                basicsdatumMaterialPrices.add(basicsdatumMaterialPrice);
-
-            });
-            basicsdatumMaterialPriceService.addAndUpdateAndDelList(basicsdatumMaterialPrices, new QueryWrapper<BasicsdatumMaterialPrice>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
-
-        }
 
         return insertSuccess(null);
     }
