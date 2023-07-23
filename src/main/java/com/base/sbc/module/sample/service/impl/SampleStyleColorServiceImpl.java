@@ -188,7 +188,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             addRevampSampleStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampSampleStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampSampleStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
-            addRevampSampleStyleColorDto.setStyleNo(getNextCode(addRevampSampleStyleColorDto.getSampleDesignId(), sampleDesign.getBrand(),sampleDesign.getYear(),sampleDesign.getMonth(),sampleDesign.getBandName(),sampleDesign.getCategoryName(),sampleDesign.getDesignNo(),index++));
+            addRevampSampleStyleColorDto.setStyleNo(getNextCode(addRevampSampleStyleColorDto.getSampleDesignId(), sampleDesign.getBrand(),sampleDesign.getYearName(),sampleDesign.getMonth(),sampleDesign.getBandName(),sampleDesign.getCategoryName(),sampleDesign.getDesignNo(),index++));
         }
         List<SampleStyleColor> sampleStyleColorList = BeanUtil.copyToList(list, SampleStyleColor.class);
         saveBatch(sampleStyleColorList);
