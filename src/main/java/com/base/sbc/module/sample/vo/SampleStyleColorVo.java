@@ -137,4 +137,6 @@ public class SampleStyleColorVo  {
     private String styleFlavourName;
     /*是否上会*/
     private String meetFlag;
+
+    private String color16;
 }

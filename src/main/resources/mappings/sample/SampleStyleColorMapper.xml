@@ -44,11 +44,13 @@
     sd.style_flavour_name,
     sd.category_name,
 	sob.meet_flag,
+	cl.color16,
     ssc.*
     FROM t_sample_style_color ssc
     LEFT JOIN t_sample_design sd on ssc.sample_design_id  = sd.id
 	LEFT JOIN t_sample_style_order_book_color sobc on ssc.style_no = sobc.style_no
     LEFT JOIN t_sample_style_order_book sob on sob.order_book_code =sobc.order_book_code
+    LEFT JOIN t_basicsdatum_colour_library cl on ssc.colour_library_id = cl.id
     ${ew.customSqlSegment}
     </select>
 
