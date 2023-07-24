@@ -284,6 +284,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 FlowableService.big_goods_reverse, id,
                 "/pdm/api/saas/packInfo/reverseApproval",
                 "/pdm/api/saas/packInfo/reverseApproval",
+                "/pdm/api/saas/packInfo/reverseApproval",
                 StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
                 variables);
         return true;
@@ -301,6 +302,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         Map<String, Object> variables = BeanUtil.beanToMap(pack);
         boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]",
                 FlowableService.big_goods_reverse, id,
+                "/pdm/api/saas/packInfo/approval",
                 "/pdm/api/saas/packInfo/approval",
                 "/pdm/api/saas/packInfo/approval",
                 StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
@@ -324,6 +326,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
                 packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
                 packInfoStatus.setPostTechConfirm(BaseGlobal.NO);
+            } else {
+                packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
             }
             packInfoStatusService.updateById(packInfoStatus);
         }
@@ -386,6 +390,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
                 packInfoStatus.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
+            } else {
+                packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
             }
             packInfoStatusService.updateById(packInfoStatus);
         }

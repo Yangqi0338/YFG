@@ -102,6 +102,23 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (sampleDesign == null) {
             throw new OtherException("样衣设计不存在");
         }
+        QueryWrapper rQw = new QueryWrapper();
+        rQw.eq("sample_design_id", dto.getSampleDesignId());
+        rQw.eq("del_flag", BaseGlobal.NO);
+        //出版样只能有一个
+        if (StrUtil.equals("初版样", dto.getTechnicianKitting())) {
+
+            rQw.eq("sample_type", dto.getSampleType());
+            long count = count(rQw);
+            if (count != 0) {
+                throw new OtherException(dto.getSampleType() + "只能有一个");
+            }
+        } else {
+            long count = count(rQw);
+            if (count > 0) {
+                throw new OtherException("只能新建6个打版指令:1个初版样、5个其他");
+            }
+        }
         //查询样衣
         PatternMaking patternMaking = BeanUtil.copyProperties(dto, PatternMaking.class);
         patternMaking.setCode(getNextCode(sampleDesign));
@@ -109,6 +126,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (StrUtil.equals(dto.getTechnicianKitting(), BaseGlobal.YES)) {
             patternMaking.setTechnicianKittingDate(new Date());
         }
+
         patternMaking.setSglKitting(BaseGlobal.NO);
         patternMaking.setBreakOffPattern(BaseGlobal.NO);
         patternMaking.setBreakOffSample(BaseGlobal.NO);
@@ -120,6 +138,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         patternMaking.setExtAuxiliary(BaseGlobal.NO);
         patternMaking.setPatDiff(Opt.ofBlankAble(patternMaking.getPatDiff()).orElse(sampleDesign.getPatDiff()));
         save(patternMaking);
+
         return patternMaking;
     }
 

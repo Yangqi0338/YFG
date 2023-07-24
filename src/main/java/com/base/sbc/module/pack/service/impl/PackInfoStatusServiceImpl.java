@@ -90,6 +90,7 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
                 packInfoStatus.getId(),
                 "/pdm/api/saas/packTechSpec/approval",
                 "/pdm/api/saas/packTechSpec/approval",
+                "/pdm/api/saas/packTechSpec/approval",
                 StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()),
                 variables);
         return true;
@@ -111,6 +112,8 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
                 packInfoStatus.setTechSpecConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
                 packInfoStatus.setBulkProdTechConfirm(BaseGlobal.NO);
                 packInfoStatus.setBulkProdTechConfirmDate(new Date());
+            } else {
+                packInfoStatus.setTechSpecConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
             }
             updateById(packInfoStatus);
         }
@@ -164,6 +167,7 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
                 packInfoStatus.getId(),
                 "/pdm/api/saas/packSize/approval",
                 "/pdm/api/saas/packSize/approval",
+                "/pdm/api/saas/packSize/approval",
                 StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()),
                 variables);
         return true;
@@ -182,6 +186,8 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
                 packInfoStatus.setSizeConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
+            } else {
+                packInfoStatus.setSizeConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
             }
             updateById(packInfoStatus);
         }

@@ -56,6 +56,7 @@ public class BaseConstant {
 	public static final String COMPANY_CODE = "company_code";
 
 	public static final String APPROVAL_PASS = "pass";
+	public static final String APPROVAL_CANCEL = "cancel";
 	public static final String APPROVAL_REJECT = "reject";
 	public static final String DEFAULT = "default";
 	public static final String USER = "user";

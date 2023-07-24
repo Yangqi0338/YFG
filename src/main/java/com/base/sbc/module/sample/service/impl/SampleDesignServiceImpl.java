@@ -45,7 +45,6 @@ import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.SampleDesign;
-import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.mapper.SampleDesignMapper;
 import com.base.sbc.module.sample.mapper.SampleStyleColorMapper;
 import com.base.sbc.module.sample.service.SampleDesignService;
@@ -331,7 +330,12 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         sampleDesign.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         updateById(sampleDesign);
         Map<String, Object> variables = BeanUtil.beanToMap(sampleDesign);
-        boolean flg = flowableService.start(FlowableService.sample_design_pdn + "[" + sampleDesign.getDesignNo() + "]", FlowableService.sample_design_pdn, id, "/pdm/api/saas/sampleDesign/approval", "/pdm/api/saas/sampleDesign/approval", "/sampleClothesDesign/sampleDesign/" + id, variables);
+        boolean flg = flowableService.start(FlowableService.sample_design_pdn + "[" + sampleDesign.getDesignNo() + "]",
+                FlowableService.sample_design_pdn, id,
+                "/pdm/api/saas/sampleDesign/approval",
+                "/pdm/api/saas/sampleDesign/approval",
+                "/pdm/api/saas/sampleDesign/approval",
+                "/sampleClothesDesign/sampleDesign/" + id, variables);
         return flg;
     }
 
@@ -350,6 +354,8 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
                 sampleDesign.setStatus("0");
                 sampleDesign.setConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
+            } else {
+                sampleDesign.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
             }
             updateById(sampleDesign);
         }

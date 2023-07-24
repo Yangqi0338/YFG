@@ -36,16 +36,17 @@ public class FlowableService {
     /**
      * 开始流程
      *
-     * @param title 单据标题
+     * @param title                 单据标题
      * @param processDefinitionName 流程名称
      * @param businessKey           业务id
      * @param answerAddress         通过回调地址
      * @param rejectAddress         驳回回调地址
+     * @param cancelAddress         取消回调地址
      * @param checkAddress          查看明细地址
      * @param variables             流程数据
      * @return
      */
-    public boolean start(String title,String processDefinitionName, String businessKey, String answerAddress, String rejectAddress, String checkAddress, Map<String, Object> variables) {
+    public boolean start(String title, String processDefinitionName, String businessKey, String answerAddress, String rejectAddress, String cancelAddress, String checkAddress, Map<String, Object> variables) {
         if (variables == null) {
             variables = new LinkedHashMap<>(16);
         }
@@ -53,7 +54,8 @@ public class FlowableService {
         variables.put("answerAddress", answerAddress);
         variables.put("rejectAddress", rejectAddress);
         variables.put("checkAddress", checkAddress);
-        String result = flowableFeignService.start(title,null, processDefinitionName, businessKey, null, variables);
+        variables.put("cancelAddress", cancelAddress);
+        String result = flowableFeignService.start(title, null, processDefinitionName, businessKey, null, variables);
         if (StrUtil.isNotBlank(result)) {
             ApiResult apiResult = JSONObject.parseObject(result, ApiResult.class);
             if (apiResult.getSuccess()) {
