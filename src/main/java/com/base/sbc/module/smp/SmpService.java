@@ -14,7 +14,10 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
-import com.base.sbc.module.basicsdatum.entity.*;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
@@ -218,9 +221,23 @@ public class SmpService {
             //    e.printStackTrace();
             //}
 
-            if (true){
+            if (true) {
                 return null;
             }
+            // 有
+            smpGoodsDto.setBandName(null);//样衣设计
+
+            smpGoodsDto.setAccessories(null);//配色
+            // 待确认
+            // 核价
+            smpGoodsDto.setCost(null);
+            smpGoodsDto.setLaborCosts(null);
+            smpGoodsDto.setMaterialCost(null);
+            //
+            // 资料包 吊牌
+            smpGoodsDto.setPackageType(null);
+            smpGoodsDto.setPackageSize(null);
+            // 无
             smpGoodsDto.setProductTypeId(null);
             smpGoodsDto.setProductType(null);
             smpGoodsDto.setUnit(null);
@@ -233,26 +250,21 @@ public class SmpService {
 
             smpGoodsDto.setTextureId(null);
             smpGoodsDto.setTextureName(null);
-            smpGoodsDto.setBandName(null);
             smpGoodsDto.setPriceConfirm(null);
-            smpGoodsDto.setCost(null);
+
             smpGoodsDto.setPlanCost(null);
             smpGoodsDto.setActualRate(null);
             smpGoodsDto.setPlanActualRate(null);
             smpGoodsDto.setProcessCost(null);
-            smpGoodsDto.setLaborCosts(null);
-            smpGoodsDto.setMaterialCost(null);
+
             smpGoodsDto.setProductName(null);
             smpGoodsDto.setUniqueCode(null);
             smpGoodsDto.setSeries(null);
-            smpGoodsDto.setAccessories(null);
             smpGoodsDto.setSaleTime(null);
             smpGoodsDto.setSeriesId(null);
             smpGoodsDto.setSeriesName(null);
             smpGoodsDto.setBomPhase(null);
             smpGoodsDto.setAuProcess(null);
-            smpGoodsDto.setPackageType(null);
-            smpGoodsDto.setPackageSize(null);
             smpGoodsDto.setProdSeg(null);
             smpGoodsDto.setComposition(null);
 
