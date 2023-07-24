@@ -31,6 +31,11 @@ public class PatternMakingVo extends PatternMaking {
     @ApiModelProperty(value = "车缝工头像")
     @UserAvatar("stitcherId")
     private String stitcherAvatar;
+
+    @ApiModelProperty(value = "版师头像")
+    @UserAvatar("patternDesignId")
+    private String patternDesignAvatar;
+
     @ApiModelProperty(value = "纸样文件")
     private List<AttachmentVo> attachmentList;
 
