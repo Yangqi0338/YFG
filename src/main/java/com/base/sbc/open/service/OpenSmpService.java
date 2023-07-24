@@ -79,9 +79,9 @@ public class OpenSmpService {
                 smpOpenMaterialDto.setImages(list);
             }
         }
-        if (true){
-            return;
-        }
+        //if (true){
+        //    return;
+        //}
 
         JSONObject quotItems = jsonObject.getJSONObject("quotItems");
         if (quotItems != null) {
@@ -132,10 +132,11 @@ public class OpenSmpService {
 
         BasicsdatumMaterial basicsdatumMaterial = smpOpenMaterialDto.toBasicsdatumMaterial();
         basicsdatumMaterial.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
-
+        basicsdatumMaterial.setUpdateName("外部系统推送");
         //if (true){
         //    return null;
         //}
+
         basicsdatumMaterialService.saveOrUpdate(basicsdatumMaterial, new QueryWrapper<BasicsdatumMaterial>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
 
         if (!smpOpenMaterialDto.getCOLORITEMS().isEmpty()) {
@@ -147,6 +148,8 @@ public class OpenSmpService {
                 basicsdatumMaterialColor.setStatus(colorItem.isActive() ? "0" : "1");
                 basicsdatumMaterialColor.setSupplierColorCode(colorItem.getSmpColor());
                 basicsdatumMaterialColor.setMaterialCode(basicsdatumMaterial.getMaterialCode());
+                basicsdatumMaterialColor.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
+                basicsdatumMaterialColor.setUpdateName("外部系统推送");
                 basicsdatumMaterialColors.add(basicsdatumMaterialColor);
             });
             basicsdatumMaterialColorService.addAndUpdateAndDelList(basicsdatumMaterialColors, new QueryWrapper<BasicsdatumMaterialColor>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
@@ -161,6 +164,8 @@ public class OpenSmpService {
                 basicsdatumMaterialWidth.setWidthCode(modelItem.getCODE());
                 basicsdatumMaterialWidth.setName(modelItem.getSIZENAME());
                 basicsdatumMaterialWidth.setMaterialCode(basicsdatumMaterial.getMaterialCode());
+                basicsdatumMaterialWidth.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
+                basicsdatumMaterialWidth.setUpdateName("外部系统推送");
                 basicsdatumMaterialWidths.add(basicsdatumMaterialWidth);
             });
             basicsdatumMaterialWidthService.addAndUpdateAndDelList(basicsdatumMaterialWidths, new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
@@ -183,6 +188,8 @@ public class OpenSmpService {
                 basicsdatumMaterialPrice.setColorName(quotItem.getSUPPLIERCOLORNAME());
                 basicsdatumMaterialPrice.setWidthName(quotItem.getSUPPLIERSIZE());
                 basicsdatumMaterialPrice.setSupplierMaterialCode(quotItem.getSupplierMaterial());
+                basicsdatumMaterialPrice.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
+                basicsdatumMaterialPrice.setUpdateName("外部系统推送");
                 basicsdatumMaterialPrices.add(basicsdatumMaterialPrice);
 
             });
