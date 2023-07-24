@@ -29,9 +29,11 @@ import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
@@ -65,8 +67,6 @@ public class SmpService {
 
     private final RestTemplateService restTemplateService;
 
-    private final BasicsdatumModelTypeMapper basicsdatumModelTypeMapper;
-
     private final PushRecordsService pushRecordsService;
 
     private final BasicsdatumMaterialService basicsdatumMaterialService;
@@ -95,17 +95,17 @@ public class SmpService {
 
     private final CcmFeignService ccmFeignService;
 
-
     private final AttachmentService attachmentService;
 
-    private final  BasicsdatumModelTypeService basicsdatumModelTypeService;
+    private final BasicsdatumModelTypeService basicsdatumModelTypeService;
+
+    private final PackInfoStatusService packInfoStatusService;
 
 
     private static final String SMP_URL = "http://10.98.250.31:7006/pdm";
     //private static final String PDM_URL = "http://smp-i.eifini.com/service-manager/pdm";
 
     private static final String SCM_URL = "http://10.8.250.100:1980/escm-app/information/pdm";
-
 
 
     /**
@@ -133,7 +133,7 @@ public class SmpService {
 
             // 款式图片
             List<AttachmentVo> stylePicList = attachmentService.findByforeignId(sampleDesign.getId(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
-            List<String> imgList=new ArrayList<>();
+            List<String> imgList = new ArrayList<>();
             for (AttachmentVo attachmentVo : stylePicList) {
                 imgList.add(attachmentVo.getUrl());
             }
@@ -168,10 +168,9 @@ public class SmpService {
             smpGoodsDto.setShapeName(sampleDesign.getPlateType());
 
 
-
             Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Band");
             Map<String, String> map = dictInfoToMap.get("C8_Band");
-            smpGoodsDto.setBandName( map.get(sampleDesign.getBandCode()));
+            smpGoodsDto.setBandName(map.get(sampleDesign.getBandCode()));
 
             //List<FieldVal> list1 = fieldValService.list(sampleDesign.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
 
@@ -421,9 +420,7 @@ public class SmpService {
      */
     public Integer bom(String[] ids) {
         int i = 0;
-        QueryWrapper<PackBom> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("id", Arrays.asList(ids));
-        List<PackBom> list = packBomService.list(queryWrapper);
+        List<PackBom> list = packBomService.listByIds(Arrays.asList(ids));
         for (PackBom packBom : list) {
             SmpBomDto smpBomDto = packBom.toSmpBomDto();
             smpBomDto.setMainMaterial(true);
@@ -437,19 +434,11 @@ public class SmpService {
             smpBomDto.setBomCode(packInfo.getCode());
 
             List<BomMaterial> bomMaterials = new ArrayList<>();
-            for (PackBom packBom1 : packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packBom.getForeignId()).eq("pack_type", "packBigGoods"))) {
-                BomMaterial bomMaterial = packBom1.toBomMaterial();
-                if (packBom1.getId().equals(packBom.getId())) {
-                    continue;
-                }
-                bomMaterial.setBomId(packInfo.getCode());
-                bomMaterials.add(bomMaterial);
-                smpBomDto.setMainMaterial(false);
 
-                packBom1.setScmSendFlag("1");
-                packBomService.updateById(packBom1);
-            }
-
+            BomMaterial bomMaterial = packBom.toBomMaterial();
+            bomMaterial.setBomId(packInfo.getCode());
+            bomMaterials.add(bomMaterial);
+            smpBomDto.setMainMaterial(false);
             smpBomDto.setBomMaterials(bomMaterials);
 
             List<SmpSizeQty> sizeQtyList = new ArrayList<>();
@@ -468,7 +457,6 @@ public class SmpService {
             }
             smpBomDto.setSizeQtyList(sizeQtyList);
 
-
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/bom", smpBomDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
             packBom.setScmSendFlag("1");
@@ -476,6 +464,19 @@ public class SmpService {
             if (aBoolean) {
                 i++;
             }
+
+            PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()));
+            long count = packBomService.count(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("scm_send_flag", "1"));
+
+            long count1 = packBomService.count(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
+            if (count==0){
+                packInfoStatus.setScmSendFlag("0");
+            }else if(count1==count){
+                packInfoStatus.setScmSendFlag("1");
+            }else {
+                packInfoStatus.setScmSendFlag("2");
+            }
+            packInfoStatusService.updateById(packInfoStatus);
         }
 
         return i;
@@ -509,8 +510,8 @@ public class SmpService {
      * 工艺单下发
      */
     public Integer processSheet(List<SmpProcessSheetDto> sheetDtoList) {
-        int i =0;
-        IdGen idGen=new IdGen();
+        int i = 0;
+        IdGen idGen = new IdGen();
         for (SmpProcessSheetDto smpProcessSheetDto : sheetDtoList) {
             String id = String.valueOf(idGen.nextId());
 
@@ -518,7 +519,7 @@ public class SmpService {
             smpProcessSheetDto.setId(id);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/processSheet", smpProcessSheetDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpProcessSheetDto, "smp", "工艺单下发");
-            if (aBoolean){
+            if (aBoolean) {
                 i++;
             }
 
@@ -567,28 +568,28 @@ public class SmpService {
     /**
      * 面料成分名称码表下发
      */
-    public Integer fabricComposition(String[] ids){
-        int i =0;
+    public Integer fabricComposition(String[] ids) {
+        int i = 0;
         for (BasicsdatumMaterial basicsdatumMaterial : basicsdatumMaterialService.listByIds(Arrays.asList(ids))) {
-            FabricCompositionDto fabricCompositionDto =new FabricCompositionDto();
+            FabricCompositionDto fabricCompositionDto = new FabricCompositionDto();
             fabricCompositionDto.setName(basicsdatumMaterial.getMaterialName());
             fabricCompositionDto.setMaterialCode(basicsdatumMaterial.getMaterialCode());
             fabricCompositionDto.setId(fabricCompositionDto.getId());
             String[] split = basicsdatumMaterial.getIngredient().split(", ");
-            List<String> list =new ArrayList<>();
+            List<String> list = new ArrayList<>();
             try {
                 for (String s : split) {
                     String[] split1 = s.split(" ");
                     list.add(split1[1]);
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
             fabricCompositionDto.setIngredient(String.join(",", list));
 
 
-            HttpResp httpResp = restTemplateService.spmPost(SCM_URL+"/materialElement", fabricCompositionDto);
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElement", fabricCompositionDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, fabricCompositionDto, "scm", "面料成分名称码表下发");
             if (aBoolean) {
                 i++;
@@ -601,7 +602,7 @@ public class SmpService {
      * 修改商品尺码的时候验证
      */
     public Boolean checkStyleSize(PlmStyleSizeParam param) {
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL+"/checkStyleSize", param);
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkStyleSize", param);
         return pushRecordsService.pushRecordSave(httpResp, param, "scm", "修改尺码的时候验证");
     }
 
@@ -609,7 +610,7 @@ public class SmpService {
      * 修改商品颜色的时候验证
      */
     public Boolean checkColorSize(PdmStyleCheckParam param) {
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL+"/checkColorSize", param);
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkColorSize", param);
         return pushRecordsService.pushRecordSave(httpResp, param, "scm", "修改商品颜色的时候验证");
     }
 }
