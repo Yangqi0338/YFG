@@ -221,9 +221,9 @@ public class SmpService {
             //    e.printStackTrace();
             //}
 
-            if (true) {
-                return null;
-            }
+            //if (true) {
+            //    return null;
+            //}
             // 有
             smpGoodsDto.setBandName(null);//样衣设计
 
@@ -445,6 +445,9 @@ public class SmpService {
                 bomMaterial.setBomId(packInfo.getCode());
                 bomMaterials.add(bomMaterial);
                 smpBomDto.setMainMaterial(false);
+
+                packBom1.setScmSendFlag("1");
+                packBomService.updateById(packBom1);
             }
 
             smpBomDto.setBomMaterials(bomMaterials);
