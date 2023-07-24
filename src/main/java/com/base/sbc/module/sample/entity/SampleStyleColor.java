@@ -199,7 +199,8 @@ public class SampleStyleColor extends BaseDataEntity<String> {
 //    是否报次数0否 1是
     private String isDefective;
 
-
+    /*唯一码*/
+    private String wareCode;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
