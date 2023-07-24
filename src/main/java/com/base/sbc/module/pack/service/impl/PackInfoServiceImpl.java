@@ -222,6 +222,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException("没有配色信息");
         }
         copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
+        PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
+        //设置为已转大货
+        packDesignStatus.setBomStatus(BasicNumber.ONE.getNumber());
+        packInfoStatusService.updateById(packDesignStatus);
         PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
         //设置为已转大货
         packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
