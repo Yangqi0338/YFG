@@ -116,8 +116,8 @@ public class BasicsdatumColourLibraryController{
 
 	@ApiOperation(value = "获取所有颜色规格")
 	@GetMapping("/getAllColourSpecification")
-	public List<String> getAllColourSpecification() {
-		return basicsdatumColourLibraryService.getAllColourSpecification();
+	public List<String> getAllColourSpecification(String status) {
+		return basicsdatumColourLibraryService.getAllColourSpecification(status);
 	}
 
 

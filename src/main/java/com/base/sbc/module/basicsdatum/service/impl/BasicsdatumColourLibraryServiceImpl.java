@@ -10,6 +10,7 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -25,9 +26,7 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumColourLibraryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumColourLibraryExcelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBasicsdatumColourLibraryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourGroup;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourGroupMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
@@ -298,9 +297,10 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
     }
 
     @Override
-    public List<String> getAllColourSpecification() {
+    public List<String> getAllColourSpecification(String status) {
         QueryWrapper<BasicsdatumColourLibrary> qw = new QueryWrapper<>();
         qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.eq(StrUtil.isNotBlank(status), "status", status);
         qw.ne("del_flag", BaseGlobal.YES);
         return this.getBaseMapper().getAllColourSpecification(qw);
 

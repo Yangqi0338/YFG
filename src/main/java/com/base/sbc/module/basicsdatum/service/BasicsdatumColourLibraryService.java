@@ -82,7 +82,7 @@ public interface BasicsdatumColourLibraryService extends BaseService<Basicsdatum
          */
         Boolean startStopBasicsdatumColourLibrary(StartStopDto startStopDto);
 
-        List<String> getAllColourSpecification();
+        List<String> getAllColourSpecification(String status);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/
