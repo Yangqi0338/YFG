@@ -8,12 +8,14 @@ package com.base.sbc.module.sample.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -137,5 +139,35 @@ public class Sample extends BaseDataEntity<String> {
     /** 备注 */
     @ApiModelProperty(value = "备注")
     private String remarks;
+
+    public SmpSampleDto toSmpSampleDto() {
+        SmpSampleDto smpSampleDto = new SmpSampleDto();
+        smpSampleDto.setSampleNumber(patternMakingCode);
+        smpSampleDto.setSupplier(fromName);
+        smpSampleDto.setSupplierNumber(fromId);
+        smpSampleDto.setImgList(Arrays.asList(images.split(",")));
+        smpSampleDto.setSampleReceivedDate(getCreateDate());
+        smpSampleDto.setSampleType(String.valueOf(type));
+        smpSampleDto.setSampleTypeName(type==1?"内部研发" : type==2? "外采" : type ==3? "ODM提供" :"");
+
+        String[] split = categoryName.split("/");
+
+        try {
+            smpSampleDto.setMajorCategoriesName(split[0].split(",")[0]);
+            smpSampleDto.setMajorCategories(split[0].split(",")[1]);
+            smpSampleDto.setCategoryName(split[1].split(",")[0]);
+            smpSampleDto.setCategory(split[1].split(",")[1]);
+            smpSampleDto.setMiddleClassName(split[2].split(",")[0]);
+            smpSampleDto.setMiddleClassId(split[2].split(",")[1]);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        smpSampleDto.setQuarterCode(season);
+        smpSampleDto.setPatternMaker(patternDesignName);
+        smpSampleDto.setStyleCode(designNo);
+        return smpSampleDto;
+
+    }
 }
 

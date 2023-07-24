@@ -35,67 +35,7 @@ public class SampleDesign extends BaseDataEntity<String> {
     private static final long serialVersionUID = 1L;
 
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
-    public SmpSampleDto toSmpSampleDto() {
-        SmpSampleDto smpSampleDto = new SmpSampleDto();
-        // TODO: 2023/7/15 未完成
-        //取跟款设计师，如果跟款设计师不存在就取设计师
-        smpSampleDto.setProofingDesigner(merchDesignName == null ? designer : merchDesignName);
-        smpSampleDto.setBExtAuxiliary(null);
-        smpSampleDto.setBarcode(null);
-        smpSampleDto.setEAValidFromTime(null);
-        smpSampleDto.setEAValidToTime(null);
-        smpSampleDto.setFinished(null);
-        smpSampleDto.setMCDate(null);
-        smpSampleDto.setPmlId(null);
-        smpSampleDto.setPatDiff(patDiff);
-        smpSampleDto.setPatSeqName(patDiff);
-        smpSampleDto.setPatSeq(null);
-        smpSampleDto.setPatSeqName(null);
-        smpSampleDto.setSampleNumber(null);
-        smpSampleDto.setSampleNumberName(null);
-        smpSampleDto.setColorwayCode(styleNo);
-        smpSampleDto.setColorwayPlmId(styleName);
-        smpSampleDto.setNodeName(null);
-        smpSampleDto.setSampleReceivedDate(getCreateDate());
-        smpSampleDto.setSampleStatus(status);
-        smpSampleDto.setSampleStatusName("0".equals(status) ? "未开款" : "1".equals(status) ?  "已开款" : "已下发打板(完成)");
-        smpSampleDto.setSampleType(null);
-        smpSampleDto.setSampleTypeName(null);
 
-        String[] split = categoryName.split("/");
-
-        try {
-            smpSampleDto.setMajorCategoriesName(split[0].split(",")[0]);
-            smpSampleDto.setMajorCategories(split[0].split(",")[1]);
-            smpSampleDto.setCategoryName(split[1].split(",")[0]);
-            smpSampleDto.setCategory(split[1].split(",")[1]);
-            smpSampleDto.setMiddleClassName(split[2].split(",")[0]);
-            smpSampleDto.setMiddleClassId(split[2].split(",")[1]);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-
-
-
-        smpSampleDto.setBrandCode(brand);
-        smpSampleDto.setBrandName(null);
-        smpSampleDto.setQuarterCode(season);
-        smpSampleDto.setYear(year);
-        smpSampleDto.setDesigner(designer);
-        smpSampleDto.setPatternMaker(patternDesignName);
-
-        smpSampleDto.setTechnician(technicianName);
-
-        smpSampleDto.setStyleUrl(stylePic);
-        smpSampleDto.setStyleCode(designNo);
-        smpSampleDto.setSupplier(null);
-        smpSampleDto.setSupplierNumber(null);
-        smpSampleDto.setImgList(null);
-
-        return smpSampleDto;
-
-    }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 

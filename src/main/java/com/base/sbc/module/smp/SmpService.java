@@ -35,9 +35,11 @@ import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
+import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.service.SampleDesignService;
+import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.sample.service.SampleStyleColorService;
 import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.base.sbc.module.smp.dto.*;
@@ -100,6 +102,8 @@ public class SmpService {
     private final BasicsdatumModelTypeService basicsdatumModelTypeService;
 
     private final PackInfoStatusService packInfoStatusService;
+
+    private final SampleService sampleService;
 
 
     private static final String SMP_URL = "http://10.98.250.31:7006/pdm";
@@ -166,7 +170,7 @@ public class SmpService {
             smpGoodsDto.setStyleName(sampleDesign.getStyleName());
             smpGoodsDto.setTargetCost(sampleDesign.getProductCost());
             smpGoodsDto.setShapeName(sampleDesign.getPlateType());
-
+            smpGoodsDto.setUniqueCode(sampleStyleColor.getWareCode());
 
             Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Band");
             Map<String, String> map = dictInfoToMap.get("C8_Band");
@@ -257,7 +261,7 @@ public class SmpService {
             smpGoodsDto.setProcessCost(null);
 
             smpGoodsDto.setProductName(null);
-            smpGoodsDto.setUniqueCode(null);
+
             smpGoodsDto.setSeries(null);
             smpGoodsDto.setSaleTime(null);
             smpGoodsDto.setSeriesId(null);
@@ -428,10 +432,13 @@ public class SmpService {
             PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
             //样衣-款式配色
             SampleStyleColor sampleStyleColor = sampleStyleColorService.getById(packInfo.getSampleStyleColorId());
-            smpBomDto.setPColorCode(sampleStyleColor.getColorCode());
-            smpBomDto.setPColorName(sampleStyleColor.getColorName());
-            smpBomDto.setBulkNumber(packInfo.getStyleNo());
-            smpBomDto.setBomCode(packInfo.getCode());
+            if (sampleStyleColor!=null){
+                smpBomDto.setPColorCode(sampleStyleColor.getColorCode());
+                smpBomDto.setPColorName(sampleStyleColor.getColorName());
+                smpBomDto.setBulkNumber(packInfo.getStyleNo());
+                smpBomDto.setBomCode(packInfo.getCode());
+
+            }
 
             List<BomMaterial> bomMaterials = new ArrayList<>();
 
@@ -532,11 +539,31 @@ public class SmpService {
      */
     public Integer sample(String[] ids) {
         int i = 0;
-        for (SampleDesign sampleDesign : sampleDesignService.listByIds(Arrays.asList(ids))) {
-            SmpSampleDto smpSampleDto = sampleDesign.toSmpSampleDto();
+
+        for (Sample sample :sampleService.listByIds(Arrays.asList(ids))) {
+            SmpSampleDto smpSampleDto = sample.toSmpSampleDto();
+
+            SampleDesign sampleDesign = sampleDesignService.getOne(new QueryWrapper<SampleDesign>().eq("design_no", sample.getDesignNo()));
+            //取跟款设计师，如果跟款设计师不存在就取设计师
+            smpSampleDto.setProofingDesigner(sampleDesign.getMerchDesignName() == null ? sampleDesign.getDesigner() : sampleDesign.getMerchDesignName());
+            smpSampleDto.setPatDiff(sampleDesign.getPatDiff());
+
+            smpSampleDto.setColorwayCode(sampleDesign.getStyleNo());
+            smpSampleDto.setColorwayPlmId(sampleDesign.getStyleNo());
+            smpSampleDto.setSampleStatus(sampleDesign.getStatus());
+            smpSampleDto.setSampleStatusName("0".equals(sampleDesign.getStatus()) ? "未开款" : "1".equals(sampleDesign.getStatus()) ?  "已开款" : "已下发打板(完成)");
+            smpSampleDto.setBrandCode(sampleDesign.getBrand());
             String designerId = sampleDesign.getDesignerId();
             String technicianId = sampleDesign.getTechnicianId();
             String patternDesignId = sampleDesign.getPatternDesignId();
+            smpSampleDto.setYear(sampleDesign.getYear());
+            smpSampleDto.setDesigner(sampleDesign.getDesigner());
+            smpSampleDto.setTechnician(sampleDesign.getTechnicianName());
+            smpSampleDto.setStyleUrl(sampleDesign.getStylePic());
+            smpSampleDto.setBrandName(sampleDesign.getBrandName());
+
+            smpSampleDto.setNodeName(sampleDesign.getStyleName());
+
 
             String merchDesignId = sampleDesign.getMerchDesignId();
             if (merchDesignId == null) {
@@ -555,7 +582,19 @@ public class SmpService {
             smpSampleDto.setPatternMakerId(usernamesByIds.get(patternDesignId));
             smpSampleDto.setProofingDesignerId(usernamesByIds.get(merchDesignId));
 
-            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/sample", smpSampleDto);
+
+            smpSampleDto.setPatSeqName(null);//打样顺序名称
+            smpSampleDto.setPatSeq(null);   //打样顺序编号
+            smpSampleDto.setEAValidFromTime(null); //外辅发出时间
+            smpSampleDto.setEAValidToTime(null); //外辅接收时间
+            smpSampleDto.setFinished(null); //样衣结束标志
+            smpSampleDto.setMCDate(null); //齐套时间
+            smpSampleDto.setPmlId(null); //打样UR
+            smpSampleDto.setBExtAuxiliary(null); //外辅标志
+            smpSampleDto.setSampleNumberName(null);  //版号名称
+            smpSampleDto.setBarcode(null); //样衣编号
+
+            HttpResp httpResp = restTemplateService.spmPost("http://10.8.240.161:40002/mps-interfaces/sample/setSampleTask", smpSampleDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpSampleDto, "smp", "样衣下发");
             if (aBoolean) {
                 i++;

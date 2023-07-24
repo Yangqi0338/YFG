@@ -22,7 +22,7 @@ import java.util.List;
 @RequestMapping(value = BaseController.OPEN_URL + "/bi", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class BiController extends BaseController{
     private final BiService biService;
-    @GetMapping("sizeChart")
+    @GetMapping("/sizeChart")
     public ApiResult sizeChart(){
         List<BiSizeChart> biSizeCharts = biService.sizeChart();
         return selectSuccess(biSizeCharts);
