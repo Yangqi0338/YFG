@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.5.1",
   "createdTime": "2023-7-19 14:38:05",
-  "updatedTime": "2023-7-20 14:03:40",
+  "updatedTime": "2023-7-24 14:08:16",
   "dbConns": [],
   "profile": {
     "default": {
@@ -383,7 +383,7 @@
     "generatorDoc": {
       "docTemplate": ""
     },
-    "relationFieldSize": "15",
+    "relationFieldSize": 999,
     "uiHint": [
       {
         "defKey": "Input",
@@ -611,7 +611,7 @@
       "#5ad5c6"
     ],
     "DDLToggleCase": "L",
-    "menuWidth": "260px"
+    "menuWidth": "343px"
   },
   "entities": [
     {
@@ -5275,7 +5275,7 @@
         },
         {
           "defKey": "___CR",
-          "defName": "床人",
+          "defName": "创建人",
           "comment": "",
           "domain": "",
           "type": "VARCHAR2",
@@ -20157,6 +20157,3454 @@
       ],
       "correlations": [],
       "notes": {}
+    },
+    {
+      "id": "955E6A92-6EBF-4238-A8AB-2C9B443381BD",
+      "env": {
+        "base": {
+          "nameSpace": "",
+          "codeRoot": ""
+        }
+      },
+      "defKey": "PDM_PLAN_FOLD",
+      "defName": "企划文件夹",
+      "comment": "",
+      "properties": {
+        "partitioned by": "(date string)",
+        "row format delimited": "",
+        "fields terminated by ','": "",
+        "collection items terminated by '-'": "",
+        "map keys terminated by ':'": "",
+        "store as textfile;": ""
+      },
+      "nameTemplate": "{defKey}[{defName}]",
+      "notes": {},
+      "headers": [
+        {
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "defName",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "primaryKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "notNull",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "autoIncrement",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "domain",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "type",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "len",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "scale",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "comment",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "refDict",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defaultValue",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "isStandard",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "uiHint",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "extProps",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr1",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr2",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr3",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr4",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr5",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr6",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr7",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr8",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr9",
+          "freeze": false,
+          "hideInGraph": true
+        }
+      ],
+      "fields": [
+        {
+          "defKey": "id",
+          "defName": "主键",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "967D109F-8B46-4D76-BB06-D8142F749E5A"
+        },
+        {
+          "defKey": "url",
+          "defName": "浏览器路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "refDict": "",
+          "uiHint": "",
+          "id": "FE6F511E-35BD-42D3-A8CE-5D9D36D34748"
+        },
+        {
+          "defKey": "brand",
+          "defName": "品牌",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "A5DE2CF5-82D7-4212-A353-63C3C051FD8F"
+        },
+        {
+          "defKey": "version",
+          "defName": "版本",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "C5CD37E9-269E-4271-A427-14CDAFD012D6"
+        },
+        {
+          "defKey": "fold",
+          "defName": "文件夹",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "2099F86E-055B-44BE-9DFE-6E9920376E02"
+        },
+        {
+          "defKey": "fold_url",
+          "defName": "文件夹路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "FFBCC236-89AA-4256-9833-312BCC77C1BF"
+        },
+        {
+          "defKey": "product_type",
+          "defName": "产品类型",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "96905400-ED6E-4D81-B0C3-66EE61B7C5C7"
+        },
+        {
+          "defKey": "big_type",
+          "defName": "款式大类",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "E56C331F-DD5F-4247-9AF4-CCE63A0B4D30"
+        },
+        {
+          "defKey": "type",
+          "defName": "品类",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "D2DB3D89-0686-40D7-A601-0C17C90E18EC"
+        },
+        {
+          "defKey": "sku_num",
+          "defName": "品类规划SKU数",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "5ECDBAE0-597A-4BAC-8716-329CD168ADE7"
+        },
+        {
+          "defKey": "status",
+          "defName": "状态",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "refDict": "",
+          "extProps": {},
+          "notes": {},
+          "attr1": "",
+          "attr2": "",
+          "attr3": "",
+          "attr4": "",
+          "attr5": "",
+          "attr6": "",
+          "attr7": "",
+          "attr8": "",
+          "attr9": "",
+          "id": "BCB17346-8F77-4BF4-9EB0-4B3F240D9FED"
+        }
+      ],
+      "correlations": [],
+      "indexes": []
+    },
+    {
+      "id": "A32DE25D-97B0-49BE-87A5-602635BA5B38",
+      "env": {
+        "base": {
+          "nameSpace": "",
+          "codeRoot": ""
+        }
+      },
+      "defKey": "PDM_PLAN_TARGET",
+      "defName": "企划目标",
+      "comment": "",
+      "properties": {
+        "partitioned by": "(date string)",
+        "row format delimited": "",
+        "fields terminated by ','": "",
+        "collection items terminated by '-'": "",
+        "map keys terminated by ':'": "",
+        "store as textfile;": ""
+      },
+      "nameTemplate": "{defKey}[{defName}]",
+      "notes": {},
+      "headers": [
+        {
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "defName",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "primaryKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "notNull",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "autoIncrement",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "domain",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "type",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "len",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "scale",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "comment",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "refDict",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defaultValue",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "isStandard",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "uiHint",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "extProps",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr1",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr2",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr3",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr4",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr5",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr6",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr7",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr8",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr9",
+          "freeze": false,
+          "hideInGraph": true
+        }
+      ],
+      "fields": [
+        {
+          "defKey": "id",
+          "defName": "id",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "D72A2660-8151-4F04-A574-6B3C5AB4556A"
+        },
+        {
+          "defKey": "url",
+          "defName": "浏览器路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "6F73C7BF-9C88-4F5A-ABE9-F506DDFB5132"
+        },
+        {
+          "defKey": "version",
+          "defName": "版本",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "54D6521B-1290-4BD1-94F9-1A0B8D60C2FA"
+        },
+        {
+          "defKey": "series",
+          "defName": "买手系列",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "A639272A-3DAD-4741-B3E6-6269D2958426"
+        },
+        {
+          "defKey": "series_url",
+          "defName": "买手系统url",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "339389B4-0D0E-401F-A8F9-BEE5EAAF79D3"
+        },
+        {
+          "defKey": "month",
+          "defName": "月份",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "9766D203-E291-487F-AEB4-35A0EDD1767B"
+        },
+        {
+          "defKey": "type_sku",
+          "defName": "品类规划SKU数",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "86B6D9B2-208E-4C98-B4FA-EED0053B99B0"
+        },
+        {
+          "defKey": "color_skc",
+          "defName": "款色数",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "C4A4CD6E-4DD1-41D8-8C32-7E32A5F9E14A"
+        },
+        {
+          "defKey": "model_skc",
+          "defName": "每款SKC数",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "9E7A78AE-9CE8-4797-A9BD-6A10911DA7B4"
+        },
+        {
+          "defKey": "require_num",
+          "defName": "企划需求款数",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "FD8378E2-64AF-496B-8EB2-C810205A607B"
+        },
+        {
+          "defKey": "design_num",
+          "defName": "设计放量",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "2151E599-2467-4B0E-8A44-4E3CBF42073D"
+        },
+        {
+          "defKey": "development_num",
+          "defName": "计划开发数",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "37F0045B-9516-4A0E-840A-9DBD683C229E"
+        },
+        {
+          "defKey": "status",
+          "defName": "状态",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "refDict": "",
+          "extProps": {},
+          "notes": {},
+          "attr1": "",
+          "attr2": "",
+          "attr3": "",
+          "attr4": "",
+          "attr5": "",
+          "attr6": "",
+          "attr7": "",
+          "attr8": "",
+          "attr9": "",
+          "id": "932F9FAB-9E23-4512-973E-4CD85B2908C0"
+        }
+      ],
+      "correlations": [],
+      "indexes": []
+    },
+    {
+      "id": "0D9944E8-B13F-4B31-A86C-26089E332109",
+      "env": {
+        "base": {
+          "nameSpace": "",
+          "codeRoot": ""
+        }
+      },
+      "defKey": "PDM_PLAN_ITEM",
+      "defName": "企划计划",
+      "comment": "",
+      "properties": {
+        "partitioned by": "(date string)",
+        "row format delimited": "",
+        "fields terminated by ','": "",
+        "collection items terminated by '-'": "",
+        "map keys terminated by ':'": "",
+        "store as textfile;": ""
+      },
+      "nameTemplate": "{defKey}[{defName}]",
+      "notes": {},
+      "headers": [
+        {
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "defName",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "primaryKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "notNull",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "autoIncrement",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "domain",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "type",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "len",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "scale",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "comment",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "refDict",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defaultValue",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "isStandard",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "uiHint",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "extProps",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr1",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr2",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr3",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr4",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr5",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr6",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr7",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr8",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr9",
+          "freeze": false,
+          "hideInGraph": true
+        }
+      ],
+      "fields": [
+        {
+          "defKey": "id",
+          "defName": "id",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "30A8E36A-23A4-414A-B9F8-415A45061376"
+        },
+        {
+          "defKey": "url",
+          "defName": "浏览器路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "82394206-D896-41E5-B214-6696153EA126"
+        },
+        {
+          "defKey": "versions",
+          "defName": "版本",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "refDict": "",
+          "extProps": {},
+          "notes": {},
+          "attr1": "",
+          "attr2": "",
+          "attr3": "",
+          "attr4": "",
+          "attr5": "",
+          "attr6": "",
+          "attr7": "",
+          "attr8": "",
+          "attr9": "",
+          "id": "3E62EAE4-DCE6-4DDE-84AB-DD220CAF3A0C"
+        },
+        {
+          "defKey": "product",
+          "defName": "产品",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "4CD4247D-C6E6-4E31-8D69-89F13F898920"
+        },
+        {
+          "defKey": "product_url",
+          "defName": "产品路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "C7B9CD31-B4C2-4DD0-A3B9-400FF7962318"
+        },
+        {
+          "defKey": "type",
+          "defName": "品类",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "31102AC8-2313-47D0-AC88-227FDAD1B482"
+        },
+        {
+          "defKey": "center_type",
+          "defName": "中类",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "1FA610A1-FB8C-4C9F-89AB-9FF619673D08"
+        },
+        {
+          "defKey": "tao_bao_type",
+          "defName": "淘宝分类",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "C9B56433-0C64-4658-9390-8323A67E6633"
+        },
+        {
+          "defKey": "bands",
+          "defName": "波段",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "8285E208-2727-49BC-BB3F-C4895034F386"
+        },
+        {
+          "defKey": "style",
+          "defName": "款式",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "68551CAF-709B-4DC7-AE4F-8B8DBCF90362"
+        },
+        {
+          "defKey": "style_url",
+          "defName": "款式url",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "20D07CBA-A227-4539-8ADF-9E4D5A033B63"
+        },
+        {
+          "defKey": "target_price",
+          "defName": "目标标价",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "5F75EF26-5AFF-429E-9FDE-740012C23707"
+        },
+        {
+          "defKey": "target_multiplier",
+          "defName": "企划目标倍率",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "230ABCEC-A491-47BB-B391-76F7B8740382"
+        },
+        {
+          "defKey": "target_cost",
+          "defName": "目标成本",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "016DDF63-983E-4A09-8339-73960A5ED818"
+        },
+        {
+          "defKey": "ref_style",
+          "defName": "参考款式",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "803094FB-FB05-4497-9710-F2E72863638B"
+        },
+        {
+          "defKey": "ref_style_no",
+          "defName": "参考款号",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "483DA5EE-6AEE-4384-BB1B-F8AAC0747AF0"
+        },
+        {
+          "defKey": "ref_style_img",
+          "defName": "参考款式图",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "BC8EA3E6-8255-4442-AA83-69888EF44170"
+        },
+        {
+          "defKey": "ref_cloth",
+          "defName": "参考样衣",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "4ABFABC5-D6DC-40A8-89DD-09F4BC9C236E"
+        },
+        {
+          "defKey": "img",
+          "defName": "图片",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "598963E2-03C8-47BE-828C-18266B525F9A"
+        },
+        {
+          "defKey": "ref_material",
+          "defName": "参考材料",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "4976B85F-1360-40CB-B955-185929091C74"
+        },
+        {
+          "defKey": "ref_material_img",
+          "defName": "参考材料url",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "245C1693-CDB3-4500-BB1F-0ECF71765F50"
+        },
+        {
+          "defKey": "status",
+          "defName": "状态",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "refDict": "",
+          "extProps": {},
+          "notes": {},
+          "attr1": "",
+          "attr2": "",
+          "attr3": "",
+          "attr4": "",
+          "attr5": "",
+          "attr6": "",
+          "attr7": "",
+          "attr8": "",
+          "attr9": "",
+          "id": "FA499017-9EE5-4AFC-825D-0AF9AA8384E3"
+        }
+      ],
+      "correlations": [],
+      "indexes": []
+    },
+    {
+      "id": "553B07EE-A3D5-452C-9A00-FB9B0A1BB479",
+      "env": {
+        "base": {
+          "nameSpace": "",
+          "codeRoot": ""
+        }
+      },
+      "defKey": "PDM_STYLE",
+      "defName": "搜索款式",
+      "comment": "",
+      "properties": {
+        "partitioned by": "(date string)",
+        "row format delimited": "",
+        "fields terminated by ','": "",
+        "collection items terminated by '-'": "",
+        "map keys terminated by ':'": "",
+        "store as textfile;": ""
+      },
+      "nameTemplate": "{defKey}[{defName}]",
+      "notes": {},
+      "headers": [
+        {
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "defName",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "primaryKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "notNull",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "autoIncrement",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "domain",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "type",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "len",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "scale",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "comment",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "refDict",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defaultValue",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "isStandard",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "uiHint",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "extProps",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr1",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr2",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr3",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr4",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr5",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr6",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr7",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr8",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr9",
+          "freeze": false,
+          "hideInGraph": true
+        }
+      ],
+      "fields": [
+        {
+          "defKey": "id",
+          "defName": "id",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "7D6A710C-45F6-4FBD-B885-82AF726CBAAF"
+        },
+        {
+          "defKey": "code",
+          "defName": "款号",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "FED670AE-AEC0-4811-9BF5-6819AFAB5561"
+        },
+        {
+          "defKey": "search_num",
+          "defName": "搜索数量",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "9094D8F0-AEDB-4D22-A783-9043A29E685D"
+        },
+        {
+          "defKey": "url",
+          "defName": "路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "67295DC0-628C-4583-A055-BBA383170017"
+        },
+        {
+          "defKey": "bom_num",
+          "defName": "BOM数量",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "ACE08FC9-701F-4133-A53A-118435F354FF"
+        },
+        {
+          "defKey": "size_num",
+          "defName": "尺寸数量",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "E9115BC8-5D89-4BDF-978C-3218CC1EF223"
+        },
+        {
+          "defKey": "status",
+          "defName": "状态",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "refDict": "",
+          "extProps": {},
+          "notes": {},
+          "attr1": "",
+          "attr2": "",
+          "attr3": "",
+          "attr4": "",
+          "attr5": "",
+          "attr6": "",
+          "attr7": "",
+          "attr8": "",
+          "attr9": "",
+          "id": "B3881058-495A-4255-84DE-2B9A5163198D"
+        }
+      ],
+      "correlations": [],
+      "indexes": []
+    },
+    {
+      "id": "47DF477D-3D87-483F-AAD9-6C9B34ED0057",
+      "env": {
+        "base": {
+          "nameSpace": "",
+          "codeRoot": ""
+        }
+      },
+      "defKey": "PDM_STYLE_SIZE",
+      "defName": "款式尺寸列表",
+      "comment": "",
+      "properties": {
+        "partitioned by": "(date string)",
+        "row format delimited": "",
+        "fields terminated by ','": "",
+        "collection items terminated by '-'": "",
+        "map keys terminated by ':'": "",
+        "store as textfile;": ""
+      },
+      "nameTemplate": "{defKey}[{defName}]",
+      "notes": {},
+      "headers": [
+        {
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "defName",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "primaryKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "notNull",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "autoIncrement",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "domain",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "type",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "len",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "scale",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "comment",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "refDict",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defaultValue",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "isStandard",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "uiHint",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "extProps",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr1",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr2",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr3",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr4",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr5",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr6",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr7",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr8",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr9",
+          "freeze": false,
+          "hideInGraph": true
+        }
+      ],
+      "fields": [
+        {
+          "defKey": "id",
+          "defName": "id",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "DA8D9CAA-28D9-4A45-B82A-A22BA0E439AB"
+        },
+        {
+          "defKey": "url",
+          "defName": "浏览器路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "A5260D97-189E-4C21-A157-002D16C48A75"
+        },
+        {
+          "defKey": "size_url",
+          "defName": "尺寸表路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "A945A407-0F0C-4A02-8292-1F7742FF9C5B"
+        },
+        {
+          "defKey": "size_code",
+          "defName": "尺寸表编码",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "6B7C2095-8F77-410F-A13B-3A86147D63C7"
+        },
+        {
+          "defKey": "color_url",
+          "defName": "配色路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "AD2875F2-4CF7-4EB0-9906-356DB2FCB813"
+        },
+        {
+          "defKey": "color",
+          "defName": "配色名称",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "2538FEAD-667C-4109-B080-12E580F2EE51"
+        },
+        {
+          "defKey": "order_style",
+          "defName": "大货款号",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "1C13D342-37BE-4899-AB13-833AD5BC80BF"
+        },
+        {
+          "defKey": "code",
+          "defName": "设计款号",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "E2EAA90A-0CC6-45D7-B109-6CA9E6760037"
+        },
+        {
+          "defKey": "size_type",
+          "defName": "号型类型",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "9E6A2D02-43B9-4EDB-9DDC-A6BF61A350FE"
+        },
+        {
+          "defKey": "size_type_url",
+          "defName": "号型类型路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "8ECCDFA3-973A-42AD-86F5-B192E00543C7"
+        },
+        {
+          "defKey": "sizes",
+          "defName": "尺码",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "2B328B23-4E43-4F7B-A843-68CAAE7E5162"
+        },
+        {
+          "defKey": "base_size",
+          "defName": "基础尺码",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "08653ABE-FC1A-4436-B685-330D6C4EA422"
+        },
+        {
+          "defKey": "status",
+          "defName": "状态",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "refDict": "",
+          "extProps": {},
+          "notes": {},
+          "attr1": "",
+          "attr2": "",
+          "attr3": "",
+          "attr4": "",
+          "attr5": "",
+          "attr6": "",
+          "attr7": "",
+          "attr8": "",
+          "attr9": "",
+          "id": "AAF68173-FA5A-41FE-B03B-3C63BD767D4D"
+        }
+      ],
+      "correlations": [],
+      "indexes": []
+    },
+    {
+      "id": "E02ECD9D-6AED-4562-8536-60E80DD08E06",
+      "env": {
+        "base": {
+          "nameSpace": "",
+          "codeRoot": ""
+        }
+      },
+      "defKey": "PDM_STYLE_SIZE_ITEM",
+      "defName": "款式尺寸详情",
+      "comment": "",
+      "properties": {
+        "partitioned by": "(date string)",
+        "row format delimited": "",
+        "fields terminated by ','": "",
+        "collection items terminated by '-'": "",
+        "map keys terminated by ':'": "",
+        "store as textfile;": ""
+      },
+      "nameTemplate": "{defKey}[{defName}]",
+      "notes": {},
+      "headers": [
+        {
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "defName",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "primaryKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "notNull",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "autoIncrement",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "domain",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "type",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "len",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "scale",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "comment",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "refDict",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defaultValue",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "isStandard",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "uiHint",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "extProps",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr1",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr2",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr3",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr4",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr5",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr6",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr7",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr8",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr9",
+          "freeze": false,
+          "hideInGraph": true
+        }
+      ],
+      "fields": [
+        {
+          "defKey": "id",
+          "defName": "id",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "3292F44F-2668-48C2-B597-7E916F6FAB65"
+        },
+        {
+          "defKey": "url",
+          "defName": "浏览器路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "2CADA84F-D918-41DC-9ADA-D5E86E1E9DE3"
+        },
+        {
+          "defKey": "size_code",
+          "defName": "尺寸编码",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "68D27C13-333B-4907-B10C-576D8275B0D8"
+        },
+        {
+          "defKey": "order_style",
+          "defName": "大货款号",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "AF1BD505-E860-437E-858D-F0FEDDC80592"
+        },
+        {
+          "defKey": "code",
+          "defName": "设计款号",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "AF391637-103A-4708-AC32-8F4D45F26C95"
+        },
+        {
+          "defKey": "sizes",
+          "defName": "尺码",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "1CB34C47-9231-4717-9A94-07B5A1AA9F1D"
+        },
+        {
+          "defKey": "part",
+          "defName": "部位",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "F72AB4A1-E21E-45FB-B8E9-A044AFCEBB5E"
+        },
+        {
+          "defKey": "say",
+          "defName": "描述",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "9849F4C8-3C84-4651-A771-2D1C5970B85D"
+        },
+        {
+          "defKey": "size_item",
+          "defName": "尺寸",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "03816511-F2AA-454A-BF15-F9721FCB5A92"
+        },
+        {
+          "defKey": "shrink",
+          "defName": "收缩",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "67CD2836-4A80-4786-A125-4055221ECFA8"
+        },
+        {
+          "defKey": "tolerance_reduction",
+          "defName": "公差(-)",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "88ACE005-9CC7-46E9-8528-CBE8A0CE484A"
+        },
+        {
+          "defKey": "tolerance_plus",
+          "defName": "公差(+)",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "80526690-0BDD-4D6E-9D4E-2BA9A5BB9F1B"
+        },
+        {
+          "defKey": "status",
+          "defName": "状态",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "refDict": "",
+          "extProps": {},
+          "notes": {},
+          "attr1": "",
+          "attr2": "",
+          "attr3": "",
+          "attr4": "",
+          "attr5": "",
+          "attr6": "",
+          "attr7": "",
+          "attr8": "",
+          "attr9": "",
+          "id": "BAEB0F89-589E-4605-907E-E434BB920818"
+        }
+      ],
+      "correlations": [],
+      "indexes": []
+    },
+    {
+      "id": "1EC220E1-0CAB-4E42-80B6-BFDE811BCB76",
+      "env": {
+        "base": {
+          "nameSpace": "",
+          "codeRoot": ""
+        }
+      },
+      "defKey": "PDM_STYLE_BOM",
+      "defName": "款式BOM列表",
+      "comment": "",
+      "properties": {
+        "partitioned by": "(date string)",
+        "row format delimited": "",
+        "fields terminated by ','": "",
+        "collection items terminated by '-'": "",
+        "map keys terminated by ':'": "",
+        "store as textfile;": ""
+      },
+      "nameTemplate": "{defKey}[{defName}]",
+      "notes": {},
+      "headers": [
+        {
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "defName",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "primaryKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "notNull",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "autoIncrement",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "domain",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "type",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "len",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "scale",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "comment",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "refDict",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defaultValue",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "isStandard",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "uiHint",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "extProps",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr1",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr2",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr3",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr4",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr5",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr6",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr7",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr8",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr9",
+          "freeze": false,
+          "hideInGraph": true
+        }
+      ],
+      "fields": [
+        {
+          "defKey": "id",
+          "defName": "id",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "05373F6C-7BEC-4087-9CAD-769E49656143"
+        },
+        {
+          "defKey": "url",
+          "defName": "浏览器路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "2E4ED6D7-5BBD-4CCE-8457-72BE057E4596"
+        },
+        {
+          "defKey": "bom_url",
+          "defName": "款式bom路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "CFC9747D-DA90-4EAA-BFF0-4457C335C48C"
+        },
+        {
+          "defKey": "bom_code",
+          "defName": "款式bom编码",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "C49426FE-6E9F-4F19-B027-9C7CFD7A3BC2"
+        },
+        {
+          "defKey": "say",
+          "defName": "描述",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "1A33C302-6B04-4FA9-B014-8A9D3EDE66CD"
+        },
+        {
+          "defKey": "color",
+          "defName": "配色",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "F5A03410-E6CB-41E9-AFC9-48BC96CBD0FE"
+        },
+        {
+          "defKey": "color_url",
+          "defName": "配色路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "92E026C6-5B31-436E-BD93-01938866FE99"
+        },
+        {
+          "defKey": "order_style",
+          "defName": "大货款号",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "D33877E2-A269-4917-8155-365CC4B08341"
+        },
+        {
+          "defKey": "code",
+          "defName": "设计款号",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "952526D7-A83F-452F-9CFB-E1CEE55FD64D"
+        },
+        {
+          "defKey": "product_name",
+          "defName": "品名",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "CBE3C26C-41BE-497E-B209-B1B4C254FA2A"
+        },
+        {
+          "defKey": "stage",
+          "defName": "阶段",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "3D0FA2AF-3743-49A7-B9D9-C392F615A02B"
+        },
+        {
+          "defKey": "code_old",
+          "defName": "设计编号（改版）",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "B5471DC2-3061-46F0-8E6E-3D3DA8CA979C"
+        },
+        {
+          "defKey": "marking_information",
+          "defName": "唛类信息",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "15CD627A-29D6-4270-A0E7-B708A83468D1"
+        },
+        {
+          "defKey": "particular_attention",
+          "defName": "特别注意",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "DBFC8E4B-B329-488C-B3B8-9457F61027A2"
+        },
+        {
+          "defKey": "special_process",
+          "defName": "特殊工艺备注",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "74AD7A13-740F-4A07-9FB2-5A754D853964"
+        },
+        {
+          "defKey": "status",
+          "defName": "状态",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "refDict": "",
+          "extProps": {},
+          "notes": {},
+          "attr1": "",
+          "attr2": "",
+          "attr3": "",
+          "attr4": "",
+          "attr5": "",
+          "attr6": "",
+          "attr7": "",
+          "attr8": "",
+          "attr9": "",
+          "id": "A06060E9-23B8-41FC-A4FA-4F26DB3B9408"
+        }
+      ],
+      "correlations": [],
+      "indexes": []
+    },
+    {
+      "id": "06461B06-7BA9-442C-8740-47463CF97AA8",
+      "env": {
+        "base": {
+          "nameSpace": "",
+          "codeRoot": ""
+        }
+      },
+      "defKey": "PDM_STYLE_BOM_ITEM",
+      "defName": "物料BOM详情",
+      "comment": "",
+      "properties": {
+        "partitioned by": "(date string)",
+        "row format delimited": "",
+        "fields terminated by ','": "",
+        "collection items terminated by '-'": "",
+        "map keys terminated by ':'": "",
+        "store as textfile;": ""
+      },
+      "nameTemplate": "{defKey}[{defName}]",
+      "notes": {},
+      "headers": [
+        {
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "defName",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "primaryKey",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "notNull",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "autoIncrement",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "domain",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "type",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "len",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "scale",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "comment",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "refDict",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "defaultValue",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "isStandard",
+          "freeze": false,
+          "hideInGraph": false
+        },
+        {
+          "refKey": "uiHint",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "extProps",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr1",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr2",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr3",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr4",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr5",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr6",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr7",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr8",
+          "freeze": false,
+          "hideInGraph": true
+        },
+        {
+          "refKey": "attr9",
+          "freeze": false,
+          "hideInGraph": true
+        }
+      ],
+      "fields": [
+        {
+          "defKey": "id",
+          "defName": "id",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "6DC78AEB-A579-49C6-AF17-8521D34CB7D5"
+        },
+        {
+          "defKey": "url",
+          "defName": "浏览器路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "2B2881E4-EE10-4FA4-B55E-C9C36AD877E4"
+        },
+        {
+          "defKey": "bom_code",
+          "defName": "款式bom编码",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "3894FF08-E684-4DF1-B48B-0541D35D6339"
+        },
+        {
+          "defKey": "order_style",
+          "defName": "大货款号",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "ABD26038-C327-421C-ACBB-470F99028718"
+        },
+        {
+          "defKey": "code",
+          "defName": "设计款号",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "DFD798EB-679C-467D-B179-ABAA8B49D499"
+        },
+        {
+          "defKey": "type",
+          "defName": "大货生产/样品",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "E6BD0CD1-BE9D-48CB-9ACA-04D537F7B981"
+        },
+        {
+          "defKey": "color",
+          "defName": "配色",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "A2A7FB9E-117B-4A5D-80FE-E1F76BEC80B8"
+        },
+        {
+          "defKey": "send_status",
+          "defName": "发送状态",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "607104FC-01CC-4363-A5C9-87ED16EAB13D"
+        },
+        {
+          "defKey": "groups",
+          "defName": "搭配",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "0C357015-B5F6-44F3-ADB3-F2EB5B51B019"
+        },
+        {
+          "defKey": "main_fabric",
+          "defName": "主材料",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "91D2B7FA-DE8A-4E40-A2E9-15DD7E11D0D5"
+        },
+        {
+          "defKey": "fabric",
+          "defName": "材料",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "6D5E79F3-6BC5-483D-AE44-169AAB09FEAA"
+        },
+        {
+          "defKey": "fabric_url",
+          "defName": "材料路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "5ED4DA63-FFEB-49B6-990C-1DBD881CE329"
+        },
+        {
+          "defKey": "fabric_name",
+          "defName": "材料名称",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "E4F06C65-2C94-4674-9DA1-5F00C6039B79"
+        },
+        {
+          "defKey": "factory_composition",
+          "defName": "厂家成分",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "84D7DF6A-807C-4184-9C90-E0042FE191CF"
+        },
+        {
+          "defKey": "composition",
+          "defName": "成分",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "8110CA33-BB7D-4AFF-ABA7-154856469F86"
+        },
+        {
+          "defKey": "supplier_price",
+          "defName": "供应商报价",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "8376AD4C-4F75-4124-BABD-1EF512F99568"
+        },
+        {
+          "defKey": "supplier_price_url",
+          "defName": "供应商报价路径",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "9A6EFE9C-108C-459D-805A-63145F92BF86"
+        },
+        {
+          "defKey": "unit_price",
+          "defName": "单价",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "E8EA6E48-DF6A-47BE-B476-CEC54B1E20D7"
+        },
+        {
+          "defKey": "part",
+          "defName": "使用部位",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "475A9DE5-4828-42AD-A166-EF7B50CE3226"
+        },
+        {
+          "defKey": "unit",
+          "defName": "单位",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "689CF5AF-DC5F-480B-BC9E-3C96C3EF5663"
+        },
+        {
+          "defKey": "auxiliary_material",
+          "defName": "辅料材料",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "9E7BCC85-91A7-42DF-B4ED-864C436FE195"
+        },
+        {
+          "defKey": "color_all",
+          "defName": "颜色统配",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "5F22B3B5-96E9-47D3-9170-366020DA39C3"
+        },
+        {
+          "defKey": "size_all",
+          "defName": "规格统配",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "E4D62F3C-0BDB-46D6-8906-51D8BC70E3BA"
+        },
+        {
+          "defKey": "item_usage",
+          "defName": "单件用量",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "8DAFB6E1-2B7C-40D7-9ADD-609AEDD51300"
+        },
+        {
+          "defKey": "loss",
+          "defName": "损耗",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "58026667-653B-4580-BCB4-2879C66CA6A2"
+        },
+        {
+          "defKey": "cost",
+          "defName": "成本",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "C0C1FC96-6340-4C0E-9F9C-2D519ADA49B0"
+        },
+        {
+          "defKey": "color_name",
+          "defName": "颜色名",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "04C9A6A6-2246-40CE-BA5C-1B46D005AE72"
+        },
+        {
+          "defKey": "color_value",
+          "defName": "颜色值",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "449E27B5-5A4F-4FF7-A353-C36E16C4A670"
+        },
+        {
+          "defKey": "size_name",
+          "defName": "规格名",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "0CB093BA-BB09-4D7C-9770-005D8A3AAB8F"
+        },
+        {
+          "defKey": "size_value",
+          "defName": "规格值",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "extProps": {},
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "id": "867465C4-6675-47B8-A28E-557F4C96CEF6"
+        },
+        {
+          "defKey": "status",
+          "defName": "状态",
+          "comment": "",
+          "type": "",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "refDict": "",
+          "extProps": {},
+          "notes": {},
+          "attr1": "",
+          "attr2": "",
+          "attr3": "",
+          "attr4": "",
+          "attr5": "",
+          "attr6": "",
+          "attr7": "",
+          "attr8": "",
+          "attr9": "",
+          "id": "FD1C17CD-1F08-4847-89AF-310F3E943E56"
+        }
+      ],
+      "correlations": [],
+      "indexes": []
     }
   ],
   "views": [],
@@ -20408,287 +23856,6 @@
       "relationType": "field",
       "canvasData": {
         "cells": [
-          {
-            "id": "56a284f8-f29a-49ba-a52a-507d16607a0b",
-            "shape": "edit-node",
-            "position": {
-              "x": -30,
-              "y": -60
-            },
-            "label": "BOM审核",
-            "fillColor": "#DDE5FF",
-            "size": {
-              "width": 80,
-              "height": 60,
-              "minHeight": 20
-            },
-            "ports": {
-              "groups": {
-                "in": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "left"
-                  }
-                },
-                "out": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "right"
-                  }
-                },
-                "top": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "top"
-                  }
-                },
-                "bottom": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "bottom"
-                  }
-                }
-              },
-              "items": [
-                {
-                  "group": "in",
-                  "id": "in"
-                },
-                {
-                  "group": "in",
-                  "id": "in2"
-                },
-                {
-                  "group": "in",
-                  "id": "in3"
-                },
-                {
-                  "group": "out",
-                  "id": "out"
-                },
-                {
-                  "group": "out",
-                  "id": "out2"
-                },
-                {
-                  "group": "out",
-                  "id": "out3"
-                },
-                {
-                  "group": "top",
-                  "id": "top"
-                },
-                {
-                  "group": "top",
-                  "id": "top2"
-                },
-                {
-                  "group": "top",
-                  "id": "top3"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom2"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom3"
-                }
-              ]
-            }
-          },
-          {
-            "id": "ec05857b-3ba0-4df3-a5d0-059d615e4691",
-            "shape": "edit-node",
-            "position": {
-              "x": -30,
-              "y": 20
-            },
-            "label": "BOM门幅规格",
-            "fillColor": "#DDE5FF",
-            "size": {
-              "width": 120,
-              "height": 60
-            },
-            "ports": {
-              "groups": {
-                "in": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "left"
-                  }
-                },
-                "out": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "right"
-                  }
-                },
-                "top": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "top"
-                  }
-                },
-                "bottom": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "bottom"
-                  }
-                }
-              },
-              "items": [
-                {
-                  "group": "in",
-                  "id": "in"
-                },
-                {
-                  "group": "in",
-                  "id": "in2"
-                },
-                {
-                  "group": "in",
-                  "id": "in3"
-                },
-                {
-                  "group": "out",
-                  "id": "out"
-                },
-                {
-                  "group": "out",
-                  "id": "out2"
-                },
-                {
-                  "group": "out",
-                  "id": "out3"
-                },
-                {
-                  "group": "top",
-                  "id": "top"
-                },
-                {
-                  "group": "top",
-                  "id": "top2"
-                },
-                {
-                  "group": "top",
-                  "id": "top3"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom2"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom3"
-                }
-              ]
-            }
-          },
           {
             "id": "d06a5438-b747-4f59-84fa-07e551cc137a",
             "shape": "edit-node",
@@ -21950,566 +25117,6 @@
             }
           },
           {
-            "id": "205ea66b-7e22-40b4-8661-6733a689f628",
-            "shape": "edit-node",
-            "position": {
-              "x": 650,
-              "y": 52
-            },
-            "label": "季节",
-            "fillColor": "#DDE5FF",
-            "size": {
-              "width": 120,
-              "height": 60
-            },
-            "ports": {
-              "groups": {
-                "in": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "left"
-                  }
-                },
-                "out": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "right"
-                  }
-                },
-                "top": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "top"
-                  }
-                },
-                "bottom": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "bottom"
-                  }
-                }
-              },
-              "items": [
-                {
-                  "group": "in",
-                  "id": "in"
-                },
-                {
-                  "group": "in",
-                  "id": "in2"
-                },
-                {
-                  "group": "in",
-                  "id": "in3"
-                },
-                {
-                  "group": "out",
-                  "id": "out"
-                },
-                {
-                  "group": "out",
-                  "id": "out2"
-                },
-                {
-                  "group": "out",
-                  "id": "out3"
-                },
-                {
-                  "group": "top",
-                  "id": "top"
-                },
-                {
-                  "group": "top",
-                  "id": "top2"
-                },
-                {
-                  "group": "top",
-                  "id": "top3"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom2"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom3"
-                }
-              ]
-            }
-          },
-          {
-            "id": "364c491e-d5e4-4dae-9b58-8c66ad3db742",
-            "shape": "edit-node",
-            "position": {
-              "x": 640,
-              "y": 140
-            },
-            "label": "款式",
-            "fillColor": "#DDE5FF",
-            "size": {
-              "width": 120,
-              "height": 60
-            },
-            "ports": {
-              "groups": {
-                "in": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "left"
-                  }
-                },
-                "out": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "right"
-                  }
-                },
-                "top": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "top"
-                  }
-                },
-                "bottom": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "bottom"
-                  }
-                }
-              },
-              "items": [
-                {
-                  "group": "in",
-                  "id": "in"
-                },
-                {
-                  "group": "in",
-                  "id": "in2"
-                },
-                {
-                  "group": "in",
-                  "id": "in3"
-                },
-                {
-                  "group": "out",
-                  "id": "out"
-                },
-                {
-                  "group": "out",
-                  "id": "out2"
-                },
-                {
-                  "group": "out",
-                  "id": "out3"
-                },
-                {
-                  "group": "top",
-                  "id": "top"
-                },
-                {
-                  "group": "top",
-                  "id": "top2"
-                },
-                {
-                  "group": "top",
-                  "id": "top3"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom2"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom3"
-                }
-              ]
-            }
-          },
-          {
-            "id": "dd8aa858-de85-4efa-97c0-e30a16d7dc21",
-            "shape": "edit-node",
-            "position": {
-              "x": 630,
-              "y": 233
-            },
-            "label": "配色",
-            "fillColor": "#DDE5FF",
-            "size": {
-              "width": 120,
-              "height": 60
-            },
-            "ports": {
-              "groups": {
-                "in": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "left"
-                  }
-                },
-                "out": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "right"
-                  }
-                },
-                "top": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "top"
-                  }
-                },
-                "bottom": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "bottom"
-                  }
-                }
-              },
-              "items": [
-                {
-                  "group": "in",
-                  "id": "in"
-                },
-                {
-                  "group": "in",
-                  "id": "in2"
-                },
-                {
-                  "group": "in",
-                  "id": "in3"
-                },
-                {
-                  "group": "out",
-                  "id": "out"
-                },
-                {
-                  "group": "out",
-                  "id": "out2"
-                },
-                {
-                  "group": "out",
-                  "id": "out3"
-                },
-                {
-                  "group": "top",
-                  "id": "top"
-                },
-                {
-                  "group": "top",
-                  "id": "top2"
-                },
-                {
-                  "group": "top",
-                  "id": "top3"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom2"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom3"
-                }
-              ]
-            }
-          },
-          {
-            "id": "c4dc44ed-7718-41e8-88fc-40c40b3cd8dc",
-            "shape": "edit-node",
-            "position": {
-              "x": 800,
-              "y": 90
-            },
-            "label": "订货本",
-            "fillColor": "#DDE5FF",
-            "size": {
-              "width": 120,
-              "height": 60
-            },
-            "ports": {
-              "groups": {
-                "in": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "left"
-                  }
-                },
-                "out": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "right"
-                  }
-                },
-                "top": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "top"
-                  }
-                },
-                "bottom": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "bottom"
-                  }
-                }
-              },
-              "items": [
-                {
-                  "group": "in",
-                  "id": "in"
-                },
-                {
-                  "group": "in",
-                  "id": "in2"
-                },
-                {
-                  "group": "in",
-                  "id": "in3"
-                },
-                {
-                  "group": "out",
-                  "id": "out"
-                },
-                {
-                  "group": "out",
-                  "id": "out2"
-                },
-                {
-                  "group": "out",
-                  "id": "out3"
-                },
-                {
-                  "group": "top",
-                  "id": "top"
-                },
-                {
-                  "group": "top",
-                  "id": "top2"
-                },
-                {
-                  "group": "top",
-                  "id": "top3"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom2"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom3"
-                }
-              ]
-            }
-          },
-          {
             "id": "278e3ac1-0301-4b7b-8e3a-4d4de2d1b0c7",
             "shape": "edit-node",
             "position": {
@@ -22517,286 +25124,6 @@
               "y": 183
             },
             "label": "工作记录",
-            "fillColor": "#DDE5FF",
-            "size": {
-              "width": 120,
-              "height": 60
-            },
-            "ports": {
-              "groups": {
-                "in": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "left"
-                  }
-                },
-                "out": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "right"
-                  }
-                },
-                "top": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "top"
-                  }
-                },
-                "bottom": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "bottom"
-                  }
-                }
-              },
-              "items": [
-                {
-                  "group": "in",
-                  "id": "in"
-                },
-                {
-                  "group": "in",
-                  "id": "in2"
-                },
-                {
-                  "group": "in",
-                  "id": "in3"
-                },
-                {
-                  "group": "out",
-                  "id": "out"
-                },
-                {
-                  "group": "out",
-                  "id": "out2"
-                },
-                {
-                  "group": "out",
-                  "id": "out3"
-                },
-                {
-                  "group": "top",
-                  "id": "top"
-                },
-                {
-                  "group": "top",
-                  "id": "top2"
-                },
-                {
-                  "group": "top",
-                  "id": "top3"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom2"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom3"
-                }
-              ]
-            }
-          },
-          {
-            "id": "a027be0b-7868-4dd7-a18a-0ef14ff3e610",
-            "shape": "edit-node",
-            "position": {
-              "x": 810,
-              "y": 263
-            },
-            "label": "规格行",
-            "fillColor": "#DDE5FF",
-            "size": {
-              "width": 120,
-              "height": 60
-            },
-            "ports": {
-              "groups": {
-                "in": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "left"
-                  }
-                },
-                "out": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "right"
-                  }
-                },
-                "top": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "top"
-                  }
-                },
-                "bottom": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "bottom"
-                  }
-                }
-              },
-              "items": [
-                {
-                  "group": "in",
-                  "id": "in"
-                },
-                {
-                  "group": "in",
-                  "id": "in2"
-                },
-                {
-                  "group": "in",
-                  "id": "in3"
-                },
-                {
-                  "group": "out",
-                  "id": "out"
-                },
-                {
-                  "group": "out",
-                  "id": "out2"
-                },
-                {
-                  "group": "out",
-                  "id": "out3"
-                },
-                {
-                  "group": "top",
-                  "id": "top"
-                },
-                {
-                  "group": "top",
-                  "id": "top2"
-                },
-                {
-                  "group": "top",
-                  "id": "top3"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom2"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom3"
-                }
-              ]
-            }
-          },
-          {
-            "id": "e774aa9c-8f74-44a9-9df8-fcad36b4cc79",
-            "shape": "edit-node",
-            "position": {
-              "x": 640,
-              "y": 303
-            },
-            "label": "款式定价",
             "fillColor": "#DDE5FF",
             "size": {
               "width": 120,
@@ -23070,286 +25397,6 @@
             }
           },
           {
-            "id": "3db1588c-b7f0-4157-abfe-caa09ab5a628",
-            "shape": "edit-node",
-            "position": {
-              "x": 420,
-              "y": 323
-            },
-            "label": "样板看板",
-            "fillColor": "#DDE5FF",
-            "size": {
-              "width": 120,
-              "height": 60
-            },
-            "ports": {
-              "groups": {
-                "in": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "left"
-                  }
-                },
-                "out": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "right"
-                  }
-                },
-                "top": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "top"
-                  }
-                },
-                "bottom": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "bottom"
-                  }
-                }
-              },
-              "items": [
-                {
-                  "group": "in",
-                  "id": "in"
-                },
-                {
-                  "group": "in",
-                  "id": "in2"
-                },
-                {
-                  "group": "in",
-                  "id": "in3"
-                },
-                {
-                  "group": "out",
-                  "id": "out"
-                },
-                {
-                  "group": "out",
-                  "id": "out2"
-                },
-                {
-                  "group": "out",
-                  "id": "out3"
-                },
-                {
-                  "group": "top",
-                  "id": "top"
-                },
-                {
-                  "group": "top",
-                  "id": "top2"
-                },
-                {
-                  "group": "top",
-                  "id": "top3"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom2"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom3"
-                }
-              ]
-            }
-          },
-          {
-            "id": "4a080094-87f8-46d7-a58f-6513a9b055bf",
-            "shape": "edit-node",
-            "position": {
-              "x": 420,
-              "y": 243
-            },
-            "label": "样品请求（非产前样）",
-            "fillColor": "#DDE5FF",
-            "size": {
-              "width": 120,
-              "height": 60
-            },
-            "ports": {
-              "groups": {
-                "in": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "left"
-                  }
-                },
-                "out": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "right"
-                  }
-                },
-                "top": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "top"
-                  }
-                },
-                "bottom": {
-                  "attrs": {
-                    "fo": {
-                      "width": 8,
-                      "height": 8,
-                      "x": -4,
-                      "y": -4,
-                      "magnet": "true",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  },
-                  "zIndex": 3,
-                  "position": {
-                    "name": "bottom"
-                  }
-                }
-              },
-              "items": [
-                {
-                  "group": "in",
-                  "id": "in"
-                },
-                {
-                  "group": "in",
-                  "id": "in2"
-                },
-                {
-                  "group": "in",
-                  "id": "in3"
-                },
-                {
-                  "group": "out",
-                  "id": "out"
-                },
-                {
-                  "group": "out",
-                  "id": "out2"
-                },
-                {
-                  "group": "out",
-                  "id": "out3"
-                },
-                {
-                  "group": "top",
-                  "id": "top"
-                },
-                {
-                  "group": "top",
-                  "id": "top2"
-                },
-                {
-                  "group": "top",
-                  "id": "top3"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom2"
-                },
-                {
-                  "group": "bottom",
-                  "id": "bottom3"
-                }
-              ]
-            }
-          },
-          {
             "id": "34871f20-1886-4c1b-8ca3-7a512e327149",
             "shape": "edit-node",
             "position": {
@@ -23361,6 +25408,287 @@
             "size": {
               "width": 120,
               "height": 60
+            },
+            "ports": {
+              "groups": {
+                "in": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "left"
+                  }
+                },
+                "out": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "right"
+                  }
+                },
+                "top": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "top"
+                  }
+                },
+                "bottom": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "bottom"
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "in",
+                  "id": "in"
+                },
+                {
+                  "group": "in",
+                  "id": "in2"
+                },
+                {
+                  "group": "in",
+                  "id": "in3"
+                },
+                {
+                  "group": "out",
+                  "id": "out"
+                },
+                {
+                  "group": "out",
+                  "id": "out2"
+                },
+                {
+                  "group": "out",
+                  "id": "out3"
+                },
+                {
+                  "group": "top",
+                  "id": "top"
+                },
+                {
+                  "group": "top",
+                  "id": "top2"
+                },
+                {
+                  "group": "top",
+                  "id": "top3"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom2"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom3"
+                }
+              ]
+            }
+          },
+          {
+            "id": "ec05857b-3ba0-4df3-a5d0-059d615e4691",
+            "shape": "edit-node",
+            "position": {
+              "x": -30,
+              "y": 20
+            },
+            "label": "BOM门幅规格",
+            "fillColor": "#DDE5FF",
+            "size": {
+              "width": 120,
+              "height": 60
+            },
+            "ports": {
+              "groups": {
+                "in": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "left"
+                  }
+                },
+                "out": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "right"
+                  }
+                },
+                "top": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "top"
+                  }
+                },
+                "bottom": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "bottom"
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "in",
+                  "id": "in"
+                },
+                {
+                  "group": "in",
+                  "id": "in2"
+                },
+                {
+                  "group": "in",
+                  "id": "in3"
+                },
+                {
+                  "group": "out",
+                  "id": "out"
+                },
+                {
+                  "group": "out",
+                  "id": "out2"
+                },
+                {
+                  "group": "out",
+                  "id": "out3"
+                },
+                {
+                  "group": "top",
+                  "id": "top"
+                },
+                {
+                  "group": "top",
+                  "id": "top2"
+                },
+                {
+                  "group": "top",
+                  "id": "top3"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom2"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom3"
+                }
+              ]
+            }
+          },
+          {
+            "id": "56a284f8-f29a-49ba-a52a-507d16607a0b",
+            "shape": "edit-node",
+            "position": {
+              "x": -30,
+              "y": -60
+            },
+            "label": "BOM审核",
+            "fillColor": "#DDE5FF",
+            "size": {
+              "width": 80,
+              "height": 60,
+              "minHeight": 20
             },
             "ports": {
               "groups": {
@@ -23630,13 +25958,1133 @@
             }
           },
           {
+            "id": "e774aa9c-8f74-44a9-9df8-fcad36b4cc79",
+            "shape": "edit-node",
+            "position": {
+              "x": 640,
+              "y": 303
+            },
+            "label": "款式定价",
+            "fillColor": "#DDE5FF",
+            "size": {
+              "width": 120,
+              "height": 60
+            },
+            "ports": {
+              "groups": {
+                "in": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "left"
+                  }
+                },
+                "out": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "right"
+                  }
+                },
+                "top": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "top"
+                  }
+                },
+                "bottom": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "bottom"
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "in",
+                  "id": "in"
+                },
+                {
+                  "group": "in",
+                  "id": "in2"
+                },
+                {
+                  "group": "in",
+                  "id": "in3"
+                },
+                {
+                  "group": "out",
+                  "id": "out"
+                },
+                {
+                  "group": "out",
+                  "id": "out2"
+                },
+                {
+                  "group": "out",
+                  "id": "out3"
+                },
+                {
+                  "group": "top",
+                  "id": "top"
+                },
+                {
+                  "group": "top",
+                  "id": "top2"
+                },
+                {
+                  "group": "top",
+                  "id": "top3"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom2"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom3"
+                }
+              ]
+            }
+          },
+          {
+            "id": "dd8aa858-de85-4efa-97c0-e30a16d7dc21",
+            "shape": "edit-node",
+            "position": {
+              "x": 640,
+              "y": 220
+            },
+            "label": "配色",
+            "fillColor": "#DDE5FF",
+            "size": {
+              "width": 120,
+              "height": 60
+            },
+            "ports": {
+              "groups": {
+                "in": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "left"
+                  }
+                },
+                "out": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "right"
+                  }
+                },
+                "top": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "top"
+                  }
+                },
+                "bottom": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "bottom"
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "in",
+                  "id": "in"
+                },
+                {
+                  "group": "in",
+                  "id": "in2"
+                },
+                {
+                  "group": "in",
+                  "id": "in3"
+                },
+                {
+                  "group": "out",
+                  "id": "out"
+                },
+                {
+                  "group": "out",
+                  "id": "out2"
+                },
+                {
+                  "group": "out",
+                  "id": "out3"
+                },
+                {
+                  "group": "top",
+                  "id": "top"
+                },
+                {
+                  "group": "top",
+                  "id": "top2"
+                },
+                {
+                  "group": "top",
+                  "id": "top3"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom2"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom3"
+                }
+              ]
+            }
+          },
+          {
+            "id": "364c491e-d5e4-4dae-9b58-8c66ad3db742",
+            "shape": "edit-node",
+            "position": {
+              "x": 640,
+              "y": 140
+            },
+            "label": "款式",
+            "fillColor": "#DDE5FF",
+            "size": {
+              "width": 120,
+              "height": 60
+            },
+            "ports": {
+              "groups": {
+                "in": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "left"
+                  }
+                },
+                "out": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "right"
+                  }
+                },
+                "top": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "top"
+                  }
+                },
+                "bottom": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "bottom"
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "in",
+                  "id": "in"
+                },
+                {
+                  "group": "in",
+                  "id": "in2"
+                },
+                {
+                  "group": "in",
+                  "id": "in3"
+                },
+                {
+                  "group": "out",
+                  "id": "out"
+                },
+                {
+                  "group": "out",
+                  "id": "out2"
+                },
+                {
+                  "group": "out",
+                  "id": "out3"
+                },
+                {
+                  "group": "top",
+                  "id": "top"
+                },
+                {
+                  "group": "top",
+                  "id": "top2"
+                },
+                {
+                  "group": "top",
+                  "id": "top3"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom2"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom3"
+                }
+              ]
+            }
+          },
+          {
+            "id": "205ea66b-7e22-40b4-8661-6733a689f628",
+            "shape": "edit-node",
+            "position": {
+              "x": 640,
+              "y": 63
+            },
+            "label": "季节",
+            "fillColor": "#DDE5FF",
+            "size": {
+              "width": 120,
+              "height": 60
+            },
+            "ports": {
+              "groups": {
+                "in": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "left"
+                  }
+                },
+                "out": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "right"
+                  }
+                },
+                "top": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "top"
+                  }
+                },
+                "bottom": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "bottom"
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "in",
+                  "id": "in"
+                },
+                {
+                  "group": "in",
+                  "id": "in2"
+                },
+                {
+                  "group": "in",
+                  "id": "in3"
+                },
+                {
+                  "group": "out",
+                  "id": "out"
+                },
+                {
+                  "group": "out",
+                  "id": "out2"
+                },
+                {
+                  "group": "out",
+                  "id": "out3"
+                },
+                {
+                  "group": "top",
+                  "id": "top"
+                },
+                {
+                  "group": "top",
+                  "id": "top2"
+                },
+                {
+                  "group": "top",
+                  "id": "top3"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom2"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom3"
+                }
+              ]
+            }
+          },
+          {
+            "id": "c4dc44ed-7718-41e8-88fc-40c40b3cd8dc",
+            "shape": "edit-node",
+            "position": {
+              "x": 800,
+              "y": 90
+            },
+            "label": "订货本",
+            "fillColor": "#DDE5FF",
+            "size": {
+              "width": 120,
+              "height": 60
+            },
+            "ports": {
+              "groups": {
+                "in": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "left"
+                  }
+                },
+                "out": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "right"
+                  }
+                },
+                "top": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "top"
+                  }
+                },
+                "bottom": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "bottom"
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "in",
+                  "id": "in"
+                },
+                {
+                  "group": "in",
+                  "id": "in2"
+                },
+                {
+                  "group": "in",
+                  "id": "in3"
+                },
+                {
+                  "group": "out",
+                  "id": "out"
+                },
+                {
+                  "group": "out",
+                  "id": "out2"
+                },
+                {
+                  "group": "out",
+                  "id": "out3"
+                },
+                {
+                  "group": "top",
+                  "id": "top"
+                },
+                {
+                  "group": "top",
+                  "id": "top2"
+                },
+                {
+                  "group": "top",
+                  "id": "top3"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom2"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom3"
+                }
+              ]
+            }
+          },
+          {
+            "id": "a027be0b-7868-4dd7-a18a-0ef14ff3e610",
+            "shape": "edit-node",
+            "position": {
+              "x": 800,
+              "y": 263
+            },
+            "label": "规格行",
+            "fillColor": "#DDE5FF",
+            "size": {
+              "width": 120,
+              "height": 60
+            },
+            "ports": {
+              "groups": {
+                "in": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "left"
+                  }
+                },
+                "out": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "right"
+                  }
+                },
+                "top": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "top"
+                  }
+                },
+                "bottom": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "bottom"
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "in",
+                  "id": "in"
+                },
+                {
+                  "group": "in",
+                  "id": "in2"
+                },
+                {
+                  "group": "in",
+                  "id": "in3"
+                },
+                {
+                  "group": "out",
+                  "id": "out"
+                },
+                {
+                  "group": "out",
+                  "id": "out2"
+                },
+                {
+                  "group": "out",
+                  "id": "out3"
+                },
+                {
+                  "group": "top",
+                  "id": "top"
+                },
+                {
+                  "group": "top",
+                  "id": "top2"
+                },
+                {
+                  "group": "top",
+                  "id": "top3"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom2"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom3"
+                }
+              ]
+            }
+          },
+          {
             "id": "79ede60f-e049-48ac-9f9c-e841f7806331",
             "shape": "edit-node",
             "position": {
-              "x": 630,
-              "y": 530
+              "x": 640,
+              "y": 400
             },
             "label": "工艺包",
+            "fillColor": "#DDE5FF",
+            "size": {
+              "width": 120,
+              "height": 60
+            },
+            "ports": {
+              "groups": {
+                "in": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "left"
+                  }
+                },
+                "out": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "right"
+                  }
+                },
+                "top": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "top"
+                  }
+                },
+                "bottom": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "bottom"
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "in",
+                  "id": "in"
+                },
+                {
+                  "group": "in",
+                  "id": "in2"
+                },
+                {
+                  "group": "in",
+                  "id": "in3"
+                },
+                {
+                  "group": "out",
+                  "id": "out"
+                },
+                {
+                  "group": "out",
+                  "id": "out2"
+                },
+                {
+                  "group": "out",
+                  "id": "out3"
+                },
+                {
+                  "group": "top",
+                  "id": "top"
+                },
+                {
+                  "group": "top",
+                  "id": "top2"
+                },
+                {
+                  "group": "top",
+                  "id": "top3"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom2"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom3"
+                }
+              ]
+            }
+          },
+          {
+            "id": "3db1588c-b7f0-4157-abfe-caa09ab5a628",
+            "shape": "edit-node",
+            "position": {
+              "x": 420,
+              "y": 340
+            },
+            "label": "样板看板",
+            "fillColor": "#DDE5FF",
+            "size": {
+              "width": 120,
+              "height": 60
+            },
+            "ports": {
+              "groups": {
+                "in": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "left"
+                  }
+                },
+                "out": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "right"
+                  }
+                },
+                "top": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "top"
+                  }
+                },
+                "bottom": {
+                  "attrs": {
+                    "fo": {
+                      "width": 8,
+                      "height": 8,
+                      "x": -4,
+                      "y": -4,
+                      "magnet": "true",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  },
+                  "zIndex": 3,
+                  "position": {
+                    "name": "bottom"
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "in",
+                  "id": "in"
+                },
+                {
+                  "group": "in",
+                  "id": "in2"
+                },
+                {
+                  "group": "in",
+                  "id": "in3"
+                },
+                {
+                  "group": "out",
+                  "id": "out"
+                },
+                {
+                  "group": "out",
+                  "id": "out2"
+                },
+                {
+                  "group": "out",
+                  "id": "out3"
+                },
+                {
+                  "group": "top",
+                  "id": "top"
+                },
+                {
+                  "group": "top",
+                  "id": "top2"
+                },
+                {
+                  "group": "top",
+                  "id": "top3"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom2"
+                },
+                {
+                  "group": "bottom",
+                  "id": "bottom3"
+                }
+              ]
+            }
+          },
+          {
+            "id": "4a080094-87f8-46d7-a58f-6513a9b055bf",
+            "shape": "edit-node",
+            "position": {
+              "x": 420,
+              "y": 253
+            },
+            "label": "样品请求（非产前样）",
             "fillColor": "#DDE5FF",
             "size": {
               "width": 120,

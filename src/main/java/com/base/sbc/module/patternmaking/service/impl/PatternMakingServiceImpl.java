@@ -89,6 +89,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public List<PatternMakingListVo> findBySampleDesignId(String sampleDesignId) {
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
         qw.eq("sample_design_id", sampleDesignId);
+        qw.eq("m.del_flag", BaseGlobal.NO);
         qw.orderBy(true, true, "create_date");
         List<PatternMakingListVo> patternMakingListVos = getBaseMapper().findBySampleDesignId(qw);
         return patternMakingListVos;
@@ -237,7 +238,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq("p.del_flag", BaseGlobal.NO);
         amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
         if (StrUtil.isBlank(dto.getOrderBy())) {
-            dto.setOrderBy(" p.create_date asc ");
+            dto.setOrderBy(" p.create_date desc ");
         } else {
             dto.setOrderBy(dto.getOrderBy());
         }
