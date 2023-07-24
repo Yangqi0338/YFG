@@ -18,4 +18,6 @@ public class ProcessDatabasePageDto extends Page {
     private String createName;
     private String[] time;
     private String status;
+    /*品牌*/
+    private String brandName;
 }

@@ -114,51 +114,19 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         /*查询基础资料-颜色库数据*/
         queryWrapper.orderByDesc("create_date");
         List<BasicsdatumColourLibrary> basicsdatumColourLibraryList = baseMapper.selectList(queryWrapper);
-        PageInfo<BasicsdatumColourLibrary> pageInfo = new PageInfo<>(basicsdatumColourLibraryList);
+
         /*转换vo*/
         List<BasicsdatumColourLibraryVo> list = BeanUtil.copyToList(basicsdatumColourLibraryList, BasicsdatumColourLibraryVo.class);
-        for (BasicsdatumColourLibraryVo basicsdatumColourLibraryVo : list) {
+/*        for (BasicsdatumColourLibraryVo basicsdatumColourLibraryVo : list) {
             if (StringUtils.isEmpty(basicsdatumColourLibraryVo.getColor16()) && StringUtils.isNotEmpty(basicsdatumColourLibraryVo.getColorRgb())) {
                 basicsdatumColourLibraryVo.setColor16(this.rgbToHex(basicsdatumColourLibraryVo.getColorRgb()));
             }
-        }
-        PageInfo<BasicsdatumColourLibraryVo> pageInfo1 = new PageInfo<>();
-        pageInfo1.setList(list);
-        pageInfo1.setTotal(pageInfo.getTotal());
-        pageInfo1.setPageNum(pageInfo.getPageNum());
-        pageInfo1.setPageSize(pageInfo.getPageSize());
-        return pageInfo1;
+        }*/
+        PageInfo<BasicsdatumColourLibraryVo> pageInfo = new PageInfo<>(list);
+        return pageInfo;
     }
 
-    private String rgbToHex(String rgbValue) {
-        int[] rgbComponents = extractRGB(rgbValue);
 
-        String redHex = Integer.toHexString(rgbComponents[0]);
-        String greenHex = Integer.toHexString(rgbComponents[1]);
-        String blueHex = Integer.toHexString(rgbComponents[2]);
-        // 确保十六进制字符串长度为两位
-        redHex = padLeft(redHex);
-        greenHex = padLeft(greenHex);
-        blueHex = padLeft(blueHex);
-        return "#" + redHex + greenHex + blueHex;
-    }
-
-    private String padLeft(String str) {
-        StringBuilder sb = new StringBuilder();
-        while (sb.length() + str.length() < 2) {
-            sb.append('0');
-        }
-        sb.append(str);
-        return sb.toString();
-    }
-
-    public static int[] extractRGB(String rgbValue) {
-        String[] components = rgbValue.replaceAll("[^\\d,]", "").split(",");
-        int red = Integer.parseInt(components[0].trim());
-        int green = Integer.parseInt(components[1].trim());
-        int blue = Integer.parseInt(components[2].trim());
-        return new int[]{red, green, blue};
-    }
 
     /**
      * 基础资料-颜色库导入
@@ -216,8 +184,8 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
                 AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
                 basicsdatumColourLibraryExcelDto.setPicture(attachmentVo.getUrl());
             }
-            if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColorRgb()) && basicsdatumColourLibraryExcelDto.getColorRgb().indexOf("rgb") == -1) {
-                basicsdatumColourLibraryExcelDto.setColorRgb("rgb" + basicsdatumColourLibraryExcelDto.getColorRgb());
+            if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColorRgb()) && basicsdatumColourLibraryExcelDto.getColorRgb().indexOf("rgb") ==-1 ) {
+                basicsdatumColourLibraryExcelDto.setColor16(StringUtils.rgbToHex(basicsdatumColourLibraryExcelDto.getColorRgb()));
             }
          }
             libraryExcelDtoList.add(basicsdatumColourLibraryExcelDto);

@@ -141,8 +141,9 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         queryWrapper.eq(StringUtils.isNotEmpty(pageDto.getType()),"type",pageDto.getType());
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getProcessType()),"process_type",pageDto.getProcessType());
         queryWrapper.eq(StringUtils.isNotEmpty(pageDto.getStatus()),"status",pageDto.getStatus());
-
+        queryWrapper.eq(StringUtils.isNotEmpty(pageDto.getBrandName()),"brand_name",pageDto.getBrandName());
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getDescription()),"description",pageDto.getDescription());
+        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCreateName()),"create_name",pageDto.getCreateName());
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getProcessName()),"process_name",pageDto.getProcessName());
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCode()),"code",pageDto.getCode());
         queryWrapper.orderByDesc("create_date");

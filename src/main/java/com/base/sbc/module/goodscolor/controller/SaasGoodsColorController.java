@@ -24,8 +24,10 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.security.Principal;
@@ -78,6 +80,22 @@ public class SaasGoodsColorController extends BaseController {
         PageInfo<GoodsColor> pageInfo = new PageInfo<>(list);
         return selectSuccess(pageInfo);
     }
+
+
+
+
+    @ApiOperation(value = "/导入")
+    @PostMapping("/importExcel")
+    public ApiResult importExcel(@RequestParam("file") MultipartFile file) throws Exception {
+        return ApiResult.success("操作成功",goodsColorService.importExcel(file)) ;
+    }
+
+    @ApiOperation(value = "/导出")
+    @GetMapping("/deriveExcel")
+    public void deriveExcel(HttpServletResponse response) throws Exception {
+        goodsColorService.deriveExcel(response);
+    }
+
 
     @ApiOperation(value = "新增物料颜色", notes = "新增物料颜色")
     @Transactional(rollbackFor = {Exception.class})

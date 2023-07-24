@@ -9,6 +9,10 @@ package com.base.sbc.module.goodscolor.service;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.goodscolor.entity.GoodsColor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 类描述：物料颜色 service类
@@ -20,4 +24,20 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public interface GoodsColorService extends BaseService<GoodsColor> {
+
+
+    /**
+     * 基础资料-物料颜色导入
+     * @param file
+     * @return
+     */
+    Boolean importExcel(MultipartFile file) throws  Exception;
+
+    /**
+     * 基础资料-物料颜色导出
+     * @param response
+     * @return
+     */
+    void deriveExcel(HttpServletResponse response) throws Exception;
+
 }

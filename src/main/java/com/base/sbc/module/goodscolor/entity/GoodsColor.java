@@ -74,5 +74,7 @@ public class GoodsColor extends BaseDataEntity<String>{
     /** 色系 */
     private String  colorType;
     /** 色系编码 */
-    private String  colorTypeCode;;
+    private String  colorTypeName;;
+    /*备注*/
+    private String remarks;
 }

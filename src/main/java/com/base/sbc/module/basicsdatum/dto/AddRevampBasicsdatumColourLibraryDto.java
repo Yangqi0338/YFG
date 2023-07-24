@@ -53,6 +53,8 @@ public class AddRevampBasicsdatumColourLibraryDto  {
     /** 16进制颜色 */
     @ApiModelProperty(value = "16进制颜色"  )
     private String color16;
+    @ApiModelProperty(value = "Rgb"  )
+    private String colorRgb;
     /** 色度 */
     @ApiModelProperty(value = "色度"  )
     private String chroma;

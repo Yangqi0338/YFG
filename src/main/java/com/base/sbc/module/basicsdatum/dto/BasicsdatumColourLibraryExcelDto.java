@@ -47,6 +47,11 @@ public class BasicsdatumColourLibraryExcelDto  {
     @ApiModelProperty(value = "库"  )
     @Excel(name = "库")
     private String library;
+    /**
+     * 16进制颜色
+     */
+    @ApiModelProperty(value = "16进制颜色")
+    private String color16;
 /*    *//** 可用于款式 *//*
     @ApiModelProperty(value = "可用于款式"  )
     @Excel(name = "可用于款式" , replace = {"false_0", "true_1"} )
