@@ -51,12 +51,12 @@ public class OpenSmpService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public void smpMaterial(JSONObject jsonObject) {
-        JSONObject jsonObject1 = jsonObject.getJSONObject("params");
+    public void smpMaterial(JSONObject smpOpenMaterialDtoJson) {
+        JSONObject jsonObject1 = smpOpenMaterialDtoJson.getJSONObject("params");
         JSONArray jSON = jsonObject1.getJSONArray("jSON");
-        for (SmpOpenMaterialDto smpOpenMaterialDto : jSON.toJavaList(SmpOpenMaterialDto.class)) {
+        JSONObject jsonObject = jSON.getJSONObject(0);
+            SmpOpenMaterialDto smpOpenMaterialDto = jsonObject.toJavaObject(SmpOpenMaterialDto.class);
             //初步逻辑：关联编码的，先去查询编码是否存在，如果不存在则返回错误，字段不存在。
-
             JSONObject images = jsonObject.getJSONObject("images");
             if (images!=null){
                 JSONArray imagesChildren = images.getJSONArray("imagesChildren");
@@ -203,5 +203,5 @@ public class OpenSmpService {
 
 
 
-    }
+
 }
