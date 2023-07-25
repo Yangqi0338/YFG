@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-25 14:42:57
+ * @date 创建时间：2023-7-25 16:21:10
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -115,6 +115,11 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "款式类型")
     private String styleType;
     /**
+     * 款式类型名称
+     */
+    @ApiModelProperty(value = "款式类型名称")
+    private String styleTypeName;
+    /**
      * 款式图id(主图)
      */
     @ApiModelProperty(value = "款式图id(主图)")
@@ -204,11 +209,6 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "主题")
     private String subject;
-    /**
-     * 主题名称
-     */
-    @ApiModelProperty(value = "主题名称")
-    private String subjectName;
     /**
      * 版型
      */
@@ -345,10 +345,15 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "关联的素材库数量")
     private BigDecimal materialCount;
     /**
-     * 任务等级:普通,紧急,非常紧急
+     * 任务等级
      */
-    @ApiModelProperty(value = "任务等级:普通,紧急,非常紧急")
+    @ApiModelProperty(value = "任务等级")
     private String taskLevel;
+    /**
+     * 任务等级名称
+     */
+    @ApiModelProperty(value = "任务等级名称")
+    private String taskLevelName;
     /**
      * 开始时间
      */
@@ -493,6 +498,16 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "小类名称")
     private String prodCategory3rdName;
+    /**
+     * 款式单位编码
+     */
+    @ApiModelProperty(value = "款式单位编码")
+    private String styleUnit;
+    /**
+     * 款式单位名称
+     */
+    @ApiModelProperty(value = "款式单位名称")
+    private String styleUnitCode;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
