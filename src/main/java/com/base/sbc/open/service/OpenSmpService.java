@@ -123,7 +123,6 @@ public class OpenSmpService {
                     for (Object object : cOLORITEMSNANAnnotation) {
                         JSONObject json = (JSONObject) JSON.toJSON(object);
                         SmpOpenMaterialDto.ColorItem colorItem = JSON.toJavaObject(json, SmpOpenMaterialDto.ColorItem.class);
-                        colorItem.setSmpColor(json.getString("supplierColorNo"));
                         list.add(colorItem);
                     }
                     smpOpenMaterialDto.setCOLORITEMS(list);
@@ -146,8 +145,9 @@ public class OpenSmpService {
                 smpOpenMaterialDto.getCOLORITEMS().forEach(colorItem -> {
                     BasicsdatumMaterialColor basicsdatumMaterialColor = new BasicsdatumMaterialColor();
                     basicsdatumMaterialColor.setColorCode(colorItem.getColorCode());
+                    basicsdatumMaterialColor.setColorName(colorItem.getColorName());
                     basicsdatumMaterialColor.setStatus(colorItem.isActive() ? "0" : "1");
-                    basicsdatumMaterialColor.setSupplierColorCode(colorItem.getSmpColor());
+                    basicsdatumMaterialColor.setSupplierColorCode(colorItem.getMatColor4Supplier());
                     basicsdatumMaterialColor.setMaterialCode(basicsdatumMaterial.getMaterialCode());
                     basicsdatumMaterialColor.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
                     basicsdatumMaterialColor.setUpdateName("外部系统推送");

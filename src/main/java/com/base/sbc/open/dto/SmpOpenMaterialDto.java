@@ -5,9 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.base.sbc.module.smp.dto.SmpMaterialDto;
-import com.base.sbc.module.smp.entity.SmpModuleSize;
-import com.base.sbc.module.smp.entity.SmpQuot;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -141,7 +138,7 @@ public class SmpOpenMaterialDto {
     /**
      * 采购模式
      */
-    private String Procurement_Mode;
+    private String procurementMode;
 
     /**
      * 默认超收比例
@@ -259,22 +256,22 @@ public class SmpOpenMaterialDto {
         /**
          * 颜色编码
          */
-        private String ColorCode;
+        private String colorCode;
 
         /**
          * 颜色名称
          */
-        private String ColorName;
+        private String colorName;
 
         /**
          * 颜色是否启用
          */
-        private boolean Active;
+        private boolean active;
 
         /**
          * 供应商物料颜色
          */
-        private String smpColor;
+        private String matColor4Supplier;
     }
 
     /**

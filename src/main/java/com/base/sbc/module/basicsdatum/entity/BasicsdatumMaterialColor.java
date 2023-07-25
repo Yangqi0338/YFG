@@ -45,6 +45,9 @@ public class BasicsdatumMaterialColor extends BaseDataEntity<String> {
     /** 颜色代码 */
     @ApiModelProperty(value = "颜色代码"  )
     private String colorCode;
+    /** 颜色名称 */
+    @ApiModelProperty(value = "颜色名称"  )
+    private String colorName;
     /** 供应商色号 */
     @ApiModelProperty(value = "供应商色号"  )
     private String supplierColorCode;
