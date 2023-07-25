@@ -376,7 +376,7 @@ public class SmpOpenMaterialDto {
         /**
          * 默认报价标识
          */
-        private String DefaultQuote;
+        private Boolean DefaultQuote;
         /**
          * 结算方式名称
          */

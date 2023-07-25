@@ -190,6 +190,7 @@ public class OpenSmpService {
                     basicsdatumMaterialPrice.setWidthName(quotItem.getSUPPLIERSIZE());
                     basicsdatumMaterialPrice.setSupplierMaterialCode(quotItem.getSupplierMaterial());
                     basicsdatumMaterialPrice.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
+                    basicsdatumMaterialPrice.setSelectFlag(quotItem.getDefaultQuote());
                     basicsdatumMaterialPrice.setUpdateName("外部系统推送");
                     basicsdatumMaterialPrices.add(basicsdatumMaterialPrice);
 
