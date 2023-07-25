@@ -13,6 +13,7 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumColourGroupService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourGroupVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
+import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -114,9 +115,9 @@ public class BasicsdatumColourLibraryController{
 		return basicsdatumColourGroupService.getBasicsdatumColourGroupList(queryDto);
 	}
 
-	@ApiOperation(value = "获取所有颜色规格")
+	@ApiOperation(value = "获取所有颜色规格(下拉选择)")
 	@GetMapping("/getAllColourSpecification")
-	public List<String> getAllColourSpecification(String status) {
+	public List<SelectOptionsVo> getAllColourSpecification(String status) {
 		return basicsdatumColourLibraryService.getAllColourSpecification(status);
 	}
 

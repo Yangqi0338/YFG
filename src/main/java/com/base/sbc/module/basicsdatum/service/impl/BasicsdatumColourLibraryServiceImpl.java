@@ -34,6 +34,7 @@ import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -297,7 +298,7 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
     }
 
     @Override
-    public List<String> getAllColourSpecification(String status) {
+    public List<SelectOptionsVo> getAllColourSpecification(String status) {
         QueryWrapper<BasicsdatumColourLibrary> qw = new QueryWrapper<>();
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.eq(StrUtil.isNotBlank(status), "status", status);

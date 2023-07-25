@@ -12,6 +12,7 @@ import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -82,7 +83,7 @@ public interface BasicsdatumColourLibraryService extends BaseService<Basicsdatum
          */
         Boolean startStopBasicsdatumColourLibrary(StartStopDto startStopDto);
 
-        List<String> getAllColourSpecification(String status);
+    List<SelectOptionsVo> getAllColourSpecification(String status);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

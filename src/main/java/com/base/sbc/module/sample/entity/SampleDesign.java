@@ -8,7 +8,6 @@ package com.base.sbc.module.sample.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -17,14 +16,15 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Date;
+
 /**
  * 类描述：样衣设计 实体类
  *
- * @author your name
+ * @author lxl
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
- * @email your email
- * @date 创建时间：2023-7-21 17:59:47
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-7-25 14:42:57
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -33,7 +33,6 @@ import java.util.Date;
 public class SampleDesign extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
-
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
@@ -221,10 +220,15 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "版型名称")
     private String plateTypeName;
     /**
-     * 号型类型
+     * 号型编码
      */
-    @ApiModelProperty(value = "号型类型")
+    @ApiModelProperty(value = "号型编码")
     private String sizeRange;
+    /**
+     * 号型名称
+     */
+    @ApiModelProperty(value = "号型名称")
+    private String sizeRangeName;
     /**
      * 开发分类
      */
@@ -245,6 +249,11 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "Default颜色")
     private String defaultColor;
+    /**
+     * Default颜色编码
+     */
+    @ApiModelProperty(value = "Default颜色编码")
+    private String defaultColorCode;
     /**
      * 目标成本
      */
@@ -290,6 +299,11 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "尺码ids")
     private String sizeIds;
+    /**
+     * 尺码codes
+     */
+    @ApiModelProperty(value = "尺码codes")
+    private String sizeCodes;
     /**
      * 设计师名称
      */
@@ -459,6 +473,26 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "特别需求:(1是,0否)")
     private String specialNeedsFlag;
+    /**
+     * 大类名称
+     */
+    @ApiModelProperty(value = "大类名称")
+    private String prodCategory1stName;
+    /**
+     * 品类名称
+     */
+    @ApiModelProperty(value = "品类名称")
+    private String prodCategoryName;
+    /**
+     * 中类名称
+     */
+    @ApiModelProperty(value = "中类名称")
+    private String prodCategory2ndName;
+    /**
+     * 小类名称
+     */
+    @ApiModelProperty(value = "小类名称")
+    private String prodCategory3rdName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
