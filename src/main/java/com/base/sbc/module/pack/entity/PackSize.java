@@ -12,14 +12,15 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 /**
  * 类描述：资料包-尺寸表 实体类
  *
- * @author your name
+ * @author lxl
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackSize
- * @email your email
- * @date 创建时间：2023-7-13 20:35:03
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-7-25 14:00:54
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -49,6 +50,11 @@ public class PackSize extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "序号")
     private Integer sort;
+    /**
+     * 部位编码
+     */
+    @ApiModelProperty(value = "部位编码")
+    private String partCode;
     /**
      * 部位名称
      */
