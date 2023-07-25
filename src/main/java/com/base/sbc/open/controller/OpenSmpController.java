@@ -133,7 +133,7 @@ public class OpenSmpController extends BaseController {
      */
     @PostMapping("/smpMaterial")
     @ApiOperation(value = "smp-物料", notes = "smp-物料")
-    @Transactional(rollbackFor = Exception.class)
+
     public ApiResult smpMaterial(@RequestBody JSONObject jsonObject) {
         openSmpService.smpMaterial(jsonObject);
 

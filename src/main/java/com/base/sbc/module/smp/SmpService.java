@@ -1,6 +1,8 @@
 package com.base.sbc.module.smp;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
@@ -26,14 +28,8 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
-import com.base.sbc.module.pack.entity.PackBom;
-import com.base.sbc.module.pack.entity.PackBomSize;
-import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.entity.PackInfoStatus;
-import com.base.sbc.module.pack.service.PackBomService;
-import com.base.sbc.module.pack.service.PackBomSizeService;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.entity.*;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.entity.SampleDesign;
@@ -44,12 +40,15 @@ import com.base.sbc.module.sample.service.SampleStyleColorService;
 import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
+import com.base.sbc.module.stylePricing.entity.StylePricing;
+import com.base.sbc.module.stylePricing.service.StylePricingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -104,6 +103,14 @@ public class SmpService {
     private final PackInfoStatusService packInfoStatusService;
 
     private final SampleService sampleService;
+
+    private final PackPricingService packPricingService;
+
+    private final PackTechPackagingService packTechPackagingService;
+
+    private final PackTechSpecService packTechSpecService;
+
+    private final StylePricingService stylePricingService;
 
 
     private static final String SMP_URL = "http://10.98.250.31:7006/pdm";
@@ -227,36 +234,53 @@ public class SmpService {
             //if (true) {
             //    return null;
             //}
-            // 有
-            smpGoodsDto.setBandName(null);//样衣设计
 
-            smpGoodsDto.setAccessories(null);//配色
-            // 待确认
+            smpGoodsDto.setBandName(sampleDesign.getBandName());
+
+            smpGoodsDto.setAccessories(StringUtils.isNotEmpty(sampleStyleColor.getAccessoryNo()));
+
             // 核价
-            smpGoodsDto.setCost(null);
-            smpGoodsDto.setLaborCosts(null);
-            smpGoodsDto.setMaterialCost(null);
+            PackPricing packPricing = packPricingService.getOne(new QueryWrapper<PackPricing>().eq("foreign_id", sampleDesign.getId()).eq("pack_type","packBigGoods"));
+            JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
+            smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价"));
+            smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费"));
+            smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费"));
             //
-            // 资料包 吊牌
-            smpGoodsDto.setPackageType(null);
-            smpGoodsDto.setPackageSize(null);
-            // 无
-            smpGoodsDto.setProductTypeId(null);
-            smpGoodsDto.setProductType(null);
+            // 资料包
+            PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", sampleDesign.getId()).eq("pack_type", "packBigGoods"));
+            smpGoodsDto.setPackageType(packTechPackaging.getPackagingForm());
+            smpGoodsDto.setPackageSize(packTechPackaging.getPackagingBagStandard());
+
+
+
+            smpGoodsDto.setProductTypeId(sampleDesign.getStyleType());
+            smpGoodsDto.setProductType(sampleDesign.getStyleName());
             smpGoodsDto.setUnit(null);
-            smpGoodsDto.setPlanningRate(null);
-            smpGoodsDto.setRegion(null);
+            smpGoodsDto.setPlanningRate(packPricing.getCostPrice());
+            smpGoodsDto.setRegion("废弃");
             smpGoodsDto.setSalesGroup(null);
-            smpGoodsDto.setSizeGroupId(null);
-            smpGoodsDto.setSizeGroupName(null);
-            smpGoodsDto.setStyleCode(null);
+            smpGoodsDto.setSizeGroupId(sampleDesign.getSizeRange());
+            smpGoodsDto.setSizeGroupName(sampleDesign.getSizeRangeName());
+            smpGoodsDto.setStyleCode(sampleDesign.getDesignNo());
+
+
+            PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", sampleStyleColor.getBom()));
+            //款式定价
+            StylePricing stylePricing = stylePricingService.getOne(new QueryWrapper<StylePricing>().eq("pack_id", packInfo.getId()));
+
+            //工艺说明
+            long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", sampleDesign.getId()));
+
+            smpGoodsDto.setAuProcess(count > 0);
 
             smpGoodsDto.setTextureId(null);
             smpGoodsDto.setTextureName(null);
-            smpGoodsDto.setPriceConfirm(null);
+
+            smpGoodsDto.setPriceConfirm("1".equals(stylePricing.getProductHangtagConfirm()));
 
             smpGoodsDto.setPlanCost(null);
-            smpGoodsDto.setActualRate(null);
+
+            smpGoodsDto.setActualRate(BigDecimal.valueOf(Long.parseLong(stylePricing.getPlanningRate())));
             smpGoodsDto.setPlanActualRate(null);
             smpGoodsDto.setProcessCost(null);
 
@@ -266,11 +290,12 @@ public class SmpService {
             smpGoodsDto.setSaleTime(null);
             smpGoodsDto.setSeriesId(null);
             smpGoodsDto.setSeriesName(null);
-            smpGoodsDto.setBomPhase(null);
-            smpGoodsDto.setAuProcess(null);
-            smpGoodsDto.setProdSeg(null);
+
+
+            smpGoodsDto.setProdSeg(sampleStyleColor.getSubdivide());
             smpGoodsDto.setComposition(null);
 
+            smpGoodsDto.setBomPhase(null);
             smpGoodsDto.setIntegritySample(null);
             smpGoodsDto.setIntegrityProduct(null);
 
