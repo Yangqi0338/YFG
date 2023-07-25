@@ -106,7 +106,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         rQw.eq("sample_design_id", dto.getSampleDesignId());
         rQw.eq("del_flag", BaseGlobal.NO);
         //出版样只能有一个
-        if (StrUtil.equals("初版样", dto.getTechnicianKitting())) {
+        if (StrUtil.equals("初版样", dto.getSampleType())) {
 
             rQw.eq("sample_type", dto.getSampleType());
             long count = count(rQw);
@@ -115,7 +115,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             }
         } else {
             long count = count(rQw);
-            if (count > 0) {
+            if (count > 6) {
                 throw new OtherException("只能新建6个打版指令:1个初版样、5个其他");
             }
         }
