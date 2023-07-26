@@ -459,7 +459,8 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             throw new OtherException("id错误");
         }
         /*修改大货款号*/
-        if(StringUtils.isNotBlank(sampleStyleColor.getStyleNo()) && StringUtils.isNotBlank(updateStyleNoBandDto.getStyleNo())){
+        if(StringUtils.isNotBlank(sampleStyleColor.getStyleNo()) && StringUtils.isNotBlank(updateStyleNoBandDto.getStyleNo()) &&   !sampleStyleColor.getStyleNo().equals(updateStyleNoBandDto.getStyleNo()) ){
+
             if(!updateStyleNoBandDto.getStyleNo().substring(0,5).equals(sampleStyleColor.getStyleNo().substring(0,5))){
                 throw new OtherException("无法修改大货款号前五位");
             }
