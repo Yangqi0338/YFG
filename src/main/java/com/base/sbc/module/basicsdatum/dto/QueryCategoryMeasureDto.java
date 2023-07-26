@@ -13,6 +13,6 @@ public class QueryCategoryMeasureDto extends Page {
     /*档差*/
     private String rangeDifferenceName;
 
-    private String categoryId;
+    private String categoryCode;
 
 }

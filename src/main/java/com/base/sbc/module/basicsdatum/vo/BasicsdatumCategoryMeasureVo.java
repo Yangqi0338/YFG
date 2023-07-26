@@ -34,7 +34,7 @@ public class BasicsdatumCategoryMeasureVo  {
     @ApiModelProperty(value = "档差名"  )
     private String rangeDifferenceName;
     /** 品类id */
-    private String  categoryId;
+    private String  categoryCode;
     /** 品类id */
     private String  categoryName;
     /** 品牌 */

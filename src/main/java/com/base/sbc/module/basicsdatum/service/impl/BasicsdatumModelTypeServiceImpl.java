@@ -123,17 +123,16 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         for (BasicsdatumModelTypeExcelDto basicsdatumModelTypeExcelDto : list) {
             List<BasicsdatumSize> basicsdatumSizeList =new ArrayList<>();
 //            获取品类id
-            if (StringUtils.isNotBlank(basicsdatumModelTypeExcelDto.getCategory())) {
-
-                basicsdatumModelTypeExcelDto.setCategory(basicsdatumModelTypeExcelDto.getCategory().replaceAll(" ",""));
-                List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getCategorySByNameAndLevel("品类", basicsdatumModelTypeExcelDto.getCategory(), "1");
+            if (StringUtils.isNotBlank(basicsdatumModelTypeExcelDto.getCategoryName())) {
+                basicsdatumModelTypeExcelDto.setCategoryName(basicsdatumModelTypeExcelDto.getCategoryName().replaceAll(" ",""));
+                List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getCategorySByNameAndLevel("品类", basicsdatumModelTypeExcelDto.getCategoryName(), "1");
                 List<BasicsdatumCompanyRelation> basicsdatumCompanyRelationList = new ArrayList<>();
                 basicCategoryDotList.forEach(b ->{
                     BasicsdatumCompanyRelation basicsdatumCompanyRelation =new BasicsdatumCompanyRelation();
                     basicsdatumCompanyRelation.setCategoryId(b.getId());
                     basicsdatumCompanyRelation.setCategoryName(b.getName());
                     basicsdatumCompanyRelation.setCompanyCode(baseController.getUserCompany());
-                    basicsdatumCompanyRelation.setType("difference");
+                    basicsdatumCompanyRelation.setType("modelType");
                     basicsdatumCompanyRelationList.add(basicsdatumCompanyRelation);
                 });
                 basicsdatumModelTypeExcelDto.setBasicsdatumCompanyRelation(basicsdatumCompanyRelationList);
@@ -188,8 +187,9 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
      */
     @Override
     public void basicsdatumModelTypeDeriveExcel(HttpServletResponse response) throws Exception {
-        QueryWrapper<BasicsdatumModelType> queryWrapper = new QueryWrapper<>();
-        List<BasicsdatumModelTypeExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsdatumModelTypeExcelDto.class);
+        BaseQueryWrapper<BasicsdatumModelType> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("mt.del_flag", "0");
+        List<BasicsdatumModelTypeExcelDto> list = BeanUtil.copyToList(baseMapper.getBasicsdatumModelTypeList(queryWrapper,null), BasicsdatumModelTypeExcelDto.class);
         ExcelUtils.exportExcel(list, BasicsdatumModelTypeExcelDto.class, "基础资料-号型类型.xlsx", new ExportParams(), response);
     }
 

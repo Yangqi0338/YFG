@@ -150,4 +150,10 @@ public interface CcmService {
      */
     @GetMapping(value = "/ccm/api/saas/basicStructure/getCategorySByNameAndLevel")
     public String getCategorySByNameAndLevel( @RequestParam("structureName") String structureName,@RequestParam("names") String names,@RequestParam("level") String level);
+
+    /**
+     * 通过类目名称查询类目树
+     */
+    @GetMapping(value = "/ccm/api/saas/basicStructure/treeByName")
+    public String treeByName(@RequestParam("structureName") String structureName,@RequestParam("hasRoot") String hasRoot,@RequestParam("levels") String levels);
 }

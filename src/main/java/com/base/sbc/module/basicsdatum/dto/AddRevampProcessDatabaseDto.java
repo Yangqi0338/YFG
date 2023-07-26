@@ -1,20 +1,16 @@
-package com.base.sbc.module.basicsdatum.entity;
+package com.base.sbc.module.basicsdatum.dto;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-/**
- * @author 卞康
- * @date 2023/6/2 17:48:27
- * @mail 247967116@qq.com
- *
- * 工艺资料库
- */
+import java.util.List;
+
 @Data
-@TableName("t_process_database")
-public class ProcessDatabase extends BaseDataEntity<String> {
+/*新增或者修改*/
+public class AddRevampProcessDatabaseDto {
+
+    private String id;
     /**工艺项目(名称)*/
     @ApiModelProperty(value = "工艺项目(名称)")
     private String processName;

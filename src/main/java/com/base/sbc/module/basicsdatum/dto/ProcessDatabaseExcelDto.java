@@ -22,9 +22,13 @@ public class ProcessDatabaseExcelDto {
     /**品牌*/
     @Excel(name = "品牌")
     private String brandName;
-    /**工艺类型*/
-    @Excel(name = "工艺类型")
+
+    private String brandId;
+
     private String processType;
+    /**工艺类型*/
+    @Excel(name = "部件类别")
+    private String processTypeName;
     /**工艺要求*/
     @Excel(name = "工艺要求")
     private String processRequire;
@@ -39,7 +43,7 @@ public class ProcessDatabaseExcelDto {
     private String subclass;
 
     /**部件类别*/
-    @Excel(name = "部件类别")
+//    @Excel(name = "部件类别")
     private String componentCategory;
 
     /**描述*/
@@ -49,6 +53,9 @@ public class ProcessDatabaseExcelDto {
     /**品类名称*/
     @Excel(name = "品类")
     private String categoryName;
+
+    /**品类id*/
+    private String categoryId;
 
     /** 图片 */
     @Excel(name = "图片",type = 2)

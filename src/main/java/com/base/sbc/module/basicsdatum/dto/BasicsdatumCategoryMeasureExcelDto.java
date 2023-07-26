@@ -41,12 +41,12 @@ public class BasicsdatumCategoryMeasureExcelDto  {
     @Excel(name = "档差")
     private String rangeDifferenceName;*/
     /** 品类id */
-    private String categoryId;
+    private String categoryCode;
     @Excel(name = "品类")
     private String  categoryName;
-    /** 品牌 */
+/*    *//** 品牌 *//*
     @Excel(name = "品牌")
-    private String  brandCode;
+    private String  brandCode;*/
     /** 档差id */
     @ApiModelProperty(value = "档差id"  )
     private String rangeDifferenceId;
@@ -60,5 +60,4 @@ public class BasicsdatumCategoryMeasureExcelDto  {
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     @Excel(name= "可用的" , replace = {"true_0", "false_1"} )
     private String status;
-    private List<BasicsdatumCompanyRelation> basicsdatumCompanyRelation;
 }

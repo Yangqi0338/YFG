@@ -47,8 +47,10 @@ public class BasicsdatumCategoryMeasure extends BaseDataEntity<String> {
     /** 档差名 */
     @ApiModelProperty(value = "档差名"  )
     private String rangeDifferenceName;
-    /** 品牌 */
-    private String  brandCode;
+    /** 品类id */
+    private String  categoryCode;
+    /** 品类id */
+    private String  categoryName;
     /** 档差id */
     @ApiModelProperty(value = "档差id"  )
     private String rangeDifferenceId;
@@ -62,8 +64,5 @@ public class BasicsdatumCategoryMeasure extends BaseDataEntity<String> {
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
-
-    @TableField(exist = false)
-    private List<BasicsdatumCompanyRelation> basicsdatumCompanyRelation;
 }
 

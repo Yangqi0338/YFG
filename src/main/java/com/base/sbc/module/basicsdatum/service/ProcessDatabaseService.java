@@ -1,5 +1,6 @@
 package com.base.sbc.module.basicsdatum.service;
 
+import com.base.sbc.module.basicsdatum.dto.AddRevampProcessDatabaseDto;
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
 import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
 import com.base.sbc.module.basicsdatum.vo.ProcessDatabaseSelectVO;
@@ -7,6 +8,8 @@ import com.base.sbc.module.common.service.BaseService;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -21,6 +24,23 @@ public interface ProcessDatabaseService extends BaseService<ProcessDatabase> {
      * @return 成功或者失败
      */
     Boolean importExcel(MultipartFile file) throws Exception;
+
+
+    /**
+     * 导出
+     * @param response
+     * @param type
+     */
+   void deriveExcel(HttpServletResponse response, String type) throws IOException;
+
+
+    /**
+     *
+     * @param addRevampProcessDatabaseDto
+     * @return
+     */
+    Boolean save(AddRevampProcessDatabaseDto addRevampProcessDatabaseDto);
+
 
     /**
      * 分页查询
