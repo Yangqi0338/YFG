@@ -190,8 +190,6 @@ public class SmpGoodsDto extends SmpBaseDto {
     private String seriesName;
     /**轻奢*/
     private Boolean luxury;
-    /**BOM阶段*/
-    private String bomPhase;
     /**外辅工艺标识*/
     private Boolean auProcess;
     /**厂家款号*/
@@ -218,6 +216,8 @@ public class SmpGoodsDto extends SmpBaseDto {
     private String lingXingId;
     /** 领型名称 */
     private String lingXingName;
+    /**BOM阶段*/
+    private String bomPhase;
     /**开发BOM完整标志*/
     private Boolean integritySample;
     /**大货BOM完整标志*/

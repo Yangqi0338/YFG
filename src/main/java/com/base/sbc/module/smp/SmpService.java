@@ -30,8 +30,10 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
+import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.entity.SampleDesign;
@@ -256,45 +258,54 @@ public class SmpService {
 
             smpGoodsDto.setProductTypeId(sampleDesign.getStyleType());
             smpGoodsDto.setProductType(sampleDesign.getStyleName());
-            smpGoodsDto.setUnit(null);
+
             smpGoodsDto.setPlanningRate(packPricing.getCostPrice());
-            smpGoodsDto.setRegion("废弃");
-            smpGoodsDto.setSalesGroup(null);
+
+
             smpGoodsDto.setSizeGroupId(sampleDesign.getSizeRange());
             smpGoodsDto.setSizeGroupName(sampleDesign.getSizeRangeName());
             smpGoodsDto.setStyleCode(sampleDesign.getDesignNo());
 
-
             PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", sampleStyleColor.getBom()));
-            //款式定价
-            StylePricing stylePricing = stylePricingService.getOne(new QueryWrapper<StylePricing>().eq("pack_id", packInfo.getId()));
+
+
+
 
             //工艺说明
-            long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", sampleDesign.getId()));
-
+            long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", sampleDesign.getId()).eq("spec_type","外辅工艺"));
             smpGoodsDto.setAuProcess(count > 0);
 
+
+            smpGoodsDto.setUnit(null);
+
+            //成衣
             smpGoodsDto.setTextureId(null);
             smpGoodsDto.setTextureName(null);
 
-            smpGoodsDto.setPriceConfirm("1".equals(stylePricing.getProductHangtagConfirm()));
-
-            smpGoodsDto.setPlanCost(null);
-
-            smpGoodsDto.setActualRate(BigDecimal.valueOf(Long.parseLong(stylePricing.getPlanningRate())));
-            smpGoodsDto.setPlanActualRate(null);
-            smpGoodsDto.setProcessCost(null);
-
-            smpGoodsDto.setProductName(null);
-
+            //款式定价
+            StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
             smpGoodsDto.setSeries(null);
-            smpGoodsDto.setSaleTime(null);
+            smpGoodsDto.setPriceConfirm("1".equals(stylePricingVO.getProductTagPriceConfirm()));
+            smpGoodsDto.setPlanCost(stylePricingVO.getPlanCost());
+            smpGoodsDto.setActualRate(BigDecimal.valueOf(Long.parseLong(stylePricingVO.getActualMagnification())));
+            smpGoodsDto.setPlanActualRate(stylePricingVO.getPlanActualMagnification());
+            smpGoodsDto.setProcessCost(stylePricingVO.getCoordinationProcessingFee().add(stylePricingVO.getWoolenYarnProcessingFee()).add(stylePricingVO.getCoordinationProcessingFee()).add(stylePricingVO.getSewingProcessingFee()));
+            smpGoodsDto.setProductName(stylePricingVO.getProductName());
+            //吊牌
+
+
+            smpGoodsDto.setComposition(null);
+
+            //废弃
             smpGoodsDto.setSeriesId(null);
             smpGoodsDto.setSeriesName(null);
+            smpGoodsDto.setRegion(null);
+            smpGoodsDto.setSalesGroup(null);
 
 
+            smpGoodsDto.setSaleTime(null);
             smpGoodsDto.setProdSeg(sampleStyleColor.getSubdivide());
-            smpGoodsDto.setComposition(null);
+
 
             smpGoodsDto.setBomPhase(null);
             smpGoodsDto.setIntegritySample(null);
