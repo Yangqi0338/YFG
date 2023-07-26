@@ -69,10 +69,15 @@ public class AddRevampBasicsdatumModelTypeDto  {
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
     /** 状态(0正常,1停用) */
-
+    /** 品类 */
+    @ApiModelProperty(value = "品类"  )
+    private String categoryId;
+    /** 品类名称 */
+    @ApiModelProperty(value = "品类名称"  )
+    private String  categoryName;
     /*尺码标签id*/
     private String sizeLabelId;
 
-    private List<BasicsdatumCompanyRelation> list;
+//    private List<BasicsdatumCompanyRelation> list;
 
 }

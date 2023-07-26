@@ -61,6 +61,8 @@ public class AddRevampBasicsdatumRangeDifferenceDto  {
     /** 品类测量组编码 */
     @ApiModelProperty(value = "品类测量组编码"  )
     private String categoryMeasureCode;
+    /*品类测量组名称*/
+    private String categoryMeasureName;
     /** 尺码 */
     @ApiModelProperty(value = "尺码"  )
     private String size;
@@ -74,6 +76,11 @@ public class AddRevampBasicsdatumRangeDifferenceDto  {
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
 
-    private List<BasicsdatumCompanyRelation> list;
+    /*品类*/
+    private String  categoryId;
+
+    /*品类名称*/
+    private String categoryName;
+
 
 }

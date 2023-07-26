@@ -30,6 +30,7 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSizeMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumCompanyRelationService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumCategoryMeasureVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.github.pagehelper.PageHelper;
@@ -63,12 +64,13 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
 
 
     private final BaseController baseController;
+
     private final CcmFeignService ccmFeignService;
 
     private final BasicsdatumSizeMapper basicsdatumSizeMapper;
+
     private final BasicsdatumSizeService basicsdatumSizeService;
 
-    private final BasicsdatumCompanyRelationService basicsdatumCompanyRelationService;
 
 
 /** 自定义方法区 不替换的区域【other_start】 **/
@@ -87,21 +89,24 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         }
 
         BaseQueryWrapper<BasicsdatumModelType> queryWrapper = new BaseQueryWrapper<>();
-
-        queryWrapper.notEmptyLike("mt.model_type", queryDto.getModelType());
-        queryWrapper.eq("mt.company_code", baseController.getUserCompany());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStatus()),"mt.status", queryDto.getStatus());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getPdmTypeName()),"mt.pdm_type_name", queryDto.getPdmTypeName());
-        queryWrapper.in(StringUtils.isNotBlank(queryDto.getCategoryId()),"cr.category_ids", StringUtils.convertList(queryDto.getCategoryId()) );
-        queryWrapper.notEmptyLike("mt.code", queryDto.getCode());
-        queryWrapper.notEmptyLike("mt.description", queryDto.getDescription());
-        queryWrapper.notEmptyLike("mt.dimension_type", queryDto.getDimensionType());
-        queryWrapper.between("mt.create_date",queryDto.getCreateDate());
-        queryWrapper.notEmptyEq("mt.create_name", queryDto.getCreateName());
-
-        queryWrapper.eq("mt.del_flag", "0");
+        queryWrapper.notEmptyLike("model_type", queryDto.getModelType());
+        queryWrapper.eq("company_code", baseController.getUserCompany());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStatus()),"status", queryDto.getStatus());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getPdmTypeName()),"pdm_type_name", queryDto.getPdmTypeName());
+        if(StringUtils.isNotBlank(queryDto.getCategoryId())){
+            if(queryDto.getCategoryId().indexOf(",")!=-1){
+                queryWrapper.apply(StringUtils.findInSet(queryDto.getCategoryId(),"category_id"));
+            }else {
+                queryWrapper.like(StringUtils.isNotBlank(queryDto.getCategoryId()),"category_id", queryDto.getCategoryId());
+            }
+        }
+        queryWrapper.notEmptyLike("code", queryDto.getCode());
+        queryWrapper.notEmptyLike("description", queryDto.getDescription());
+        queryWrapper.notEmptyLike("dimension_type", queryDto.getDimensionType());
+        queryWrapper.between("create_date",queryDto.getCreateDate());
+        queryWrapper.notEmptyEq("create_name", queryDto.getCreateName());
         /*查询基础资料-号型类型数据*/
-        List<BasicsdatumModelTypeVo> basicsdatumModelTypeList = baseMapper.getBasicsdatumModelTypeList(queryWrapper,StringUtils.convertList(queryDto.getCategoryId()));
+        List<BasicsdatumModelTypeVo> basicsdatumModelTypeList = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsdatumModelTypeVo.class);
         PageInfo<BasicsdatumModelTypeVo> pageInfo = new PageInfo<>(basicsdatumModelTypeList);
         return pageInfo;
     }
@@ -120,22 +125,20 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         params.setNeedSave(false);
         List<BasicsdatumModelTypeExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumModelTypeExcelDto.class, params);
         list = list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
+        List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getTreeByNamelList("品类", "1");
         for (BasicsdatumModelTypeExcelDto basicsdatumModelTypeExcelDto : list) {
             List<BasicsdatumSize> basicsdatumSizeList =new ArrayList<>();
 //            获取品类id
             if (StringUtils.isNotBlank(basicsdatumModelTypeExcelDto.getCategoryName())) {
-                basicsdatumModelTypeExcelDto.setCategoryName(basicsdatumModelTypeExcelDto.getCategoryName().replaceAll(" ",""));
-                List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getCategorySByNameAndLevel("品类", basicsdatumModelTypeExcelDto.getCategoryName(), "1");
-                List<BasicsdatumCompanyRelation> basicsdatumCompanyRelationList = new ArrayList<>();
-                basicCategoryDotList.forEach(b ->{
-                    BasicsdatumCompanyRelation basicsdatumCompanyRelation =new BasicsdatumCompanyRelation();
-                    basicsdatumCompanyRelation.setCategoryId(b.getId());
-                    basicsdatumCompanyRelation.setCategoryName(b.getName());
-                    basicsdatumCompanyRelation.setCompanyCode(baseController.getUserCompany());
-                    basicsdatumCompanyRelation.setType("modelType");
-                    basicsdatumCompanyRelationList.add(basicsdatumCompanyRelation);
-                });
-                basicsdatumModelTypeExcelDto.setBasicsdatumCompanyRelation(basicsdatumCompanyRelationList);
+                String[] categoryNames =  basicsdatumModelTypeExcelDto.getCategoryName().replaceAll(" ","").split(",");
+                /*依赖品类*/
+                List<BasicCategoryDot> list1 = basicCategoryDotList.stream().filter(b ->  Arrays.asList(categoryNames).contains(b.getName())).collect(Collectors.toList());
+                if (!CollectionUtils.isEmpty(list1)){
+                 List<String> stringList =  list1.stream().map(BasicCategoryDot::getValue).collect(Collectors.toList());
+                 List<String> stringList1 =  list1.stream().map(BasicCategoryDot::getName).collect(Collectors.toList());
+                    basicsdatumModelTypeExcelDto.setCategoryId(StringUtils.join(stringList,","));
+                    basicsdatumModelTypeExcelDto.setCategoryName(StringUtils.join(stringList1,","));
+                }
             }
             if (StringUtils.isNotBlank(basicsdatumModelTypeExcelDto.getSize())) {
 //                获取尺码id
@@ -170,11 +173,6 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             QueryWrapper<BasicsdatumModelType> queryWrapper =new BaseQueryWrapper<>();
             queryWrapper.eq("code",basicsdatumModelType.getCode());
             this.saveOrUpdate(basicsdatumModelType,queryWrapper);
-            /*添加品类关系*/
-            BasicsdatumModelType modelType =   baseMapper.selectOne(queryWrapper) ;
-            if(!ObjectUtils.isEmpty(modelType)){
-                basicsdatumCompanyRelationService.deleteBatchAddition(assignmentCompany(basicsdatumModelType.getBasicsdatumCompanyRelation(), modelType.getId()));
-            }
         }
         return true;
     }
@@ -188,8 +186,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
     @Override
     public void basicsdatumModelTypeDeriveExcel(HttpServletResponse response) throws Exception {
         BaseQueryWrapper<BasicsdatumModelType> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.eq("mt.del_flag", "0");
-        List<BasicsdatumModelTypeExcelDto> list = BeanUtil.copyToList(baseMapper.getBasicsdatumModelTypeList(queryWrapper,null), BasicsdatumModelTypeExcelDto.class);
+        List<BasicsdatumModelTypeExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsdatumModelTypeExcelDto.class);
         ExcelUtils.exportExcel(list, BasicsdatumModelTypeExcelDto.class, "基础资料-号型类型.xlsx", new ExportParams(), response);
     }
 
@@ -233,10 +230,6 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
                 basicsdatumSizeService.updateBatchById(list);
             }
 
-            /*新增品类*/
-            if (!CollectionUtils.isEmpty(addRevampBasicsdatumModelTypeDto.getList())) {
-                basicsdatumCompanyRelationService.batchAddition(assignmentCompany(addRevampBasicsdatumModelTypeDto.getList(), basicsdatumModelType.getId()));
-            }
         } else {
             /*修改*/
             basicsdatumModelType = baseMapper.selectById(addRevampBasicsdatumModelTypeDto.getId());
@@ -264,26 +257,10 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             BeanUtils.copyProperties(addRevampBasicsdatumModelTypeDto, basicsdatumModelType);
             basicsdatumModelType.updateInit();
             baseMapper.updateById(basicsdatumModelType);
-            /*新增品类*/
-            if (!CollectionUtils.isEmpty(addRevampBasicsdatumModelTypeDto.getList())) {
-                basicsdatumCompanyRelationService.deleteBatchAddition(assignmentCompany(addRevampBasicsdatumModelTypeDto.getList(), basicsdatumModelType.getId()));
-            }
         }
         return true;
     }
 
-    /*赋值*/
-    public List<BasicsdatumCompanyRelation> assignmentCompany(List<BasicsdatumCompanyRelation> list, String id) {
-        if(!CollectionUtils.isEmpty(list)){
-            for (BasicsdatumCompanyRelation b : list) {
-                b.setCompanyCode(baseController.getUserCompany());
-                b.setDataId(id);
-                b.setType("modelType");
-            }
-            return list;
-        }
-        return null;
-    }
 
     /**
      * 方法描述：删除基础资料-号型类型
