@@ -12,8 +12,8 @@ import java.util.List;
  * @author Youkehai
  * @data 创建时间:2021/1/4
  */
-//@FeignClient(name = "ccm", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
-@FeignClient(name = "ccm", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
+@FeignClient(name = "ccm", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
+//@FeignClient(name = "ccm", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
 public interface CcmService {
     /**
      * 获取最后一级的品类信息
@@ -150,6 +150,12 @@ public interface CcmService {
      */
     @GetMapping(value = "/ccm/api/saas/basicStructure/getCategorySByNameAndLevel")
     public String getCategorySByNameAndLevel( @RequestParam("structureName") String structureName,@RequestParam("names") String names,@RequestParam("level") String level);
+
+    /**
+     * 通过类目名称查询类目树
+     */
+    @GetMapping(value = "/ccm/api/saas/basicStructure/treeByName")
+    public String treeByName(@RequestParam("structureName") String structureName,@RequestParam("hasRoot") String hasRoot,@RequestParam("levels") String levels);
 
 
     @GetMapping(value = "/ccm/api/open/structure/getCategorySByNameAndLevel")

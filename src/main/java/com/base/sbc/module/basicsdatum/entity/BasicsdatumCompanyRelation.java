@@ -35,6 +35,9 @@ public class BasicsdatumCompanyRelation extends BaseDataEntity<String> {
     /** 品类id */
     @ApiModelProperty(value = "品类id"  )
     private String categoryId;
+    /** 品类编码 */
+    @ApiModelProperty(value = "品类编码"  )
+    private String categoryCode;
     /** 品类名称 */
     @ApiModelProperty(value = "品类名称"  )
     private String categoryName;

@@ -72,10 +72,9 @@ public class BasicsdatumModelTypeExcelDto  {
     /** 品类 */
     @ApiModelProperty(value = "品类"  )
     @Excel(name = "品类")
-    private String category;
+    private String categoryName;
     /** 品类id */
     @ApiModelProperty(value = "品类id"  )
-    @Excel(name = "品类id")
     private String categoryId;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )

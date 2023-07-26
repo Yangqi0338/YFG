@@ -30,8 +30,6 @@ public interface BasicsdatumCategoryMeasureMapper extends BaseMapper<Basicsdatum
 /** 自定义方法区 不替换的区域【other_start】 **/
 
 
-    List<BasicsdatumCategoryMeasureVo> getBasicsdatumCategoryMeasureList(@Param(Constants.WRAPPER) BaseQueryWrapper qw, @Param("categoryList") List<String> categoryList);
-
 /** 自定义方法区 不替换的区域【other_end】 **/
 }
 

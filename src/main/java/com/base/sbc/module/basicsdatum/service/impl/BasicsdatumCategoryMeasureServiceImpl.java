@@ -27,6 +27,7 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumRangeDifferenceMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumCategoryMeasureService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumCompanyRelationService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumCategoryMeasureVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumComponentVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -40,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -63,9 +65,6 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
     private CcmFeignService ccmFeignService;
 
     @Autowired
-    private BasicsdatumCompanyRelationService basicsdatumCompanyRelationService;
-
-    @Autowired
     private BasicsdatumMeasurementMapper basicsdatumMeasurementMapper;
 
 
@@ -84,14 +83,13 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
             PageHelper.startPage(queryDto);
         }
         BaseQueryWrapper<BasicsdatumCategoryMeasure> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.eq("cm.company_code", baseController.getUserCompany());
-        queryWrapper.eq("cm.del_flag", "0");
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getCode()),"cm.code",queryDto.getCode());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getCategoryId()),"cr.category_id",queryDto.getCategoryId());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getName()),"cm.name",queryDto.getName());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getRangeDifferenceName()),"cm.range_difference_name",queryDto.getRangeDifferenceName());
+        queryWrapper.eq("company_code", baseController.getUserCompany());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getCode()),"code",queryDto.getCode());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getCategoryCode()),"category_code",queryDto.getCategoryCode());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getName()),"name",queryDto.getName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getRangeDifferenceName()),"range_difference_name",queryDto.getRangeDifferenceName());
         /*查询基础资料-品类测量组数据*/
-        List<BasicsdatumCategoryMeasureVo> basicsdatumCategoryMeasureList = baseMapper.getBasicsdatumCategoryMeasureList(queryWrapper,StringUtils.convertList(queryDto.getCategoryId()));
+        List<BasicsdatumCategoryMeasureVo> basicsdatumCategoryMeasureList = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsdatumCategoryMeasureVo.class);
         PageInfo<BasicsdatumCategoryMeasureVo> pageInfo = new PageInfo<>(basicsdatumCategoryMeasureList);
 
         return pageInfo;
@@ -110,9 +108,9 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
         List<BasicsdatumCategoryMeasureExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumCategoryMeasureExcelDto.class, params);
-   /*     *//*获取字典值*//*
-        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Brand");
-        Map<String, String> map =   dictInfoToMap.get("C8_Brand");*/
+        /*品类数据*/
+        List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getTreeByNamelList("品类",  "1");
+
 //        操作存在编码数据
         list = list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
         for (BasicsdatumCategoryMeasureExcelDto basicsdatumCategoryMeasureExcelDto : list) {
@@ -129,21 +127,16 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
             }
 
             if(StringUtils.isNotBlank(basicsdatumCategoryMeasureExcelDto.getCategoryName())){
-                basicsdatumCategoryMeasureExcelDto.setCategoryName(basicsdatumCategoryMeasureExcelDto.getCategoryName().replaceAll(" ",""));
-                List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getCategorySByNameAndLevel("品类", basicsdatumCategoryMeasureExcelDto.getCategoryName(), "1");
-                List<BasicsdatumCompanyRelation> basicsdatumCompanyRelationList = new ArrayList<>();
-                basicCategoryDotList.forEach(b ->{
-                    BasicsdatumCompanyRelation basicsdatumCompanyRelation =new BasicsdatumCompanyRelation();
-                    basicsdatumCompanyRelation.setCategoryId(b.getId());
-                    basicsdatumCompanyRelation.setCategoryName(b.getName());
-                    basicsdatumCompanyRelation.setCompanyCode(baseController.getUserCompany());
-                    basicsdatumCompanyRelation.setType("measure");
-                    basicsdatumCompanyRelationList.add(basicsdatumCompanyRelation);
-                });
-                basicsdatumCategoryMeasureExcelDto.setBasicsdatumCompanyRelation(basicsdatumCompanyRelationList);
+              basicsdatumCategoryMeasureExcelDto.setCategoryName( basicsdatumCategoryMeasureExcelDto.getCategoryName().replaceAll(" ",""));
+              String[] strings =  basicsdatumCategoryMeasureExcelDto.getCategoryName().split(",");
+              List<BasicCategoryDot> basicCategoryDotList1 = basicCategoryDotList.stream().filter(b ->  Arrays.asList(strings).contains(b.getName())).collect(Collectors.toList());
+                if (!CollectionUtils.isEmpty(basicCategoryDotList1)){
+                   List<String> stringList =  basicCategoryDotList1.stream().map(BasicCategoryDot::getValue).collect(Collectors.toList());
+                    List<String> stringList1 =  basicCategoryDotList1.stream().map(BasicCategoryDot::getName).collect(Collectors.toList());
+                    basicsdatumCategoryMeasureExcelDto.setCategoryCode(StringUtils.join(stringList,","));
+                    basicsdatumCategoryMeasureExcelDto.setCategoryName(StringUtils.join(stringList1,","));
+                }
             }
-
-
         }
         /*按编码操作*/
         List<BasicsdatumCategoryMeasure> basicsdatumColourLibraryList = BeanUtil.copyToList(list, BasicsdatumCategoryMeasure.class);
@@ -151,12 +144,7 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
             QueryWrapper<BasicsdatumCategoryMeasure> queryWrapper1 = new QueryWrapper<>();
             queryWrapper1.eq("code", basicsdatumCategoryMeasure.getCode());
             this.saveOrUpdate(basicsdatumCategoryMeasure, queryWrapper1);
-            BasicsdatumCategoryMeasure categoryMeasure =   baseMapper.selectOne(queryWrapper1) ;
-            if(!ObjectUtils.isEmpty(categoryMeasure)){
-                basicsdatumCompanyRelationService.deleteBatchAddition(assignmentCompany(basicsdatumCategoryMeasure.getBasicsdatumCompanyRelation(), categoryMeasure.getId()));
-            }
         }
-//        saveOrUpdateBatch(basicsdatumCategoryMeasureList);
         return true;
     }
 
@@ -169,10 +157,12 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
     @Override
     public void basicsdatumCategoryMeasureDeriveExcel(HttpServletResponse response,QueryCategoryMeasureDto queryDto) throws Exception {
         BaseQueryWrapper<BasicsdatumCategoryMeasure> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.eq("cm.company_code", baseController.getUserCompany());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getCode()),"cm.code",queryDto.getCode());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getName()),"cm.name",queryDto.getName());
-        List<BasicsdatumCategoryMeasureExcelDto> list = BeanUtil.copyToList(baseMapper.getBasicsdatumCategoryMeasureList(queryWrapper,StringUtils.convertList(queryDto.getCategoryId())), BasicsdatumCategoryMeasureExcelDto.class);
+        queryWrapper.eq("company_code", baseController.getUserCompany());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getCode()),"code",queryDto.getCode());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getCategoryCode()),"category_code",queryDto.getCategoryCode());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getName()),"name",queryDto.getName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getRangeDifferenceName()),"range_difference_name",queryDto.getRangeDifferenceName());
+        List<BasicsdatumCategoryMeasureExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsdatumCategoryMeasureExcelDto.class);
         ExcelUtils.exportExcel(list, BasicsdatumCategoryMeasureExcelDto.class, "基础资料-品类测量组.xlsx", new ExportParams(), response);
     }
 
@@ -201,10 +191,6 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
             basicsdatumCategoryMeasure.setCompanyCode(baseController.getUserCompany());
             basicsdatumCategoryMeasure.insertInit();
             baseMapper.insert(basicsdatumCategoryMeasure);
-            /*新增品类*/
-            if (!CollectionUtils.isEmpty(addRevampBasicsdatumCategoryMeasureDto.getList())) {
-                basicsdatumCompanyRelationService.batchAddition(assignmentCompany(addRevampBasicsdatumCategoryMeasureDto.getList(), basicsdatumCategoryMeasure.getId()));
-            }
         } else {
             /*修改*/
             basicsdatumCategoryMeasure = baseMapper.selectById(addRevampBasicsdatumCategoryMeasureDto.getId());
@@ -217,26 +203,11 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
             BeanUtils.copyProperties(addRevampBasicsdatumCategoryMeasureDto, basicsdatumCategoryMeasure);
             basicsdatumCategoryMeasure.updateInit();
             baseMapper.updateById(basicsdatumCategoryMeasure);
-            /*新增品类*/
-            if (!CollectionUtils.isEmpty(addRevampBasicsdatumCategoryMeasureDto.getList())) {
-                basicsdatumCompanyRelationService.deleteBatchAddition(assignmentCompany(addRevampBasicsdatumCategoryMeasureDto.getList(), basicsdatumCategoryMeasure.getId()));
-            }
+
         }
         return true;
     }
 
-    /*赋值*/
-    public List<BasicsdatumCompanyRelation> assignmentCompany(List<BasicsdatumCompanyRelation> list, String id) {
-        if(!CollectionUtils.isEmpty(list)){
-            for (BasicsdatumCompanyRelation b : list) {
-                b.setCompanyCode(baseController.getUserCompany());
-                b.setDataId(id);
-                b.setType("measure");
-            }
-            return list;
-        }
-        return null;
-    }
 
     /**
      * 方法描述：删除基础资料-品类测量组
