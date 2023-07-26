@@ -46,6 +46,15 @@ public interface CcmService {
     public String getDictInfo(@RequestParam("type") String type);
 
     /**
+     * 开放接口获取字典信息
+     *
+     * @param type 类型
+     * @return
+     */
+    @GetMapping("/ccm/api/open/structure/selectDictByTypes")
+    public String getOpenDictInfo(@RequestParam("userCompany") String userCompany,@RequestParam("type") String type);
+
+    /**
      * 获取颜色信息
      *
      * @param token
