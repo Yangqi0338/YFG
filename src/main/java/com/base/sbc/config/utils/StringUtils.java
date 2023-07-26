@@ -566,6 +566,31 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		return strings[index].split(",")[typeIndex] ;
 	}
 
+
+	/**
+	 * 多个值使用ACT_RE_PROCDEF查询
+	 *
+	 * 返回
+	 * FIND_IN_SET('0', category_id)
+	 * or
+	 * FIND_IN_SET('3', category_id)
+	 * or
+	 * FIND_IN_SET('9', category_id)
+	 */
+	public static String findInSet(String strings,String field) {
+		String s ="";
+		if(isNotBlank(strings)){
+			String[] strings1 = strings.split(",");
+			for (int i = 0; i < strings1.length; i++) {
+			    	s += " FIND_IN_SET('"+strings1[i]+"', "+field+") ";
+				if(i != strings1.length-1){
+					s += " or ";
+				}
+			}
+		}
+		return s;
+	}
+
 	/**
 	 * rgb转16进制
 	 * @param rgbValue

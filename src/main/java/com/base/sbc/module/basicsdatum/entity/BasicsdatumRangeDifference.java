@@ -58,9 +58,17 @@ public class BasicsdatumRangeDifference extends BaseDataEntity<String> {
     /** 品牌名称 */
     @ApiModelProperty(value = "品牌名称"  )
     private String brandName;
+    /** 品类 */
+    @ApiModelProperty(value = "品类"  )
+    private String categoryId;
+    /** 品类名称 */
+    @ApiModelProperty(value = "品类名称"  )
+    private String  categoryName;
     /** 品类测量组编码 */
     @ApiModelProperty(value = "品类测量组编码"  )
     private String categoryMeasureCode;
+    /*品类测量组名称*/
+    private String categoryMeasureName;
     /**  备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
@@ -83,7 +91,5 @@ public class BasicsdatumRangeDifference extends BaseDataEntity<String> {
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
 
-    @TableField(exist = false)
-    private List<BasicsdatumCompanyRelation> basicsdatumCompanyRelation;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

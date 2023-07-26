@@ -78,5 +78,5 @@ public class BasicsdatumRangeDifferenceVo  extends BaseDataEntity<String>{
     private String status;
 
     private String  remarks;
-    private List<String> categoryIds;
+
 }
