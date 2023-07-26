@@ -37,8 +37,10 @@ public class AddRevampBasicsdatumCategoryMeasureDto  {
     /** 档差名 */
     @ApiModelProperty(value = "档差名"  )
     private String rangeDifferenceName;
-    /** 品牌 */
-    private String  brandCode;
+    /** 品类id */
+    private String  categoryCode;
+    /** 品类id */
+    private String  categoryName;
     /** 档差id */
     @ApiModelProperty(value = "档差id"  )
     private String rangeDifferenceId;
@@ -51,6 +53,4 @@ public class AddRevampBasicsdatumCategoryMeasureDto  {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
-
-    private List<BasicsdatumCompanyRelation> list;
 }

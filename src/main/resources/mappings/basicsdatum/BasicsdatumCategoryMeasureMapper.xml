@@ -13,30 +13,6 @@
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
-    <select id="getBasicsdatumCategoryMeasureList"
-            resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumCategoryMeasureVo">
 
-
-        SELECT
-        cm.*,
-        cr.category_name ,
-        cr.category_id
-        FROM
-        t_basicsdatum_category_measure cm
-        LEFT JOIN ( SELECT data_id, type, GROUP_CONCAT( category_name ) category_name, GROUP_CONCAT( category_id )  category_id FROM t_basicsdatum_company_relation
-        <where>
-            <if test="categoryList != null and categoryList.size != 0">
-                category_id in
-                <foreach collection="categoryList" item="id" separator="," open="(" close=")">
-                    #{id}
-                </foreach>
-            </if>
-
-        </where>
-
-        GROUP BY type,data_id ) cr ON cm.id = cr.data_id AND cr.type = 'measure'
-        ${ ew.customSqlSegment}
-
-    </select>
 </mapper>
 

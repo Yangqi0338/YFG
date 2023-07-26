@@ -114,6 +114,19 @@ public class CcmFeignService {
         return null;
     }
 
+    /**
+     * 查询 品类集合
+     */
+    public List<BasicCategoryDot>  getTreeByNamelList(String structureName, String level) {
+        String dictInfo = ccmService.treeByName(structureName,null,level);
+        JSONObject jsonObject = JSON.parseObject(dictInfo);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            List<BasicCategoryDot> data =  JSON.parseArray((JSON.parseObject( jsonObject.get("data").toString()).get("dataTree")).toString(), BasicCategoryDot.class);
+            return data;
+        }
+        return null;
+    }
+
     public void setCategoryName(List list, String idkey, String nameKey) {
         try {
             if (CollUtil.isEmpty(list)) {

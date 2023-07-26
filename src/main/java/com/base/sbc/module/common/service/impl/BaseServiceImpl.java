@@ -72,7 +72,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
                 ids.add(entity.getId());
             }
         }
-        if (!StringUtils.isEmpty(companyCode)){
+        if (!StringUtils.isEmpty(companyCode) && !"0".equals(companyCode)){
             queryWrapper.eq("company_code",companyCode);
         }
         //逻辑删除传进来不存在的

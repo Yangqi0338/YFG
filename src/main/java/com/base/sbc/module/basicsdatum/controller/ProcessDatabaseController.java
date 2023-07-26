@@ -8,8 +8,10 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.AddRevampProcessDatabaseDto;
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
 import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumCompanyRelationService;
 import com.base.sbc.module.basicsdatum.service.ProcessDatabaseService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.github.pagehelper.PageInfo;
@@ -17,11 +19,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
@@ -51,6 +55,14 @@ public class ProcessDatabaseController extends BaseController {
         return insertSuccess(b);
     }
 
+
+    @ApiOperation(value = "/导出")
+    @GetMapping("/deriveExcel")
+    public void deriveExcel(HttpServletResponse response,String type) throws Exception {
+        processDatabaseService.deriveExcel(response ,type);
+    }
+
+
     /**
      * 根据列表进行分页查询
      */
@@ -67,19 +79,8 @@ public class ProcessDatabaseController extends BaseController {
     @ApiOperation(value = "新增或者修改工艺资料库")
     @PostMapping("/save")
     @OperaLog(value = "工艺资料库", operationType = OperationType.INSERT_UPDATE, pathSpEL = PackUtils.pathSqEL, service = ProcessDatabaseService.class)
-    public ApiResult save(@RequestBody ProcessDatabase processDatabase){
-        /*新增查询编码是否重复*/
-        if(StringUtils.isBlank(processDatabase.getId())){
-            QueryWrapper queryWrapper =new QueryWrapper();
-            queryWrapper.eq("code",processDatabase.getCode());
-           List<ProcessDatabase> processDatabaseList = processDatabaseService.list(queryWrapper);
-            if(!CollectionUtils.isEmpty(processDatabaseList)){
-                throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
-            }
-
-        }
-        boolean b = processDatabaseService.saveOrUpdate(processDatabase);
-        return insertSuccess(b);
+    public Boolean save(@RequestBody AddRevampProcessDatabaseDto addRevampProcessDatabaseDto){
+        return   processDatabaseService.save(addRevampProcessDatabaseDto);
     }
 
 

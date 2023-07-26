@@ -45,6 +45,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -132,7 +133,28 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
 //             获取字典值
         Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Brand");
         Map<String, String> map =   dictInfoToMap.get("C8_Brand");
+
+        List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getTreeByNamelList("品类", "1");
         for (BasicsdatumRangeDifferenceExcelDto basicsdatumRangeDifferenceExcelDto : list) {
+
+            /*品类*/
+        if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getCategoryName())){
+            String[] strings =basicsdatumRangeDifferenceExcelDto.getCategoryName().replaceAll(" ","").split(",");
+            /*依赖品类*/
+            List<BasicCategoryDot> list1 = basicCategoryDotList.stream().filter(b ->  Arrays.asList(strings).contains(b.getName())).collect(Collectors.toList());
+            List<BasicsdatumCompanyRelation> basicsdatumCompanyRelationList = new ArrayList<>();
+            list1.forEach(b ->{
+                BasicsdatumCompanyRelation basicsdatumCompanyRelation =new BasicsdatumCompanyRelation();
+                basicsdatumCompanyRelation.setCategoryId(b.getId());
+                basicsdatumCompanyRelation.setCategoryCode(b.getValue());
+                basicsdatumCompanyRelation.setCategoryName(b.getName());
+                basicsdatumCompanyRelation.setCompanyCode(baseController.getUserCompany());
+                basicsdatumCompanyRelation.setType("difference");
+                basicsdatumCompanyRelationList.add(basicsdatumCompanyRelation);
+            });
+            basicsdatumRangeDifferenceExcelDto.setBasicsdatumCompanyRelation(basicsdatumCompanyRelationList);
+        }
+
             if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getModelType())){
 //                查号型类型编码
                 QueryWrapper queryWrapper=new QueryWrapper();
@@ -167,11 +189,13 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
                 basicsdatumRangeDifferenceExcelDto.setBrandCode(StringUtils.join(stringList,","));
                 basicsdatumRangeDifferenceExcelDto.setBrandName(StringUtils.join(stringList1,","));
             }
-            if (StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getCategoryMeasureCode())) {
+            if (StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getCategoryMeasureName())) {
                 QueryWrapper q = new QueryWrapper();
-                q.eq("code",basicsdatumRangeDifferenceExcelDto.getCategoryMeasureCode());
-                BasicsdatumCategoryMeasure basicsdatumCategory = basicsdatumCategoryMeasureMapper.selectOne(q);
-                if(!ObjectUtils.isEmpty(basicsdatumCategory)){
+                q.eq("name",basicsdatumRangeDifferenceExcelDto.getCategoryMeasureName());
+              List<BasicsdatumCategoryMeasure>  basicsdatumCategoryList = basicsdatumCategoryMeasureMapper.selectList(q);
+                if(!CollectionUtils.isEmpty(basicsdatumCategoryList)){
+                    BasicsdatumCategoryMeasure   basicsdatumCategory = basicsdatumCategoryList.get(0);
+                    basicsdatumRangeDifferenceExcelDto.setCategoryMeasureCode(basicsdatumCategory.getCode());
                     q.clear();
                     q.eq("type","measure");
                     q.eq("data_id",basicsdatumCategory.getId());
@@ -232,8 +256,9 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
      */
     @Override
     public void deriveExcel(HttpServletResponse response) throws Exception {
-        QueryWrapper<BasicsdatumRangeDifference> queryWrapper = new QueryWrapper<>();
-        List<BasicsdatumRangeDifferenceExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsdatumRangeDifferenceExcelDto.class);
+        BaseQueryWrapper<BasicsdatumRangeDifference> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.orderByDesc("rd.create_date");
+        List<BasicsdatumRangeDifferenceExcelDto> list = BeanUtil.copyToList(baseMapper.selectRangeDifferenceList(queryWrapper,null), BasicsdatumRangeDifferenceExcelDto.class);
         ExcelUtils.exportExcel(list, BasicsdatumRangeDifferenceExcelDto.class, "基础资料-档差.xlsx", new ExportParams(), response);
     }
 

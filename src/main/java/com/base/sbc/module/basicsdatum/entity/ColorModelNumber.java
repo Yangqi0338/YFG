@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 @TableName("t_color_model_number")
 public class ColorModelNumber extends BaseDataEntity<String> {
-    /**状态*/
+    /**状态0启用 1停用*/
     private String status;
 
     /**编码*/

@@ -227,6 +227,7 @@ public class SmpOpenMaterialDto {
         basicsdatumMaterial.setDevName(Developer);
         basicsdatumMaterial.setPurchaseName(C8_MaterialAttr_Purchanser);
         basicsdatumMaterial.setPurchaseDeptName(PurchaseTeam);
+        basicsdatumMaterial.setProcMode(procurementMode);
         basicsdatumMaterial.setLongitudeShrink(C8_MaterialAttr_LongitlShrinkage);
         basicsdatumMaterial.setLatitudeShrink(C8_MaterialAttr_WeftShrinkage);
         basicsdatumMaterial.setGramWeight(Weight);
