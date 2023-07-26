@@ -201,7 +201,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
      * @param brand
      * @param year
      * @param month
-     * @param band
+     * @param bandName
      * @param category
      * @param designNo
      * @return
@@ -219,6 +219,9 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
         }
         if (StringUtils.isBlank(brand)){
             throw new OtherException("款式品牌为空");
+        }
+        if (StringUtils.isBlank(year)){
+            throw new OtherException("款式年份为空");
         }
 
         String yearOn ="";
@@ -371,24 +374,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
         if(StringUtils.isBlank(ids)){
             throw new OtherException("ids为空");
         }
-        QueryWrapper queryWrapper=new QueryWrapper();
-        queryWrapper.in("id",StringUtils.convertList(ids));
-        List<SampleStyleColor> list =  baseMapper.selectList(queryWrapper);
-        if (!CollectionUtils.isEmpty(list)) {
-            /*获取未发送的数据*/
-            List<SampleStyleColor> sampleStyleColorList = list.stream().filter(s -> s.getIsIssueScm().equals("0")).collect(Collectors.toList());
-            if (CollectionUtils.isEmpty(sampleStyleColorList)) {
-                throw new OtherException("该配色已下发");
-            }
-            List<String> stringListId =  sampleStyleColorList.stream().map(SampleStyleColor::getId).collect(Collectors.toList());
-            List<String> stringListColourLibraryId =  sampleStyleColorList.stream().map(SampleStyleColor::getColourLibraryId).collect(Collectors.toList());
-            Integer i = smpService.goods(stringListId.toArray(new String[0]));
-            i += smpService.color(stringListColourLibraryId.toArray(new String[0]));
-            if (i > 0) {
-                sampleStyleColorList.forEach(s-> s.setIsIssueScm("1"));
-                this.updateBatchById(sampleStyleColorList);
-            }
-        }
+        smpService.goods(ids.split(","));
         return true;
     }
 

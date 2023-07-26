@@ -25,6 +25,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
 import com.base.sbc.module.common.eumns.UreportDownEnum;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -42,6 +43,7 @@ import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
 import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.mapper.SampleDesignMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleService;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.github.pagehelper.Page;
@@ -49,6 +51,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -373,6 +376,29 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         return this.getBaseMapper().getPricingVoById(id);
     }
 
+    /**
+     * 样衣id查询bom
+     *
+     * @param designNo
+     * @return
+     */
+    @Override
+    public PageInfo<PackInfoListVo> getInfoListByDesignNo(String designNo) {
+        if(StringUtils.isBlank(designNo)){
+            throw new OtherException("缺少设计款号");
+        }
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("design_no",designNo);
+        List<PackInfoListVo> basicsdatumModelTypeList = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), PackInfoListVo.class);
+        List<SampleDesign> sampleDesign = sampleDesignService.list (queryWrapper);
+        if(!CollectionUtils.isEmpty(basicsdatumModelTypeList) && !CollectionUtils.isEmpty(sampleDesign)){
+            basicsdatumModelTypeList.forEach(b ->{
+                b.setStylePic( uploadFileService.getUrlById(sampleDesign.get(0).getStylePic()));
+            });
+        }
+        PageInfo<PackInfoListVo> pageInfo = new PageInfo<>(basicsdatumModelTypeList);
+        return pageInfo;
+    }
 
     @Override
 
