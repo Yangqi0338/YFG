@@ -15,7 +15,6 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.planning.dto.PlanningChannelDto;
 import com.base.sbc.module.planning.dto.PlanningChannelSearchDto;
@@ -109,10 +108,9 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
         BaseQueryWrapper<PlanningChannel> qw = new BaseQueryWrapper<>();
         qw.lambda().eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), PlanningChannel::getPlanningSeasonId, dto.getPlanningSeasonId());
         qw.orderByDesc("id");
-        Page<PlanningChannel> page = PageHelper.startPage(dto);
-        list(qw);
-        PageInfo<PlanningChannelVo> pageInfo = CopyUtil.copy(page.toPageInfo(), PlanningChannelVo.class);
-        List<PlanningChannelVo> list = pageInfo.getList();
+        Page<PlanningChannelVo> page = PageHelper.startPage(dto);
+        List<PlanningChannelVo> list = getBaseMapper().list(qw);
+        PageInfo<PlanningChannelVo> pageInfo = page.toPageInfo();
         if (CollUtil.isNotEmpty(list)) {
             amcFeignService.setUserAvatarToList(list);
             //统计skc
@@ -126,6 +124,7 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
 
         return pageInfo;
     }
+
 
 // 自定义方法区 不替换的区域【other_end】
 

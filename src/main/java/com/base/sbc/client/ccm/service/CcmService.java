@@ -1,12 +1,9 @@
 package com.base.sbc.client.ccm.service;
 
-import com.base.sbc.client.ccm.entity.BasicStructureTree;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * @author Youkehai
@@ -152,22 +149,34 @@ public interface CcmService {
 
     /**
      * 通过名称,级别获取品类
+     *
      * @param structureName
      * @param names
-     *  @param level
+     * @param level
      * @return
      */
     @GetMapping(value = "/ccm/api/saas/basicStructure/getCategorySByNameAndLevel")
-    public String getCategorySByNameAndLevel( @RequestParam("structureName") String structureName,@RequestParam("names") String names,@RequestParam("level") String level);
+    public String getCategorySByNameAndLevel(@RequestParam("structureName") String structureName, @RequestParam("names") String names, @RequestParam("level") String level);
+
+    /**
+     * 通过类目编码查询类目树
+     *
+     * @param code
+     * @param hasRoot
+     * @param levels
+     * @return
+     */
+    @GetMapping(value = "/ccm/api/saas/basicStructure/treeByCode")
+    String basicStructureTreeByCode(@RequestParam("code") String code, @RequestParam("hasRoot") String hasRoot, @RequestParam("levels") String levels);
 
     /**
      * 通过类目名称查询类目树
      */
     @GetMapping(value = "/ccm/api/saas/basicStructure/treeByName")
-    public String treeByName(@RequestParam("structureName") String structureName,@RequestParam("hasRoot") String hasRoot,@RequestParam("levels") String levels);
+    public String treeByName(@RequestParam("structureName") String structureName, @RequestParam("hasRoot") String hasRoot, @RequestParam("levels") String levels);
 
 
     @GetMapping(value = "/ccm/api/open/structure/getCategorySByNameAndLevel")
-    public String getOpenCategorySByNameAndLevel( @RequestParam("structureName") String structureName,@RequestParam("code") String code,@RequestParam("level") String level);
+    public String getOpenCategorySByNameAndLevel(@RequestParam("structureName") String structureName, @RequestParam("code") String code, @RequestParam("level") String level);
 
 }

@@ -8,6 +8,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
@@ -17,6 +18,7 @@ import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningBandService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.planning.vo.YearSeasonVo;
 import com.base.sbc.module.sample.service.SampleDesignService;
@@ -110,7 +112,9 @@ public class ProductSeasonController extends BaseController {
 
     @ApiOperation(value = "查询坑位列表")
     @PostMapping("/findProductCategoryItem")
-    public ApiResult findProductCategoryItem(@Valid @RequestBody ProductCategoryItemSearchDto dto){
+    public PageInfo<PlanningSeasonOverviewVo> findProductCategoryItem(@Valid @RequestBody ProductCategoryItemSearchDto dto) {
+        dto.setStatus(BasicNumber.ONE.getNumber());
+        dto.setOrderBy("c.status asc ,c.id desc ");
         return planningCategoryItemService.findProductCategoryItem(dto);
     }
 

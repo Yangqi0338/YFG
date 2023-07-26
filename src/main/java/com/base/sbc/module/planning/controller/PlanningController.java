@@ -6,12 +6,14 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
+import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningBand;
@@ -98,7 +100,7 @@ public class PlanningController extends BaseController {
         return new PageInfo<>();
     }
 
-    @ApiOperation(value = "产品季-查询年份品牌树")
+    @ApiOperation(value = "产品季-查询年份品牌树(新)")
     @GetMapping("/queryYearBrandTree")
     public List<YearBrandVo> queryYearBrandTree(String search) {
         return planningSeasonService.queryYearBrandTree(search);
@@ -116,6 +118,11 @@ public class PlanningController extends BaseController {
         return planningChannelService.channelPageInfo(dto);
     }
 
+    @ApiOperation(value = "坑位列表-左侧树")
+    @GetMapping("/categoryTree")
+    public List<BasicStructureTreeVo> categoryTree(String planningChannelId) {
+        return planningCategoryItemService.categoryTree(planningChannelId);
+    }
 
     @ApiOperation(value = "查询波段企划-分页查询")
     @GetMapping("/planBand")
@@ -145,9 +152,21 @@ public class PlanningController extends BaseController {
 
     @ApiOperation(value = "修改坑位信息")
     @PostMapping("/updateCategoryItem")
-    public List<PlanningCategoryItemSaveDto> updateCategoryItem(@RequestParam(value = "planningBandId", required = false) String planningBandId, @RequestBody List<PlanningCategoryItemSaveDto> item) {
-        planningCategoryItemService.updateCategoryItem(planningBandId, item);
+    public List<PlanningCategoryItemSaveDto> updateCategoryItem(@RequestBody List<PlanningCategoryItemSaveDto> item) {
+        planningCategoryItemService.updateCategoryItem(item);
         return item;
+    }
+
+    @ApiOperation(value = "新建坑位(新)")
+    @PostMapping("/addSeat")
+    public boolean addSeat(@Validated @RequestBody AddSeatDto dto) {
+        return planningCategoryItemService.addSeat(dto);
+    }
+
+    @ApiOperation(value = "撤回(新)")
+    @GetMapping("/seat/revoke")
+    public boolean revoke(@Validated IdsDto idsDto) {
+        return planningCategoryItemService.revoke(idsDto.getId());
     }
 
     @ApiOperation(value = "坑位信息下发(坑位信息下发到产品季总览)")
@@ -155,6 +174,12 @@ public class PlanningController extends BaseController {
     public boolean seatSend(@Valid @RequestBody List<PlanningCategoryItemSaveDto> item) {
         return planningCategoryItemService.seatSend(item);
 
+    }
+
+    @ApiOperation(value = "查询坑位列表")
+    @PostMapping("/seatList")
+    public PageInfo<PlanningSeasonOverviewVo> seatList(@Valid @RequestBody ProductCategoryItemSearchDto dto) {
+        return planningCategoryItemService.findProductCategoryItem(dto);
     }
 
     @ApiOperation(value = "修改图片")
@@ -202,8 +227,8 @@ public class PlanningController extends BaseController {
     @ApiOperation(value = "删除产品季")
     @DeleteMapping("/planningSeason")
     public boolean delPlanningSeason(@Valid @NotNull(message = "编号不能为空") String id) {
-        if (planningSeasonService.checkPlanningSeasonHasBand(id)) {
-            throw new OtherException("存在波段企划无法删除");
+        if (planningSeasonService.checkPlanningSeasonHasSub(id)) {
+            throw new OtherException("存在渠道企划无法删除");
         }
         return planningSeasonService.delPlanningSeason(id);
     }
@@ -225,7 +250,7 @@ public class PlanningController extends BaseController {
     @GetMapping("/getTeamUserList")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "planningSeasonId", value = "产品季id", paramType = "query", required = true),
-            @ApiImplicitParam(name = "post", value = "岗位,名称，编码", paramType = "query"),
+            @ApiImplicitParam(name = "post", value = "操作人", paramType = "query"),
     })
     public List<UserCompany> getTeamUserList(@Valid @NotBlank(message = "产品季id不能为空") String planningSeasonId, String post) {
         return amcFeignService.getTeamUserListByPost(planningSeasonId, post);

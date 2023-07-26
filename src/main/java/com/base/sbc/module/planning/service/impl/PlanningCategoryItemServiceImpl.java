@@ -16,7 +16,6 @@ import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseEntity;
@@ -26,12 +25,14 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
+import com.base.sbc.module.common.vo.CountVo;
 import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FieldValService;
@@ -101,6 +102,10 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
     @Autowired
     PlanningCategoryService planningCategoryService;
+    @Autowired
+    PlanningChannelService planningChannelService;
+
+
     private IdGen idGen = new IdGen();
 
     /**
@@ -150,6 +155,21 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
     @Override
     public String getNextCode(String brand, String year, String season, String category) {
+        Map<String, String> params = genNexcCodeParams(brand, year, season, category);
+        GetMaxCodeRedis getMaxCode = new GetMaxCodeRedis(ccmService);
+        String planningDesignNo = getMaxCode.genCode("PLANNING_DESIGN_NO", params);
+        return planningDesignNo;
+    }
+
+    @Override
+    public List<String> getNextCode(String brand, String year, String season, String category, int count) {
+        Map<String, String> params = genNexcCodeParams(brand, year, season, category);
+        GetMaxCodeRedis getMaxCode = new GetMaxCodeRedis(ccmService);
+        List<String> planningDesignNo = getMaxCode.genCode("PLANNING_DESIGN_NO", count, params);
+        return planningDesignNo;
+    }
+
+    private Map<String, String> genNexcCodeParams(String brand, String year, String season, String category) {
         if (StrUtil.contains(category, StrUtil.COMMA)) {
             category = getCategory(category);
         }
@@ -163,10 +183,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         params.put("year", year);
         params.put("season", season);
         params.put("category", category);
-        GetMaxCodeRedis getMaxCode = new GetMaxCodeRedis(ccmService);
-        String planningDesignNo = getMaxCode.genCode("PLANNING_DESIGN_NO", params);
-        return planningDesignNo;
+        return params;
     }
+
 
     @Transactional(readOnly = false)
     public boolean delByPlanningCategory(String companyCode, List<String> ids) {
@@ -224,7 +243,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public void updateCategoryItem(String planningBandId, List<PlanningCategoryItemSaveDto> item) {
+    public void updateCategoryItem(List<PlanningCategoryItemSaveDto> item) {
         for (PlanningCategoryItemSaveDto dto : item) {
             PlanningCategoryItem categoryItem = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
             // 修改
@@ -258,7 +277,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             return null;
         }
         // 替换,保留流水号
-        String formatStr=CollUtil.join(textFormats, "");
+        String formatStr = CollUtil.join(textFormats, "");
         MessageFormat mf = new MessageFormat(formatStr);
         try {
             Object[] parse = mf.parse(maxCode);
@@ -336,34 +355,30 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         return true;
     }
 
-    @Override
-    public ApiResult findProductCategoryItem(ProductCategoryItemSearchDto dto) {
+    private void setSeatQw(QueryWrapper<PlanningCategoryItem> qw, ProductCategoryItemSearchDto dto) {
 
+    }
+
+    @Override
+    public PageInfo<PlanningSeasonOverviewVo> findProductCategoryItem(ProductCategoryItemSearchDto dto) {
         QueryWrapper<PlanningCategoryItem> qw = new QueryWrapper();
         // 设计款号
         qw.and(StrUtil.isNotBlank(dto.getSearch()), qwi -> qwi.like("c.design_no", dto.getSearch()).or().like("s.name", dto.getSearch()));
         //产品季
         qw.eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "c.planning_season_id", dto.getPlanningSeasonId());
         //月份
-        qw.eq(StrUtil.isNotBlank(dto.getMonth()), "b.month", dto.getMonth());
+        qw.eq(StrUtil.isNotBlank(dto.getMonth()), "c.month", dto.getMonth());
         //波段
-        qw.eq(StrUtil.isNotBlank(dto.getBandCode()), "b.band_code", dto.getBandCode());
-
+        qw.eq(StrUtil.isNotBlank(dto.getBandCode()), "c.band_code", dto.getBandCode());
+        qw.eq(StrUtil.isNotBlank(dto.getPlanningChannelId()), "c.planning_channel_id", dto.getPlanningChannelId());
         // 品类
-        qw.in(CollUtil.isNotEmpty(dto.getCategoryIds()), "c.category_id", dto.getCategoryIds());
-        // 波段企划
-        qw.eq(StrUtil.isNotBlank(dto.getPlanningBandId()), "c.planning_band_id", dto.getPlanningBandId());
+        qw.in(CollUtil.isNotEmpty(dto.getCategoryIds()), "c.prod_category", dto.getCategoryIds());
         // 设计师
         qw.in(CollUtil.isNotEmpty(dto.getDesignerIds()), "c.designer_id", dto.getDesignerIds());
         // 任务等级
         qw.in(CollUtil.isNotEmpty(dto.getTaskLevels()), "c.task_level", dto.getTaskLevels());
-        // 状态 多选
-        //qw.in(CollUtil.isNotEmpty(dto.getStatusList()), "c.status", dto.getStatusList());
-        // 状态 单个
-        //qw.eq(StrUtil.isNotBlank(dto.getStatus()), "c.status", dto.getStatus());
-        // 坑位信息已下发
-        qw.ne("c.status", BasicNumber.ZERO.getNumber());
-        dto.setOrderBy("c.status asc ,c.id desc ");
+        // 状态
+        qw.in(StrUtil.isNotBlank(dto.getStatus()), "c.status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
         Page<PlanningSeasonOverviewVo> objects = PageHelper.startPage(dto);
         getBaseMapper().listSeat(qw);
         PageInfo<PlanningSeasonOverviewVo> pageInfo = objects.toPageInfo();
@@ -393,9 +408,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                 }
             }
         }
-
-
-        return ApiResult.success("SUCCESS_OK", pageInfo, null);
+        return pageInfo;
     }
 
     @Override
@@ -407,8 +420,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         qw.eq("b.planning_season_id", dto.getPlanningSeasonId());
         qw.eq("c.planning_season_id", dto.getPlanningSeasonId());
 
-        List<String> categoryIds=selectCategoryIdsByBand(qw);
-        if(CollUtil.isEmpty(categoryIds)){
+        List<String> categoryIds = selectCategoryIdsByBand(qw);
+        if (CollUtil.isEmpty(categoryIds)) {
             return null;
         }
         return ccmFeignService.findStructureTreeByCategoryIds(CollUtil.join(categoryIds, ","));
@@ -418,23 +431,23 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public boolean send(List<PlanningCategoryItem> categoryItemList) {
         // 1、保存
-        List<AllocationDesignDto> allocationDesignDtoList =new ArrayList<>(16);
-        List<SetTaskLevelDto> setTaskLevelDtoList= new ArrayList<>(16);
+        List<AllocationDesignDto> allocationDesignDtoList = new ArrayList<>(16);
+        List<SetTaskLevelDto> setTaskLevelDtoList = new ArrayList<>(16);
         // 坑位id
-        List<String> itemIds=new ArrayList<>(16);
+        List<String> itemIds = new ArrayList<>(16);
         // 产品季id
-        List<String> seasonIds=new ArrayList<>(16);
+        List<String> seasonIds = new ArrayList<>(16);
         // 波段企划Id
-        List<String> bandIds=new ArrayList<>(16);
+        List<String> bandIds = new ArrayList<>(16);
         //图片信息
-        List<String>fileUrls=new ArrayList<>(16);
+        List<String> fileUrls = new ArrayList<>(16);
         for (PlanningCategoryItem planningCategoryItem : categoryItemList) {
             allocationDesignDtoList.add(BeanUtil.copyProperties(planningCategoryItem, AllocationDesignDto.class));
             setTaskLevelDtoList.add(BeanUtil.copyProperties(planningCategoryItem, SetTaskLevelDto.class));
             itemIds.add(planningCategoryItem.getId());
             seasonIds.add(planningCategoryItem.getPlanningSeasonId());
             bandIds.add(planningCategoryItem.getPlanningBandId());
-            if(StrUtil.isNotBlank(planningCategoryItem.getStylePic())){
+            if (StrUtil.isNotBlank(planningCategoryItem.getStylePic())) {
                 fileUrls.add(planningCategoryItem.getStylePic());
             }
         }
@@ -444,34 +457,34 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         this.setTaskLevel(setTaskLevelDtoList);
 
         // 2 状态修改为已下发 下发时间
-        UpdateWrapper<PlanningCategoryItem> uw=new UpdateWrapper<>();
+        UpdateWrapper<PlanningCategoryItem> uw = new UpdateWrapper<>();
         uw.set("status", "2");
         uw.set("send_date", new Date());
         uw.in("id", itemIds);
         update(uw);
         // 3 将数据写入样衣设计
         // 查询已经下发的任务
-        QueryWrapper<SampleDesign> existsQw=new QueryWrapper<>();
-        existsQw.in("planning_category_item_id",itemIds);
+        QueryWrapper<SampleDesign> existsQw = new QueryWrapper<>();
+        existsQw.in("planning_category_item_id", itemIds);
         List<SampleDesign> dbItemList = sampleDesignService.list(existsQw);
         Map<String, SampleDesign> dbItemMap = Optional.ofNullable(dbItemList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.toMap(k -> k.getPlanningCategoryItemId(), v -> v, (a, b) -> b));
         // 查询产品季
-        QueryWrapper<PlanningSeason> seasonQw=new QueryWrapper<>();
-        seasonQw.in("id",seasonIds);
+        QueryWrapper<PlanningSeason> seasonQw = new QueryWrapper<>();
+        seasonQw.in("id", seasonIds);
         List<PlanningSeason> seasonList = planningSeasonService.list(seasonQw);
         Map<String, PlanningSeason> seasonMap = Optional.ofNullable(seasonList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b));
         // 查询波段企划
-        QueryWrapper<PlanningBand> bandQw=new QueryWrapper<>();
-        bandQw.in("id",bandIds);
+        QueryWrapper<PlanningBand> bandQw = new QueryWrapper<>();
+        bandQw.in("id", bandIds);
         List<PlanningBand> bandList = planningBandService.list(bandQw);
         // 图片文件id
-        Map<String,String> fileUrlId=uploadFileService.findMapByUrls(fileUrls);
+        Map<String, String> fileUrlId = uploadFileService.findMapByUrls(fileUrls);
         Map<String, PlanningBand> bandMap = Optional.ofNullable(bandList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b));
 
-        List<SampleDesign> sampleDesignList =new ArrayList<>(16);
+        List<SampleDesign> sampleDesignList = new ArrayList<>(16);
 
         for (PlanningCategoryItem item : categoryItemList) {
-            if(dbItemMap.containsKey(item.getId())){
+            if (dbItemMap.containsKey(item.getId())) {
                 continue;
             }
             SampleDesign sampleDesign = PlanningUtils.toSampleDesign(seasonMap.get(item.getPlanningSeasonId()), bandMap.get(item.getPlanningBandId()), item);
@@ -595,11 +608,6 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         seatUw.eq("status", BasicNumber.ZERO.getNumber());
         seatUw.in("id", seatIds);
         update(seatUw);
-        //修改波段为已下发
-        UpdateWrapper<PlanningBand> bandUw = new UpdateWrapper<>();
-        bandUw.set("status", BaseGlobal.STOCK_STATUS_CHECKED);
-        bandUw.in("id", bandIds);
-        planningBandService.update(bandUw);
         return true;
     }
 
@@ -630,6 +638,86 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             }
         }
         return result;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean addSeat(AddSeatDto dto) {
+        //查询渠道信息
+        PlanningChannel channel = planningChannelService.getById(dto.getPlanningChannelId());
+        if (channel == null) {
+            throw new OtherException("渠道信息为空");
+        }
+        PlanningCategoryItem base = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
+        BeanUtil.copyProperties(channel, base);
+        //获取设计编号
+        List<String> nextCode = getNextCode(base.getBrand(), base.getYear(), base.getSeason(), base.getProdCategory(), dto.getCount());
+        if (CollUtil.isEmpty(nextCode)) {
+            throw new OtherException("设计编号生成失败");
+        }
+        List<PlanningCategoryItem> saveList = new ArrayList<>(16);
+        for (String s : nextCode) {
+            PlanningCategoryItem categoryItem = BeanUtil.copyProperties(base, PlanningCategoryItem.class);
+            categoryItem.setId(null);
+            CommonUtils.resetCreateUpdate(categoryItem);
+            categoryItem.setDesignNo(s);
+            saveList.add(categoryItem);
+        }
+        return saveBatch(saveList);
+    }
+
+    @Override
+    public List<BasicStructureTreeVo> categoryTree(String planningChannelId) {
+
+        List<BasicStructureTreeVo> tree = ccmFeignService.basicStructureTreeByCode("品类", null, "0,1");
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq(StrUtil.isNotBlank(planningChannelId), "planning_channel_id", planningChannelId);
+        List<CountVo> counts = getBaseMapper().countCategoryByChannelId(qw);
+        if (CollUtil.isEmpty(counts)) {
+            return tree;
+        }
+        Map<String, Long> collect = counts.stream().collect(Collectors.toMap(k -> k.getLabel(), v -> v.getCount()));
+        setTreeCount(tree, collect);
+        return tree;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean revoke(String ids) {
+        // 查询样衣设计数据
+        QueryWrapper<SampleDesign> sdQw = new QueryWrapper();
+        List<String> seatIds = StrUtil.split(ids, CharUtil.COMMA);
+        sdQw.in("planning_category_item_id", seatIds);
+        List<SampleDesign> sdList = sampleDesignService.list(sdQw);
+        //判断是否已开款
+        if (CollUtil.isNotEmpty(sdList)) {
+            String designNos = sdList.stream()
+                    .filter(a -> StrUtil.equalsAny(a.getStatus(), BasicNumber.ONE.getNumber(), BasicNumber.TWO.getNumber()))
+                    .map(a -> a.getDesignNo()).collect(Collectors.joining(StrUtil.COMMA));
+            if (StrUtil.isNotBlank(designNos)) {
+                throw new OtherException(designNos + "已开款无法撤回");
+            }
+        }
+        UpdateWrapper<PlanningCategoryItem> uw = new UpdateWrapper<>();
+        uw.in("id", seatIds);
+        uw.set("status", "-1");
+        update(uw);
+        sampleDesignService.remove(sdQw);
+        return true;
+    }
+
+    private void setTreeCount(List<BasicStructureTreeVo> tree, Map<String, Long> counts) {
+        if (CollUtil.isEmpty(tree) || CollUtil.isEmpty(counts)) {
+            return;
+        }
+        for (BasicStructureTreeVo t : tree) {
+            Long aLong = counts.get(t.getValue());
+            if (aLong != null) {
+                t.setName(StrUtil.format("{} ({})", t.getName(), aLong));
+            }
+            setTreeCount(t.getChildren(), counts);
+        }
+
     }
 
 

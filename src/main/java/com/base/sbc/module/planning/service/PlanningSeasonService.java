@@ -76,9 +76,10 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
 
     /**
      * 检查产品季是否有波段企划
+     *
      * @param id
      */
-    boolean checkPlanningSeasonHasBand(String id);
+    boolean checkPlanningSeasonHasSub(String id);
 
     /**
      * 获取企业和产品季的树形结构

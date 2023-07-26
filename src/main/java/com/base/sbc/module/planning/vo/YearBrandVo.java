@@ -28,9 +28,11 @@ public class YearBrandVo {
 
     @ApiModelProperty(value = "数量", example = "100")
     private int total;
+    @ApiModelProperty(value = "级别", example = "0")
+    private int level = 0;
 
     public String getLabel() {
-        return this.yearName + this.brandName + "(" + total + ")";
+        return this.yearName + "(" + total + ")";
     }
 
     @ApiModelProperty(value = "产品季")

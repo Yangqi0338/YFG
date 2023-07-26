@@ -12,7 +12,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.TeamVo;
-import com.base.sbc.client.amc.entity.CompanyPost;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.vo.FieldDataPermissionVO;
 import com.base.sbc.config.common.ApiResult;
@@ -28,7 +27,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 类描述： 用户信息
@@ -158,14 +156,6 @@ public class AmcFeignService {
 
     public List<UserCompany> getTeamUserListByPost(String planningSeasonId, String post) {
         List<UserCompany> userList = getUsersBySeasonId(planningSeasonId, BaseGlobal.YES, post);
-        if (CollUtil.isNotEmpty(userList) && StrUtil.isNotBlank(post)) {
-            List<UserCompany> collect = userList.stream().filter(user -> {
-                CompanyPost one = CollUtil.findOne(user.getPostList(), a -> StrUtil.equalsAny(post, a.getName(), a.getCode()));
-                return one != null;
-            }).collect(Collectors.toList());
-            return collect;
-        }
-
         return userList;
     }
 

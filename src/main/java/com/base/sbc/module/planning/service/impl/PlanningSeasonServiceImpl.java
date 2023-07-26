@@ -21,13 +21,10 @@ import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
 import com.base.sbc.module.planning.dto.ProductSeasonExpandByCategorySearchDto;
-import com.base.sbc.module.planning.entity.PlanningBand;
+import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
-import com.base.sbc.module.planning.service.PlanningBandService;
-import com.base.sbc.module.planning.service.PlanningCategoryItemService;
-import com.base.sbc.module.planning.service.PlanningCategoryService;
-import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.*;
 import com.base.sbc.module.sample.vo.ChartBarVo;
@@ -67,6 +64,9 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     private PlanningCategoryService planningCategoryService;
     @Resource
     private PlanningBandService planningBandService;
+
+    @Resource
+    private PlanningChannelService planningChannelService;
     @Resource
     private PlanningCategoryItemService planningCategoryItemService;
     @Resource
@@ -168,12 +168,12 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     }
 
     @Override
-    public boolean checkPlanningSeasonHasBand(String id) {
+    public boolean checkPlanningSeasonHasSub(String id) {
         // 波段企划信息
-        QueryWrapper<PlanningBand> qw = new QueryWrapper<>();
+        QueryWrapper<PlanningChannel> qw = new QueryWrapper<>();
         qw.eq("planning_season_id", id);
         qw.eq(DEL_FLAG, BaseEntity.DEL_FLAG_NORMAL);
-        long i = planningBandService.count(qw);
+        long i = planningChannelService.count(qw);
         if (i > 0) {
             return true;
         }

@@ -9,6 +9,7 @@ package com.base.sbc.module.planning.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.module.common.vo.CountVo;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
@@ -52,4 +53,6 @@ public interface PlanningCategoryItemMapper extends BaseMapper<PlanningCategoryI
     List<Map<String, Long>> totalSkcByPlanningSeason(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     List<Map<String, Long>> totalSkcByChannel(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    List<CountVo> countCategoryByChannelId(@Param(Constants.WRAPPER) QueryWrapper qw);
 }
