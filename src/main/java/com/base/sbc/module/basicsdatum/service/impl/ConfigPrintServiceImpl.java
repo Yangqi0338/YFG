@@ -54,6 +54,7 @@ public class ConfigPrintServiceImpl extends BaseServiceImpl<ConfigPrintMapper, C
 		qc.notEmptyEq("stop_flag", queryDto.getStopFlag());
 		qc.notEmptyEq("status", queryDto.getStatus());
 		qc.notEmptyLike("remarks", queryDto.getRemarks());
+		qc.orderByDesc("update_date");
 		List<ConfigPrint> basicsdatumModelTypeList = this.list(qc);
 		PageInfo<ConfigPrint> pageInfo = new PageInfo<>(basicsdatumModelTypeList);
 		return CopyUtil.copy(pageInfo, ConfigPrintVo.class);
