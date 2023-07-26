@@ -31,7 +31,16 @@ public interface StylePricingService extends BaseService<StylePricing> {
      * @param stylePricingSearchDTO
      * @return
      */
-    PageInfo<StylePricingVO> getPage(StylePricingSearchDTO stylePricingSearchDTO);
+    PageInfo<StylePricingVO> getStylePricingList(StylePricingSearchDTO stylePricingSearchDTO);
+
+    /**
+     * 通过资料包id获取
+     *
+     * @param packId
+     * @param companyCode
+     * @return
+     */
+    StylePricingVO getByPackId(String packId, String companyCode);
 
     void insertOrUpdate();
 

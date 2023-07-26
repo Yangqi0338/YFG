@@ -20,6 +20,7 @@ import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,20 +48,29 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     private PackBomService packBomService;
 
     @Override
-    public PageInfo<StylePricingVO> getPage(StylePricingSearchDTO dto) {
+    public PageInfo<StylePricingVO> getStylePricingList(StylePricingSearchDTO dto) {
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(dto);
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return page.toPageInfo();
         }
 
+        this.dataProcessing(stylePricingList, dto.getCompanyCode());
+        return new PageInfo<>(stylePricingList);
+    }
+
+    /**
+     * 数据组装处理
+     *
+     * @param stylePricingList
+     * @param companyCode
+     */
+    private void dataProcessing(List<StylePricingVO> stylePricingList, String companyCode) {
         List<String> packId = stylePricingList.stream()
                 .map(StylePricingVO::getId)
                 .collect(Collectors.toList());
-        Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, dto.getCompanyCode());
+        Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, companyCode);
         Map<String, List<PackBomCalculateBaseVo>> packBomCalculateBaseVoS = this.getPackBomCalculateBaseVoS(packId);
-
-
         stylePricingList.forEach(stylePricingVO -> {
             List<PackBomCalculateBaseVo> packBomCalculateBaseVos = packBomCalculateBaseVoS.get(stylePricingVO.getId() + stylePricingVO.getPackType());
             stylePricingVO.setMaterialCost(this.getMaterialCost(packBomCalculateBaseVos));
@@ -77,7 +87,22 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             //实际倍率 = 吊牌价/总成本
             stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getTotalCost()));
         });
-        return new PageInfo<>(stylePricingList);
+    }
+
+    @Override
+    public StylePricingVO getByPackId(String packId, String companyCode) {
+        if (StringUtils.isEmpty(packId)) {
+            throw new RuntimeException("资料包id不可为空");
+        }
+        StylePricingSearchDTO stylePricingSearchDTO = new StylePricingSearchDTO();
+        stylePricingSearchDTO.setPackId(packId);
+        stylePricingSearchDTO.setCompanyCode(companyCode);
+        List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(stylePricingSearchDTO);
+        if (CollectionUtils.isEmpty(stylePricingList)) {
+            return null;
+        }
+        this.dataProcessing(stylePricingList, companyCode);
+        return stylePricingList.get(0);
     }
 
     @Override

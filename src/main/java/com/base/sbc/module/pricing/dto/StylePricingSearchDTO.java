@@ -29,4 +29,6 @@ public class StylePricingSearchDTO extends Page {
     @ApiModelProperty(value = "品名")
     private String productName;
 
+    private String packId;
+
 }

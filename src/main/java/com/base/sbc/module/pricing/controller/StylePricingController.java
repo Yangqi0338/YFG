@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.controller;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.service.StylePricingService;
@@ -13,13 +14,13 @@ import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 /**
  * 类描述：款式定价 Controller类
@@ -34,17 +35,22 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "款式定价")
 @RequestMapping(value = BaseController.SAAS_URL + "/stylePricing", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class StylePricingController {
+public class StylePricingController extends BaseController {
 
     @Autowired
     private StylePricingService stylePricingService;
 
-    @ApiOperation(value = "分页查询")
-    @GetMapping("/getPage")
-    public PageInfo<StylePricingVO> getPage(@RequestBody StylePricingSearchDTO stylePricingSearchDTO) {
-        return stylePricingService.getPage(stylePricingSearchDTO);
+    @ApiOperation(value = "获取款式定价列表")
+    @PostMapping("/getStylePricingList")
+    public PageInfo<StylePricingVO> getStylePricingList(@Valid @RequestBody StylePricingSearchDTO stylePricingSearchDTO) {
+        return stylePricingService.getStylePricingList(stylePricingSearchDTO);
     }
 
+    @ApiOperation(value = "通过资料包id获取")
+    @GetMapping("/getByPackId")
+    public ApiResult getByPackId(@Valid @NotBlank(message = "资料包id不可为空") String packId) {
+        return selectSuccess(stylePricingService.getByPackId(packId, super.getUserCompany()));
+    }
 
 }
 
