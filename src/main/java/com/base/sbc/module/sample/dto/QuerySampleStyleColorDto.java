@@ -20,4 +20,5 @@ public class QuerySampleStyleColorDto extends Page {
 
     private String subdivide;
 
+
 }

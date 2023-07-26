@@ -29,6 +29,8 @@ public class PreProductionSampleTaskDetailVo {
     @ApiModelProperty(value = "任务信息")
     private PreProductionSampleTaskVo task;
 
+    @ApiModelProperty(value = "样衣设计信息")
+    private PreProductionSampleVo pre;
     @ApiModelProperty(value = "附件信息")
     private List<AttachmentVo> attachmentList;
 

@@ -1,6 +1,5 @@
 package com.base.sbc.mdToImg;
 
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
@@ -10,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
@@ -33,7 +31,7 @@ public class HtmlToImgTest {
 			content = content.substring(0, content.length() - 5);
 		}
 		System.out.println(content);
-		content = "<div style=\"font-size:20px;width:600px\">" + content + "</div>";
+		content = "<div style=\"font-size:16px;width:600px\">" + content + "</div>";
 		content = content.replace("<p>", "<p style=\"line-height:28px;margin:0px\">");
 		content = content.replace("<strong>", "<strong style=\"line-height:28px;color:red\">");
 
@@ -41,25 +39,28 @@ public class HtmlToImgTest {
 		HtmlImageGenerator gen = new HtmlImageGenerator();
 		gen.loadHtml(content);
 //		gen.getBufferedImage();// 获取图片流
+
 		BufferedImage bufferedImage = gen.getBufferedImage();
-		ImageIcon imageIcon = new ImageIcon(bufferedImage);
-		Graphics2D g2D = (Graphics2D) bufferedImage.getGraphics();
-		g2D.drawImage(imageIcon.getImage(), 0, 0, imageIcon.getImageObserver());
-		int alpha = 0;
-		for (int j1 = bufferedImage.getMinY(); j1 < bufferedImage.getHeight(); j1++) {
-			for (int j2 = bufferedImage.getMinX(); j2 < bufferedImage.getWidth(); j2++) {
-				int rgb = bufferedImage.getRGB(j2, j1);
-				int R = (rgb & 0xff0000) >> 16;
-				int G = (rgb & 0xff00) >> 8;
-				int B = (rgb & 0xff);
-				if (((255 - R) < 30) && ((255 - G) < 30) && ((255 - B) < 30)) {
-					rgb = ((alpha + 1) << 24) | (rgb & 0x00ffffff);
-				}
-				bufferedImage.setRGB(j2, j1, rgb);
-			}
-		}
-		g2D.drawImage(bufferedImage, 0, 0, imageIcon.getImageObserver());
+
+//		ImageIcon imageIcon = new ImageIcon(bufferedImage);
+//		Graphics2D g2D = (Graphics2D) bufferedImage.getGraphics();
+//		g2D.drawImage(imageIcon.getImage(), 0, 0, imageIcon.getImageObserver());
+//		int alpha = 0;
+//		for (int j1 = bufferedImage.getMinY(); j1 < bufferedImage.getHeight(); j1++) {
+//			for (int j2 = bufferedImage.getMinX(); j2 < bufferedImage.getWidth(); j2++) {
+//				int rgb = bufferedImage.getRGB(j2, j1);
+//				int R = (rgb & 0xff0000) >> 16;
+//				int G = (rgb & 0xff00) >> 8;
+//				int B = (rgb & 0xff);
+//				if (((255 - R) < 30) && ((255 - G) < 30) && ((255 - B) < 30)) {
+//					rgb = ((alpha + 1) << 24) | (rgb & 0x00ffffff);
+//				}
+//				bufferedImage.setRGB(j2, j1, rgb);
+//			}
+//		}
+//		g2D.drawImage(bufferedImage, 0, 0, imageIcon.getImageObserver());
 		ImageIO.write(bufferedImage, "png", new File(saveImageLocation));// 直接输出文件
+
 //		gen.saveAsImage(saveImageLocation);
 //		return bufferedImage;
 

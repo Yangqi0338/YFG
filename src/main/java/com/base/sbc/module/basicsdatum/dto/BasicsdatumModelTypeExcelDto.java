@@ -50,6 +50,9 @@ public class BasicsdatumModelTypeExcelDto  {
     @ApiModelProperty(value = "基础 尺码"  )
     @Excel(name = "基础 尺码")
     private String basicsSize;
+    /** 基础 尺码排序 */
+    @ApiModelProperty(value = "基础 尺码排序"  )
+    private String basicsSizeSort;
     /** 款式确认(0确定，1未确认) */
     @ApiModelProperty(value = "款式确认(1确定，0未确认)"  )
     @Excel(name = "款式确认", replace = {"false_0", "true_1"} )
@@ -79,7 +82,8 @@ public class BasicsdatumModelTypeExcelDto  {
     @Excel(name = "状态(0正常,1停用)")
     private String status;
     private String sizeIds;
-
+    @ApiModelProperty(value = "尺码编码"  )
+    private String  sizeCode;
 
     private List<BasicsdatumCompanyRelation> basicsdatumCompanyRelation;
 }

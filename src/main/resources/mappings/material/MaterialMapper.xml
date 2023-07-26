@@ -32,6 +32,9 @@
         <if test="fileInfo != null and fileInfo != ''">
             and file_info like concat('%',#{fileInfo},'%')
         </if>
+        <if test="search != null and search != ''">
+            and file_info like concat('%',#{search},'%')
+        </if>
         <if test="categoryId != null and categoryId != ''">
             and category_id = #{categoryId}
         </if>

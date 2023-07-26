@@ -603,5 +603,34 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         return true;
     }
 
+    @Override
+    public Map<String, Long> totalSkcByPlanningSeason() {
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        Map<String, Long> result = new HashMap<>(16);
+        List<Map<String, Long>> list = getBaseMapper().totalSkcByPlanningSeason(qw);
+        if (CollUtil.isNotEmpty(list)) {
+            for (Map<String, Long> stringLongMap : list) {
+                result.putAll(stringLongMap);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, Long> totalSkcByChannel(List<String> channelIds) {
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.in("planning_channel_id", channelIds);
+        Map<String, Long> result = new HashMap<>(16);
+        List<Map<String, Long>> list = getBaseMapper().totalSkcByChannel(qw);
+        if (CollUtil.isNotEmpty(list)) {
+            for (Map<String, Long> stringLongMap : list) {
+                result.putAll(stringLongMap);
+            }
+        }
+        return result;
+    }
+
 
 }

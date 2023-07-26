@@ -222,6 +222,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException("没有配色信息");
         }
         copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
+        PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
+        //设置为已转大货
+        packDesignStatus.setBomStatus(BasicNumber.ONE.getNumber());
+        packInfoStatusService.updateById(packDesignStatus);
         PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
         //设置为已转大货
         packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
@@ -280,6 +284,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 FlowableService.big_goods_reverse, id,
                 "/pdm/api/saas/packInfo/reverseApproval",
                 "/pdm/api/saas/packInfo/reverseApproval",
+                "/pdm/api/saas/packInfo/reverseApproval",
                 StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
                 variables);
         return true;
@@ -297,6 +302,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         Map<String, Object> variables = BeanUtil.beanToMap(pack);
         boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]",
                 FlowableService.big_goods_reverse, id,
+                "/pdm/api/saas/packInfo/approval",
                 "/pdm/api/saas/packInfo/approval",
                 "/pdm/api/saas/packInfo/approval",
                 StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
@@ -320,6 +326,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
                 packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
                 packInfoStatus.setPostTechConfirm(BaseGlobal.NO);
+            } else {
+                packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
             }
             packInfoStatusService.updateById(packInfoStatus);
         }
@@ -382,6 +390,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
                 packInfoStatus.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
+            } else {
+                packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
             }
             packInfoStatusService.updateById(packInfoStatus);
         }

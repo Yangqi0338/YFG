@@ -59,12 +59,13 @@ public class BandServiceImpl extends BaseServiceImpl<BandMapper, Band> implement
                 bandExcelDto.setMonth(month >= 10 ? String.valueOf(month)  : "0"+String.valueOf( month) );
             }
             /*季节*/
-            if (StringUtils.isNotEmpty(bandExcelDto.getSeason())) {
+            if (StringUtils.isNotEmpty(bandExcelDto.getSeasonName())) {
                 for (Map.Entry<String, String> entry : map.entrySet()) {
                     String key = entry.getKey();
                     String value = entry.getValue();
-                    if (value.equals(bandExcelDto.getSeason())) {
+                    if (value.equals(bandExcelDto.getSeasonName())) {
                         bandExcelDto.setSeason(key);
+                        bandExcelDto.setSeasonName(value);
                         break;
                     }
                 }
@@ -102,6 +103,7 @@ public class BandServiceImpl extends BaseServiceImpl<BandMapper, Band> implement
         QueryWrapper qw = new QueryWrapper();
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.eq("code", code);
+        qw.eq("del_flag", "0");
         qw.last("limit 1");
         return getBaseMapper().getNameByCode(qw);
     }

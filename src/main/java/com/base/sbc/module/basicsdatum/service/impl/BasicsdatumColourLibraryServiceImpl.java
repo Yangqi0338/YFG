@@ -10,6 +10,7 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -25,9 +26,7 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumColourLibraryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumColourLibraryExcelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBasicsdatumColourLibraryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourGroup;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourGroupMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
@@ -35,6 +34,7 @@ import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -114,51 +114,19 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         /*查询基础资料-颜色库数据*/
         queryWrapper.orderByDesc("create_date");
         List<BasicsdatumColourLibrary> basicsdatumColourLibraryList = baseMapper.selectList(queryWrapper);
-        PageInfo<BasicsdatumColourLibrary> pageInfo = new PageInfo<>(basicsdatumColourLibraryList);
+
         /*转换vo*/
         List<BasicsdatumColourLibraryVo> list = BeanUtil.copyToList(basicsdatumColourLibraryList, BasicsdatumColourLibraryVo.class);
-        for (BasicsdatumColourLibraryVo basicsdatumColourLibraryVo : list) {
+/*        for (BasicsdatumColourLibraryVo basicsdatumColourLibraryVo : list) {
             if (StringUtils.isEmpty(basicsdatumColourLibraryVo.getColor16()) && StringUtils.isNotEmpty(basicsdatumColourLibraryVo.getColorRgb())) {
                 basicsdatumColourLibraryVo.setColor16(this.rgbToHex(basicsdatumColourLibraryVo.getColorRgb()));
             }
-        }
-        PageInfo<BasicsdatumColourLibraryVo> pageInfo1 = new PageInfo<>();
-        pageInfo1.setList(list);
-        pageInfo1.setTotal(pageInfo.getTotal());
-        pageInfo1.setPageNum(pageInfo.getPageNum());
-        pageInfo1.setPageSize(pageInfo.getPageSize());
-        return pageInfo1;
+        }*/
+        PageInfo<BasicsdatumColourLibraryVo> pageInfo = new PageInfo<>(list);
+        return pageInfo;
     }
 
-    private String rgbToHex(String rgbValue) {
-        int[] rgbComponents = extractRGB(rgbValue);
 
-        String redHex = Integer.toHexString(rgbComponents[0]);
-        String greenHex = Integer.toHexString(rgbComponents[1]);
-        String blueHex = Integer.toHexString(rgbComponents[2]);
-        // 确保十六进制字符串长度为两位
-        redHex = padLeft(redHex);
-        greenHex = padLeft(greenHex);
-        blueHex = padLeft(blueHex);
-        return "#" + redHex + greenHex + blueHex;
-    }
-
-    private String padLeft(String str) {
-        StringBuilder sb = new StringBuilder();
-        while (sb.length() + str.length() < 2) {
-            sb.append('0');
-        }
-        sb.append(str);
-        return sb.toString();
-    }
-
-    public static int[] extractRGB(String rgbValue) {
-        String[] components = rgbValue.replaceAll("[^\\d,]", "").split(",");
-        int red = Integer.parseInt(components[0].trim());
-        int green = Integer.parseInt(components[1].trim());
-        int blue = Integer.parseInt(components[2].trim());
-        return new int[]{red, green, blue};
-    }
 
     /**
      * 基础资料-颜色库导入
@@ -171,7 +139,6 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
     public Boolean basicsdatumColourLibraryImportExcel(MultipartFile file) throws Exception {
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
-        params.setHeadRows(2);
         List<BasicsdatumColourLibraryExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumColourLibraryExcelDto.class, params);
 //      过滤掉无编码数据
         list = list.stream().filter(c -> StringUtils.isNotBlank(c.getColourCode())).collect(Collectors.toList());
@@ -187,23 +154,25 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         if(StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColourCode())){
 
             /*色度*/
-            if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getChroma())) {
+            if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getChromaName())) {
                 for (Map.Entry<String, String> entry : mapColorChroma.entrySet()) {
                     String key = entry.getKey();
                     String value = entry.getValue();
-                    if (value.equals(basicsdatumColourLibraryExcelDto.getChroma())) {
+                    if (value.equals(basicsdatumColourLibraryExcelDto.getChromaName())) {
                         basicsdatumColourLibraryExcelDto.setChroma(key);
+                        basicsdatumColourLibraryExcelDto.setChromaName(value);
                         break;
                     }
                 }
             }
             /*色系*/
-            if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColorType())) {
+            if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColorTypeName())) {
                 for (Map.Entry<String, String> entry : mapColorType.entrySet()) {
                     String key = entry.getKey();
                     String value = entry.getValue();
-                    if (value.equals(basicsdatumColourLibraryExcelDto.getColorType())) {
+                    if (value.equals(basicsdatumColourLibraryExcelDto.getColorTypeName())) {
                         basicsdatumColourLibraryExcelDto.setColorType(key);
+                        basicsdatumColourLibraryExcelDto.setColorTypeName(value);
                         break;
                     }
                 }
@@ -215,8 +184,8 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
                 AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
                 basicsdatumColourLibraryExcelDto.setPicture(attachmentVo.getUrl());
             }
-            if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColorRgb()) && basicsdatumColourLibraryExcelDto.getColorRgb().indexOf("rgb") == -1) {
-                basicsdatumColourLibraryExcelDto.setColorRgb("rgb" + basicsdatumColourLibraryExcelDto.getColorRgb());
+            if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColorRgb()) && basicsdatumColourLibraryExcelDto.getColorRgb().indexOf("rgb") ==-1 ) {
+                basicsdatumColourLibraryExcelDto.setColor16(StringUtils.rgbToHex(basicsdatumColourLibraryExcelDto.getColorRgb()));
             }
          }
             libraryExcelDtoList.add(basicsdatumColourLibraryExcelDto);
@@ -329,9 +298,10 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
     }
 
     @Override
-    public List<String> getAllColourSpecification() {
+    public List<SelectOptionsVo> getAllColourSpecification(String status) {
         QueryWrapper<BasicsdatumColourLibrary> qw = new QueryWrapper<>();
         qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.eq(StrUtil.isNotBlank(status), "status", status);
         qw.ne("del_flag", BaseGlobal.YES);
         return this.getBaseMapper().getAllColourSpecification(qw);
 

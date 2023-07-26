@@ -23,6 +23,8 @@ public class BandSaveDto {
     @NotBlank(message = "季节必填")
     private String season;
 
+    private String seasonName;
+
     @ApiModelProperty(value = "编码",  required = true, example = "a")
     @NotBlank(message = "编码必填")
     private String code;

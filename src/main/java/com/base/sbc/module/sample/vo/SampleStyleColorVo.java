@@ -121,4 +121,22 @@ public class SampleStyleColorVo  {
     private String manufacturerJane;
     //    是否报次数0否 1是
     private String isDefective;
+
+    //次品名称
+    private String defectiveName;
+    /*细分名称*/
+    private String subdivideName;
+    //销售类型名称
+    private String salesTypeName;
+
+    //波段名称
+    private String bandName;
+    //生产类型名称
+    private String devtTypeName;
+/*款式风格*/
+    private String styleFlavourName;
+    /*是否上会*/
+    private String meetFlag;
+
+    private String color16;
 }

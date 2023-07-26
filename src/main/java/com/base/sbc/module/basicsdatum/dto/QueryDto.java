@@ -22,6 +22,8 @@ public class QueryDto extends Page {
     /** POM类型 */
     @ApiModelProperty(value = "POM类型"  )
     private String pdmType;
+
+    private String pdmTypeName;
     /** 号型类型 */
     @ApiModelProperty(value = "号型类型"  )
     private String modelType;

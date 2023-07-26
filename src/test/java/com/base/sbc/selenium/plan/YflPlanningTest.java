@@ -1,6 +1,7 @@
 package com.base.sbc.selenium.plan;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -10,8 +11,16 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.edge.EdgeDriver;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.context.AnalysisContext;
+import com.alibaba.excel.event.AnalysisEventListener;
+import com.base.sbc.config.utils.JsonUtils;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 企划数据抓取
@@ -20,11 +29,19 @@ import com.alibaba.excel.EasyExcel;
  * @email 731139982@qq.com
  * @date 2023年5月23日
  */
+@Slf4j
 public class YflPlanningTest {
+	static {
+		LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+		List<ch.qos.logback.classic.Logger> loggerList = loggerContext.getLoggerList();
+		loggerList.forEach(logger -> {
+			logger.setLevel(Level.INFO);
+		});
+	}
+
 	public static void main(String[] args) throws InterruptedException {
 //		System.setProperty("webdriver.chrome.driver", "D:\\下载\\chromedriver.exe");
 //		WebDriver driver = new ChromeDriver();
-
 		System.setProperty("webdriver.edge.driver", "D:\\msedgedriver.exe");
 		WebDriver driver = new EdgeDriver();
 
@@ -34,16 +51,17 @@ public class YflPlanningTest {
 		String planName = "MM商品企划";
 		String planUrl = "C308755";
 		// 获取存放路径
-		String path = "D:\\";
+		String path = "D:\\space-spring\\sjs_yfg_pdm\\src\\test\\java\\com\\base\\sbc\\selenium\\plan\\";
+		Date dateStart = new Date();
+		log.info("开始");
 
-		System.out.println("开始获取企划文件夹数据");
-		// 获取企划文件夹数据
-		List<PlanFold> planFold = getPlanFold(driver, planName, planUrl);
-		// 写入excel
-		EasyExcel.write(path + planName + "_企划文件夹.xlsx", PlanFold.class).sheet("企划文件夹").doWrite(planFold);
+//		// 获取企划文件夹数据
+//		List<PlanFold> planFold = getPlanFold(driver, planName, planUrl);
+//		// 写入excel
+//		EasyExcel.write(path + planName + "_企划文件夹.xlsx", PlanFold.class).sheet("企划文件夹").doWrite(planFold);
 
 
-		// 读取企划文件夹excel
+//		// 读取企划文件夹excel
 //		List<PlanFold> planFold = new ArrayList<>();
 //		EasyExcel.read(path + planName + "_企划文件夹.xlsx", PlanFold.class, new AnalysisEventListener<PlanFold>() {
 //			@Override
@@ -55,31 +73,33 @@ public class YflPlanningTest {
 //			public void doAfterAllAnalysed(AnalysisContext context) {
 //			}
 //		}).sheet().doRead();
-////		// 获取企划目标数据
-//		System.out.println("开始获取企划目标数据");
+//		// 获取企划目标数据
+//		log.info("开始获取企划目标数据，预计截止时间："+new Date(new Date().getTime()+(planFold.size()*5000)));
 //		List<PlanTarget> targetList = getPlanTarget(driver, planFold);
 //		// 写入excel
 //		EasyExcel.write(path + planName + "_企划目标.xlsx", PlanTarget.class).sheet("企划目标").doWrite(targetList);
 
+		log.info("开始获取企划计划数据");
+		// 读取企划目标excel
+		List<PlanTarget> planTarget = new ArrayList<>();
+		EasyExcel.read(path + planName + "_企划目标.xlsx", PlanTarget.class, new AnalysisEventListener<PlanTarget>() {
+			@Override
+			public void invoke(PlanTarget data, AnalysisContext context) {
+				planTarget.add(data);
+			}
 
-//		 System.out.println("开始获取企划计划数据");
-//		 //读取企划目标excel
-//		List<PlanTarget> planTarget = new ArrayList<>();
-//		EasyExcel.read(path + planName + "_企划目标.xlsx", PlanTarget.class, new AnalysisEventListener<PlanTarget>() {
-//			@Override
-//			public void invoke(PlanTarget data, AnalysisContext context) {
-//				planTarget.add(data);
-//			}
-//
-//			@Override
-//			public void doAfterAllAnalysed(AnalysisContext context) {
-//			}
-//		}).sheet().doRead();
-//		 //获取企划目标数据
-//		List<PlanPlan> planList = getPlanPlan(driver, planTarget);
-//		 //写入excel
-//		EasyExcel.write(path + planName + "_企划计划.xlsx", PlanPlan.class).sheet("企划计划").doWrite(planList);
+			@Override
+			public void doAfterAllAnalysed(AnalysisContext context) {
+			}
+		}).sheet().doRead();
+		// 获取企划目标数据
+		log.info("开始获取企划目标数据，预计截止时间：" + new Date(new Date().getTime() + (planTarget.size() * 8000)));
+		List<PlanPlan> planList = getPlanPlan(driver, planTarget);
+		// 写入excel
+		EasyExcel.write(path + planName + "_企划计划.xlsx", PlanPlan.class).sheet("企划计划").doWrite(planList);
 
+		log.info("导出完成");
+		System.out.printf("执行时长: %d 分钟", 1 + (new Date().getTime() - dateStart.getTime()) / (60 * 1000));
 	}
 
 	/**
@@ -97,11 +117,15 @@ public class YflPlanningTest {
 		driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
 		Thread.sleep(8000);
 		String nextName = "";
+		int idx = 1;
 		for (PlanTarget pt : planTarget) {
 			driver.get(pt.getSeriesUrl());
 			Thread.sleep(500);
 			driver.get(driver.getCurrentUrl());
 			Thread.sleep(3500);
+
+			log.info(pt.getMonth() + " - " + pt.getVersion() + "(" + idx + "/" + (planTarget.size()) + ")");
+			idx++;
 
 			if (!pt.getVersion().equals(nextName)) {
 				nextName = pt.getVersion();
@@ -115,19 +139,20 @@ public class YflPlanningTest {
 				versionInput.sendKeys(Keys.ENTER);
 				Thread.sleep(1000);
 			}
-
-			WebElement page = driver.findElement(By.xpath("//*[@id=\"uniqName_14_3\"]"));
-			page.click();
-			Thread.sleep(300);
-			page.clear();
-			Thread.sleep(200);
-			page.sendKeys("所有");
-			Thread.sleep(200);
-			page.sendKeys(Keys.ENTER);
-			Thread.sleep(5000);
-
+			// 如果有分页则查询全部
+			if (driver.findElement(By.xpath("//*[@id=\"dijit__WidgetBase_0\"]")).getText().contains("of")) {
+				WebElement page = driver.findElement(By.xpath("//*[@id=\"uniqName_14_3\"]"));
+				page.click();
+				Thread.sleep(300);
+				page.clear();
+				Thread.sleep(200);
+				page.sendKeys("所有");
+				Thread.sleep(200);
+				page.sendKeys(Keys.ENTER);
+				Thread.sleep(3000);
+			}
 			List<WebElement> trs = driver.findElements(
-					By.xpath("//*[starts-with(@id,\"uniqName_65_\")]/div[5]/div/div[1]/table/tbody[2]/tr"));
+					By.xpath("//*[starts-with(@id,\"uniqName_66_\")]/div[5]/div/div[1]/table/tbody[2]/tr"));
 			if (trs == null || trs.size() < 2) {
 				continue;
 			}
@@ -161,7 +186,7 @@ public class YflPlanningTest {
 				pp.setImg(tds.get(13).getText());
 				pp.setRefMaterial(tds.get(14).getText());
 				pp.setRefMaterialImg(tds.get(15).getText());
-				System.out.println(pp);
+				log.info(JsonUtils.beanToJson(pp));
 				ptList.add(pp);
 			}
 			Thread.sleep(500);
@@ -184,7 +209,13 @@ public class YflPlanningTest {
 		driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
 		Thread.sleep(5000);
 		String nextName = "";
+		int idx = 1;
 		for (PlanFold pf : planFold) {
+
+			log.info(pf.getBrand() + "-" + pf.getFold() + "-" + pf.getVersion() + "(" + idx + "/"
+					+ (planFold.size()) + ")");
+			idx++;
+
 			driver.get(pf.getFoldUrl());
 			Thread.sleep(500);
 			driver.get(driver.getCurrentUrl());
@@ -205,7 +236,7 @@ public class YflPlanningTest {
 
 			List<WebElement> trs = driver
 					.findElements(
-							By.xpath("//*[starts-with(@id,\"uniqName_65_\")]/div[5]/div/div[1]/table/tbody[2]/tr"));
+							By.xpath("//*[starts-with(@id,\"uniqName_66_\")]/div[5]/div/div[1]/table/tbody[2]/tr"));
 			if (trs == null || trs.size() < 2) {
 				continue;
 			}
@@ -225,7 +256,7 @@ public class YflPlanningTest {
 				pt.setRequireNum(tds.get(5).getText());
 				pt.setDesignNum(tds.get(6).getText());
 				pt.setDevelopmentNum(tds.get(7).getText());
-				System.out.println(pt);
+				log.info(JsonUtils.beanToJson(pt));
 				ptList.add(pt);
 			}
 			Thread.sleep(500);
@@ -252,22 +283,26 @@ public class YflPlanningTest {
 		Thread.sleep(2000);
 		WebElement versionSelect = driver.findElement(By.xpath("//*[@id=\"uniqName_14_0_popup\"]"));
 		String[] versionList = versionSelect.getText().split("\n");
-		System.out.println("获取下拉栏：" + versionList);
+		log.info("获取下拉栏：" + JsonUtils.beanToJson(versionList));
 
 		Thread.sleep(500);
 		PlanFold pf = null;
+		int idx = 1;
 		for (String v : versionList) {
 			if ("更多选项".equals(v)) {
 				continue;
 			}
+			log.info(name + "-" + v + "(" + idx + "/" + (versionList.length - 1) + ")");
+			idx++;
 			versionInput.clear();
 			Thread.sleep(500);
 			versionInput.sendKeys(v);
 			Thread.sleep(500);
 			versionInput.sendKeys(Keys.ENTER);
-			Thread.sleep(500);
+			Thread.sleep(800);
 			List<WebElement> trs = driver
-					.findElements(By.xpath("//*[@id=\"uniqName_65_0\"]/div[5]/div/div[1]/table/tbody[2]/tr"));
+					.findElements(
+							By.xpath("//*[starts-with(@id,\"uniqName_66_\")]/div[5]/div/div[1]/table/tbody[2]/tr"));
 			for (int i = 2; i < trs.size() - 1; i++) {
 				WebElement tr = trs.get(i);
 				WebElement fold = tr.findElement(By.className("browse"));
@@ -282,7 +317,7 @@ public class YflPlanningTest {
 				pf.setBigType(tds.get(2).getText());
 				pf.setType(tds.get(3).getText());
 				pf.setSkuNum(tds.get(4).getText());
-				System.out.println(pf);
+				log.info(JsonUtils.beanToJson(pf));
 				pfList.add(pf);
 			}
 		}

@@ -16,6 +16,7 @@ public class BandQueryReturnVo extends BaseDataEntity<String> {
     /** 季节 */
     @ApiModelProperty(value = "季节", example = "A")
     private String season;
+    private String seasonName;
     /** 月份 */
     @ApiModelProperty(value = "月份", example = "01")
     private String month;

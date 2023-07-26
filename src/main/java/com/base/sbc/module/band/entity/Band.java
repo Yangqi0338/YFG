@@ -23,7 +23,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_band")
+@TableName("t_basicsdatum_band")
 public class Band extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
@@ -41,6 +41,8 @@ public class Band extends BaseDataEntity<String> {
     private String particularYear;
     /** 季节 */
     private String season;
+//    季节名称
+    private String seasonName;
     /** 月份 */
     private String month;
     /** 波段名称 */

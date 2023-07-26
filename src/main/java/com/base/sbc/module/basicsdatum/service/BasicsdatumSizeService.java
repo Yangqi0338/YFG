@@ -74,7 +74,7 @@ public interface BasicsdatumSizeService extends BaseService<BasicsdatumSize> {
 
     /**
      * 获取尺码名
-     * @param ids
+     * @param sort
      * @return
      */
    Map<String,String>  getSizeName(String ids);

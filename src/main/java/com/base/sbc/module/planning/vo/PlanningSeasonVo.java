@@ -19,5 +19,4 @@ public class PlanningSeasonVo extends PlanningSeason {
 
     @ApiModelProperty(value = "团队")
     private List<TeamVo> teamList;
-
 }

@@ -1,31 +1,34 @@
 package com.base.sbc.open.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
+import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.module.basicsdatum.entity.*;
+import com.base.sbc.module.basicsdatum.service.*;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.open.dto.MtBpReqDto;
-import com.base.sbc.open.dto.SmpDeptDto;
-import com.base.sbc.open.dto.SmpPostDto;
-import com.base.sbc.open.dto.SmpUserDto;
-import com.base.sbc.open.entity.MtBqReqEntity;
-import com.base.sbc.open.entity.SmpDept;
-import com.base.sbc.open.entity.SmpPost;
-import com.base.sbc.open.entity.SmpUser;
+import com.base.sbc.open.dto.SmpOpenMaterialDto;
+import com.base.sbc.open.entity.*;
+import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.base.sbc.open.service.MtBqReqService;
+import com.base.sbc.open.service.OpenSmpService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.net.ftp.FTPClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +51,12 @@ public class OpenSmpController extends BaseController {
 
     private final HangTagService hangTagService;
 
+
+    private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
+
+    private final OpenSmpService openSmpService;
+
+
     /**
      * bp供应商
      */
@@ -56,6 +65,7 @@ public class OpenSmpController extends BaseController {
     @Transactional(rollbackFor = {Throwable.class})
     public ApiResult supplierSave(@RequestBody JSONObject jsonObject) {
         MtBpReqDto mtBpReqDto = JSONObject.parseObject(jsonObject.toJSONString(), MtBpReqDto.class);
+
 
         //先保存传过来的数据对象
         MtBqReqEntity mtBqReqEntity = mtBpReqDto.toMtBqReqEntity();
@@ -123,8 +133,11 @@ public class OpenSmpController extends BaseController {
      */
     @PostMapping("/smpMaterial")
     @ApiOperation(value = "smp-物料", notes = "smp-物料")
+
     public ApiResult smpMaterial(@RequestBody JSONObject jsonObject) {
-        System.out.println(jsonObject);
+        openSmpService.smpMaterial(jsonObject);
+
+
         return insertSuccess(null);
     }
 
@@ -137,63 +150,16 @@ public class OpenSmpController extends BaseController {
     public ApiResult tagPrinting(String id, Boolean bl) {
         List<TagPrinting> tagPrintings1 = hangTagService.hangTagPrinting(id, bl, super.getUserCompany());
         return selectSuccess(tagPrintings1);
+    }
 
-//        TagPrinting tagPrinting = new TagPrinting();
-//
-//        tagPrinting.setC8_Colorway_WareCode("ABC123");
-//        tagPrinting.setIsGift(false);
-//        tagPrinting.setColorDescription("Blue");
-//        tagPrinting.setColorCode("001");
-//        tagPrinting.setStyleCode("12345");
-//        tagPrinting.setC8_Colorway_BatchNo("BATCH001");
-//        tagPrinting.setMerchApproved(true);
-//        tagPrinting.setSecCode("SEC001");
-//        tagPrinting.setMainCode("MAIN001");
-//        tagPrinting.setC8_Colorway_SalesPrice("49.99");
-//        tagPrinting.setIsAccessories(false);
-//        tagPrinting.setC8_Colorway_Series("Series A");
-//        tagPrinting.setActive(true);
-//        tagPrinting.setC8_Colorway_SaleType("Retail");
-//        tagPrinting.setC8_Season_Brand("Brand X");
-//        tagPrinting.setC8_Collection_ProdCategory("123");
-//        tagPrinting.setTheme("Summer");
-//        tagPrinting.setC8_Style_3rdCategory("456");
-//        tagPrinting.setC8_Style_2ndCategory("789");
-//        tagPrinting.setSizeRangeCode("XL");
-//        tagPrinting.setSizeRangeName("Extra Large");
-//        tagPrinting.setProductType("T-Shirt");
-//        tagPrinting.setC8_1stProdCategory("Clothing");
-//        tagPrinting.setSizeRangeDimensionType("Dimensions");
-//        tagPrinting.setComposition("Cotton");
-//        tagPrinting.setCareSymbols("Wash with cold water");
-//        tagPrinting.setQualityClass("Class A");
-//        tagPrinting.setProductName("T-Shirt");
-//        tagPrinting.setSaftyType("Type 1");
-//        tagPrinting.setOPStandard("Standard X");
-//        tagPrinting.setApproved(true);
-//        tagPrinting.setAttention("Handle with care");
-//        tagPrinting.setTechApproved(true);
-//        tagPrinting.setSaftyTitle("Safety First");
-//        tagPrinting.setC8_APPBOM_Comment("Handle with care");
-//        tagPrinting.setStorageRequirement("Dry place");
-//
-//// 创建尺码明细对象
-//        TagPrinting.Size size = new TagPrinting.Size();
-//        size.setSIZECODE("XXXL");
-//        size.setSORTCODE("0");
-//        size.setSIZENAME("175/80A");
-//        size.setSizeID("10270");
-//        size.setEXTSIZECODE("");
-//        size.setShowIntSize(true);
-//        size.setEuropeCode("");
-//        size.setSKUFiller("");
-//        size.setSpecialSpec("");
-//
-//// 设置尺码明细
-//        ArrayList<TagPrinting.Size> sizes =new ArrayList<>();
-//        tagPrinting.setSize(sizes);
-//        ArrayList<TagPrinting> tagPrintings = new ArrayList<>();
-//        tagPrintings.add(tagPrinting);
-//        return selectSuccess(tagPrintings);
+
+    /**
+     * 面料成分检测数据接口
+     */
+    @GetMapping("/escmMaterialCompnentInspectCompany")
+    public ApiResult EscmMaterialCompnentInspectCompanyDto(@RequestBody JSONObject jsonObject){
+        EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = jsonObject.toJavaObject(EscmMaterialCompnentInspectCompanyDto.class);
+        escmMaterialCompnentInspectCompanyService.saveOrUpdate(escmMaterialCompnentInspectCompanyDto);
+        return insertSuccess(null);
     }
 }

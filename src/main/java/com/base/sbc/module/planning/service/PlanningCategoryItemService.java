@@ -23,6 +23,7 @@ import com.base.sbc.module.sample.vo.SampleUserVo;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：企划-坑位信息 service类
@@ -146,4 +147,8 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
      * @return
      */
     boolean seatSend(List<PlanningCategoryItemSaveDto> list);
+
+    Map<String, Long> totalSkcByPlanningSeason();
+
+    Map<String, Long> totalSkcByChannel(List<String> channelIds);
 }

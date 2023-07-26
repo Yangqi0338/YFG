@@ -90,9 +90,7 @@ public class SmpGoodsDto extends SmpBaseDto {
     private String sizeGroupId;
     /** 尺码组名称 */
     private String sizeGroupName;
-
-
-    /**样纸编号*/
+    /**设计款号*/
     private String styleCode;
 
     /**衣长分类id*/

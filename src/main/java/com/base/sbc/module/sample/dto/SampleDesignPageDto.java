@@ -80,4 +80,6 @@ public class SampleDesignPageDto extends Page {
     private String devtType;
 //    款式状态
     private String  styleStatus;
+//   是否上会
+    private String  meetFlag;
 }

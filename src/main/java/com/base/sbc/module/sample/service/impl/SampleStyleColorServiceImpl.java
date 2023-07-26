@@ -110,14 +110,6 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
 
         /*查询样衣-款式配色数据*/
         List<SampleStyleColorVo> sampleStyleColorList = baseMapper.getSampleStyleColorList(queryWrapper);
- /*       List<String> stringList = sampleStyleColorList.stream().filter(s -> StringUtils.isNotBlank(s.getBandCode())).map(SampleStyleColorVo::getBandCode).collect(Collectors.toList());
-        String codes = String.join(",", stringList);
-        Map<String, String> m = bandService.getNamesByCodes(codes);
-        for (SampleStyleColorVo sampleStyleColorVo : sampleStyleColorList) {
-            if (StringUtils.isNotBlank(sampleStyleColorVo.getBandCode())) {
-                sampleStyleColorVo.setBandCode(m.get(sampleStyleColorVo.getBandCode()));
-            }
-        }*/
         PageInfo<SampleStyleColorVo> pageInfo = new PageInfo<>(sampleStyleColorList);
         return pageInfo;
     }
@@ -189,14 +181,14 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
     @Transactional(rollbackFor = {Exception.class})
     public Boolean batchAddSampleStyleColor(List<AddRevampSampleStyleColorDto> list) {
 
-
+         int index =0;
         for (AddRevampSampleStyleColorDto addRevampSampleStyleColorDto : list) {
             BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(addRevampSampleStyleColorDto.getColourLibraryId());
             SampleDesign sampleDesign = sampleDesignMapper.selectById(addRevampSampleStyleColorDto.getSampleDesignId());
             addRevampSampleStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampSampleStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampSampleStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
-            addRevampSampleStyleColorDto.setStyleNo(getNextCode(addRevampSampleStyleColorDto.getSampleDesignId(), sampleDesign.getBrand(),sampleDesign.getYear(),sampleDesign.getMonth(),sampleDesign.getBandCode(),sampleDesign.getCategoryName(),sampleDesign.getDesignNo()));
+            addRevampSampleStyleColorDto.setStyleNo(getNextCode(addRevampSampleStyleColorDto.getSampleDesignId(), sampleDesign.getBrand(),sampleDesign.getYearName(),sampleDesign.getMonth(),sampleDesign.getBandName(),sampleDesign.getCategoryName(),sampleDesign.getDesignNo(),index++));
         }
         List<SampleStyleColor> sampleStyleColorList = BeanUtil.copyToList(list, SampleStyleColor.class);
         saveBatch(sampleStyleColorList);
@@ -215,10 +207,20 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
      * @return
      */
 
-    public String getNextCode(String sampleDesignId,String brand,String year,String month,String band,String category,String designNo) {
+    public String getNextCode(String sampleDesignId,String brand,String year,String month,String bandName,String category,String designNo,int index) {
         if (StrUtil.contains(category, StrUtil.COMMA)) {
             category = getCategory(category);
         }
+        if (StringUtils.isBlank(bandName)){
+            throw new OtherException("款式波段为空");
+        }
+        if (StringUtils.isBlank(month)){
+            throw new OtherException("款式月份为空");
+        }
+        if (StringUtils.isBlank(brand)){
+            throw new OtherException("款式品牌为空");
+        }
+
         String yearOn ="";
         try {
 //        获取年份
@@ -232,8 +234,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             if (!month.matches("[1-9]")) {
                 month = month.equals("10") ? "A" : month.equals("11") ? "B" : month.equals("12") ? "C" : "";
             }
-            /*波段*/
-            String bandName = band;
+
             // 使用正则表达式匹配字母
             Pattern pattern = Pattern.compile("[a-z||A-Z]");
             Matcher matcher = pattern.matcher(bandName);
@@ -247,9 +248,9 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
                 Letter = Letter.toUpperCase();
                 char[] charArray = Letter.toCharArray();
                 int char1 = charArray[0];
-                band = String.valueOf(char1-64);
+                bandName = String.valueOf(char1-64);
             }else {
-                band="";
+                bandName="";
             }
             /*流水号*/
             designNo = designNo.substring(5, 8);
@@ -258,7 +259,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
         }
 //        获取款式下的配色
         int number = baseMapper.getStyleColorNumber(sampleDesignId);
-        String styleNo =brand + yearOn + month + band + category +designNo + (number+1);
+        String styleNo =brand + yearOn + month + bandName + category +designNo + (number+1+index);
         /*查询编码是否重复*/
        int i = baseMapper.isStyleNoExist(styleNo);
        if(i!=0){
@@ -480,6 +481,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
         if(StringUtils.isNotBlank(sampleStyleColor.getBandCode()) && StringUtils.isNotBlank(updateStyleNoBandDto.getBandCode())){
             if(!sampleStyleColor.getBandCode().equals(updateStyleNoBandDto.getBandCode())){
                 sampleStyleColor.setBandCode(updateStyleNoBandDto.getBandCode());
+                sampleStyleColor.setBandName(updateStyleNoBandDto.getBandName());
             }
         }
         baseMapper.updateById(sampleStyleColor);

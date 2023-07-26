@@ -8,7 +8,6 @@ package com.base.sbc.module.sample.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -17,14 +16,15 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Date;
+
 /**
  * 类描述：样衣设计 实体类
  *
- * @author your name
+ * @author lxl
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
- * @email your email
- * @date 创建时间：2023-7-19 15:28:45
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-7-25 16:21:10
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -33,69 +33,8 @@ import java.util.Date;
 public class SampleDesign extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
-
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
-    public SmpSampleDto toSmpSampleDto() {
-        SmpSampleDto smpSampleDto = new SmpSampleDto();
-        // TODO: 2023/7/15 未完成
-        //取跟款设计师，如果跟款设计师不存在就取设计师
-        smpSampleDto.setProofingDesigner(merchDesignName == null ? designer : merchDesignName);
-        smpSampleDto.setBExtAuxiliary(null);
-        smpSampleDto.setBarcode(null);
-        smpSampleDto.setEAValidFromTime(null);
-        smpSampleDto.setEAValidToTime(null);
-        smpSampleDto.setFinished(null);
-        smpSampleDto.setMCDate(null);
-        smpSampleDto.setPmlId(null);
-        smpSampleDto.setPatDiff(patDiff);
-        smpSampleDto.setPatSeqName(patDiff);
-        smpSampleDto.setPatSeq(null);
-        smpSampleDto.setPatSeqName(null);
-        smpSampleDto.setSampleNumber(null);
-        smpSampleDto.setSampleNumberName(null);
-        smpSampleDto.setColorwayCode(styleNo);
-        smpSampleDto.setColorwayPlmId(styleName);
-        smpSampleDto.setNodeName(null);
-        smpSampleDto.setSampleReceivedDate(getCreateDate());
-        smpSampleDto.setSampleStatus(status);
-        smpSampleDto.setSampleStatusName("0".equals(status) ? "未开款" : "1".equals(status) ?  "已开款" : "已下发打板(完成)");
-        smpSampleDto.setSampleType(null);
-        smpSampleDto.setSampleTypeName(null);
 
-        String[] split = categoryName.split("/");
-
-        try {
-            smpSampleDto.setMajorCategoriesName(split[0].split(",")[0]);
-            smpSampleDto.setMajorCategories(split[0].split(",")[1]);
-            smpSampleDto.setCategoryName(split[1].split(",")[0]);
-            smpSampleDto.setCategory(split[1].split(",")[1]);
-            smpSampleDto.setMiddleClassName(split[2].split(",")[0]);
-            smpSampleDto.setMiddleClassId(split[2].split(",")[1]);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-
-
-
-        smpSampleDto.setBrandCode(brand);
-        smpSampleDto.setBrandName(null);
-        smpSampleDto.setQuarterCode(season);
-        smpSampleDto.setYear(year);
-        smpSampleDto.setDesigner(designer);
-        smpSampleDto.setPatternMaker(patternDesignName);
-
-        smpSampleDto.setTechnician(technicianName);
-
-        smpSampleDto.setStyleUrl(stylePic);
-        smpSampleDto.setStyleCode(designNo);
-        smpSampleDto.setSupplier(null);
-        smpSampleDto.setSupplierNumber(null);
-        smpSampleDto.setImgList(null);
-
-        return smpSampleDto;
-
-    }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
@@ -175,6 +114,11 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "款式类型")
     private String styleType;
+    /**
+     * 款式类型名称
+     */
+    @ApiModelProperty(value = "款式类型名称")
+    private String styleTypeName;
     /**
      * 款式图id(主图)
      */
@@ -266,11 +210,6 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "主题")
     private String subject;
     /**
-     * 主题名称
-     */
-    @ApiModelProperty(value = "主题名称")
-    private String subjectName;
-    /**
      * 版型
      */
     @ApiModelProperty(value = "版型")
@@ -281,10 +220,15 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "版型名称")
     private String plateTypeName;
     /**
-     * 号型类型
+     * 号型编码
      */
-    @ApiModelProperty(value = "号型类型")
+    @ApiModelProperty(value = "号型编码")
     private String sizeRange;
+    /**
+     * 号型名称
+     */
+    @ApiModelProperty(value = "号型名称")
+    private String sizeRangeName;
     /**
      * 开发分类
      */
@@ -305,6 +249,11 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "Default颜色")
     private String defaultColor;
+    /**
+     * Default颜色编码
+     */
+    @ApiModelProperty(value = "Default颜色编码")
+    private String defaultColorCode;
     /**
      * 目标成本
      */
@@ -351,6 +300,11 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "尺码ids")
     private String sizeIds;
     /**
+     * 尺码codes
+     */
+    @ApiModelProperty(value = "尺码codes")
+    private String sizeCodes;
+    /**
      * 设计师名称
      */
     @ApiModelProperty(value = "设计师名称")
@@ -371,20 +325,35 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "款式风格")
     private String styleFlavour;
     /**
+     * 款式风格名称
+     */
+    @ApiModelProperty(value = "款式风格名称")
+    private String styleFlavourName;
+    /**
      * 款式定位
      */
     @ApiModelProperty(value = "款式定位")
     private String positioning;
+    /**
+     * 款式定位名称
+     */
+    @ApiModelProperty(value = "款式定位名称")
+    private String positioningName;
     /**
      * 关联的素材库数量
      */
     @ApiModelProperty(value = "关联的素材库数量")
     private BigDecimal materialCount;
     /**
-     * 任务等级:普通,紧急,非常紧急
+     * 任务等级
      */
-    @ApiModelProperty(value = "任务等级:普通,紧急,非常紧急")
+    @ApiModelProperty(value = "任务等级")
     private String taskLevel;
+    /**
+     * 任务等级名称
+     */
+    @ApiModelProperty(value = "任务等级名称")
+    private String taskLevelName;
     /**
      * 开始时间
      */
@@ -504,6 +473,41 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "计划完成时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date planningFinishDate;
+    /**
+     * 特别需求:(1是,0否)
+     */
+    @ApiModelProperty(value = "特别需求:(1是,0否)")
+    private String specialNeedsFlag;
+    /**
+     * 大类名称
+     */
+    @ApiModelProperty(value = "大类名称")
+    private String prodCategory1stName;
+    /**
+     * 品类名称
+     */
+    @ApiModelProperty(value = "品类名称")
+    private String prodCategoryName;
+    /**
+     * 中类名称
+     */
+    @ApiModelProperty(value = "中类名称")
+    private String prodCategory2ndName;
+    /**
+     * 小类名称
+     */
+    @ApiModelProperty(value = "小类名称")
+    private String prodCategory3rdName;
+    /**
+     * 款式单位编码
+     */
+    @ApiModelProperty(value = "款式单位编码")
+    private String styleUnit;
+    /**
+     * 款式单位名称
+     */
+    @ApiModelProperty(value = "款式单位名称")
+    private String styleUnitCode;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

@@ -1,9 +1,13 @@
 package com.base.sbc.module.basicsdatum.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.OperationType;
+import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
 import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
 import com.base.sbc.module.basicsdatum.service.ProcessDatabaseService;
@@ -14,6 +18,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,6 +68,16 @@ public class ProcessDatabaseController extends BaseController {
     @PostMapping("/save")
     @OperaLog(value = "工艺资料库", operationType = OperationType.INSERT_UPDATE, pathSpEL = PackUtils.pathSqEL, service = ProcessDatabaseService.class)
     public ApiResult save(@RequestBody ProcessDatabase processDatabase){
+        /*新增查询编码是否重复*/
+        if(StringUtils.isBlank(processDatabase.getId())){
+            QueryWrapper queryWrapper =new QueryWrapper();
+            queryWrapper.eq("code",processDatabase.getCode());
+           List<ProcessDatabase> processDatabaseList = processDatabaseService.list(queryWrapper);
+            if(!CollectionUtils.isEmpty(processDatabaseList)){
+                throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
+            }
+
+        }
         boolean b = processDatabaseService.saveOrUpdate(processDatabase);
         return insertSuccess(b);
     }

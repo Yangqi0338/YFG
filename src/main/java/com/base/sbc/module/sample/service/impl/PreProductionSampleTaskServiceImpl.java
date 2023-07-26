@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
@@ -65,12 +64,27 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean taskAssignment(PreTaskAssignmentDto dto) {
-        PreProductionSampleTask task = BeanUtil.copyProperties(dto, PreProductionSampleTask.class);
         EnumNodeStatus ens = EnumNodeStatus.GARMENT_CUTTING_WAITING_RECEIVED;
-        nodeStatusService.nodeStatusChange(dto.getId(), ens.getNode(), ens.getStatus(), BaseGlobal.YES, BaseGlobal.NO);
-        task.setNode(ens.getNode());
-        task.setStatus(ens.getStatus());
-        boolean flg = updateById(task);
+        String node = "产前样衣任务";
+        String status = "裁剪待接收";
+        UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
+        List<String> ids = StrUtil.split(dto.getId(), CharUtil.COMMA);
+        uw.lambda().in(PreProductionSampleTask::getId, ids)
+                .set(PreProductionSampleTask::getCutterId, dto.getCutterId())
+                .set(PreProductionSampleTask::getCutterName, dto.getCutterName())
+                .set(PreProductionSampleTask::getTechnologistId, dto.getTechnologistId())
+                .set(PreProductionSampleTask::getTechnologistName, dto.getTechnologistName())
+                .set(PreProductionSampleTask::getGradingId, dto.getGradingId())
+                .set(PreProductionSampleTask::getGradingName, dto.getGradingName())
+                .set(PreProductionSampleTask::getStitcher, dto.getStitcher())
+                .set(PreProductionSampleTask::getStitcherId, dto.getStitcherId())
+                .set(PreProductionSampleTask::getNode, node)
+                .set(PreProductionSampleTask::getStatus, status);
+        setUpdateInfo(uw);
+        boolean flg = update(uw);
+        for (String id : ids) {
+            nodeStatusService.nodeStatusChange(id, node, status, BaseGlobal.YES, BaseGlobal.NO);
+        }
         return flg;
     }
 
@@ -85,7 +99,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean nodeStatusChange(String userId, NodeStatusChangeDto dto, GroupUser groupUser) {
-        nodeStatusService.hasNodeStatusAuth(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, userId, dto.getDataId(), this);
+        nodeStatusService.hasNodeStatusAuth(NodeStatusConfigService.PRE_PRODUCTION_SAMPLE_TASK, userId, dto.getDataId(), this);
         nodeStatusService.nodeStatusChange(dto.getDataId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
         // 修改单据
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
@@ -105,8 +119,10 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     public List<PreProductionSampleTaskListVo> taskList(PreProductionSampleTaskSearchDto dto) {
         QueryWrapper<PreProductionSampleTask> qw = new QueryWrapper<>();
+        qw.eq("node", "样衣任务");
+        qw.isNotNull("status");
         List<PreProductionSampleTaskListVo> list = getBaseMapper().taskList(qw);
-        //设置图片
+        //设置图
         attachmentService.setListStylePic(list, "stylePic");
         nodeStatusService.setNodeStatus(list);
         return list;
