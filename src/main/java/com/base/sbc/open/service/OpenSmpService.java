@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.config.utils.OpenSmpFtpUtils;
@@ -47,6 +48,8 @@ public class OpenSmpService {
     private final BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
 
     private final MinioUtils minioUtils;
+
+    private final CcmService ccmService;
 
 
 
@@ -133,11 +136,26 @@ public class OpenSmpService {
             BasicsdatumMaterial basicsdatumMaterial = smpOpenMaterialDto.toBasicsdatumMaterial();
             basicsdatumMaterial.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
             basicsdatumMaterial.setUpdateName("外部系统推送");
-            //if (true){
-            //    return null;
-            //}
 
-            basicsdatumMaterialService.saveOrUpdate(basicsdatumMaterial, new QueryWrapper<BasicsdatumMaterial>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            try {
+                String categorySByNameAndLevel = ccmService.getOpenCategorySByNameAndLevel("材料",smpOpenMaterialDto.getC8_Material_2ndCategory(),"1");
+                String str2 = JSON.parseObject(categorySByNameAndLevel).getJSONArray("data").getJSONObject(0).getString("name");
+                basicsdatumMaterial.setCategoryName(basicsdatumMaterial.getCategoryName() + "-"+str2);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        try {
+            String categorySByNameAndLevel = ccmService.getOpenCategorySByNameAndLevel("材料",smpOpenMaterialDto.getC8_Material_3rdCategory(),"2");
+            String str3 = JSON.parseObject(categorySByNameAndLevel).getJSONArray("data").getJSONObject(0).getString("name");
+            basicsdatumMaterial.setCategoryName(basicsdatumMaterial.getCategoryName() + "-"+str3);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        //    if (true){
+        //        return ;
+        //}
+
+        basicsdatumMaterialService.saveOrUpdate(basicsdatumMaterial, new QueryWrapper<BasicsdatumMaterial>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
 
             if (!smpOpenMaterialDto.getCOLORITEMS().isEmpty()) {
                 List<BasicsdatumMaterialColor> basicsdatumMaterialColors = new ArrayList<>();
