@@ -23,9 +23,11 @@ import com.base.sbc.module.pack.mapper.PackPricingOtherCostsMapper;
 import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
+import com.beust.jcommander.internal.Lists;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -95,6 +97,14 @@ public class PackPricingOtherCostsServiceImpl extends PackBaseServiceImpl<PackPr
         }
         //物料费用
         return result;
+    }
+
+    @Override
+    public List<PackPricingOtherCosts> getPriceSumByForeignIds(List<String> foreignIds, String companyCode) {
+        if (CollectionUtils.isEmpty(foreignIds)) {
+            return Lists.newArrayList();
+        }
+        return super.getBaseMapper().getPriceSumByForeignIds(foreignIds, companyCode);
     }
 
     @Override

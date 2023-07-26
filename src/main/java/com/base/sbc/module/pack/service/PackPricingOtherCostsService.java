@@ -12,8 +12,10 @@ import com.base.sbc.module.pack.dto.PackPricingOtherCostsDto;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,6 +38,12 @@ public interface PackPricingOtherCostsService extends PackBaseService<PackPricin
 
     Map<String, BigDecimal> statistics(PackCommonSearchDto dto);
 
+    /**
+     * 通过主id统计
+     * @param foreignIds
+     * @return
+     */
+    List<PackPricingOtherCosts> getPriceSumByForeignIds(List<String> foreignIds, String companyCode);
 // 自定义方法区 不替换的区域【other_end】
 
 

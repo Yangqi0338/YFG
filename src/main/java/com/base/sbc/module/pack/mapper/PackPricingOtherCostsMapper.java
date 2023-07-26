@@ -31,6 +31,15 @@ public interface PackPricingOtherCostsMapper extends BaseMapper<PackPricingOther
 
     List<TotalVo> costsItemTotal(@Param(Constants.WRAPPER) QueryWrapper<PackPricingOtherCosts> qw);
 
+    /**
+     * 通过主id统计
+     * @param foreignIds
+     * @return
+     */
+    List<PackPricingOtherCosts> getPriceSumByForeignIds(@Param("foreignIds") List<String> foreignIds,
+                                                        @Param("companyCode") String companyCode);
+
+
 
 // 自定义方法区 不替换的区域【other_end】
 }

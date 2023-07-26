@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
 import com.base.sbc.module.sample.dto.FabricSummaryDTO;
 import com.base.sbc.module.sample.vo.FabricSummaryVO;
@@ -53,6 +54,14 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
      * @return
      */
     List<PricingMaterialCostsVO> getPricingMaterialCostsByForeignId(@Param("foreignId") String foreignId);
+
+    /**
+     * 获取物料计算
+     * @param foreignIds
+     * @return
+     */
+    List<PackBomCalculateBaseVo> getPackBomCalculateBaseVo(@Param("foreignIds") List<String> foreignIds);
+
 
 // 自定义方法区 不替换的区域【other_end】
 }

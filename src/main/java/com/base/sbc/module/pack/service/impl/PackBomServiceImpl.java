@@ -28,6 +28,7 @@ import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
@@ -272,6 +273,16 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         return baseMapper.getPricingMaterialCostsByForeignId(foreignId);
     }
 
+    /**
+     * 获取物料计算
+     *
+     * @param foreignIds
+     * @return
+     */
+    @Override
+    public List<PackBomCalculateBaseVo> getPackBomCalculateBaseVo(List<String> foreignIds) {
+        return baseMapper.getPackBomCalculateBaseVo(foreignIds);
+    }
 
     @Override
     String getModeName() {
