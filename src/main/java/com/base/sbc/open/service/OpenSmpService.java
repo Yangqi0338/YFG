@@ -71,11 +71,14 @@ public class OpenSmpService {
 
                     try {
                         //转换图片地址
-                        String objectName = System.currentTimeMillis() + "." + FileUtil.extName(string);
-                        String contentType = "image/jpeg";
-                        InputStream inputStream = OpenSmpFtpUtils.download(string);
-                        String s = minioUtils.uploadFile(inputStream, objectName, contentType);
-                        list.add(s);
+                        //String objectName = System.currentTimeMillis() + "." + FileUtil.extName(string);
+                        //String contentType = "image/jpeg";
+                        //InputStream inputStream = OpenSmpFtpUtils.download(string);
+                        //String s = minioUtils.uploadFile(inputStream, objectName, contentType);
+
+                        String[] split = string.split("\\.");
+
+                        list.add("http://60.191.75.218:23480/CMSDocs/Material/"+smpOpenMaterialDto.getCode()+"."+split[1]);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
