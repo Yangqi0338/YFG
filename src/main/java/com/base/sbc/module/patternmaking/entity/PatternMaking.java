@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-6-16 16:04:35
+ * @date 创建时间：2023-7-26 19:13:19
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -70,20 +70,40 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "打版类型")
     private String sampleType;
     /**
+     * 打版类型名称
+     */
+    @ApiModelProperty(value = "打版类型名称")
+    private String sampleTypeName;
+    /**
      * 打版难度
      */
     @ApiModelProperty(value = "打版难度")
     private String patDiff;
+    /**
+     * 打版难度名称
+     */
+    @ApiModelProperty(value = "打版难度名称")
+    private String patDiffName;
     /**
      * 打样顺序
      */
     @ApiModelProperty(value = "打样顺序")
     private String patSeq;
     /**
+     * 打样顺序名称
+     */
+    @ApiModelProperty(value = "打样顺序名称")
+    private String patSeqName;
+    /**
      * 紧急程度
      */
     @ApiModelProperty(value = "紧急程度")
     private String urgency;
+    /**
+     * 紧急程度名称
+     */
+    @ApiModelProperty(value = "紧急程度名称")
+    private String urgencyName;
     /**
      * 工艺员确认齐套
      */
@@ -270,6 +290,28 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "是否需要外辅(0否,1是)")
     private String extAuxiliary;
+    /**
+     * 外辅发出时间
+     */
+    @ApiModelProperty(value = "外辅发出时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date extAuxiliaryDispatchDate;
+    /**
+     * 外辅接收时间
+     */
+    @ApiModelProperty(value = "外辅接收时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date extAuxiliaryReceiveDate;
+    /**
+     * 样衣结束标识:(0:未结束,1结束)
+     */
+    @ApiModelProperty(value = "样衣结束标识:(0:未结束,1结束)")
+    private String endFlg;
+    /**
+     * 样衣编号
+     */
+    @ApiModelProperty(value = "样衣编号")
+    private String sampleNo;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
