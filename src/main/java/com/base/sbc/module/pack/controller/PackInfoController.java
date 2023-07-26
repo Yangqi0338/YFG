@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 类描述：资料包 Controller类
@@ -142,6 +143,16 @@ public class PackInfoController {
 	}
 
 
+	/**
+	 * 样衣id查询bom
+	 * @param ids
+	 * @return
+	 */
+	@ApiOperation(value = "查询设计款号夏的bom")
+	@GetMapping("/getInfoListByDesignNo")
+	public PageInfo<PackInfoListVo> pageBySampleDesign(@Valid PricingSelectSearchDTO pricingSelectSearchDTO) {
+		return packInfoService.getInfoListByDesignNo(pricingSelectSearchDTO.getDesignNo());
+	}
 }
 
 

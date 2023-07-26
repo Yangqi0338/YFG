@@ -205,7 +205,7 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     /*唯一码*/
     private String wareCode;
     /*上新时间*/
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date newDate;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
