@@ -7,12 +7,7 @@
 package com.base.sbc.module.planning.service;
 
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategory;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
 
 /** 
  * 类描述：企划-品类信息 service类
@@ -25,37 +20,4 @@ import java.util.Map;
 public interface PlanningCategoryService extends BaseService<PlanningCategory> {
 
 
-	/**
-	 * 保存 波段企划-品类信息
-	 * @param band
-	 * @param categoryList
-	 * @return
-	 */
-	@Transactional(readOnly = false)
-	public boolean savePlanningCategory(PlanningBand band,List<PlanningCategory> categoryList);
-
-	/**
-	 * 删除品类
-	 * @param userCompany
-	 * @param idList
-	 * @return
-	 */
-	public boolean delPlanningCategory(String userCompany, List<String> idList);
-
-	/**
-	 * 删除
-	 * @param userCompany
-	 * @param id
-	 * @return
-	 */
-	public boolean delByPlanningBand(String userCompany,String id) ;
-
-
-	/**
-	 * 统计skc 数量
-	 * @param column
-	 * @param collect
-	 * @return
-	 */
-	Map<String, Long> countSkc(String column, List<String> collect);
 }

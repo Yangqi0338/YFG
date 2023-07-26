@@ -6,12 +6,7 @@
         select max(design_no)
         from t_planning_category_item ${ ew.customSqlSegment}
     </select>
-    <select id="selectCategoryIdsByBand" resultType="java.lang.String">
-        select distinct category_ids
-        from t_planning_category_item c
-                 left join t_planning_band b on (c.planning_band_id = b.id)
-            ${ ew.customSqlSegment}
-    </select>
+
     <select id="listSeat" resultType="com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo">
         SELECT
         c.*,
@@ -37,12 +32,11 @@
           and designer_id !='' and designer_id is not null
     </select>
     <select id="dimensionTotal" resultType="com.base.sbc.module.planning.vo.DimensionTotalVo">
-        select ${ew.sqlSelect} from t_planning_band b ,t_planning_category_item ci
-        where b.id=ci.planning_band_id
-        and b.del_flag ='0'
-        and ci.del_flag ='0'
+        select ${ew.sqlSelect} from t_planning_category_item ci
+        where
+        ci.del_flag ='0'
         and ci.prod_category is not null and ci.prod_category &lt;&gt; ''
-        and b.band_code is not null and b.band_code &lt;&gt; ''
+        and ci.band_code is not null and ci.band_code &lt;&gt; ''
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
@@ -59,34 +53,31 @@
         ci.continuation_point,
         ci.designer,
         ci.designer_id,
-        b.band_code,
+        ci.band_code,
         sd.style_no
         FROM
-        t_planning_band b
-        JOIN t_planning_category_item ci ON ( b.id = ci.planning_band_id )
+        t_planning_category_item ci
         LEFT JOIN t_sample_design sd ON ( sd.planning_category_item_id = ci.id )
         WHERE
-        b.del_flag = '0'
+        ci.del_flag = '0'
         AND ci.del_flag = '0'
         and ci.prod_category is not null and ci.prod_category &lt;&gt; ''
-        and b.band_code is not null and b.band_code &lt;&gt; ''
+        and ci.band_code is not null and ci.band_code &lt;&gt; ''
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
     </select>
     <select id="categorySummary" resultType="com.base.sbc.module.sample.vo.ChartBarVo">
         SELECT
-        b.band_code as dimension ,
+        ci.band_code as dimension ,
         count(1) as total
-        FROM
-        t_planning_band b
-        JOIN t_planning_category_item ci ON ( b.id = ci.planning_band_id )
+        FROM t_planning_category_item ci
         LEFT JOIN t_sample_design sd ON ( sd.planning_category_item_id = ci.id and sd.del_flag='0')
         WHERE
-        b.del_flag = '0'
+        ci.del_flag = '0'
         AND ci.del_flag = '0'
         and ci.prod_category is not null and ci.prod_category &lt;&gt; ''
-        and b.band_code is not null and b.band_code &lt;&gt; ''
+        and ci.band_code is not null and ci.band_code &lt;&gt; ''
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>

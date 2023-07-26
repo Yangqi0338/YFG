@@ -6,16 +6,14 @@
 *****************************************************************************/
 package com.base.sbc.module.planning.controller;
 
-import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.planning.dto.*;
-import com.base.sbc.module.planning.entity.PlanningCategory;
-import com.base.sbc.module.planning.service.*;
+import com.base.sbc.module.planning.service.PlanningCategoryItemService;
+import com.base.sbc.module.planning.service.PlanningDemandProportionDataService;
+import com.base.sbc.module.planning.service.PlanningDemandService;
+import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
@@ -25,9 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
 * 类描述：企划-需求管理相关接口
@@ -54,10 +50,9 @@ public class PlanningDemandController {
 
 	@Resource
 	private	PlanningCategoryItemService planningCategoryItemService;
-	@Resource
-	private PlanningCategoryService planningCategoryService;
 
-	@Resource
+
+    @Resource
 	private CcmFeignService ccmFeignService;
 
 	/*品类id获取需求及维度*/
@@ -136,21 +131,7 @@ public class PlanningDemandController {
 		return planningDimensionalityService.delDelDimensionality(id);
 	}
 
-	@ApiOperation(value = "按产品季展开")
-	@GetMapping("/expandByProduct")
-	public List<BasicStructureTreeVo> expandByProduct(@Valid ProductSeasonExpandByCategorySearchDto dto){
-		QueryWrapper<PlanningCategory> qw = new QueryWrapper();
-    	qw.eq("planning_season_id",dto.getPlanningSeasonId());
-		List<PlanningCategory> list = planningCategoryService.list(qw);
-		if(CollUtil.isEmpty(list)){
-			return	new ArrayList<>();
-		}
-		List<String> categoryIds=list.stream().filter(p -> !StringUtils.isEmpty(p.getCategoryIds())).map(PlanningCategory::getCategoryIds).collect(Collectors.toList());
-		if(CollUtil.isEmpty(categoryIds)){
-			return	new ArrayList<>();
-		}
-		return ccmFeignService.findStructureTreeByCategoryIds(CollUtil.join(categoryIds,","));
-	}
+
 }
 
 

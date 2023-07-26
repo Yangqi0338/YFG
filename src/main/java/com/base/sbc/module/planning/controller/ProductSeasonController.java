@@ -1,9 +1,7 @@
 package com.base.sbc.module.planning.controller;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
@@ -12,15 +10,14 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
-import com.base.sbc.module.planning.dto.*;
+import com.base.sbc.module.planning.dto.AllocationDesignDto;
+import com.base.sbc.module.planning.dto.PlanningCategoryItemBatchUpdateDto;
+import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
+import com.base.sbc.module.planning.dto.SetTaskLevelDto;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
-import com.base.sbc.module.planning.entity.PlanningSeason;
-import com.base.sbc.module.planning.service.PlanningBandService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
-import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
-import com.base.sbc.module.planning.vo.YearSeasonVo;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
@@ -32,10 +29,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * 类描述：
@@ -53,8 +48,7 @@ public class ProductSeasonController extends BaseController {
 
     @Resource
     private PlanningSeasonService planningSeasonService;
-    @Resource
-    private PlanningBandService planningBandService;
+
 
     @Resource
     private CcmFeignService ccmFeignService;
@@ -63,11 +57,6 @@ public class ProductSeasonController extends BaseController {
     @Resource
     SampleDesignService sampleDesignService;
 
-    @ApiOperation(value = "查询产品季-分页查询")
-    @GetMapping
-    public PageInfo query(PlanningSeasonSearchDto dto) {
-        return planningSeasonService.queryByPage(dto, getUserCompany());
-    }
 
     @ApiOperation(value = "查询产品季-查询所有产品季下拉选择")
     @GetMapping("/getPlanningSeasonOptions")
@@ -75,39 +64,6 @@ public class ProductSeasonController extends BaseController {
         return planningSeasonService.getPlanningSeasonOptions(userCompany);
     }
 
-    @ApiOperation(value = "查询年份季节")
-    @GetMapping("/queryYs")
-    public List<YearSeasonVo> queryYs() {
-        List<YearSeasonVo> result = new ArrayList<>(16);
-        List<PlanningSeason> planningSeasons = planningSeasonService.queryYs(getUserCompany());
-        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Year,C8_Quarter");
-        if (CollUtil.isNotEmpty(planningSeasons)) {
-            for (PlanningSeason planningSeason : planningSeasons) {
-                YearSeasonVo yearSeasonVo = BeanUtil.copyProperties(planningSeason, YearSeasonVo.class);
-                yearSeasonVo.setSeasonDesc(Optional.ofNullable(dictInfoToMap.get("C8_Quarter"))
-                        .map(item->item.get(planningSeason.getSeason()))
-                        .orElse(""));
-                yearSeasonVo.setYearDesc(Optional.ofNullable(dictInfoToMap.get("C8_Year"))
-                        .map(item->item.get(planningSeason.getYear()))
-                        .orElse(""));
-                result.add(yearSeasonVo);
-            }
-        }
-        return result;
-    }
-
-    @ApiOperation(value = "按波段展开-分页查询")
-    @GetMapping("/expandByBand")
-    public PageInfo expandByBand(@Valid  ProductSeasonExpandByBandSearchDto dto){
-        return planningBandService.expandByBand(dto,getUserCompany());
-    }
-
-
-    @ApiOperation(value = "按品类展开")
-    @GetMapping("/expandByCategory")
-    public List<BasicStructureTreeVo> expandByCategory(@Valid ProductSeasonExpandByCategorySearchDto dto){
-        return planningCategoryItemService.expandByCategory(dto);
-    }
 
 
     @ApiOperation(value = "查询坑位列表")
@@ -198,14 +154,6 @@ public class ProductSeasonController extends BaseController {
     public List<SampleUserVo> getAllDesigner(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
         return planningCategoryItemService.getAllDesigner(userCompany);
     }
-
-    @ApiOperation(value = "获取产品季品类树")
-    @GetMapping("/getProductCategoryTree")
-    public List<ProductCategoryTreeVo> getProductCategoryTree(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
-        return planningSeasonService.getProductCategoryTree(userCompany);
-    }
-
-
 
 
 }

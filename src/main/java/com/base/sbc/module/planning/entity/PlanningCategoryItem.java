@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-25 14:42:58
+ * @date 创建时间：2023-7-26 21:14:02
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -135,9 +135,9 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "关联历史款")
     private String hisDesignNo;
     /**
-     * 状态:0未下发,1已下发到产品季总览,2已下发到样衣设计
+     * 状态:0未下发,1已下发到产品季总览,2已下发到样衣设计,-1撤回
      */
-    @ApiModelProperty(value = "状态:0未下发,1已下发到产品季总览,2已下发到样衣设计")
+    @ApiModelProperty(value = "状态:0未下发,1已下发到产品季总览,2已下发到样衣设计,-1撤回")
     private String status;
     /**
      * 下发时间
@@ -246,6 +246,16 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "特别需求:(1是,0否)")
     private String specialNeedsFlag;
+    /**
+     * 波段(编码)
+     */
+    @ApiModelProperty(value = "波段(编码)")
+    private String bandCode;
+    /**
+     * 波段名称
+     */
+    @ApiModelProperty(value = "波段名称")
+    private String bandName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

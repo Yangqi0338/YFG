@@ -125,11 +125,7 @@ public class SampleDesignController {
 		return sampleDesignService.getDesignerList(companyCode);
 	}
 
-	@GetMapping("/handleOldCategory")
-	@ApiOperation(value = "处理旧品类数据结构", notes = "")
-	public boolean handleOldCategory() {
-		return sampleDesignService.handleOldCategory();
-	}
+
 }
 
 

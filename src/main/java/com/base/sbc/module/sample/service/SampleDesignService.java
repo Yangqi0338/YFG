@@ -131,7 +131,6 @@ public interface SampleDesignService extends BaseService<SampleDesign> {
 
     Map getDesignDataOverview(String time);
 
-    boolean handleOldCategory();
 
     PlanningSummaryVo categoryBandSummary(PlanningBoardSearchDto dto);
 

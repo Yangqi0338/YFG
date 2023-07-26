@@ -43,8 +43,15 @@ public class ProductCategoryItemSearchDto extends Page {
     @ApiModelProperty(value = "任务等级", required = false, example = "['1']")
     private List<String> taskLevels;
 
-    @ApiModelProperty(value = "状态" ,required = false,example = "['1']")
+    @ApiModelProperty(value = "状态", required = false, example = "['1']")
     private List<String> statusList;
 
+    @ApiModelProperty(value = "大类code")
+    private String prodCategory1st;
+    /**
+     * 品类id
+     */
+    @ApiModelProperty(value = "品类code")
+    private String prodCategory;
 
 }
