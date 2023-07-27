@@ -18,6 +18,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.QueryCondition;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
@@ -406,6 +407,14 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                     pdMap.put(key, sampleUserVos);
                 }
             }
+            // 素材信息
+            List<PlanningCategoryItemMaterial> materialVoList = planningCategoryItemMaterialService.findBySeatIds(list.stream().map(item -> item.getId()).collect(Collectors.toList()));
+            if (CollUtil.isNotEmpty(materialVoList)) {
+                Map<String, List<PlanningCategoryItemMaterial>> collect = materialVoList.stream().collect(Collectors.groupingBy(PlanningCategoryItemMaterial::getPlanningCategoryItemId));
+                for (PlanningSeasonOverviewVo v : list) {
+                    v.setMaterialVoList(collect.get(v.getId()));
+                }
+            }
         }
         return pageInfo;
     }
@@ -720,6 +729,23 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             setTreeCount(t.getChildren(), counts);
         }
 
+    }
+
+    @Override
+    public List<String> selectCategoryIdsByBand(QueryWrapper qw) {
+        return getBaseMapper().selectCategoryIdsByBand(qw);
+    }
+
+    @Override
+    public List<BasicStructureTreeVo> expandByCategory(ProductSeasonExpandByCategorySearchDto dto) {
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("del_flag", BaseEntity.DEL_FLAG_NORMAL);
+        qw.eq("planning_season_id", dto.getPlanningSeasonId());
+        List<String> categoryIds = selectCategoryIdsByBand(qw);
+        if (CollUtil.isEmpty(categoryIds)) {
+            return null;
+        }
+        return ccmFeignService.findStructureTreeByCodes(CollUtil.join(categoryIds, ","));
     }
 
 

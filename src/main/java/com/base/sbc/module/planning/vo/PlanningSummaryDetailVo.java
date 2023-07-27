@@ -41,10 +41,10 @@ public class PlanningSummaryDetailVo {
 
     @ApiModelProperty(value = "波段", example = "2C")
     @FieldDisplay(value = "波段", display = true)
-    private String bandCode;
+    private String bandName;
 
     @ApiModelProperty(value = "品类", example = "上衣")
-    private String prodCategory;
+    private String prodCategoryName;
 
     @ApiModelProperty(value = "图片", example = "http://sdr.saas123.com/static/img/defaultUser.png")
     private String stylePic;

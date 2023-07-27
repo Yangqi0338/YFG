@@ -37,7 +37,7 @@ public class DesignDocTreeVo {
     private Boolean children;
 
     public String getValue() {
-        List<String> val = CollUtil.newArrayList(year, season, bandCode, categoryIds);
+        List<String> val = CollUtil.newArrayList(year, season, bandCode, prodCategory1st, prodCategory);
         CollUtil.removeBlank(val);
         return CollUtil.join(val, "/");
     }

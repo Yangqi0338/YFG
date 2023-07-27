@@ -62,7 +62,7 @@
     <select id="categoryBandSummary" resultType="com.base.sbc.module.planning.vo.PlanningSummaryDetailVo">
         SELECT
         id,
-        prod_category,
+        prod_category_name,
         design_no,
         his_design_no,
         price,
@@ -71,7 +71,7 @@
         continuation_point,
         designer,
         designer_id,
-        band_code,
+        band_name,
         style_no
         FROM
 

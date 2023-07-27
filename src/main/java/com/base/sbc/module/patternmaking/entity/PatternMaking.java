@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-26 20:03:53
+ * @date 创建时间：2023-7-27 15:46:56
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -44,6 +44,11 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "打版编码")
     private String code;
+    /**
+     * 当前状态
+     */
+    @ApiModelProperty(value = "当前状态")
+    private String status;
     /**
      * 产品季节id
      */
@@ -249,11 +254,6 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "当前节点")
     private String node;
-    /**
-     * 当前状态
-     */
-    @ApiModelProperty(value = "当前状态")
-    private String status;
     /**
      * 排序
      */

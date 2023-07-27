@@ -73,13 +73,22 @@ public class SampleDesignPageDto extends Page {
     /*小类*/
     private String prodCategory3rd;
 //    产品季节id
-    private String planningSeasonId;
+private String planningSeasonId;
     /*设计款号*/
     private String designNo;
     /*生产模式*/
     private String devtType;
-//    款式状态
-    private String  styleStatus;
-//   是否上会
-    private String  meetFlag;
+    //    款式状态
+    private String styleStatus;
+    //   是否上会
+    private String meetFlag;
+
+
+    @ApiModelProperty(value = "大类code")
+    private String prodCategory1st;
+    /**
+     * 品类id
+     */
+    @ApiModelProperty(value = "品类code")
+    private String prodCategory;
 }

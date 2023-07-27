@@ -37,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -232,38 +231,27 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         PlanningSummaryVo vo = new PlanningSummaryVo();
         //查询波段统计
         QueryWrapper brandTotalQw = new QueryWrapper();
-        brandTotalQw.select("band_code as name,count(1) as total");
-        brandTotalQw.groupBy("band_code");
+        brandTotalQw.select("band_name as name,count(1) as total");
+        brandTotalQw.groupBy("band_name");
         planningSummaryQw(brandTotalQw, dto);
         List<DimensionTotalVo> bandTotal = planningCategoryItemService.dimensionTotal(brandTotalQw);
         vo.setBandTotal(PlanningUtils.removeEmptyAndSort(bandTotal));
-        Map<String, String> bandNames = new HashMap<>(4);
-        if (CollUtil.isNotEmpty(bandTotal)) {
-            bandNames = bandService.getNamesByCodes(bandTotal.stream().map(DimensionTotalVo::getName).collect(Collectors.joining(StrUtil.COMMA)));
-            for (DimensionTotalVo dimensionTotalVo : bandTotal) {
-                dimensionTotalVo.setName(bandNames.getOrDefault(dimensionTotalVo.getName(), dimensionTotalVo.getName()));
-            }
-        }
+
 
         //查询品类统计
         QueryWrapper categoryQw = new QueryWrapper();
-        categoryQw.select("prod_category as name,count(1) as total");
-        categoryQw.groupBy("prod_category");
+        categoryQw.select("prod_category_name as name,count(1) as total");
+        categoryQw.groupBy("prod_category_name");
         planningSummaryQw(categoryQw, dto);
         List<DimensionTotalVo> categoryTotal = planningCategoryItemService.dimensionTotal(categoryQw);
-        ccmFeignService.setCategoryName(categoryTotal, "name", "name");
         vo.setCategoryTotal(PlanningUtils.removeEmptyAndSort(categoryTotal));
         //查询明细
         QueryWrapper detailQw = new QueryWrapper();
         planningSummaryQw(detailQw, dto);
         List<PlanningSummaryDetailVo> detailVoList = planningCategoryItemService.planningSummaryDetail(detailQw);
         if (CollUtil.isNotEmpty(detailVoList)) {
-            for (PlanningSummaryDetailVo planningSummaryDetailVo : detailVoList) {
-                planningSummaryDetailVo.setBandCode(bandNames.getOrDefault(planningSummaryDetailVo.getBandCode(), planningSummaryDetailVo.getBandCode()));
-            }
             amcFeignService.setUserAvatarToList(detailVoList);
-            ccmFeignService.setCategoryName(detailVoList, "prodCategory", "prodCategory");
-            Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getProdCategory() + StrUtil.DASHED + k.getBandCode()));
+            Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getProdCategoryName() + StrUtil.DASHED + k.getBandName()));
             vo.setSeatData(seatData);
         }
         return vo;
@@ -306,7 +294,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         //查询所有产品季
         List<PlanningSeason> seasonList = list(qw);
         if (CollUtil.isEmpty(seasonList)) {
-            return null;
+            return new ArrayList<>();
         }
         //统计产品季skc数量
         Map<String, Long> sckCountMap = planningCategoryItemService.totalSkcByPlanningSeason(null);
@@ -335,9 +323,13 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     private void planningSummaryQw(QueryWrapper<T> qw, PlanningBoardSearchDto dto) {
         qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "ci.planning_season_id", dto.getPlanningSeasonId());
         qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("ci.design_no", dto.getSearch()).or().like("ci.his_design_no", dto.getSearch()));
-        qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "b.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
-        qw.in(StrUtil.isNotEmpty(dto.getMonth()), "b.month", StrUtil.split(dto.getMonth(), CharUtil.COMMA));
-        qw.in(StrUtil.isNotEmpty(dto.getProdCategoryId()), "ci.prod_category", StrUtil.split(dto.getProdCategoryId(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "ci.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotEmpty(dto.getMonth()), "ci.month", StrUtil.split(dto.getMonth(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotEmpty(dto.getProdCategory()), "ci.prod_category", StrUtil.split(dto.getProdCategory(), CharUtil.COMMA));
 
     }
+
+
+
+
 }
