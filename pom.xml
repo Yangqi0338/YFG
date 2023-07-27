@@ -340,6 +340,16 @@
 		    <artifactId>html2image</artifactId>
 		    <version>0.1.0</version>
 		</dependency>
+		<!-- cad -->
+		<!-- 
+		<dependency>
+			<groupId>aspose</groupId>
+			<artifactId>aspose-cad</artifactId>
+			<version>19.9</version>
+			<scope>system</scope>
+			<systemPath>${pom.basedir}/lib/aspose-cad-19.9.jar</systemPath>
+		</dependency>
+		-->
 		
 	</dependencies>
 
