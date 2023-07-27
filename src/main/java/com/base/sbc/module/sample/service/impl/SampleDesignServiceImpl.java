@@ -120,7 +120,6 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
             sampleDesign = getById(dto.getId());
             BeanUtil.copyProperties(dto, sampleDesign);
             setMainStylePic(sampleDesign, dto.getStylePicList());
-            PlanningUtils.setCategory(sampleDesign);
             this.updateById(sampleDesign);
             planningCategoryItemService.updateBySampleDesignChange(sampleDesign);
         } else {
@@ -194,7 +193,6 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         categoryItem.setPlanningSeasonId(planningSeason.getId());
         categoryItem.setStylePic(dto.getStylePic());
         categoryItem.setStatus("1");
-        PlanningUtils.setCategory(categoryItem);
         categoryItem.setDesigner(userInfo.getAliasUserName() + StrUtil.COMMA + userInfo.getUserCode());
         categoryItem.setDesignerId(userInfo.getUserId());
         categoryItem.setMaterialCount(new BigDecimal(String.valueOf(CollUtil.size(dto.getMaterialList()))));
@@ -212,7 +210,6 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         SampleDesign sampleDesign = BeanUtil.copyProperties(dto, SampleDesign.class);
         PlanningUtils.toSampleDesign(sampleDesign, planningSeason, categoryItem);
         setMainStylePic(sampleDesign, dto.getStylePicList());
-        PlanningUtils.setCategory(sampleDesign);
         save(sampleDesign);
         dto.setPlanningCategoryItemId(categoryItem.getId());
 

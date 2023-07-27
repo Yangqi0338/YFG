@@ -2,11 +2,10 @@ package com.base.sbc.module.planning.utils;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.module.planning.entity.PlanningCategory;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
@@ -41,22 +40,7 @@ public class PlanningUtils {
         sampleDesign.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
     }
 
-    /**
-     * 设置品类信息 大类，品类，中类，小类
-     *
-     * @param bean
-     */
-    public static void setCategory(PlanningCategoryItem bean) {
 
-    }
-
-    public static void setCategory(PlanningCategory bean) {
-
-    }
-
-    public static void setCategory(SampleDesign bean) {
-
-    }
 
     /**
      * 删除空元素和排序
@@ -75,24 +59,36 @@ public class PlanningUtils {
         }).collect(Collectors.toList());
     }
 
-    /**
-     * 获取品类名称(第二级别)
-     *
-     * @param categoryName eg:外套,A01/风衣,6/风衣,61/短风衣,6101
-     * @return
-     */
-    public static String getProdCategoryName(String categoryName) {
-        return getCategoryName(categoryName, 1);
-    }
 
     /**
-     * 获取品类名称
+     * 获取新的款号
      *
-     * @param categoryName eg:外套,A01/风衣,6/风衣,61/短风衣,6101
-     * @param idx          0 大类,1 品类,2 中类,3 小类
+     * @param oldDesignNo 旧款号
+     * @param oldDesigner 旧设计师
+     * @param newDesigner 新设计师
      * @return
      */
-    public static String getCategoryName(String categoryName, int idx) {
-        return CollUtil.get(StrUtil.split(CollUtil.get(StrUtil.split(categoryName, CharUtil.SLASH), idx), CharUtil.COMMA), 0);
+    public static String getNewDesignNo(String oldDesignNo, String oldDesigner, String newDesigner) {
+        String newDesignNo = oldDesignNo;
+        if (!newDesigner.contains(StrUtil.COMMA)) {
+            throw new OtherException("设计师名称格式为:名称,代码");
+        }
+
+        if (StrUtil.equals(newDesigner, oldDesigner)) {
+            return newDesignNo;
+        }
+
+        String newDesignerCode = newDesigner.split(",")[1];
+
+        //如果还没设置设计师 款号= 款号+设计师代码
+        if (StrUtil.isBlank(oldDesigner)) {
+            newDesignNo = oldDesignNo + newDesignerCode;
+        } else {
+            //如果已经设置了设计师 款号=款号+新设计师代码
+            String oldDesignCode = oldDesigner.split(",")[1];
+            // 获取原始款号
+            newDesignNo = StrUtil.sub(oldDesignNo, 0, oldDesignNo.length() - oldDesignCode.length()) + newDesignerCode;
+        }
+        return newDesignNo;
     }
 }

@@ -145,7 +145,6 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                             category.getProdCategory()));
             System.out.println("planningDesignNo:" + designCode);
             item.setDesignNo(designCode);
-            PlanningUtils.setCategory(item);
             insertCount += save(item) ? 1 : 0;
 
         }
@@ -243,7 +242,6 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         for (PlanningCategoryItemSaveDto dto : item) {
             PlanningCategoryItem categoryItem = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
             // 修改
-            PlanningUtils.setCategory(categoryItem);
             updateById(categoryItem);
             fieldValService.save(categoryItem.getId(), FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION, dto.getFieldVals());
         }
@@ -297,44 +295,14 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         }
         for (PlanningCategoryItem planningCategoryItem : planningCategoryItems) {
             AllocationDesignDto allocationDesignDto = dtoMap.get(planningCategoryItem.getId());
-            String newDesignNO = getNewDesignNo(planningCategoryItem.getDesignNo(), planningCategoryItem.getDesigner(), allocationDesignDto.getDesigner());
+            String newDesignNO = PlanningUtils.getNewDesignNo(planningCategoryItem.getDesignNo(), planningCategoryItem.getDesigner(), allocationDesignDto.getDesigner());
             planningCategoryItem.setDesignNo(newDesignNO);
             BeanUtil.copyProperties(allocationDesignDto, planningCategoryItem);
         }
         return updateBatchById(planningCategoryItems);
     }
 
-    /**
-     * 获取新的款号
-     *
-     * @param oldDesignNo 旧款号
-     * @param oldDesigner 旧设计师
-     * @param newDesigner 新设计师
-     * @return
-     */
-    public String getNewDesignNo(String oldDesignNo, String oldDesigner, String newDesigner) {
-        String newDesignNo = oldDesignNo;
-        if (!newDesigner.contains(StrUtil.COMMA)) {
-            throw new OtherException("设计师名称格式为:名称,代码");
-        }
 
-        if (StrUtil.equals(newDesigner, oldDesigner)) {
-            return newDesignNo;
-        }
-
-        String newDesignerCode = newDesigner.split(",")[1];
-
-        //如果还没设置设计师 款号= 款号+设计师代码
-        if (StrUtil.isBlank(oldDesigner)) {
-            newDesignNo = oldDesignNo + newDesignerCode;
-        } else {
-            //如果已经设置了设计师 款号=款号+新设计师代码
-            String oldDesignCode = oldDesigner.split(",")[1];
-            // 获取原始款号
-            newDesignNo = StrUtil.sub(oldDesignNo, 0, oldDesignNo.length() - oldDesignCode.length()) + newDesignerCode;
-        }
-        return newDesignNo;
-    }
 
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
@@ -547,11 +515,10 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         }
         for (PlanningCategoryItem planningCategoryItem : planningCategoryItems) {
             if (StrUtil.isNotBlank(dto.getDesigner())) {
-                String newDesignNO = getNewDesignNo(planningCategoryItem.getDesignNo(), planningCategoryItem.getDesigner(), dto.getDesigner());
+                String newDesignNO = PlanningUtils.getNewDesignNo(planningCategoryItem.getDesignNo(), planningCategoryItem.getDesigner(), dto.getDesigner());
                 planningCategoryItem.setDesignNo(newDesignNO);
             }
             BeanUtil.copyProperties(dto, planningCategoryItem);
-            PlanningUtils.setCategory(planningCategoryItem);
         }
         return updateBatchById(planningCategoryItems);
 

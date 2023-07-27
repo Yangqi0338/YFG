@@ -1,6 +1,5 @@
 package com.base.sbc.module.pack.vo;
 
-import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
@@ -36,8 +35,6 @@ public class BigGoodsPackInfoListVo extends PackInfoStatusVo {
     @ApiModelProperty(value = "款式名称")
     private String styleName;
 
-    @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)")
-    private String categoryName;
 
     @ApiModelProperty(value = "品类名称")
     private String prodCategoryName;
@@ -61,9 +58,6 @@ public class BigGoodsPackInfoListVo extends PackInfoStatusVo {
     @ApiModelProperty(value = "创建人Id")
     private String createId;
 
-    public String getProdCategoryName() {
-        return PlanningUtils.getProdCategoryName(categoryName);
-    }
 
     public String getStyle() {
         return designNo + styleName;
