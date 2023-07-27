@@ -296,8 +296,8 @@ public class SmpService {
             smpGoodsDto.setProcessCost(stylePricingVO.getCoordinationProcessingFee().add(stylePricingVO.getWoolenYarnProcessingFee()).add(stylePricingVO.getCoordinationProcessingFee()).add(stylePricingVO.getSewingProcessingFee()));
             smpGoodsDto.setProductName(stylePricingVO.getProductName());
             //吊牌
-            smpGoodsDto.setSeries(null);
-            smpGoodsDto.setComposition(null);
+            smpGoodsDto.setSeries(stylePricingVO.getSeries());
+            smpGoodsDto.setComposition(stylePricingVO.getIngredient());
 
             //废弃
             //smpGoodsDto.setSeriesId(null);

@@ -16,6 +16,8 @@ public class StylePricingVO {
      */
     private String id;
     private String packType;
+
+    private String ingredient;
     /**
      * 样衣图片
      */
@@ -191,4 +193,11 @@ public class StylePricingVO {
      */
     @ApiModelProperty(value = "生产类型")
     private String productionType;
-}
+
+
+
+ @ApiModelProperty(value = "系列编码"  )
+    private String series;
+    /** 系列名称 */
+    @ApiModelProperty(value = "系列名称"  )
+    private String seriesName;}
