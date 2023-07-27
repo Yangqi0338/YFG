@@ -174,4 +174,14 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
     boolean revoke(String ids);
 
     boolean del(String id);
+
+    List<String> selectCategoryIdsByBand(QueryWrapper qw);
+
+    /**
+     * 按品类展开
+     *
+     * @param dto
+     * @return
+     */
+    List<BasicStructureTreeVo> expandByCategory(ProductSeasonExpandByCategorySearchDto dto);
 }

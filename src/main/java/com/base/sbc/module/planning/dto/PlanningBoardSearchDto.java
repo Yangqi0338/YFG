@@ -34,6 +34,6 @@ public class PlanningBoardSearchDto {
     private String bandCode;
 
     @ApiModelProperty(value = "品类", required = false, example = "700655279267643450")
-    private String prodCategoryId;
+    private String prodCategory;
 
 }

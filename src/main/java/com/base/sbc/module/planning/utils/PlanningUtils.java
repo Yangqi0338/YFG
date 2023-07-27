@@ -2,7 +2,6 @@ package com.base.sbc.module.planning.utils;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
@@ -48,28 +47,15 @@ public class PlanningUtils {
      * @param bean
      */
     public static void setCategory(PlanningCategoryItem bean) {
-        String categoryIds = bean.getCategoryIds();
-        List<String> categoryIdList = StrUtil.split(categoryIds, StrUtil.COMMA);
-        bean.setProdCategory1st(Opt.ofBlankAble(CollUtil.get(categoryIdList, 0)).orElse(""));
-        bean.setProdCategory(Opt.ofBlankAble(CollUtil.get(categoryIdList, 1)).orElse(""));
-        bean.setProdCategory2nd(Opt.ofBlankAble(CollUtil.get(categoryIdList, 2)).orElse(""));
-        bean.setProdCategory3rd(Opt.ofBlankAble(CollUtil.get(categoryIdList, 3)).orElse(""));
+
     }
 
     public static void setCategory(PlanningCategory bean) {
-        String categoryIds = bean.getCategoryIds();
-        List<String> categoryIdList = StrUtil.split(categoryIds, StrUtil.COMMA);
-        bean.setProdCategory1st(Opt.ofBlankAble(CollUtil.get(categoryIdList, 0)).orElse(""));
-        bean.setProdCategory(Opt.ofBlankAble(CollUtil.get(categoryIdList, 1)).orElse(""));
+
     }
 
     public static void setCategory(SampleDesign bean) {
-        String categoryIds = bean.getCategoryIds();
-        List<String> categoryIdList = StrUtil.split(categoryIds, StrUtil.COMMA);
-        bean.setProdCategory1st(Opt.ofBlankAble(CollUtil.get(categoryIdList, 0)).orElse(""));
-        bean.setProdCategory(Opt.ofBlankAble(CollUtil.get(categoryIdList, 1)).orElse(""));
-        bean.setProdCategory2nd(Opt.ofBlankAble(CollUtil.get(categoryIdList, 2)).orElse(""));
-        bean.setProdCategory3rd(Opt.ofBlankAble(CollUtil.get(categoryIdList, 3)).orElse(""));
+
     }
 
     /**

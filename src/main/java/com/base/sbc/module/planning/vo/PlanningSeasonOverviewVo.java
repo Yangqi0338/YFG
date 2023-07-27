@@ -2,6 +2,7 @@ package com.base.sbc.module.planning.vo;
 
 import cn.hutool.core.date.DateUtil;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -41,6 +42,10 @@ public class PlanningSeasonOverviewVo extends PlanningCategoryItem {
         String abs = DateUtil.compare(getPlanningFinishDate(), now) < 0 ? "-" : "";
         return abs + DateUtil.betweenDay(getPlanningFinishDate(), now, false) + "天";
     }
+
     @ApiModelProperty(value = "设计师")
     public List<SampleUserVo> designers;
+
+    @ApiModelProperty(value = "关联的素材库列表")
+    List<PlanningCategoryItemMaterial> materialVoList;
 }

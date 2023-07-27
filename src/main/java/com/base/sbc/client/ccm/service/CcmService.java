@@ -122,20 +122,24 @@ public interface CcmService {
      * @return
      */
     @PostMapping("/ccm/api/saas/companyCodeGen/getGenCodeByRedis")
-    String getGenCodeByRedis(@RequestParam("genCode") String genCode,@RequestParam("count") Integer count, @RequestBody Object dataMap);
+    String getGenCodeByRedis(@RequestParam("genCode") String genCode, @RequestParam("count") Integer count, @RequestBody Object dataMap);
 
 
     @PostMapping(value = "/ccm/api/saas/basicStructure/findByCategoryIds", headers = {"Content-type=application/json"})
     String findStructureTreeByCategoryIds(@RequestBody String categoryIds);
+
+    @PostMapping(value = "/ccm/api/saas/basicStructure/findByCodes", headers = {"Content-type=application/json"})
+    String findStructureTreeByCodes(@RequestBody String codes);
 
     @PostMapping(value = "/ccm/api/saas/basicStructure/getNameByIds", headers = {"Content-type=application/json"})
     String findStructureTreeNameByCategoryIds(@RequestBody String categoryIds);
 
     /**
      * 通过名称,级别获取id
+     *
      * @param structureName
      * @param names
-     *  @param level
+     * @param level
      * @return
      */
     @GetMapping(value = "/ccm/api/saas/basicStructure/getIdsByNameAndLevel")

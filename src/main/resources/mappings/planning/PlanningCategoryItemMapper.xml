@@ -44,7 +44,7 @@
     <select id="planningSummaryDetail" resultType="com.base.sbc.module.planning.vo.PlanningSummaryDetailVo">
         SELECT
         ci.id,
-        ci.prod_category,
+        ci.prod_category_name,
         ci.design_no,
         ci.his_design_no,
         ci.price,
@@ -53,7 +53,7 @@
         ci.continuation_point,
         ci.designer,
         ci.designer_id,
-        ci.band_code,
+        ci.band_name,
         sd.style_no
         FROM
         t_planning_category_item ci
@@ -122,6 +122,10 @@
         </if>
         GROUP BY
         prod_category
+    </select>
+    <select id="selectCategoryIdsByBand" resultType="java.lang.String">
+        select distinct concat(prod_category1st, ',', prod_category)
+        from t_planning_category_item ${ ew.customSqlSegment}
     </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

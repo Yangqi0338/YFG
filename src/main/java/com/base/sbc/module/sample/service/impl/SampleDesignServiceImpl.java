@@ -47,6 +47,7 @@ import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
+import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.mapper.SampleDesignMapper;
@@ -187,21 +188,18 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         }
 
 
-
         // 新增坑位信息
         PlanningCategoryItem categoryItem = new PlanningCategoryItem();
         categoryItem.setPlanningSeasonId(planningSeason.getId());
         categoryItem.setStylePic(dto.getStylePic());
         categoryItem.setStatus("1");
-        categoryItem.setCategoryIds(dto.getCategoryIds());
         PlanningUtils.setCategory(categoryItem);
-        categoryItem.setCategoryName(dto.getCategoryName());
         categoryItem.setDesigner(userInfo.getAliasUserName() + StrUtil.COMMA + userInfo.getUserCode());
         categoryItem.setDesignerId(userInfo.getUserId());
         categoryItem.setMaterialCount(new BigDecimal(String.valueOf(CollUtil.size(dto.getMaterialList()))));
         categoryItem.setHisDesignNo(dto.getHisDesignNo());
         // 设置款号
-        String designNo = planningCategoryItemService.getNextCode(dto.getBrand(), dto.getYear(), dto.getSeason(), dto.getCategoryName());
+        String designNo = planningCategoryItemService.getNextCode(dto.getBrand(), dto.getYear(), dto.getSeason(), dto.getProdCategory());
         if (StrUtil.isBlank(designNo)) {
             throw new OtherException("款号生成失败");
         }
@@ -235,20 +233,21 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         qw.in(StrUtil.isNotBlank(dto.getStatus()), "status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getKitting()), "kitting", StrUtil.split(dto.getKitting(), CharUtil.COMMA));
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory3rd()), "prod_category3rd", dto.getProdCategory3rd());
+        qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "prod_category", dto.getProdCategory());
+        qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), "prod_category1st", dto.getProdCategory1st());
         qw.like(StrUtil.isNotBlank(dto.getDesignNo()), "design_no", dto.getDesignNo());
         qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "devt_type", dto.getDevtType());
         qw.eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "planning_season_id", dto.getPlanningSeasonId());
 
-        if(!StringUtils.isEmpty(dto.getIsTrim())){
-            if(dto.getIsTrim().equals(BaseGlobal.STATUS_NORMAL)){
+        if (!StringUtils.isEmpty(dto.getIsTrim())) {
+            if (dto.getIsTrim().equals(BaseGlobal.STATUS_NORMAL)) {
                 /*查询配饰*/
-                qw.like ("category_name","配饰");
-            }else {
+                qw.like("category_name", "配饰");
+            } else {
                 /*查询主款*/
-                qw.notLike("category_name","配饰");
+                qw.notLike("category_name", "配饰");
             }
         }
-        qw.likeRight(StrUtil.isNotBlank(dto.getCategoryIds()), "category_ids", dto.getCategoryIds());
         qw.eq(BaseConstant.COMPANY_CODE, companyCode);
 
         //1我下发的
@@ -296,9 +295,9 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
                 queryWrapper.eq("ssc.sample_design_id", sampleDesignPageVo.getId());
                 queryWrapper.eq("ssc.del_flag", "0");
                 queryWrapper.eq(StrUtil.isNotBlank(dto.getStyleStatus()), "ssc.status", dto.getStyleStatus());
-                if(StrUtil.isNotBlank(dto.getMeetFlag()) ){
+                if (StrUtil.isNotBlank(dto.getMeetFlag())) {
                     if (dto.getMeetFlag().equals(BaseGlobal.STATUS_NORMAL)) {
-                        queryWrapper.ne( "sob.meet_flag", BaseGlobal.STATUS_CLOSE);
+                        queryWrapper.ne("sob.meet_flag", BaseGlobal.STATUS_CLOSE);
                     }
                 }
                 List<SampleStyleColorVo> sampleStyleColorVoList = sampleStyleColorMapper.getSampleStyleColorList(queryWrapper);
@@ -464,7 +463,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
         dto.setSampleDesignId(id);
         dto.setSeason(sampleDesign.getSeason());
-        dto.setCategoryId(CollUtil.get(StrUtil.split(sampleDesign.getCategoryIds(), StrUtil.COMMA), 1));
+        dto.setCategoryId(CollUtil.get(StrUtil.split(sampleDesign.getProdCategory(), StrUtil.COMMA), 1));
         return queryDimensionLabels(dto);
     }
 
@@ -541,38 +540,27 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         PlanningSummaryVo vo = new PlanningSummaryVo();
         //查询波段统计
         QueryWrapper brandTotalQw = new QueryWrapper();
-        brandTotalQw.select("sd.band_code as name,count(1) as total");
-        brandTotalQw.groupBy("sd.band_code");
+        brandTotalQw.select("sd.band_name as name,count(1) as total");
+        brandTotalQw.groupBy("sd.band_name");
         stylePlanningCommonQw(brandTotalQw, dto);
         List<DimensionTotalVo> bandTotal = getBaseMapper().dimensionTotal(brandTotalQw);
         vo.setBandTotal(PlanningUtils.removeEmptyAndSort(bandTotal));
-        Map<String, String> bandNames = new HashMap<>(4);
-        if (CollUtil.isNotEmpty(bandTotal)) {
-            bandNames = bandService.getNamesByCodes(bandTotal.stream().map(DimensionTotalVo::getName).collect(Collectors.joining(StrUtil.COMMA)));
-            for (DimensionTotalVo dimensionTotalVo : bandTotal) {
-                dimensionTotalVo.setName(bandNames.getOrDefault(dimensionTotalVo.getName(), dimensionTotalVo.getName()));
-            }
-        }
+
         //查询品类统计
         QueryWrapper categoryQw = new QueryWrapper();
-        categoryQw.select("prod_category as name,count(1) as total");
-        categoryQw.groupBy("prod_category");
+        categoryQw.select("prod_category_name as name,count(1) as total");
+        categoryQw.groupBy("prod_category_name");
         stylePlanningCommonQw(categoryQw, dto);
         List<DimensionTotalVo> categoryTotal = getBaseMapper().dimensionTotal(categoryQw);
-        ccmFeignService.setCategoryName(categoryTotal, "name", "name");
         vo.setCategoryTotal(PlanningUtils.removeEmptyAndSort(categoryTotal));
         //查询明细
         QueryWrapper detailQw = new QueryWrapper();
         stylePlanningCommonQw(detailQw, dto);
         List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw);
         if (CollUtil.isNotEmpty(detailVoList)) {
-            for (PlanningSummaryDetailVo planningSummaryDetailVo : detailVoList) {
-                planningSummaryDetailVo.setBandCode(bandNames.getOrDefault(planningSummaryDetailVo.getBandCode(), planningSummaryDetailVo.getBandCode()));
-            }
             amcFeignService.setUserAvatarToList(detailVoList);
             attachmentService.setListStylePic(detailVoList, "stylePic");
-            ccmFeignService.setCategoryName(detailVoList, "prodCategory", "prodCategory");
-            Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getProdCategory() + StrUtil.DASHED + k.getBandCode()));
+            Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getProdCategoryName() + StrUtil.DASHED + k.getBandName()));
             vo.setSeatData(seatData);
         }
         return vo;
@@ -585,7 +573,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("sd.design_no", dto.getSearch()).or().like("sd.style_no", dto.getSearch()));
         qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "sd.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
         qw.in(StrUtil.isNotEmpty(dto.getMonth()), "sd.month", StrUtil.split(dto.getMonth(), CharUtil.COMMA));
-        qw.in(StrUtil.isNotEmpty(dto.getProdCategoryId()), "sd.prod_category", StrUtil.split(dto.getProdCategoryId(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotEmpty(dto.getProdCategory()), "sd.prod_category", StrUtil.split(dto.getProdCategory(), CharUtil.COMMA));
         List<StyleBoardCategorySummaryVo> styleBoardCategorySummaryVos = getBaseMapper().categorySummary(qw);
         // 统计大类数量
         if (CollUtil.isNotEmpty(styleBoardCategorySummaryVos)) {
@@ -627,11 +615,80 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         vo.setDesignRequirementSkc(designRequirementSkc);
         vo.setBandCode(dto.getBandCode());
         vo.setBandName(bandService.getNameByCode(dto.getBandCode()));
-        if (StrUtil.isNotBlank(dto.getProdCategoryId())) {
-            Map<String, String> prodCategoryNames = ccmFeignService.findStructureTreeNameByCategoryIds(dto.getProdCategoryId());
-            vo.setProdCategory(CollUtil.join(prodCategoryNames.values(), StrUtil.COMMA));
-        }
+
         return vo;
+    }
+
+    /**
+     * 获取产品季品类树
+     *
+     * @param vo
+     */
+    @Override
+    public List<ProductCategoryTreeVo> getProductCategoryTree(ProductCategoryTreeVo vo) {
+        //第一级产品季
+        if (vo.getLevel() == null) {
+            QueryWrapper qc = new QueryWrapper();
+            qc.eq("company_code", getCompanyCode());
+            qc.eq("del_flag", BasicNumber.ZERO.getNumber());
+            qc.select("id", "name");
+            /*查询到的产品季*/
+            List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
+            if (CollUtil.isNotEmpty(planningSeasonList)) {
+                List<ProductCategoryTreeVo> result = planningSeasonList.stream().map(ps -> {
+                    ProductCategoryTreeVo tree = new ProductCategoryTreeVo();
+                    tree.setChildren(true);
+                    tree.setLevel(0);
+                    tree.setPlanningSeasonId(ps.getId());
+                    tree.setName(ps.getName());
+                    return tree;
+                }).collect(Collectors.toList());
+                return result;
+            }
+        }
+        //第二级 大类
+        else if (vo.getLevel() == 0) {
+            QueryWrapper<SampleDesign> qw = new QueryWrapper<>();
+            getProductCategoryTreeQw(vo, qw);
+            qw.select("prod_category1st_name,prod_category1st");
+            qw.groupBy("prod_category1st_name,prod_category1st");
+            List<SampleDesign> list = list(qw);
+            if (CollUtil.isNotEmpty(list)) {
+                return list.stream().map(item -> {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setProdCategory1stName(item.getProdCategory1stName());
+                    tree.setProdCategory1st(item.getProdCategory1st());
+                    tree.setLevel(1);
+                    tree.setChildren(true);
+                    return tree;
+                }).collect(Collectors.toList());
+            }
+        }
+        //第3级 品类
+        else if (vo.getLevel() == 1) {
+            QueryWrapper<SampleDesign> qw = new QueryWrapper<>();
+            getProductCategoryTreeQw(vo, qw);
+            qw.select("prod_category_name,prod_category");
+            qw.groupBy("prod_category_name,prod_category");
+            List<SampleDesign> list = list(qw);
+            if (CollUtil.isNotEmpty(list)) {
+                return list.stream().map(item -> {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setProdCategoryName(item.getProdCategoryName());
+                    tree.setProdCategory(item.getProdCategory());
+                    tree.setLevel(2);
+                    tree.setChildren(false);
+                    return tree;
+                }).collect(Collectors.toList());
+            }
+        }
+        return null;
+    }
+
+    private void getProductCategoryTreeQw(ProductCategoryTreeVo vo, QueryWrapper<?> qw) {
+        qw.eq(StrUtil.isNotBlank(vo.getPlanningSeasonId()), "planning_season_id", vo.getPlanningSeasonId());
+        qw.eq(StrUtil.isNotBlank(vo.getProdCategory1stName()), "prod_category1st_name", vo.getProdCategory1stName());
+        qw.eq(StrUtil.isNotBlank(vo.getProdCategoryName()), "prod_category_name", vo.getProdCategoryName());
     }
 
     private void stylePlanningCommonQw(QueryWrapper<?> qw, PlanningBoardSearchDto dto) {
@@ -640,7 +697,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "sd.planning_season_id", dto.getPlanningSeasonId());
         qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "sd.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
         qw.in(StrUtil.isNotEmpty(dto.getMonth()), "sd.month", StrUtil.split(dto.getMonth(), CharUtil.COMMA));
-        qw.in(StrUtil.isNotEmpty(dto.getProdCategoryId()), "sd.prod_category", StrUtil.split(dto.getProdCategoryId(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotEmpty(dto.getProdCategory()), "sd.prod_category", StrUtil.split(dto.getProdCategory(), CharUtil.COMMA));
     }
 
     private void getDesignDataOverviewCommonQw(QueryWrapper qw, List timeRange) {
@@ -683,7 +740,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         if (!StrUtil.isAllNotEmpty(designDocTreeVo.getYear(), designDocTreeVo.getSeason(), designDocTreeVo.getBandCode())) {
             return result;
         }
-        if (categoryIdx == 1 && StrUtil.isBlank(designDocTreeVo.getCategoryIds())) {
+        if (categoryIdx == 1 && StrUtil.isBlank(designDocTreeVo.getProdCategory1st())) {
             return result;
         }
         QueryWrapper<SampleDesign> qw = new QueryWrapper<>();
@@ -693,14 +750,15 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         qw.eq("season", designDocTreeVo.getSeason());
         qw.eq("band_code", designDocTreeVo.getBandCode());
         qw.eq(StrUtil.isNotBlank(designDocTreeVo.getProdCategory()), "prod_category", designDocTreeVo.getProdCategory());
+        qw.eq(StrUtil.isNotBlank(designDocTreeVo.getProdCategory1st()), "prod_category1st", designDocTreeVo.getProdCategory1st());
         qw.select("DISTINCT prod_category,prod_category_name,prod_category1st,prod_category1st_name");
 
         List<SampleDesign> list = list(qw);
         if (CollUtil.isNotEmpty(list)) {
             Set<String> categoryIdsSet = new HashSet<>(16);
             for (SampleDesign sampleDesign : list) {
-                String code = categoryIdx == 0 ? sampleDesign.getProdCategory() : sampleDesign.getProdCategory1st();
-                String name = categoryIdx == 0 ? sampleDesign.getProdCategoryName() : sampleDesign.getProdCategory1stName();
+                String code = categoryIdx == 1 ? sampleDesign.getProdCategory() : sampleDesign.getProdCategory1st();
+                String name = categoryIdx == 1 ? sampleDesign.getProdCategoryName() : sampleDesign.getProdCategory1stName();
 
                 if (categoryIdsSet.contains(code)) {
                     continue;
@@ -710,7 +768,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
                 BeanUtil.copyProperties(designDocTreeVo, vo);
                 vo.setLevel(2 + categoryIdx);
                 vo.setChildren(categoryIdx == 0);
-                if (categoryIdx == 0) {
+                if (categoryIdx == 1) {
                     vo.setProdCategory(code);
                 } else {
                     vo.setProdCategory1st(code);
@@ -733,7 +791,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         qw.eq(DEL_FLAG, BaseGlobal.DEL_FLAG_NORMAL);
         qw.eq("year", designDocTreeVo.getYear());
         qw.eq("season", designDocTreeVo.getSeason());
-        qw.select("DISTINCT band_code");
+        qw.select("DISTINCT band_code,band_name");
         qw.orderByAsc("band_code");
         List<SampleDesign> list = list(qw);
         if (CollUtil.isNotEmpty(list)) {
@@ -742,7 +800,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
                 BeanUtil.copyProperties(designDocTreeVo, vo);
                 vo.setBandCode(sampleDesign.getBandCode());
                 vo.setLevel(1);
-                vo.setLabel(sampleDesign.getBandCode());
+                vo.setLabel(sampleDesign.getBandName());
                 vo.setChildren(true);
                 result.add(vo);
             }

@@ -66,20 +66,28 @@ public class SampleDesignPageDto extends Page {
     @ApiModelProperty(value = "类型:1我下发的,2我创建的,3我负责的", example = "1")
     private String userType;
 
-    @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)"  )
-    private String categoryIds;
+
     @ApiModelProperty(value = "设计师id",example = "680014765321355265" )
     private String designerId;
     /*小类*/
     private String prodCategory3rd;
 //    产品季节id
-    private String planningSeasonId;
+private String planningSeasonId;
     /*设计款号*/
     private String designNo;
     /*生产模式*/
     private String devtType;
-//    款式状态
-    private String  styleStatus;
-//   是否上会
-    private String  meetFlag;
+    //    款式状态
+    private String styleStatus;
+    //   是否上会
+    private String meetFlag;
+
+
+    @ApiModelProperty(value = "大类code")
+    private String prodCategory1st;
+    /**
+     * 品类id
+     */
+    @ApiModelProperty(value = "品类code")
+    private String prodCategory;
 }
