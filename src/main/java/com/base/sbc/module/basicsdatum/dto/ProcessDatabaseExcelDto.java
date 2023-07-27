@@ -27,20 +27,25 @@ public class ProcessDatabaseExcelDto {
 
     private String processType;
     /**工艺类型*/
-    @Excel(name = "部件类别")
+    @Excel(name = "工艺类型")
     private String processTypeName;
+
+    private String  component;
+
+    @Excel(name = "部件类别")
+    private String componentName;
     /**工艺要求*/
     @Excel(name = "工艺要求")
     private String processRequire;
     /**大类*/
     @Excel(name = "大类")
-    private String majorCategories;
+    private String broadCategory;
     /**中类*/
     @Excel(name = "中类")
-    private String middleClass;
+    private String middleCategory;
     /**小类*/
     @Excel(name = "小类")
-    private String subclass;
+    private String smallCategory;
 
     /**部件类别*/
 //    @Excel(name = "部件类别")

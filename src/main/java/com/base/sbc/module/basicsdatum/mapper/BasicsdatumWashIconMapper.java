@@ -6,33 +6,29 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumWashIconVo;
 import org.apache.ibatis.annotations.Mapper;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumWashIcon;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
- * 类描述：基础资料-洗涤图标与温馨提示 dao类
- * @address com.base.sbc.module.basicsdatum.dao.BasicsdatumLavationReminderDao
+ * 类描述：基础资料-洗涤图标 dao类
+ * @address com.base.sbc.module.basicsdatum.dao.BasicsdatumWashIconDao
  * @author mengfanjiang  
- * @email  2915350015@qq.com
- * @date 创建时间：2023-5-19 19:15:00 
+ * @email  XX.com
+ * @date 创建时间：2023-7-27 17:27:54 
  * @version 1.0  
  */
 @Mapper
-public interface BasicsdatumLavationReminderMapper extends BaseMapper<BasicsdatumLavationReminder> {
-/** 自定义方法区 不替换的区域【other_start】 **/
-
-List<BasicsdatumLavationReminderVo> getLavationReminderList(@Param(Constants.WRAPPER) QueryWrapper<BasicsdatumLavationReminder> qw);
+public interface BasicsdatumWashIconMapper extends BaseMapper<BasicsdatumWashIcon> {
+// 自定义方法区 不替换的区域【other_start】
 
 
-
-/** 自定义方法区 不替换的区域【other_end】 **/
+// 自定义方法区 不替换的区域【other_end】
 }

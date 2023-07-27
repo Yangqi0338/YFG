@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.base.sbc.module.basicsdatum.mapper.BasicsdatumLavationReminderMapper">
+<mapper namespace="com.base.sbc.module.basicsdatum.mapper.BasicsdatumWashIconMapper">
     <!--
-        基础资料-洗涤图标与温馨提示
+        基础资料-洗涤图标
         创建人：mengfanjiang
         邮箱：XX.com
-        创建时间：2023-7-7 18:19:04
+        创建时间：2023-7-27 17:27:54
         版本号：1.0
       -->
 
@@ -13,11 +13,6 @@
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
-    <select id="getLavationReminderList"
-            resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo">
-select  *
-from  t_basicsdatum_lavation_reminder lr
-left join  t_basicsdatum_wash_icon wi  on wi.code = lr.wash_icon_code
-  ${ ew.customSqlSegment}
-    </select>
+    <select id="getBasicsdatumWashIconList"
+            resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumWashIconVo"></select>
 </mapper>
