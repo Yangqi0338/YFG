@@ -9,14 +9,9 @@ import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.config.utils.OpenSmpFtpUtils;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthGroupSaveDto;
+import com.base.sbc.module.basicsdatum.entity.*;
+import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.open.dto.SmpOpenMaterialDto;
@@ -47,6 +42,8 @@ public class OpenSmpService {
     private final BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
 
     private final BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
+
+    private final SpecificationGroupService specificationGroupService;
 
     private final MinioUtils minioUtils;
 
@@ -178,7 +175,6 @@ public class OpenSmpService {
         //        return ;
         //}
 
-        basicsdatumMaterialService.saveOrUpdate(basicsdatumMaterial, new QueryWrapper<BasicsdatumMaterial>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
 
         if (!smpOpenMaterialDto.getCOLORITEMS().isEmpty()) {
             List<BasicsdatumMaterialColor> basicsdatumMaterialColors = new ArrayList<>();
@@ -200,6 +196,7 @@ public class OpenSmpService {
 
         if (!smpOpenMaterialDto.getMODELITEMS().isEmpty()) {
             List<BasicsdatumMaterialWidth> basicsdatumMaterialWidths = new ArrayList<>();
+            List<String> codes =new ArrayList<>();
             smpOpenMaterialDto.getMODELITEMS().forEach(modelItem -> {
                 BasicsdatumMaterialWidth basicsdatumMaterialWidth = new BasicsdatumMaterialWidth();
                 basicsdatumMaterialWidth.setStatus(modelItem.isActive() ? "0" : "1");
@@ -209,7 +206,14 @@ public class OpenSmpService {
                 basicsdatumMaterialWidth.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
                 basicsdatumMaterialWidth.setUpdateName("外部系统推送");
                 basicsdatumMaterialWidths.add(basicsdatumMaterialWidth);
+                codes.add(basicsdatumMaterialWidth.getWidthCode());
             });
+
+            List<SpecificationGroup> specifications = specificationGroupService.list(new QueryWrapper<SpecificationGroup>().eq("specification_ids", String.join(",", codes)));
+            if (specifications!=null && specifications.size() > 0){
+                basicsdatumMaterial.setWidthGroup(specifications.get(0).getCode());
+                basicsdatumMaterial.setWidthGroupName(specifications.get(0).getName());
+            }
             basicsdatumMaterialWidthService.addAndUpdateAndDelList(basicsdatumMaterialWidths, new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
 
         }
@@ -239,6 +243,7 @@ public class OpenSmpService {
             basicsdatumMaterialPriceService.addAndUpdateAndDelList(basicsdatumMaterialPrices, new QueryWrapper<BasicsdatumMaterialPrice>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
 
         }
+        basicsdatumMaterialService.saveOrUpdate(basicsdatumMaterial, new QueryWrapper<BasicsdatumMaterial>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
     }
 
 

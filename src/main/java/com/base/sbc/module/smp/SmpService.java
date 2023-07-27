@@ -218,6 +218,8 @@ public class SmpService {
             smpGoodsDto.setFlowerName(null);
             smpGoodsDto.setLingXingId(null);
             smpGoodsDto.setLingXingName(null);
+            smpGoodsDto.setTextureId(null);
+            smpGoodsDto.setTextureName(null);
 
             if (!CollectionUtils.isEmpty(sampleDesign.getDimensionLabels())) {
                 List<FieldManagementVo> fieldManagementVoList = sampleDesign.getDimensionLabels();
@@ -282,9 +284,7 @@ public class SmpService {
 
             smpGoodsDto.setUnit(sampleDesign.getStyleUnit());
 
-            //成衣
-            smpGoodsDto.setTextureId(null);
-            smpGoodsDto.setTextureName(null);
+
 
             //款式定价
             StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
