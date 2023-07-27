@@ -60,12 +60,15 @@ public class SaveUpdateFieldManagementDto {
     @ApiModelProperty(value = "品类使用范围对应结构树id"  )
     @NotBlank(message = "品类使用范围对应结构树id")
     private String categoryId;
-
+    /** 品类名称 */
+    @ApiModelProperty(value = "品类名称"  )
+    private String categoryName;
     /** 季节 */
     @ApiModelProperty(value = "季节"  )
     @NotBlank(message = "季节")
     private String season;
-
+    /*季节名称*/
+    private String seasonName;
     /** 是否检查(0是，1否) */
     @ApiModelProperty(value = "是否检查(0是，1否)"  )
     @NotBlank(message = "是否检查")

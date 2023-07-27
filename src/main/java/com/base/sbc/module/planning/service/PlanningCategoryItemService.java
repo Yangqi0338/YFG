@@ -43,7 +43,7 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
 
     String selectMaxDesignNo(QueryWrapper qc);
 
-    List<String> selectCategoryIdsByBand(QueryWrapper qw);
+
 
 
     /**
@@ -106,12 +106,6 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
      */
     PageInfo<PlanningSeasonOverviewVo> findProductCategoryItem(ProductCategoryItemSearchDto dto);
 
-    /**
-     * 按品类展开
-     * @param dto
-     * @return
-     */
-    List<BasicStructureTreeVo> expandByCategory(ProductSeasonExpandByCategorySearchDto dto);
 
     /**
      * 坑位信息下发
@@ -162,7 +156,8 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
      */
     boolean seatSend(List<PlanningCategoryItemSaveDto> list);
 
-    Map<String, Long> totalSkcByPlanningSeason();
+
+    Map<String, Long> totalSkcByPlanningSeason(List<String> planningSeasonIds);
 
     Map<String, Long> totalSkcByChannel(List<String> channelIds);
 
@@ -177,4 +172,6 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
     List<BasicStructureTreeVo> categoryTree(String planningChannelId);
 
     boolean revoke(String ids);
+
+    boolean del(String id);
 }

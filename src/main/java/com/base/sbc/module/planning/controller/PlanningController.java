@@ -2,9 +2,7 @@ package com.base.sbc.module.planning.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmService;
@@ -16,10 +14,15 @@ import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.*;
-import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningSeason;
-import com.base.sbc.module.planning.service.*;
-import com.base.sbc.module.planning.vo.*;
+import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
+import com.base.sbc.module.planning.service.PlanningCategoryItemService;
+import com.base.sbc.module.planning.service.PlanningChannelService;
+import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.vo.PlanningChannelVo;
+import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
+import com.base.sbc.module.planning.vo.PlanningSeasonVo;
+import com.base.sbc.module.planning.vo.YearBrandVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -55,10 +58,6 @@ public class PlanningController extends BaseController {
 
     @Resource
     private PlanningSeasonService planningSeasonService;
-    @Autowired
-    private PlanningBandService planningBandService;
-    @Resource
-    private PlanningCategoryService planningCategoryService;
     @Resource
     private PlanningCategoryItemService planningCategoryItemService;
 
@@ -124,31 +123,9 @@ public class PlanningController extends BaseController {
         return planningCategoryItemService.categoryTree(planningChannelId);
     }
 
-    @ApiOperation(value = "查询波段企划-分页查询")
-    @GetMapping("/planBand")
-    public PageInfo<PlanningSeasonBandVo> bandList(@Valid PlanningBandSearchDto dto) {
-        PageInfo<PlanningSeasonBandVo> pageInfo = planningBandService.queryPlanningSeasonBandPageInfo(dto, getUserCompany());
-        if (pageInfo != null) {
-            return pageInfo;
-        }
-        return new PageInfo<>();
-    }
 
-    @ApiOperation(value = "查询波段企划-通过产品季和波段企划名称")
-    @GetMapping("/planBand/getByName")
-    public PlanningSeasonBandVo getBandByName(@NotNull(message = "产品季名称不能为空") String planningSeasonName, @NotNull(message = "波段企划名称不能为空") String planningBandName) {
-        PlanningSeasonBandVo result = planningBandService.getBandByName(planningSeasonName, planningBandName, getUserCompany());
-        return result;
-    }
 
-    @ApiOperation(value = "保存波段企划")
-    @PostMapping("/planBand")
-    public PlanningBandVo savePlanBand(@Valid @RequestBody PlanningBandDto dto) {
-        // 校验重复
-        planningBandService.checkRepeat(dto, getUserCompany());
-        PlanningBand bean = planningBandService.savePlanningBand(dto);
-        return BeanUtil.copyProperties(bean, PlanningBandVo.class);
-    }
+
 
     @ApiOperation(value = "修改坑位信息")
     @PostMapping("/updateCategoryItem")
@@ -165,9 +142,16 @@ public class PlanningController extends BaseController {
 
     @ApiOperation(value = "撤回(新)")
     @GetMapping("/seat/revoke")
-    public boolean revoke(@Validated IdsDto idsDto) {
+    public boolean seatRevoke(@Validated IdsDto idsDto) {
         return planningCategoryItemService.revoke(idsDto.getId());
     }
+
+    @ApiOperation(value = "删除坑位信息(新)")
+    @GetMapping("/seat/del")
+    public boolean seatDel(@Validated IdsDto idsDto) {
+        return planningCategoryItemService.del(idsDto.getId());
+    }
+
 
     @ApiOperation(value = "坑位信息下发(坑位信息下发到产品季总览)")
     @PostMapping("/seatSend")
@@ -213,17 +197,6 @@ public class PlanningController extends BaseController {
     }
 
 
-    @ApiOperation(value = "删除波段企划下的品类信息")
-    @DeleteMapping("/planBand/delCategory")
-    public boolean delPlanBandCategory(String ids) {
-        if (StrUtil.isBlank(ids)) {
-            return false;
-        }
-        List<String> idList = StrUtil.split(ids, CharUtil.COMMA);
-        return planningCategoryService.delPlanningCategory(getUserCompany(), idList);
-    }
-
-
     @ApiOperation(value = "删除产品季")
     @DeleteMapping("/planningSeason")
     public boolean delPlanningSeason(@Valid @NotNull(message = "编号不能为空") String id) {
@@ -233,12 +206,6 @@ public class PlanningController extends BaseController {
         return planningSeasonService.delPlanningSeason(id);
     }
 
-
-    @ApiOperation(value = "删除波段企划")
-    @DeleteMapping("/planningBand")
-    public boolean delPlanningBand(@Valid @NotNull(message = "编号不能为空") String id) {
-        return planningBandService.del(id);
-    }
 
     @ApiOperation(value = "保存关联的素材库")
     @PostMapping("/savePlanningCategoryItemMaterial")

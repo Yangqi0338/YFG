@@ -6,15 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.planning.entity.PlanningBand;
-import com.base.sbc.module.planning.vo.PlanningSeasonBandVo;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
 
 /**
  * 类描述：企划-波段表 dao类
@@ -27,11 +21,5 @@ import java.util.List;
 @Mapper
 public interface PlanningBandMapper extends BaseMapper<PlanningBand> {
 
-    /**
-     * 通过构造器查询
-     * @param wrapper
-     * @return
-     */
-    List<PlanningSeasonBandVo> selectByQw(@Param(Constants.WRAPPER) QueryWrapper<PlanningBand> wrapper);
 
 }

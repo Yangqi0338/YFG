@@ -7,7 +7,6 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategory;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningSeason;
@@ -28,15 +27,14 @@ import java.util.stream.Collectors;
  */
 public class PlanningUtils {
 
-    public static SampleDesign toSampleDesign(PlanningSeason season, PlanningBand band, PlanningCategoryItem item) {
+    public static SampleDesign toSampleDesign(PlanningSeason season, PlanningCategoryItem item) {
         SampleDesign sampleDesign = new SampleDesign();
-        toSampleDesign(sampleDesign, season, band, item);
+        toSampleDesign(sampleDesign, season, item);
         return sampleDesign;
     }
 
-    public static void toSampleDesign(SampleDesign sampleDesign, PlanningSeason season, PlanningBand band, PlanningCategoryItem item) {
+    public static void toSampleDesign(SampleDesign sampleDesign, PlanningSeason season, PlanningCategoryItem item) {
         BeanUtil.copyProperties(season, sampleDesign);
-        BeanUtil.copyProperties(band, sampleDesign);
         BeanUtil.copyProperties(item, sampleDesign);
         sampleDesign.setPlanningCategoryItemId(item.getId());
         sampleDesign.setId(null);

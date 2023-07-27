@@ -28,9 +28,7 @@ import java.util.List;
 public interface PlanningSeasonMapper extends BaseMapper<PlanningSeason> {
 
 
-    List<PlanningSeason> selectProductSeason(@Param(Constants.WRAPPER) QueryWrapper qw);
 
-    List<PlanningSeason> queryYs(@Param("companyCode") String companyCode);
 
     List<SelectOptionsVo> getPlanningSeasonOptions(@Param(Constants.WRAPPER) QueryWrapper qw);
 

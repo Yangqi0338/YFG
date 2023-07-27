@@ -18,7 +18,6 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.QueryCondition;
-import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
@@ -42,7 +41,10 @@ import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
-import com.base.sbc.module.planning.service.*;
+import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
+import com.base.sbc.module.planning.service.PlanningCategoryItemService;
+import com.base.sbc.module.planning.service.PlanningChannelService;
+import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
@@ -78,8 +80,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
     @Autowired
     PlanningSeasonService planningSeasonService;
-    @Autowired
-    PlanningBandService planningBandService;
+
     @Autowired
     PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
     @Autowired
@@ -100,8 +101,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     AttachmentService attachmentService;
 
 
-    @Autowired
-    PlanningCategoryService planningCategoryService;
+
     @Autowired
     PlanningChannelService planningChannelService;
 
@@ -236,10 +236,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         return getBaseMapper().selectMaxDesignNo(qc);
     }
 
-    @Override
-    public List<String> selectCategoryIdsByBand(QueryWrapper qw) {
-        return getBaseMapper().selectCategoryIdsByBand(qw);
-    }
+
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -371,6 +368,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         //波段
         qw.eq(StrUtil.isNotBlank(dto.getBandCode()), "c.band_code", dto.getBandCode());
         qw.eq(StrUtil.isNotBlank(dto.getPlanningChannelId()), "c.planning_channel_id", dto.getPlanningChannelId());
+        qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "c.prod_category", dto.getProdCategory());
+        qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), "c.prod_category1st", dto.getProdCategory1st());
         // 品类
         qw.in(CollUtil.isNotEmpty(dto.getCategoryIds()), "c.prod_category", dto.getCategoryIds());
         // 设计师
@@ -411,21 +410,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         return pageInfo;
     }
 
-    @Override
-    public List<BasicStructureTreeVo> expandByCategory(ProductSeasonExpandByCategorySearchDto dto) {
-        QueryWrapper qw = new QueryWrapper();
-        qw.eq("b.del_flag", BaseEntity.DEL_FLAG_NORMAL);
-        qw.eq("c.del_flag", BaseEntity.DEL_FLAG_NORMAL);
-        qw.eq("b.status", BaseGlobal.STOCK_STATUS_CHECKED);
-        qw.eq("b.planning_season_id", dto.getPlanningSeasonId());
-        qw.eq("c.planning_season_id", dto.getPlanningSeasonId());
 
-        List<String> categoryIds = selectCategoryIdsByBand(qw);
-        if (CollUtil.isEmpty(categoryIds)) {
-            return null;
-        }
-        return ccmFeignService.findStructureTreeByCategoryIds(CollUtil.join(categoryIds, ","));
-    }
 
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
@@ -473,13 +458,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         seasonQw.in("id", seasonIds);
         List<PlanningSeason> seasonList = planningSeasonService.list(seasonQw);
         Map<String, PlanningSeason> seasonMap = Optional.ofNullable(seasonList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b));
-        // 查询波段企划
-        QueryWrapper<PlanningBand> bandQw = new QueryWrapper<>();
-        bandQw.in("id", bandIds);
-        List<PlanningBand> bandList = planningBandService.list(bandQw);
+
         // 图片文件id
         Map<String, String> fileUrlId = uploadFileService.findMapByUrls(fileUrls);
-        Map<String, PlanningBand> bandMap = Optional.ofNullable(bandList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b));
 
         List<SampleDesign> sampleDesignList = new ArrayList<>(16);
 
@@ -487,7 +468,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             if (dbItemMap.containsKey(item.getId())) {
                 continue;
             }
-            SampleDesign sampleDesign = PlanningUtils.toSampleDesign(seasonMap.get(item.getPlanningSeasonId()), bandMap.get(item.getPlanningBandId()), item);
+            SampleDesign sampleDesign = PlanningUtils.toSampleDesign(seasonMap.get(item.getPlanningSeasonId()), item);
             sampleDesign.setSender(getUserId());
             sampleDesign.setStylePic(Optional.ofNullable(fileUrlId.get(sampleDesign.getStylePic())).orElse(""));
             sampleDesignList.add(sampleDesign);
@@ -535,9 +516,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     public List<FieldManagementVo> querySeatDimension(String id, String isSelected) {
         PlanningCategoryItem seat = getById(id);
         PlanningSeason season = planningSeasonService.getById(seat.getPlanningSeasonId());
-        PlanningCategory category = planningCategoryService.getById(seat.getPlanningCategoryId());
-        List<String> categoryIds = StrUtil.split(category.getCategoryIds(), CharUtil.COMMA);
-        List<FieldManagementVo> fieldList = fieldManagementService.list(FormTypeCodes.DIMENSION_LABELS, CollUtil.get(categoryIds, 1), season.getSeason());
+
+        List<FieldManagementVo> fieldList = fieldManagementService.list(FormTypeCodes.DIMENSION_LABELS, seat.getProdCategory(), season.getSeason());
         List<FieldVal> valueList = fieldValService.list(id, FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION);
         fieldManagementService.conversion(fieldList, valueList);
         if (StrUtil.isNotBlank(isSelected) && CollUtil.isNotEmpty(fieldList)) {
@@ -605,16 +585,17 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         }
         UpdateWrapper<PlanningCategoryItem> seatUw = new UpdateWrapper<>();
         seatUw.set("status", BasicNumber.ONE.getNumber());
-        seatUw.eq("status", BasicNumber.ZERO.getNumber());
+        seatUw.in("status", BasicNumber.ZERO.getNumber(), "-1");
         seatUw.in("id", seatIds);
         update(seatUw);
         return true;
     }
 
     @Override
-    public Map<String, Long> totalSkcByPlanningSeason() {
+    public Map<String, Long> totalSkcByPlanningSeason(List<String> planningSeasonIds) {
         QueryWrapper qw = new QueryWrapper();
         qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.in(CollUtil.isNotEmpty(planningSeasonIds), "planning_season_id", planningSeasonIds);
         Map<String, Long> result = new HashMap<>(16);
         List<Map<String, Long>> list = getBaseMapper().totalSkcByPlanningSeason(qw);
         if (CollUtil.isNotEmpty(list)) {
@@ -702,6 +683,27 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         uw.in("id", seatIds);
         uw.set("status", "-1");
         update(uw);
+        sampleDesignService.remove(sdQw);
+        return true;
+    }
+
+    @Override
+    public boolean del(String ids) {
+        // 查询样衣设计数据
+        QueryWrapper<SampleDesign> sdQw = new QueryWrapper();
+        List<String> seatIds = StrUtil.split(ids, CharUtil.COMMA);
+        sdQw.in("planning_category_item_id", seatIds);
+        List<SampleDesign> sdList = sampleDesignService.list(sdQw);
+        //判断是否已开款
+        if (CollUtil.isNotEmpty(sdList)) {
+            String designNos = sdList.stream()
+                    .filter(a -> StrUtil.equalsAny(a.getStatus(), BasicNumber.ONE.getNumber(), BasicNumber.TWO.getNumber()))
+                    .map(a -> a.getDesignNo()).collect(Collectors.joining(StrUtil.COMMA));
+            if (StrUtil.isNotBlank(designNos)) {
+                throw new OtherException(designNos + "已开款无法删除");
+            }
+        }
+        removeBatchByIds(seatIds);
         sampleDesignService.remove(sdQw);
         return true;
     }

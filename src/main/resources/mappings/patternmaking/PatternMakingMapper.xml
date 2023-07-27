@@ -206,33 +206,33 @@
             #{sampleType} AS sample_type,
             DATE_FORMAT( pmm.create_date, IF(#{weeklyMonth} = 'week','%y年%u周', '%y年%m月') ) AS year_week,
             min( pmm.create_date ) AS min_date,
-            count( 1 ) AS num,
-            SUM( pmm.requirement_num ) AS requirement_num_sum
+        count( 1 ) AS num,
+        SUM( pmm.requirement_num ) AS requirement_num_sum
         FROM
-            (
-            SELECT
-                sd.planning_category_id,
-                pm.*
-            FROM
-                t_pattern_making pm
-                LEFT JOIN t_sample_design sd ON pm.sample_design_id = sd.id
-                LEFT JOIN t_planning_category pc ON sd.planning_category_id = pc.id
-            WHERE
-                pm.node = '打版任务'
-                AND pm.company_code = #{companyCode}
-                AND pm.create_date BETWEEN #{startTime} AND #{endTime}
-                <if test="null != statusList and statusList.size() > 0">
+        (
+        SELECT
+        sd.planning_category_id,
+        pm.*
+        FROM
+        t_pattern_making pm
+        LEFT JOIN t_sample_design sd ON pm.sample_design_id = sd.id
+        LEFT JOIN t_planning_category_item pc ON sd.planning_category_id = pc.id
+        WHERE
+        pm.node = '打版任务'
+        AND pm.company_code = #{companyCode}
+        AND pm.create_date BETWEEN #{startTime} AND #{endTime}
+        <if test="null != statusList and statusList.size() > 0">
                     AND pm.`status` IN
                     <foreach collection="statusList" item="status" separator="," open="(" close=")">
                         #{status}
                     </foreach>
                 </if>
-                <if test="null != categoryIds and categoryIds.size() > 0">
-                    AND
-                    <foreach collection="categoryIds" item="categoryId" separator="OR" open="(" close=")">
-                         pc.category_ids LIKE concat('%',#{categoryId,jdbcType=VARCHAR},'%')
-                    </foreach>
-                </if>
+        <if test="null != categoryIds and categoryIds.size() > 0">
+            AND pc.prod_category in
+            <foreach collection="categoryIds" item="categoryId" separator="," open="(" close=")">
+                #{categoryId}
+            </foreach>
+        </if>
 
             ) pmm
         GROUP BY
