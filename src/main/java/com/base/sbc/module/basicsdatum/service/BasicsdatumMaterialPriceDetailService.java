@@ -13,7 +13,7 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPriceDetail;
  * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService
  * @author your name
  * @email your email
- * @date 创建时间：2023-7-27 16:26:19
+ * @date 创建时间：2023-7-27 17:53:42
  * @version 1.0  
  */
 public interface BasicsdatumMaterialPriceDetailService extends BaseService<BasicsdatumMaterialPriceDetail>{
@@ -26,3 +26,4 @@ public interface BasicsdatumMaterialPriceDetailService extends BaseService<Basic
 
 	
 }
+

@@ -6,11 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
 import java.math.BigDecimal;
-import java.util.Date;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -21,7 +18,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPriceDetail
  * @author your name
  * @email your email
- * @date 创建时间：2023-7-27 16:26:17
+ * @date 创建时间：2023-7-27 17:53:40
  * @version 1.0
  */
 @Data
@@ -32,7 +29,13 @@ public class BasicsdatumMaterialPriceDetail extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    /** 实体主键 */
+    @TableId(type = IdType.ASSIGN_ID)
+    protected String id;
 
+    /** 公司编码 */
+    @TableField(fill = FieldFill.INSERT)
+    protected String companyCode;
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
@@ -49,9 +52,6 @@ public class BasicsdatumMaterialPriceDetail extends BaseDataEntity<String> {
     /** 供应商名称 */
     @ApiModelProperty(value = "供应商名称"  )
     private String supplierName;
-    /** 状态(0正常,1停用) */
-    @ApiModelProperty(value = "状态(0正常,1停用)"  )
-    private String status;
     /** 颜色 */
     @ApiModelProperty(value = "颜色"  )
     private String color;
@@ -61,24 +61,6 @@ public class BasicsdatumMaterialPriceDetail extends BaseDataEntity<String> {
     /** 采购报价 */
     @ApiModelProperty(value = "采购报价"  )
     private BigDecimal quotationPrice;
-    /** 币种 */
-    @ApiModelProperty(value = "币种"  )
-    private String currency;
-    /** 币种名称 */
-    @ApiModelProperty(value = "币种名称"  )
-    private String currencyName;
-    /** 订货周期 */
-    @ApiModelProperty(value = "订货周期"  )
-    private BigDecimal orderDay;
-    /** 生产周期 */
-    @ApiModelProperty(value = "生产周期"  )
-    private BigDecimal productionDay;
-    /** 起订量 */
-    @ApiModelProperty(value = "起订量"  )
-    private Integer minimumOrderQuantity;
-    /** 每色起订量 */
-    @ApiModelProperty(value = "每色起订量"  )
-    private Integer minimumOrderQuantityColor;
     /** 颜色 */
     @ApiModelProperty(value = "颜色"  )
     private String colorName;
@@ -88,14 +70,6 @@ public class BasicsdatumMaterialPriceDetail extends BaseDataEntity<String> {
     /** 供应商料号 */
     @ApiModelProperty(value = "供应商料号"  )
     private String supplierMaterialCode;
-    /** 是否默认(0不默认，1默认) */
-    @ApiModelProperty(value = "是否默认(0不默认，1默认)"  )
-    private Boolean selectFlag;
-    /** fob(预留) */
-    @ApiModelProperty(value = "fob(预留)"  )
-    private String fob;
-    /** 备注信息 */
-    @ApiModelProperty(value = "备注信息"  )
-    private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+

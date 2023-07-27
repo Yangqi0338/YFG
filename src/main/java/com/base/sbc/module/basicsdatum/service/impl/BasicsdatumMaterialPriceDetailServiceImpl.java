@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
  * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService
  * @author your name
  * @email your email
- * @date 创建时间：2023-7-27 16:26:19
+ * @date 创建时间：2023-7-27 17:53:42
  * @version 1.0  
  */
 @Service
@@ -29,3 +29,4 @@ public class BasicsdatumMaterialPriceDetailServiceImpl extends BaseServiceImpl<B
 // 自定义方法区 不替换的区域【other_end】
 	
 }
+

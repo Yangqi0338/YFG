@@ -14,7 +14,7 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPriceDetail;
  * @address com.base.sbc.module.basicsdatum.dao.BasicsdatumMaterialPriceDetailDao
  * @author your name  
  * @email  your email
- * @date 创建时间：2023-7-27 16:26:18 
+ * @date 创建时间：2023-7-27 17:53:42 
  * @version 1.0  
  */
 @Mapper
@@ -25,3 +25,4 @@ public interface BasicsdatumMaterialPriceDetailMapper extends BaseMapper<Basicsd
 
 // 自定义方法区 不替换的区域【other_end】
 }
+
