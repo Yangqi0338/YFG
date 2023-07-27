@@ -83,21 +83,14 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
             /*分页*/
             PageHelper.startPage(queryDto);
             QueryWrapper<BasicsdatumLavationReminder> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("company_code", baseController.getUserCompany());
-            queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getStatus()), "status", queryDto.getStatus());
-            queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCode()), "code", queryDto.getCode());
-            queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCareLabel()),"care_label",queryDto.getCareLabel());
+            queryWrapper.eq("lr.company_code", baseController.getUserCompany());
+            queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getStatus()), "lr.status", queryDto.getStatus());
+            queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCode()), "lr.code", queryDto.getCode());
+            queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCareLabel()),"lr.care_label",queryDto.getCareLabel());
             /*查询基础资料-洗涤图标与温馨提示数据*/
-            List<BasicsdatumLavationReminder> basicsdatumLavationReminderList = baseMapper.selectList(queryWrapper);
-            PageInfo<BasicsdatumLavationReminder> pageInfo = new PageInfo<>(basicsdatumLavationReminderList);
-            /*转换vo*/
-            List<BasicsdatumLavationReminderVo> list = BeanUtil.copyToList(basicsdatumLavationReminderList, BasicsdatumLavationReminderVo.class);
-            PageInfo<BasicsdatumLavationReminderVo> pageInfo1 = new PageInfo<>();
-            pageInfo1.setList(list);
-            pageInfo1.setTotal(pageInfo.getTotal());
-            pageInfo1.setPageNum(pageInfo.getPageNum());
-            pageInfo1.setPageSize(pageInfo.getPageSize());
-            return pageInfo1;
+            List<BasicsdatumLavationReminderVo> basicsdatumLavationReminderList = baseMapper.getLavationReminderList(queryWrapper);
+            PageInfo<BasicsdatumLavationReminderVo> pageInfo = new PageInfo<>(basicsdatumLavationReminderList);
+            return pageInfo;
         }
 
 

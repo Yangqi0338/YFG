@@ -37,10 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -71,9 +68,12 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         String type = "";
         /*类别 1：部件库，2：基础工艺，3：外辅工艺，4：裁剪工艺，5：注意事项，6：整烫包装，7：模板部件*/
         String name = split[0];
+        String dict = "";
         if(name.indexOf("部件库")!= -1){
+            dict = "C8_SpecCategory";
             type="1";
         }else if(name.indexOf("基础工艺")!= -1){
+            dict = "C8_SewingType";
             type="2";
         }else if(name.indexOf("外辅工艺")!= -1){
             type="3";
@@ -84,41 +84,31 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         }else if(name.indexOf("整烫包装")!= -1){
             type="6";
         }else if(name.indexOf("模板部件")!= -1){
+            dict = "C8_SpecCategory,C8_Brand";
             type="7";
         }
-        /*switch (split[0]){
-            case "部件库":
-                type="1";
-                break;
-            case "基础工艺":
-                type="2";
-                break;
-            case "外辅工艺":
-                type="3";
-                break;
-            case "裁剪工艺":
-                type="4";
-                break;
-            case "注意事项":
-                type="5";
-                break;
-            case "整烫包装":
-                type="6";
-                break;
-            case "模板部件":
-                type="7";
-                break;
-            default:
-                break;
-        }*/
+
+        if(StringUtils.isBlank(type)){
+            throw new OtherException("文件名称错误");
+        }
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
         List<ProcessDatabaseExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), ProcessDatabaseExcelDto.class, params);
         list = list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
-        //             获取字典值
-        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Brand,C8_SpecCategory");
-        Map<String, String> map =   dictInfoToMap.get("C8_Brand");
-        Map<String, String> map1 =   dictInfoToMap.get("C8_SpecCategory");
+
+        //获取字典值
+        Map<String, Map<String, String>> dictInfoToMap = new HashMap<>();
+        Map<String, String> map = new HashMap<>();
+        Map<String, String> map1 = new HashMap<>();
+        if(StringUtils.isNotBlank(dict)){
+             dictInfoToMap = ccmFeignService.getDictInfoToMap(dict);
+             map = dictInfoToMap.get(dict.split(",")[0]);
+        }
+        List<BasicCategoryDot> basicCategoryDotList = new ArrayList<>();
+        if ( type.equals("7")){
+            basicCategoryDotList = ccmFeignService.getTreeByNamelList("品类", "1");
+            map1 = dictInfoToMap.get(dict.split(",")[1]);
+        }
         for (ProcessDatabaseExcelDto processDatabaseExcelDto : list) {
             processDatabaseExcelDto.setType(type);
             if (!StringUtils.isEmpty(processDatabaseExcelDto.getPicture())) {
@@ -129,35 +119,30 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
                     processDatabaseExcelDto.setPicture(attachmentVo.getUrl());
                 }
             }
-            if ("1".equals(type) || "7".equals(type)){
-//                processDatabaseExcelDto.setProcessType(processDatabaseExcelDto.getComponentCategory());
-                /*品类*/
-                if(StringUtils.isNotBlank(processDatabaseExcelDto.getCategoryName())){
-                    processDatabaseExcelDto.setCategoryName(processDatabaseExcelDto.getCategoryName().replaceAll(" ",""));
-                    List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getCategorySByNameAndLevel("品类", processDatabaseExcelDto.getCategoryName(), "1");
-                    List<String> stringList =  basicCategoryDotList.stream().map(BasicCategoryDot::getValue ).collect(Collectors.toList());
-                    processDatabaseExcelDto.setCategoryId(StringUtils.join(stringList,","));
-                }
-                /*品牌*/
-                if(StringUtils.isNotBlank(processDatabaseExcelDto.getBrandName())){
-                    String[] strings =   processDatabaseExcelDto.getBrandName().replaceAll(" ","").split(",");
+
+            if(type.equals(BaseGlobal.OUT) || type.equals("7")){
+                /*部件*/
+                if(StringUtils.isNotBlank(processDatabaseExcelDto.getComponentName())){
+                    String[] componentNames =   processDatabaseExcelDto.getComponentName().replaceAll(" ","").split(",");
                     List<String> stringList =new ArrayList<>();
                     List<String> stringList1 =new ArrayList<>();
                     map.forEach((k, v) -> {
-                        if (Arrays.asList(strings).contains(v)) {
+                        if (Arrays.asList(componentNames).contains(v)) {
                             stringList.add(k);
                             stringList1.add(v);
                         }
                     });
-                    processDatabaseExcelDto.setBrandId(StringUtils.join(stringList,","));
-                    processDatabaseExcelDto.setBrandName(StringUtils.join(stringList1,","));
+                    processDatabaseExcelDto.setComponent(StringUtils.join(stringList,","));
+                    processDatabaseExcelDto.setComponentName(StringUtils.join(stringList1,","));
                 }
-                /*部件类别*/
+            }else if(type.equals(BaseGlobal.OUT_READY) || type.equals("6")){
+
+                /*工艺类型*/
                 if(StringUtils.isNotBlank(processDatabaseExcelDto.getProcessTypeName())){
                     String[] processTypeNames =   processDatabaseExcelDto.getProcessTypeName().replaceAll(" ","").split(",");
                     List<String> stringList =new ArrayList<>();
                     List<String> stringList1 =new ArrayList<>();
-                    map1.forEach((k, v) -> {
+                    map.forEach((k, v) -> {
                         if (Arrays.asList(processTypeNames).contains(v)) {
                             stringList.add(k);
                             stringList1.add(v);
@@ -166,10 +151,36 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
                     processDatabaseExcelDto.setProcessType(StringUtils.join(stringList,","));
                     processDatabaseExcelDto.setProcessTypeName(StringUtils.join(stringList1,","));
                 }
+
             }
 
-            if ("3".equals(type)){
-                processDatabaseExcelDto.setCategoryName(processDatabaseExcelDto.getMajorCategories()+"-"+processDatabaseExcelDto.getMiddleClass()+"-"+processDatabaseExcelDto.getSubclass());
+            if ( type.equals("7")){
+//                processDatabaseExcelDto.setProcessType(processDatabaseExcelDto.getComponentCategory());
+                /*品类*/
+                if(StringUtils.isNotBlank(processDatabaseExcelDto.getCategoryName())){
+                   String[] strings = processDatabaseExcelDto.getCategoryName().replaceAll(" ","").split(",");
+                    List<BasicCategoryDot> list1 = basicCategoryDotList.stream().filter(b ->  Arrays.asList(strings).contains(b.getName())).collect(Collectors.toList());
+                    if (!CollectionUtils.isEmpty(list1)){
+                        List<String>  stringList =  list1.stream().map(BasicCategoryDot::getValue).collect(Collectors.toList());
+                        List<String>  stringList1 =  list1.stream().map(BasicCategoryDot::getName).collect(Collectors.toList());
+                        processDatabaseExcelDto.setCategoryId(StringUtils.join(stringList,","));
+                        processDatabaseExcelDto.setCategoryName(StringUtils.join(stringList1,","));
+                    }
+                }
+                    /*品牌*/
+                    if(StringUtils.isNotBlank(processDatabaseExcelDto.getBrandName())){
+                        String[] strings =   processDatabaseExcelDto.getBrandName().replaceAll(" ","").split(",");
+                        List<String> stringList =new ArrayList<>();
+                        List<String> stringList1 =new ArrayList<>();
+                        map1.forEach((k, v) -> {
+                            if (Arrays.asList(strings).contains(v)) {
+                                stringList.add(k);
+                                stringList1.add(v);
+                            }
+                        });
+                        processDatabaseExcelDto.setBrandId(StringUtils.join(stringList,","));
+                        processDatabaseExcelDto.setBrandName(StringUtils.join(stringList1,","));
+                    }
             }
         }
 
@@ -200,9 +211,16 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
 
         if(type.equals("1")){
             List<ComponentLibraryExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), ComponentLibraryExcelDto.class);
-            ExcelUtils.exportExcel(list, ComponentLibraryExcelDto.class, "基础资料-模板部件.xlsx", new ExportParams(), response);
+            ExcelUtils.exportExcel(list, ComponentLibraryExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
         }else if(type.equals("2")){
-
+            List<BasicsCraftExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsCraftExcelDto.class);
+            ExcelUtils.exportExcel(list, BasicsCraftExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
+        }else if(type.equals("3")){
+            List<ExternalCraftExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), ExternalCraftExcelDto.class);
+            ExcelUtils.exportExcel(list, ExternalCraftExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
+        } {
+            List<CraftMaterialExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), CraftMaterialExcelDto.class);
+            ExcelUtils.exportExcel(list, CraftMaterialExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
         }
 
 
