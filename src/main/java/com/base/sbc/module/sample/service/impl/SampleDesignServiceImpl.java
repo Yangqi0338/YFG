@@ -122,6 +122,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
             setMainStylePic(sampleDesign, dto.getStylePicList());
             PlanningUtils.setCategory(sampleDesign);
             this.updateById(sampleDesign);
+            planningCategoryItemService.updateBySampleDesignChange(sampleDesign);
         } else {
             sampleDesign = saveNewSampleDesign(dto);
         }

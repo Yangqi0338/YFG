@@ -602,10 +602,10 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.in(CollUtil.isNotEmpty(planningSeasonIds), "planning_season_id", planningSeasonIds);
         Map<String, Long> result = new HashMap<>(16);
-        List<Map<String, Long>> list = getBaseMapper().totalSkcByPlanningSeason(qw);
+        List<CountVo> list = getBaseMapper().totalSkcByPlanningSeason(qw);
         if (CollUtil.isNotEmpty(list)) {
-            for (Map<String, Long> stringLongMap : list) {
-                result.putAll(stringLongMap);
+            for (CountVo countVo : list) {
+                result.put(countVo.getLabel(), countVo.getCount());
             }
         }
         return result;
@@ -617,10 +617,10 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.in("planning_channel_id", channelIds);
         Map<String, Long> result = new HashMap<>(16);
-        List<Map<String, Long>> list = getBaseMapper().totalSkcByChannel(qw);
+        List<CountVo> list = getBaseMapper().totalSkcByChannel(qw);
         if (CollUtil.isNotEmpty(list)) {
-            for (Map<String, Long> stringLongMap : list) {
-                result.putAll(stringLongMap);
+            for (CountVo countVo : list) {
+                result.put(countVo.getLabel(), countVo.getCount());
             }
         }
         return result;
@@ -742,6 +742,14 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             return null;
         }
         return ccmFeignService.findStructureTreeByCodes(CollUtil.join(categoryIds, ","));
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void updateBySampleDesignChange(SampleDesign sampleDesign) {
+        PlanningCategoryItem byId = getById(sampleDesign.getPlanningCategoryItemId());
+        BeanUtil.copyProperties(sampleDesign, byId, "createId", "createName", "id");
+        updateById(byId);
     }
 
 

@@ -83,16 +83,16 @@
         </if>
         group by dimension
     </select>
-    <select id="totalSkcByPlanningSeason" resultType="java.util.Map">
-        select planning_season_id as id,count(id) as total from t_planning_category_item
+    <select id="totalSkcByPlanningSeason" resultType="com.base.sbc.module.common.vo.CountVo">
+        select planning_season_id as label,count(id) as `count` from t_planning_category_item
         WHERE del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
         group by planning_season_id
     </select>
-    <select id="totalSkcByChannel" resultType="java.util.Map">
-        select planning_channel_id as id,count(id) as total from t_planning_category_item
+    <select id="totalSkcByChannel" resultType="com.base.sbc.module.common.vo.CountVo">
+        select planning_channel_id as label,count(id) as `count` from t_planning_category_item
         WHERE del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
