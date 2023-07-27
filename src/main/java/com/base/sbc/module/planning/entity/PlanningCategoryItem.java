@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-27 15:46:56
+ * @date 创建时间：2023-7-27 16:35:30
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -45,16 +45,6 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
     /**
-     * 波段企划id
-     */
-    @ApiModelProperty(value = "波段企划id")
-    private String planningBandId;
-    /**
-     * 品类信息id
-     */
-    @ApiModelProperty(value = "品类信息id")
-    private String planningCategoryId;
-    /**
      * 渠道id
      */
     @ApiModelProperty(value = "渠道id")
@@ -74,16 +64,6 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "状态:0未下发,1已下发到产品季总览,2已下发到样衣设计,-1撤回")
     private String status;
-    /**
-     * 品类名称路径:(大类/品类/中类/小类)
-     */
-    @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)")
-    private String categoryName;
-    /**
-     * 品类code路径:(大类/品类/中类/小类)
-     */
-    @ApiModelProperty(value = "品类code路径:(大类/品类/中类/小类)")
-    private String categoryIds;
     /**
      * 大类code
      */

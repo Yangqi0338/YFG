@@ -6,25 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import com.base.sbc.module.sample.service.SampleDesignService;
-import com.base.sbc.module.sample.vo.SampleDesignVo;
-import org.springframework.beans.BeanUtils;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
-
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -36,26 +21,31 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.sample.dto.AddRevampSampleStyleColorDto;
-import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
-import com.base.sbc.module.sample.dto.RelevanceBomDto;
-import com.base.sbc.module.sample.dto.UpdateStyleNoBandDto;
-import com.base.sbc.module.sample.dto.UpdateTagPriceDto;
+import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.mapper.SampleDesignMapper;
 import com.base.sbc.module.sample.mapper.SampleStyleColorMapper;
+import com.base.sbc.module.sample.service.SampleDesignService;
 import com.base.sbc.module.sample.service.SampleStyleColorService;
 import com.base.sbc.module.sample.vo.SampleStyleColorVo;
 import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：样衣-款式配色 service类
@@ -188,7 +178,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             addRevampSampleStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampSampleStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampSampleStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
-            addRevampSampleStyleColorDto.setStyleNo(getNextCode(addRevampSampleStyleColorDto.getSampleDesignId(), sampleDesign.getBrand(),sampleDesign.getYearName(),sampleDesign.getMonth(),sampleDesign.getBandName(),sampleDesign.getCategoryName(),sampleDesign.getDesignNo(),index++));
+            addRevampSampleStyleColorDto.setStyleNo(getNextCode(addRevampSampleStyleColorDto.getSampleDesignId(), sampleDesign.getBrand(), sampleDesign.getYearName(), sampleDesign.getMonth(), sampleDesign.getBandName(), sampleDesign.getProdCategory(), sampleDesign.getDesignNo(), index++));
         }
         List<SampleStyleColor> sampleStyleColorList = BeanUtil.copyToList(list, SampleStyleColor.class);
         saveBatch(sampleStyleColorList);

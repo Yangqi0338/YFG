@@ -44,16 +44,7 @@ public class PlanningCategory extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "波段企划id")
     private String planningBandId;
-    /**
-     * 品类名称路径(大类/品类)
-     */
-    @ApiModelProperty(value = "品类名称路径(大类/品类)")
-    private String categoryName;
-    /**
-     * 品类id路径(大类/品类)
-     */
-    @ApiModelProperty(value = "品类id路径(大类/品类)")
-    private String categoryIds;
+
     /**
      * 大类id
      */

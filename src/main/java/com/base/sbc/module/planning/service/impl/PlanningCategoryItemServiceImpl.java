@@ -136,15 +136,13 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             item.preInsert(idGen.nextIdStr());
             item.preUpdate();
             item.setPlanningSeasonId(category.getPlanningSeasonId());
-            item.setPlanningBandId(category.getPlanningBandId());
-            item.setPlanningCategoryId(category.getId());
-            item.setCategoryIds(category.getCategoryIds());
+
             String designCode = Optional.ofNullable(CollUtil.get(dbCategoryItemList, i)).map(PlanningCategoryItem::getDesignNo).orElse(
                     getNextCode(
                             planningSeason.getBrand(),
                             planningSeason.getYear(),
                             planningSeason.getSeason(),
-                            category.getCategoryName()));
+                            category.getProdCategory()));
             System.out.println("planningDesignNo:" + designCode);
             item.setDesignNo(designCode);
             PlanningUtils.setCategory(item);
@@ -372,7 +370,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "c.prod_category", dto.getProdCategory());
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), "c.prod_category1st", dto.getProdCategory1st());
         // 品类
-        qw.in(CollUtil.isNotEmpty(dto.getCategoryIds()), "c.prod_category", dto.getCategoryIds());
+        qw.in(StrUtil.isNotEmpty(dto.getProdCategory()), "c.prod_category", StrUtil.split(dto.getProdCategory(), CharUtil.COMMA));
         // 设计师
         qw.in(CollUtil.isNotEmpty(dto.getDesignerIds()), "c.designer_id", dto.getDesignerIds());
         // 任务等级
@@ -431,8 +429,6 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         List<String> itemIds = new ArrayList<>(16);
         // 产品季id
         List<String> seasonIds = new ArrayList<>(16);
-        // 波段企划Id
-        List<String> bandIds = new ArrayList<>(16);
         //图片信息
         List<String> fileUrls = new ArrayList<>(16);
         for (PlanningCategoryItem planningCategoryItem : categoryItemList) {
@@ -440,7 +436,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             setTaskLevelDtoList.add(BeanUtil.copyProperties(planningCategoryItem, SetTaskLevelDto.class));
             itemIds.add(planningCategoryItem.getId());
             seasonIds.add(planningCategoryItem.getPlanningSeasonId());
-            bandIds.add(planningCategoryItem.getPlanningBandId());
+
             if (StrUtil.isNotBlank(planningCategoryItem.getStylePic())) {
                 fileUrls.add(planningCategoryItem.getStylePic());
             }
@@ -586,11 +582,11 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean seatSend(List<PlanningCategoryItemSaveDto> list) {
-        List<String> bandIds = new ArrayList<>(2);
+
         List<String> seatIds = new ArrayList<>(2);
         for (PlanningCategoryItem planningCategoryItem : list) {
             seatIds.add(planningCategoryItem.getId());
-            bandIds.add(planningCategoryItem.getPlanningBandId());
+
         }
         UpdateWrapper<PlanningCategoryItem> seatUw = new UpdateWrapper<>();
         seatUw.set("status", BasicNumber.ONE.getNumber());

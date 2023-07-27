@@ -34,8 +34,6 @@ public class ProductCategoryItemSearchDto extends Page {
     @ApiModelProperty(value = "渠道id")
     private String planningChannelId;
 
-    @ApiModelProperty(value = "品类ids", required = false, example = "['1234']")
-    private List<String> categoryIds;
 
     @ApiModelProperty(value = "设计师ids", required = false, example = "['1233']")
     private List<String> designerIds;

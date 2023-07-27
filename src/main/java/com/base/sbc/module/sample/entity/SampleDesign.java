@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-27 15:46:57
+ * @date 创建时间：2023-7-27 16:35:32
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -50,30 +50,10 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
     /**
-     * 波段企划id
-     */
-    @ApiModelProperty(value = "波段企划id")
-    private String planningBandId;
-    /**
-     * 品类信息id
-     */
-    @ApiModelProperty(value = "品类信息id")
-    private String planningCategoryId;
-    /**
      * 坑位信息id
      */
     @ApiModelProperty(value = "坑位信息id")
     private String planningCategoryItemId;
-    /**
-     * 品类名称路径:(大类/品类/中类/小类)
-     */
-    @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)")
-    private String categoryName;
-    /**
-     * 品类id路径:(大类/品类/中类/小类)
-     */
-    @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)")
-    private String categoryIds;
     /**
      * 大类code
      */

@@ -7,8 +7,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
-import java.util.List;
-
 /**
  * 类描述：产品季总览-波段企划查询
  * @address com.base.sbc.module.planning.dto.ProductSeasonBandSearchDto
@@ -25,6 +23,5 @@ public class ProductSetDesignDto extends Page {
     @NotBlank(message = "坑位id")
     private String id;
 
-    @ApiModelProperty(value = "品类ids" ,required = false,example = "[1233]")
-    private List<String> categoryIds;
+
 }

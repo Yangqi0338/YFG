@@ -193,15 +193,13 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         categoryItem.setPlanningSeasonId(planningSeason.getId());
         categoryItem.setStylePic(dto.getStylePic());
         categoryItem.setStatus("1");
-        categoryItem.setCategoryIds(dto.getCategoryIds());
         PlanningUtils.setCategory(categoryItem);
-        categoryItem.setCategoryName(dto.getCategoryName());
         categoryItem.setDesigner(userInfo.getAliasUserName() + StrUtil.COMMA + userInfo.getUserCode());
         categoryItem.setDesignerId(userInfo.getUserId());
         categoryItem.setMaterialCount(new BigDecimal(String.valueOf(CollUtil.size(dto.getMaterialList()))));
         categoryItem.setHisDesignNo(dto.getHisDesignNo());
         // 设置款号
-        String designNo = planningCategoryItemService.getNextCode(dto.getBrand(), dto.getYear(), dto.getSeason(), dto.getCategoryName());
+        String designNo = planningCategoryItemService.getNextCode(dto.getBrand(), dto.getYear(), dto.getSeason(), dto.getProdCategory());
         if (StrUtil.isBlank(designNo)) {
             throw new OtherException("款号生成失败");
         }
@@ -250,7 +248,6 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
                 qw.notLike("category_name", "配饰");
             }
         }
-        qw.likeRight(StrUtil.isNotBlank(dto.getCategoryIds()), "category_ids", dto.getCategoryIds());
         qw.eq(BaseConstant.COMPANY_CODE, companyCode);
 
         //1我下发的
@@ -466,7 +463,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
         dto.setSampleDesignId(id);
         dto.setSeason(sampleDesign.getSeason());
-        dto.setCategoryId(CollUtil.get(StrUtil.split(sampleDesign.getCategoryIds(), StrUtil.COMMA), 1));
+        dto.setCategoryId(CollUtil.get(StrUtil.split(sampleDesign.getProdCategory(), StrUtil.COMMA), 1));
         return queryDimensionLabels(dto);
     }
 

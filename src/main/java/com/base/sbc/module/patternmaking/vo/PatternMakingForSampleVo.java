@@ -23,11 +23,7 @@ public class PatternMakingForSampleVo {
     @ApiModelProperty(value = "设计款号")
     private String designNo;
 
-    @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)")
-    private String categoryName;
 
-    @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)")
-    private String categoryIds;
 
     @ApiModelProperty(value = "季节ID")
     private String seasonId;
