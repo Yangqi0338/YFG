@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-25 16:21:10
+ * @date 创建时间：2023-7-26 20:03:54
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -508,6 +508,11 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "款式单位名称")
     private String styleUnitCode;
+    /**
+     * SCM下发状态:0未下发,1已下发
+     */
+    @ApiModelProperty(value = "SCM下发状态:0未下发,1已下发")
+    private String scmSendFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

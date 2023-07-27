@@ -153,6 +153,13 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      */
     PricingVO getPricingVoById(String id);
 
+    /**
+     * 样衣id查询bom
+     * @param designNo
+     * @return
+     */
+    PageInfo<PackInfoListVo> getInfoListByDesignNo(String designNo);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

@@ -10,12 +10,15 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.smp.dto.SmpGoodsDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Date;
+
 /**
  * 类描述：样衣-款式配色 实体类
  * @address com.base.sbc.module.sample.entity.SampleStyleColor
@@ -201,6 +204,9 @@ public class SampleStyleColor extends BaseDataEntity<String> {
 
     /*唯一码*/
     private String wareCode;
+    /*上新时间*/
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date newDate;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

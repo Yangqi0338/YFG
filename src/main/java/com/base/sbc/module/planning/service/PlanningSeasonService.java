@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
@@ -14,7 +13,10 @@ import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
-import com.base.sbc.module.planning.vo.*;
+import com.base.sbc.module.planning.vo.PlanningSeasonVo;
+import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
+import com.base.sbc.module.planning.vo.PlanningSummaryVo;
+import com.base.sbc.module.planning.vo.YearBrandVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -35,14 +37,6 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
      */
     public boolean del(String companyCode, String id);
 
-    /**
-     * 查询产品季( 产品季总览)
-     * @param qw
-     * @return
-     */
-    List<PlanningSeason> selectProductSeason(QueryWrapper qw);
-
-    List<PlanningSeason> queryYs(String companyCode);
 
     /**
      * 校验名称重复
@@ -76,9 +70,10 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
 
     /**
      * 检查产品季是否有波段企划
+     *
      * @param id
      */
-    boolean checkPlanningSeasonHasBand(String id);
+    boolean checkPlanningSeasonHasSub(String id);
 
     /**
      * 获取企业和产品季的树形结构
@@ -86,13 +81,6 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
      */
     List<AdTree> getTree();
 
-    /**
-     * 分页查询
-     * @param dto
-     * @param userCompany
-     * @return
-     */
-    PageInfo queryByPage(PlanningSeasonSearchDto dto, String userCompany);
 
     /**
      * 校验重复
@@ -142,11 +130,6 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
      */
     PlanningSummaryDetailVo hisDetail(String hisDesignNo);
 
-
-    /**
-     * 获取产品季品类树
-     */
-    List<ProductCategoryTreeVo> getProductCategoryTree(String userCompany);
 
     List<YearBrandVo> queryYearBrandTree(String search);
 }

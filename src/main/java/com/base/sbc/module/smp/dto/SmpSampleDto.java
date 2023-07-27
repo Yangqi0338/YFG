@@ -24,11 +24,11 @@ public class SmpSampleDto {
     /**外辅发出时间*/
     private Date EAValidFromTime;
     /**外辅接收时间*/
-    private String EAValidToTime;
+    private Date EAValidToTime;
     /**样衣结束标志*/
     private Boolean finished;
     /**齐套时间*/
-    private String MCDate;
+    private Date MCDate;
     /**打样URL*/
     private String pmlId;
     /**打版难度编号*/

@@ -4,6 +4,7 @@ package com.base.sbc.module.patternmaking.vo;
 import cn.hutool.core.date.BetweenFormatter;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.patternmaking.entity.PatternMakingWorkLog;
 import io.swagger.annotations.ApiModel;
@@ -36,7 +37,7 @@ public class PatternMakingWorkLogVo extends PatternMakingWorkLog {
                 DateUtil.format(getStartDate(), DatePattern.NORM_DATETIME_MINUTE_FORMATTER),
                 DateUtil.format(getEndDate(), DatePattern.NORM_DATETIME_MINUTE_FORMATTER),
                 DateUtil.formatBetween(getStartDate(), getEndDate(), BetweenFormatter.Level.SECOND),
-                getRemarks()
+                Opt.ofBlankAble(getRemarks()).orElse("")
         );
 
     }

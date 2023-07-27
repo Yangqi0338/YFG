@@ -6,11 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 类描述：新增修改样衣-款式配色 dto类
@@ -186,4 +188,7 @@ public class AddRevampSampleStyleColorDto {
     private String bandName;
     //生产类型名称
     private String devtTypeName;
+    /*上新时间*/
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date newDate;
 }

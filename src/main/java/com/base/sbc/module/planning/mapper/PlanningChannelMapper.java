@@ -7,8 +7,14 @@
 package com.base.sbc.module.planning.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.planning.entity.PlanningChannel;
+import com.base.sbc.module.planning.vo.PlanningChannelVo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 类描述：企划-渠道 dao类
@@ -22,6 +28,8 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface PlanningChannelMapper extends BaseMapper<PlanningChannel> {
 // 自定义方法区 不替换的区域【other_start】
+
+    List<PlanningChannelVo> list(@Param(Constants.WRAPPER) BaseQueryWrapper<PlanningChannel> qw);
 
 
 // 自定义方法区 不替换的区域【other_end】

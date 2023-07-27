@@ -30,8 +30,12 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.patternmaking.entity.PatternMaking;
+import com.base.sbc.module.patternmaking.service.PatternMakingService;
+import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
+import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.entity.SampleDesign;
@@ -113,6 +117,8 @@ public class SmpService {
 
     private final StylePricingService stylePricingService;
 
+    private final PatternMakingService patternMakingService;
+
 
     private static final String SMP_URL = "http://10.98.250.31:7006/pdm";
     //private static final String PDM_URL = "http://smp-i.eifini.com/service-manager/pdm";
@@ -125,6 +131,8 @@ public class SmpService {
      */
     public Integer goods(String[] ids) {
         int i = 0;
+
+
         List<SampleStyleColor> sampleStyleColors = sampleStyleColorService.listByIds(Arrays.asList(ids));
 
         for (SampleStyleColor sampleStyleColor : sampleStyleColors) {
@@ -210,6 +218,8 @@ public class SmpService {
             smpGoodsDto.setFlowerName(null);
             smpGoodsDto.setLingXingId(null);
             smpGoodsDto.setLingXingName(null);
+            smpGoodsDto.setTextureId(null);
+            smpGoodsDto.setTextureName(null);
 
             if (!CollectionUtils.isEmpty(sampleDesign.getDimensionLabels())) {
                 List<FieldManagementVo> fieldManagementVoList = sampleDesign.getDimensionLabels();
@@ -241,7 +251,7 @@ public class SmpService {
             smpGoodsDto.setAccessories(StringUtils.isNotEmpty(sampleStyleColor.getAccessoryNo()));
 
             // 核价
-            PackPricing packPricing = packPricingService.getOne(new QueryWrapper<PackPricing>().eq("foreign_id", sampleDesign.getId()).eq("pack_type","packBigGoods"));
+            PackPricing packPricing = packPricingService.getOne(new QueryWrapper<PackPricing>().eq("foreign_id", sampleDesign.getId()).eq("pack_type", "packBigGoods"));
             JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
             smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价"));
             smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费"));
@@ -253,57 +263,59 @@ public class SmpService {
             smpGoodsDto.setPackageSize(packTechPackaging.getPackagingBagStandard());
 
 
-
             smpGoodsDto.setProductTypeId(sampleDesign.getStyleType());
             smpGoodsDto.setProductType(sampleDesign.getStyleName());
-            smpGoodsDto.setUnit(null);
+
             smpGoodsDto.setPlanningRate(packPricing.getCostPrice());
-            smpGoodsDto.setRegion("废弃");
-            smpGoodsDto.setSalesGroup(null);
+
+            smpGoodsDto.setSaleTime(sampleStyleColor.getNewDate());
+            smpGoodsDto.setProdSeg(sampleStyleColor.getSubdivide());
             smpGoodsDto.setSizeGroupId(sampleDesign.getSizeRange());
             smpGoodsDto.setSizeGroupName(sampleDesign.getSizeRangeName());
             smpGoodsDto.setStyleCode(sampleDesign.getDesignNo());
 
-
             PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", sampleStyleColor.getBom()));
-            //款式定价
-            StylePricing stylePricing = stylePricingService.getOne(new QueryWrapper<StylePricing>().eq("pack_id", packInfo.getId()));
+
 
             //工艺说明
-            long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", sampleDesign.getId()));
-
+            long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", sampleDesign.getId()).eq("spec_type", "外辅工艺"));
             smpGoodsDto.setAuProcess(count > 0);
 
-            smpGoodsDto.setTextureId(null);
-            smpGoodsDto.setTextureName(null);
 
-            smpGoodsDto.setPriceConfirm("1".equals(stylePricing.getProductHangtagConfirm()));
+            smpGoodsDto.setUnit(sampleDesign.getStyleUnit());
 
-            smpGoodsDto.setPlanCost(null);
 
-            smpGoodsDto.setActualRate(BigDecimal.valueOf(Long.parseLong(stylePricing.getPlanningRate())));
-            smpGoodsDto.setPlanActualRate(null);
-            smpGoodsDto.setProcessCost(null);
 
-            smpGoodsDto.setProductName(null);
-
+            //款式定价
+            StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
+            smpGoodsDto.setBomPhase(stylePricingVO.getBomStage());
+            smpGoodsDto.setPriceConfirm("1".equals(stylePricingVO.getProductTagPriceConfirm()));
+            smpGoodsDto.setPlanCost(stylePricingVO.getPlanCost());
+            smpGoodsDto.setActualRate(BigDecimal.valueOf(Long.parseLong(stylePricingVO.getActualMagnification())));
+            smpGoodsDto.setPlanActualRate(stylePricingVO.getPlanActualMagnification());
+            smpGoodsDto.setProcessCost(stylePricingVO.getCoordinationProcessingFee().add(stylePricingVO.getWoolenYarnProcessingFee()).add(stylePricingVO.getCoordinationProcessingFee()).add(stylePricingVO.getSewingProcessingFee()));
+            smpGoodsDto.setProductName(stylePricingVO.getProductName());
+            //吊牌
             smpGoodsDto.setSeries(null);
-            smpGoodsDto.setSaleTime(null);
-            smpGoodsDto.setSeriesId(null);
-            smpGoodsDto.setSeriesName(null);
-
-
-            smpGoodsDto.setProdSeg(sampleStyleColor.getSubdivide());
             smpGoodsDto.setComposition(null);
 
-            smpGoodsDto.setBomPhase(null);
-            smpGoodsDto.setIntegritySample(null);
-            smpGoodsDto.setIntegrityProduct(null);
+            //废弃
+            //smpGoodsDto.setSeriesId(null);
+            //smpGoodsDto.setSeriesName(null);
+            //smpGoodsDto.setRegion(null);
+            //smpGoodsDto.setSalesGroup(null);
+            List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
+            PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packBoms.get(0).getPackType()));
+
+            smpGoodsDto.setIntegritySample(StringUtils.isNoneEmpty(packInfo.getSampleStyleColorId()));
+            smpGoodsDto.setIntegrityProduct("1".equals(packInfoStatus.getBulkOrderClerkConfirm()));
 
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", smpGoodsDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpGoodsDto, "smp", "商品主数据下发");
             if (aBoolean) {
                 i++;
+                sampleStyleColor.setIsIssueScm("1");
+                sampleStyleColorService.updateById(sampleStyleColor);
             }
         }
         return i;
@@ -458,7 +470,7 @@ public class SmpService {
             PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
             //样衣-款式配色
             SampleStyleColor sampleStyleColor = sampleStyleColorService.getById(packInfo.getSampleStyleColorId());
-            if (sampleStyleColor!=null){
+            if (sampleStyleColor != null) {
                 smpBomDto.setPColorCode(sampleStyleColor.getColorCode());
                 smpBomDto.setPColorName(sampleStyleColor.getColorName());
                 smpBomDto.setBulkNumber(packInfo.getStyleNo());
@@ -498,15 +510,15 @@ public class SmpService {
                 i++;
             }
 
-            PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type",packBom.getPackType()));
+            PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packBom.getPackType()));
             long count = packBomService.count(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("scm_send_flag", "1"));
 
             long count1 = packBomService.count(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
-            if (count==0){
+            if (count == 0) {
                 packInfoStatus.setScmSendFlag("0");
-            }else if(count1==count){
+            } else if (count1 == count) {
                 packInfoStatus.setScmSendFlag("1");
-            }else {
+            } else {
                 packInfoStatus.setScmSendFlag("2");
             }
             packInfoStatusService.updateById(packInfoStatus);
@@ -566,67 +578,70 @@ public class SmpService {
     public Integer sample(String[] ids) {
         int i = 0;
 
-        for (Sample sample :sampleService.listByIds(Arrays.asList(ids))) {
-            SmpSampleDto smpSampleDto = sample.toSmpSampleDto();
-
+        for (Sample sample : sampleService.listByIds(Arrays.asList(ids))) {
             SampleDesign sampleDesign = sampleDesignService.getOne(new QueryWrapper<SampleDesign>().eq("design_no", sample.getDesignNo()));
-            //取跟款设计师，如果跟款设计师不存在就取设计师
-            smpSampleDto.setProofingDesigner(sampleDesign.getMerchDesignName() == null ? sampleDesign.getDesigner() : sampleDesign.getMerchDesignName());
-            smpSampleDto.setPatDiff(sampleDesign.getPatDiff());
 
-            smpSampleDto.setColorwayCode(sampleDesign.getStyleNo());
-            smpSampleDto.setColorwayPlmId(sampleDesign.getStyleNo());
-            smpSampleDto.setSampleStatus(sampleDesign.getStatus());
-            smpSampleDto.setSampleStatusName("0".equals(sampleDesign.getStatus()) ? "未开款" : "1".equals(sampleDesign.getStatus()) ?  "已开款" : "已下发打板(完成)");
-            smpSampleDto.setBrandCode(sampleDesign.getBrand());
-            String designerId = sampleDesign.getDesignerId();
-            String technicianId = sampleDesign.getTechnicianId();
-            String patternDesignId = sampleDesign.getPatternDesignId();
-            smpSampleDto.setYear(sampleDesign.getYear());
-            smpSampleDto.setDesigner(sampleDesign.getDesigner());
-            smpSampleDto.setTechnician(sampleDesign.getTechnicianName());
-            smpSampleDto.setStyleUrl(sampleDesign.getStylePic());
-            smpSampleDto.setBrandName(sampleDesign.getBrandName());
+            for (PatternMaking patternMaking : patternMakingService.list(new QueryWrapper<PatternMaking>().eq("sample_design_id", sampleDesign.getId()))) {
+                SmpSampleDto smpSampleDto = sample.toSmpSampleDto();
 
-            smpSampleDto.setNodeName(sampleDesign.getStyleName());
+                //取跟款设计师，如果跟款设计师不存在就取设计师
+                smpSampleDto.setProofingDesigner(sampleDesign.getMerchDesignName() == null ? sampleDesign.getDesigner() : sampleDesign.getMerchDesignName());
+                smpSampleDto.setPatDiff(sampleDesign.getPatDiff());
 
+                smpSampleDto.setColorwayCode(sampleDesign.getStyleNo());
+                smpSampleDto.setColorwayPlmId(sampleDesign.getStyleNo());
+                smpSampleDto.setSampleStatus(sampleDesign.getStatus());
+                smpSampleDto.setSampleStatusName("0".equals(sampleDesign.getStatus()) ? "未开款" : "1".equals(sampleDesign.getStatus()) ? "已开款" : "已下发打板(完成)");
+                smpSampleDto.setBrandCode(sampleDesign.getBrand());
+                String designerId = sampleDesign.getDesignerId();
+                String technicianId = sampleDesign.getTechnicianId();
+                String patternDesignId = sampleDesign.getPatternDesignId();
+                smpSampleDto.setYear(sampleDesign.getYear());
+                smpSampleDto.setDesigner(sampleDesign.getDesigner());
+                smpSampleDto.setTechnician(sampleDesign.getTechnicianName());
+                smpSampleDto.setStyleUrl(sampleDesign.getStylePic());
+                smpSampleDto.setBrandName(sampleDesign.getBrandName());
 
-            String merchDesignId = sampleDesign.getMerchDesignId();
-            if (merchDesignId == null) {
-                merchDesignId = designerId;
-            }
-            ArrayList<String> list = new ArrayList<>();
-            list.add(designerId);
-            list.add(technicianId);
-            list.add(patternDesignId);
-
-            list.add(merchDesignId);
-
-            Map<String, String> usernamesByIds = amcService.getUsernamesByIds(StringUtils.join(list, ","));
-            smpSampleDto.setDesignerId(usernamesByIds.get(designerId));
-            smpSampleDto.setTechnicianId(usernamesByIds.get(technicianId));
-            smpSampleDto.setPatternMakerId(usernamesByIds.get(patternDesignId));
-            smpSampleDto.setProofingDesignerId(usernamesByIds.get(merchDesignId));
+                smpSampleDto.setNodeName(sampleDesign.getStyleName());
 
 
-            smpSampleDto.setPatSeqName(null);//打样顺序名称
-            smpSampleDto.setPatSeq(null);   //打样顺序编号
-            smpSampleDto.setEAValidFromTime(null); //外辅发出时间
-            smpSampleDto.setEAValidToTime(null); //外辅接收时间
-            smpSampleDto.setFinished(null); //样衣结束标志
-            smpSampleDto.setMCDate(null); //齐套时间
-            smpSampleDto.setPmlId(null); //打样UR
-            smpSampleDto.setBExtAuxiliary(null); //外辅标志
-            smpSampleDto.setSampleNumberName(null);  //版号名称
-            smpSampleDto.setBarcode(null); //样衣编号
+                String merchDesignId = sampleDesign.getMerchDesignId();
+                if (merchDesignId == null) {
+                    merchDesignId = designerId;
+                }
+                ArrayList<String> list = new ArrayList<>();
+                list.add(designerId);
+                list.add(technicianId);
+                list.add(patternDesignId);
 
-            HttpResp httpResp = restTemplateService.spmPost("http://10.8.240.161:40002/mps-interfaces/sample/setSampleTask", smpSampleDto);
-            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpSampleDto, "smp", "样衣下发");
-            if (aBoolean) {
-                i++;
+                list.add(merchDesignId);
+
+                Map<String, String> usernamesByIds = amcService.getUsernamesByIds(StringUtils.join(list, ","));
+                smpSampleDto.setDesignerId(usernamesByIds.get(designerId));
+                smpSampleDto.setTechnicianId(usernamesByIds.get(technicianId));
+                smpSampleDto.setPatternMakerId(usernamesByIds.get(patternDesignId));
+                smpSampleDto.setProofingDesignerId(usernamesByIds.get(merchDesignId));
+
+
+                smpSampleDto.setPatSeqName(patternMaking.getPatSeqName());
+                smpSampleDto.setPatSeq(patternMaking.getPatSeq());
+                smpSampleDto.setEAValidFromTime(patternMaking.getExtAuxiliaryDispatchDate());
+                smpSampleDto.setEAValidToTime(patternMaking.getExtAuxiliaryReceiveDate());
+                smpSampleDto.setFinished("1".equals(patternMaking.getEndFlg()));
+                smpSampleDto.setMCDate(patternMaking.getSglKittingDate());
+                smpSampleDto.setPmlId(null);
+                smpSampleDto.setBExtAuxiliary("1".equals(patternMaking.getExtAuxiliary()));
+                smpSampleDto.setSampleNumberName(patternMaking.getCode());
+                smpSampleDto.setBarcode(patternMaking.getSampleNo());
+
+                HttpResp httpResp = restTemplateService.spmPost("http://10.8.240.161:40002/mps-interfaces/sample/setSampleTask", smpSampleDto);
+                Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpSampleDto, "oa", "样衣下发");
+                if (aBoolean) {
+                    i++;
+                }
+
             }
         }
-
         return i;
     }
 

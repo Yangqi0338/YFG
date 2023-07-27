@@ -21,7 +21,7 @@ public class AnswerDto {
     private String businessKey;
     @ApiModelProperty(value = "审批意见", example = "通过")
     private String confirmSay;
-    @ApiModelProperty(value = "审批类型,pass:通过,reject:驳回", example = "通过")
+    @ApiModelProperty(value = "审批类型,pass:通过,reject:驳回,cancel:取消申请", example = "通过")
     private String approvalType;
     @ApiModelProperty(value = "流程参数")
     private Map<String, Object> variables;

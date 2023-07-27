@@ -8,7 +8,6 @@ package com.base.sbc.module.planning.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
@@ -17,9 +16,11 @@ import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategory;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
+import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.sample.vo.ChartBarVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
+import com.github.pagehelper.PageInfo;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -42,11 +43,12 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
 
     String selectMaxDesignNo(QueryWrapper qc);
 
-    List<String> selectCategoryIdsByBand(QueryWrapper qw);
+
 
 
     /**
      * 获取下一个编码
+     *
      * @param brand
      * @param year
      * @param season
@@ -56,12 +58,23 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
     String getNextCode(String brand, String year, String season, String category);
 
     /**
+     * 获取下一个编码批量
+     *
+     * @param brand
+     * @param year
+     * @param season
+     * @param category
+     * @param count    生成数量
+     * @return
+     */
+    List<String> getNextCode(String brand, String year, String season, String category, int count);
+
+    /**
      * 修改/提交
      *
-     * @param planningBandId
      * @param item
      */
-    void updateCategoryItem(String planningBandId, List<PlanningCategoryItemSaveDto> item);
+    void updateCategoryItem(List<PlanningCategoryItemSaveDto> item);
 
     /**
      * 获取最大流水号
@@ -87,17 +100,12 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
 
     /**
      * 查找坑位信息
+     *
      * @param dto
      * @return
      */
-    ApiResult findProductCategoryItem(ProductCategoryItemSearchDto dto);
+    PageInfo<PlanningSeasonOverviewVo> findProductCategoryItem(ProductCategoryItemSearchDto dto);
 
-    /**
-     * 按品类展开
-     * @param dto
-     * @return
-     */
-    List<BasicStructureTreeVo> expandByCategory(ProductSeasonExpandByCategorySearchDto dto);
 
     /**
      * 坑位信息下发
@@ -148,7 +156,22 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
      */
     boolean seatSend(List<PlanningCategoryItemSaveDto> list);
 
-    Map<String, Long> totalSkcByPlanningSeason();
+
+    Map<String, Long> totalSkcByPlanningSeason(List<String> planningSeasonIds);
 
     Map<String, Long> totalSkcByChannel(List<String> channelIds);
+
+    /**
+     * 新建坑位
+     *
+     * @param dto
+     * @return
+     */
+    boolean addSeat(AddSeatDto dto);
+
+    List<BasicStructureTreeVo> categoryTree(String planningChannelId);
+
+    boolean revoke(String ids);
+
+    boolean del(String id);
 }

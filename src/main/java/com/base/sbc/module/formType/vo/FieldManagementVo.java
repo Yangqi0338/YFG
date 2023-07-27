@@ -43,9 +43,11 @@ public class FieldManagementVo {
     /** 品类使用范围对应结构树id */
     @ApiModelProperty(value = "品类使用范围对应结构树id"  )
     private String categoryId;
+    private String categoryName;
     /** 季节 */
     @ApiModelProperty(value = "季节"  )
     private String season;
+    private String seasonName;
     /** 是否检查(0是，1否) */
     @ApiModelProperty(value = "是否检查(0是，1否)"  )
     private String isExamine;

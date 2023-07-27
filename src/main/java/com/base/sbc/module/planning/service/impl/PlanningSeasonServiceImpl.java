@@ -7,7 +7,6 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
-import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -20,13 +19,11 @@ import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
-import com.base.sbc.module.planning.dto.ProductSeasonExpandByCategorySearchDto;
-import com.base.sbc.module.planning.entity.PlanningBand;
+import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
-import com.base.sbc.module.planning.service.PlanningBandService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
-import com.base.sbc.module.planning.service.PlanningCategoryService;
+import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.*;
@@ -37,7 +34,6 @@ import com.github.pagehelper.PageInfo;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -63,10 +59,10 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     private AmcService amcService;
     @Resource
     private CcmFeignService ccmFeignService;
+
+
     @Resource
-    private PlanningCategoryService planningCategoryService;
-    @Resource
-    private PlanningBandService planningBandService;
+    private PlanningChannelService planningChannelService;
     @Resource
     private PlanningCategoryItemService planningCategoryItemService;
     @Resource
@@ -75,16 +71,6 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     @Override
     public boolean del(String companyCode, String id) {
         return removeById(id);
-    }
-
-    @Override
-    public List<PlanningSeason> selectProductSeason(QueryWrapper qw) {
-        return getBaseMapper().selectProductSeason(qw);
-    }
-
-    @Override
-    public List<PlanningSeason> queryYs(String companyCode) {
-        return getBaseMapper().queryYs(companyCode);
     }
 
 
@@ -154,7 +140,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             Map<String, String> userAvatarMap = amcFeignService.getUserAvatar(CollUtil.join(userIds, ","));
             List<PlanningSeasonVo> volist = BeanUtil.copyToList(list, PlanningSeasonVo.class);
             // 查询skc 数
-            Map<String, Long> skcCount = planningCategoryService.countSkc("planning_season_id", columnIds);
+            Map<String, Long> skcCount = planningCategoryItemService.totalSkcByPlanningSeason(columnIds);
             for (PlanningSeasonVo planningSeasonVo : volist) {
                 planningSeasonVo.setAliasUserAvatar(userAvatarMap.get(planningSeasonVo.getCreateId()));
                 planningSeasonVo.setSkcCount(skcCount.get(planningSeasonVo.getId()));
@@ -168,12 +154,12 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     }
 
     @Override
-    public boolean checkPlanningSeasonHasBand(String id) {
+    public boolean checkPlanningSeasonHasSub(String id) {
         // 波段企划信息
-        QueryWrapper<PlanningBand> qw = new QueryWrapper<>();
+        QueryWrapper<PlanningChannel> qw = new QueryWrapper<>();
         qw.eq("planning_season_id", id);
         qw.eq(DEL_FLAG, BaseEntity.DEL_FLAG_NORMAL);
-        long i = planningBandService.count(qw);
+        long i = planningChannelService.count(qw);
         if (i > 0) {
             return true;
         }
@@ -200,24 +186,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         return list;
     }
 
-    @Override
-    public PageInfo queryByPage(PlanningSeasonSearchDto dto, String userCompany) {
-        QueryWrapper qc = new QueryWrapper();
-        qc.eq("del_flag", BaseEntity.DEL_FLAG_NORMAL);
-        qc.eq(COMPANY_CODE, userCompany);
-        qc.eq(StrUtil.isNotBlank(dto.getYear()), "year", dto.getYear());
-        qc.eq(StrUtil.isNotBlank(dto.getSeason()), "season", dto.getSeason());
-        qc.in(CollUtil.isNotEmpty(dto.getYearList()), "year", dto.getYearList());
-        qc.in(CollUtil.isNotEmpty(dto.getSeasonList()), "season", dto.getSeasonList());
-        qc.like(StrUtil.isNotBlank(dto.getSearch()), "name", dto.getSearch());
-        qc.in(CollUtil.isNotEmpty(dto.getBrandList()), "brand", dto.getBrandList());
-        dto.setOrderBy("create_date desc ");
-        qc.select("*");
-        Page<PlanningSeason> objects = PageHelper.startPage(dto);
-        selectProductSeason(qc);
-        PageInfo<PlanningSeason> planningSeasonPageInfo = objects.toPageInfo();
-        return planningSeasonPageInfo;
-    }
+
 
     @Override
     public void checkBYSRepeat(PlanningSeasonSaveDto dto, String userCompany) {
@@ -326,34 +295,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         }
         return null;
     }
-    /**
-     * 获取产品季品类树
-     *
-     * @param userCompany
-     */
-    @Override
-    public List<ProductCategoryTreeVo> getProductCategoryTree(String userCompany) {
 
-        QueryWrapper qc = new QueryWrapper();
-        qc.eq("company_code",userCompany);
-        /*查询到的产品季*/
-        List<PlanningSeason> planningSeasonList = baseMapper.selectList(qc);
-        /*返回的数据*/
-        List<ProductCategoryTreeVo> list = null;
-        if(!CollectionUtils.isEmpty(planningSeasonList)){
-            list= BeanUtil.copyToList(planningSeasonList, ProductCategoryTreeVo.class);
-            list.forEach(productCategoryTreeVo -> {
-                ProductSeasonExpandByCategorySearchDto productSeasonExpandByCategorySearchDto=new ProductSeasonExpandByCategorySearchDto();
-                /*查询产品下的品类*/
-                productSeasonExpandByCategorySearchDto.setPlanningSeasonId(productCategoryTreeVo.getId());
-                List<BasicStructureTreeVo> basicStructureTreeVoList = planningCategoryItemService.expandByCategory(productSeasonExpandByCategorySearchDto);
-                if (!CollectionUtils.isEmpty(basicStructureTreeVoList)) {
-                    productCategoryTreeVo.setChildren(basicStructureTreeVoList);
-                }
-            });
-        }
-        return list;
-    }
 
     @Override
     public List<YearBrandVo> queryYearBrandTree(String search) {
@@ -367,7 +309,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             return null;
         }
         //统计产品季skc数量
-        Map<String, Long> sckCountMap = planningCategoryItemService.totalSkcByPlanningSeason();
+        Map<String, Long> sckCountMap = planningCategoryItemService.totalSkcByPlanningSeason(null);
 
         List<PlanningSeasonTreeVo> planningSeasonTreeVos = BeanUtil.copyToList(seasonList, PlanningSeasonTreeVo.class);
         for (PlanningSeasonTreeVo planningSeasonTreeVo : planningSeasonTreeVos) {

@@ -16,14 +16,15 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Date;
+
 /**
  * 类描述：企划-坑位信息 实体类
  *
- * @author your name
+ * @author lxl
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
- * @email your email
- * @date 创建时间：2023-7-21 17:59:45
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-7-26 21:14:02
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -74,30 +75,50 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)")
     private String categoryName;
     /**
-     * 品类id路径:(大类/品类/中类/小类)
+     * 品类code路径:(大类/品类/中类/小类)
      */
-    @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)")
+    @ApiModelProperty(value = "品类code路径:(大类/品类/中类/小类)")
     private String categoryIds;
     /**
-     * 大类id
+     * 大类code
      */
-    @ApiModelProperty(value = "大类id")
+    @ApiModelProperty(value = "大类code")
     private String prodCategory1st;
     /**
-     * 品类id
+     * 品类code
      */
-    @ApiModelProperty(value = "品类id")
+    @ApiModelProperty(value = "品类code")
     private String prodCategory;
     /**
-     * 中类id
+     * 中类code
      */
-    @ApiModelProperty(value = "中类id")
+    @ApiModelProperty(value = "中类code")
     private String prodCategory2nd;
     /**
-     * 小类
+     * 小类code
      */
-    @ApiModelProperty(value = "小类")
+    @ApiModelProperty(value = "小类code")
     private String prodCategory3rd;
+    /**
+     * 大类名称
+     */
+    @ApiModelProperty(value = "大类名称")
+    private String prodCategory1stName;
+    /**
+     * 品类名称
+     */
+    @ApiModelProperty(value = "品类名称")
+    private String prodCategoryName;
+    /**
+     * 中类名称
+     */
+    @ApiModelProperty(value = "中类名称")
+    private String prodCategory2ndName;
+    /**
+     * 小类名称
+     */
+    @ApiModelProperty(value = "小类名称")
+    private String prodCategory3rdName;
     /**
      * 价格带
      */
@@ -114,9 +135,9 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "关联历史款")
     private String hisDesignNo;
     /**
-     * 状态:0未下发,1已下发到产品季总览,2已下发到样衣设计
+     * 状态:0未下发,1已下发到产品季总览,2已下发到样衣设计,-1撤回
      */
-    @ApiModelProperty(value = "状态:0未下发,1已下发到产品季总览,2已下发到样衣设计")
+    @ApiModelProperty(value = "状态:0未下发,1已下发到产品季总览,2已下发到样衣设计,-1撤回")
     private String status;
     /**
      * 下发时间
@@ -225,6 +246,16 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "特别需求:(1是,0否)")
     private String specialNeedsFlag;
+    /**
+     * 波段(编码)
+     */
+    @ApiModelProperty(value = "波段(编码)")
+    private String bandCode;
+    /**
+     * 波段名称
+     */
+    @ApiModelProperty(value = "波段名称")
+    private String bandName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

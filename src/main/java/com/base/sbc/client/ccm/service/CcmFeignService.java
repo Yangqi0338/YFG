@@ -2,6 +2,8 @@ package com.base.sbc.client.ccm.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：ccm 远程调用
@@ -40,6 +43,31 @@ public class CcmFeignService {
             return data;
         }
         return null;
+    }
+
+    public List<BasicStructureTreeVo> basicStructureTreeByCode(String code, String hasRoot, String levels) {
+        String str = ccmService.basicStructureTreeByCode(code, hasRoot, levels);
+        if (StrUtil.isBlank(str)) {
+            return null;
+        }
+        JSONObject jsonObject = JSON.parseObject(str);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            try {
+                List<BasicStructureTreeVo> data = jsonObject.getJSONObject("data").getJSONArray("dataTree").toJavaList(BasicStructureTreeVo.class);
+                return data;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public Map<String, BasicStructureTreeVo> findStructureTreeByCategoryIdsToMap(String categoryIds) {
+        List<BasicStructureTreeVo> list = findStructureTreeByCategoryIds(categoryIds);
+        Map<String, BasicStructureTreeVo> map = Opt.ofNullable(list)
+                .map(e -> e.stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b)))
+                .orElse(MapUtil.empty());
+        return map;
     }
 
     /**

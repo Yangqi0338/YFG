@@ -22,6 +22,9 @@ public class PlanningSeasonTreeVo extends PlanningSeason {
     @ApiModelProperty(value = "skc数")
     private Long skcCount;
 
+    @ApiModelProperty(value = "级别", example = "0")
+    private int level = 1;
+
     public String getLabel() {
         return StrUtil.format("{} ({})", getName(), skcCount);
     }
