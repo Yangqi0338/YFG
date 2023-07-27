@@ -315,7 +315,7 @@ public class SmpOpenMaterialDto {
      * 报价类
      */
     @Data
-    public class QuotItem {
+    public static class QuotItem {
         /**
          * 厂家有效门幅/规格
          */
@@ -386,6 +386,12 @@ public class SmpOpenMaterialDto {
          * 单位
          */
         private String C8_Material_UOM;
+
+        public QuotItem(String supperCode, String color, String s) {
+            this.SupplierCode=supperCode;
+            this.SUPPLIERCOLORNAME =color;
+            this.SUPPLIERSIZE =s;
+        }
     }
 
 }

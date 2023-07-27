@@ -9,15 +9,15 @@
 		<!-- 总包名 -->
 		<javapackage value="com.base.sbc.module"></javapackage>
 		<!-- 模块名称 -->
-		<project     value="stylePricing"></project>
+		<project     value="basicsdatum"></project>
 <!--		<project     value="common"></project>-->
 <!--		<project     value="planning"></project>&lt;!&ndash; 模块名称 &ndash;&gt;-->
 	</params>
 	<tables>
-		<table  project="stylePricing"     value="t_style_pricing"   genType="2" ></table>
-		<table   project="stylePricing"    value="t_style_pricing"   genType="1" ></table>
-		<table   project="stylePricing"    value="t_style_pricing"   genType="3" ></table>
-		<table   project="stylePricing"    value="t_style_pricing"   genType="4" ></table>
+		<table  project="basicsdatum"     value="t_basicsdatum_material_price_detail"   genType="2" ></table>
+		<table   project="basicsdatum"    value="t_basicsdatum_material_price_detail"   genType="1" ></table>
+		<table   project="basicsdatum"    value="t_basicsdatum_material_price_detail"   genType="3" ></table>
+		<table   project="basicsdatum"    value="t_basicsdatum_material_price_detail"   genType="4" ></table>
 <!--		<table  project="nodestatus"     value="t_node_status"   genType="1,2,3,4" ></table>-->
 <!--		<table       value="t_field_val"   genType="2" ></table>-->
 <!--		<table       value="t_upload_file"   genType="2" ></table>-->
