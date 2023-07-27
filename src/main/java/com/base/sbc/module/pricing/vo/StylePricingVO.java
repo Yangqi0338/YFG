@@ -10,6 +10,7 @@ import java.math.BigDecimal;
  */
 @Data
 public class StylePricingVO {
+    private String stylePricingId;
     /**
      * 资料包id
      */

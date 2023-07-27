@@ -28,6 +28,8 @@ public class StylePricingSearchDTO extends Page {
     private String bandCode;
     @ApiModelProperty(value = "品名")
     private String productName;
+    @ApiModelProperty(value = "款式")
+    private String style;
 
     private String packId;
 

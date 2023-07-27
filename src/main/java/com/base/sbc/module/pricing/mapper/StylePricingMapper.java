@@ -31,7 +31,7 @@ public interface StylePricingMapper extends BaseMapper<StylePricing> {
     /**
      * 获取款式定价列表
      *
-     * @param stylePricingSearchDTO
+     * @param dto
      * @return
      */
     List<StylePricingVO> getStylePricingList(@Param("dto") StylePricingSearchDTO dto);

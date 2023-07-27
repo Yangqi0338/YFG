@@ -16,17 +16,23 @@
         p.code as code,
         p.prod_category as middleClassif,
         p.color as color,
-        CONCAT(p.style_no, p.style_name) as style,
+        CONCAT(p.design_no, p.style_name) as style,
         p.design_no as designNo,
-        p.style_no as styleNo,
+        p.style_no as bulkStyleNo,
         sd.product_cost as targetCost,
         sd.style_type as styleType,
         sd.devt_type as productionType,
+        sd.style_pic as sampleDesignPic,
         ht.product_name as productName,
         ssc.tag_price as tagPrice,
         ssc.manufacturer as supplerName,
         ssc.manufacturer_jane as supplierAbbreviation,
-        ssob.meet_flag as meetFlag
+        ssob.meet_flag as meetFlag,
+        sp.id as stylePricingId,
+        sp.planning_rate as planningRatio,
+        sp.control_confirm as planCostConfirm,
+        sp.product_hangtag_confirm as productTagPriceConfirm,
+        sp.control_hangtag_confirm as planTagPriceConfirm
         from t_pack_info p
         LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0')
         left join t_sample_design sd on (sd.id = p.foreign_id and sd.del_flag = '0')
@@ -60,9 +66,12 @@
             <if test="dto.devtType != null and dto.devtType != ''">
                 and p.devt_type = #{dto.devtType}
             </if>
+            <if test="dto.style != null and dto.style != ''">
+                and p.design_no like like CONCAT('%',#{dto.style},'%') or p.style_name like CONCAT('%',#{dto.style},'%')
+            </if>
             <if test="dto.search != null and dto.search != ''">
                 and (p.design_no like CONCAT('%',#{dto.search},'%') or p.style_no like CONCAT('%',#{dto.search},'%') or
-                style_name like CONCAT('%',#{dto.search},'%') )
+                p.style_name like CONCAT('%',#{dto.search},'%') )
             </if>
             <if test="dto.productName != null and dto.productName != ''">
                 and ht.product_name = #{dto.productName}
@@ -73,8 +82,8 @@
             <if test="dto.packId != null and dto.packId != ''">
                 and p.id = #{dto.packId}
             </if>
-
         </where>
+        group by p.id
     </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

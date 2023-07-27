@@ -7,10 +7,13 @@
 package com.base.sbc.module.pricing.service;
 
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * 类描述：款式定价 service类
@@ -42,9 +45,20 @@ public interface StylePricingService extends BaseService<StylePricing> {
      */
     StylePricingVO getByPackId(String packId, String companyCode);
 
-    void insertOrUpdate();
+    /**
+     * 保存
+     *
+     * @param stylePricingSaveDTO
+     */
+    void insertOrUpdate(StylePricingSaveDTO stylePricingSaveDTO, String companyCode);
 
-    void confirm();
+    /**
+     * 批量保存
+     *
+     * @param stylePricingSaves
+     * @param companyCode
+     */
+    void insertOrUpdateBatch(List<StylePricingSaveDTO> stylePricingSaves, String companyCode);
 
 
 // 自定义方法区 不替换的区域【other_end】

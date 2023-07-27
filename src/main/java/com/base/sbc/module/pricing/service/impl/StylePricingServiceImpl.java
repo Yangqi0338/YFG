@@ -6,12 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
+import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
@@ -21,6 +24,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,10 +48,14 @@ import java.util.stream.Collectors;
  */
 @Service
 public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper, StylePricing> implements StylePricingService {
+    private static final Logger logger = LoggerFactory.getLogger(StylePricingService.class);
+
     @Autowired
     private PackPricingOtherCostsService packPricingOtherCostsService;
     @Autowired
     private PackBomService packBomService;
+    @Autowired
+    private AttachmentService attachmentService;
 
     @Override
     public PageInfo<StylePricingVO> getStylePricingList(StylePricingSearchDTO dto) {
@@ -87,6 +97,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             //实际倍率 = 吊牌价/总成本
             stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getTotalCost()));
         });
+        attachmentService.setListStylePic(stylePricingList, "sampleDesignPic");
     }
 
     @Override
@@ -106,13 +117,35 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     }
 
     @Override
-    public void insertOrUpdate() {
-
+    public void insertOrUpdate(StylePricingSaveDTO stylePricingSaveDTO, String companyCode) {
+        logger.info("StylePricingService#insertOrUpdate 保存 stylePricingSaveDTO:{}, userCompany:{}", JSON.toJSONString(stylePricingSaveDTO), companyCode);
+        StylePricing stylePricing = new StylePricing();
+        if (StringUtils.isEmpty(stylePricingSaveDTO.getId())) {
+            stylePricing.insertInit();
+        } else {
+            stylePricing.updateInit();
+        }
+        stylePricing.setCompanyCode(companyCode);
+        BeanUtils.copyProperties(stylePricingSaveDTO, stylePricing);
+        super.saveOrUpdate(stylePricing);
     }
 
     @Override
-    public void confirm() {
-
+    public void insertOrUpdateBatch(List<StylePricingSaveDTO> stylePricingSaves, String companyCode) {
+        logger.info("StylePricingService#insertOrUpdateBatch 批量保存 stylePricingSaves:{}, userCompany:{}", JSON.toJSONString(stylePricingSaves), companyCode);
+        List<StylePricing> stylePricings = stylePricingSaves.stream()
+                .map(stylePricingSaveDTO -> {
+                    StylePricing stylePricing = new StylePricing();
+                    if (StringUtils.isEmpty(stylePricingSaveDTO.getId())) {
+                        stylePricing.insertInit();
+                    } else {
+                        stylePricing.updateInit();
+                    }
+                    stylePricing.setCompanyCode(companyCode);
+                    BeanUtils.copyProperties(stylePricingSaveDTO, stylePricing);
+                    return stylePricing;
+                }).collect(Collectors.toList());
+        super.saveOrUpdateBatch(stylePricings);
     }
 
     /**
@@ -141,6 +174,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         }
         return packBomCalculateBaseVos.stream()
                 .map(PackBomCalculateBaseVo::getAmount)
+                .filter(Objects::nonNull)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 

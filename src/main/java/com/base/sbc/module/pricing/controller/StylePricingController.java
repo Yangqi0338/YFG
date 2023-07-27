@@ -8,6 +8,7 @@ package com.base.sbc.module.pricing.controller;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
@@ -21,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 类描述：款式定价 Controller类
@@ -51,6 +53,21 @@ public class StylePricingController extends BaseController {
     public ApiResult getByPackId(@Valid @NotBlank(message = "资料包id不可为空") String packId) {
         return selectSuccess(stylePricingService.getByPackId(packId, super.getUserCompany()));
     }
+
+    @ApiOperation(value = "保存")
+    @PostMapping("/insertOrUpdate")
+    public ApiResult insertOrUpdate(@Valid @RequestBody StylePricingSaveDTO stylePricingSaveDTO) {
+        stylePricingService.insertOrUpdate(stylePricingSaveDTO, super.getUserCompany());
+        return updateSuccess("修改成功");
+    }
+
+    @ApiOperation(value = "批量保存")
+    @PostMapping("/insertOrUpdateBatch")
+    public ApiResult insertOrUpdateBatch(@Valid @RequestBody List<StylePricingSaveDTO> stylePricingSaveDTO) {
+        stylePricingService.insertOrUpdateBatch(stylePricingSaveDTO, super.getUserCompany());
+        return updateSuccess("修改成功");
+    }
+
 
 }
 
