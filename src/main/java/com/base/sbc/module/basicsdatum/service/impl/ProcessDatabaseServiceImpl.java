@@ -198,9 +198,14 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         QueryWrapper<ProcessDatabase> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("type",type);
 
+        if(type.equals("1")){
+            List<ComponentLibraryExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), ComponentLibraryExcelDto.class);
+            ExcelUtils.exportExcel(list, ComponentLibraryExcelDto.class, "基础资料-模板部件.xlsx", new ExportParams(), response);
+        }else if(type.equals("2")){
 
-            List<ComponentTemplateExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), ComponentTemplateExcelDto.class);
-            ExcelUtils.exportExcel(list, ComponentTemplateExcelDto.class, "基础资料-模板部件.xlsx", new ExportParams(), response);
+        }
+
+
 
 
     }

@@ -5,6 +5,7 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
@@ -41,6 +42,9 @@ public class SpecificationGroupServiceImpl extends BaseServiceImpl<Specification
 
     @Autowired
     private SpecificationMapper specificationMapper;
+
+    @Autowired
+    private CcmFeignService ccmFeignService;
 
     @Override
     public boolean saveSpecification(SpecificationGroup specificationGroup) {
@@ -95,32 +99,46 @@ public class SpecificationGroupServiceImpl extends BaseServiceImpl<Specification
         params.setNeedSave(false);
         List<SpecificationGroupExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), SpecificationGroupExcelDto.class, params);
         list = list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
-
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("specificationType");
+        Map<String, String> map = dictInfoToMap.get("specificationType");
         for (SpecificationGroupExcelDto specificationGroupExcelDto : list) {
             List<Specification> specificationList = new ArrayList<>();
+            if (!StringUtils.isEmpty(specificationGroupExcelDto.getTypeName())) {
+                for (Map.Entry<String, String> entry : map.entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                    if (value.equals(specificationGroupExcelDto.getTypeName())) {
+                        specificationGroupExcelDto.setType(key);
+                        break;
+                    }
+                }
+            }
             if (StringUtils.isNotBlank(specificationGroupExcelDto.getSpecificationNames())) {
                 specificationGroupExcelDto.setSpecificationNames(specificationGroupExcelDto.getSpecificationNames().replaceAll(" ", ""));
                 QueryWrapper queryWrapper = new QueryWrapper();
                 queryWrapper.in("name", StringUtils.convertList(specificationGroupExcelDto.getSpecificationNames()));
+                queryWrapper.eq("type_name", specificationGroupExcelDto.getTypeName());
                  specificationList = specificationMapper.selectList(queryWrapper);
+                 /*基础规格*/
+                if(StringUtils.isNotBlank(specificationGroupExcelDto.getBasicsSpecificationName())){
+                    if(!CollectionUtils.isEmpty(specificationList)){
+                        List<Specification> specificationList1 =   specificationList.stream().filter(s -> specificationGroupExcelDto.getBasicsSpecificationName().equals(s.getName())).collect(Collectors.toList());
+                        if (!CollectionUtils.isEmpty(specificationList1)) {
+                            specificationGroupExcelDto.setBasicsSpecification(specificationList1.get(0).getCode());
+                        }
+                    }else {
+                        specificationGroupExcelDto.setBasicsSpecification("");
+                    }
+                }
                 if (!CollectionUtils.isEmpty(specificationList)) {
                     List<String> stringList = specificationList.stream().map(Specification::getCode).collect(Collectors.toList());
                     specificationGroupExcelDto.setSpecificationIds(StringUtils.join(stringList, ","));
                 }else {
                     specificationGroupExcelDto.setSpecificationNames("");
+                    specificationGroupExcelDto.setBasicsSpecificationName("");
                 }
             }
-            if(StringUtils.isNotBlank(specificationGroupExcelDto.getBasicsSpecification())){
-                if(!CollectionUtils.isEmpty(specificationList)){
-                    List<Specification> specificationList1 =   specificationList.stream().filter(s -> specificationGroupExcelDto.getBasicsSpecification().equals(s.getName())).collect(Collectors.toList());
-                    if (!CollectionUtils.isEmpty(specificationList1)) {
-                        specificationGroupExcelDto.setBasicsSpecificationCode(specificationList1.get(0).getCode());
-                    }
-                }else {
-                    specificationGroupExcelDto.setBasicsSpecification("");
-                }
 
-            }
         }
         List<SpecificationGroup> specificationGroups = BeanUtil.copyToList(list, SpecificationGroup.class);
         for (SpecificationGroup specificationGroup : specificationGroups) {

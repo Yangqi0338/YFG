@@ -25,6 +25,9 @@ public class SpecificationGroup extends BaseDataEntity<String> {
     @ApiModelProperty(value = "类型")
     private String type;
 
+    @ApiModelProperty(value = "类型名称")
+    private String  typeName;
+
     @ApiModelProperty(value = "使用范围")
     private String applyRange;
 
@@ -34,12 +37,11 @@ public class SpecificationGroup extends BaseDataEntity<String> {
     @ApiModelProperty(value = "规格名称集合")
     private String specificationNames;
 
-
     @ApiModelProperty(value = "基础规格")
     private String  basicsSpecification;
 
-    @ApiModelProperty(value = "规格名称集合")
-    private String  basicsSpecificationCode;
+    @ApiModelProperty(value = "基础规格名称")
+    private String  basicsSpecificationName;
 
     @ApiModelProperty(value = "备注")
     private String remarks;

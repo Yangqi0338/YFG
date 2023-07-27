@@ -13,11 +13,14 @@ public class SpecificationExcelDto {
     @Excel(name = "编码")
     private String code;
 
+    @Excel(name = "吊牌显示")
+    private String hangtags;
+
     @Excel(name = "名称")
     private String name;
 
     @Excel(name = "类型")
-    private String type;
+    private String typeName;
 
     @Excel(name = "排序")
     private String sort;

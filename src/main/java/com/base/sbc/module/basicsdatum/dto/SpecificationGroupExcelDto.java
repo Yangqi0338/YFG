@@ -21,11 +21,13 @@ public class SpecificationGroupExcelDto {
     private String name;
 
     @ApiModelProperty(value = "类型")
-    @Excel(name = "类型")
     private String type;
 
+    @Excel(name = "类型")
+    private String  typeName;
+
     @ApiModelProperty(value = "使用范围")
-    @Excel(name = "使用范围")
+//    @Excel(name = "使用范围")
     private String applyRange;
 
     @ApiModelProperty(value = "规格id集合")
@@ -36,11 +38,11 @@ public class SpecificationGroupExcelDto {
     private String specificationNames;
 
     @ApiModelProperty(value = "基础规格")
-    @Excel(name = "基础规格")
     private String  basicsSpecification;
 
-    @ApiModelProperty(value = "规格名称集合")
-    private String  basicsSpecificationCode;
+    @Excel(name = "基础规格")
+    @ApiModelProperty(value = "基础规格名称")
+    private String  basicsSpecificationName;
 
     @ApiModelProperty(value = "描述")
     @Excel(name = "描述")
