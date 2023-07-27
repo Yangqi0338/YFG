@@ -22,12 +22,11 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @TableName("t_basicsdatum_material_price_detail")
 @ApiModel("基础资料-物料档案-供应商报价- BasicsdatumMaterialPriceDetail")
-public class BasicsdatumMaterialPriceDetail extends BaseDataEntity<String> {
+public class BasicsdatumMaterialPriceDetail{
 
-	private static final long serialVersionUID = 1L;
+
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
     /** 实体主键 */
     @TableId(type = IdType.ASSIGN_ID)

@@ -6,27 +6,28 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialPriceDetailMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPriceDetail;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService;
 import org.springframework.stereotype.Service;
-/** 
+/**
  * 类描述：基础资料-物料档案-供应商报价- service类
  * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService
  * @author your name
  * @email your email
  * @date 创建时间：2023-7-27 17:53:42
- * @version 1.0  
+ * @version 1.0
  */
 @Service
-public class BasicsdatumMaterialPriceDetailServiceImpl extends BaseServiceImpl<BasicsdatumMaterialPriceDetailMapper, BasicsdatumMaterialPriceDetail> implements BasicsdatumMaterialPriceDetailService {
+public class BasicsdatumMaterialPriceDetailServiceImpl extends ServiceImpl<BasicsdatumMaterialPriceDetailMapper, BasicsdatumMaterialPriceDetail> implements BasicsdatumMaterialPriceDetailService {
 
 // 自定义方法区 不替换的区域【other_start】
 
 
 
 // 自定义方法区 不替换的区域【other_end】
-	
+
 }
 
