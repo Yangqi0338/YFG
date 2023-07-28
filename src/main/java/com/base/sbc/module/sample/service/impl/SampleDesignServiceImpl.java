@@ -22,6 +22,7 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.common.entity.Attachment;
@@ -118,6 +119,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         SampleDesign sampleDesign = null;
         if (StrUtil.isNotBlank(dto.getId())) {
             sampleDesign = getById(dto.getId());
+            checkedDesignNoRepeat(dto);
             String newDesignNo = PlanningUtils.getNewDesignNo(dto.getDesignNo(), sampleDesign.getDesigner(), dto.getDesigner());
             BeanUtil.copyProperties(dto, sampleDesign);
             setMainStylePic(sampleDesign, dto.getStylePicList());
@@ -139,6 +141,23 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
 
 
         return sampleDesign;
+    }
+
+    private void checkedDesignNoRepeat(SampleDesignSaveDto dto) {
+        boolean initId = CommonUtils.isInitId(dto.getId());
+        if (StrUtil.isBlank(dto.getDesignNo()) && !initId) {
+            throw new OtherException("设计款号不能为空");
+        }
+        if (StrUtil.equals(dto.getOldDesignNo(), dto.getDesignNo())) {
+            return;
+        }
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("design_no", dto.getDesignNo());
+        qw.ne(!initId, "id", dto.getId());
+        long count = count(qw);
+        if (count > 0) {
+            throw new OtherException("设计款号重复");
+        }
     }
 
 
@@ -239,7 +258,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         qw.like(StrUtil.isNotBlank(dto.getDesignNo()), "design_no", dto.getDesignNo());
         qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "devt_type", dto.getDevtType());
         qw.eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "planning_season_id", dto.getPlanningSeasonId());
-
+        qw.eq("del_flag", BaseGlobal.NO);
         if (!StringUtils.isEmpty(dto.getIsTrim())) {
             if (dto.getIsTrim().equals(BaseGlobal.STATUS_NORMAL)) {
                 /*查询配饰*/
