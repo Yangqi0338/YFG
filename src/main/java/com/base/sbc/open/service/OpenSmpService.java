@@ -274,6 +274,11 @@ public class OpenSmpService {
                 HashSet<String> hashSet = new HashSet<>(Arrays.asList(existingItem.getWidthName().split(",")));
                 existingItem.setWidthName(String.join(",", hashSet));
 
+                //规格
+                existingItem.setWidth(existingItem.getWidth() + "," + item.getWidth());
+                HashSet<String> hashSet1 = new HashSet<>(Arrays.asList(existingItem.getWidth().split(",")));
+                existingItem.setWidth(String.join(",", hashSet1));
+
                 //颜色id
                 existingItem.setColor(existingItem.getColor() + "," + item.getColor());
                 HashSet<String> hashSet2 = new HashSet<>(Arrays.asList(existingItem.getColor().split(",")));
@@ -324,10 +329,17 @@ public class OpenSmpService {
             if (map1.containsKey(key)) {
                 BasicsdatumMaterialPrice existingItem = map1.get(key);
 
+                //颜色id
+                existingItem.setColor(existingItem.getColor() + "," + item.getColor());
+                HashSet<String> hashSet2 = new HashSet<>(Arrays.asList(existingItem.getColor().split(",")));
+                existingItem.setColor(String.join(",", hashSet2));
+
                 //颜色名称
                 existingItem.setColorName(existingItem.getColorName() + "," + item.getColorName());
                 HashSet<String> hashSet3 = new HashSet<>(Arrays.asList(existingItem.getColorName().split(",")));
                 existingItem.setColorName(String.join(",", hashSet3));
+
+
 
                 //索引
                 if (existingItem.getIndexList() == null) {
