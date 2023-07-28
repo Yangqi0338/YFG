@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.sample.vo.SampleUserVo;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -27,7 +28,13 @@ public class PlanningSeasonOverviewVo extends PlanningCategoryItem {
     @ApiModelProperty(value = "产品季名称")
     private String name;
 
+    @ApiModelProperty(value = "预计上市时间")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date expectedLaunchDate;
 
+    @ApiModelProperty(value = "样衣到仓时间")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date sampleDeliveryDate;
 
     @ApiModelProperty(value = "样衣状态:0未开款，1已开款，2已下发打板(完成)")
     private String sdStatus;
