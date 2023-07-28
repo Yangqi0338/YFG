@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.baomidou.mybatisplus.extension.toolkit.SqlRunner;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.StringUtils;
@@ -14,24 +13,24 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.operaLog.service.OperaLogService;
 import lombok.extern.slf4j.Slf4j;
-import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author 卞康
  * @date 2023/4/13 11:50:06
  */
-@Slf4j
+
 public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> extends ServiceImpl<M, T> implements BaseService<T> {
 
     @Resource
     private UserUtils userUtils;
-    @Resource
-    private OperaLogService operaLogService;
 
     public static final String COMPANY_CODE = "company_code";
     public static final String DEL_FLAG = "del_flag";
@@ -99,8 +98,8 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     }
 
     /**
-     * 根据id物理删除数据（慎用）
-     *
+     * 慎用！！！！！！！！。
+     * 根据id物理删除数据
      * @param id 主键id
      * @return 操作结果
      */
@@ -110,8 +109,22 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         String tableName = tableInfo.getTableName();
         String sql = "DELETE FROM " + tableName + " WHERE id = ?";
         int update = jdbcTemplate.update(sql, id);
-        log.info("=================> 物理删除 SQL："+sql + " | 返回值："+update);
+        log.debug("=================> 物理删除 SQL："+sql + " | 返回值："+update);
         return update>0;
+    }
+
+    /**
+     * 慎用！！！！！！！！。
+     * 根据构造器物理删除数据
+     *
+     * @param queryWrapper 构造器
+     * @return 删除的数量
+     */
+    @Override
+    public Integer physicalDeleteById(QueryWrapper<T> queryWrapper) {
+        String sqlSelect = queryWrapper.getSqlSelect();
+        System.out.println(sqlSelect);
+        return null;
     }
 
 
