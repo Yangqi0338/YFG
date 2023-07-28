@@ -345,6 +345,18 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         qw.in(CollUtil.isNotEmpty(dto.getTaskLevels()), "c.task_level", dto.getTaskLevels());
         // 状态
         qw.in(StrUtil.isNotBlank(dto.getStatus()), "c.status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
+        //款式状态
+        if (StrUtil.isNotBlank(dto.getSdStatus())) {
+            // 未开款
+            if (StrUtil.equals(BasicNumber.ZERO.getNumber(), dto.getSdStatus())) {
+                qw.in("c.status", BasicNumber.ZERO.getNumber(), BasicNumber.ONE.getNumber());
+            } else {
+                // 已开款、已下发打板
+                qw.eq("sd.status", dto.getSdStatus());
+            }
+        }
+        // 特殊需求
+        qw.eq(StrUtil.isNotBlank(dto.getSpecialNeedsFlag()), "c.special_needs_flag", dto.getSpecialNeedsFlag());
         Page<PlanningSeasonOverviewVo> objects = PageHelper.startPage(dto);
         getBaseMapper().listSeat(qw);
         PageInfo<PlanningSeasonOverviewVo> pageInfo = objects.toPageInfo();

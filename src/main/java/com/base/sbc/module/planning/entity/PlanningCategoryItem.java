@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-27 16:35:30
+ * @date 创建时间：2023-7-28 10:30:50
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -115,10 +115,15 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "关联的素材库数量")
     private BigDecimal materialCount;
     /**
-     * 关联历史款
+     * 关联历史款号
      */
-    @ApiModelProperty(value = "关联历史款")
+    @ApiModelProperty(value = "关联历史款号")
     private String hisDesignNo;
+    /**
+     * 旧设计款号
+     */
+    @ApiModelProperty(value = "旧设计款号")
+    private String oldDesignNo;
     /**
      * 下发时间
      */

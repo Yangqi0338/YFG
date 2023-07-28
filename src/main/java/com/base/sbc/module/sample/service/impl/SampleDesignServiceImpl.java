@@ -118,8 +118,10 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         SampleDesign sampleDesign = null;
         if (StrUtil.isNotBlank(dto.getId())) {
             sampleDesign = getById(dto.getId());
+            String newDesignNo = PlanningUtils.getNewDesignNo(dto.getDesignNo(), sampleDesign.getDesigner(), dto.getDesigner());
             BeanUtil.copyProperties(dto, sampleDesign);
             setMainStylePic(sampleDesign, dto.getStylePicList());
+            sampleDesign.setDesignNo(newDesignNo);
             this.updateById(sampleDesign);
             planningCategoryItemService.updateBySampleDesignChange(sampleDesign);
         } else {
@@ -190,9 +192,10 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
 
         // 新增坑位信息
         PlanningCategoryItem categoryItem = new PlanningCategoryItem();
+        BeanUtil.copyProperties(dto, categoryItem);
         categoryItem.setPlanningSeasonId(planningSeason.getId());
         categoryItem.setStylePic(dto.getStylePic());
-        categoryItem.setStatus("1");
+        categoryItem.setStatus("2");
         categoryItem.setDesigner(userInfo.getAliasUserName() + StrUtil.COMMA + userInfo.getUserCode());
         categoryItem.setDesignerId(userInfo.getUserId());
         categoryItem.setMaterialCount(new BigDecimal(String.valueOf(CollUtil.size(dto.getMaterialList()))));

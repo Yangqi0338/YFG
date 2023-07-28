@@ -51,5 +51,9 @@ public class ProductCategoryItemSearchDto extends Page {
      */
     @ApiModelProperty(value = "品类code")
     private String prodCategory;
+    @ApiModelProperty(value = "款式状态")
+    private String sdStatus;
+    @ApiModelProperty(value = "特别需求:(1是,0否)")
+    private String specialNeedsFlag;
 
 }

@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-27 16:35:32
+ * @date 创建时间：2023-7-28 10:30:52
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -105,10 +105,15 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "设计款号")
     private String designNo;
     /**
+     * 关联历史款号
+     */
+    @ApiModelProperty(value = "关联历史款号")
+    private String hisDesignNo;
+    /**
      * 旧设计款号
      */
     @ApiModelProperty(value = "旧设计款号")
-    private String hisDesignNo;
+    private String oldDesignNo;
     /**
      * 款式名称
      */

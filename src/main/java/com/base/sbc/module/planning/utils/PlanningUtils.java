@@ -37,6 +37,7 @@ public class PlanningUtils {
         sampleDesign.setPlanningCategoryItemId(item.getId());
         sampleDesign.setId(null);
         sampleDesign.setStatus(BaseGlobal.STATUS_NORMAL);
+        sampleDesign.setOldDesignNo(item.getDesignNo());
         sampleDesign.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
     }
 
