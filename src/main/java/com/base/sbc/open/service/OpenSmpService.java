@@ -327,7 +327,7 @@ public class OpenSmpService {
                 //颜色名称
                 existingItem.setColorName(existingItem.getColorName() + "," + item.getColorName());
                 HashSet<String> hashSet3 = new HashSet<>(Arrays.asList(existingItem.getColorName().split(",")));
-                existingItem.setColorName(String.join(",(Set", hashSet3));
+                existingItem.setColorName(String.join(",", hashSet3));
 
                 //索引
                 if (existingItem.getIndexList() == null) {
