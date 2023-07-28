@@ -219,7 +219,17 @@ public class OpenSmpService {
             AtomicInteger index = new AtomicInteger();
             smpOpenMaterialDto.getQuotItems().forEach(quotItem -> {
                 BasicsdatumMaterialPrice basicsdatumMaterialPrice = new BasicsdatumMaterialPrice();
-                basicsdatumMaterialPrice.setWidth(quotItem.getSUPPLIERSIZE());
+
+                basicsdatumMaterialPrice.setWidthName(quotItem.getSUPPLIERSIZE());
+                if (!smpOpenMaterialDto.getMODELITEMS().isEmpty()) {
+                    for (SmpOpenMaterialDto.ModelItem modelitem : smpOpenMaterialDto.getMODELITEMS()) {
+                        if (basicsdatumMaterialPrice.getWidthName().equals(modelitem.getSIZECODE())){
+                            basicsdatumMaterialPrice.setWidth(modelitem.getCODE());
+                        }
+                    }
+                }
+
+
                 basicsdatumMaterialPrice.setMaterialCode(basicsdatumMaterial.getMaterialCode());
                 basicsdatumMaterialPrice.setSupplierId(quotItem.getSupplierCode());
                 basicsdatumMaterialPrice.setSupplierName(quotItem.getSupplierName());
@@ -229,7 +239,7 @@ public class OpenSmpService {
                 basicsdatumMaterialPrice.setProductionDay(quotItem.getC8_SupplierItemRev_MLeadTime());
                 basicsdatumMaterialPrice.setMinimumOrderQuantity(quotItem.getMOQInitial());
                 basicsdatumMaterialPrice.setColorName(quotItem.getSUPPLIERCOLORNAME());
-                basicsdatumMaterialPrice.setWidthName(quotItem.getSUPPLIERSIZE());
+
                 basicsdatumMaterialPrice.setSupplierMaterialCode(quotItem.getSupplierMaterial());
                 basicsdatumMaterialPrice.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
                 basicsdatumMaterialPrice.setSelectFlag(quotItem.getDefaultQuote());
@@ -251,9 +261,9 @@ public class OpenSmpService {
                         basicsdatumMaterialPriceDetails.add(basicsdatumMaterialPriceDetail);
                     }
                 }
-               //basicsdatumMaterialPriceDetailService.addAndUpdateAndDelList(basicsdatumMaterialPriceDetails, new QueryWrapper<BasicsdatumMaterialPriceDetail>().eq("price_id", basicsdatumMaterialPrice.getId()));
+                //basicsdatumMaterialPriceDetailService.addAndUpdateAndDelList(basicsdatumMaterialPriceDetails, new QueryWrapper<BasicsdatumMaterialPriceDetail>().eq("price_id", basicsdatumMaterialPrice.getId()));
             }
-            basicsdatumMaterialPriceDetailService.remove(new QueryWrapper<BasicsdatumMaterialPriceDetail>().eq("material_code",basicsdatumMaterial.getMaterialCode()));
+            basicsdatumMaterialPriceDetailService.remove(new QueryWrapper<BasicsdatumMaterialPriceDetail>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
             basicsdatumMaterialPriceDetailService.saveBatch(basicsdatumMaterialPriceDetails);
 
         }
@@ -338,7 +348,6 @@ public class OpenSmpService {
                 existingItem.setColorName(existingItem.getColorName() + "," + item.getColorName());
                 HashSet<String> hashSet3 = new HashSet<>(Arrays.asList(existingItem.getColorName().split(",")));
                 existingItem.setColorName(String.join(",", hashSet3));
-
 
 
                 //索引
