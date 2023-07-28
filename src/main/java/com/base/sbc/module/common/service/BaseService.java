@@ -36,5 +36,5 @@ public interface BaseService<T> extends IService<T> {
      * @param queryWrapper 构造器
      * @return 删除的数量
      */
-    Integer physicalDeleteById(QueryWrapper<T> queryWrapper);
+    Integer physicalDeleteQWrap(QueryWrapper<T> queryWrapper);
 }

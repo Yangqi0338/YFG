@@ -17,10 +17,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author 卞康
@@ -100,6 +97,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     /**
      * 慎用！！！！！！！！。
      * 根据id物理删除数据
+     *
      * @param id 主键id
      * @return 操作结果
      */
@@ -109,8 +107,8 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         String tableName = tableInfo.getTableName();
         String sql = "DELETE FROM " + tableName + " WHERE id = ?";
         int update = jdbcTemplate.update(sql, id);
-        log.debug("=================> 物理删除 SQL："+sql + " | 返回值："+update);
-        return update>0;
+        log.warn("=================> 物理删除 SQL：" + sql + " | 返回值：" + update);
+        return update > 0;
     }
 
     /**
@@ -121,10 +119,26 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      * @return 删除的数量
      */
     @Override
-    public Integer physicalDeleteById(QueryWrapper<T> queryWrapper) {
-        String sqlSelect = queryWrapper.getSqlSelect();
-        System.out.println(sqlSelect);
-        return null;
+    public Integer physicalDeleteQWrap(QueryWrapper<T> queryWrapper) {
+        TableInfo tableInfo = TableInfoHelper.getTableInfo(this.getEntityClass());
+        String tableName = tableInfo.getTableName();
+
+        String customSqlSegment = queryWrapper.getCustomSqlSegment();
+
+        Map<String, Object> paramNameValuePairs = queryWrapper.getParamNameValuePairs();
+        ArrayList<Object> list =new ArrayList<>();
+        int i = 1;
+        for (String key : paramNameValuePairs.keySet()) {
+            customSqlSegment=customSqlSegment.replace("#{ew.paramNameValuePairs.MPGENVAL"+i+"}", "?");
+            list.add(paramNameValuePairs.get("MPGENVAL"+i));
+            i++;
+        }
+
+        String sql = String.format("DELETE FROM %s %s", tableName, customSqlSegment);
+        Object[] params =list.toArray();
+        int update = jdbcTemplate.update(sql, params);
+        log.warn("=================> 物理删除 SQL： " + sql + " | 参数：" + Arrays.toString(params) + " | 删除的行数：" + update );
+        return update;
     }
 
 

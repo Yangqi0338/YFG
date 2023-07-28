@@ -463,7 +463,8 @@ public class SmpService {
     public Integer bom(String[] ids) {
 
 
-        Boolean b = packBomService.physicalDeleteById("1");
+        Integer i1 = packBomService.physicalDeleteQWrap(new QueryWrapper<PackBom>().eq("id","1684757494226219011").eq("price_id","1684526766192320516"));
+
         if (true){
             return 0;
         }
