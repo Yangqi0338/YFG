@@ -119,11 +119,11 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         SampleDesign sampleDesign = null;
         if (StrUtil.isNotBlank(dto.getId())) {
             sampleDesign = getById(dto.getId());
-            checkedDesignNoRepeat(dto);
-            String newDesignNo = PlanningUtils.getNewDesignNo(dto.getDesignNo(), sampleDesign.getDesigner(), dto.getDesigner());
+            resetDesignNo(dto, sampleDesign);
+
             BeanUtil.copyProperties(dto, sampleDesign);
             setMainStylePic(sampleDesign, dto.getStylePicList());
-            sampleDesign.setDesignNo(newDesignNo);
+
             this.updateById(sampleDesign);
             planningCategoryItemService.updateBySampleDesignChange(sampleDesign);
         } else {
@@ -143,21 +143,32 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         return sampleDesign;
     }
 
-    private void checkedDesignNoRepeat(SampleDesignSaveDto dto) {
+    private void resetDesignNo(SampleDesignSaveDto dto, SampleDesign db) {
         boolean initId = CommonUtils.isInitId(dto.getId());
         if (StrUtil.isBlank(dto.getDesignNo()) && !initId) {
             throw new OtherException("设计款号不能为空");
         }
         if (StrUtil.equals(dto.getOldDesignNo(), dto.getDesignNo())) {
-            return;
+            String newDesignNo = PlanningUtils.getNewDesignNo(dto.getDesignNo(), db.getDesigner(), dto.getDesigner());
+            dto.setDesignNo(newDesignNo);
+        } else {
+            String prefix = PlanningUtils.getDesignNoPrefix(db.getDesignNo(), db.getDesigner());
+            if (StrUtil.startWith(dto.getDesignNo(), prefix)) {
+                String newDesignNo = PlanningUtils.getNewDesignNo(dto.getDesignNo(), db.getDesigner(), dto.getDesigner());
+                dto.setDesignNo(newDesignNo);
+            } else {
+                QueryWrapper qw = new QueryWrapper();
+                qw.eq("design_no", dto.getDesignNo());
+                qw.ne(!initId, "id", dto.getId());
+                long count = count(qw);
+                if (count > 0) {
+                    throw new OtherException("设计款号重复");
+                }
+            }
+
         }
-        QueryWrapper qw = new QueryWrapper();
-        qw.eq("design_no", dto.getDesignNo());
-        qw.ne(!initId, "id", dto.getId());
-        long count = count(qw);
-        if (count > 0) {
-            throw new OtherException("设计款号重复");
-        }
+
+
     }
 
 

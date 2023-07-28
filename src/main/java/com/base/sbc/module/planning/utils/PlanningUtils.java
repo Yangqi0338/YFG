@@ -2,6 +2,7 @@ package com.base.sbc.module.planning.utils;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -91,5 +92,21 @@ public class PlanningUtils {
             newDesignNo = StrUtil.sub(oldDesignNo, 0, oldDesignNo.length() - oldDesignCode.length()) + newDesignerCode;
         }
         return newDesignNo;
+    }
+
+    /**
+     * 获取设计款号前缀
+     *
+     * @param designNo
+     * @return
+     */
+    public static String getDesignNoPrefix(String designNo, String designer) {
+        if (StrUtil.contains(designer, CharUtil.COMMA)) {
+            String code = CollUtil.getLast(StrUtil.split(designer, CharUtil.COMMA));
+            if (StrUtil.endWith(designNo, code)) {
+                return StrUtil.sub(designNo, 0, designNo.length() - code.length());
+            }
+        }
+        return designNo;
     }
 }
