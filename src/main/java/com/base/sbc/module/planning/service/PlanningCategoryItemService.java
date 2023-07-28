@@ -187,4 +187,6 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
     List<BasicStructureTreeVo> expandByCategory(ProductSeasonExpandByCategorySearchDto dto);
 
     void updateBySampleDesignChange(SampleDesign sampleDesign);
+
+    Map<String, Long> totalBandSkcByPlanningSeason(String planningSeasonId);
 }

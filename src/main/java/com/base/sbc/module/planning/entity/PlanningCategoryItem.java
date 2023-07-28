@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-28 10:30:50
+ * @date 创建时间：2023-7-28 15:52:38
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -241,6 +241,33 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "波段名称")
     private String bandName;
+    /**
+     * 预计上市时间
+     */
+    @ApiModelProperty(value = "预计上市时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date expectedLaunchDate;
+    /**
+     * 目标销价
+     */
+    @ApiModelProperty(value = "目标销价")
+    private BigDecimal targetSalePrice;
+    /**
+     * 企划目标倍率
+     */
+    @ApiModelProperty(value = "企划目标倍率")
+    private BigDecimal planningTargetRate;
+    /**
+     * 目标成本
+     */
+    @ApiModelProperty(value = "目标成本")
+    private BigDecimal targetCost;
+    /**
+     * 样衣到仓时间
+     */
+    @ApiModelProperty(value = "样衣到仓时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sampleDeliveryDate;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
