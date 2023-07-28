@@ -461,6 +461,14 @@ public class SmpService {
      * bom下发
      */
     public Integer bom(String[] ids) {
+
+
+        Boolean b = packBomService.physicalDeleteById("1");
+        if (true){
+            return 0;
+        }
+
+
         int i = 0;
         List<PackBom> list = packBomService.listByIds(Arrays.asList(ids));
         for (PackBom packBom : list) {
