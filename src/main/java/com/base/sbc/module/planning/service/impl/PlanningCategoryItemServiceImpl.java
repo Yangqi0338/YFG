@@ -244,6 +244,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             // 修改
             updateById(categoryItem);
             fieldValService.save(categoryItem.getId(), FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION, dto.getFieldVals());
+            // 修改样衣设计数据
+            sampleDesignService.updateBySeatChange(categoryItem);
         }
 
     }
@@ -597,6 +599,23 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         qw.in("planning_channel_id", channelIds);
         Map<String, Long> result = new HashMap<>(16);
         List<CountVo> list = getBaseMapper().totalSkcByChannel(qw);
+        if (CollUtil.isNotEmpty(list)) {
+            for (CountVo countVo : list) {
+                result.put(countVo.getLabel(), countVo.getCount());
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, Long> totalBandSkcByPlanningSeason(String planningSeasonId) {
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.eq("planning_season_id", planningSeasonId);
+        qw.isNotNull("band_name");
+        qw.ne("band_name", "");
+        Map<String, Long> result = new HashMap<>(16);
+        List<CountVo> list = getBaseMapper().totalBandSkcByPlanningSeason(qw);
         if (CollUtil.isNotEmpty(list)) {
             for (CountVo countVo : list) {
                 result.put(countVo.getLabel(), countVo.getCount());

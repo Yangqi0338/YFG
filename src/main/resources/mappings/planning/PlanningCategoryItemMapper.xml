@@ -100,6 +100,15 @@
         group by planning_channel_id
 
     </select>
+
+    <select id="totalBandSkcByPlanningSeason" resultType="com.base.sbc.module.common.vo.CountVo">
+        select band_name as label,count(id) as `count` from t_planning_category_item
+        WHERE del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+        group by band_name
+    </select>
     <select id="countCategoryByChannelId" resultType="com.base.sbc.module.common.vo.CountVo">
         SELECT prod_category1st AS label,
         count(1) AS `count`

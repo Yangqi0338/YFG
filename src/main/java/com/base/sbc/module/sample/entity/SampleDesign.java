@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-28 10:30:52
+ * @date 创建时间：2023-7-28 15:52:41
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -493,6 +493,33 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "特别需求:(1是,0否)")
     private String specialNeedsFlag;
+    /**
+     * 预计上市时间
+     */
+    @ApiModelProperty(value = "预计上市时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date expectedLaunchDate;
+    /**
+     * 目标销价
+     */
+    @ApiModelProperty(value = "目标销价")
+    private BigDecimal targetSalePrice;
+    /**
+     * 企划目标倍率
+     */
+    @ApiModelProperty(value = "企划目标倍率")
+    private BigDecimal planningTargetRate;
+    /**
+     * 目标成本
+     */
+    @ApiModelProperty(value = "目标成本")
+    private BigDecimal targetCost;
+    /**
+     * 样衣到仓时间
+     */
+    @ApiModelProperty(value = "样衣到仓时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sampleDeliveryDate;
     /**
      * 审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)
      */

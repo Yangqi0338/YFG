@@ -11,6 +11,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -714,6 +715,20 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
             }
         }
         return null;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void updateBySeatChange(PlanningCategoryItem item) {
+        SampleDesign sampleDesign = BeanUtil.copyProperties(item, SampleDesign.class);
+        CommonUtils.resetCreateUpdate(sampleDesign);
+        sampleDesign.setId(null);
+        UpdateWrapper<SampleDesign> uw = new UpdateWrapper<>();
+        uw.eq("del_flag", BaseGlobal.NO);
+        uw.eq("planning_category_item_id", item.getId());
+        uw.setEntity(sampleDesign);
+        setUpdateInfo(uw);
+        update(uw);
     }
 
     private void getProductCategoryTreeQw(ProductCategoryTreeVo vo, QueryWrapper<?> qw) {

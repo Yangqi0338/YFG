@@ -22,7 +22,7 @@ import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningChannelVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonVo;
-import com.base.sbc.module.planning.vo.YearBrandVo;
+import com.base.sbc.module.planning.vo.YearSeasonBandVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -101,8 +101,8 @@ public class PlanningController extends BaseController {
 
     @ApiOperation(value = "产品季-查询年份品牌树(新)")
     @GetMapping("/queryYearBrandTree")
-    public List<YearBrandVo> queryYearBrandTree(String search) {
-        return planningSeasonService.queryYearBrandTree(search);
+    public List<YearSeasonBandVo> queryYearBrandTree(YearSeasonBandVo vo) {
+        return planningSeasonService.queryYearBrandTree(vo);
     }
 
     @ApiOperation(value = "新增渠道")

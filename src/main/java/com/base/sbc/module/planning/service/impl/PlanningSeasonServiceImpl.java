@@ -286,37 +286,54 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
 
 
     @Override
-    public List<YearBrandVo> queryYearBrandTree(String search) {
-        QueryWrapper<PlanningSeason> qw = new QueryWrapper<>();
-        qw.eq(COMPANY_CODE, getCompanyCode());
-        qw.lambda().isNotNull(PlanningSeason::getYearName).isNotNull(PlanningSeason::getBrandName);
+    public List<YearSeasonBandVo> queryYearBrandTree(YearSeasonBandVo vo) {
+        // 查询波段
+        if (vo.getLevel() == 1) {
+            Map<String, Long> sckCountMap = planningCategoryItemService.totalBandSkcByPlanningSeason(vo.getPlanningSeasonId());
+            return sckCountMap.entrySet().stream().map(b -> {
+                YearSeasonBandVo bv = BeanUtil.copyProperties(vo, YearSeasonBandVo.class);
+                bv.setLevel(2);
+                bv.setBandName(b.getKey());
+                bv.setTotal(b.getValue());
+                return bv;
+            }).collect(Collectors.toList());
+        } else {
+            QueryWrapper<PlanningSeason> qw = new QueryWrapper<>();
+            qw.eq(COMPANY_CODE, getCompanyCode());
+            qw.lambda().isNotNull(PlanningSeason::getYearName).isNotNull(PlanningSeason::getBrandName);
 
-        //查询所有产品季
-        List<PlanningSeason> seasonList = list(qw);
-        if (CollUtil.isEmpty(seasonList)) {
-            return new ArrayList<>();
+            //查询所有产品季
+            List<PlanningSeason> seasonList = list(qw);
+            if (CollUtil.isEmpty(seasonList)) {
+                return new ArrayList<>();
+            }
+            //统计产品季skc数量
+            Map<String, Long> sckCountMap = planningCategoryItemService.totalSkcByPlanningSeason(null);
+            List<YearSeasonBandVo> slist = seasonList.stream().map(s -> {
+                YearSeasonBandVo v = new YearSeasonBandVo();
+                v.setPlanningSeasonId(s.getId());
+                v.setPlanningSeasonName(s.getName());
+                v.setTotal(sckCountMap.getOrDefault(s.getId(), 0L));
+                v.setChildren(StrUtil.isNotBlank(vo.getHasBand()));
+                v.setYearName(s.getYearName());
+                v.setLevel(1);
+                return v;
+            }).collect(Collectors.toList());
+            List<YearSeasonBandVo> result = new ArrayList<>(16);
+            Map<String, List<YearSeasonBandVo>> seasonMap = slist.stream().collect(Collectors.groupingBy(item -> item.getYearName()));
+            for (Map.Entry<String, List<YearSeasonBandVo>> season : seasonMap.entrySet()) {
+                YearSeasonBandVo item = new YearSeasonBandVo();
+                List<YearSeasonBandVo> value = season.getValue();
+                YearSeasonBandVo planningSeason = value.get(0);
+                item.setYearName(planningSeason.getYearName());
+                item.setTotal(value.size());
+                item.setChildren(value);
+                item.setLevel(0);
+                result.add(item);
+            }
+            return result;
         }
-        //统计产品季skc数量
-        Map<String, Long> sckCountMap = planningCategoryItemService.totalSkcByPlanningSeason(null);
 
-        List<PlanningSeasonTreeVo> planningSeasonTreeVos = BeanUtil.copyToList(seasonList, PlanningSeasonTreeVo.class);
-        for (PlanningSeasonTreeVo planningSeasonTreeVo : planningSeasonTreeVos) {
-            planningSeasonTreeVo.setSkcCount(sckCountMap.getOrDefault(planningSeasonTreeVo.getId(), 0L));
-        }
-        List<YearBrandVo> result = new ArrayList<>(16);
-        Map<String, List<PlanningSeasonTreeVo>> seasonMap = planningSeasonTreeVos.stream().collect(Collectors.groupingBy(item -> item.getYearName() + item.getBrand()));
-
-        for (Map.Entry<String, List<PlanningSeasonTreeVo>> season : seasonMap.entrySet()) {
-            YearBrandVo item = new YearBrandVo();
-            List<PlanningSeasonTreeVo> value = season.getValue();
-            PlanningSeason planningSeason = value.get(0);
-            item.setYearName(planningSeason.getYearName());
-            item.setBrandName(planningSeason.getBrandName());
-            item.setTotal(value.size());
-            item.setChildren(value);
-            result.add(item);
-        }
-        return result;
     }
 
 
