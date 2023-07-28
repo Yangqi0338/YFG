@@ -336,6 +336,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "c.month", dto.getMonth());
         //波段
         qw.eq(StrUtil.isNotBlank(dto.getBandCode()), "c.band_code", dto.getBandCode());
+        qw.eq(StrUtil.isNotBlank(dto.getBandName()), "c.band_name", dto.getBandName());
         qw.eq(StrUtil.isNotBlank(dto.getPlanningChannelId()), "c.planning_channel_id", dto.getPlanningChannelId());
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "c.prod_category", dto.getProdCategory());
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), "c.prod_category1st", dto.getProdCategory1st());

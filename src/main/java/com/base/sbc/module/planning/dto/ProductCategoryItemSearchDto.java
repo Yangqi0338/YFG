@@ -27,7 +27,8 @@ public class ProductCategoryItemSearchDto extends Page {
     private String month;
     @ApiModelProperty(value = "波段", example = "1A")
     private String bandCode;
-
+    @ApiModelProperty(value = "波段名称", example = "1A")
+    private String bandName;
     @ApiModelProperty(value = "波段企划id", required = false, example = "122222")
     private String planningBandId;
 

@@ -163,6 +163,10 @@ public class PlanningController extends BaseController {
     @ApiOperation(value = "查询坑位列表")
     @PostMapping("/seatList")
     public PageInfo<PlanningSeasonOverviewVo> seatList(@Valid @RequestBody ProductCategoryItemSearchDto dto) {
+        if (dto == null) {
+            dto = new ProductCategoryItemSearchDto();
+        }
+        dto.setOrderBy("c.id desc ");
         return planningCategoryItemService.findProductCategoryItem(dto);
     }
 
