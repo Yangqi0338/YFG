@@ -28,8 +28,8 @@
 	<select id="getBasicsdatumMaterialColorSelect"
 		resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo">
 		SELECT
-			t.color_code as colourCode,
-			t.color_name as colourName
+			t.color_code ,
+			t.color_name as color
 		FROM
 			t_basicsdatum_material_color t
 		WHERE
