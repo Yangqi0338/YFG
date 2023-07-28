@@ -71,6 +71,10 @@ public class SampleStyleColorVo  {
     /** 是否下发scm(0否,1:是) */
     @ApiModelProperty(value = "是否下发scm(0否,1:是)"  )
     private String  isIssueScm;
+
+    @ApiModelProperty(value = "品类"  )
+    private String prodCategoryName;
+
     /** 生产类型 */
     @ApiModelProperty(value = "生产类型"  )
     private String devtType;

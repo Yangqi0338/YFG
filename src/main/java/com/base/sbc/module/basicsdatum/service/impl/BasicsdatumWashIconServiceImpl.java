@@ -27,6 +27,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
@@ -86,6 +87,11 @@ public class BasicsdatumWashIconServiceImpl extends BaseServiceImpl<BasicsdatumW
                 BasicsdatumWashIcon basicsdatumWashIcon = new BasicsdatumWashIcon();
             if (StringUtils.isEmpty(addRevampBasicsdatumWashIconDto.getId())) {
                 QueryWrapper<BasicsdatumWashIcon> queryWrapper=new QueryWrapper<>();
+                queryWrapper.eq("code",addRevampBasicsdatumWashIconDto.getCode());
+                List<BasicsdatumWashIcon> basicsdatumWashIconList = baseMapper.selectList(queryWrapper);
+                if(!CollectionUtils.isEmpty(basicsdatumWashIconList)){
+                    throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
+                }
                 /*新增*/
                 BeanUtils.copyProperties(addRevampBasicsdatumWashIconDto, basicsdatumWashIcon);
                 basicsdatumWashIcon.setCompanyCode(baseController.getUserCompany());

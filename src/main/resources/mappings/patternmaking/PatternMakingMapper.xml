@@ -144,7 +144,7 @@
     </select>
 
     <select id="getAllList" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingForSampleVo">
-        SELECT pk.id, pk.`code`, pk.sample_type, sd.style_name, sd.design_no, sd.category_name, sd.category_ids,
+        SELECT pk.id, pk.`code`, pk.sample_type, sd.style_name, sd.design_no, sd.prod_category_name, sd.category_ids,
             ps.id AS seasonId, ps.season, sd.designer, sd.designer_id, sd.pattern_design_id, sd.pattern_design_name,
             pk.sample_design_id
         FROM t_pattern_making pk

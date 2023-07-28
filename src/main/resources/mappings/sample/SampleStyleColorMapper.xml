@@ -42,7 +42,7 @@
     <select id="getSampleStyleColorList" resultType="com.base.sbc.module.sample.vo.SampleStyleColorVo">
     SELECT
     sd.style_flavour_name,
-    sd.category_name,
+    sd.prod_category_name,
 	sob.meet_flag,
 	cl.color16,
     ssc.*
