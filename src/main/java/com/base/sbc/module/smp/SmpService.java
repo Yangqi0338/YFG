@@ -252,10 +252,13 @@ public class SmpService {
 
             // 核价
             PackPricing packPricing = packPricingService.getOne(new QueryWrapper<PackPricing>().eq("foreign_id", sampleDesign.getId()).eq("pack_type", "packBigGoods"));
-            JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
-            smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价"));
-            smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费"));
-            smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费"));
+            if (packPricing!=null){
+                JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
+                smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价"));
+                smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费"));
+                smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费"));
+            }
+
             //
             // 资料包
             PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", sampleDesign.getId()).eq("pack_type", "packBigGoods"));
