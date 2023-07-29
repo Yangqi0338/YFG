@@ -128,6 +128,12 @@ public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
         Boolean updateStyleNoBand(UpdateStyleNoBandDto updateStyleNoBandDto);
 
 
+        /**
+         * 方法描述 验证配色是否可修改
+         * @param id
+         * @return
+         */
+        Boolean verification(String id);
 // 自定义方法区 不替换的区域【other_end】
 
 
