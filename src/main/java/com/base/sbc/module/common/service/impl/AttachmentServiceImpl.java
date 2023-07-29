@@ -13,13 +13,13 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.minio.MinioUtils;
 import com.base.sbc.module.common.dto.AttachmentSaveDto;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.mapper.AttachmentMapper;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackPatternAttachmentSaveDto;
@@ -27,7 +27,6 @@ import com.base.sbc.module.pack.dto.PackTechSpecSavePicDto;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.aspectj.weaver.tools.ISupportsMessageContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +52,8 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
 
     @Autowired
     private UploadFileService uploadFileService;
-
+    @Autowired
+    private MinioUtils minioUtils;
 //** 自定义方法区 不替换的区域【other_start】 **/
 
     /**
@@ -174,7 +174,13 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean del(String id) {
+        Attachment attachment = getById(id);
         removeBatchByIds(StrUtil.split(id, CharUtil.COMMA));
+        UploadFile uploadFile = uploadFileService.getById(attachment.getFileId());
+        if (uploadFile != null) {
+            uploadFileService.removeById(attachment.getFileId());
+            minioUtils.delFile(uploadFile.getUrl());
+        }
         return true;
     }
 
@@ -213,7 +219,7 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
     public boolean delByForeignIdType(String foreignId, String type) {
         QueryWrapper qw = new QueryWrapper();
         qw.eq("foreign_id", foreignId);
-        qw.likeRight("type", type + StrUtil.DASHED);
+        qw.likeRight("type", type);
         return remove(qw);
     }
 
@@ -223,7 +229,7 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
         delByForeignIdType(targetForeignId, targetPackType);
         QueryWrapper qw = new QueryWrapper();
         qw.eq("foreign_id", sourceForeignId);
-        qw.eq("type", sourcePackType);
+        qw.likeRight("type", sourcePackType + StrUtil.DASHED);
         List<Attachment> list = list(qw);
         if (CollUtil.isNotEmpty(list)) {
             for (Attachment o : list) {

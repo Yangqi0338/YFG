@@ -92,7 +92,7 @@ public class MinioUtils {
 
     public boolean delFile(String url) {
         try {
-            String objectName = url.replace(minioConfig.getEndpoint(), "");
+            String objectName = url.replace(minioConfig.getEndpoint() + "/" + minioConfig.getBucketName(), "");
             RemoveObjectArgs removeObjectArgs = RemoveObjectArgs.builder()
                     .bucket(minioConfig.getBucketName())
                     .object(objectName)
