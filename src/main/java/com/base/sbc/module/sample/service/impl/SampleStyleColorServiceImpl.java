@@ -218,8 +218,14 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             int initial = Integer.parseInt("2019");
             int year1 = Integer.parseInt(year);
             int ascii = 'A';
-            char c = (char) (ascii + (year1 - initial));
-            yearOn=String.valueOf(c);
+            /*超过2044年重新开始*/
+            if(year1 <= 2044){
+                char c = (char) (ascii + (year1 - initial));
+                yearOn =String.valueOf(c);
+            }else {
+                char c1 = (char) (ascii + (year1 - initial) -((year1 - initial)/26)*26 );
+                yearOn =String.valueOf(c1) + (year1 - initial)/26;
+            }
             /*判断月份是否是1到九月*/
             month = month.replace("0", "");
             if (!month.matches("[1-9]")) {
@@ -443,13 +449,12 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             if(!ObjectUtils.isEmpty(styleColor)){
                 throw new OtherException("大货款号已存在");
             }
-            sampleStyleColor.setHisStyleNo(sampleStyleColor.getStyleNo());
-            sampleStyleColor.setStyleNo(updateStyleNoBandDto.getStyleNo());
-
             /**
              * 修改下放大货款号
              */
             baseMapper.reviseAllStyleNo(sampleStyleColor.getStyleNo(),updateStyleNoBandDto.getStyleNo());
+            sampleStyleColor.setHisStyleNo(sampleStyleColor.getStyleNo());
+            sampleStyleColor.setStyleNo(updateStyleNoBandDto.getStyleNo());
         }
         /*修改波段*/
         if(StringUtils.isNotBlank(sampleStyleColor.getBandCode()) && StringUtils.isNotBlank(updateStyleNoBandDto.getBandCode())){
