@@ -196,7 +196,7 @@ public class OpenSmpService {
             smpOpenMaterialDto.getMODELITEMS().forEach(modelItem -> {
                 BasicsdatumMaterialWidth basicsdatumMaterialWidth = new BasicsdatumMaterialWidth();
                 basicsdatumMaterialWidth.setStatus(modelItem.isActive() ? "0" : "1");
-                basicsdatumMaterialWidth.setWidthCode(modelItem.getCODE());
+                basicsdatumMaterialWidth.setWidthCode(modelItem.getSizeURL());
                 basicsdatumMaterialWidth.setName(modelItem.getSIZECODE());
                 basicsdatumMaterialWidth.setMaterialCode(basicsdatumMaterial.getMaterialCode());
                 basicsdatumMaterialWidth.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
@@ -224,7 +224,7 @@ public class OpenSmpService {
                 if (!smpOpenMaterialDto.getMODELITEMS().isEmpty()) {
                     for (SmpOpenMaterialDto.ModelItem modelitem : smpOpenMaterialDto.getMODELITEMS()) {
                         if (basicsdatumMaterialPrice.getWidthName().equals(modelitem.getSIZECODE())){
-                            basicsdatumMaterialPrice.setWidth(modelitem.getCODE());
+                            basicsdatumMaterialPrice.setWidth(modelitem.getSizeURL());
                         }
                     }
                 }
