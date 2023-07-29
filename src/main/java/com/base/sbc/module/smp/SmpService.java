@@ -20,7 +20,6 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
@@ -32,8 +31,6 @@ import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
-import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
-import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
@@ -46,7 +43,6 @@ import com.base.sbc.module.sample.service.SampleStyleColorService;
 import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
@@ -225,9 +221,12 @@ public class SmpService {
                 List<FieldManagementVo> fieldManagementVoList = sampleDesign.getDimensionLabels();
                 fieldManagementVoList.forEach(m -> {
                     try {
-                        BeanUtil.setProperty(smpGoodsDto, m.getFieldName(), m.getVal());
+                        BeanUtil.setProperty(smpGoodsDto, m.getFieldName() + "Id", m.getVal());
                     } catch (Exception e) {
-
+                    }
+                    try {
+                        BeanUtil.setProperty(smpGoodsDto, m.getFieldName() + "Name", m.getValName());
+                    } catch (Exception e) {
                     }
                 });
             }
