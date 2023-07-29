@@ -634,9 +634,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         item.setSex(channel.getSex());
         item.setSexName(channel.getSexName());
         UpdateWrapper<PlanningCategoryItem> uw = new UpdateWrapper<>();
-        uw.setEntity(item);
         uw.eq("planning_channel_id", channel.getId());
-        update(uw);
+        update(item, uw);
     }
 
     @Override

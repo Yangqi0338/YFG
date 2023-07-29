@@ -724,12 +724,11 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         SampleDesign sampleDesign = BeanUtil.copyProperties(item, SampleDesign.class);
         CommonUtils.resetCreateUpdate(sampleDesign);
         sampleDesign.setId(null);
+        sampleDesign.setStylePic(uploadFileService.getIdByUrl(item.getStylePic()));
         UpdateWrapper<SampleDesign> uw = new UpdateWrapper<>();
         uw.eq("del_flag", BaseGlobal.NO);
         uw.eq("planning_category_item_id", item.getId());
-        uw.setEntity(sampleDesign);
-        setUpdateInfo(uw);
-        update(uw);
+        update(sampleDesign, uw);
     }
 
     @Override
@@ -741,9 +740,9 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         item.setSex(channel.getSex());
         item.setSexName(channel.getSexName());
         UpdateWrapper<SampleDesign> uw = new UpdateWrapper<>();
-        uw.setEntity(item);
+
         uw.eq("planning_channel_id", channel.getId());
-        update(uw);
+        update(item, uw);
     }
 
     private void getProductCategoryTreeQw(ProductCategoryTreeVo vo, QueryWrapper<?> qw) {

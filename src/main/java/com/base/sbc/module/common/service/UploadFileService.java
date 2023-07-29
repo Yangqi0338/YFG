@@ -59,6 +59,8 @@ public interface UploadFileService extends BaseService<UploadFile> {
      */
     Map<String, String> findMapByUrls(List<String> fileUrls);
 
+    String getIdByUrl(String url);
+
     String getUrlById(String id);
 
     boolean delByUrl(String url);

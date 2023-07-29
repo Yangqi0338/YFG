@@ -136,6 +136,19 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     }
 
     @Override
+    public String getIdByUrl(String url) {
+        if (StrUtil.isBlank(url)) {
+            return "";
+        }
+        QueryWrapper<UploadFile> qw = new QueryWrapper<>();
+        qw.eq("url", url);
+        qw.eq("del_flag", BaseGlobal.NO);
+        qw.last("limit 1");
+        UploadFile one = getOne(qw);
+        return Optional.ofNullable(one).map(UploadFile::getId).orElse("");
+    }
+
+    @Override
     public String getUrlById(String id) {
         UploadFile byId = getById(id);
         return Optional.ofNullable(byId).map(UploadFile::getUrl).orElse("");
