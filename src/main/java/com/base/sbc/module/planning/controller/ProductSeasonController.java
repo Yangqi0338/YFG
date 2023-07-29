@@ -6,7 +6,6 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
-import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
@@ -70,7 +69,7 @@ public class ProductSeasonController extends BaseController {
     @ApiOperation(value = "查询坑位列表")
     @PostMapping("/findProductCategoryItem")
     public PageInfo<PlanningSeasonOverviewVo> findProductCategoryItem(@Valid @RequestBody ProductCategoryItemSearchDto dto) {
-        dto.setStatus(BasicNumber.ONE.getNumber());
+        dto.setStatus("1,2");
         dto.setOrderBy("c.status asc ,c.id desc ");
         return planningCategoryItemService.findProductCategoryItem(dto);
     }
