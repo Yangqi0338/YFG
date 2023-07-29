@@ -32,6 +32,10 @@ public interface PlanningChannelService extends BaseService<PlanningChannel> {
 
     PageInfo<PlanningChannelVo> channelPageInfo(PlanningChannelSearchDto dto);
 
+    boolean checkHasSub(String id);
+
+    boolean delChannel(String id);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

@@ -627,6 +627,20 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
+    public void updateByChannelChange(PlanningChannel channel) {
+        PlanningCategoryItem item = new PlanningCategoryItem();
+        item.setChannel(channel.getChannel());
+        item.setChannelName(channel.getChannelName());
+        item.setSex(channel.getSex());
+        item.setSexName(channel.getSexName());
+        UpdateWrapper<PlanningCategoryItem> uw = new UpdateWrapper<>();
+        uw.setEntity(item);
+        uw.eq("planning_channel_id", channel.getId());
+        update(uw);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
     public boolean addSeat(AddSeatDto dto) {
         //查询渠道信息
         PlanningChannel channel = planningChannelService.getById(dto.getPlanningChannelId());

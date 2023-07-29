@@ -41,6 +41,7 @@ import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
+import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
@@ -728,6 +729,20 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         uw.eq("planning_category_item_id", item.getId());
         uw.setEntity(sampleDesign);
         setUpdateInfo(uw);
+        update(uw);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void updateByChannelChange(PlanningChannel channel) {
+        SampleDesign item = new SampleDesign();
+        item.setChannel(channel.getChannel());
+        item.setChannelName(channel.getChannelName());
+        item.setSex(channel.getSex());
+        item.setSexName(channel.getSexName());
+        UpdateWrapper<SampleDesign> uw = new UpdateWrapper<>();
+        uw.setEntity(item);
+        uw.eq("planning_channel_id", channel.getId());
         update(uw);
     }
 
