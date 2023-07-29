@@ -18,6 +18,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.common.vo.CountVo;
 import com.base.sbc.module.planning.dto.PlanningChannelDto;
 import com.base.sbc.module.planning.dto.PlanningChannelSearchDto;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
@@ -36,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -147,6 +149,24 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
     @Override
     public boolean delChannel(String id) {
         return removeBatchByIds(StrUtil.split(id, CharUtil.COMMA));
+    }
+
+    @Override
+    public Map<String, Long> countByPlanningSeason() {
+        QueryWrapper qw = new QueryWrapper();
+        qw.select("planning_season_id as label,count(1) as `count`");
+        qw.eq("del_flag", BaseGlobal.NO);
+        qw.groupBy("planning_season_id");
+
+        Map<String, Long> result = new HashMap<>(16);
+        List<Map<String, Object>> listMap = getBaseMapper().selectMaps(qw);
+        List<CountVo> list = BeanUtil.copyToList(listMap, CountVo.class);
+        if (CollUtil.isNotEmpty(list)) {
+            for (CountVo countVo : list) {
+                result.put(countVo.getLabel(), countVo.getCount());
+            }
+        }
+        return result;
     }
 
 

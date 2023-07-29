@@ -13,6 +13,8 @@ import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.vo.PlanningChannelVo;
 import com.github.pagehelper.PageInfo;
 
+import java.util.Map;
+
 /**
  * 类描述：企划-渠道 service类
  *
@@ -35,6 +37,8 @@ public interface PlanningChannelService extends BaseService<PlanningChannel> {
     boolean checkHasSub(String id);
 
     boolean delChannel(String id);
+
+    Map<String, Long> countByPlanningSeason();
 
 
 // 自定义方法区 不替换的区域【other_end】

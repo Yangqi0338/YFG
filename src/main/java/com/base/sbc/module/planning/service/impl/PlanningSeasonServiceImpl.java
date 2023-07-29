@@ -308,7 +308,8 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                 return new ArrayList<>();
             }
             //统计产品季skc数量
-            Map<String, Long> sckCountMap = planningCategoryItemService.totalSkcByPlanningSeason(null);
+            // Map<String, Long> sckCountMap = planningCategoryItemService.totalSkcByPlanningSeason(null);
+            Map<String, Long> sckCountMap = planningChannelService.countByPlanningSeason();
             List<YearSeasonBandVo> slist = seasonList.stream().map(s -> {
                 YearSeasonBandVo v = new YearSeasonBandVo();
                 v.setPlanningSeasonId(s.getId());
