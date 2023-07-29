@@ -23,7 +23,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.PreProductionSample
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-27 22:22:43
+ * @date 创建时间：2023-7-29 9:36:22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -53,16 +53,6 @@ public class PreProductionSample extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
-    /**
-     * 波段企划id
-     */
-    @ApiModelProperty(value = "波段企划id")
-    private String planningBandId;
-    /**
-     * 品类信息id
-     */
-    @ApiModelProperty(value = "品类信息id")
-    private String planningCategoryId;
     /**
      * 坑位信息id
      */
