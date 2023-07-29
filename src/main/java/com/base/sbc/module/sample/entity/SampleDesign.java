@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-26 20:03:54
+ * @date 创建时间：2023-7-29 9:47:08
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -40,55 +40,65 @@ public class SampleDesign extends BaseDataEntity<String> {
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /**
+     * 状态:0未开款，1已开款，2已下发打板(完成)
+     */
+    @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成)")
+    private String status;
+    /**
      * 产品季节id
      */
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
-    /**
-     * 波段企划id
-     */
-    @ApiModelProperty(value = "波段企划id")
-    private String planningBandId;
-    /**
-     * 品类信息id
-     */
-    @ApiModelProperty(value = "品类信息id")
-    private String planningCategoryId;
     /**
      * 坑位信息id
      */
     @ApiModelProperty(value = "坑位信息id")
     private String planningCategoryItemId;
     /**
-     * 品类名称路径:(大类/品类/中类/小类)
+     * 企划渠道id
      */
-    @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)")
-    private String categoryName;
+    @ApiModelProperty(value = "企划渠道id")
+    private String planningChannelId;
     /**
-     * 品类id路径:(大类/品类/中类/小类)
+     * 大类code
      */
-    @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)")
-    private String categoryIds;
-    /**
-     * 大类id
-     */
-    @ApiModelProperty(value = "大类id")
+    @ApiModelProperty(value = "大类code")
     private String prodCategory1st;
     /**
-     * 品类id
+     * 大类名称
      */
-    @ApiModelProperty(value = "品类id")
+    @ApiModelProperty(value = "大类名称")
+    private String prodCategory1stName;
+    /**
+     * 品类code
+     */
+    @ApiModelProperty(value = "品类code")
     private String prodCategory;
     /**
-     * 中类id
+     * 品类名称
      */
-    @ApiModelProperty(value = "中类id")
+    @ApiModelProperty(value = "品类名称")
+    private String prodCategoryName;
+    /**
+     * 中类code
+     */
+    @ApiModelProperty(value = "中类code")
     private String prodCategory2nd;
     /**
-     * 小类
+     * 中类名称
      */
-    @ApiModelProperty(value = "小类")
+    @ApiModelProperty(value = "中类名称")
+    private String prodCategory2ndName;
+    /**
+     * 小类code
+     */
+    @ApiModelProperty(value = "小类code")
     private String prodCategory3rd;
+    /**
+     * 小类名称
+     */
+    @ApiModelProperty(value = "小类名称")
+    private String prodCategory3rdName;
     /**
      * 大货款号
      */
@@ -100,10 +110,15 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "设计款号")
     private String designNo;
     /**
+     * 关联历史款号
+     */
+    @ApiModelProperty(value = "关联历史款号")
+    private String hisDesignNo;
+    /**
      * 旧设计款号
      */
     @ApiModelProperty(value = "旧设计款号")
-    private String hisDesignNo;
+    private String oldDesignNo;
     /**
      * 款式名称
      */
@@ -458,47 +473,6 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "延续点")
     private String continuationPoint;
     /**
-     * 状态:0未开款，1已开款，2已下发打板(完成)
-     */
-    @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成)")
-    private String status;
-    /**
-     * 审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)
-     */
-    @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)")
-    private String confirmStatus;
-    /**
-     * 计划完成时间
-     */
-    @ApiModelProperty(value = "计划完成时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date planningFinishDate;
-    /**
-     * 特别需求:(1是,0否)
-     */
-    @ApiModelProperty(value = "特别需求:(1是,0否)")
-    private String specialNeedsFlag;
-    /**
-     * 大类名称
-     */
-    @ApiModelProperty(value = "大类名称")
-    private String prodCategory1stName;
-    /**
-     * 品类名称
-     */
-    @ApiModelProperty(value = "品类名称")
-    private String prodCategoryName;
-    /**
-     * 中类名称
-     */
-    @ApiModelProperty(value = "中类名称")
-    private String prodCategory2ndName;
-    /**
-     * 小类名称
-     */
-    @ApiModelProperty(value = "小类名称")
-    private String prodCategory3rdName;
-    /**
      * 款式单位编码
      */
     @ApiModelProperty(value = "款式单位编码")
@@ -513,6 +487,49 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "SCM下发状态:0未下发,1已下发")
     private String scmSendFlag;
+    /**
+     * 计划完成时间
+     */
+    @ApiModelProperty(value = "计划完成时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date planningFinishDate;
+    /**
+     * 特别需求:(1是,0否)
+     */
+    @ApiModelProperty(value = "特别需求:(1是,0否)")
+    private String specialNeedsFlag;
+    /**
+     * 预计上市时间
+     */
+    @ApiModelProperty(value = "预计上市时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date expectedLaunchDate;
+    /**
+     * 目标销价
+     */
+    @ApiModelProperty(value = "目标销价")
+    private BigDecimal targetSalePrice;
+    /**
+     * 企划目标倍率
+     */
+    @ApiModelProperty(value = "企划目标倍率")
+    private BigDecimal planningTargetRate;
+    /**
+     * 目标成本
+     */
+    @ApiModelProperty(value = "目标成本")
+    private BigDecimal targetCost;
+    /**
+     * 样衣到仓时间
+     */
+    @ApiModelProperty(value = "样衣到仓时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sampleDeliveryDate;
+    /**
+     * 审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)
+     */
+    @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)")
+    private String confirmStatus;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

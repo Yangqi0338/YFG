@@ -44,7 +44,7 @@
     <select id="planningSummaryDetail" resultType="com.base.sbc.module.planning.vo.PlanningSummaryDetailVo">
         SELECT
         ci.id,
-        ci.prod_category,
+        ci.prod_category_name,
         ci.design_no,
         ci.his_design_no,
         ci.price,
@@ -53,7 +53,7 @@
         ci.continuation_point,
         ci.designer,
         ci.designer_id,
-        ci.band_code,
+        ci.band_name,
         sd.style_no
         FROM
         t_planning_category_item ci
@@ -83,22 +83,31 @@
         </if>
         group by dimension
     </select>
-    <select id="totalSkcByPlanningSeason" resultType="java.util.Map">
-        select planning_season_id as id,count(id) as total from t_planning_category_item
+    <select id="totalSkcByPlanningSeason" resultType="com.base.sbc.module.common.vo.CountVo">
+        select planning_season_id as label,count(id) as `count` from t_planning_category_item
         WHERE del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
         group by planning_season_id
     </select>
-    <select id="totalSkcByChannel" resultType="java.util.Map">
-        select planning_channel_id as id,count(id) as total from t_planning_category_item
+    <select id="totalSkcByChannel" resultType="com.base.sbc.module.common.vo.CountVo">
+        select planning_channel_id as label,count(id) as `count` from t_planning_category_item
         WHERE del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
         group by planning_channel_id
 
+    </select>
+
+    <select id="totalBandSkcByPlanningSeason" resultType="com.base.sbc.module.common.vo.CountVo">
+        select band_name as label,count(id) as `count` from t_planning_category_item
+        WHERE del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+        group by band_name
     </select>
     <select id="countCategoryByChannelId" resultType="com.base.sbc.module.common.vo.CountVo">
         SELECT prod_category1st AS label,
@@ -122,6 +131,10 @@
         </if>
         GROUP BY
         prod_category
+    </select>
+    <select id="selectCategoryIdsByBand" resultType="java.lang.String">
+        select distinct concat(prod_category1st, ',', prod_category)
+        from t_planning_category_item ${ ew.customSqlSegment}
     </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

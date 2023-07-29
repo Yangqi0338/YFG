@@ -22,7 +22,7 @@ import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningChannelVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonVo;
-import com.base.sbc.module.planning.vo.YearBrandVo;
+import com.base.sbc.module.planning.vo.YearSeasonBandVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -101,8 +101,8 @@ public class PlanningController extends BaseController {
 
     @ApiOperation(value = "产品季-查询年份品牌树(新)")
     @GetMapping("/queryYearBrandTree")
-    public List<YearBrandVo> queryYearBrandTree(String search) {
-        return planningSeasonService.queryYearBrandTree(search);
+    public List<YearSeasonBandVo> queryYearBrandTree(YearSeasonBandVo vo) {
+        return planningSeasonService.queryYearBrandTree(vo);
     }
 
     @ApiOperation(value = "新增渠道")
@@ -115,6 +115,15 @@ public class PlanningController extends BaseController {
     @GetMapping("/channel")
     public PageInfo<PlanningChannelVo> channelPageInfo(PlanningChannelSearchDto dto) {
         return planningChannelService.channelPageInfo(dto);
+    }
+
+    @ApiOperation(value = "删除渠道信息")
+    @DeleteMapping("/channel")
+    public boolean delChannel(@Valid @NotNull(message = "编号不能为空") String id) {
+        if (planningChannelService.checkHasSub(id)) {
+            throw new OtherException("存在坑位信息无法删除");
+        }
+        return planningChannelService.delChannel(id);
     }
 
     @ApiOperation(value = "坑位列表-左侧树")
@@ -163,6 +172,10 @@ public class PlanningController extends BaseController {
     @ApiOperation(value = "查询坑位列表")
     @PostMapping("/seatList")
     public PageInfo<PlanningSeasonOverviewVo> seatList(@Valid @RequestBody ProductCategoryItemSearchDto dto) {
+        if (dto == null) {
+            dto = new ProductCategoryItemSearchDto();
+        }
+        dto.setOrderBy("c.id desc ");
         return planningCategoryItemService.findProductCategoryItem(dto);
     }
 

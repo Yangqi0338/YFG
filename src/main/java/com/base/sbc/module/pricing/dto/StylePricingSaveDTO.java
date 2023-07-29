@@ -37,4 +37,11 @@ public class StylePricingSaveDTO {
      */
     @ApiModelProperty(value = "是否计控吊牌确认 0.否、1.是")
     private String controlHangtagConfirm;
+
+    /** 系列编码 */
+    @ApiModelProperty(value = "系列编码"  )
+    private String series;
+    /** 系列名称 */
+    @ApiModelProperty(value = "系列名称"  )
+    private String seriesName;
 }

@@ -8,16 +8,19 @@ package com.base.sbc.module.planning.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.planning.dto.PlanningChannelDto;
 import com.base.sbc.module.planning.dto.PlanningChannelSearchDto;
+import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.mapper.PlanningChannelMapper;
@@ -25,6 +28,7 @@ import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningChannelVo;
+import com.base.sbc.module.sample.service.SampleDesignService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -56,6 +60,8 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
     @Autowired
     PlanningCategoryItemService planningCategoryItemService;
     @Autowired
+    SampleDesignService sampleDesignService;
+    @Autowired
     AmcFeignService amcFeignService;
 
     @Override
@@ -83,6 +89,9 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
             planningChannel.setSex(dto.getSex());
             planningChannel.setSexName(dto.getSexName());
             updateById(planningChannel);
+            //修改对应的坑位信息
+            planningCategoryItemService.updateByChannelChange(planningChannel);
+            sampleDesignService.updateByChannelChange(planningChannel);
             return BeanUtil.copyProperties(planningChannel, PlanningChannelVo.class);
         }
     }
@@ -107,6 +116,7 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
     public PageInfo<PlanningChannelVo> channelPageInfo(PlanningChannelSearchDto dto) {
         BaseQueryWrapper<PlanningChannel> qw = new BaseQueryWrapper<>();
         qw.lambda().eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), PlanningChannel::getPlanningSeasonId, dto.getPlanningSeasonId());
+        qw.eq("c.del_flag", BaseGlobal.NO);
         qw.orderByDesc("id");
         Page<PlanningChannelVo> page = PageHelper.startPage(dto);
         List<PlanningChannelVo> list = getBaseMapper().list(qw);
@@ -123,6 +133,20 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
 
 
         return pageInfo;
+    }
+
+    @Override
+    public boolean checkHasSub(String id) {
+        BaseQueryWrapper<PlanningCategoryItem> countQw = new BaseQueryWrapper<>();
+        countQw.eq("planning_channel_id", id);
+        countQw.eq("del_flag", BaseGlobal.NO);
+        long count = planningCategoryItemService.count(countQw);
+        return count > 0;
+    }
+
+    @Override
+    public boolean delChannel(String id) {
+        return removeBatchByIds(StrUtil.split(id, CharUtil.COMMA));
     }
 
 

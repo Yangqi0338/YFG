@@ -27,15 +27,14 @@ public class ProductCategoryItemSearchDto extends Page {
     private String month;
     @ApiModelProperty(value = "波段", example = "1A")
     private String bandCode;
-
+    @ApiModelProperty(value = "波段名称", example = "1A")
+    private String bandName;
     @ApiModelProperty(value = "波段企划id", required = false, example = "122222")
     private String planningBandId;
 
     @ApiModelProperty(value = "渠道id")
     private String planningChannelId;
 
-    @ApiModelProperty(value = "品类ids", required = false, example = "['1234']")
-    private List<String> categoryIds;
 
     @ApiModelProperty(value = "设计师ids", required = false, example = "['1233']")
     private List<String> designerIds;
@@ -53,5 +52,9 @@ public class ProductCategoryItemSearchDto extends Page {
      */
     @ApiModelProperty(value = "品类code")
     private String prodCategory;
+    @ApiModelProperty(value = "款式状态")
+    private String sdStatus;
+    @ApiModelProperty(value = "特别需求:(1是,0否)")
+    private String specialNeedsFlag;
 
 }

@@ -6,25 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import com.base.sbc.module.sample.service.SampleDesignService;
-import com.base.sbc.module.sample.vo.SampleDesignVo;
-import org.springframework.beans.BeanUtils;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
-
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -36,11 +21,7 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.sample.dto.AddRevampSampleStyleColorDto;
-import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
-import com.base.sbc.module.sample.dto.RelevanceBomDto;
-import com.base.sbc.module.sample.dto.UpdateStyleNoBandDto;
-import com.base.sbc.module.sample.dto.UpdateTagPriceDto;
+import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.mapper.SampleDesignMapper;
@@ -48,14 +29,23 @@ import com.base.sbc.module.sample.mapper.SampleStyleColorMapper;
 import com.base.sbc.module.sample.service.SampleStyleColorService;
 import com.base.sbc.module.sample.vo.SampleStyleColorVo;
 import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：样衣-款式配色 service类
@@ -84,8 +74,6 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
 
 
 	private final PackInfoMapper packInfoMapper;
-
-    private final SampleDesignService sampleDesignService;
 
 
 /** 自定义方法区 不替换的区域【other_start】 **/
@@ -188,7 +176,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             addRevampSampleStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampSampleStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampSampleStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
-            addRevampSampleStyleColorDto.setStyleNo(getNextCode(addRevampSampleStyleColorDto.getSampleDesignId(), sampleDesign.getBrand(),sampleDesign.getYearName(),sampleDesign.getMonth(),sampleDesign.getBandName(),sampleDesign.getCategoryName(),sampleDesign.getDesignNo(),index++));
+            addRevampSampleStyleColorDto.setStyleNo(getNextCode(addRevampSampleStyleColorDto.getSampleDesignId(), sampleDesign.getBrand(), sampleDesign.getYearName(), sampleDesign.getMonth(), sampleDesign.getBandName(), sampleDesign.getProdCategory(), sampleDesign.getDesignNo(), index++));
         }
         List<SampleStyleColor> sampleStyleColorList = BeanUtil.copyToList(list, SampleStyleColor.class);
         saveBatch(sampleStyleColorList);
@@ -374,8 +362,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
         if(StringUtils.isBlank(ids)){
             throw new OtherException("ids为空");
         }
-        smpService.goods(ids.split(","));
-        return true;
+        return smpService.goods(ids.split(","))>0;
     }
 
     /**
@@ -472,6 +459,32 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             }
         }
         baseMapper.updateById(sampleStyleColor);
+        return true;
+    }
+
+    /**
+     * 方法描述 验证配色是否可修改
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public Boolean verification(String id) {
+        SampleStyleColor sampleStyleColor = baseMapper.selectById(id);
+        if(ObjectUtils.isEmpty(sampleStyleColor)){
+            throw new OtherException(BaseErrorEnum.ERR_SELECT_ATTRIBUTE_NOT_REQUIREMENTS);
+        }
+        PdmStyleCheckParam pdmStyleCheckParam = new PdmStyleCheckParam();
+        pdmStyleCheckParam.setStyleNo(sampleStyleColor.getStyleNo());
+        pdmStyleCheckParam.setCode(sampleStyleColor.getColorCode());
+        try {
+           Boolean b = smpService.checkColorSize(pdmStyleCheckParam);
+           if(!b){
+               throw new OtherException("暂不支持修改");
+           }
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        }
         return true;
     }
 

@@ -52,14 +52,14 @@ public class BasicsdatumColourLibraryExcelDto  {
      */
     @ApiModelProperty(value = "16进制颜色")
     private String color16;
-/*    *//** 可用于款式 *//*
+//    * 可用于款式
     @ApiModelProperty(value = "可用于款式"  )
     @Excel(name = "可用于款式" , replace = {"false_0", "true_1"} )
     private String isStyle;
-    *//** 可用于材料 *//*
+//    * 可用于材料
     @ApiModelProperty(value = "可用于材料"  )
     @Excel(name = "可用于材料" , replace = {"false_0", "true_1"} )
-    private String isMaterials;*/
+    private String isMaterials;
     /** 潘通 */
     @ApiModelProperty(value = "潘通"  )
     @Excel(name = "潘通")

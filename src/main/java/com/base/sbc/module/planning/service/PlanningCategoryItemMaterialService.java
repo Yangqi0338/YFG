@@ -35,6 +35,7 @@ public interface PlanningCategoryItemMaterialService extends BaseService<Plannin
 
     /**
      * 保存关联素材库
+     *
      * @param dto
      * @return
      */
@@ -42,4 +43,6 @@ public interface PlanningCategoryItemMaterialService extends BaseService<Plannin
 
 
     void saveMaterialList(SampleDesignSaveDto dto);
+
+    List<PlanningCategoryItemMaterial> findBySeatIds(List<String> ids);
 }

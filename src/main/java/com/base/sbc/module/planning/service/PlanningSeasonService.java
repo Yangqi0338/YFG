@@ -16,7 +16,7 @@ import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.vo.PlanningSeasonVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
-import com.base.sbc.module.planning.vo.YearBrandVo;
+import com.base.sbc.module.planning.vo.YearSeasonBandVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -131,5 +131,6 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
     PlanningSummaryDetailVo hisDetail(String hisDesignNo);
 
 
-    List<YearBrandVo> queryYearBrandTree(String search);
+    List<YearSeasonBandVo> queryYearBrandTree(YearSeasonBandVo vo);
+
 }

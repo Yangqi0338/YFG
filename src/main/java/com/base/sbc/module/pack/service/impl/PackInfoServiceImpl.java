@@ -25,7 +25,6 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
 import com.base.sbc.module.common.eumns.UreportDownEnum;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -43,7 +42,6 @@ import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
 import com.base.sbc.module.sample.entity.SampleDesign;
-import com.base.sbc.module.sample.mapper.SampleDesignMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleService;
 import com.base.sbc.module.sample.service.SampleDesignService;
 import com.github.pagehelper.Page;
@@ -105,6 +103,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private PackPricingOtherCostsService packPricingOtherCostsService;
     @Resource
     private PackTechSpecService packTechSpecService;
+    @Resource
+    private PackTechPackagingService packTechPackagingService;
     @Resource
     private PackSampleReviewService packSampleReviewService;
     @Resource
@@ -264,6 +264,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packPricingOtherCostsService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
         //工艺说明
         packTechSpecService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        // 工艺说明包装方式
+        packTechPackagingService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
         //样衣评审
         packSampleReviewService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
         //业务意见

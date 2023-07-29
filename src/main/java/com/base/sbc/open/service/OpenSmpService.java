@@ -1,30 +1,24 @@
 package com.base.sbc.open.service;
 
-import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.constant.BaseConstant;
-import com.base.sbc.config.minio.MinioUtils;
-import com.base.sbc.config.utils.OpenSmpFtpUtils;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthGroupSaveDto;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.service.*;
-import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.open.dto.SmpOpenMaterialDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.base.sbc.open.dto.SmpOpenMaterialDto.QuotItem;
 
 /**
  * @author 卞康
@@ -45,7 +39,7 @@ public class OpenSmpService {
 
     private final SpecificationGroupService specificationGroupService;
 
-    private final MinioUtils minioUtils;
+    private final BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
 
     private final CcmService ccmService;
 
@@ -75,7 +69,7 @@ public class OpenSmpService {
 
                         String[] split = string.split("\\.");
 
-                        list.add("http://60.191.75.218:23480/CMSDocs/Material/"+smpOpenMaterialDto.getCode()+"."+split[1]);
+                        list.add("http://60.191.75.218:23480/CMSDocs/Material/" + smpOpenMaterialDto.getCode() + "." + split[1]);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -88,19 +82,21 @@ public class OpenSmpService {
         //}
 
         JSONObject quotItems = jsonObject.getJSONObject("quotItems");
+        List<QuotItem> quotItemsList = new ArrayList<>();
         if (quotItems != null) {
             JSONArray quotItemsChildren = quotItems.getJSONArray("quotItemsChildren");
             if (quotItemsChildren != null) {
-                List<SmpOpenMaterialDto.QuotItem> list = new ArrayList<>();
+
                 for (Object quotItemsChild : quotItemsChildren) {
                     JSONObject json = (JSONObject) JSON.toJSON(quotItemsChild);
-                    SmpOpenMaterialDto.QuotItem quotItem = JSON.toJavaObject(json, SmpOpenMaterialDto.QuotItem.class);
+                    QuotItem quotItem = JSON.toJavaObject(json, QuotItem.class);
                     quotItem.setC8_SupplierItemRev_MLeadTime(json.getBigDecimal("c8SupplierItemRevMLeadTime"));
                     quotItem.setLeadTime(json.getBigDecimal("leadTime"));
-
-                    list.add(quotItem);
+                    quotItemsList.add(quotItem);
                 }
-                smpOpenMaterialDto.setQuotItems(list);
+
+
+                smpOpenMaterialDto.setQuotItems(quotItemsList);
             }
         }
         JSONObject mODELITEMS = jsonObject.getJSONObject("mODELITEMS");
@@ -196,11 +192,11 @@ public class OpenSmpService {
 
         if (!smpOpenMaterialDto.getMODELITEMS().isEmpty()) {
             List<BasicsdatumMaterialWidth> basicsdatumMaterialWidths = new ArrayList<>();
-            List<String> codes =new ArrayList<>();
+            List<String> codes = new ArrayList<>();
             smpOpenMaterialDto.getMODELITEMS().forEach(modelItem -> {
                 BasicsdatumMaterialWidth basicsdatumMaterialWidth = new BasicsdatumMaterialWidth();
                 basicsdatumMaterialWidth.setStatus(modelItem.isActive() ? "0" : "1");
-                basicsdatumMaterialWidth.setWidthCode(modelItem.getCODE());
+                basicsdatumMaterialWidth.setWidthCode(modelItem.getSizeURL());
                 basicsdatumMaterialWidth.setName(modelItem.getSIZECODE());
                 basicsdatumMaterialWidth.setMaterialCode(basicsdatumMaterial.getMaterialCode());
                 basicsdatumMaterialWidth.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
@@ -210,7 +206,7 @@ public class OpenSmpService {
             });
 
             List<SpecificationGroup> specifications = specificationGroupService.list(new QueryWrapper<SpecificationGroup>().eq("specification_ids", String.join(",", codes)));
-            if (specifications!=null && specifications.size() > 0){
+            if (specifications != null && specifications.size() > 0) {
                 basicsdatumMaterial.setWidthGroup(specifications.get(0).getCode());
                 basicsdatumMaterial.setWidthGroupName(specifications.get(0).getName());
             }
@@ -220,9 +216,20 @@ public class OpenSmpService {
 
         if (!smpOpenMaterialDto.getQuotItems().isEmpty()) {
             List<BasicsdatumMaterialPrice> basicsdatumMaterialPrices = new ArrayList<>();
+            AtomicInteger index = new AtomicInteger();
             smpOpenMaterialDto.getQuotItems().forEach(quotItem -> {
                 BasicsdatumMaterialPrice basicsdatumMaterialPrice = new BasicsdatumMaterialPrice();
-                basicsdatumMaterialPrice.setWidth(quotItem.getSUPPLIERSIZE());
+
+                basicsdatumMaterialPrice.setWidthName(quotItem.getSUPPLIERSIZE());
+                if (!smpOpenMaterialDto.getMODELITEMS().isEmpty()) {
+                    for (SmpOpenMaterialDto.ModelItem modelitem : smpOpenMaterialDto.getMODELITEMS()) {
+                        if (basicsdatumMaterialPrice.getWidthName().equals(modelitem.getSIZECODE())){
+                            basicsdatumMaterialPrice.setWidth(modelitem.getSizeURL());
+                        }
+                    }
+                }
+
+
                 basicsdatumMaterialPrice.setMaterialCode(basicsdatumMaterial.getMaterialCode());
                 basicsdatumMaterialPrice.setSupplierId(quotItem.getSupplierCode());
                 basicsdatumMaterialPrice.setSupplierName(quotItem.getSupplierName());
@@ -232,19 +239,154 @@ public class OpenSmpService {
                 basicsdatumMaterialPrice.setProductionDay(quotItem.getC8_SupplierItemRev_MLeadTime());
                 basicsdatumMaterialPrice.setMinimumOrderQuantity(quotItem.getMOQInitial());
                 basicsdatumMaterialPrice.setColorName(quotItem.getSUPPLIERCOLORNAME());
-                basicsdatumMaterialPrice.setWidthName(quotItem.getSUPPLIERSIZE());
+
                 basicsdatumMaterialPrice.setSupplierMaterialCode(quotItem.getSupplierMaterial());
                 basicsdatumMaterialPrice.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
                 basicsdatumMaterialPrice.setSelectFlag(quotItem.getDefaultQuote());
                 basicsdatumMaterialPrice.setUpdateName("外部系统推送");
+                basicsdatumMaterialPrice.setIndex(String.valueOf(index.get()));
                 basicsdatumMaterialPrices.add(basicsdatumMaterialPrice);
-
+                index.getAndIncrement();
             });
-            basicsdatumMaterialPriceService.addAndUpdateAndDelList(basicsdatumMaterialPrices, new QueryWrapper<BasicsdatumMaterialPrice>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            List<BasicsdatumMaterialPrice> list = this.merge(basicsdatumMaterialPrices);
+            basicsdatumMaterialPriceService.addAndUpdateAndDelList(list, new QueryWrapper<BasicsdatumMaterialPrice>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            List<BasicsdatumMaterialPriceDetail> basicsdatumMaterialPriceDetails = new ArrayList<>();
+            for (BasicsdatumMaterialPrice basicsdatumMaterialPrice : list) {
+
+                for (BasicsdatumMaterialPrice materialPrice : basicsdatumMaterialPrices) {
+                    if (basicsdatumMaterialPrice.getIndexList().contains(materialPrice.getIndex())) {
+                        BasicsdatumMaterialPriceDetail basicsdatumMaterialPriceDetail = new BasicsdatumMaterialPriceDetail();
+                        BeanUtil.copyProperties(materialPrice, basicsdatumMaterialPriceDetail);
+                        basicsdatumMaterialPriceDetail.setPriceId(basicsdatumMaterialPrice.getId());
+                        basicsdatumMaterialPriceDetails.add(basicsdatumMaterialPriceDetail);
+                    }
+                }
+                //basicsdatumMaterialPriceDetailService.addAndUpdateAndDelList(basicsdatumMaterialPriceDetails, new QueryWrapper<BasicsdatumMaterialPriceDetail>().eq("price_id", basicsdatumMaterialPrice.getId()));
+            }
+            basicsdatumMaterialPriceDetailService.remove(new QueryWrapper<BasicsdatumMaterialPriceDetail>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            basicsdatumMaterialPriceDetailService.saveBatch(basicsdatumMaterialPriceDetails);
 
         }
         basicsdatumMaterialService.saveOrUpdate(basicsdatumMaterial, new QueryWrapper<BasicsdatumMaterial>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
     }
 
+    //供应商合并
+    private List<BasicsdatumMaterialPrice> merge(List<BasicsdatumMaterialPrice> list) {
+        ////排除第一轮
+        Map<String, BasicsdatumMaterialPrice> map = new HashMap<>();
+        for (BasicsdatumMaterialPrice item : list) {
+            String key = item.getSupplierName() + item.getQuotationPrice() + item.getColorName();
+            if (map.containsKey(key)) {
+                BasicsdatumMaterialPrice existingItem = map.get(key);
+
+                //规格
+                existingItem.setWidthName(existingItem.getWidthName() + "," + item.getWidthName());
+                HashSet<String> hashSet = new HashSet<>(Arrays.asList(existingItem.getWidthName().split(",")));
+                existingItem.setWidthName(String.join(",", hashSet));
+
+                //规格
+                existingItem.setWidth(existingItem.getWidth() + "," + item.getWidth());
+                HashSet<String> hashSet1 = new HashSet<>(Arrays.asList(existingItem.getWidth().split(",")));
+                existingItem.setWidth(String.join(",", hashSet1));
+
+                //颜色id
+                existingItem.setColor(existingItem.getColor() + "," + item.getColor());
+                HashSet<String> hashSet2 = new HashSet<>(Arrays.asList(existingItem.getColor().split(",")));
+                existingItem.setColor(String.join(",", hashSet2));
+
+                //颜色名称
+                existingItem.setColorName(existingItem.getColorName() + "," + item.getColorName());
+                HashSet<String> hashSet3 = new HashSet<>(Arrays.asList(existingItem.getColorName().split(",")));
+                existingItem.setColorName(String.join(",", hashSet3));
+
+
+                //索引
+                if (existingItem.getIndexList() == null) {
+                    Set<String> set = new HashSet<>();
+                    set.add(item.getIndex());
+                    set.add(existingItem.getIndex());
+                    existingItem.setIndexList(set);
+                } else {
+                    existingItem.getIndexList().add(item.getIndex());
+                    existingItem.getIndexList().add(existingItem.getIndex());
+                }
+
+                map.put(key, existingItem);
+            } else {
+                if (item.getIndexList() == null) {
+                    Set<String> set = new HashSet<>();
+                    set.add(item.getIndex());
+                    set.add(item.getIndex());
+                    item.setIndexList(set);
+                } else {
+                    item.getIndexList().add(item.getIndex());
+                    item.getIndexList().add(item.getIndex());
+                }
+
+                map.put(key, item);
+            }
+        }
+
+        List<BasicsdatumMaterialPrice> mergedList = new ArrayList<>();
+        for (Map.Entry<String, BasicsdatumMaterialPrice> entry : map.entrySet()) {
+            mergedList.add(entry.getValue());
+        }
+        //Set<String> set1=new HashSet<>();
+        //排除第二轮
+        Map<String, BasicsdatumMaterialPrice> map1 = new HashMap<>();
+        for (BasicsdatumMaterialPrice item : mergedList) {
+            String key = item.getSupplierName() + item.getWidthName();
+            if (map1.containsKey(key)) {
+                BasicsdatumMaterialPrice existingItem = map1.get(key);
+
+                //颜色id
+                existingItem.setColor(existingItem.getColor() + "," + item.getColor());
+                HashSet<String> hashSet2 = new HashSet<>(Arrays.asList(existingItem.getColor().split(",")));
+                existingItem.setColor(String.join(",", hashSet2));
+
+                //颜色名称
+                existingItem.setColorName(existingItem.getColorName() + "," + item.getColorName());
+                HashSet<String> hashSet3 = new HashSet<>(Arrays.asList(existingItem.getColorName().split(",")));
+                existingItem.setColorName(String.join(",", hashSet3));
+
+
+                //索引
+                if (existingItem.getIndexList() == null) {
+                    Set<String> set = new HashSet<>();
+                    set.add(item.getIndex());
+                    set.add(existingItem.getIndex());
+                    set.addAll(existingItem.getIndexList());
+                    existingItem.setIndexList(set);
+                } else {
+                    existingItem.getIndexList().add(item.getIndex());
+                    existingItem.getIndexList().addAll(existingItem.getIndexList());
+                    existingItem.getIndexList().addAll(item.getIndexList());
+                    existingItem.getIndexList().add(existingItem.getIndex());
+                }
+
+                map1.put(key, existingItem);
+            } else {
+                if (item.getIndexList() == null) {
+                    Set<String> set = new HashSet<>();
+                    set.add(item.getIndex());
+                    set.add(item.getIndex());
+                    set.addAll(item.getIndexList());
+                    item.setIndexList(set);
+                } else {
+                    item.getIndexList().add(item.getIndex());
+                    item.getIndexList().addAll(item.getIndexList());
+                    item.getIndexList().add(item.getIndex());
+                }
+                map1.put(key, item);
+            }
+        }
+        List<BasicsdatumMaterialPrice> mergedList1 = new ArrayList<>();
+        for (Map.Entry<String, BasicsdatumMaterialPrice> entry : map1.entrySet()) {
+            BasicsdatumMaterialPrice value = entry.getValue();
+            mergedList1.add(value);
+        }
+
+        return mergedList1;
+    }
 
 }

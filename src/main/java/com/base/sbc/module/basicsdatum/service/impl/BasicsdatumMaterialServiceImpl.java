@@ -7,6 +7,7 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -57,6 +58,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	private final BasicsdatumMaterialPriceService materialPriceService;
 	private final SpecificationService specificationService;
 	private final SpecificationGroupService specificationGroupService;
+	private final BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
 
 	/**
 	 * 解决循环依赖报错的问题
@@ -358,6 +360,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public Boolean saveBasicsdatumMaterialPrice(BasicsdatumMaterialPriceSaveDto dto) {
 		BasicsdatumMaterialPrice entity = CopyUtil.copy(dto, BasicsdatumMaterialPrice.class);
 		if ("-1".equals(entity.getId())) {
@@ -375,6 +378,38 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 					.eq("material_code", entity.getMaterialCode()).set("supplier_id", dto.getSupplierId())
 					.set("supplier_name", dto.getSupplierName()));
 		}
+
+		basicsdatumMaterialPriceDetailService.remove(new QueryWrapper<BasicsdatumMaterialPriceDetail>().eq("price_id", entity.getId()));
+		List<BasicsdatumMaterialPriceDetail> basicsdatumMaterialPriceDetails =new ArrayList<>();
+
+		String[] colorCodes = entity.getColor().split(",");
+		String[] colorNames = entity.getColorName().split(",");
+		String[] widthCodes = entity.getWidth().split(",");
+		String[] widthNames = entity.getWidthName().split(",");
+		for (int i = 0; i < colorNames.length; i++) {
+			for (int j = 0; j < widthNames.length; j++) {
+				BasicsdatumMaterialPriceDetail basicsdatumMaterialPriceDetai =new BasicsdatumMaterialPriceDetail();
+				BeanUtil.copyProperties(entity,basicsdatumMaterialPriceDetai);
+				basicsdatumMaterialPriceDetai.setId(null);
+				basicsdatumMaterialPriceDetai.setPriceId(entity.getId());
+
+				basicsdatumMaterialPriceDetai.setColorName(colorNames[i]);
+				basicsdatumMaterialPriceDetai.setWidthName(widthNames[j]);
+				try {
+					basicsdatumMaterialPriceDetai.setColor(colorCodes[i]);
+				}catch (Exception e ){
+					//e.printStackTrace();
+				}
+				try {
+					basicsdatumMaterialPriceDetai.setWidth(widthCodes[j]);
+				}catch (Exception e ){
+
+					//e.printStackTrace();
+				}
+				basicsdatumMaterialPriceDetails.add(basicsdatumMaterialPriceDetai);
+			}
+		}
+		basicsdatumMaterialPriceDetailService.saveBatch(basicsdatumMaterialPriceDetails);
 		return true;
 	}
 

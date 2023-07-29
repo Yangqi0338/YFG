@@ -10,7 +10,10 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
+import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
+import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.sample.dto.SampleDesignPageDto;
 import com.base.sbc.module.sample.dto.SampleDesignSaveDto;
@@ -138,6 +141,12 @@ public interface SampleDesignService extends BaseService<SampleDesign> {
 
     CategoryStylePlanningVo categoryStylePlanning(PlanningBoardSearchDto dto);
 
+    List<ProductCategoryTreeVo> getProductCategoryTree(ProductCategoryTreeVo vo);
+
+
+    void updateBySeatChange(PlanningCategoryItem item);
+
+    void updateByChannelChange(PlanningChannel planningChannel);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

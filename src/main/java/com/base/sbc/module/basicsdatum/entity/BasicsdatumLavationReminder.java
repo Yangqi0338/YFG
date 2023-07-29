@@ -47,9 +47,9 @@ public class BasicsdatumLavationReminder extends BaseDataEntity<String> {
     /** 有配饰款 */
     @ApiModelProperty(value = "洗护类别"  )
     private String washType;
-    /** 图片 */
-    @ApiModelProperty(value = "图片"  )
-    private String picture;
+    /** 洗涤图标编码 */
+    @ApiModelProperty(value = "洗涤图标编码"  )
+    private String washIconCode;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;

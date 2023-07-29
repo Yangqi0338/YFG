@@ -20,7 +20,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 类描述：企划-坑位信息 dao类
@@ -50,9 +49,11 @@ public interface PlanningCategoryItemMapper extends BaseMapper<PlanningCategoryI
 
     List<ChartBarVo> categorySummary(@Param(Constants.WRAPPER) QueryWrapper qw);
 
-    List<Map<String, Long>> totalSkcByPlanningSeason(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<CountVo> totalSkcByPlanningSeason(@Param(Constants.WRAPPER) QueryWrapper qw);
 
-    List<Map<String, Long>> totalSkcByChannel(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<CountVo> totalSkcByChannel(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     List<CountVo> countCategoryByChannelId(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    List<CountVo> totalBandSkcByPlanningSeason(@Param(Constants.WRAPPER) QueryWrapper qw);
 }

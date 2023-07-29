@@ -97,4 +97,12 @@ public class PlanningCategoryItemMaterialServiceImpl extends BaseServiceImpl<Pla
         }
 
     }
+
+    @Override
+    public List<PlanningCategoryItemMaterial> findBySeatIds(List<String> ids) {
+        QueryWrapper<PlanningCategoryItemMaterial> qw = new QueryWrapper<>();
+        qw.lambda().in(PlanningCategoryItemMaterial::getPlanningCategoryItemId, ids);
+
+        return list(qw);
+    }
 }

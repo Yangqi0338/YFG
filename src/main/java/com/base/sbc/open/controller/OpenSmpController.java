@@ -136,8 +136,6 @@ public class OpenSmpController extends BaseController {
 
     public ApiResult smpMaterial(@RequestBody JSONObject jsonObject) {
         openSmpService.smpMaterial(jsonObject);
-
-
         return insertSuccess(null);
     }
 

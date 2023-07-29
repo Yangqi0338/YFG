@@ -19,11 +19,11 @@ import java.util.Date;
 /**
  * 类描述：产前样 实体类
  *
- * @author your name
+ * @author lxl
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.PreProductionSample
- * @email your email
- * @date 创建时间：2023-7-18 16:19:47
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-7-29 9:36:22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -54,50 +54,50 @@ public class PreProductionSample extends BaseDataEntity<String> {
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
     /**
-     * 波段企划id
-     */
-    @ApiModelProperty(value = "波段企划id")
-    private String planningBandId;
-    /**
-     * 品类信息id
-     */
-    @ApiModelProperty(value = "品类信息id")
-    private String planningCategoryId;
-    /**
      * 坑位信息id
      */
     @ApiModelProperty(value = "坑位信息id")
     private String planningCategoryItemId;
-    /**
-     * 品类名称路径:(大类/品类/中类/小类)
-     */
-    @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)")
-    private String categoryName;
-    /**
-     * 品类id路径:(大类/品类/中类/小类)
-     */
-    @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)")
-    private String categoryIds;
     /**
      * 大类id
      */
     @ApiModelProperty(value = "大类id")
     private String prodCategory1st;
     /**
+     * 大类名称
+     */
+    @ApiModelProperty(value = "大类名称")
+    private String prodCategory1stName;
+    /**
      * 品类id
      */
     @ApiModelProperty(value = "品类id")
     private String prodCategory;
+    /**
+     * 品类名称
+     */
+    @ApiModelProperty(value = "品类名称")
+    private String prodCategoryName;
     /**
      * 中类id
      */
     @ApiModelProperty(value = "中类id")
     private String prodCategory2nd;
     /**
+     * 中类名称
+     */
+    @ApiModelProperty(value = "中类名称")
+    private String prodCategory2ndName;
+    /**
      * 小类
      */
     @ApiModelProperty(value = "小类")
     private String prodCategory3rd;
+    /**
+     * 小类名称
+     */
+    @ApiModelProperty(value = "小类名称")
+    private String prodCategory3rdName;
     /**
      * 品牌
      */
@@ -243,6 +243,16 @@ public class PreProductionSample extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "版师名称")
     private String patternDesignName;
+    /**
+     * 设计师名称
+     */
+    @ApiModelProperty(value = "设计师名称")
+    private String designer;
+    /**
+     * 设计师id
+     */
+    @ApiModelProperty(value = "设计师id")
+    private String designerId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

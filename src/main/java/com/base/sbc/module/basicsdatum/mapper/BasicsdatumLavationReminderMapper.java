@@ -6,10 +6,19 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumWashIconVo;
 import org.apache.ibatis.annotations.Mapper;
-/** 
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
  * 类描述：基础资料-洗涤图标与温馨提示 dao类
  * @address com.base.sbc.module.basicsdatum.dao.BasicsdatumLavationReminderDao
  * @author mengfanjiang  
@@ -20,6 +29,8 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface BasicsdatumLavationReminderMapper extends BaseMapper<BasicsdatumLavationReminder> {
 /** 自定义方法区 不替换的区域【other_start】 **/
+
+List<BasicsdatumLavationReminderVo> getLavationReminderList(@Param(Constants.WRAPPER) QueryWrapper<BasicsdatumLavationReminder> qw);
 
 
 

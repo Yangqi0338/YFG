@@ -48,7 +48,7 @@ public class BiService {
                         biSize.setBaseSize(sampleDesign.getDefaultSize());
                         biSize.setSubrangeIncrement(null);//未确认
                         try {
-                            biSize.setSizechartGroup(sampleDesign.getCategoryName().split("/")[1].split(",")[0]);
+                            biSize.setSizechartGroup(sampleDesign.getProdCategoryName());
                             String[] split = sizeName.split("\\(");
                             biSize.setProductSizeType(split[1].replace(")", ""));
                             biSize.setProductSize(split[0]);

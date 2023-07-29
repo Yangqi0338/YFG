@@ -7,7 +7,10 @@
 package com.base.sbc.module.basicsdatum.entity;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Set;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 
@@ -18,7 +21,7 @@ import lombok.EqualsAndHashCode;
 
 /**
  * 类描述：基础资料-物料档案-供应商报价 实体类
- * 
+ *
  * @address com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice
  * @author shenzhixiong
  * @email 731139982@qq.com
@@ -89,4 +92,11 @@ public class BasicsdatumMaterialPrice extends BaseDataEntity<String> {
 	/** 是否默认 */
 	@ApiModelProperty(value = "是否默认")
 	private Boolean selectFlag;
+
+
+	@TableField(exist = false)
+	private Set<String> indexList;
+
+	@TableField(exist = false)
+	private String index;
 }

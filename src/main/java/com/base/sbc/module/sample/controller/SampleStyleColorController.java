@@ -130,6 +130,11 @@ public class SampleStyleColorController{
 		return sampleStyleColorService.updateStyleNoBand(updateStyleNoBandDto);
 	}
 
+	@ApiOperation(value = "验证配色是否可修改")
+	@PostMapping("/verification")
+	public Boolean verification(@Valid @NotBlank(message = "id不能为空") String id) {
+		return sampleStyleColorService.verification(id);
+	}
 }
 
 

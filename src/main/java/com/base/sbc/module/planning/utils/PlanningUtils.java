@@ -2,12 +2,11 @@ package com.base.sbc.module.planning.utils;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.module.planning.entity.PlanningCategory;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
@@ -39,38 +38,11 @@ public class PlanningUtils {
         sampleDesign.setPlanningCategoryItemId(item.getId());
         sampleDesign.setId(null);
         sampleDesign.setStatus(BaseGlobal.STATUS_NORMAL);
+        sampleDesign.setOldDesignNo(item.getDesignNo());
         sampleDesign.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
     }
 
-    /**
-     * 设置品类信息 大类，品类，中类，小类
-     *
-     * @param bean
-     */
-    public static void setCategory(PlanningCategoryItem bean) {
-        String categoryIds = bean.getCategoryIds();
-        List<String> categoryIdList = StrUtil.split(categoryIds, StrUtil.COMMA);
-        bean.setProdCategory1st(Opt.ofBlankAble(CollUtil.get(categoryIdList, 0)).orElse(""));
-        bean.setProdCategory(Opt.ofBlankAble(CollUtil.get(categoryIdList, 1)).orElse(""));
-        bean.setProdCategory2nd(Opt.ofBlankAble(CollUtil.get(categoryIdList, 2)).orElse(""));
-        bean.setProdCategory3rd(Opt.ofBlankAble(CollUtil.get(categoryIdList, 3)).orElse(""));
-    }
 
-    public static void setCategory(PlanningCategory bean) {
-        String categoryIds = bean.getCategoryIds();
-        List<String> categoryIdList = StrUtil.split(categoryIds, StrUtil.COMMA);
-        bean.setProdCategory1st(Opt.ofBlankAble(CollUtil.get(categoryIdList, 0)).orElse(""));
-        bean.setProdCategory(Opt.ofBlankAble(CollUtil.get(categoryIdList, 1)).orElse(""));
-    }
-
-    public static void setCategory(SampleDesign bean) {
-        String categoryIds = bean.getCategoryIds();
-        List<String> categoryIdList = StrUtil.split(categoryIds, StrUtil.COMMA);
-        bean.setProdCategory1st(Opt.ofBlankAble(CollUtil.get(categoryIdList, 0)).orElse(""));
-        bean.setProdCategory(Opt.ofBlankAble(CollUtil.get(categoryIdList, 1)).orElse(""));
-        bean.setProdCategory2nd(Opt.ofBlankAble(CollUtil.get(categoryIdList, 2)).orElse(""));
-        bean.setProdCategory3rd(Opt.ofBlankAble(CollUtil.get(categoryIdList, 3)).orElse(""));
-    }
 
     /**
      * 删除空元素和排序
@@ -89,24 +61,52 @@ public class PlanningUtils {
         }).collect(Collectors.toList());
     }
 
+
     /**
-     * 获取品类名称(第二级别)
+     * 获取新的款号
      *
-     * @param categoryName eg:外套,A01/风衣,6/风衣,61/短风衣,6101
+     * @param oldDesignNo 旧款号
+     * @param oldDesigner 旧设计师
+     * @param newDesigner 新设计师
      * @return
      */
-    public static String getProdCategoryName(String categoryName) {
-        return getCategoryName(categoryName, 1);
+    public static String getNewDesignNo(String oldDesignNo, String oldDesigner, String newDesigner) {
+        String newDesignNo = oldDesignNo;
+        if (!newDesigner.contains(StrUtil.COMMA)) {
+            throw new OtherException("设计师名称格式为:名称,代码");
+        }
+
+        if (StrUtil.equals(newDesigner, oldDesigner)) {
+            return newDesignNo;
+        }
+
+        String newDesignerCode = newDesigner.split(",")[1];
+
+        //如果还没设置设计师 款号= 款号+设计师代码
+        if (StrUtil.isBlank(oldDesigner)) {
+            newDesignNo = oldDesignNo + newDesignerCode;
+        } else {
+            //如果已经设置了设计师 款号=款号+新设计师代码
+            String oldDesignCode = oldDesigner.split(",")[1];
+            // 获取原始款号
+            newDesignNo = StrUtil.sub(oldDesignNo, 0, oldDesignNo.length() - oldDesignCode.length()) + newDesignerCode;
+        }
+        return newDesignNo;
     }
 
     /**
-     * 获取品类名称
+     * 获取设计款号前缀
      *
-     * @param categoryName eg:外套,A01/风衣,6/风衣,61/短风衣,6101
-     * @param idx          0 大类,1 品类,2 中类,3 小类
+     * @param designNo
      * @return
      */
-    public static String getCategoryName(String categoryName, int idx) {
-        return CollUtil.get(StrUtil.split(CollUtil.get(StrUtil.split(categoryName, CharUtil.SLASH), idx), CharUtil.COMMA), 0);
+    public static String getDesignNoPrefix(String designNo, String designer) {
+        if (StrUtil.contains(designer, CharUtil.COMMA)) {
+            String code = CollUtil.getLast(StrUtil.split(designer, CharUtil.COMMA));
+            if (StrUtil.endWith(designNo, code)) {
+                return StrUtil.sub(designNo, 0, designNo.length() - code.length());
+            }
+        }
+        return designNo;
     }
 }

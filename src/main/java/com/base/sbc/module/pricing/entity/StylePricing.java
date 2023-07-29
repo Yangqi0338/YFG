@@ -55,5 +55,11 @@ public class StylePricing extends BaseDataEntity<String> {
     /** 资料包id */
     @ApiModelProperty(value = "资料包id"  )
     private String packId;
+    /** 系列编码 */
+    @ApiModelProperty(value = "系列编码"  )
+    private String series;
+    /** 系列名称 */
+    @ApiModelProperty(value = "系列名称"  )
+    private String seriesName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

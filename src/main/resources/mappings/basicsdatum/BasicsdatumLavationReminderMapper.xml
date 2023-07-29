@@ -13,4 +13,11 @@
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+    <select id="getLavationReminderList"
+            resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo">
+select  *
+from  t_basicsdatum_lavation_reminder lr
+left join  t_basicsdatum_wash_icon wi  on wi.code = lr.wash_icon_code
+  ${ ew.customSqlSegment}
+    </select>
 </mapper>

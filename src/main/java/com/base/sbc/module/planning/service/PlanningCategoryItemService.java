@@ -15,9 +15,11 @@ import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningBand;
 import com.base.sbc.module.planning.entity.PlanningCategory;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
+import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.vo.ChartBarVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
@@ -174,4 +176,20 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
     boolean revoke(String ids);
 
     boolean del(String id);
+
+    List<String> selectCategoryIdsByBand(QueryWrapper qw);
+
+    /**
+     * 按品类展开
+     *
+     * @param dto
+     * @return
+     */
+    List<BasicStructureTreeVo> expandByCategory(ProductSeasonExpandByCategorySearchDto dto);
+
+    void updateBySampleDesignChange(SampleDesign sampleDesign);
+
+    Map<String, Long> totalBandSkcByPlanningSeason(String planningSeasonId);
+
+    void updateByChannelChange(PlanningChannel planningChannel);
 }

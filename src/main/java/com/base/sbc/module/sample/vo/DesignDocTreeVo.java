@@ -23,8 +23,6 @@ public class DesignDocTreeVo {
     private String season;
     @ApiModelProperty(value = "波段")
     private String bandCode;
-    @ApiModelProperty(value = "品类id路径:(大类/品类/中类/小类)")
-    private String categoryIds;
 
     @ApiModelProperty(value = "大类id")
     private String prodCategory1st;
@@ -37,7 +35,7 @@ public class DesignDocTreeVo {
     private Boolean children;
 
     public String getValue() {
-        List<String> val = CollUtil.newArrayList(year, season, bandCode, categoryIds);
+        List<String> val = CollUtil.newArrayList(year, season, bandCode, prodCategory1st, prodCategory);
         CollUtil.removeBlank(val);
         return CollUtil.join(val, "/");
     }

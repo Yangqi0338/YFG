@@ -45,6 +45,19 @@ public class CcmFeignService {
         return null;
     }
 
+    public List<BasicStructureTreeVo> findStructureTreeByCodes(String codes) {
+        String str = ccmService.findStructureTreeByCodes(codes);
+        if (StrUtil.isBlank(str)) {
+            return null;
+        }
+        JSONObject jsonObject = JSON.parseObject(str);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            List<BasicStructureTreeVo> data = jsonObject.getJSONArray("data").toJavaList(BasicStructureTreeVo.class);
+            return data;
+        }
+        return null;
+    }
+
     public List<BasicStructureTreeVo> basicStructureTreeByCode(String code, String hasRoot, String levels) {
         String str = ccmService.basicStructureTreeByCode(code, hasRoot, levels);
         if (StrUtil.isBlank(str)) {

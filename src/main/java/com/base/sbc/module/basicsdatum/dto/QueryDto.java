@@ -31,6 +31,10 @@ public class QueryDto extends Page {
     private String colourGroupId;
     /*编码*/
     private String code;
+
+    /*名称*/
+    private String name;
+
     /*多哥编码*/
     private String codes;
     /*品类*/
@@ -50,5 +54,6 @@ public class QueryDto extends Page {
 
     private String rangeDifference;
 
+    /*状态*/
     private String status;
 }

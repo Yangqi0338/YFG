@@ -13,7 +13,7 @@ import lombok.Data;
  * 工艺资料库
  */
 @Data
-@TableName("t_process_database")
+@TableName("t_basicsdatum_process_database")
 public class ProcessDatabase extends BaseDataEntity<String> {
     /**工艺项目(名称)*/
     @ApiModelProperty(value = "工艺项目(名称)")
@@ -28,8 +28,41 @@ public class ProcessDatabase extends BaseDataEntity<String> {
     /**工艺类型*/
     @ApiModelProperty(value = "工艺类型/部件类型")
     private String processType;
-    /**工艺类型名称*/
+    /*
+     * 工艺类型名称
+     * */
+    @ApiModelProperty(value = "工艺类型名称")
     private String processTypeName;
+    /*
+     * 部件
+     * */
+    @ApiModelProperty(value = "部件")
+    private String component;
+
+    /*
+    * 部件名称
+    * */
+    @ApiModelProperty(value = "部件名称")
+    private String componentName;
+
+    /**
+     * 大类
+     * */
+    @ApiModelProperty(value = "大类")
+    private String broadCategory;
+
+    /**
+     * 中类
+     * */
+    @ApiModelProperty(value = "中类")
+    private String middleCategory;
+
+    /**
+     * 小类
+     * */
+    @ApiModelProperty(value = "小类")
+    private String smallCategory;
+
     /**工艺要求*/
     private String processRequire;
     /**描述*/

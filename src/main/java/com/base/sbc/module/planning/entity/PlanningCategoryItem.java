@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-26 21:14:02
+ * @date 创建时间：2023-7-28 15:52:38
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -45,16 +45,6 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
     /**
-     * 波段企划id
-     */
-    @ApiModelProperty(value = "波段企划id")
-    private String planningBandId;
-    /**
-     * 品类信息id
-     */
-    @ApiModelProperty(value = "品类信息id")
-    private String planningCategoryId;
-    /**
      * 渠道id
      */
     @ApiModelProperty(value = "渠道id")
@@ -70,15 +60,10 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "设计款号")
     private String designNo;
     /**
-     * 品类名称路径:(大类/品类/中类/小类)
+     * 状态:0未下发,1已下发到产品季总览,2已下发到样衣设计,-1撤回
      */
-    @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)")
-    private String categoryName;
-    /**
-     * 品类code路径:(大类/品类/中类/小类)
-     */
-    @ApiModelProperty(value = "品类code路径:(大类/品类/中类/小类)")
-    private String categoryIds;
+    @ApiModelProperty(value = "状态:0未下发,1已下发到产品季总览,2已下发到样衣设计,-1撤回")
+    private String status;
     /**
      * 大类code
      */
@@ -130,15 +115,15 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "关联的素材库数量")
     private BigDecimal materialCount;
     /**
-     * 关联历史款
+     * 关联历史款号
      */
-    @ApiModelProperty(value = "关联历史款")
+    @ApiModelProperty(value = "关联历史款号")
     private String hisDesignNo;
     /**
-     * 状态:0未下发,1已下发到产品季总览,2已下发到样衣设计,-1撤回
+     * 旧设计款号
      */
-    @ApiModelProperty(value = "状态:0未下发,1已下发到产品季总览,2已下发到样衣设计,-1撤回")
-    private String status;
+    @ApiModelProperty(value = "旧设计款号")
+    private String oldDesignNo;
     /**
      * 下发时间
      */
@@ -256,6 +241,33 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "波段名称")
     private String bandName;
+    /**
+     * 预计上市时间
+     */
+    @ApiModelProperty(value = "预计上市时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date expectedLaunchDate;
+    /**
+     * 目标销价
+     */
+    @ApiModelProperty(value = "目标销价")
+    private BigDecimal targetSalePrice;
+    /**
+     * 企划目标倍率
+     */
+    @ApiModelProperty(value = "企划目标倍率")
+    private BigDecimal planningTargetRate;
+    /**
+     * 目标成本
+     */
+    @ApiModelProperty(value = "目标成本")
+    private BigDecimal targetCost;
+    /**
+     * 样衣到仓时间
+     */
+    @ApiModelProperty(value = "样衣到仓时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sampleDeliveryDate;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
