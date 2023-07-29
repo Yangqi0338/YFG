@@ -117,6 +117,15 @@ public class PlanningController extends BaseController {
         return planningChannelService.channelPageInfo(dto);
     }
 
+    @ApiOperation(value = "删除渠道信息")
+    @DeleteMapping("/channel")
+    public boolean delChannel(@Valid @NotNull(message = "编号不能为空") String id) {
+        if (planningChannelService.checkHasSub(id)) {
+            throw new OtherException("存在坑位信息无法删除");
+        }
+        return planningChannelService.delChannel(id);
+    }
+
     @ApiOperation(value = "坑位列表-左侧树")
     @GetMapping("/categoryTree")
     public List<BasicStructureTreeVo> categoryTree(String planningChannelId) {
@@ -163,6 +172,10 @@ public class PlanningController extends BaseController {
     @ApiOperation(value = "查询坑位列表")
     @PostMapping("/seatList")
     public PageInfo<PlanningSeasonOverviewVo> seatList(@Valid @RequestBody ProductCategoryItemSearchDto dto) {
+        if (dto == null) {
+            dto = new ProductCategoryItemSearchDto();
+        }
+        dto.setOrderBy("c.id desc ");
         return planningCategoryItemService.findProductCategoryItem(dto);
     }
 

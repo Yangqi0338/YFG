@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-28 15:52:41
+ * @date 创建时间：2023-7-29 9:47:08
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -54,6 +54,11 @@ public class SampleDesign extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "坑位信息id")
     private String planningCategoryItemId;
+    /**
+     * 企划渠道id
+     */
+    @ApiModelProperty(value = "企划渠道id")
+    private String planningChannelId;
     /**
      * 大类code
      */
