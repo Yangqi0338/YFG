@@ -252,21 +252,28 @@ public class SmpService {
 
             // 核价
             PackPricing packPricing = packPricingService.getOne(new QueryWrapper<PackPricing>().eq("foreign_id", sampleDesign.getId()).eq("pack_type", "packBigGoods"));
-            JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
-            smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价"));
-            smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费"));
-            smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费"));
-            //
+            if (packPricing!=null){
+                JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
+                smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价"));
+                smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费"));
+                smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费"));
+                smpGoodsDto.setPlanningRate(packPricing.getCostPrice());
+            }
+
+
             // 资料包
             PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", sampleDesign.getId()).eq("pack_type", "packBigGoods"));
-            smpGoodsDto.setPackageType(packTechPackaging.getPackagingForm());
-            smpGoodsDto.setPackageSize(packTechPackaging.getPackagingBagStandard());
+            if (packTechPackaging!=null){
+                smpGoodsDto.setPackageType(packTechPackaging.getPackagingForm());
+                smpGoodsDto.setPackageSize(packTechPackaging.getPackagingBagStandard());
+            }
+
 
 
             smpGoodsDto.setProductTypeId(sampleDesign.getStyleType());
             smpGoodsDto.setProductType(sampleDesign.getStyleName());
 
-            smpGoodsDto.setPlanningRate(packPricing.getCostPrice());
+
 
             smpGoodsDto.setSaleTime(sampleStyleColor.getNewDate());
             smpGoodsDto.setProdSeg(sampleStyleColor.getSubdivide());
@@ -291,7 +298,12 @@ public class SmpService {
             smpGoodsDto.setBomPhase(stylePricingVO.getBomStage());
             smpGoodsDto.setPriceConfirm("1".equals(stylePricingVO.getProductTagPriceConfirm()));
             smpGoodsDto.setPlanCost(stylePricingVO.getPlanCost());
-            smpGoodsDto.setActualRate(BigDecimal.valueOf(Long.parseLong(stylePricingVO.getActualMagnification())));
+            try {
+                smpGoodsDto.setActualRate(BigDecimal.valueOf(Long.parseLong(stylePricingVO.getActualMagnification())));
+
+            }catch (Exception e){
+
+            }
             smpGoodsDto.setPlanActualRate(stylePricingVO.getPlanActualMagnification());
             smpGoodsDto.setProcessCost(stylePricingVO.getCoordinationProcessingFee().add(stylePricingVO.getWoolenYarnProcessingFee()).add(stylePricingVO.getCoordinationProcessingFee()).add(stylePricingVO.getSewingProcessingFee()));
             smpGoodsDto.setProductName(stylePricingVO.getProductName());
