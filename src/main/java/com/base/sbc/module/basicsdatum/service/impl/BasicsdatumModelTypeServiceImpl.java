@@ -33,6 +33,8 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumCategoryMeasureVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.sample.vo.SampleDesignPageVo;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
@@ -82,12 +84,8 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
      * @return
      */
     @Override
-    public PageInfo<BasicsdatumModelTypeVo> getBasicsdatumModelTypeList(QueryDto queryDto) {
+    public PageInfo getBasicsdatumModelTypeList(QueryDto queryDto) {
         /*分页*/
-        if (queryDto.getPageNum() != 0 && queryDto.getPageSize() != 0) {
-            PageHelper.startPage(queryDto);
-        }
-
         BaseQueryWrapper<BasicsdatumModelType> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.notEmptyLike("model_type", queryDto.getModelType());
         queryWrapper.eq("company_code", baseController.getUserCompany());
@@ -106,9 +104,9 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         queryWrapper.between("create_date",queryDto.getCreateDate());
         queryWrapper.notEmptyEq("create_name", queryDto.getCreateName());
         /*查询基础资料-号型类型数据*/
-        List<BasicsdatumModelTypeVo> basicsdatumModelTypeList = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsdatumModelTypeVo.class);
-        PageInfo<BasicsdatumModelTypeVo> pageInfo = new PageInfo<>(basicsdatumModelTypeList);
-        return pageInfo;
+        Page<SampleDesignPageVo> objects = PageHelper.startPage(queryDto);
+        getBaseMapper().selectList(queryWrapper);
+        return objects.toPageInfo();
     }
 
 

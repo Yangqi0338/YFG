@@ -50,7 +50,7 @@ public class BasicsdatumColourLibraryController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getBasicsdatumColourLibraryList")
-	public PageInfo<BasicsdatumColourLibraryVo> getBasicsdatumColourLibraryList(QueryBasicsdatumColourLibraryDto queryBasicsdatumColourLibraryDto) {
+	public PageInfo getBasicsdatumColourLibraryList(QueryBasicsdatumColourLibraryDto queryBasicsdatumColourLibraryDto) {
 		return  basicsdatumColourLibraryService.getBasicsdatumColourLibraryList(queryBasicsdatumColourLibraryDto);
 	}
 

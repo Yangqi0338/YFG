@@ -32,6 +32,8 @@ import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.difference.entity.Difference;
 import com.base.sbc.module.difference.service.DifferenceService;
+import com.base.sbc.module.sample.vo.SampleDesignPageVo;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
@@ -91,11 +93,8 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
      * @return
      */
     @Override
-    public PageInfo<BasicsdatumRangeDifferenceVo> getList(QueryDto queryDto) {
+    public PageInfo getList(QueryDto queryDto) {
         /*分页*/
-        if (queryDto.getPageNum() != 0 & queryDto.getPageSize() != 0) {
-            PageHelper.startPage(queryDto);
-        }
         BaseQueryWrapper<BasicsdatumRangeDifference> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getCategoryId()),"category_id", queryDto.getCategoryId());
@@ -107,9 +106,9 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         queryWrapper.between("create_date", queryDto.getCreateDate());
         queryWrapper.orderByDesc("create_date");
         /*查询基础资料-档差数据*/
-        List<BasicsdatumRangeDifferenceVo> basicsdatumRangeDifferenceList = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsdatumRangeDifferenceVo.class);
-        PageInfo<BasicsdatumRangeDifferenceVo> pageInfo = new PageInfo<>(basicsdatumRangeDifferenceList);
-        return pageInfo;
+        Page<SampleDesignPageVo> objects = PageHelper.startPage(queryDto);
+        getBaseMapper().selectList(queryWrapper);
+        return objects.toPageInfo();
     }
 
 

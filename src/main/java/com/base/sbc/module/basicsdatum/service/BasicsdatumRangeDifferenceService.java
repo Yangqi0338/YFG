@@ -36,7 +36,7 @@ public interface BasicsdatumRangeDifferenceService extends BaseService<Basicsdat
         * @param queryDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<BasicsdatumRangeDifferenceVo> getList(QueryDto queryDto);
+        PageInfo getList(QueryDto queryDto);
 
 
         /**

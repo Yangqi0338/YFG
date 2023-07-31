@@ -38,7 +38,7 @@ public interface BasicsdatumColourLibraryService extends BaseService<Basicsdatum
         * @param queryBasicsdatumColourLibraryDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<BasicsdatumColourLibraryVo> getBasicsdatumColourLibraryList(QueryBasicsdatumColourLibraryDto queryBasicsdatumColourLibraryDto);
+        PageInfo getBasicsdatumColourLibraryList(QueryBasicsdatumColourLibraryDto queryBasicsdatumColourLibraryDto);
 
 
         /**

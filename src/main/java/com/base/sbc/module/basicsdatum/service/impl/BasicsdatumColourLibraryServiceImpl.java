@@ -35,7 +35,9 @@ import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
+import com.base.sbc.module.sample.vo.SampleDesignPageVo;
 import com.base.sbc.module.smp.SmpService;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -93,14 +95,10 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
      * @return
      */
     @Override
-    public PageInfo<BasicsdatumColourLibraryVo> getBasicsdatumColourLibraryList(QueryBasicsdatumColourLibraryDto queryBasicsdatumColourLibraryDto) {
-        /*分页*/
-        PageHelper.startPage(queryBasicsdatumColourLibraryDto);
+    public PageInfo getBasicsdatumColourLibraryList(QueryBasicsdatumColourLibraryDto queryBasicsdatumColourLibraryDto) {
         BaseQueryWrapper<BasicsdatumColourLibrary> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
-
-
-         queryWrapper.notEmptyLike("create_name",queryBasicsdatumColourLibraryDto.getCreateName());
+        queryWrapper.notEmptyLike("create_name",queryBasicsdatumColourLibraryDto.getCreateName());
         queryWrapper.between("create_date",queryBasicsdatumColourLibraryDto.getCreateDate());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColourCode()), "colour_code", queryBasicsdatumColourLibraryDto.getColourCode());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColourSpecification()), "colour_specification", queryBasicsdatumColourLibraryDto.getColourSpecification());
@@ -110,22 +108,12 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getIsMaterials()), "is_materials", queryBasicsdatumColourLibraryDto.getIsMaterials());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getPantone()), "pantone", queryBasicsdatumColourLibraryDto.getPantone());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColorType()),"color_type", queryBasicsdatumColourLibraryDto.getColorType());
-
         /*查询基础资料-颜色库数据*/
         queryWrapper.orderByDesc("create_date");
-        List<BasicsdatumColourLibrary> basicsdatumColourLibraryList = baseMapper.selectList(queryWrapper);
-
-        /*转换vo*/
-        List<BasicsdatumColourLibraryVo> list = BeanUtil.copyToList(basicsdatumColourLibraryList, BasicsdatumColourLibraryVo.class);
-/*        for (BasicsdatumColourLibraryVo basicsdatumColourLibraryVo : list) {
-            if (StringUtils.isEmpty(basicsdatumColourLibraryVo.getColor16()) && StringUtils.isNotEmpty(basicsdatumColourLibraryVo.getColorRgb())) {
-                basicsdatumColourLibraryVo.setColor16(this.rgbToHex(basicsdatumColourLibraryVo.getColorRgb()));
-            }
-        }*/
-        PageInfo<BasicsdatumColourLibraryVo> pageInfo = new PageInfo<>(list);
-        return pageInfo;
+        Page<SampleDesignPageVo> objects = PageHelper.startPage(queryBasicsdatumColourLibraryDto);
+        getBaseMapper().selectList(queryWrapper);
+        return objects.toPageInfo();
     }
-
 
 
     /**

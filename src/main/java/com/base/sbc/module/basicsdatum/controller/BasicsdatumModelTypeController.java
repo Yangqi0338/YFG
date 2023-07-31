@@ -45,7 +45,7 @@ public class BasicsdatumModelTypeController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getBasicsdatumModelTypeList")
-	public PageInfo<BasicsdatumModelTypeVo> getBasicsdatumModelTypeList(QueryDto queryDto) {
+	public PageInfo getBasicsdatumModelTypeList(QueryDto queryDto) {
 		return  basicsdatumModelTypeService.getBasicsdatumModelTypeList(queryDto);
 	}
 
