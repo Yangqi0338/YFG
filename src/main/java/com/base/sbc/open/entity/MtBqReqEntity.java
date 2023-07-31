@@ -9,6 +9,7 @@ import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import lombok.Data;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * @author 卞康
@@ -61,6 +62,8 @@ public class MtBqReqEntity extends BaseDataEntity<String> {
     /** 电话 */
     private String telephone;
 
+    private String cENTRALBLOCK;
+
 
     public BasicsdatumSupplier toBasicsdatumSupplier(){
         BasicsdatumSupplier basicsdatumSupplier =new BasicsdatumSupplier();
@@ -73,8 +76,9 @@ public class MtBqReqEntity extends BaseDataEntity<String> {
         basicsdatumSupplier.setProvinceCity(city);
         basicsdatumSupplier.setPublicBank(bankAccountName);
         basicsdatumSupplier.setPublicAccount(bankAcct);
+        basicsdatumSupplier.setIsSupplier(StringUtils.isEmpty(cENTRALBLOCK) ? "0" :"1");
         JSONArray jsonArray = JSON.parseArray(bankInfos);
-        if (!ObjectUtils.isEmpty(jsonArray) && jsonArray.size()>0){
+        if (!ObjectUtils.isEmpty(jsonArray) && !jsonArray.isEmpty()){
             Object o = jsonArray.get(0);
             JSONObject jsonObject = JSON.parseObject(JSON.toJSONBytes(o));
             BeanUtil.copyProperties(jsonObject,basicsdatumSupplier);
