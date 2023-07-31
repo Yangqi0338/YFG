@@ -193,6 +193,21 @@ public class BasicsdatumMaterialSaveDto {
 	/** 供应商厂家成分 */
 	@ApiModelProperty(value = "供应商厂家成分")
 	private String supplierFactoryIngredient;
+	/** 面料成分说明 */
+	@ApiModelProperty(value = "面料成分说明")
+	private String ingredientSay;
+	/** 面料卖点 */
+	@ApiModelProperty(value = "面料卖点")
+	private String fabricSalePoint;
+	/** 有胚周期(天) */
+	@ApiModelProperty(value = "有胚周期(天)")
+	private BigDecimal embryonicCycle;
+	/** 无胚周期(天) */
+	@ApiModelProperty(value = "无胚周期(天)")
+	private BigDecimal embryonicFreeCycle;
+	/** 补单生产周期 */
+	@ApiModelProperty(value = "补单生产周期")
+	private BigDecimal replenishmentProductionCycle;
 	/** 纱支规格 */
 	@ApiModelProperty(value = "纱支规格")
 	private String specification;
@@ -279,9 +294,6 @@ public class BasicsdatumMaterialSaveDto {
 	/** 公斤米数 */
 	@ApiModelProperty(value = "公斤米数")
 	private BigDecimal kgMNum;
-	/** 面料成分说明 */
-	@ApiModelProperty(value = "面料成分说明")
-	private String ingredientSay;
 	/** 询价编号 */
 	@ApiModelProperty(value = "询价编号")
 	private String inquiryNo;

@@ -5,6 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
+
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
@@ -19,12 +20,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 /**
  * 类描述：基础资料-物料档案 实体类
+ * 
  * @address com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial
  * @author your name
  * @email your email
- * @date 创建时间：2023-7-31 16:07:27
+ * @date 创建时间：2023-7-31 16:28:49
  * @version 1.0
  */
 @Data
@@ -34,10 +37,12 @@ import lombok.EqualsAndHashCode;
 public class BasicsdatumMaterial extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】
+
+	/**********************************
+	 * 实体存放的其他字段区 不替换的区域 【other_start】
 	 ******************************************/
-	public SmpMaterialDto toSmpMaterialDto(){
-		IdGen idGen =new IdGen();
+	public SmpMaterialDto toSmpMaterialDto() {
+		IdGen idGen = new IdGen();
 		SmpMaterialDto smpMaterialDto = new SmpMaterialDto();
 		smpMaterialDto.setMaterialCode(materialCode);
 		smpMaterialDto.setMaterialName(materialName);
@@ -75,10 +80,14 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setActive("0".equals(status));
 		return smpMaterialDto;
 	}
-	/**********************************
-	 * 实体存放的其他字段区 【other_end】******************************************/
 
-    /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
+	/**********************************
+	 * 实体存放的其他字段区 【other_end】
+	 ******************************************/
+
+	/*****************************
+	 * 数据库字段区 不包含父类公共字段(属性) 【start】
+	 ***********************************/
 	/** 物料编号 */
 	@ApiModelProperty(value = "物料编号")
 	private String materialCode;
@@ -247,6 +256,21 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	/** 供应商厂家成分 */
 	@ApiModelProperty(value = "供应商厂家成分")
 	private String supplierFactoryIngredient;
+	/** 面料成分说明 */
+	@ApiModelProperty(value = "面料成分说明")
+	private String ingredientSay;
+	/** 面料卖点 */
+	@ApiModelProperty(value = "面料卖点")
+	private String fabricSalePoint;
+	/** 有胚周期(天) */
+	@ApiModelProperty(value = "有胚周期(天)")
+	private BigDecimal embryonicCycle;
+	/** 无胚周期(天) */
+	@ApiModelProperty(value = "无胚周期(天)")
+	private BigDecimal embryonicFreeCycle;
+	/** 补单生产周期 */
+	@ApiModelProperty(value = "补单生产周期")
+	private BigDecimal replenishmentProductionCycle;
 	/** 纱支规格 */
 	@ApiModelProperty(value = "纱支规格")
 	private String specification;
@@ -333,9 +357,6 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	/** 公斤米数 */
 	@ApiModelProperty(value = "公斤米数")
 	private BigDecimal kgMNum;
-	/** 面料成分说明 */
-	@ApiModelProperty(value = "面料成分说明")
-	private String ingredientSay;
 	/** 询价编号 */
 	@ApiModelProperty(value = "询价编号")
 	private String inquiryNo;
@@ -372,6 +393,7 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	/** 门幅 */
 	@ApiModelProperty(value = "门幅")
 	private BigDecimal translate;
-    /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+	/*****************************
+	 * 数据库字段区 不包含父类公共字段(属性) 【end】
+	 ***********************************/
 }
-
