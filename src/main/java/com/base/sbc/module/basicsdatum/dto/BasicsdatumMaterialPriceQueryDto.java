@@ -16,9 +16,14 @@ import lombok.Data;
 @Data
 @ApiModel("物料供应商报价查询")
 public class BasicsdatumMaterialPriceQueryDto extends Page {
-	private static final long serialVersionUID = 1L;
-	/** 物料编号 */
-	@ApiModelProperty(value = "物料编号")
-	private String materialCode;
+    private static final long serialVersionUID = 1L;
+    /**
+     * 物料编号
+     */
+    @ApiModelProperty(value = "物料编号")
+    private String materialCode;
+
+    @ApiModelProperty(value = "状态(0正常,1停用)")
+    private String status;
 
 }

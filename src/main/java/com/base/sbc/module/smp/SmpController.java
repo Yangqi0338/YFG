@@ -6,8 +6,8 @@ import com.base.sbc.module.smp.dto.SmpProcessSheetDto;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -75,9 +75,9 @@ public class SmpController extends BaseController {
      * processSheet 下发
      */
     @PutMapping("/processSheet")
-    public ApiResult processSheet(List<SmpProcessSheetDto> sheetDtoList) {
+    public ApiResult processSheet(@RequestBody List<SmpProcessSheetDto> sheetDtoList) {
         Integer i = smpService.processSheet(sheetDtoList);
-        return insertSuccess("下发："+sheetDtoList.size()+"条，成功："+i+"条");
+        return insertSuccess("下发：" + sheetDtoList.size() + "条，成功：" + i + "条");
     }
 
 

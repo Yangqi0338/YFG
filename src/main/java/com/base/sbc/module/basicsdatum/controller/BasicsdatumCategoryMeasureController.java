@@ -46,7 +46,7 @@ public class BasicsdatumCategoryMeasureController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getBasicsdatumCategoryMeasureList")
-	public PageInfo<BasicsdatumCategoryMeasureVo> getBasicsdatumCategoryMeasureList(QueryCategoryMeasureDto queryDto) {
+	public PageInfo getBasicsdatumCategoryMeasureList(QueryCategoryMeasureDto queryDto) {
 		return  basicsdatumCategoryMeasureService.getBasicsdatumCategoryMeasureList(queryDto);
 	}
 

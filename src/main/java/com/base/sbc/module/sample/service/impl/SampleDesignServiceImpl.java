@@ -681,7 +681,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
             QueryWrapper qc = new QueryWrapper();
             qc.eq("company_code", getCompanyCode());
             qc.eq("del_flag", BasicNumber.ZERO.getNumber());
-            qc.select("id", "name");
+            qc.select("id", "name", "season");
             /*查询到的产品季*/
             List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
             if (CollUtil.isNotEmpty(planningSeasonList)) {

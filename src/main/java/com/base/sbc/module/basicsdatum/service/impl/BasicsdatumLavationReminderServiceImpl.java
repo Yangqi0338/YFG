@@ -15,6 +15,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.minio.MinioUtils;
@@ -84,6 +85,7 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
             PageHelper.startPage(queryDto);
             QueryWrapper<BasicsdatumLavationReminder> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("lr.company_code", baseController.getUserCompany());
+            queryWrapper.eq("lr.del_flag", BaseGlobal.DEL_FLAG_NORMAL);
             queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getStatus()), "lr.status", queryDto.getStatus());
             queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCode()), "lr.code", queryDto.getCode());
             queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCareLabel()),"lr.care_label",queryDto.getCareLabel());

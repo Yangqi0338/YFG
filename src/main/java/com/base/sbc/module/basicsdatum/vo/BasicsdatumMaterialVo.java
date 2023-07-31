@@ -28,48 +28,54 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	private List<BasicsdatumMaterialColorSelectVo> colorList;
 	private List<BasicsdatumMaterialWidthSelectVo> widthList;
 
-	/** 状态(0正常,1停用) */
-	@ApiModelProperty(value = "状态(0正常,1停用)")
-	private String status;
-	/** 备注信息 */
-	@ApiModelProperty(value = "备注信息")
-	private String remarks;
-	/** 类别（物料分类id） */
-	@ApiModelProperty(value = "类别（物料分类id）")
-	private String categoryId;
-	/** 类别（物料分类ids） */
-	@ApiModelProperty(value = "类别（物料分类ids）")
-	private String categoryIds;
-	/** 类别名称（物料分类名称） */
-	@ApiModelProperty(value = "类别名称（物料分类名称）")
-	private String categoryName;
-	/** 物料属性 */
-	@ApiModelProperty(value = "物料属性")
-	private String materialType;
-	/** 物料属性名称 */
-	@ApiModelProperty(value = "物料属性名称")
-	private String materialTypeName;
-	/** 图片地址 */
-	@ApiModelProperty(value = "图片地址")
-	private String imageUrl;
-	/** 材料 */
-	@ApiModelProperty(value = "材料")
-	private String materialCodeName;
-	/** 物料名称 */
-	@ApiModelProperty(value = "物料名称")
-	private String materialName;
 	/** 物料编号 */
 	@ApiModelProperty(value = "物料编号")
 	private String materialCode;
+	/** 物料名称 */
+	@ApiModelProperty(value = "物料名称")
+	private String materialName;
+	/** 状态(0正常,1停用) */
+	@ApiModelProperty(value = "状态(0正常,1停用)")
+	private String status;
+	/** 材料 */
+	@ApiModelProperty(value = "材料")
+	private String materialCodeName;
 	/** 品牌 */
 	@ApiModelProperty(value = "品牌")
 	private String brand;
 	/** 品牌名称 */
 	@ApiModelProperty(value = "品牌名称")
 	private String brandName;
-	/** 旧料号 */
-	@ApiModelProperty(value = "旧料号")
-	private String materialCodeOld;
+	/** 大类编码 */
+	@ApiModelProperty(value = "大类编码")
+	private String category1Code;
+	/** 大类名称 */
+	@ApiModelProperty(value = "大类名称")
+	private String category1Name;
+	/** 中类编码 */
+	@ApiModelProperty(value = "中类编码")
+	private String category2Code;
+	/** 中类名称 */
+	@ApiModelProperty(value = "中类名称")
+	private String category2Name;
+	/** 小类编码 */
+	@ApiModelProperty(value = "小类编码")
+	private String category3Code;
+	/** 小类名称 */
+	@ApiModelProperty(value = "小类名称")
+	private String category3Name;
+	/** 物料类别第4级编码 */
+	@ApiModelProperty(value = "物料类别第4级编码")
+	private String categoryId;
+	/** 类别（物料分类ids）废弃 */
+	@ApiModelProperty(value = "类别（物料分类ids）废弃")
+	private String categoryIds;
+	/** 类别名称第4级名称 */
+	@ApiModelProperty(value = "类别名称第4级名称")
+	private String categoryName;
+	/** 图片地址 */
+	@ApiModelProperty(value = "图片地址")
+	private String imageUrl;
 	/** 年份 */
 	@ApiModelProperty(value = "年份")
 	private String year;
@@ -88,103 +94,39 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 材料类型名称 */
 	@ApiModelProperty(value = "材料类型名称")
 	private String materialCategoryName;
-	/** 形状功能描述 */
-	@ApiModelProperty(value = "形状功能描述")
-	private String shapeFunctionDescription;
-	/** 色号和型号 */
-	@ApiModelProperty(value = "色号和型号")
-	private String colorAndModel;
-	/** 厂家成分 */
-	@ApiModelProperty(value = "厂家成分")
-	private String factoryComposition;
+	/** 门幅/规格组 */
+	@ApiModelProperty(value = "门幅/规格组")
+	private String widthGroup;
+	/** 门幅/规格组名称 */
+	@ApiModelProperty(value = "门幅/规格组名称")
+	private String widthGroupName;
+	/** 门幅规格 */
+	@ApiModelProperty(value = "门幅规格")
+	private String width;
+	/** 门幅规格名称 */
+	@ApiModelProperty(value = "门幅规格名称")
+	private String widthName;
 	/** 面料成分 */
 	@ApiModelProperty(value = "面料成分")
 	private String ingredient;
-	/** 面料成分说明 */
-	@ApiModelProperty(value = "面料成分说明")
-	private String ingredientSay;
-	/** 门幅 */
-	@ApiModelProperty(value = "门幅")
-	private BigDecimal translate;
-	/** 克重 */
-	@ApiModelProperty(value = "克重")
-	private BigDecimal gramWeight;
-	/** 工艺要求 */
-	@ApiModelProperty(value = "工艺要求")
-	private String processRequire;
-	/** 辅料材质 */
-	@ApiModelProperty(value = "辅料材质")
-	private String auxiliaryMaterial;
-	/** 经缩 */
-	@ApiModelProperty(value = "经缩")
-	private BigDecimal longitudeShrink;
-	/** 纬缩 */
-	@ApiModelProperty(value = "纬缩")
-	private BigDecimal latitudeShrink;
-	/** 损耗% */
-	@ApiModelProperty(value = "损耗%")
-	private BigDecimal lossRate;
-	/** 采购单位 */
-	@ApiModelProperty(value = "采购单位")
-	private String purchaseUnitCode;
-	/** 采购单位 */
-	@ApiModelProperty(value = "采购单位")
-	private String purchaseUnitName;
-	/** 库存单位 */
-	@ApiModelProperty(value = "库存单位")
-	private String stockUnitCode;
-	/** 库存单位 */
-	@ApiModelProperty(value = "库存单位")
-	private String stockUnitName;
-	/** 采购转库存 */
-	@ApiModelProperty(value = "采购转库存")
-	private String purchaseConvertStock;
-	/** 默认供应商id */
-	@ApiModelProperty(value = "默认供应商id")
-	private String supplierId;
-	/** 默认供应商名称 */
-	@ApiModelProperty(value = "默认供应商名称")
-	private String supplierName;
-	/** 来源类型 */
-	@ApiModelProperty(value = "来源类型")
-	private String sourceType;
-	/** 来源单号 */
-	@ApiModelProperty(value = "来源单号")
-	private String sourceBillCode;
-	/** 成分确认 */
-	@ApiModelProperty(value = "成分确认")
-	private String ingredientConfirm;
-	/** 送检单位 */
-	@ApiModelProperty(value = "送检单位")
-	private String checkCompany;
-	/** 送检单位名称 */
-	@ApiModelProperty(value = "送检单位名称")
-	private String checkCompanyName;
-	/** 质检结果 */
-	@ApiModelProperty(value = "质检结果")
-	private String checkResult;
-	/** 质检日期 */
-	@ApiModelProperty(value = "质检日期")
-	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-	private Date checkDate;
-	/** 公斤米数 */
-	@ApiModelProperty(value = "公斤米数")
-	private BigDecimal kgMNum;
-	/** 长度 */
-	@ApiModelProperty(value = "长度")
-	private String length;
+	/** 采购模式编码 */
+	@ApiModelProperty(value = "采购模式编码")
+	private String procMode;
+	/** 采购模式名称 */
+	@ApiModelProperty(value = "采购模式名称")
+	private String procModeName;
+	/** 领料方式编码 */
+	@ApiModelProperty(value = "领料方式编码")
+	private String pickingMethod;
+	/** 领料方式名称 */
+	@ApiModelProperty(value = "领料方式名称")
+	private String pickingMethodName;
 	/** 物料来源 */
 	@ApiModelProperty(value = "物料来源")
 	private String materialSource;
-	/** 物料来源 */
-	@ApiModelProperty(value = "物料来源")
+	/** 物料来源名称 */
+	@ApiModelProperty(value = "物料来源名称")
 	private String materialSourceName;
-	/** 直径 */
-	@ApiModelProperty(value = "直径")
-	private String diameter;
-	/** 询价编号 */
-	@ApiModelProperty(value = "询价编号")
-	private String inquiryNo;
 	/** 开发员id */
 	@ApiModelProperty(value = "开发员id")
 	private String devId;
@@ -203,36 +145,194 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 采购员 */
 	@ApiModelProperty(value = "采购员")
 	private String purchaseName;
+	/** 总库存 */
+	@ApiModelProperty(value = "总库存")
+	private BigDecimal totalInventory;
+	/** 自由库存 */
+	@ApiModelProperty(value = "自由库存")
+	private BigDecimal inventoryAvailability;
+	/** 面料难度 */
+	@ApiModelProperty(value = "面料难度")
+	private String fabricDifficulty;
+	/** 面料难度名称 */
+	@ApiModelProperty(value = "面料难度名称")
+	private String fabricDifficultyName;
+	/** 备注 */
+	@ApiModelProperty(value = "备注")
+	private String remarks;
+	/** 采购单位 */
+	@ApiModelProperty(value = "采购单位")
+	private String purchaseUnitCode;
+	/** 采购单位名称 */
+	@ApiModelProperty(value = "采购单位名称")
+	private String purchaseUnitName;
+	/** 库存单位 */
+	@ApiModelProperty(value = "库存单位")
+	private String stockUnitCode;
+	/** 库存单位名称 */
+	@ApiModelProperty(value = "库存单位名称")
+	private String stockUnitName;
+	/** 采购转库存 */
+	@ApiModelProperty(value = "采购转库存")
+	private String purchaseConvertStock;
+	/** 默认供应商名称 */
+	@ApiModelProperty(value = "默认供应商名称")
+	private String supplierName;
+	/** 默认供应商id */
+	@ApiModelProperty(value = "默认供应商id")
+	private String supplierId;
+	/** 供应商物料编号 */
+	@ApiModelProperty(value = "供应商物料编号")
+	private String supplierFabricCode;
+	/** 供应商色号 */
+	@ApiModelProperty(value = "供应商色号")
+	private String supplierColorNo;
+	/** 供应商颜色描述 */
+	@ApiModelProperty(value = "供应商颜色描述")
+	private String supplierColorSay;
+	/** 供应商面料成分 */
+	@ApiModelProperty(value = "供应商面料成分")
+	private String supplierIngredient;
+	/** 供应商厂家成分 */
+	@ApiModelProperty(value = "供应商厂家成分")
+	private String supplierFactoryIngredient;
+	/** 面料成分说明 */
+	@ApiModelProperty(value = "面料成分说明")
+	private String ingredientSay;
+	/** 面料卖点 */
+	@ApiModelProperty(value = "面料卖点")
+	private String fabricSalePoint;
+	/** 有胚周期(天) */
+	@ApiModelProperty(value = "有胚周期(天)")
+	private BigDecimal embryonicCycle;
+	/** 无胚周期(天) */
+	@ApiModelProperty(value = "无胚周期(天)")
+	private BigDecimal embryonicFreeCycle;
+	/** 补单生产周期 */
+	@ApiModelProperty(value = "补单生产周期")
+	private BigDecimal replenishmentProductionCycle;
 	/** 纱支规格 */
 	@ApiModelProperty(value = "纱支规格")
 	private String specification;
 	/** 密度 */
 	@ApiModelProperty(value = "密度")
 	private String density;
-	/** 库存可用量 */
-	@ApiModelProperty(value = "库存可用量")
-	private BigDecimal inventoryAvailability;
-	/** 门幅/规格组 */
-	@ApiModelProperty(value = "门幅/规格组")
-	private String widthGroup;
-	/** 门幅/规格组名称 */
-	@ApiModelProperty(value = "门幅/规格组名称")
-	private String widthGroupName;
-	/** 采购模式 */
-	@ApiModelProperty(value = "采购模式")
-	private String procMode;
-	/** 采购模式名称 */
-	@ApiModelProperty(value = "采购模式名称")
-	private String procModeName;
-	/** 领料方式 */
-	@ApiModelProperty(value = "领料方式")
-	private String pickingMethod;
-	/** 领料方式名称 */
-	@ApiModelProperty(value = "领料方式名称")
-	private String pickingMethodName;
-
-	/** 下发状态(0:未下发，1：已下发)*/
-	@ApiModelProperty(value = "下发状态(0:未下发，1：已下发)")
+	/** 克重 */
+	@ApiModelProperty(value = "克重")
+	private BigDecimal gramWeight;
+	/** 织造类型 */
+	@ApiModelProperty(value = "织造类型")
+	private String weaveType;
+	/** 织造类型名称 */
+	@ApiModelProperty(value = "织造类型名称")
+	private String weaveTypeName;
+	/** 胚布类型 */
+	@ApiModelProperty(value = "胚布类型")
+	private String embryoType;
+	/** 胚布类型名称 */
+	@ApiModelProperty(value = "胚布类型名称")
+	private String embryoTypeName;
+	/** 面料属性分类 */
+	@ApiModelProperty(value = "面料属性分类")
+	private String fabricPropertyType;
+	/** 面料属性分类名称 */
+	@ApiModelProperty(value = "面料属性分类名称")
+	private String fabricPropertyTypeName;
+	/** 辅料材质 */
+	@ApiModelProperty(value = "辅料材质")
+	private String auxiliaryMaterial;
+	/** 理化报告路径 */
+	@ApiModelProperty(value = "理化报告路径")
+	private String pcReport;
+	/** 送检单号 */
+	@ApiModelProperty(value = "送检单号")
+	private String checkBillCode;
+	/** 送检单位 */
+	@ApiModelProperty(value = "送检单位")
+	private String checkCompany;
+	/** 送检单位名称 */
+	@ApiModelProperty(value = "送检单位名称")
+	private String checkCompanyName;
+	/** 质检结果 */
+	@ApiModelProperty(value = "质检结果")
+	private String checkResult;
+	/** 质检日期 */
+	@ApiModelProperty(value = "质检日期")
+	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+	private Date checkDate;
+	/** 有效期 */
+	@ApiModelProperty(value = "有效期")
+	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+	private Date checkValidDate;
+	/** 面料难度评分 */
+	@ApiModelProperty(value = "面料难度评分")
+	private String fabricDifficultyScore;
+	/** 面料难度评分名称 */
+	@ApiModelProperty(value = "面料难度评分名称")
+	private String fabricDifficultyScoreName;
+	/** 面料评价 */
+	@ApiModelProperty(value = "面料评价")
+	private String fabricEvaluation;
+	/** 风险评估 */
+	@ApiModelProperty(value = "风险评估")
+	private String riskDescription;
+	/** 下发状态(0:未下发，1：下发) */
+	@ApiModelProperty(value = "下发状态(0:未下发，1：下发)")
 	private String distribute;
+	/** 物料属性 */
+	@ApiModelProperty(value = "物料属性")
+	private String materialType;
+	/** 物料属性名称 */
+	@ApiModelProperty(value = "物料属性名称")
+	private String materialTypeName;
+	/** 色号和型号 */
+	@ApiModelProperty(value = "色号和型号")
+	private String colorAndModel;
+	/** 直径 */
+	@ApiModelProperty(value = "直径")
+	private String diameter;
+	/** 长度 */
+	@ApiModelProperty(value = "长度")
+	private String length;
+	/** 公斤米数 */
+	@ApiModelProperty(value = "公斤米数")
+	private BigDecimal kgMNum;
+	/** 询价编号 */
+	@ApiModelProperty(value = "询价编号")
+	private String inquiryNo;
+	/** 旧料号 */
+	@ApiModelProperty(value = "旧料号")
+	private String materialCodeOld;
+	/** 形状功能描述 */
+	@ApiModelProperty(value = "形状功能描述")
+	private String shapeFunctionDescription;
+	/** 成分确认 */
+	@ApiModelProperty(value = "成分确认")
+	private String ingredientConfirm;
+	/** 来源单号 */
+	@ApiModelProperty(value = "来源单号")
+	private String sourceBillCode;
+	/** 来源类型 */
+	@ApiModelProperty(value = "来源类型")
+	private String sourceType;
+	/** 经缩 */
+	@ApiModelProperty(value = "经缩")
+	private BigDecimal longitudeShrink;
+	/** 纬缩 */
+	@ApiModelProperty(value = "纬缩")
+	private BigDecimal latitudeShrink;
+	/** 损耗% */
+	@ApiModelProperty(value = "损耗%")
+	private BigDecimal lossRate;
+	/** 工艺要求 */
+	@ApiModelProperty(value = "工艺要求")
+	private String processRequire;
+	/** 厂家成分 */
+	@ApiModelProperty(value = "厂家成分")
+	private String factoryComposition;
+	/** 门幅 */
+	@ApiModelProperty(value = "门幅")
+	private BigDecimal translate;
+
 }
 

@@ -37,7 +37,7 @@ public interface BasicsdatumModelTypeService extends BaseService<BasicsdatumMode
      * @param queryDto 查询条件
      * @return PageInfo<BasicsdatumComponentVo>
      */
-    PageInfo<BasicsdatumModelTypeVo> getBasicsdatumModelTypeList(QueryDto queryDto);
+    PageInfo getBasicsdatumModelTypeList(QueryDto queryDto);
 
 
     /**

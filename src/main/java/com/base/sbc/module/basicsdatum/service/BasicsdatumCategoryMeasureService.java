@@ -37,7 +37,7 @@ public interface BasicsdatumCategoryMeasureService extends BaseService<Basicsdat
         * @param queryDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<BasicsdatumCategoryMeasureVo> getBasicsdatumCategoryMeasureList(QueryCategoryMeasureDto queryDto);
+        PageInfo getBasicsdatumCategoryMeasureList(QueryCategoryMeasureDto queryDto);
 
 
         /**

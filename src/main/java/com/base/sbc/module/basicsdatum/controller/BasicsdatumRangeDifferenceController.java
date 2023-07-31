@@ -45,7 +45,7 @@ public class BasicsdatumRangeDifferenceController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getList")
-	public PageInfo<BasicsdatumRangeDifferenceVo> getList(QueryDto queryDto) {
+	public PageInfo getList(QueryDto queryDto) {
 		return  basicsdatumRangeDifferenceService.getList(queryDto);
 	}
 

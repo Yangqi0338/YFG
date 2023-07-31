@@ -29,6 +29,8 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumCompanyRelationService
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumCategoryMeasureVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumComponentVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.sample.vo.SampleDesignPageVo;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -77,11 +79,8 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
      * @return
      */
     @Override
-    public PageInfo<BasicsdatumCategoryMeasureVo> getBasicsdatumCategoryMeasureList(QueryCategoryMeasureDto queryDto) {
+    public PageInfo getBasicsdatumCategoryMeasureList(QueryCategoryMeasureDto queryDto) {
         /*分页*/
-        if (queryDto.getPageNum() != 0 && queryDto.getPageSize() != 0) {
-            PageHelper.startPage(queryDto);
-        }
         BaseQueryWrapper<BasicsdatumCategoryMeasure> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getCode()),"code",queryDto.getCode());
@@ -89,10 +88,9 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getName()),"name",queryDto.getName());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getRangeDifferenceName()),"range_difference_name",queryDto.getRangeDifferenceName());
         /*查询基础资料-品类测量组数据*/
-        List<BasicsdatumCategoryMeasureVo> basicsdatumCategoryMeasureList = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsdatumCategoryMeasureVo.class);
-        PageInfo<BasicsdatumCategoryMeasureVo> pageInfo = new PageInfo<>(basicsdatumCategoryMeasureList);
-
-        return pageInfo;
+        Page<SampleDesignPageVo> objects = PageHelper.startPage(queryDto);
+        getBaseMapper().selectList(queryWrapper);
+        return objects.toPageInfo();
     }
 
 

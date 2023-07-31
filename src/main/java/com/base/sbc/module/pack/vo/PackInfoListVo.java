@@ -50,7 +50,8 @@ public class PackInfoListVo extends PackInfoStatusVo {
 
     @ApiModelProperty(value = "生产模式")
     private String devtType;
-
+    @ApiModelProperty(value = "生产模式名称")
+    private String devtTypeName;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty(value = "创建时间")
     private Date createDate;
