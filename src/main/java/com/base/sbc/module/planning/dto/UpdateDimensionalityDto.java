@@ -12,19 +12,22 @@ public class UpdateDimensionalityDto {
 
 
     @ApiModelProperty(value = "id", required = false, example = "")
-    private String  id;
+    private String id;
+    @ApiModelProperty(value = "产品季id")
+    private String planningSeasonId;
 
-
-    @ApiModelProperty(value = "fieldId" ,required = true,example = "122222")
+    @ApiModelProperty(value = "fieldId", required = true, example = "122222")
     @NotBlank(message = "字段管理id不能为空")
-    private String  fieldId;
+    private String fieldId;
 
-    @ApiModelProperty(value = "维度名称" ,required = true,example = "长度")
+    @ApiModelProperty(value = "维度名称", required = true, example = "长度")
     @NotBlank(message = "维度名称id不能为空")
-    private String  dimensionalityName;
-
-    @ApiModelProperty(value = "是否检查" ,required = true,example = "0")
+    private String dimensionalityName;
+    @ApiModelProperty(value = "品类", required = true, example = "0")
+    @NotBlank(message = "品类")
+    private String categoryId;
+    @ApiModelProperty(value = "是否检查", required = true, example = "0")
     @NotBlank(message = "是否检查不能为空")
-    private String  isExamine;
+    private String isExamine;
 
 }

@@ -112,9 +112,9 @@ public class PlanningDemandController {
 
 	/*新增删除维度标签*/
 	@ApiOperation(value = "新增删除维度标签")
-	@PostMapping("/saveDelDimensionality")
-	public ApiResult saveDelDimensionality(@RequestBody List<SaveDelDimensionalityDto> list) {
-		return planningDimensionalityService.saveDelDimensionality(list);
+	@PostMapping("/saveBatchDimensionality")
+	public ApiResult saveBatchDimensionality(@RequestBody List<SaveDelDimensionalityDto> list) {
+		return planningDimensionalityService.saveBatchDimensionality(list);
 	}
 
 	@ApiOperation(value = "保存/编辑维度标签")
@@ -125,9 +125,9 @@ public class PlanningDemandController {
 
 	/*删除维度标签*/
 	@ApiOperation(value = "删除维度标签")
-	@DeleteMapping("/delDelDimensionality")
-	public ApiResult delDelDimensionality(@Valid @NotBlank(message = "编号id不能为空") String id) {
-		return planningDimensionalityService.delDelDimensionality(id);
+	@DeleteMapping("/delDimensionality")
+	public ApiResult delDimensionality(@Valid @NotBlank(message = "编号id不能为空") String id) {
+		return planningDimensionalityService.delDimensionality(id);
 	}
 
 

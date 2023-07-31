@@ -9,6 +9,7 @@ package com.base.sbc.module.planning.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -89,7 +90,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     }
 
     @Override
-    public ApiResult saveDelDimensionality(List<SaveDelDimensionalityDto> list) {
+    public ApiResult saveBatchDimensionality(List<SaveDelDimensionalityDto> list) {
         /*查询数据库已存在维度*/
         QueryWrapper<PlanningDimensionality> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("category_id", list.get(0).getCategoryId());
@@ -125,7 +126,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     }
 
     @Override
-    public ApiResult delDelDimensionality(String id) {
+    public ApiResult delDimensionality(String id) {
         List<String> ids = StringUtils.convertList(id);
         baseMapper.deleteBatchIds(ids);
         return ApiResult.success("操作成功");
@@ -140,6 +141,10 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             planningDimensionality = new PlanningDimensionality();
             planningDimensionality.setDimensionalityName(dto.getDimensionalityName());
             planningDimensionality.setIsExamine(dto.getIsExamine());
+            planningDimensionality.setCategoryId(dto.getCategoryId());
+            planningDimensionality.setPlanningSeasonId(dto.getPlanningSeasonId());
+            planningDimensionality.setFieldId(dto.getFieldId());
+            planningDimensionality.setDelFlag(BaseGlobal.NO);
             baseMapper.insert(planningDimensionality);
         } else {
             /*调整维度*/
