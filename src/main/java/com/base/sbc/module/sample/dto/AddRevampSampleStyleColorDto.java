@@ -131,6 +131,11 @@ public class AddRevampSampleStyleColorDto {
      */
     @ApiModelProperty(value = "厂家")
     private String manufacturer;
+
+    /** 厂家编码 */
+    @ApiModelProperty(value = "厂家编码"  )
+    private String  manufacturerCode;
+
     /**
      * 厂家款号
      */
