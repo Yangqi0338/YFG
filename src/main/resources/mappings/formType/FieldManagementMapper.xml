@@ -67,10 +67,10 @@
             and tfm.group_name=#{groupName}
         </if>
         <if test="season !='' and season != null">
-            and tfm.season=#{season}
+            and find_in_set(#{season},tfm.season)
         </if>
         <if test="categoryId !='' and categoryId != null">
-            and tfm.category_id=#{categoryId}
+            and find_in_set(#{categoryId},tfm.category_id)
         </if>
         <if test="formTypeCode !='' and formTypeCode != null">
             and tft.code=#{formTypeCode}

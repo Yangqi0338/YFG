@@ -32,10 +32,14 @@ public interface BasicsdatumMaterialMapper extends BaseMapper<BasicsdatumMateria
 // 自定义方法区 不替换的区域【other_start】
 
 	List<BasicsdatumMaterialColorPageVo> getBasicsdatumMaterialColorList(@Param("companyCode") String companyCode,
-																		 @Param("materialCode") String materialCode);
+                                                                         @Param("materialCode") String materialCode,
+                                                                         @Param("status") String status
+    );
 
-	List<BasicsdatumMaterialWidthPageVo> getBasicsdatumMaterialWidthList(@Param("companyCode") String companyCode,
-																		 @Param("materialCode") String materialCode);
+    List<BasicsdatumMaterialWidthPageVo> getBasicsdatumMaterialWidthList(@Param("companyCode") String companyCode,
+                                                                         @Param("materialCode") String materialCode,
+                                                                         @Param("status") String status
+    );
 
 	List<BasicsdatumMaterialColorSelectVo> getBasicsdatumMaterialColorSelect(@Param("companyCode") String companyCode,
 																			 @Param("materialCode") String materialCode);

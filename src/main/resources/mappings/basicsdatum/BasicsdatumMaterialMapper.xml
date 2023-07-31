@@ -14,16 +14,19 @@
 		resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo">
 		SELECT
 			t.*,
-			t.color_name as color,
-			t1.color_hex
+		t.color_name as color,
+		t1.color_hex
 		FROM
-			t_basicsdatum_material_color t
-			LEFT JOIN t_goods_color t1 ON t.company_code = t1.company_code
-			AND t.color_code = t1.color_code and t1.del_flag = '0'
+		t_basicsdatum_material_color t
+		LEFT JOIN t_goods_color t1 ON t.company_code = t1.company_code
+		AND t.color_code = t1.color_code and t1.del_flag = '0'
 		WHERE
-			t.company_code = #{companyCode}
-			and t.del_flag = '0'
-			and t.material_code = #{materialCode}
+		t.company_code = #{companyCode}
+		and t.del_flag = '0'
+		and t.material_code = #{materialCode}
+		<if test="status!=null and status !=''">
+			and t.status=#{status}
+		</if>
 	</select>
 	<select id="getBasicsdatumMaterialColorSelect"
 		resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo">
@@ -40,16 +43,19 @@
 
 	<select id="getBasicsdatumMaterialWidthList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo">
 		SELECT
-			t.*
+		t.*
 
 		FROM
-			t_basicsdatum_material_width t
-			LEFT JOIN t_basicsdatum_specification t1 ON t.company_code = t1.company_code
-			AND t.width_code = t1.`code` and t1.del_flag = '0'
+		t_basicsdatum_material_width t
+		LEFT JOIN t_basicsdatum_specification t1 ON t.company_code = t1.company_code
+		AND t.width_code = t1.`code` and t1.del_flag = '0'
 		WHERE
-			t.company_code = #{companyCode}
-			and t.del_flag = '0'
-			and t.material_code = #{materialCode}
+		t.company_code = #{companyCode}
+		and t.del_flag = '0'
+		and t.material_code = #{materialCode}
+		<if test="status!=null and status !=''">
+			and t.status=#{status}
+		</if>
 	</select>
 
 	<select id="getBasicsdatumMaterialWidthSelect" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo">
@@ -68,6 +74,9 @@
 		bm.id AS material_id,
 		bm.material_name,
 		bm.material_code,
+		bm.purchase_unit_code,
+		bm.stock_unit_code,
+		bm.stock_unit_name,
 		bm.status,
 		bm.material_code_name,
 		bm.image_url,
@@ -77,7 +86,8 @@
 		bm.factory_composition,
 		bm.ingredient,
 		bm.translate,
-		bm.loss_rate
+		bm.loss_rate,
+		bm.remarks
 		FROM t_basicsdatum_material bm
 		WHERE bm.del_flag = '0'
 
