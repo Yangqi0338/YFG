@@ -1,5 +1,7 @@
 package com.base.sbc.module.common.vo;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.unit.DataSizeUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -12,20 +14,21 @@ import java.util.Date;
 
 /**
  * 类描述：附件
- * @address com.base.sbc.module.common.vo.AttachmentVo
+ *
  * @author lixianglin
+ * @version 1.0
+ * @address com.base.sbc.module.common.vo.AttachmentVo
  * @email li_xianglin@126.com
  * @date 创建时间：2023-05-12 16:11
- * @version 1.0
  */
 @Data
 @ApiModel("附件 AttachmentVo ")
 public class AttachmentVo {
-    @ApiModelProperty(value = "附件id"  )
+    @ApiModelProperty(value = "附件id")
     private String id;
-    @ApiModelProperty(value = "文件id"  )
+    @ApiModelProperty(value = "文件id")
     private String fileId;
-    @ApiModelProperty(value = "名称"  )
+    @ApiModelProperty(value = "名称")
     private String name;
     /**
      * 类型
@@ -50,6 +53,7 @@ public class AttachmentVo {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date createDate;
 
+
     @ApiModelProperty(value = "上传人")
     private String createName;
     @JsonIgnore
@@ -66,5 +70,10 @@ public class AttachmentVo {
             return "";
         }
         return DataSizeUtil.format(size.toBigInteger().longValue());
+    }
+
+    @ApiModelProperty(value = "创建日期时间")
+    public String getCreateDateTime() {
+        return DateUtil.format(createDate, DatePattern.NORM_DATETIME_PATTERN);
     }
 }
