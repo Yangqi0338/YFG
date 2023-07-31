@@ -56,9 +56,8 @@ public class SampleStyleColor extends BaseDataEntity<String> {
         smpGoodsDto.setMainPush("1".equals(isMainly));
         smpGoodsDto.setColorCode(colorCode);
         smpGoodsDto.setColorName(colorName);
-        smpGoodsDto.setBandId(bandCode);
         smpGoodsDto.setPrice(tagPrice);
-        smpGoodsDto.setManufacture(manufacturer);
+        smpGoodsDto.setManufacture(manufacturerCode);
         smpGoodsDto.setLuxury("1".equals(isLuxury));
         smpGoodsDto.setSupplierArticle(manufacturerNo);
         smpGoodsDto.setSupplierArticleColor(manufacturerColor);

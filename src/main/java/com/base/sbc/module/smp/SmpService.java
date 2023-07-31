@@ -311,7 +311,7 @@ public class SmpService {
                 }
                 List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
 
-                if (packBoms!=null && packBoms.size() == 0){
+                if (packBoms!=null && !packBoms.isEmpty()){
                     PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packBoms.get(0).getPackType()));
                     smpGoodsDto.setIntegrityProduct("1".equals(packInfoStatus.getBulkOrderClerkConfirm()));
                 }
