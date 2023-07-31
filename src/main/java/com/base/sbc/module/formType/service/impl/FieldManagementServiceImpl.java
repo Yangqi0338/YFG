@@ -128,6 +128,8 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
         if (queryFieldManagementDto.getPageNum() != 0 && queryFieldManagementDto.getPageSize() != 0) {
             PageHelper.startPage(queryFieldManagementDto);
         }
+
+
         queryFieldManagementDto.setCompanyCode(baseController.getUserCompany());
         List<FieldManagementVo> list = baseMapper.getFieldManagementList(queryFieldManagementDto);
         /*

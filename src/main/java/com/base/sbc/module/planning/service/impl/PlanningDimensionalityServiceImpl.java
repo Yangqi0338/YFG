@@ -68,8 +68,8 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     @Override
     public ApiResult getFormDimensionality(QueryPlanningDimensionalityDto queryPlanningDimensionalityDto) {
         QueryWrapper<FormType> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("name","产品季");
-        /*查询该品类以纯在的需求*/
+        queryWrapper.eq("name", "维度标签");
+        /*查询该品类已存在的需求*/
         List<FormType> planningDemandList = formTypeMapper.selectList(queryWrapper);
         QueryWrapper<FieldManagement> fieldManagementQueryWrapper = new QueryWrapper<>();
         fieldManagementQueryWrapper.like("category_id", queryPlanningDimensionalityDto.getCategoryId());

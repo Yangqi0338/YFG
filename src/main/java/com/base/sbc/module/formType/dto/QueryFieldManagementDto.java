@@ -27,7 +27,16 @@ public class QueryFieldManagementDto  extends Page {
     private String currentId;
 
     /*目标*/
-     private String  targetId;
-    @ApiModelProperty(value = "字段id"  )
+    private String targetId;
+    @ApiModelProperty(value = "字段id")
     List<String> ids;
+
+
+    @ApiModelProperty(value = "表单编码")
+    private String formTypeCode;
+    @ApiModelProperty(value = "季节编码")
+    private String season;
+
+    @ApiModelProperty(value = "品类编码")
+    private String categoryId;
 }

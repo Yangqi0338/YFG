@@ -31,7 +31,6 @@ import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.CountVo;
 import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.service.FieldManagementService;
@@ -469,32 +468,33 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             //保存图片附件
             List<Attachment> attachments = new ArrayList<>();
             // 保存维度信息
-            List<FieldVal> fieldVals = new ArrayList<>(16);
-            for (SampleDesign sampleDesign : sampleDesignList) {
-                if (StrUtil.isNotEmpty(sampleDesign.getStylePic())) {
-                    Attachment a = new Attachment();
-                    a.setType(AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
-                    a.setStatus(BaseGlobal.NO);
-                    a.setForeignId(sampleDesign.getId());
-                    a.setFileId(sampleDesign.getStylePic());
-                    attachments.add(a);
-                    List<FieldVal> fvList = fieldValService.list(sampleDesign.getPlanningCategoryItemId(), FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION);
-                    if (CollUtil.isNotEmpty(fvList)) {
-                        fvList.forEach(item -> {
-                            item.setId(null);
-                            item.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-                            item.setForeignId(sampleDesign.getId());
-                        });
-                        fieldVals.addAll(fvList);
-                    }
-                }
-            }
+//            List<FieldVal> fieldVals = new ArrayList<>(16);
+//            for (SampleDesign sampleDesign : sampleDesignList) {
+//                if (StrUtil.isNotEmpty(sampleDesign.getStylePic())) {
+//                    Attachment a = new Attachment();
+//                    a.setType(AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
+//                    a.setStatus(BaseGlobal.NO);
+//                    a.setForeignId(sampleDesign.getId());
+//                    a.setFileId(sampleDesign.getStylePic());
+//                    attachments.add(a);
+//                    List<FieldVal> fvList = fieldValService.list(sampleDesign.getPlanningCategoryItemId(), FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION);
+//                    if (CollUtil.isNotEmpty(fvList)) {
+//                        fvList.forEach(item -> {
+//                            item.setId(null);
+//                            item.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+//                            item.setForeignId(sampleDesign.getId());
+//                        });
+//                        fieldVals.addAll(fvList);
+//                    }
+//                }
+//            }
+//            if (CollUtil.isNotEmpty(fieldVals)) {
+//                fieldValService.saveBatch(fieldVals);
+//            }
             if (CollUtil.isNotEmpty(attachments)) {
                 attachmentService.saveBatch(attachments);
             }
-            if (CollUtil.isNotEmpty(fieldVals)) {
-                fieldValService.saveBatch(fieldVals);
-            }
+
 
         }
         return true;

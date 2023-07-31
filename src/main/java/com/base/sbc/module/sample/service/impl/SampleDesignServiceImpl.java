@@ -36,15 +36,13 @@ import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FieldValService;
 import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
-import com.base.sbc.module.formType.utils.FormTypeCodes;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
-import com.base.sbc.module.planning.entity.PlanningCategoryItem;
-import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
-import com.base.sbc.module.planning.entity.PlanningChannel;
-import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.dto.QueryPlanningDimensionalityDto;
+import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
+import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
@@ -109,6 +107,8 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
     private BasicsdatumModelTypeService basicsdatumModelTypeService;
     @Autowired
     private FieldManagementService fieldManagementService;
+    @Autowired
+    private PlanningDimensionalityService planningDimensionalityService;
     @Autowired
     private FieldValService fieldValService;
     @Autowired
@@ -470,21 +470,38 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
 
     @Override
     public List<FieldManagementVo> queryDimensionLabels(DimensionLabelsSearchDto dto) {
+        List<FieldManagementVo> result = new ArrayList<>(16);
+        //1 查询企划需求管理
+        QueryPlanningDimensionalityDto pdqw = new QueryPlanningDimensionalityDto();
+        pdqw.setCategoryId(dto.getCategoryId());
+        pdqw.setPlanningSeasonId(dto.getSeason());
 
-        // 2.查询字段配置信息
-        List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.list(FormTypeCodes.DIMENSION_LABELS, dto.getCategoryId(), dto.getSeason());
-        if (CollUtil.isEmpty(fieldManagementListByIds)) {
+        List<PlanningDimensionality> pdList = (List<PlanningDimensionality>) planningDimensionalityService.getDimensionalityList(pdqw).getData();
+        if (CollUtil.isEmpty(pdList)) {
             return null;
         }
+        List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
+        List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
+        // 2.查询字段配置信息
+//        List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.list(FormTypeCodes.DIMENSION_LABELS, dto.getCategoryId(), dto.getSeason());
+
         // [3].查询字段值
-        if (StrUtil.isNotBlank(dto.getSampleDesignId())) {
+        if (CollUtil.isNotEmpty(fieldManagementListByIds) && StrUtil.isNotBlank(dto.getSampleDesignId())) {
             List<FieldVal> fvList = fieldValService.list(dto.getSampleDesignId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
             fieldManagementService.conversion(fieldManagementListByIds, fvList);
+            //查询坑位的值
+            result.addAll(fieldManagementListByIds);
         }
-        if (CollUtil.isNotEmpty(fieldManagementListByIds)) {
-            return fieldManagementListByIds.stream().filter(FieldManagementVo::isSelected).collect(Collectors.toList());
+        if (StrUtil.isNotBlank(dto.getPlanningCategoryItemId())) {
+            List<FieldManagementVo> seatFmList = planningCategoryItemService.querySeatDimension(dto.getPlanningCategoryItemId(), BaseGlobal.YES);
+            if (CollUtil.isNotEmpty(seatFmList)) {
+                Set<String> fnSet = result.stream().map(FieldManagementVo::getFieldName).collect(Collectors.toSet());
+                List<FieldManagementVo> seatFmListNotInSd = seatFmList.stream().filter(item -> !fnSet.contains(item.getFieldName())).collect(Collectors.toList());
+                result.addAll(0, seatFmListNotInSd);
+            }
         }
-        return null;
+
+        return result;
     }
 
     @Override
