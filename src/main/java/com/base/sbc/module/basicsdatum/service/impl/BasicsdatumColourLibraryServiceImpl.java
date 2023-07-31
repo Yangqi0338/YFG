@@ -98,6 +98,7 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
     public PageInfo getBasicsdatumColourLibraryList(QueryBasicsdatumColourLibraryDto queryBasicsdatumColourLibraryDto) {
         BaseQueryWrapper<BasicsdatumColourLibrary> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
+        queryWrapper.notEmptyEq("status",queryBasicsdatumColourLibraryDto.getStatus());
         queryWrapper.notEmptyLike("create_name",queryBasicsdatumColourLibraryDto.getCreateName());
         queryWrapper.between("create_date",queryBasicsdatumColourLibraryDto.getCreateDate());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColourCode()), "colour_code", queryBasicsdatumColourLibraryDto.getColourCode());
