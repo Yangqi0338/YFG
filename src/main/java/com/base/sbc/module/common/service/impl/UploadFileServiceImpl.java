@@ -71,10 +71,14 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
 //                log.info("文件已经存在:"+md5Hex);
 //                return byMd5;
 //            }
-            String objectName = System.currentTimeMillis() + "." + FileUtil.extName(file.getOriginalFilename());
+            String extName = FileUtil.extName(file.getOriginalFilename());
+            if (StrUtil.isBlank(extName)) {
+                throw new OtherException("文件无后缀名");
+            }
+            String objectName = System.currentTimeMillis() + "." + extName;
             String contentType = file.getContentType();
             String url = minioUtils.uploadFile(file, objectName, contentType);
-            UploadFile newFile =new UploadFile();
+            UploadFile newFile = new UploadFile();
             newFile.setMd5(md5Hex);
             newFile.setUrl(url);
             newFile.setName(file.getOriginalFilename());
@@ -88,7 +92,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             return attachmentVo;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new OtherException("上传失败");
+            throw new OtherException("上传失败:" + e.getMessage());
         }
     }
 
