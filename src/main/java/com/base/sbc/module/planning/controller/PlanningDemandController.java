@@ -113,15 +113,14 @@ public class PlanningDemandController {
 	/*新增删除维度标签*/
 	@ApiOperation(value = "新增删除维度标签")
 	@PostMapping("/saveDelDimensionality")
-	public ApiResult saveDelDimensionality(@RequestBody List<SaveDelDimensionalityDto>  list) {
+	public ApiResult saveDelDimensionality(@RequestBody List<SaveDelDimensionalityDto> list) {
 		return planningDimensionalityService.saveDelDimensionality(list);
 	}
 
-	/*编辑维度标签*/
-	@ApiOperation(value = "编辑维度标签")
-	@PostMapping("/updateDimensionality")
-	public ApiResult updateDimensionality(@Valid @RequestBody  UpdateDimensionalityDto updateDimensionalityDto) {
-		return planningDimensionalityService.updateDimensionality(updateDimensionalityDto);
+	@ApiOperation(value = "保存/编辑维度标签")
+	@PostMapping("/saveDimensionality")
+	public ApiResult saveDimensionality(@Valid @RequestBody UpdateDimensionalityDto updateDimensionalityDto) {
+		return planningDimensionalityService.saveDimensionality(updateDimensionalityDto);
 	}
 
 	/*删除维度标签*/

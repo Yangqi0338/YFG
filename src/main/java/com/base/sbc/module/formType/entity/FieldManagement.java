@@ -67,27 +67,39 @@ public class FieldManagement extends BaseDataEntity<String> {
     @ApiModelProperty(value = "是否必填(0是，1否)"  )
     private String isMustFill;
     /** 品类使用范围对应结构树id */
-    @ApiModelProperty(value = "品类"  )
+    @ApiModelProperty(value = "品类")
     private String categoryId;
-    /** 品类名称 */
-    @ApiModelProperty(value = "品类名称"  )
+    /**
+     * 品类名称
+     */
+    @ApiModelProperty(value = "品类名称")
     private String categoryName;
-    /** 季节 */
-    @ApiModelProperty(value = "季节"  )
+    /**
+     * 季节
+     */
+    @ApiModelProperty(value = "季节")
     private String season;
     /*季节名称*/
     private String seasonName;
-    /** 是否检查(0是，1否) */
-    @ApiModelProperty(value = "是否检查(0是，1否)"  )
+    /**
+     * 是否检查(0否，1是)
+     */
+    @ApiModelProperty(value = "是否检查(0否，1是)")
     private String isExamine;
-    /** 对象类型 对应表单类型表 */
-    @ApiModelProperty(value = "对象类型 对应表单类型表"  )
-    private String  formObjectId;
-    /** 检查顺序 */
-    @ApiModelProperty(value = "检查顺序"  )
+    /**
+     * 对象类型 对应表单类型表
+     */
+    @ApiModelProperty(value = "对象类型 对应表单类型表")
+    private String formObjectId;
+    /**
+     * 检查顺序
+     */
+    @ApiModelProperty(value = "检查顺序")
     private String examineOrder;
-    /** 字段说明 */
-    @ApiModelProperty(value = "字段说明"  )
+    /**
+     * 字段说明
+     */
+    @ApiModelProperty(value = "字段说明")
     private String fieldExplain;
     /** 是否启用(0是，1否) */
     @ApiModelProperty(value = "是否启用(0是，1否)"  )

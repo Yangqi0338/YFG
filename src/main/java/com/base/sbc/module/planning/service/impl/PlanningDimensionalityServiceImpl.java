@@ -9,6 +9,7 @@ package com.base.sbc.module.planning.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.entity.FieldManagement;
@@ -25,7 +26,6 @@ import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -131,24 +131,31 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         return ApiResult.success("操作成功");
     }
 
+
     @Override
-    @Transactional(readOnly = false)
-    public ApiResult updateDimensionality(UpdateDimensionalityDto updateDimensionalityDto) {
-        /*调整维度*/
-        PlanningDimensionality planningDimensionality = baseMapper.selectById(updateDimensionalityDto.getId());
-        planningDimensionality.setDimensionalityName(updateDimensionalityDto.getDimensionalityName());
-        planningDimensionality.setIsExamine(updateDimensionalityDto.getIsExamine());
-        planningDimensionality.updateInit();
-        baseMapper.updateById(planningDimensionality);
+    public ApiResult saveDimensionality(UpdateDimensionalityDto dto) {
+        PlanningDimensionality planningDimensionality = null;
+        // 新增
+        if (CommonUtils.isInitId(dto.getId())) {
+            planningDimensionality = new PlanningDimensionality();
+            planningDimensionality.setDimensionalityName(dto.getDimensionalityName());
+            planningDimensionality.setIsExamine(dto.getIsExamine());
+            baseMapper.insert(planningDimensionality);
+        } else {
+            /*调整维度*/
+            planningDimensionality = baseMapper.selectById(dto.getId());
+            planningDimensionality.setDimensionalityName(dto.getDimensionalityName());
+            planningDimensionality.setIsExamine(dto.getIsExamine());
+            planningDimensionality.updateInit();
+            baseMapper.updateById(planningDimensionality);
+        }
         /*调整字段*/
-        FieldManagement fieldManagement = fieldManagementMapper.selectById(updateDimensionalityDto.getFieldId());
-        fieldManagement.setIsExamine(updateDimensionalityDto.getIsExamine().equals("Y") ? "0" : "1");
-        fieldManagement.setFieldName(updateDimensionalityDto.getDimensionalityName());
+        FieldManagement fieldManagement = fieldManagementMapper.selectById(dto.getFieldId());
+        fieldManagement.setIsExamine(dto.getIsExamine());
+        fieldManagement.setFieldName(dto.getDimensionalityName());
         fieldManagement.updateInit();
         fieldManagementMapper.updateById(fieldManagement);
-
-
-        return ApiResult.success("操作成功");
+        return ApiResult.success("操作成功", planningDimensionality);
     }
 
 /** 自定义方法区 不替换的区域【other_start】 **/

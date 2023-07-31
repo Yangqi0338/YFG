@@ -11,8 +11,7 @@ import org.hibernate.validator.constraints.NotBlank;
 public class UpdateDimensionalityDto {
 
 
-    @ApiModelProperty(value = "id" ,required = true,example = "")
-    @NotBlank(message = "id不能为空")
+    @ApiModelProperty(value = "id", required = false, example = "")
     private String  id;
 
 

@@ -30,7 +30,7 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
      * 自定义方法区 不替换的区域【other_start】
      **/
 
-    ApiResult  getDimensionalityList(QueryPlanningDimensionalityDto queryPlanningDimensionalityDto);
+    ApiResult getDimensionalityList(QueryPlanningDimensionalityDto queryPlanningDimensionalityDto);
 
     ApiResult getFormDimensionality(QueryPlanningDimensionalityDto queryPlanningDimensionalityDto);
 
@@ -39,7 +39,8 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
 
     ApiResult delDelDimensionality(String id);
 
-    ApiResult updateDimensionality(UpdateDimensionalityDto updateDimensionalityDto);
+
+    ApiResult saveDimensionality(UpdateDimensionalityDto updateDimensionalityDto);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
