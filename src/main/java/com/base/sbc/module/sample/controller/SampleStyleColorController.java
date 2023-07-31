@@ -132,8 +132,8 @@ public class SampleStyleColorController{
 
 	@ApiOperation(value = "验证配色是否可修改")
 	@PostMapping("/verification")
-	public Boolean verification(@Valid @NotBlank(message = "id不能为空") String id) {
-		return sampleStyleColorService.verification(id);
+	public Boolean verification( @Valid @RequestBody VerificationDto verificationDto) {
+		return sampleStyleColorService.verification(verificationDto.getId());
 	}
 }
 

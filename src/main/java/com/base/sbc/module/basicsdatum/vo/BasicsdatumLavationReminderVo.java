@@ -54,4 +54,7 @@ public class BasicsdatumLavationReminderVo  {
     /** 温馨提示名称 */
     @ApiModelProperty(value = "温馨提示名称"  )
     private String reminderName;
+    /** 洗涤图标名称 */
+    @ApiModelProperty(value = "洗涤图标名称"  )
+    private String  name;
 }

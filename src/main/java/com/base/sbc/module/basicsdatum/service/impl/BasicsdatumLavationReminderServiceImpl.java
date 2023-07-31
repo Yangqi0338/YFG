@@ -86,6 +86,7 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
             QueryWrapper<BasicsdatumLavationReminder> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("lr.company_code", baseController.getUserCompany());
             queryWrapper.eq("lr.del_flag", BaseGlobal.DEL_FLAG_NORMAL);
+            queryWrapper.like(StringUtils.isNotBlank(queryDto.getName()),"wi.name", queryDto.getName());
             queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getStatus()), "lr.status", queryDto.getStatus());
             queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCode()), "lr.code", queryDto.getCode());
             queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCareLabel()),"lr.care_label",queryDto.getCareLabel());
