@@ -186,6 +186,9 @@ public class BigDecimalUtil {
 		if(v1.equals(BigDecimal.ZERO)){
 			return BigDecimal.ZERO;
 		}
+		if(v2.equals(BigDecimal.ZERO)){
+			return BigDecimal.ZERO;
+		}
 		return div(v1, v2, DEF_DIV_SCALE);
 	}
 	
