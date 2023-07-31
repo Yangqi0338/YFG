@@ -17,14 +17,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+
 /**
  * 类描述：资料包-物料清单 实体类
  *
- * @author your name
+ * @author lxl
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
- * @email your email
- * @date 创建时间：2023-7-15 16:44:10
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-7-31 11:56:00
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -50,7 +51,7 @@ public class PackBom extends BaseDataEntity<String> {
         smpBomDto.setCollocation(bomMatch);
         smpBomDto.setBomLineItemId(id);
         smpBomDto.setId(id);
-        IdGen idGen =new IdGen();
+        IdGen idGen = new IdGen();
         smpBomDto.setSyncId(String.valueOf(idGen.nextId()));
         smpBomDto.setActive("0".equals(status));
         smpBomDto.setCreator(getCreateName());
@@ -61,8 +62,8 @@ public class PackBom extends BaseDataEntity<String> {
     }
 
 
-    public BomMaterial toBomMaterial(){
-        BomMaterial bomMaterial =new BomMaterial();
+    public BomMaterial toBomMaterial() {
+        BomMaterial bomMaterial = new BomMaterial();
         bomMaterial.setCode(materialCode);
         bomMaterial.setMatColorCode(colorCode);
         bomMaterial.setMaterialUom(unitCode);
@@ -86,6 +87,11 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "资料包类型:packDesign:设计资料包/packBigGoods:标准资料包(大货资料包)")
     private String packType;
+    /**
+     * 状态(0停用,1启用)
+     */
+    @ApiModelProperty(value = "状态(0停用,1启用)")
+    private String status;
     /**
      * 版本id
      */
@@ -137,6 +143,11 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "厂家有效门幅/规格")
     private String translate;
     /**
+     * 厂家有效门幅/规格编码
+     */
+    @ApiModelProperty(value = "厂家有效门幅/规格编码")
+    private String translateCode;
+    /**
      * 颜色名称
      */
     @ApiModelProperty(value = "颜色名称")
@@ -186,11 +197,6 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "供应商物料号")
     private String supplierMaterialCode;
-    /**
-     * 状态(0停用,1启用)
-     */
-    @ApiModelProperty(value = "状态(0停用,1启用)")
-    private String status;
     /**
      * 不能使用(0否,1是)
      */

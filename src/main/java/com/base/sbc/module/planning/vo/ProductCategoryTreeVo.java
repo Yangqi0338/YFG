@@ -17,6 +17,8 @@ public class ProductCategoryTreeVo {
      */
     @ApiModelProperty(value = "企划名称")
     private String name;
+    @ApiModelProperty(value = "季节编码")
+    private String season;
     @ApiModelProperty(value = "产品季id")
     private String planningSeasonId;
     @ApiModelProperty(value = "级别")

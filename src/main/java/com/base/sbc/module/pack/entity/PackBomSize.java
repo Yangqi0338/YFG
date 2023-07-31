@@ -16,14 +16,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+
 /**
  * 类描述：资料包-物料清单-配码 实体类
  *
- * @author your name
+ * @author lxl
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBomSize
- * @email your email
- * @date 创建时间：2023-7-15 13:55:49
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-7-31 13:49:20
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -37,7 +38,7 @@ public class PackBomSize extends BaseDataEntity<String> {
 
     public SmpSizeQty toSmpSizeQty() {
         SmpSizeQty smpSizeQty = new SmpSizeQty();
-        IdGen idGen =new IdGen();
+        IdGen idGen = new IdGen();
         smpSizeQty.setSyncId(String.valueOf(idGen.nextId()));
         smpSizeQty.setItemQty(quantity);
         return smpSizeQty;
@@ -85,6 +86,11 @@ public class PackBomSize extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "门幅/规格")
     private String width;
+    /**
+     * 门幅/规格Code
+     */
+    @ApiModelProperty(value = "门幅/规格Code")
+    private String widthCode;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

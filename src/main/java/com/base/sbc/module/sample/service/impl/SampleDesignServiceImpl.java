@@ -689,6 +689,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
                     ProductCategoryTreeVo tree = new ProductCategoryTreeVo();
                     tree.setChildren(true);
                     tree.setLevel(0);
+                    tree.setSeason(ps.getSeason());
                     tree.setPlanningSeasonId(ps.getId());
                     tree.setName(ps.getName());
                     return tree;
