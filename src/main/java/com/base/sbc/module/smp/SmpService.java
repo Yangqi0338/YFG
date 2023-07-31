@@ -267,12 +267,8 @@ public class SmpService {
                 smpGoodsDto.setPackageSize(packTechPackaging.getPackagingBagStandard());
             }
 
-
-
             smpGoodsDto.setProductTypeId(sampleDesign.getStyleType());
             smpGoodsDto.setProductType(sampleDesign.getStyleName());
-
-
 
             smpGoodsDto.setSaleTime(sampleStyleColor.getNewDate());
             smpGoodsDto.setProdSeg(sampleStyleColor.getSubdivide());
@@ -280,46 +276,68 @@ public class SmpService {
             smpGoodsDto.setSizeGroupName(sampleDesign.getSizeRangeName());
             smpGoodsDto.setStyleCode(sampleDesign.getDesignNo());
 
-            PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", sampleStyleColor.getBom()));
-
-
             //工艺说明
             long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", sampleDesign.getId()).eq("spec_type", "外辅工艺"));
             smpGoodsDto.setAuProcess(count > 0);
 
 
-            smpGoodsDto.setUnit(sampleDesign.getStyleUnit());
+            smpGoodsDto.setUnit(sampleDesign.getStyleUnitCode());
+
+            //测试造的数据
+            smpGoodsDto.setUnit("ST");
+
+            PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", sampleStyleColor.getBom()));
+            if (packInfo != null) {
 
 
+                //款式定价
+                StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
+                if (stylePricingVO != null) {
+                    smpGoodsDto.setBomPhase(stylePricingVO.getBomStage());
+                    smpGoodsDto.setPriceConfirm("1".equals(stylePricingVO.getProductTagPriceConfirm()));
+                    smpGoodsDto.setPlanCost(stylePricingVO.getPlanCost());
+                    try {
+                        smpGoodsDto.setActualRate(BigDecimal.valueOf(Long.parseLong(stylePricingVO.getActualMagnification())));
 
-            //款式定价
-            StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
-            smpGoodsDto.setBomPhase(stylePricingVO.getBomStage());
-            smpGoodsDto.setPriceConfirm("1".equals(stylePricingVO.getProductTagPriceConfirm()));
-            smpGoodsDto.setPlanCost(stylePricingVO.getPlanCost());
-            try {
-                smpGoodsDto.setActualRate(BigDecimal.valueOf(Long.parseLong(stylePricingVO.getActualMagnification())));
+                    } catch (Exception e) {
 
-            }catch (Exception e){
+                    }
+                    smpGoodsDto.setPlanActualRate(stylePricingVO.getPlanActualMagnification());
+                    smpGoodsDto.setProcessCost(stylePricingVO.getCoordinationProcessingFee().add(stylePricingVO.getWoolenYarnProcessingFee()).add(stylePricingVO.getCoordinationProcessingFee()).add(stylePricingVO.getSewingProcessingFee()));
+                    smpGoodsDto.setProductName(stylePricingVO.getProductName());
+                    //吊牌
+                    smpGoodsDto.setSeries(stylePricingVO.getSeries());
+                    smpGoodsDto.setComposition(stylePricingVO.getIngredient());
+                }
+                List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
 
+                if (packBoms!=null && packBoms.size() == 0){
+                    PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packBoms.get(0).getPackType()));
+                    smpGoodsDto.setIntegrityProduct("1".equals(packInfoStatus.getBulkOrderClerkConfirm()));
+                }
+                smpGoodsDto.setIntegritySample(StringUtils.isNoneEmpty(packInfo.getSampleStyleColorId()));
             }
-            smpGoodsDto.setPlanActualRate(stylePricingVO.getPlanActualMagnification());
-            smpGoodsDto.setProcessCost(stylePricingVO.getCoordinationProcessingFee().add(stylePricingVO.getWoolenYarnProcessingFee()).add(stylePricingVO.getCoordinationProcessingFee()).add(stylePricingVO.getSewingProcessingFee()));
-            smpGoodsDto.setProductName(stylePricingVO.getProductName());
-            //吊牌
-            smpGoodsDto.setSeries(stylePricingVO.getSeries());
-            smpGoodsDto.setComposition(stylePricingVO.getIngredient());
-
             //废弃
             //smpGoodsDto.setSeriesId(null);
             //smpGoodsDto.setSeriesName(null);
             //smpGoodsDto.setRegion(null);
             //smpGoodsDto.setSalesGroup(null);
-            List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
-            PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packBoms.get(0).getPackType()));
 
-            smpGoodsDto.setIntegritySample(StringUtils.isNoneEmpty(packInfo.getSampleStyleColorId()));
-            smpGoodsDto.setIntegrityProduct("1".equals(packInfoStatus.getBulkOrderClerkConfirm()));
+            String sizeIds = sampleDesign.getSizeIds();
+            List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByIds(Arrays.asList(sizeIds.split(",")));
+            List<SmpSize> smpSizes = new ArrayList<>();
+            for (BasicsdatumSize basicsdatumSize : basicsdatumSizes) {
+                SmpSize smpSize=new SmpSize();
+                smpSize.setSize(basicsdatumSize.getModel());
+                smpSize.setSizeNumber(basicsdatumSize.getCode());
+                smpSize.setCode(basicsdatumSize.getSort());
+                smpSize.setProductSizeName(basicsdatumSize.getHangtags());
+                smpSize.setBaseSize("0".equals(basicsdatumSize.getStatus()));
+                smpSize.setSkuFiller(null);
+                smpSize.setSpecialSpec(basicsdatumSize.getInternalSize());
+                smpSizes.add(smpSize);
+            }
+            smpGoodsDto.setItemList(smpSizes);
 
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", smpGoodsDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpGoodsDto, "smp", "商品主数据下发");
