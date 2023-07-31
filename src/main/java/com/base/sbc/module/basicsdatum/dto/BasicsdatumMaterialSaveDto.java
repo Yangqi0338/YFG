@@ -151,6 +151,9 @@ public class BasicsdatumMaterialSaveDto {
 	/** 面料难度 */
 	@ApiModelProperty(value = "面料难度")
 	private String fabricDifficulty;
+	/** 面料难度名称 */
+	@ApiModelProperty(value = "面料难度名称")
+	private String fabricDifficultyName;
 	/** 备注 */
 	@ApiModelProperty(value = "备注")
 	private String remarks;
@@ -199,6 +202,24 @@ public class BasicsdatumMaterialSaveDto {
 	/** 克重 */
 	@ApiModelProperty(value = "克重")
 	private BigDecimal gramWeight;
+	/** 织造类型 */
+	@ApiModelProperty(value = "织造类型")
+	private String weaveType;
+	/** 织造类型名称 */
+	@ApiModelProperty(value = "织造类型名称")
+	private String weaveTypeName;
+	/** 胚布类型 */
+	@ApiModelProperty(value = "胚布类型")
+	private String embryoType;
+	/** 胚布类型名称 */
+	@ApiModelProperty(value = "胚布类型名称")
+	private String embryoTypeName;
+	/** 面料属性分类 */
+	@ApiModelProperty(value = "面料属性分类")
+	private String fabricPropertyType;
+	/** 面料属性分类名称 */
+	@ApiModelProperty(value = "面料属性分类名称")
+	private String fabricPropertyTypeName;
 	/** 辅料材质 */
 	@ApiModelProperty(value = "辅料材质")
 	private String auxiliaryMaterial;
