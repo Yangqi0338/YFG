@@ -67,9 +67,6 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 物料类别第4级编码 */
 	@ApiModelProperty(value = "物料类别第4级编码")
 	private String categoryId;
-	/** 类别（物料分类ids）废弃 */
-	@ApiModelProperty(value = "类别（物料分类ids）废弃")
-	private String categoryIds;
 	/** 类别名称第4级名称 */
 	@ApiModelProperty(value = "类别名称第4级名称")
 	private String categoryName;

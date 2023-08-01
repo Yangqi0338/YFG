@@ -87,12 +87,57 @@ public class SamplePageByDesignNoVo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createDate;
 
-    /** 修改人 */
+    /**
+     * 修改人
+     */
     @ApiModelProperty(value = "修改人")
     private String updateName;
 
-    /** 修改时间 */
+    /**
+     * 修改时间
+     */
     @ApiModelProperty(value = "修改时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date updateDate;
+
+    /**
+     * 大类code
+     */
+    @ApiModelProperty(value = "大类code")
+    private String prodCategory1st;
+    /**
+     * 大类名称
+     */
+    @ApiModelProperty(value = "大类名称")
+    private String prodCategory1stName;
+    /**
+     * 品类code
+     */
+    @ApiModelProperty(value = "品类code")
+    private String prodCategory;
+    /**
+     * 品类名称
+     */
+    @ApiModelProperty(value = "品类名称")
+    private String prodCategoryName;
+    /**
+     * 中类code
+     */
+    @ApiModelProperty(value = "中类code")
+    private String prodCategory2nd;
+    /**
+     * 中类名称
+     */
+    @ApiModelProperty(value = "中类名称")
+    private String prodCategory2ndName;
+    /**
+     * 小类code
+     */
+    @ApiModelProperty(value = "小类code")
+    private String prodCategory3rd;
+    /**
+     * 小类名称
+     */
+    @ApiModelProperty(value = "小类名称")
+    private String prodCategory3rdName;
 }

@@ -4,9 +4,11 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+
+import lombok.Data;
 
 /**
  * @author 卞康
@@ -217,7 +219,7 @@ public class SmpOpenMaterialDto {
         basicsdatumMaterial.setCategoryId(ProductTypeID);
         basicsdatumMaterial.setMaterialCodeName(Code+MaterialName);
         basicsdatumMaterial.setCategoryName(ProductType);
-        basicsdatumMaterial.setCategoryIds(ProductTypeID+","+C8_Material_2ndCategory+","+C8_Material_3rdCategory);
+//        basicsdatumMaterial.setCategoryIds(ProductTypeID+","+C8_Material_2ndCategory+","+C8_Material_3rdCategory);
         basicsdatumMaterial.setYear(C8_Season_Year);
         basicsdatumMaterial.setSeasonName(C8_Season_Quarter);
         basicsdatumMaterial.setSeason(C8_Season_QuarterID);

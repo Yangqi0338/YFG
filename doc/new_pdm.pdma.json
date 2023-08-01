@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.5.1",
   "createdTime": "2023-7-25 11:11:20",
-  "updatedTime": "2023-7-25 18:25:50",
+  "updatedTime": "2023-7-28 16:28:59",
   "dbConns": [],
   "profile": {
     "default": {
@@ -7238,7 +7238,7 @@
         {
           "defKey": "status",
           "defName": "状态(0正常,1停用)",
-          "comment": "",
+          "comment": "Active",
           "domain": "",
           "type": "CHAR",
           "len": 1,
@@ -7342,7 +7342,7 @@
         {
           "defKey": "update_date",
           "defName": "更新时间",
-          "comment": "",
+          "comment": "ModifiedAt",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
           "type": "DATETIME",
           "len": "",
@@ -7368,7 +7368,7 @@
         {
           "defKey": "update_id",
           "defName": "修改者ID",
-          "comment": "",
+          "comment": "ModifiedBy",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -7394,7 +7394,7 @@
         {
           "defKey": "update_name",
           "defName": "修改者名称",
-          "comment": "",
+          "comment": "ModifiedBy",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -7472,7 +7472,7 @@
         {
           "defKey": "category_id",
           "defName": "类别（物料分类id）",
-          "comment": "",
+          "comment": "一级、二级、三级、4级分类",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -7498,7 +7498,7 @@
         {
           "defKey": "category_ids",
           "defName": "类别（物料分类ids）",
-          "comment": "",
+          "comment": "一级、二级、三级、4级分类",
           "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
           "type": "VARCHAR",
           "len": "",
@@ -7524,7 +7524,7 @@
         {
           "defKey": "category_name",
           "defName": "类别名称（物料分类名称）",
-          "comment": "",
+          "comment": "一级、二级、三级、4级分类",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -7628,7 +7628,7 @@
         {
           "defKey": "material_code_name",
           "defName": "材料",
-          "comment": "",
+          "comment": "Node Name",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -7654,7 +7654,7 @@
         {
           "defKey": "material_name",
           "defName": "物料名称",
-          "comment": "",
+          "comment": "C8_Material_Description",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -7680,7 +7680,7 @@
         {
           "defKey": "material_code",
           "defName": "物料编号",
-          "comment": "",
+          "comment": "Code",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -7706,7 +7706,7 @@
         {
           "defKey": "brand",
           "defName": "品牌",
-          "comment": "",
+          "comment": "C8_Material_DevBrand",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -7732,7 +7732,7 @@
         {
           "defKey": "brand_name",
           "defName": "品牌名称",
-          "comment": "",
+          "comment": "C8_Material_DevBrand",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -7758,7 +7758,7 @@
         {
           "defKey": "material_code_old",
           "defName": "旧料号",
-          "comment": "",
+          "comment": "Dimension",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -7784,7 +7784,7 @@
         {
           "defKey": "year",
           "defName": "年份",
-          "comment": "",
+          "comment": "C8_Material_DevYear",
           "domain": "",
           "type": "VARCHAR",
           "len": 4,
@@ -7810,7 +7810,7 @@
         {
           "defKey": "year_name",
           "defName": "年份名称",
-          "comment": "",
+          "comment": "C8_Material_DevYear",
           "domain": "",
           "type": "VARCHAR",
           "len": 4,
@@ -7836,7 +7836,7 @@
         {
           "defKey": "season",
           "defName": "季节",
-          "comment": "",
+          "comment": "C8_Material_DevSeason",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -7862,7 +7862,7 @@
         {
           "defKey": "season_name",
           "defName": "季节名称",
-          "comment": "",
+          "comment": "C8_Material_DevSeason",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -7940,7 +7940,7 @@
         {
           "defKey": "shape_function_description",
           "defName": "形状功能描述",
-          "comment": "",
+          "comment": "C8_Material_ShapeFunctions",
           "domain": "",
           "type": "VARCHAR",
           "len": 640,
@@ -7966,7 +7966,7 @@
         {
           "defKey": "color_and_model",
           "defName": "色号和型号",
-          "comment": "",
+          "comment": "C8_Material_ColorModelNumber",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -7992,7 +7992,7 @@
         {
           "defKey": "factory_composition",
           "defName": "厂家成分",
-          "comment": "",
+          "comment": "C8_MaterialAttr_Supplier",
           "domain": "",
           "type": "VARCHAR",
           "len": 640,
@@ -8018,7 +8018,7 @@
         {
           "defKey": "ingredient",
           "defName": "面料成分",
-          "comment": "",
+          "comment": "C8_MaterialAttr_Composition",
           "domain": "",
           "type": "VARCHAR",
           "len": 640,
@@ -8044,7 +8044,7 @@
         {
           "defKey": "ingredient_say",
           "defName": "面料成分说明",
-          "comment": "",
+          "comment": "C8_MaterialAttr_CompositionC",
           "domain": "",
           "type": "VARCHAR",
           "len": 640,
@@ -8096,7 +8096,7 @@
         {
           "defKey": "gram_weight",
           "defName": "克重",
-          "comment": "",
+          "comment": "Weight",
           "domain": "",
           "type": "DECIMAL",
           "len": 19,
@@ -8122,7 +8122,7 @@
         {
           "defKey": "process_require",
           "defName": "工艺要求",
-          "comment": "",
+          "comment": "Finish",
           "domain": "",
           "type": "VARCHAR",
           "len": 640,
@@ -8148,7 +8148,7 @@
         {
           "defKey": "auxiliary_material",
           "defName": "辅料材质",
-          "comment": "",
+          "comment": "Width",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8174,7 +8174,7 @@
         {
           "defKey": "longitude_shrink",
           "defName": "经缩",
-          "comment": "",
+          "comment": "C8_MaterialAttr_LongitlShrin",
           "domain": "",
           "type": "DECIMAL",
           "len": 19,
@@ -8200,7 +8200,7 @@
         {
           "defKey": "latitude_shrink",
           "defName": "纬缩",
-          "comment": "",
+          "comment": "C8_MaterialAttr_WeftShrinkag",
           "domain": "",
           "type": "DECIMAL",
           "len": 19,
@@ -8226,7 +8226,7 @@
         {
           "defKey": "loss_rate",
           "defName": "损耗%",
-          "comment": "",
+          "comment": "C8_MaterialAttr_LossPercenta",
           "domain": "",
           "type": "DECIMAL",
           "len": 19,
@@ -8304,7 +8304,7 @@
         {
           "defKey": "stock_unit_code",
           "defName": "库存单位",
-          "comment": "",
+          "comment": "C8_Material_UOM",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8330,7 +8330,7 @@
         {
           "defKey": "stock_unit_name",
           "defName": "库存单位名称",
-          "comment": "",
+          "comment": "C8_Material_UOM",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8382,7 +8382,7 @@
         {
           "defKey": "supplier_id",
           "defName": "默认供应商id",
-          "comment": "",
+          "comment": "Supplier",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8408,7 +8408,7 @@
         {
           "defKey": "supplier_name",
           "defName": "默认供应商名称",
-          "comment": "",
+          "comment": "Supplier",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8486,7 +8486,7 @@
         {
           "defKey": "ingredient_confirm",
           "defName": "成分确认",
-          "comment": "",
+          "comment": "C8_MaterialAttr_CompositionP",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8564,7 +8564,7 @@
         {
           "defKey": "check_result",
           "defName": "质检结果",
-          "comment": "",
+          "comment": "C8_MaterialAttr_IspectionSta",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8590,7 +8590,7 @@
         {
           "defKey": "check_date",
           "defName": "质检日期",
-          "comment": "",
+          "comment": "C8_Material_InspectionDate",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
           "type": "DATETIME",
           "len": "",
@@ -8616,7 +8616,7 @@
         {
           "defKey": "length",
           "defName": "长度",
-          "comment": "",
+          "comment": "Length",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8642,7 +8642,7 @@
         {
           "defKey": "material_source",
           "defName": "物料来源",
-          "comment": "",
+          "comment": "C8_MaterialAttr_MaterialSour",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8668,7 +8668,7 @@
         {
           "defKey": "material_source_name",
           "defName": "物料来源名称",
-          "comment": "",
+          "comment": "C8_MaterialAttr_MaterialSour",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8694,7 +8694,7 @@
         {
           "defKey": "diameter",
           "defName": "直径",
-          "comment": "",
+          "comment": "Diameter",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8720,7 +8720,7 @@
         {
           "defKey": "inquiry_no",
           "defName": "询价编号",
-          "comment": "",
+          "comment": "C8_Material_InquiryNo",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8746,7 +8746,7 @@
         {
           "defKey": "dev_id",
           "defName": "开发员id",
-          "comment": "",
+          "comment": "C8_MaterialAttr_Developer",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8772,7 +8772,7 @@
         {
           "defKey": "dev_name",
           "defName": "开发员",
-          "comment": "",
+          "comment": "C8_MaterialAttr_Developer",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8798,7 +8798,7 @@
         {
           "defKey": "purchase_dept",
           "defName": "采购组",
-          "comment": "",
+          "comment": "C8_MaterialAttr_PurchaseGrou",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8824,7 +8824,7 @@
         {
           "defKey": "purchase_dept_name",
           "defName": "采购组名称",
-          "comment": "",
+          "comment": "C8_MaterialAttr_PurchaseGrou",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8850,7 +8850,7 @@
         {
           "defKey": "purchase_id",
           "defName": "采购员id",
-          "comment": "",
+          "comment": "C8_MaterialAttr_Purchanser",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8876,7 +8876,7 @@
         {
           "defKey": "purchase_name",
           "defName": "采购员",
-          "comment": "",
+          "comment": "C8_MaterialAttr_Purchanser",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8902,7 +8902,7 @@
         {
           "defKey": "specification",
           "defName": "纱支规格",
-          "comment": "",
+          "comment": "C8_MaterialAttr_SaoriSpecifi",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8928,7 +8928,7 @@
         {
           "defKey": "density",
           "defName": "密度",
-          "comment": "",
+          "comment": "C8_MaterialAttr_Density",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -8954,7 +8954,7 @@
         {
           "defKey": "inventory_availability",
           "defName": "库存可用量",
-          "comment": "",
+          "comment": "C8_MaterialAttr_ProductStora",
           "domain": "",
           "type": "DECIMAL",
           "len": 19,
@@ -8980,7 +8980,7 @@
         {
           "defKey": "width_group",
           "defName": "门幅/规格组",
-          "comment": "",
+          "comment": "ActualSizeRange",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -9006,7 +9006,7 @@
         {
           "defKey": "width_group_name",
           "defName": "门幅/规格组名称",
-          "comment": "",
+          "comment": "ActualSizeRange",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -9032,7 +9032,7 @@
         {
           "defKey": "kg_m_num",
           "defName": "公斤米数",
-          "comment": "",
+          "comment": "C8_MaterialAttr_KGPerM",
           "domain": "",
           "type": "DECIMAL",
           "len": 19,
@@ -9058,7 +9058,7 @@
         {
           "defKey": "distribute",
           "defName": "下发状态(0:未下发，1：下发)",
-          "comment": "",
+          "comment": "C8_Sync_SendStatus",
           "domain": "6F7C1C5C-D159-41E6-BF9D-54DEEFA79AFF",
           "type": "VARCHAR",
           "len": "",
@@ -9084,7 +9084,7 @@
         {
           "defKey": "proc_mode",
           "defName": "采购模式编码",
-          "comment": "",
+          "comment": "C8_Material_ProcMode",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -9110,7 +9110,7 @@
         {
           "defKey": "proc_mode_name",
           "defName": "采购模式名称",
-          "comment": "",
+          "comment": "C8_Material_ProcMode",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -9136,7 +9136,7 @@
         {
           "defKey": "picking_method",
           "defName": "领料方式编码",
-          "comment": "",
+          "comment": "C8_Material_PickingMethod",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -9162,7 +9162,7 @@
         {
           "defKey": "picking_method_name",
           "defName": "领料方式名称",
-          "comment": "",
+          "comment": "C8_Material_PickingMethod",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -9270,7 +9270,8 @@
           "hideInGraph": true
         }
       ],
-      "correlations": []
+      "correlations": [],
+      "notes": {}
     },
     {
       "id": "1D03FCDB-7721-4DD7-A080-04D09B57D743",
@@ -9792,7 +9793,7 @@
         {
           "defKey": "status",
           "defName": "状态(0正常,1停用)",
-          "comment": "",
+          "comment": "Active",
           "domain": "",
           "type": "CHAR",
           "len": 1,
@@ -9818,7 +9819,7 @@
         {
           "defKey": "create_date",
           "defName": "创建时间",
-          "comment": "",
+          "comment": "___CT",
           "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
           "type": "DATETIME",
           "len": "",
@@ -9844,7 +9845,7 @@
         {
           "defKey": "create_id",
           "defName": "创建者ID",
-          "comment": "",
+          "comment": "___CR",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -9870,7 +9871,7 @@
         {
           "defKey": "create_name",
           "defName": "创建者名称",
-          "comment": "",
+          "comment": "___CR",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -10000,7 +10001,7 @@
         {
           "defKey": "remarks",
           "defName": "备注信息",
-          "comment": "",
+          "comment": "Description2",
           "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
           "type": "VARCHAR",
           "len": "",
@@ -10026,7 +10027,7 @@
         {
           "defKey": "material_code",
           "defName": "物料编号",
-          "comment": "",
+          "comment": "Code2",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -10052,7 +10053,7 @@
         {
           "defKey": "color_code",
           "defName": "颜色代码",
-          "comment": "",
+          "comment": "Code",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -10078,7 +10079,7 @@
         {
           "defKey": "supplier_color_code",
           "defName": "供应商色号",
-          "comment": "",
+          "comment": "C8_ColorMaterial_ColorCode",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -10186,7 +10187,8 @@
           "hideInGraph": true
         }
       ],
-      "correlations": []
+      "correlations": [],
+      "notes": {}
     },
     {
       "id": "76EC515F-4FA3-4A5D-A4BF-599F0AAE176B",
@@ -10250,7 +10252,7 @@
         {
           "defKey": "status",
           "defName": "状态(0正常,1停用)",
-          "comment": "",
+          "comment": "State",
           "domain": "",
           "type": "CHAR",
           "len": 1,
@@ -10586,6 +10588,32 @@
           "extProps": {}
         },
         {
+          "defKey": "color_name",
+          "defName": "颜色",
+          "comment": "",
+          "domain": "",
+          "type": "VARCHAR",
+          "len": 640,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": true,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": true,
+          "refDict": "",
+          "attr1": "",
+          "attr2": "",
+          "attr3": "",
+          "attr4": "",
+          "attr5": "",
+          "attr6": "",
+          "attr7": "",
+          "attr8": "",
+          "attr9": "",
+          "id": "2AFEE2B4-2056-46FF-AFA5-DD709B67F820",
+          "extProps": {}
+        },
+        {
           "defKey": "width",
           "defName": "规格",
           "comment": "",
@@ -10609,6 +10637,32 @@
           "attr8": "",
           "attr9": "",
           "id": "6654CB9F-3B02-4E6E-9616-E4D02E40BB78",
+          "extProps": {}
+        },
+        {
+          "defKey": "width_name",
+          "defName": "规格",
+          "comment": "",
+          "domain": "",
+          "type": "VARCHAR",
+          "len": 640,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": true,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": true,
+          "refDict": "",
+          "attr1": "",
+          "attr2": "",
+          "attr3": "",
+          "attr4": "",
+          "attr5": "",
+          "attr6": "",
+          "attr7": "",
+          "attr8": "",
+          "attr9": "",
+          "id": "2FDB07A3-ED95-40A2-9BB0-25AA951BC164",
           "extProps": {}
         },
         {
@@ -10794,58 +10848,6 @@
           "extProps": {}
         },
         {
-          "defKey": "color_name",
-          "defName": "颜色",
-          "comment": "",
-          "domain": "",
-          "type": "VARCHAR",
-          "len": 640,
-          "scale": "",
-          "primaryKey": false,
-          "notNull": true,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": true,
-          "refDict": "",
-          "attr1": "",
-          "attr2": "",
-          "attr3": "",
-          "attr4": "",
-          "attr5": "",
-          "attr6": "",
-          "attr7": "",
-          "attr8": "",
-          "attr9": "",
-          "id": "2AFEE2B4-2056-46FF-AFA5-DD709B67F820",
-          "extProps": {}
-        },
-        {
-          "defKey": "width_name",
-          "defName": "规格",
-          "comment": "",
-          "domain": "",
-          "type": "VARCHAR",
-          "len": 640,
-          "scale": "",
-          "primaryKey": false,
-          "notNull": true,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": true,
-          "refDict": "",
-          "attr1": "",
-          "attr2": "",
-          "attr3": "",
-          "attr4": "",
-          "attr5": "",
-          "attr6": "",
-          "attr7": "",
-          "attr8": "",
-          "attr9": "",
-          "id": "2FDB07A3-ED95-40A2-9BB0-25AA951BC164",
-          "extProps": {}
-        },
-        {
           "defKey": "supplier_material_code",
           "defName": "供应商料号",
           "comment": "",
@@ -11008,7 +11010,8 @@
           "hideInGraph": true
         }
       ],
-      "correlations": []
+      "correlations": [],
+      "notes": {}
     },
     {
       "id": "C1826A7F-E641-4212-B203-B30E5EA4F6F5",
@@ -11072,7 +11075,7 @@
         {
           "defKey": "status",
           "defName": "状态(0正常,1停用)",
-          "comment": "",
+          "comment": "?",
           "domain": "",
           "type": "CHAR",
           "len": 1,
@@ -11306,7 +11309,7 @@
         {
           "defKey": "material_code",
           "defName": "物料编号",
-          "comment": "",
+          "comment": "pdm_material_spec.material_code",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -11332,7 +11335,7 @@
         {
           "defKey": "width_code",
           "defName": "规格代码",
-          "comment": "",
+          "comment": "pdm_material_spec.SPEC_NO",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -11358,7 +11361,7 @@
         {
           "defKey": "name",
           "defName": "规格名称",
-          "comment": "",
+          "comment": "pdm_material_spec.SPEC_NAME",
           "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
           "type": "VARCHAR",
           "len": "",
@@ -11466,7 +11469,8 @@
           "hideInGraph": true
         }
       ],
-      "correlations": []
+      "correlations": [],
+      "notes": {}
     },
     {
       "id": "40FD96FC-3F6D-4A73-BAA5-09AE54BB4D8B",
@@ -27474,7 +27478,7 @@
     {
       "id": "434B619D-5369-4496-887A-542E9B3260A5",
       "defKey": "t_hang_tag",
-      "defName": "吊牌表",
+      "defName": "吊牌表(迁移)",
       "comment": "",
       "properties": {},
       "fields": [
@@ -28863,7 +28867,8 @@
           "hideInGraph": true
         }
       ],
-      "correlations": []
+      "correlations": [],
+      "notes": {}
     },
     {
       "id": "8B64BE0C-3369-4C8B-A1FE-41C15261560A",
@@ -45930,7 +45935,7 @@
     {
       "id": "8D3B69CC-E785-4FEA-A898-205716A3B1E8",
       "defKey": "t_pattern_making",
-      "defName": "打版管理",
+      "defName": "打版管理(迁移)",
       "comment": "",
       "properties": {},
       "fields": [
@@ -47527,12 +47532,13 @@
           "hideInGraph": true
         }
       ],
-      "correlations": []
+      "correlations": [],
+      "notes": {}
     },
     {
       "id": "4F5A94C6-1B89-45F9-96B0-FB37435E1FEB",
       "defKey": "t_pattern_making_work_log",
-      "defName": "打版管理-工作记录",
+      "defName": "打版管理-工作记录(迁移)",
       "comment": "",
       "properties": {},
       "fields": [
@@ -48063,7 +48069,8 @@
           "hideInGraph": true
         }
       ],
-      "correlations": []
+      "correlations": [],
+      "notes": {}
     },
     {
       "id": "17E2445F-F85B-48E3-8142-1135B9B42560",
@@ -54494,7 +54501,7 @@
     {
       "id": "DA315189-848D-4F96-AA5F-B61C5E8CB383",
       "defKey": "t_pre_production_sample",
-      "defName": "产前样",
+      "defName": "产前样(迁移)",
       "comment": "",
       "properties": {},
       "fields": [
@@ -55909,12 +55916,13 @@
           "hideInGraph": true
         }
       ],
-      "correlations": []
+      "correlations": [],
+      "notes": {}
     },
     {
       "id": "2F4100EA-BBEF-4AC6-B6AB-C135E11B459F",
       "defKey": "t_pre_production_sample_task",
-      "defName": "产前样-任务",
+      "defName": "产前样-任务(迁移)",
       "comment": "",
       "properties": {},
       "fields": [
@@ -56913,7 +56921,8 @@
           "hideInGraph": true
         }
       ],
-      "correlations": []
+      "correlations": [],
+      "notes": {}
     },
     {
       "id": "9DBFC4BD-6B83-4312-896A-D32DB4701C15",
@@ -73860,7 +73869,7 @@
     {
       "id": "C3B78FC4-269D-437C-8636-AB90134BAFCC",
       "defKey": "t_sample_design",
-      "defName": "样衣设计",
+      "defName": "样衣设计(迁移)",
       "comment": "",
       "properties": {},
       "fields": [
@@ -73919,7 +73928,7 @@
         {
           "defKey": "planning_season_id",
           "defName": "产品季节id",
-          "comment": "",
+          "comment": "ParentSeason",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -74075,7 +74084,7 @@
         {
           "defKey": "prod_category1st",
           "defName": "大类id",
-          "comment": "",
+          "comment": "Category2",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -74101,7 +74110,7 @@
         {
           "defKey": "prod_category",
           "defName": "品类id",
-          "comment": "",
+          "comment": "C8_Style_ProdCategory",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -74127,7 +74136,7 @@
         {
           "defKey": "prod_category2nd",
           "defName": "中类id",
-          "comment": "",
+          "comment": "C8_Style_2ndCategory",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -74153,7 +74162,7 @@
         {
           "defKey": "prod_category3rd",
           "defName": "小类",
-          "comment": "",
+          "comment": "C8_Style_3rdCategory",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -74179,7 +74188,7 @@
         {
           "defKey": "style_no",
           "defName": "大货款号",
-          "comment": "",
+          "comment": "?",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -74205,7 +74214,7 @@
         {
           "defKey": "design_no",
           "defName": "设计款号",
-          "comment": "",
+          "comment": "Code",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -74231,7 +74240,7 @@
         {
           "defKey": "his_design_no",
           "defName": "旧设计款号",
-          "comment": "",
+          "comment": "C8_Style_Code",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -74257,7 +74266,7 @@
         {
           "defKey": "style_name",
           "defName": "款式名称",
-          "comment": "",
+          "comment": "Description",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -74283,7 +74292,7 @@
         {
           "defKey": "style_type",
           "defName": "款式类型",
-          "comment": "",
+          "comment": "ProductType",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -74439,7 +74448,7 @@
         {
           "defKey": "season",
           "defName": "季节",
-          "comment": "",
+          "comment": "ParentSeason",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -74465,7 +74474,7 @@
         {
           "defKey": "season_name",
           "defName": "季节名称",
-          "comment": "",
+          "comment": "ParentSeason",
           "domain": "",
           "type": "VARCHAR",
           "len": 64,
@@ -76445,7 +76454,8 @@
           "hideInGraph": true
         }
       ],
-      "correlations": []
+      "correlations": [],
+      "notes": {}
     },
     {
       "id": "0820286D-1D13-4A2B-A863-E8ACF6314110",
@@ -80030,7 +80040,7 @@
     {
       "id": "4830EF07-56D9-48FE-9FA6-9FDF774F217B",
       "defKey": "t_sample_style_color",
-      "defName": "样衣-款式配色",
+      "defName": "样衣-款式配色(迁移)",
       "comment": "",
       "properties": {},
       "fields": [
@@ -81460,7 +81470,8 @@
           "hideInGraph": true
         }
       ],
-      "correlations": []
+      "correlations": [],
+      "notes": {}
     },
     {
       "id": "7DC92960-5D83-415C-AB28-DFD9058DE63D",
@@ -85204,7 +85215,7 @@
     {
       "id": "36B851CC-C161-4D27-9E52-8B9040CFDE21",
       "defKey": "t_style_pricing",
-      "defName": "款式定价",
+      "defName": "款式定价(迁移)",
       "comment": "",
       "properties": {},
       "fields": [
@@ -85709,7 +85720,8 @@
           "hideInGraph": true
         }
       ],
-      "correlations": []
+      "correlations": [],
+      "notes": {}
     },
     {
       "id": "C2E64C15-F464-40AF-AE98-6B76F101F3A7",
@@ -86892,7 +86904,7 @@
   "dicts": [],
   "viewGroups": [
     {
-      "defKey": "基础资料",
+      "defKey": "基础资料(无需迁移,直接导入)",
       "defName": "",
       "refEntities": [
         "2D48FF00-58CA-4265-A370-D92D21705451",
@@ -86929,7 +86941,7 @@
       "id": "83C4CE8D-3A03-43D7-B784-4C893BD962EF"
     },
     {
-      "defKey": "素材",
+      "defKey": "素材(无需迁移)",
       "defName": "",
       "refEntities": [
         "445F6612-7719-4795-9471-28D3AC3E6D4C",
@@ -86963,7 +86975,7 @@
       "id": "8AFCFCB9-350B-4125-9D47-45B0FC2510F2"
     },
     {
-      "defKey": "物料",
+      "defKey": "物料(ok)",
       "defName": "",
       "refEntities": [
         "FA192DE0-C676-4824-BD04-E89D3F8EB272",
@@ -86980,7 +86992,6 @@
       "defKey": "样衣设计",
       "defName": "",
       "refEntities": [
-        "C3B78FC4-269D-437C-8636-AB90134BAFCC",
         "8D3B69CC-E785-4FEA-A898-205716A3B1E8",
         "4F5A94C6-1B89-45F9-96B0-FB37435E1FEB",
         "DA315189-848D-4F96-AA5F-B61C5E8CB383",
@@ -87026,16 +87037,17 @@
       "defKey": "款式",
       "defName": "",
       "refEntities": [
+        "C3B78FC4-269D-437C-8636-AB90134BAFCC",
         "4830EF07-56D9-48FE-9FA6-9FDF774F217B",
         "36B851CC-C161-4D27-9E52-8B9040CFDE21",
         "434B619D-5369-4496-887A-542E9B3260A5",
-        "D081FB63-3027-4574-8126-8908DAFB9993",
-        "8B64BE0C-3369-4C8B-A1FE-41C15261560A",
-        "7DC92960-5D83-415C-AB28-DFD9058DE63D",
-        "2C0F1C8A-2F17-4FDF-A6CA-747210BEA7B3",
         "F992CF7F-358E-489C-8A10-C11959F21953",
         "51D1CE61-5D88-4733-95FD-68FD00C47BAC",
-        "C2E64C15-F464-40AF-AE98-6B76F101F3A7"
+        "7DC92960-5D83-415C-AB28-DFD9058DE63D",
+        "2C0F1C8A-2F17-4FDF-A6CA-747210BEA7B3",
+        "8B64BE0C-3369-4C8B-A1FE-41C15261560A",
+        "C2E64C15-F464-40AF-AE98-6B76F101F3A7",
+        "D081FB63-3027-4574-8126-8908DAFB9993"
       ],
       "refViews": [],
       "refDiagrams": [],
@@ -87043,7 +87055,7 @@
       "id": "982DD920-7E05-4776-B89C-6162243AC4C7"
     },
     {
-      "defKey": "核价",
+      "defKey": "核价(无需迁移)",
       "defName": "",
       "refEntities": [
         "9DBFC4BD-6B83-4312-896A-D32DB4701C15",
@@ -87061,7 +87073,7 @@
       "id": "1F2A6859-47A3-4EE8-82FE-EE370B08E39F"
     },
     {
-      "defKey": "样衣管理",
+      "defKey": "样衣管理(无需迁移)",
       "defName": "",
       "refEntities": [
         "7BA45955-E925-480E-862A-C4BBFA03356F",
@@ -87083,7 +87095,7 @@
       "id": "5F66BC54-7369-4CB3-BD27-05DD17D100EB"
     },
     {
-      "defKey": "流程进度",
+      "defKey": "流程进度(无需迁移)",
       "defName": "",
       "refEntities": [
         "93B114BC-6458-49C9-94AB-FA73CB294BEA",
@@ -87105,7 +87117,7 @@
       "id": "0BFDEDC9-9694-440B-91AA-5297B2B2BDA0"
     },
     {
-      "defKey": "其他",
+      "defKey": "其他(无需迁移)",
       "defName": "",
       "refEntities": [
         "41F69431-5007-459C-B9CC-B61B110B0635",

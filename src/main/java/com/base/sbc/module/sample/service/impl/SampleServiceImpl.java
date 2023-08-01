@@ -87,6 +87,16 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
             sample.setStyleName(sd.getStyleName());
             sample.setDesignNo(sd.getDesignNo());
             sample.setSampleDesignId(pm.getSampleDesignId());
+            sample.setProdCategory(sd.getProdCategory());
+            sample.setProdCategory1st(sd.getProdCategory1st());
+            sample.setProdCategory2nd(sd.getProdCategory2nd());
+            sample.setProdCategory3rd(sd.getProdCategory3rd());
+
+            sample.setProdCategoryName(sd.getProdCategoryName());
+            sample.setProdCategory1stName(sd.getProdCategory1stName());
+            sample.setProdCategory2ndName(sd.getProdCategory2ndName());
+            sample.setProdCategory3rdName(sd.getProdCategory3rdName());
+
             sample.setPatternDesignId(pm.getPatternDesignId());
             sample.setPatternDesignName(pm.getPatternDesignName());
             sample.setCompleteStatus(2); //库存状态：0-完全借出，1-部分借出，2-全部在库
