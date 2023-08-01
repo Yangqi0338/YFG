@@ -474,24 +474,24 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         //1 查询企划需求管理
         QueryPlanningDimensionalityDto pdqw = new QueryPlanningDimensionalityDto();
         pdqw.setCategoryId(dto.getCategoryId());
-        pdqw.setPlanningSeasonId(dto.getSeason());
+        pdqw.setPlanningSeasonId(dto.getPlanningSeasonId());
 
         List<PlanningDimensionality> pdList = (List<PlanningDimensionality>) planningDimensionalityService.getDimensionalityList(pdqw).getData();
-        if (CollUtil.isEmpty(pdList)) {
-            return null;
-        }
-        List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
-        List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
-        // 2.查询字段配置信息
+        if (CollUtil.isNotEmpty(pdList)) {
+            List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
+            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
+            // 2.查询字段配置信息
 //        List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.list(FormTypeCodes.DIMENSION_LABELS, dto.getCategoryId(), dto.getSeason());
 
-        // [3].查询字段值
-        if (CollUtil.isNotEmpty(fieldManagementListByIds) && StrUtil.isNotBlank(dto.getSampleDesignId())) {
-            List<FieldVal> fvList = fieldValService.list(dto.getSampleDesignId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-            fieldManagementService.conversion(fieldManagementListByIds, fvList);
-            //查询坑位的值
-            result.addAll(fieldManagementListByIds);
+            // [3].查询字段值
+            if (CollUtil.isNotEmpty(fieldManagementListByIds) && StrUtil.isNotBlank(dto.getSampleDesignId())) {
+                List<FieldVal> fvList = fieldValService.list(dto.getSampleDesignId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+                fieldManagementService.conversion(fieldManagementListByIds, fvList);
+                //查询坑位的值
+                result.addAll(fieldManagementListByIds);
+            }
         }
+        //查询坑位信息的
         if (StrUtil.isNotBlank(dto.getPlanningCategoryItemId())) {
             List<FieldManagementVo> seatFmList = planningCategoryItemService.querySeatDimension(dto.getPlanningCategoryItemId(), BaseGlobal.YES);
             if (CollUtil.isNotEmpty(seatFmList)) {
@@ -512,8 +512,9 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         }
         DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
         dto.setSampleDesignId(id);
-        dto.setSeason(sampleDesign.getSeason());
-        dto.setCategoryId(CollUtil.get(StrUtil.split(sampleDesign.getProdCategory(), StrUtil.COMMA), 1));
+        dto.setPlanningSeasonId(sampleDesign.getPlanningSeasonId());
+        dto.setCategoryId(sampleDesign.getProdCategory());
+        dto.setPlanningCategoryItemId(sampleDesign.getPlanningCategoryItemId());
         return queryDimensionLabels(dto);
     }
 
