@@ -761,6 +761,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     public void updateBySampleDesignChange(SampleDesign sampleDesign) {
         PlanningCategoryItem byId = getById(sampleDesign.getPlanningCategoryItemId());
         BeanUtil.copyProperties(sampleDesign, byId, "createId", "createName", "id", "status");
+        String urlById = uploadFileService.getUrlById(sampleDesign.getStylePic());
+        byId.setStylePic(urlById);
         updateById(byId);
     }
 
