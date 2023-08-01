@@ -507,14 +507,6 @@ public class SmpService {
      */
     public Integer bom(String[] ids) {
 
-
-        Integer i1 = packBomService.physicalDeleteQWrap(new QueryWrapper<PackBom>().eq("id", "1684757494226219011").eq("price_id", "1684526766192320516"));
-
-        if (true) {
-            return 0;
-        }
-
-
         int i = 0;
         List<PackBom> list = packBomService.listByIds(Arrays.asList(ids));
         for (PackBom packBom : list) {
