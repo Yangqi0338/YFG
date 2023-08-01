@@ -143,6 +143,9 @@ public class SmpService {
             smpGoodsDto.setStyleMiddleClass(sampleDesign.getProdCategory2nd());
             smpGoodsDto.setMinClassName(sampleDesign.getProdCategory3rdName());
             smpGoodsDto.setStyleSmallClass(sampleDesign.getProdCategory3rd());
+
+            smpGoodsDto.setBrandId(sampleDesign.getBrand());
+            smpGoodsDto.setBrandName(sampleDesign.getBrandName());
             //String sizeRange = sampleDesign.getSizeRange();
             //BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeService.getById(sizeRange);
             //PlmStyleSizeParam param = new PlmStyleSizeParam();
