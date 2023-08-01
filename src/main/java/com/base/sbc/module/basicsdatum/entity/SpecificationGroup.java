@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 @TableName("t_basicsdatum_specification_group")
 public class SpecificationGroup extends BaseDataEntity<String> {
-    @ApiModelProperty(value = "状态")
+    @ApiModelProperty(value = "状态(0:启用，1停止)")
     private String status;
 
     @ApiModelProperty(value = "编码")

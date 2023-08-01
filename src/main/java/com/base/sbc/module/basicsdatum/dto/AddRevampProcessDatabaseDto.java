@@ -43,4 +43,10 @@ public class AddRevampProcessDatabaseDto {
     private String status;
     /**类别 1：部件库，2：基础工艺，3：外辅工艺，4：裁剪工艺，5：注意事项，6：整烫包装，7：模板部件*/
     private String type;
+    /*部件类别*/
+    @ApiModelProperty(value = "部件类别")
+    private String component;
+    /*部件类别名称*/
+    @ApiModelProperty(value = "部件类别名称")
+    private String   componentName;
 }

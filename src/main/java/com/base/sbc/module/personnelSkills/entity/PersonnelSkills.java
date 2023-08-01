@@ -66,7 +66,7 @@ public class PersonnelSkills extends BaseDataEntity<String> {
     @ApiModelProperty(value = "产量"  )
     private String output;
     /** 状态 */
-    @ApiModelProperty(value = "状态"  )
+    @ApiModelProperty(value = "状态(0:启用，1停止)"  )
     private String status;
 
     /** 备注 */

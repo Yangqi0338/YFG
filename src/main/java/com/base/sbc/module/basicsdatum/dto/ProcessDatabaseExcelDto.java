@@ -67,7 +67,7 @@ public class ProcessDatabaseExcelDto {
     private String picture;
 
     /**状态*/
-    @Excel(name = "可用的",replace={"_0","false_0","true_1"})
+    @Excel(name = "可用的",replace={"false_1","true_0"})
     private String status;
 
     /**类别 1：部件库，2：基础工艺，3：外辅工艺，4：裁剪工艺，5：注意事项，6：整烫包装，7：模板部件*/

@@ -79,7 +79,7 @@ public class BasicsdatumSupplierExcelDto  {
     private String dataState;
     /** 是 供应商 */
     @ApiModelProperty(value = "是 供应商"  )
-    @Excel(name = "是 供应商", replace = {"false_0","true_1"})
+    @Excel(name = "是 供应商", replace = {"false_1","true_0"})
     private String isSupplier;
     /** 联系人 */
     @ApiModelProperty(value = "联系人"  )

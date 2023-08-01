@@ -116,7 +116,7 @@ public class SpecificationGroupServiceImpl extends BaseServiceImpl<Specification
             if (StringUtils.isNotBlank(specificationGroupExcelDto.getSpecificationNames())) {
                 specificationGroupExcelDto.setSpecificationNames(specificationGroupExcelDto.getSpecificationNames().replaceAll(" ", ""));
                 QueryWrapper queryWrapper = new QueryWrapper();
-                queryWrapper.in("name", StringUtils.convertList(specificationGroupExcelDto.getSpecificationNames()));
+                queryWrapper.in("hangtags", StringUtils.convertList(specificationGroupExcelDto.getSpecificationNames()));
                 queryWrapper.eq("type_name", specificationGroupExcelDto.getTypeName());
                  specificationList = specificationMapper.selectList(queryWrapper);
                  /*基础规格*/

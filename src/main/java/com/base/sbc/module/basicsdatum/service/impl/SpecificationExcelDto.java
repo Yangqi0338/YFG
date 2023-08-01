@@ -28,6 +28,6 @@ public class SpecificationExcelDto {
     @Excel(name = "描述")
     private String remarks;
 
-    @Excel(name = "状态",replace = {"true_1", "false_0"})
+    @Excel(name = "状态",replace = {"true_0", "false_1"})
     private String status;
 }

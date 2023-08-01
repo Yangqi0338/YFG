@@ -40,7 +40,7 @@ public class PersonnelSkillsController extends BaseController {
         queryWrapper.notEmptyLike("position_names", personnelSkillsDto.getPositionNames());
         queryWrapper.notEmptyLike("category_names", personnelSkillsDto.getCategoryNames());
         queryWrapper.notEmptyLike("create_name", personnelSkillsDto.getCreateName());
-        queryWrapper.notEmptyEq("status", "0".equals(personnelSkillsDto.getStatus()) ? "1" : "1".equals(personnelSkillsDto.getStatus()) ? "0" : null);
+        queryWrapper.notEmptyEq("status", personnelSkillsDto.getStatus());
         queryWrapper.between("create_date", personnelSkillsDto.getCreateDate());
         PageHelper.startPage(personnelSkillsDto);
         List<PersonnelSkills> list = personnelSkillsService.list(queryWrapper);

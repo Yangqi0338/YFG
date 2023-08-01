@@ -19,9 +19,9 @@ import lombok.Data;
 public class Specification extends BaseDataEntity<String> {
 
     /**
-     * 状态
+     * 状态(0:启用1停止)
      */
-    @ApiModelProperty(value = "状态")
+    @ApiModelProperty(value = "状态(0:启用1停止)")
     private String status;
 
     /**

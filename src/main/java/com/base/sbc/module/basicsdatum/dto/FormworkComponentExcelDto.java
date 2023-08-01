@@ -4,8 +4,8 @@ import cn.afterturn.easypoi.excel.annotation.Excel;
 import lombok.Data;
 
 @Data
-/*部件导出*/
-public class ComponentLibraryExcelDto {
+/*模板部件导出*/
+public class FormworkComponentExcelDto {
 
 
     /**编码*/
@@ -16,9 +16,17 @@ public class ComponentLibraryExcelDto {
     @Excel(name = "工艺项目")
     private String processName;
 
+    /**品类名称*/
+    @Excel(name = "品类名称")
+    private String categoryName;
+
     /**工艺类型名称*/
     @Excel(name = "部件类别")
     private String componentName;
+
+    /**品牌*/
+    @Excel(name = "品牌")
+    private String brandName;
 
     /**描述*/
     @Excel(name = "描述")

@@ -49,7 +49,7 @@ public class SpecificationGroupExcelDto {
     private String remarks;
 
     @ApiModelProperty(value = "状态")
-    @Excel(name = "状态",replace = {"true_1", "false_0"})
+    @Excel(name = "状态",replace = {"true_0", "false_1"})
     private String status;
 
 

@@ -26,7 +26,7 @@ public class CraftMaterialExcelDto {
     private String picture;
 
     /**状态*/
-    @Excel(name = "可用的",replace={"false_0","true_1"})
+    @Excel(name = "可用的",replace={"false_1","true_0"})
     private String status;
 
     /** 更新者名称  */
