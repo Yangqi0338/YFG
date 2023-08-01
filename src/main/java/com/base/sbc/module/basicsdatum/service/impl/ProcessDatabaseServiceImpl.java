@@ -82,6 +82,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         }else if(name.indexOf("注意事项")!= -1){
             type="5";
         }else if(name.indexOf("整烫包装")!= -1){
+            dict = "C8_SewingType";
             type="6";
         }else if(name.indexOf("模板部件")!= -1){
             dict = "C8_SpecCategory,C8_Brand";
