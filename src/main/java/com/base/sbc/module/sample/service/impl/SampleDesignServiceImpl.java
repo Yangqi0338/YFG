@@ -743,6 +743,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         CommonUtils.resetCreateUpdate(sampleDesign);
         sampleDesign.setId(null);
         sampleDesign.setStylePic(uploadFileService.getIdByUrl(item.getStylePic()));
+        sampleDesign.setStatus(null);
         UpdateWrapper<SampleDesign> uw = new UpdateWrapper<>();
         uw.eq("del_flag", BaseGlobal.NO);
         uw.eq("planning_category_item_id", item.getId());

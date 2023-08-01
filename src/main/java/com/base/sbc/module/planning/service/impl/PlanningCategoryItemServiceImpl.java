@@ -760,7 +760,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     @Transactional(rollbackFor = {Exception.class})
     public void updateBySampleDesignChange(SampleDesign sampleDesign) {
         PlanningCategoryItem byId = getById(sampleDesign.getPlanningCategoryItemId());
-        BeanUtil.copyProperties(sampleDesign, byId, "createId", "createName", "id");
+        BeanUtil.copyProperties(sampleDesign, byId, "createId", "createName", "id", "status");
         updateById(byId);
     }
 
