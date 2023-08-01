@@ -9,7 +9,9 @@ package com.base.sbc.module.sample.service;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
+import com.base.sbc.module.sample.dto.SampleSearchDTO;
 import com.base.sbc.module.sample.entity.Sample;
+import com.base.sbc.module.sample.vo.SampleItemVO;
 import com.base.sbc.module.sample.vo.SampleVo;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,5 +35,13 @@ public interface SampleService extends BaseService<Sample> {
 
     /** 修改状态 */
     SampleVo updateStatus(SampleSaveDto dto);
+
+
+    /**
+     * 获取样衣列表
+     * @param sampleSearchDTO
+     * @return
+     */
+    PageInfo<SampleItemVO> getSampleItemList(SampleSearchDTO sampleSearchDTO);
 }
 

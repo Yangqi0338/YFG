@@ -65,5 +65,33 @@
     <select id="getListBySampleId" resultType="com.base.sbc.module.sample.entity.SampleItem">
         SELECT * FROM t_sample_item WHERE sample_id = #{sampleId}
     </select>
+
+
+    <select id="getSampleItemList" resultType="com.base.sbc.module.sample.vo.SampleItemVO">
+        SELECT si.`status`,
+        si.`code`,
+        si.color,
+        si.size,
+        si.store_date,
+        si.position,
+        s.images,
+        s.design_no,
+        s.style_name,
+        s.category_name,
+        s.type,
+        s.from_type
+        FROM t_sample_item si
+        JOIN t_sample s ON si.sample_id = s.id
+        WHERE si.del_flag = '0'
+        AND s.del_flag = '0'
+        and s.company_code = #{dto.companyCode}
+        <if test="dto.status != null and dto.status !=''">
+            AND si.`status` = #{dto.status}
+        </if>
+        <if test="dto.search != null and dto.search !=''">
+            AND s.design_no LIKE concat("%",#{dto.search},"%")
+            OR si.CODE LIKE concat("%",#{dto.search},"%")
+        </if>
+    </select>
 </mapper>
 

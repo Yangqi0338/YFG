@@ -20,6 +20,7 @@ import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
 import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
+import com.base.sbc.module.sample.dto.SampleSearchDTO;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleItem;
@@ -28,12 +29,14 @@ import com.base.sbc.module.sample.mapper.SampleItemMapper;
 import com.base.sbc.module.sample.mapper.SampleMapper;
 import com.base.sbc.module.sample.service.SampleItemLogService;
 import com.base.sbc.module.sample.service.SampleService;
+import com.base.sbc.module.sample.vo.SampleItemVO;
 import com.base.sbc.module.sample.vo.SamplePageByDesignNoVo;
 import com.base.sbc.module.sample.vo.SampleVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,6 +45,7 @@ import java.util.List;
 
 /**
  * 类描述：样衣 service类
+ *
  * @address com.base.sbc.module.sample.service.SampleService
  */
 @Service
@@ -67,7 +71,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
         PatternMaking pm = patternMakingMapper.selectById(dto.getPatternMakingId());
         // 获取样衣设计
         SampleDesign sd = sampleDesignMapper.selectById(pm.getSampleDesignId());
-        if (pm != null && sd != null){
+        if (pm != null && sd != null) {
             Sample sample = CopyUtil.copy(dto, Sample.class);
 
             if (StringUtil.isEmpty(sample.getId())) {
@@ -88,16 +92,13 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
             sample.setCompleteStatus(2); //库存状态：0-完全借出，1-部分借出，2-全部在库
             sample.setExamineStatus(0);  //审核状态：0-草稿，1-待审核、2-审核通过、3-驳回
 
-            Integer count = 0, borrowCount = 0;
-            for (SampleItem item : dto.getSampleItemList()){
-                if (StringUtil.isEmpty(item.getId())){
-                    count += item.getCount();
-                    borrowCount += item.getBorrowCount() == null ? 0 : item.getBorrowCount();
-
+            for (SampleItem item : dto.getSampleItemList()) {
+                item.setCount(1);
+                if (StringUtil.isEmpty(item.getId())) {
                     item.setId(idGen.nextIdStr());
                     item.setSampleId(sample.getId());
                     item.setBorrowCount(0);
-                    item.setCode("YY" + System.currentTimeMillis() + (int)((Math.random()*9+1)*1000));
+                    item.setCode("YY" + System.currentTimeMillis() + (int) ((Math.random() * 9 + 1) * 1000));
                     sampleItemMapper.insert(item);
 
                     // 保存样衣操作日志
@@ -116,9 +117,8 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
                     sampleItemLogService.save(item.getId(), 2, remarks);
                 }
             }
-
-            sample.setCount(count);
-            sample.setBorrowCount(borrowCount);
+            sample.setCount(CollectionUtils.isEmpty(dto.getSampleItemList()) ? 0 : dto.getSampleItemList().size());
+            sample.setBorrowCount(0);
             if (StringUtil.isEmpty(dto.getId())) {
                 mapper.insert(sample);
             } else {
@@ -164,8 +164,8 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
         for (ColorModelNumber colorModelNumber : colorModelNumbers) {
             colorModelNumber.setFileName(split[0]);
             colorModelNumber.setStatus("1");
-            QueryWrapper<ColorModelNumber> queryWrapper =new BaseQueryWrapper<>();
-            queryWrapper.eq("code",colorModelNumber.getCode());
+            QueryWrapper<ColorModelNumber> queryWrapper = new BaseQueryWrapper<>();
+            queryWrapper.eq("code", colorModelNumber.getCode());
             // this.saveOrUpdate(colorModelNumber,queryWrapper);
         }
         return true;
@@ -184,5 +184,12 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
         vo.setSampleItemList(list);
 
         return vo;
+    }
+
+    @Override
+    public PageInfo<SampleItemVO> getSampleItemList(SampleSearchDTO dto) {
+        PageHelper.startPage(dto);
+        List<SampleItemVO> sampleItemList = sampleItemMapper.getSampleItemList(dto);
+        return new PageInfo<>(sampleItemList);
     }
 }

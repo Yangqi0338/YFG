@@ -56,7 +56,7 @@ public class SamplePageByDesignNoVo {
 
     /** 数量 */
     @ApiModelProperty(value = "数量")
-    private String count;
+    private Integer count;
 
     /** 样衣类型：1-内部研发，2-外采，2-ODM提供 */
     @ApiModelProperty(value = "样衣类型：1-内部研发，2-外采，2-ODM提供")

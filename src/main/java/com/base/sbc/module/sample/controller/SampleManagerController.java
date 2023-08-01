@@ -10,13 +10,16 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
+import com.base.sbc.module.sample.dto.SampleSearchDTO;
 import com.base.sbc.module.sample.entity.SampleItemLog;
 import com.base.sbc.module.sample.service.SampleItemLogService;
 import com.base.sbc.module.sample.service.SampleItemService;
 import com.base.sbc.module.sample.service.SampleService;
+import com.base.sbc.module.sample.vo.SampleItemVO;
 import com.base.sbc.module.sample.vo.SampleVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -86,4 +89,13 @@ public class SampleManagerController extends BaseController {
 	public SampleVo updateStatus(@RequestBody SampleSaveDto dto) {
 		return sampleService.updateStatus(dto);
 	}
+
+	@ApiModelProperty("获取样衣列表")
+	@PostMapping("/getSampleItemList")
+	public PageInfo<SampleItemVO> getSampleItemList(@Valid @RequestBody SampleSearchDTO dto){
+		dto.setCompanyCode(super.getUserCompany());
+		return sampleService.getSampleItemList(dto);
+	}
+
+
 }
