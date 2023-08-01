@@ -43,6 +43,11 @@ public class SmpOpenMaterialDto {
     private String C8_Material_3rdCategory;
 
     /**
+     * 四级分类(预留字段，后面可能会用到)
+     */
+    private String C8_Material_4rdCategory;
+
+    /**
      * 物料来源
      */
     private String Source;
@@ -221,6 +226,9 @@ public class SmpOpenMaterialDto {
         basicsdatumMaterial.setCategoryName(ProductType);
 //        basicsdatumMaterial.setCategoryIds(ProductTypeID+","+C8_Material_2ndCategory+","+C8_Material_3rdCategory);
         basicsdatumMaterial.setYear(C8_Season_Year);
+        basicsdatumMaterial.setCategory1Code(ProductTypeID);
+        basicsdatumMaterial.setCategory2Code(C8_Material_2ndCategory);
+        basicsdatumMaterial.setCategory3Code(C8_Material_3rdCategory);
         basicsdatumMaterial.setSeasonName(C8_Season_Quarter);
         basicsdatumMaterial.setSeason(C8_Season_QuarterID);
         basicsdatumMaterial.setBrandName(C8_Season_Brand);
