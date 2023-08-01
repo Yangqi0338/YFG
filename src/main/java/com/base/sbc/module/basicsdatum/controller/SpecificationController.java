@@ -21,6 +21,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.SpecificationDto;
 import com.base.sbc.module.basicsdatum.entity.Specification;
 import com.base.sbc.module.basicsdatum.entity.SpecificationGroup;
@@ -73,9 +74,8 @@ public class SpecificationController extends BaseController {
 		SpecificationGroup specificationGroup = specificationGroupService
 				.getOne(new QueryWrapper<SpecificationGroup>().eq(COMPANY_CODE, getUserCompany()).eq("code", code));
         BaseQueryWrapper<Specification> queryWrapper = new BaseQueryWrapper<>();
-        if (specificationGroup!=null){
-            String specificationIds = specificationGroup.getSpecificationIds();
-            String[] ids = specificationIds.split(",");
+		if (specificationGroup != null && StringUtils.isNotBlank(specificationGroup.getSpecificationIds())) {
+			String[] ids = specificationGroup.getSpecificationIds().split(",");
             queryWrapper.in("id", Arrays.asList(ids));
         }
         List<Specification> specifications = specificationService.list(queryWrapper);
