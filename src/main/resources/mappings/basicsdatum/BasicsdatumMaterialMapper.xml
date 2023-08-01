@@ -80,9 +80,7 @@
 		bm.status,
 		bm.material_code_name,
 		bm.image_url,
-		bm.category_name,
-		bm.category_id,
-		bm.category_ids,
+		concat(bm.category1_name,'/',bm.category2_name,'/',bm.category3_name) as categoryName,
 		bm.factory_composition,
 		bm.ingredient,
 		bm.translate,
@@ -90,7 +88,6 @@
 		bm.remarks
 		FROM t_basicsdatum_material bm
 		WHERE bm.del_flag = '0'
-
 		<if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
 			${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
 		</if>
