@@ -1,6 +1,7 @@
 package com.base.sbc.module.smp.dto;
 
 import com.base.sbc.module.smp.base.SmpBaseDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -20,6 +21,7 @@ public class SmpProcessSheetDto extends SmpBaseDto {
     /** 修改人 */
     private String modifiedPerson;
     /** 修改时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date modifiedTime;
     /** 同步id */
     private String syncId;
