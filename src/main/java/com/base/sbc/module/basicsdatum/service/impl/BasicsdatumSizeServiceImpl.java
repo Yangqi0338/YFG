@@ -97,7 +97,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
 
             }
         }
-
+        queryWrapper.orderByAsc("sort");
         /*查询尺码数据*/
         List<BasicsdatumSize> basicsdatumSizeList = baseMapper.selectList(queryWrapper);
         PageInfo<BasicsdatumSize> pageInfo = new PageInfo<>(basicsdatumSizeList);
