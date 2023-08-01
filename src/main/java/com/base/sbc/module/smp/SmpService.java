@@ -135,7 +135,14 @@ public class SmpService {
             SmpGoodsDto smpGoodsDto = sampleStyleColor.toSmpGoodsDto();
 
             SampleDesignVo sampleDesign = sampleDesignService.getDetail(sampleStyleColor.getSampleDesignId());
-
+            smpGoodsDto.setMaxClassName(sampleDesign.getProdCategory1stName());
+            smpGoodsDto.setStyleBigClass(sampleDesign.getProdCategory1st());
+            smpGoodsDto.setCategoryName(sampleDesign.getProdCategoryName());
+            smpGoodsDto.setStyleCategory(sampleDesign.getProdCategory());
+            smpGoodsDto.setMiddleClassName(sampleDesign.getProdCategory2ndName());
+            smpGoodsDto.setStyleMiddleClass(sampleDesign.getProdCategory2nd());
+            smpGoodsDto.setMinClassName(sampleDesign.getProdCategory3rd());
+            smpGoodsDto.setStyleSmallClass(sampleDesign.getProdCategory3rdName());
             //String sizeRange = sampleDesign.getSizeRange();
             //BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeService.getById(sizeRange);
             //PlmStyleSizeParam param = new PlmStyleSizeParam();
@@ -251,7 +258,7 @@ public class SmpService {
 
             // 核价
             PackPricing packPricing = packPricingService.getOne(new QueryWrapper<PackPricing>().eq("foreign_id", sampleDesign.getId()).eq("pack_type", "packBigGoods"));
-            if (packPricing!=null){
+            if (packPricing != null) {
                 JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
                 smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价"));
                 smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费"));
@@ -262,7 +269,7 @@ public class SmpService {
 
             // 资料包
             PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", sampleDesign.getId()).eq("pack_type", "packBigGoods"));
-            if (packTechPackaging!=null){
+            if (packTechPackaging != null) {
                 smpGoodsDto.setPackageType(packTechPackaging.getPackagingForm());
                 smpGoodsDto.setPackageSize(packTechPackaging.getPackagingBagStandard());
             }
@@ -311,7 +318,7 @@ public class SmpService {
                 }
                 List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
 
-                if (packBoms!=null && !packBoms.isEmpty()){
+                if (packBoms != null && !packBoms.isEmpty()) {
                     PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packBoms.get(0).getPackType()));
                     smpGoodsDto.setIntegrityProduct("1".equals(packInfoStatus.getBulkOrderClerkConfirm()));
                 }
@@ -327,7 +334,7 @@ public class SmpService {
             List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByIds(Arrays.asList(sizeIds.split(",")));
             List<SmpSize> smpSizes = new ArrayList<>();
             for (BasicsdatumSize basicsdatumSize : basicsdatumSizes) {
-                SmpSize smpSize=new SmpSize();
+                SmpSize smpSize = new SmpSize();
                 smpSize.setSize(basicsdatumSize.getModel());
                 smpSize.setSizeNumber(basicsdatumSize.getCode());
                 smpSize.setCode(basicsdatumSize.getSort());
@@ -492,9 +499,9 @@ public class SmpService {
     public Integer bom(String[] ids) {
 
 
-        Integer i1 = packBomService.physicalDeleteQWrap(new QueryWrapper<PackBom>().eq("id","1684757494226219011").eq("price_id","1684526766192320516"));
+        Integer i1 = packBomService.physicalDeleteQWrap(new QueryWrapper<PackBom>().eq("id", "1684757494226219011").eq("price_id", "1684526766192320516"));
 
-        if (true){
+        if (true) {
             return 0;
         }
 

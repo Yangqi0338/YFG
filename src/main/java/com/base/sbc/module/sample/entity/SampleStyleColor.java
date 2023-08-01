@@ -39,19 +39,6 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     public SmpGoodsDto toSmpGoodsDto(){
         SmpGoodsDto smpGoodsDto =new SmpGoodsDto();
         smpGoodsDto.setBandId(bandCode);
-        try {
-            String[] split = categoryName.split("/");
-            smpGoodsDto.setMaxClassName(split[0].split(",")[0]);
-            smpGoodsDto.setStyleBigClass(split[0].split(",")[1]);
-            smpGoodsDto.setCategoryName(split[1].split(",")[0]);
-            smpGoodsDto.setStyleCategory(split[1].split(",")[1]);
-            smpGoodsDto.setMiddleClassName(split[2].split(",")[0]);
-            smpGoodsDto.setStyleMiddleClass(split[2].split(",")[1]);
-            smpGoodsDto.setMinClassName(split[3].split(",")[0]);
-            smpGoodsDto.setStyleSmallClass(split[3].split(",")[1]);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
         smpGoodsDto.setDesignNumber(designNo);
         smpGoodsDto.setMainPush("1".equals(isMainly));
         smpGoodsDto.setColorCode(colorCode);
