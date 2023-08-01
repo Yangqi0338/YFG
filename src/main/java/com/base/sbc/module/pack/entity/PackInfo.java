@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfo
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-27 16:35:30
+ * @date 创建时间：2023-8-1 11:24:04
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -114,6 +114,11 @@ public class PackInfo extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "生产模式")
     private String devtType;
+    /**
+     * 生产模式名称
+     */
+    @ApiModelProperty(value = "生产模式名称")
+    private String devtTypeName;
     /**
      * 大货款号
      */
