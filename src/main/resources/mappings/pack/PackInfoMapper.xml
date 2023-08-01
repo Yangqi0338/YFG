@@ -51,7 +51,7 @@
         tpi.design_no,
         tpi.style_no,
         tpi.create_date,
-        tpi.category_name,
+        tpi.prod_category_name as categoryName,
         tpis.confirm_status
         FROM
         t_pack_info tpi
