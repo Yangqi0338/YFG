@@ -3,10 +3,37 @@
 <mapper namespace="com.base.sbc.module.sample.mapper.SampleMapper">
     <!-- 分页查询 -->
     <select id="getListByDesignNo" resultType="com.base.sbc.module.sample.vo.SamplePageByDesignNoVo">
-        SELECT s.id, s.company_code, s.images, s.`status`, s.style_name, s.design_no, s.pattern_making_code,
-        s.sample_type, s.category_name, s.season, s.customer_no, SUM(si.count), s.type, s.complete_status,
-        s.examine_status, s.from_name, s.create_name, s.create_date, s.update_name, s.update_date, s.remarks
-        FROM t_sample s
+        SELECT
+        s.id,
+        s.company_code,
+        s.images,
+        s.`status`,
+        s.style_name,
+        s.design_no,
+        s.pattern_making_code,
+        s.sample_type,
+        s.prod_category1st,
+        s.prod_category1st_name,
+        s.prod_category,
+        s.prod_category_name,
+        s.prod_category2nd_name,
+        s.prod_category2nd,
+        s.prod_category3rd,
+        s.prod_category3rd_name,
+        s.season,
+        s.customer_no,
+        SUM( si.count ),
+        s.type,
+        s.complete_status,
+        s.examine_status,
+        s.from_name,
+        s.create_name,
+        s.create_date,
+        s.update_name,
+        s.update_date,
+        s.remarks
+        FROM
+        t_sample s
         JOIN t_sample_item si ON si.sample_id = s.id
         LEFT JOIN t_sample_circulate_item sci ON sci.sample_item_id = si.id
         LEFT JOIN t_sample_circulate sc ON sc.id = sci.sample_circulate_id
@@ -24,31 +51,31 @@
             <if test="positionId != null">
                 AND si.position_id = #{positionId}
             </if>
-            <if test="daysRemaining == 1">    -- 剩余1天
+            <if test="daysRemaining == 1">-- 剩余1天
                 AND (sc.return_date IS NULL and TO_DAYS(sc.expect_return_date) - TO_DAYS(NOW()) = 1)
             </if>
-            <if test="daysRemaining == 2">    -- 剩余2天
+            <if test="daysRemaining == 2">-- 剩余2天
                 AND (sc.return_date IS NULL and TO_DAYS(sc.expect_return_date) - TO_DAYS(NOW()) = 2)
             </if>
-            <if test="daysRemaining == 3">    -- 剩余3天
+            <if test="daysRemaining == 3">-- 剩余3天
                 AND (sc.return_date IS NULL and TO_DAYS(sc.expect_return_date) - TO_DAYS(NOW()) = 3)
             </if>
-            <if test="daysRemaining == 4">    -- 剩余7天
+            <if test="daysRemaining == 4">-- 剩余7天
                 AND (sc.return_date IS NULL and TO_DAYS(sc.expect_return_date) - TO_DAYS(NOW()) = 7)
             </if>
-            <if test="daysRemaining == 5">    -- 超过7天
+            <if test="daysRemaining == 5">-- 超过7天
                 AND (sc.return_date IS NULL and TO_DAYS(sc.expect_return_date) - TO_DAYS(NOW()) &gt; 7)
             </if>
-            <if test="isOverdue == 0">    -- 未逾期
+            <if test="isOverdue == 0">-- 未逾期
                 AND (sc.return_date IS NULL and TO_DAYS(NOW()) - TO_DAYS(sc.expect_return_date) &lt;= 0)
             </if>
-            <if test="isOverdue == 1">    -- 逾期
+            <if test="isOverdue == 1">-- 逾期
                 AND (sc.return_date IS NULL and TO_DAYS(NOW()) - TO_DAYS(sc.expect_return_date) &gt; 0)
             </if>
             <if test="search != null and search != ''">
                 AND (s.design_no like concat('%',#{search,jdbcType=VARCHAR},'%')
-                    OR s.customer_no like concat('%',#{search,jdbcType=VARCHAR},'%')
-                    OR si.`code` like concat('%',#{search,jdbcType=VARCHAR},'%'))
+                OR s.customer_no like concat('%',#{search,jdbcType=VARCHAR},'%')
+                OR si.`code` like concat('%',#{search,jdbcType=VARCHAR},'%'))
             </if>
         </where>
         GROUP BY s.id

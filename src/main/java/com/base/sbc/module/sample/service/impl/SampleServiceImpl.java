@@ -83,14 +83,24 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
             sample.setStyleName(sd.getStyleName());
             sample.setDesignNo(sd.getDesignNo());
             sample.setSampleDesignId(pm.getSampleDesignId());
+            sample.setProdCategory(sd.getProdCategory());
+            sample.setProdCategory1st(sd.getProdCategory1st());
+            sample.setProdCategory2nd(sd.getProdCategory2nd());
+            sample.setProdCategory3rd(sd.getProdCategory3rd());
+
+            sample.setProdCategoryName(sd.getProdCategoryName());
+            sample.setProdCategory1stName(sd.getProdCategory1stName());
+            sample.setProdCategory2ndName(sd.getProdCategory2ndName());
+            sample.setProdCategory3rdName(sd.getProdCategory3rdName());
+
             sample.setPatternDesignId(pm.getPatternDesignId());
             sample.setPatternDesignName(pm.getPatternDesignName());
             sample.setCompleteStatus(2); //库存状态：0-完全借出，1-部分借出，2-全部在库
             sample.setExamineStatus(0);  //审核状态：0-草稿，1-待审核、2-审核通过、3-驳回
 
             Integer count = 0, borrowCount = 0;
-            for (SampleItem item : dto.getSampleItemList()){
-                if (StringUtil.isEmpty(item.getId())){
+            for (SampleItem item : dto.getSampleItemList()) {
+                if (StringUtil.isEmpty(item.getId())) {
                     count += item.getCount();
                     borrowCount += item.getBorrowCount() == null ? 0 : item.getBorrowCount();
 
