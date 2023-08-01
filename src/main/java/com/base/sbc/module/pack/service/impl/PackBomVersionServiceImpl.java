@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
@@ -39,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：资料包-物料清单-物料版本 service类
@@ -287,6 +289,9 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         }
         //大货 到设计 表示反审，则新建一个bom版本
         if (StrUtil.equals(targetPackType, PackUtils.PACK_TYPE_DESIGN) && StrUtil.equals(sourcePackType, PackUtils.PACK_TYPE_BIG_GOODS)) {
+            //查找启动版本
+            PackBomVersion one = CollUtil.findOne(versionsList, (a) -> StrUtil.equals(a.getStatus(), BaseGlobal.YES));
+
             //创建一个新版本
             PackBomVersionDto versionDto = new PackBomVersionDto();
             versionDto.setForeignId(targetForeignId);
@@ -294,10 +299,12 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             PackBomVersionVo newVersion = saveVersion(versionDto);
             //启动版本
             enable(newVersion);
-            //查找启动版本
-            PackBomVersion one = CollUtil.findOne(versionsList, (a) -> StrUtil.equals(a.getStatus(), BaseGlobal.YES));
+
             if (one != null) {
-                List<PackBom> newBomList = CollUtil.filter(bomList, (b) -> StrUtil.equals(b.getBomVersionId(), one.getVersion()));
+
+                List<PackBom> newBomList = Opt.ofEmptyAble(bomList).orElse(new ArrayList<>())
+                        .stream().filter((b) -> StrUtil.equals(b.getBomVersionId(), one.getId()))
+                        .collect(Collectors.toList());
                 if (CollUtil.isNotEmpty(newBomList)) {
                     List<String> bomIds = new ArrayList<>(16);
                     for (PackBom bom : newBomList) {
@@ -310,7 +317,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
                     }
                     packBomService.saveBatch(newBomList);
                     //保存尺码
-                    List<PackBomSize> newBomSizeList = CollUtil.filter(bomSizeList, (c) -> bomIds.contains(c.getBomId()));
+                    List<PackBomSize> newBomSizeList = Opt.ofEmptyAble(bomSizeList).orElse(new ArrayList<>()).stream().filter((c) -> bomIds.contains(c.getBomId())).collect(Collectors.toList());
                     if (CollUtil.isNotEmpty(newBomSizeList)) {
                         for (PackBomSize bomSize : newBomSizeList) {
                             String newId = snowflake.nextIdStr();
