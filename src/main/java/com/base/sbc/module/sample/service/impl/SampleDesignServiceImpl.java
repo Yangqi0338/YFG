@@ -475,25 +475,22 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         QueryPlanningDimensionalityDto pdqw = new QueryPlanningDimensionalityDto();
         pdqw.setCategoryId(dto.getCategoryId());
         pdqw.setPlanningSeasonId(dto.getPlanningSeasonId());
-
+        // 查询样衣的
         List<PlanningDimensionality> pdList = (List<PlanningDimensionality>) planningDimensionalityService.getDimensionalityList(pdqw).getData();
+        List<FieldVal> fvList = fieldValService.list(dto.getSampleDesignId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
             List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
-            // 2.查询字段配置信息
-//        List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.list(FormTypeCodes.DIMENSION_LABELS, dto.getCategoryId(), dto.getSeason());
-
             // [3].查询字段值
             if (CollUtil.isNotEmpty(fieldManagementListByIds) && StrUtil.isNotBlank(dto.getSampleDesignId())) {
-                List<FieldVal> fvList = fieldValService.list(dto.getSampleDesignId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
                 fieldManagementService.conversion(fieldManagementListByIds, fvList);
-                //查询坑位的值
                 result.addAll(fieldManagementListByIds);
             }
         }
         //查询坑位信息的
         if (StrUtil.isNotBlank(dto.getPlanningCategoryItemId())) {
             List<FieldManagementVo> seatFmList = planningCategoryItemService.querySeatDimension(dto.getPlanningCategoryItemId(), BaseGlobal.YES);
+            fieldManagementService.conversion(seatFmList, fvList);
             if (CollUtil.isNotEmpty(seatFmList)) {
                 Set<String> fnSet = result.stream().map(FieldManagementVo::getFieldName).collect(Collectors.toSet());
                 List<FieldManagementVo> seatFmListNotInSd = seatFmList.stream().filter(item -> !fnSet.contains(item.getFieldName())).collect(Collectors.toList());
