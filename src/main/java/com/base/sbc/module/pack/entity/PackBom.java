@@ -25,7 +25,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-31 11:56:00
+ * @date 创建时间：2023-8-1 19:58:48
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -123,11 +123,6 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "物料编号")
     private String materialCode;
     /**
-     * 厂家成分
-     */
-    @ApiModelProperty(value = "厂家成分")
-    private String factoryComposition;
-    /**
      * 成分
      */
     @ApiModelProperty(value = "成分")
@@ -217,6 +212,16 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "供应商名称")
     private String supplierName;
+    /**
+     * 供应商厂家成分
+     */
+    @ApiModelProperty(value = "供应商厂家成分")
+    private String supplierFactoryIngredient;
+    /**
+     * 辅料材质
+     */
+    @ApiModelProperty(value = "辅料材质")
+    private String auxiliaryMaterial;
     /**
      * 单位
      */

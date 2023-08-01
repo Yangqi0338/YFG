@@ -69,6 +69,10 @@
 	</select>
 	<select id="getBomSelMaterialList" resultType="com.base.sbc.module.pack.vo.BomSelMaterialVo">
 		SELECT
+		*
+		FROM
+		(
+		SELECT
 		bm.id,
 		bm.company_code,
 		bm.id AS material_id,
@@ -77,17 +81,41 @@
 		bm.purchase_unit_code,
 		bm.stock_unit_code,
 		bm.stock_unit_name,
-		bm.status,
+		bm.STATUS,
 		bm.material_code_name,
 		bm.image_url,
-		concat(bm.category1_name,'/',bm.category2_name,'/',bm.category3_name) as categoryName,
-		bm.factory_composition,
+		bm.category3_name AS categoryName,
 		bm.ingredient,
-		bm.translate,
 		bm.loss_rate,
+		bm.supplier_factory_ingredient,
+		bm.auxiliary_material,
+		w.NAME AS translate_name,
+		w.width_code AS translate,
+		p.supplier_id,
+		p.supplier_name,
+		p.quotation_price AS price,
 		bm.remarks
-		FROM t_basicsdatum_material bm
-		WHERE bm.del_flag = '0'
+		FROM
+		t_basicsdatum_material bm
+		LEFT JOIN (
+		SELECT
+		p.supplier_id,
+		p.supplier_name,
+		p.quotation_price,
+		p.material_code
+		FROM
+		t_basicsdatum_material_price p
+		LEFT JOIN t_basicsdatum_material_price_detail pd ON ( p.id = pd.price_id )
+		WHERE
+		pd.price_id = p.id
+		AND p.select_flag = '1'
+		and p.del_flag='0'
+		AND p.`status` = '0'
+		LIMIT 1
+		) p ON ( bm.material_code = p.material_code )
+		LEFT JOIN ( SELECT * FROM t_basicsdatum_material_width w WHERE w.del_flag = '0' AND w.`status` = '0' limit 1 ) w
+		ON ( bm.material_code = w.material_code )) m
+
 		<if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
 			${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
 		</if>
