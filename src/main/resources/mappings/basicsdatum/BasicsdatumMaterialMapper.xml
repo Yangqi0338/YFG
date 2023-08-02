@@ -67,6 +67,28 @@
 		  and t.del_flag = '0'
 		  and t.material_code = #{materialCode}
 	</select>
+	
+	<select id="getBasicsdatumMaterialOldPage" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialOldPageVo">
+		SELECT
+			t1.material_code,
+			t1.material_name,
+			t1.status,
+			t1.material_code_name,
+			t1.category1_name,
+			t1.category2_name,
+			t1.category3_name,
+			t1.category_name,
+			t1.image_url,
+			t1.year_name,
+			t1.season_name,
+			t1.ingredient
+		FROM t_basicsdatum_material_old t 
+			LEFT JOIN t_basicsdatum_material t1 on t.old_material_code = t1.material_code
+		WHERE t.company_code = #{companyCode}
+		  	and t.del_flag = '0'
+		  	and t.material_code = #{materialCode}
+	</select>
+	
 	<select id="getBomSelMaterialList" resultType="com.base.sbc.module.pack.vo.BomSelMaterialVo">
 		SELECT *
 		FROM (SELECT bm.id,
