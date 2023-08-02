@@ -21,6 +21,8 @@ import java.util.Optional;
 public class PatternMakingListVo extends PatternMaking {
     @ApiModelProperty(value = "尺码")
     private String productSizes;
+    @ApiModelProperty(value = "默认尺码")
+    private String defaultSize;
     /**
      * 打版难度
      */
