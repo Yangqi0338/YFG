@@ -38,7 +38,7 @@ public interface SampleStyleColorMapper extends BaseMapper<SampleStyleColor> {
     /**
      *
      */
-    List<SampleStyleColorVo> getSampleStyleColorList(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<SampleStyleColorVo> getSampleStyleColorList(@Param(Constants.WRAPPER) QueryWrapper qw ,@Param("meetFlag") String meetFlag);
 
 //    修改大货款号
    Boolean reviseAllStyleNo(@Param("styleNo") String styleNo ,@Param("nweStyleNo") String nweStyleNo);

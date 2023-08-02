@@ -88,7 +88,7 @@ public class AddRevampSampleStyleColorDto {
     @ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)"  )
     private String categoryName;
     /** 是否下发scm(0否,1:是) */
-    @ApiModelProperty(value = "是否下发scm(0否,1:是)"  )
+    @ApiModelProperty(value = "是否下发scm((0否,1:是,2可编辑)"  )
     private String  isIssueScm;
     /** 生产类型 */
     @ApiModelProperty(value = "生产类型"  )

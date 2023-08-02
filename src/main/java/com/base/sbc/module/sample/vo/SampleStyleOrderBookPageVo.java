@@ -132,6 +132,9 @@ public class SampleStyleOrderBookPageVo {
 	/* 品类名称路径:(大类/品类/中类/小类)' */
 	@ApiModelProperty(value = "品类名称路径:(大类/品类/中类/小类)")
 	private String categoryName;
+	/* 品类名称*/
+	@ApiModelProperty(value = "品类名称")
+	private String prodCategoryName;
 	/** 大类id */
 	@ApiModelProperty(value = "大类id")
 	private String prodCategory1st;

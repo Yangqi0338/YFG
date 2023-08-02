@@ -51,7 +51,7 @@
 			
 			t2.style_name,
 			t2.design_no,
-			t2.category_name,
+			t2.prod_category_name,
 			t2.prod_category1st,
 			t2.prod_category,
 			t2.prod_category2nd,
