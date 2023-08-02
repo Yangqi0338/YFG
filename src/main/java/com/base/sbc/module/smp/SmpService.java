@@ -510,10 +510,17 @@ public class SmpService {
         int i = 0;
         List<PackBom> list = packBomService.listByIds(Arrays.asList(ids));
         for (PackBom packBom : list) {
+
+
             SmpBomDto smpBomDto = packBom.toSmpBomDto();
+
             smpBomDto.setMainMaterial(true);
             //bom主表
             PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
+
+            SampleDesign sampleDesign = sampleDesignService.getOne(new QueryWrapper<SampleDesign>().eq("code", packInfo.getForeignId()));
+            StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
+            smpBomDto.setBomStage(stylePricingVO.getBomStage());
             //样衣-款式配色
             SampleStyleColor sampleStyleColor = sampleStyleColorService.getById(packInfo.getSampleStyleColorId());
             if (sampleStyleColor != null) {

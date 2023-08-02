@@ -40,7 +40,7 @@ public class PackBom extends BaseDataEntity<String> {
         SmpBomDto smpBomDto = new SmpBomDto();
         smpBomDto.setColorName(color);
         smpBomDto.setColorCode(colorCode);
-        smpBomDto.setBomStage(null);
+
         smpBomDto.setMaterialCode(materialCode);
         smpBomDto.setMaterialName(materialName);
         smpBomDto.setMaterialUnit(unitCode);
