@@ -479,7 +479,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		if (specificationGroup != null && StringUtils.isNotBlank(specificationGroup.getSpecificationIds())) {
 			String specificationIds = specificationGroup.getSpecificationIds();
 			String[] ids = specificationIds.split(",");
-			queryWrapper.in("id", Arrays.asList(ids));
+			queryWrapper.in("code", Arrays.asList(ids));
 			specifications = specificationService.list(queryWrapper);
 		}
 		// 2、清理现有物料规格
