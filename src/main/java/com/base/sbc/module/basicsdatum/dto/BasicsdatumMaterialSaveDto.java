@@ -94,7 +94,6 @@ public class BasicsdatumMaterialSaveDto {
 	/** 门幅/规格组名称 */
 	@ApiModelProperty(value = "门幅/规格组名称")
 	private String widthGroupName;
-
 	/** 面料成分 */
 	@ApiModelProperty(value = "面料成分")
 	private String ingredient;
