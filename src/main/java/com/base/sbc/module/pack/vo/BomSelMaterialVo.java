@@ -134,16 +134,6 @@ public class BomSelMaterialVo {
     @ApiModelProperty(value = "状态(0停用,1启用)")
     private String status;
     /**
-     * 发送状态(0未发送,1已发送)
-     */
-    @ApiModelProperty(value = "发送状态(0未发送,1已发送)")
-    private String sendFlag;
-    /**
-     * 不能使用(0否,1是)
-     */
-    @ApiModelProperty(value = "不能使用(0否,1是)")
-    private String unusableFlag;
-    /**
      * 备注
      */
     @ApiModelProperty(value = "备注")
