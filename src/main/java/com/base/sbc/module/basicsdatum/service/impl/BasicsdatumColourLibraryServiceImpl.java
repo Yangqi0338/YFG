@@ -111,7 +111,7 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColorType()),"color_type", queryBasicsdatumColourLibraryDto.getColorType());
         /*查询基础资料-颜色库数据*/
         queryWrapper.orderByDesc("create_date");
-        Page<SampleDesignPageVo> objects = PageHelper.startPage(queryBasicsdatumColourLibraryDto);
+        Page<BasicsdatumColourLibraryVo> objects = PageHelper.startPage(queryBasicsdatumColourLibraryDto);
         getBaseMapper().selectList(queryWrapper);
         return objects.toPageInfo();
     }

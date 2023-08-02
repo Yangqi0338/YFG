@@ -88,7 +88,7 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getName()),"name",queryDto.getName());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getRangeDifferenceName()),"range_difference_name",queryDto.getRangeDifferenceName());
         /*查询基础资料-品类测量组数据*/
-        Page<SampleDesignPageVo> objects = PageHelper.startPage(queryDto);
+        Page<BasicsdatumCategoryMeasureVo> objects = PageHelper.startPage(queryDto);
         getBaseMapper().selectList(queryWrapper);
         return objects.toPageInfo();
     }

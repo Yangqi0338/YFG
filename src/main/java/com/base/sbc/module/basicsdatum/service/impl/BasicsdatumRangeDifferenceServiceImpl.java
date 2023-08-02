@@ -106,7 +106,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         queryWrapper.between("create_date", queryDto.getCreateDate());
         queryWrapper.orderByDesc("create_date");
         /*查询基础资料-档差数据*/
-        Page<SampleDesignPageVo> objects = PageHelper.startPage(queryDto);
+        Page<BasicsdatumRangeDifferenceVo> objects = PageHelper.startPage(queryDto);
         getBaseMapper().selectList(queryWrapper);
         return objects.toPageInfo();
     }

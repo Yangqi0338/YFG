@@ -104,7 +104,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         queryWrapper.between("create_date",queryDto.getCreateDate());
         queryWrapper.notEmptyEq("create_name", queryDto.getCreateName());
         /*查询基础资料-号型类型数据*/
-        Page<SampleDesignPageVo> objects = PageHelper.startPage(queryDto);
+        Page<BasicsdatumModelTypeVo> objects = PageHelper.startPage(queryDto);
         getBaseMapper().selectList(queryWrapper);
         return objects.toPageInfo();
     }
