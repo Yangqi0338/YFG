@@ -25,7 +25,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-1 20:31:11
+ * @date 创建时间：2023-8-2 17:56:23
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -92,6 +92,11 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "状态(0停用,1启用)")
     private String status;
+    /**
+     * 主材料标识(0否,1是)
+     */
+    @ApiModelProperty(value = "主材料标识(0否,1是)")
+    private String mainFlag;
     /**
      * 版本id
      */
