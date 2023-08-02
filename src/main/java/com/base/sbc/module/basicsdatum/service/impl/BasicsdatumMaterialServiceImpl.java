@@ -145,8 +145,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			smpService.materials(entity.getId().split(","));
 		}
 		this.saveOrUpdate(entity);
-
-		return CopyUtil.copy(entity, BasicsdatumMaterialVo.class);
+		return getBasicsdatumMaterial(entity.getId());
 	}
 
 	/**
