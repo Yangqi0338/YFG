@@ -415,7 +415,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			this.update(new UpdateWrapper<BasicsdatumMaterial>().eq(COMPANY_CODE, getCompanyCode())
 					.eq("material_code", entity.getMaterialCode()).set("supplier_id", dto.getSupplierId())
 					.set("supplier_name", dto.getSupplierName())
-					.set("supplier_fabric_code", entity.getSupplierMaterialCode()));
+					.set("supplier_fabric_code", entity.getSupplierMaterialCode())
+					.set("supplier_quotation_price", entity.getQuotationPrice()));
 		}
 
 		basicsdatumMaterialPriceDetailService.remove(new QueryWrapper<BasicsdatumMaterialPriceDetail>().eq("price_id", entity.getId()));

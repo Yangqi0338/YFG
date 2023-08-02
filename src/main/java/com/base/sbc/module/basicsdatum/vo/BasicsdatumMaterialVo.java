@@ -97,12 +97,7 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 门幅/规格组名称 */
 	@ApiModelProperty(value = "门幅/规格组名称")
 	private String widthGroupName;
-	/** 门幅规格 */
-	@ApiModelProperty(value = "门幅规格")
-	private String width;
-	/** 门幅规格名称 */
-	@ApiModelProperty(value = "门幅规格名称")
-	private String widthName;
+
 	/** 面料成分 */
 	@ApiModelProperty(value = "面料成分")
 	private String ingredient;
@@ -181,6 +176,9 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 供应商物料编号 */
 	@ApiModelProperty(value = "供应商物料编号")
 	private String supplierFabricCode;
+	/** 供应商报价 */
+	@ApiModelProperty(value = "供应商报价")
+	private BigDecimal supplierQuotationPrice;
 	/** 供应商色号 */
 	@ApiModelProperty(value = "供应商色号")
 	private String supplierColorNo;
