@@ -20,6 +20,7 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthGroupSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthsSaveDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
@@ -83,5 +84,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	PageInfo<BomSelMaterialVo> getBomSelMaterialList(BasicsdatumMaterialQueryDto dto);
 
 	Boolean saveBasicsdatumMaterialWidthGroup(BasicsdatumMaterialWidthGroupSaveDto dto);
+
+	Boolean saveBasicsdatumMaterialWidths(BasicsdatumMaterialWidthsSaveDto dto);
 }
 

@@ -37,6 +37,7 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthGroupSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthsSaveDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
@@ -126,6 +127,12 @@ public class BasicsdatumMaterialController {
 	public BasicsdatumMaterialVo getBasicsdatumMaterial(
 			@RequestParam(value = "id") @NotBlank(message = "编号id不能为空") String id) {
 		return basicsdatumMaterialService.getBasicsdatumMaterial(id);
+	}
+
+	@ApiOperation(value = "主物料：下拉选择规格后保存到规格组")
+	@PostMapping("/saveBasicsdatumMaterialWidths")
+	public Boolean saveBasicsdatumMaterialWidths(@Valid @RequestBody BasicsdatumMaterialWidthsSaveDto dto) {
+		return basicsdatumMaterialService.saveBasicsdatumMaterialWidths(dto);
 	}
 
 	@ApiOperation(value = "物料规格:查询规格列表")

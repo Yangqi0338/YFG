@@ -76,7 +76,7 @@ public class SpecificationController extends BaseController {
         BaseQueryWrapper<Specification> queryWrapper = new BaseQueryWrapper<>();
 		if (specificationGroup != null && StringUtils.isNotBlank(specificationGroup.getSpecificationIds())) {
 			String[] ids = specificationGroup.getSpecificationIds().split(",");
-            queryWrapper.in("id", Arrays.asList(ids));
+			queryWrapper.in("code", Arrays.asList(ids));
         }
         List<Specification> specifications = specificationService.list(queryWrapper);
         return selectSuccess(specifications);

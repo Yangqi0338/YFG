@@ -97,6 +97,10 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 门幅/规格组名称 */
 	@ApiModelProperty(value = "门幅/规格组名称")
 	private String widthGroupName;
+	@ApiModelProperty(value = "门幅/规格，逗号隔开")
+	private String width;
+	@ApiModelProperty(value = "门幅/规格名称")
+	private String widthName;
 
 	/** 面料成分 */
 	@ApiModelProperty(value = "面料成分")
