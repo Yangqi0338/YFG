@@ -509,7 +509,7 @@ public class SmpService {
 
             SmpBomDto smpBomDto = packBom.toSmpBomDto();
 
-            smpBomDto.setMainMaterial(true);
+
             //bom主表
             PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
 
@@ -531,7 +531,6 @@ public class SmpService {
             BomMaterial bomMaterial = packBom.toBomMaterial();
             bomMaterial.setBomId(packInfo.getCode());
             bomMaterials.add(bomMaterial);
-            smpBomDto.setMainMaterial(false);
             smpBomDto.setBomMaterials(bomMaterials);
 
             List<SmpSizeQty> sizeQtyList = new ArrayList<>();
