@@ -219,7 +219,7 @@ public class SmpOpenMaterialDto {
         basicsdatumMaterial.setMaterialCode(Code);
         basicsdatumMaterial.setMaterialName(MaterialName);
         basicsdatumMaterial.setPurchaseUnitCode(C8_Material_UOM);
-        basicsdatumMaterial.setStockUnitCode(c8MaterialUomSrc);
+        basicsdatumMaterial.setStockUnitCode(C8_Material_UOM);
         basicsdatumMaterial.setMaterialSourceName(Source);
         basicsdatumMaterial.setCategoryId(ProductTypeID);
         basicsdatumMaterial.setMaterialCodeName(Code+MaterialName);
