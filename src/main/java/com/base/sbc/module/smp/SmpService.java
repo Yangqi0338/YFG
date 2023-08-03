@@ -518,7 +518,7 @@ public class SmpService {
             //bom主表
             PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
 
-            SampleDesign sampleDesign = sampleDesignService.getOne(new QueryWrapper<SampleDesign>().eq("code", packInfo.getForeignId()));
+            SampleDesign sampleDesign = sampleDesignService.getOne(new QueryWrapper<SampleDesign>().eq("id", packInfo.getForeignId()));
             StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
             smpBomDto.setBomStage(stylePricingVO.getBomStage());
             //样衣-款式配色
