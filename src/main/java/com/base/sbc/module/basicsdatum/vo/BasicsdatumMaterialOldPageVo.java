@@ -12,7 +12,8 @@ import lombok.Data;
  */
 @Data
 public class BasicsdatumMaterialOldPageVo {
-
+	@ApiModelProperty(value = "ID")
+	private String id;
 	/** 物料编号 */
 	@ApiModelProperty(value = "物料编号")
 	private String materialCode;
