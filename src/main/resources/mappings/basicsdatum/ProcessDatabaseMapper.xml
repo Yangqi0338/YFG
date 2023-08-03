@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.base.sbc.module.basicsdatum.mapper.ProcessDatabaseMapper">
     <select id="getAllPatternPartsCode" resultType="java.lang.String">
-        select DISTINCT code from t_process_database
+        select DISTINCT code from t_basicsdatum_process_database
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment}
         </if>
@@ -14,7 +14,7 @@
             CODE,
             process_name as name
         FROM
-            t_process_database
+        t_basicsdatum_process_database
         WHERE
             type = #{type}
           <if test="categoryName != null and categoryName != ''">
