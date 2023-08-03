@@ -70,6 +70,7 @@
 	
 	<select id="getBasicsdatumMaterialOldPage" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialOldPageVo">
 		SELECT
+			t.id,
 			t1.material_code,
 			t1.material_name,
 			t1.status,
