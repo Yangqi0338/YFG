@@ -30,6 +30,10 @@ public class PackUtils {
      */
     public static final String PACK_TYPE_BIG_GOODS = "packBigGoods";
 
+    /**
+     * 资料包类型 样衣设计
+     */
+    public static final String PACK_TYPE_SAMPLE_DESIGN = "packSampleDesign";
 
     /**
      * 公共条件
