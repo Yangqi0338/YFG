@@ -574,8 +574,14 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	@Transactional
 	public Boolean saveBasicsdatumMaterialOld(BasicsdatumMaterialOldSaveDto dto) {
 		// 清理
-		this.materialOldService.remove(new QueryWrapper<BasicsdatumMaterialOld>().eq(COMPANY_CODE, getCompanyCode())
-				.eq("material_code", dto.getMaterialCode()));
+//		this.materialOldService.remove(new QueryWrapper<BasicsdatumMaterialOld>().eq(COMPANY_CODE, getCompanyCode())
+//				.eq("material_code", dto.getMaterialCode()));
+		long count = materialOldService.count(new QueryWrapper<BasicsdatumMaterialOld>()
+				.eq(COMPANY_CODE, getCompanyCode()).eq("material_code", dto.getMaterialCode())
+				.in("old_Material_code", StringUtils.convertList(dto.getOldMaterialCode())));
+		if (count > 0) {
+			throw new OtherException("已添加对应的旧料号");
+		}
 		String[] codes = dto.getOldMaterialCode().split(",");
 
 		List<BasicsdatumMaterialOld> list = new ArrayList<>();
