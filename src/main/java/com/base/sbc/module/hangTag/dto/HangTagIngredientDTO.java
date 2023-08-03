@@ -49,17 +49,23 @@ public class HangTagIngredientDTO {
     private BigDecimal percentage;
     /**
      * 成分说明
-     * 多语言说明格式：{"chinese":"聚酯纤维","english":"Polyester fibre"}
-     *
      */
     @ApiModelProperty(value = "成分说明")
     private String ingredientDescription;
     /**
-     * 说明备注
-     * 语言说明格式：{"chinese":"薄膜除外","english":"Film excepted"}
-     *
+     * 成分说明编码
      */
-    @ApiModelProperty(value = "说明备注")
+    @ApiModelProperty(value = "成分说明编码")
+    private String ingredientDescriptionCode;
+    /**
+     * 成分备注
+     */
+    @ApiModelProperty(value = "成分备注")
     private String descriptionRemarks;
+    /**
+     * 成分备注编码
+     */
+    @ApiModelProperty(value = "成分备注编码")
+    private String descriptionRemarksCode;
 }
 
