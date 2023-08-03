@@ -230,7 +230,7 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
         if (StrUtil.isNotBlank(dataId)) {
             Object t = hasNodeStatusAuth(nodeStatusConfigKey, userId, dataId, baseService);
             node = BeanUtil.getProperty(t, "node");
-            status = BeanUtil.getProperty(t, "Status");
+            status = BeanUtil.getProperty(t, "status");
         }
         JSONObject config = nodeStatusConfigService
                 .getConfig2Json(nodeStatusConfigKey, getCompanyCode());
