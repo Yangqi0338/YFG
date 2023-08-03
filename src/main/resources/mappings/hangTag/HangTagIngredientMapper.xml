@@ -18,7 +18,9 @@
         type,
         percentage,
         ingredient_description,
-        description_remarks
+        ingredient_description_code,
+        description_remarks,
+        description_remarks_code
         from t_hang_tag_ingredient
         <where>
             del_flag = 0
