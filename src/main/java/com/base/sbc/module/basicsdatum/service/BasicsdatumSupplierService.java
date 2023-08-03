@@ -83,6 +83,13 @@ public interface BasicsdatumSupplierService extends BaseService<BasicsdatumSuppl
         Boolean startStopBasicsdatumSupplier( StartStopDto startStopDto);
 
 
+        /**
+         * 分页查询供应商（弹窗）
+         *
+         * @param queryDto 查询条件
+         * @return PageInfo<BasicsdatumComponentVo>
+         */
+        PageInfo<BasicsdatumSupplierVo> getSupplierListPopup(QueryRevampBasicsdatumSupplierDto queryDto);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 	

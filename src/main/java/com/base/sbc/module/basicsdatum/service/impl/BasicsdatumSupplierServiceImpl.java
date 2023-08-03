@@ -279,6 +279,40 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
         return baseMapper.update(null, updateWrapper) > 0;
     }
 
+    @Override
+    public PageInfo<BasicsdatumSupplierVo> getSupplierListPopup(QueryRevampBasicsdatumSupplierDto queryDto) {
+        PageHelper.startPage(queryDto);
+        QueryWrapper<BasicsdatumSupplier> qw = new QueryWrapper<>();
+        if(StringUtils.isNotBlank(queryDto.getSearch())){
+            qw.and(wrapper -> wrapper.like("supplier_code", queryDto.getSearch())
+                    .or()
+                    .like("supplier", queryDto.getSearch())
+                    .or()
+                    .like("supplier_abbreviation", queryDto.getSearch()));
+        }
+        if(StringUtils.isNotBlank(queryDto.getSql())) {
+            qw.apply(queryDto.getSql());
+        }
+        if (!StringUtils.isEmpty(queryDto.getOrderBy())){
+            qw.orderByAsc(queryDto.getOrderBy());
+        }else {
+            qw.orderByDesc("create_date");
+        }
+
+        /*查询基础资料-供应商数据*/
+        List<BasicsdatumSupplier> basicsdatumSupplierList = baseMapper.selectList(qw);
+        PageInfo<BasicsdatumSupplier> pageInfo = new PageInfo<>(basicsdatumSupplierList);
+        /*转换vo*/
+        List<BasicsdatumSupplierVo> list = BeanUtil.copyToList(basicsdatumSupplierList, BasicsdatumSupplierVo.class);
+        PageInfo<BasicsdatumSupplierVo> pageInfo1 = new PageInfo<>();
+        pageInfo1.setList(list);
+        pageInfo1.setTotal(pageInfo.getTotal());
+        pageInfo1.setPageNum(pageInfo.getPageNum());
+        pageInfo1.setPageSize(pageInfo.getPageSize());
+        return pageInfo1;
+    }
+
+
     /** 自定义方法区 不替换的区域【other_end】 **/
 
 }
