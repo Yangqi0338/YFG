@@ -526,15 +526,15 @@ public class SmpService {
 
             }
 
-            List<BomMaterial> bomMaterials = new ArrayList<>();
-
-            BomMaterial bomMaterial = packBom.toBomMaterial();
-            bomMaterial.setBomId(packInfo.getCode());
-            bomMaterials.add(bomMaterial);
-            smpBomDto.setBomMaterials(bomMaterials);
+            //List<BomMaterial> bomMaterials = new ArrayList<>();
+            //
+            //BomMaterial bomMaterial = packBom.toBomMaterial();
+            //bomMaterial.setBomId(packInfo.getCode());
+            //bomMaterials.add(bomMaterial);
+            //smpBomDto.setBomMaterials(bomMaterials);
 
             List<SmpSizeQty> sizeQtyList = new ArrayList<>();
-            for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("foreign_id", packBom.getForeignId()).eq("pack_type",packBom.getPackType()))) {
+            for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("bom_id", packBom.getId()))) {
                 SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
                 //根据尺码id查询尺码
                 BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());
