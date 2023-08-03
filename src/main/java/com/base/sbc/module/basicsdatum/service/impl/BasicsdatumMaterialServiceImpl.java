@@ -30,6 +30,8 @@ import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
@@ -41,6 +43,7 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthsSaveDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialOld;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPriceDetail;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
@@ -48,6 +51,7 @@ import com.base.sbc.module.basicsdatum.entity.Specification;
 import com.base.sbc.module.basicsdatum.entity.SpecificationGroup;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialOldService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
@@ -57,6 +61,7 @@ import com.base.sbc.module.basicsdatum.service.SpecificationService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialExcelVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialOldPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
@@ -89,11 +94,12 @@ import lombok.RequiredArgsConstructor;
 public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumMaterialMapper, BasicsdatumMaterial>
 		implements BasicsdatumMaterialService {
 
-	private final BasicsdatumMaterialColorService materialColorService;
-	private final BasicsdatumMaterialWidthService materialWidthService;
-	private final BasicsdatumMaterialPriceService materialPriceService;
 	private final SpecificationService specificationService;
 	private final SpecificationGroupService specificationGroupService;
+	private final BasicsdatumMaterialOldService materialOldService;
+	private final BasicsdatumMaterialWidthService materialWidthService;
+	private final BasicsdatumMaterialColorService materialColorService;
+	private final BasicsdatumMaterialPriceService materialPriceService;
 	private final BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
 
 	/**
@@ -523,6 +529,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	 * 根据规格下拉 绑定规格
 	 */
 	@Override
+	@Transactional
 	public Boolean saveBasicsdatumMaterialWidths(BasicsdatumMaterialWidthsSaveDto dto) {
 		// 1、清理现有物料规格
 		this.materialWidthService.remove(new QueryWrapper<BasicsdatumMaterialWidth>().eq(COMPANY_CODE, getCompanyCode())
@@ -547,5 +554,45 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			this.materialWidthService.saveBatch(wList);
 		}
 		return true;
+	}
+
+	/**
+	 * 查询旧料号列表
+	 */
+	@Override
+	public PageInfo<BasicsdatumMaterialOldPageVo> getBasicsdatumMaterialOldList(BasicsdatumMaterialOldQueryDto dto) {
+		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+			PageHelper.startPage(dto);
+		}
+		List<BasicsdatumMaterialOldPageVo> list = baseMapper.getBasicsdatumMaterialOldPage(this.getCompanyCode(),
+				dto.getMaterialCode());
+		return new PageInfo<>(list);
+	}
+
+
+	@Override
+	@Transactional
+	public Boolean saveBasicsdatumMaterialOld(BasicsdatumMaterialOldSaveDto dto) {
+		// 清理
+		this.materialOldService.remove(new QueryWrapper<BasicsdatumMaterialOld>().eq(COMPANY_CODE, getCompanyCode())
+				.eq("material_code", dto.getMaterialCode()));
+		String[] codes = dto.getOldMaterialCode().split(",");
+
+		List<BasicsdatumMaterialOld> list = new ArrayList<>();
+		BasicsdatumMaterialOld old = null;
+		for (String code : codes) {
+			old = new BasicsdatumMaterialOld();
+			old.setCompanyCode(getCompanyCode());
+			old.setMaterialCode(dto.getMaterialCode());
+			old.setOldMaterialCode(code);
+			list.add(old);
+		}
+		this.materialOldService.saveBatch(list);
+		return true;
+	}
+
+	@Override
+	public Boolean delBasicsdatumMaterialOld(String id) {
+		return this.materialOldService.removeBatchByIds(StringUtils.convertList(id));
 	}
 }

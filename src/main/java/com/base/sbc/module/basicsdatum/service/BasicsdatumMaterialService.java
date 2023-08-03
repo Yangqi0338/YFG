@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
@@ -24,6 +26,7 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthsSaveDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialOldPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
@@ -86,5 +89,11 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	Boolean saveBasicsdatumMaterialWidthGroup(BasicsdatumMaterialWidthGroupSaveDto dto);
 
 	Boolean saveBasicsdatumMaterialWidths(BasicsdatumMaterialWidthsSaveDto dto);
+
+	PageInfo<BasicsdatumMaterialOldPageVo> getBasicsdatumMaterialOldList(BasicsdatumMaterialOldQueryDto dto);
+
+	Boolean saveBasicsdatumMaterialOld(BasicsdatumMaterialOldSaveDto dto);
+
+	Boolean delBasicsdatumMaterialOld(String id);
 }
 
