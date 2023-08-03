@@ -7,6 +7,10 @@
 package com.base.sbc.module.purchase.entity;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -30,7 +34,29 @@ public class PurchaseDemand extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    public PurchaseDemand(){
 
+    }
+
+    public PurchaseDemand(PackInfo packInfo, PackBom packBom, BasicsdatumMaterial material, String specifications, BigDecimal needNum){
+        this.materialImage = material.getImageUrl();
+        this.designStyleCode = packInfo.getDesignNo();
+        this.plateBillCode = packInfo.getDesignNo() + packInfo.getStyleName();
+        this.styleName = packInfo.getStyleName();
+        this.category = packInfo.getProdCategoryName();
+        this.materialCode = material.getMaterialCode();
+        this.materialType = packBom.getCategoryName();
+        this.materialName = packBom.getMaterialName();
+        this.supplierCode = packBom.getSupplierId();
+        this.supplierName = packBom.getSupplierName();
+        this.component = packBom.getSupplierFactoryIngredient();
+        this.materialColor = packBom.getColor();
+        this.needNum = needNum;
+        this.unit = material.getPurchaseUnitCode();
+        this.usePosition = packBom.getPart();
+        this.materialSpecifications = specifications;
+        this.loss = packBom.getLossRate();
+    }
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 

@@ -9,8 +9,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.UserCompanyUtils;
 import com.base.sbc.module.band.entity.Band;
 import com.base.sbc.module.band.vo.BandQueryReturnVo;
 import com.base.sbc.module.purchase.dto.DemandPageDTO;
@@ -26,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Date;
 import java.util.List;
 
@@ -45,6 +48,9 @@ public class PurchaseDemandController extends BaseController{
 
 	@Autowired
 	private PurchaseDemandService purchaseDemandService;
+
+	@Autowired
+	private UserCompanyUtils userCompanyUtils;
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping
@@ -133,6 +139,17 @@ public class PurchaseDemandController extends BaseController{
 			return updateSuccess(purchaseDemandList);
 		}
 		return updateNotFound();
+	}
+
+	@ApiOperation(value = "根据设计资料包 生成采购需求单")
+	@GetMapping("/generatePurchaseDemand")
+	public ApiResult generatePurchaseDemand(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String id) {
+		if(StringUtils.isBlank(id)){
+			return selectAttributeNotRequirements("id");
+		}
+		UserCompany userInfo = userCompanyUtils.getCompanyUser();
+		purchaseDemandService.generatePurchaseDemand(userInfo, userCompany, id);
+		return selectSuccess("生成成功！");
 	}
 }
 
