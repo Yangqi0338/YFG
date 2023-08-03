@@ -42,7 +42,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
 
         for(PurchaseDemand item : purchaseDemandList){
             if(StringUtils.equals(item.getOrderStatus(), "1") || StringUtils.equals(item.getStatus(), "1")){
-                return ApiResult.success("请选择单据状态为正常或者审核状态为待审核");
+                return ApiResult.error("请选择单据状态为正常或者审核状态为待审核", 500);
             }
             item.setOrderStatus("1");
         }

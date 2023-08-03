@@ -58,7 +58,7 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     private String category;
     /** 需求交期 */
     @ApiModelProperty(value = "需求交期"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date needDate;
     /** 物料编号 */
     @ApiModelProperty(value = "物料编号"  )
