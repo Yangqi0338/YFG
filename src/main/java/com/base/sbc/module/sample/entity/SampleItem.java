@@ -80,7 +80,7 @@ public class SampleItem extends BaseDataEntity<String> {
 
     /** 状态：0-未入库，1-在库，2-借出，3-删除 */
     @ApiModelProperty(value = "状态：0-未入库，1-在库，2-借出，3-删除，4-售出, 5-盘点中")
-    private Integer status;
+    private String status;
 
     /** 入仓时间 */
     @ApiModelProperty(value = "入仓时间")

@@ -69,7 +69,7 @@ public class SampleSale extends BaseDataEntity<String> {
 
     /** 总数量 */
     @ApiModelProperty(value = "总数量")
-    private String totalCount;
+    private Integer totalCount;
 
     /** 备注 */
     @ApiModelProperty(value = "备注")

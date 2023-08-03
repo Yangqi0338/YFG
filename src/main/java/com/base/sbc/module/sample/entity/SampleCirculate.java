@@ -22,19 +22,12 @@ import java.util.Date;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_sample_cirulate")
-@ApiModel("样衣借还 SampleCirulate")
+@TableName("t_sample_circulate")
+@ApiModel("样衣借还 SampleCirculate")
 public class SampleCirculate extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 
-    /** 样衣明细主键ID */
-    @ApiModelProperty(value = "样衣明细主键ID")
-    private String sampleItemId;
-
-    /** 类型：1-借出，2-归还 */
-    @ApiModelProperty(value = "类型：1-借出，2-归还")
-    private Integer type;
 
     /** 借出单号 */
     @ApiModelProperty(value = "借出单号")
@@ -69,10 +62,10 @@ public class SampleCirculate extends BaseDataEntity<String> {
     /** 借出数量 */
     @ApiModelProperty(value = "借出数量")
     private Integer borrowCount;
+    /** 归还数量 */
+    @ApiModelProperty(value = "归还数量")
+    private Integer returnCount;
 
-    /** 借出备注 */
-    @ApiModelProperty(value = "借出备注")
-    private String borrowRemarks;
 
     /** 经手人ID */
     @ApiModelProperty(value = "经手人ID")
@@ -81,14 +74,5 @@ public class SampleCirculate extends BaseDataEntity<String> {
     /** 经手人 */
     @ApiModelProperty(value = "经手人")
     private String operateName;
-
-    /** 实际归还时间 */
-    @ApiModelProperty(value = "实际归还时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date returnDate;
-
-    /** 归还备注 */
-    @ApiModelProperty(value = "归还备注")
-    private String returnRemarks;
 }
 

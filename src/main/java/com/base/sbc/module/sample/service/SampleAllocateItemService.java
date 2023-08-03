@@ -7,25 +7,23 @@
 package com.base.sbc.module.sample.service;
 
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.sample.entity.SampleItemLog;
+import com.base.sbc.module.sample.dto.SampleAllocatePageDto;
+import com.base.sbc.module.sample.entity.SampleAllocateItem;
+import com.base.sbc.module.sample.vo.SampleAllocateItemVo;
 
 import java.util.List;
 
 /**
- * 类描述：样衣明细日志 service类
- *
- * @author linnuo
- * @address com.base.sbc.module.sample.service.SampleItemLogService
+ * 类描述：样衣销售明细 service类
  */
-public interface SampleItemLogService extends BaseService<SampleItemLog> {
+public interface SampleAllocateItemService extends BaseService<SampleAllocateItem> {
+    List<SampleAllocateItemVo> getList(SampleAllocatePageDto dto);
 
     /**
-     * 查询样衣明细数据
+     * 保存样衣及明细
      */
-    List<SampleItemLog> getListBySampleItemId(String sampleItemId);
+    void save(List<SampleAllocateItem> sampleAllocateItems, String sampleAllocateId,
+              String sampleAllocateCode, String position, String positionId);
 
-    boolean save(String sampleItemId, Integer type, String remarks);
-
-    void saveBatch(List<String> sampleItemIds, Integer type, String remarks);
 }
 

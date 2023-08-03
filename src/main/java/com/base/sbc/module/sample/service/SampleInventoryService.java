@@ -13,22 +13,54 @@ import com.base.sbc.module.sample.entity.SampleInventory;
 import com.base.sbc.module.sample.vo.SampleInventoryVo;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
+
 /**
  * 类描述：样衣盘点 service类
+ *
  * @address com.base.sbc.module.sample.service.SampleInventoryService
  */
 public interface SampleInventoryService extends BaseService<SampleInventory> {
 
-    /** 分页查询 */
+    /**
+     * 分页查询
+     */
     PageInfo queryPageInfo(SampleInventoryPageDto dto);
 
-    /** 分页查询-样衣明细维度 */
+    /**
+     * 分页查询-样衣明细维度
+     */
     PageInfo getListBySampleItem(SampleInventoryPageDto dto);
 
-    /** 保存盘点及明细 */
-    SampleInventoryVo save(SampleInventorySaveDto dto);
+    /**
+     * 保存盘点及明细
+     */
+    String save(SampleInventorySaveDto dto);
 
-    /** 查询明细数据 */
+    /**
+     * 开始盘点
+     *
+     * @param inventoryIds
+     */
+    void startInventory(List<String> inventoryIds);
+
+    /**
+     * 结束盘点
+     *
+     * @param inventoryIds
+     */
+    void endInventory(List<String> inventoryIds);
+
+    /**
+     * 作废
+     *
+     * @param inventoryIds
+     */
+    void cancel(List<String> inventoryIds);
+
+    /**
+     * 查询明细数据
+     */
     SampleInventoryVo getDetail(String id);
 
     SampleInventoryVo updateStatus(SampleInventorySaveDto dto);

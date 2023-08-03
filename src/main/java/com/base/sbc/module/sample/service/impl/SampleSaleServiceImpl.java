@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.utils.CopyUtil;
@@ -14,12 +13,11 @@ import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.SampleSalePageDto;
 import com.base.sbc.module.sample.dto.SampleSaleSaveDto;
 import com.base.sbc.module.sample.entity.SampleSale;
-import com.base.sbc.module.sample.entity.SampleSaleItem;
 import com.base.sbc.module.sample.mapper.SampleItemMapper;
-import com.base.sbc.module.sample.mapper.SampleSaleItemMapper;
 import com.base.sbc.module.sample.mapper.SampleSaleMapper;
 import com.base.sbc.module.sample.service.SampleItemLogService;
 import com.base.sbc.module.sample.service.SampleItemService;
+import com.base.sbc.module.sample.service.SampleSaleItemService;
 import com.base.sbc.module.sample.service.SampleSaleService;
 import com.base.sbc.module.sample.vo.SampleSaleItemVo;
 import com.base.sbc.module.sample.vo.SampleSaleVo;
@@ -27,13 +25,17 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 类描述：样衣销售 service类
+ *
  * @address com.base.sbc.module.sample.service.SampleSaleServiceImpl
  */
 @Service
@@ -41,7 +43,7 @@ public class SampleSaleServiceImpl extends BaseServiceImpl<SampleSaleMapper, Sam
     @Autowired
     SampleSaleMapper mapper;
     @Autowired
-    SampleSaleItemMapper sampleSaleItemMapper;
+    SampleSaleItemService sampleSaleItemService;
     @Autowired
     SampleItemLogService sampleItemLogService;
     @Autowired
@@ -52,52 +54,20 @@ public class SampleSaleServiceImpl extends BaseServiceImpl<SampleSaleMapper, Sam
     private IdGen idGen = new IdGen();
 
     @Override
-    public SampleSaleVo save(SampleSaleSaveDto dto) {
-        String id = "";
+    public String save(SampleSaleSaveDto dto) {
         SampleSale sale = CopyUtil.copy(dto, SampleSale.class);
-
-        if (sale != null){
-            if (StringUtil.isEmpty(sale.getId())) {
-                sale.setId(idGen.nextIdStr());
-                sale.setCode("XS" + System.currentTimeMillis() + (int)((Math.random()*9+1)*1000));
-
-                id = sale.getId();
-            } else {
-                id = sale.getId();
-            }
-
-            Integer count = 0, borrowCount = 0;
-            for (SampleSaleItem item : dto.getSampleItemList()){
-                // 处理明细
-                // 新增
-                if (StringUtil.isEmpty(item.getId())){
-                    item.setId(idGen.nextIdStr());
-                    item.setCompanyCode(getCompanyCode());
-                    item.setSampleSaleId(id);
-
-                    sampleSaleItemMapper.insert(item);
-                    // 修改
-                } else {
-
-                }
-
-                // 处理样衣
-                sampleItemService.updateCount(item.getSampleItemId(), 3, item.getCount(), "", "");
-
-                // 日志
-                String remarks = "样衣销售：id-" + item.getSampleItemId() + ", 销售单号：" + sale.getCode() + ", 数量：" + item.getCount();
-                sampleItemLogService.save(item.getId(), 2, remarks);
-            }
-
-            if (StringUtil.isEmpty(dto.getId())) {
-                sale.setCompanyCode(getCompanyCode());
-                mapper.insert(sale);
-            } else {
-                mapper.updateById(sale);
-            }
+        sale.setTotalCount(CollectionUtils.size(dto.getSampleItemList()));
+        if (StringUtil.isEmpty(sale.getId())) {
+            sale.setId(idGen.nextIdStr());
+            sale.setCode("XS" + System.currentTimeMillis() + (int) ((Math.random() * 9 + 1) * 1000));
+            sale.setCompanyCode(getCompanyCode());
+            sale.insertInit();
+        } else {
+            sale.updateInit();
         }
-
-        return mapper.getDetail(id);
+        super.saveOrUpdate(sale);
+        sampleSaleItemService.saveSaleItem(dto.getSampleItemList(), sale.getId(), sale.getCode(), super.getCompanyCode());
+        return sale.getId();
     }
 
     @Override
@@ -106,7 +76,7 @@ public class SampleSaleServiceImpl extends BaseServiceImpl<SampleSaleMapper, Sam
 
         SampleSalePageDto dto = new SampleSalePageDto();
         dto.setSampleSaleId(id);
-        List<SampleSaleItemVo> list = sampleSaleItemMapper.getList(dto);
+        List<SampleSaleItemVo> list = sampleSaleItemService.getList(dto);
         vo.setSampleItemList(list);
 
         return vo;
@@ -116,16 +86,16 @@ public class SampleSaleServiceImpl extends BaseServiceImpl<SampleSaleMapper, Sam
     public PageInfo queryPageInfo(SampleSalePageDto dto) {
         QueryWrapper<SampleSaleVo> qw = new QueryWrapper<>();
         qw.eq("ss.company_code", getCompanyCode());
-        if (null != dto.getStartDate())
-            qw.ge("ss.sale_date", dto.getStartDate());
-        if (null != dto.getEndDate())
-            qw.le("ss.sale_date", dto.getEndDate());
-        if (null != dto.getSearch())
+        qw.ge(Objects.nonNull(dto.getStartDate()), "ss.sale_date", dto.getStartDate());
+        qw.ge(Objects.nonNull(dto.getEndDate()), "ss.sale_date", dto.getStartDate());
+        if (StringUtils.isNotEmpty(dto.getSearch())) {
             qw.like("s.design_no", dto.getSearch()).
-                or().like(StrUtil.isNotBlank(dto.getSearch()), "si.code", dto.getSearch()).
-                or().like(StrUtil.isNotBlank(dto.getSearch()), "ss.code", dto.getSearch()).
-                or().like(StrUtil.isNotBlank(dto.getSearch()), "ss.custmer_name", dto.getSearch());
+                    or().like("si.code", dto.getSearch()).
+                    or().like("ss.code", dto.getSearch()).
+                    or().like("ss.custmer_name", dto.getSearch());
+        }
         qw.orderByDesc("ss.create_date");
+        qw.groupBy("ss.id");
 
         Page<SampleSaleVo> objects = PageHelper.startPage(dto);
         getBaseMapper().getList(qw);

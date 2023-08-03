@@ -15,9 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：样衣明细日志 service类
+ *
  * @address com.base.sbc.module.sample.service.SampleItemLogService
  */
 @Service
@@ -43,6 +45,20 @@ public class SampleItemLogServiceImpl extends BaseServiceImpl<SampleItemLogMappe
 
         Integer count = mapper.insert(log);
         return count > 0 ? true : false;
+    }
+
+    @Override
+    public void saveBatch(List<String> sampleItemIds, Integer type, String remarks) {
+        List<SampleItemLog> sampleItemLogs = sampleItemIds.stream()
+                .map(sampleItemId -> {
+                    SampleItemLog log = new SampleItemLog();
+                    log.setId(idGen.nextIdStr());
+                    log.setSampleItemId(sampleItemId);
+                    log.setType(type);
+                    log.setRemarks(remarks);
+                    return log;
+                }).collect(Collectors.toList());
+        super.saveBatch(sampleItemLogs);
     }
 }
 

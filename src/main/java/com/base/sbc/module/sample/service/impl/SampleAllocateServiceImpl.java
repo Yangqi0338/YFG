@@ -13,10 +13,9 @@ import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.SampleAllocatePageDto;
 import com.base.sbc.module.sample.dto.SampleAllocateSaveDto;
 import com.base.sbc.module.sample.entity.SampleAllocate;
-import com.base.sbc.module.sample.entity.SampleAllocateItem;
-import com.base.sbc.module.sample.mapper.SampleAllocateItemMapper;
 import com.base.sbc.module.sample.mapper.SampleAllocateMapper;
 import com.base.sbc.module.sample.mapper.SampleItemMapper;
+import com.base.sbc.module.sample.service.SampleAllocateItemService;
 import com.base.sbc.module.sample.service.SampleAllocateService;
 import com.base.sbc.module.sample.service.SampleItemLogService;
 import com.base.sbc.module.sample.service.SampleItemService;
@@ -33,6 +32,7 @@ import java.util.List;
 
 /**
  * 类描述：样衣调拨 service类
+ *
  * @address com.base.sbc.module.sample.service.SampleAllocateServiceImpl
  */
 @Service
@@ -40,7 +40,7 @@ public class SampleAllocateServiceImpl extends BaseServiceImpl<SampleAllocateMap
     @Autowired
     SampleAllocateMapper mapper;
     @Autowired
-    SampleAllocateItemMapper sampleAllocateItemMapper;
+    SampleAllocateItemService sampleAllocateItemService;
     @Autowired
     SampleItemLogService sampleItemLogService;
     @Autowired
@@ -55,47 +55,18 @@ public class SampleAllocateServiceImpl extends BaseServiceImpl<SampleAllocateMap
         String id = "";
         SampleAllocate allocate = CopyUtil.copy(dto, SampleAllocate.class);
 
-        if (allocate != null){
-            if (StringUtil.isEmpty(allocate.getId())) {
-                allocate.setId(idGen.nextIdStr());
-                allocate.setCode("DB" + System.currentTimeMillis() + (int)((Math.random()*9+1)*1000));
-
-                id = allocate.getId();
-            } else {
-                id = allocate.getId();
-            }
-
-            Integer count = 0, borrowCount = 0;
-            for (SampleAllocateItem item : dto.getSampleItemList()){
-                // 新增
-                if (StringUtil.isEmpty(item.getId())){
-                    item.setCompanyCode(getCompanyCode());
-                    item.setId(idGen.nextIdStr());
-                    item.setSampleAllocateId(id);
-
-                    sampleAllocateItemMapper.insert(item);
-                // 修改
-                } else {
-
-                }
-
-                // 处理样衣
-                sampleItemService.updateCount(item.getSampleItemId(), 4, item.getCount(),
-                        dto.getToPositionId(), dto.getToPosition());
-
-                // 日志
-                String remarks = "样衣调拨：id-" + item.getSampleItemId() + ", 调拨单号：" + allocate.getCode() + ", 数量：" + item.getCount();
-                sampleItemLogService.save(item.getId(), 2, remarks);
-            }
-
-            if (StringUtil.isEmpty(dto.getId())) {
-                allocate.setCompanyCode(getCompanyCode());
-                mapper.insert(allocate);
-            } else {
-                mapper.updateById(allocate);
-            }
+        if (StringUtil.isEmpty(allocate.getId())) {
+            allocate.setId(idGen.nextIdStr());
+            allocate.setCode("DB" + System.currentTimeMillis() + (int) ((Math.random() * 9 + 1) * 1000));
+            allocate.setCompanyCode(this.getCompanyCode());
+            allocate.insertInit();
+        } else {
+            allocate.updateInit();
         }
 
+        super.saveOrUpdate(allocate);
+
+        sampleAllocateItemService.save(dto.getSampleItemList(), allocate.getId(), allocate.getCode(), allocate.getToPosition(), allocate.getToPositionId());
         return mapper.getDetail(id);
     }
 
@@ -105,7 +76,7 @@ public class SampleAllocateServiceImpl extends BaseServiceImpl<SampleAllocateMap
 
         SampleAllocatePageDto dto = new SampleAllocatePageDto();
         dto.setSampleAllocateId(id);
-        List<SampleAllocateItemVo> list = sampleAllocateItemMapper.getList(dto);
+        List<SampleAllocateItemVo> list = sampleAllocateItemService.getList(dto);
         vo.setSampleItemList(list);
 
         return vo;

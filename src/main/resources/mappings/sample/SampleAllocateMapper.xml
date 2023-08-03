@@ -10,7 +10,7 @@
     </select>
 
     <select id="getDetail" resultType="com.base.sbc.module.sample.vo.SampleAllocateVo">
-        SELECT sa.id, sa.`code`, sa.`status`, sa.examine_status, sa.from_position, sa.to_position,
+        SELECT sa.id, sa.`code`, sa.`status`, sa.examine_status, sa.from_position,sa.from_position_id, sa.to_position,sa.to_position_id,
                sa.allocate_date, sa.operate_name, sa.remarks
         FROM t_sample_allocate sa
         WHERE id = #{id}

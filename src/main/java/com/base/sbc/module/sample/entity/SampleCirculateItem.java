@@ -8,10 +8,13 @@ package com.base.sbc.module.sample.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Date;
 
 /**
  * 类描述：样衣明细 实体类
@@ -20,8 +23,8 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_sample_cirulate_item")
-@ApiModel("样衣明细 SampleCirulateItem")
+@TableName("t_sample_circulate_item")
+@ApiModel("样衣明细 SampleCirculateItem")
 public class SampleCirculateItem extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
@@ -49,5 +52,13 @@ public class SampleCirculateItem extends BaseDataEntity<String> {
     /** 数量 */
     @ApiModelProperty(value = "数量")
     private Integer count;
+
+    /** 实际归还时间 */
+    @ApiModelProperty(value = "实际归还时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date returnDate;
+    /** 是否归还：0.否1.是 */
+    @ApiModelProperty(value = "是否归还：0.否1.是")
+    private String returnFlag;
 }
 

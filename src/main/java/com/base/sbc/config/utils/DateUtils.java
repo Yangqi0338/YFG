@@ -413,7 +413,13 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 	 * @param after
 	 * @return
 	 */
-	public static double getDistanceOfTwoDate(Date before, Date after) {
+	public static Long getDistanceOfTwoDate(Date before, Date after) {
+		if (Objects.isNull(before)) {
+			return 0L;
+		}
+		if (Objects.isNull(after)) {
+			return 0L;
+		}
 		long beforeTime = before.getTime();
 		long afterTime = after.getTime();
 		return (afterTime - beforeTime) / (1000 * 60 * 60 * 24);

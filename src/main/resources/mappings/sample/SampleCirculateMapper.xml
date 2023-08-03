@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.sample.mapper.SampleCirculateMapper">
+    <select id="getSampleReturnDetailsVO" resultType="com.base.sbc.module.sample.vo.SampleReturnDetailsVO">
+        SELECT sci.id,
+        sci.design_no,
+        sci.sample_circulate_id,
+        sci.count,
+        sc.borrow_type,
+        sc.expect_return_date,
+        sc.borrow_reason,
+        sc.borrow_name,
+        sc.operate_name,
+        sc.borrow_date
+        FROM t_sample_circulate_item sci
+        JOIN t_sample_circulate sc ON sci.sample_circulate_id = sc.id and sc.del_flag = '0'
+        <where>
+            sci.del_flag = '0'
+            and sci.sample_item_id in
+            <foreach collection="sampleItemIds" item="sampleItemId" separator="," open="(" close=")">
+                #{sampleItemId}
+            </foreach>
+            and return_flag = '0'
+        </where>
+    </select>
+
+</mapper>
+

@@ -6,13 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.SampleInventoryPageDto;
@@ -20,12 +16,11 @@ import com.base.sbc.module.sample.dto.SampleInventorySaveDto;
 import com.base.sbc.module.sample.entity.SampleInventory;
 import com.base.sbc.module.sample.entity.SampleInventoryItem;
 import com.base.sbc.module.sample.entity.SampleItem;
-import com.base.sbc.module.sample.mapper.SampleInventoryItemMapper;
+import com.base.sbc.module.sample.enums.SampleInventoryStatusEnum;
+import com.base.sbc.module.sample.enums.SampleItemStatusEnum;
 import com.base.sbc.module.sample.mapper.SampleInventoryMapper;
 import com.base.sbc.module.sample.mapper.SampleItemMapper;
-import com.base.sbc.module.sample.service.SampleInventoryService;
-import com.base.sbc.module.sample.service.SampleItemLogService;
-import com.base.sbc.module.sample.service.SampleItemService;
+import com.base.sbc.module.sample.service.*;
 import com.base.sbc.module.sample.vo.SampleInventoryItemVo;
 import com.base.sbc.module.sample.vo.SampleInventoryVo;
 import com.base.sbc.module.sample.vo.SampleSaleVo;
@@ -33,9 +28,17 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：样衣盘点 service类
+ *
  * @address com.base.sbc.module.sample.service.SampleInventoryServiceImpl
  */
 @Service
@@ -43,63 +46,97 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
     @Autowired
     SampleInventoryMapper mapper;
     @Autowired
-    SampleInventoryItemMapper sampleInventoryItemMapper;
+    SampleInventoryItemService sampleInventoryItemService;
     @Autowired
     SampleItemLogService sampleItemLogService;
     @Autowired
     SampleItemMapper sampleItemMapper;
     @Autowired
     SampleItemService sampleItemService;
+    @Autowired
+    SampleService sampleService;
 
     private IdGen idGen = new IdGen();
 
     @Override
-    public SampleInventoryVo save(SampleInventorySaveDto dto) {
-        String id = "";
+    public String save(SampleInventorySaveDto dto) {
         SampleInventory inventory = CopyUtil.copy(dto, SampleInventory.class);
 
-        if (inventory != null){
-            if (StringUtil.isEmpty(inventory.getId())) {
-                inventory.setId(idGen.nextIdStr());
-                inventory.setCode("PD" + System.currentTimeMillis() + (int)((Math.random() * 9 + 1) * 1000));
+        if (StringUtil.isEmpty(inventory.getId())) {
+            inventory.setId(idGen.nextIdStr());
+            inventory.setCode("PD" + System.currentTimeMillis() + (int) ((Math.random() * 9 + 1) * 1000));
+            inventory.insertInit();
+        } else {
+            inventory.updateInit();
+        }
+        super.saveOrUpdate(inventory);
+        sampleInventoryItemService.save(dto.getSampleItemList(), inventory.getId(), inventory.getCode());
+        if (SampleInventoryStatusEnum.INVENTORY_IN_PROGRESS.getK().equals(dto.getInventoryStatus())) {
+            this.sampleInventoryUpdateStatus(dto.getSampleItemList().stream()
+                    .map(SampleInventoryItem::getSampleItemId)
+                    .collect(Collectors.toList()));
+        }
+        return inventory.getId();
+    }
 
-                id = inventory.getId();
-            } else {
-                id = inventory.getId();
-            }
+    private void sampleInventoryUpdateStatus(List<String> sampleItemIds) {
+        sampleItemService.checkSampleStatus(sampleItemIds, SampleItemStatusEnum.IN_LIBRARY.getV());
+        List<SampleItem> sampleItems = sampleItemIds.stream()
+                .map(e -> {
+                    SampleItem sampleItem = new SampleItem();
+                    sampleItem.setId(e);
+                    sampleItem.setStatus(SampleItemStatusEnum.INVENTORY_IN_PROGRESS.getK());
+                    return sampleItem;
+                }).collect(Collectors.toList());
+        sampleItemService.updateBatchById(sampleItems);
+    }
 
-            Integer count = 0, borrowCount = 0;
-            for (SampleInventoryItem item : dto.getSampleItemList()){
-                // 处理明细
-                // 新增
-                if (StringUtil.isEmpty(item.getId())){
-                    item.setId(idGen.nextIdStr());
-                    item.setCompanyCode(getCompanyCode());
-                    item.setSampleInventoryId(id);
+    @Override
+    @Transactional
+    public void startInventory(List<String> inventoryIds) {
+        this.updateStatus(inventoryIds, SampleInventoryStatusEnum.INVENTORY_IN_PROGRESS.getK());
+        Map<String, Integer> sampleItemIdsByInventoryIds = sampleInventoryItemService.getSampleItemIdsByInventoryIds(inventoryIds);
+        this.sampleInventoryUpdateStatus(new ArrayList<>(sampleItemIdsByInventoryIds.keySet()));
+    }
 
-                    sampleInventoryItemMapper.insert(item);
-                    // 修改
-                } else {
-
-                }
-
-                // 处理样衣
-                sampleItemService.updateCount(item.getSampleItemId(), 5, item.getNewCount(), "", "");
-
-                // 日志
-                String remarks = "样衣盘点：id-" + item.getSampleItemId() + ", 盘点单号：" + inventory.getCode() + ", 数量：" + item.getNewCount();
-                sampleItemLogService.save(item.getId(), 2, remarks);
-            }
-
-            if (StringUtil.isEmpty(dto.getId())) {
-                inventory.setCompanyCode(getCompanyCode());
-                mapper.insert(inventory);
-            } else {
-                mapper.updateById(inventory);
-            }
+    private void updateStatus(List<String> inventoryIds, String inventoryStatus) {
+        List<SampleInventory> sampleInventories = mapper.selectBatchIds(inventoryIds);
+        if (CollectionUtils.isEmpty(sampleInventories)) {
+            throw new OtherException("盘点数据不存在");
         }
 
-        return mapper.getDetail(id);
+        sampleInventories.forEach(e -> {
+            e.setInventoryStatus(inventoryStatus);
+            e.updateInit();
+        });
+        super.updateBatchById(sampleInventories);
+    }
+
+    @Override
+    public void endInventory(List<String> inventoryIds) {
+        this.updateStatus(inventoryIds, SampleInventoryStatusEnum.COMPLETE.getK());
+        Map<String, Integer> sampleItemIdsByInventoryIds = sampleInventoryItemService.getSampleItemIdsByInventoryIds(inventoryIds);
+        // 校验样衣是否都是在盘点中
+        sampleItemService.checkSampleStatus(new ArrayList<>(sampleItemIdsByInventoryIds.keySet()), SampleItemStatusEnum.INVENTORY_IN_PROGRESS.getV());
+        // 更新样衣
+        sampleService.sampleInventory(sampleItemIdsByInventoryIds);
+    }
+
+    @Override
+    public void cancel(List<String> inventoryIds) {
+        List<SampleInventory> sampleInventories = mapper.selectBatchIds(inventoryIds);
+        if (CollectionUtils.isEmpty(sampleInventories)) {
+            throw new OtherException("盘点数据不存在");
+        }
+        boolean b = sampleInventories.stream().anyMatch(e -> !SampleInventoryStatusEnum.NOT_STARTED.getK().equals(e.getInventoryStatus()));
+        if (b) {
+            throw new OtherException("存在已开始数据，不可作废");
+        }
+        sampleInventories.forEach(e -> {
+            e.setStatus(2);
+            e.updateInit();
+        });
+        super.updateBatchById(sampleInventories);
     }
 
     @Override
@@ -109,7 +146,7 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
         QueryWrapper<SampleInventoryVo> qw = new QueryWrapper<>();
         qw.eq("sii.company_code", getCompanyCode());
         qw.eq("si2.id", id);
-        List<SampleInventoryItemVo> list = sampleInventoryItemMapper.getList(qw);
+        List<SampleInventoryItemVo> list = sampleInventoryItemService.getList(qw);
         vo.setSampleItemList(list);
 
         return vo;
@@ -127,13 +164,18 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
 //            qw.le("si2.code", dto.getCode());
         if (null != dto.getSearch())
             qw.like("si2.name", dto.getSearch()).
-                or().like("si2.code", dto.getSearch());
+                    or().like("si2.code", dto.getSearch());
         qw.orderByDesc("si2.create_date");
 
-        Page<SampleInventoryVo> objects = PageHelper.startPage(dto);
-        getBaseMapper().getList(qw);
-
-        return objects.toPageInfo();
+        PageHelper.startPage(dto);
+        List<SampleInventoryVo> list = getBaseMapper().getList(qw);
+        list.forEach(e -> {
+            // TODO
+            if (SampleInventoryStatusEnum.NOT_STARTED.getK().equals(e.getInventoryStatus()) && (Objects.nonNull(e.getEndDate()) && e.getEndDate().before(new Date()))) {
+                e.setInventoryStatus(SampleInventoryStatusEnum.OVERDUE.getK());
+            }
+        });
+        return new PageInfo<>(list);
     }
 
     @Override
@@ -145,65 +187,65 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
         qw.orderByDesc("si2.create_date");
 
         Page<SampleSaleVo> objects = PageHelper.startPage(dto);
-        sampleInventoryItemMapper.getList(qw);
+        sampleInventoryItemService.getList(qw);
 
         return objects.toPageInfo();
     }
 
     @Override
     public SampleInventoryVo updateStatus(SampleInventorySaveDto dto) {
-        SampleInventory si = mapper.selectById(dto.getId());
-        QueryWrapper qw = new QueryWrapper<>();
-        qw.eq("si2.id", dto.getId());
-        List<SampleInventoryItemVo> siiList = sampleInventoryItemMapper.getList(qw);
+//        SampleInventory si = mapper.selectById(dto.getId());
+//        QueryWrapper qw = new QueryWrapper<>();
+//        qw.eq("si2.id", dto.getId());
+//        List<SampleInventoryItemVo> siiList = sampleInventoryItemMapper.getList(qw);
+//
+//        // 样衣明细
+//        List<SampleItem> itemList = null;
+//        for (SampleInventoryItemVo itemVo : siiList) {
+//            SampleItem item = sampleItemMapper.selectById(itemVo.getSampleItemId());
+//            itemList.add(item);
+//        }
+//
+//        // 盘点单作废
+//        if (dto.getStatus() != null && dto.getStatus() == 2) {
+//            si.setStatus(2);
+//
+//            // 处理样衣
+//            for (SampleItem sampleItem : itemList) {
+//                if (sampleItem.getStatus() == "1") sampleItem.setStatus("1");
+//            }
+//            // 盘点状态
+//        } else if (dto.getInventoryStatus() != null && dto.getInventoryStatus() > 0) {
+//            si.setInventoryStatus(dto.getInventoryStatus());
+//
+//            // 盘点中
+//            if (dto.getInventoryStatus() == 1) {
+//                // 处理样衣
+//                for (SampleItem sampleItem : itemList) {
+//                    if (sampleItem.getStatus() == "1") sampleItem.setStatus("5");
+//                }
+//                // 完成
+//            } else if (dto.getInventoryStatus() == 2) {
+//                // 处理样衣
+//                for (SampleItem sampleItem : itemList) {
+//                    if (sampleItem.getStatus() == "5") sampleItem.setStatus("1");
+//                }
+//            }
+//            // 审核
+//        } else if (dto.getExamineStatus() != null && dto.getExamineStatus() > 0) {
+//            si.setExamineStatus(dto.getExamineStatus());
+//        }
+//
+//        mapper.updateById(si);
+//        sampleItemService.updateBatchById(itemList);
+//
+//        QueryWrapper<SampleInventoryVo> qw2 = new QueryWrapper<>();
+//        qw2.eq("sii.company_code", getCompanyCode());
+//        qw2.eq("si2.id", dto.getId());
+//        List<SampleInventoryItemVo> list = sampleInventoryItemMapper.getList(qw2);
+//        SampleInventoryVo vo = mapper.getDetail(dto.getId());
+//        vo.setSampleItemList(list);
 
-        // 样衣明细
-        List<SampleItem> itemList = null;
-        for (SampleInventoryItemVo itemVo : siiList){
-            SampleItem item = sampleItemMapper.selectById(itemVo.getSampleItemId());
-            itemList.add(item);
-        }
-
-        // 盘点单作废
-        if (dto.getStatus() != null && dto.getStatus() == 2){
-            si.setStatus(2);
-
-            // 处理样衣
-            for (SampleItem sampleItem : itemList){
-                if (sampleItem.getStatus() == 5) sampleItem.setStatus(1);
-            }
-        // 盘点状态
-        } else if (dto.getInventoryStatus() != null && dto.getInventoryStatus() > 0){
-            si.setInventoryStatus(dto.getInventoryStatus());
-
-            // 盘点中
-            if (dto.getInventoryStatus() == 1){
-                // 处理样衣
-                for (SampleItem sampleItem : itemList){
-                    if (sampleItem.getStatus() == 1) sampleItem.setStatus(5);
-                }
-            // 完成
-            } else if (dto.getInventoryStatus() == 2){
-                // 处理样衣
-                for (SampleItem sampleItem : itemList){
-                    if (sampleItem.getStatus() == 5) sampleItem.setStatus(1);
-                }
-            }
-        // 审核
-        } else if (dto.getExamineStatus() != null && dto.getExamineStatus() > 0){
-            si.setExamineStatus(dto.getExamineStatus());
-        }
-
-        mapper.updateById(si);
-        sampleItemService.updateBatchById(itemList);
-
-        QueryWrapper<SampleInventoryVo> qw2 = new QueryWrapper<>();
-        qw2.eq("sii.company_code", getCompanyCode());
-        qw2.eq("si2.id", dto.getId());
-        List<SampleInventoryItemVo> list = sampleInventoryItemMapper.getList(qw2);
-        SampleInventoryVo vo = mapper.getDetail(dto.getId());
-        vo.setSampleItemList(list);
-
-        return vo;
+        return null;
     }
 }

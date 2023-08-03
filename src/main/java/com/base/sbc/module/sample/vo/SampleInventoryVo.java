@@ -29,7 +29,7 @@ public class SampleInventoryVo {
 
     /** 盘点状态：0-未开始，1-盘点中，2-完成，3-过期 */
     @ApiModelProperty(value = "盘点状态：0-未开始，1-盘点中，2-完成，3-过期")
-    private Integer inventoryStatus;
+    private String inventoryStatus;
 
     /** 审核状态：0-草稿，1-待审核、2-审核通过、3-驳回 */
     @ApiModelProperty(value = "审核状态：0-草稿，1-待审核、2-审核通过、3-驳回")

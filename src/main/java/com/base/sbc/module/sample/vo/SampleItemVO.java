@@ -4,14 +4,18 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @ApiModel("样衣明细")
 @Data
 public class SampleItemVO {
+    private String id;
     /**
      * 状态
      */
     @ApiModelProperty("状态：0-未入库，1-在库，2-借出，3-删除，4-售出，5-盘点中")
     private String status;
+    private String statusName;
 
     /**
      * 样衣编码
@@ -57,16 +61,23 @@ public class SampleItemVO {
      * 款式品类
      */
     @ApiModelProperty("款式品类")
-    private String categoryName;
+    private String prodCategoryName;
     /**
      * 样衣类型
      */
     @ApiModelProperty("样衣类型：1-内部研发，2-外采，2-ODM提供")
     private String type;
+    private String typeName;
     /**
      * 样衣来源
      */
     @ApiModelProperty("样衣来源：1-新增，2-导入，3-外部")
     private String fromType;
+    private String fromTypeName;
+    @ApiModelProperty("价格")
+    private BigDecimal price;
+    @ApiModelProperty("样衣id")
+    private String sampleId;
+
 
 }

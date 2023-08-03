@@ -44,12 +44,6 @@ public class SampleSaleItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "样衣明细主键ID")
     private String sampleItemId;
 
-    /** 借出数量 */
-    @ApiModelProperty(value = "借出数量")
-    private Integer borrowCount;
-    /** 销售数量 */
-    @ApiModelProperty(value = "销售数量")
-    private Integer sellCount;
     /** 样衣数量 */
     @ApiModelProperty(value = "样衣数量")
     private Integer count;

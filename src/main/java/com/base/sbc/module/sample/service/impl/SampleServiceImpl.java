@@ -12,6 +12,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.basicsdatum.dto.ColorModelNumberExcelDto;
 import com.base.sbc.module.basicsdatum.entity.ColorModelNumber;
@@ -24,10 +25,13 @@ import com.base.sbc.module.sample.dto.SampleSearchDTO;
 import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleItem;
+import com.base.sbc.module.sample.enums.SampleFromTypeEnum;
+import com.base.sbc.module.sample.enums.SampleItemStatusEnum;
+import com.base.sbc.module.sample.enums.SampleTypeEnum;
 import com.base.sbc.module.sample.mapper.SampleDesignMapper;
-import com.base.sbc.module.sample.mapper.SampleItemMapper;
 import com.base.sbc.module.sample.mapper.SampleMapper;
 import com.base.sbc.module.sample.service.SampleItemLogService;
+import com.base.sbc.module.sample.service.SampleItemService;
 import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.sample.vo.SampleItemVO;
 import com.base.sbc.module.sample.vo.SamplePageByDesignNoVo;
@@ -37,11 +41,15 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：样衣 service类
@@ -57,7 +65,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
     @Autowired
     SampleDesignMapper sampleDesignMapper;
     @Autowired
-    SampleItemMapper sampleItemMapper;
+    SampleItemService sampleItemService;
     @Autowired
     SampleItemLogService sampleItemLogService;
 
@@ -109,16 +117,16 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
                     item.setSampleId(sample.getId());
                     item.setBorrowCount(0);
                     item.setCode("YY" + System.currentTimeMillis() + (int) ((Math.random() * 9 + 1) * 1000));
-                    sampleItemMapper.insert(item);
+                    sampleItemService.save(item);
 
                     // 保存样衣操作日志
                     sampleItemLogService.save(item.getId(), 1, "新增样衣明细：id-" + item.getId());
                 } else {
-                    SampleItem si = sampleItemMapper.selectById(item.getId());
+                    SampleItem si = sampleItemService.getById(item.getId());
                     String beforRemark = "状态：" + si.getStatus() + "颜色：" + si.getColor() + "尺码：" + si.getSize()
                             + "价格：" + si.getPrice() + "位置：" + si.getPosition() + "备注：" + si.getRemarks();
 
-                    sampleItemMapper.updateById(item);
+                    sampleItemService.updateById(item);
 
                     String afterRemark = "状态：" + item.getStatus() + "，颜色：" + item.getColor() + "，尺码：" + item.getSize()
                             + "，价格：" + item.getPrice() + "，位置：" + item.getPosition() + "，备注：" + item.getRemarks();
@@ -145,7 +153,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
 
         SamplePageDto dto = new SamplePageDto();
         dto.setSampleId(id);
-        List<SampleItem> list = sampleItemMapper.getListBySampleId(dto);
+        List<SampleItem> list = sampleItemService.getListBySampleId(dto);
         vo.setSampleItemList(list);
 
         return vo;
@@ -190,7 +198,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
         SampleVo vo = mapper.getDetail(dto.getId());
         SamplePageDto dto2 = new SamplePageDto();
         dto2.setSampleId(dto.getId());
-        List<SampleItem> list = sampleItemMapper.getListBySampleId(dto2);
+        List<SampleItem> list = sampleItemService.getListBySampleId(dto2);
         vo.setSampleItemList(list);
 
         return vo;
@@ -198,8 +206,141 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
 
     @Override
     public PageInfo<SampleItemVO> getSampleItemList(SampleSearchDTO dto) {
+        if (StringUtils.isEmpty(dto.getSearch()) && (StringUtils.equals(dto.getSearchFlag(), "1") || StringUtils.isEmpty(dto.getSearchFlag()))) {
+            return new PageInfo<>();
+        }
         PageHelper.startPage(dto);
-        List<SampleItemVO> sampleItemList = sampleItemMapper.getSampleItemList(dto);
+        List<SampleItemVO> sampleItemList = sampleItemService.getSampleItemList(dto);
+        if (CollectionUtils.isEmpty(sampleItemList)) {
+            return new PageInfo<>();
+        }
+        sampleItemList.forEach(sampleItemVO -> {
+            sampleItemVO.setStatusName(SampleItemStatusEnum.getV(sampleItemVO.getStatus()));
+            sampleItemVO.setTypeName(SampleTypeEnum.getV(sampleItemVO.getType()));
+            sampleItemVO.setFromTypeName(SampleFromTypeEnum.getV(sampleItemVO.getFromType()));
+        });
         return new PageInfo<>(sampleItemList);
+    }
+
+    @Override
+    public void sampleBatchBorrow(List<SampleItem> sampleItems) {
+        HashMap<String, Sample> sampleMap = this.updateSampleItem(sampleItems);
+        List<Sample> samples = super.getBaseMapper().selectBatchIds(sampleMap.keySet());
+        List<Sample> samplesUpdate = samples.stream()
+                .map(e -> {
+                    Sample sample = sampleMap.get(e.getId());
+                    sample.setCompleteStatus(this.getCompleteStatus(e.getCount(), sample.getBorrowCount()));
+                    sample.updateInit();
+                    return sample;
+                }).collect(Collectors.toList());
+        super.updateBatchById(samplesUpdate);
+    }
+
+
+    @Override
+    public void sampleReturn(List<String> sampleItemIds, Map<String, Integer> sampleIdMap) {
+        List<Sample> samples = super.getBaseMapper().selectBatchIds(sampleIdMap.keySet());
+        List<Sample> updateSamples = samples.stream()
+                .map(e -> {
+                    Integer returnCount = sampleIdMap.get(e.getId());
+                    Sample sample = new Sample();
+                    sample.setId(e.getId());
+                    sample.updateInit();
+                    sample.setBorrowCount(e.getBorrowCount() - returnCount);
+                    sample.setCompleteStatus(this.getCompleteStatus(e.getCount(), sample.getBorrowCount()));
+                    return sample;
+                }).collect(Collectors.toList());
+        super.updateBatchById(updateSamples);
+        sampleItemService.sampleReturnUpdateByIds(sampleItemIds);
+    }
+
+    @Override
+    public void sampleSale(String sampleItemId) {
+        SampleItem sampleItem = sampleItemService.getById(sampleItemId);
+        if (!SampleItemStatusEnum.IN_LIBRARY.getK().equals(sampleItem.getStatus())) {
+            throw new OtherException("销售失败，存在未在库数据");
+        }
+        sampleItem.setStatus(SampleItemStatusEnum.SOLD.getK());
+        sampleItem.setCount(0);
+        sampleItem.updateInit();
+        sampleItemService.updateById(sampleItem);
+        Sample sample = super.getBaseMapper().selectById(sampleItem.getSampleId());
+        sample.updateInit();
+        sample.setCount(sampleItem.getCount() - sample.getCount());
+        super.updateById(sample);
+    }
+
+    @Override
+    public void sampleAllocate(List<String> sampleItemId, String position, String positionId) {
+        List<SampleItem> sampleItems = this.getSampleItems(sampleItemId);
+        sampleItems.forEach(sampleItem -> {
+            sampleItem.setPosition(position);
+            sampleItem.setPositionId(positionId);
+            sampleItem.updateInit();
+        });
+        sampleItemService.updateBatchById(sampleItems);
+    }
+
+    @NotNull
+    private List<SampleItem> getSampleItems(List<String> sampleItemId) {
+        List<SampleItem> sampleItems = sampleItemService.listByIds(sampleItemId);
+        boolean flag = sampleItems.stream().anyMatch(e -> !SampleItemStatusEnum.IN_LIBRARY.getK().equals(e.getStatus()));
+        if (flag) {
+            throw new OtherException("调拨失败，存在未在库数据");
+        }
+        return sampleItems;
+    }
+
+    @Override
+    public void sampleInventory(Map<String, Integer> sampleItemMap) {
+        List<SampleItem> sampleItems = this.getSampleItems(new ArrayList<>(sampleItemMap.keySet()));
+        List<String> sampleIds = sampleItems.stream()
+                .map(SampleItem::getSampleId)
+                .distinct()
+                .collect(Collectors.toList());
+        List<Sample> samples = super.getBaseMapper().selectBatchIds(sampleIds);
+        Map<String, Sample> sampleMap = samples.stream().collect(Collectors.toMap(Sample::getId, Function.identity()));
+        sampleItems.forEach(sampleItem -> {
+            Integer inventoryCount = sampleItemMap.get(sampleItem.getId());
+            // 差额
+            Integer differ = sampleItem.getCount() - inventoryCount;
+            sampleItem.setCount(differ);
+            sampleItem.setStatus(SampleItemStatusEnum.IN_LIBRARY.getK());
+
+            Sample sample = sampleMap.get(sampleItem.getSampleId());
+            if (Objects.nonNull(sample)) {
+                sample.setCount(sample.getCount() - differ);
+            }
+        });
+        sampleItemService.updateBatchById(sampleItems);
+        super.updateBatchById(sampleMap.values());
+    }
+
+    private Integer getCompleteStatus(Integer count, Integer borrowCount) {
+        count = Objects.isNull(count) ? 0 : count;
+        borrowCount = Objects.isNull(borrowCount) ? 0 : borrowCount;
+        return count.equals(borrowCount) ? 0 : borrowCount < count ? 1 : 2;
+    }
+
+
+    @NotNull
+    private HashMap<String, Sample> updateSampleItem(List<SampleItem> sampleItems) {
+        HashMap<String, Sample> sampleMap = new HashMap<>();
+        sampleItems.forEach(sampleItem -> {
+            sampleItem.setStatus(SampleItemStatusEnum.LENDING.getK());
+            sampleItem.setBorrowCount(sampleItem.getCount());
+            sampleItem.updateInit();
+            Sample sample = sampleMap.get(sampleItem.getSampleId());
+            if (Objects.isNull(sample)) {
+                Sample sampleNew = new Sample();
+                sampleNew.setBorrowCount(sampleItem.getBorrowCount());
+                sampleNew.setId(sampleItem.getSampleId());
+                sampleMap.put(sampleItem.getSampleId(), sampleNew);
+                return;
+            }
+            sample.setBorrowCount(sample.getBorrowCount() + sampleItem.getBorrowCount());
+        });
+        sampleItemService.updateBatchById(sampleItems);
+        return sampleMap;
     }
 }

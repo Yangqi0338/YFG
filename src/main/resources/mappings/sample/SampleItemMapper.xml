@@ -114,30 +114,45 @@
 
 
     <select id="getSampleItemList" resultType="com.base.sbc.module.sample.vo.SampleItemVO">
-        SELECT si.`status`,
+        SELECT
+        si.id,
+        si.`status`,
         si.`code`,
         si.color,
         si.size,
         si.store_date,
         si.position,
+        si.price,
         s.images,
         s.design_no,
         s.style_name,
-        s.category_name,
+        s.prod_category_name,
         s.type,
+        s.id as sampleId,
         s.from_type
         FROM t_sample_item si
         JOIN t_sample s ON si.sample_id = s.id
-        WHERE si.del_flag = '0'
-        AND s.del_flag = '0'
-        and s.company_code = #{dto.companyCode}
-        <if test="dto.status != null and dto.status !=''">
-            AND si.`status` = #{dto.status}
+        <if test='dto.status != null and dto.status !="" and dto.status == "6"'>
+            join t_sample_circulate_item sci on sci.sample_item_id = si.id
         </if>
-        <if test="dto.search != null and dto.search !=''">
-            AND s.design_no LIKE concat("%",#{dto.search},"%")
-            OR si.CODE LIKE concat("%",#{dto.search},"%")
-        </if>
+        <where>
+            si.del_flag = '0'
+            AND s.del_flag = '0'
+            and s.company_code = #{dto.companyCode}
+            <if test='dto.status != null and dto.status !="" and dto.status != "6"'>
+                AND si.`status` = #{dto.status}
+            </if>
+            <if test='dto.status != null and dto.status !="" and dto.status == "6"'>
+                AND sci.return_flag = '1'
+            </if>
+            <if test="dto.search != null and dto.search !=''">
+                (AND s.design_no LIKE concat("%",#{dto.search},"%")
+                OR si.CODE LIKE concat("%",#{dto.search},"%"))
+            </if>
+            <if test="dto.positionId != null and dto.positionId != ''">
+                and si.position_id =#{dto.positionId}
+            </if>
+        </where>
     </select>
 </mapper>
 

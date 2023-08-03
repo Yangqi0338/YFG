@@ -8,37 +8,29 @@ package com.base.sbc.module.sample.service;
 
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.sample.dto.SampleSalePageDto;
-import com.base.sbc.module.sample.dto.SampleSaleSaveDto;
-import com.base.sbc.module.sample.entity.SampleSale;
-import com.base.sbc.module.sample.vo.SampleSaleVo;
-import com.github.pagehelper.PageInfo;
+import com.base.sbc.module.sample.entity.SampleSaleItem;
+import com.base.sbc.module.sample.vo.SampleSaleItemVo;
+
+import java.util.List;
 
 /**
  * 类描述：样衣销售 service类
  *
  * @address com.base.sbc.module.sample.service.SampleSaleService
  */
-public interface SampleSaleService extends BaseService<SampleSale> {
+public interface SampleSaleItemService extends BaseService<SampleSaleItem> {
+    List<SampleSaleItemVo> getList(SampleSalePageDto dto);
 
     /**
-     * 分页查询
+     * 保存销售明细
+     *
+     * @param sampleItemList
+     * @param saleId
+     * @param saleCode
+     * @param companyCode
      */
-    PageInfo queryPageInfo(SampleSalePageDto dto);
-
-    /**
-     * -样衣明细维度
-     */
-    PageInfo getListBySampleItem(SampleSalePageDto dto);
+    void saveSaleItem(List<SampleSaleItem> sampleItemList, String saleId, String saleCode, String companyCode);
 
 
-    /**
-     * 查询明细数据
-     */
-    SampleSaleVo getDetail(String id);
-
-    /**
-     * 保存样衣及明细
-     */
-    String save(SampleSaleSaveDto dto);
 }
 
