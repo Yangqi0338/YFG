@@ -141,8 +141,11 @@ public class SmpService {
             smpGoodsDto.setStyleCategory(sampleDesign.getProdCategory());
             smpGoodsDto.setMiddleClassName(sampleDesign.getProdCategory2ndName());
             smpGoodsDto.setStyleMiddleClass(sampleDesign.getProdCategory2nd());
-            smpGoodsDto.setMinClassName(sampleDesign.getProdCategory3rd());
-            smpGoodsDto.setStyleSmallClass(sampleDesign.getProdCategory3rdName());
+            smpGoodsDto.setMinClassName(sampleDesign.getProdCategory3rdName());
+            smpGoodsDto.setStyleSmallClass(sampleDesign.getProdCategory3rd());
+
+            smpGoodsDto.setBrandId(sampleDesign.getBrand());
+            smpGoodsDto.setBrandName(sampleDesign.getBrandName());
             //String sizeRange = sampleDesign.getSizeRange();
             //BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeService.getById(sizeRange);
             //PlmStyleSizeParam param = new PlmStyleSizeParam();
@@ -199,58 +202,64 @@ public class SmpService {
 
 
             //动态字段
-            smpGoodsDto.setLengthRangeId(null);
-            smpGoodsDto.setLengthRangeName(null);
-            smpGoodsDto.setCoatLength(null);
-            smpGoodsDto.setWaistTypeId(null);
-            smpGoodsDto.setWaistTypeName(null);
-            smpGoodsDto.setSleeveLengthId(null);
-            smpGoodsDto.setSleeveLengthName(null);
-            smpGoodsDto.setSleeveId(null);
-            smpGoodsDto.setSleeveName(null);
-            smpGoodsDto.setBust(null);
-            smpGoodsDto.setPlacketId(null);
-            smpGoodsDto.setPlacketName(null);
-            smpGoodsDto.setYarnNeedleTypeId(null);
-            smpGoodsDto.setYarnNeedleTypeName(null);
-            smpGoodsDto.setYarnNeedleId(null);
-            smpGoodsDto.setYarnNeedleName(null);
-            smpGoodsDto.setProfileId(null);
-            smpGoodsDto.setProfileName(null);
-            smpGoodsDto.setFlowerId(null);
-            smpGoodsDto.setFlowerName(null);
-            smpGoodsDto.setLingXingId(null);
-            smpGoodsDto.setLingXingName(null);
-            smpGoodsDto.setTextureId(null);
-            smpGoodsDto.setTextureName(null);
+
 
             if (!CollectionUtils.isEmpty(sampleDesign.getDimensionLabels())) {
                 List<FieldManagementVo> fieldManagementVoList = sampleDesign.getDimensionLabels();
                 fieldManagementVoList.forEach(m -> {
-                    try {
-                        BeanUtil.setProperty(smpGoodsDto, m.getFieldName() + "Id", m.getVal());
-                    } catch (Exception e) {
+                    if ("衣长分类".equals(m.getFieldName())){
+                        smpGoodsDto.setLengthRangeId(m.getVal());
+                        smpGoodsDto.setLengthRangeName(m.getValName());
                     }
-                    try {
-                        BeanUtil.setProperty(smpGoodsDto, m.getFieldName() + "Name", m.getValName());
-                    } catch (Exception e) {
+                    if ("衣长".equals(m.getFieldName())){
+                        smpGoodsDto.setCoatLength(m.getVal());
+                    }
+                    if ("腰型".equals(m.getFieldName())){
+                        smpGoodsDto.setWaistTypeId(m.getVal());
+                        smpGoodsDto.setWaistTypeName(m.getValName());
+                    }
+                    if ("袖长".equals(m.getFieldName())){
+                        smpGoodsDto.setSleeveLengthId(m.getVal());
+                        smpGoodsDto.setSleeveLengthName(m.getValName());
+                    }
+                    if ("袖型".equals(m.getFieldName())){
+                        smpGoodsDto.setSleeveId(m.getVal());
+                        smpGoodsDto.setSleeveName(m.getValName());
+                    }
+                    if ("胸围".equals(m.getFieldName())){
+                        smpGoodsDto.setBust(m.getVal());
+                    }
+                    if ("门襟".equals(m.getFieldName())){
+                        smpGoodsDto.setPlacketId(m.getVal());
+                        smpGoodsDto.setPlacketName(m.getValName());
+                    }
+                    if ("毛纱针型".equals(m.getFieldName())){
+                        smpGoodsDto.setYarnNeedleTypeId(m.getVal());
+                        smpGoodsDto.setYarnNeedleTypeName(m.getValName());
+                    }
+                    if ("毛纱针法".equals(m.getFieldName())){
+                        smpGoodsDto.setYarnNeedleId(m.getVal());
+                        smpGoodsDto.setYarnNeedleName(m.getValName());
+                    }
+                    if ("廓形".equals(m.getFieldName())){
+                        smpGoodsDto.setProfileId(m.getVal());
+                        smpGoodsDto.setProfileName(m.getValName());
+                    }
+                    if ("花型".equals(m.getFieldName())){
+                        smpGoodsDto.setFlowerId(m.getVal());
+                        smpGoodsDto.setFlowerName(m.getValName());
+                    }
+                    if ("领型".equals(m.getFieldName())){
+                        smpGoodsDto.setLingXingId(m.getVal());
+                        smpGoodsDto.setLingXingName(m.getValName());
+                    }
+                    if ("材质".equals(m.getFieldName())){
+                        smpGoodsDto.setTextureId(m.getVal());
+                        smpGoodsDto.setTextureName(m.getValName());
                     }
                 });
             }
 
-            //try {
-            //    for (FieldVal fieldVal : list1) {
-            //        if ("袖型".equals(fieldVal.getFieldName())){
-            //            smpGoodsDto.setSleeveId(new ObjectMapper().readValue(fieldVal.getVal(), String[].class)[0]);
-            //        }
-            //    }
-            //}catch (Exception e){
-            //    e.printStackTrace();
-            //}
-
-            //if (true) {
-            //    return null;
-            //}
 
             smpGoodsDto.setBandName(sampleDesign.getBandName());
 
@@ -379,13 +388,8 @@ public class SmpService {
         TransactionStatus transactionStatus = null;
         try {
             SmpMaterialDto smpMaterialDto = basicsdatumMaterial.toSmpMaterialDto();
-            ApiResult apiResult = ccmService.listByIds(basicsdatumMaterial.getCategoryId());
-            List<HashMap<String, String>> hashMapList = (List<HashMap<String, String>>) apiResult.getData();
-            for (HashMap<String, String> hashMap : hashMapList) {
-                if (basicsdatumMaterial.getCategoryId().equals(hashMap.get("id"))) {
-                    smpMaterialDto.setThirdLevelCategory(hashMap.get("value"));
-                }
-            }
+            smpMaterialDto.setThirdLevelCategory(basicsdatumMaterial.getCategoryId());
+
             //获取颜色集合
             BasicsdatumMaterialColorQueryDto basicsdatumMaterialColorQueryDto = new BasicsdatumMaterialColorQueryDto();
             basicsdatumMaterialColorQueryDto.setMaterialCode(basicsdatumMaterial.getMaterialCode());
@@ -498,21 +502,20 @@ public class SmpService {
      */
     public Integer bom(String[] ids) {
 
-
-        Integer i1 = packBomService.physicalDeleteQWrap(new QueryWrapper<PackBom>().eq("id", "1684757494226219011").eq("price_id", "1684526766192320516"));
-
-        if (true) {
-            return 0;
-        }
-
-
         int i = 0;
         List<PackBom> list = packBomService.listByIds(Arrays.asList(ids));
         for (PackBom packBom : list) {
+
+
             SmpBomDto smpBomDto = packBom.toSmpBomDto();
+
             smpBomDto.setMainMaterial(true);
             //bom主表
             PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
+
+            SampleDesign sampleDesign = sampleDesignService.getOne(new QueryWrapper<SampleDesign>().eq("id", packInfo.getForeignId()));
+            StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
+            smpBomDto.setBomStage(stylePricingVO.getBomStage());
             //样衣-款式配色
             SampleStyleColor sampleStyleColor = sampleStyleColorService.getById(packInfo.getSampleStyleColorId());
             if (sampleStyleColor != null) {

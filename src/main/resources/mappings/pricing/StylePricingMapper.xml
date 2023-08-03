@@ -35,7 +35,8 @@
         sp.product_hangtag_confirm as productTagPriceConfirm,
         sp.control_hangtag_confirm as planTagPriceConfirm,
         sp.series,
-        sp.series_name
+        sp.series_name,
+        ps.bom_status as bomStage
         from t_pack_info p
         LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0')
         left join t_sample_design sd on (sd.id = p.foreign_id and sd.del_flag = '0')

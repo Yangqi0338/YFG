@@ -142,7 +142,6 @@ public class SpecificationGroupServiceImpl extends BaseServiceImpl<Specification
         }
         List<SpecificationGroup> specificationGroups = BeanUtil.copyToList(list, SpecificationGroup.class);
         for (SpecificationGroup specificationGroup : specificationGroups) {
-            specificationGroup.setStatus("1");
             QueryWrapper<SpecificationGroup> queryWrapper = new BaseQueryWrapper<>();
             queryWrapper.eq("code", specificationGroup.getCode());
             this.saveOrUpdate(specificationGroup, queryWrapper);

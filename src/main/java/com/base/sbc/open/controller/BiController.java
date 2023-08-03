@@ -27,4 +27,31 @@ public class BiController extends BaseController{
         List<BiSizeChart> biSizeCharts = biService.sizeChart();
         return selectSuccess(biSizeCharts);
     }
+
+    /**
+     * 款式主数据
+     */
+    @GetMapping("/styleChart")
+    public ApiResult styleChart(){
+
+        return selectSuccess(null);
+    }
+
+    /**
+     * 样衣信息
+     */
+    @GetMapping("/sampleChart")
+    public ApiResult sampleChart(){
+
+        return selectSuccess(null);
+    }
+
+    /**
+     * 订货本信息
+     */
+    @GetMapping("/orderBookChart")
+    public ApiResult orderBookChart(){
+
+        return selectSuccess(null);
+    }
 }

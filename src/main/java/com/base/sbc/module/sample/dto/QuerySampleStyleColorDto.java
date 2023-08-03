@@ -14,11 +14,19 @@ public class QuerySampleStyleColorDto extends Page {
     @ApiModelProperty(value = "大货编号多个使用，分割"  )
     private String styleNo;
 
+    @ApiModelProperty(value = "ids"  )
     private  String ids;
 
+    @ApiModelProperty(value = "颜色规格"  )
     private String  colorSpecification;
 
+    @ApiModelProperty(value = "细分"  )
     private String subdivide;
 
+    @ApiModelProperty(value = "是否款式"  )
+    private String isTrim;
+
+    @ApiModelProperty(value = "是否上会"  )
+    private String meetFlag;
 
 }

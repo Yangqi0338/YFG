@@ -25,7 +25,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-31 11:56:00
+ * @date 创建时间：2023-8-2 17:56:23
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -40,7 +40,7 @@ public class PackBom extends BaseDataEntity<String> {
         SmpBomDto smpBomDto = new SmpBomDto();
         smpBomDto.setColorName(color);
         smpBomDto.setColorCode(colorCode);
-        smpBomDto.setBomStage(null);
+
         smpBomDto.setMaterialCode(materialCode);
         smpBomDto.setMaterialName(materialName);
         smpBomDto.setMaterialUnit(unitCode);
@@ -93,6 +93,11 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "状态(0停用,1启用)")
     private String status;
     /**
+     * 主材料标识(0否,1是)
+     */
+    @ApiModelProperty(value = "主材料标识(0否,1是)")
+    private String mainFlag;
+    /**
      * 版本id
      */
     @ApiModelProperty(value = "版本id")
@@ -122,11 +127,6 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "物料编号")
     private String materialCode;
-    /**
-     * 厂家成分
-     */
-    @ApiModelProperty(value = "厂家成分")
-    private String factoryComposition;
     /**
      * 成分
      */
@@ -217,6 +217,16 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "供应商名称")
     private String supplierName;
+    /**
+     * 供应商厂家成分
+     */
+    @ApiModelProperty(value = "供应商厂家成分")
+    private String supplierFactoryIngredient;
+    /**
+     * 辅料材质
+     */
+    @ApiModelProperty(value = "辅料材质")
+    private String auxiliaryMaterial;
     /**
      * 单位
      */
@@ -327,6 +337,26 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "排序")
     private Integer sort;
+    /**
+     * 采购单位
+     */
+    @ApiModelProperty(value = "采购单位")
+    private String purchaseUnitCode;
+    /**
+     * 采购单位名称
+     */
+    @ApiModelProperty(value = "采购单位名称")
+    private String purchaseUnitName;
+    /**
+     * 库存单位
+     */
+    @ApiModelProperty(value = "库存单位")
+    private String stockUnitCode;
+    /**
+     * 库存单位名称
+     */
+    @ApiModelProperty(value = "库存单位名称")
+    private String stockUnitName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

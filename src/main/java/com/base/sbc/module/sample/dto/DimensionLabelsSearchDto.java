@@ -25,8 +25,8 @@ public class DimensionLabelsSearchDto {
     @ApiModelProperty(value = "坑位信息id", example = "0")
     private String planningCategoryItemId;
     @ApiModelProperty(value = "产品季id", example = "0")
-    @NotBlank(message = "季节")
-    private String season;
+    @NotBlank(message = "产品季id不能为空")
+    private String planningSeasonId;
     @ApiModelProperty(value = "品类id(2级)", example = "0")
     @NotBlank(message = "品类不能为空")
     private String categoryId;

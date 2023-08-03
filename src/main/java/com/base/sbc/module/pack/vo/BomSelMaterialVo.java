@@ -1,6 +1,5 @@
 package com.base.sbc.module.pack.vo;
 
-import cn.hutool.core.util.NumberUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -53,7 +52,9 @@ public class BomSelMaterialVo {
      * 厂家成分
      */
     @ApiModelProperty(value = "厂家成分")
-    private String factoryComposition;
+    private String supplierFactoryIngredient;
+    @ApiModelProperty(value = "辅料成分")
+    private String auxiliaryMaterial;
     /**
      * 成分
      */
@@ -67,8 +68,11 @@ public class BomSelMaterialVo {
     /**
      * 门幅/规格（通用）
      */
-    @ApiModelProperty(value = "门幅/规格（通用）")
+    @ApiModelProperty(value = "门幅/规格（通用）编码")
     private String translate;
+
+    @ApiModelProperty(value = "门幅/规格（通用）名称")
+    private String translateName;
     /**
      * 颜色名称
      */
@@ -130,16 +134,6 @@ public class BomSelMaterialVo {
     @ApiModelProperty(value = "状态(0停用,1启用)")
     private String status;
     /**
-     * 发送状态(0未发送,1已发送)
-     */
-    @ApiModelProperty(value = "发送状态(0未发送,1已发送)")
-    private String sendFlag;
-    /**
-     * 不能使用(0否,1是)
-     */
-    @ApiModelProperty(value = "不能使用(0否,1是)")
-    private String unusableFlag;
-    /**
      * 备注
      */
     @ApiModelProperty(value = "备注")
@@ -180,10 +174,5 @@ public class BomSelMaterialVo {
     @ApiModelProperty(value = "规格名称")
     private String widthName;
 
-    public String getTranslate() {
-        if (NumberUtil.isNumber(translate)) {
-            return NumberUtil.toStr(new BigDecimal(translate));
-        }
-        return translate;
-    }
+
 }

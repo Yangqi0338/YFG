@@ -11,6 +11,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
@@ -94,10 +95,17 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getColorSpecification()), "ssc.color_specification", queryDto.getColorSpecification());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleNo()), "ssc.style_no", queryDto.getStyleNo());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSubdivide()), "ssc.subdivide", queryDto.getSubdivide());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getIsTrim()), "ssc.is_trim", queryDto.getIsTrim());
+        String meetFlag ="";
+        if (StrUtil.isNotBlank(queryDto.getMeetFlag())) {
+            if (queryDto.getMeetFlag().equals(BaseGlobal.STATUS_NORMAL)) {
+                meetFlag = BaseGlobal.STATUS_CLOSE;
+            }
+        }
         queryWrapper.eq("ssc.del_flag", "0");
-
+        queryWrapper.orderByDesc("ssc.create_date");
         /*查询样衣-款式配色数据*/
-        List<SampleStyleColorVo> sampleStyleColorList = baseMapper.getSampleStyleColorList(queryWrapper);
+        List<SampleStyleColorVo> sampleStyleColorList = baseMapper.getSampleStyleColorList(queryWrapper,meetFlag);
         PageInfo<SampleStyleColorVo> pageInfo = new PageInfo<>(sampleStyleColorList);
         return pageInfo;
     }
@@ -296,11 +304,20 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             baseMapper.insert(sampleStyleColor);
         } else {
             /*修改*/
+            if(StringUtils.isBlank(addRevampSampleStyleColorDto.getColourLibraryId())){
+                throw  new OtherException("颜色不能为空");
+            }
+            BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(addRevampSampleStyleColorDto.getColourLibraryId());
             sampleStyleColor = baseMapper.selectById(addRevampSampleStyleColorDto.getId());
             if (ObjectUtils.isEmpty(sampleStyleColor)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
             BeanUtils.copyProperties(addRevampSampleStyleColorDto, sampleStyleColor);
+            /*赋值颜色*/
+            sampleStyleColor.setColourLibraryId(basicsdatumColourLibrary.getId());
+            sampleStyleColor.setColorCode(basicsdatumColourLibrary.getColourCode());
+            sampleStyleColor.setColorName(basicsdatumColourLibrary.getColourName());
+            sampleStyleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             sampleStyleColor.updateInit();
             baseMapper.updateById(sampleStyleColor);
         }

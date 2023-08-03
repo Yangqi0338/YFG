@@ -118,7 +118,7 @@ public class OpenSmpController extends BaseController {
 
 
     /**
-     * smp-样衣
+     * smp-样衣（第一期不做）
      */
     @PostMapping("/smpSampleSave")
     @ApiOperation(value = "smp-样衣新增或者修改", notes = "smp-样衣新增或者修改")

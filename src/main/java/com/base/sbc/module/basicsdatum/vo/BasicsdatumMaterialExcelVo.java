@@ -64,9 +64,7 @@ public class BasicsdatumMaterialExcelVo {
 	@Excel(name = "门幅/规格组名称")
 	@ApiModelProperty(value = "门幅/规格组")
 	private String widthGroupName;
-	@Excel(name = "门幅规格名称")
-	@ApiModelProperty(value = "门幅规格")
-	private String widthName;
+
 	@Excel(name = "面料成分")
 	@ApiModelProperty(value = "面料成分")
 	private String ingredient;
@@ -118,6 +116,9 @@ public class BasicsdatumMaterialExcelVo {
 	@Excel(name = "供应商物料编号")
 	@ApiModelProperty(value = "供应商物料编号")
 	private String supplierFabricCode;
+	@Excel(name = "供应商报价")
+	@ApiModelProperty(value = "供应商报价")
+	private BigDecimal supplierQuotationPrice;
 	@Excel(name = "供应商色号")
 	@ApiModelProperty(value = "供应商色号")
 	private String supplierColorNo;

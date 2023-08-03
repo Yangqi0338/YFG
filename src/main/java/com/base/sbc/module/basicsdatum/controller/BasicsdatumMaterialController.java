@@ -30,6 +30,8 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
@@ -37,10 +39,12 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthGroupSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthsSaveDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialOldPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialSelectVo;
@@ -126,6 +130,30 @@ public class BasicsdatumMaterialController {
 	public BasicsdatumMaterialVo getBasicsdatumMaterial(
 			@RequestParam(value = "id") @NotBlank(message = "编号id不能为空") String id) {
 		return basicsdatumMaterialService.getBasicsdatumMaterial(id);
+	}
+
+	@ApiOperation(value = "主物料：下拉选择规格后保存到规格组")
+	@PostMapping("/saveBasicsdatumMaterialWidths")
+	public Boolean saveBasicsdatumMaterialWidths(@Valid @RequestBody BasicsdatumMaterialWidthsSaveDto dto) {
+		return basicsdatumMaterialService.saveBasicsdatumMaterialWidths(dto);
+	}
+
+	@ApiOperation(value = "物料旧料号：查询旧料号列表")
+	@GetMapping("/getBasicsdatumMaterialOldList")
+	public PageInfo<BasicsdatumMaterialOldPageVo> getBasicsdatumMaterialOldList(BasicsdatumMaterialOldQueryDto dto) {
+		return basicsdatumMaterialService.getBasicsdatumMaterialOldList(dto);
+	}
+
+	@ApiOperation(value = "物料旧料号：新增旧料号")
+	@PostMapping("/saveBasicsdatumMaterialOld")
+	public Boolean saveBasicsdatumMaterialOld(@Valid @RequestBody BasicsdatumMaterialOldSaveDto dto) {
+		return basicsdatumMaterialService.saveBasicsdatumMaterialOld(dto);
+	}
+
+	@ApiOperation(value = "物料旧料号：删除旧料号")
+	@DeleteMapping("/delBasicsdatumMaterialOld")
+	public Boolean delBasicsdatumMaterialOld(@RequestParam(value = "id") @NotBlank(message = "id不能为空") String id) {
+		return basicsdatumMaterialService.delBasicsdatumMaterialOld(id);
 	}
 
 	@ApiOperation(value = "物料规格:查询规格列表")

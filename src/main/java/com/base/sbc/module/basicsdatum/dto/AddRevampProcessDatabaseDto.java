@@ -49,4 +49,21 @@ public class AddRevampProcessDatabaseDto {
     /*部件类别名称*/
     @ApiModelProperty(value = "部件类别名称")
     private String   componentName;
+    /**
+     * 大类
+     * */
+    @ApiModelProperty(value = "大类")
+    private String broadCategory;
+
+    /**
+     * 中类
+     * */
+    @ApiModelProperty(value = "中类")
+    private String middleCategory;
+
+    /**
+     * 小类
+     * */
+    @ApiModelProperty(value = "小类")
+    private String smallCategory;
 }

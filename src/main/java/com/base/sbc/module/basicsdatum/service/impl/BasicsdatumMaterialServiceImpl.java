@@ -30,6 +30,8 @@ import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
@@ -37,9 +39,11 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthGroupSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthsSaveDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialOld;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPriceDetail;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
@@ -47,6 +51,7 @@ import com.base.sbc.module.basicsdatum.entity.Specification;
 import com.base.sbc.module.basicsdatum.entity.SpecificationGroup;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialOldService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
@@ -56,6 +61,7 @@ import com.base.sbc.module.basicsdatum.service.SpecificationService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialExcelVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialOldPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
@@ -88,11 +94,12 @@ import lombok.RequiredArgsConstructor;
 public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumMaterialMapper, BasicsdatumMaterial>
 		implements BasicsdatumMaterialService {
 
-	private final BasicsdatumMaterialColorService materialColorService;
-	private final BasicsdatumMaterialWidthService materialWidthService;
-	private final BasicsdatumMaterialPriceService materialPriceService;
 	private final SpecificationService specificationService;
 	private final SpecificationGroupService specificationGroupService;
+	private final BasicsdatumMaterialOldService materialOldService;
+	private final BasicsdatumMaterialWidthService materialWidthService;
+	private final BasicsdatumMaterialColorService materialColorService;
+	private final BasicsdatumMaterialPriceService materialPriceService;
 	private final BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
 
 	/**
@@ -136,16 +143,15 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		entity.setMaterialCodeName(entity.getMaterialCode() + entity.getMaterialName());
 
 		// 特殊逻辑： 如果是面料的时候，需要增加门幅幅宽的数据 给到物料规格
-		//if ("fabric".equals(entity.getMaterialType())) {
-			//this.saveFabricWidth(entity.getMaterialCode(), BigDecimalUtil.convertString(entity.getTranslate()));
-		//}
-		if (entity.getId()!=null && "1".equals(entity.getDistribute())){
+		// if ("fabric".equals(entity.getMaterialType())) {
+		// this.saveFabricWidth(entity.getMaterialCode(),
+		// BigDecimalUtil.convertString(entity.getTranslate()));
+		// }
+		if (entity.getId() != null && "1".equals(entity.getDistribute())) {
 			smpService.materials(entity.getId().split(","));
 		}
 		this.saveOrUpdate(entity);
-
-
-		return CopyUtil.copy(entity, BasicsdatumMaterialVo.class);
+		return getBasicsdatumMaterial(entity.getId());
 	}
 
 	/**
@@ -208,14 +214,13 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		uw.in("id", StringUtils.convertList(dto.getIds()));
 		uw.set("status", dto.getStatus());
 
-		QueryWrapper<BasicsdatumMaterial> queryWrapper =new QueryWrapper<>();
-		queryWrapper.in("id",dto.getIds());
+		QueryWrapper<BasicsdatumMaterial> queryWrapper = new QueryWrapper<>();
+		queryWrapper.in("id", dto.getIds());
 		for (BasicsdatumMaterial basicsdatumMaterial : this.list(queryWrapper)) {
-			if ("1".equals(basicsdatumMaterial.getDistribute())){
+			if ("1".equals(basicsdatumMaterial.getDistribute())) {
 				smpService.materials(basicsdatumMaterial.getId().split(","));
 			}
 		}
-
 
 		return this.update(null, uw);
 	}
@@ -278,6 +283,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		return page.toPageInfo();
 	}
 
+	/**
+	 * 查询详情
+	 */
 	@Override
 	public BasicsdatumMaterialVo getBasicsdatumMaterial(String id) {
 		BasicsdatumMaterial material = this.getById(id);
@@ -286,6 +294,18 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		List<BasicsdatumMaterialWidthSelectVo> select2 = this.baseMapper
 				.getBasicsdatumMaterialWidthSelect(this.getCompanyCode(), material.getMaterialCode());
 		BasicsdatumMaterialVo copy = CopyUtil.copy(material, BasicsdatumMaterialVo.class);
+		// 填充规格规格组
+		if (select2 != null && select2.size() > 0) {
+			StringBuffer width = new StringBuffer();
+			StringBuffer widthName = new StringBuffer();
+			select2.forEach(item -> {
+				BasicsdatumMaterialWidthSelectVo s = (item);
+				width.append(",").append(s.getCode());
+				widthName.append(",").append(s.getName());
+			});
+			copy.setWidth(width.substring(1));
+			copy.setWidthName(widthName.substring(1));
+		}
 		copy.setColorList(select);
 		copy.setWidthList(select2);
 		return copy;
@@ -407,19 +427,20 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		this.materialPriceService.saveOrUpdate(entity);
 		// 如果当前是默认：批量修改其他物料未非默认，同时修改主信息的默认物料
 		if (entity != null && entity.getSelectFlag() != null && entity.getSelectFlag() == true) {
-			this.materialPriceService
-					.update(new UpdateWrapper<BasicsdatumMaterialPrice>().eq(COMPANY_CODE, getCompanyCode())
-							.eq("material_code", entity.getMaterialCode()).ne("id", entity.getId())
-							.set("select_flag", "0"));
+			this.materialPriceService.update(new UpdateWrapper<BasicsdatumMaterialPrice>()
+					.eq(COMPANY_CODE, getCompanyCode()).eq("material_code", entity.getMaterialCode())
+					.ne("id", entity.getId()).set("select_flag", "0"));
 
 			this.update(new UpdateWrapper<BasicsdatumMaterial>().eq(COMPANY_CODE, getCompanyCode())
 					.eq("material_code", entity.getMaterialCode()).set("supplier_id", dto.getSupplierId())
 					.set("supplier_name", dto.getSupplierName())
-					.set("supplier_fabric_code", entity.getSupplierMaterialCode()));
+					.set("supplier_fabric_code", entity.getSupplierMaterialCode())
+					.set("supplier_quotation_price", entity.getQuotationPrice()));
 		}
 
-		basicsdatumMaterialPriceDetailService.remove(new QueryWrapper<BasicsdatumMaterialPriceDetail>().eq("price_id", entity.getId()));
-		List<BasicsdatumMaterialPriceDetail> basicsdatumMaterialPriceDetails =new ArrayList<>();
+		basicsdatumMaterialPriceDetailService
+				.remove(new QueryWrapper<BasicsdatumMaterialPriceDetail>().eq("price_id", entity.getId()));
+		List<BasicsdatumMaterialPriceDetail> basicsdatumMaterialPriceDetails = new ArrayList<>();
 
 		String[] colorCodes = entity.getColor().split(",");
 		String[] colorNames = entity.getColorName().split(",");
@@ -427,8 +448,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		String[] widthNames = entity.getWidthName().split(",");
 		for (int i = 0; i < colorNames.length; i++) {
 			for (int j = 0; j < widthNames.length; j++) {
-				BasicsdatumMaterialPriceDetail basicsdatumMaterialPriceDetai =new BasicsdatumMaterialPriceDetail();
-				BeanUtil.copyProperties(entity,basicsdatumMaterialPriceDetai);
+				BasicsdatumMaterialPriceDetail basicsdatumMaterialPriceDetai = new BasicsdatumMaterialPriceDetail();
+				BeanUtil.copyProperties(entity, basicsdatumMaterialPriceDetai);
 				basicsdatumMaterialPriceDetai.setId(null);
 				basicsdatumMaterialPriceDetai.setPriceId(entity.getId());
 
@@ -436,14 +457,14 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 				basicsdatumMaterialPriceDetai.setWidthName(widthNames[j]);
 				try {
 					basicsdatumMaterialPriceDetai.setColor(colorCodes[i]);
-				}catch (Exception e ){
-					//e.printStackTrace();
+				} catch (Exception e) {
+					// e.printStackTrace();
 				}
 				try {
 					basicsdatumMaterialPriceDetai.setWidth(widthCodes[j]);
-				}catch (Exception e ){
+				} catch (Exception e) {
 
-					//e.printStackTrace();
+					// e.printStackTrace();
 				}
 				basicsdatumMaterialPriceDetails.add(basicsdatumMaterialPriceDetai);
 			}
@@ -465,20 +486,22 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		return this.materialPriceService.removeBatchByIds(StringUtils.convertList(id));
 	}
 
+	/**
+	 * 根据规格组绑定规格
+	 */
 	@Transactional
 	@Override
 	public Boolean saveBasicsdatumMaterialWidthGroup(BasicsdatumMaterialWidthGroupSaveDto dto) {
 
 		// 1、 获取规格组的规格集合
 		List<Specification> specifications = null;
-		SpecificationGroup specificationGroup = specificationGroupService
-				.getOne(new QueryWrapper<SpecificationGroup>().eq(COMPANY_CODE, getCompanyCode()).eq("code",
-						dto.getWidthGroupCode()));
+		SpecificationGroup specificationGroup = specificationGroupService.getOne(new QueryWrapper<SpecificationGroup>()
+				.eq(COMPANY_CODE, getCompanyCode()).eq("code", dto.getWidthGroupCode()));
 		BaseQueryWrapper<Specification> queryWrapper = new BaseQueryWrapper<>();
 		if (specificationGroup != null && StringUtils.isNotBlank(specificationGroup.getSpecificationIds())) {
 			String specificationIds = specificationGroup.getSpecificationIds();
 			String[] ids = specificationIds.split(",");
-			queryWrapper.in("id", Arrays.asList(ids));
+			queryWrapper.in("code", Arrays.asList(ids));
 			specifications = specificationService.list(queryWrapper);
 		}
 		// 2、清理现有物料规格
@@ -500,5 +523,82 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			this.materialWidthService.saveBatch(wList);
 		}
 		return true;
+	}
+
+	/**
+	 * 根据规格下拉 绑定规格
+	 */
+	@Override
+	@Transactional
+	public Boolean saveBasicsdatumMaterialWidths(BasicsdatumMaterialWidthsSaveDto dto) {
+		// 1、清理现有物料规格
+		this.materialWidthService.remove(new QueryWrapper<BasicsdatumMaterialWidth>().eq(COMPANY_CODE, getCompanyCode())
+				.eq("material_code", dto.getMaterialCode()));
+		String[] codes = dto.getWidth().split(",");
+		String[] names = dto.getWidthName().split(",");
+		// 2、添加规格组的规格
+		if (codes != null && codes.length > 0) {
+			List<BasicsdatumMaterialWidth> wList = new ArrayList<>();
+			BasicsdatumMaterialWidth width;
+			int i = 0;
+			for (String code : codes) {
+				width = new BasicsdatumMaterialWidth();
+				width.setCompanyCode(getCompanyCode());
+				width.setStatus("0");
+				width.setMaterialCode(dto.getMaterialCode());
+				width.setWidthCode(code);
+				width.setName(names[i]);
+				i++;
+				wList.add(width);
+			}
+			this.materialWidthService.saveBatch(wList);
+		}
+		return true;
+	}
+
+	/**
+	 * 查询旧料号列表
+	 */
+	@Override
+	public PageInfo<BasicsdatumMaterialOldPageVo> getBasicsdatumMaterialOldList(BasicsdatumMaterialOldQueryDto dto) {
+		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+			PageHelper.startPage(dto);
+		}
+		List<BasicsdatumMaterialOldPageVo> list = baseMapper.getBasicsdatumMaterialOldPage(this.getCompanyCode(),
+				dto.getMaterialCode());
+		return new PageInfo<>(list);
+	}
+
+
+	@Override
+	@Transactional
+	public Boolean saveBasicsdatumMaterialOld(BasicsdatumMaterialOldSaveDto dto) {
+		// 清理
+//		this.materialOldService.remove(new QueryWrapper<BasicsdatumMaterialOld>().eq(COMPANY_CODE, getCompanyCode())
+//				.eq("material_code", dto.getMaterialCode()));
+		long count = materialOldService.count(new QueryWrapper<BasicsdatumMaterialOld>()
+				.eq(COMPANY_CODE, getCompanyCode()).eq("material_code", dto.getMaterialCode())
+				.in("old_Material_code", StringUtils.convertList(dto.getOldMaterialCode())));
+		if (count > 0) {
+			throw new OtherException("已添加对应的旧料号");
+		}
+		String[] codes = dto.getOldMaterialCode().split(",");
+
+		List<BasicsdatumMaterialOld> list = new ArrayList<>();
+		BasicsdatumMaterialOld old = null;
+		for (String code : codes) {
+			old = new BasicsdatumMaterialOld();
+			old.setCompanyCode(getCompanyCode());
+			old.setMaterialCode(dto.getMaterialCode());
+			old.setOldMaterialCode(code);
+			list.add(old);
+		}
+		this.materialOldService.saveBatch(list);
+		return true;
+	}
+
+	@Override
+	public Boolean delBasicsdatumMaterialOld(String id) {
+		return this.materialOldService.removeBatchByIds(StringUtils.convertList(id));
 	}
 }

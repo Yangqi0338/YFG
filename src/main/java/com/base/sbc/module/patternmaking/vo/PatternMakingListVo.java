@@ -21,19 +21,25 @@ import java.util.Optional;
 public class PatternMakingListVo extends PatternMaking {
     @ApiModelProperty(value = "尺码")
     private String productSizes;
+    @ApiModelProperty(value = "默认尺码")
+    private String defaultSize;
     /**
      * 打版难度
      */
     @ApiModelProperty(value = "打版指令打版难度")
     private String patDiff;
+    @ApiModelProperty(value = "打版指令打版难度")
+    private String patDiffName;
     /**
      * 打版难度
      */
     @ApiModelProperty(value = "样衣打版难度")
     private String sdPatDiff;
+    @ApiModelProperty(value = "样衣打版难度")
+    private String sdPatDiffName;
 
     @Override
-    public String getPatDiff(){
+    public String getPatDiff() {
         return Optional.ofNullable(patDiff).orElse(sdPatDiff);
     }
 
