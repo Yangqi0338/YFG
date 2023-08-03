@@ -25,7 +25,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-3 17:16:34
+ * @date 创建时间：2023-8-3 17:58:30
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -44,7 +44,7 @@ public class PackBom extends BaseDataEntity<String> {
         smpBomDto.setMaterialCode(materialCode);
         smpBomDto.setMaterialName(materialName);
         smpBomDto.setMaterialUnit(unitCode);
-        smpBomDto.setPlaceOfUse(part);
+        smpBomDto.setPlaceOfUse(partName);
         smpBomDto.setLossRate(lossRate);
         smpBomDto.setSupplierMaterialCode(supplierMaterialCode);
         smpBomDto.setQuotationSupplierCode(supplierId);
@@ -67,7 +67,7 @@ public class PackBom extends BaseDataEntity<String> {
         bomMaterial.setCode(materialCode);
         bomMaterial.setMatColorCode(colorCode);
         bomMaterial.setMaterialUom(unitCode);
-        bomMaterial.setPosition(part);
+        bomMaterial.setPosition(partName);
         bomMaterial.setCostRate(lossRate);
         bomMaterial.setActive("0".equals(status));
         bomMaterial.setPlacementName(collocationName);
@@ -138,10 +138,15 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "成分")
     private String ingredient;
     /**
-     * 部位
+     * 部位编码
      */
-    @ApiModelProperty(value = "部位")
-    private String part;
+    @ApiModelProperty(value = "部位编码")
+    private String partCode;
+    /**
+     * 部位名称
+     */
+    @ApiModelProperty(value = "部位名称")
+    private String partName;
     /**
      * 厂家有效门幅/规格
      */

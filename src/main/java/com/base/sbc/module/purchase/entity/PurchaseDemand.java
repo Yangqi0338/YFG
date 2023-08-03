@@ -5,19 +5,20 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.purchase.entity;
-import java.math.BigDecimal;
-import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  * 类描述：采购-采购需求表 实体类
  * @address com.base.sbc.module.purchase.entity.PurchaseDemand
@@ -53,7 +54,7 @@ public class PurchaseDemand extends BaseDataEntity<String> {
         this.materialColor = packBom.getColor();
         this.needNum = needNum;
         this.unit = material.getPurchaseUnitCode();
-        this.usePosition = packBom.getPart();
+        this.usePosition = packBom.getPartName();
         this.materialSpecifications = specifications;
         this.loss = packBom.getLossRate();
     }
