@@ -535,17 +535,17 @@ public class SmpService {
             smpBomDto.setBomMaterials(bomMaterials);
 
             List<SmpSizeQty> sizeQtyList = new ArrayList<>();
-            for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("foreign_id", packBom.getForeignId()))) {
+            for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("foreign_id", packBom.getForeignId()).eq("pack_type",packBom.getPackType()))) {
                 SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
                 //根据尺码id查询尺码
-                BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());
-                if (basicsdatumSize != null) {
-                    smpSizeQty.setPSizeCode(basicsdatumSize.getInternalSize());
-                    smpSizeQty.setSizeCode(basicsdatumSize.getCode());
-                    smpSizeQty.setItemSize(basicsdatumSize.getInternalSize());
-                    smpSizeQty.setMatSizeUrl(basicsdatumSize.getCode());
+                //BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());
+                //if (basicsdatumSize != null) {
+                //    smpSizeQty.setPSizeCode(basicsdatumSize.getInternalSize());
+                //    smpSizeQty.setSizeCode(basicsdatumSize.getCode());
+                //    smpSizeQty.setItemSize(basicsdatumSize.getInternalSize());
+                //    smpSizeQty.setMatSizeUrl(basicsdatumSize.getCode());
                     sizeQtyList.add(smpSizeQty);
-                }
+                //}
 
             }
             smpBomDto.setSizeQtyList(sizeQtyList);
