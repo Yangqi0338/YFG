@@ -10,7 +10,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
-import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.entity.Style;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,22 +26,21 @@ import java.util.stream.Collectors;
  */
 public class PlanningUtils {
 
-    public static SampleDesign toSampleDesign(PlanningSeason season, PlanningCategoryItem item) {
-        SampleDesign sampleDesign = new SampleDesign();
-        toSampleDesign(sampleDesign, season, item);
-        return sampleDesign;
+    public static Style toSampleDesign(PlanningSeason season, PlanningCategoryItem item) {
+        Style style = new Style();
+        toSampleDesign(style, season, item);
+        return style;
     }
 
-    public static void toSampleDesign(SampleDesign sampleDesign, PlanningSeason season, PlanningCategoryItem item) {
-        BeanUtil.copyProperties(season, sampleDesign);
-        BeanUtil.copyProperties(item, sampleDesign);
-        sampleDesign.setPlanningCategoryItemId(item.getId());
-        sampleDesign.setId(null);
-        sampleDesign.setStatus(BaseGlobal.STATUS_NORMAL);
-        sampleDesign.setOldDesignNo(item.getDesignNo());
-        sampleDesign.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+    public static void toSampleDesign(Style style, PlanningSeason season, PlanningCategoryItem item) {
+        BeanUtil.copyProperties(season, style);
+        BeanUtil.copyProperties(item, style);
+        style.setPlanningCategoryItemId(item.getId());
+        style.setId(null);
+        style.setStatus(BaseGlobal.STATUS_NORMAL);
+        style.setOldDesignNo(item.getDesignNo());
+        style.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
     }
-
 
 
     /**

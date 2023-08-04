@@ -94,10 +94,10 @@ public class SampleStyleColorController{
 	}
 
 	@ApiOperation(value = "按颜色id删除样衣下款式配色-款式配色")
-	@DeleteMapping("/delSampleStyleColor")
-	public Boolean delSampleStyleColor(@Valid @NotBlank(message = "颜色id不能为空") String id,@Valid @NotBlank(message = "样衣id") String sampleDesignId) {
-		return sampleStyleColorService.delSampleStyleColor(id,sampleDesignId);
-	}
+    @DeleteMapping("/delSampleStyleColor")
+    public Boolean delSampleStyleColor(@Valid @NotBlank(message = "颜色id不能为空") String id, @Valid @NotBlank(message = "样衣id") String styleId) {
+        return sampleStyleColorService.delSampleStyleColor(id, styleId);
+    }
 
 	@ApiOperation(value = "明细-通过id查询")
 	@GetMapping("/{id}")
@@ -113,11 +113,11 @@ public class SampleStyleColorController{
 		return sampleStyleColorService.issueScm(querySampleStyleColorDto.getIds());
 	}
 
-	@ApiOperation(value = "获取款式下的颜色id")
-	@GetMapping("/getStyleColorId")
-	public List<String> getStyleColorId(@Valid @NotBlank(message = "样衣id") String sampleDesignId) {
-		return sampleStyleColorService.getStyleColorId(sampleDesignId);
-	}
+    @ApiOperation(value = "获取款式下的颜色id")
+    @GetMapping("/getStyleColorId")
+    public List<String> getStyleColorId(@Valid @NotBlank(message = "样衣id") String styleId) {
+        return sampleStyleColorService.getStyleColorId(styleId);
+    }
 
 	@ApiOperation(value = "关联Bom")
 	@PostMapping("/relevanceBom")

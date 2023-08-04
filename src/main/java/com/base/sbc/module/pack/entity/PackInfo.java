@@ -35,9 +35,9 @@ public class PackInfo extends BaseDataEntity<String> {
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /**
-     * 主数据id(样衣设计id)
+     * 主数据id(款式设计id)
      */
-    @ApiModelProperty(value = "主数据id(样衣设计id)")
+    @ApiModelProperty(value = "主数据id(款式设计id)")
     private String foreignId;
     /**
      * 编号

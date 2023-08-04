@@ -11,14 +11,14 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
     <!-- 分页查询 -->
-    <select id="selectByQw" resultType="com.base.sbc.module.sample.vo.SampleDesignPageVo">
+    <select id="selectByQw" resultType="com.base.sbc.module.sample.vo.StylePageVo">
         select *
-        from t_sample_design s
+        from t_style s
             ${ ew.customSqlSegment}
     </select>
     <select id="getDesignerList" resultType="com.base.sbc.module.sample.vo.SampleUserVo">
         select DISTINCT designer_id as user_id, designer as name
-        from t_sample_design s
+        from t_style s
         where company_code = #{companyCode}
           AND del_flag = '0'
           and designer_id !='' and designer_id is not null
@@ -28,7 +28,7 @@
         SELECT band_name AS product,
         STATUS AS dimension,
         count(id) AS total
-        FROM t_sample_design
+        FROM t_style
         where del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
@@ -40,7 +40,7 @@
         SELECT prod_category_name AS product,
         STATUS AS dimension,
         count(id) AS total
-        FROM t_sample_design
+        FROM t_style
         where del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
@@ -50,7 +50,7 @@
 
     </select>
     <select id="dimensionTotal" resultType="com.base.sbc.module.planning.vo.DimensionTotalVo">
-        select ${ew.sqlSelect} from t_sample_design sd
+        select ${ew.sqlSelect} from t_style sd
         where
         sd.del_flag ='0'
         and sd.prod_category is not null and sd.prod_category &lt;&gt; ''
@@ -75,7 +75,7 @@
         style_no
         FROM
 
-        t_sample_design sd
+        t_style sd
         WHERE
         sd.del_flag = '0'
         AND sd.del_flag = '0'
@@ -92,8 +92,8 @@
         prod_category2nd,
         count( 1 ) skc
         FROM
-        t_sample_design sd
-        LEFT JOIN t_sample_style_color c ON ( sd.id = c.sample_design_id )
+        t_style sd
+        LEFT JOIN t_sample_style_color c ON ( sd.id = c.style_id )
         WHERE
         sd.del_flag = '0'
 
@@ -113,8 +113,8 @@
         SELECT
         count( 1 ) skc
         FROM
-        t_sample_design sd
-        left join t_sample_style_color c on(sd.id = c.sample_design_id and c.del_flag ='0')
+        t_style sd
+        left join t_sample_style_color c on(sd.id = c.style_id and c.del_flag ='0')
         WHERE
         sd.del_flag ='0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">

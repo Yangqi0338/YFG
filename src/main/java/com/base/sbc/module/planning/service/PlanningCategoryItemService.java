@@ -19,7 +19,7 @@ import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
-import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.entity.Style;
 import com.base.sbc.module.sample.vo.ChartBarVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
@@ -187,7 +187,7 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
      */
     List<BasicStructureTreeVo> expandByCategory(ProductSeasonExpandByCategorySearchDto dto);
 
-    void updateBySampleDesignChange(SampleDesign sampleDesign);
+    void updateBySampleDesignChange(Style style);
 
     Map<String, Long> totalBandSkcByPlanningSeason(String planningSeasonId);
 

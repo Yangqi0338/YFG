@@ -31,7 +31,7 @@ public class PackUtils {
     public static final String PACK_TYPE_BIG_GOODS = "packBigGoods";
 
     /**
-     * 资料包类型 样衣设计
+     * 资料包类型 款式设计
      */
     public static final String PACK_TYPE_SAMPLE_DESIGN = "packSampleDesign";
 

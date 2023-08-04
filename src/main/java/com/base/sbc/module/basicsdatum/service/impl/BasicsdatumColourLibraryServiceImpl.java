@@ -35,7 +35,6 @@ import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
-import com.base.sbc.module.sample.vo.SampleDesignPageVo;
 import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;

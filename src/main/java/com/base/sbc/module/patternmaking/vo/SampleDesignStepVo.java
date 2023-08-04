@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 @ApiModel("打版-样衣进度列表vo SampleDesignStepVo ")
 public class SampleDesignStepVo {
 
-    @ApiModelProperty(value = "样衣设计id")
+    @ApiModelProperty(value = "款式设计id")
     private String id;
 
     @ApiModelProperty(value = "设计款号")
     private String designNo;
-    @ApiModelProperty(value = "样衣设计id")
+    @ApiModelProperty(value = "款式设计id")
     private String planningSeasonId;
 
     @ApiModelProperty(value = "款式图片")
@@ -54,10 +54,10 @@ public class SampleDesignStepVo {
     @Data
     @ApiModel("打版进度-打版指令进度vo PatternMakingStepVo")
     public class PatternMakingStepVo {
-        @ApiModelProperty(value = "样衣设计id")
+        @ApiModelProperty(value = "款式设计id")
         private String id;
-        @ApiModelProperty(value = "样衣设计id")
-        private String sampleDesignId;
+        @ApiModelProperty(value = "款式设计id")
+        private String styleId;
         @ApiModelProperty(value = "打版单号")
         private String code;
         @ApiModelProperty(value = "版师名称")

@@ -60,16 +60,16 @@ public class PatternMakingController {
         return patternMakingService.technologyCenterTaskList(dto);
     }
 
-    @ApiOperation(value = "通过样衣设计id查询")
+    @ApiOperation(value = "通过款式设计id查询")
     @GetMapping("/findBySampleDesignId")
-    public List<PatternMakingListVo> findBySampleDesignId(@NotBlank(message = "(sampleDesignId)样衣设计id不能为空") String sampleDesignId) {
-        List<PatternMakingListVo> list = patternMakingService.findBySampleDesignId(sampleDesignId);
+    public List<PatternMakingListVo> findBySampleDesignId(@NotBlank(message = "(styleId)款式设计id不能为空") String styleId) {
+        List<PatternMakingListVo> list = patternMakingService.findBySampleDesignId(styleId);
         return list;
     }
 
     @ApiOperation(value = "打版指令明细", notes = "通过id查询")
     @GetMapping("/{id}")
-    public SampleDesignPmDetailVo getById(@PathVariable("id") String id) {
+    public StylePmDetailVo getById(@PathVariable("id") String id) {
         return patternMakingService.getDetailById(id);
     }
 
@@ -102,7 +102,7 @@ public class PatternMakingController {
     }
 
 
-    @ApiOperation(value = "样衣设计下发")
+    @ApiOperation(value = "款式设计下发")
     @PostMapping("/sampleDesignSend")
     public boolean sampleDesignSend(@Valid @RequestBody SampleDesignSendDto dto) {
         return patternMakingService.sampleDesignSend(dto);

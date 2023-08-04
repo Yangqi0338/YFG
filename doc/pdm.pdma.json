@@ -48779,7 +48779,7 @@
         },
         {
           "defKey": "foreign_id",
-          "defName": "主数据id(样衣设计id)",
+          "defName": "主数据id(款式设计id)",
           "comment": "",
           "domain": "",
           "type": "VARCHAR",
@@ -56698,8 +56698,8 @@
           "uiHint": "642D2E0A-8846-4549-BE56-8C0473F26EDE"
         },
         {
-          "defKey": "sample_design_id",
-          "defName": "样衣设计id",
+          "defKey": "style_id",
+          "defName": "款式设计id",
           "comment": "",
           "domain": "",
           "type": "VARCHAR",
@@ -61192,7 +61192,7 @@
         },
         {
           "defKey": "status",
-          "defName": "状态:0未下发,1已下发到产品季总览,2已下发到样衣设计",
+          "defName": "状态:0未下发,1已下发到产品季总览,2已下发到款式设计",
           "comment": "",
           "domain": "6F7C1C5C-D159-41E6-BF9D-54DEEFA79AFF",
           "type": "VARCHAR",
@@ -63996,8 +63996,8 @@
           "uiHint": "642D2E0A-8846-4549-BE56-8C0473F26EDE"
         },
         {
-          "defKey": "sample_design_id",
-          "defName": "样衣设计id",
+          "defKey": "style_id",
+          "defName": "款式设计id",
           "comment": "",
           "domain": "",
           "type": "VARCHAR",
@@ -80616,8 +80616,8 @@
           "uiHint": "642D2E0A-8846-4549-BE56-8C0473F26EDE"
         },
         {
-          "defKey": "sample_design_id",
-          "defName": "样衣设计ID，对应 t_sample_design.id 主键ID",
+          "defKey": "style_id",
+          "defName": "款式设计ID，对应 t_style.id 主键ID",
           "comment": "",
           "domain": "",
           "type": "VARCHAR",
@@ -80644,7 +80644,7 @@
         },
         {
           "defKey": "style_name",
-          "defName": "款式名称，对应 t_sample_design.style_name 款式名称",
+          "defName": "款式名称，对应 t_style.style_name 款式名称",
           "comment": "",
           "domain": "",
           "type": "VARCHAR",
@@ -80671,7 +80671,7 @@
         },
         {
           "defKey": "design_no",
-          "defName": "设计款号，对应 t_sample_design.design_no 设计款号",
+          "defName": "设计款号，对应 t_style.design_no 设计款号",
           "comment": "",
           "domain": "",
           "type": "VARCHAR",
@@ -80698,7 +80698,7 @@
         },
         {
           "defKey": "category_ids",
-          "defName": "款式品类，对应 t_sample_design.category_name 品类ID路径:(大类/品类/中类/小类)",
+          "defName": "款式品类，对应 t_style.category_name 品类ID路径:(大类/品类/中类/小类)",
           "comment": "",
           "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
           "type": "VARCHAR",
@@ -80725,7 +80725,7 @@
         },
         {
           "defKey": "category_name",
-          "defName": "款式品类，对应 t_sample_design.category_name 品类名称路径:(大类/品类/中类/小类)",
+          "defName": "款式品类，对应 t_style.category_name 品类名称路径:(大类/品类/中类/小类)",
           "comment": "",
           "domain": "",
           "type": "VARCHAR",
@@ -83450,7 +83450,7 @@
         },
         {
           "defKey": "design_no",
-          "defName": "设计款号，对应 t_sample_design.design_no 设计款号",
+          "defName": "设计款号，对应 t_style.design_no 设计款号",
           "comment": "",
           "domain": "",
           "type": "VARCHAR",
@@ -83753,8 +83753,8 @@
     },
     {
       "id": "A2755023-2C9C-48DD-A796-17B4530F7CFC",
-      "defKey": "t_sample_design",
-      "defName": "样衣设计",
+      "defKey": "t_style",
+      "defName": "款式设计",
       "comment": "",
       "properties": {},
       "fields": [
@@ -89656,7 +89656,7 @@
           "uiHint": "642D2E0A-8846-4549-BE56-8C0473F26EDE"
         },
         {
-          "defKey": "sample_design_id",
+          "defKey": "style_id",
           "defName": "样衣id",
           "comment": "",
           "domain": "",

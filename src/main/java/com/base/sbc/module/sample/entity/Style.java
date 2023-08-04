@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 类描述：样衣设计 实体类
+ * 类描述：款式设计 实体类
  *
  * @author lxl
  * @version 1.0
@@ -28,9 +28,9 @@ import java.util.Date;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_sample_design")
-@ApiModel("样衣设计 SampleDesign")
-public class SampleDesign extends BaseDataEntity<String> {
+@TableName("t_style")
+@ApiModel("款式设计 Style")
+public class Style extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/

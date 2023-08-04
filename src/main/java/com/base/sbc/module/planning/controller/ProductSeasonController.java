@@ -18,7 +18,7 @@ import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
-import com.base.sbc.module.sample.service.SampleDesignService;
+import com.base.sbc.module.sample.service.StyleService;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -55,7 +55,7 @@ public class ProductSeasonController extends BaseController {
     @Resource
     PlanningCategoryItemService planningCategoryItemService;
     @Resource
-    SampleDesignService sampleDesignService;
+    StyleService styleService;
 
 
     @ApiOperation(value = "查询产品季-查询所有产品季下拉选择")
@@ -100,7 +100,7 @@ public class ProductSeasonController extends BaseController {
     }
 
 
-    @ApiOperation(value = "坑位信息下发(产品季总览-下发到样衣设计)")
+    @ApiOperation(value = "坑位信息下发(产品季总览-下发到款式设计)")
     @PostMapping("/send")
     public boolean send(@RequestBody List<PlanningCategoryItem> categoryItemList){
         if(CollUtil.isEmpty(categoryItemList)){
@@ -122,19 +122,19 @@ public class ProductSeasonController extends BaseController {
     @ApiOperation(value = "产品季总览-波段汇总统计图表")
     @GetMapping("/getBandChart")
     public List getBandChart(String month) {
-        return sampleDesignService.getBandChart(month);
+        return styleService.getBandChart(month);
     }
 
     @ApiOperation(value = "产品季总览-品类汇总统计图表")
     @GetMapping("/getCategoryChart")
     public List getCategoryChart(String category) {
-        return sampleDesignService.getCategoryChart(category);
+        return styleService.getCategoryChart(category);
     }
 
     @ApiOperation(value = "产品季总览-设计数据总览")
     @GetMapping("/getDesignDataOverview")
     public Map getDesignDataOverview(String time) {
-        return sampleDesignService.getDesignDataOverview(time);
+        return styleService.getDesignDataOverview(time);
     }
 
     @ApiOperation(value = "产品季总览-修改坑位信息(局部跟新)")
@@ -159,6 +159,6 @@ public class ProductSeasonController extends BaseController {
     @ApiOperation(value = "获取产品季品类树")
     @GetMapping("/getProductCategoryTree")
     public List<ProductCategoryTreeVo> getProductCategoryTree(ProductCategoryTreeVo vo) {
-        return sampleDesignService.getProductCategoryTree(vo);
+        return styleService.getProductCategoryTree(vo);
     }
 }

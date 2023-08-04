@@ -5,17 +5,16 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.entity;
+import java.math.BigDecimal;
+import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 类描述：打版管理 实体类
@@ -24,7 +23,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-4 9:45:57
+ * @date 创建时间：2023-8-4 13:15:22
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -55,10 +54,10 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
     /**
-     * 样衣设计id
+     * 款式设计id
      */
-    @ApiModelProperty(value = "样衣设计id")
-    private String sampleDesignId;
+    @ApiModelProperty(value = "款式设计id")
+    private String styleId;
     /**
      * 版房
      */

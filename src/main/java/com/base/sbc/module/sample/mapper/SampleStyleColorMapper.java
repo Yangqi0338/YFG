@@ -34,7 +34,7 @@ public interface SampleStyleColorMapper extends BaseMapper<SampleStyleColor> {
     int isStyleNoExist(String styleNo);
 
     /*查询款式下的额配色*/
-    int getStyleColorNumber(String sampleDesignId);
+    int getStyleColorNumber(String styleId);
 
     /**
      *查询款式下的配色

@@ -8,7 +8,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 类描述：样衣设计物料清单保存Dto
+ * 类描述：款式设计物料清单保存Dto
  *
  * @author lixianglin
  * @version 1.0
@@ -17,11 +17,11 @@ import java.util.List;
  * @date 创建时间：2023-08-03 14:00
  */
 @Data
-@ApiModel("样衣设计物料清单保存Dto SampleDesignBomSaveDto")
+@ApiModel("款式设计物料清单保存Dto SampleDesignBomSaveDto")
 public class SampleDesignBomSaveDto {
 
-    @ApiModelProperty(value = "样衣设计id")
-    private String sampleDesignId;
+    @ApiModelProperty(value = "款式设计id")
+    private String styleId;
 
     @ApiModelProperty(value = "物料信息")
     private List<PackBomDto> bomList;

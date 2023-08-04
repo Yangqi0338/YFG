@@ -39,7 +39,7 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 // 自定义方法区 不替换的区域【other_start】
 
     /**
-     * 通过样衣设计查询
+     * 通过款式设计查询
      *
      * @param pageDto
      * @return
@@ -47,7 +47,7 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
     PageInfo<SampleDesignPackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto);
 
     /**
-     * 通过样衣设计创建BOM基础信息
+     * 通过款式设计创建BOM基础信息
      *
      * @param id
      * @return

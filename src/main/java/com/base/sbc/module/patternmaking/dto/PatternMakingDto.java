@@ -19,8 +19,8 @@ import org.hibernate.validator.constraints.NotBlank;
 public class PatternMakingDto extends PatternMaking {
 
 
-    @ApiModelProperty(value = "样衣设计id"  )
-    @NotBlank(message = "样衣设计id不能为空")
-    private String sampleDesignId;
+    @ApiModelProperty(value = "款式设计id")
+    @NotBlank(message = "款式设计id不能为空")
+    private String styleId;
 
 }

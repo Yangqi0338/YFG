@@ -49,8 +49,8 @@ import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
-import com.base.sbc.module.sample.entity.SampleDesign;
-import com.base.sbc.module.sample.service.SampleDesignService;
+import com.base.sbc.module.sample.entity.Style;
+import com.base.sbc.module.sample.service.StyleService;
 import com.base.sbc.module.sample.vo.ChartBarVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.Page;
@@ -92,7 +92,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     @Autowired
     CcmFeignService ccmFeignService;
     @Autowired
-    SampleDesignService sampleDesignService;
+    StyleService styleService;
     @Autowired
     FieldManagementService fieldManagementService;
     @Autowired
@@ -243,8 +243,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             // 修改
             updateById(categoryItem);
             fieldValService.save(categoryItem.getId(), FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION, dto.getFieldVals());
-            // 修改样衣设计数据
-            sampleDesignService.updateBySeatChange(categoryItem);
+            // 修改款式设计数据
+            styleService.updateBySeatChange(categoryItem);
         }
 
     }
@@ -434,12 +434,12 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         uw.set("send_date", new Date());
         uw.in("id", itemIds);
         update(uw);
-        // 3 将数据写入样衣设计
+        // 3 将数据写入款式设计
         // 查询已经下发的任务
-        QueryWrapper<SampleDesign> existsQw = new QueryWrapper<>();
+        QueryWrapper<Style> existsQw = new QueryWrapper<>();
         existsQw.in("planning_category_item_id", itemIds);
-        List<SampleDesign> dbItemList = sampleDesignService.list(existsQw);
-        Map<String, SampleDesign> dbItemMap = Optional.ofNullable(dbItemList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.toMap(k -> k.getPlanningCategoryItemId(), v -> v, (a, b) -> b));
+        List<Style> dbItemList = styleService.list(existsQw);
+        Map<String, Style> dbItemMap = Optional.ofNullable(dbItemList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.toMap(k -> k.getPlanningCategoryItemId(), v -> v, (a, b) -> b));
         // 查询产品季
         QueryWrapper<PlanningSeason> seasonQw = new QueryWrapper<>();
         seasonQw.in("id", seasonIds);
@@ -449,22 +449,22 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         // 图片文件id
         Map<String, String> fileUrlId = uploadFileService.findMapByUrls(fileUrls);
 
-        List<SampleDesign> sampleDesignList = new ArrayList<>(16);
+        List<Style> styleList = new ArrayList<>(16);
 
         for (PlanningCategoryItem item : categoryItemList) {
             if (dbItemMap.containsKey(item.getId())) {
                 continue;
             }
-            SampleDesign sampleDesign = PlanningUtils.toSampleDesign(seasonMap.get(item.getPlanningSeasonId()), item);
-            sampleDesign.setSender(getUserId());
-            sampleDesign.setStylePic(Optional.ofNullable(fileUrlId.get(sampleDesign.getStylePic())).orElse(""));
-            sampleDesignList.add(sampleDesign);
+            Style style = PlanningUtils.toSampleDesign(seasonMap.get(item.getPlanningSeasonId()), item);
+            style.setSender(getUserId());
+            style.setStylePic(Optional.ofNullable(fileUrlId.get(style.getStylePic())).orElse(""));
+            styleList.add(style);
 
 
         }
-        // 保存样衣设计
-        if (CollUtil.isNotEmpty(sampleDesignList)) {
-            sampleDesignService.saveBatch(sampleDesignList);
+        // 保存款式设计
+        if (CollUtil.isNotEmpty(styleList)) {
+            styleService.saveBatch(styleList);
             //保存图片附件
             List<Attachment> attachments = new ArrayList<>();
             // 保存维度信息
@@ -682,11 +682,11 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean revoke(String ids) {
-        // 查询样衣设计数据
-        QueryWrapper<SampleDesign> sdQw = new QueryWrapper();
+        // 查询款式设计数据
+        QueryWrapper<Style> sdQw = new QueryWrapper();
         List<String> seatIds = StrUtil.split(ids, CharUtil.COMMA);
         sdQw.in("planning_category_item_id", seatIds);
-        List<SampleDesign> sdList = sampleDesignService.list(sdQw);
+        List<Style> sdList = styleService.list(sdQw);
         //判断是否已开款
         if (CollUtil.isNotEmpty(sdList)) {
             String designNos = sdList.stream()
@@ -700,17 +700,17 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         uw.in("id", seatIds);
         uw.set("status", "-1");
         update(uw);
-        sampleDesignService.remove(sdQw);
+        styleService.remove(sdQw);
         return true;
     }
 
     @Override
     public boolean del(String ids) {
-        // 查询样衣设计数据
-        QueryWrapper<SampleDesign> sdQw = new QueryWrapper();
+        // 查询款式设计数据
+        QueryWrapper<Style> sdQw = new QueryWrapper();
         List<String> seatIds = StrUtil.split(ids, CharUtil.COMMA);
         sdQw.in("planning_category_item_id", seatIds);
-        List<SampleDesign> sdList = sampleDesignService.list(sdQw);
+        List<Style> sdList = styleService.list(sdQw);
         //判断是否已开款
         if (CollUtil.isNotEmpty(sdList)) {
             String designNos = sdList.stream()
@@ -721,7 +721,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             }
         }
         removeBatchByIds(seatIds);
-        sampleDesignService.remove(sdQw);
+        styleService.remove(sdQw);
         return true;
     }
 
@@ -758,10 +758,10 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public void updateBySampleDesignChange(SampleDesign sampleDesign) {
-        PlanningCategoryItem byId = getById(sampleDesign.getPlanningCategoryItemId());
-        BeanUtil.copyProperties(sampleDesign, byId, "createId", "createName", "id", "status");
-        String urlById = uploadFileService.getUrlById(sampleDesign.getStylePic());
+    public void updateBySampleDesignChange(Style style) {
+        PlanningCategoryItem byId = getById(style.getPlanningCategoryItemId());
+        BeanUtil.copyProperties(style, byId, "createId", "createName", "id", "status");
+        String urlById = uploadFileService.getUrlById(style.getStylePic());
         byId.setStylePic(urlById);
         updateById(byId);
     }

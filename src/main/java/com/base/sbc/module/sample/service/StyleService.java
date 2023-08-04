@@ -16,7 +16,7 @@ import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.dto.*;
-import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.entity.Style;
 import com.base.sbc.module.sample.vo.*;
 import com.github.pagehelper.PageInfo;
 
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 类描述：样衣设计 service类
+ * 类描述：款式设计 service类
  *
  * @author lxl
  * @version 1.0
@@ -33,7 +33,7 @@ import java.util.Map;
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-5-9 11:16:15
  */
-public interface SampleDesignService extends BaseService<SampleDesign> {
+public interface StyleService extends BaseService<Style> {
 
 
 /** 自定义方法区 不替换的区域【other_start】 **/
@@ -44,14 +44,15 @@ public interface SampleDesignService extends BaseService<SampleDesign> {
      * @param dto
      * @return
      */
-    SampleDesign saveSampleDesign(SampleDesignSaveDto dto);
+    Style saveSampleDesign(StyleSaveDto dto);
 
     /**
-     * 新增样衣设计
+     * 新增款式设计
+     *
      * @param dto
      * @return
      */
-    SampleDesign saveNewSampleDesign(SampleDesignSaveDto dto);
+    Style saveNewSampleDesign(StyleSaveDto dto);
 
     /**
      * 分页查询
@@ -61,7 +62,7 @@ public interface SampleDesignService extends BaseService<SampleDesign> {
     PageInfo queryPageInfo(SampleDesignPageDto dto);
 
     /**
-     * 查询样衣设计及款式配色
+     * 查询款式设计及款式配色
      * @param dto
      * @return
      */
@@ -87,14 +88,15 @@ public interface SampleDesignService extends BaseService<SampleDesign> {
      */
     boolean sendMaking(SendSampleMakingDto dto);
 
-    SampleDesign checkedSampleDesignExists(String id);
+    Style checkedSampleDesignExists(String id);
 
     /**
      * 查询明细数据
+     *
      * @param id
      * @return
      */
-    SampleDesignVo getDetail(String id);
+    StyleVo getDetail(String id);
 
     /**
      * 设计档案左侧树（0级:年份季节,1级:波段,2级:大类,3级:品类）
@@ -114,7 +116,7 @@ public interface SampleDesignService extends BaseService<SampleDesign> {
     /**
      * 查询维度标签
      *
-     * @param id 样衣设计id
+     * @param id 款式设计id
      * @return
      */
     List<FieldManagementVo> queryDimensionLabelsBySdId(String id);

@@ -28,15 +28,15 @@ import com.base.sbc.module.sample.dto.PreProductionSampleSearchDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.entity.PreProductionSample;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
-import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.entity.Style;
 import com.base.sbc.module.sample.mapper.PreProductionSampleMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleService;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
-import com.base.sbc.module.sample.service.SampleDesignService;
+import com.base.sbc.module.sample.service.StyleService;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleVo;
-import com.base.sbc.module.sample.vo.SampleDesignVo;
+import com.base.sbc.module.sample.vo.StyleVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -77,7 +77,7 @@ public class PreProductionSampleServiceImpl extends BaseServiceImpl<PreProductio
     @Resource
     private AttachmentService attachmentService;
     @Resource
-    private SampleDesignService sampleDesignService;
+    private StyleService styleService;
 
     @Override
     public PreProductionSample getByPackInfoId(String packInfoId) {
@@ -101,13 +101,13 @@ public class PreProductionSampleServiceImpl extends BaseServiceImpl<PreProductio
         if (pre != null) {
             return true;
         }
-        SampleDesign sampleDesign = sampleDesignService.getById(packInfo.getForeignId());
+        Style style = styleService.getById(packInfo.getForeignId());
         pre = new PreProductionSample();
-        BeanUtil.copyProperties(sampleDesign, pre, "id");
+        BeanUtil.copyProperties(style, pre, "id");
         BeanUtil.copyProperties(packInfo, pre, "id");
         CommonUtils.resetCreateUpdate(pre);
         pre.setPackInfoId(packInfo.getId());
-        pre.setSampleDesignId(packInfo.getForeignId());
+        pre.setStyleId(packInfo.getForeignId());
         return save(pre);
     }
 
@@ -202,8 +202,8 @@ public class PreProductionSampleServiceImpl extends BaseServiceImpl<PreProductio
         PreProductionSampleTaskVo taskVo = BeanUtil.copyProperties(task, PreProductionSampleTaskVo.class);
         //设置头像
         amcFeignService.setUserAvatarToObj(taskVo);
-        //查询样衣设计信息
-        SampleDesignVo sampleDesignVo = sampleDesignService.getDetail(sample.getSampleDesignId());
+        //查询款式设计信息
+        StyleVo sampleDesignVo = styleService.getDetail(sample.getStyleId());
         //设置头像
         amcFeignService.setUserAvatarToObj(sampleDesignVo);
         result.setTask(taskVo);

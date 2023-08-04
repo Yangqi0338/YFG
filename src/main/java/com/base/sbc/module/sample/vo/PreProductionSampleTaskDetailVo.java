@@ -23,13 +23,13 @@ import java.util.List;
 @Data
 @ApiModel("产前样任务明细 PreProductionSampleTaskDetailVo ")
 public class PreProductionSampleTaskDetailVo {
-    @ApiModelProperty(value = "样衣设计信息")
-    private SampleDesignVo sampleDesign;
+    @ApiModelProperty(value = "款式设计信息")
+    private StyleVo sampleDesign;
 
     @ApiModelProperty(value = "任务信息")
     private PreProductionSampleTaskVo task;
 
-    @ApiModelProperty(value = "样衣设计信息")
+    @ApiModelProperty(value = "款式设计信息")
     private PreProductionSampleVo pre;
     @ApiModelProperty(value = "附件信息")
     private List<AttachmentVo> attachmentList;

@@ -23,7 +23,7 @@ import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.dto.SampleSearchDTO;
 import com.base.sbc.module.sample.entity.Sample;
-import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.entity.Style;
 import com.base.sbc.module.sample.entity.SampleItem;
 import com.base.sbc.module.sample.enums.SampleFromTypeEnum;
 import com.base.sbc.module.sample.enums.SampleItemStatusEnum;
@@ -77,8 +77,8 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
 
         // 获取制版单
         PatternMaking pm = patternMakingMapper.selectById(dto.getPatternMakingId());
-        // 获取样衣设计
-        SampleDesign sd = sampleDesignMapper.selectById(pm.getSampleDesignId());
+        // 获取款式设计
+        Style sd = sampleDesignMapper.selectById(pm.getStyleId());
         if (pm != null && sd != null) {
             Sample sample = CopyUtil.copy(dto, Sample.class);
 
@@ -94,7 +94,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
             sample.setSampleType(pm.getSampleType());
             sample.setStyleName(sd.getStyleName());
             sample.setDesignNo(sd.getDesignNo());
-            sample.setSampleDesignId(pm.getSampleDesignId());
+            sample.setStyleId(pm.getStyleId());
             sample.setProdCategory(sd.getProdCategory());
             sample.setProdCategory1st(sd.getProdCategory1st());
             sample.setProdCategory2nd(sd.getProdCategory2nd());

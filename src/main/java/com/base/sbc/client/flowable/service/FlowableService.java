@@ -23,7 +23,7 @@ import java.util.Map;
 public class FlowableService {
 
 
-    public static final String sample_design_pdn = "样衣设计审批";
+    public static final String sample_design_pdn = "款式设计审批";
     public static final String big_goods_reverse = "大货资料包反审";
     public static final String design_bom_pdn = "设计BOM物料审批";
 

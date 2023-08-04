@@ -33,12 +33,12 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
 
     /**
-     * 通过样衣设计id 查找
+     * 通过款式设计id 查找
      *
-     * @param sampleDesignId
+     * @param styleId
      * @return
      */
-    List<PatternMakingListVo> findBySampleDesignId(String sampleDesignId);
+    List<PatternMakingListVo> findBySampleDesignId(String styleId);
 
     /**
      * 保存
@@ -48,7 +48,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
     PatternMaking savePatternMaking(PatternMakingDto dto);
 
     /**
-     * 样衣设计下发
+     * 款式设计下发
+     *
      * @param dto
      * @return
      */
@@ -173,7 +174,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @param id
      * @return
      */
-    SampleDesignPmDetailVo getDetailById(String id);
+    StylePmDetailVo getDetailById(String id);
 
     /**
      * 保存附件

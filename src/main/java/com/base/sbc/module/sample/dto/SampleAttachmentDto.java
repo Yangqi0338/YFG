@@ -15,7 +15,7 @@ import lombok.Data;
 
 
 @Data
-@ApiModel("样衣设计附件保存修改 SampleDto")
+@ApiModel("款式设计附件保存修改 SampleDto")
 public class SampleAttachmentDto {
 
     @ApiModelProperty(value = "附件id"  )

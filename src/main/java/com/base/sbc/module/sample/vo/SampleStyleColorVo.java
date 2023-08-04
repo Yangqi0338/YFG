@@ -29,14 +29,20 @@ import java.math.BigDecimal;
 public class SampleStyleColorVo  {
 
     private String id;
-    /** 产品季节id */
-    @ApiModelProperty(value = "产品季节id"  )
+    /**
+     * 产品季节id
+     */
+    @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
-    /** 样衣id */
-    @ApiModelProperty(value = "样衣id"  )
-    private String sampleDesignId;
-    /** 样衣图(主图) */
-    @ApiModelProperty(value = "样衣图(主图)"  )
+    /**
+     * 样衣id
+     */
+    @ApiModelProperty(value = "样衣id")
+    private String styleId;
+    /**
+     * 样衣图(主图)
+     */
+    @ApiModelProperty(value = "样衣图(主图)")
     private String sampleDesignPic;
     /*配色*/
     private String  colorName;

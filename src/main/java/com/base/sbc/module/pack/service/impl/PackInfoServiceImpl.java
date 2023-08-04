@@ -41,9 +41,9 @@ import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
-import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.entity.Style;
 import com.base.sbc.module.sample.service.PreProductionSampleService;
-import com.base.sbc.module.sample.service.SampleDesignService;
+import com.base.sbc.module.sample.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -74,7 +74,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
 // 自定义方法区 不替换的区域【other_start】
 
     @Resource
-    private SampleDesignService sampleDesignService;
+    private StyleService styleService;
     @Resource
     private AttachmentService attachmentService;
     @Resource
@@ -122,8 +122,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Override
     public PageInfo<SampleDesignPackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
 
-        // 查询样衣设计数据
-        BaseQueryWrapper<SampleDesign> sdQw = new BaseQueryWrapper<>();
+        // 查询款式设计数据
+        BaseQueryWrapper<Style> sdQw = new BaseQueryWrapper<>();
         sdQw.in("status", "1", "2");
         sdQw.notEmptyEq("prod_category1st", pageDto.getProdCategory1st());
         sdQw.notEmptyEq("prod_category", pageDto.getProdCategory());
@@ -132,8 +132,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
         sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
         sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
-        Page<SampleDesign> page = PageHelper.startPage(pageDto);
-        sampleDesignService.list(sdQw);
+        Page<Style> page = PageHelper.startPage(pageDto);
+        styleService.list(sdQw);
         PageInfo<SampleDesignPackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), SampleDesignPackInfoListVo.class);
         //查询bom列表
         List<SampleDesignPackInfoListVo> sdpList = pageInfo.getList();
@@ -157,11 +157,11 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
 
     @Override
     public PackInfoListVo createBySampleDesign(String id) {
-        SampleDesign sampleDesign = sampleDesignService.getById(id);
-        if (sampleDesign == null) {
+        Style style = styleService.getById(id);
+        if (style == null) {
             throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
         }
-        PackInfo packInfo = BeanUtil.copyProperties(sampleDesign, PackInfo.class, "id", "status");
+        PackInfo packInfo = BeanUtil.copyProperties(style, PackInfo.class, "id", "status");
         CommonUtils.resetCreateUpdate(packInfo);
         String newId = IdUtil.getSnowflake().nextIdStr();
         packInfo.setId(newId);
@@ -171,7 +171,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         QueryWrapper codeQw = new QueryWrapper();
         codeQw.eq("foreign_id", id);
         long count = count(codeQw);
-        packInfo.setCode(sampleDesign.getDesignNo() + StrUtil.DASHED + (count + 1));
+        packInfo.setCode(style.getDesignNo() + StrUtil.DASHED + (count + 1));
         save(packInfo);
         //新建bom版本
         PackBomVersionDto versionDto = BeanUtil.copyProperties(packInfo, PackBomVersionDto.class, "id");
@@ -290,7 +290,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 "/pdm/api/saas/packInfo/reverseApproval",
                 "/pdm/api/saas/packInfo/reverseApproval",
                 "/pdm/api/saas/packInfo/reverseApproval",
-                StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
+                StrUtil.format("/styleManagement/dataPackage?id={}&styleId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
                 variables);
         return true;
     }
@@ -310,7 +310,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 "/pdm/api/saas/packInfo/approval",
                 "/pdm/api/saas/packInfo/approval",
                 "/pdm/api/saas/packInfo/approval",
-                StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
+                StrUtil.format("/styleManagement/dataPackage?id={}&styleId={}&style={}", pack.getId(), pack.getForeignId(), pack.getDesignNo()),
                 variables);
 
         return true;
@@ -349,10 +349,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public AttachmentVo genTechSpecFile(PackCommonSearchDto dto) {
-        //获取样衣设计id
+        //获取款式设计id
         PackInfo byId = this.getById(dto.getForeignId());
         Map<String, String> params = new HashMap<>(12);
-        params.put("sampleDesignId", byId.getForeignId());
+        params.put("styleId", byId.getForeignId());
         params.put("foreignId", dto.getForeignId());
         params.put("packType", dto.getPackType());
         // 下载文件并上传到minio
@@ -386,16 +386,16 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
      */
     @Override
     public PageInfo<PackInfoListVo> getInfoListByDesignNo(String designNo) {
-        if(StringUtils.isBlank(designNo)){
+        if (StringUtils.isBlank(designNo)) {
             throw new OtherException("缺少设计款号");
         }
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("design_no",designNo);
+        queryWrapper.eq("design_no", designNo);
         List<PackInfoListVo> basicsdatumModelTypeList = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), PackInfoListVo.class);
-        List<SampleDesign> sampleDesign = sampleDesignService.list (queryWrapper);
-        if(!CollectionUtils.isEmpty(basicsdatumModelTypeList) && !CollectionUtils.isEmpty(sampleDesign)){
-            basicsdatumModelTypeList.forEach(b ->{
-                b.setStylePic( uploadFileService.getUrlById(sampleDesign.get(0).getStylePic()));
+        List<Style> style = styleService.list(queryWrapper);
+        if (!CollectionUtils.isEmpty(basicsdatumModelTypeList) && !CollectionUtils.isEmpty(style)) {
+            basicsdatumModelTypeList.forEach(b -> {
+                b.setStylePic(uploadFileService.getUrlById(style.get(0).getStylePic()));
             });
         }
         PageInfo<PackInfoListVo> pageInfo = new PageInfo<>(basicsdatumModelTypeList);

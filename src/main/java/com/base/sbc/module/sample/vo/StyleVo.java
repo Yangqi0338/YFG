@@ -4,7 +4,7 @@ package com.base.sbc.module.sample.vo;
 import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
-import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.entity.Style;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -21,8 +21,8 @@ import java.util.List;
  * @date 创建时间：2023-05-11 11:48
  */
 @Data
-@ApiModel("样衣设计明细返回 SampleVo ")
-public class SampleDesignVo extends SampleDesign {
+@ApiModel("款式设计明细返回 SampleVo ")
+public class StyleVo extends Style {
 
     @ApiModelProperty(value = "设计工艺员头像")
     @UserAvatar("technicianId")

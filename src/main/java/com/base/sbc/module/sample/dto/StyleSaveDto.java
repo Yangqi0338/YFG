@@ -1,7 +1,7 @@
 package com.base.sbc.module.sample.dto;
 
 import com.base.sbc.module.formType.entity.FieldVal;
-import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.entity.Style;
 import com.base.sbc.module.sample.vo.MaterialVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -19,8 +19,8 @@ import java.util.List;
  * @date 创建时间：2023-05-09 15:41
  */
 @Data
-@ApiModel("样衣设计保存修改 SampleDto")
-public class SampleDesignSaveDto extends SampleDesign {
+@ApiModel("款式设计保存修改 SampleDto")
+public class StyleSaveDto extends Style {
 
 
     @ApiModelProperty(value = "工艺信息")

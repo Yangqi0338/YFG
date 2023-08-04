@@ -12,9 +12,9 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.patternmaking.vo.PatternMakingForSampleVo;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
-import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.entity.Style;
 import com.base.sbc.module.sample.vo.ChartBarVo;
-import com.base.sbc.module.sample.vo.SampleDesignPageVo;
+import com.base.sbc.module.sample.vo.StylePageVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.sample.vo.StyleBoardCategorySummaryVo;
 import org.apache.ibatis.annotations.Mapper;
@@ -23,7 +23,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 类描述：样衣设计 dao类
+ * 类描述：款式设计 dao类
  *
  * @author lxl
  * @version 1.0
@@ -32,12 +32,12 @@ import java.util.List;
  * @date 创建时间：2023-5-9 11:16:15
  */
 @Mapper
-public interface SampleDesignMapper extends BaseMapper<SampleDesign> {
+public interface SampleDesignMapper extends BaseMapper<Style> {
     /**
      * 自定义方法区 不替换的区域【other_start】
      **/
 
-    List<SampleDesignPageVo> selectByQw(@Param(Constants.WRAPPER) QueryWrapper<SampleDesign> wrapper);
+    List<StylePageVo> selectByQw(@Param(Constants.WRAPPER) QueryWrapper<Style> wrapper);
 
     List<SampleUserVo> getDesignerList(@Param("companyCode") String companyCode);
 

@@ -47,6 +47,6 @@ public class PatternMakingForSampleVo {
     @ApiModelProperty(value = "版师（纸样师")
     private String patternDesignName;
 
-    @ApiModelProperty(value = "样衣设计ID")
-    private String sampleDesignId;
+    @ApiModelProperty(value = "款式设计ID")
+    private String styleId;
 }

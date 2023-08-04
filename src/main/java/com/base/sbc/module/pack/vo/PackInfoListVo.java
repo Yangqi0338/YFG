@@ -24,7 +24,7 @@ public class PackInfoListVo extends PackInfoStatusVo {
 
 
     @JsonIgnore
-    @ApiModelProperty(value = "主数据id(样衣设计id)")
+    @ApiModelProperty(value = "主数据id(款式设计id)")
     private String foreignId;
 
     @ApiModelProperty(value = "id")

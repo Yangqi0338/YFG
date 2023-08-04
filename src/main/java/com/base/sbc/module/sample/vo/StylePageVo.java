@@ -2,7 +2,7 @@ package com.base.sbc.module.sample.vo;
 
 
 import cn.hutool.core.date.DateUtil;
-import com.base.sbc.module.sample.entity.SampleDesign;
+import com.base.sbc.module.sample.entity.Style;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 类描述：样衣设计分页返回
+ * 类描述：款式设计分页返回
  *
  * @author lixianglin
  * @version 1.0
@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Data
 @ApiModel("样衣分页返回 SamplePageVo ")
-public class SampleDesignPageVo extends SampleDesign {
+public class StylePageVo extends Style {
     @ApiModelProperty(value = "设计师头像", example = "https://sjkj-demo.oss-cn-shenzhen.aliyuncs.com/null/userHead/09/02/8361ea39-21d2-4944-b150-d2e69bb68254.png")
     private String aliasUserAvatar;
     /*款式配色*/

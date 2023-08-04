@@ -26,8 +26,8 @@ public class SampleBoardVo {
     private String id;
     @ApiModelProperty(value = "打版id")
     private String patternMakingId;
-    @ApiModelProperty(value = "样衣设计id")
-    private String sampleDesignId;
+    @ApiModelProperty(value = "款式设计id")
+    private String styleId;
 
     @ApiModelProperty(value = "款图")
     private String stylePic;

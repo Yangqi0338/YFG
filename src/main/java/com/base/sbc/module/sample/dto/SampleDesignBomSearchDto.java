@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * 类描述：样衣设计-物料信息 筛选dto
+ * 类描述：款式设计-物料信息 筛选dto
  *
  * @author lixianglin
  * @version 1.0
@@ -15,9 +15,9 @@ import lombok.Data;
  * @date 创建时间：2023-08-03 14:03
  */
 @Data
-@ApiModel("样衣设计-物料信息 筛选dto SampleDesignBomSearchDto")
+@ApiModel("款式设计-物料信息 筛选dto SampleDesignBomSearchDto")
 public class SampleDesignBomSearchDto extends Page {
 
-    @ApiModelProperty(value = "样衣设计id")
-    private String sampleDesignId;
+    @ApiModelProperty(value = "款式设计id")
+    private String styleId;
 }

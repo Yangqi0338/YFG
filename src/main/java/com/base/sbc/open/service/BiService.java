@@ -7,8 +7,8 @@ import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackSize;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackSizeService;
-import com.base.sbc.module.sample.entity.SampleDesign;
-import com.base.sbc.module.sample.service.SampleDesignService;
+import com.base.sbc.module.sample.entity.Style;
+import com.base.sbc.module.sample.service.StyleService;
 import com.base.sbc.open.entity.BiSizeChart;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BiService {
 
-    private final SampleDesignService sampleDesignService;
+    private final StyleService styleService;
 
     private final PackSizeService packSizeService;
 
@@ -34,21 +34,21 @@ public class BiService {
     public List<BiSizeChart> sizeChart() {
         List<BiSizeChart> biSizeCharts = new ArrayList<>();
         // TODO: 2023/7/24 字段未确认
-        List<SampleDesign> list = sampleDesignService.list();
-        for (SampleDesign sampleDesign : list) {
-            List<PackInfo> packInfos = packInfoService.list(new QueryWrapper<PackInfo>().eq("foreign_id", sampleDesign.getId()));
+        List<Style> list = styleService.list();
+        for (Style style : list) {
+            List<PackInfo> packInfos = packInfoService.list(new QueryWrapper<PackInfo>().eq("foreign_id", style.getId()));
             for (PackInfo packInfo : packInfos) {
                 List<PackSize> packSizes = packSizeService.list(new QueryWrapper<PackSize>().eq("foreign_id", packInfo.getId()));
                 for (PackSize packSize : packSizes) {
                     String[] sizeNames = packSize.getSize().split(",");
                     for (String sizeName : sizeNames) {
                         BiSizeChart biSize = new BiSizeChart();
-                        biSize.setSizechartName(sampleDesign.getSizeRange());//号型类型编码？
+                        biSize.setSizechartName(style.getSizeRange());//号型类型编码？
                         biSize.setSizerangeName(null); //号型类型名称？
-                        biSize.setBaseSize(sampleDesign.getDefaultSize());
+                        biSize.setBaseSize(style.getDefaultSize());
                         biSize.setSubrangeIncrement(null);//未确认
                         try {
-                            biSize.setSizechartGroup(sampleDesign.getProdCategoryName());
+                            biSize.setSizechartGroup(style.getProdCategoryName());
                             String[] split = sizeName.split("\\(");
                             biSize.setProductSizeType(split[1].replace(")", ""));
                             biSize.setProductSize(split[0]);
@@ -63,7 +63,7 @@ public class BiService {
                         biSize.setDimensionName(packSize.getPartName());
                         biSize.setDimensionDescription(packSize.getMethod());
                         biSize.setDimensionSizeChart(sizeName);
-                        biSize.setIsBaseSize(sizeName.equals(sampleDesign.getDefaultSize()));
+                        biSize.setIsBaseSize(sizeName.equals(style.getDefaultSize()));
 
                         JSONObject jsonObject = JSON.parseObject(packSize.getStandard());
                         biSize.setIncrementsCode(jsonObject.getString("template" + sizeName));
@@ -71,7 +71,7 @@ public class BiService {
                         biSize.setShrinkageCode(jsonObject.getString("washing" + sizeName));
 
                         biSize.setDimensionId(null);//测量点编码
-                        biSize.setStyleUrl(sampleDesign.getStyleNo());
+                        biSize.setStyleUrl(style.getStyleNo());
 
                         biSizeCharts.add(biSize);
                     }
