@@ -64,6 +64,6 @@ public interface SampleItemService extends BaseService<SampleItem> {
      * @param ids
      * @return
      */
-    void checkSampleStatus(List<String> ids, String checkStatus);
+    void checkSampleStatus(List<String> ids, List<String> checkStatus);
 }
 

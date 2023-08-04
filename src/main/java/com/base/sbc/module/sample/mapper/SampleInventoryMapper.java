@@ -6,9 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.module.sample.dto.SampleInventoryPageDto;
 import com.base.sbc.module.sample.entity.SampleInventory;
 import com.base.sbc.module.sample.vo.SampleInventoryVo;
 import org.apache.ibatis.annotations.Mapper;
@@ -22,7 +21,7 @@ import java.util.List;
  */
 @Mapper
 public interface SampleInventoryMapper extends BaseMapper<SampleInventory> {
-    List<SampleInventoryVo> getList(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<SampleInventoryVo> getList(@Param("dto") SampleInventoryPageDto dto);
 
     SampleInventoryVo getDetail(String id);
 }

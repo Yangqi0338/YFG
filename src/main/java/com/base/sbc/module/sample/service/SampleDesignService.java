@@ -20,6 +20,7 @@ import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.vo.*;
 import com.github.pagehelper.PageInfo;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +65,7 @@ public interface SampleDesignService extends BaseService<SampleDesign> {
      * @param dto
      * @return
      */
-    PageInfo sampleSampleStyle(SampleDesignPageDto dto);
+    PageInfo sampleSampleStyle(Principal user, SampleDesignPageDto dto);
     /**
      * 发起审批
      * @param id

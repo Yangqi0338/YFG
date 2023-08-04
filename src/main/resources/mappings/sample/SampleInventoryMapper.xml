@@ -8,7 +8,24 @@
            si2.create_id, si2.create_name, si2.update_id, si2.update_date, si2.update_name,
            si2.examine_reason, si2.remarks
         FROM t_sample_inventory si2
-        ${ew.customSqlSegment}
+        <where>
+            si2.company_code = #{dto.companyCode}
+            and si2.del_flag = '0'
+            <if test="dto.status != null and dto.status !='' and dto.status !=0">
+                and si2.status = #{dto.status}
+            </if>
+
+            <if test="dto.startDate != null">
+                and si2.start_date >= #{startDate}
+            </if>
+            <if test="dto.endDate != null">
+                and si2.end_date &lt; #{endDate}
+            </if>
+            <if test="dto.search != null and dto.search !=''">
+                and (si2.name like concat('%',dto.search,'%') or si2.code like concat('%',dto.search,'%'))
+            </if>
+        </where>
+        order by si2.create_date desc
     </select>
 
     <select id="getDetail" resultType="com.base.sbc.module.sample.vo.SampleInventoryVo">

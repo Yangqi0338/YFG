@@ -22,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -43,8 +44,8 @@ public class SampleStyleColorController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getSampleStyleColorList")
-	public PageInfo<SampleStyleColorVo> getSampleStyleColorList(QuerySampleStyleColorDto querySampleStyleColorDto) {
-		return  sampleStyleColorService.getSampleStyleColorList(querySampleStyleColorDto);
+	public PageInfo<SampleStyleColorVo> getSampleStyleColorList(Principal user,QuerySampleStyleColorDto querySampleStyleColorDto) {
+		return  sampleStyleColorService.getSampleStyleColorList(user,querySampleStyleColorDto);
 	}
 
 	@ApiOperation(value = "款式编号查找款式配色")

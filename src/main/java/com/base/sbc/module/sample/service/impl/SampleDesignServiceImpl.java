@@ -8,6 +8,7 @@ package com.base.sbc.module.sample.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -17,6 +18,7 @@ import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
@@ -24,6 +26,8 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.StyleNoImgUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.common.entity.Attachment;
@@ -43,6 +47,8 @@ import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.vo.PackInfoListVo;
+import com.base.sbc.module.pack.vo.SampleDesignPackInfoListVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.QueryPlanningDimensionalityDto;
 import com.base.sbc.module.planning.entity.*;
@@ -71,6 +77,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -121,6 +128,11 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
     private BandService bandService;
     @Autowired
     private PackBomService packBomService;
+
+    @Autowired
+    private UserUtils userUtils;
+
+
     private IdGen idGen = new IdGen();
 
     @Override
@@ -327,17 +339,32 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
      * @return
      */
     @Override
-    public PageInfo sampleSampleStyle(SampleDesignPageDto dto) {
+    public PageInfo sampleSampleStyle(Principal user, SampleDesignPageDto dto) {
+        GroupUser userBy = userUtils.getUserBy(user);
         PageInfo pageInfo = queryPageInfo(dto);
         List<SampleDesignPageVo> list = pageInfo.getList();
+
         if (!CollectionUtils.isEmpty(list)) {
+            /*查询配色*/
+            List<String> stringList =  list.stream().map(SampleDesignPageVo::getId).collect(Collectors.toList());
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.in("ssc.sample_design_id",stringList);
+            queryWrapper.eq("ssc.del_flag", "0");
+            queryWrapper.eq(StrUtil.isNotBlank(dto.getStyleStatus()), "ssc.status", dto.getStyleStatus());
+            List<SampleStyleColorVo> sampleStyleColorVoList = sampleStyleColorMapper.getSampleStyleColorList(queryWrapper,null);
+
+            Map<String, List<SampleStyleColorVo>> stringListMap = sampleStyleColorVoList.stream() .collect(Collectors.groupingBy(SampleStyleColorVo::getSampleDesignId));
             list.forEach(sampleDesignPageVo -> {
-                QueryWrapper queryWrapper = new QueryWrapper();
-                queryWrapper.eq("ssc.sample_design_id", sampleDesignPageVo.getId());
-                queryWrapper.eq("ssc.del_flag", "0");
-                queryWrapper.eq(StrUtil.isNotBlank(dto.getStyleStatus()), "ssc.status", dto.getStyleStatus());
-                List<SampleStyleColorVo> sampleStyleColorVoList = sampleStyleColorMapper.getSampleStyleColorList(queryWrapper,null);
-                sampleDesignPageVo.setSampleStyleColorVoList(sampleStyleColorVoList);
+                List<SampleStyleColorVo> styleColorVoList = stringListMap.get(sampleDesignPageVo.getId());
+                /*获取款式图*/
+                if(!CollectionUtils.isEmpty(styleColorVoList)){
+                    sampleDesignPageVo.setSampleStyleColorVoList(styleColorVoList);
+                    styleColorVoList.forEach(s -> {
+                        s.setSampleDesignPic(StyleNoImgUtils.getStyleNoImgUrl(userBy, s.getSampleDesignPic()));
+                    });
+                }
+
+
             });
         }
         return pageInfo;

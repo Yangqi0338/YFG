@@ -10,11 +10,14 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StyleNoImgUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
@@ -42,6 +45,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -67,7 +71,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
 
 	private final SampleDesignMapper sampleDesignMapper;
 
-	private final BandService bandService;
+    private final UserUtils userUtils;
 
     @Lazy
     @Resource
@@ -86,7 +90,8 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
      * @return
      */
     @Override
-    public PageInfo<SampleStyleColorVo> getSampleStyleColorList(QuerySampleStyleColorDto queryDto) {
+    public PageInfo<SampleStyleColorVo> getSampleStyleColorList(Principal user, QuerySampleStyleColorDto queryDto) {
+        GroupUser userBy = userUtils.getUserBy(user);
         /*分页*/
         PageHelper.startPage(queryDto);
         QueryWrapper<SampleStyleColor> queryWrapper = new QueryWrapper<>();
@@ -106,6 +111,10 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
         queryWrapper.orderByDesc("ssc.create_date");
         /*查询样衣-款式配色数据*/
         List<SampleStyleColorVo> sampleStyleColorList = baseMapper.getSampleStyleColorList(queryWrapper,meetFlag);
+        /*获取款式图*/
+        sampleStyleColorList.forEach(s -> {
+            s.setSampleDesignPic(StyleNoImgUtils.getStyleNoImgUrl(userBy, s.getSampleDesignPic()));
+        });
         PageInfo<SampleStyleColorVo> pageInfo = new PageInfo<>(sampleStyleColorList);
         return pageInfo;
     }

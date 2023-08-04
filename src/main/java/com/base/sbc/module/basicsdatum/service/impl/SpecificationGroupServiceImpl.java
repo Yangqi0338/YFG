@@ -109,6 +109,7 @@ public class SpecificationGroupServiceImpl extends BaseServiceImpl<Specification
                     String value = entry.getValue();
                     if (value.equals(specificationGroupExcelDto.getTypeName())) {
                         specificationGroupExcelDto.setType(key);
+                        specificationGroupExcelDto.setTypeName(value);
                         break;
                     }
                 }
@@ -118,24 +119,29 @@ public class SpecificationGroupServiceImpl extends BaseServiceImpl<Specification
                 QueryWrapper queryWrapper = new QueryWrapper();
                 queryWrapper.in("hangtags", StringUtils.convertList(specificationGroupExcelDto.getSpecificationNames()));
                 queryWrapper.eq("type_name", specificationGroupExcelDto.getTypeName());
-                 specificationList = specificationMapper.selectList(queryWrapper);
-                 /*基础规格*/
-                if(StringUtils.isNotBlank(specificationGroupExcelDto.getBasicsSpecificationName())){
-                    if(!CollectionUtils.isEmpty(specificationList)){
-                        List<Specification> specificationList1 =   specificationList.stream().filter(s -> specificationGroupExcelDto.getBasicsSpecificationName().equals(s.getName())).collect(Collectors.toList());
+                specificationList = specificationMapper.selectList(queryWrapper);
+                /*基础规格*/
+                if (StringUtils.isNotBlank(specificationGroupExcelDto.getBasicsSpecificationName())) {
+                    if (!CollectionUtils.isEmpty(specificationList)) {
+                        List<Specification> specificationList1 = specificationList.stream().filter(s -> specificationGroupExcelDto.getBasicsSpecificationName().equals(s.getHangtags())).collect(Collectors.toList());
                         if (!CollectionUtils.isEmpty(specificationList1)) {
                             specificationGroupExcelDto.setBasicsSpecification(specificationList1.get(0).getCode());
+                            specificationGroupExcelDto.setBasicsSpecificationName(specificationList1.get(0).getHangtags());
+
                         }
-                    }else {
+                    } else {
                         specificationGroupExcelDto.setBasicsSpecification("");
+                        specificationGroupExcelDto.setBasicsSpecificationName("");
                     }
                 }
                 if (!CollectionUtils.isEmpty(specificationList)) {
                     List<String> stringList = specificationList.stream().map(Specification::getCode).collect(Collectors.toList());
+                    List<String> stringList1 = specificationList.stream().map(Specification::getHangtags).collect(Collectors.toList());
                     specificationGroupExcelDto.setSpecificationIds(StringUtils.join(stringList, ","));
-                }else {
+                    specificationGroupExcelDto.setSpecificationNames(StringUtils.join(stringList1, ","));
+                } else {
+                    specificationGroupExcelDto.setSpecificationIds("");
                     specificationGroupExcelDto.setSpecificationNames("");
-                    specificationGroupExcelDto.setBasicsSpecificationName("");
                 }
             }
 

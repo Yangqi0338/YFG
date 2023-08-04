@@ -78,7 +78,7 @@ public class SampleInventoryItemServiceImpl extends BaseServiceImpl<SampleInvent
     @Override
     public Map<String, Integer> getSampleItemIdsByInventoryIds(List<String> inventoryIds) {
         QueryWrapper<SampleInventoryItem> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("sample_inventory_id", inventoryIds);
+        queryWrapper.in("sample_inventory_id", inventoryIds);
         queryWrapper.eq("del_flag", '0');
         queryWrapper.select("sample_item_id", "new_count");
 
