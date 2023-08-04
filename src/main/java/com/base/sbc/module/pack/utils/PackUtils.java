@@ -30,6 +30,10 @@ public class PackUtils {
      */
     public static final String PACK_TYPE_BIG_GOODS = "packBigGoods";
 
+    /**
+     * 资料包类型 样衣设计
+     */
+    public static final String PACK_TYPE_SAMPLE_DESIGN = "packSampleDesign";
 
     /**
      * 公共条件
@@ -70,6 +74,26 @@ public class PackUtils {
             packBom.setStatus(Opt.ofBlankAble(packBom.getStatus()).orElse(BaseGlobal.YES));
             packBom.setUnusableFlag(Opt.ofBlankAble(packBom.getUnusableFlag()).orElse(BaseGlobal.NO));
             packBom.setScmSendFlag(Opt.ofBlankAble(packBom.getScmSendFlag()).orElse(BaseGlobal.NO));
+        }
+    }
+
+    /**
+     * 公共条件
+     *
+     * @param qw
+     * @param foreignId 资料包id
+     * @param packType 资料包类型
+     */
+    public static void commonQw(AbstractWrapper qw, String foreignId, String packType, String status) {
+        qw.eq("del_flag", BaseGlobal.NO);
+        if (StrUtil.isNotBlank(foreignId)) {
+            qw.eq("foreign_id", foreignId);
+        }
+        if (StrUtil.isNotBlank(packType)) {
+            qw.eq("pack_type", packType);
+        }
+        if (StrUtil.isNotBlank(status)) {
+            qw.eq("status", status);
         }
     }
 }

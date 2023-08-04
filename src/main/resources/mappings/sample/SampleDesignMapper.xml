@@ -25,7 +25,7 @@
     </select>
     <select id="getBandChart" resultType="com.base.sbc.module.sample.vo.ChartBarVo">
 
-        SELECT band_code AS product,
+        SELECT band_name AS product,
         STATUS AS dimension,
         count(id) AS total
         FROM t_sample_design
@@ -33,11 +33,11 @@
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
-        GROUP BY band_code,
+        GROUP BY band_name,
         STATUS;
     </select>
     <select id="getCategoryChart" resultType="com.base.sbc.module.sample.vo.ChartBarVo">
-        SELECT prod_category AS product,
+        SELECT prod_category_name AS product,
         STATUS AS dimension,
         count(id) AS total
         FROM t_sample_design
@@ -45,8 +45,8 @@
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
-        GROUP BY product,
-        dimension;
+        GROUP BY prod_category_name,
+        STATUS;
 
     </select>
     <select id="dimensionTotal" resultType="com.base.sbc.module.planning.vo.DimensionTotalVo">

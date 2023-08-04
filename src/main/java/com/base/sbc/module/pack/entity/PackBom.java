@@ -25,7 +25,7 @@ import java.math.BigDecimal;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-2 17:56:23
+ * @date 创建时间：2023-8-4 9:45:56
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -40,15 +40,15 @@ public class PackBom extends BaseDataEntity<String> {
         SmpBomDto smpBomDto = new SmpBomDto();
         smpBomDto.setColorName(color);
         smpBomDto.setColorCode(colorCode);
-
+        smpBomDto.setMainMaterial("1".equals(mainFlag));
         smpBomDto.setMaterialCode(materialCode);
         smpBomDto.setMaterialName(materialName);
         smpBomDto.setMaterialUnit(unitCode);
-        smpBomDto.setPlaceOfUse(part);
+        smpBomDto.setPlaceOfUse(partName);
         smpBomDto.setLossRate(lossRate);
         smpBomDto.setSupplierMaterialCode(supplierMaterialCode);
         smpBomDto.setQuotationSupplierCode(supplierId);
-        smpBomDto.setCollocation(bomMatch);
+        smpBomDto.setCollocation(collocationName);
         smpBomDto.setBomLineItemId(id);
         smpBomDto.setId(id);
         IdGen idGen = new IdGen();
@@ -67,16 +67,21 @@ public class PackBom extends BaseDataEntity<String> {
         bomMaterial.setCode(materialCode);
         bomMaterial.setMatColorCode(colorCode);
         bomMaterial.setMaterialUom(unitCode);
-        bomMaterial.setPosition(part);
+        bomMaterial.setPosition(partName);
         bomMaterial.setCostRate(lossRate);
         bomMaterial.setActive("0".equals(status));
-        bomMaterial.setPlacementName(bomMatch);
+        bomMaterial.setPlacementName(collocationName);
         return bomMaterial;
     }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
+    /**
+     * code(行id)
+     */
+    @ApiModelProperty(value = "code(行id)")
+    private String code;
     /**
      * 主数据id
      */
@@ -133,10 +138,15 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "成分")
     private String ingredient;
     /**
-     * 部位
+     * 部位编码
      */
-    @ApiModelProperty(value = "部位")
-    private String part;
+    @ApiModelProperty(value = "部位编码")
+    private String partCode;
+    /**
+     * 部位名称
+     */
+    @ApiModelProperty(value = "部位名称")
+    private String partName;
     /**
      * 厂家有效门幅/规格
      */
@@ -323,14 +333,19 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "金额")
     private BigDecimal amount;
     /**
-     * 搭配
+     * 搭配名称
      */
-    @ApiModelProperty(value = "搭配")
-    private String bomMatch;
+    @ApiModelProperty(value = "搭配名称")
+    private String collocationCode;
     /**
-     * SCM下发状态:0未下发,1已下发
+     * 搭配编码
      */
-    @ApiModelProperty(value = "SCM下发状态:0未下发,1已下发")
+    @ApiModelProperty(value = "搭配编码")
+    private String collocationName;
+    /**
+     * SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开
+     */
+    @ApiModelProperty(value = "SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开")
     private String scmSendFlag;
     /**
      * 排序

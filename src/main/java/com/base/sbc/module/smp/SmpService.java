@@ -1,6 +1,5 @@
 package com.base.sbc.module.smp;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
@@ -8,7 +7,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.restTemplate.RestTemplateService;
@@ -50,7 +48,10 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -509,7 +510,7 @@ public class SmpService {
 
             SmpBomDto smpBomDto = packBom.toSmpBomDto();
 
-            smpBomDto.setMainMaterial(true);
+
             //bom主表
             PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
 
@@ -526,50 +527,51 @@ public class SmpService {
 
             }
 
-            List<BomMaterial> bomMaterials = new ArrayList<>();
-
-            BomMaterial bomMaterial = packBom.toBomMaterial();
-            bomMaterial.setBomId(packInfo.getCode());
-            bomMaterials.add(bomMaterial);
-            smpBomDto.setMainMaterial(false);
-            smpBomDto.setBomMaterials(bomMaterials);
+            //List<BomMaterial> bomMaterials = new ArrayList<>();
+            //
+            //BomMaterial bomMaterial = packBom.toBomMaterial();
+            //bomMaterial.setBomId(packInfo.getCode());
+            //bomMaterials.add(bomMaterial);
+            //smpBomDto.setBomMaterials(bomMaterials);
 
             List<SmpSizeQty> sizeQtyList = new ArrayList<>();
-            for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("foreign_id", packBom.getForeignId()))) {
+            for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("bom_id", packBom.getId()))) {
                 SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
                 //根据尺码id查询尺码
                 BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());
                 if (basicsdatumSize != null) {
-                    smpSizeQty.setPSizeCode(basicsdatumSize.getInternalSize());
-                    smpSizeQty.setSizeCode(basicsdatumSize.getCode());
+                    smpSizeQty.setPSizeCode(basicsdatumSize.getSort());
                     smpSizeQty.setItemSize(basicsdatumSize.getInternalSize());
-                    smpSizeQty.setMatSizeUrl(basicsdatumSize.getCode());
+
                     sizeQtyList.add(smpSizeQty);
                 }
 
             }
             smpBomDto.setSizeQtyList(sizeQtyList);
 
+
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/bom", smpBomDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
-            packBom.setScmSendFlag("1");
-            packBomService.updateById(packBom);
+
             if (aBoolean) {
+                packBom.setScmSendFlag("1");
                 i++;
+            }else {
+                packBom.setScmSendFlag("2");
             }
-
-            PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packBom.getPackType()));
-            long count = packBomService.count(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("scm_send_flag", "1"));
-
-            long count1 = packBomService.count(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
-            if (count == 0) {
-                packInfoStatus.setScmSendFlag("0");
-            } else if (count1 == count) {
-                packInfoStatus.setScmSendFlag("1");
-            } else {
-                packInfoStatus.setScmSendFlag("2");
-            }
-            packInfoStatusService.updateById(packInfoStatus);
+            packBomService.updateById(packBom);
+            //PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packBom.getPackType()));
+            //long count = packBomService.count(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("scm_send_flag", "1"));
+            //
+            //long count1 = packBomService.count(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
+            //if (count == 0) {
+            //    packInfoStatus.setScmSendFlag("0");
+            //} else if (count1 == count) {
+            //    packInfoStatus.setScmSendFlag("1");
+            //} else {
+            //    packInfoStatus.setScmSendFlag("2");
+            //}
+            //packInfoStatusService.updateById(packInfoStatus);
         }
 
         return i;
@@ -593,8 +595,10 @@ public class SmpService {
             if (aBoolean) {
                 i++;
                 basicsdatumColourLibrary.setScmSendFlag("1");
-                basicsdatumColourLibraryService.updateById(basicsdatumColourLibrary);
+            }else {
+                basicsdatumColourLibrary.setScmSendFlag("2");
             }
+            basicsdatumColourLibraryService.updateById(basicsdatumColourLibrary);
         }
         return i;
     }
@@ -607,6 +611,7 @@ public class SmpService {
         IdGen idGen = new IdGen();
         for (SmpProcessSheetDto smpProcessSheetDto : sheetDtoList) {
             String id = String.valueOf(idGen.nextId());
+            PackInfoStatus packInfoStatus = packInfoStatusService.get(smpProcessSheetDto.getForeignId(), smpProcessSheetDto.getPackType());
 
             smpProcessSheetDto.setSyncId(id);
             smpProcessSheetDto.setId(id);
@@ -614,8 +619,11 @@ public class SmpService {
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpProcessSheetDto, "smp", "工艺单下发");
             if (aBoolean) {
                 i++;
+                packInfoStatus.setTechScmSendFlag("1");
+            }else {
+                packInfoStatus.setTechScmSendFlag("2");
             }
-
+            packInfoStatusService.updateById(packInfoStatus);
         }
         return i;
     }

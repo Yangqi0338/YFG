@@ -69,7 +69,7 @@
     </select>
     <select id="categorySummary" resultType="com.base.sbc.module.sample.vo.ChartBarVo">
         SELECT
-        ci.band_code as dimension ,
+        ci.band_name as dimension ,
         count(1) as total
         FROM t_planning_category_item ci
         LEFT JOIN t_sample_design sd ON ( sd.planning_category_item_id = ci.id and sd.del_flag='0')
@@ -81,7 +81,7 @@
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
-        group by dimension
+        group by ci.band_name
     </select>
     <select id="totalSkcByPlanningSeason" resultType="com.base.sbc.module.common.vo.CountVo">
         select planning_season_id as label,count(id) as `count` from t_planning_category_item

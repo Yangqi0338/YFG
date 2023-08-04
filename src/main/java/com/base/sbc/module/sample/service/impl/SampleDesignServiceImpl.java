@@ -37,6 +37,12 @@ import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FieldValService;
 import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.pack.dto.PackBomDto;
+import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
+import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.QueryPlanningDimensionalityDto;
 import com.base.sbc.module.planning.entity.*;
@@ -113,6 +119,8 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
     private FieldValService fieldValService;
     @Autowired
     private BandService bandService;
+    @Autowired
+    private PackBomService packBomService;
     private IdGen idGen = new IdGen();
 
     @Override
@@ -755,6 +763,40 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
 
         uw.eq("planning_channel_id", channel.getId());
         update(item, uw);
+    }
+
+    @Override
+    public PageInfo<PackBomVo> bomList(SampleDesignBomSearchDto dto) {
+        PackBomPageSearchDto bomDto = BeanUtil.copyProperties(dto, PackBomPageSearchDto.class);
+        bomDto.setForeignId(dto.getSampleDesignId());
+        bomDto.setPackType(PackUtils.PACK_TYPE_SAMPLE_DESIGN);
+        return packBomService.pageInfo(bomDto);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public Boolean delBom(String id) {
+        boolean b = packBomService.removeByIds(StrUtil.split(id, CharUtil.COMMA));
+        return b;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public Boolean saveBom(SampleDesignBomSaveDto dto) {
+        if (StrUtil.isBlank(dto.getSampleDesignId())) {
+            throw new OtherException("样衣设计id为空");
+        }
+        if (CollUtil.isEmpty(dto.getBomList())) {
+            throw new OtherException("物料数据为空");
+        }
+        List<PackBomDto> bomList = dto.getBomList();
+        for (PackBomDto packBomDto : bomList) {
+            packBomDto.setForeignId(dto.getSampleDesignId());
+            packBomDto.setPackType(PackUtils.PACK_TYPE_SAMPLE_DESIGN);
+        }
+        List<PackBom> packBoms = BeanUtil.copyToList(bomList, PackBom.class);
+
+        return packBomService.saveBatch(packBoms);
     }
 
     private void getProductCategoryTreeQw(ProductCategoryTreeVo vo, QueryWrapper<?> qw) {

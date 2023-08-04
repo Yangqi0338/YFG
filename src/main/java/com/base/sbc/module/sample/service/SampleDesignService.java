@@ -9,15 +9,13 @@ package com.base.sbc.module.sample.service;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
-import com.base.sbc.module.sample.dto.DimensionLabelsSearchDto;
-import com.base.sbc.module.sample.dto.SampleDesignPageDto;
-import com.base.sbc.module.sample.dto.SampleDesignSaveDto;
-import com.base.sbc.module.sample.dto.SendSampleMakingDto;
+import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.vo.*;
 import com.github.pagehelper.PageInfo;
@@ -147,6 +145,12 @@ public interface SampleDesignService extends BaseService<SampleDesign> {
     void updateBySeatChange(PlanningCategoryItem item);
 
     void updateByChannelChange(PlanningChannel planningChannel);
+
+    PageInfo<PackBomVo> bomList(SampleDesignBomSearchDto dto);
+
+    Boolean delBom(String id);
+
+    Boolean saveBom(SampleDesignBomSaveDto dto);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.purchase.service;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.purchase.entity.PurchaseDemand;
 
@@ -22,7 +23,7 @@ public interface PurchaseDemandService extends BaseService<PurchaseDemand>{
 // 自定义方法区 不替换的区域【other_start】
     ApiResult cancel(String companyCode, String ids);
 
-
+    void generatePurchaseDemand(UserCompany userCompany, String companyCode, String id);
 // 自定义方法区 不替换的区域【other_end】
 
 	

@@ -41,6 +41,8 @@ public class PackBomSize extends BaseDataEntity<String> {
         IdGen idGen = new IdGen();
         smpSizeQty.setSyncId(String.valueOf(idGen.nextId()));
         smpSizeQty.setItemQty(quantity);
+        smpSizeQty.setSizeCode(widthCode);
+        smpSizeQty.setMatSizeUrl(width);
         return smpSizeQty;
     }
     /**********************************实体存放的其他字段区 【other_end】******************************************/
