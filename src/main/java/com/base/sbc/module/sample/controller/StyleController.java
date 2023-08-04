@@ -16,8 +16,8 @@ import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.entity.Style;
 import com.base.sbc.module.sample.service.StyleService;
 import com.base.sbc.module.sample.vo.DesignDocTreeVo;
-import com.base.sbc.module.sample.vo.StyleVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
+import com.base.sbc.module.sample.vo.StyleVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -73,7 +73,7 @@ public class StyleController {
     @ApiOperation(value = "保存")
     @PostMapping
     public StyleVo save(@RequestBody StyleSaveDto dto) {
-        Style style = styleService.saveSampleDesign(dto);
+        Style style = styleService.saveStyle(dto);
         return styleService.getDetail(style.getId());
     }
 

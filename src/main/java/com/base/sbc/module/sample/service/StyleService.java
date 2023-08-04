@@ -29,7 +29,7 @@ import java.util.Map;
  *
  * @author lxl
  * @version 1.0
- * @address com.base.sbc.module.sample.service.SampleService
+ * @address com.base.sbc.module.sample.service.StyleService
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-5-9 11:16:15
  */
@@ -44,7 +44,7 @@ public interface StyleService extends BaseService<Style> {
      * @param dto
      * @return
      */
-    Style saveSampleDesign(StyleSaveDto dto);
+    Style saveStyle(StyleSaveDto dto);
 
     /**
      * 新增款式设计
@@ -52,7 +52,7 @@ public interface StyleService extends BaseService<Style> {
      * @param dto
      * @return
      */
-    Style saveNewSampleDesign(StyleSaveDto dto);
+    Style saveNewStyle(StyleSaveDto dto);
 
     /**
      * 分页查询
@@ -88,7 +88,7 @@ public interface StyleService extends BaseService<Style> {
      */
     boolean sendMaking(SendSampleMakingDto dto);
 
-    Style checkedSampleDesignExists(String id);
+    Style checkedStyleExists(String id);
 
     /**
      * 查询明细数据

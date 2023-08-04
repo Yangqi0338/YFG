@@ -134,7 +134,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
 
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public Style saveSampleDesign(StyleSaveDto dto) {
+    public Style saveStyle(StyleSaveDto dto) {
         Style style = null;
         if (StrUtil.isNotBlank(dto.getId())) {
             style = getById(dto.getId());
@@ -146,7 +146,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
             this.updateById(style);
             planningCategoryItemService.updateBySampleDesignChange(style);
         } else {
-            style = saveNewSampleDesign(dto);
+            style = saveNewStyle(dto);
         }
         // 保存工艺信息
         fieldValService.save(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, dto.getTechnologyInfo());
@@ -218,7 +218,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
     }
 
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
-    public Style saveNewSampleDesign(StyleSaveDto dto) {
+    public Style saveNewStyle(StyleSaveDto dto) {
 
         if (StrUtil.isBlank(dto.getDesignerId())) {
             throw new OtherException("请选择设计师");
@@ -379,9 +379,9 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         Map<String, Object> variables = BeanUtil.beanToMap(style);
         boolean flg = flowableService.start(FlowableService.sample_design_pdn + "[" + style.getDesignNo() + "]",
                 FlowableService.sample_design_pdn, id,
-                "/pdm/api/saas/sampleDesign/approval",
-                "/pdm/api/saas/sampleDesign/approval",
-                "/pdm/api/saas/sampleDesign/approval",
+                "/pdm/api/saas/style/approval",
+                "/pdm/api/saas/style/approval",
+                "/pdm/api/saas/style/approval",
                 "/sampleClothesDesign/sampleDesign/" + id, variables);
         return flg;
     }
@@ -412,7 +412,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public boolean sendMaking(SendSampleMakingDto dto) {
-        Style style = checkedSampleDesignExists(dto.getId());
+        Style style = checkedStyleExists(dto.getId());
         style.setStatus("2");
         style.setKitting(dto.getKitting());
         updateById(style);
@@ -420,7 +420,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
     }
 
     @Override
-    public Style checkedSampleDesignExists(String id) {
+    public Style checkedStyleExists(String id) {
         Style style = getById(id);
         if (style == null) {
             throw new OtherException("样衣数据不存在");
