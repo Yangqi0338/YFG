@@ -21,30 +21,39 @@ import org.springframework.web.client.RestTemplate;
 public class RestTemplateService {
 
     private final RestTemplate restTemplate;
+
     /**
      * smp系统对接post请求
+     *
      * @param url 请求地址
-     * @param o 请求对象
+     * @param o   请求对象
      * @return 返回的结果
      */
     public HttpResp spmPost(String url, Object o) {
         HttpHeaders requestHeaders = new HttpHeaders();
-        requestHeaders.add("Content-Type", "application/json");
-        // 2.请求头 & 请求体
-        String jsonStr = JSONUtil.toJsonStr(o);
-        System.out.println(jsonStr);
-        HttpEntity<String> fromEntity = new HttpEntity<>(jsonStr, requestHeaders);
-        ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(url, fromEntity, String.class);
-        HttpResp httpResp =new HttpResp();
-        httpResp.setUrl(url);
-        httpResp.setStatusCode(String.valueOf(stringResponseEntity.getStatusCodeValue()));
+        HttpResp httpResp = new HttpResp();
+        try {
+            requestHeaders.add("Content-Type", "application/json");
+            // 2.请求头 & 请求体
+            String jsonStr = JSONUtil.toJsonStr(o);
+            System.out.println(jsonStr);
+            HttpEntity<String> fromEntity = new HttpEntity<>(jsonStr, requestHeaders);
+            ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(url, fromEntity, String.class);
 
-        String body = stringResponseEntity.getBody();
-        JSONObject jsonObject = JSONObject.parseObject(body);
-        if (jsonObject!=null){
-            httpResp.setMessage(jsonObject.getString("message"));
-            httpResp.setCode(jsonObject.getString("code"));
-            httpResp.setSuccess(jsonObject.getBoolean("success"));
+            httpResp.setUrl(url);
+            httpResp.setStatusCode(String.valueOf(stringResponseEntity.getStatusCodeValue()));
+
+            String body = stringResponseEntity.getBody();
+            JSONObject jsonObject = JSONObject.parseObject(body);
+
+
+            if (jsonObject != null) {
+                httpResp.setMessage(jsonObject.getString("message"));
+                httpResp.setCode(jsonObject.getString("code"));
+                httpResp.setSuccess(jsonObject.getBoolean("success"));
+            }
+        } catch (Exception e) {
+            httpResp.setSuccess(false);
         }
         return httpResp;
     }

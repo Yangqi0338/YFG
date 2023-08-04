@@ -549,26 +549,29 @@ public class SmpService {
             }
             smpBomDto.setSizeQtyList(sizeQtyList);
 
+
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/bom", smpBomDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpBomDto, "smp", "bom下发");
-            packBom.setScmSendFlag("1");
-            packBomService.updateById(packBom);
+
             if (aBoolean) {
+                packBom.setScmSendFlag("1");
                 i++;
+            }else {
+                packBom.setScmSendFlag("2");
             }
-
-            PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packBom.getPackType()));
-            long count = packBomService.count(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("scm_send_flag", "1"));
-
-            long count1 = packBomService.count(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
-            if (count == 0) {
-                packInfoStatus.setScmSendFlag("0");
-            } else if (count1 == count) {
-                packInfoStatus.setScmSendFlag("1");
-            } else {
-                packInfoStatus.setScmSendFlag("2");
-            }
-            packInfoStatusService.updateById(packInfoStatus);
+            packBomService.updateById(packBom);
+            //PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packBom.getPackType()));
+            //long count = packBomService.count(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("scm_send_flag", "1"));
+            //
+            //long count1 = packBomService.count(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
+            //if (count == 0) {
+            //    packInfoStatus.setScmSendFlag("0");
+            //} else if (count1 == count) {
+            //    packInfoStatus.setScmSendFlag("1");
+            //} else {
+            //    packInfoStatus.setScmSendFlag("2");
+            //}
+            //packInfoStatusService.updateById(packInfoStatus);
         }
 
         return i;
@@ -592,8 +595,10 @@ public class SmpService {
             if (aBoolean) {
                 i++;
                 basicsdatumColourLibrary.setScmSendFlag("1");
-                basicsdatumColourLibraryService.updateById(basicsdatumColourLibrary);
+            }else {
+                basicsdatumColourLibrary.setScmSendFlag("2");
             }
+            basicsdatumColourLibraryService.updateById(basicsdatumColourLibrary);
         }
         return i;
     }
@@ -614,8 +619,11 @@ public class SmpService {
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpProcessSheetDto, "smp", "工艺单下发");
             if (aBoolean) {
                 i++;
+                packInfoStatus.setTechScmSendFlag("1");
+            }else {
+                packInfoStatus.setTechScmSendFlag("2");
             }
-
+            packInfoStatusService.updateById(packInfoStatus);
         }
         return i;
     }
