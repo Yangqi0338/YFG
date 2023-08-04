@@ -144,13 +144,20 @@ public class PackInfoController {
 
 	/**
 	 * 样衣id查询bom
+	 *
 	 * @param ids
 	 * @return
 	 */
-	@ApiOperation(value = "查询设计款号夏的bom")
+	@ApiOperation(value = "查询设计款号下的bom")
 	@GetMapping("/getInfoListByDesignNo")
 	public PageInfo<PackInfoListVo> pageBySampleDesign(@Valid PricingSelectSearchDTO pricingSelectSearchDTO) {
 		return packInfoService.getInfoListByDesignNo(pricingSelectSearchDTO.getDesignNo());
+	}
+
+	@ApiOperation(value = "关联配色")
+	@PostMapping("/association")
+	public boolean association(@RequestBody PackInfoAssociationDto dto) {
+		return packInfoService.association(dto);
 	}
 }
 

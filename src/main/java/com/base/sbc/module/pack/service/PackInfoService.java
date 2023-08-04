@@ -10,10 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
-import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
-import com.base.sbc.module.pack.dto.PackCommonSearchDto;
-import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
-import com.base.sbc.module.pack.dto.PricingSelectSearchDTO;
+import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
@@ -155,10 +152,13 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 
     /**
      * 样衣id查询bom
+     *
      * @param designNo
      * @return
      */
     PageInfo<PackInfoListVo> getInfoListByDesignNo(String designNo);
+
+    boolean association(PackInfoAssociationDto dto);
 
 
 // 自定义方法区 不替换的区域【other_end】
