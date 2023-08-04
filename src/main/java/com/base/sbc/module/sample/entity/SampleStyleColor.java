@@ -5,16 +5,19 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.sample.entity;
-import java.math.BigDecimal;
-import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.smp.dto.SmpGoodsDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 类描述：样衣-款式配色 实体类
@@ -31,11 +34,12 @@ import lombok.EqualsAndHashCode;
 @ApiModel("样衣-款式配色 SampleStyleColor")
 public class SampleStyleColor extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private static final long serialVersionUID = 1L;
 
-    public SmpGoodsDto toSmpGoodsDto(){
-        SmpGoodsDto smpGoodsDto =new SmpGoodsDto();
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+
+    public SmpGoodsDto toSmpGoodsDto() {
+        SmpGoodsDto smpGoodsDto = new SmpGoodsDto();
         smpGoodsDto.setBandId(bandCode);
         smpGoodsDto.setDesignNumber(designNo);
         smpGoodsDto.setMainPush("1".equals(isMainly));
@@ -51,7 +55,7 @@ public class SampleStyleColor extends BaseDataEntity<String> {
         smpGoodsDto.setMainCode(principalStyleNo);
         smpGoodsDto.setSecCode(accessoryNo);
 
-        IdGen idGen =new IdGen();
+        IdGen idGen = new IdGen();
         smpGoodsDto.setId(id);
         smpGoodsDto.setName(colorName);
         smpGoodsDto.setCreator(getCreateName());
@@ -284,11 +288,13 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     /**
      * 上新时间
      */
-    @ApiModelProperty(value = "上新时间"  )
+    @ApiModelProperty(value = "上新时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date newDate;
-    /** 唯一id */
-    @ApiModelProperty(value = "唯一id"  )
+    /**
+     * 唯一id
+     */
+    @ApiModelProperty(value = "唯一id")
     private String wareCode;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
