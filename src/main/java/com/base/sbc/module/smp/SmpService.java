@@ -720,6 +720,7 @@ public class SmpService {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                throw new RuntimeException("面料成分为空或者错误");
             }
 
             fabricCompositionDto.setIngredient(String.join(",", list));
@@ -729,7 +730,11 @@ public class SmpService {
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, fabricCompositionDto, "scm", "面料成分名称码表下发");
             if (aBoolean) {
                 i++;
+                basicsdatumMaterial.setCompositionSendStatus("1");
+            }else {
+                basicsdatumMaterial.setCompositionSendStatus("2");
             }
+            basicsdatumMaterialService.updateById(basicsdatumMaterial);
         }
         return i;
     }
