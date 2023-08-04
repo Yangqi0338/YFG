@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.sample.vo.SampleStyleColorVo;
+import com.base.sbc.module.sample.vo.StyleUploadVo;
 import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
 import org.apache.ibatis.annotations.Param;
@@ -36,13 +37,19 @@ public interface SampleStyleColorMapper extends BaseMapper<SampleStyleColor> {
     int getStyleColorNumber(String sampleDesignId);
 
     /**
-     *
+     *查询款式下的配色
      */
     List<SampleStyleColorVo> getSampleStyleColorList(@Param(Constants.WRAPPER) QueryWrapper qw ,@Param("meetFlag") String meetFlag);
 
 //    修改大货款号
-   Boolean reviseAllStyleNo(@Param("styleNo") String styleNo ,@Param("nweStyleNo") String nweStyleNo);
+    Boolean reviseAllStyleNo(@Param("styleNo") String styleNo ,@Param("nweStyleNo") String nweStyleNo);
 
+    /**
+     * 获取款式图上传信息
+     * @param styleColorId
+     * @return
+     */
+    StyleUploadVo getStyleUploadInfo(String styleColorId);
 
 // 自定义方法区 不替换的区域【other_end】
 }

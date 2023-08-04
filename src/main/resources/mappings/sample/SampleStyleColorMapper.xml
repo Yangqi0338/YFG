@@ -56,5 +56,18 @@
     LEFT JOIN t_basicsdatum_colour_library cl on ssc.colour_library_id = cl.id
     ${ew.customSqlSegment}
     </select>
+    <select id="getStyleUploadInfo" resultType="com.base.sbc.module.sample.vo.StyleUploadVo">
+        SELECT
+        ssc.style_no,
+        sd.brand,
+        sd.brand_name,
+        sd.year,
+        sd.year_name,
+        sd.season,
+        sd.season_name
+        FROM t_sample_style_color ssc
+        LEFT JOIN t_sample_design sd on ssc.sample_design_id  = sd.id
+        where  ssc.id = #{styleColorId}
+    </select>
 
 </mapper>

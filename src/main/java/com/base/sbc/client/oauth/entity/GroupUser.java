@@ -28,8 +28,9 @@ public class GroupUser implements Serializable{
     private String sex;
     /** 城市 */
     private String city;
-    
-    
+    /*账号*/
+	private String username;
+
 	public String getId() {
 		return id;
 	}
@@ -74,4 +75,11 @@ public class GroupUser implements Serializable{
 	public GroupUser() {
 	}
 
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
 }

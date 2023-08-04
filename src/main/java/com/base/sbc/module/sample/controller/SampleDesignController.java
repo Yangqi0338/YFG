@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -59,8 +60,8 @@ public class SampleDesignController {
 
     @ApiOperation(value = "查询样衣设计及款式配色")
     @GetMapping("/sampleSampleStyle")
-    public PageInfo sampleSampleStyle(@Valid SampleDesignPageDto dto) {
-        return sampleDesignService.sampleSampleStyle(dto);
+    public PageInfo sampleSampleStyle(Principal user, @Valid SampleDesignPageDto dto) {
+        return sampleDesignService.sampleSampleStyle(user,dto);
     }
 
     @ApiOperation(value = "明细信息")

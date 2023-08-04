@@ -13,6 +13,7 @@ import com.base.sbc.module.sample.entity.SampleStyleColor;
 import com.base.sbc.module.sample.vo.SampleStyleColorVo;
 import com.github.pagehelper.PageInfo;
 
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -33,11 +34,11 @@ public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
         * @param queryDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<SampleStyleColorVo> getSampleStyleColorList(QuerySampleStyleColorDto queryDto);
+        PageInfo<SampleStyleColorVo> getSampleStyleColorList(Principal user, QuerySampleStyleColorDto queryDto);
 
         /**
          * 方法描述: 获取款式或配饰
-         * @param styleNo 款式编号
+         * @param designNo 款式编号
          * @return
          */
         List<SampleStyleColorVo> getStyleAccessoryBystyleNo(String designNo);

@@ -1,9 +1,10 @@
 package com.base.sbc.config.utils;
 
+import com.base.sbc.client.oauth.entity.GroupUser;
+import org.springframework.util.DigestUtils;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-
-import org.springframework.util.DigestUtils;
 
 /**
  * 
@@ -14,23 +15,17 @@ import org.springframework.util.DigestUtils;
  * @date 2023年7月26日
  */
 public class StyleNoImgUtils {
-
-	public static void main(String[] args) {
-		String img = getStyleNoImgUrl("318A381231");
-		System.out.println(img);
-	}
-
+	/*访问地址*/
 	public static final String IMG_BASE_URL = "http://img.eifini.com/image/index?goodsno=";
-
 	/**
 	 * 通过款号获取款式水印图片
 	 * 
 	 * @return
 	 */
-	public static String getStyleNoImgUrl(String styleNo) {
+	public static String getStyleNoImgUrl(GroupUser userBy ,String styleNo) {
 		// 获取当前用户的工号和姓名
-		String badge = "1102841"; // 当前登录人工号
-		String name = "黄强";// 当前用户姓名
+		String badge = userBy.getUsername(); // 当前登录人工号
+		String name = userBy.getName();// 当前用户姓名
 		// 密钥相关
 		String appKey = "PDMImage";
 		String salt = "eifiniEMS202307";
