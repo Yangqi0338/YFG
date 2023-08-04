@@ -17,6 +17,7 @@ import com.base.sbc.module.band.entity.Band;
 import com.base.sbc.module.band.vo.BandQueryReturnVo;
 import com.base.sbc.module.purchase.dto.DemandPageDTO;
 import com.base.sbc.module.purchase.entity.PurchaseDemand;
+import com.base.sbc.module.purchase.entity.PurchaseOrder;
 import com.base.sbc.module.purchase.service.PurchaseDemandService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -150,6 +151,16 @@ public class PurchaseDemandController extends BaseController{
 		UserCompany userInfo = userCompanyUtils.getCompanyUser();
 		purchaseDemandService.generatePurchaseDemand(userInfo, userCompany, id);
 		return selectSuccess("生成成功！");
+	}
+
+	@ApiOperation(value = "采购需求生成采购单")
+	@PostMapping("/generatePurchaseOrder")
+	public ApiResult generatePurchaseOrder(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestBody List<PurchaseDemand> purchaseDemandList) {
+		if(CollectionUtils.isEmpty(purchaseDemandList)){
+			return updateAttributeNotRequirements("purchaseDemandList");
+		}
+		UserCompany userInfo = userCompanyUtils.getCompanyUser(user);
+		return purchaseDemandService.generatePurchaseOrder(userInfo, userCompany, purchaseDemandList);
 	}
 }
 

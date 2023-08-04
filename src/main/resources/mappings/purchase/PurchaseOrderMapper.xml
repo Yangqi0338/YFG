@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.base.sbc.module.purchase.mapper.PurchaseDemandMapper">
+<mapper namespace="com.base.sbc.module.purchase.mapper.PurchaseOrderMapper">
     <!--
-        采购-采购需求表
+        采购-采购单
         创建人：tzy
         邮箱：974849633@qq.com
-        创建时间：2023-8-4 16:41:44
+        创建时间：2023-8-4 9:43:16
         版本号：1.0
       -->
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
-
+    <select id="selectMaxCodeByCompany" resultType="java.lang.String" parameterType="java.lang.String">
+        select Max(code) code from t_purchase_order
+        where company_code = #{companyCode}
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
-

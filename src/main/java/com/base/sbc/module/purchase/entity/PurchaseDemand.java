@@ -5,26 +5,25 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.purchase.entity;
+import java.math.BigDecimal;
+import java.util.Date;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.math.BigDecimal;
-import java.util.Date;
 /**
  * 类描述：采购-采购需求表 实体类
  * @address com.base.sbc.module.purchase.entity.PurchaseDemand
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-2 14:29:52
+ * @date 创建时间：2023-8-4 16:41:44
  * @version 1.0
  */
 @Data
@@ -35,6 +34,15 @@ public class PurchaseDemand extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    /** 仓库id */
+    private String warehouseId;
+    /** 采购员id */
+    private String purchaserId;
+    /** 采购员 */
+    private String purchaserName;
+    /** 交货日期 */
+    private Date deliveryDate;
+
     public PurchaseDemand(){
 
     }
@@ -50,9 +58,11 @@ public class PurchaseDemand extends BaseDataEntity<String> {
         this.materialName = packBom.getMaterialName();
         this.supplierCode = packBom.getSupplierId();
         this.supplierName = packBom.getSupplierName();
+        this.supplierColor = material.getSupplierColorNo();
         this.component = packBom.getSupplierFactoryIngredient();
         this.materialColor = packBom.getColor();
         this.needNum = needNum;
+        this.price = packBom.getPrice();
         this.unit = material.getPurchaseUnitCode();
         this.usePosition = packBom.getPartName();
         this.materialSpecifications = specifications;
@@ -105,6 +115,9 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     /** 供应商名称 */
     @ApiModelProperty(value = "供应商名称"  )
     private String supplierName;
+    /** 供应商色号 */
+    @ApiModelProperty(value = "供应商色号"  )
+    private String supplierColor;
     /** 成分 */
     @ApiModelProperty(value = "成分"  )
     private String component;
@@ -114,6 +127,9 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     /** 需求数量 */
     @ApiModelProperty(value = "需求数量"  )
     private BigDecimal needNum;
+    /** 单价 */
+    @ApiModelProperty(value = "单价"  )
+    private BigDecimal price;
     /** 单位 */
     @ApiModelProperty(value = "单位"  )
     private String unit;

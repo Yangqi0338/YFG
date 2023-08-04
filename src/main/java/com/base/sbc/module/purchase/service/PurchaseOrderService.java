@@ -8,31 +8,23 @@ package com.base.sbc.module.purchase.service;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.purchase.entity.PurchaseDemand;
-import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
-
-import java.util.List;
+import com.base.sbc.module.purchase.entity.PurchaseOrder;
 
 /** 
- * 类描述：采购-采购需求表 service类
- * @address com.base.sbc.module.purchase.service.PurchaseDemandService
+ * 类描述：采购-采购单 service类
+ * @address com.base.sbc.module.purchase.service.PurchaseOrderService
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-2 14:29:52
+ * @date 创建时间：2023-8-4 9:43:16
  * @version 1.0  
  */
-public interface PurchaseDemandService extends BaseService<PurchaseDemand>{
+public interface PurchaseOrderService extends BaseService<PurchaseOrder>{
 
 // 自定义方法区 不替换的区域【other_start】
-    ApiResult cancel(String companyCode, String ids);
+    ApiResult addPurchaseOrder(UserCompany userCompany, String companyCode,PurchaseOrder purchaseOrder);
 
-    void generatePurchaseDemand(UserCompany userCompany, String companyCode, String id);
-
-    ApiResult generatePurchaseOrder(UserCompany userCompany, String companyCode, List<PurchaseDemand> purchaseDemandList);
-
-    void manipulatePlanNum(List<PurchaseOrderDetail> purchaseOrderDetailList, String type);
+    ApiResult updatePurchaseOrder(UserCompany userCompany, String companyCode,PurchaseOrder purchaseOrder);
 // 自定义方法区 不替换的区域【other_end】
 
 	
 }
-

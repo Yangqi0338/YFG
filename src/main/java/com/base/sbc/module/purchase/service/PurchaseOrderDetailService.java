@@ -5,34 +5,24 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.purchase.service;
-import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.purchase.entity.PurchaseDemand;
 import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
 
-import java.util.List;
-
 /** 
- * 类描述：采购-采购需求表 service类
- * @address com.base.sbc.module.purchase.service.PurchaseDemandService
+ * 类描述：采购-采购单-明细 service类
+ * @address com.base.sbc.module.purchase.service.PurchaseOrderDetailService
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-2 14:29:52
+ * @date 创建时间：2023-8-4 9:43:21
  * @version 1.0  
  */
-public interface PurchaseDemandService extends BaseService<PurchaseDemand>{
+public interface PurchaseOrderDetailService extends BaseService<PurchaseOrderDetail>{
 
 // 自定义方法区 不替换的区域【other_start】
-    ApiResult cancel(String companyCode, String ids);
 
-    void generatePurchaseDemand(UserCompany userCompany, String companyCode, String id);
 
-    ApiResult generatePurchaseOrder(UserCompany userCompany, String companyCode, List<PurchaseDemand> purchaseDemandList);
 
-    void manipulatePlanNum(List<PurchaseOrderDetail> purchaseOrderDetailList, String type);
 // 自定义方法区 不替换的区域【other_end】
 
 	
 }
-
