@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.SampleDesign
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-29 9:47:08
+ * @date 创建时间：2023-8-4 9:45:59
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -473,14 +473,14 @@ public class SampleDesign extends BaseDataEntity<String> {
     @ApiModelProperty(value = "延续点")
     private String continuationPoint;
     /**
-     * 款式单位编码
-     */
-    @ApiModelProperty(value = "款式单位编码")
-    private String styleUnit;
-    /**
      * 款式单位名称
      */
     @ApiModelProperty(value = "款式单位名称")
+    private String styleUnit;
+    /**
+     * 款式单位编码
+     */
+    @ApiModelProperty(value = "款式单位编码")
     private String styleUnitCode;
     /**
      * SCM下发状态:0未下发,1已下发

@@ -15,14 +15,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.util.Date;
+
 /**
  * 类描述：资料包-状态 实体类
  *
- * @author your name
+ * @author lxl
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfoStatus
- * @email your email
- * @date 创建时间：2023-7-17 20:22:06
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-8-4 9:46:01
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -53,9 +54,9 @@ public class PackInfoStatus extends BaseDataEntity<String> {
     @ApiModelProperty(value = "状态:1启用,0未启用")
     private String enableFlag;
     /**
-     * SCM下发状态:0未下发,1已下发
+     * SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开
      */
-    @ApiModelProperty(value = "SCM下发状态:0未下发,1已下发")
+    @ApiModelProperty(value = "SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开")
     private String scmSendFlag;
     /**
      * bom状态:(0样品,1大货)
