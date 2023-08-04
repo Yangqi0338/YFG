@@ -1,6 +1,5 @@
 package com.base.sbc.module.smp;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
@@ -8,7 +7,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.restTemplate.RestTemplateService;
@@ -50,7 +48,10 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -605,6 +606,7 @@ public class SmpService {
         IdGen idGen = new IdGen();
         for (SmpProcessSheetDto smpProcessSheetDto : sheetDtoList) {
             String id = String.valueOf(idGen.nextId());
+            PackInfoStatus packInfoStatus = packInfoStatusService.get(smpProcessSheetDto.getForeignId(), smpProcessSheetDto.getPackType());
 
             smpProcessSheetDto.setSyncId(id);
             smpProcessSheetDto.setId(id);
