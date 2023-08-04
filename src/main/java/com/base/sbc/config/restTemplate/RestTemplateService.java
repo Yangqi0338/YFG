@@ -5,6 +5,7 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.module.smp.dto.HttpResp;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class RestTemplateService {
 
     private final RestTemplate restTemplate;
@@ -44,15 +46,18 @@ public class RestTemplateService {
             httpResp.setStatusCode(String.valueOf(stringResponseEntity.getStatusCodeValue()));
 
             String body = stringResponseEntity.getBody();
+            log.info(body);
             JSONObject jsonObject = JSONObject.parseObject(body);
 
 
             if (jsonObject != null) {
+
                 httpResp.setMessage(jsonObject.getString("message"));
                 httpResp.setCode(jsonObject.getString("code"));
                 httpResp.setSuccess(jsonObject.getBoolean("success"));
             }
         } catch (Exception e) {
+            e.printStackTrace();
             httpResp.setSuccess(false);
         }
         return httpResp;

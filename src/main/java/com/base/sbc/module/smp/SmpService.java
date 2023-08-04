@@ -711,19 +711,20 @@ public class SmpService {
             fabricCompositionDto.setName(basicsdatumMaterial.getMaterialName());
             fabricCompositionDto.setMaterialCode(basicsdatumMaterial.getMaterialCode());
             fabricCompositionDto.setId(fabricCompositionDto.getId());
-            String[] split = basicsdatumMaterial.getIngredient().split(", ");
-            List<String> list = new ArrayList<>();
-            try {
-                for (String s : split) {
-                    String[] split1 = s.split(" ");
-                    list.add(split1[1]);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException("面料成分为空或者错误");
-            }
-
-            fabricCompositionDto.setIngredient(String.join(",", list));
+            fabricCompositionDto.setIngredient(basicsdatumMaterial.getIngredient());
+            //String[] split = basicsdatumMaterial.getIngredient().split(",");
+            //List<String> list = new ArrayList<>();
+            //try {
+            //    for (String s : split) {
+            //        String[] split1 = s.split(" ");
+            //        list.add(split1[1]);
+            //    }
+            //} catch (Exception e) {
+            //    e.printStackTrace();
+            //    throw new RuntimeException("面料成分为空或者错误");
+            //}
+            //
+            //fabricCompositionDto.setIngredient(String.join(",", list));
 
 
             HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElement", fabricCompositionDto);
