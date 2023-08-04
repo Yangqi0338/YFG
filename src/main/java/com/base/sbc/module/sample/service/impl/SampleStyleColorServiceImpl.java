@@ -237,7 +237,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             int ascii = 'A';
             /*超过2044年重新开始*/
             if(year1 <= 2044){
-                char c = (char) (ascii + (year1 - initial));
+                char c = (char) (ascii +  Math.abs(year1 - initial));
                 yearOn =String.valueOf(c);
             }else {
                 char c1 = (char) (ascii + (year1 - initial) -((year1 - initial)/26)*26 );
