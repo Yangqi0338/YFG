@@ -117,6 +117,7 @@ public class PreProductionSampleServiceImpl extends BaseServiceImpl<PreProductio
         qw.notEmptyIn("year", dto.getYear());
         qw.notEmptyIn("month", dto.getMonth());
         qw.notEmptyIn("season", dto.getSeason());
+        qw.andLike(dto.getSearch(), "design_no", "style_no");
         qw.notEmptyIn("pattern_design_id", dto.getPatternDesignId());
         Page<PreProductionSample> page = PageHelper.startPage(dto);
         list(qw);
