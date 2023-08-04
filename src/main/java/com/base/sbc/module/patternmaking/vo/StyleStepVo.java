@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
  *
  * @author lixianglin
  * @version 1.0
- * @address com.base.sbc.module.patternmaking.vo.SampleDesignStepVo
+ * @address com.base.sbc.module.patternmaking.vo.StyleStepVo
  * @email li_xianglin@126.com
  * @date 创建时间：2023-06-12 10:53
  */
 @Data
-@ApiModel("打版-样衣进度列表vo SampleDesignStepVo ")
-public class SampleDesignStepVo {
+@ApiModel("打版-样衣进度列表vo StyleStepVo ")
+public class StyleStepVo {
 
     @ApiModelProperty(value = "款式设计id")
     private String id;

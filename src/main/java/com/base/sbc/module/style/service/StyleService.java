@@ -4,7 +4,7 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.sample.service;
+package com.base.sbc.module.style.service;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.BaseService;
@@ -15,9 +15,18 @@ import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
-import com.base.sbc.module.sample.dto.*;
-import com.base.sbc.module.sample.entity.Style;
-import com.base.sbc.module.sample.vo.*;
+import com.base.sbc.module.sample.dto.DimensionLabelsSearchDto;
+import com.base.sbc.module.sample.dto.SendSampleMakingDto;
+import com.base.sbc.module.sample.vo.CategoryStylePlanningVo;
+import com.base.sbc.module.sample.vo.DesignDocTreeVo;
+import com.base.sbc.module.sample.vo.SampleUserVo;
+import com.base.sbc.module.sample.vo.StyleBoardCategorySummaryVo;
+import com.base.sbc.module.style.dto.StyleBomSaveDto;
+import com.base.sbc.module.style.dto.StyleBomSearchDto;
+import com.base.sbc.module.style.dto.StylePageDto;
+import com.base.sbc.module.style.dto.StyleSaveDto;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.PageInfo;
 
 import java.security.Principal;
@@ -29,7 +38,7 @@ import java.util.Map;
  *
  * @author lxl
  * @version 1.0
- * @address com.base.sbc.module.sample.service.StyleService
+ * @address com.base.sbc.module.style.service.StyleService
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-5-9 11:16:15
  */
@@ -56,19 +65,23 @@ public interface StyleService extends BaseService<Style> {
 
     /**
      * 分页查询
+     *
      * @param dto
      * @return
      */
-    PageInfo queryPageInfo(SampleDesignPageDto dto);
+    PageInfo queryPageInfo(StylePageDto dto);
 
     /**
      * 查询款式设计及款式配色
+     *
      * @param dto
      * @return
      */
-    PageInfo sampleSampleStyle(Principal user, SampleDesignPageDto dto);
+    PageInfo sampleSampleStyle(Principal user, StylePageDto dto);
+
     /**
      * 发起审批
+     *
      * @param id
      * @return
      */
@@ -149,11 +162,11 @@ public interface StyleService extends BaseService<Style> {
 
     void updateByChannelChange(PlanningChannel planningChannel);
 
-    PageInfo<PackBomVo> bomList(SampleDesignBomSearchDto dto);
+    PageInfo<PackBomVo> bomList(StyleBomSearchDto dto);
 
     Boolean delBom(String id);
 
-    Boolean saveBom(SampleDesignBomSaveDto dto);
+    Boolean saveBom(StyleBomSaveDto dto);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

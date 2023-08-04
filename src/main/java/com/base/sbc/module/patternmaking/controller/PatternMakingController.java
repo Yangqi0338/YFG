@@ -104,7 +104,7 @@ public class PatternMakingController {
 
     @ApiOperation(value = "款式设计下发")
     @PostMapping("/sampleDesignSend")
-    public boolean sampleDesignSend(@Valid @RequestBody SampleDesignSendDto dto) {
+    public boolean sampleDesignSend(@Valid @RequestBody StyleSendDto dto) {
         return patternMakingService.sampleDesignSend(dto);
     }
 

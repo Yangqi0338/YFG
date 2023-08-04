@@ -1,11 +1,11 @@
-package com.base.sbc.module.sample.controller;
+package com.base.sbc.module.style.controller;
 
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
-import com.base.sbc.module.sample.service.StyleService;
 import com.base.sbc.module.sample.vo.CategoryStylePlanningVo;
 import com.base.sbc.module.sample.vo.StyleBoardCategorySummaryVo;
+import com.base.sbc.module.style.service.StyleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
@@ -23,7 +23,7 @@ import java.util.List;
  *
  * @author lixianglin
  * @version 1.0
- * @address com.base.sbc.module.sample.controller.StyleBoardController
+ * @address com.base.sbc.module.style.controller.StyleBoardController
  * @email li_xianglin@126.com
  * @date 创建时间：2023-06-29 09:51
  */

@@ -29,7 +29,7 @@ import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningChannelVo;
-import com.base.sbc.module.sample.service.StyleService;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;

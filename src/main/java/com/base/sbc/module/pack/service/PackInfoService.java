@@ -18,7 +18,7 @@ import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pack.vo.PricingSelectListVO;
-import com.base.sbc.module.pack.vo.SampleDesignPackInfoListVo;
+import com.base.sbc.module.pack.vo.StylePackInfoListVo;
 import com.base.sbc.module.pricing.vo.PricingVO;
 import com.github.pagehelper.PageInfo;
 
@@ -44,7 +44,7 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @param pageDto
      * @return
      */
-    PageInfo<SampleDesignPackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto);
+    PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto);
 
     /**
      * 通过款式设计创建BOM基础信息

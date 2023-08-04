@@ -4,7 +4,7 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.sample.service.impl;
+package com.base.sbc.module.style.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -58,12 +58,20 @@ import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
-import com.base.sbc.module.sample.dto.*;
-import com.base.sbc.module.sample.entity.Style;
-import com.base.sbc.module.sample.mapper.SampleDesignMapper;
+import com.base.sbc.module.sample.dto.DimensionLabelsSearchDto;
+import com.base.sbc.module.sample.dto.SampleAttachmentDto;
+import com.base.sbc.module.sample.dto.SendSampleMakingDto;
 import com.base.sbc.module.sample.mapper.SampleStyleColorMapper;
-import com.base.sbc.module.sample.service.StyleService;
 import com.base.sbc.module.sample.vo.*;
+import com.base.sbc.module.style.dto.StyleBomSaveDto;
+import com.base.sbc.module.style.dto.StyleBomSearchDto;
+import com.base.sbc.module.style.dto.StylePageDto;
+import com.base.sbc.module.style.dto.StyleSaveDto;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.mapper.StyleMapper;
+import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StylePageVo;
+import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -88,7 +96,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-5-9 11:16:15
  */
 @Service
-public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper, Style> implements StyleService {
+public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implements StyleService {
 
 
     @Autowired
@@ -271,7 +279,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
 
 
     @Override
-    public PageInfo queryPageInfo(SampleDesignPageDto dto) {
+    public PageInfo queryPageInfo(StylePageDto dto) {
         String companyCode = getCompanyCode();
         String userId = getUserId();
         QueryWrapper<Style> qw = new QueryWrapper<>();
@@ -301,20 +309,20 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
         qw.eq(BaseConstant.COMPANY_CODE, companyCode);
 
         //1我下发的
-        if (StrUtil.equals(dto.getUserType(), SampleDesignPageDto.userType1)) {
+        if (StrUtil.equals(dto.getUserType(), StylePageDto.userType1)) {
             qw.eq("sender", userId);
         }
         //2我创建的
-        else if (StrUtil.equals(dto.getUserType(), SampleDesignPageDto.userType2)) {
+        else if (StrUtil.equals(dto.getUserType(), StylePageDto.userType2)) {
             qw.isNull("sender");
             qw.eq("create_id", userId);
         }
         //3我负责的
-        else if (StrUtil.equals(dto.getUserType(), SampleDesignPageDto.userType3)) {
+        else if (StrUtil.equals(dto.getUserType(), StylePageDto.userType3)) {
             qw.eq("designer_id", userId);
         }
         // 所有
-        else if (StrUtil.equals(dto.getUserType(), SampleDesignPageDto.userType0)) {
+        else if (StrUtil.equals(dto.getUserType(), StylePageDto.userType0)) {
             amcFeignService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
         } else {
 //            amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
@@ -336,7 +344,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
      * @return
      */
     @Override
-    public PageInfo sampleSampleStyle(Principal user, SampleDesignPageDto dto) {
+    public PageInfo sampleSampleStyle(Principal user, StylePageDto dto) {
         GroupUser userBy = userUtils.getUserBy(user);
         PageInfo pageInfo = queryPageInfo(dto);
         List<StylePageVo> list = pageInfo.getList();
@@ -790,7 +798,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
     }
 
     @Override
-    public PageInfo<PackBomVo> bomList(SampleDesignBomSearchDto dto) {
+    public PageInfo<PackBomVo> bomList(StyleBomSearchDto dto) {
         PackBomPageSearchDto bomDto = BeanUtil.copyProperties(dto, PackBomPageSearchDto.class);
         bomDto.setForeignId(dto.getStyleId());
         bomDto.setPackType(PackUtils.PACK_TYPE_SAMPLE_DESIGN);
@@ -806,7 +814,7 @@ public class SampleDesignServiceImpl extends BaseServiceImpl<SampleDesignMapper,
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public Boolean saveBom(SampleDesignBomSaveDto dto) {
+    public Boolean saveBom(StyleBomSaveDto dto) {
         if (StrUtil.isBlank(dto.getStyleId())) {
             throw new OtherException("款式设计id为空");
         }

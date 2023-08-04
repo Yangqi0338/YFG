@@ -41,9 +41,9 @@ import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
-import com.base.sbc.module.sample.entity.Style;
 import com.base.sbc.module.sample.service.PreProductionSampleService;
-import com.base.sbc.module.sample.service.StyleService;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -120,7 +120,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private PreProductionSampleService preProductionSampleService;
 
     @Override
-    public PageInfo<SampleDesignPackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
+    public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
 
         // 查询款式设计数据
         BaseQueryWrapper<Style> sdQw = new BaseQueryWrapper<>();
@@ -134,15 +134,15 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
         Page<Style> page = PageHelper.startPage(pageDto);
         styleService.list(sdQw);
-        PageInfo<SampleDesignPackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), SampleDesignPackInfoListVo.class);
+        PageInfo<StylePackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), StylePackInfoListVo.class);
         //查询bom列表
-        List<SampleDesignPackInfoListVo> sdpList = pageInfo.getList();
+        List<StylePackInfoListVo> sdpList = pageInfo.getList();
         if (CollUtil.isNotEmpty(sdpList)) {
             //图片
             attachmentService.setListStylePic(sdpList, "stylePic");
-            List<String> sdIds = sdpList.stream().map(SampleDesignPackInfoListVo::getId).collect(Collectors.toList());
+            List<String> sdIds = sdpList.stream().map(StylePackInfoListVo::getId).collect(Collectors.toList());
             Map<String, List<PackInfoListVo>> piMaps = queryListToMapGroupByForeignId(sdIds, PackUtils.PACK_TYPE_DESIGN);
-            for (SampleDesignPackInfoListVo sd : sdpList) {
+            for (StylePackInfoListVo sd : sdpList) {
                 List<PackInfoListVo> packInfoListVos = piMaps.get(sd.getId());
                 sd.setPackInfoList(packInfoListVos);
                 if (CollUtil.isNotEmpty(packInfoListVos)) {

@@ -4,6 +4,7 @@ package com.base.sbc.module.sample.vo;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.pack.entity.PackTechPackaging;
 import com.base.sbc.module.pack.vo.PackTechSpecVo;
+import com.base.sbc.module.style.vo.StyleVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

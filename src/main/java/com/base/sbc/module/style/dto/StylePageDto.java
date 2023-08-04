@@ -1,4 +1,4 @@
-package com.base.sbc.module.sample.dto;
+package com.base.sbc.module.style.dto;
 
 import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
@@ -7,17 +7,16 @@ import lombok.Data;
 
 
 /**
- * 类描述： 样衣分页查询
+ * 类描述： 款式设计分页查询
  *
  * @author lixianglin
  * @version 1.0
- * @address com.base.sbc.module.sample.dto.SamplePageDto
  * @email li_xianglin@126.com
  * @date 创建时间：2023-05-09 18:03
  */
 @Data
-@ApiModel("款式设计分页查询 SampleDto")
-public class SampleDesignPageDto extends Page {
+@ApiModel("款式设计分页查询 StylePageDto")
+public class StylePageDto extends Page {
 
     /**
      * 所有

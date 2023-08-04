@@ -1,8 +1,9 @@
-package com.base.sbc.module.sample.vo;
+package com.base.sbc.module.style.vo;
 
 
 import cn.hutool.core.date.DateUtil;
-import com.base.sbc.module.sample.entity.Style;
+import com.base.sbc.module.sample.vo.SampleStyleColorVo;
+import com.base.sbc.module.style.entity.Style;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

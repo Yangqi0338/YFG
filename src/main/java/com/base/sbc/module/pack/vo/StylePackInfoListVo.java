@@ -14,13 +14,13 @@ import java.util.List;
  *
  * @author lixianglin
  * @version 1.0
- * @address com.base.sbc.module.pack.vo.SampleDesignPackInfoListVo
+ * @address com.base.sbc.module.pack.vo.StylePackInfoListVo
  * @email li_xianglin@126.com
  * @date 创建时间：2023-07-06 17:30
  */
 @Data
-@ApiModel("设计BOM管理页面列表Vo SampleDesignPackInfoListVo")
-public class SampleDesignPackInfoListVo {
+@ApiModel("设计BOM管理页面列表Vo StylePackInfoListVo")
+public class StylePackInfoListVo {
     @ApiModelProperty(value = "id")
     private String id;
     /**

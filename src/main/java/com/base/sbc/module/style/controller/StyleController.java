@@ -4,7 +4,7 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.sample.controller;
+package com.base.sbc.module.style.controller;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.base.BaseController;
@@ -12,12 +12,17 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
-import com.base.sbc.module.sample.dto.*;
-import com.base.sbc.module.sample.entity.Style;
-import com.base.sbc.module.sample.service.StyleService;
+import com.base.sbc.module.sample.dto.DimensionLabelsSearchDto;
+import com.base.sbc.module.sample.dto.SendSampleMakingDto;
 import com.base.sbc.module.sample.vo.DesignDocTreeVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
-import com.base.sbc.module.sample.vo.StyleVo;
+import com.base.sbc.module.style.dto.StyleBomSaveDto;
+import com.base.sbc.module.style.dto.StyleBomSearchDto;
+import com.base.sbc.module.style.dto.StylePageDto;
+import com.base.sbc.module.style.dto.StyleSaveDto;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -54,13 +59,13 @@ public class StyleController {
 
     @ApiOperation(value = "分页查询")
     @GetMapping()
-    public PageInfo pageInfo(@Valid SampleDesignPageDto dto) {
+    public PageInfo pageInfo(@Valid StylePageDto dto) {
         return styleService.queryPageInfo(dto);
     }
 
     @ApiOperation(value = "查询款式设计及款式配色")
     @GetMapping("/sampleSampleStyle")
-    public PageInfo sampleSampleStyle(Principal user, @Valid SampleDesignPageDto dto) {
+    public PageInfo sampleSampleStyle(Principal user, @Valid StylePageDto dto) {
         return styleService.sampleSampleStyle(user, dto);
     }
 
@@ -130,7 +135,7 @@ public class StyleController {
 
     @ApiOperation(value = "物料信息-分页查询", notes = "")
     @GetMapping("/bom")
-    public PageInfo<PackBomVo> bomList(SampleDesignBomSearchDto dto) {
+    public PageInfo<PackBomVo> bomList(StyleBomSearchDto dto) {
         return styleService.bomList(dto);
     }
 
@@ -143,7 +148,7 @@ public class StyleController {
 
     @ApiOperation(value = "物料信息-保存", notes = "")
     @PostMapping("/bom")
-    public Boolean saveBom(@RequestBody SampleDesignBomSaveDto dto) {
+    public Boolean saveBom(@RequestBody StyleBomSaveDto dto) {
         return styleService.saveBom(dto);
     }
 }

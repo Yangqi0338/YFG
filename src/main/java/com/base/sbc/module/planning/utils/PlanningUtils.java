@@ -10,7 +10,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
-import com.base.sbc.module.sample.entity.Style;
+import com.base.sbc.module.style.entity.Style;
 
 import java.util.List;
 import java.util.stream.Collectors;

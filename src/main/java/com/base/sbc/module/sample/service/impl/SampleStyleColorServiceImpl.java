@@ -25,14 +25,14 @@ import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.sample.dto.*;
-import com.base.sbc.module.sample.entity.Style;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
-import com.base.sbc.module.sample.mapper.SampleDesignMapper;
 import com.base.sbc.module.sample.mapper.SampleStyleColorMapper;
 import com.base.sbc.module.sample.service.SampleStyleColorService;
 import com.base.sbc.module.sample.vo.SampleStyleColorVo;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.mapper.StyleMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
@@ -68,7 +68,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
 
 	private final BasicsdatumColourLibraryMapper basicsdatumColourLibraryMapper;
 
-	private final SampleDesignMapper sampleDesignMapper;
+    private final StyleMapper styleMapper;
 
     private final UserUtils userUtils;
 
@@ -127,7 +127,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
     public  List<SampleStyleColorVo> getStyleAccessoryBystyleNo(String designNo) {
         QueryWrapper qw = new QueryWrapper();
         qw.eq("design_no", designNo);
-        Style style = sampleDesignMapper.selectOne(qw);
+        Style style = styleMapper.selectOne(qw);
         if (ObjectUtils.isEmpty(style)) {
             throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
@@ -188,7 +188,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
          int index =0;
         for (AddRevampSampleStyleColorDto addRevampSampleStyleColorDto : list) {
             BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(addRevampSampleStyleColorDto.getColourLibraryId());
-            Style style = sampleDesignMapper.selectById(addRevampSampleStyleColorDto.getStyleId());
+            Style style = styleMapper.selectById(addRevampSampleStyleColorDto.getStyleId());
             addRevampSampleStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampSampleStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampSampleStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());

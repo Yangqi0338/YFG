@@ -9,7 +9,7 @@ package com.base.sbc.module.planning.service;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planning.dto.PlanningCategoryItemMaterialSaveDto;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
-import com.base.sbc.module.sample.dto.StyleSaveDto;
+import com.base.sbc.module.style.dto.StyleSaveDto;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

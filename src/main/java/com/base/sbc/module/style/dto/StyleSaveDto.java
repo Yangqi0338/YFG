@@ -1,8 +1,9 @@
-package com.base.sbc.module.sample.dto;
+package com.base.sbc.module.style.dto;
 
 import com.base.sbc.module.formType.entity.FieldVal;
-import com.base.sbc.module.sample.entity.Style;
+import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.sample.vo.MaterialVo;
+import com.base.sbc.module.style.entity.Style;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

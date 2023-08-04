@@ -44,10 +44,10 @@ import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.*;
-import com.base.sbc.module.sample.entity.Style;
-import com.base.sbc.module.sample.service.StyleService;
-import com.base.sbc.module.sample.vo.StyleVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -144,7 +144,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public boolean sampleDesignSend(SampleDesignSendDto dto) {
+    public boolean sampleDesignSend(StyleSendDto dto) {
         EnumNodeStatus enumNodeStatus = EnumNodeStatus.DESIGN_SEND;
         EnumNodeStatus enumNodeStatus2 = EnumNodeStatus.TECHNICAL_ROOM_RECEIVED;
         nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
@@ -516,13 +516,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (CollUtil.isEmpty(sdList)) {
             return null;
         }
-        List<SampleDesignStepVo> sampleDesignStepVos = BeanUtil.copyToList(sdList, SampleDesignStepVo.class);
+        List<StyleStepVo> styleStepVos = BeanUtil.copyToList(sdList, StyleStepVo.class);
 //        PageInfo pageInfo = BeanUtil.copyProperties(sdPageInfo, PageInfo.class, "list");
 //        pageInfo.setList(sampleDesignStepVos);
-        pageInfo.setList(sampleDesignStepVos);
-        attachmentService.setListStylePic(sampleDesignStepVos, "stylePic");
+        pageInfo.setList(styleStepVos);
+        attachmentService.setListStylePic(styleStepVos, "stylePic");
         // 查询打版指令
-        List<String> sdIds = sampleDesignStepVos.stream().map(SampleDesignStepVo::getId).collect(Collectors.toList());
+        List<String> sdIds = styleStepVos.stream().map(StyleStepVo::getId).collect(Collectors.toList());
         QueryWrapper<PatternMaking> pmQw = new QueryWrapper<>();
         pmQw.in("style_id", sdIds);
         List<PatternMaking> pmList = this.list(pmQw);
@@ -530,14 +530,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             return pageInfo;
         }
         List<String> pmIds = pmList.stream().map(PatternMaking::getId).collect(Collectors.toList());
-        List<SampleDesignStepVo.PatternMakingStepVo> patternMakingStepVos = BeanUtil.copyToList(pmList, SampleDesignStepVo.PatternMakingStepVo.class);
+        List<StyleStepVo.PatternMakingStepVo> patternMakingStepVos = BeanUtil.copyToList(pmList, StyleStepVo.PatternMakingStepVo.class);
         //查询节点状态
         QueryWrapper<NodeStatus> nsQw = new QueryWrapper<>();
         nsQw.in("data_id", pmIds);
         List<NodeStatus> nsList = nodeStatusService.list(nsQw);
         if (CollUtil.isNotEmpty(nsList)) {
             Map<String, List<NodeStatus>> nsMap = nsList.stream().collect(Collectors.groupingBy(NodeStatus::getDataId));
-            for (SampleDesignStepVo.PatternMakingStepVo patternMakingStepVo : patternMakingStepVos) {
+            for (StyleStepVo.PatternMakingStepVo patternMakingStepVo : patternMakingStepVos) {
                 Map<String, NodeStatus> stringNodeStatusMap = Optional.ofNullable(nsMap.get(patternMakingStepVo.getId())).map(item -> {
                     return item.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> {
                         if (DateUtil.compare(b.getStartDate(), a.getStartDate()) > 0) {
@@ -549,9 +549,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 patternMakingStepVo.setNodeStatus(stringNodeStatusMap);
             }
         }
-        LinkedHashMap<String, List<SampleDesignStepVo.PatternMakingStepVo>> pmStepMap = patternMakingStepVos.stream().collect(Collectors.groupingBy(k -> k.getStyleId(), LinkedHashMap::new, Collectors.toList()));
-        for (SampleDesignStepVo sampleDesignStepVo : sampleDesignStepVos) {
-            sampleDesignStepVo.setPatternMakingSteps(pmStepMap.get(sampleDesignStepVo.getId()));
+        LinkedHashMap<String, List<StyleStepVo.PatternMakingStepVo>> pmStepMap = patternMakingStepVos.stream().collect(Collectors.groupingBy(k -> k.getStyleId(), LinkedHashMap::new, Collectors.toList()));
+        for (StyleStepVo styleStepVo : styleStepVos) {
+            styleStepVo.setPatternMakingSteps(pmStepMap.get(styleStepVo.getId()));
         }
 
         return pageInfo;

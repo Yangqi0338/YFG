@@ -1,7 +1,7 @@
 package com.base.sbc.module.patternmaking.vo;
 
 import cn.hutool.core.util.StrUtil;
-import com.base.sbc.module.sample.vo.StyleVo;
+import com.base.sbc.module.style.vo.StyleVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

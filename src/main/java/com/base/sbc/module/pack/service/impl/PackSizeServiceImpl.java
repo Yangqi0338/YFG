@@ -24,7 +24,7 @@ import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.service.PackSizeService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackSizeVo;
-import com.base.sbc.module.sample.service.StyleService;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
