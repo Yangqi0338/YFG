@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
-import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.exception.OtherException;
@@ -178,7 +177,7 @@ public class SampleItemServiceImpl extends BaseServiceImpl<SampleItemMapper, Sam
     }
 
     @Override
-    public void checkSampleStatus(List<String> ids, String checkStatus) {
+    public void checkSampleStatus(List<String> ids, List<String> checkStatus) {
         QueryWrapper<SampleItem> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("id", ids);
         queryWrapper.select("status");
@@ -186,9 +185,9 @@ public class SampleItemServiceImpl extends BaseServiceImpl<SampleItemMapper, Sam
         if (CollectionUtils.isEmpty(sampleItems)) {
             throw new OtherException("样衣获取为空");
         }
-        boolean b = sampleItems.stream().anyMatch(e -> !StringUtils.equals(e.getStatus(), checkStatus));
+        boolean b = sampleItems.stream().anyMatch(e -> !checkStatus.contains(e.getStatus()));
         if (b) {
-            throw new OtherException(SampleItemStatusEnum.getTips(checkStatus));
+            throw new OtherException("样衣状态不正确");
         }
     }
 }

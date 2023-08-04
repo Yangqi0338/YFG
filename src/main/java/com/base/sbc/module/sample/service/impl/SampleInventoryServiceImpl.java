@@ -28,7 +28,9 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
+import org.codehaus.plexus.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +61,7 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
     private IdGen idGen = new IdGen();
 
     @Override
+    @Transactional
     public String save(SampleInventorySaveDto dto) {
         SampleInventory inventory = CopyUtil.copy(dto, SampleInventory.class);
 
@@ -70,17 +73,22 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
             inventory.updateInit();
         }
         super.saveOrUpdate(inventory);
+        List<String> sampleItemIds = dto.getSampleItemList().stream()
+                .map(SampleInventoryItem::getSampleItemId)
+                .collect(Collectors.toList());
         sampleInventoryItemService.save(dto.getSampleItemList(), inventory.getId(), inventory.getCode());
         if (SampleInventoryStatusEnum.INVENTORY_IN_PROGRESS.getK().equals(dto.getInventoryStatus())) {
-            this.sampleInventoryUpdateStatus(dto.getSampleItemList().stream()
-                    .map(SampleInventoryItem::getSampleItemId)
-                    .collect(Collectors.toList()));
+
+            this.sampleInventoryUpdateStatus(sampleItemIds);
+        }
+        if (SampleInventoryStatusEnum.COMPLETE.getK().equals(dto.getInventoryStatus())) {
+            endInventory(Lists.newArrayList(inventory.getId()));
         }
         return inventory.getId();
     }
 
     private void sampleInventoryUpdateStatus(List<String> sampleItemIds) {
-        sampleItemService.checkSampleStatus(sampleItemIds, SampleItemStatusEnum.IN_LIBRARY.getV());
+        sampleItemService.checkSampleStatus(sampleItemIds, Lists.newArrayList(SampleItemStatusEnum.IN_LIBRARY.getK(), SampleItemStatusEnum.INVENTORY_IN_PROGRESS.getK()));
         List<SampleItem> sampleItems = sampleItemIds.stream()
                 .map(e -> {
                     SampleItem sampleItem = new SampleItem();
@@ -117,7 +125,7 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
         this.updateStatus(inventoryIds, SampleInventoryStatusEnum.COMPLETE.getK());
         Map<String, Integer> sampleItemIdsByInventoryIds = sampleInventoryItemService.getSampleItemIdsByInventoryIds(inventoryIds);
         // 校验样衣是否都是在盘点中
-        sampleItemService.checkSampleStatus(new ArrayList<>(sampleItemIdsByInventoryIds.keySet()), SampleItemStatusEnum.INVENTORY_IN_PROGRESS.getV());
+        sampleItemService.checkSampleStatus(new ArrayList<>(sampleItemIdsByInventoryIds.keySet()), Lists.newArrayList(SampleItemStatusEnum.IN_LIBRARY.getK(), SampleItemStatusEnum.INVENTORY_IN_PROGRESS.getK()));
         // 更新样衣
         sampleService.sampleInventory(sampleItemIdsByInventoryIds);
     }
@@ -156,6 +164,10 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
     public PageInfo queryPageInfo(SampleInventoryPageDto dto) {
         QueryWrapper<SampleInventoryVo> qw = new QueryWrapper<>();
         qw.eq("si2.company_code", getCompanyCode());
+
+        if (StringUtils.isNotEmpty(dto.getStatus()) && !StringUtils.equals(dto.getStatus(), "0")) {
+            qw.eq("si2.status", dto.getStatus());
+        }
         if (null != dto.getStartDate())
             qw.ge("si2.start_date", dto.getStartDate());
         if (null != dto.getEndDate())
@@ -165,12 +177,12 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
         if (null != dto.getSearch())
             qw.like("si2.name", dto.getSearch()).
                     or().like("si2.code", dto.getSearch());
-        qw.orderByDesc("si2.create_date");
 
+        qw.orderByDesc("si2.create_date");
+        dto.setCompanyCode(getCompanyCode());
         PageHelper.startPage(dto);
-        List<SampleInventoryVo> list = getBaseMapper().getList(qw);
+        List<SampleInventoryVo> list = getBaseMapper().getList(dto);
         list.forEach(e -> {
-            // TODO
             if (SampleInventoryStatusEnum.NOT_STARTED.getK().equals(e.getInventoryStatus()) && (Objects.nonNull(e.getEndDate()) && e.getEndDate().before(new Date()))) {
                 e.setInventoryStatus(SampleInventoryStatusEnum.OVERDUE.getK());
             }

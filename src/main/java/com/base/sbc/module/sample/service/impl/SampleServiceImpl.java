@@ -293,7 +293,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
 
     @Override
     public void sampleInventory(Map<String, Integer> sampleItemMap) {
-        List<SampleItem> sampleItems = this.getSampleItems(new ArrayList<>(sampleItemMap.keySet()));
+        List<SampleItem> sampleItems = sampleItemService.listByIds(sampleItemMap.keySet());
         List<String> sampleIds = sampleItems.stream()
                 .map(SampleItem::getSampleId)
                 .distinct()
