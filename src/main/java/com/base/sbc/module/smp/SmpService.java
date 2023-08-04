@@ -213,7 +213,7 @@ public class SmpService {
                         smpGoodsDto.setLengthRangeName(m.getValName());
                     }
                     if ("衣长".equals(m.getFieldName())){
-                        smpGoodsDto.setCoatLength(m.getVal());
+                        smpGoodsDto.setCoatLength(m.getValName());
                     }
                     if ("腰型".equals(m.getFieldName())){
                         smpGoodsDto.setWaistTypeId(m.getVal());
