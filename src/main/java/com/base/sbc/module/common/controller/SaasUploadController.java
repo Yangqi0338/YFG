@@ -40,7 +40,7 @@ public class SaasUploadController extends BaseController {
     }
     @ApiOperation(value = "大货款图上传", notes = "用于大货图片上传，返回上传成功的地址")
     @PostMapping(value = "/uploadStylePic")
-    public String uploadStylePic( Principal user,UploadStylePicDto uploadStylePicDto) throws Throwable {
+    public Boolean uploadStylePic( Principal user,UploadStylePicDto uploadStylePicDto) throws Throwable {
         return uploadFileService.uploadStyleImage(uploadStylePicDto,user);
     }
     @ApiOperation(value = "上传文件", notes = "上传文件")

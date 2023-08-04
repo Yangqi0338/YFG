@@ -210,7 +210,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
      */
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public String uploadStyleImage(UploadStylePicDto dto, Principal user) throws Exception {
+    public Boolean uploadStyleImage(UploadStylePicDto dto, Principal user) throws Exception {
         GroupUser userBy = userUtils.getUserBy(user);
         /*获取年季节品牌等信息*/
         StyleUploadVo styleUploadVo = sampleStyleColorMapper.getStyleUploadInfo(dto.getStyleColorId());
@@ -268,7 +268,9 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         }
         JSONObject jsonObject =  JSON.parseObject(res);
         if (Boolean.parseBoolean (jsonObject.get("Sucess").toString())) {
-            return jsonObject.get("FileName").toString();
+            SampleStyleColor sampleStyleColor = sampleStyleColorMapper.selectById(dto.getStyleColorId());
+            sampleStyleColor.setSampleDesignPic(jsonObject.get("FileName").toString());
+            return  sampleStyleColorMapper.updateById(sampleStyleColor)>0;
         } else {
             throw new OtherException(jsonObject.get("Msg").toString());
         }

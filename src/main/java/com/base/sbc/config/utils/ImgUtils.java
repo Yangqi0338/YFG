@@ -1,7 +1,5 @@
 package com.base.sbc.config.utils;
 
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
 import net.sf.jmimemagic.Magic;
 import net.sf.jmimemagic.MagicMatch;
 import org.apache.commons.net.ftp.FTPClient;
@@ -277,12 +275,11 @@ public class ImgUtils {
 			File file = new File(path);
 			Image img = ImageIO.read(file);
 			BufferedImage tag = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
-			tag.getGraphics().drawImage(img.getScaledInstance(img.getWidth(null), img.getHeight(null), Image.SCALE_SMOOTH), 0, 0, null);
-			newPath = path.substring(0, path.indexOf("bmp")) + "jpg";
-			out = new FileOutputStream(newPath);
-			// JPEGImageEncoder可适用于其他图片类型的转换
-			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
-			encoder.encode(tag);
+			// 创建JPG图像
+			BufferedImage jpgImage = new BufferedImage(tag.getWidth(), tag.getHeight(), BufferedImage.TYPE_INT_RGB);
+			jpgImage.createGraphics().drawImage(tag, 0, 0, Color.WHITE, null);
+			// 将JPG图像保存为文件
+			ImageIO.write(jpgImage, "jpg", new File(newPath));
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("bmp格式图片转jpg异常：" + e.toString());
