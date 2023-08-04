@@ -23,7 +23,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfoStatus
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-4 9:46:01
+ * @date 创建时间：2023-8-4 10:12:13
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -152,6 +152,11 @@ public class PackInfoStatus extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "工艺说明审批状态:待审核(1)、审核通过(2)、被驳回(-1)")
     private String techSpecConfirmStatus;
+    /**
+     * 工艺说明下发状态:0未发送,1发送成功，2发送失败,3重新打开
+     */
+    @ApiModelProperty(value = "工艺说明下发状态:0未发送,1发送成功，2发送失败,3重新打开")
+    private String techScmSendFlag;
     /**
      * 尺寸表洗后尺寸跳码:(0关闭,1开启)
      */
