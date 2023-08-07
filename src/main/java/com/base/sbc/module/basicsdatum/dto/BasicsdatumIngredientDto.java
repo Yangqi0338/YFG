@@ -8,7 +8,7 @@ import lombok.Data;
  * @mail 247967116@qq.com
  */
 @Data
-public class BasicsdatumMaterialsIngredientDto extends QueryDto{
+public class BasicsdatumIngredientDto extends QueryDto{
     private String material;
     private String ingredient;
     private String code;

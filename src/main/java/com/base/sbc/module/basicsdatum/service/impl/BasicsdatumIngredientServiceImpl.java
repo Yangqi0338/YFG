@@ -18,15 +18,14 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumMaterialsIngredientDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialsIngredientDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialsIngredientExcelDto;
+import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumIngredientDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumIngredientDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumIngredientExcelDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialsIngredient;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialsIngredientMapper;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialsIngredientService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialsIngredientVo;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumIngredient;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumIngredientMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumIngredientService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumIngredientVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -42,14 +41,14 @@ import java.util.List;
 
 /**
  * 类描述：基础资料-材料成分 service类
- * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialsIngredientService
+ * @address com.base.sbc.module.basicsdatum.service.BasicsdatumIngredientService
  * @author mengfanjiang
  * @email 2915350015@qq.com
  * @date 创建时间：2023-5-19 19:15:00
  * @version 1.0
  */
 @Service
-public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<BasicsdatumMaterialsIngredientMapper, BasicsdatumMaterialsIngredient> implements BasicsdatumMaterialsIngredientService {
+public class BasicsdatumIngredientServiceImpl extends BaseServiceImpl<BasicsdatumIngredientMapper, BasicsdatumIngredient> implements BasicsdatumIngredientService {
 
         @Autowired
         private BaseController baseController;
@@ -63,10 +62,10 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<B
         * @return
         */
         @Override
-        public PageInfo<BasicsdatumMaterialsIngredientVo> getBasicsdatumMaterialsIngredientList(BasicsdatumMaterialsIngredientDto queryDto) {
+        public PageInfo<BasicsdatumIngredientVo> getBasicsdatumIngredientList(BasicsdatumIngredientDto queryDto) {
             /*分页*/
             PageHelper.startPage(queryDto);
-            BaseQueryWrapper<BasicsdatumMaterialsIngredient> queryWrapper = new BaseQueryWrapper<>();
+            BaseQueryWrapper<BasicsdatumIngredient> queryWrapper = new BaseQueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
             queryWrapper.notEmptyLike("material",queryDto.getMaterial());
             queryWrapper.notEmptyLike("code",queryDto.getCode());
@@ -76,11 +75,11 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<B
             queryWrapper.orderByDesc("create_date");
 
             /*查询基础资料-材料成分数据*/
-            List<BasicsdatumMaterialsIngredient> basicsdatumMaterialsIngredientList = baseMapper.selectList(queryWrapper);
-            PageInfo<BasicsdatumMaterialsIngredient> pageInfo = new PageInfo<>(basicsdatumMaterialsIngredientList);
+            List<BasicsdatumIngredient> basicsdatumIngredientList = baseMapper.selectList(queryWrapper);
+            PageInfo<BasicsdatumIngredient> pageInfo = new PageInfo<>(basicsdatumIngredientList);
             /*转换vo*/
-            List<BasicsdatumMaterialsIngredientVo> list = BeanUtil.copyToList(basicsdatumMaterialsIngredientList, BasicsdatumMaterialsIngredientVo.class);
-            PageInfo<BasicsdatumMaterialsIngredientVo> pageInfo1 = new PageInfo<>();
+            List<BasicsdatumIngredientVo> list = BeanUtil.copyToList(basicsdatumIngredientList, BasicsdatumIngredientVo.class);
+            PageInfo<BasicsdatumIngredientVo> pageInfo1 = new PageInfo<>();
             pageInfo1.setList(list);
             pageInfo1.setTotal(pageInfo.getTotal());
             pageInfo1.setPageNum(pageInfo.getPageNum());
@@ -97,16 +96,16 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<B
        * @return
        */
        @Override
-       public Boolean basicsdatumMaterialsIngredientImportExcel(MultipartFile file) throws Exception {
+       public Boolean basicsdatumIngredientImportExcel(MultipartFile file) throws Exception {
             ImportParams params = new ImportParams();
             params.setNeedSave(false);
-            List<BasicsdatumMaterialsIngredientExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumMaterialsIngredientExcelDto.class, params);
-            List<BasicsdatumMaterialsIngredient> basicsdatumMaterialsIngredientList = BeanUtil.copyToList(list, BasicsdatumMaterialsIngredient.class);
-           for (BasicsdatumMaterialsIngredient basicsdatumMaterialsIngredient : basicsdatumMaterialsIngredientList) {
-               if(StringUtils.isNotBlank(basicsdatumMaterialsIngredient.getCode())) {
-                   QueryWrapper<BasicsdatumMaterialsIngredient> queryWrapper = new QueryWrapper<>();
-                   queryWrapper.eq("code", basicsdatumMaterialsIngredient.getCode());
-                   this.saveOrUpdate(basicsdatumMaterialsIngredient, queryWrapper);
+            List<BasicsdatumIngredientExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumIngredientExcelDto.class, params);
+            List<BasicsdatumIngredient> basicsdatumIngredientList = BeanUtil.copyToList(list, BasicsdatumIngredient.class);
+           for (BasicsdatumIngredient basicsdatumIngredient : basicsdatumIngredientList) {
+               if(StringUtils.isNotBlank(basicsdatumIngredient.getCode())) {
+                   QueryWrapper<BasicsdatumIngredient> queryWrapper = new QueryWrapper<>();
+                   queryWrapper.eq("code", basicsdatumIngredient.getCode());
+                   this.saveOrUpdate(basicsdatumIngredient, queryWrapper);
                }
            }
             return true;
@@ -119,10 +118,10 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<B
         * @return
         */
         @Override
-        public void basicsdatumMaterialsIngredientDeriveExcel(HttpServletResponse response) throws Exception {
-        QueryWrapper<BasicsdatumMaterialsIngredient> queryWrapper=new QueryWrapper<>();
-        List<BasicsdatumMaterialsIngredientExcelDto> list = BeanUtil.copyToList( baseMapper.selectList(queryWrapper), BasicsdatumMaterialsIngredientExcelDto.class);
-        ExcelUtils.exportExcel(list,  BasicsdatumMaterialsIngredientExcelDto.class, "基础资料-材料成分.xlsx",new ExportParams() ,response);
+        public void basicsdatumIngredientDeriveExcel(HttpServletResponse response) throws Exception {
+        QueryWrapper<BasicsdatumIngredient> queryWrapper=new QueryWrapper<>();
+        List<BasicsdatumIngredientExcelDto> list = BeanUtil.copyToList( baseMapper.selectList(queryWrapper), BasicsdatumIngredientExcelDto.class);
+        ExcelUtils.exportExcel(list,  BasicsdatumIngredientExcelDto.class, "基础资料-材料成分.xlsx",new ExportParams() ,response);
         }
 
 
@@ -130,37 +129,37 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<B
         /**
         * 方法描述：新增修改基础资料-材料成分
         *
-        * @param addRevampBasicsdatumMaterialsIngredientDto 基础资料-材料成分Dto类
+        * @param addRevampBasicsdatumIngredientDto 基础资料-材料成分Dto类
         * @return boolean
         */
         @Override
-        public Boolean addRevampBasicsdatumMaterialsIngredient(AddRevampBasicsdatumMaterialsIngredientDto addRevampBasicsdatumMaterialsIngredientDto) {
-            BasicsdatumMaterialsIngredient basicsdatumMaterialsIngredient = new BasicsdatumMaterialsIngredient();
-            QueryWrapper<BasicsdatumMaterialsIngredient> queryWrapper=new QueryWrapper<>();
-            queryWrapper.eq("code",addRevampBasicsdatumMaterialsIngredientDto.getCode());
+        public Boolean addRevampBasicsdatumIngredient(AddRevampBasicsdatumIngredientDto addRevampBasicsdatumIngredientDto) {
+            BasicsdatumIngredient basicsdatumIngredient = new BasicsdatumIngredient();
+            QueryWrapper<BasicsdatumIngredient> queryWrapper=new QueryWrapper<>();
+            queryWrapper.eq("code",addRevampBasicsdatumIngredientDto.getCode());
             /*查询数据是否存在*/
-            List<BasicsdatumMaterialsIngredient> list = baseMapper.selectList(queryWrapper);
-            if (StringUtils.isEmpty(addRevampBasicsdatumMaterialsIngredientDto.getId())) {
+            List<BasicsdatumIngredient> list = baseMapper.selectList(queryWrapper);
+            if (StringUtils.isEmpty(addRevampBasicsdatumIngredientDto.getId())) {
                 /*新增*/
                 if(!CollectionUtils.isEmpty(list)){
                     throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
                 }
-                BeanUtils.copyProperties(addRevampBasicsdatumMaterialsIngredientDto, basicsdatumMaterialsIngredient);
-                basicsdatumMaterialsIngredient.setCompanyCode(baseController.getUserCompany());
-                basicsdatumMaterialsIngredient.insertInit();
-                baseMapper.insert(basicsdatumMaterialsIngredient);
+                BeanUtils.copyProperties(addRevampBasicsdatumIngredientDto, basicsdatumIngredient);
+                basicsdatumIngredient.setCompanyCode(baseController.getUserCompany());
+                basicsdatumIngredient.insertInit();
+                baseMapper.insert(basicsdatumIngredient);
            } else {
                 /*修改*/
-                basicsdatumMaterialsIngredient = baseMapper.selectById(addRevampBasicsdatumMaterialsIngredientDto.getId());
-                if (ObjectUtils.isEmpty(basicsdatumMaterialsIngredient)) {
+                basicsdatumIngredient = baseMapper.selectById(addRevampBasicsdatumIngredientDto.getId());
+                if (ObjectUtils.isEmpty(basicsdatumIngredient)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
                 }
-                if(!basicsdatumMaterialsIngredient.getCode().equals(addRevampBasicsdatumMaterialsIngredientDto.getCode()) && !CollectionUtils.isEmpty(list)){
+                if(!basicsdatumIngredient.getCode().equals(addRevampBasicsdatumIngredientDto.getCode()) && !CollectionUtils.isEmpty(list)){
                     throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
                 }
-                BeanUtils.copyProperties(addRevampBasicsdatumMaterialsIngredientDto, basicsdatumMaterialsIngredient);
-                basicsdatumMaterialsIngredient.updateInit();
-                baseMapper.updateById(basicsdatumMaterialsIngredient);
+                BeanUtils.copyProperties(addRevampBasicsdatumIngredientDto, basicsdatumIngredient);
+                basicsdatumIngredient.updateInit();
+                baseMapper.updateById(basicsdatumIngredient);
                 }
                 return true;
          }
@@ -173,7 +172,7 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<B
          * @return boolean
          */
          @Override
-         public Boolean delBasicsdatumMaterialsIngredient(String id) {
+         public Boolean delBasicsdatumIngredient(String id) {
          List<String> ids = StringUtils.convertList(id);
            /*批量删除*/
            baseMapper.deleteBatchIds(ids);
@@ -188,8 +187,8 @@ public class BasicsdatumMaterialsIngredientServiceImpl extends BaseServiceImpl<B
          * @return boolean
          */
           @Override
-          public Boolean startStopBasicsdatumMaterialsIngredient(StartStopDto startStopDto) {
-            UpdateWrapper<BasicsdatumMaterialsIngredient> updateWrapper = new UpdateWrapper<>();
+          public Boolean startStopBasicsdatumIngredient(StartStopDto startStopDto) {
+            UpdateWrapper<BasicsdatumIngredient> updateWrapper = new UpdateWrapper<>();
             updateWrapper.in("id",StringUtils.convertList(startStopDto.getIds()));
             updateWrapper.set("status", startStopDto.getStatus());
             /*修改状态*/

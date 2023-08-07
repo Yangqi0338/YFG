@@ -7,7 +7,7 @@
 package com.base.sbc.module.basicsdatum.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialsIngredient;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumIngredient;
 import org.apache.ibatis.annotations.Mapper;
 /** 
  * 类描述：基础资料-材料成分 dao类
@@ -18,7 +18,7 @@ import org.apache.ibatis.annotations.Mapper;
  * @version 1.0  
  */
 @Mapper
-public interface BasicsdatumMaterialsIngredientMapper extends BaseMapper<BasicsdatumMaterialsIngredient> {
+public interface BasicsdatumIngredientMapper extends BaseMapper<BasicsdatumIngredient> {
 /** 自定义方法区 不替换的区域【other_start】 **/
 
 
