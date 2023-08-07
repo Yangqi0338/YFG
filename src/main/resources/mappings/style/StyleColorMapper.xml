@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.base.sbc.module.sample.mapper.SampleStyleColorMapper">
+<mapper namespace="com.base.sbc.module.style.mapper.StyleColorMapper">
     <update id="reviseAllStyleNo">
 
       update  t_sample_style_group
@@ -33,22 +33,22 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
     <select id="isStyleNoExist" resultType="java.lang.Integer">
-        select count(1) from t_sample_style_color where  style_no=#{styleNo}
+        select count(1) from t_style_color where  style_no=#{styleNo}
     </select>
 
     <select id="getStyleColorNumber" resultType="java.lang.Integer">
         select count(1)
-        from t_sample_style_color
+        from t_style_color
         where style_id = #{styleNo}
     </select>
-    <select id="getSampleStyleColorList" resultType="com.base.sbc.module.sample.vo.SampleStyleColorVo">
+    <select id="getSampleStyleColorList" resultType="com.base.sbc.module.style.vo.StyleColorVo">
         SELECT
         sd.style_flavour_name,
         sd.prod_category_name,
         sob.meet_flag,
         cl.color16,
         ssc.*
-        FROM t_sample_style_color ssc
+        FROM t_style_color ssc
         LEFT JOIN t_style sd on ssc.style_id = sd.id
         LEFT JOIN t_sample_style_order_book_color sobc on ssc.style_no = sobc.style_no
         LEFT JOIN t_sample_style_order_book sob on sob.order_book_code =sobc.order_book_code
@@ -66,7 +66,7 @@
                sd.year_name,
                sd.season,
                sd.season_name
-        FROM t_sample_style_color ssc
+        FROM t_style_color ssc
                  LEFT JOIN t_style sd on ssc.style_id = sd.id
         where ssc.id = #{styleColorId}
     </select>

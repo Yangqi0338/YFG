@@ -61,7 +61,7 @@ import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.sample.dto.SendSampleMakingDto;
-import com.base.sbc.module.sample.mapper.SampleStyleColorMapper;
+import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.sample.vo.*;
 import com.base.sbc.module.style.dto.StyleBomSaveDto;
 import com.base.sbc.module.style.dto.StyleBomSearchDto;
@@ -70,6 +70,7 @@ import com.base.sbc.module.style.dto.StyleSaveDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.style.vo.StylePageVo;
 import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.Page;
@@ -115,7 +116,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private PlanningCategoryItemService planningCategoryItemService;
 
     @Autowired
-    private SampleStyleColorMapper sampleStyleColorMapper;
+    private StyleColorMapper styleColorMapper;
 
     @Autowired
     CcmFeignService ccmFeignService;
@@ -356,14 +357,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             queryWrapper.in("ssc.style_id", stringList);
             queryWrapper.eq("ssc.del_flag", "0");
             queryWrapper.eq(StrUtil.isNotBlank(dto.getStyleStatus()), "ssc.status", dto.getStyleStatus());
-            List<SampleStyleColorVo> sampleStyleColorVoList = sampleStyleColorMapper.getSampleStyleColorList(queryWrapper,null);
+            List<StyleColorVo> sampleStyleColorVoList = styleColorMapper.getSampleStyleColorList(queryWrapper,null);
 
-            Map<String, List<SampleStyleColorVo>> stringListMap = sampleStyleColorVoList.stream().collect(Collectors.groupingBy(SampleStyleColorVo::getStyleId));
+            Map<String, List<StyleColorVo>> stringListMap = sampleStyleColorVoList.stream().collect(Collectors.groupingBy(StyleColorVo::getStyleId));
             list.forEach(sampleDesignPageVo -> {
-                List<SampleStyleColorVo> styleColorVoList = stringListMap.get(sampleDesignPageVo.getId());
+                List<StyleColorVo> styleColorVoList = stringListMap.get(sampleDesignPageVo.getId());
                 /*获取款式图*/
                 if(!CollectionUtils.isEmpty(styleColorVoList)){
-                    sampleDesignPageVo.setSampleStyleColorVoList(styleColorVoList);
+                    sampleDesignPageVo.setStyleColorVoList(styleColorVoList);
                     styleColorVoList.forEach(s -> {
                         s.setSampleDesignPic(StyleNoImgUtils.getStyleNoImgUrl(userBy, s.getSampleDesignPic()));
                     });

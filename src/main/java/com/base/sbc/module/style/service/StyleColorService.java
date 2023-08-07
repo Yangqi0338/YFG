@@ -4,27 +4,28 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.sample.service;
+package com.base.sbc.module.style.service;
 
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.sample.dto.*;
-import com.base.sbc.module.sample.entity.SampleStyleColor;
-import com.base.sbc.module.sample.vo.SampleStyleColorVo;
+import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.PageInfo;
 
 import java.security.Principal;
 import java.util.List;
 
 /**
- * 类描述：样衣-款式配色 service类
+ * 类描述：款式-款式配色 service类
  * @address com.base.sbc.module.sample.service.SampleStyleColorService
  * @author mengfanjiang
  * @email XX.com
  * @date 创建时间：2023-6-28 15:02:46
  * @version 1.0
  */
-public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
+public interface StyleColorService extends BaseService<StyleColor> {
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -34,14 +35,14 @@ public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
         * @param queryDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<SampleStyleColorVo> getSampleStyleColorList(Principal user, QuerySampleStyleColorDto queryDto);
+        PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QuerySampleStyleColorDto queryDto);
 
         /**
          * 方法描述: 获取款式或配饰
          * @param designNo 款式编号
          * @return
          */
-        List<SampleStyleColorVo> getStyleAccessoryBystyleNo(String designNo);
+        List<StyleColorVo> getStyleAccessoryBystyleNo(String designNo);
 
 
         /**
@@ -56,36 +57,36 @@ public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
          * @param querySampleStyleColorDto
          * @return
          */
-        List<SampleStyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto);
+        List<StyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto);
 
         /**
          * 方法描述: 批量新增款式配色-款式配色
          * @param
          * @return
          */
-        Boolean  batchAddSampleStyleColor(List<AddRevampSampleStyleColorDto> list);
+        Boolean  batchAddSampleStyleColor(List<AddRevampStyleColorDto> list);
 
 
         /**
-        * 方法描述：新增修改样衣-款式配色
+        * 方法描述：新增修改款式-款式配色
         *
-        * @param addRevampSampleStyleColorDto 部件Dto类
+        * @param addRevampStyleColorDto 部件Dto类
         * @return boolean
         */
-        Boolean addRevampSampleStyleColor(AddRevampSampleStyleColorDto addRevampSampleStyleColorDto);
+        Boolean addRevampSampleStyleColor(AddRevampStyleColorDto addRevampStyleColorDto);
 
 
 
         /**
-         * 方法描述：删除样衣-款式配色
+         * 方法描述：删除款式-款式配色
          *
-         * @param id （多个用，） styleId 样衣id
+         * @param id （多个用，） styleId 款式id
          * @return boolean
          */
         Boolean delSampleStyleColor(String id, String styleId);
 
         /**
-         * 方法描述：删除样衣-款式配色
+         * 方法描述：删除款式-款式配色
          *
          * @param id （多个用，）
          * @return boolean
@@ -93,7 +94,7 @@ public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
         Boolean delStyleColor(String id);
 
         /**
-        * 方法描述：启用停止样衣-款式配色
+        * 方法描述：启用停止款式-款式配色
         *
         * @param startStopDto 启用停止Dto类
         * @return boolean
@@ -110,7 +111,7 @@ public interface SampleStyleColorService extends BaseService<SampleStyleColor> {
 
         /**
          * 方法描述 获取款式下的颜色
-         * @param styleId 样衣id
+         * @param styleId 款式id
          */
         List<String> getStyleColorId(String styleId);
 

@@ -5,7 +5,7 @@
     <select id="getList" resultType="com.base.sbc.module.sample.vo.SampleInventoryItemVo">
         SELECT sii.id, s.images, si.`code`, s.design_no, s.style_name, si.color, si.size,
             si.count, sii.old_count, sii.new_count, sii.differ_type, sii.differ_count,
-            sii.price, sii.old_total_price, sii.new_total_price, sii.differ_total_price,sii.sample_inventory_id,si.position,si.position_id,si.count as oldCount,sii.sample_item_id
+            sii.price, sii.old_total_price, sii.new_total_price, sii.differ_total_price,sii.sample_inventory_id,si.position,si.position_id,si.count as oldCount,sii.sample_item_id,sii.remarks
         FROM t_sample_inventory_item sii
         LEFT JOIN t_sample_inventory si2 ON si2.id = sii.sample_inventory_id
         LEFT JOIN t_sample_item si ON si.id = sii.sample_item_id

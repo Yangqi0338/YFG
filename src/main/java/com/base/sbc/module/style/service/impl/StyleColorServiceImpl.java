@@ -4,7 +4,7 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.sample.service.impl;
+package com.base.sbc.module.style.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
@@ -24,15 +24,19 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.sample.dto.*;
-import com.base.sbc.module.sample.entity.SampleStyleColor;
-import com.base.sbc.module.sample.mapper.SampleStyleColorMapper;
-import com.base.sbc.module.sample.service.SampleStyleColorService;
-import com.base.sbc.module.sample.vo.SampleStyleColorVo;
+import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
+import com.base.sbc.module.sample.dto.RelevanceBomDto;
+import com.base.sbc.module.sample.dto.UpdateStyleNoBandDto;
+import com.base.sbc.module.sample.dto.UpdateTagPriceDto;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
+import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
@@ -62,7 +66,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColorMapper, SampleStyleColor> implements SampleStyleColorService {
+public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, StyleColor> implements StyleColorService {
 
 	private final BaseController baseController;
 
@@ -89,11 +93,11 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
      * @return
      */
     @Override
-    public PageInfo<SampleStyleColorVo> getSampleStyleColorList(Principal user, QuerySampleStyleColorDto queryDto) {
+    public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QuerySampleStyleColorDto queryDto) {
         GroupUser userBy = userUtils.getUserBy(user);
         /*分页*/
         PageHelper.startPage(queryDto);
-        QueryWrapper<SampleStyleColor> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<StyleColor> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("ssc.company_code", baseController.getUserCompany());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleId()), "ssc.style_id", queryDto.getStyleId());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getColorSpecification()), "ssc.color_specification", queryDto.getColorSpecification());
@@ -109,12 +113,12 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
         queryWrapper.eq("ssc.del_flag", "0");
         queryWrapper.orderByDesc("ssc.create_date");
         /*查询样衣-款式配色数据*/
-        List<SampleStyleColorVo> sampleStyleColorList = baseMapper.getSampleStyleColorList(queryWrapper,meetFlag);
+        List<StyleColorVo> sampleStyleColorList = baseMapper.getSampleStyleColorList(queryWrapper,meetFlag);
         /*获取款式图*/
         sampleStyleColorList.forEach(s -> {
             s.setSampleDesignPic(StyleNoImgUtils.getStyleNoImgUrl(userBy, s.getSampleDesignPic()));
         });
-        PageInfo<SampleStyleColorVo> pageInfo = new PageInfo<>(sampleStyleColorList);
+        PageInfo<StyleColorVo> pageInfo = new PageInfo<>(sampleStyleColorList);
         return pageInfo;
     }
 
@@ -124,19 +128,19 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
      * @return
      */
     @Override
-    public  List<SampleStyleColorVo> getStyleAccessoryBystyleNo(String designNo) {
+    public  List<StyleColorVo> getStyleAccessoryBystyleNo(String designNo) {
         QueryWrapper qw = new QueryWrapper();
         qw.eq("design_no", designNo);
         Style style = styleMapper.selectOne(qw);
         if (ObjectUtils.isEmpty(style)) {
             throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
-        QueryWrapper<SampleStyleColor> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<StyleColor> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.eq("style_id", style.getId());
-        List<SampleStyleColor> sampleStyleColorList = baseMapper.selectList(queryWrapper);
+        List<StyleColor> styleColorList = baseMapper.selectList(queryWrapper);
         /*转换vo*/
-        List<SampleStyleColorVo> list = BeanUtil.copyToList(sampleStyleColorList, SampleStyleColorVo.class);
+        List<StyleColorVo> list = BeanUtil.copyToList(styleColorList, StyleColorVo.class);
         return list;
     }
 
@@ -162,18 +166,18 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
      * @return
      */
     @Override
-    public List<SampleStyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto) {
+    public List<StyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto) {
         if(StringUtils.isNotBlank(querySampleStyleColorDto.getStyleNo())){
             throw new OtherException(BaseErrorEnum.ERR_MISSING_SERVLET_REQUEST_PARAMETER_EXCEPTION);
         }
         QueryWrapper queryWrapper =new QueryWrapper();
         queryWrapper.in("style_no", StringUtils.convertList(querySampleStyleColorDto.getStyleNo()));
-        List<SampleStyleColor> list= baseMapper.selectList(queryWrapper);
+        List<StyleColor> list= baseMapper.selectList(queryWrapper);
         if(CollectionUtils.isEmpty(list)){
             throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
-        List<SampleStyleColorVo> sampleStyleColorVoList =  BeanUtil.copyToList(list, SampleStyleColorVo.class);
-        return sampleStyleColorVoList;
+        List<StyleColorVo> styleColorVoList =  BeanUtil.copyToList(list, StyleColorVo.class);
+        return styleColorVoList;
     }
 
     /**
@@ -183,19 +187,19 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
      */
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public Boolean batchAddSampleStyleColor(List<AddRevampSampleStyleColorDto> list) {
+    public Boolean batchAddSampleStyleColor(List<AddRevampStyleColorDto> list) {
 
          int index =0;
-        for (AddRevampSampleStyleColorDto addRevampSampleStyleColorDto : list) {
-            BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(addRevampSampleStyleColorDto.getColourLibraryId());
-            Style style = styleMapper.selectById(addRevampSampleStyleColorDto.getStyleId());
-            addRevampSampleStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
-            addRevampSampleStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
-            addRevampSampleStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
-            addRevampSampleStyleColorDto.setStyleNo(getNextCode(addRevampSampleStyleColorDto.getStyleId(), style.getBrand(), style.getYearName(), style.getMonth(), style.getBandName(), style.getProdCategory(), style.getDesignNo(), index++));
+        for (AddRevampStyleColorDto addRevampStyleColorDto : list) {
+            BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(addRevampStyleColorDto.getColourLibraryId());
+            Style style = styleMapper.selectById(addRevampStyleColorDto.getStyleId());
+            addRevampStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
+            addRevampStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
+            addRevampStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
+            addRevampStyleColorDto.setStyleNo(getNextCode(addRevampStyleColorDto.getStyleId(), style.getBrand(), style.getYearName(), style.getMonth(), style.getBandName(), style.getProdCategory(), style.getDesignNo(), index++));
         }
-        List<SampleStyleColor> sampleStyleColorList = BeanUtil.copyToList(list, SampleStyleColor.class);
-        saveBatch(sampleStyleColorList);
+        List<StyleColor> styleColorList = BeanUtil.copyToList(list, StyleColor.class);
+        saveBatch(styleColorList);
         return true;
     }
 
@@ -297,38 +301,38 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
     /**
      * 方法描述：新增修改样衣-款式配色
      *
-     * @param addRevampSampleStyleColorDto 样衣-款式配色Dto类
+     * @param addRevampStyleColorDto 样衣-款式配色Dto类
      * @return boolean
      */
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public Boolean addRevampSampleStyleColor(AddRevampSampleStyleColorDto addRevampSampleStyleColorDto) {
-        SampleStyleColor sampleStyleColor = new SampleStyleColor();
-        if (StringUtils.isEmpty(addRevampSampleStyleColorDto.getId())) {
-            QueryWrapper<SampleStyleColor> queryWrapper = new QueryWrapper<>();
+    public Boolean addRevampSampleStyleColor(AddRevampStyleColorDto addRevampStyleColorDto) {
+        StyleColor styleColor = new StyleColor();
+        if (StringUtils.isEmpty(addRevampStyleColorDto.getId())) {
+            QueryWrapper<StyleColor> queryWrapper = new QueryWrapper<>();
             /*新增*/
-            BeanUtils.copyProperties(addRevampSampleStyleColorDto, sampleStyleColor);
-            sampleStyleColor.setCompanyCode(baseController.getUserCompany());
-            sampleStyleColor.insertInit();
-            baseMapper.insert(sampleStyleColor);
+            BeanUtils.copyProperties(addRevampStyleColorDto, styleColor);
+            styleColor.setCompanyCode(baseController.getUserCompany());
+            styleColor.insertInit();
+            baseMapper.insert(styleColor);
         } else {
             /*修改*/
-            if(StringUtils.isBlank(addRevampSampleStyleColorDto.getColourLibraryId())){
+            if(StringUtils.isBlank(addRevampStyleColorDto.getColourLibraryId())){
                 throw  new OtherException("颜色不能为空");
             }
-            BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(addRevampSampleStyleColorDto.getColourLibraryId());
-            sampleStyleColor = baseMapper.selectById(addRevampSampleStyleColorDto.getId());
-            if (ObjectUtils.isEmpty(sampleStyleColor)) {
+            BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(addRevampStyleColorDto.getColourLibraryId());
+            styleColor = baseMapper.selectById(addRevampStyleColorDto.getId());
+            if (ObjectUtils.isEmpty(styleColor)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
-            BeanUtils.copyProperties(addRevampSampleStyleColorDto, sampleStyleColor);
+            BeanUtils.copyProperties(addRevampStyleColorDto, styleColor);
             /*赋值颜色*/
-            sampleStyleColor.setColourLibraryId(basicsdatumColourLibrary.getId());
-            sampleStyleColor.setColorCode(basicsdatumColourLibrary.getColourCode());
-            sampleStyleColor.setColorName(basicsdatumColourLibrary.getColourName());
-            sampleStyleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
-            sampleStyleColor.updateInit();
-            baseMapper.updateById(sampleStyleColor);
+            styleColor.setColourLibraryId(basicsdatumColourLibrary.getId());
+            styleColor.setColorCode(basicsdatumColourLibrary.getColourCode());
+            styleColor.setColorName(basicsdatumColourLibrary.getColourName());
+            styleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
+            styleColor.updateInit();
+            baseMapper.updateById(styleColor);
         }
         return true;
     }
@@ -376,7 +380,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
      */
     @Override
     public Boolean startStopSampleStyleColor(StartStopDto startStopDto) {
-        UpdateWrapper<SampleStyleColor> updateWrapper = new UpdateWrapper<>();
+        UpdateWrapper<StyleColor> updateWrapper = new UpdateWrapper<>();
         updateWrapper.in("id", StringUtils.convertList(startStopDto.getIds()));
         updateWrapper.set("status", startStopDto.getStatus());
         /*修改状态*/
@@ -406,11 +410,11 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
     public List<String> getStyleColorId(String styleId) {
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("style_id", styleId);
-        List<SampleStyleColor> sampleStyleColorList = baseMapper.selectList(queryWrapper);
-        if (CollectionUtils.isEmpty(sampleStyleColorList)) {
+        List<StyleColor> styleColorList = baseMapper.selectList(queryWrapper);
+        if (CollectionUtils.isEmpty(styleColorList)) {
             return new ArrayList<>();
         }
-        return sampleStyleColorList.stream().map(SampleStyleColor::getColourLibraryId).collect(Collectors.toList());
+        return styleColorList.stream().map(StyleColor::getColourLibraryId).collect(Collectors.toList());
     }
 
     /**
@@ -423,11 +427,11 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
     @Transactional(rollbackFor = {Exception.class})
     public Boolean relevanceBom(RelevanceBomDto relevanceBomDto) {
         /*查询配色信息*/
-        SampleStyleColor  sampleStyleColor=  baseMapper.selectById(relevanceBomDto.getStyleColorId());
-        if(ObjectUtils.isEmpty(sampleStyleColor)){
+        StyleColor styleColor =  baseMapper.selectById(relevanceBomDto.getStyleColorId());
+        if(ObjectUtils.isEmpty(styleColor)){
             throw new OtherException("无配色信息");
         }
-        if (StringUtils.isNotBlank(sampleStyleColor.getBom())) {
+        if (StringUtils.isNotBlank(styleColor.getBom())) {
             throw new OtherException("该配色已关联bom");
         }
         /*查询bom信息*/
@@ -439,13 +443,13 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             throw new OtherException("该bom以关联bom");
         }
         /*关联bom*/
-        sampleStyleColor.setBom(packInfo.getCode());
+        styleColor.setBom(packInfo.getCode());
         /*bom关联配色*/
-        packInfo.setStyleNo(sampleStyleColor.getStyleNo());
-        packInfo.setColorCode(sampleStyleColor.getColorCode());
-        packInfo.setColor(sampleStyleColor.getColorName());
-        packInfo.setSampleStyleColorId(sampleStyleColor.getId());
-        baseMapper.updateById(sampleStyleColor);
+        packInfo.setStyleNo(styleColor.getStyleNo());
+        packInfo.setColorCode(styleColor.getColorCode());
+        packInfo.setColor(styleColor.getColorName());
+        packInfo.setSampleStyleColorId(styleColor.getId());
+        baseMapper.updateById(styleColor);
         packInfoMapper.updateById(packInfo);
         return true;
     }
@@ -459,7 +463,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public Boolean updateStyleNoBand(UpdateStyleNoBandDto updateStyleNoBandDto) {
-        SampleStyleColor sampleStyleColor =   baseMapper.selectById(updateStyleNoBandDto.getId());
+        StyleColor sampleStyleColor =   baseMapper.selectById(updateStyleNoBandDto.getId());
         if(ObjectUtils.isEmpty(sampleStyleColor)){
             throw new OtherException("id错误");
         }
@@ -471,7 +475,7 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
             }
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("style_no",updateStyleNoBandDto.getStyleNo());
-            SampleStyleColor styleColor = baseMapper.selectOne(queryWrapper);
+            StyleColor styleColor = baseMapper.selectOne(queryWrapper);
             if(!ObjectUtils.isEmpty(styleColor)){
                 throw new OtherException("大货款号已存在");
             }
@@ -501,13 +505,13 @@ public class SampleStyleColorServiceImpl extends BaseServiceImpl<SampleStyleColo
      */
     @Override
     public Boolean verification(String id) {
-        SampleStyleColor sampleStyleColor = baseMapper.selectById(id);
-        if(ObjectUtils.isEmpty(sampleStyleColor)){
+        StyleColor styleColor = baseMapper.selectById(id);
+        if(ObjectUtils.isEmpty(styleColor)){
             throw new OtherException(BaseErrorEnum.ERR_SELECT_ATTRIBUTE_NOT_REQUIREMENTS);
         }
         PdmStyleCheckParam pdmStyleCheckParam = new PdmStyleCheckParam();
-        pdmStyleCheckParam.setStyleNo(sampleStyleColor.getStyleNo());
-        pdmStyleCheckParam.setCode(sampleStyleColor.getColorCode());
+        pdmStyleCheckParam.setStyleNo(styleColor.getStyleNo());
+        pdmStyleCheckParam.setCode(styleColor.getColorCode());
         try {
            Boolean b = smpService.checkColorSize(pdmStyleCheckParam);
            if(!b){

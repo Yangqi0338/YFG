@@ -79,6 +79,14 @@ public class SampleInventoryVo {
     @ApiModelProperty(value = "备注")
     private String remarks;
 
+    /** 位置ID */
+    @ApiModelProperty(value = "位置ID")
+    private String positionId;
+
+    /** 位置 */
+    @ApiModelProperty(value = "位置")
+    private String position;
+
     @ApiModelProperty(value = "关联的明细")
     private List<SampleInventoryItemVo> sampleItemList;
 }

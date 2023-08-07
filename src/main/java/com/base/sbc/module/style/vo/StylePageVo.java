@@ -2,7 +2,6 @@ package com.base.sbc.module.style.vo;
 
 
 import cn.hutool.core.date.DateUtil;
-import com.base.sbc.module.sample.vo.SampleStyleColorVo;
 import com.base.sbc.module.style.entity.Style;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -27,7 +26,7 @@ public class StylePageVo extends Style {
     @ApiModelProperty(value = "设计师头像", example = "https://sjkj-demo.oss-cn-shenzhen.aliyuncs.com/null/userHead/09/02/8361ea39-21d2-4944-b150-d2e69bb68254.png")
     private String aliasUserAvatar;
     /*款式配色*/
-    private List<SampleStyleColorVo> sampleStyleColorVoList;
+    private List<StyleColorVo> styleColorVoList;
     /**
      * 创建日期
      */

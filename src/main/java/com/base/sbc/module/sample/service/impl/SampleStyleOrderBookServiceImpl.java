@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.base.sbc.module.style.service.StyleColorService;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -31,12 +32,11 @@ import com.base.sbc.module.sample.dto.SampleStyleOrderBookQueryDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookSaveDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookUpdateDto;
 import com.base.sbc.module.sample.dto.SampleStyleOrderBookUserUpdateDto;
-import com.base.sbc.module.sample.entity.SampleStyleColor;
+import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.sample.entity.SampleStyleGroup;
 import com.base.sbc.module.sample.entity.SampleStyleOrderBook;
 import com.base.sbc.module.sample.entity.SampleStyleOrderBookColor;
 import com.base.sbc.module.sample.mapper.SampleStyleOrderBookMapper;
-import com.base.sbc.module.sample.service.SampleStyleColorService;
 import com.base.sbc.module.sample.service.SampleStyleGroupService;
 import com.base.sbc.module.sample.service.SampleStyleOrderBookColorService;
 import com.base.sbc.module.sample.service.SampleStyleOrderBookService;
@@ -61,7 +61,7 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 
 	private final SampleStyleOrderBookColorService sampleStyleOrderBookColorService;
 	private final SampleStyleGroupService sampleStyleGroupService;
-	private final SampleStyleColorService sampleStyleColorService;
+	private final StyleColorService sampleStyleColorService;
 
 	@Override
 	public PageInfo<SampleStyleOrderBookPageVo> getStyleOrderBookList(SampleStyleOrderBookQueryDto dto) {
@@ -187,7 +187,7 @@ public class SampleStyleOrderBookServiceImpl extends BaseServiceImpl<SampleStyle
 			sampleStyleGroupService.update(new UpdateWrapper<SampleStyleGroup>().set("tag_price", dto.getTagPrice())
 					.eq(COMPANY_CODE, getCompanyCode()).eq("group_code", dto.getGroupCode()));
 		} else {
-			sampleStyleColorService.update(new UpdateWrapper<SampleStyleColor>().set("tag_price", dto.getTagPrice())
+			sampleStyleColorService.update(new UpdateWrapper<StyleColor>().set("tag_price", dto.getTagPrice())
 					.eq(COMPANY_CODE, getCompanyCode()).eq("style_no", dto.getStyleNo()));
 		}
 		return true;
