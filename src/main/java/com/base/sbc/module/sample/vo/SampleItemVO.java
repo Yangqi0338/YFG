@@ -78,6 +78,8 @@ public class SampleItemVO {
     private BigDecimal price;
     @ApiModelProperty("样衣id")
     private String sampleId;
+    @ApiModelProperty("样衣数量")
+    private Integer count;
 
 
 }
