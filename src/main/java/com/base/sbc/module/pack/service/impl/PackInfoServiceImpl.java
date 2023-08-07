@@ -41,8 +41,8 @@ import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
-import com.base.sbc.module.sample.entity.SampleStyleColor;
-import com.base.sbc.module.sample.mapper.SampleStyleColorMapper;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
@@ -122,7 +122,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private PreProductionSampleService preProductionSampleService;
 
     @Resource
-    private SampleStyleColorMapper sampleStyleColorMapper;
+    private StyleColorMapper styleColorMapper;
 
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -414,7 +414,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (packInfo == null) {
             throw new OtherException("资料包数据为空");
         }
-        SampleStyleColor color = sampleStyleColorMapper.selectById(dto.getSampleStyleColorId());
+        StyleColor color = styleColorMapper.selectById(dto.getSampleStyleColorId());
         if (color == null) {
             throw new OtherException("配色数据为空");
         }
@@ -425,7 +425,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         updateById(packInfo);
 
         color.setBom(packInfo.getCode());
-        sampleStyleColorMapper.updateById(color);
+        styleColorMapper.updateById(color);
         return true;
     }
 

@@ -4,7 +4,7 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.sample.entity;
+package com.base.sbc.module.style.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
@@ -30,9 +30,9 @@ import java.util.Date;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_sample_style_color")
+@TableName("t_style_color")
 @ApiModel("样衣-款式配色 SampleStyleColor")
-public class SampleStyleColor extends BaseDataEntity<String> {
+public class StyleColor extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -271,15 +271,10 @@ public class SampleStyleColor extends BaseDataEntity<String> {
     @ApiModelProperty(value = "款式风格")
     private String styleFlavour;
     /**
-     * 下发scm(0否,1:是)
+     * SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开
      */
-    @ApiModelProperty(value = "下发scm(0否,1:是)")
-    private String isIssueScm;
-    /**
-     * 编辑状态(0可编辑，1不可编辑)
-     */
-    @ApiModelProperty(value = "编辑状态(0可编辑，1不可编辑)")
-    private String editStatus;
+    @ApiModelProperty(value = "SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开")
+    private String scmSendFlag;
     /**
      * 是否报次款0否 1是
      */

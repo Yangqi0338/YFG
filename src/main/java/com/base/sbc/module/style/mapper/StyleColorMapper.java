@@ -4,15 +4,15 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.sample.mapper;
+package com.base.sbc.module.style.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.base.sbc.module.sample.vo.SampleStyleColorVo;
+import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.sample.vo.StyleUploadVo;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.sample.entity.SampleStyleColor;
+import com.base.sbc.module.style.entity.StyleColor;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.List;
  * @date 创建时间：2023-6-28 15:02:46
  */
 @Mapper
-public interface SampleStyleColorMapper extends BaseMapper<SampleStyleColor> {
+public interface StyleColorMapper extends BaseMapper<StyleColor> {
 // 自定义方法区 不替换的区域【other_start】
 
     /*查询大货款号是否存在*/
@@ -39,7 +39,7 @@ public interface SampleStyleColorMapper extends BaseMapper<SampleStyleColor> {
     /**
      *查询款式下的配色
      */
-    List<SampleStyleColorVo> getSampleStyleColorList(@Param(Constants.WRAPPER) QueryWrapper qw ,@Param("meetFlag") String meetFlag);
+    List<StyleColorVo> getSampleStyleColorList(@Param(Constants.WRAPPER) QueryWrapper qw , @Param("meetFlag") String meetFlag);
 
 //    修改大货款号
     Boolean reviseAllStyleNo(@Param("styleNo") String styleNo ,@Param("nweStyleNo") String nweStyleNo);

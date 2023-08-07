@@ -27,8 +27,8 @@ import com.base.sbc.module.common.mapper.UploadFileMapper;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.base.sbc.module.sample.entity.SampleStyleColor;
-import com.base.sbc.module.sample.mapper.SampleStyleColorMapper;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.sample.vo.StyleUploadVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +76,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     @Autowired
     private AttachmentService attachmentService;
     @Autowired
-    private SampleStyleColorMapper sampleStyleColorMapper;
+    private StyleColorMapper styleColorMapper;
 
     @Autowired
     private UserUtils userUtils;
@@ -213,7 +213,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     public Boolean uploadStyleImage(UploadStylePicDto dto, Principal user) throws Exception {
         GroupUser userBy = userUtils.getUserBy(user);
         /*获取年季节品牌等信息*/
-        StyleUploadVo styleUploadVo = sampleStyleColorMapper.getStyleUploadInfo(dto.getStyleColorId());
+        StyleUploadVo styleUploadVo = styleColorMapper.getStyleUploadInfo(dto.getStyleColorId());
         /*获取文件类型*/
         String type = dto.getFile().getOriginalFilename().substring(dto.getFile().getOriginalFilename().lastIndexOf(".")+1);
         File file = null;
@@ -268,9 +268,9 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         }
         JSONObject jsonObject =  JSON.parseObject(res);
         if (Boolean.parseBoolean (jsonObject.get("Sucess").toString())) {
-            SampleStyleColor sampleStyleColor = sampleStyleColorMapper.selectById(dto.getStyleColorId());
-            sampleStyleColor.setSampleDesignPic(jsonObject.get("FileName").toString());
-            return  sampleStyleColorMapper.updateById(sampleStyleColor)>0;
+            StyleColor styleColor = styleColorMapper.selectById(dto.getStyleColorId());
+            styleColor.setSampleDesignPic(jsonObject.get("FileName").toString());
+            return  styleColorMapper.updateById(styleColor)>0;
         } else {
             throw new OtherException(jsonObject.get("Msg").toString());
         }

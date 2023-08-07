@@ -30,12 +30,12 @@ import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.Sample;
-import com.base.sbc.module.sample.entity.SampleStyleColor;
+import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.sample.service.SampleService;
-import com.base.sbc.module.sample.service.SampleStyleColorService;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +81,7 @@ public class SmpService {
 
     private final PackInfoService packInfoService;
 
-    private final SampleStyleColorService sampleStyleColorService;
+    private final StyleColorService sampleStyleColorService;
 
     private final PackBomService packBomService;
 
@@ -129,12 +129,12 @@ public class SmpService {
         int i = 0;
 
 
-        List<SampleStyleColor> sampleStyleColors = sampleStyleColorService.listByIds(Arrays.asList(ids));
+        List<StyleColor> styleColors = sampleStyleColorService.listByIds(Arrays.asList(ids));
 
-        for (SampleStyleColor sampleStyleColor : sampleStyleColors) {
-            SmpGoodsDto smpGoodsDto = sampleStyleColor.toSmpGoodsDto();
+        for (StyleColor styleColor : styleColors) {
+            SmpGoodsDto smpGoodsDto = styleColor.toSmpGoodsDto();
 
-            StyleVo sampleDesign = styleService.getDetail(sampleStyleColor.getStyleId());
+            StyleVo sampleDesign = styleService.getDetail(styleColor.getStyleId());
             smpGoodsDto.setMaxClassName(sampleDesign.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(sampleDesign.getProdCategory1st());
             smpGoodsDto.setCategoryName(sampleDesign.getProdCategoryName());
@@ -192,7 +192,7 @@ public class SmpService {
             smpGoodsDto.setStyleName(sampleDesign.getStyleName());
             smpGoodsDto.setTargetCost(sampleDesign.getProductCost());
             smpGoodsDto.setShapeName(sampleDesign.getPlateType());
-            smpGoodsDto.setUniqueCode(sampleStyleColor.getWareCode());
+            smpGoodsDto.setUniqueCode(styleColor.getWareCode());
 
             Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Band");
             Map<String, String> map = dictInfoToMap.get("C8_Band");
@@ -263,7 +263,7 @@ public class SmpService {
 
             smpGoodsDto.setBandName(sampleDesign.getBandName());
 
-            smpGoodsDto.setAccessories(StringUtils.isNotEmpty(sampleStyleColor.getAccessoryNo()));
+            smpGoodsDto.setAccessories(StringUtils.isNotEmpty(styleColor.getAccessoryNo()));
 
             // 核价
             PackPricing packPricing = packPricingService.getOne(new QueryWrapper<PackPricing>().eq("foreign_id", sampleDesign.getId()).eq("pack_type", "packBigGoods"));
@@ -286,8 +286,8 @@ public class SmpService {
             smpGoodsDto.setProductTypeId(sampleDesign.getStyleType());
             smpGoodsDto.setProductType(sampleDesign.getStyleName());
 
-            smpGoodsDto.setSaleTime(sampleStyleColor.getNewDate());
-            smpGoodsDto.setProdSeg(sampleStyleColor.getSubdivide());
+            smpGoodsDto.setSaleTime(styleColor.getNewDate());
+            smpGoodsDto.setProdSeg(styleColor.getSubdivide());
             smpGoodsDto.setSizeGroupId(sampleDesign.getSizeRange());
             smpGoodsDto.setSizeGroupName(sampleDesign.getSizeRangeName());
             smpGoodsDto.setStyleCode(sampleDesign.getDesignNo());
@@ -302,7 +302,7 @@ public class SmpService {
             //测试造的数据
             smpGoodsDto.setUnit("ST");
 
-            PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", sampleStyleColor.getBom()));
+            PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()));
             if (packInfo != null) {
 
 
@@ -359,8 +359,8 @@ public class SmpService {
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpGoodsDto, "smp", "商品主数据下发");
             if (aBoolean) {
                 i++;
-                sampleStyleColor.setIsIssueScm("1");
-                sampleStyleColorService.updateById(sampleStyleColor);
+                styleColor.setScmSendFlag("1");
+                sampleStyleColorService.updateById(styleColor);
             }
         }
         return i;
@@ -517,10 +517,10 @@ public class SmpService {
             StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
             smpBomDto.setBomStage(stylePricingVO.getBomStage());
             //样衣-款式配色
-            SampleStyleColor sampleStyleColor = sampleStyleColorService.getById(packInfo.getSampleStyleColorId());
-            if (sampleStyleColor != null) {
-                smpBomDto.setPColorCode(sampleStyleColor.getColorCode());
-                smpBomDto.setPColorName(sampleStyleColor.getColorName());
+            StyleColor styleColor = sampleStyleColorService.getById(packInfo.getSampleStyleColorId());
+            if (styleColor != null) {
+                smpBomDto.setPColorCode(styleColor.getColorCode());
+                smpBomDto.setPColorName(styleColor.getColorName());
                 smpBomDto.setBulkNumber(packInfo.getStyleNo());
                 smpBomDto.setBomCode(packInfo.getCode());
 

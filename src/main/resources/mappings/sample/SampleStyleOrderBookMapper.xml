@@ -72,7 +72,7 @@
         t_sample_style_order_book_color bc
         LEFT JOIN t_sample_style_order_book b ON bc.order_book_code = b.order_book_code
         LEFT JOIN t_sample_style_group sg on bc.style_no = sg.style_no and sg.del_flag = '0'
-        LEFT JOIN t_sample_style_color t1 ON bc.style_no = t1.style_no and t1.del_flag = '0'
+        LEFT JOIN t_style_color t1 ON bc.style_no = t1.style_no and t1.del_flag = '0'
         LEFT JOIN t_style t2 on t1.design_no = t2.design_no and t2.del_flag = '0'
         WHERE
         bc.del_flag = '0'

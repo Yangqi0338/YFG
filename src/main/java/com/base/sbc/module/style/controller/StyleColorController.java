@@ -4,14 +4,16 @@
 * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
-package com.base.sbc.module.sample.controller;
+package com.base.sbc.module.style.controller;
 
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.sample.dto.*;
-import com.base.sbc.module.sample.entity.SampleStyleColor;
-import com.base.sbc.module.sample.service.SampleStyleColorService;
-import com.base.sbc.module.sample.vo.SampleStyleColorVo;
+import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
+import com.base.sbc.module.style.entity.StyleColor;
+
+import com.base.sbc.module.style.vo.StyleColorVo;
+import com.base.sbc.module.style.service.StyleColorService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,7 +28,7 @@ import java.security.Principal;
 import java.util.List;
 
 /**
-* 类描述：样衣-款式配色 Controller类
+* 类描述：款式-款式配色 Controller类
 * @address com.base.sbc.module.sample.web.SampleStyleColorController
 * @author mengfanjiang
 * @email XX.com
@@ -34,75 +36,75 @@ import java.util.List;
 * @version 1.0
 */
 @RestController
-@Api(tags = "样衣-款式配色")
-@RequestMapping(value = BaseController.SAAS_URL + "/sampleStyleColor", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@Api(tags = "款式-款式配色")
+@RequestMapping(value = BaseController.SAAS_URL + "/styleColor", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class SampleStyleColorController{
+public class StyleColorController {
 
 	@Autowired
-	private SampleStyleColorService sampleStyleColorService;
+	private StyleColorService styleColorService;
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getSampleStyleColorList")
-	public PageInfo<SampleStyleColorVo> getSampleStyleColorList(Principal user,QuerySampleStyleColorDto querySampleStyleColorDto) {
-		return  sampleStyleColorService.getSampleStyleColorList(user,querySampleStyleColorDto);
+	public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QuerySampleStyleColorDto querySampleStyleColorDto) {
+		return  styleColorService.getSampleStyleColorList(user,querySampleStyleColorDto);
 	}
 
 	@ApiOperation(value = "款式编号查找款式配色")
 	@GetMapping("/getStyleAccessoryBystyleNo")
-	public  List<SampleStyleColorVo> getStyleAccessoryBystyleNo(@Valid @NotBlank(message = "款式编号不能为空") String designNo) {
-		return  sampleStyleColorService.getStyleAccessoryBystyleNo(designNo);
+	public  List<StyleColorVo> getStyleAccessoryBystyleNo(@Valid @NotBlank(message = "款式编号不能为空") String designNo) {
+		return  styleColorService.getStyleAccessoryBystyleNo(designNo);
 	}
 
 	@ApiOperation(value = "修改吊牌价-款式配色")
 	@PostMapping("/updateTagPrice")
 	public Boolean updateTagPrice(@Valid @RequestBody UpdateTagPriceDto updateTagPriceDto) {
-		return sampleStyleColorService.updateTagPrice(updateTagPriceDto);
+		return styleColorService.updateTagPrice(updateTagPriceDto);
 	}
 
 	@ApiOperation(value = "大货款号查询-款式配色")
 	@GetMapping("/getByStyleNo")
-	public List<SampleStyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto) {
-		return sampleStyleColorService.getByStyleNo(querySampleStyleColorDto);
+	public List<StyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto) {
+		return styleColorService.getByStyleNo(querySampleStyleColorDto);
 	}
 
 
 	@ApiOperation(value = "批量新增款式配色-款式配色")
 	@PostMapping("/batchAddSampleStyleColor")
-	public Boolean batchAddSampleStyleColor(@Valid @RequestBody List<AddRevampSampleStyleColorDto> list) {
-		return sampleStyleColorService.batchAddSampleStyleColor(list);
+	public Boolean batchAddSampleStyleColor(@Valid @RequestBody List<AddRevampStyleColorDto> list) {
+		return styleColorService.batchAddSampleStyleColor(list);
 	}
 
 
 	@ApiOperation(value = "批量启用/停用", notes = "ids:, status:0启用1停用")
 	@PostMapping("/startStopSampleStyleColor")
 	public Boolean startStopSampleStyleColor(@Valid @RequestBody StartStopDto startStopDto) {
-	return sampleStyleColorService.startStopSampleStyleColor(startStopDto);
+	return styleColorService.startStopSampleStyleColor(startStopDto);
 	}
 
 
 	@ApiOperation(value = "新增修改款式配色-款式配色")
 	@PostMapping("/addRevampSampleStyleColor")
-	public Boolean addRevampSampleStyleColor(@Valid @RequestBody AddRevampSampleStyleColorDto addRevampSampleStyleColorDto) {
-	return sampleStyleColorService.addRevampSampleStyleColor(addRevampSampleStyleColorDto);
+	public Boolean addRevampSampleStyleColor(@Valid @RequestBody AddRevampStyleColorDto addRevampStyleColorDto) {
+	return styleColorService.addRevampSampleStyleColor(addRevampStyleColorDto);
 	}
 
 	@ApiOperation(value = "删除款式配色-款式配色")
 	@DeleteMapping("/delStyleColor")
 	public Boolean delStyleColor(@Valid @NotBlank(message = "编号id不能为空") String id) {
-	return sampleStyleColorService.delStyleColor(id);
+	return styleColorService.delStyleColor(id);
 	}
 
-	@ApiOperation(value = "按颜色id删除样衣下款式配色-款式配色")
+	@ApiOperation(value = "按颜色id删除款式下款式配色-款式配色")
     @DeleteMapping("/delSampleStyleColor")
-    public Boolean delSampleStyleColor(@Valid @NotBlank(message = "颜色id不能为空") String id, @Valid @NotBlank(message = "样衣id") String styleId) {
-        return sampleStyleColorService.delSampleStyleColor(id, styleId);
+    public Boolean delSampleStyleColor(@Valid @NotBlank(message = "颜色id不能为空") String id, @Valid @NotBlank(message = "款式id") String styleId) {
+        return styleColorService.delSampleStyleColor(id, styleId);
     }
 
 	@ApiOperation(value = "明细-通过id查询")
 	@GetMapping("/{id}")
-	public SampleStyleColor getById(@PathVariable("id") String id) {
-		return sampleStyleColorService.getById(id);
+	public StyleColor getById(@PathVariable("id") String id) {
+		return styleColorService.getById(id);
 	}
 
 
@@ -110,31 +112,31 @@ public class SampleStyleColorController{
 	@ApiOperation(value = "下发-款式配色")
 	@PostMapping("/issueScm")
 	public Boolean issueScm(@Valid @RequestBody QuerySampleStyleColorDto querySampleStyleColorDto) {
-		return sampleStyleColorService.issueScm(querySampleStyleColorDto.getIds());
+		return styleColorService.issueScm(querySampleStyleColorDto.getIds());
 	}
 
     @ApiOperation(value = "获取款式下的颜色id")
     @GetMapping("/getStyleColorId")
-    public List<String> getStyleColorId(@Valid @NotBlank(message = "样衣id") String styleId) {
-        return sampleStyleColorService.getStyleColorId(styleId);
+    public List<String> getStyleColorId(@Valid @NotBlank(message = "款式id") String styleId) {
+        return styleColorService.getStyleColorId(styleId);
     }
 
 	@ApiOperation(value = "关联Bom")
 	@PostMapping("/relevanceBom")
 	public Boolean relevanceBom(@Valid @RequestBody RelevanceBomDto relevanceBomDto) {
-		return sampleStyleColorService.relevanceBom(relevanceBomDto);
+		return styleColorService.relevanceBom(relevanceBomDto);
 	}
 
 	@ApiOperation(value = "修改大货款号,波段")
 	@PostMapping("/updateStyleNoBand")
 	public Boolean updateStyleNoBand(@Valid @RequestBody UpdateStyleNoBandDto updateStyleNoBandDto) {
-		return sampleStyleColorService.updateStyleNoBand(updateStyleNoBandDto);
+		return styleColorService.updateStyleNoBand(updateStyleNoBandDto);
 	}
 
 	@ApiOperation(value = "验证配色是否可修改")
 	@PostMapping("/verification")
 	public Boolean verification( @Valid @RequestBody VerificationDto verificationDto) {
-		return sampleStyleColorService.verification(verificationDto.getId());
+		return styleColorService.verification(verificationDto.getId());
 	}
 }
 

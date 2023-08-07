@@ -47,7 +47,7 @@
         ht.place_order_date,
         ht.STATUS
         FROM
-        t_sample_style_color tssc
+        t_style_color tssc
         JOIN t_style tsd ON tssc.style_id = tsd.id
         LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
         LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
@@ -113,7 +113,7 @@
         ht.storage_demand AS StorageRequirement,
         ht.storage_demand AS StorageRequirement
         FROM
-        t_sample_style_color tssc
+        t_style_color tssc
         JOIN t_style tsd ON tssc.style_id = tsd.id
         LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
         LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
@@ -148,7 +148,7 @@
         ht.*,
         IFNULL(ht.template_part,tsd.pattern_parts) as templatePart
         FROM
-        t_sample_style_color tssc
+        t_style_color tssc
         JOIN t_style tsd ON tssc.style_id = tsd.id
         LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
         LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
