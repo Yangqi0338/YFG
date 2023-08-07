@@ -86,9 +86,11 @@ public class BasicsdatumMaterialController {
 	@ApiOperation(value = "主物料成分转换")
 	@GetMapping("/formatIngredient")
 	public List<BasicsdatumMaterialIngredient> formatIngredient(
-			@RequestParam(value = "value", required = false) String value) {
+			@RequestParam(value = "value", required = false) String value,
+			@RequestParam(value = "type", required = false) String type,
+			@RequestParam(value = "materialCode", required = false) String materialCode) {
 		String str = IngredientUtils.format(value);
-		return formatToList(str);
+		return formatToList(str, type, materialCode);
 	}
 
 	/**
@@ -97,7 +99,7 @@ public class BasicsdatumMaterialController {
 	 * @param str
 	 * @return
 	 */
-	private List<BasicsdatumMaterialIngredient> formatToList(String str) {
+	private List<BasicsdatumMaterialIngredient> formatToList(String str, String type, String materialCode) {
 		String[] strs = str.split(",");
 		List<BasicsdatumMaterialIngredient> list = new ArrayList<>();
 		for (int i = 0; i < strs.length; i++) {
@@ -114,6 +116,8 @@ public class BasicsdatumMaterialController {
 			}
 			in.setName(name);
 			in.setSay(say);
+			in.setType(type);
+			in.setMaterialCode(materialCode);
 			list.add(in);
 		}
 		return list;

@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
-import com.base.sbc.config.common.IdGen;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -197,8 +196,13 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		// 如果成分不为空,则清理替换成分信息
 		if (dto.getIngredientList() != null) {
 			materialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>()
-					.eq(COMPANY_CODE, getCompanyCode()).eq("material_code", dto.getMaterialCode()));
+					.eq(COMPANY_CODE, getCompanyCode()).eq("material_code", dto.getMaterialCode()).eq("type", "0"));
 			materialIngredientService.saveBatch(dto.getIngredientList());
+		}
+		if (dto.getFactoryCompositionList() != null) {
+			materialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>()
+					.eq(COMPANY_CODE, getCompanyCode()).eq("material_code", dto.getMaterialCode()).eq("type", "1"));
+			materialIngredientService.saveBatch(dto.getFactoryCompositionList());
 		}
 
 		if (entity.getId() != null && "1".equals(entity.getDistribute())) {
@@ -366,7 +370,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		List<BasicsdatumMaterialIngredient> list = materialIngredientService
 				.list(new QueryWrapper<BasicsdatumMaterialIngredient>().eq("company_code", this.getCompanyCode())
 						.eq("material_code", material.getMaterialCode()));
-		copy.setIngredientList(list);
+		if (list != null && list.size() > 0) {
+			copy.setIngredientList(
+					list.stream().filter(item -> "0".equals(item.getType())).collect(Collectors.toList()));
+			copy.setFactoryCompositionList(
+					list.stream().filter(item -> "1".equals(item.getType())).collect(Collectors.toList()));
+		}
 
 		return copy;
 	}

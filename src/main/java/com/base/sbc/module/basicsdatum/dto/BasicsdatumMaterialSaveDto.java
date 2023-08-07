@@ -26,6 +26,7 @@ import lombok.Data;
 public class BasicsdatumMaterialSaveDto {
 
 	private List<BasicsdatumMaterialIngredient> ingredientList;
+	private List<BasicsdatumMaterialIngredient> factoryCompositionList;
 
 	@NotBlank(message = "ID必填,新增-1")
 	@ApiModelProperty(value = "id", required = true)

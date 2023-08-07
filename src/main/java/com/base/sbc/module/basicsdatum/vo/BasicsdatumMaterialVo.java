@@ -32,6 +32,7 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	private List<BasicsdatumMaterialWidthSelectVo> widthList;
 	/** 物料成分和厂家成分集合 */
 	private List<BasicsdatumMaterialIngredient> ingredientList;
+	private List<BasicsdatumMaterialIngredient> factoryCompositionList;
 
 	/** 物料编号 */
 	@ApiModelProperty(value = "物料编号")
