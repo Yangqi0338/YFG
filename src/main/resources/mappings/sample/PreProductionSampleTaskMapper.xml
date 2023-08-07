@@ -12,7 +12,8 @@
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
     <select id="taskList" resultType="com.base.sbc.module.sample.vo.PreProductionSampleTaskListVo">
-        select t.*,s.style_no,s.style_pic from t_pre_production_sample s,t_pre_production_sample_task t
+        select t.*,s.style_no,s.style_pic,s.pattern_design_name,s.pattern_design_id,s.designer,s.designer_id from
+        t_pre_production_sample s,t_pre_production_sample_task t
         where s.id=t.pre_production_sample_id and sample_complete_flag='0'
         and s.del_flag='0'
         and t.del_flag='0'
