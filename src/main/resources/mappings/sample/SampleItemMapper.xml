@@ -117,6 +117,7 @@
         SELECT
         si.id,
         si.`status`,
+        si.`count`,
         si.`code`,
         si.color,
         si.size,
