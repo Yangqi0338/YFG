@@ -36,34 +36,7 @@ public class Sample extends BaseDataEntity<String> {
     private static final long serialVersionUID = 1L;
 
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
-    public SmpSampleDto toSmpSampleDto() {
-        SmpSampleDto smpSampleDto = new SmpSampleDto();
-        smpSampleDto.setSampleNumber(patternMakingCode);
-        smpSampleDto.setSupplier(fromName);
-        smpSampleDto.setSupplierNumber(fromId);
-        smpSampleDto.setImgList(Arrays.asList(images.split(",")));
-        smpSampleDto.setSampleReceivedDate(getCreateDate());
-        smpSampleDto.setSampleType(String.valueOf(type));
-        smpSampleDto.setSampleTypeName(type == 1 ? "内部研发" : type == 2 ? "外采" : type == 3 ? "ODM提供" : "");
 
-
-        try {
-            smpSampleDto.setMajorCategoriesName(this.prodCategory1stName);
-            smpSampleDto.setMajorCategories(this.prodCategory1st);
-            smpSampleDto.setCategoryName(this.prodCategoryName);
-            smpSampleDto.setCategory(this.prodCategory);
-            smpSampleDto.setMiddleClassName(this.prodCategory2ndName);
-            smpSampleDto.setMiddleClassId(this.prodCategory2nd);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        smpSampleDto.setQuarterCode(season);
-        smpSampleDto.setPatternMaker(patternDesignName);
-        smpSampleDto.setStyleCode(designNo);
-        return smpSampleDto;
-
-    }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 

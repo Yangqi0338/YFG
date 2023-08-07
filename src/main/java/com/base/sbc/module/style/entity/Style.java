@@ -8,6 +8,7 @@ package com.base.sbc.module.style.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,6 +16,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -34,7 +36,30 @@ public class Style extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    public SmpSampleDto toSmpSampleDto() {
+        SmpSampleDto smpSampleDto = new SmpSampleDto();
 
+
+        smpSampleDto.setSampleReceivedDate(getCreateDate());
+
+
+        try {
+            smpSampleDto.setMajorCategoriesName(this.prodCategory1stName);
+            smpSampleDto.setMajorCategories(this.prodCategory1st);
+            smpSampleDto.setCategoryName(this.prodCategoryName);
+            smpSampleDto.setCategory(this.prodCategory);
+            smpSampleDto.setMiddleClassName(this.prodCategory2ndName);
+            smpSampleDto.setMiddleClassId(this.prodCategory2nd);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        smpSampleDto.setQuarterCode(season);
+        smpSampleDto.setPatternMaker(patternDesignId);
+        smpSampleDto.setStyleCode(designNo);
+        return smpSampleDto;
+
+    }
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 

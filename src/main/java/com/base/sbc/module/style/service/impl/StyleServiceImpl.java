@@ -61,7 +61,7 @@ import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.sample.dto.SendSampleMakingDto;
-import com.base.sbc.module.sample.mapper.SampleStyleColorMapper;
+import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.sample.vo.*;
 import com.base.sbc.module.style.dto.StyleBomSaveDto;
 import com.base.sbc.module.style.dto.StyleBomSearchDto;
@@ -70,6 +70,7 @@ import com.base.sbc.module.style.dto.StyleSaveDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.style.vo.StylePageVo;
 import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.Page;
@@ -115,7 +116,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private PlanningCategoryItemService planningCategoryItemService;
 
     @Autowired
-    private SampleStyleColorMapper sampleStyleColorMapper;
+    private StyleColorMapper styleColorMapper;
 
     @Autowired
     CcmFeignService ccmFeignService;
@@ -356,14 +357,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             queryWrapper.in("ssc.style_id", stringList);
             queryWrapper.eq("ssc.del_flag", "0");
             queryWrapper.eq(StrUtil.isNotBlank(dto.getStyleStatus()), "ssc.status", dto.getStyleStatus());
-            List<SampleStyleColorVo> sampleStyleColorVoList = sampleStyleColorMapper.getSampleStyleColorList(queryWrapper,null);
+            List<StyleColorVo> sampleStyleColorVoList = styleColorMapper.getSampleStyleColorList(queryWrapper,null);
 
-            Map<String, List<SampleStyleColorVo>> stringListMap = sampleStyleColorVoList.stream().collect(Collectors.groupingBy(SampleStyleColorVo::getStyleId));
+            Map<String, List<StyleColorVo>> stringListMap = sampleStyleColorVoList.stream().collect(Collectors.groupingBy(StyleColorVo::getStyleId));
             list.forEach(sampleDesignPageVo -> {
-                List<SampleStyleColorVo> styleColorVoList = stringListMap.get(sampleDesignPageVo.getId());
+                List<StyleColorVo> styleColorVoList = stringListMap.get(sampleDesignPageVo.getId());
                 /*获取款式图*/
                 if(!CollectionUtils.isEmpty(styleColorVoList)){
-                    sampleDesignPageVo.setSampleStyleColorVoList(styleColorVoList);
+                    sampleDesignPageVo.setStyleColorVoList(styleColorVoList);
                     styleColorVoList.forEach(s -> {
                         s.setSampleDesignPic(StyleNoImgUtils.getStyleNoImgUrl(userBy, s.getSampleDesignPic()));
                     });
@@ -826,6 +827,81 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<PackBom> packBoms = BeanUtil.copyToList(bomList, PackBom.class);
 
         return packBomService.saveBatch(packBoms);
+    }
+
+    @Override
+    public StyleVo getDetail(String id, String historyStyleId) {
+        StyleVo detail = getDetail(id);
+        if (StrUtil.isBlank(historyStyleId)) {
+            return detail;
+        }
+        Style hisStyle = getById(historyStyleId);
+        if (hisStyle == null) {
+            return detail;
+        }
+        //大类不一样跳过
+        if (!StrUtil.equals(detail.getProdCategory1st(), hisStyle.getProdCategory1st())) {
+            return detail;
+        }
+        //品类不一样跳过
+        if (!StrUtil.equals(detail.getProdCategory(), hisStyle.getProdCategory())) {
+            return detail;
+        }
+        //中类
+        detail.setProdCategory2nd(hisStyle.getProdCategory2nd());
+        detail.setProdCategory2ndName(hisStyle.getProdCategory2ndName());
+        // 小类
+        detail.setProdCategory3rd(hisStyle.getProdCategory3rd());
+        detail.setProdCategory3rdName(hisStyle.getProdCategory3rdName());
+        //月份
+        detail.setMonth(hisStyle.getMonth());
+        detail.setMonthName(hisStyle.getMonthName());
+        //波段
+        detail.setBandCode(hisStyle.getBandCode());
+        detail.setBandName(hisStyle.getBandName());
+        //生产模式
+        detail.setDevtType(hisStyle.getDevtType());
+        detail.setDevtTypeName(hisStyle.getDevtTypeName());
+        //主题
+        detail.setSubject(hisStyle.getSubject());
+        //版型
+        detail.setPlateType(hisStyle.getPlateType());
+        detail.setPlateTypeName(hisStyle.getPlateTypeName());
+        //开发分类
+        detail.setDevClass(hisStyle.getDevClass());
+        detail.setDevClassName(hisStyle.getDevClassName());
+        //号型
+        detail.setSizeRange(hisStyle.getSizeRange());
+        detail.setSizeRangeName(hisStyle.getSizeRangeName());
+        //Default颜色
+        detail.setDefaultColor(hisStyle.getDefaultColor());
+        detail.setDefaultColorCode(hisStyle.getDefaultColorCode());
+        //Default尺码
+        detail.setDefaultSize(hisStyle.getDefaultSize());
+        detail.setProductSizes(hisStyle.getProductSizes());
+        detail.setSizeIds(hisStyle.getSizeIds());
+        detail.setSizeCodes(hisStyle.getSizeCodes());
+        //目标成本
+        detail.setProductCost(hisStyle.getProductCost());
+        //主材料
+        detail.setMainMaterials(hisStyle.getMainMaterials());
+        //研发材料
+        detail.setRdMat(hisStyle.getRdMat());
+
+        //打板难度
+        detail.setPatDiff(hisStyle.getPatDiff());
+        detail.setPatDiffName(hisStyle.getPatDiffName());
+        //廓形
+        detail.setSilhouette(hisStyle.getSilhouette());
+        detail.setSilhouetteName(hisStyle.getSilhouetteName());
+        //款式风格
+        detail.setStyleFlavour(hisStyle.getStyleFlavour());
+        detail.setStyleFlavourName(hisStyle.getStyleFlavourName());
+        //款式定位
+        detail.setPositioning(hisStyle.getPositioning());
+        detail.setPositioningName(hisStyle.getPositioningName());
+
+        return detail;
     }
 
     private void getProductCategoryTreeQw(ProductCategoryTreeVo vo, QueryWrapper<?> qw) {

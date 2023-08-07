@@ -10,7 +10,6 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampMeasurementDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMeasurementVo;
 import com.base.sbc.module.common.service.BaseService;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +33,7 @@ public interface BasicsdatumMeasurementService extends BaseService<BasicsdatumMe
      * @param queryDto 查询条件
      * @return PageInfo<BasicsdatumTechnologyVo>
      */
-    PageInfo<BasicsdatumMeasurementVo> getMeasurement(QueryDto queryDto);
+    PageInfo getMeasurement(QueryDto queryDto);
 
 
     /**

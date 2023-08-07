@@ -13,27 +13,7 @@
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
-    <select id="selectSize" resultType="com.base.sbc.module.basicsdatum.dto.BasicsdatumSizeExcelDto">
-          select
-          tbs.id,
-          tbs.hangtags,
-          tbs.model,
-          tbs.internal_size,
-          tbs.external_size,
-          tbs.code,
-          tbs.sort,
-          tbs.send_status,
-          tbs.data_status,
-          tbs.dimension_type,
-          tbs.translate_name,
-          tbs.european_size,
-          tbs.show_size_status,
-          tbs.status,
-          tbsl.model_type
-          from  t_basicsdatum_size tbs
-          left join t_basicsdatum_size_label tbsl  on tbs.size_label_id=tbsl.id
-          ${ ew.customSqlSegment}
-    </select>
+
       <select id="getSizeLabelId" resultType="java.lang.String">
 
 
