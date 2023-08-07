@@ -46,6 +46,7 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     private String purchaserName;
     /** 交货日期 */
     @TableField(exist = false)
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date deliveryDate;
 
     public PurchaseDemand(){

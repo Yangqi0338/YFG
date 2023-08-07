@@ -93,6 +93,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
     private PurchaseOrderDetailService purchaseOrderDetailService;
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public ApiResult cancel(String companyCode, String ids) {
         QueryWrapper<PurchaseDemand> qw = new QueryWrapper();
         qw.eq("company_code", companyCode);
@@ -120,6 +121,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
      * @param id          资料包id
      */
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public void generatePurchaseDemand(UserCompany userCompany, String companyCode, String id) {
         IdGen idGen = new IdGen();
 
@@ -261,6 +263,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             purchaseOrder.setStatus("0");
             purchaseOrder.setOrderStatus("0");
             purchaseOrder.setWarehouseStatus("0");
+            purchaseOrder.setDistributeStatus("0");
             purchaseOrder.setDelFlag("0");
 
             purchaseOrder.setSupplierId(supplier.getId());
@@ -285,6 +288,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             for(PurchaseDemand demandInfo : entry.getValue()){
                 BasicsdatumMaterial material = materialMap.get(demandInfo.getMaterialCode());
                 PurchaseOrderDetail detail = new PurchaseOrderDetail();
+                detail.insertInit(userCompany);
                 detail.setId(idGen.nextIdStr());
                 detail.setCompanyCode(companyCode);
                 detail.setPurchaseOrderId(id);
@@ -344,7 +348,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
         QueryWrapper<PurchaseDemand> qw = new QueryWrapper<>();
         qw.in("id", idList);
         List<PurchaseDemand> purchaseDemandList = list(qw);
-        if(CollectionUtil.isNotEmpty(purchaseDemandList)){
+        if(CollectionUtil.isEmpty(purchaseDemandList)){
             return;
         }
 
