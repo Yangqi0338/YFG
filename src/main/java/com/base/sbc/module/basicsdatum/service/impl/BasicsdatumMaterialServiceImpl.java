@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CopyUtil;
@@ -154,7 +157,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		return list;
 	}
 
-
 	@Override
 	public PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialList(BasicsdatumMaterialQueryDto dto) {
 		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
@@ -194,11 +196,33 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		// BigDecimalUtil.convertString(entity.getTranslate()));
 		// }
 		// 如果成分不为空,则清理替换成分信息
+		this.saveIngredient(dto);
+
+		if (entity.getId() != null && "1".equals(entity.getDistribute())) {
+			smpService.materials(entity.getId().split(","));
+		}
+		// 保存主信息
+		this.saveOrUpdate(entity);
+		return getBasicsdatumMaterial(entity.getId());
+	}
+
+	/**
+	 * 保存成分数据
+	 * 
+	 * @param dto
+	 */
+	private void saveIngredient(BasicsdatumMaterialSaveDto dto) {
+		UserCompany userCompany = companyUserInfo.get();
+		String userName = userCompany.getAliasUserName();
+		String userId = userCompany.getUserId();
 		if (dto.getIngredientList() != null) {
 			materialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>()
 					.eq(COMPANY_CODE, getCompanyCode()).eq("material_code", dto.getMaterialCode()).eq("type", "0"));
 			for (BasicsdatumMaterialIngredient item : dto.getIngredientList()) {
 				item.setCompanyCode(this.getCompanyCode());
+				item.setCreateId(userId);
+				item.setCreateName(userName);
+
 			}
 			materialIngredientService.saveBatch(dto.getIngredientList());
 		}
@@ -207,15 +231,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 					.eq(COMPANY_CODE, getCompanyCode()).eq("material_code", dto.getMaterialCode()).eq("type", "1"));
 			for (BasicsdatumMaterialIngredient item : dto.getFactoryCompositionList()) {
 				item.setCompanyCode(this.getCompanyCode());
+				item.setCreateId(userId);
+				item.setCreateName(userName);
 			}
 			materialIngredientService.saveBatch(dto.getFactoryCompositionList());
 		}
 
-		if (entity.getId() != null && "1".equals(entity.getDistribute())) {
-			smpService.materials(entity.getId().split(","));
-		}
-		this.saveOrUpdate(entity);
-		return getBasicsdatumMaterial(entity.getId());
 	}
 
 	/**
@@ -644,7 +665,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		return new PageInfo<>(list);
 	}
 
-
 	@Override
 	@Transactional
 	public Boolean saveBasicsdatumMaterialOld(BasicsdatumMaterialOldSaveDto dto) {
@@ -689,12 +709,11 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		qc.notEmptyLike("m.supplier_id", dto.getSupplierId());
 		qc.notEmptyEq("c.color_name", dto.getMaterialColor());
 		if (StringUtils.isNotEmpty(dto.getSearch())) {
-			qc.and(Wrapper -> Wrapper.eq("m.material_code", dto.getSearch())
-					.or()
-					.eq("m.material_name ", dto.getSearch()));
+			qc.and(Wrapper -> Wrapper.eq("m.material_code", dto.getSearch()).or().eq("m.material_name ",
+					dto.getSearch()));
 		}
 		List<WarehouseMaterialVo> list = getBaseMapper().getPurchaseMaterialList(qc);
-		for(WarehouseMaterialVo item : list){
+		for (WarehouseMaterialVo item : list) {
 			item.setId(IdUtil.randomUUID());
 		}
 		return page.toPageInfo();
