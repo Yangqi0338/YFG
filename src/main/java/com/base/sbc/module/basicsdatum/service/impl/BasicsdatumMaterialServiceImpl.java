@@ -670,7 +670,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
 		qc.eq("m.company_code", this.getCompanyCode());
 		qc.eq("m.status", "0");
-		qc.notEmptyLike("m.supplier_name", dto.getSupplierName());
+		qc.notEmptyLike("m.supplier_id", dto.getSupplierId());
 		qc.notEmptyEq("c.color_name", dto.getMaterialColor());
 		if (StringUtils.isNotEmpty(dto.getSearch())) {
 			qc.and(Wrapper -> Wrapper.eq("m.material_code", dto.getSearch())
