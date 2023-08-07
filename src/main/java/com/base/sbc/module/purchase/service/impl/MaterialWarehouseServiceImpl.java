@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.purchase.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.UserCompany;
@@ -16,7 +18,10 @@ import com.base.sbc.module.purchase.entity.MaterialWarehouse;
 import com.base.sbc.module.purchase.service.MaterialWarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-/** 
+
+import java.util.List;
+
+/**
  * 类描述：物料仓库 service类
  * @address com.base.sbc.module.purchase.service.MaterialWarehouseService
  * @author tzy
@@ -39,11 +44,19 @@ public class MaterialWarehouseServiceImpl extends BaseServiceImpl<MaterialWareho
     public ApiResult addWarehouse(UserCompany userCompany, String companyCode, MaterialWarehouse materialWarehouse){
         IdGen idGen = new IdGen();
 
+        QueryWrapper<MaterialWarehouse> qw = new QueryWrapper<>();
+        qw.eq("company_code", companyCode);
+        qw.eq("warehouse_name", materialWarehouse.getWarehouseName());
+        List<MaterialWarehouse> list = list(qw);
+        if(CollectionUtil.isNotEmpty(list)){
+            return ApiResult.error("已经有相同名称的仓库，请更换！", 500);
+        }
+
         String id = idGen.nextIdStr();
         materialWarehouse.insertInit(userCompany);
         materialWarehouse.setId(id);
         materialWarehouse.setCompanyCode(companyCode);
-        materialWarehouse.setStatus("0");
+        materialWarehouse.setStatus("1");
 
         boolean result = save(materialWarehouse);
         if(result){
@@ -64,6 +77,15 @@ public class MaterialWarehouseServiceImpl extends BaseServiceImpl<MaterialWareho
      * */
     @Override
     public ApiResult updateWarehouse(UserCompany userCompany, String companyCode, MaterialWarehouse materialWarehouse) {
+        QueryWrapper<MaterialWarehouse> qw = new QueryWrapper<>();
+        qw.eq("company_code", companyCode);
+        qw.eq("warehouse_name", materialWarehouse.getWarehouseName());
+        qw.ne("id", materialWarehouse.getId());
+        List<MaterialWarehouse> list = list(qw);
+        if(CollectionUtil.isNotEmpty(list)){
+            return ApiResult.error("已经有相同名称的仓库，请更换！", 500);
+        }
+
         materialWarehouse.updateInit(userCompany);
         boolean b = updateById(materialWarehouse);
         if (b) {
