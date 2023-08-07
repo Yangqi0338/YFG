@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
+import com.base.sbc.module.basicsdatum.vo.*;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,15 +59,6 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
 import com.base.sbc.module.basicsdatum.service.SpecificationGroupService;
 import com.base.sbc.module.basicsdatum.service.SpecificationService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialExcelVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialOldPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.smp.SmpService;
@@ -600,5 +592,25 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	@Override
 	public Boolean delBasicsdatumMaterialOld(String id) {
 		return this.materialOldService.removeBatchByIds(StringUtils.convertList(id));
+	}
+
+	@Override
+	public PageInfo<WarehouseMaterialVo> getPurchaseMaterialList(BasicsdatumMaterialQueryDto dto) {
+		Page<WarehouseMaterialVo> page = null;
+		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+			page = PageHelper.startPage(dto);
+		}
+		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
+		qc.eq("m.company_code", this.getCompanyCode());
+		qc.eq("m.status", "0");
+		qc.notEmptyLike("m.supplier_name", dto.getSupplierName());
+		qc.notEmptyEq("c.color_name", dto.getMaterialColor());
+		if (StringUtils.isNotEmpty(dto.getSearch())) {
+			qc.and(Wrapper -> Wrapper.eq("m.material_code", dto.getSearch())
+					.or()
+					.eq("m.material_name ", dto.getSearch()));
+		}
+		List<WarehouseMaterialVo> list = getBaseMapper().getPurchaseMaterialList(qc);
+		return page.toPageInfo();
 	}
 }
