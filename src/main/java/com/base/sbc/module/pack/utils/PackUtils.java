@@ -33,7 +33,7 @@ public class PackUtils {
     /**
      * 资料包类型 款式设计
      */
-    public static final String PACK_TYPE_SAMPLE_DESIGN = "packSampleDesign";
+    public static final String PACK_TYPE_STYLE = "packStyle";
 
     /**
      * 公共条件

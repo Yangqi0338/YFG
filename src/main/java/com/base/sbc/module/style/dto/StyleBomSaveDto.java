@@ -23,6 +23,8 @@ public class StyleBomSaveDto {
     @ApiModelProperty(value = "款式设计id")
     private String styleId;
 
+    @ApiModelProperty(value = "保存类型:1覆盖,0或者空为不覆盖（追加）")
+    private String overlayFlg;
     @ApiModelProperty(value = "物料信息")
     private List<PackBomDto> bomList;
 

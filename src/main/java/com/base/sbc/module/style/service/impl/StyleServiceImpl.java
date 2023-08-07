@@ -61,13 +61,13 @@ import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.sample.dto.SendSampleMakingDto;
-import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.sample.vo.*;
 import com.base.sbc.module.style.dto.StyleBomSaveDto;
 import com.base.sbc.module.style.dto.StyleBomSearchDto;
 import com.base.sbc.module.style.dto.StylePageDto;
 import com.base.sbc.module.style.dto.StyleSaveDto;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleColorVo;
@@ -799,7 +799,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     public PageInfo<PackBomVo> bomList(StyleBomSearchDto dto) {
         PackBomPageSearchDto bomDto = BeanUtil.copyProperties(dto, PackBomPageSearchDto.class);
         bomDto.setForeignId(dto.getStyleId());
-        bomDto.setPackType(PackUtils.PACK_TYPE_SAMPLE_DESIGN);
+        bomDto.setPackType(PackUtils.PACK_TYPE_STYLE);
         return packBomService.pageInfo(bomDto);
     }
 
@@ -819,10 +819,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (CollUtil.isEmpty(dto.getBomList())) {
             throw new OtherException("物料数据为空");
         }
+        //覆盖
+        if (StrUtil.equals(dto.getOverlayFlg(), BaseGlobal.YES)) {
+            packBomService.del(dto.getStyleId(), PackUtils.PACK_TYPE_STYLE);
+        }
         List<PackBomDto> bomList = dto.getBomList();
         for (PackBomDto packBomDto : bomList) {
             packBomDto.setForeignId(dto.getStyleId());
-            packBomDto.setPackType(PackUtils.PACK_TYPE_SAMPLE_DESIGN);
+            packBomDto.setPackType(PackUtils.PACK_TYPE_STYLE);
         }
         List<PackBom> packBoms = BeanUtil.copyToList(bomList, PackBom.class);
 
