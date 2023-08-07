@@ -633,11 +633,9 @@ public class SmpService {
      */
     public Integer sample(String[] ids) {
         int i = 0;
-
-        for (Sample sample : sampleService.listByIds(Arrays.asList(ids))) {
-            Style style = styleService.getOne(new QueryWrapper<Style>().eq("design_no", sample.getDesignNo()));
-
-            for (PatternMaking patternMaking : patternMakingService.list(new QueryWrapper<PatternMaking>().eq("style_id", style.getId()))) {
+            for (PatternMaking patternMaking : patternMakingService.listByIds(Arrays.asList(ids))) {
+                Sample sample = sampleService.getById(patternMaking.getStyleId());
+                Style style = styleService.getOne(new QueryWrapper<Style>().eq("design_no", sample.getDesignNo()));
                 SmpSampleDto smpSampleDto = sample.toSmpSampleDto();
 
                 //取跟款设计师，如果跟款设计师不存在就取设计师
@@ -649,6 +647,8 @@ public class SmpService {
                 smpSampleDto.setSampleStatus(style.getStatus());
                 smpSampleDto.setSampleStatusName("0".equals(style.getStatus()) ? "未开款" : "1".equals(style.getStatus()) ? "已开款" : "已下发打板(完成)");
                 smpSampleDto.setBrandCode(style.getBrand());
+                smpSampleDto.setBrandName(style.getBrandName());
+
                 String designerId = style.getDesignerId();
                 String technicianId = style.getTechnicianId();
                 String patternDesignId = style.getPatternDesignId();
@@ -656,7 +656,7 @@ public class SmpService {
                 smpSampleDto.setDesigner(style.getDesigner());
                 smpSampleDto.setTechnician(style.getTechnicianName());
                 smpSampleDto.setStyleUrl(style.getStylePic());
-                smpSampleDto.setBrandName(style.getBrandName());
+
 
                 smpSampleDto.setNodeName(style.getStyleName());
 
@@ -694,10 +694,12 @@ public class SmpService {
                 Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpSampleDto, "oa", "样衣下发");
                 if (aBoolean) {
                     i++;
+                    patternMaking.setScmSendFlag("1");
+                }else {
+                    patternMaking.setScmSendFlag("2");
                 }
-
+                patternMakingService.updateById(patternMaking);
             }
-        }
         return i;
     }
 
