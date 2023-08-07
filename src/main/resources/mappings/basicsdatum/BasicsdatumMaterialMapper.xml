@@ -136,7 +136,7 @@
 			${ ew.customSqlSegment}
 	</select>
 
-	<select id="getPurchaseMaterialList" resultType="com.base.sbc.module.pack.vo.BomSelMaterialVo">
+	<select id="getPurchaseMaterialList" resultType="com.base.sbc.module.basicsdatum.vo.WarehouseMaterialVo">
 		SELECT
 			m.id,
 			m.material_code,

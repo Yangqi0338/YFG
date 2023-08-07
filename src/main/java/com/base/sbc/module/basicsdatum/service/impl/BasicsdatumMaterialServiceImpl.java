@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
+import com.base.sbc.config.common.IdGen;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -678,6 +679,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 					.eq("m.material_name ", dto.getSearch()));
 		}
 		List<WarehouseMaterialVo> list = getBaseMapper().getPurchaseMaterialList(qc);
+		for(WarehouseMaterialVo item : list){
+			item.setId(IdUtil.randomUUID());
+		}
 		return page.toPageInfo();
 	}
 }
