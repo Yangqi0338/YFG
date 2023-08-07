@@ -27,7 +27,7 @@ public class IngredientUtils {
 	public static void main(String[] args) {
 		String s1 = "65%聚醋纤维 30%粘纤 5%银丝";
 		String s2 = "66%聚醋纤维（说明），32%粘纤，2%氨纶";
-		String s3 = "7 3 人棉 2 3锦纶4氨纶(说明)";
+		String s3 = "7 3.5 人棉 2 3.2锦纶3.3氨纶(说明)";
 		String s4 = "棉72锦 28";
 		String s5 = "65羊毛 35聚醋纤维";
 		String s6 = "62 羊毛 （羊毛啊） 38  聚醋纤维( 纤维）";
@@ -83,7 +83,7 @@ public class IngredientUtils {
 		String s = "";
 		for (int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
-			boolean digit = Character.isDigit(c);
+			boolean digit = Character.isDigit(c) || c == '.';
 			if (i != 0 && isNumber == digit) {
 				s += c;
 			} else {
@@ -107,7 +107,7 @@ public class IngredientUtils {
 		String s = "";
 		for (int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
-			boolean digit = Character.isDigit(c);
+			boolean digit = Character.isDigit(c) || c == '.';
 			if (digit && i == 0) {
 				return str;
 			}
