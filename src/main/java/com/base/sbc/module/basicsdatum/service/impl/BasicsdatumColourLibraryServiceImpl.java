@@ -27,7 +27,6 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumColourLibraryExcelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBasicsdatumColourLibraryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourGroupMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
@@ -69,9 +68,6 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
 
     @Autowired
     private BaseController baseController;
-
-    @Autowired
-    private BasicsdatumColourGroupMapper basicsdatumColourGroupMapper;
 
     @Autowired
     private CcmFeignService ccmFeignService;

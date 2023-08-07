@@ -7,12 +7,11 @@
 package com.base.sbc.module.basicsdatum.controller;
 
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.basicsdatum.dto.*;
+import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumColourLibraryDto;
+import com.base.sbc.module.basicsdatum.dto.QueryBasicsdatumColourLibraryDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumColourGroupService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourGroupVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -45,8 +44,6 @@ public class BasicsdatumColourLibraryController{
 	@Autowired
 	private BasicsdatumColourLibraryService basicsdatumColourLibraryService;
 
-	@Autowired
-	private BasicsdatumColourGroupService basicsdatumColourGroupService;
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getBasicsdatumColourLibraryList")
@@ -91,29 +88,6 @@ public class BasicsdatumColourLibraryController{
 		return basicsdatumColourLibraryService.getById(id);
 	}
 
-	/*颜色组接口*/
-
-
-
-
-	@ApiOperation(value = "删除基础资料-颜色组")
-	@DeleteMapping("/delBasicsdatumColourGroup")
-	public Boolean delBasicsdatumColourGroup(@Valid @NotBlank(message = "编号id不能为空") String id) {
-		return basicsdatumColourGroupService.delBasicsdatumColourGroup(id);
-	}
-
-
-	@ApiOperation(value = "新增修改基础资料-颜色组")
-	@PostMapping("/addRevampBasicsdatumColourGroup")
-	public Boolean addRevampBasicsdatumColourGroup(@Valid @RequestBody AddRevampBasicsdatumColourGroupDto addRevampBasicsdatumColourGroupDto) {
-		return basicsdatumColourGroupService.addRevampBasicsdatumColourGroup(addRevampBasicsdatumColourGroupDto);
-	}
-
-	@ApiOperation(value = "查询基础资料-颜色组")
-	@GetMapping("/getBasicsdatumColourGroupList")
-	public List<BasicsdatumColourGroupVo> getBasicsdatumColourGroupList(QueryDto queryDto) {
-		return basicsdatumColourGroupService.getBasicsdatumColourGroupList(queryDto);
-	}
 
 	@ApiOperation(value = "获取所有颜色规格(下拉选择)")
 	@GetMapping("/getAllColourSpecification")

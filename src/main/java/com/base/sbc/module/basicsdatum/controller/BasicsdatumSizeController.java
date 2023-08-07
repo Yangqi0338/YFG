@@ -9,10 +9,8 @@ package com.base.sbc.module.basicsdatum.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.AddRevampSizeDto;
-import com.base.sbc.module.basicsdatum.dto.AddRevampSizeLabelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDasicsdatumSizeDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeLabelService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumSizeVo;
 import com.github.pagehelper.PageInfo;
@@ -45,8 +43,6 @@ public class BasicsdatumSizeController{
 	@Autowired
 	private BasicsdatumSizeService basicsdatumSizeService;
 
-	@Autowired
-	private BasicsdatumSizeLabelService sizeLabelService;
 
 	@ApiOperation(value = "分页查询尺码")
 	@GetMapping("/getSizeList")
@@ -82,27 +78,6 @@ public class BasicsdatumSizeController{
 	@DeleteMapping("/delSize")
 	public ApiResult delSize(@Valid @NotBlank(message = "编号id不能为空") String id) {
 		return ApiResult.success("操作成功",basicsdatumSizeService.delSize(id));
-	}
-
-
-	/*标签相关接口*/
-	@ApiOperation(value = "查询尺码标签")
-	@GetMapping("/getSizeLabelList")
-	public ApiResult getSizeLabelList(QueryDasicsdatumSizeDto queryDasicsdatumSizeDto) {
-		return	ApiResult.success("操作成功",sizeLabelService.getSizeLabelList(queryDasicsdatumSizeDto)) ;
-	}
-
-	@ApiOperation(value = "新增修改尺码标签")
-	@PostMapping("/addRevampSizeLabel")
-	public ApiResult addRevampSizeLabel(@Valid @RequestBody AddRevampSizeLabelDto addRevampSizeLabelDto) {
-		return ApiResult.success("操作成功",sizeLabelService.addRevampSizeLabel(addRevampSizeLabelDto)) ;
-	}
-
-
-	@ApiOperation(value = "删除尺码标签")
-	@DeleteMapping("/delSizeLabel")
-	public ApiResult delSizeLabel(@Valid @NotBlank(message = "编号id不能为空") String id) {
-		return ApiResult.success("操作成功",sizeLabelService.delSizeLabel(id));
 	}
 
 	/*获取尺码*/

@@ -6,15 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumSizeExcelDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
 
 /**
  * 类描述：基础资料-尺码表 dao类
@@ -27,10 +21,8 @@ import java.util.List;
 @Mapper
 public interface BasicsdatumSizeMapper extends BaseMapper<BasicsdatumSize> {
 /** 自定义方法区 不替换的区域【other_start】 **/
-    List<BasicsdatumSizeExcelDto> selectSize(@Param(Constants.WRAPPER) QueryWrapper<BasicsdatumSizeExcelDto> wrapper);
 
     /*获取尺码标签id*/
-
     String getSizeLabelId (String size);
 
 

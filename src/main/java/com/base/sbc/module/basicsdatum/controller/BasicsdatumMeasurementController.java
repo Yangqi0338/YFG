@@ -12,7 +12,6 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampMeasurementDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMeasurementService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMeasurementVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -45,7 +44,7 @@ public class BasicsdatumMeasurementController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getMeasurementList")
-	public PageInfo<BasicsdatumMeasurementVo> getMeasurement(@Valid QueryDto queryDto) {
+	public PageInfo getMeasurement(@Valid QueryDto queryDto) {
 		return basicsdatumMeasurementService.getMeasurement(queryDto);
 	}
 
