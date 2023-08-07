@@ -314,6 +314,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                 YearSeasonBandVo v = new YearSeasonBandVo();
                 v.setPlanningSeasonId(s.getId());
                 v.setPlanningSeasonName(s.getName());
+                v.setBrand(s.getBrand());
                 v.setTotal(sckCountMap.getOrDefault(s.getId(), 0L));
                 v.setChildren(StrUtil.isNotBlank(vo.getHasBand()));
                 v.setYearName(s.getYearName());
@@ -330,6 +331,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                 item.setTotal(value.size());
                 item.setChildren(value);
                 item.setLevel(0);
+                item.setBrand(planningSeason.getBrand());
                 result.add(item);
             }
             return result;
