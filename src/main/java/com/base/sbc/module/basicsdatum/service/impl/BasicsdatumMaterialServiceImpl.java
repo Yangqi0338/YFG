@@ -197,11 +197,17 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		if (dto.getIngredientList() != null) {
 			materialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>()
 					.eq(COMPANY_CODE, getCompanyCode()).eq("material_code", dto.getMaterialCode()).eq("type", "0"));
+			for (BasicsdatumMaterialIngredient item : dto.getIngredientList()) {
+				item.setCompanyCode(this.getCompanyCode());
+			}
 			materialIngredientService.saveBatch(dto.getIngredientList());
 		}
 		if (dto.getFactoryCompositionList() != null) {
 			materialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>()
 					.eq(COMPANY_CODE, getCompanyCode()).eq("material_code", dto.getMaterialCode()).eq("type", "1"));
+			for (BasicsdatumMaterialIngredient item : dto.getIngredientList()) {
+				item.setCompanyCode(this.getCompanyCode());
+			}
 			materialIngredientService.saveBatch(dto.getFactoryCompositionList());
 		}
 
