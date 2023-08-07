@@ -5,6 +5,7 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.purchase.controller;
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
@@ -71,6 +72,16 @@ public class MaterialWarehouseController extends BaseController{
 			materialWarehouseService.list(qc);
 			PageInfo<MaterialWarehouse> pages = purchaseDemandPage.toPageInfo();
 			return ApiResult.success("success", pages);
+		}
+		return selectNotFound();
+	}
+
+	@ApiOperation(value = "查询所有数据")
+	@GetMapping("/queryAll")
+	public ApiResult quyerAll(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+		List<MaterialWarehouse> warehouseList = materialWarehouseService.list();
+		if(CollectionUtil.isNotEmpty(warehouseList)){
+			return selectSuccess(warehouseList);
 		}
 		return selectNotFound();
 	}
