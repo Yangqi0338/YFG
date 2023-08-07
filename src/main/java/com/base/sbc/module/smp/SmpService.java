@@ -14,10 +14,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
@@ -115,6 +112,8 @@ public class SmpService {
     private final StylePricingService stylePricingService;
 
     private final PatternMakingService patternMakingService;
+
+    private final BasicsdatumIngredientService basicsdatumIngredientService;
 
 
     private static final String SMP_URL = "http://10.98.250.31:7006/pdm";
@@ -713,36 +712,22 @@ public class SmpService {
      */
     public Integer fabricComposition(String[] ids) {
         int i = 0;
-        for (BasicsdatumMaterial basicsdatumMaterial : basicsdatumMaterialService.listByIds(Arrays.asList(ids))) {
+        for (BasicsdatumIngredient basicsdatumIngredient : basicsdatumIngredientService.listByIds(Arrays.asList(ids))) {
             FabricCompositionDto fabricCompositionDto = new FabricCompositionDto();
-            fabricCompositionDto.setName(basicsdatumMaterial.getMaterialName());
-            fabricCompositionDto.setMaterialCode(basicsdatumMaterial.getMaterialCode());
+            fabricCompositionDto.setName(basicsdatumIngredient.getIngredient());
+            fabricCompositionDto.setMaterialCode(basicsdatumIngredient.getCode());
             fabricCompositionDto.setId(fabricCompositionDto.getId());
-            fabricCompositionDto.setIngredient(basicsdatumMaterial.getIngredient());
-            //String[] split = basicsdatumMaterial.getIngredient().split(",");
-            //List<String> list = new ArrayList<>();
-            //try {
-            //    for (String s : split) {
-            //        String[] split1 = s.split(" ");
-            //        list.add(split1[1]);
-            //    }
-            //} catch (Exception e) {
-            //    e.printStackTrace();
-            //    throw new RuntimeException("面料成分为空或者错误");
-            //}
-            //
-            //fabricCompositionDto.setIngredient(String.join(",", list));
-
+            fabricCompositionDto.setIngredient(basicsdatumIngredient.getIngredient());
 
             HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElement", fabricCompositionDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, fabricCompositionDto, "scm", "面料成分名称码表下发");
             if (aBoolean) {
                 i++;
-                basicsdatumMaterial.setCompositionSendStatus("1");
+                basicsdatumIngredient.setScmSendFlag("1");
             }else {
-                basicsdatumMaterial.setCompositionSendStatus("2");
+                basicsdatumIngredient.setScmSendFlag("2");
             }
-            basicsdatumMaterialService.updateById(basicsdatumMaterial);
+            basicsdatumIngredientService.updateById(basicsdatumIngredient);
         }
         return i;
     }
