@@ -120,7 +120,7 @@ public class PurchaseOrderController extends BaseController{
 	}
 
 	@ApiOperation(value = "修改")
-	@PutMapping
+	@PostMapping("/update")
 	public ApiResult update(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestBody PurchaseOrder purchaseOrder) {
 		if(StringUtils.isBlank(purchaseOrder.getId())){
 			return updateNotFound();

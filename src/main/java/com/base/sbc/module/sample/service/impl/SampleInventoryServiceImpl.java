@@ -69,6 +69,7 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
             inventory.setId(idGen.nextIdStr());
             inventory.setCode("PD" + System.currentTimeMillis() + (int) ((Math.random() * 9 + 1) * 1000));
             inventory.insertInit();
+            inventory.setCompanyCode(super.getCompanyCode());
         } else {
             inventory.updateInit();
         }

@@ -25,7 +25,6 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampMeasurementDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMeasurementExcelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumComponent;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMeasurementMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMeasurementService;
@@ -33,6 +32,7 @@ import com.base.sbc.module.basicsdatum.vo.BasicsdatumMeasurementVo;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -75,12 +75,7 @@ public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<Basicsdat
      * @return PageInfo<BasicsdatumTechnologyVo>
      */
     @Override
-    public PageInfo<BasicsdatumMeasurementVo> getMeasurement(QueryDto queryDto) {
-        /*分页*/
-        if(queryDto.getPageSize()!=0 && queryDto.getPageNum()!=0){
-            PageHelper.startPage(queryDto);
-        }
-
+    public PageInfo getMeasurement(QueryDto queryDto) {
         QueryWrapper<BasicsdatumMeasurement> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.like(StringUtils.isNotEmpty(queryDto.getPdmType()),"PDM_type",queryDto.getPdmType());
@@ -96,19 +91,11 @@ public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<Basicsdat
             }
         }
         queryWrapper.orderByDesc("create_date");
-
         queryWrapper.in(StrUtil.isNotEmpty(queryDto.getMeasurement()), "measurement", queryDto.getMeasurement());
-        /*查询部件数据*/
-        List<BasicsdatumMeasurement> basicsdatumComponentList = baseMapper.selectList(queryWrapper);
-        PageInfo<BasicsdatumComponent> pageInfo = new PageInfo(basicsdatumComponentList);
-        /*转换vo*/
-        List<BasicsdatumMeasurementVo> list = BeanUtil.copyToList(basicsdatumComponentList, BasicsdatumMeasurementVo.class);
-        PageInfo<BasicsdatumMeasurementVo> vo = new PageInfo<>();
-        vo.setList(list);
-        vo.setTotal(pageInfo.getTotal());
-        vo.setPageNum(pageInfo.getPageNum());
-        vo.setPageSize(pageInfo.getPageSize());
-        return vo;
+        /*查询基础资料-号型类型数据*/
+        Page<BasicsdatumMeasurementVo> objects = PageHelper.startPage(queryDto);
+        getBaseMapper().selectList(queryWrapper);
+        return objects.toPageInfo();
     }
 
     /**
