@@ -167,6 +167,15 @@ public interface StyleService extends BaseService<Style> {
     Boolean delBom(String id);
 
     Boolean saveBom(StyleBomSaveDto dto);
+
+    /**
+     * 引用历史款
+     *
+     * @param id
+     * @param historyStyleId
+     * @return
+     */
+    StyleVo getDetail(String id, String historyStyleId);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

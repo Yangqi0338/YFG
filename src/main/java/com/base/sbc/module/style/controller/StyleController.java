@@ -69,10 +69,15 @@ public class StyleController {
         return styleService.sampleSampleStyle(user, dto);
     }
 
+    /**
+     * @param id
+     * @param historyStyleId 引用历史款时使用
+     * @return
+     */
     @ApiOperation(value = "明细信息")
     @GetMapping("/{id}")
-    public StyleVo getDetail(@PathVariable("id") String id) {
-        return styleService.getDetail(id);
+    public StyleVo getDetail(@PathVariable("id") String id, String historyStyleId) {
+        return styleService.getDetail(id, historyStyleId);
     }
 
     @ApiOperation(value = "保存")

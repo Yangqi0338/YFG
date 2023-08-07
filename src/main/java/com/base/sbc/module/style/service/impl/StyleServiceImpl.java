@@ -828,6 +828,81 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         return packBomService.saveBatch(packBoms);
     }
 
+    @Override
+    public StyleVo getDetail(String id, String historyStyleId) {
+        StyleVo detail = getDetail(id);
+        if (StrUtil.isBlank(historyStyleId)) {
+            return detail;
+        }
+        Style hisStyle = getById(historyStyleId);
+        if (hisStyle == null) {
+            return detail;
+        }
+        //大类不一样跳过
+        if (!StrUtil.equals(detail.getProdCategory1st(), hisStyle.getProdCategory1st())) {
+            return detail;
+        }
+        //品类不一样跳过
+        if (!StrUtil.equals(detail.getProdCategory(), hisStyle.getProdCategory())) {
+            return detail;
+        }
+        //中类
+        detail.setProdCategory2nd(hisStyle.getProdCategory2nd());
+        detail.setProdCategory2ndName(hisStyle.getProdCategory2ndName());
+        // 小类
+        detail.setProdCategory3rd(hisStyle.getProdCategory3rd());
+        detail.setProdCategory3rdName(hisStyle.getProdCategory3rdName());
+        //月份
+        detail.setMonth(hisStyle.getMonth());
+        detail.setMonthName(hisStyle.getMonthName());
+        //波段
+        detail.setBandCode(hisStyle.getBandCode());
+        detail.setBandName(hisStyle.getBandName());
+        //生产模式
+        detail.setDevtType(hisStyle.getDevtType());
+        detail.setDevtTypeName(hisStyle.getDevtTypeName());
+        //主题
+        detail.setSubject(hisStyle.getSubject());
+        //版型
+        detail.setPlateType(hisStyle.getPlateType());
+        detail.setPlateTypeName(hisStyle.getPlateTypeName());
+        //开发分类
+        detail.setDevClass(hisStyle.getDevClass());
+        detail.setDevClassName(hisStyle.getDevClassName());
+        //号型
+        detail.setSizeRange(hisStyle.getSizeRange());
+        detail.setSizeRangeName(hisStyle.getSizeRangeName());
+        //Default颜色
+        detail.setDefaultColor(hisStyle.getDefaultColor());
+        detail.setDefaultColorCode(hisStyle.getDefaultColorCode());
+        //Default尺码
+        detail.setDefaultSize(hisStyle.getDefaultSize());
+        detail.setProductSizes(hisStyle.getProductSizes());
+        detail.setSizeIds(hisStyle.getSizeIds());
+        detail.setSizeCodes(hisStyle.getSizeCodes());
+        //目标成本
+        detail.setProductCost(hisStyle.getProductCost());
+        //主材料
+        detail.setMainMaterials(hisStyle.getMainMaterials());
+        //研发材料
+        detail.setRdMat(hisStyle.getRdMat());
+
+        //打板难度
+        detail.setPatDiff(hisStyle.getPatDiff());
+        detail.setPatDiffName(hisStyle.getPatDiffName());
+        //廓形
+        detail.setSilhouette(hisStyle.getSilhouette());
+        detail.setSilhouetteName(hisStyle.getSilhouetteName());
+        //款式风格
+        detail.setStyleFlavour(hisStyle.getStyleFlavour());
+        detail.setStyleFlavourName(hisStyle.getStyleFlavourName());
+        //款式定位
+        detail.setPositioning(hisStyle.getPositioning());
+        detail.setPositioningName(hisStyle.getPositioningName());
+
+        return detail;
+    }
+
     private void getProductCategoryTreeQw(ProductCategoryTreeVo vo, QueryWrapper<?> qw) {
         qw.eq(StrUtil.isNotBlank(vo.getPlanningSeasonId()), "planning_season_id", vo.getPlanningSeasonId());
         qw.eq(StrUtil.isNotBlank(vo.getProdCategory1stName()), "prod_category1st_name", vo.getProdCategory1stName());
