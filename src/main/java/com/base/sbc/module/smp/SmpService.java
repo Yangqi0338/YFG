@@ -360,8 +360,10 @@ public class SmpService {
             if (aBoolean) {
                 i++;
                 styleColor.setScmSendFlag("1");
-                sampleStyleColorService.updateById(styleColor);
+            }else {
+                styleColor.setScmSendFlag("2");
             }
+            sampleStyleColorService.updateById(styleColor);
         }
         return i;
     }
