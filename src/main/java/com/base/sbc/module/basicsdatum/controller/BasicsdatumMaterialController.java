@@ -6,24 +6,33 @@
 *****************************************************************************/
 package com.base.sbc.module.basicsdatum.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import com.base.sbc.config.constant.BaseConstant;
-import com.base.sbc.module.basicsdatum.vo.*;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.IngredientUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldQueryDto;
@@ -38,7 +47,16 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthsSaveDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialOldPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialSelectVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
+import com.base.sbc.module.basicsdatum.vo.WarehouseMaterialVo;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.github.pagehelper.PageInfo;
 
@@ -64,6 +82,42 @@ public class BasicsdatumMaterialController {
 
 	@Autowired
 	private BaseController baseController;
+
+	@ApiOperation(value = "主物料成分转换")
+	@GetMapping("/formatIngredient")
+	public List<BasicsdatumMaterialIngredient> formatIngredient(
+			@RequestParam(value = "value", required = false) String value) {
+		String str = IngredientUtils.format(value);
+		return formatToList(str);
+	}
+
+	/**
+	 * 转换为对象集合
+	 * 
+	 * @param str
+	 * @return
+	 */
+	private List<BasicsdatumMaterialIngredient> formatToList(String str) {
+		String[] strs = str.split(",");
+		List<BasicsdatumMaterialIngredient> list = new ArrayList<>();
+		for (int i = 0; i < strs.length; i++) {
+			String ingredients = strs[i];
+			BasicsdatumMaterialIngredient in = new BasicsdatumMaterialIngredient();
+			in.setRatio(BigDecimalUtil.valueOf(ingredients.split("%")[0]));
+			String nameSay = ingredients.split("%")[1];
+			int kidx = nameSay.indexOf("(");
+			String name = nameSay;
+			String say = "";
+			if (kidx != -1) {
+				name = nameSay.substring(0, kidx);
+				say = nameSay.substring(kidx + 1, nameSay.length() - 1);
+			}
+			in.setName(name);
+			in.setSay(say);
+			list.add(in);
+		}
+		return list;
+	}
 
 	@ApiOperation(value = "主物料:查询下拉,search:按编码或名称检索,status状态默认全部")
 	@GetMapping("/getBasicsdatumMaterialSelect")
@@ -114,7 +168,7 @@ public class BasicsdatumMaterialController {
 		basicsdatumMaterialService.exportBasicsdatumMaterial(response, dto);
 	}
 
-	@ApiOperation(value = "主物料:查询物料详情(不包括详情)")
+	@ApiOperation(value = "主物料:查询物料详情(不包括颜色、规格、报价、旧料号)")
 	@GetMapping("/getBasicsdatumMaterial")
 	public BasicsdatumMaterialVo getBasicsdatumMaterial(
 			@RequestParam(value = "id") @NotBlank(message = "编号id不能为空") String id) {
@@ -235,7 +289,9 @@ public class BasicsdatumMaterialController {
 
 	@ApiOperation(value = "采购-选择物料档案列表")
 	@GetMapping("/getPurchaseMaterialList")
-	public PageInfo<WarehouseMaterialVo> getPurchaseMaterialList(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, BasicsdatumMaterialQueryDto dto) {
+	public PageInfo<WarehouseMaterialVo> getPurchaseMaterialList(
+			@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, BasicsdatumMaterialQueryDto dto) {
 		return basicsdatumMaterialService.getPurchaseMaterialList(dto);
 	}
+
 }
