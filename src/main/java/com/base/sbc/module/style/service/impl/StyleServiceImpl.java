@@ -825,6 +825,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         List<PackBomDto> bomList = dto.getBomList();
         for (PackBomDto packBomDto : bomList) {
+            packBomDto.setId(null);
             packBomDto.setForeignId(dto.getStyleId());
             packBomDto.setPackType(PackUtils.PACK_TYPE_STYLE);
         }
