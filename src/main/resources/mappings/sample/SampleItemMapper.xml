@@ -147,7 +147,7 @@
                 AND sci.return_flag = '1'
             </if>
             <if test="dto.search != null and dto.search !=''">
-                (AND s.design_no LIKE concat("%",#{dto.search},"%")
+                AND (s.design_no LIKE concat("%",#{dto.search},"%")
                 OR si.CODE LIKE concat("%",#{dto.search},"%"))
             </if>
             <if test="dto.positionId != null and dto.positionId != ''">
