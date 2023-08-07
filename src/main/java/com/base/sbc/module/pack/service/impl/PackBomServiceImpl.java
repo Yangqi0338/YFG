@@ -143,6 +143,8 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         }
         List<String> dbBomIds = getBomIdsByVersionId(version.getId());
         List<String> pageBomIds = new ArrayList<>();
+        // 版本有几个物料信息
+        Long versionBomCount = null;
         // 保存物料清单表
         List<PackBom> packBoms = BeanUtil.copyToList(dtoList, PackBom.class);
         for (PackBom packBom : packBoms) {
@@ -150,6 +152,11 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             PackUtils.setBomVersionInfo(version, packBom);
             if (!CommonUtils.isInitId(packBom.getId())) {
                 pageBomIds.add(packBom.getId());
+            } else {
+                if (versionBomCount == null) {
+                    versionBomCount = getBaseMapper().countByVersion(version.getId());
+                }
+                packBom.setCode(version.getVersion() + StrUtil.DASHED + (++versionBomCount));
             }
         }
         QueryWrapper<PackBom> bomQw = new QueryWrapper<>();

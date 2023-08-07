@@ -8,6 +8,7 @@ package com.base.sbc.module.purchase.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
@@ -35,12 +36,17 @@ public class PurchaseDemand extends BaseDataEntity<String> {
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
     /** 仓库id */
+    @TableField(exist = false)
     private String warehouseId;
     /** 采购员id */
+    @TableField(exist = false)
     private String purchaserId;
     /** 采购员 */
+    @TableField(exist = false)
     private String purchaserName;
     /** 交货日期 */
+    @TableField(exist = false)
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date deliveryDate;
 
     public PurchaseDemand(){
