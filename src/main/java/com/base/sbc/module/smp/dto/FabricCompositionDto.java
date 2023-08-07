@@ -11,8 +11,9 @@ import lombok.Data;
 public class FabricCompositionDto {
     private String id;
     private String name;
-    /** 物料编号 */
-    private String materialCode;
+    /** 成分编号 */
+    private String code;
+
     /** 面料成分（丙纶，亚麻，兔毛） */
     private String ingredient;
 }

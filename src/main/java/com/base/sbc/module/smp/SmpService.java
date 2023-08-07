@@ -717,7 +717,7 @@ public class SmpService {
         for (BasicsdatumIngredient basicsdatumIngredient : basicsdatumIngredientService.listByIds(Arrays.asList(ids))) {
             FabricCompositionDto fabricCompositionDto = new FabricCompositionDto();
             fabricCompositionDto.setName(basicsdatumIngredient.getIngredient());
-            fabricCompositionDto.setMaterialCode(basicsdatumIngredient.getCode());
+            fabricCompositionDto.setCode(basicsdatumIngredient.getCode());
             fabricCompositionDto.setId(fabricCompositionDto.getId());
             fabricCompositionDto.setIngredient(basicsdatumIngredient.getIngredient());
 

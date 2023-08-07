@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +56,8 @@ public class OpenSmpController extends BaseController {
     private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 
     private final OpenSmpService openSmpService;
+
+    private final BasicsdatumMaterialIngredientService basicsdatumMaterialIngredientService;
 
 
     /**
@@ -158,6 +161,20 @@ public class OpenSmpController extends BaseController {
     public ApiResult EscmMaterialCompnentInspectCompanyDto(@RequestBody JSONObject jsonObject){
         EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = jsonObject.toJavaObject(EscmMaterialCompnentInspectCompanyDto.class);
         escmMaterialCompnentInspectCompanyService.saveOrUpdate(escmMaterialCompnentInspectCompanyDto,new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no",escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
+
+        basicsdatumMaterialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>().eq("material_code",escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
+
+        for (EscmMaterialCompnentInspectContent escmMaterialCompnentInspectContent : escmMaterialCompnentInspectCompanyDto.getDetailList()) {
+            BasicsdatumMaterialIngredient basicsdatumMaterialIngredient =new BasicsdatumMaterialIngredient();
+            basicsdatumMaterialIngredient.setMaterialCode(escmMaterialCompnentInspectCompanyDto.getMaterialsNo());
+            basicsdatumMaterialIngredient.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
+            basicsdatumMaterialIngredient.setSay(escmMaterialCompnentInspectContent.getRemark());
+            basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Long.parseLong(escmMaterialCompnentInspectContent.getContentProportion())));
+            basicsdatumMaterialIngredient.setType("0");
+            basicsdatumMaterialIngredient.setName(escmMaterialCompnentInspectContent.getInspectContent());
+            basicsdatumMaterialIngredientService.save(basicsdatumMaterialIngredient);
+        }
+
         return insertSuccess(null);
     }
 }
