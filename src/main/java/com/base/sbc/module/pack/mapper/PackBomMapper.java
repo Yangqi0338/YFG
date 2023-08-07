@@ -57,10 +57,13 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
 
     /**
      * 获取物料计算
+     *
      * @param foreignIds
      * @return
      */
     List<PackBomCalculateBaseVo> getPackBomCalculateBaseVo(@Param("foreignIds") List<String> foreignIds);
+
+    Long countByVersion(@Param("bomVersionId") String bomVersionId);
 
 
 // 自定义方法区 不替换的区域【other_end】
