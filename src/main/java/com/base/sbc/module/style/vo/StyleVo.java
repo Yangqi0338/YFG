@@ -67,4 +67,7 @@ public class StyleVo extends Style {
     public String getStyle() {
         return getDesignNo() + getStyleName();
     }
+
+    @ApiModelProperty(value = "坑位信息图片")
+    private String seatStylePic;
 }

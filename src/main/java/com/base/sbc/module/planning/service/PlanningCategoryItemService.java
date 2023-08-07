@@ -192,4 +192,7 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
     Map<String, Long> totalBandSkcByPlanningSeason(String planningSeasonId);
 
     void updateByChannelChange(PlanningChannel planningChannel);
+
+    String getStylePicUrlById(String id);
+
 }

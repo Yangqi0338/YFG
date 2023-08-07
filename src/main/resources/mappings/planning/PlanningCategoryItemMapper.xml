@@ -136,6 +136,11 @@
         select distinct concat(prod_category1st, ',', prod_category)
         from t_planning_category_item ${ ew.customSqlSegment}
     </select>
+    <select id="getStylePicUrlById" resultType="java.lang.String">
+        select style_pic
+        from t_planning_category_item
+        where id = #{id} limit 1
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 

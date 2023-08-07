@@ -474,7 +474,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 sampleVo.setStylePicList(CollUtil.newArrayList(attachmentVo));
             }
         }
-
+        sampleVo.setSeatStylePic(planningCategoryItemService.getStylePicUrlById(sampleVo.getPlanningCategoryItemId()));
         //维度标签
         sampleVo.setDimensionLabels(queryDimensionLabelsBySdId(id));
 
@@ -772,11 +772,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public void updateBySeatChange(PlanningCategoryItem item) {
-        Style style = BeanUtil.copyProperties(item, Style.class);
+        Style style = BeanUtil.copyProperties(item, Style.class, "id", "stylePic", "status");
         CommonUtils.resetCreateUpdate(style);
-        style.setId(null);
-        style.setStylePic(uploadFileService.getIdByUrl(item.getStylePic()));
-        style.setStatus(null);
         UpdateWrapper<Style> uw = new UpdateWrapper<>();
         uw.eq("del_flag", BaseGlobal.NO);
         uw.eq("planning_category_item_id", item.getId());

@@ -639,6 +639,11 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     }
 
     @Override
+    public String getStylePicUrlById(String id) {
+        return getBaseMapper().getStylePicUrlById(id);
+    }
+
+    @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean addSeat(AddSeatDto dto) {
         //查询渠道信息
@@ -760,9 +765,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     @Transactional(rollbackFor = {Exception.class})
     public void updateBySampleDesignChange(Style style) {
         PlanningCategoryItem byId = getById(style.getPlanningCategoryItemId());
-        BeanUtil.copyProperties(style, byId, "createId", "createName", "id", "status");
-        String urlById = uploadFileService.getUrlById(style.getStylePic());
-        byId.setStylePic(urlById);
+        BeanUtil.copyProperties(style, byId, "createId", "createName", "id", "status", "stylePic");
         updateById(byId);
     }
 
