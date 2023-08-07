@@ -634,14 +634,17 @@ public class SmpService {
     public Integer sample(String[] ids) {
         int i = 0;
             for (PatternMaking patternMaking : patternMakingService.listByIds(Arrays.asList(ids))) {
-                Sample sample = sampleService.getById(patternMaking.getStyleId());
-                Style style = styleService.getOne(new QueryWrapper<Style>().eq("design_no", sample.getDesignNo()));
-                SmpSampleDto smpSampleDto = sample.toSmpSampleDto();
+                Style style = styleService.getById(patternMaking.getStyleId());
+                SmpSampleDto smpSampleDto = style.toSmpSampleDto();
+                Sample sample = sampleService.getOne(new QueryWrapper<Sample>().eq("pattern_making_id", patternMaking.getId()));
+                smpSampleDto.setImgList(Arrays.asList(sample.getImages().split(",")));
+                smpSampleDto.setSampleType(String.valueOf(sample.getType()));
+                smpSampleDto.setSampleTypeName(sample.getType() == 1 ? "内部研发" : sample.getType() == 2 ? "外采" : sample.getType() == 3 ? "ODM提供" : "");
 
                 //取跟款设计师，如果跟款设计师不存在就取设计师
                 smpSampleDto.setProofingDesigner(style.getMerchDesignName() == null ? style.getDesigner() : style.getMerchDesignName());
                 smpSampleDto.setPatDiff(style.getPatDiff());
-
+                smpSampleDto.setSampleNumber(patternMaking.getCode());
                 smpSampleDto.setColorwayCode(style.getStyleNo());
                 smpSampleDto.setColorwayPlmId(style.getStyleNo());
                 smpSampleDto.setSampleStatus(style.getStatus());
@@ -678,6 +681,8 @@ public class SmpService {
                 smpSampleDto.setPatternMakerId(usernamesByIds.get(patternDesignId));
                 smpSampleDto.setProofingDesignerId(usernamesByIds.get(merchDesignId));
 
+                smpSampleDto.setSupplier(patternMaking.getPatternRoom());
+                smpSampleDto.setSupplierNumber(patternMaking.getPatternRoom());
 
                 smpSampleDto.setPatSeqName(patternMaking.getPatSeqName());
                 smpSampleDto.setPatSeq(patternMaking.getPatSeq());
