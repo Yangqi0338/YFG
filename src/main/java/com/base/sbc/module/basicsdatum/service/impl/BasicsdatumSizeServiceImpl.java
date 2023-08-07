@@ -260,18 +260,21 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
     /**
      * 获取尺码名
      *
-     * @param sort
+     * @param ids
      * @return
      */
     @Override
     public Map<String,String> getSizeName(String ids) {
         QueryWrapper queryWrapper =new QueryWrapper();
         queryWrapper.in("id",StringUtils.convertList(ids));
+        queryWrapper.orderByAsc("sort");
         List<BasicsdatumSize> basicsdatumSizeList =baseMapper.selectList(queryWrapper);
         Map<String,String> map =new HashMap<>();
        if(!CollectionUtils.isEmpty(basicsdatumSizeList)){
+           List<String> id =  basicsdatumSizeList.stream().map(BasicsdatumSize::getId).collect(Collectors.toList());
            List<String> naem =  basicsdatumSizeList.stream().map(BasicsdatumSize::getHangtags).collect(Collectors.toList());
            List<String> code =  basicsdatumSizeList.stream().map(BasicsdatumSize::getSort).collect(Collectors.toList());
+           map.put("ids",StringUtils.join(id,","));
            map.put("name",StringUtils.join(naem,","));
            map.put("sort",StringUtils.join(code,","));
        }
