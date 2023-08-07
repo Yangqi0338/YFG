@@ -10,16 +10,26 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.minio.MinioUtils;
+import com.base.sbc.config.utils.ImgUtils;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.common.dto.UploadStylePicDto;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.mapper.UploadFileMapper;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.sample.entity.SampleStyleColor;
+import com.base.sbc.module.sample.mapper.SampleStyleColorMapper;
+import com.base.sbc.module.sample.vo.StyleUploadVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
@@ -32,12 +42,17 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.utils.EncryptUtil.EncryptE2;
 
 /**
  * 类描述：上传文件 service类
@@ -54,12 +69,18 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     /**
      * 自定义方法区 不替换的区域【other_start】
      **/
-
+    public static final String UPLOAD_PHOTO = "http://img.eifini.com/image/UploadPhoto";
 
     @Autowired
     private MinioUtils minioUtils;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private SampleStyleColorMapper sampleStyleColorMapper;
+
+    @Autowired
+    private UserUtils userUtils;
+
 
     @Override
     public AttachmentVo uploadToMinio(MultipartFile file) {
@@ -180,6 +201,79 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         minioUtils.delFile(url);
 
         return true;
+    }
+
+    /**
+     * 上传款式图
+     *
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public Boolean uploadStyleImage(UploadStylePicDto dto, Principal user) throws Exception {
+        GroupUser userBy = userUtils.getUserBy(user);
+        /*获取年季节品牌等信息*/
+        StyleUploadVo styleUploadVo = sampleStyleColorMapper.getStyleUploadInfo(dto.getStyleColorId());
+        /*获取文件类型*/
+        String type = dto.getFile().getOriginalFilename().substring(dto.getFile().getOriginalFilename().lastIndexOf(".")+1);
+        File file = null;
+        try {
+             file = File.createTempFile(dto.getFile().getOriginalFilename(), styleUploadVo.getStyleNo());
+        } catch (Exception e) {
+            throw new OtherException("文件错误");
+        }
+
+        dto.getFile().transferTo(file);
+        /*图片类型 （0 jpg,1 png 可以不传 默认0），非必填*/
+        String pictype = "0";
+        if (StringUtils.isNotBlank(type)) {
+            if (type.equals("jpg")) {
+                pictype = "0";
+            } else if (type.equals("png")) {
+                pictype = "1";
+            }
+        }
+
+        String path =  file.toURI().getPath(); //图片路径
+        Map<String, String> paraMap = new HashMap<String, String>();
+
+        /*账号*/
+        String useraccount = userBy.getUsername();
+        /*申请开通权限APPKEY ，AES182 结果url编码*/
+        String key = "PDMImage";
+        String APPsecret = "925091ef18f40b662a55c058cb475137";
+        String salt = "eifiniEMS202307";
+
+        paraMap.put("brand", styleUploadVo.getBrand()); //品牌
+        paraMap.put("year", styleUploadVo.getYear()); //年份
+        paraMap.put("quarter", styleUploadVo.getSeason()); //季节
+        paraMap.put("picname", styleUploadVo.getStyleNo()); //图片新的名称，以此名称为准
+        paraMap.put("pictype", pictype);//图片文件类型 0 jpg ；1 png
+        paraMap.put("folderName", "PDM");//文件夹
+        paraMap.put("debug", "1"); //传递plm图片
+        paraMap.put("useraccount", useraccount); //传递plm图片
+        paraMap.put("model", "0"); //传递plm图片
+        String appkeyP = URLEncoder.encode(EncryptE2(key, salt), "utf-8");
+        paraMap.put("key", appkeyP); //传递plm图片
+        String md5 = useraccount + key + APPsecret;
+        String allStrP = DigestUtils.md5DigestAsHex(md5.getBytes());
+        paraMap.put("md5", allStrP); //传递plm图片
+        Map<String, String> fileMap = new HashMap<String, String>();
+        fileMap.put("img", path);
+        String res = "";
+        try {
+            res = ImgUtils.formUpload(UPLOAD_PHOTO, paraMap, fileMap);
+        } catch (Exception e) {
+            throw new OtherException("图片上传失败");
+        }
+        JSONObject jsonObject =  JSON.parseObject(res);
+        if (Boolean.parseBoolean (jsonObject.get("Sucess").toString())) {
+            SampleStyleColor sampleStyleColor = sampleStyleColorMapper.selectById(dto.getStyleColorId());
+            sampleStyleColor.setSampleDesignPic(jsonObject.get("FileName").toString());
+            return  sampleStyleColorMapper.updateById(sampleStyleColor)>0;
+        } else {
+            throw new OtherException(jsonObject.get("Msg").toString());
+        }
     }
 
 

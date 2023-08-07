@@ -18,7 +18,7 @@ import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pack.vo.PricingSelectListVO;
-import com.base.sbc.module.pack.vo.SampleDesignPackInfoListVo;
+import com.base.sbc.module.pack.vo.StylePackInfoListVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import java.util.List;
 
 /**
  * 类描述：资料包 Controller类
@@ -51,11 +50,11 @@ public class PackInfoController {
 	@Autowired
 	private PackInfoStatusService packInfoStatusService;
 
-	@ApiOperation(value = "设计BOM管理列表-分页查询")
-	@GetMapping
-	public PageInfo<SampleDesignPackInfoListVo> pageBySampleDesign(@Valid PackInfoSearchPageDto pageDto) {
-		return packInfoService.pageBySampleDesign(pageDto);
-	}
+    @ApiOperation(value = "设计BOM管理列表-分页查询")
+    @GetMapping
+    public PageInfo<StylePackInfoListVo> pageBySampleDesign(@Valid PackInfoSearchPageDto pageDto) {
+        return packInfoService.pageBySampleDesign(pageDto);
+    }
 
 	@ApiOperation(value = "资料包明细")
 	@GetMapping("/getDetail")
@@ -76,8 +75,8 @@ public class PackInfoController {
 	}
 
 
-	@ApiOperation(value = "新建BOM(通过样衣设计)")
-	@GetMapping("/createBySampleDesign")
+	@ApiOperation(value = "新建BOM(通过款式设计)")
+    @GetMapping("/createBySampleDesign")
 	public PackInfoListVo createBySampleDesign(@Valid IdDto idDto) {
 		return packInfoService.createBySampleDesign(idDto.getId());
 	}
@@ -145,13 +144,20 @@ public class PackInfoController {
 
 	/**
 	 * 样衣id查询bom
+	 *
 	 * @param ids
 	 * @return
 	 */
-	@ApiOperation(value = "查询设计款号夏的bom")
+	@ApiOperation(value = "查询设计款号下的bom")
 	@GetMapping("/getInfoListByDesignNo")
 	public PageInfo<PackInfoListVo> pageBySampleDesign(@Valid PricingSelectSearchDTO pricingSelectSearchDTO) {
 		return packInfoService.getInfoListByDesignNo(pricingSelectSearchDTO.getDesignNo());
+	}
+
+	@ApiOperation(value = "关联配色")
+	@PostMapping("/association")
+	public boolean association(@RequestBody PackInfoAssociationDto dto) {
+		return packInfoService.association(dto);
 	}
 }
 

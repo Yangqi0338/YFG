@@ -10,8 +10,10 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.CodeGen;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
@@ -27,14 +29,19 @@ import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.PackInfoListVo;
-import com.base.sbc.module.purchase.mapper.PurchaseDemandMapper;
+import com.base.sbc.module.purchase.entity.MaterialWarehouse;
 import com.base.sbc.module.purchase.entity.PurchaseDemand;
+import com.base.sbc.module.purchase.entity.PurchaseOrder;
+import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
+import com.base.sbc.module.purchase.mapper.PurchaseDemandMapper;
+import com.base.sbc.module.purchase.mapper.PurchaseOrderMapper;
+import com.base.sbc.module.purchase.service.MaterialWarehouseService;
 import com.base.sbc.module.purchase.service.PurchaseDemandService;
+import com.base.sbc.module.purchase.service.PurchaseOrderDetailService;
+import com.base.sbc.module.purchase.service.PurchaseOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -72,6 +79,18 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
 
     @Autowired
     private BasicsdatumSupplierService supplierService;
+
+    @Autowired
+    private MaterialWarehouseService warehouseService;
+
+    @Autowired
+    private PurchaseOrderService purchaseOrderService;
+
+    @Autowired
+    private PurchaseOrderMapper purchaseOrderMapper;
+
+    @Autowired
+    private PurchaseOrderDetailService purchaseOrderDetailService;
 
     @Override
     public ApiResult cancel(String companyCode, String ids) {
@@ -184,5 +203,167 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
         }
     }
 
+    /**
+     * 采购需求单生成采购单
+     * @param companyCode 企业编码
+     * @param userCompany 用户信息
+     * @param purchaseDemandList 采购需求单集合
+     * */
+    public ApiResult generatePurchaseOrder(UserCompany userCompany, String companyCode, List<PurchaseDemand> purchaseDemandList){
+        IdGen idGen = new IdGen();
+
+        //仓库信息
+        MaterialWarehouse materialWarehouse = warehouseService.getById(purchaseDemandList.get(0).getWarehouseId());
+
+        List<String> supplierIdList = new ArrayList<>();
+        List<String> materialCodeList = new ArrayList<>();
+        //根据供应商分组
+        Map<String, List<PurchaseDemand>> supplierDemandMap = new HashMap<>();
+        for(PurchaseDemand demand : purchaseDemandList){
+            List<PurchaseDemand> list = supplierDemandMap.get(demand.getSupplierId());
+            if(CollectionUtil.isEmpty(list)){
+                list = new ArrayList<>();
+                supplierIdList.add(demand.getSupplierId());
+            }
+            list.add(demand);
+            supplierDemandMap.put(demand.getSupplierId(), list);
+            materialCodeList.add(demand.getMaterialCode());
+        }
+
+        //供应商信息
+        QueryWrapper<BasicsdatumSupplier> supplierQw = new QueryWrapper<>();
+        supplierQw.in("supplier_code", supplierIdList);
+        List<BasicsdatumSupplier> supplierList = supplierService.list(supplierQw);
+        Map<String, BasicsdatumSupplier> supplierMap = supplierList.stream().collect(Collectors.toMap(BasicsdatumSupplier::getSupplierCode, item1 -> item1, (item1, item2) -> item1));
+
+        //物料信息
+        QueryWrapper<BasicsdatumMaterial> materialQw = new QueryWrapper<>();
+        materialQw.in("material_code", materialCodeList);
+        List<BasicsdatumMaterial> materialList = materialService.list(materialQw);
+        Map<String, BasicsdatumMaterial> materialMap = materialList.stream().collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode, item -> item));
+
+        String maxCode = purchaseOrderMapper.selectMaxCodeByCompany(companyCode);
+        String codeOne = maxCode != null ? maxCode : CodeGen.BEGIN_NUM;
+
+        List<PurchaseOrder> purchaseOrderList = new ArrayList<>();
+        List<PurchaseOrderDetail> purchaseOrderDetailList = new ArrayList<>();
+        for(Map.Entry<String, List<PurchaseDemand>> entry : supplierDemandMap.entrySet()){
+            BasicsdatumSupplier supplier = supplierMap.get(entry.getKey());
+            PurchaseDemand demand = entry.getValue().get(0);
+            String code = "SO" + CodeGen.getBoxCode(2, codeOne);
+
+            String id = idGen.nextIdStr();
+            PurchaseOrder purchaseOrder = new PurchaseOrder();
+            purchaseOrder.insertInit(userCompany);
+            purchaseOrder.setId(id);
+            purchaseOrder.setCode(code);
+            purchaseOrder.setCompanyCode(companyCode);
+            purchaseOrder.setStatus("0");
+            purchaseOrder.setOrderStatus("0");
+            purchaseOrder.setWarehouseStatus("0");
+            purchaseOrder.setDelFlag("0");
+
+            purchaseOrder.setSupplierId(supplier.getId());
+            purchaseOrder.setSupplierCode(supplier.getSupplierCode());
+            purchaseOrder.setSupplierName(supplier.getSupplier());
+            purchaseOrder.setSupplierContacts(supplier.getContact());
+            purchaseOrder.setSupplierPhone(supplier.getTelephone());
+
+            purchaseOrder.setPurchaserId(demand.getPurchaserId());
+            purchaseOrder.setPurchaserName(demand.getPurchaserName());
+
+            purchaseOrder.setWarehouseId(materialWarehouse.getId());
+            purchaseOrder.setWarehouseName(materialWarehouse.getWarehouseName());
+            purchaseOrder.setWarehouseContacts(materialWarehouse.getContacts());
+            purchaseOrder.setWarehousePhone(materialWarehouse.getPhone());
+            purchaseOrder.setWarehouseAddress(materialWarehouse.getAddress());
+
+            purchaseOrder.setDeliveryDate(demand.getDeliveryDate());
+
+            BigDecimal total = BigDecimal.ZERO;
+            BigDecimal totalAmount = BigDecimal.ZERO;
+            for(PurchaseDemand demandInfo : entry.getValue()){
+                BasicsdatumMaterial material = materialMap.get(demandInfo.getMaterialCode());
+                PurchaseOrderDetail detail = new PurchaseOrderDetail();
+                detail.setId(idGen.nextIdStr());
+                detail.setCompanyCode(companyCode);
+                detail.setPurchaseOrderId(id);
+                detail.setDemandId(demandInfo.getId());
+
+                detail.setMaterialCode(demandInfo.getMaterialCode());
+                detail.setMaterialName(demandInfo.getMaterialName());
+                detail.setDesignStyleCode(demandInfo.getDesignStyleCode());
+                detail.setPlateBillCode(demandInfo.getPlateBillCode());
+                detail.setMaterialSpecifications(demandInfo.getMaterialSpecifications());
+
+                detail.setSupplierColor(demandInfo.getSupplierColor());
+                detail.setPurchaseUnit(demandInfo.getUnit());
+                detail.setConvertUnitRatio(new BigDecimal(material.getPurchaseConvertStock()));
+                detail.setPurchaseNum(demandInfo.getNeedNum());
+                detail.setPrice(demandInfo.getPrice());
+                detail.setMaterialColor(demandInfo.getMaterialColor());
+                detail.setLoss(demandInfo.getLoss());
+                BigDecimal amount = BigDecimalUtil.mul(demandInfo.getNeedNum(), demandInfo.getPrice()).setScale(2, BigDecimal.ROUND_DOWN);
+                detail.setTotalAmount(amount);
+                detail.setWarehouseNum(BigDecimal.ZERO);
+
+                purchaseOrderDetailList.add(detail);
+
+                total = BigDecimalUtil.add(total, demandInfo.getNeedNum());
+                totalAmount = BigDecimalUtil.add(totalAmount, amount);
+            }
+
+            purchaseOrder.setTotal(total);
+            purchaseOrder.setTotalAmount(totalAmount);
+            codeOne = code;
+
+            purchaseOrderList.add(purchaseOrder);
+        }
+
+        boolean result = purchaseOrderService.saveBatch(purchaseOrderList);
+        if(result){
+            purchaseOrderDetailService.saveBatch(purchaseOrderDetailList);
+            manipulatePlanNum(purchaseOrderDetailList, "0");
+            return ApiResult.success("生成完成！");
+        }
+        return ApiResult.error("生成失败！", 500);
+    }
+
+    /**
+     * 用于 采购单 操作采购需求单的已采购数量
+     * @param type 0 占用  1 返还
+     * */
+    public void manipulatePlanNum(List<PurchaseOrderDetail> purchaseOrderDetailList, String type){
+        List<String> idList = new ArrayList<>();
+        for(PurchaseOrderDetail detail : purchaseOrderDetailList){
+            if(StringUtils.isNotBlank(detail.getDemandId())){
+                idList.add(detail.getDemandId());
+            }
+        }
+
+        QueryWrapper<PurchaseDemand> qw = new QueryWrapper<>();
+        qw.in("id", idList);
+        List<PurchaseDemand> purchaseDemandList = list(qw);
+        if(CollectionUtil.isNotEmpty(purchaseDemandList)){
+            return;
+        }
+
+        Map<String, PurchaseDemand> purchaseDemandMap = purchaseDemandList.stream().collect(Collectors.toMap(PurchaseDemand::getId, item -> item));
+
+        for(PurchaseOrderDetail details : purchaseOrderDetailList){
+            PurchaseDemand item = purchaseDemandMap.get(details.getDemandId());
+            if(item != null){
+                if(StringUtils.equals(type, "0")){
+                    item.setPurchasedNum(BigDecimalUtil.add(item.getPurchasedNum(), details.getPurchaseNum()));
+                }else{
+                    item.setPurchasedNum(BigDecimalUtil.sub(item.getPurchasedNum(), details.getPurchaseNum()));
+                }
+            }
+            purchaseDemandMap.put(details.getDemandId(), item);
+        }
+
+        List<PurchaseDemand> updateList = new ArrayList<>(purchaseDemandMap.values());
+        updateBatchById(updateList);
+    }
 }
 

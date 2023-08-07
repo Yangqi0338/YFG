@@ -7,9 +7,11 @@ import lombok.Data;
 @Data
 /*查询款式配色*/
 public class QuerySampleStyleColorDto extends Page {
-    /** 样衣id */
-    @ApiModelProperty(value = "样衣id"  )
-    private String sampleDesignId;
+    /**
+     * 样衣id
+     */
+    @ApiModelProperty(value = "样衣id")
+    private String styleId;
 
     @ApiModelProperty(value = "大货编号多个使用，分割"  )
     private String styleNo;

@@ -9,6 +9,9 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.purchase.entity.PurchaseDemand;
+import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
+
+import java.util.List;
 
 /** 
  * 类描述：采购-采购需求表 service类
@@ -24,6 +27,10 @@ public interface PurchaseDemandService extends BaseService<PurchaseDemand>{
     ApiResult cancel(String companyCode, String ids);
 
     void generatePurchaseDemand(UserCompany userCompany, String companyCode, String id);
+
+    ApiResult generatePurchaseOrder(UserCompany userCompany, String companyCode, List<PurchaseDemand> purchaseDemandList);
+
+    void manipulatePlanNum(List<PurchaseOrderDetail> purchaseOrderDetailList, String type);
 // 自定义方法区 不替换的区域【other_end】
 
 	

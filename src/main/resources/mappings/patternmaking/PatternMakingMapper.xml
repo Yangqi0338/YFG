@@ -40,8 +40,8 @@
         p.pattern_design_name
         FROM
         t_pattern_making p,
-        t_sample_design s
-        where p.sample_design_id = s.id and p.design_send_status='1'
+        t_style s
+        where p.style_id = s.id and p.design_send_status='1'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
@@ -103,8 +103,8 @@
         p.pattern_design_name
         FROM
         t_pattern_making p,
-        t_sample_design s
-        where p.sample_design_id = s.id
+        t_style s
+        where p.style_id = s.id
         and p.design_send_status='1'
         and p.prm_send_status='1'
         and p.del_flag &lt;&gt; '1'
@@ -122,8 +122,8 @@
         s.*,
         p.*
         FROM
-        t_sample_design s
-        LEFT JOIN t_pattern_making p ON ( s.id = p.sample_design_id )
+        t_style s
+        LEFT JOIN t_pattern_making p ON ( s.id = p.style_id )
         where
         p.del_flag &lt;&gt; '1'
         and s.del_flag &lt;&gt; '1'
@@ -147,17 +147,28 @@
     <select id="findBySampleDesignId" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingListVo">
         select m.*, d.product_sizes, d.pat_diff as sd_pat_diff, d.pat_diff_name as sd_pat_diff_name, d.default_size
         from t_pattern_making m
-                 join t_sample_design d on (m.sample_design_id = d.id) ${ew.customSqlSegment}
+                 join t_style d on (m.style_id = d.id) ${ew.customSqlSegment}
     </select>
 
     <select id="getAllList" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingForSampleVo">
-        SELECT pk.id, pk.`code`, pk.sample_type, sd.style_name, sd.design_no, sd.prod_category_name as categoryName, sd.prod_category as categoryCode,
-            ps.id AS seasonId, ps.season, sd.designer, sd.designer_id, sd.pattern_design_id, sd.pattern_design_name,
-            pk.sample_design_id
+        SELECT pk.id,
+               pk.`code`,
+               pk.sample_type,
+               sd.style_name,
+               sd.design_no,
+               sd.prod_category_name as categoryName,
+               sd.prod_category      as categoryCode,
+               ps.id                 AS seasonId,
+               ps.season,
+               sd.designer,
+               sd.designer_id,
+               sd.pattern_design_id,
+               sd.pattern_design_name,
+               pk.style_id
         FROM t_pattern_making pk
-        JOIN t_sample_design sd ON sd.id = pk.sample_design_id
-        JOIN t_planning_season ps ON ps.id = pk.planning_season_id
-        ${ew.customSqlSegment}
+                 JOIN t_style sd ON sd.id = pk.style_id
+                 JOIN t_planning_season ps ON ps.id = pk.planning_season_id
+            ${ew.customSqlSegment}
     </select>
 
     <select id="versionComparisonViewWeekMonth" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingWeekMonthViewVo" parameterType="com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto">
@@ -212,7 +223,7 @@
         SELECT
             #{sampleType} AS sample_type,
             DATE_FORMAT( pmm.create_date, IF(#{weeklyMonth} = 'week','%y年%u周', '%y年%m月') ) AS year_week,
-            min( pmm.create_date ) AS min_date,
+        min( pmm.create_date ) AS min_date,
         count( 1 ) AS num,
         SUM( pmm.requirement_num ) AS requirement_num_sum
         FROM
@@ -222,7 +233,7 @@
         pm.*
         FROM
         t_pattern_making pm
-        LEFT JOIN t_sample_design sd ON pm.sample_design_id = sd.id
+        LEFT JOIN t_style sd ON pm.style_id = sd.id
         LEFT JOIN t_planning_category_item pc ON sd.planning_category_id = pc.id
         WHERE
         pm.node = '打版任务'

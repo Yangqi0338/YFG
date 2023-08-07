@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.style.mapper.StyleMapper">
+    <!--
+        样衣
+        创建人：lxl
+        邮箱：lxl.fml@gmail.com
+        创建时间：2023-5-9 17:32:40
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <!-- 分页查询 -->
+    <select id="selectByQw" resultType="com.base.sbc.module.style.vo.StylePageVo">
+        select *
+        from t_style s
+            ${ ew.customSqlSegment}
+    </select>
+    <select id="getDesignerList" resultType="com.base.sbc.module.sample.vo.SampleUserVo">
+        select DISTINCT designer_id as user_id, designer as name
+        from t_style s
+        where company_code = #{companyCode}
+          AND del_flag = '0'
+          and designer_id !='' and designer_id is not null
+    </select>
+    <select id="getBandChart" resultType="com.base.sbc.module.sample.vo.ChartBarVo">
+
+        SELECT band_name AS product,
+        STATUS AS dimension,
+        count(id) AS total
+        FROM t_style
+        where del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+        GROUP BY band_name,
+        STATUS;
+    </select>
+    <select id="getCategoryChart" resultType="com.base.sbc.module.sample.vo.ChartBarVo">
+        SELECT prod_category_name AS product,
+        STATUS AS dimension,
+        count(id) AS total
+        FROM t_style
+        where del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+        GROUP BY prod_category_name,
+        STATUS;
+
+    </select>
+    <select id="dimensionTotal" resultType="com.base.sbc.module.planning.vo.DimensionTotalVo">
+        select ${ew.sqlSelect} from t_style sd
+        where
+        sd.del_flag ='0'
+        and sd.prod_category is not null and sd.prod_category &lt;&gt; ''
+        and sd.band_code is not null and sd.band_code &lt;&gt; ''
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="categoryBandSummary" resultType="com.base.sbc.module.planning.vo.PlanningSummaryDetailVo">
+        SELECT
+        id,
+        prod_category_name,
+        design_no,
+        his_design_no,
+        price,
+        seasonal,
+        style_pic,
+        continuation_point,
+        designer,
+        designer_id,
+        band_name,
+        style_no
+        FROM
+
+        t_style sd
+        WHERE
+        sd.del_flag = '0'
+        AND sd.del_flag = '0'
+        and sd.prod_category is not null and sd.prod_category &lt;&gt; ''
+        and sd.band_code is not null and sd.band_code &lt;&gt; ''
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+    <select id="categorySummary" resultType="com.base.sbc.module.sample.vo.StyleBoardCategorySummaryVo">
+        SELECT
+        prod_category1st,
+        prod_category,
+        prod_category2nd,
+        count( 1 ) skc
+        FROM
+        t_style sd
+        LEFT JOIN t_sample_style_color c ON ( sd.id = c.style_id )
+        WHERE
+        sd.del_flag = '0'
+
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+        GROUP BY
+        prod_category1st,
+        prod_category,
+        prod_category2nd
+        order by
+        prod_category1st,
+        prod_category,
+        prod_category2nd
+    </select>
+    <select id="colorCount" resultType="java.lang.Long">
+        SELECT
+        count( 1 ) skc
+        FROM
+        t_style sd
+        left join t_sample_style_color c on(sd.id = c.style_id and c.del_flag ='0')
+        WHERE
+        sd.del_flag ='0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
+    </select>
+
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>
+

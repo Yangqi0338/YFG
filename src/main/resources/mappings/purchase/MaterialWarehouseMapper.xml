@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.purchase.mapper.MaterialWarehouseMapper">
+    <!--
+        物料仓库
+        创建人：tzy
+        邮箱：974849633@qq.com
+        创建时间：2023-8-4 14:46:11
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <update id="updateAllDefault" parameterType="java.lang.String">
+        update t_material_warehouse
+        set default_setting = '0'
+        where id != #{id}
+    </update>
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>
+

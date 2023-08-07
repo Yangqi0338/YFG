@@ -54,7 +54,7 @@ public class UreportService {
     public AttachmentVo downFileAndUploadMinio(UreportDownEnum ureportDown, String billType, String name, String fileName, Map<String, String> params) {
 
         try {
-            //1 组装url eg http://10.98.250.44:9111/ureport/pdf?_u=mysql:677447590605750272-%25E5%25B7%25A5%25E8%2589%25BA%25E5%258D%2595.ureport.xml&billType=process&sampleDesignId=1670714798356213761
+            //1 组装url eg http://10.98.250.44:9111/ureport/pdf?_u=mysql:677447590605750272-%25E5%25B7%25A5%25E8%2589%25BA%25E5%258D%2595.ureport.xml&billType=process&styleId=1670714798356213761
             Map<String, String> paramsMap = new HashMap<>(16);
             paramsMap.put("url", url);
             paramsMap.put("port", port);

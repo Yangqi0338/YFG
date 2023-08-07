@@ -56,4 +56,6 @@ public interface PlanningCategoryItemMapper extends BaseMapper<PlanningCategoryI
     List<CountVo> countCategoryByChannelId(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     List<CountVo> totalBandSkcByPlanningSeason(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    String getStylePicUrlById(@Param("id") String id);
 }

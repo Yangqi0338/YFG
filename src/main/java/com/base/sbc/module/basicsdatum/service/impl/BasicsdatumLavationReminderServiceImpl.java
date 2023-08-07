@@ -26,7 +26,6 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumLavationReminderExcelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialsIngredient;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumLavationReminderMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumLavationReminderService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo;

@@ -41,7 +41,6 @@ public class SpecificationServiceImpl extends BaseServiceImpl<SpecificationMappe
         Map<String, String> map = dictInfoToMap.get("specificationType");
         List<Specification> Specifications = BeanUtil.copyToList(list, Specification.class);
         for (Specification specification : Specifications) {
-            specification.setStatus("1");
             if (!StringUtils.isEmpty(specification.getTypeName())) {
                 for (Map.Entry<String, String> entry : map.entrySet()) {
                     String key = entry.getKey();

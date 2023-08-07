@@ -324,4 +324,9 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	/** 门幅 */
 	@ApiModelProperty(value = "门幅")
 	private BigDecimal translate;
+
+	/**
+	 * 面料成分下发状态 0未发送,1发送成功，2发送失败,3重新打开
+	 */
+	private String compositionSendStatus;
 }

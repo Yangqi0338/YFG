@@ -29,7 +29,7 @@ import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningChannelVo;
-import com.base.sbc.module.sample.service.SampleDesignService;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -62,7 +62,7 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
     @Autowired
     PlanningCategoryItemService planningCategoryItemService;
     @Autowired
-    SampleDesignService sampleDesignService;
+    StyleService styleService;
     @Autowired
     AmcFeignService amcFeignService;
 
@@ -93,7 +93,7 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
             updateById(planningChannel);
             //修改对应的坑位信息
             planningCategoryItemService.updateByChannelChange(planningChannel);
-            sampleDesignService.updateByChannelChange(planningChannel);
+            styleService.updateByChannelChange(planningChannel);
             return BeanUtil.copyProperties(planningChannel, PlanningChannelVo.class);
         }
     }

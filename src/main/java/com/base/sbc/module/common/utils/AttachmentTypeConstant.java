@@ -12,11 +12,11 @@ package com.base.sbc.module.common.utils;
 public interface AttachmentTypeConstant {
 
     /**
-     * 样衣设计-附件
+     * 款式设计-附件
      */
     String SAMPLE_DESIGN_FILE_ATTACHMENT = "SAMPLE_DESIGN_FILE_ATTACHMENT";
     /**
-     * 样衣设计-款式图
+     * 款式设计-款式图
      */
     String SAMPLE_DESIGN_FILE_STYLE_PIC = "SAMPLE_DESIGN_FILE_STYLE_PIC";
 

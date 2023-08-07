@@ -197,7 +197,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         Map<String, Object> variables = BeanUtil.beanToMap(bomVersion);
         boolean flg = flowableService.start(FlowableService.design_bom_pdn + "[" + bomVersion.getVersion() + "]",
                 FlowableService.design_bom_pdn, id, "/pdm/api/saas/packBom/version/approval",
-                "/pdm/api/saas/packBom/version/approval", "/pdm/api/saas/packBom/version/approval", StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()), variables);
+                "/pdm/api/saas/packBom/version/approval", "/pdm/api/saas/packBom/version/approval", StrUtil.format("/styleManagement/dataPackage?id={}&styleId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()), variables);
         if (flg) {
             bomVersion.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
             updateById(bomVersion);

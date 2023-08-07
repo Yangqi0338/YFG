@@ -5,7 +5,7 @@ package com.base.sbc.client.amc.enums;
  * @Date 2023/7/13 9:07
  */
 public enum DataPermissionsBusinessTypeEnum {
-    SAMPLE_DESIGN("sample_design", "样衣设计")
+    SAMPLE_DESIGN("sample_design", "款式设计")
     ;
     private final String k;
     private final String v;

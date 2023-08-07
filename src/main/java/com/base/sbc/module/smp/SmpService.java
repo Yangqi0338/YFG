@@ -33,14 +33,14 @@ import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.Sample;
-import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleStyleColor;
-import com.base.sbc.module.sample.service.SampleDesignService;
 import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.sample.service.SampleStyleColorService;
-import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
@@ -94,7 +94,7 @@ public class SmpService {
 
     private final BasicsdatumSizeService basicsdatumSizeService;
 
-    private final SampleDesignService sampleDesignService;
+    private final StyleService styleService;
 
     private final CcmFeignService ccmFeignService;
 
@@ -135,7 +135,7 @@ public class SmpService {
         for (SampleStyleColor sampleStyleColor : sampleStyleColors) {
             SmpGoodsDto smpGoodsDto = sampleStyleColor.toSmpGoodsDto();
 
-            SampleDesignVo sampleDesign = sampleDesignService.getDetail(sampleStyleColor.getSampleDesignId());
+            StyleVo sampleDesign = styleService.getDetail(sampleStyleColor.getStyleId());
             smpGoodsDto.setMaxClassName(sampleDesign.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(sampleDesign.getProdCategory1st());
             smpGoodsDto.setCategoryName(sampleDesign.getProdCategoryName());
@@ -213,7 +213,7 @@ public class SmpService {
                         smpGoodsDto.setLengthRangeName(m.getValName());
                     }
                     if ("衣长".equals(m.getFieldName())){
-                        smpGoodsDto.setCoatLength(m.getVal());
+                        smpGoodsDto.setCoatLength(m.getValName());
                     }
                     if ("腰型".equals(m.getFieldName())){
                         smpGoodsDto.setWaistTypeId(m.getVal());
@@ -514,8 +514,8 @@ public class SmpService {
             //bom主表
             PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
 
-            SampleDesign sampleDesign = sampleDesignService.getOne(new QueryWrapper<SampleDesign>().eq("id", packInfo.getForeignId()));
-            StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
+            Style style = styleService.getOne(new QueryWrapper<Style>().eq("id", packInfo.getForeignId()));
+            StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
             smpBomDto.setBomStage(stylePricingVO.getBomStage());
             //样衣-款式配色
             SampleStyleColor sampleStyleColor = sampleStyleColorService.getById(packInfo.getSampleStyleColorId());
@@ -635,33 +635,33 @@ public class SmpService {
         int i = 0;
 
         for (Sample sample : sampleService.listByIds(Arrays.asList(ids))) {
-            SampleDesign sampleDesign = sampleDesignService.getOne(new QueryWrapper<SampleDesign>().eq("design_no", sample.getDesignNo()));
+            Style style = styleService.getOne(new QueryWrapper<Style>().eq("design_no", sample.getDesignNo()));
 
-            for (PatternMaking patternMaking : patternMakingService.list(new QueryWrapper<PatternMaking>().eq("sample_design_id", sampleDesign.getId()))) {
+            for (PatternMaking patternMaking : patternMakingService.list(new QueryWrapper<PatternMaking>().eq("style_id", style.getId()))) {
                 SmpSampleDto smpSampleDto = sample.toSmpSampleDto();
 
                 //取跟款设计师，如果跟款设计师不存在就取设计师
-                smpSampleDto.setProofingDesigner(sampleDesign.getMerchDesignName() == null ? sampleDesign.getDesigner() : sampleDesign.getMerchDesignName());
-                smpSampleDto.setPatDiff(sampleDesign.getPatDiff());
+                smpSampleDto.setProofingDesigner(style.getMerchDesignName() == null ? style.getDesigner() : style.getMerchDesignName());
+                smpSampleDto.setPatDiff(style.getPatDiff());
 
-                smpSampleDto.setColorwayCode(sampleDesign.getStyleNo());
-                smpSampleDto.setColorwayPlmId(sampleDesign.getStyleNo());
-                smpSampleDto.setSampleStatus(sampleDesign.getStatus());
-                smpSampleDto.setSampleStatusName("0".equals(sampleDesign.getStatus()) ? "未开款" : "1".equals(sampleDesign.getStatus()) ? "已开款" : "已下发打板(完成)");
-                smpSampleDto.setBrandCode(sampleDesign.getBrand());
-                String designerId = sampleDesign.getDesignerId();
-                String technicianId = sampleDesign.getTechnicianId();
-                String patternDesignId = sampleDesign.getPatternDesignId();
-                smpSampleDto.setYear(sampleDesign.getYear());
-                smpSampleDto.setDesigner(sampleDesign.getDesigner());
-                smpSampleDto.setTechnician(sampleDesign.getTechnicianName());
-                smpSampleDto.setStyleUrl(sampleDesign.getStylePic());
-                smpSampleDto.setBrandName(sampleDesign.getBrandName());
+                smpSampleDto.setColorwayCode(style.getStyleNo());
+                smpSampleDto.setColorwayPlmId(style.getStyleNo());
+                smpSampleDto.setSampleStatus(style.getStatus());
+                smpSampleDto.setSampleStatusName("0".equals(style.getStatus()) ? "未开款" : "1".equals(style.getStatus()) ? "已开款" : "已下发打板(完成)");
+                smpSampleDto.setBrandCode(style.getBrand());
+                String designerId = style.getDesignerId();
+                String technicianId = style.getTechnicianId();
+                String patternDesignId = style.getPatternDesignId();
+                smpSampleDto.setYear(style.getYear());
+                smpSampleDto.setDesigner(style.getDesigner());
+                smpSampleDto.setTechnician(style.getTechnicianName());
+                smpSampleDto.setStyleUrl(style.getStylePic());
+                smpSampleDto.setBrandName(style.getBrandName());
 
-                smpSampleDto.setNodeName(sampleDesign.getStyleName());
+                smpSampleDto.setNodeName(style.getStyleName());
 
 
-                String merchDesignId = sampleDesign.getMerchDesignId();
+                String merchDesignId = style.getMerchDesignId();
                 if (merchDesignId == null) {
                     merchDesignId = designerId;
                 }
@@ -711,25 +711,31 @@ public class SmpService {
             fabricCompositionDto.setName(basicsdatumMaterial.getMaterialName());
             fabricCompositionDto.setMaterialCode(basicsdatumMaterial.getMaterialCode());
             fabricCompositionDto.setId(fabricCompositionDto.getId());
-            String[] split = basicsdatumMaterial.getIngredient().split(", ");
-            List<String> list = new ArrayList<>();
-            try {
-                for (String s : split) {
-                    String[] split1 = s.split(" ");
-                    list.add(split1[1]);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            fabricCompositionDto.setIngredient(String.join(",", list));
+            fabricCompositionDto.setIngredient(basicsdatumMaterial.getIngredient());
+            //String[] split = basicsdatumMaterial.getIngredient().split(",");
+            //List<String> list = new ArrayList<>();
+            //try {
+            //    for (String s : split) {
+            //        String[] split1 = s.split(" ");
+            //        list.add(split1[1]);
+            //    }
+            //} catch (Exception e) {
+            //    e.printStackTrace();
+            //    throw new RuntimeException("面料成分为空或者错误");
+            //}
+            //
+            //fabricCompositionDto.setIngredient(String.join(",", list));
 
 
             HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElement", fabricCompositionDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, fabricCompositionDto, "scm", "面料成分名称码表下发");
             if (aBoolean) {
                 i++;
+                basicsdatumMaterial.setCompositionSendStatus("1");
+            }else {
+                basicsdatumMaterial.setCompositionSendStatus("2");
             }
+            basicsdatumMaterialService.updateById(basicsdatumMaterial);
         }
         return i;
     }

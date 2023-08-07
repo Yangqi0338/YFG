@@ -91,7 +91,7 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
                 "/pdm/api/saas/packTechSpec/approval",
                 "/pdm/api/saas/packTechSpec/approval",
                 "/pdm/api/saas/packTechSpec/approval",
-                StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()),
+                StrUtil.format("/styleManagement/dataPackage?id={}&styleId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()),
                 variables);
         return true;
     }
@@ -168,7 +168,7 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
                 "/pdm/api/saas/packSize/approval",
                 "/pdm/api/saas/packSize/approval",
                 "/pdm/api/saas/packSize/approval",
-                StrUtil.format("/styleManagement/dataPackage?id={}&sampleDesignId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()),
+                StrUtil.format("/styleManagement/dataPackage?id={}&styleId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()),
                 variables);
         return true;
     }

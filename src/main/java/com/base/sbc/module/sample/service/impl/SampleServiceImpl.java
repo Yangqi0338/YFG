@@ -23,12 +23,10 @@ import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
 import com.base.sbc.module.sample.dto.SampleSearchDTO;
 import com.base.sbc.module.sample.entity.Sample;
-import com.base.sbc.module.sample.entity.SampleDesign;
 import com.base.sbc.module.sample.entity.SampleItem;
 import com.base.sbc.module.sample.enums.SampleFromTypeEnum;
 import com.base.sbc.module.sample.enums.SampleItemStatusEnum;
 import com.base.sbc.module.sample.enums.SampleTypeEnum;
-import com.base.sbc.module.sample.mapper.SampleDesignMapper;
 import com.base.sbc.module.sample.mapper.SampleMapper;
 import com.base.sbc.module.sample.service.SampleItemLogService;
 import com.base.sbc.module.sample.service.SampleItemService;
@@ -36,6 +34,8 @@ import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.sample.vo.SampleItemVO;
 import com.base.sbc.module.sample.vo.SamplePageByDesignNoVo;
 import com.base.sbc.module.sample.vo.SampleVo;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.mapper.StyleMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -47,7 +47,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -63,7 +66,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
     @Autowired
     PatternMakingMapper patternMakingMapper;
     @Autowired
-    SampleDesignMapper sampleDesignMapper;
+    StyleMapper styleMapper;
     @Autowired
     SampleItemService sampleItemService;
     @Autowired
@@ -77,8 +80,8 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
 
         // 获取制版单
         PatternMaking pm = patternMakingMapper.selectById(dto.getPatternMakingId());
-        // 获取样衣设计
-        SampleDesign sd = sampleDesignMapper.selectById(pm.getSampleDesignId());
+        // 获取款式设计
+        Style sd = styleMapper.selectById(pm.getStyleId());
         if (pm != null && sd != null) {
             Sample sample = CopyUtil.copy(dto, Sample.class);
 
@@ -94,7 +97,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
             sample.setSampleType(pm.getSampleType());
             sample.setStyleName(sd.getStyleName());
             sample.setDesignNo(sd.getDesignNo());
-            sample.setSampleDesignId(pm.getSampleDesignId());
+            sample.setStyleId(pm.getStyleId());
             sample.setProdCategory(sd.getProdCategory());
             sample.setProdCategory1st(sd.getProdCategory1st());
             sample.setProdCategory2nd(sd.getProdCategory2nd());

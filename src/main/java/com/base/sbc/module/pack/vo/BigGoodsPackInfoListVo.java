@@ -25,7 +25,7 @@ public class BigGoodsPackInfoListVo extends PackInfoStatusVo {
     private String id;
 
     @JsonIgnore
-    @ApiModelProperty(value = "主数据id(样衣设计id)")
+    @ApiModelProperty(value = "主数据id(款式设计id)")
     private String foreignId;
 
     @ApiModelProperty(value = "设计款号")
@@ -63,7 +63,7 @@ public class BigGoodsPackInfoListVo extends PackInfoStatusVo {
         return designNo + styleName;
     }
 
-    public String getSampleDesignId() {
+    public String getStyleId() {
         return foreignId;
     }
 

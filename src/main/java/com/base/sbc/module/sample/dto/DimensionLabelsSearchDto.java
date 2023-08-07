@@ -16,11 +16,11 @@ import org.hibernate.validator.constraints.NotBlank;
  * @date 创建时间：2023-05-09 15:43
  */
 @Data
-@ApiModel("样衣设计维度信息查询条件dto   DimensionLabelsSearchDto")
+@ApiModel("款式设计维度信息查询条件dto   DimensionLabelsSearchDto")
 public class DimensionLabelsSearchDto {
 
-    @ApiModelProperty(value = "样衣设计id", example = "0")
-    private String sampleDesignId;
+    @ApiModelProperty(value = "款式设计id", example = "0")
+    private String styleId;
 
     @ApiModelProperty(value = "坑位信息id", example = "0")
     private String planningCategoryItemId;

@@ -60,9 +60,9 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "设计款号")
     private String designNo;
     /**
-     * 状态:0未下发,1已下发到产品季总览,2已下发到样衣设计,-1撤回
+     * 状态:0未下发,1已下发到产品季总览,2已下发到款式设计,-1撤回
      */
-    @ApiModelProperty(value = "状态:0未下发,1已下发到产品季总览,2已下发到样衣设计,-1撤回")
+    @ApiModelProperty(value = "状态:0未下发,1已下发到产品季总览,2已下发到款式设计,-1撤回")
     private String status;
     /**
      * 大类code

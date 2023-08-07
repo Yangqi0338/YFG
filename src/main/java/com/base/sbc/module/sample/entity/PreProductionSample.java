@@ -44,10 +44,10 @@ public class PreProductionSample extends BaseDataEntity<String> {
     @ApiModelProperty(value = "资料包id")
     private String packInfoId;
     /**
-     * 样衣设计id
+     * 款式设计id
      */
-    @ApiModelProperty(value = "样衣设计id")
-    private String sampleDesignId;
+    @ApiModelProperty(value = "款式设计id")
+    private String styleId;
     /**
      * 产品季节id
      */

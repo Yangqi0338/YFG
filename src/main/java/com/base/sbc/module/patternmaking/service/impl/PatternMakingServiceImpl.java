@@ -44,10 +44,10 @@ import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.*;
-import com.base.sbc.module.sample.entity.SampleDesign;
-import com.base.sbc.module.sample.service.SampleDesignService;
-import com.base.sbc.module.sample.vo.SampleDesignVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -73,7 +73,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMapper, PatternMaking> implements PatternMakingService {
     // 自定义方法区 不替换的区域【other_start】
-    private final SampleDesignService sampleDesignService;
+    private final StyleService styleService;
     private final NodeStatusService nodeStatusService;
     private final AttachmentService attachmentService;
     private final AmcFeignService amcFeignService;
@@ -86,9 +86,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
 
     @Override
-    public List<PatternMakingListVo> findBySampleDesignId(String sampleDesignId) {
+    public List<PatternMakingListVo> findBySampleDesignId(String styleId) {
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
-        qw.eq("sample_design_id", sampleDesignId);
+        qw.eq("style_id", styleId);
         qw.eq("m.del_flag", BaseGlobal.NO);
         qw.orderBy(true, true, "create_date");
         List<PatternMakingListVo> patternMakingListVos = getBaseMapper().findBySampleDesignId(qw);
@@ -98,12 +98,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public PatternMaking savePatternMaking(PatternMakingDto dto) {
-        SampleDesign sampleDesign = sampleDesignService.getById(dto.getSampleDesignId());
-        if (sampleDesign == null) {
-            throw new OtherException("样衣设计不存在");
+        Style style = styleService.getById(dto.getStyleId());
+        if (style == null) {
+            throw new OtherException("款式设计不存在");
         }
         QueryWrapper rQw = new QueryWrapper();
-        rQw.eq("sample_design_id", dto.getSampleDesignId());
+        rQw.eq("style_id", dto.getStyleId());
         rQw.eq("del_flag", BaseGlobal.NO);
         //出版样只能有一个
         if (StrUtil.equals("初版样", dto.getSampleType())) {
@@ -121,8 +121,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         //查询样衣
         PatternMaking patternMaking = BeanUtil.copyProperties(dto, PatternMaking.class);
-        patternMaking.setCode(getNextCode(sampleDesign));
-        patternMaking.setPlanningSeasonId(sampleDesign.getPlanningSeasonId());
+        patternMaking.setCode(getNextCode(style));
+        patternMaking.setPlanningSeasonId(style.getPlanningSeasonId());
         if (StrUtil.equals(dto.getTechnicianKitting(), BaseGlobal.YES)) {
             patternMaking.setTechnicianKittingDate(new Date());
         }
@@ -136,7 +136,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         patternMaking.setSuspend(BaseGlobal.NO);
         patternMaking.setReceiveSample(BaseGlobal.NO);
         patternMaking.setExtAuxiliary(BaseGlobal.NO);
-        patternMaking.setPatDiff(Opt.ofBlankAble(patternMaking.getPatDiff()).orElse(sampleDesign.getPatDiff()));
+        patternMaking.setPatDiff(Opt.ofBlankAble(patternMaking.getPatDiff()).orElse(style.getPatDiff()));
         save(patternMaking);
 
         return patternMaking;
@@ -144,7 +144,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public boolean sampleDesignSend(SampleDesignSendDto dto) {
+    public boolean sampleDesignSend(StyleSendDto dto) {
         EnumNodeStatus enumNodeStatus = EnumNodeStatus.DESIGN_SEND;
         EnumNodeStatus enumNodeStatus2 = EnumNodeStatus.TECHNICAL_ROOM_RECEIVED;
         nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
@@ -157,11 +157,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.eq("id", dto.getId());
         setUpdateInfo(uw);
         PatternMaking patternMaking = getById(dto.getId());
-        //将样衣设计状态改为已下发
-        UpdateWrapper<SampleDesign> sdUw = new UpdateWrapper<>();
-        sdUw.eq("id", patternMaking.getSampleDesignId());
+        //将款式设计状态改为已下发
+        UpdateWrapper<Style> sdUw = new UpdateWrapper<>();
+        sdUw.eq("id", patternMaking.getStyleId());
         sdUw.set("status", BasicNumber.TWO.getNumber());
-        sampleDesignService.update(sdUw);
+        styleService.update(sdUw);
         // 修改单据
         return update(uw);
     }
@@ -465,7 +465,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public SampleDesignPmDetailVo getDetailById(String id) {
+    public StylePmDetailVo getDetailById(String id) {
         PatternMaking byId = getById(id);
         if (byId == null) {
             return null;
@@ -474,11 +474,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         PatternMakingVo vo = BeanUtil.copyProperties(byId, PatternMakingVo.class);
         //设置头像
         amcFeignService.setUserAvatarToObj(vo);
-        //查询样衣设计信息
-        SampleDesignVo sampleDesignVo = sampleDesignService.getDetail(vo.getSampleDesignId());
+        //查询款式设计信息
+        StyleVo sampleDesignVo = styleService.getDetail(vo.getStyleId());
         //设置头像
         amcFeignService.setUserAvatarToObj(sampleDesignVo);
-        SampleDesignPmDetailVo result = BeanUtil.copyProperties(sampleDesignVo, SampleDesignPmDetailVo.class);
+        StylePmDetailVo result = BeanUtil.copyProperties(sampleDesignVo, StylePmDetailVo.class);
         result.setPatternMaking(vo);
         // 查询附件，纸样文件
         List<AttachmentVo> attachmentVoList = attachmentService.findByforeignId(vo.getId(), AttachmentTypeConstant.PATTERN_MAKING_PATTERN);
@@ -497,7 +497,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto) {
         // 查询样衣信息
-        QueryWrapper<SampleDesign> sdQw = new QueryWrapper<>();
+        QueryWrapper<Style> sdQw = new QueryWrapper<>();
         sdQw.like(StrUtil.isNotBlank(dto.getSearch()), "design_no", dto.getSearch());
         sdQw.eq(StrUtil.isNotBlank(dto.getSeason()), "season", dto.getSeason());
         sdQw.eq(StrUtil.isNotBlank(dto.getYear()), "year", dto.getYear());
@@ -511,33 +511,33 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             dto.setOrderBy("create_date desc");
         }
         Page page = PageHelper.startPage(dto);
-        List<SampleDesign> sdList = sampleDesignService.list(sdQw);
+        List<Style> sdList = styleService.list(sdQw);
         PageInfo pageInfo = page.toPageInfo();
         if (CollUtil.isEmpty(sdList)) {
             return null;
         }
-        List<SampleDesignStepVo> sampleDesignStepVos = BeanUtil.copyToList(sdList, SampleDesignStepVo.class);
+        List<StyleStepVo> styleStepVos = BeanUtil.copyToList(sdList, StyleStepVo.class);
 //        PageInfo pageInfo = BeanUtil.copyProperties(sdPageInfo, PageInfo.class, "list");
 //        pageInfo.setList(sampleDesignStepVos);
-        pageInfo.setList(sampleDesignStepVos);
-        attachmentService.setListStylePic(sampleDesignStepVos, "stylePic");
+        pageInfo.setList(styleStepVos);
+        attachmentService.setListStylePic(styleStepVos, "stylePic");
         // 查询打版指令
-        List<String> sdIds = sampleDesignStepVos.stream().map(SampleDesignStepVo::getId).collect(Collectors.toList());
+        List<String> sdIds = styleStepVos.stream().map(StyleStepVo::getId).collect(Collectors.toList());
         QueryWrapper<PatternMaking> pmQw = new QueryWrapper<>();
-        pmQw.in("sample_design_id", sdIds);
+        pmQw.in("style_id", sdIds);
         List<PatternMaking> pmList = this.list(pmQw);
         if (CollUtil.isEmpty(pmList)) {
             return pageInfo;
         }
         List<String> pmIds = pmList.stream().map(PatternMaking::getId).collect(Collectors.toList());
-        List<SampleDesignStepVo.PatternMakingStepVo> patternMakingStepVos = BeanUtil.copyToList(pmList, SampleDesignStepVo.PatternMakingStepVo.class);
+        List<StyleStepVo.PatternMakingStepVo> patternMakingStepVos = BeanUtil.copyToList(pmList, StyleStepVo.PatternMakingStepVo.class);
         //查询节点状态
         QueryWrapper<NodeStatus> nsQw = new QueryWrapper<>();
         nsQw.in("data_id", pmIds);
         List<NodeStatus> nsList = nodeStatusService.list(nsQw);
         if (CollUtil.isNotEmpty(nsList)) {
             Map<String, List<NodeStatus>> nsMap = nsList.stream().collect(Collectors.groupingBy(NodeStatus::getDataId));
-            for (SampleDesignStepVo.PatternMakingStepVo patternMakingStepVo : patternMakingStepVos) {
+            for (StyleStepVo.PatternMakingStepVo patternMakingStepVo : patternMakingStepVos) {
                 Map<String, NodeStatus> stringNodeStatusMap = Optional.ofNullable(nsMap.get(patternMakingStepVo.getId())).map(item -> {
                     return item.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> {
                         if (DateUtil.compare(b.getStartDate(), a.getStartDate()) > 0) {
@@ -549,9 +549,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 patternMakingStepVo.setNodeStatus(stringNodeStatusMap);
             }
         }
-        LinkedHashMap<String, List<SampleDesignStepVo.PatternMakingStepVo>> pmStepMap = patternMakingStepVos.stream().collect(Collectors.groupingBy(k -> k.getSampleDesignId(), LinkedHashMap::new, Collectors.toList()));
-        for (SampleDesignStepVo sampleDesignStepVo : sampleDesignStepVos) {
-            sampleDesignStepVo.setPatternMakingSteps(pmStepMap.get(sampleDesignStepVo.getId()));
+        LinkedHashMap<String, List<StyleStepVo.PatternMakingStepVo>> pmStepMap = patternMakingStepVos.stream().collect(Collectors.groupingBy(k -> k.getStyleId(), LinkedHashMap::new, Collectors.toList()));
+        for (StyleStepVo styleStepVo : styleStepVos) {
+            styleStepVo.setPatternMakingSteps(pmStepMap.get(styleStepVo.getId()));
         }
 
         return pageInfo;
@@ -686,11 +686,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
 
-
-    public String getNextCode(SampleDesign sampleDesign) {
-        String designNo = sampleDesign.getDesignNo();
+    public String getNextCode(Style style) {
+        String designNo = style.getDesignNo();
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
-        qw.eq("sample_design_id", sampleDesign.getId());
+        qw.eq("style_id", style.getId());
         long count = count(qw);
         String code = StrUtil.padPre(String.valueOf(count + 1), 3, "0");
         return designNo + StrUtil.DASHED + code;

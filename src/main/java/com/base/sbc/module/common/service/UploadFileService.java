@@ -6,11 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.common.service;
 
+import com.base.sbc.module.common.dto.UploadStylePicDto;
 import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.BufferedImage;
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -64,6 +66,12 @@ public interface UploadFileService extends BaseService<UploadFile> {
     String getUrlById(String id);
 
     boolean delByUrl(String url);
+
+    /**
+     * 上传款式图
+     * @return
+     */
+    Boolean uploadStyleImage(UploadStylePicDto uploadStylePicDto, Principal user) throws Exception;
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
