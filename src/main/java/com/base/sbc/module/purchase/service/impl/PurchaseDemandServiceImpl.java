@@ -305,6 +305,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 detail.setDesignStyleCode(demandInfo.getDesignStyleCode());
                 detail.setPlateBillCode(demandInfo.getPlateBillCode());
                 detail.setMaterialSpecifications(demandInfo.getMaterialSpecifications());
+                detail.setDeliveryDate(deliveryDate);
 
                 detail.setSupplierColor(demandInfo.getSupplierColor());
                 detail.setPurchaseUnit(demandInfo.getUnit());
