@@ -151,6 +151,7 @@ public class OpenSmpController extends BaseController {
     /**
      * 面料成分检测数据接口
      */
+    @Transactional(rollbackFor = Exception.class)
     @PostMapping("/escmMaterialCompnentInspectCompany")
     public ApiResult EscmMaterialCompnentInspectCompanyDto(@RequestBody JSONObject jsonObject){
         EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = jsonObject.toJavaObject(EscmMaterialCompnentInspectCompanyDto.class);
@@ -163,7 +164,7 @@ public class OpenSmpController extends BaseController {
             basicsdatumMaterialIngredient.setMaterialCode(escmMaterialCompnentInspectCompanyDto.getMaterialsNo());
             basicsdatumMaterialIngredient.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
             basicsdatumMaterialIngredient.setSay(escmMaterialCompnentInspectContent.getRemark());
-            basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Long.parseLong(escmMaterialCompnentInspectContent.getContentProportion())));
+            basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Float.parseFloat(escmMaterialCompnentInspectContent.getContentProportion())));
             basicsdatumMaterialIngredient.setType("0");
             basicsdatumMaterialIngredient.setName(escmMaterialCompnentInspectContent.getInspectContent());
             basicsdatumMaterialIngredientService.save(basicsdatumMaterialIngredient);
