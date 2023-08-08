@@ -248,6 +248,12 @@ public class SmpOpenMaterialDto {
         basicsdatumMaterial.setCategoryId(ProductTypeID);
         basicsdatumMaterial.setMaterialCodeName(Code+MaterialName);
         basicsdatumMaterial.setCategoryName(ProductType);
+        basicsdatumMaterial.setIngredientSay(c8MaterialAttrCompositionComment);
+        basicsdatumMaterial.setProcessRequire(finishl);
+        basicsdatumMaterial.setAuxiliaryMaterial(width);
+        basicsdatumMaterial.setCheckResult(c8MaterialAttrIspectionStatus);
+        basicsdatumMaterial.setSpecification(c8MaterialAttrSaoriSpecifications);
+        basicsdatumMaterial.setDensity(c8MaterialAttrDensity);
 //        basicsdatumMaterial.setCategoryIds(ProductTypeID+","+C8_Material_2ndCategory+","+C8_Material_3rdCategory);
         basicsdatumMaterial.setYear(C8_Season_Year);
         //basicsdatumMaterial.setCategory1Code(ProductTypeID);
