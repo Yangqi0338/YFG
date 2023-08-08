@@ -93,7 +93,7 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
         List<PurchaseOrderDetail> purchaseOrderDetailList = purchaseOrder.getPurchaseOrderDetailList();
         for(PurchaseOrderDetail detail : purchaseOrderDetailList){
             detail.setId(idGen.nextIdStr());
-            detail.setPurchaseOrderId(purchaseOrder.getPurchaserId());
+            detail.setPurchaseOrderId(purchaseOrder.getId());
         }
 
         boolean result = updateById(purchaseOrder);
