@@ -63,6 +63,20 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
             }
         }
         queryWrapper.eq("tfbi.company_code",baseController.getUserCompany());
+        queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getYearName()),"tfbi.year_name",queryFabricInformationDto.getYearName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getSeasonName()),"tfbi.season_name",queryFabricInformationDto.getSeasonName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getBrandName()),"tfbi.brand_name",queryFabricInformationDto.getBrandName());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricInformationDto.getSupplierMaterialCode()),"tfbi.supplier_material_code",queryFabricInformationDto.getSupplierMaterialCode());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricInformationDto.getSupplierName()),"tfbi.supplier_name",queryFabricInformationDto.getSupplierName());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricInformationDto.getSupplierColor()),"tfbi.supplier_color",queryFabricInformationDto.getSupplierColor());
+
+        if(StringUtils.isNotBlank(queryFabricInformationDto.getSearch())){
+            queryWrapper.apply("( tfbi.supplier_material_code like concat('%','"+queryFabricInformationDto.getSearch()+"','%') " +
+                    " or  tfbi.supplier_name like concat('%','"+queryFabricInformationDto.getSearch()+"','%')" +
+                    " or  tfdi.supplier_factory_ingredient like concat('%','"+queryFabricInformationDto.getSearch()+"','%')" +
+                    " or  tfdi.translate like concat('%','"+queryFabricInformationDto.getSearch()+"','%'))");
+        }
+
         queryWrapper.orderByAsc("tfbi.create_date");
         List<FabricInformationVo> list = baseMapper.getFabricInformationList(queryWrapper);
         return new PageInfo<>(list);

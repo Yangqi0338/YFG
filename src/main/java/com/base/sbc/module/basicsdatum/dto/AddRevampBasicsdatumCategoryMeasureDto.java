@@ -7,12 +7,9 @@
 package com.base.sbc.module.basicsdatum.dto;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.util.List;
 
 /**
  * 类描述：新增修改基础资料-品类测量组 dto类

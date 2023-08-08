@@ -31,7 +31,5 @@ public interface BasicsdatumModelTypeMapper extends BaseMapper<BasicsdatumModelT
 
     String getNameById(@Param("id") String id);
 
-   List<BasicsdatumModelTypeVo> getBasicsdatumModelTypeList(@Param(Constants.WRAPPER) BaseQueryWrapper qw,@Param("categoryList") List<String> categoryList);
-
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

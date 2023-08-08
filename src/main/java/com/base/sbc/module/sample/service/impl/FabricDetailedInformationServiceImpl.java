@@ -38,10 +38,10 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Service
 public class FabricDetailedInformationServiceImpl extends BaseServiceImpl<FabricDetailedInformationMapper, FabricDetailedInformation> implements FabricDetailedInformationService {
-    @Autowired
-    private FabricBasicInformationMapper fabricBasicInformationMapper;
+
     @Autowired
     private BaseController baseController;
+
     @Autowired
     private FilesUtils filesUtils;
 

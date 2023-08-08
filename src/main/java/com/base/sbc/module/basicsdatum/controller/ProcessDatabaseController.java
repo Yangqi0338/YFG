@@ -1,17 +1,12 @@
 package com.base.sbc.module.basicsdatum.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.OperationType;
-import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampProcessDatabaseDto;
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
 import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumCompanyRelationService;
 import com.base.sbc.module.basicsdatum.service.ProcessDatabaseService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.github.pagehelper.PageInfo;
@@ -19,9 +14,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
