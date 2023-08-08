@@ -51,7 +51,7 @@ import java.util.List;
 @Api(tags = "资料包-物料清单")
 @RequestMapping(value = BaseController.SAAS_URL + "/packBom", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class PackBomController {
+public class PackBomController extends BaseController{
 
     @Autowired
     private PackBomService packBomService;
@@ -147,13 +147,14 @@ public class PackBomController {
     @PostMapping("/fabricSummaryList")
     @ApiOperation(value = "面料汇总列表")
     public ApiResult fabricSummaryList(@RequestBody FabricSummaryDTO fabricSummaryDTO) {
+        fabricSummaryDTO.setCompanyCode(super.getUserCompany());
         return ApiResult.success("查询成功", packBomService.fabricSummaryList(fabricSummaryDTO));
     }
 
     @GetMapping("/querySampleDesignInfoByMaterialId")
     @ApiOperation(value = "查询物料被那些样衣应用")
     public ApiResult querySampleDesignInfoByMaterialId(@NotNull @RequestParam("materialId") String materialId) {
-        return ApiResult.success("查询成功", packBomService.querySampleDesignInfoByMaterialId(materialId));
+        return ApiResult.success("查询成功", packBomService.querySampleDesignInfoByMaterialId(materialId, super.getUserCompany()));
     }
 
     @GetMapping("/moveUp")

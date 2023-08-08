@@ -77,11 +77,10 @@
         WHERE
         pb.pack_type = 'packDesign'
         AND pb.del_flag = '0'
-        GROUP BY
-        pb.material_code
         ) bid ON cbgcd.design_no = bid.design_no_two
         WHERE
-        bid.material_code IS NOT NULL
+            pb.company_code = #{companyCode}
+            AND bid.material_code IS NOT NULL
         <if test="null != search and '' != search">
             AND (bid.material_code LIKE  concat('%',#{search},'%') OR bid.material_name LIKE  concat('%',#{search},'%'))
         </if>
@@ -136,7 +135,7 @@
                             WHERE pb.pack_type = 'packDesign'
                               AND pb.del_flag = '0'
                             GROUP BY pb.material_code) AS bmid ON bmid.design_no_two = sd.design_no
-        WHERE ssc.del_flag = '0'
+        WHERE ssc.del_flag = '0' AND ssc.company_code = #{companyCode}
           AND bmid.material_id = #{materialId}
     </select>
 
