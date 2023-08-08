@@ -41,7 +41,7 @@
         AND t2.del_flag = '0'
         WHERE
         bc.del_flag = '0'
-        AND b.meet_flag = '1'
+        AND b.meet_flag = '1'  AND bc.company_code = #{companyCode} AND b.company_code = #{companyCode}
         ) cbgcd
         LEFT JOIN (
         SELECT
@@ -76,11 +76,11 @@
         AND sd.del_flag = '0'
         WHERE
         pb.pack_type = 'packDesign'
+        AND pb.company_code = #{companyCode}
         AND pb.del_flag = '0'
         ) bid ON cbgcd.design_no = bid.design_no_two
         WHERE
-            pb.company_code = #{companyCode}
-            AND bid.material_code IS NOT NULL
+             bid.material_code IS NOT NULL
         <if test="null != search and '' != search">
             AND (bid.material_code LIKE  concat('%',#{search},'%') OR bid.material_name LIKE  concat('%',#{search},'%'))
         </if>
