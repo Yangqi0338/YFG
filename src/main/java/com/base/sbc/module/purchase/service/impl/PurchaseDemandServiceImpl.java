@@ -44,10 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -216,12 +213,21 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
 
         //仓库信息
         MaterialWarehouse materialWarehouse = warehouseService.getById(purchaseDemandList.get(0).getWarehouseId());
+        String purchaserId = purchaseDemandList.get(0).getPurchaserId();
+        String purchaserName = purchaseDemandList.get(0).getPurchaserName();
+        Date deliveryDate = purchaseDemandList.get(0).getDeliveryDate();
+
+        List<String> idList = purchaseDemandList.stream().map(PurchaseDemand::getId).collect(Collectors.toList());
+
+        QueryWrapper<PurchaseDemand> qw = new QueryWrapper<>();
+        qw.in("id", idList);
+        List<PurchaseDemand> purchaseDemandListPlus = list(qw);
 
         List<String> supplierIdList = new ArrayList<>();
         List<String> materialCodeList = new ArrayList<>();
         //根据供应商分组
         Map<String, List<PurchaseDemand>> supplierDemandMap = new HashMap<>();
-        for(PurchaseDemand demand : purchaseDemandList){
+        for(PurchaseDemand demand : purchaseDemandListPlus){
             List<PurchaseDemand> list = supplierDemandMap.get(demand.getSupplierId());
             if(CollectionUtil.isEmpty(list)){
                 list = new ArrayList<>();
@@ -273,8 +279,8 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             purchaseOrder.setSupplierPhone(supplier.getTelephone());
             purchaseOrder.setSupplierAddress(supplier.getAddress());
 
-            purchaseOrder.setPurchaserId(demand.getPurchaserId());
-            purchaseOrder.setPurchaserName(demand.getPurchaserName());
+            purchaseOrder.setPurchaserId(purchaserId);
+            purchaseOrder.setPurchaserName(purchaserName);
 
             purchaseOrder.setWarehouseId(materialWarehouse.getId());
             purchaseOrder.setWarehouseName(materialWarehouse.getWarehouseName());
@@ -282,7 +288,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             purchaseOrder.setWarehousePhone(materialWarehouse.getPhone());
             purchaseOrder.setWarehouseAddress(materialWarehouse.getAddress());
 
-            purchaseOrder.setDeliveryDate(demand.getDeliveryDate());
+            purchaseOrder.setDeliveryDate(deliveryDate);
 
             BigDecimal total = BigDecimal.ZERO;
             BigDecimal totalAmount = BigDecimal.ZERO;
