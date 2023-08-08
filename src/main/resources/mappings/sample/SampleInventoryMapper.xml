@@ -6,7 +6,7 @@
         SELECT si2.id, si2.`code`, si2.inventory_status, si2.examine_status, si2.`name`,
            si2.operate_name, si2.operate_id, si2.start_date, si2.end_date, si2.create_date,
            si2.create_id, si2.create_name, si2.update_id, si2.update_date, si2.update_name,
-           si2.examine_reason, si2.remarks
+           si2.examine_reason, si2.remarks,si2.status
         FROM t_sample_inventory si2
         <where>
             si2.company_code = #{dto.companyCode}
