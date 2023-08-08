@@ -3,15 +3,15 @@
 <mapper namespace="com.base.sbc.module.style.mapper.StyleColorMapper">
     <update id="reviseAllStyleNo">
 
-      update  t_sample_style_group
+      update  t_style_group
       set  style_no = #{nweStyleNo}
       where style_no = #{styleNo} ;
 
-      update  t_sample_style_group_color
+      update  t_style_group_color
       set  style_no = #{nweStyleNo}
       where style_no = #{styleNo} ;
 
-      update  t_sample_style_order_book_color
+      update  t_style_order_book_color
       set  style_no = #{nweStyleNo}
       where style_no = #{styleNo} ;
 
@@ -50,8 +50,8 @@
         ssc.*
         FROM t_style_color ssc
         LEFT JOIN t_style sd on ssc.style_id = sd.id
-        LEFT JOIN t_sample_style_order_book_color sobc on ssc.style_no = sobc.style_no
-        LEFT JOIN t_sample_style_order_book sob on sob.order_book_code =sobc.order_book_code
+        LEFT JOIN t_style_order_book_color sobc on ssc.style_no = sobc.style_no
+        LEFT JOIN t_style_order_book sob on sob.order_book_code =sobc.order_book_code
         <if test="meetFlag != null and meetFlag != ''">
             and sob.meet_flag &lt;&gt; #{meetFlag}
         </if>

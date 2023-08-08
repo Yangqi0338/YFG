@@ -19,9 +19,9 @@ import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
-import com.base.sbc.module.sample.vo.ChartBarVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.vo.ChartBarVo;
 import com.github.pagehelper.PageInfo;
 import org.springframework.transaction.annotation.Transactional;
 

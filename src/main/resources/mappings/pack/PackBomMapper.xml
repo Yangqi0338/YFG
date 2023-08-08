@@ -31,9 +31,9 @@
         b.meet_flag,
         b.lock_flag
         FROM
-        t_sample_style_order_book_color bc
-        LEFT JOIN t_sample_style_order_book b ON bc.order_book_code = b.order_book_code
-        LEFT JOIN t_sample_style_group sg ON bc.style_no = sg.style_no
+        t_style_order_book_color bc
+        LEFT JOIN t_style_order_book b ON bc.order_book_code = b.order_book_code
+        LEFT JOIN t_style_group sg ON bc.style_no = sg.style_no
         AND sg.del_flag = '0'
         LEFT JOIN t_style_color t1 ON bc.style_no = t1.style_no
         AND t1.del_flag = '0'

@@ -67,7 +67,7 @@
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
     </select>
-    <select id="categorySummary" resultType="com.base.sbc.module.sample.vo.ChartBarVo">
+    <select id="categorySummary" resultType="com.base.sbc.module.style.vo.ChartBarVo">
         SELECT
         ci.band_name as dimension ,
         count(1) as total

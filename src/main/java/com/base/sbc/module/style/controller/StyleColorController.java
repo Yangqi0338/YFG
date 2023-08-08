@@ -6,26 +6,38 @@
 *****************************************************************************/
 package com.base.sbc.module.style.controller;
 
-import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.sample.dto.*;
-import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
-import com.base.sbc.module.style.entity.StyleColor;
+import java.security.Principal;
+import java.util.List;
 
-import com.base.sbc.module.style.vo.StyleColorVo;
-import com.base.sbc.module.style.service.StyleColorService;
-import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import javax.validation.Valid;
+
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-import java.security.Principal;
-import java.util.List;
+import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
+import com.base.sbc.module.style.dto.QueryStyleColorDto;
+import com.base.sbc.module.style.dto.RelevanceBomDto;
+import com.base.sbc.module.style.dto.UpdateStyleNoBandDto;
+import com.base.sbc.module.style.dto.UpdateTagPriceDto;
+import com.base.sbc.module.style.dto.VerificationDto;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.vo.StyleColorVo;
+import com.github.pagehelper.PageInfo;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 /**
 * 类描述：款式-款式配色 Controller类
@@ -46,7 +58,7 @@ public class StyleColorController {
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getSampleStyleColorList")
-	public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QuerySampleStyleColorDto querySampleStyleColorDto) {
+	public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto querySampleStyleColorDto) {
 		return  styleColorService.getSampleStyleColorList(user,querySampleStyleColorDto);
 	}
 
@@ -64,7 +76,7 @@ public class StyleColorController {
 
 	@ApiOperation(value = "大货款号查询-款式配色")
 	@GetMapping("/getByStyleNo")
-	public List<StyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto) {
+	public List<StyleColorVo> getByStyleNo(QueryStyleColorDto querySampleStyleColorDto) {
 		return styleColorService.getByStyleNo(querySampleStyleColorDto);
 	}
 
@@ -111,7 +123,7 @@ public class StyleColorController {
 
 	@ApiOperation(value = "下发-款式配色")
 	@PostMapping("/issueScm")
-	public Boolean issueScm(@Valid @RequestBody QuerySampleStyleColorDto querySampleStyleColorDto) {
+	public Boolean issueScm(@Valid @RequestBody QueryStyleColorDto querySampleStyleColorDto) {
 		return styleColorService.issueScm(querySampleStyleColorDto.getIds());
 	}
 
