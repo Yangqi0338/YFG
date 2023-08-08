@@ -37,5 +37,8 @@ public class FabricSummaryDTO  extends Page {
     @ApiModelProperty(value = "月份")
     private String month;
 
+    @ApiModelProperty(value = "企业编码")
+    private String companyCode;
+
 
 }
