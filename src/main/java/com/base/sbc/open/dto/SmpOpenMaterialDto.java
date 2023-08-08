@@ -18,6 +18,35 @@ import lombok.Data;
 @Data
 public class SmpOpenMaterialDto {
     /**
+     * 材料成分备注
+     */
+    private String c8MaterialAttrCompositionComment;
+    /**
+     * 工艺要求
+     */
+    private String finishl;
+    /**
+     * 辅料材质
+     */
+    private String width;
+    /**
+     * 号型类型
+     */
+    private String actualSizeRange;
+    /**
+     * 质检结果
+     */
+    private String c8MaterialAttrIspectionStatus;
+    /**
+     * 纱织规格
+     */
+    private String c8MaterialAttrSaoriSpecifications;
+    /**
+     * 密度
+     */
+    private String c8MaterialAttrDensity;
+
+    /**
      * 材料编号
      */
     private String Code;
