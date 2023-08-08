@@ -100,15 +100,15 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     @Override
     public ApiResult getFormDemand(QueryDemandDto queryDemandDimensionalityDto) {
         Map<String, List> map = new HashMap<>();
+        /*查询表单的数据*/
         QueryWrapper<FormType> formTypeQueryWrapper = new QueryWrapper<>();
-        formTypeQueryWrapper.eq("name", queryDemandDimensionalityDto.getFormName());
+        formTypeQueryWrapper.eq("code", queryDemandDimensionalityDto.getFormCode());
         List<FormType> formTypeList = formTypeMapper.selectList(formTypeQueryWrapper);
         if (CollectionUtils.isEmpty(formTypeList)) {
             throw new OtherException("获取表单失败");
         }
         QueryWrapper<FieldManagement> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("form_type_id", formTypeList.get(0).getId());
-        queryWrapper.groupBy("group_name");
         /*配置的字段*/
         List<FieldManagement> fieldManagementList = fieldManagementMapper.selectList(queryWrapper);
         map.put("fieldManagement", fieldManagementList);
@@ -118,7 +118,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         List<PlanningDemand> planningDemandList = baseMapper.selectList(queryWrapper1);
         List<String> stringList = planningDemandList.stream().map(PlanningDemand::getDemandName).collect(Collectors.toList());
         //交集
-        List<FieldManagement> fieldManagementList2 = fieldManagementList.stream().filter(f -> stringList.contains(f.getGroupName())).collect(Collectors.toList());
+        List<FieldManagement> fieldManagementList2 = fieldManagementList.stream().filter(f -> stringList.contains(f.getFieldName())).collect(Collectors.toList());
 
         map.put("demandDimensionality", fieldManagementList2);
         return ApiResult.success("查询成功", map);

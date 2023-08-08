@@ -19,6 +19,6 @@ public class QueryDemandDto {
     private String categoryId;
 
 
-    @ApiModelProperty(value = "表单名" ,required = false,example = "122222")
-    private String formName;
+    @ApiModelProperty(value = "表单编码" ,required = false,example = "122222")
+    private String formCode;
 }
