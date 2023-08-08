@@ -271,6 +271,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             purchaseOrder.setSupplierName(supplier.getSupplier());
             purchaseOrder.setSupplierContacts(supplier.getContact());
             purchaseOrder.setSupplierPhone(supplier.getTelephone());
+            purchaseOrder.setSupplierAddress(supplier.getAddress());
 
             purchaseOrder.setPurchaserId(demand.getPurchaserId());
             purchaseOrder.setPurchaserName(demand.getPurchaserName());
@@ -343,6 +344,10 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             if(StringUtils.isNotBlank(detail.getDemandId())){
                 idList.add(detail.getDemandId());
             }
+        }
+
+        if(CollectionUtil.isEmpty(idList)){
+            return;
         }
 
         QueryWrapper<PurchaseDemand> qw = new QueryWrapper<>();

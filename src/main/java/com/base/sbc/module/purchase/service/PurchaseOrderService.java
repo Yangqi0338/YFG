@@ -5,6 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.purchase.service;
+
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.module.common.service.BaseService;
@@ -24,6 +25,7 @@ public interface PurchaseOrderService extends BaseService<PurchaseOrder>{
     ApiResult addPurchaseOrder(UserCompany userCompany, String companyCode,PurchaseOrder purchaseOrder);
 
     ApiResult updatePurchaseOrder(UserCompany userCompany, String companyCode,PurchaseOrder purchaseOrder);
+    ApiResult cancel(String companyCode, String ids) ;
 // 自定义方法区 不替换的区域【other_end】
 
 	
