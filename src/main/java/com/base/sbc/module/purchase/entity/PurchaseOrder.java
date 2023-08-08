@@ -93,7 +93,7 @@ public class PurchaseOrder extends BaseDataEntity<String> {
     private String warehouseAddress;
     /** 采购日期 */
     @ApiModelProperty(value = "采购日期"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date purchaseDate;
     /** 交货日期 */
     @ApiModelProperty(value = "交货日期"  )
