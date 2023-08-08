@@ -6,13 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
-import com.base.sbc.client.amc.entity.Job;
-import com.base.sbc.client.amc.service.AmcService;
-import com.base.sbc.client.amc.utils.AmcUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -21,10 +17,8 @@ import com.base.sbc.module.sample.dto.QueryFabricInformationDto;
 import com.base.sbc.module.sample.dto.SaveUpdateFabricBasicInformationDto;
 import com.base.sbc.module.sample.entity.FabricBasicInformation;
 import com.base.sbc.module.sample.entity.FabricDetailedInformation;
-import com.base.sbc.module.sample.entity.FabricJob;
 import com.base.sbc.module.sample.mapper.FabricBasicInformationMapper;
 import com.base.sbc.module.sample.mapper.FabricDetailedInformationMapper;
-import com.base.sbc.module.sample.mapper.FabricJobMapper;
 import com.base.sbc.module.sample.service.FabricBasicInformationService;
 import com.base.sbc.module.sample.vo.FabricInformationVo;
 import com.github.pagehelper.PageHelper;
@@ -33,11 +27,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 类描述：面料基本信息 service类
@@ -52,31 +45,26 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
 
     @Autowired
     private BaseController baseController;
-    @Autowired
-    private FabricJobMapper fabricJobMapper;
+
     @Autowired
     private FabricDetailedInformationMapper fabricDetailedInformationMapper;
 
-    @Autowired
-    private AmcService amcService;
 
 
     @Override
     public PageInfo<FabricInformationVo> getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto) {
       if(queryFabricInformationDto.getPageNum() !=0 && queryFabricInformationDto.getPageSize()!=0){
           PageHelper.startPage(queryFabricInformationDto);
-          String postString=  amcService.getJobByUserIdOrJobName(baseController.getUserId(),null);
-          List<Job> jobList= AmcUtils.parseStrTopostIdList(postString);
-          if(!CollectionUtils.isEmpty(jobList)){
-              queryFabricInformationDto.setJobIdList(jobList.stream().map(Job::getId).collect(Collectors.toList()));
-          }else {
-              throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
-          }
-      }else {
-          queryFabricInformationDto.setFabricDetailedId("1");
       }
-        queryFabricInformationDto.setCompanyCode(baseController.getUserCompany());
-        List<FabricInformationVo> list = baseMapper.getFabricInformationList(queryFabricInformationDto);
+        QueryWrapper queryWrapper = new QueryWrapper<>();
+        if(StringUtils.isNotBlank(queryFabricInformationDto.getOriginate())){
+            if(queryFabricInformationDto.getOriginate().equals("0")){
+                queryWrapper.eq("tfbi.create_id", baseController.getUserId());
+            }
+        }
+        queryWrapper.eq("tfbi.company_code",baseController.getUserCompany());
+        queryWrapper.orderByAsc("tfbi.create_date");
+        List<FabricInformationVo> list = baseMapper.getFabricInformationList(queryWrapper);
         return new PageInfo<>(list);
     }
 
@@ -93,57 +81,37 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
         } else {
             /*新增*/
             BeanUtils.copyProperties(saveUpdateFabricBasicDto,fabricBasicInformation );
-            fabricBasicInformation.insertInit();
-            fabricBasicInformation.setStatus(BaseGlobal.STATUS_NORMAL);
             fabricBasicInformation.setCompanyCode(baseController.getUserCompany());
             fabricBasicInformation.setRegisterDate(new Date());
-            fabricBasicInformation.setRemark("");
-            /*面料详细id暂时为空*/
-            fabricBasicInformation.setFabricDetailedId("");
             baseMapper.insert(fabricBasicInformation);
-            /*暂时这么写*/
-            String postString=  amcService.getJobByUserIdOrJobName(null,"面辅料专员,设计师,理化实验室,设计师助理");
-            List<Job> jobList= AmcUtils.parseStrTopostIdList(postString);
-            for (Job job : jobList) {
-                FabricJob fabricJob=new FabricJob();
-                fabricJob.setFabricBasicId(fabricBasicInformation.getId());
-                fabricJob.setUserJobId(job.getId());
-                fabricJob.setCompanyCode(baseController.getUserCompany());
-                fabricJob.setRemark("");
-                if(job.getName().equals("设计师") || job.getName().equals("设计师助理")){
-                    fabricJob.setSponsorStatus("0");
-                }else {
-                    fabricJob.setSponsorStatus("1");
-                }
-                fabricJob.insertInit();
-                fabricJobMapper.insert(fabricJob);
-            }
         }
         return ApiResult.success("操作成功");
     }
 
     @Override
     public ApiResult delFabric(String id) {
-        List<String> ids = StringUtils.convertList(id);
-        List<FabricBasicInformation> list = baseMapper.selectBatchIds(ids);
-        List<String> basicIdList=  list.stream().filter(f -> StringUtils.isBlank(f.getFabricDetailedId())).map(FabricBasicInformation::getId).collect(Collectors.toList());
-        if(CollectionUtils.isEmpty(basicIdList)){
-            throw new OtherException("存在面料详细无法删除");
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("basic_information_id",id);
+        FabricDetailedInformation fabricDetailedInformation = fabricDetailedInformationMapper.selectOne(queryWrapper);
+        if(!ObjectUtils.isEmpty(fabricDetailedInformation)){
+            throw new OtherException("该单存在面料详情无法删除");
         }
-        baseMapper.deleteBatchIds(basicIdList);
+        baseMapper.deleteById(id);
         return ApiResult.success("操作成功");
     }
 
     @Override
     public ApiResult getById(QueryDetailFabricDto queryDetailFabricDto) {
         FabricBasicInformation fabricBasicInformation=   baseMapper.selectById(queryDetailFabricDto.getId());
+
         FabricInformationVo fabricInformationVo=new FabricInformationVo();
         BeanUtils.copyProperties(fabricBasicInformation,fabricInformationVo );
-        if(StringUtils.isNotBlank(fabricBasicInformation.getFabricDetailedId())){
-           FabricDetailedInformation fabricDetailedInformation= fabricDetailedInformationMapper.selectById(fabricBasicInformation.getFabricDetailedId());
-            if (queryDetailFabricDto.getType().equals("update") ||   fabricDetailedInformation.getIsDraft().equals(BaseGlobal.STOCK_STATUS_WAIT_CHECK)) {
-                BeanUtils.copyProperties(fabricDetailedInformation,fabricInformationVo );
-            }
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("basic_information_id",fabricBasicInformation.getId());
+        /*获取面料详情信息*/
+        FabricDetailedInformation fabricDetailedInformation = fabricDetailedInformationMapper.selectOne(queryWrapper);
+        if(!ObjectUtils.isEmpty(fabricDetailedInformation)){
+            BeanUtils.copyProperties(fabricDetailedInformation, fabricInformationVo);
         }
         return ApiResult.success("查询成功",fabricInformationVo);
     }

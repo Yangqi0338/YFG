@@ -83,8 +83,8 @@ public class FabricInformationController {
 	/*上传理化报告*/
 	@ApiOperation(value = "上传理化报告")
 	@RequestMapping("/uploadingReport")
-	public ApiResult uploadingReport(@RequestParam(value = "fabricDetailedId", required = true) String fabricDetailedId, @RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request) throws Throwable {
-		return	fabricDetailedInformationService.uploadingReport(fabricDetailedId,file,request);
+	public ApiResult uploadingReport(@RequestParam(value = "id", required = true) String id, @RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request) throws Throwable {
+		return	fabricDetailedInformationService.uploadingReport(id,file,request);
 	}
 
 }

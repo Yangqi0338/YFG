@@ -11,8 +11,6 @@ public class QueryDetailFabricDto {
     @NotBlank(message = "id必填")
     private String id;
 
-    /*类型 update */
-    @NotBlank(message = "类型必填")
     private String type;
 
 }

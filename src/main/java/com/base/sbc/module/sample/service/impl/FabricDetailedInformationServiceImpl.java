@@ -6,14 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.SaveUpdateFabricDetailedInformationDto;
-import com.base.sbc.module.sample.entity.FabricBasicInformation;
 import com.base.sbc.module.sample.entity.FabricDetailedInformation;
 import com.base.sbc.module.sample.mapper.FabricBasicInformationMapper;
 import com.base.sbc.module.sample.mapper.FabricDetailedInformationMapper;
@@ -22,6 +23,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,32 +49,27 @@ public class FabricDetailedInformationServiceImpl extends BaseServiceImpl<Fabric
     @Override
     @Transactional(readOnly = false)
     public ApiResult saveUpdateFabricDetailed(SaveUpdateFabricDetailedInformationDto saveUpdateFabricBasicDto) {
-        FabricDetailedInformation fabricDetailedInformation=new FabricDetailedInformation();
-        if(StringUtils.isNotBlank(saveUpdateFabricBasicDto.getFabricDetailedId())){
-            /*调整*/
-            fabricDetailedInformation=baseMapper.selectById(saveUpdateFabricBasicDto.getFabricDetailedId());
-            BeanUtils.copyProperties(saveUpdateFabricBasicDto,fabricDetailedInformation);
-            fabricDetailedInformation.updateInit();
-            fabricDetailedInformation.setId(saveUpdateFabricBasicDto.getFabricDetailedId());
-            baseMapper.updateById(fabricDetailedInformation);
-        }else {
-            FabricBasicInformation fabricBasicInformation= fabricBasicInformationMapper.selectById(saveUpdateFabricBasicDto.getFabricBasicId());
-            BeanUtils.copyProperties(saveUpdateFabricBasicDto,fabricDetailedInformation);
-            fabricDetailedInformation.setCompanyCode(baseController.getUserCompany());
-            fabricDetailedInformation.insertInit();
-            baseMapper.insert(fabricDetailedInformation);
-            fabricBasicInformation.setFabricDetailedId(fabricDetailedInformation.getId());
-            fabricBasicInformationMapper.updateById(fabricBasicInformation);
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("basic_information_id",saveUpdateFabricBasicDto.getBasicInformationId());
+        FabricDetailedInformation fabricDetailedInformation = baseMapper.selectOne(queryWrapper);
+        if (ObjectUtils.isEmpty(fabricDetailedInformation)) {
+            fabricDetailedInformation = new FabricDetailedInformation();
         }
+        BeanUtils.copyProperties(saveUpdateFabricBasicDto, fabricDetailedInformation);
+        fabricDetailedInformation.setCompanyCode(baseController.getUserCompany());
+        saveOrUpdate(fabricDetailedInformation);
         return ApiResult.success("操作成功");
     }
 
     @Override
-    public ApiResult uploadingReport(String fabricDetailedId, MultipartFile file, HttpServletRequest request) throws Throwable {
-        if (StringUtils.isEmpty(fabricDetailedId)) {
-            throw new OtherException("FabricDetailedId为空");
+    public ApiResult uploadingReport(String id, MultipartFile file, HttpServletRequest request) throws Throwable {
+        if (StringUtils.isEmpty(id)) {
+            throw new OtherException("id为空");
         }
-        FabricDetailedInformation fabricDetailedInformation = baseMapper.selectById(fabricDetailedId);
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("basic_information_id",id);
+        queryWrapper.eq("is_draft", BaseGlobal.STATUS_NORMAL);
+        FabricDetailedInformation fabricDetailedInformation = baseMapper.selectOne(queryWrapper);
         if(fabricDetailedInformation==null){
             throw new OtherException("辅料专员暂未提交面料详情");
         }

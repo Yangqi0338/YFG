@@ -27,7 +27,15 @@ public interface FabricDetailedInformationService extends BaseService<FabricDeta
 
     ApiResult saveUpdateFabricDetailed  (SaveUpdateFabricDetailedInformationDto saveUpdateFabricBasicDto);
 
-    ApiResult uploadingReport (String fabricDetailedId, MultipartFile file, HttpServletRequest request) throws Throwable;
+    /**
+     * 上传理化报告
+     * @param id
+     * @param file
+     * @param request
+     * @return
+     * @throws Throwable
+     */
+    ApiResult uploadingReport (String id, MultipartFile file, HttpServletRequest request) throws Throwable;
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 	

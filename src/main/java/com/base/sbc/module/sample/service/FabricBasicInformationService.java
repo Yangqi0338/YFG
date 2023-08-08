@@ -24,9 +24,20 @@ import com.github.pagehelper.PageInfo;
  */
 public interface FabricBasicInformationService extends BaseService<FabricBasicInformation> {
 
+   /**
+    * 查询面料调样单
+    * @param queryFabricInformationDto
+    * @return
+    */
    PageInfo<FabricInformationVo> getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto);
 
 /** 自定义方法区 不替换的区域【other_start】 **/
+
+   /**
+    * 新增修改面料吊样单基本信息
+    * @param saveUpdateFabricBasicDto
+    * @return
+    */
    ApiResult saveUpdateFabricBasic(SaveUpdateFabricBasicInformationDto saveUpdateFabricBasicDto);
 
    /*删除*/
