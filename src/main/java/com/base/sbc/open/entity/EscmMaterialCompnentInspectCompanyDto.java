@@ -1,5 +1,6 @@
 package com.base.sbc.open.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import lombok.Data;
@@ -116,5 +117,6 @@ public class EscmMaterialCompnentInspectCompanyDto extends BaseDataEntity<String
     private String makerByName ;
 
 
+    @TableField(exist = false)
     private List<EscmMaterialCompnentInspectContent> detailList;
 }
