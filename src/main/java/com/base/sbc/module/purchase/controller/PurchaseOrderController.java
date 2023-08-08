@@ -130,6 +130,14 @@ public class PurchaseOrderController extends BaseController{
 		return purchaseOrderService.updatePurchaseOrder(userInfo, userCompany, purchaseOrder);
 	}
 
+	@ApiOperation(value = "作废-通过id查询,多个逗号分开")
+	@DeleteMapping("/cancel")
+	public ApiResult cancel(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestParam("ids") String ids) {
+		if(StringUtils.isBlank(ids)){
+			return updateAttributeNotRequirements("ids");
+		}
+		return purchaseOrderService.cancel(userCompany, ids);
+	}
 }
 
 

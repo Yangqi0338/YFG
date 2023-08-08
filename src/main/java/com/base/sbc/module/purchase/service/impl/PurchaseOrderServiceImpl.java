@@ -11,7 +11,9 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.CodeGen;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.purchase.entity.PurchaseDemand;
 import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
 import com.base.sbc.module.purchase.mapper.PurchaseOrderMapper;
 import com.base.sbc.module.purchase.entity.PurchaseOrder;
@@ -20,6 +22,7 @@ import com.base.sbc.module.purchase.service.PurchaseOrderDetailService;
 import com.base.sbc.module.purchase.service.PurchaseOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -106,5 +109,27 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
         return ApiResult.error("修改失败！", 500);
     }
 
-	
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public ApiResult cancel(String companyCode, String ids) {
+        QueryWrapper<PurchaseOrder> qw = new QueryWrapper();
+        qw.eq("company_code", companyCode);
+        qw.in("id", StringUtils.convertList(ids));
+        List<PurchaseOrder> purchaseOrderList = this.list(qw);
+
+        for (PurchaseOrder item : purchaseOrderList) {
+            if (StringUtils.equals(item.getOrderStatus(), "1") || StringUtils.equals(item.getStatus(), "1")) {
+                return ApiResult.error("请选择单据状态为正常或者审核状态为待审核", 500);
+            }
+            item.setOrderStatus("1");
+        }
+
+        boolean result = this.updateBatchById(purchaseOrderList);
+        if (result) {
+            return ApiResult.success("操作成功！", result);
+        }
+        return ApiResult.error("操作失败！", 500);
+    }
+
+
 }

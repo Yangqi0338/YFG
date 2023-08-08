@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.PurchaseOrder
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-4 9:43:16
+ * @date 创建时间：2023-8-8 10:54:12
  * @version 1.0
  */
 @Data
@@ -70,6 +70,9 @@ public class PurchaseOrder extends BaseDataEntity<String> {
     /** 供应商电话 */
     @ApiModelProperty(value = "供应商电话"  )
     private String supplierPhone;
+    /** 供应商地址 */
+    @ApiModelProperty(value = "供应商地址"  )
+    private String supplierAddress;
     /** 采购员id */
     @ApiModelProperty(value = "采购员id"  )
     private String purchaserId;
@@ -120,3 +123,4 @@ public class PurchaseOrder extends BaseDataEntity<String> {
     private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+
