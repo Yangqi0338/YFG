@@ -247,6 +247,15 @@ public class OpenSmpService {
                 basicsdatumMaterialPrice.setIndex(String.valueOf(index.get()));
                 basicsdatumMaterialPrices.add(basicsdatumMaterialPrice);
                 index.getAndIncrement();
+
+
+                if (quotItem.getDefaultQuote()){
+                    basicsdatumMaterial.setSupplierName(quotItem.getSupplierName());
+                    basicsdatumMaterial.setSupplierId(quotItem.getSupplierCode());
+                    basicsdatumMaterial.setSupplierFabricCode(quotItem.getSupplierMaterial());
+                    basicsdatumMaterial.setSupplierQuotationPrice(quotItem.getFOBFullPrice());
+                }
+
             });
             List<BasicsdatumMaterialPrice> list = this.merge(basicsdatumMaterialPrices);
             basicsdatumMaterialPriceService.addAndUpdateAndDelList(list, new QueryWrapper<BasicsdatumMaterialPrice>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
