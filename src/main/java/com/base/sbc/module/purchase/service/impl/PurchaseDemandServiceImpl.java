@@ -345,6 +345,10 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             }
         }
 
+        if(CollectionUtil.isEmpty(idList)){
+            return;
+        }
+
         QueryWrapper<PurchaseDemand> qw = new QueryWrapper<>();
         qw.in("id", idList);
         List<PurchaseDemand> purchaseDemandList = list(qw);
