@@ -1,36 +1,30 @@
 package com.base.sbc.open.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
-import com.base.sbc.module.basicsdatum.entity.*;
-import com.base.sbc.module.basicsdatum.service.*;
-import com.base.sbc.module.common.service.UploadFileService;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialIngredientService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.open.dto.MtBpReqDto;
-import com.base.sbc.open.dto.SmpOpenMaterialDto;
 import com.base.sbc.open.entity.*;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.base.sbc.open.service.MtBqReqService;
 import com.base.sbc.open.service.OpenSmpService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.net.ftp.FTPClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -157,7 +151,7 @@ public class OpenSmpController extends BaseController {
     /**
      * 面料成分检测数据接口
      */
-    @GetMapping("/escmMaterialCompnentInspectCompany")
+    @PostMapping("/escmMaterialCompnentInspectCompany")
     public ApiResult EscmMaterialCompnentInspectCompanyDto(@RequestBody JSONObject jsonObject){
         EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = jsonObject.toJavaObject(EscmMaterialCompnentInspectCompanyDto.class);
         escmMaterialCompnentInspectCompanyService.saveOrUpdate(escmMaterialCompnentInspectCompanyDto,new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no",escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
