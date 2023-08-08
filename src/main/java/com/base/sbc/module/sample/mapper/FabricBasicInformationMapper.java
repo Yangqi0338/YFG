@@ -6,11 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.module.sample.dto.QueryFabricInformationDto;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.sample.entity.FabricBasicInformation;
 import com.base.sbc.module.sample.vo.FabricInformationVo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -27,7 +29,13 @@ import java.util.List;
 public interface FabricBasicInformationMapper extends BaseMapper<FabricBasicInformation> {
 /** 自定义方法区 不替换的区域【other_start】 **/
 
-  List<FabricInformationVo> getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto);
+
+  /**
+   * 查询面料调样单
+   * @param qw
+   * @return
+   */
+  List<FabricInformationVo>  getFabricInformationList(@Param(Constants.WRAPPER) QueryWrapper qw);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

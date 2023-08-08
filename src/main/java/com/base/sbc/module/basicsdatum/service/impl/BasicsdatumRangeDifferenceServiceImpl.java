@@ -271,19 +271,6 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         return true;
     }
 
-    /*赋值*/
-    public List<BasicsdatumCompanyRelation> assignmentCompany( List<BasicsdatumCompanyRelation> list,String id) {
-        if(!CollectionUtils.isEmpty(list)){
-            for (BasicsdatumCompanyRelation b : list) {
-                b.setCompanyCode(baseController.getUserCompany());
-                b.setDataId(id);
-                b.setType("difference");
-                b.setId(null);
-            }
-            return list;
-        }
-        return null;
-    }
 
     /**
      * 方法描述：删除基础资料-档差

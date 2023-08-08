@@ -86,6 +86,4 @@ public class BasicsdatumModelType extends BaseDataEntity<String> {
     @ApiModelProperty(value = "尺码标签id"  )
     private String sizeLabelId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
-    @TableField(exist = false)
-    private List<BasicsdatumCompanyRelation> basicsdatumCompanyRelation;
 }

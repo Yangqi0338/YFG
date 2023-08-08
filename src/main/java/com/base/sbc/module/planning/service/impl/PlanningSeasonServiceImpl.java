@@ -27,7 +27,7 @@ import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.*;
-import com.base.sbc.module.sample.vo.ChartBarVo;
+import com.base.sbc.module.style.vo.ChartBarVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -314,6 +314,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                 YearSeasonBandVo v = new YearSeasonBandVo();
                 v.setPlanningSeasonId(s.getId());
                 v.setPlanningSeasonName(s.getName());
+                v.setBrand(s.getBrand());
                 v.setTotal(sckCountMap.getOrDefault(s.getId(), 0L));
                 v.setChildren(StrUtil.isNotBlank(vo.getHasBand()));
                 v.setYearName(s.getYearName());
@@ -330,6 +331,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                 item.setTotal(value.size());
                 item.setChildren(value);
                 item.setLevel(0);
+                item.setBrand(planningSeason.getBrand());
                 result.add(item);
             }
             return result;

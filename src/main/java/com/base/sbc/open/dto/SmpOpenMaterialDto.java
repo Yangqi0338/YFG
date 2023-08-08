@@ -28,14 +28,9 @@ public class SmpOpenMaterialDto {
     private String MaterialName;
 
     /**
-     * 材料单位（采购单位）
-     */
-    private String C8_Material_UOM;
-
-    /**
      * 库存单位（新增）
      */
-    private String c8MaterialUomSrc;
+    private String C8_Material_UOM;
 
     /**
      * 三级分类
@@ -218,7 +213,7 @@ public class SmpOpenMaterialDto {
         BasicsdatumMaterial basicsdatumMaterial =new BasicsdatumMaterial();
         basicsdatumMaterial.setMaterialCode(Code);
         basicsdatumMaterial.setMaterialName(MaterialName);
-        basicsdatumMaterial.setPurchaseUnitCode(C8_Material_UOM);
+        //basicsdatumMaterial.setPurchaseUnitCode(C8_Material_UOM);
         basicsdatumMaterial.setStockUnitCode(C8_Material_UOM);
         basicsdatumMaterial.setMaterialSourceName(Source);
         basicsdatumMaterial.setCategoryId(ProductTypeID);

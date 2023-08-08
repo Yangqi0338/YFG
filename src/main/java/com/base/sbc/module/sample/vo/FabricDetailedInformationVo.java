@@ -23,21 +23,21 @@ public class FabricDetailedInformationVo {
     /** 密度 */
     @ApiModelProperty(value = "密度"  )
     private String density;
-    /** 面料成分 */
-    @ApiModelProperty(value = "面料成分"  )
-    private String ingredient;
+    /** 厂家成分 */
+    @ApiModelProperty(value = "厂家成分"  )
+    private String supplierFactoryIngredient;
     /** 货期 */
     @ApiModelProperty(value = "货期"  )
     private Integer leadtime;
     /** 起订量 */
     @ApiModelProperty(value = "起订量"  )
     private Integer minimumOrderQuantity;
-    /** 门幅 */
-    @ApiModelProperty(value = "门幅"  )
-    private Double larghezza;
+    /** 厂家有效门幅 */
+    @ApiModelProperty(value = "厂家有效门幅"  )
+    private String translate;
     /** 克重 */
     @ApiModelProperty(value = "克重"  )
-    private Double gramWeight;
+    private BigDecimal gramWeight; ;
     /** 胚布情况 */
     @ApiModelProperty(value = "胚布情况"  )
     private String germinalCondition;

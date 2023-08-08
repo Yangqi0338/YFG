@@ -24,13 +24,13 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.sample.dto.QuerySampleStyleColorDto;
-import com.base.sbc.module.sample.dto.RelevanceBomDto;
-import com.base.sbc.module.sample.dto.UpdateStyleNoBandDto;
-import com.base.sbc.module.sample.dto.UpdateTagPriceDto;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
 import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
+import com.base.sbc.module.style.dto.QueryStyleColorDto;
+import com.base.sbc.module.style.dto.RelevanceBomDto;
+import com.base.sbc.module.style.dto.UpdateStyleNoBandDto;
+import com.base.sbc.module.style.dto.UpdateTagPriceDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
@@ -93,7 +93,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
      * @return
      */
     @Override
-    public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QuerySampleStyleColorDto queryDto) {
+    public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto queryDto) {
         GroupUser userBy = userUtils.getUserBy(user);
         /*分页*/
         PageHelper.startPage(queryDto);
@@ -166,7 +166,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
      * @return
      */
     @Override
-    public List<StyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto) {
+    public List<StyleColorVo> getByStyleNo(QueryStyleColorDto querySampleStyleColorDto) {
         if(StringUtils.isNotBlank(querySampleStyleColorDto.getStyleNo())){
             throw new OtherException(BaseErrorEnum.ERR_MISSING_SERVLET_REQUEST_PARAMETER_EXCEPTION);
         }

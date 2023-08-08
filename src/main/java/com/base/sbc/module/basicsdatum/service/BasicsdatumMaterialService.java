@@ -25,12 +25,7 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthsSaveDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialOldPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
+import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.github.pagehelper.PageInfo;
@@ -95,5 +90,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	Boolean saveBasicsdatumMaterialOld(BasicsdatumMaterialOldSaveDto dto);
 
 	Boolean delBasicsdatumMaterialOld(String id);
+
+	PageInfo<WarehouseMaterialVo> getPurchaseMaterialList(BasicsdatumMaterialQueryDto dto);
 }
 

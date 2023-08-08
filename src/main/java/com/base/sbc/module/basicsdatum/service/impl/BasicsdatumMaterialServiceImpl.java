@@ -6,79 +6,42 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthGroupSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthsSaveDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialOld;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPriceDetail;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
-import com.base.sbc.module.basicsdatum.entity.Specification;
-import com.base.sbc.module.basicsdatum.entity.SpecificationGroup;
+import com.base.sbc.config.utils.*;
+import com.base.sbc.module.basicsdatum.dto.*;
+import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialMapper;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialOldService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
-import com.base.sbc.module.basicsdatum.service.SpecificationGroupService;
-import com.base.sbc.module.basicsdatum.service.SpecificationService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialExcelVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialOldPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo;
+import com.base.sbc.module.basicsdatum.service.*;
+import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.IdUtil;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
  * 类描述：基础资料-物料档案 service类
@@ -100,6 +63,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	private final BasicsdatumMaterialWidthService materialWidthService;
 	private final BasicsdatumMaterialColorService materialColorService;
 	private final BasicsdatumMaterialPriceService materialPriceService;
+	private final BasicsdatumMaterialIngredientService materialIngredientService;
 	private final BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
 
 	/**
@@ -109,6 +73,42 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	@Resource
 	private SmpService smpService;
 
+	@ApiOperation(value = "主物料成分转换")
+	@GetMapping("/formatIngredient")
+	public List<BasicsdatumMaterialIngredient> formatIngredient(
+			@RequestParam(value = "value", required = false) String value) {
+		String str = IngredientUtils.format(value);
+		return formatToList(str);
+	}
+
+	/**
+	 * 转换为对象集合
+	 * 
+	 * @param str
+	 * @return
+	 */
+	private List<BasicsdatumMaterialIngredient> formatToList(String str) {
+		String[] strs = str.split(",");
+		List<BasicsdatumMaterialIngredient> list = new ArrayList<>();
+		for (int i = 0; i < strs.length; i++) {
+			String ingredients = strs[i];
+			BasicsdatumMaterialIngredient in = new BasicsdatumMaterialIngredient();
+			in.setRatio(BigDecimalUtil.valueOf(ingredients.split("%")[0]));
+			String nameSay = ingredients.split("%")[1];
+			int kidx = nameSay.indexOf("(");
+			String name = nameSay;
+			String say = "";
+			if (kidx != -1) {
+				name = nameSay.substring(0, kidx);
+				say = nameSay.substring(kidx + 1, nameSay.length() - 1);
+			}
+			in.setName(name);
+			in.setSay(say);
+			list.add(in);
+		}
+		return list;
+	}
+
 	@Override
 	public PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialList(BasicsdatumMaterialQueryDto dto) {
 		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
@@ -116,6 +116,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		}
 		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
 		qc.eq("company_code", this.getCompanyCode());
+		qc.andLike(dto.getSearch(), "material_code", "material_name");
 		qc.notEmptyEq("status", dto.getStatus());
 		qc.notEmptyLike("material_code_name", dto.getMaterialCodeName());
 		qc.notEmptyLike("supplier_name", dto.getSupplierName());
@@ -147,11 +148,48 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		// this.saveFabricWidth(entity.getMaterialCode(),
 		// BigDecimalUtil.convertString(entity.getTranslate()));
 		// }
+		// 如果成分不为空,则清理替换成分信息
+		this.saveIngredient(dto);
+
 		if (entity.getId() != null && "1".equals(entity.getDistribute())) {
 			smpService.materials(entity.getId().split(","));
 		}
+		// 保存主信息
 		this.saveOrUpdate(entity);
 		return getBasicsdatumMaterial(entity.getId());
+	}
+
+	/**
+	 * 保存成分数据
+	 * 
+	 * @param dto
+	 */
+	private void saveIngredient(BasicsdatumMaterialSaveDto dto) {
+		UserCompany userCompany = companyUserInfo.get();
+		String userName = userCompany.getAliasUserName();
+		String userId = userCompany.getUserId();
+		if (dto.getIngredientList() != null) {
+			materialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>()
+					.eq(COMPANY_CODE, getCompanyCode()).eq("material_code", dto.getMaterialCode()).eq("type", "0"));
+			for (BasicsdatumMaterialIngredient item : dto.getIngredientList()) {
+				item.setCompanyCode(this.getCompanyCode());
+				item.setCreateId(userId);
+				item.setCreateName(userName);
+
+			}
+			materialIngredientService.saveBatch(dto.getIngredientList());
+		}
+		if (dto.getFactoryCompositionList() != null) {
+			materialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>()
+					.eq(COMPANY_CODE, getCompanyCode()).eq("material_code", dto.getMaterialCode()).eq("type", "1"));
+			for (BasicsdatumMaterialIngredient item : dto.getFactoryCompositionList()) {
+				item.setCompanyCode(this.getCompanyCode());
+				item.setCreateId(userId);
+				item.setCreateName(userName);
+			}
+			materialIngredientService.saveBatch(dto.getFactoryCompositionList());
+		}
+
 	}
 
 	/**
@@ -308,6 +346,17 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		}
 		copy.setColorList(select);
 		copy.setWidthList(select2);
+		// 获取成分子表的数据
+		List<BasicsdatumMaterialIngredient> list = materialIngredientService
+				.list(new QueryWrapper<BasicsdatumMaterialIngredient>().eq("company_code", this.getCompanyCode())
+						.eq("material_code", material.getMaterialCode()));
+		if (list != null && list.size() > 0) {
+			copy.setIngredientList(
+					list.stream().filter(item -> "0".equals(item.getType())).collect(Collectors.toList()));
+			copy.setFactoryCompositionList(
+					list.stream().filter(item -> "1".equals(item.getType())).collect(Collectors.toList()));
+		}
+
 		return copy;
 	}
 
@@ -569,7 +618,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		return new PageInfo<>(list);
 	}
 
-
 	@Override
 	@Transactional
 	public Boolean saveBasicsdatumMaterialOld(BasicsdatumMaterialOldSaveDto dto) {
@@ -600,5 +648,27 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	@Override
 	public Boolean delBasicsdatumMaterialOld(String id) {
 		return this.materialOldService.removeBatchByIds(StringUtils.convertList(id));
+	}
+
+	@Override
+	public PageInfo<WarehouseMaterialVo> getPurchaseMaterialList(BasicsdatumMaterialQueryDto dto) {
+		Page<WarehouseMaterialVo> page = null;
+		if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+			page = PageHelper.startPage(dto);
+		}
+		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
+		qc.eq("m.company_code", this.getCompanyCode());
+		qc.eq("m.status", "0");
+		qc.notEmptyLike("m.supplier_id", dto.getSupplierId());
+		qc.notEmptyEq("c.color_name", dto.getMaterialColor());
+		if (StringUtils.isNotEmpty(dto.getSearch())) {
+			qc.and(Wrapper -> Wrapper.eq("m.material_code", dto.getSearch()).or().eq("m.material_name ",
+					dto.getSearch()));
+		}
+		List<WarehouseMaterialVo> list = getBaseMapper().getPurchaseMaterialList(qc);
+		for (WarehouseMaterialVo item : list) {
+			item.setId(IdUtil.randomUUID());
+		}
+		return page.toPageInfo();
 	}
 }

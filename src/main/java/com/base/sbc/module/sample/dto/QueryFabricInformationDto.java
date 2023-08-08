@@ -2,6 +2,7 @@ package com.base.sbc.module.sample.dto;
 
 import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -13,19 +14,30 @@ public class QueryFabricInformationDto extends Page {
     private String companyCode;
 
     /** 年份 */
-    private String year;
+    @ApiModelProperty(value = "年份")
+    private String yearName;
 
     /** 季节 */
-    private String season;
+    @ApiModelProperty(value = "季节")
+    private String seasonName;
+
+    @ApiModelProperty(value = "品牌")
+    private String brandName;
 
     /*厂家编号*/
-    private String manufacturerNumber;
+    @ApiModelProperty(value = "供应商料号")
+    private String supplierMaterialCode;
 
     /*厂家*/
-    private String manufacturer;
+    @ApiModelProperty(value = "供应商")
+    private String supplierName;
 
     /** 厂家色号 */
-    private String manufacturerColour;
+    @ApiModelProperty(value = "供应商色号")
+    private String supplierColor;
+
+    @ApiModelProperty(value = "搜索")
+    private String search;
 
     /** 是否新面料（0是 1否 */
     private String isNewFabric;

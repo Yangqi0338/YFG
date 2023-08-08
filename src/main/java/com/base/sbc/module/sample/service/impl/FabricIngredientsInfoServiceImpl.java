@@ -65,6 +65,8 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
             PageHelper.startPage(queryFabricIngredientsInfoDto);
             QueryWrapper<FabricIngredientsInfo> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
+            queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryId()),"category_id",queryFabricIngredientsInfoDto.getCategoryId());
+            queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getDevTypeName()),"dev_type_name",queryFabricIngredientsInfoDto.getDevTypeName());
 
             if(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getOriginate())){
                 if(queryFabricIngredientsInfoDto.getOriginate().equals("0")){

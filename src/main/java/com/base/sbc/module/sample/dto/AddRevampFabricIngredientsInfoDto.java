@@ -35,6 +35,9 @@ public class AddRevampFabricIngredientsInfoDto  {
     /** 开发类型 */
     @ApiModelProperty(value = "开发类型"  )
     private String devType;
+    /** 开发类型名称 */
+    @ApiModelProperty(value = "开发类型名称"  )
+    private String devTypeName;
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
     private String imageUrl;

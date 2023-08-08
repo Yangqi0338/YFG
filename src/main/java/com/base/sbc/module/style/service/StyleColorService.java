@@ -10,6 +10,10 @@ import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
+import com.base.sbc.module.style.dto.QueryStyleColorDto;
+import com.base.sbc.module.style.dto.RelevanceBomDto;
+import com.base.sbc.module.style.dto.UpdateStyleNoBandDto;
+import com.base.sbc.module.style.dto.UpdateTagPriceDto;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.PageInfo;
@@ -35,7 +39,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
         * @param queryDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QuerySampleStyleColorDto queryDto);
+        PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto queryDto);
 
         /**
          * 方法描述: 获取款式或配饰
@@ -57,7 +61,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @param querySampleStyleColorDto
          * @return
          */
-        List<StyleColorVo> getByStyleNo(QuerySampleStyleColorDto querySampleStyleColorDto);
+        List<StyleColorVo> getByStyleNo(QueryStyleColorDto querySampleStyleColorDto);
 
         /**
          * 方法描述: 批量新增款式配色-款式配色

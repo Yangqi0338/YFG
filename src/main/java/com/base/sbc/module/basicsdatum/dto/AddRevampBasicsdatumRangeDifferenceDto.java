@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.dto;
 
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
 import com.base.sbc.module.difference.entity.Difference;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

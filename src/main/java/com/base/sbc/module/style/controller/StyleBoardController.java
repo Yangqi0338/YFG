@@ -3,9 +3,10 @@ package com.base.sbc.module.style.controller;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
-import com.base.sbc.module.sample.vo.CategoryStylePlanningVo;
-import com.base.sbc.module.sample.vo.StyleBoardCategorySummaryVo;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.CategoryStylePlanningVo;
+import com.base.sbc.module.style.vo.StyleBoardCategorySummaryVo;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;

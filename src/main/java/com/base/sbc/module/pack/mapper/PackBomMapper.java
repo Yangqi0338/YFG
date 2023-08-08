@@ -43,9 +43,10 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
     /**
      * 根据物料id查询被应用的样衣-款式
      * @param materialId 物料ID
+     * @param companyCode 企业编码
      * @return 物料下样式设计数据
      */
-    List<MaterialSampleDesignVO> querySampleDesignInfoByMaterialId(@Param("materialId") String materialId);
+    List<MaterialSampleDesignVO> querySampleDesignInfoByMaterialId(@Param("materialId") String materialId, @Param("companyCode") String companyCode);
 
     /**
      * 通过主id获取核价物料信息

@@ -23,7 +23,7 @@
           AND del_flag = '0'
           and designer_id !='' and designer_id is not null
     </select>
-    <select id="getBandChart" resultType="com.base.sbc.module.sample.vo.ChartBarVo">
+    <select id="getBandChart" resultType="com.base.sbc.module.style.vo.ChartBarVo">
 
         SELECT band_name AS product,
         STATUS AS dimension,
@@ -36,7 +36,7 @@
         GROUP BY band_name,
         STATUS;
     </select>
-    <select id="getCategoryChart" resultType="com.base.sbc.module.sample.vo.ChartBarVo">
+    <select id="getCategoryChart" resultType="com.base.sbc.module.style.vo.ChartBarVo">
         SELECT prod_category_name AS product,
         STATUS AS dimension,
         count(id) AS total
@@ -85,7 +85,7 @@
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
     </select>
-    <select id="categorySummary" resultType="com.base.sbc.module.sample.vo.StyleBoardCategorySummaryVo">
+    <select id="categorySummary" resultType="com.base.sbc.module.style.vo.StyleBoardCategorySummaryVo">
         SELECT
         prod_category1st,
         prod_category,

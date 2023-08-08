@@ -35,6 +35,8 @@ public class YearSeasonBandVo {
     @ApiModelProperty(value = "品牌", example = "MM")
     private String brandName;
 
+    @ApiModelProperty(value = "品牌编码", example = "MM")
+    private String brand;
     @ApiModelProperty(value = "数量", example = "100")
     private long total;
     @ApiModelProperty(value = "级别", example = "0")

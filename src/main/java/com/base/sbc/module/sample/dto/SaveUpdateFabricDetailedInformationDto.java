@@ -13,11 +13,12 @@ import java.util.Date;
 @ApiModel("保存修改面料详细信息 FabricDetailedInformationDto")
 public class SaveUpdateFabricDetailedInformationDto {
 
-    private String id;
 
     private String fabricBasicId;
     private String  fabricDetailedId;
 
+    @ApiModelProperty(value = "面料基本信息id"  )
+    private String  basicInformationId;
     /** 面料是否可用(0是，1否) */
     @ApiModelProperty(value = "面料是否可用(0是，1否)"  )
     private String fabricIsUsable;
@@ -30,21 +31,21 @@ public class SaveUpdateFabricDetailedInformationDto {
     /** 密度 */
     @ApiModelProperty(value = "密度"  )
     private String density;
-    /** 面料成分 */
-    @ApiModelProperty(value = "面料成分"  )
-    private String ingredient;
+    /** 厂家成分 */
+    @ApiModelProperty(value = "厂家成分"  )
+    private String supplierFactoryIngredient;
     /** 货期 */
     @ApiModelProperty(value = "货期"  )
     private Integer leadtime;
     /** 起订量 */
     @ApiModelProperty(value = "起订量"  )
     private Integer minimumOrderQuantity;
-    /** 门幅 */
-    @ApiModelProperty(value = "门幅"  )
-    private Double larghezza;
+    /** 厂家有效门幅 */
+    @ApiModelProperty(value = "厂家有效门幅"  )
+    private String translate;
     /** 克重 */
     @ApiModelProperty(value = "克重"  )
-    private Double  gramWeight ;
+    private BigDecimal gramWeight; ;
     /** 胚布情况 */
     @ApiModelProperty(value = "胚布情况"  )
     private String germinalCondition;

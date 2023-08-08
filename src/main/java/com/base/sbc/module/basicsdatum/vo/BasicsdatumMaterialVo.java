@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.annotations.ApiModel;
@@ -25,8 +26,13 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 
+	/** 物料颜色集合 */
 	private List<BasicsdatumMaterialColorSelectVo> colorList;
+	/** 物料规格集合 */
 	private List<BasicsdatumMaterialWidthSelectVo> widthList;
+	/** 物料成分和厂家成分集合 */
+	private List<BasicsdatumMaterialIngredient> ingredientList;
+	private List<BasicsdatumMaterialIngredient> factoryCompositionList;
 
 	/** 物料编号 */
 	@ApiModelProperty(value = "物料编号")
@@ -189,12 +195,12 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 供应商颜色描述 */
 	@ApiModelProperty(value = "供应商颜色描述")
 	private String supplierColorSay;
-	/** 供应商面料成分 */
-	@ApiModelProperty(value = "供应商面料成分")
-	private String supplierIngredient;
-	/** 供应商厂家成分 */
-	@ApiModelProperty(value = "供应商厂家成分")
-	private String supplierFactoryIngredient;
+//	/** 供应商面料成分 */
+//	@ApiModelProperty(value = "供应商面料成分")
+//	private String supplierIngredient;
+//	/** 供应商厂家成分 */
+//	@ApiModelProperty(value = "供应商厂家成分")
+//	private String supplierFactoryIngredient;
 	/** 面料成分说明 */
 	@ApiModelProperty(value = "面料成分说明")
 	private String ingredientSay;
@@ -263,6 +269,18 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	@ApiModelProperty(value = "有效期")
 	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
 	private Date checkValidDate;
+	/** 质检项目 */
+	@ApiModelProperty(value = "质检项目")
+	private String checkItems;
+	/** 质检制单人ID */
+	@ApiModelProperty(value = "质检制单人ID")
+	private String checkOrderUserId;
+	/** 质检制单人 */
+	@ApiModelProperty(value = "质检制单人")
+	private String checkOrderUserName;
+	/** 质检文件路径 */
+	@ApiModelProperty(value = "质检文件路径")
+	private String checkFileUrl;
 	/** 面料难度评分 */
 	@ApiModelProperty(value = "面料难度评分")
 	private String fabricDifficultyScore;

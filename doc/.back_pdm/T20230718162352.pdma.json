@@ -89559,7 +89559,7 @@
     },
     {
       "id": "244C8ED5-E82E-4328-929C-3D3B3BBD2230",
-      "defKey": "t_sample_style_color",
+      "defKey": "t_style_color",
       "defName": "样衣-款式配色",
       "comment": "",
       "properties": {},
@@ -90868,7 +90868,7 @@
     },
     {
       "id": "DCAD0C15-9E35-446A-923A-BFBDAB5C1DD3",
-      "defKey": "t_sample_style_group",
+      "defKey": "t_style_group",
       "defName": "款式管理-款式搭配",
       "comment": "",
       "properties": {},
@@ -91340,7 +91340,7 @@
     },
     {
       "id": "372A3BC8-D2E4-454D-A051-7705935E60B3",
-      "defKey": "t_sample_style_group_color",
+      "defKey": "t_style_group_color",
       "defName": "款式管理-款式搭配 与配色中间表",
       "comment": "",
       "properties": {},
@@ -91758,7 +91758,7 @@
     },
     {
       "id": "C843BF04-02DA-4C28-8750-31680B4FFC84",
-      "defKey": "t_sample_style_order_book",
+      "defKey": "t_style_order_book",
       "defName": "款式管理-订货本",
       "comment": "",
       "properties": {},
@@ -92230,7 +92230,7 @@
     },
     {
       "id": "FD93A883-FD77-4B85-8472-24115B9AB461",
-      "defKey": "t_sample_style_order_book_color",
+      "defKey": "t_style_order_book_color",
       "defName": "款式管理-订货本与配色中间表",
       "comment": "",
       "properties": {},

@@ -97,9 +97,10 @@ public interface PackBomService extends PackBaseService<PackBom> {
     /**
      * 根据物料id查询被应用的样衣-款式
      * @param materialId 物料ID
+     * @param companyCode 企业编码
      * @return 物料下样式设计数据
      */
-    List<MaterialSampleDesignVO> querySampleDesignInfoByMaterialId(@Param("materialId") String materialId);
+    List<MaterialSampleDesignVO> querySampleDesignInfoByMaterialId(String materialId, String companyCode);
 
 
     /**

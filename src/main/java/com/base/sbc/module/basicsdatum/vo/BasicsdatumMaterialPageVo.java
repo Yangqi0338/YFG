@@ -181,12 +181,12 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	/** 供应商颜色描述 */
 	@ApiModelProperty(value = "供应商颜色描述")
 	private String supplierColorSay;
-	/** 供应商面料成分 */
-	@ApiModelProperty(value = "供应商面料成分")
-	private String supplierIngredient;
-	/** 供应商厂家成分 */
-	@ApiModelProperty(value = "供应商厂家成分")
-	private String supplierFactoryIngredient;
+//	/** 供应商面料成分 */
+//	@ApiModelProperty(value = "供应商面料成分")
+//	private String supplierIngredient;
+//	/** 供应商厂家成分 */
+//	@ApiModelProperty(value = "供应商厂家成分")
+//	private String supplierFactoryIngredient;
 	/** 面料成分说明 */
 	@ApiModelProperty(value = "面料成分说明")
 	private String ingredientSay;
@@ -255,6 +255,18 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	@ApiModelProperty(value = "有效期")
 	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
 	private Date checkValidDate;
+	/** 质检项目 */
+	@ApiModelProperty(value = "质检项目")
+	private String checkItems;
+	/** 质检制单人ID */
+	@ApiModelProperty(value = "质检制单人ID")
+	private String checkOrderUserId;
+	/** 质检制单人 */
+	@ApiModelProperty(value = "质检制单人")
+	private String checkOrderUserName;
+	/** 质检文件路径 */
+	@ApiModelProperty(value = "质检文件路径")
+	private String checkFileUrl;
 	/** 面料难度评分 */
 	@ApiModelProperty(value = "面料难度评分")
 	private String fabricDifficultyScore;

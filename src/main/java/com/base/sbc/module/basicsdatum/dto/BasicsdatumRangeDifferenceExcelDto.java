@@ -7,7 +7,6 @@
 package com.base.sbc.module.basicsdatum.dto;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -82,6 +81,4 @@ public class BasicsdatumRangeDifferenceExcelDto  {
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     @Excel(name = "可用",replace = {"true_0", "false_1"})
     private String status;
-
-    private List<BasicsdatumCompanyRelation> basicsdatumCompanyRelation;
 }

@@ -234,7 +234,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
 
         //供应商信息
         QueryWrapper<BasicsdatumSupplier> supplierQw = new QueryWrapper<>();
-        supplierQw.in("supplier_code", supplierIdList);
+        supplierQw.in("id", supplierIdList);
         List<BasicsdatumSupplier> supplierList = supplierService.list(supplierQw);
         Map<String, BasicsdatumSupplier> supplierMap = supplierList.stream().collect(Collectors.toMap(BasicsdatumSupplier::getSupplierCode, item1 -> item1, (item1, item2) -> item1));
 
@@ -271,6 +271,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             purchaseOrder.setSupplierName(supplier.getSupplier());
             purchaseOrder.setSupplierContacts(supplier.getContact());
             purchaseOrder.setSupplierPhone(supplier.getTelephone());
+            purchaseOrder.setSupplierAddress(supplier.getAddress());
 
             purchaseOrder.setPurchaserId(demand.getPurchaserId());
             purchaseOrder.setPurchaserName(demand.getPurchaserName());
@@ -343,6 +344,10 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             if(StringUtils.isNotBlank(detail.getDemandId())){
                 idList.add(detail.getDemandId());
             }
+        }
+
+        if(CollectionUtil.isEmpty(idList)){
+            return;
         }
 
         QueryWrapper<PurchaseDemand> qw = new QueryWrapper<>();

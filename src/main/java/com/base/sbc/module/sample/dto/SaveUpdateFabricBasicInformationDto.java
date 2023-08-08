@@ -21,30 +21,36 @@ public class SaveUpdateFabricBasicInformationDto {
     @NotBlank(message = "年份必填")
     private String year;
 
+    private String yearName;
+
     /** 季节 */
     @ApiModelProperty(value = "季节"  ,  required = true )
     @NotBlank(message = "季节必填")
     private String season;
+
+    private String seasonName;
 
     /** 品牌 */
     @ApiModelProperty(value = "品牌"  ,  required = true )
     @NotBlank(message = "品牌必填")
     private String brand;
 
-    /** 厂家 */
-    @ApiModelProperty(value = "厂家" ,  required = true  )
-    @NotBlank(message = "厂家必填")
-    private String manufacturer;
+    private String brandName;
 
-    /** 厂家编号 */
-    @ApiModelProperty(value = "厂家编号" ,  required = true  )
-    @NotBlank(message = "厂家编号必填")
-    private String manufacturerNumber;
+    /** 供应商 */
+    @ApiModelProperty(value = "供应商"  )
+    @NotBlank(message = "供应商")
+    private String supplierName;
 
-    /** 厂家色号 */
-    @ApiModelProperty(value = "厂家色号" ,  required = true   )
-    @NotBlank(message = "厂家色号必填")
-    private String manufacturerColour;
+    /** 供应商料号 */
+    @ApiModelProperty(value = "供应商料号"  )
+    @NotBlank(message = "供应商料号必填")
+    private String supplierMaterialCode;
+
+    /** 供应商色号 */
+    @ApiModelProperty(value = "供应商色号"  )
+    @NotBlank(message = "供应商色号必填")
+    private String supplierColor;
 
     /** 是否新面料（0是 1否 */
     @ApiModelProperty(value = "是否新面料（0是 1否" ,  required = true  )

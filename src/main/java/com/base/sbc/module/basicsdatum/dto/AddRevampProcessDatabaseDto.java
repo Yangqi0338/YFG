@@ -1,10 +1,7 @@
 package com.base.sbc.module.basicsdatum.dto;
 
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumCompanyRelation;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 /*新增或者修改*/

@@ -18,19 +18,30 @@ public class FabricInformationVo extends FabricDetailedInformationVo {
     /** 年份 */
     @ApiModelProperty(value = "年份"  )
     private String year;
+
+    private String yearName;
+
     /** 季节 */
     @ApiModelProperty(value = "季节"  )
     private String season;
+
+    private String seasonName;
+
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
     private String brand;
-    /** 厂家 */
-    @ApiModelProperty(value = "厂家"  )
-    private String manufacturer;
-    /** 厂家编号 */
-    @ApiModelProperty(value = "厂家编号"  )
-    private String manufacturerNumber;
-    /** 厂家色号 */
-    @ApiModelProperty(value = "厂家色号"  )
-    private String manufacturerColour;
+
+    private String brandName;
+
+    /** 供应商 */
+    @ApiModelProperty(value = "供应商"  )
+    private String supplierName;
+    /** 供应商料号 */
+    @ApiModelProperty(value = "供应商料号"  )
+    private String supplierMaterialCode;
+    /** 供应商色号 */
+    @ApiModelProperty(value = "供应商色号"  )
+    private String supplierColor;
     /** 是否新面料（0是 1否 */
     @ApiModelProperty(value = "是否新面料（0是 1否"  )
     private String isNewFabric;
