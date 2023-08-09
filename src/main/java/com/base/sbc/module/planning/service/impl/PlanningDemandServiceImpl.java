@@ -73,12 +73,16 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         List<PlanningDemandVo> list = baseMapper.getDemandDimensionalityById(queryWrapper);
 
         List<String> stringList1 = list.stream().map(PlanningDemandVo::getFieldId).collect(Collectors.toList());
-        /*查询表单数据*/
-        QueryFieldManagementDto queryFieldManagementDto = new QueryFieldManagementDto();
-        queryFieldManagementDto.setCompanyCode(baseController.getUserCompany());
-        queryFieldManagementDto.setIds(stringList1);
-        /*查询所有关联的字段*/
-        List<FieldManagementVo> fieldManagementVoList = fieldManagementMapper.getFieldManagementList(queryFieldManagementDto);
+        List<FieldManagementVo> fieldManagementVoList = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(stringList1)){
+            /*查询表单数据*/
+            QueryFieldManagementDto queryFieldManagementDto = new QueryFieldManagementDto();
+            queryFieldManagementDto.setCompanyCode(baseController.getUserCompany());
+            queryFieldManagementDto.setIds(stringList1);
+            /*查询所有关联的字段*/
+            fieldManagementVoList = fieldManagementMapper.getFieldManagementList(queryFieldManagementDto);
+        }
+
         Map<String, List<FieldManagementVo>> map = new HashMap<>();
         if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
             map = fieldManagementVoList.stream().collect(Collectors.groupingBy(FieldManagementVo::getId));
