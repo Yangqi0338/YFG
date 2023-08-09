@@ -34,6 +34,8 @@ public class PatternMakingForSampleVo {
 
     @ApiModelProperty(value = "季节")
     private String season;
+    @ApiModelProperty(value = "季节名称")
+    private String seasonName;
 
     @ApiModelProperty(value = "设计师ID")
     private String designerId;

@@ -160,6 +160,7 @@
                sd.prod_category      as categoryCode,
                ps.id                 AS seasonId,
                ps.season,
+               ps.season_name,
                sd.designer,
                sd.designer_id,
                sd.pattern_design_id,
