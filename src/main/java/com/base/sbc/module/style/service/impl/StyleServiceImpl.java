@@ -59,24 +59,14 @@ import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
-import com.base.sbc.module.sample.vo.*;
-import com.base.sbc.module.style.dto.DimensionLabelsSearchDto;
-import com.base.sbc.module.style.dto.SendSampleMakingDto;
-import com.base.sbc.module.style.dto.StyleBomSaveDto;
-import com.base.sbc.module.style.dto.StyleBomSearchDto;
-import com.base.sbc.module.style.dto.StylePageDto;
-import com.base.sbc.module.style.dto.StyleSaveDto;
+import com.base.sbc.module.sample.vo.MaterialVo;
+import com.base.sbc.module.sample.vo.SampleUserVo;
+import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.StyleService;
-import com.base.sbc.module.style.vo.CategoryStylePlanningVo;
-import com.base.sbc.module.style.vo.ChartBarVo;
-import com.base.sbc.module.style.vo.DesignDocTreeVo;
-import com.base.sbc.module.style.vo.StyleBoardCategorySummaryVo;
-import com.base.sbc.module.style.vo.StyleColorVo;
-import com.base.sbc.module.style.vo.StylePageVo;
-import com.base.sbc.module.style.vo.StyleVo;
+import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -480,8 +470,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             }
         }
         sampleVo.setSeatStylePic(planningCategoryItemService.getStylePicUrlById(sampleVo.getPlanningCategoryItemId()));
-        //维度标签
-        sampleVo.setDimensionLabels(queryDimensionLabelsBySdId(id));
+//        //维度标签
+//        sampleVo.setDimensionLabels(queryDimensionLabelsBySdId(id));
 
         return sampleVo;
     }

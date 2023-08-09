@@ -14,6 +14,7 @@ import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskListVo;
 
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -44,6 +45,8 @@ public interface PreProductionSampleTaskService extends BaseService<PreProductio
     boolean nodeStatusChange(String userId, NodeStatusChangeDto dto, GroupUser groupUser);
 
     List<PreProductionSampleTaskListVo> taskList(PreProductionSampleTaskSearchDto dto);
+
+    boolean nextOrPrev(Principal user, String id, String next);
 // 自定义方法区 不替换的区域【other_end】
 
 

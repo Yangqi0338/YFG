@@ -131,6 +131,18 @@ public class PreProductionSampleController {
         return preProductionSampleTaskService.nodeStatusChange(groupUser.getId(), list, groupUser);
     }
 
+    @ApiOperation(value = "前往下一个节点", notes = "")
+    @GetMapping("/task/next")
+    public boolean next(Principal user, @Validated IdDto idDto) {
+        return preProductionSampleTaskService.nextOrPrev(user, idDto.getId(), NodeStatusConfigService.NEXT);
+    }
+
+    @ApiOperation(value = "前往上一个节点", notes = "")
+    @GetMapping("/task/prev")
+    public boolean prev(Principal user, @Validated IdDto idDto) {
+        return preProductionSampleTaskService.nextOrPrev(user, idDto.getId(), NodeStatusConfigService.PREV);
+    }
+
     @ApiOperation(value = "获取节点状态配置", notes = "")
     @GetMapping("/task/getNodeStatusConfig")
     @ApiImplicitParams({

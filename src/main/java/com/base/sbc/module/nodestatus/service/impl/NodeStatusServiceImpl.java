@@ -19,10 +19,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.entity.CompanyPost;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.dto.NodeStatusChangeDto;
@@ -58,6 +61,8 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
     private AmcFeignService amcFeignService;
     @Autowired
     private NodeStatusConfigService nodeStatusConfigService;
+    @Autowired
+    private UserUtils userUtils;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -247,13 +252,13 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
     public Object hasNodeStatusAuth(String nodeStatusConfigKey, String userId, String dataId, BaseService baseService) {
         // 获取当前节点
         // 0 查询打版数据
-        Object pm = baseService.getById(dataId);
-        if (pm == null) {
+        Object bean = baseService.getById(dataId);
+        if (bean == null) {
             throw new OtherException("打版指令数据不存在");
         }
-        String planningSeasonId = BeanUtil.getProperty(pm, "planningSeasonId");
-        String node = BeanUtil.getProperty(pm, "node");
-        String status = BeanUtil.getProperty(pm, "status");
+        String planningSeasonId = BeanUtil.getProperty(bean, "planningSeasonId");
+        String node = BeanUtil.getProperty(bean, "node");
+        String status = BeanUtil.getProperty(bean, "status");
 
         // 1判断是否有产品季权限
         List<String> planningSeasonIds = amcFeignService.getPlanningSeasonIdByUserId(getUserId());
@@ -264,11 +269,11 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
         // 2.0 获取当前节点需要的角色权限
         JSONObject nodeStatusConfig = getNodeStatusConfig(nodeStatusConfigKey, userId, node, status, null, baseService);
         if (nodeStatusConfig == null) {
-            return pm;
+            return bean;
         }
         JSONObject auth = nodeStatusConfig.getJSONObject("auth");
         if (auth == null) {
-            return pm;
+            return bean;
         }
         //角色or岗位匹配会+1
         int flg = 0;
@@ -276,12 +281,12 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
         JSONArray authUserIdArr = auth.getJSONArray("userId");
         JSONArray authPostArr = auth.getJSONArray("post");
         if (ObjectUtil.isEmpty(authUserIdArr) && ObjectUtil.isEmpty(authPostArr)) {
-            return pm;
+            return bean;
         }
         if (ObjectUtil.isNotEmpty(authUserIdArr)) {
             //判断当前userId是否和授权的userId相等
             List<String> authUserIds = authUserIdArr.toJavaList(String.class).stream().map(item -> {
-                return (String) BeanUtil.getProperty(pm, item);
+                return (String) BeanUtil.getProperty(bean, item);
             }).collect(Collectors.toList());
             if (authUserIds.contains(userId)) {
                 flg++;
@@ -307,8 +312,97 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
         if (flg == 0) {
             throw new OtherException(CollUtil.join(msg, StrUtil.COMMA));
         }
-        return pm;
+        return bean;
 
+    }
+
+    @Override
+    public void hasNodeStatusAuth(String userId, BaseDataEntity bean, JSONObject nodeStatusConfig) {
+        // 2 判断是否有下一步岗位权限
+        // 2.0 获取当前节点需要的角色权限
+        if (ObjectUtil.isEmpty(nodeStatusConfig)) {
+            return;
+        }
+        JSONObject check = nodeStatusConfig.getJSONObject("check");
+        if (ObjectUtil.isEmpty(check)) {
+            return;
+        }
+        //
+        int errorCount = 0;
+        List<String> msg = new ArrayList<>(4);
+        JSONObject auth = check.getJSONObject("auth");
+        if (ObjectUtil.isNotEmpty(auth)) {
+            // 匹配用户
+            JSONArray authUserIdArr = auth.getJSONArray("userId");
+            // 匹配岗位
+            JSONArray authPostArr = auth.getJSONArray("post");
+            JSONArray deptUserType = auth.getJSONArray("deptUserType");
+            boolean match = false;
+            if (ObjectUtil.isNotEmpty(authUserIdArr)) {
+                //判断当前userId是否和授权的userId相等
+                List<String> authUserIds = authUserIdArr.toJavaList(String.class).stream().map(item -> {
+                    return (String) BeanUtil.getProperty(bean, item);
+                }).collect(Collectors.toList());
+                if (!authUserIds.contains(userId)) {
+                    errorCount++;
+                    msg.add("用户不匹配");
+                } else {
+                    match = true;
+                }
+            }
+            if (ObjectUtil.isNotEmpty(authPostArr) && !match) {
+                // 2.1 获取当前登录人员岗位
+                UserCompany userInfo = amcFeignService.getUserInfo(getUserId(), BaseGlobal.YES);
+                List<String> userPostName = Opt.ofNullable(userInfo.getPostList()).map(pl -> pl.stream().map(CompanyPost::getName).collect(Collectors.toList())).orElse(new ArrayList<>());
+                List<String> authPost = authPostArr.toJavaList(String.class);
+                // 是否有交集
+                Collection<String> intersection = CollUtil.intersection(userPostName, authPost);
+                if (CollUtil.isEmpty(intersection)) {
+                    errorCount++;
+                    msg.add("岗位不匹配,需要[" + StrUtil.join(StrUtil.COMMA, authPost) + "]");
+                }
+            }
+            if (ObjectUtil.isNotEmpty(deptUserType) && !match) {
+                // 2.1 获取当前登录人员岗位
+                boolean deptMatch = false;
+                for (int i = 0; i < deptUserType.size(); i++) {
+                    JSONObject deptConfig = deptUserType.getJSONObject(i);
+                    String field = deptConfig.getString("field");
+                    String val = deptConfig.getString("val");
+                    String msgStr = deptConfig.getString("msg");
+                    String deptId = BeanUtil.getProperty(bean, field);
+                    List<UserCompany> deptManager = amcFeignService.getDeptManager(deptId, val);
+                    UserCompany one = CollUtil.findOne(deptManager, (uc) -> StrUtil.equals(uc.getUserId(), userId));
+                    if (one != null) {
+                        deptMatch = true;
+                        continue;
+                    } else {
+                        msg.add(msgStr);
+                    }
+                }
+                if (!deptMatch) {
+                    errorCount++;
+                }
+            }
+        }
+
+        //非空校验
+        JSONArray required = check.getJSONArray("required");
+        if (CollUtil.isNotEmpty(required)) {
+            for (int i = 0; i < required.size(); i++) {
+                JSONObject jsonObject = required.getJSONObject(i);
+                String field = jsonObject.getString("field");
+                String msgStr = jsonObject.getString("msg");
+                if (ObjectUtil.isEmpty(BeanUtil.getProperty(bean, field))) {
+                    errorCount++;
+                    msg.add(msgStr);
+                }
+            }
+        }
+        //无匹配项抛出异常
+        if (errorCount > 0) {
+            throw new OtherException(CollUtil.join(msg, StrUtil.COMMA));
+        }
     }
 
     @Override
@@ -349,6 +443,74 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
                 BeanUtil.setProperty(o, "startDate", updateDate);
             }
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean nextOrPrev(GroupUser user, BaseDataEntity bean, String nodeStatusConfigKey, String np) {
+        String node = BeanUtil.getProperty(bean, "node");
+        String status = BeanUtil.getProperty(bean, "status");
+        JSONObject config = getNodeNextOrPrev(nodeStatusConfigKey, node, status, np);
+        if (config == null) {
+            throw new OtherException(np + "配置错误");
+        }
+        //校验是否有权限
+        hasNodeStatusAuth(user.getId(), bean, config);
+        List<NodeStatusChangeDto> nsList = config.getJSONArray("node").toJavaList(NodeStatusChangeDto.class);
+        if (CollUtil.isEmpty(nsList)) {
+            throw new OtherException(np + "配置错误");
+        }
+        nsList.forEach(ns -> {
+            ns.setDataId(bean.getId());
+        });
+        nodeStatusChangeBatch(nsList);
+        NodeStatusChangeDto lastNs = CollUtil.getLast(nsList);
+        //设置值
+        setUpdateVal(bean, config, user);
+        BeanUtil.setProperty(bean, "node", lastNs.getNode());
+        BeanUtil.setProperty(bean, "status", lastNs.getStatus());
+        return true;
+    }
+
+    private void setUpdateVal(BaseDataEntity bean, JSONObject config, GroupUser user) {
+        JSONArray jsonArray = config.getJSONArray(NodeStatusConfigService.UPDATE);
+        if (CollUtil.isEmpty(jsonArray)) {
+            return;
+        }
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            String valType = jsonObject.getString("valType");
+            String field = jsonObject.getString("field");
+            if (StrUtil.equals(valType, "loginName")) {
+                try {
+                    BeanUtil.setProperty(bean, field, user.getName());
+                } catch (Exception e) {
+                    log.error("设置值失败(" + field + ")", e);
+                }
+            } else if (StrUtil.equals(valType, "loginId")) {
+                try {
+                    BeanUtil.setProperty(bean, field, user.getId());
+                } catch (Exception e) {
+                    log.error("设置值失败(" + field + ")", e);
+                }
+            }
+        }
+    }
+
+
+    @Override
+    public JSONObject getNodeNextOrPrev(String nodeStatusConfigKey, String node, String status, String np) {
+        JSONObject config = null;
+        try {
+            config = nodeStatusConfigService
+                    .getConfig2Json(nodeStatusConfigKey, getCompanyCode());
+            config = config.getObject(node, JSONObject.class, Feature.OrderedField);
+            config = config.getObject(status, JSONObject.class, Feature.OrderedField);
+            config = config.getObject(np, JSONObject.class, Feature.OrderedField);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return config;
     }
 
 // 自定义方法区 不替换的区域【other_end】
