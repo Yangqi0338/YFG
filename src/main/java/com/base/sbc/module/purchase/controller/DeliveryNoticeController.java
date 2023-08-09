@@ -9,8 +9,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.UserCompanyUtils;
 import com.base.sbc.module.purchase.entity.DeliveryNotice;
 import com.base.sbc.module.purchase.entity.PurchaseOrder;
 import com.base.sbc.module.purchase.service.DeliveryNoticeService;
@@ -41,6 +43,9 @@ public class DeliveryNoticeController extends BaseController{
 
 	@Autowired
 	private DeliveryNoticeService deliveryNoticeService;
+
+	@Autowired
+	private UserCompanyUtils userCompanyUtils;
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping
@@ -102,6 +107,16 @@ public class DeliveryNoticeController extends BaseController{
 		return deliveryNotice;
 	}
 
+	@ApiOperation(value = "生成收货通知单")
+	@GetMapping("/generateNotice")
+	public ApiResult generateNotice(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode, String ids) {
+		if(StringUtils.isBlank(ids)){
+			return insertAttributeNotRequirements("ids");
+		}
+
+		UserCompany userCompany = userCompanyUtils.getCompanyUser();
+		return deliveryNoticeService.generateNotice(userCompany, companyCode, ids);
+	}
 }
 
 

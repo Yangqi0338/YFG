@@ -38,7 +38,7 @@ public class SampleAllocate extends BaseDataEntity<String> {
 
     /** 状态：1-正常，2-作废，3-删除 */
     @ApiModelProperty(value = "状态：1-正常，2-作废，3-删除")
-    private Integer tatus;
+    private Integer status;
 
     /** 审核状态：0-草稿，1-待审核、2-审核通过、3-驳回 */
     @ApiModelProperty(value = "审核状态：0-草稿，1-待审核、2-审核通过、3-驳回")

@@ -49,6 +49,9 @@ public class SamplePageByDesignNoVo {
     /** 季节 */
     @ApiModelProperty(value = "季节")
     private String season;
+    /** 季节 */
+    @ApiModelProperty(value = "季节")
+    private String seasonName;
 
     /** 客款号 */
     @ApiModelProperty(value = "客款号")

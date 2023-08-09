@@ -37,6 +37,9 @@ public class PlanningDemandProportionData extends BaseDataEntity<String> {
     /** 分类,维度 */
     @ApiModelProperty(value = "分类"  )
     private String classify;
+    /** 分类,维度 */
+    @ApiModelProperty(value = "分类名称"  )
+    private String classifyName;
     /** 占比，检查 */
     @ApiModelProperty(value = "占比"  )
     private String proportion;

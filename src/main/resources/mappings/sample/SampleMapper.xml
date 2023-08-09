@@ -20,6 +20,7 @@
         s.prod_category2nd,
         s.prod_category3rd,
         s.prod_category3rd_name,
+        s.season_name,
         s.season,
         s.customer_no,
         s.count,

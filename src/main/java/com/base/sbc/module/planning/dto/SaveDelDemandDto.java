@@ -29,4 +29,8 @@ public class SaveDelDemandDto {
     @NotNull(message = "表单id不能为空")
     private String  formTypeId;
 
+    /** 字段id */
+    @ApiModelProperty(value = "字段id"  )
+    private String fieldId;
+
 }

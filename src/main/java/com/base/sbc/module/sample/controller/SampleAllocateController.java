@@ -6,6 +6,7 @@
 *****************************************************************************/
 package com.base.sbc.module.sample.controller;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.sample.dto.SampleAllocatePageDto;
 import com.base.sbc.module.sample.dto.SampleAllocateSaveDto;
@@ -36,8 +37,9 @@ public class SampleAllocateController {
 
 	@ApiOperation(value = "保存")
 	@PostMapping("/save")
-	public SampleAllocateVo save(@RequestBody SampleAllocateSaveDto dto) {
-		return sampleAllocateService.save(dto);
+	public ApiResult save(@RequestBody SampleAllocateSaveDto dto) {
+		sampleAllocateService.save(dto);
+		return ApiResult.success("ok");
 	}
 
 	@ApiOperation(value = "分页查询")

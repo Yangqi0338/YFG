@@ -17,9 +17,10 @@
             resultType="com.base.sbc.module.planning.vo.PlanningDemandVo">
             select
             id,
-            category_id as categoryId ,
-            demand_name as demandName,
-            form_type_id as formTypeId
+            category_id ,
+            demand_name ,
+            form_type_id ,
+            field_id
             from t_planning_demand
             ${ ew.customSqlSegment}
     </select>

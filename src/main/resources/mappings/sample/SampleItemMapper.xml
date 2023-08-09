@@ -34,7 +34,7 @@
         sc.borrow_date,
         sc.operate_name,
         sc.expect_return_date,
-        sc.return_date,
+        sci.return_date,
         s.design_no,
         si.price,
         si.`count`,
