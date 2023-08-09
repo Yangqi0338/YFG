@@ -142,6 +142,11 @@ public class Sample extends BaseDataEntity<String> {
     @ApiModelProperty(value = "小类名称")
     private String prodCategory3rdName;
     /**
+     * 季节名称
+     */
+    @ApiModelProperty(value = "季节名称")
+    private String seasonName;
+    /**
      * 季节，对应 t_planning_saason.season 季节
      */
     @ApiModelProperty(value = "季节，对应 t_planning_saason.season 季节")
