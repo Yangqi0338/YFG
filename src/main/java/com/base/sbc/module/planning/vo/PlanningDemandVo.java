@@ -22,10 +22,12 @@ public class PlanningDemandVo {
     private String type;
 
     private String formTypeId;
-
+    /** 字段id */
+    @ApiModelProperty(value = "字段id"  )
+    private String fieldId;
 
     List<PlanningDemandProportionData> list;
 
-    List<FieldManagementVo> fieldManagementVoList;
+    FieldManagementVo fieldManagementVo;
 
 }
