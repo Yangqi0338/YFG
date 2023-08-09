@@ -23,7 +23,7 @@ public interface SampleAllocateService extends BaseService<SampleAllocate> {
     PageInfo queryPageInfo(SampleAllocatePageDto dto);
 
     /** 保存样衣及明细 */
-    SampleAllocateVo save(SampleAllocateSaveDto dto);
+    void save(SampleAllocateSaveDto dto);
 
     /** 查询明细数据 */
     SampleAllocateVo getDetail(String id);

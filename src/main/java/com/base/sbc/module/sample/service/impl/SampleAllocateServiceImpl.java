@@ -51,8 +51,7 @@ public class SampleAllocateServiceImpl extends BaseServiceImpl<SampleAllocateMap
     private IdGen idGen = new IdGen();
 
     @Override
-    public SampleAllocateVo save(SampleAllocateSaveDto dto) {
-        String id = "";
+    public void save(SampleAllocateSaveDto dto) {
         SampleAllocate allocate = CopyUtil.copy(dto, SampleAllocate.class);
 
         if (StringUtil.isEmpty(allocate.getId())) {
@@ -67,7 +66,6 @@ public class SampleAllocateServiceImpl extends BaseServiceImpl<SampleAllocateMap
         super.saveOrUpdate(allocate);
 
         sampleAllocateItemService.save(dto.getSampleItemList(), allocate.getId(), allocate.getCode(), allocate.getToPosition(), allocate.getToPositionId());
-        return mapper.getDetail(id);
     }
 
     @Override
