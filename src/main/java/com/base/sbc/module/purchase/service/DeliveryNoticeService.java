@@ -5,8 +5,12 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.purchase.service;
+import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.purchase.entity.DeliveryNotice;
+
+import java.util.List;
 
 /** 
  * 类描述：送货通知单 service类
@@ -17,12 +21,6 @@ import com.base.sbc.module.purchase.entity.DeliveryNotice;
  * @version 1.0  
  */
 public interface DeliveryNoticeService extends BaseService<DeliveryNotice>{
-
-// 自定义方法区 不替换的区域【other_start】
-
-
-
-// 自定义方法区 不替换的区域【other_end】
-
+    ApiResult generateNotice(UserCompany userCompany, String companyCode, String ids);
 	
 }

@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.DeliveryNotice
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-8 16:38:37
+ * @date 创建时间：2023-8-8 17:46:04
  * @version 1.0
  */
 @Data
@@ -55,11 +55,11 @@ public class DeliveryNotice extends BaseDataEntity<String> {
     private String purchaserName;
     /** 采购日期 */
     @ApiModelProperty(value = "采购日期"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date purchaseDate;
     /** 物料交期 */
     @ApiModelProperty(value = "物料交期"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date deliveryDate;
     /** 设计款号 */
     @ApiModelProperty(value = "设计款号"  )
@@ -87,7 +87,7 @@ public class DeliveryNotice extends BaseDataEntity<String> {
     private BigDecimal price;
     /** 采购单位 */
     @ApiModelProperty(value = "采购单位"  )
-    private String unit;
+    private String purchaseUnit;
     /** 采购送货数量 */
     @ApiModelProperty(value = "采购送货数量"  )
     private BigDecimal deliveryQuantity;
@@ -105,3 +105,4 @@ public class DeliveryNotice extends BaseDataEntity<String> {
     private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+
