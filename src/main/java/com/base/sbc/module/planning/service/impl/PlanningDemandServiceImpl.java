@@ -6,11 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumWashIconVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formType.entity.FieldManagement;
@@ -69,14 +71,27 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         queryWrapper.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
         /*选中的需求*/
         List<PlanningDemandVo> list = baseMapper.getDemandDimensionalityById(queryWrapper);
-        list.forEach(p -> {
+
+        List<String> stringList1 = list.stream().map(PlanningDemandVo::getFieldId).collect(Collectors.toList());
+        List<FieldManagementVo> fieldManagementVoList = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(stringList1)){
             /*查询表单数据*/
             QueryFieldManagementDto queryFieldManagementDto = new QueryFieldManagementDto();
             queryFieldManagementDto.setCompanyCode(baseController.getUserCompany());
-            queryFieldManagementDto.setGroupName(p.getDemandName());
-            queryFieldManagementDto.setFormTypeId(p.getFormTypeId());
-            List<FieldManagementVo> list1 = fieldManagementMapper.getFieldManagementList(queryFieldManagementDto);
-            p.setFieldManagementVoList(list1);
+            queryFieldManagementDto.setIds(stringList1);
+            /*查询所有关联的字段*/
+            fieldManagementVoList = fieldManagementMapper.getFieldManagementList(queryFieldManagementDto);
+        }
+
+        Map<String, List<FieldManagementVo>> map = new HashMap<>();
+        if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
+            map = fieldManagementVoList.stream().collect(Collectors.groupingBy(FieldManagementVo::getId));
+        }
+        for (PlanningDemandVo p : list) {
+            List<FieldManagementVo> list1 =  map.get(p.getFieldId());
+            if(!CollectionUtils.isEmpty(list1)){
+                p.setFieldManagementVo(list1.get(0));
+            }
             /*查询需求数据*/
             QueryWrapper<PlanningDemandProportionData> queryWrapper1 = new QueryWrapper<>();
             queryWrapper1.eq("demand_id", p.getId());
@@ -93,32 +108,37 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
                     });
                 }
             });
-        });
+        };
         return ApiResult.success("查询成功", list);
     }
 
     @Override
     public ApiResult getFormDemand(QueryDemandDto queryDemandDimensionalityDto) {
         Map<String, List> map = new HashMap<>();
+        /*查询表单的数据*/
         QueryWrapper<FormType> formTypeQueryWrapper = new QueryWrapper<>();
-        formTypeQueryWrapper.eq("name", queryDemandDimensionalityDto.getFormName());
+        formTypeQueryWrapper.eq("code", queryDemandDimensionalityDto.getFormCode());
         List<FormType> formTypeList = formTypeMapper.selectList(formTypeQueryWrapper);
         if (CollectionUtils.isEmpty(formTypeList)) {
             throw new OtherException("获取表单失败");
         }
         QueryWrapper<FieldManagement> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("form_type_id", formTypeList.get(0).getId());
-        queryWrapper.groupBy("group_name");
         /*配置的字段*/
+        /**
+         * 查询需求占比中依赖于字段id
+         */
         List<FieldManagement> fieldManagementList = fieldManagementMapper.selectList(queryWrapper);
         map.put("fieldManagement", fieldManagementList);
         QueryWrapper<PlanningDemand> queryWrapper1 = new QueryWrapper<>();
         queryWrapper1.eq("category_id", queryDemandDimensionalityDto.getCategoryId());
         queryWrapper1.eq("planning_season_id", queryDemandDimensionalityDto.getPlanningSeasonId());
         List<PlanningDemand> planningDemandList = baseMapper.selectList(queryWrapper1);
-        List<String> stringList = planningDemandList.stream().map(PlanningDemand::getDemandName).collect(Collectors.toList());
-        //交集
-        List<FieldManagement> fieldManagementList2 = fieldManagementList.stream().filter(f -> stringList.contains(f.getGroupName())).collect(Collectors.toList());
+        /*字段id*/
+        List<String> stringList = planningDemandList.stream().map(PlanningDemand::getFieldId).collect(Collectors.toList());
+        queryWrapper.clear();
+        queryWrapper.in("id",stringList);
+        List<FieldManagement> fieldManagementList2 = fieldManagementMapper.selectList(queryWrapper);
 
         map.put("demandDimensionality", fieldManagementList2);
         return ApiResult.success("查询成功", map);
@@ -165,15 +185,10 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
             }
         }
         /*新增新增加的*/
-        if (!CollectionUtils.isEmpty(addList)) {
-            addList.forEach(s -> {
-                PlanningDemand planningDemand = new PlanningDemand();
-                BeanUtils.copyProperties(s, planningDemand);
-                planningDemand.setCompanyCode(baseController.getUserCompany());
-                planningDemand.insertInit();
-                baseMapper.insert(planningDemand);
-            });
-        }
+
+        List<PlanningDemand> planningDemandList = BeanUtil.copyToList(addList, PlanningDemand.class);
+        saveBatch(planningDemandList);
+
         return ApiResult.success("操作成功");
     }
 

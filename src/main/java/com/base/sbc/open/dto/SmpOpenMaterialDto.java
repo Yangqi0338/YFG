@@ -18,6 +18,35 @@ import lombok.Data;
 @Data
 public class SmpOpenMaterialDto {
     /**
+     * 材料成分备注
+     */
+    private String c8MaterialAttrCompositionComment;
+    /**
+     * 工艺要求
+     */
+    private String finishl;
+    /**
+     * 辅料材质
+     */
+    private String width;
+    /**
+     * 号型类型
+     */
+    private String actualSizeRange;
+    /**
+     * 质检结果
+     */
+    private String c8MaterialAttrIspectionStatus;
+    /**
+     * 纱织规格
+     */
+    private String c8MaterialAttrSaoriSpecifications;
+    /**
+     * 密度
+     */
+    private String c8MaterialAttrDensity;
+
+    /**
      * 材料编号
      */
     private String Code;
@@ -219,6 +248,12 @@ public class SmpOpenMaterialDto {
         basicsdatumMaterial.setCategoryId(ProductTypeID);
         basicsdatumMaterial.setMaterialCodeName(Code+MaterialName);
         basicsdatumMaterial.setCategoryName(ProductType);
+        basicsdatumMaterial.setIngredientSay(c8MaterialAttrCompositionComment);
+        basicsdatumMaterial.setProcessRequire(finishl);
+        basicsdatumMaterial.setAuxiliaryMaterial(width);
+        basicsdatumMaterial.setCheckResult(c8MaterialAttrIspectionStatus);
+        basicsdatumMaterial.setSpecification(c8MaterialAttrSaoriSpecifications);
+        basicsdatumMaterial.setDensity(c8MaterialAttrDensity);
 //        basicsdatumMaterial.setCategoryIds(ProductTypeID+","+C8_Material_2ndCategory+","+C8_Material_3rdCategory);
         basicsdatumMaterial.setYear(C8_Season_Year);
         //basicsdatumMaterial.setCategory1Code(ProductTypeID);

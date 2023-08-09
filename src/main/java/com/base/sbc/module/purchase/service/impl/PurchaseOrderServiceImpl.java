@@ -53,7 +53,7 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
 
         String id = idGen.nextIdStr();
         String maxCode = purchaseOrderMapper.selectMaxCodeByCompany(companyCode);
-        String code = "SH" + CodeGen.getCode(maxCode != null ? maxCode : CodeGen.BEGIN_NUM);
+        String code = "SO" + CodeGen.getCode(maxCode != null ? maxCode : CodeGen.BEGIN_NUM);
 
         purchaseOrder.insertInit(userCompany);
         purchaseOrder.setId(id);

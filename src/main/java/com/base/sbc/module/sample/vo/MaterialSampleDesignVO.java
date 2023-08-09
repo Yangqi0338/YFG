@@ -47,5 +47,14 @@ public class MaterialSampleDesignVO {
     @ApiModelProperty(value = "主款")
     private String principalStyle;
 
+    @ApiModelProperty(value = "品类")
+    private String prodCategoryName;
+
+    @ApiModelProperty(value = "中类")
+    private String prodCategory2ndName;
+
+    @ApiModelProperty(value = "小类")
+    private String prodCategory3ndName;
+
 
 }

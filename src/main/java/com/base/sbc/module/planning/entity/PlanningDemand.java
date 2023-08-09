@@ -42,6 +42,9 @@ public class PlanningDemand extends BaseDataEntity<String> {
     private String demandName;
     /** 表单类型id */
     private String  formTypeId;
+    /** 字段id */
+    @ApiModelProperty(value = "字段id"  )
+    private String fieldId;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
