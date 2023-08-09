@@ -84,11 +84,9 @@ public interface NodeStatusService extends BaseService<NodeStatus> {
      */
     void setNodeStatusToListBean(List list, String dataIdKey, String listKey, String mapKey);
 
-    Object hasNodeStatusAuth(String nodeStatusConfigKey, String userId, String dataId, BaseService baseService);
-
     void hasNodeStatusAuth(String userId, BaseDataEntity bean, JSONObject nodeConfig);
 
-    JSONObject getNodeStatusConfig(String nodeStatusConfigKey, String userId, String node, String status, String dataId, BaseService baseService);
+    JSONObject getNodeStatusConfig(String nodeStatusConfigKey, String node, String status);
 
     void setNodeStatus(List list);
 
@@ -105,6 +103,16 @@ public interface NodeStatusService extends BaseService<NodeStatus> {
      * @return
      */
     JSONObject getNodeNextOrPrev(String nodeStatusConfigKey, String node, String status, String np);
+
+    /**
+     * 获取节点 并判断是否有权限
+     *
+     * @param user
+     * @param bean
+     * @param patternMakingNodeStatus
+     * @return
+     */
+    JSONObject getNodeNextAndAuth(GroupUser user, BaseDataEntity bean, String patternMakingNodeStatus, String np);
 
 // 自定义方法区 不替换的区域【other_end】
 

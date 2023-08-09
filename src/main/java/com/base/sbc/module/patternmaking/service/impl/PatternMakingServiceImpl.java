@@ -13,9 +13,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -174,7 +172,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean nodeStatusChange(String userId, NodeStatusChangeDto dto, GroupUser groupUser) {
-        nodeStatusService.hasNodeStatusAuth(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, userId, dto.getDataId(), this);
         nodeStatusService.nodeStatusChange(dto.getDataId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
         // 修改单据
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
@@ -637,39 +634,24 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public JSONObject getNodeStatusConfig(String userId, String node, String status, String dataId) {
-        return nodeStatusService.getNodeStatusConfig(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, userId, node, status, dataId, this);
+    public JSONObject getNodeStatusConfig(GroupUser user, String node, String status, String dataId) {
+        if (StrUtil.isNotBlank(dataId)) {
+            PatternMaking bean = getById(dataId);
+            JSONObject config = nodeStatusService.getNodeNextAndAuth(user, bean, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
+            return config;
+        }
+        return nodeStatusService.getNodeStatusConfig(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, node, status);
     }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean assignmentUser(GroupUser groupUser, AssignmentUserDto dto) {
-        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
-        uw.eq("id", dto.getId());
-        uw.set("cutter_id", dto.getCutterId());
-        uw.set("cutter_name", dto.getCutterName());
-        uw.set("stitcher", dto.getStitcher());
-        uw.set("stitcher_id", dto.getStitcherId());
-        setUpdateInfo(uw);
-        boolean update = this.update(uw);
-        //将节点设置为已分配
-        EnumNodeStatus ens = EnumNodeStatus.GARMENT_WAITING_ASSIGNMENT;
-        JSONObject nodeStatusConfig = getNodeStatusConfig(groupUser.getId(), ens.getNode(), ens.getStatus(), null);
-        Object nextParams = nodeStatusConfig.get("nextParams");
-        if (ObjectUtil.isNotEmpty(nextParams)) {
-            if (nextParams instanceof List) {
-                List<NodeStatusChangeDto> nodeStatusChangeDtos = ((JSONArray) nextParams).toJavaList(NodeStatusChangeDto.class);
-                nodeStatusChangeDtos.forEach(item -> {
-                    item.setDataId(dto.getId());
-                });
-                nodeStatusChange(groupUser.getId(), nodeStatusChangeDtos, groupUser);
-            } else {
-                NodeStatusChangeDto nodeStatusChangeDto = ((JSONObject) nextParams).toJavaObject(NodeStatusChangeDto.class);
-                nodeStatusChangeDto.setDataId(dto.getId());
-                nodeStatusChange(groupUser.getId(), nodeStatusChangeDto, groupUser);
-            }
-        }
-        return update;
+        PatternMaking byId = getById(dto.getId());
+        byId.setStitcher(dto.getStitcher());
+        byId.setStitcherId(dto.getStitcherId());
+        //分配后进入下一节点
+        nodeStatusService.nextOrPrev(groupUser, byId, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
+        return updateById(byId);
     }
 
     @Override

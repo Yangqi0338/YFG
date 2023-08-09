@@ -26,7 +26,6 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.dto.NodeStatusChangeDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
@@ -230,13 +229,7 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
     }
 
     @Override
-    public JSONObject getNodeStatusConfig(String nodeStatusConfigKey, String userId, String node, String status, String dataId, BaseService baseService) {
-        // 如果所有不为空 则判断是否有此节点状态的权限
-        if (StrUtil.isNotBlank(dataId)) {
-            Object t = hasNodeStatusAuth(nodeStatusConfigKey, userId, dataId, baseService);
-            node = BeanUtil.getProperty(t, "node");
-            status = BeanUtil.getProperty(t, "status");
-        }
+    public JSONObject getNodeStatusConfig(String nodeStatusConfigKey, String node, String status) {
         JSONObject config = nodeStatusConfigService
                 .getConfig2Json(nodeStatusConfigKey, getCompanyCode());
         if (StrUtil.isNotBlank(node) && config != null) {
@@ -248,73 +241,6 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
         return config;
     }
 
-    @Override
-    public Object hasNodeStatusAuth(String nodeStatusConfigKey, String userId, String dataId, BaseService baseService) {
-        // 获取当前节点
-        // 0 查询打版数据
-        Object bean = baseService.getById(dataId);
-        if (bean == null) {
-            throw new OtherException("打版指令数据不存在");
-        }
-        String planningSeasonId = BeanUtil.getProperty(bean, "planningSeasonId");
-        String node = BeanUtil.getProperty(bean, "node");
-        String status = BeanUtil.getProperty(bean, "status");
-
-        // 1判断是否有产品季权限
-        List<String> planningSeasonIds = amcFeignService.getPlanningSeasonIdByUserId(getUserId());
-        if (CollUtil.isEmpty(planningSeasonIds) || !CollUtil.contains(planningSeasonIds, planningSeasonId)) {
-            throw new OtherException("你不在该产品季人员当中");
-        }
-        // 2 判断是否有下一步岗位权限
-        // 2.0 获取当前节点需要的角色权限
-        JSONObject nodeStatusConfig = getNodeStatusConfig(nodeStatusConfigKey, userId, node, status, null, baseService);
-        if (nodeStatusConfig == null) {
-            return bean;
-        }
-        JSONObject auth = nodeStatusConfig.getJSONObject("auth");
-        if (auth == null) {
-            return bean;
-        }
-        //角色or岗位匹配会+1
-        int flg = 0;
-        List<String> msg = new ArrayList<>(4);
-        JSONArray authUserIdArr = auth.getJSONArray("userId");
-        JSONArray authPostArr = auth.getJSONArray("post");
-        if (ObjectUtil.isEmpty(authUserIdArr) && ObjectUtil.isEmpty(authPostArr)) {
-            return bean;
-        }
-        if (ObjectUtil.isNotEmpty(authUserIdArr)) {
-            //判断当前userId是否和授权的userId相等
-            List<String> authUserIds = authUserIdArr.toJavaList(String.class).stream().map(item -> {
-                return (String) BeanUtil.getProperty(bean, item);
-            }).collect(Collectors.toList());
-            if (authUserIds.contains(userId)) {
-                flg++;
-            } else {
-                msg.add("用户不匹配");
-            }
-
-        }
-        if (ObjectUtil.isNotEmpty(authPostArr) && flg == 0) {
-            // 2.1 获取当前登录人员岗位
-            UserCompany userInfo = amcFeignService.getUserInfo(getUserId(), BaseGlobal.YES);
-            List<String> userPostName = Opt.ofNullable(userInfo.getPostList()).map(pl -> pl.stream().map(CompanyPost::getName).collect(Collectors.toList())).orElse(new ArrayList<>());
-            List<String> authPost = authPostArr.toJavaList(String.class);
-            // 是否有交集
-            Collection<String> intersection = CollUtil.intersection(userPostName, authPost);
-            if (CollUtil.isNotEmpty(intersection)) {
-                flg++;
-            } else {
-                msg.add("岗位不匹配,需要[" + StrUtil.join(StrUtil.COMMA, authPost) + "]");
-            }
-        }
-        //无匹配项抛出异常
-        if (flg == 0) {
-            throw new OtherException(CollUtil.join(msg, StrUtil.COMMA));
-        }
-        return bean;
-
-    }
 
     @Override
     public void hasNodeStatusAuth(String userId, BaseDataEntity bean, JSONObject nodeStatusConfig) {
@@ -448,14 +374,7 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean nextOrPrev(GroupUser user, BaseDataEntity bean, String nodeStatusConfigKey, String np) {
-        String node = BeanUtil.getProperty(bean, "node");
-        String status = BeanUtil.getProperty(bean, "status");
-        JSONObject config = getNodeNextOrPrev(nodeStatusConfigKey, node, status, np);
-        if (config == null) {
-            throw new OtherException(np + "配置错误");
-        }
-        //校验是否有权限
-        hasNodeStatusAuth(user.getId(), bean, config);
+        JSONObject config = getNodeNextAndAuth(user, bean, nodeStatusConfigKey, np);
         List<NodeStatusChangeDto> nsList = config.getJSONArray("node").toJavaList(NodeStatusChangeDto.class);
         if (CollUtil.isEmpty(nsList)) {
             throw new OtherException(np + "配置错误");
@@ -510,6 +429,19 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return config;
+    }
+
+    @Override
+    public JSONObject getNodeNextAndAuth(GroupUser user, BaseDataEntity bean, String nodeStatusConfigKey, String np) {
+        String node = BeanUtil.getProperty(bean, "node");
+        String status = BeanUtil.getProperty(bean, "status");
+        JSONObject config = getNodeNextOrPrev(nodeStatusConfigKey, node, status, np);
+        if (config == null) {
+            throw new OtherException(np + "配置错误");
+        }
+        //校验是否有权限
+        hasNodeStatusAuth(user.getId(), bean, config);
         return config;
     }
 

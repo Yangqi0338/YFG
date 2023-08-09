@@ -23,19 +23,6 @@ public class AssignmentUserDto {
     private String id;
 
     /**
-     * 裁剪工
-     */
-    @ApiModelProperty(value = "裁剪工")
-    @NotBlank(message = "裁剪工为空")
-    private String cutterName;
-    /**
-     * 裁剪工id
-     */
-    @ApiModelProperty(value = "裁剪工id")
-    @NotBlank(message = "裁剪工id为空")
-    private String cutterId;
-
-    /**
      * 车缝工名称
      */
     @ApiModelProperty(value = "车缝工名称")

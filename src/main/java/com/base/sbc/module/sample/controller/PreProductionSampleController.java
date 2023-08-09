@@ -151,8 +151,7 @@ public class PreProductionSampleController {
             @ApiImplicitParam(name = "dataId", value = "打版id", required = false, dataType = "String", paramType = "query"),
     })
     public JSONObject getNodeStatusConfig(Principal user, String node, String status, String dataId) {
-        GroupUser userBy = userUtils.getUserBy(user);
-        return nodeStatusService.getNodeStatusConfig(NodeStatusConfigService.PRE_PRODUCTION_SAMPLE_TASK, userBy.getId(), node, status, dataId, preProductionSampleTaskService);
+        return nodeStatusService.getNodeStatusConfig(NodeStatusConfigService.PRE_PRODUCTION_SAMPLE_TASK, node, status);
     }
 }
 

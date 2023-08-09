@@ -105,7 +105,6 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean nodeStatusChange(String userId, NodeStatusChangeDto dto, GroupUser groupUser) {
-        nodeStatusService.hasNodeStatusAuth(NodeStatusConfigService.PRE_PRODUCTION_SAMPLE_TASK, userId, dto.getDataId(), this);
         nodeStatusService.nodeStatusChange(dto.getDataId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
         // 修改单据
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();

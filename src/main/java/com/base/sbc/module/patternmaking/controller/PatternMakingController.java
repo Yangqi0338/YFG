@@ -242,10 +242,10 @@ public class PatternMakingController {
     })
     public JSONObject getNodeStatusConfig(Principal user, String node, String status, String dataId) {
         GroupUser userBy = userUtils.getUserBy(user);
-        return patternMakingService.getNodeStatusConfig(userBy.getId(), node, status, dataId);
+        return patternMakingService.getNodeStatusConfig(userBy, node, status, dataId);
     }
 
-    @ApiOperation(value = "分配人员(裁剪工,车缝工)", notes = "")
+    @ApiOperation(value = "分配人员(车缝工)", notes = "")
     @PostMapping("/assignmentUser")
     public boolean assignmentUser(Principal user,@Valid @RequestBody AssignmentUserDto dto) {
         GroupUser groupUser = userUtils.getUserBy(user);

@@ -224,7 +224,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     List prmDataOverview(String time);
 
-    JSONObject getNodeStatusConfig(String userId, String node, String status, String dataId);
+    JSONObject getNodeStatusConfig(GroupUser user, String node, String status, String dataId);
 
     boolean assignmentUser(GroupUser groupUser, AssignmentUserDto dto);
 
