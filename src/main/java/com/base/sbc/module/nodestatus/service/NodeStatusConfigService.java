@@ -32,6 +32,20 @@ public interface NodeStatusConfigService extends BaseService<NodeStatusConfig> {
      * 产前样配置 key
      */
     String PRE_PRODUCTION_SAMPLE_TASK = "PRE_PRODUCTION_SAMPLE_TASK";
+    /**
+     * 下一步配置
+     */
+    String NEXT = "next";
+    /**
+     * 上一步配置
+     */
+    String PREV = "prev";
+    /**
+     * 修改项
+     */
+    String UPDATE = "update";
+    String NODE = "node";
+    String STATUS = "status";
 
     NodeStatusConfig getByType(String type, String companyCode);
 

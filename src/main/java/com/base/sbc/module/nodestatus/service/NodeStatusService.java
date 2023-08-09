@@ -7,6 +7,8 @@
 package com.base.sbc.module.nodestatus.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.nodestatus.dto.NodeStatusChangeDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
@@ -84,10 +86,25 @@ public interface NodeStatusService extends BaseService<NodeStatus> {
 
     Object hasNodeStatusAuth(String nodeStatusConfigKey, String userId, String dataId, BaseService baseService);
 
+    void hasNodeStatusAuth(String userId, BaseDataEntity bean, JSONObject nodeConfig);
+
     JSONObject getNodeStatusConfig(String nodeStatusConfigKey, String userId, String node, String status, String dataId, BaseService baseService);
 
     void setNodeStatus(List list);
 
+    boolean nextOrPrev(GroupUser user, BaseDataEntity bean, String nodeStatusConfigKey, String np);
+
+
+    /**
+     * 获取上一步或者下一步的配置
+     *
+     * @param nodeStatusConfigKey
+     * @param node
+     * @param status
+     * @param np                  prev 上 ,next下
+     * @return
+     */
+    JSONObject getNodeNextOrPrev(String nodeStatusConfigKey, String node, String status, String np);
 
 // 自定义方法区 不替换的区域【other_end】
 

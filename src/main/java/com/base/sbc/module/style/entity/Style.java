@@ -16,7 +16,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -24,9 +23,9 @@ import java.util.Date;
  *
  * @author lxl
  * @version 1.0
- * @address com.base.sbc.module.sample.entity.SampleDesign
+ * @address com.base.sbc.module.style.entity.Style
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-4 9:45:59
+ * @date 创建时间：2023-8-9 20:22:09
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -35,6 +34,7 @@ import java.util.Date;
 public class Style extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
+
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
     public SmpSampleDto toSmpSampleDto() {
         SmpSampleDto smpSampleDto = new SmpSampleDto();
@@ -555,6 +555,11 @@ public class Style extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)")
     private String confirmStatus;
+    /**
+     * 状态:1启用,0未启用
+     */
+    @ApiModelProperty(value = "状态:1启用,0未启用")
+    private String enableFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

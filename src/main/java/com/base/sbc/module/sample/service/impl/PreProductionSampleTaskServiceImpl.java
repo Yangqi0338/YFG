@@ -13,6 +13,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
@@ -29,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +54,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     private NodeStatusService nodeStatusService;
     @Autowired
     private AttachmentService attachmentService;
+
+    @Autowired
+    private UserUtils userUtils;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -126,6 +132,19 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         attachmentService.setListStylePic(list, "stylePic");
         nodeStatusService.setNodeStatus(list);
         return list;
+    }
+
+    @Override
+    public boolean nextOrPrev(Principal user, String id, String np) {
+        PreProductionSampleTask pm = getById(id);
+        GroupUser groupUser = userUtils.getUserBy(user);
+        if (pm == null) {
+            throw new OtherException("任务不存在");
+        }
+        //跳转
+        boolean flg = nodeStatusService.nextOrPrev(groupUser, pm, NodeStatusConfigService.PRE_PRODUCTION_SAMPLE_TASK, np);
+        updateById(pm);
+        return flg;
     }
 
 // 自定义方法区 不替换的区域【other_end】
