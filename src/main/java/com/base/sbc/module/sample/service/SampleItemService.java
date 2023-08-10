@@ -65,5 +65,14 @@ public interface SampleItemService extends BaseService<SampleItem> {
      * @return
      */
     void checkSampleStatus(List<String> ids, List<String> checkStatus);
+
+
+    /**
+     * 启用停用
+     *
+     * @param id
+     * @param enableFlag 是否启用：0.否，1.是
+     */
+    void enableOrDeactivate(String id, String enableFlag);
 }
 

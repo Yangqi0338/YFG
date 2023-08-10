@@ -90,5 +90,8 @@ public class SampleItem extends BaseDataEntity<String> {
     /** 备注 */
     @ApiModelProperty(value = "备注")
     private String remarks;
+    /** 是否启用：0.否，1.是 */
+    @ApiModelProperty(value = "是否启用：0.否，1.是")
+    private String enableFlag;
 }
 
