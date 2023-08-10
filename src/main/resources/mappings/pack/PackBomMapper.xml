@@ -126,7 +126,6 @@
             uf.url,
             sd.band_code,
             ( SELECT b.band_name FROM t_basicsdatum_band b WHERE b.`code` = sd.band_code GROUP BY b.`code` ) AS band_name,
-            ssc.category_name,
             ssc.style_no,
             ssc.design_no,
             ssc.color_name,
