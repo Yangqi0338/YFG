@@ -1,6 +1,7 @@
 package com.base.sbc.module.basicsdatum.dto;
 
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.module.common.dto.BaseDto;
 import lombok.Data;
 
 /**
@@ -9,7 +10,7 @@ import lombok.Data;
  * @mail 247967116@qq.com
  */
 @Data
-public class ProcessDatabasePageDto extends Page {
+public class ProcessDatabasePageDto extends BaseDto {
     private String code;
     private String type;
     private String processName;
