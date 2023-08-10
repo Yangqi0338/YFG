@@ -9,7 +9,6 @@ package com.base.sbc.module.nodestatus.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
@@ -17,7 +16,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.base.sbc.client.amc.entity.CompanyPost;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -254,16 +252,15 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
             return;
         }
         //
-        int errorCount = 0;
+
         List<String> msg = new ArrayList<>(4);
         JSONObject auth = check.getJSONObject("auth");
+        boolean authMatch = true;
         if (ObjectUtil.isNotEmpty(auth)) {
             // 匹配用户
             JSONArray authUserIdArr = auth.getJSONArray("userId");
-            // 匹配岗位
-            JSONArray authPostArr = auth.getJSONArray("post");
+            // 匹配部门用户类型 2为样衣组长
             JSONArray deptUserType = auth.getJSONArray("deptUserType");
-            boolean match = false;
             if (ObjectUtil.isNotEmpty(authUserIdArr)) {
                 boolean userMatch = false;
                 for (int i = 0; i < authUserIdArr.size(); i++) {
@@ -278,49 +275,35 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
                         msg.add("【" + msgStr + "】不匹配,需要【" + userNameVal + "】");
                     }
                 }
-                if (userMatch) {
-                    match = true;
-                } else {
-                    errorCount++;
-                }
+                authMatch = userMatch;
             }
-            if (ObjectUtil.isNotEmpty(authPostArr) && !match) {
-                // 2.1 获取当前登录人员岗位
-                UserCompany userInfo = amcFeignService.getUserInfo(getUserId(), BaseGlobal.YES);
-                List<String> userPostName = Opt.ofNullable(userInfo.getPostList()).map(pl -> pl.stream().map(CompanyPost::getName).collect(Collectors.toList())).orElse(new ArrayList<>());
-                List<String> authPost = authPostArr.toJavaList(String.class);
-                // 是否有交集
-                Collection<String> intersection = CollUtil.intersection(userPostName, authPost);
-                if (CollUtil.isEmpty(intersection)) {
-                    errorCount++;
-                    msg.add("岗位不匹配,需要[" + StrUtil.join(StrUtil.COMMA, authPost) + "]");
-                }
-            }
-            if (ObjectUtil.isNotEmpty(deptUserType) && !match) {
-                // 2.1 获取当前登录人员岗位
+
+            //部门用户类型
+            if (ObjectUtil.isNotEmpty(deptUserType) && !authMatch) {
                 boolean deptMatch = false;
                 for (int i = 0; i < deptUserType.size(); i++) {
                     JSONObject deptConfig = deptUserType.getJSONObject(i);
-                    String field = deptConfig.getString("field");
+                    String field = deptConfig.getString("id");
+                    String name = deptConfig.getString("name");
                     String val = deptConfig.getString("val");
-                    String msgStr = deptConfig.getString("msg");
+
                     String deptId = BeanUtil.getProperty(bean, field);
                     List<UserCompany> deptManager = amcFeignService.getDeptManager(deptId, val);
                     UserCompany one = CollUtil.findOne(deptManager, (uc) -> StrUtil.equals(uc.getUserId(), userId));
                     if (one != null) {
                         deptMatch = true;
-                        continue;
+                        break;
                     } else {
+                        String msgStr = "【" + BeanUtil.getProperty(bean, name) + "】" + deptConfig.getString("msg");
                         msg.add(msgStr);
                     }
                 }
-                if (!deptMatch) {
-                    errorCount++;
-                }
+                authMatch = deptMatch;
             }
         }
 
         //非空校验
+        boolean requiredCheck = true;
         JSONArray required = check.getJSONArray("required");
         if (CollUtil.isNotEmpty(required)) {
             for (int i = 0; i < required.size(); i++) {
@@ -328,13 +311,13 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
                 String field = jsonObject.getString("field");
                 String msgStr = jsonObject.getString("msg");
                 if (ObjectUtil.isEmpty(BeanUtil.getProperty(bean, field))) {
-                    errorCount++;
                     msg.add(msgStr);
+                    requiredCheck = false;
                 }
             }
         }
-        //无匹配项抛出异常
-        if (errorCount > 0) {
+        //权限校验没过或者飞空校验没过 跑出异常
+        if (!requiredCheck || !authMatch) {
             throw new OtherException(CollUtil.join(msg, StrUtil.COMMA));
         }
     }
