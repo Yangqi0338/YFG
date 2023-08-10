@@ -269,7 +269,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         JSONObject jsonObject =  JSON.parseObject(res);
         if (Boolean.parseBoolean (jsonObject.get("Sucess").toString())) {
             StyleColor styleColor = styleColorMapper.selectById(dto.getStyleColorId());
-            styleColor.setSampleDesignPic(jsonObject.get("FileName").toString());
+            styleColor.setStyleColorPic(jsonObject.get("FileName").toString());
             return  styleColorMapper.updateById(styleColor)>0;
         } else {
             throw new OtherException(jsonObject.get("Msg").toString());
