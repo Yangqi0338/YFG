@@ -30,10 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author 卞康
@@ -224,5 +221,15 @@ public class MaterialController extends BaseController {
             return null;
         }
         return materialService.getAssociationMaterial(ids);
+    }
+
+
+    /**
+     * 根据标签id集合查询关联标签
+     */
+    @GetMapping("/getByIds")
+    public ApiResult getByIds(String ids) {
+        List<Material> materials = materialService.listByIds(Collections.singletonList(ids));
+        return selectSuccess(materials);
     }
 }
