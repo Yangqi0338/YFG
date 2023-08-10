@@ -93,9 +93,9 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
             stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
             //计控实际倍率 = 吊牌价/计控实际成本
-            stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getPlanCost()));
+            stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getPlanCost(), 2));
             //实际倍率 = 吊牌价/总成本
-            stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getTotalCost()));
+            stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getTotalCost(),2));
         });
         attachmentService.setListStylePic(stylePricingList, "sampleDesignPic");
     }
@@ -196,7 +196,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                     BigDecimal lossRate = BigDecimalUtil.add(BigDecimal.ONE, BigDecimalUtil.div(packBom.getLossRate(), BigDecimal.valueOf(100), 2), 2);
                     BigDecimal priceTax = BigDecimalUtil.add(BigDecimal.ONE, BigDecimalUtil.div(packBom.getPriceTax(), BigDecimal.valueOf(100), 2), 2);
                     BigDecimal cost = BigDecimalUtil.mul(2, packBom.getBulkUnitUse(), packBom.getBulkPrice(), lossRate);
-                    return BigDecimalUtil.div(cost, priceTax);
+                    return BigDecimalUtil.div(cost, priceTax, 2);
                 })
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);

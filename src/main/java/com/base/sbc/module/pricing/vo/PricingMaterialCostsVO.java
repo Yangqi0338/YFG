@@ -60,6 +60,11 @@ public class PricingMaterialCostsVO {
     @ApiModelProperty(value = "部位")
     private String part;
     /**
+     * 部位
+     */
+    @ApiModelProperty(value = "部位")
+    private String partCode;
+    /**
      * 物料编号
      */
     @ApiModelProperty(value = "物料编号")

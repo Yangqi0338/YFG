@@ -312,8 +312,8 @@ public class BigDecimalUtil {
 		if(v1 == null){
 			v1 = BigDecimal.ZERO;
 		}
-		if(v2 == null){
-			v2 = BigDecimal.ZERO;
+		if(v2 == null || (BigDecimal.ZERO).compareTo(v2) == 0 ){
+			return BigDecimal.ZERO;
 		}
 		return v1.divide(v2, scale, BigDecimal.ROUND_HALF_UP);
 	}

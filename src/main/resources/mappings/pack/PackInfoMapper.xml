@@ -74,8 +74,8 @@
         tpi.style_no AS styleCode,
         tpi.design_no AS designStyleCode,
         tpi.style_name AS styleName,
-        tpi.category_name AS categoryName,
-        tpi.category_ids AS categoryCode,
+        tpi.prod_category_name AS categoryName,
+        tpi.prod_category AS categoryCode,
         tpi.color_code,
         tpi.color
         FROM
