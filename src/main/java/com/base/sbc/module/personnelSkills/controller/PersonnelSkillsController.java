@@ -49,24 +49,17 @@ public class PersonnelSkillsController extends BaseController {
 
     @PostMapping("/save")
     public ApiResult save(@RequestBody PersonnelSkills personnelSkills) {
-        QueryWrapper<PersonnelSkills> queryWrapper =new QueryWrapper<>();
-        queryWrapper.eq("position_ids",personnelSkills.getPositionIds());
-        queryWrapper.eq("category_codes",personnelSkills.getCategoryCodes());
+        QueryWrapper<PersonnelSkills> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("position_ids", personnelSkills.getPositionIds());
+        queryWrapper.eq("category_codes", personnelSkills.getCategoryCodes());
         PersonnelSkills one = personnelSkillsService.getOne(queryWrapper);
-        if (StringUtils.isEmpty(personnelSkills.getId())){
-            if (one!=null){
-                throw new OtherException("岗位："+personnelSkills.getPositionNames() +",品类："+personnelSkills.getCategoryNames()+"已存在相同的记录");
-            }
-            personnelSkillsService.save(personnelSkills);
-            return insertSuccess("保存成功");
-        }else {
-            if (personnelSkills.getId().equals(one.getId())){
-                personnelSkillsService.updateById(personnelSkills);
-                return updateSuccess("保存成功");
-            }else {
-                throw new OtherException("岗位："+personnelSkills.getPositionNames() +",品类："+personnelSkills.getCategoryNames()+"已存在相同的记录");
-            }
+
+        if (one != null && !personnelSkills.getId().equals(one.getId())) {
+            throw new OtherException("岗位：" + personnelSkills.getPositionNames() + ",品类：" + personnelSkills.getCategoryNames() + "已存在相同的记录");
         }
+        personnelSkillsService.saveOrUpdate(personnelSkills);
+        return updateSuccess("保存成功");
+
     }
 
     @PutMapping("/delByIds")

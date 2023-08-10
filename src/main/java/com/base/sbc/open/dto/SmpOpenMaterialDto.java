@@ -253,6 +253,7 @@ public class SmpOpenMaterialDto {
         basicsdatumMaterial.setAuxiliaryMaterial(width);
         basicsdatumMaterial.setCheckResult(c8MaterialAttrIspectionStatus);
         basicsdatumMaterial.setSpecification(c8MaterialAttrSaoriSpecifications);
+        basicsdatumMaterial.setWidthGroup(actualSizeRange);
         basicsdatumMaterial.setDensity(c8MaterialAttrDensity);
 //        basicsdatumMaterial.setCategoryIds(ProductTypeID+","+C8_Material_2ndCategory+","+C8_Material_3rdCategory);
         basicsdatumMaterial.setYear(C8_Season_Year);

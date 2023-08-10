@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -301,7 +302,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             QueryWrapper<PlanningSeason> qw = new QueryWrapper<>();
             qw.eq(COMPANY_CODE, getCompanyCode());
             qw.lambda().isNotNull(PlanningSeason::getYearName).isNotNull(PlanningSeason::getBrandName);
-
+            qw.orderByDesc("year_name");
             //查询所有产品季
             List<PlanningSeason> seasonList = list(qw);
             if (CollUtil.isEmpty(seasonList)) {
@@ -322,7 +323,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                 return v;
             }).collect(Collectors.toList());
             List<YearSeasonBandVo> result = new ArrayList<>(16);
-            Map<String, List<YearSeasonBandVo>> seasonMap = slist.stream().collect(Collectors.groupingBy(item -> item.getYearName()));
+            Map<String, List<YearSeasonBandVo>> seasonMap = slist.stream().collect(Collectors.groupingBy(YearSeasonBandVo::getYearName, LinkedHashMap::new, Collectors.toList()));
             for (Map.Entry<String, List<YearSeasonBandVo>> season : seasonMap.entrySet()) {
                 YearSeasonBandVo item = new YearSeasonBandVo();
                 List<YearSeasonBandVo> value = season.getValue();

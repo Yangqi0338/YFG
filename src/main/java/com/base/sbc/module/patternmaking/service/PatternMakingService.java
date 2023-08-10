@@ -15,6 +15,7 @@ import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -223,7 +224,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     List prmDataOverview(String time);
 
-    JSONObject getNodeStatusConfig(String userId, String node, String status, String dataId);
+    JSONObject getNodeStatusConfig(GroupUser user, String node, String status, String dataId);
 
     boolean assignmentUser(GroupUser groupUser, AssignmentUserDto dto);
 
@@ -255,15 +256,18 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @param token token
      * @return 返回集合数据
      */
-    ArrayList<ArrayList> sampleCapacityTotalCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String token);
+    ArrayList<ArrayList> sampleCapacityTotalCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String token);
 
     /**
      * 产能对比统计
+     *
      * @param patternMakingWeekMonthViewDto 技术看板DTO
-     * @param token token
+     * @param token                         token
      * @return 返回集合数据
      */
-    ArrayList<ArrayList> capacityContrastStatistics(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String token);
+    ArrayList<ArrayList> capacityContrastStatistics(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String token);
+
+    boolean nextOrPrev(Principal user, String id, String np);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

@@ -49,7 +49,7 @@ public class PackBom extends BaseDataEntity<String> {
         smpBomDto.setSupplierMaterialCode(supplierMaterialCode);
         smpBomDto.setQuotationSupplierCode(supplierId);
         smpBomDto.setCollocation(collocationName);
-        smpBomDto.setBomLineItemId(id);
+        smpBomDto.setBomLineItemId(code);
         smpBomDto.setId(id);
         IdGen idGen = new IdGen();
         smpBomDto.setSyncId(String.valueOf(idGen.nextId()));

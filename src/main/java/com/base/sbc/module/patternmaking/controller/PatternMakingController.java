@@ -14,6 +14,8 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.common.dto.IdDto;
+import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
@@ -240,10 +242,10 @@ public class PatternMakingController {
     })
     public JSONObject getNodeStatusConfig(Principal user, String node, String status, String dataId) {
         GroupUser userBy = userUtils.getUserBy(user);
-        return patternMakingService.getNodeStatusConfig(userBy.getId(), node, status, dataId);
+        return patternMakingService.getNodeStatusConfig(userBy, node, status, dataId);
     }
 
-    @ApiOperation(value = "分配人员(裁剪工,车缝工)", notes = "")
+    @ApiOperation(value = "分配人员(车缝工)", notes = "")
     @PostMapping("/assignmentUser")
     public boolean assignmentUser(Principal user,@Valid @RequestBody AssignmentUserDto dto) {
         GroupUser groupUser = userUtils.getUserBy(user);
@@ -272,14 +274,26 @@ public class PatternMakingController {
     @PostMapping("/sampleCapacityTotalCount")
     public ApiResult sampleCapacityTotalCount(@RequestHeader(BaseConstant.AUTHORIZATION)String token,@RequestHeader(BaseConstant.USER_COMPANY)String companyCode, @RequestBody PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
         patternMakingWeekMonthViewDto.setCompanyCode(companyCode);
-        return ApiResult.success("查询成功",patternMakingService.sampleCapacityTotalCount(patternMakingWeekMonthViewDto,token));
+        return ApiResult.success("查询成功", patternMakingService.sampleCapacityTotalCount(patternMakingWeekMonthViewDto, token));
     }
 
     @ApiOperation(value = "产能对比", notes = "")
     @PostMapping("/capacityContrastStatistics")
-    public ApiResult capacityContrastStatistics(@RequestHeader(BaseConstant.AUTHORIZATION)String token,@RequestHeader(BaseConstant.USER_COMPANY)String companyCode, @RequestBody PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
+    public ApiResult capacityContrastStatistics(@RequestHeader(BaseConstant.AUTHORIZATION) String token, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode, @RequestBody PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
         patternMakingWeekMonthViewDto.setCompanyCode(companyCode);
-        return ApiResult.success("查询成功",patternMakingService.capacityContrastStatistics(patternMakingWeekMonthViewDto,token));
+        return ApiResult.success("查询成功", patternMakingService.capacityContrastStatistics(patternMakingWeekMonthViewDto, token));
+    }
+
+    @ApiOperation(value = "前往下一个节点", notes = "")
+    @GetMapping("/next")
+    public boolean next(Principal user, @Validated IdDto idDto) {
+        return patternMakingService.nextOrPrev(user, idDto.getId(), NodeStatusConfigService.NEXT);
+    }
+
+    @ApiOperation(value = "前往上一个节点", notes = "")
+    @GetMapping("/prev")
+    public boolean prev(Principal user, @Validated IdDto idDto) {
+        return patternMakingService.nextOrPrev(user, idDto.getId(), NodeStatusConfigService.PREV);
     }
 }
 

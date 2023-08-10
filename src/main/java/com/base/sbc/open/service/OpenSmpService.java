@@ -205,11 +205,11 @@ public class OpenSmpService {
                 codes.add(basicsdatumMaterialWidth.getWidthCode());
             });
 
-            List<SpecificationGroup> specifications = specificationGroupService.list(new QueryWrapper<SpecificationGroup>().eq("specification_ids", String.join(",", codes)));
-            if (specifications != null && specifications.size() > 0) {
-                basicsdatumMaterial.setWidthGroup(specifications.get(0).getCode());
-                basicsdatumMaterial.setWidthGroupName(specifications.get(0).getName());
-            }
+            //List<SpecificationGroup> specifications = specificationGroupService.list(new QueryWrapper<SpecificationGroup>().eq("specification_ids", String.join(",", codes)));
+            //if (specifications != null && specifications.size() > 0) {
+            //    basicsdatumMaterial.setWidthGroup(specifications.get(0).getCode());
+            //    basicsdatumMaterial.setWidthGroupName(specifications.get(0).getName());
+            //}
             basicsdatumMaterialWidthService.addAndUpdateAndDelList(basicsdatumMaterialWidths, new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
 
         }

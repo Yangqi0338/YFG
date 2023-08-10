@@ -84,6 +84,17 @@ public class AmcFeignService {
         return null;
     }
 
+    public List<UserCompany> getDeptManager(String deptId, String userType) {
+        String responseStr = amcService.getDeptManager(deptId, userType);
+        JSONObject jsonObject = JSON.parseObject(responseStr);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            JSONArray data = jsonObject.getJSONArray(BaseConstant.DATA);
+            List<UserCompany> userCompanies = data.toJavaList(UserCompany.class);
+            return userCompanies;
+        }
+        return null;
+    }
+
     /**
      * 获取团队信息
      *

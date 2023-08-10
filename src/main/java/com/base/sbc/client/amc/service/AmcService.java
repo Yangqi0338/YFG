@@ -32,6 +32,14 @@ public interface AmcService {
     public String getDesignerDeptUsers(@RequestHeader("Authorization") String token, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany);
 
     /**
+     * @param deptId   部门id
+     * @param userType 用户类型 1 部门主管 2 样衣组长
+     * @return
+     */
+    @GetMapping("/amc/api/token/companyDept/deptManager")
+    String getDeptManager(@RequestParam("deptId") String deptId, @RequestParam("userType") String userType);
+
+    /**
      * 获取企业信息
      *
      * @param companyCode

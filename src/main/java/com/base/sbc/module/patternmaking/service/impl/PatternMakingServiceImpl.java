@@ -13,9 +13,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -31,6 +29,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.DateUtils;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
@@ -57,6 +56,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -80,6 +80,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     private final CcmFeignService ccmFeignService;
     private final NodeStatusConfigService nodeStatusConfigService;
+
+    @Autowired
+    private UserUtils userUtils;
 
     @Autowired
     private RedisUtils redisUtils;
@@ -169,7 +172,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean nodeStatusChange(String userId, NodeStatusChangeDto dto, GroupUser groupUser) {
-        nodeStatusService.hasNodeStatusAuth(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, userId, dto.getDataId(), this);
         nodeStatusService.nodeStatusChange(dto.getDataId(), dto.getNode(), dto.getStatus(), dto.getStartFlg(), dto.getEndFlg());
         // 修改单据
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
@@ -632,39 +634,24 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public JSONObject getNodeStatusConfig(String userId, String node, String status, String dataId) {
-        return nodeStatusService.getNodeStatusConfig(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, userId, node, status, dataId, this);
+    public JSONObject getNodeStatusConfig(GroupUser user, String node, String status, String dataId) {
+        if (StrUtil.isNotBlank(dataId)) {
+            PatternMaking bean = getById(dataId);
+            JSONObject config = nodeStatusService.getNodeNextAndAuth(user, bean, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
+            return config;
+        }
+        return nodeStatusService.getNodeStatusConfig(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, node, status);
     }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean assignmentUser(GroupUser groupUser, AssignmentUserDto dto) {
-        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
-        uw.eq("id", dto.getId());
-        uw.set("cutter_id", dto.getCutterId());
-        uw.set("cutter_name", dto.getCutterName());
-        uw.set("stitcher", dto.getStitcher());
-        uw.set("stitcher_id", dto.getStitcherId());
-        setUpdateInfo(uw);
-        boolean update = this.update(uw);
-        //将节点设置为已分配
-        EnumNodeStatus ens = EnumNodeStatus.GARMENT_WAITING_ASSIGNMENT;
-        JSONObject nodeStatusConfig = getNodeStatusConfig(groupUser.getId(), ens.getNode(), ens.getStatus(), null);
-        Object nextParams = nodeStatusConfig.get("nextParams");
-        if (ObjectUtil.isNotEmpty(nextParams)) {
-            if (nextParams instanceof List) {
-                List<NodeStatusChangeDto> nodeStatusChangeDtos = ((JSONArray) nextParams).toJavaList(NodeStatusChangeDto.class);
-                nodeStatusChangeDtos.forEach(item -> {
-                    item.setDataId(dto.getId());
-                });
-                nodeStatusChange(groupUser.getId(), nodeStatusChangeDtos, groupUser);
-            } else {
-                NodeStatusChangeDto nodeStatusChangeDto = ((JSONObject) nextParams).toJavaObject(NodeStatusChangeDto.class);
-                nodeStatusChangeDto.setDataId(dto.getId());
-                nodeStatusChange(groupUser.getId(), nodeStatusChangeDto, groupUser);
-            }
-        }
-        return update;
+        PatternMaking byId = getById(dto.getId());
+        byId.setStitcher(dto.getStitcher());
+        byId.setStitcherId(dto.getStitcherId());
+        //分配后进入下一节点
+        nodeStatusService.nextOrPrev(groupUser, byId, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
+        return updateById(byId);
     }
 
     @Override
@@ -767,21 +754,37 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public ArrayList<ArrayList> capacityContrastStatistics(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String token) {
         // 1、获取缓存数据，过期时间，数据过期后会开启一个新的线程
-        Map<String, Object> dataMap = this.redisGetData(patternMakingWeekMonthViewDto,token,TechnologyBoardConstant.CAPACITY_CONTRAST);
+        Map<String, Object> dataMap = this.redisGetData(patternMakingWeekMonthViewDto, token, TechnologyBoardConstant.CAPACITY_CONTRAST);
         // 2、缓存为空则直接返回，
-        if(null == dataMap){
+        if (null == dataMap) {
             return null;
         }
-        return (ArrayList<ArrayList>)dataMap.get("dataLists");
+        return (ArrayList<ArrayList>) dataMap.get("dataLists");
     }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean nextOrPrev(Principal user, String id, String np) {
+        PatternMaking pm = getById(id);
+        GroupUser groupUser = userUtils.getUserBy(user);
+        if (pm == null) {
+            throw new OtherException("任务不存在");
+        }
+        //跳转
+        boolean flg = nodeStatusService.nextOrPrev(groupUser, pm, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, np);
+        updateById(pm);
+        return flg;
+    }
+
 
     /**
      * 产能对比统计 查数据库
+     *
      * @param patternMakingWeekMonthViewDto 技术看板DTO
-     * @param key token
+     * @param key                           token
      * @return 返回集合数据
      */
-    private Map<String,Object> capacityContrastStatisticsView(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String key){
+    private Map<String, Object> capacityContrastStatisticsView(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String key) {
         // 1、拼接锁key
         String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.CAPACITY_CONTRAST + patternMakingWeekMonthViewDto.getCompanyCode();
         try {

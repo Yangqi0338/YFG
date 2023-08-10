@@ -71,6 +71,7 @@
                     sd.band_code
                 FROM
                     t_pack_bom pb
+                LEFT JOIN t_pack_bom_version pbv  on pbv.id = pb.bom_version_id
                 LEFT JOIN t_basicsdatum_material bm ON bm.id = pb.material_id
                 LEFT JOIN t_pack_info pi ON pi.id = pb.foreign_id
                     AND pi.del_flag = '0'
@@ -81,6 +82,8 @@
                 WHERE
                     pb.pack_type = 'packDesign'
                     AND pb.del_flag = '0'
+                    AND pbv.`status` = '1'
+                    AND pbv.`company_code` = #{companyCode}
                     AND pb.company_code = #{companyCode}
                 GROUP BY
                 ssc.design_no,
@@ -151,6 +154,7 @@
                 pi.prod_category3rd_name
             FROM
                 t_pack_bom pb
+                LEFT JOIN t_pack_bom_version pbv  on pbv.id = pb.bom_version_id
                 LEFT JOIN t_pack_info pi ON pi.id = pb.foreign_id
                 AND pi.del_flag = '0'
                 LEFT JOIN t_style sd ON sd.id = pi.foreign_id
@@ -158,6 +162,8 @@
             WHERE
                 pb.pack_type = 'packDesign'
                 AND pb.del_flag = '0'
+                AND pb.company_code = #{companyCode}
+		        AND pbv.`status` = '1'
             GROUP BY
                 pi.style_no,
                 sd.design_no

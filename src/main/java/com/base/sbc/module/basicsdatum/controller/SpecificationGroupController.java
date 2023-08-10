@@ -42,7 +42,7 @@ public class SpecificationGroupController extends BaseController {
         queryWrapper.notEmptyLike("code",specificationGroupDto.getCode());
 
         queryWrapper.notEmptyLike("create_name",specificationGroupDto.getCreateName());
-        queryWrapper.notEmptyLike("create_date",specificationGroupDto.getCreateDate());
+        queryWrapper.between("create_date",specificationGroupDto.getCreateDate());
         PageHelper.startPage(specificationGroupDto);
         List<SpecificationGroup> list = specificationGroupService.list(queryWrapper);
         return selectSuccess(new PageInfo<>(list));

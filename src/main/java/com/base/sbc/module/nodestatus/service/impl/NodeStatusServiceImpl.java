@@ -9,7 +9,6 @@ package com.base.sbc.module.nodestatus.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
@@ -17,13 +16,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.base.sbc.client.amc.entity.CompanyPost;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.dto.NodeStatusChangeDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
@@ -58,6 +58,8 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
     private AmcFeignService amcFeignService;
     @Autowired
     private NodeStatusConfigService nodeStatusConfigService;
+    @Autowired
+    private UserUtils userUtils;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -225,13 +227,7 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
     }
 
     @Override
-    public JSONObject getNodeStatusConfig(String nodeStatusConfigKey, String userId, String node, String status, String dataId, BaseService baseService) {
-        // 如果所有不为空 则判断是否有此节点状态的权限
-        if (StrUtil.isNotBlank(dataId)) {
-            Object t = hasNodeStatusAuth(nodeStatusConfigKey, userId, dataId, baseService);
-            node = BeanUtil.getProperty(t, "node");
-            status = BeanUtil.getProperty(t, "status");
-        }
+    public JSONObject getNodeStatusConfig(String nodeStatusConfigKey, String node, String status) {
         JSONObject config = nodeStatusConfigService
                 .getConfig2Json(nodeStatusConfigKey, getCompanyCode());
         if (StrUtil.isNotBlank(node) && config != null) {
@@ -243,72 +239,87 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
         return config;
     }
 
-    @Override
-    public Object hasNodeStatusAuth(String nodeStatusConfigKey, String userId, String dataId, BaseService baseService) {
-        // 获取当前节点
-        // 0 查询打版数据
-        Object pm = baseService.getById(dataId);
-        if (pm == null) {
-            throw new OtherException("打版指令数据不存在");
-        }
-        String planningSeasonId = BeanUtil.getProperty(pm, "planningSeasonId");
-        String node = BeanUtil.getProperty(pm, "node");
-        String status = BeanUtil.getProperty(pm, "status");
 
-        // 1判断是否有产品季权限
-        List<String> planningSeasonIds = amcFeignService.getPlanningSeasonIdByUserId(getUserId());
-        if (CollUtil.isEmpty(planningSeasonIds) || !CollUtil.contains(planningSeasonIds, planningSeasonId)) {
-            throw new OtherException("你不在该产品季人员当中");
-        }
+    @Override
+    public void hasNodeStatusAuth(String userId, BaseDataEntity bean, JSONObject nodeStatusConfig) {
         // 2 判断是否有下一步岗位权限
         // 2.0 获取当前节点需要的角色权限
-        JSONObject nodeStatusConfig = getNodeStatusConfig(nodeStatusConfigKey, userId, node, status, null, baseService);
-        if (nodeStatusConfig == null) {
-            return pm;
+        if (ObjectUtil.isEmpty(nodeStatusConfig)) {
+            return;
         }
-        JSONObject auth = nodeStatusConfig.getJSONObject("auth");
-        if (auth == null) {
-            return pm;
+        JSONObject check = nodeStatusConfig.getJSONObject("check");
+        if (ObjectUtil.isEmpty(check)) {
+            return;
         }
-        //角色or岗位匹配会+1
-        int flg = 0;
+        //
+
         List<String> msg = new ArrayList<>(4);
-        JSONArray authUserIdArr = auth.getJSONArray("userId");
-        JSONArray authPostArr = auth.getJSONArray("post");
-        if (ObjectUtil.isEmpty(authUserIdArr) && ObjectUtil.isEmpty(authPostArr)) {
-            return pm;
-        }
-        if (ObjectUtil.isNotEmpty(authUserIdArr)) {
-            //判断当前userId是否和授权的userId相等
-            List<String> authUserIds = authUserIdArr.toJavaList(String.class).stream().map(item -> {
-                return (String) BeanUtil.getProperty(pm, item);
-            }).collect(Collectors.toList());
-            if (authUserIds.contains(userId)) {
-                flg++;
-            } else {
-                msg.add("用户不匹配");
+        JSONObject auth = check.getJSONObject("auth");
+        boolean authMatch = true;
+        if (ObjectUtil.isNotEmpty(auth)) {
+            // 匹配用户
+            JSONArray authUserIdArr = auth.getJSONArray("userId");
+            // 匹配部门用户类型 2为样衣组长
+            JSONArray deptUserType = auth.getJSONArray("deptUserType");
+            if (ObjectUtil.isNotEmpty(authUserIdArr)) {
+                boolean userMatch = false;
+                for (int i = 0; i < authUserIdArr.size(); i++) {
+                    JSONObject userConfig = authUserIdArr.getJSONObject(i);
+                    String userIdVal = BeanUtil.getProperty(bean, userConfig.getString("id"));
+                    String userNameVal = BeanUtil.getProperty(bean, userConfig.getString("name"));
+                    String msgStr = userConfig.getString("msg");
+                    if (StrUtil.equals(userIdVal, userId)) {
+                        userMatch = true;
+                        break;
+                    } else {
+                        msg.add("【" + msgStr + "】不匹配,需要【" + userNameVal + "】");
+                    }
+                }
+                authMatch = userMatch;
             }
 
-        }
-        if (ObjectUtil.isNotEmpty(authPostArr) && flg == 0) {
-            // 2.1 获取当前登录人员岗位
-            UserCompany userInfo = amcFeignService.getUserInfo(getUserId(), BaseGlobal.YES);
-            List<String> userPostName = Opt.ofNullable(userInfo.getPostList()).map(pl -> pl.stream().map(CompanyPost::getName).collect(Collectors.toList())).orElse(new ArrayList<>());
-            List<String> authPost = authPostArr.toJavaList(String.class);
-            // 是否有交集
-            Collection<String> intersection = CollUtil.intersection(userPostName, authPost);
-            if (CollUtil.isNotEmpty(intersection)) {
-                flg++;
-            } else {
-                msg.add("岗位不匹配,需要[" + StrUtil.join(StrUtil.COMMA, authPost) + "]");
+            //部门用户类型
+            if (ObjectUtil.isNotEmpty(deptUserType) && !authMatch) {
+                boolean deptMatch = false;
+                for (int i = 0; i < deptUserType.size(); i++) {
+                    JSONObject deptConfig = deptUserType.getJSONObject(i);
+                    String field = deptConfig.getString("id");
+                    String name = deptConfig.getString("name");
+                    String val = deptConfig.getString("val");
+
+                    String deptId = BeanUtil.getProperty(bean, field);
+                    List<UserCompany> deptManager = amcFeignService.getDeptManager(deptId, val);
+                    UserCompany one = CollUtil.findOne(deptManager, (uc) -> StrUtil.equals(uc.getUserId(), userId));
+                    if (one != null) {
+                        deptMatch = true;
+                        break;
+                    } else {
+                        String msgStr = "【" + BeanUtil.getProperty(bean, name) + "】" + deptConfig.getString("msg");
+                        msg.add(msgStr);
+                    }
+                }
+                authMatch = deptMatch;
             }
         }
-        //无匹配项抛出异常
-        if (flg == 0) {
+
+        //非空校验
+        boolean requiredCheck = true;
+        JSONArray required = check.getJSONArray("required");
+        if (CollUtil.isNotEmpty(required)) {
+            for (int i = 0; i < required.size(); i++) {
+                JSONObject jsonObject = required.getJSONObject(i);
+                String field = jsonObject.getString("field");
+                String msgStr = jsonObject.getString("msg");
+                if (ObjectUtil.isEmpty(BeanUtil.getProperty(bean, field))) {
+                    msg.add(msgStr);
+                    requiredCheck = false;
+                }
+            }
+        }
+        //权限校验没过或者飞空校验没过 跑出异常
+        if (!requiredCheck || !authMatch) {
             throw new OtherException(CollUtil.join(msg, StrUtil.COMMA));
         }
-        return pm;
-
     }
 
     @Override
@@ -349,6 +360,80 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
                 BeanUtil.setProperty(o, "startDate", updateDate);
             }
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean nextOrPrev(GroupUser user, BaseDataEntity bean, String nodeStatusConfigKey, String np) {
+        JSONObject config = getNodeNextAndAuth(user, bean, nodeStatusConfigKey, np);
+        List<NodeStatusChangeDto> nsList = config.getJSONArray("node").toJavaList(NodeStatusChangeDto.class);
+        if (CollUtil.isEmpty(nsList)) {
+            throw new OtherException(np + "配置错误");
+        }
+        nsList.forEach(ns -> {
+            ns.setDataId(bean.getId());
+        });
+        nodeStatusChangeBatch(nsList);
+        NodeStatusChangeDto lastNs = CollUtil.getLast(nsList);
+        //设置值
+        setUpdateVal(bean, config, user);
+        BeanUtil.setProperty(bean, "node", lastNs.getNode());
+        BeanUtil.setProperty(bean, "status", lastNs.getStatus());
+        return true;
+    }
+
+    private void setUpdateVal(BaseDataEntity bean, JSONObject config, GroupUser user) {
+        JSONArray jsonArray = config.getJSONArray(NodeStatusConfigService.UPDATE);
+        if (CollUtil.isEmpty(jsonArray)) {
+            return;
+        }
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            String valType = jsonObject.getString("valType");
+            String field = jsonObject.getString("field");
+            if (StrUtil.equals(valType, "loginName")) {
+                try {
+                    BeanUtil.setProperty(bean, field, user.getName());
+                } catch (Exception e) {
+                    log.error("设置值失败(" + field + ")", e);
+                }
+            } else if (StrUtil.equals(valType, "loginId")) {
+                try {
+                    BeanUtil.setProperty(bean, field, user.getId());
+                } catch (Exception e) {
+                    log.error("设置值失败(" + field + ")", e);
+                }
+            }
+        }
+    }
+
+
+    @Override
+    public JSONObject getNodeNextOrPrev(String nodeStatusConfigKey, String node, String status, String np) {
+        JSONObject config = null;
+        try {
+            config = nodeStatusConfigService
+                    .getConfig2Json(nodeStatusConfigKey, getCompanyCode());
+            config = config.getObject(node, JSONObject.class, Feature.OrderedField);
+            config = config.getObject(status, JSONObject.class, Feature.OrderedField);
+            config = config.getObject(np, JSONObject.class, Feature.OrderedField);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return config;
+    }
+
+    @Override
+    public JSONObject getNodeNextAndAuth(GroupUser user, BaseDataEntity bean, String nodeStatusConfigKey, String np) {
+        String node = BeanUtil.getProperty(bean, "node");
+        String status = BeanUtil.getProperty(bean, "status");
+        JSONObject config = getNodeNextOrPrev(nodeStatusConfigKey, node, status, np);
+        if (config == null) {
+            throw new OtherException(np + "配置错误");
+        }
+        //校验是否有权限
+        hasNodeStatusAuth(user.getId(), bean, config);
+        return config;
     }
 
 // 自定义方法区 不替换的区域【other_end】
