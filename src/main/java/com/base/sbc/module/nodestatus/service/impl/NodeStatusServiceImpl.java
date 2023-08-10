@@ -265,15 +265,23 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
             JSONArray deptUserType = auth.getJSONArray("deptUserType");
             boolean match = false;
             if (ObjectUtil.isNotEmpty(authUserIdArr)) {
-                //判断当前userId是否和授权的userId相等
-                List<String> authUserIds = authUserIdArr.toJavaList(String.class).stream().map(item -> {
-                    return (String) BeanUtil.getProperty(bean, item);
-                }).collect(Collectors.toList());
-                if (!authUserIds.contains(userId)) {
-                    errorCount++;
-                    msg.add("用户不匹配");
-                } else {
+                boolean userMatch = false;
+                for (int i = 0; i < authUserIdArr.size(); i++) {
+                    JSONObject userConfig = authUserIdArr.getJSONObject(i);
+                    String userIdVal = BeanUtil.getProperty(bean, userConfig.getString("id"));
+                    String userNameVal = BeanUtil.getProperty(bean, userConfig.getString("name"));
+                    String msgStr = userConfig.getString("msg");
+                    if (StrUtil.equals(userIdVal, userId)) {
+                        userMatch = true;
+                        break;
+                    } else {
+                        msg.add("【" + msgStr + "】不匹配,需要【" + userNameVal + "】");
+                    }
+                }
+                if (userMatch) {
                     match = true;
+                } else {
+                    errorCount++;
                 }
             }
             if (ObjectUtil.isNotEmpty(authPostArr) && !match) {
