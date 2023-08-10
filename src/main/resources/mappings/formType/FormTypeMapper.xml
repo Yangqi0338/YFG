@@ -57,13 +57,13 @@
      and  ft.group_id=#{id}
     </select>
 
-
-
-    <select id="getTableName" resultType="java.lang.String">
+    <select id="getTableName" resultType="java.util.Map">
      select
-     table_name tableName
+     table_name tableName,
+     table_comment tableComment
      from information_schema.tables
      where table_schema='s_pdm_data'
     </select>
+
 
 </mapper>
