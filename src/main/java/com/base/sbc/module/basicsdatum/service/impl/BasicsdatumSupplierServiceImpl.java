@@ -89,6 +89,7 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
         queryWrapper.like(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getSupplierType()), "supplier_type", queryRevampBasicsdatumSupplierDto.getSupplierType());
         queryWrapper.like(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getFormerSupplierCode()), "former_supplier_code", queryRevampBasicsdatumSupplierDto.getFormerSupplierCode());
         queryWrapper.like(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getCreateName()), "create_name", queryRevampBasicsdatumSupplierDto.getCreateName());
+        queryWrapper.eq(!StringUtils.isEmpty(queryRevampBasicsdatumSupplierDto.getIsSupplier()), "is_supplier", queryRevampBasicsdatumSupplierDto.getIsSupplier());
        if(StringUtils.isNotBlank(queryRevampBasicsdatumSupplierDto.getCreateDate())){
           String[] strings = queryRevampBasicsdatumSupplierDto.getCreateDate().split(",");
            queryWrapper.ge("create_date",strings[0]);

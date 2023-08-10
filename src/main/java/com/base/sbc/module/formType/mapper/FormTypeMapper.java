@@ -10,9 +10,11 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.formType.dto.QueryFormTypeDto;
 import com.base.sbc.module.formType.entity.FormType;
 import com.base.sbc.module.formType.vo.PagingFormTypeVo;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：表单类型 dao类
@@ -30,7 +32,8 @@ public interface FormTypeMapper extends BaseMapper<FormType> {
 
     List<PagingFormTypeVo> getFormTypeIsGroup(QueryFormTypeDto queryFormTypeDto);
 
-    List<String> getTableName();
+    @MapKey("tableName")
+    List<Map<String,String>> getTableName();
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }
