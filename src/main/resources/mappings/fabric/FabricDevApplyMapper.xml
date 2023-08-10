@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.fabric.mapper.FabricDevApplyMapper">
+    <!--
+        面料开发申请（主表）
+        创建人：your name
+        邮箱：your email
+        创建时间：2023-8-7 11:01:20
+        版本号：1.0
+      -->
+
+    <select id="getDevApplyList" resultType="com.base.sbc.module.fabric.vo.FabricDevApplyListVO">
+        SELECT fda.dev_apply_code,
+        fda.allocation_status,
+        fda.required_arrival_date,
+        fda.remarks,
+        fdbi.image,
+        fdbi.short_code,
+        fdbi.sort,
+        fdbi.source,
+        fdbi.fabric_label,
+        fdbi.fabric_classif,
+        fdbi.material_name,
+        fdbi.material_code,
+        fdbi.price,
+        fdbi.inquiry,
+        fdbi.category,
+        fdbi.prod_cycle,
+        fdbi.moq,
+        fdbi.to_material_flag,
+        fdbi.material_accept_flag,
+        fdbi.material_category,
+        fdbi.material_attribute,
+        fdbi.brand,
+        fdm.material_type,
+        fdm.old_material_code,
+        fdm.YEAR,
+        fdm.season,
+        fdm.shape_function_description,
+        fdm.color_and_model,
+        fdm.factory_ingredient,
+        fdm.fabric_ingredient,
+        fdm.fabric_ingredient_say,
+        fdm.gram_weight,
+        fdm.width,
+        fdm.technics_requirements,
+        fdm.auxiliary_material,
+        fdm.longitude_shrink,
+        fdm.latitude_shrink,
+        fdm.loss_rate,
+        fdoi.purchasing_unit,
+        fdoi.stock_unit,
+        fdoi.Purchase_to_stock,
+        fdoi.default_supplier,
+        fdoi.ingredient_confirm,
+        fdoi.check_unit,
+        fdoi.check_result,
+        fdoi.quality_check_date,
+        fdoi.kg_m_num,
+        fdoi.length,
+        fdoi.material_source,
+        fdoi.diameter,
+        fdoi.inquiry_code,
+        fdoi.developer,
+        fdoi.purchase_group,
+        fdoi.purchase_name,
+        fdoi.yarn_count_specification,
+        fdoi.density,
+        fdoi.stock_availability,
+        fdmi.expect_start_date,
+        fdmi.expect_end_date,
+        fdmi.practical_start_date,
+        fdmi.practical_end_date
+        FROM t_fabric_dev_apply fda
+        JOIN t_fabric_dev_basic_info fdbi ON fda.id = fdbi.biz_id
+        JOIN t_fabric_dev_material_info fdm ON fda.id = fdm.biz_id
+        JOIN t_fabric_dev_other_info fdoi ON fda.id = fdoi.biz_id
+        LEFT JOIN t_fabric_dev_main_info fdmi ON fda.dev_apply_code = fdmi.dev_apply_code
+        <where>
+            fda.del_flag = '0'
+            AND fda.company_code = #{dto.companyCode}
+            <if test="dto.source != null and dto.source != ''">
+                and fdbi.source = #{dto.source}
+            </if>
+            <if test="dto.fabricClassifCode != null and dto.fabricClassifCode !=''">
+                and fdbi.fabric_classif_code = #{dto.fabricClassifCode}
+            </if>
+            <if test="dto.allocationStatus != null and dto.allocationStatus !=''">
+                and fda.allocation_status = #{dto.allocationStatus}
+            </if>
+
+            <if test="dto.search != null and dto.search !=''">
+                and (fda.dev_apply_code like concat("%",#{dto.search},"%") or fdbi.material_name like
+                concat("%",#{dto.search},"%") or
+                fdbi.short_code like concat("%",#{dto.search},"%"))
+            </if>
+        </where>
+        GROUP BY fda.dev_apply_code
+        order by fda.create_date desc
+    </select>
+
+</mapper>

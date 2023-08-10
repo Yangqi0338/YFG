@@ -1,12 +1,21 @@
 package com.base.sbc.config.utils;
 
-import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.redis.RedisUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.base.sbc.config.utils.DateUtils.FORMAT_NO_DATE;
+
+@Component
 public class CodeGen {
+
+	@Autowired
+	private RedisUtils redisUtils;
+
 
 	public static final String BEGIN_NUM="001";
 
@@ -87,5 +96,17 @@ public class CodeGen {
 			}
 		}
 
+	}
+
+	/**
+	 * 获取编码
+	 * @param prefix
+	 * @param businessFlag
+	 * @param companyCode
+	 * @return
+	 */
+	public String getCode(String prefix, String businessFlag, String companyCode) {
+		long incr = redisUtils.incr(businessFlag + ":" + prefix + companyCode, 1);
+		return prefix + DateUtils.getDate(FORMAT_NO_DATE) + String.format("%03d", incr);
 	}
 }

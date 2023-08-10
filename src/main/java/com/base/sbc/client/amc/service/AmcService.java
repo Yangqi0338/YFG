@@ -148,13 +148,13 @@ public interface AmcService {
     String getPlanningSeasonIdByUserId(@RequestParam("userId") String userId);
 
     /**
-     * 查询用户数据权限
+     * 获取读数据权限
      *
      * @param businessType
      * @return
      */
-    @GetMapping("/amc/api/token/dataPermissions/getDataPermissions")
-    ApiResult getDataPermissions(@RequestParam("businessType") String businessType);
+    @GetMapping("/amc/api/token/dataPermissions/getReadDataPermissions")
+    ApiResult getReadDataPermissions(@RequestParam("businessType") String businessType);
 
     /**
      * 根据用户id集合获取用户工号(登录账号)集合

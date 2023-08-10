@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
@@ -141,6 +142,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     @Autowired
     private UserUtils userUtils;
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
 
     private IdGen idGen = new IdGen();
@@ -328,7 +331,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         // 所有
         else if (StrUtil.equals(dto.getUserType(), StylePageDto.userType0)) {
-            amcFeignService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
+            Boolean selectFlag = dataPermissionsService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
+            if (selectFlag) {
+                return new PageInfo<>();
+            }
         } else {
 //            amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
             // amcFeignService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
@@ -453,7 +459,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         sampleVo.setAttachmentList(attachmentVoList);
 
         // 关联的素材库
-        QueryWrapper mqw = new QueryWrapper<PlanningCategoryItemMaterial>();
+        QueryWrapper<PlanningCategoryItemMaterial> mqw = new QueryWrapper<PlanningCategoryItemMaterial>();
         mqw.eq("planning_category_item_id", style.getPlanningCategoryItemId());
         mqw.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
         List<PlanningCategoryItemMaterial> list = planningCategoryItemMaterialService.list(mqw);
@@ -588,33 +594,33 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         Map<String, Object> result = new LinkedHashMap<>();
         List<String> timeRange = StrUtil.split(time, CharUtil.COMMA);
         //企划下发需求总数 (统计从坑位下发的数据)
-        QueryWrapper qhxfxqzsQw = new QueryWrapper();
+        QueryWrapper<Style> qhxfxqzsQw = new QueryWrapper<>();
         qhxfxqzsQw.isNotNull("sender");
         getDesignDataOverviewCommonQw(qhxfxqzsQw, timeRange);
         long qhxfxqzs = this.count(qhxfxqzsQw);
         result.put("企划下发需求总数", qhxfxqzs);
         // 设计需求总数(统计从坑位下发的数据 + 新建的数据)
-        QueryWrapper sjxqzsQw = new QueryWrapper();
+        QueryWrapper<Style> sjxqzsQw = new QueryWrapper<Style>();
         sjxqzsQw.isNull("sender");
         getDesignDataOverviewCommonQw(sjxqzsQw, timeRange);
         long sjxqzs = this.count(sjxqzsQw);
         result.put("设计需求总数", sjxqzs);
         //未开款 状态为0
-        QueryWrapper wkkQw = new QueryWrapper();
+        QueryWrapper<Style> wkkQw = new QueryWrapper<>();
         wkkQw.eq("status", BasicNumber.ZERO.getNumber());
         getDesignDataOverviewCommonQw(wkkQw, timeRange);
         long wkks = this.count(wkkQw);
         result.put("未开款", wkks);
 
         //已开款数 状态为1
-        QueryWrapper ykkQw = new QueryWrapper();
+        QueryWrapper<Style> ykkQw = new QueryWrapper<>();
         ykkQw.eq("status", BasicNumber.ONE.getNumber());
         getDesignDataOverviewCommonQw(ykkQw, timeRange);
         long ykk = this.count(ykkQw);
         result.put("已开款", ykk);
 
         //已下发数 状态为2
-        QueryWrapper yxfsQw = new QueryWrapper();
+        QueryWrapper<Style> yxfsQw = new QueryWrapper<Style>();
         yxfsQw.eq("status", BasicNumber.TWO.getNumber());
         getDesignDataOverviewCommonQw(yxfsQw, timeRange);
         long yxfs = this.count(yxfsQw);
@@ -656,7 +662,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     @Override
     public List<StyleBoardCategorySummaryVo> categorySummary(PlanningBoardSearchDto dto) {
-        QueryWrapper<Style> qw = new QueryWrapper();
+        QueryWrapper<Style> qw = new QueryWrapper<>();
         qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "sd.planning_season_id", dto.getPlanningSeasonId());
         qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("sd.design_no", dto.getSearch()).or().like("sd.style_no", dto.getSearch()));
         qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "sd.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
@@ -697,7 +703,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         Long planRequirementSkc = getBaseMapper().colorCount(prsQw);
         vo.setPlanRequirementSkc(planRequirementSkc);
         //设计需求数
-        QueryWrapper<CategoryStylePlanningVo> drsQw = new QueryWrapper();
+        QueryWrapper<CategoryStylePlanningVo> drsQw = new QueryWrapper<>();
         stylePlanningCommonQw(drsQw, dto);
         Long designRequirementSkc = getBaseMapper().colorCount(drsQw);
         vo.setDesignRequirementSkc(designRequirementSkc);
@@ -716,7 +722,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     public List<ProductCategoryTreeVo> getProductCategoryTree(ProductCategoryTreeVo vo) {
         //第一级产品季
         if (vo.getLevel() == null) {
-            QueryWrapper qc = new QueryWrapper();
+            QueryWrapper<PlanningSeason> qc = new QueryWrapper<>();
             qc.eq("company_code", getCompanyCode());
             qc.eq("del_flag", BasicNumber.ZERO.getNumber());
             qc.select("id", "name", "season");
@@ -928,16 +934,16 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qw.in(StrUtil.isNotEmpty(dto.getProdCategory()), "sd.prod_category", StrUtil.split(dto.getProdCategory(), CharUtil.COMMA));
     }
 
-    private void getDesignDataOverviewCommonQw(QueryWrapper qw, List timeRange) {
+    private void getDesignDataOverviewCommonQw(QueryWrapper<Style> qw, List timeRange) {
         qw.ne("del_flag", BaseGlobal.YES);
         qw.eq(COMPANY_CODE, getCompanyCode());
         amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
         qw.between(CollUtil.isNotEmpty(timeRange), "create_date", CollUtil.getFirst(timeRange), CollUtil.getLast(timeRange));
     }
 
-    private List getChartList(List<ChartBarVo> chartBarVos) {
+    private List<List> getChartList(List<ChartBarVo> chartBarVos) {
         List first = CollUtil.newArrayList("product", "总数", "未开款数", "已开款数", "已下发打版");
-        List result = new ArrayList(16);
+        List<List> result = new ArrayList<List>(16);
         result.add(first);
         if (CollUtil.isNotEmpty(chartBarVos)) {
             Map<String, List<ChartBarVo>> productMap = chartBarVos.stream().collect(Collectors.groupingBy(ChartBarVo::getProduct));

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.fabric.mapper.FabricDevConfigInfoMapper">
+    <!--
+        面料开发配置信息
+        创建人：your name
+        邮箱：your email
+        创建时间：2023-8-7 11:01:33
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <select id="getDevConfigList" resultType="com.base.sbc.module.fabric.vo.FabricDevConfigInfoVO">
+        SELECT
+        id,
+        remarks,
+        STATUS,
+        dev_name,
+        dev_code,
+        update_name,
+        update_id,
+        update_date,
+        create_date,
+        create_name,
+        create_id
+        FROM
+        t_fabric_dev_config_info
+        <where>
+            del_flag = '0'
+            and company_code =#{companyCode}
+            <if test="status != null and status != ''">
+                and `status` = #{status}
+            </if>
+        </where>
+    </select>
+
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>

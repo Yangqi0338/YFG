@@ -15,7 +15,12 @@ public class FieldDataPermissionVO {
      */
     private List<String> fieldValues;
     /**
-     * 字段值id
+     * 字段值名称
      */
-    private List<String> fieldValueIds;
+    private List<String> fieldValueName;
+
+    /**
+     * 条件类型：in.包含、=.等于
+     */
+    private String conditionType;
 }

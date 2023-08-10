@@ -9,19 +9,13 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.TeamVo;
-import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
-import com.base.sbc.client.amc.vo.FieldDataPermissionVO;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
-import com.base.sbc.config.exception.OtherException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -45,6 +39,7 @@ public class AmcFeignService {
     private AmcService amcService;
 
     public static ThreadLocal<List<String>> userPlanningSeasonId = new ThreadLocal<>();
+
     /**
      * 获取用户头像
      *
@@ -163,7 +158,7 @@ public class AmcFeignService {
         List<String> userList = null;
         try {
             List<String> cacheIds = userPlanningSeasonId.get();
-            if(CollUtil.isNotEmpty(cacheIds)){
+            if (CollUtil.isNotEmpty(cacheIds)) {
                 return cacheIds;
             }
             String result = amcService.getPlanningSeasonIdByUserId(userId);
@@ -299,43 +294,5 @@ public class AmcFeignService {
             }
         }
         return avatarUserIdKey;
-    }
-
-    /**
-     * 获取数据权限
-     *
-     * @param businessType
-     * @return
-     * @see DataPermissionsBusinessTypeEnum
-     */
-    public List<FieldDataPermissionVO> getDataPermissions(String businessType) {
-        if (StringUtils.isEmpty(businessType)) {
-            throw new OtherException("入参不可为空");
-        }
-        ApiResult apiResult = amcService.getDataPermissions(businessType);
-        if (Objects.isNull(apiResult)) {
-            throw new OtherException("获取用户数据权限异常");
-        }
-        return JSONArray.parseArray(JSON.toJSONString(apiResult.getData()), FieldDataPermissionVO.class);
-    }
-
-    /**
-     * 获取数据权限
-     *
-     * @param businessType
-     * @return
-     * @see DataPermissionsBusinessTypeEnum
-     */
-    public void getDataPermissionsForQw(String businessType, AbstractWrapper qw) {
-        List<FieldDataPermissionVO> dataPermissions = getDataPermissions(businessType);
-        if (CollUtil.isNotEmpty(dataPermissions)) {
-            for (FieldDataPermissionVO dataPermission : dataPermissions) {
-                if (CollUtil.isNotEmpty(dataPermission.getFieldValueIds())) {
-                    qw.in(dataPermission.getFieldName(), dataPermission.getFieldValueIds());
-                }
-
-            }
-        }
-
     }
 }
