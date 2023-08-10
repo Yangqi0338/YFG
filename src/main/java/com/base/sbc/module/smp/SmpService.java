@@ -638,6 +638,9 @@ public class SmpService {
             Style style = styleService.getById(patternMaking.getStyleId());
             SmpSampleDto smpSampleDto = style.toSmpSampleDto();
             Sample sample = sampleService.getOne(new QueryWrapper<Sample>().eq("pattern_making_id", patternMaking.getId()));
+            if (sample==null){
+                throw new OtherException("请先在样衣编辑界面绑定打板指令");
+            }
             try {
                 smpSampleDto.setImgList(Arrays.asList(sample.getImages().split(",")));
             } catch (Exception ignored) {
