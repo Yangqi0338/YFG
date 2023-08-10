@@ -117,8 +117,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 throw new OtherException(dto.getSampleType() + "只能有一个");
             }
         } else {
+            rQw.ne("sample_type", "初版样");
             long count = count(rQw);
-            if (count >= 6) {
+            if (count >= 5) {
                 throw new OtherException("只能新建6个打版指令:1个初版样、5个其他");
             }
         }
