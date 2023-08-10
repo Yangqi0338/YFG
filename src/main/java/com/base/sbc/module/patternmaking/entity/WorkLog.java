@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.WorkLog
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-10 21:19:49
+ * @date 创建时间：2023-8-10 21:22:14
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -61,6 +61,11 @@ public class WorkLog extends BaseDataEntity<String> {
     @ApiModelProperty(value = "工作委派部门")
     private String delegatedDepartment;
     /**
+     * 工作委派部门id
+     */
+    @ApiModelProperty(value = "工作委派部门id")
+    private String delegatedDepartmentId;
+    /**
      * 工作人员
      */
     @ApiModelProperty(value = "工作人员")
@@ -71,9 +76,9 @@ public class WorkLog extends BaseDataEntity<String> {
     @ApiModelProperty(value = "工作人员Id")
     private String workerId;
     /**
-     * 登记类型:修改、小样、其他
+     * 登记类型
      */
-    @ApiModelProperty(value = "登记类型:修改、小样、其他")
+    @ApiModelProperty(value = "登记类型")
     private String logType;
     /**
      * 登记类型名称
@@ -86,9 +91,9 @@ public class WorkLog extends BaseDataEntity<String> {
     @ApiModelProperty(value = "参考类型")
     private String numType;
     /**
-     * 参考类型
+     * 参考类型名称
      */
-    @ApiModelProperty(value = "参考类型")
+    @ApiModelProperty(value = "参考类型名称")
     private String numTypeName;
     /**
      * 参考款号

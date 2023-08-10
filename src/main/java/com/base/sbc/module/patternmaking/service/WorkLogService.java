@@ -10,6 +10,7 @@ import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.patternmaking.dto.WorkLogSaveDto;
 import com.base.sbc.module.patternmaking.dto.WorkLogSearchDto;
 import com.base.sbc.module.patternmaking.entity.WorkLog;
+import com.base.sbc.module.patternmaking.vo.WorkLogVo;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -27,9 +28,9 @@ public interface WorkLogService extends BaseService<WorkLog> {
 
     String redis_key = "workLog:";
 
-    PageInfo<WorkLog> pageInfo(WorkLogSearchDto dto);
+    PageInfo<WorkLogVo> pageInfo(WorkLogSearchDto dto);
 
-    WorkLog saveByDto(WorkLogSaveDto workLog);
+    WorkLogVo saveByDto(WorkLogSaveDto workLog);
 
 
 // 自定义方法区 不替换的区域【other_end】

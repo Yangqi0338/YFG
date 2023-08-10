@@ -7,17 +7,18 @@
 package com.base.sbc.module.patternmaking.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.redis.RedisUtils;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternmaking.dto.WorkLogSaveDto;
 import com.base.sbc.module.patternmaking.dto.WorkLogSearchDto;
 import com.base.sbc.module.patternmaking.entity.WorkLog;
 import com.base.sbc.module.patternmaking.mapper.WorkLogMapper;
 import com.base.sbc.module.patternmaking.service.WorkLogService;
+import com.base.sbc.module.patternmaking.vo.WorkLogVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -44,32 +45,31 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
 
 
     @Override
-    public PageInfo<WorkLog> pageInfo(WorkLogSearchDto dto) {
+    public PageInfo<WorkLogVo> pageInfo(WorkLogSearchDto dto) {
         BaseQueryWrapper<WorkLog> qw = new BaseQueryWrapper<>();
         qw.notEmptyIn("worker_id", dto.getWorkerId());
         qw.notEmptyIn("log_type", dto.getLogType());
         qw.notEmptyIn("num_type", dto.getNumType());
         qw.andLike(dto.getSearch(), "worker", "reference_no", "work_description");
-        if (dto.getWorkDate() != null) {
-            String tempDate = DateUtil.format(dto.getWorkDate(), DatePattern.NORM_DATE_PATTERN);
+        if (StrUtil.isNotBlank(dto.getWorkDate())) {
             qw.between("work_date",
-                    DateUtil.parse(tempDate + " 00:00:00"),
-                    DateUtil.parse(tempDate + " 23:59:59"));
+                    DateUtil.parse(dto.getWorkDate() + " 00:00:00"),
+                    DateUtil.parse(dto.getWorkDate() + " 23:59:59"));
         }
         Page<WorkLog> objects = PageHelper.startPage(dto);
         list(qw);
-        return objects.toPageInfo();
+        return CopyUtil.copy(objects.toPageInfo(), WorkLogVo.class);
     }
 
     @Override
-    public WorkLog saveByDto(WorkLogSaveDto workLog) {
+    public WorkLogVo saveByDto(WorkLogSaveDto workLog) {
         WorkLog bean = BeanUtil.copyProperties(workLog, WorkLog.class);
         String redisKey = redis_key + getCompanyCode();
         long incr = redisUtils.incr(redisKey, 1);
         String code = StrUtil.padPre(String.valueOf(incr), 8, "0");
         bean.setCode(code);
         save(bean);
-        return bean;
+        return BeanUtil.copyProperties(workLog, WorkLogVo.class);
     }
 
 // 自定义方法区 不替换的区域【other_end】

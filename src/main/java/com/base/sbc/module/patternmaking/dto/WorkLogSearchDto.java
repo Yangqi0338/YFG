@@ -1,12 +1,9 @@
 package com.base.sbc.module.patternmaking.dto;
 
 import com.base.sbc.config.common.base.Page;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.util.Date;
 
 /**
  * 类描述：工作小账搜索条件
@@ -22,8 +19,7 @@ import java.util.Date;
 public class WorkLogSearchDto extends Page {
 
     @ApiModelProperty(value = "工作日期")
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date workDate;
+    private String workDate;
     @ApiModelProperty(value = "登记类型:修改、小样、其他")
     private String logType;
 
