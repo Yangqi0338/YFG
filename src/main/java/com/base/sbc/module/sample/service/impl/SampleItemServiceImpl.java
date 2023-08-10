@@ -190,5 +190,21 @@ public class SampleItemServiceImpl extends BaseServiceImpl<SampleItemMapper, Sam
             throw new OtherException("样衣状态不正确");
         }
     }
+
+    @Override
+    public void enableOrDeactivate(String id, String enableFlag) {
+        SampleItem sampleItem = mapper.selectById(id);
+        if (Objects.isNull(sampleItem)) {
+            throw new OtherException("样衣获取为空");
+        }
+        if (!SampleItemStatusEnum.IN_LIBRARY.getK().equals(sampleItem.getStatus())) {
+            throw new OtherException("该样衣未在库，不可操作");
+        }
+        SampleItem updateSampleItem = new SampleItem();
+        updateSampleItem.updateInit();
+        updateSampleItem.setEnableFlag(enableFlag);
+        updateSampleItem.setId(id);
+        mapper.updateById(updateSampleItem);
+    }
 }
 
