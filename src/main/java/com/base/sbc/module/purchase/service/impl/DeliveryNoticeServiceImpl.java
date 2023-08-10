@@ -61,6 +61,7 @@ public class DeliveryNoticeServiceImpl extends BaseServiceImpl<DeliveryNoticeMap
             deliveryNotice.setDelFlag("0");
 
             deliveryNotice.setPurchaseCode(purchaseOrder.getCode());
+            deliveryNotice.setPurchaseOrderDetailId(detail.getId());
             deliveryNotice.setSupplierId(purchaseOrder.getSupplierId());
             deliveryNotice.setSupplierName(purchaseOrder.getSupplierName());
             deliveryNotice.setPurchaserId(purchaseOrder.getPurchaserId());
