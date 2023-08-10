@@ -10,6 +10,10 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.purchase.entity.PurchaseOrder;
+import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
+import com.base.sbc.module.purchase.entity.WarehousingOrderDetail;
+
+import java.util.List;
 
 /** 
  * 类描述：采购-采购单 service类
@@ -21,12 +25,14 @@ import com.base.sbc.module.purchase.entity.PurchaseOrder;
  */
 public interface PurchaseOrderService extends BaseService<PurchaseOrder>{
 
-// 自定义方法区 不替换的区域【other_start】
     ApiResult addPurchaseOrder(UserCompany userCompany, String companyCode,PurchaseOrder purchaseOrder);
 
     ApiResult updatePurchaseOrder(UserCompany userCompany, String companyCode,PurchaseOrder purchaseOrder);
-    ApiResult cancel(String companyCode, String ids) ;
-// 自定义方法区 不替换的区域【other_end】
 
-	
+    ApiResult cancel(String companyCode, String ids) ;
+
+    void manipulateWarehouseNum(List<WarehousingOrderDetail> warehousingOrderDetailList, String type, Boolean ifMain);
+
+    void verifyWarehousingStatus(List<String> idList);
+
 }

@@ -6,15 +6,18 @@
  *****************************************************************************/
 package com.base.sbc.module.purchase.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CodeGen;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.purchase.entity.PurchaseDemand;
 import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
+import com.base.sbc.module.purchase.entity.WarehousingOrderDetail;
 import com.base.sbc.module.purchase.mapper.PurchaseOrderMapper;
 import com.base.sbc.module.purchase.entity.PurchaseOrder;
 import com.base.sbc.module.purchase.service.PurchaseDemandService;
@@ -25,7 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：采购-采购单 service类
@@ -48,6 +52,7 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
     private PurchaseDemandService purchaseDemandService;
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public ApiResult addPurchaseOrder(UserCompany userCompany, String companyCode, PurchaseOrder purchaseOrder) {
         IdGen idGen = new IdGen();
 
@@ -82,6 +87,7 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public ApiResult updatePurchaseOrder(UserCompany userCompany, String companyCode, PurchaseOrder purchaseOrder) {
         IdGen idGen = new IdGen();
 
@@ -126,9 +132,101 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
 
         boolean result = this.updateBatchById(purchaseOrderList);
         if (result) {
+            QueryWrapper<PurchaseOrderDetail> detailQw = new QueryWrapper<>();
+            detailQw.in("purchase_order_id", StringUtils.convertList(ids));
+            List<PurchaseOrderDetail> purchaseOrderDetailList = purchaseOrderDetailService.list(detailQw);
+            //操作采购需求单的已采购数量
+            purchaseDemandService.manipulatePlanNum(purchaseOrderDetailList, "1");
+
             return ApiResult.success("操作成功！", result);
         }
         return ApiResult.error("操作失败！", 500);
+    }
+
+    /**
+     * 入库单 操作 采购单的收货数量
+     * @param warehousingOrderDetailList 入库单明细数据
+     * @param type 操作类型 0占用 1返还
+     * @param ifMain 是否变更采购单的入库状态
+     * */
+    @Override
+    public void manipulateWarehouseNum(List<WarehousingOrderDetail> warehousingOrderDetailList, String type, Boolean ifMain) {
+        List<String> idList = new ArrayList<>();
+        for(WarehousingOrderDetail detail : warehousingOrderDetailList){
+            if(StringUtils.isNotBlank(detail.getPurchaseOrderDetailId())){
+                idList.add(detail.getPurchaseOrderDetailId());
+            }
+        }
+
+        if(CollectionUtil.isEmpty(idList)){
+            return;
+        }
+
+        QueryWrapper<PurchaseOrderDetail> qw = new QueryWrapper<>();
+        qw.in("id", idList);
+        List<PurchaseOrderDetail> purchaseOrderDetailList = purchaseOrderDetailService.list(qw);
+        if(CollectionUtil.isEmpty(purchaseOrderDetailList)){
+            return;
+        }
+
+        Map<String, PurchaseOrderDetail> purchaseOrderDetailMap = purchaseOrderDetailList.stream().collect(Collectors.toMap(PurchaseOrderDetail::getId, item -> item));
+        Set<String> purchaseIdSet = new HashSet<>();
+        for(WarehousingOrderDetail details : warehousingOrderDetailList){
+            PurchaseOrderDetail item = purchaseOrderDetailMap.get(details.getPurchaseOrderDetailId());
+            if(item != null){
+                if(StringUtils.equals(type, "0")){
+                    item.setWarehouseNum(BigDecimalUtil.add(item.getWarehouseNum(), details.getReceivedQuantity()));
+                }else{
+                    item.setWarehouseNum(BigDecimalUtil.sub(item.getWarehouseNum(), details.getReceivedQuantity()));
+                }
+                purchaseIdSet.add(item.getPurchaseOrderId());
+            }
+            purchaseOrderDetailMap.put(details.getPurchaseOrderDetailId(), item);
+        }
+
+        List<PurchaseOrderDetail> updateList = new ArrayList<>(purchaseOrderDetailMap.values());
+        purchaseOrderDetailService.updateBatchById(updateList);
+        if(ifMain && CollectionUtil.isNotEmpty(purchaseIdSet)){
+            verifyWarehousingStatus(new ArrayList<>(purchaseIdSet));
+        }
+    }
+
+    @Override
+    public void verifyWarehousingStatus(List<String> idList) {
+        QueryWrapper<PurchaseOrder> qw = new QueryWrapper<>();
+        qw.in("id", idList);
+        List<PurchaseOrder> orderList = list(qw);
+        if(CollectionUtil.isNotEmpty(orderList)){
+            QueryWrapper<PurchaseOrderDetail> detailQw;
+            for(PurchaseOrder order : orderList){
+                detailQw = new QueryWrapper<>();
+                detailQw.eq("purchase_order_id", order.getId());
+                List<PurchaseOrderDetail> detailList = purchaseOrderDetailService.list(detailQw);
+
+                String completeStatus = "0";
+                Boolean ifComplete = true;
+                for(PurchaseOrderDetail detail : detailList){
+                    if(BigDecimalUtil.biggerThenZero(detail.getWarehouseNum())){
+                        //入库数量大于零,入库中
+                        completeStatus = "1";
+                    }
+                    if(detail.getWarehouseNum().compareTo(detail.getPurchaseNum()) == -1){
+                        //入库数量小于采购数量
+                        ifComplete = false;
+                    }
+                }
+
+                if(ifComplete){
+                    //所有明细入库数量都大于采购数量，入库完成
+                    completeStatus = "2";
+                }
+
+                order.setWarehouseStatus(completeStatus);
+            }
+
+            updateBatchById(orderList);
+        }
+
     }
 
 

@@ -6,8 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.purchase.entity;
 import java.math.BigDecimal;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -15,18 +13,18 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
- * 类描述：送货通知单 实体类
- * @address com.base.sbc.module.purchase.entity.DeliveryNotice
+ * 类描述：入库单-明细 实体类
+ * @address com.base.sbc.module.purchase.entity.WarehousingOrderDetail
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-9 16:21:37
+ * @date 创建时间：2023-8-10 10:03:33
  * @version 1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_delivery_notice")
-@ApiModel("送货通知单 DeliveryNotice")
-public class DeliveryNotice extends BaseDataEntity<String> {
+@TableName("t_warehousing_order_detail")
+@ApiModel("入库单-明细 WarehousingOrderDetail")
+public class WarehousingOrderDetail extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -35,35 +33,18 @@ public class DeliveryNotice extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 状态（0正常 1作废） */
-    @ApiModelProperty(value = "状态（0正常 1作废）"  )
-    private String status;
+    /** 入库单id */
+    @ApiModelProperty(value = "入库单id"  )
+    private String warehouseOrderId;
+    /** 送货通知单id */
+    @ApiModelProperty(value = "送货通知单id"  )
+    private String noticeId;
     /** 采购单号 */
     @ApiModelProperty(value = "采购单号"  )
     private String purchaseCode;
     /** 采购单明细id */
     @ApiModelProperty(value = "采购单明细id"  )
     private String purchaseOrderDetailId;
-    /** 供应商id */
-    @ApiModelProperty(value = "供应商id"  )
-    private String supplierId;
-    /** 供应商名称 */
-    @ApiModelProperty(value = "供应商名称"  )
-    private String supplierName;
-    /** 采购员id */
-    @ApiModelProperty(value = "采购员id"  )
-    private String purchaserId;
-    /** 采购员名称 */
-    @ApiModelProperty(value = "采购员名称"  )
-    private String purchaserName;
-    /** 采购日期 */
-    @ApiModelProperty(value = "采购日期"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date purchaseDate;
-    /** 物料交期 */
-    @ApiModelProperty(value = "物料交期"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date deliveryDate;
     /** 设计款号 */
     @ApiModelProperty(value = "设计款号"  )
     private String designStyleCode;
@@ -103,12 +84,17 @@ public class DeliveryNotice extends BaseDataEntity<String> {
     /** 供应商色号 */
     @ApiModelProperty(value = "供应商色号"  )
     private String supplierColor;
-    /** 采购转库存 */
-    @ApiModelProperty(value = "采购转库存"  )
-    private BigDecimal convertUnitRatio;
+    /** 入库数量 */
+    @ApiModelProperty(value = "入库数量"  )
+    private BigDecimal warehouseNum;
+    /** 实际金额 */
+    @ApiModelProperty(value = "实际金额"  )
+    private BigDecimal actualAmount;
+    /** 送货金额 */
+    @ApiModelProperty(value = "送货金额"  )
+    private BigDecimal deliveryAmount;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
-
