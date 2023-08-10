@@ -186,7 +186,7 @@ public class SmpService {
             smpGoodsDto.setYear(sampleDesign.getYear());
             smpGoodsDto.setPatternName(sampleDesign.getDevtType());
             smpGoodsDto.setPriorityId(sampleDesign.getTaskLevel());
-            smpGoodsDto.setPriorityName("1".equals(sampleDesign.getTaskLevel()) ? "普通" : "2".equals(sampleDesign.getTaskLevel()) ? "紧急" : "非常紧急");
+            smpGoodsDto.setPriorityName(sampleDesign.getTaskLevelName());
             smpGoodsDto.setSeason(sampleDesign.getSeason());
             smpGoodsDto.setTheme(sampleDesign.getSubject());
             smpGoodsDto.setStyleName(sampleDesign.getStyleName());
@@ -517,7 +517,7 @@ public class SmpService {
 
             Style style = styleService.getOne(new QueryWrapper<Style>().eq("id", packInfo.getForeignId()));
             StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
-            smpBomDto.setBomStage(stylePricingVO.getBomStage());
+            smpBomDto.setBomStage("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
             //样衣-款式配色
             StyleColor styleColor = sampleStyleColorService.getById(packInfo.getSampleStyleColorId());
             if (styleColor != null) {
@@ -638,7 +638,7 @@ public class SmpService {
             Style style = styleService.getById(patternMaking.getStyleId());
             SmpSampleDto smpSampleDto = style.toSmpSampleDto();
             Sample sample = sampleService.getOne(new QueryWrapper<Sample>().eq("pattern_making_id", patternMaking.getId()));
-            if (sample==null){
+            if (sample == null) {
                 throw new OtherException("请先在样衣编辑界面绑定打板指令");
             }
             try {
