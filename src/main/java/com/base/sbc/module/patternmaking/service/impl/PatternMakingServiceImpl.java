@@ -118,7 +118,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             }
         } else {
             long count = count(rQw);
-            if (count > 6) {
+            if (count >= 6) {
                 throw new OtherException("只能新建6个打版指令:1个初版样、5个其他");
             }
         }

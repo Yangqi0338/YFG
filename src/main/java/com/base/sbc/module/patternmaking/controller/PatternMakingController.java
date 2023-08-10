@@ -151,14 +151,6 @@ public class PatternMakingController {
     }
 
 
-    @ApiOperation(value = "节点状态改变")
-    @PostMapping("/nodeStatusChange")
-    public boolean nodeStatusChange(Principal user, @RequestBody List<NodeStatusChangeDto> list) {
-        GroupUser groupUser = userUtils.getUserBy(user);
-        return patternMakingService.nodeStatusChange(groupUser.getId(), list, groupUser);
-    }
-
-
     @ApiOperation(value = "打版管理任务-列表", notes = "")
     @GetMapping("/patternMakingTaskList")
     public List<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto) {

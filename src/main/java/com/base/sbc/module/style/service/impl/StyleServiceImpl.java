@@ -338,43 +338,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         return objects.toPageInfo();
     }
 
-    /**
-     * 查询款式设计及款式配色
-     *
-     * @param dto
-     * @return
-     */
-    @Override
-    public PageInfo sampleSampleStyle(Principal user, StylePageDto dto) {
-        GroupUser userBy = userUtils.getUserBy(user);
-        PageInfo pageInfo = queryPageInfo(dto);
-        List<StylePageVo> list = pageInfo.getList();
-
-        if (!CollectionUtils.isEmpty(list)) {
-            /*查询配色*/
-            List<String> stringList = list.stream().map(StylePageVo::getId).collect(Collectors.toList());
-            QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.in("ssc.style_id", stringList);
-            queryWrapper.eq("ssc.del_flag", "0");
-            queryWrapper.eq(StrUtil.isNotBlank(dto.getStyleStatus()), "ssc.status", dto.getStyleStatus());
-            List<StyleColorVo> sampleStyleColorVoList = styleColorMapper.getSampleStyleColorList(queryWrapper,null);
-
-            Map<String, List<StyleColorVo>> stringListMap = sampleStyleColorVoList.stream().collect(Collectors.groupingBy(StyleColorVo::getStyleId));
-            list.forEach(sampleDesignPageVo -> {
-                List<StyleColorVo> styleColorVoList = stringListMap.get(sampleDesignPageVo.getId());
-                /*获取款式图*/
-                if(!CollectionUtils.isEmpty(styleColorVoList)){
-                    sampleDesignPageVo.setStyleColorVoList(styleColorVoList);
-                    styleColorVoList.forEach(s -> {
-                        s.setSampleDesignPic(StyleNoImgUtils.getStyleNoImgUrl(userBy, s.getSampleDesignPic()));
-                    });
-                }
-
-
-            });
-        }
-        return pageInfo;
-    }
 
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})

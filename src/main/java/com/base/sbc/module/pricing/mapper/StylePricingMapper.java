@@ -36,6 +36,5 @@ public interface StylePricingMapper extends BaseMapper<StylePricing> {
      */
     List<StylePricingVO> getStylePricingList(@Param("dto") StylePricingSearchDTO dto);
 
-
 // 自定义方法区 不替换的区域【other_end】
 }

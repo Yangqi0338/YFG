@@ -13,6 +13,21 @@ public class QueryStyleColorDto extends Page {
     @ApiModelProperty(value = "样衣id")
     private String styleId;
 
+    @ApiModelProperty(value = "品类")
+    private String categoryName;
+
+    @ApiModelProperty(value = "紧急状态")
+    private String taskLevelName;
+
+    @ApiModelProperty(value = "生产类型")
+    private String  devtTypeName;
+
+    @ApiModelProperty(value = "设计师")
+    private String designerId;
+
+    @ApiModelProperty(value = "工艺员")
+    private String  technicianId;
+
     @ApiModelProperty(value = "大货编号多个使用，分割"  )
     private String styleNo;
 
@@ -30,5 +45,17 @@ public class QueryStyleColorDto extends Page {
 
     @ApiModelProperty(value = "是否上会"  )
     private String meetFlag;
+
+    @ApiModelProperty(value = "产品季id"  )
+    private String  planningSeasonId;
+
+    @ApiModelProperty(value = "大类"  )
+    private String prodCategory1st;
+
+    @ApiModelProperty(value = "品类"  )
+    private String prodCategory;
+
+    @ApiModelProperty(value = "品类"  )
+    private String  styleStatus;
 
 }

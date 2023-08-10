@@ -11,6 +11,8 @@ import org.apache.ibatis.annotations.Mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.style.entity.StyleOrderBookColor;
 
+import java.util.List;
+
 /**
  * 类描述：款式管理-订货本与配色中间表 dao类
  * 
@@ -20,4 +22,6 @@ import com.base.sbc.module.style.entity.StyleOrderBookColor;
  */
 @Mapper
 public interface StyleOrderBookColorMapper extends BaseMapper<StyleOrderBookColor> {
+
+   List<String>  getStyleNo(String id);
 }

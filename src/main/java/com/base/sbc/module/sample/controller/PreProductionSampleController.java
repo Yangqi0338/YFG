@@ -9,7 +9,6 @@ package com.base.sbc.module.sample.controller;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.EnableFlagSettingDto;
@@ -17,7 +16,6 @@ import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
-import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
 import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.service.PreProductionSampleService;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
@@ -124,12 +122,6 @@ public class PreProductionSampleController {
         return preProductionSampleTaskService.taskAssignment(dto);
     }
 
-    @ApiOperation(value = "节点状态改变")
-    @PostMapping("/task/nodeStatusChange")
-    public boolean nodeStatusChange(Principal user, @RequestBody List<NodeStatusChangeDto> list) {
-        GroupUser groupUser = userUtils.getUserBy(user);
-        return preProductionSampleTaskService.nodeStatusChange(groupUser.getId(), list, groupUser);
-    }
 
     @ApiOperation(value = "前往下一个节点", notes = "")
     @GetMapping("/task/next")

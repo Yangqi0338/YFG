@@ -27,7 +27,7 @@ public class StyleOrderBookPageVo {
 	@ApiModelProperty(value = "款号")
 	private String styleNo;
 	@ApiModelProperty(value = "款式图片")
-	private String sampleDesignPic;
+	private String styleColorPic;
 
 	@ApiModelProperty(value = "颜色名称")
 	private String colorName;
@@ -115,13 +115,13 @@ public class StyleOrderBookPageVo {
 	private String isTrim;
 	/** 厂家 */
 	@ApiModelProperty(value = "厂家")
-	private String manufacturer;
+	private String supplier;
 	/** 厂家款号 */
 	@ApiModelProperty(value = "厂家款号")
-	private String manufacturerNo;
+	private String supplierNo;
 	/** 厂家颜色 */
 	@ApiModelProperty(value = "厂家颜色")
-	private String manufacturerColor;
+	private String supplierColor;
 
 	/** 款式名称 */
 	@ApiModelProperty(value = "款式名称")

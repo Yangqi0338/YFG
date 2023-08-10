@@ -52,8 +52,10 @@ public class TechnologyCenterTaskVo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date prmSendDate;
 
-    /** 版房主管下发状态:(0未下发，1已下发) */
-    @ApiModelProperty(value = "版房主管下发状态:(0未下发，1已下发)"  )
+    /**
+     * 版房主管下发状态:(0未下发，1已下发)
+     */
+    @ApiModelProperty(value = "版房主管下发状态:(0未下发，1已下发)")
     private String prmSendStatus;
 
     /**
@@ -62,6 +64,8 @@ public class TechnologyCenterTaskVo {
     @ApiModelProperty(value = "紧急程度")
     private String urgency;
 
+    @ApiModelProperty(value = "紧急程度名称")
+    private String urgencyName;
     @ApiModelProperty(value = "版师名称")
     private String patternDesignName;
     /**
@@ -80,30 +84,56 @@ public class TechnologyCenterTaskVo {
      */
     @ApiModelProperty(value = "中断打版(0正常，1中断)")
     private String breakOffPattern;
-
-    @ApiModelProperty(value = "年份", example = "2022")
+    /**
+     * 品牌
+     */
+    @ApiModelProperty(value = "品牌")
+    private String brand;
+    /**
+     * 品牌名称
+     */
+    @ApiModelProperty(value = "品牌名称")
+    private String brandName;
+    /**
+     * 年份
+     */
+    @ApiModelProperty(value = "年份")
     private String year;
+    /**
+     * 年份名称
+     */
+    @ApiModelProperty(value = "年份名称")
+    private String yearName;
     /**
      * 季节
      */
-    @ApiModelProperty(value = "季节", example = "S")
+    @ApiModelProperty(value = "季节")
     private String season;
     /**
+     * 季节名称
+     */
+    @ApiModelProperty(value = "季节名称")
+    private String seasonName;
+    /**
      * 月份
      */
-    @ApiModelProperty(value = "月份", example = "1")
+    @ApiModelProperty(value = "月份")
     private String month;
     /**
-     * 月份
+     * 月份名称
      */
-    @ApiModelProperty(value = "品牌", example = "1")
-    private String brand;
+    @ApiModelProperty(value = "月份名称")
+    private String monthName;
     /**
-     * 月份
+     * 波段(编码)
      */
-    @ApiModelProperty(value = "波段", example = "1")
+    @ApiModelProperty(value = "波段(编码)")
     private String bandCode;
-
+    /**
+     * 波段名称
+     */
+    @ApiModelProperty(value = "波段名称")
+    private String bandName;
 
     @ApiModelProperty(value = "版师列表")
     private List<PatternDesignVo> pdList;
