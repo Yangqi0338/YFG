@@ -12,6 +12,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.SampleSalePageDto;
 import com.base.sbc.module.sample.entity.SampleSaleItem;
+import com.base.sbc.module.sample.enums.SampleLogOperationType;
 import com.base.sbc.module.sample.mapper.SampleSaleItemMapper;
 import com.base.sbc.module.sample.service.SampleItemLogService;
 import com.base.sbc.module.sample.service.SampleSaleItemService;
@@ -67,8 +68,8 @@ public class SampleSaleItemServiceImpl extends BaseServiceImpl<SampleSaleItemMap
             }
             super.saveOrUpdate(item);
             sampleService.sampleSale(item.getSampleItemId());
-            String remarks = "样衣销售：id-" + item.getSampleItemId() + ", 销售单号：" + saleCode + ", 数量：" + item.getCount();
-            sampleItemLogService.save(item.getId(), 2, remarks);
+            String remarks = "样衣销售 销售单号：" + saleCode + ", 数量：" + item.getCount();
+            sampleItemLogService.save(item.getId(), SampleLogOperationType.SALES.getK(), remarks);
         });
     }
 

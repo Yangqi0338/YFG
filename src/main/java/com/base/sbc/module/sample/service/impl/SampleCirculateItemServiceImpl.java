@@ -13,6 +13,7 @@ import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.SampleCirculatePageDto;
 import com.base.sbc.module.sample.entity.SampleCirculateItem;
 import com.base.sbc.module.sample.entity.SampleItem;
+import com.base.sbc.module.sample.enums.SampleLogOperationType;
 import com.base.sbc.module.sample.mapper.SampleCirculateItemMapper;
 import com.base.sbc.module.sample.mapper.SampleCirculateMapper;
 import com.base.sbc.module.sample.service.SampleCirculateItemService;
@@ -71,7 +72,7 @@ public class SampleCirculateItemServiceImpl extends BaseServiceImpl<SampleCircul
                     sampleAllocateItem.setCount(sampleItem.getCount());
                     sampleAllocateItem.setDesignNo(designNo);
                     sampleAllocateItem.preInsert();
-                    sampleItemLogService.save(sampleItem.getId(), 2, "借出：id-" + sampleAllocateItem.getId() + ", 借出单号：" + borrowCode + ", 借出数量：" + sampleAllocateItem.getCount());
+                    sampleItemLogService.save(sampleItem.getId(), SampleLogOperationType.BORROW.getK(), "样衣借出：, 借出单号：" + borrowCode + ", 借出数量：" + sampleAllocateItem.getCount());
                     return sampleAllocateItem;
                 }).collect(Collectors.toList());
         super.saveBatch(sampleCirculateItems);

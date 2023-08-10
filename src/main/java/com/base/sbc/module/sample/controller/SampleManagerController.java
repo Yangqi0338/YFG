@@ -21,12 +21,14 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.DocFlavor;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -72,9 +74,9 @@ public class SampleManagerController extends BaseController {
 	}
 
 	@ApiOperation(value = "根据样衣明细ID获取日志")
-	@GetMapping("getLogList/{id}")
-	public List<SampleItemLog> getLogListBySampleItemId(@PathVariable("id") String id) {
-		return sampleItemLogService.getListBySampleItemId(id);
+	@GetMapping("/getLogList")
+	public List<SampleItemLog> getLogListBySampleItemId(@Valid @NotBlank(message = "样衣id不可为空") String sampleItemId, String type) {
+		return sampleItemLogService.getListBySampleItemId(sampleItemId, type);
 	}
 
 	@ApiOperation(value = "导入Excel")

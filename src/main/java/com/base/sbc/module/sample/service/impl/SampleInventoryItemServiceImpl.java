@@ -11,6 +11,7 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.entity.SampleInventoryItem;
+import com.base.sbc.module.sample.enums.SampleLogOperationType;
 import com.base.sbc.module.sample.mapper.SampleInventoryItemMapper;
 import com.base.sbc.module.sample.service.SampleInventoryItemService;
 import com.base.sbc.module.sample.service.SampleItemLogService;
@@ -70,8 +71,8 @@ public class SampleInventoryItemServiceImpl extends BaseServiceImpl<SampleInvent
             }
             super.saveOrUpdate(item);
             // 日志
-            String remarks = "样衣盘点：id-" + item.getId() + ", 盘点单号：" + inventoryCode + ", 数量：" + item.getNewCount();
-            sampleItemLogService.save(item.getSampleItemId(), 2, remarks);
+            String remarks = "样衣盘点：盘点单号：" + inventoryCode + ", 数量：" + item.getNewCount();
+            sampleItemLogService.save(item.getSampleItemId(), SampleLogOperationType.INVENTORY.getK(), remarks);
         });
     }
 

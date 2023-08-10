@@ -12,6 +12,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.SampleAllocatePageDto;
 import com.base.sbc.module.sample.entity.SampleAllocateItem;
+import com.base.sbc.module.sample.enums.SampleLogOperationType;
 import com.base.sbc.module.sample.mapper.SampleAllocateItemMapper;
 import com.base.sbc.module.sample.service.SampleAllocateItemService;
 import com.base.sbc.module.sample.service.SampleItemLogService;
@@ -71,8 +72,8 @@ public class SampleAllocateItemServiceImpl extends BaseServiceImpl<SampleAllocat
                 item.updateInit();
             }
             super.saveOrUpdate(item);
-            String remarks = "样衣调拨：id-" + item.getId() + ", 调拨单号：" + sampleAllocateCode + ", 数量：" + item.getCount();
-            sampleItemLogService.save(item.getSampleItemId(), 2, remarks);
+            String remarks = "样衣调拨：调拨单号：" + sampleAllocateCode + ", 数量：" + item.getCount();
+            sampleItemLogService.save(item.getSampleItemId(), SampleLogOperationType.ALLOCATION.getK(), remarks);
         });
         List<String> sampleItemId = sampleAllocateItems.stream()
                 .map(SampleAllocateItem::getSampleItemId)

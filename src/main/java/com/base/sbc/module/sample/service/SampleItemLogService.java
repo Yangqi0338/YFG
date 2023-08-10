@@ -22,10 +22,10 @@ public interface SampleItemLogService extends BaseService<SampleItemLog> {
     /**
      * 查询样衣明细数据
      */
-    List<SampleItemLog> getListBySampleItemId(String sampleItemId);
+    List<SampleItemLog> getListBySampleItemId(String sampleItemId, String type);
 
-    boolean save(String sampleItemId, Integer type, String remarks);
+    boolean save(String sampleItemId, String type, String remarks);
 
-    void saveBatch(List<String> sampleItemIds, Integer type, String remarks);
+    void saveBatch(List<String> sampleItemIds, String type, String remarks);
 }
 

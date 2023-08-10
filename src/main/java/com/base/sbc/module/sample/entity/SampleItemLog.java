@@ -30,9 +30,9 @@ public class SampleItemLog extends BaseDataEntity<String> {
     @ApiModelProperty(value = "样衣明细主键ID")
     private String sampleItemId;
 
-    /** 操作类型：0-删除，1-新增，2-修改 */
-    @ApiModelProperty(value = "操作类型：0-删除，1-新增，2-修改")
-    private Integer type;
+    /** 操作类型：1.借出、2、归还、3.销售、4.盘点、5.调拨、6.新增、7.修改 */
+    @ApiModelProperty(value = "操作类型：1.借出、2、归还、3.销售、4.盘点、5.调拨、6.新增、7.修改")
+    private String type;
 
     /** 备注 */
     @ApiModelProperty(value = "备注")

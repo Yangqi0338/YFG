@@ -26,6 +26,7 @@ import com.base.sbc.module.sample.entity.Sample;
 import com.base.sbc.module.sample.entity.SampleItem;
 import com.base.sbc.module.sample.enums.SampleFromTypeEnum;
 import com.base.sbc.module.sample.enums.SampleItemStatusEnum;
+import com.base.sbc.module.sample.enums.SampleLogOperationType;
 import com.base.sbc.module.sample.enums.SampleTypeEnum;
 import com.base.sbc.module.sample.mapper.SampleMapper;
 import com.base.sbc.module.sample.service.SampleItemLogService;
@@ -123,19 +124,18 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
                     sampleItemService.save(item);
 
                     // 保存样衣操作日志
-                    sampleItemLogService.save(item.getId(), 1, "新增样衣明细：id-" + item.getId());
+                    sampleItemLogService.save(item.getId(), SampleLogOperationType.INSERT.getK(), "新增样衣");
                 } else {
                     SampleItem si = sampleItemService.getById(item.getId());
                     String beforRemark = "状态：" + si.getStatus() + "颜色：" + si.getColor() + "尺码：" + si.getSize()
                             + "价格：" + si.getPrice() + "位置：" + si.getPosition() + "备注：" + si.getRemarks();
-
                     sampleItemService.updateById(item);
 
                     String afterRemark = "状态：" + item.getStatus() + "，颜色：" + item.getColor() + "，尺码：" + item.getSize()
                             + "，价格：" + item.getPrice() + "，位置：" + item.getPosition() + "，备注：" + item.getRemarks();
 
-                    String remarks = "更新样衣明细：id-" + item.getId() + "，变更前：【" + beforRemark + "】，变更后：【" + afterRemark + "】";
-                    sampleItemLogService.save(item.getId(), 2, remarks);
+                    String remarks = "更新样衣明细：变更前：【" + beforRemark + "】，变更后：【" + afterRemark + "】";
+                    sampleItemLogService.save(item.getId(), SampleLogOperationType.UPDATE.getK(), remarks);
                 }
             }
             sample.setCount(CollectionUtils.isEmpty(dto.getSampleItemList()) ? 0 : dto.getSampleItemList().size());
