@@ -12,7 +12,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
@@ -21,16 +20,15 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
+import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.hangTag.mapper.HangTagMapper;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
+import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
-import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
-import com.base.sbc.module.style.dto.QueryStyleColorDto;
-import com.base.sbc.module.style.dto.RelevanceBomDto;
-import com.base.sbc.module.style.dto.UpdateStyleNoBandDto;
-import com.base.sbc.module.style.dto.UpdateTagPriceDto;
+import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
@@ -76,6 +74,8 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
 
     private final UserUtils userUtils;
 
+    private final AttachmentService attachmentService;
+
     @Lazy
     @Resource
 	private SmpService smpService;
@@ -96,28 +96,34 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto queryDto) {
         GroupUser userBy = userUtils.getUserBy(user);
         /*分页*/
+        queryDto.setOrderBy("ts.design_no asc,tsc.create_date desc");
         PageHelper.startPage(queryDto);
-        QueryWrapper<StyleColor> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("ssc.company_code", baseController.getUserCompany());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleId()), "ssc.style_id", queryDto.getStyleId());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getColorSpecification()), "ssc.color_specification", queryDto.getColorSpecification());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleNo()), "ssc.style_no", queryDto.getStyleNo());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSubdivide()), "ssc.subdivide", queryDto.getSubdivide());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getIsTrim()), "ssc.is_trim", queryDto.getIsTrim());
-        String meetFlag ="";
-        if (StrUtil.isNotBlank(queryDto.getMeetFlag())) {
-            if (queryDto.getMeetFlag().equals(BaseGlobal.STATUS_NORMAL)) {
-                meetFlag = BaseGlobal.STATUS_CLOSE;
-            }
-        }
-        queryWrapper.eq("ssc.del_flag", "0");
-        queryWrapper.orderByDesc("ssc.create_date");
-        /*查询样衣-款式配色数据*/
-        List<StyleColorVo> sampleStyleColorList = baseMapper.getSampleStyleColorList(queryWrapper,meetFlag);
-        /*获取款式图*/
-        sampleStyleColorList.forEach(s -> {
-            s.setSampleDesignPic(StyleNoImgUtils.getStyleNoImgUrl(userBy, s.getSampleDesignPic()));
-        });
+        QueryWrapper queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleId()), "tsc.style_id", queryDto.getStyleId());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getIsTrim()), "tsc.is_trim", queryDto.getIsTrim());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getColorSpecification()), "tsc.color_specification", queryDto.getColorSpecification());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleNo()), "tsc.style_no", queryDto.getStyleNo());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getMeetFlag()), "tsc.meet_flag", queryDto.getMeetFlag());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSubdivide()), "tsc.subdivide", queryDto.getSubdivide());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getCategoryName()),"ts.prod_category_name",queryDto.getCategoryName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getTaskLevelName()),"ts.task_level_name",queryDto.getTaskLevelName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDevtTypeName()),"ts.devt_type_name",queryDto.getDevtTypeName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDesignerId()),"ts.designer_id",queryDto.getDesignerId());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getTechnicianId()),"ts.technician_id",queryDto.getTechnicianId());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getPlanningSeasonId()),"ts.planning_season_id",queryDto.getPlanningSeasonId());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory1st()),"ts.prod_category1st",queryDto.getProdCategory1st());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory()),"ts.prod_category",queryDto.getProdCategory());
+        queryWrapper.in(StringUtils.isNotBlank(queryDto.getStyleStatus()),"ts.status", StringUtils.convertList(queryDto.getStyleStatus()));
+        queryWrapper.eq("tsc.del_flag", "0");
+        /*获取配色数据*/
+        List<StyleColorVo> sampleStyleColorList = baseMapper.styleColorList(queryWrapper);
+
+        /*查询款式图*/
+        attachmentService.setListStylePic(sampleStyleColorList, "stylePic");
+
+        /*查询款式配色图*/
+        StyleNoImgUtils.setStyleColorPic(userBy, sampleStyleColorList,"styleColorPic");
+
         PageInfo<StyleColorVo> pageInfo = new PageInfo<>(sampleStyleColorList);
         return pageInfo;
     }
@@ -325,6 +331,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             if (ObjectUtils.isEmpty(styleColor)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
+            addRevampStyleColorDto.setStyleColorPic(styleColor.getStyleColorPic());
             BeanUtils.copyProperties(addRevampStyleColorDto, styleColor);
             /*赋值颜色*/
             styleColor.setColourLibraryId(basicsdatumColourLibrary.getId());
@@ -385,6 +392,30 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         updateWrapper.set("status", startStopDto.getStatus());
         /*修改状态*/
         return baseMapper.update(null, updateWrapper) > 0;
+    }
+
+    /**
+     * 方法描述: 修改颜色
+     *
+     * @param updateColorDto
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public Boolean updateColor(UpdateColorDto updateColorDto) {
+
+       StyleColor styleColor =  baseMapper.selectById(updateColorDto.getId());
+        BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(updateColorDto.getColourLibraryId());
+        if(ObjectUtils.isEmpty(basicsdatumColourLibrary)){
+            throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+        }
+        /*赋值颜色*/
+        styleColor.setColourLibraryId(basicsdatumColourLibrary.getId());
+        styleColor.setColorCode(basicsdatumColourLibrary.getColourCode());
+        styleColor.setColorName(basicsdatumColourLibrary.getColourName());
+        styleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
+        baseMapper.updateById(styleColor);
+        return true;
     }
 
     /**

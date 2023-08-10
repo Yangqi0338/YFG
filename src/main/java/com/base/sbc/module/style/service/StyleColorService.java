@@ -8,12 +8,7 @@ package com.base.sbc.module.style.service;
 
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.sample.dto.*;
-import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
-import com.base.sbc.module.style.dto.QueryStyleColorDto;
-import com.base.sbc.module.style.dto.RelevanceBomDto;
-import com.base.sbc.module.style.dto.UpdateStyleNoBandDto;
-import com.base.sbc.module.style.dto.UpdateTagPriceDto;
+import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.PageInfo;
@@ -34,13 +29,12 @@ public interface StyleColorService extends BaseService<StyleColor> {
 // 自定义方法区 不替换的区域【other_start】
 
         /**
-        * 方法描述：分页查询部件
+        * 方法描述：分页查询配色
         *
         * @param queryDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
         PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto queryDto);
-
         /**
          * 方法描述: 获取款式或配饰
          * @param designNo 款式编号
@@ -105,6 +99,12 @@ public interface StyleColorService extends BaseService<StyleColor> {
         */
         Boolean startStopSampleStyleColor( StartStopDto startStopDto);
 
+        /**
+         * 方法描述: 修改颜色
+         * @param updateColorDto
+         * @return
+         */
+        Boolean updateColor(UpdateColorDto updateColorDto);
         /**
          * 方法描述 下发scm
          * @param ids

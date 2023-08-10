@@ -22,7 +22,7 @@ public class StylePricingVO {
      * 样衣图片
      */
     @ApiModelProperty(value = "样衣图片")
-    private String sampleDesignPic;
+    private String styleColorPic;
     /**
      * 代码
      */

@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.base.sbc.module.style.dto.*;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -25,12 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
-import com.base.sbc.module.style.dto.QueryStyleColorDto;
-import com.base.sbc.module.style.dto.RelevanceBomDto;
-import com.base.sbc.module.style.dto.UpdateStyleNoBandDto;
-import com.base.sbc.module.style.dto.UpdateTagPriceDto;
-import com.base.sbc.module.style.dto.VerificationDto;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.vo.StyleColorVo;
@@ -61,7 +56,6 @@ public class StyleColorController {
 	public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto querySampleStyleColorDto) {
 		return  styleColorService.getSampleStyleColorList(user,querySampleStyleColorDto);
 	}
-
 	@ApiOperation(value = "款式编号查找款式配色")
 	@GetMapping("/getStyleAccessoryBystyleNo")
 	public  List<StyleColorVo> getStyleAccessoryBystyleNo(@Valid @NotBlank(message = "款式编号不能为空") String designNo) {
@@ -94,6 +88,11 @@ public class StyleColorController {
 	return styleColorService.startStopSampleStyleColor(startStopDto);
 	}
 
+	@ApiOperation(value = "修改颜色-款式配色")
+	@PostMapping("/updateColor")
+	public Boolean updateColor(@Valid @RequestBody UpdateColorDto updateColorDto) {
+		return styleColorService.updateColor(updateColorDto);
+	}
 
 	@ApiOperation(value = "新增修改款式配色-款式配色")
 	@PostMapping("/addRevampSampleStyleColor")

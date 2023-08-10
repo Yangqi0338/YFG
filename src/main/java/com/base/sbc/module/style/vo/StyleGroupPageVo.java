@@ -38,7 +38,7 @@ public class StyleGroupPageVo extends BaseDataEntity<String> {
 	 * 左关联表************** /** 样衣图片
 	 */
 	@ApiModelProperty(value = "样衣图片")
-	private String sampleDesignPic;
+	private String styleColorPic;
 	@ApiModelProperty(value = "波段(编码)")
 	private String bandCode;
 	@ApiModelProperty(value = "波段(名称)")
@@ -64,15 +64,15 @@ public class StyleGroupPageVo extends BaseDataEntity<String> {
 	private String isTrim;
 	/** 厂家 */
 	@ApiModelProperty(value = "厂家")
-	private String manufacturer;
+	private String supplier;
 	/** 厂家款号 */
 	@ApiModelProperty(value = "厂家款号")
-	private String manufacturerNo;
+	private String supplierNo;
 	/**
 	 * 厂家颜色
 	 */
 	@ApiModelProperty(value = "厂家颜色")
-	private String manufacturerColor;
+	private String supplierColor;
 
 	/**
 	 * 款式名称

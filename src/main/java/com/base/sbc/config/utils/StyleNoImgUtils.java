@@ -1,10 +1,14 @@
 package com.base.sbc.config.utils;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import org.springframework.util.DigestUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.*;
 
 /**
  * 
@@ -17,6 +21,39 @@ import java.net.URLEncoder;
 public class StyleNoImgUtils {
 	/*访问地址*/
 	public static final String IMG_BASE_URL = "http://img.eifini.com/image/index?goodsno=";
+
+
+	/**
+	 * 设置款式配色图
+	 * @param userBy
+	 * @param list
+	 * @param fileIdKey 修改字段
+	 */
+	public static void setStyleColorPic(GroupUser userBy, List list, String fileIdKey) {
+		if (CollUtil.isEmpty(list)) {
+			return;
+		}
+		List<String> fileId = new ArrayList<>(12);
+		for (Object vo : list) {
+			String v = BeanUtil.getProperty(vo, fileIdKey);
+			if (StrUtil.isNotBlank(v)) {
+				fileId.add(v);
+			}
+		}
+		if (CollUtil.isEmpty(fileId)) {
+			return;
+		}
+		/*获取款式图*/
+		for (Object l : list) {
+			String v = BeanUtil.getProperty(l, fileIdKey);
+			if (StrUtil.isBlank(v)) {
+				continue;
+			}
+			BeanUtil.setProperty(l, fileIdKey, Optional.ofNullable(StyleNoImgUtils.getStyleNoImgUrl(userBy,v)).orElse(""));
+		}
+	}
+
+
 	/**
 	 * 通过款号获取款式水印图片
 	 * 

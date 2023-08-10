@@ -71,13 +71,6 @@ public interface StyleService extends BaseService<Style> {
      */
     PageInfo queryPageInfo(StylePageDto dto);
 
-    /**
-     * 查询款式设计及款式配色
-     *
-     * @param dto
-     * @return
-     */
-    PageInfo sampleSampleStyle(Principal user, StylePageDto dto);
 
     /**
      * 发起审批

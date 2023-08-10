@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.base.sbc.module.style.mapper.StyleOrderBookColorMapper;
 import com.base.sbc.module.style.service.StyleGroupService;
 import com.base.sbc.module.style.service.StyleOrderBookColorService;
 import com.base.sbc.module.style.service.StyleOrderBookService;
@@ -46,6 +47,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 /**
  * 
@@ -63,6 +66,8 @@ public class StyleOrderBookServiceImpl extends BaseServiceImpl<StyleOrderBookMap
 	private final StyleOrderBookColorService sampleStyleOrderBookColorService;
 	private final StyleGroupService sampleStyleGroupService;
 	private final StyleColorService sampleStyleColorService;
+
+	private final StyleOrderBookColorMapper styleOrderBookColorMapper;
 
 	@Override
 	public PageInfo<StyleOrderBookPageVo> getStyleOrderBookList(StyleOrderBookQueryDto dto) {
@@ -161,6 +166,7 @@ public class StyleOrderBookServiceImpl extends BaseServiceImpl<StyleOrderBookMap
 	}
 
 	@Override
+	@Transactional(rollbackFor = {Exception.class})
 	public Boolean updateSampleStyleOrderBook(StyleOrderBookUpdateDto dto) {
 		if (StringUtils.isBlank(dto.getImageUrl()) && StringUtils.isBlank(dto.getLockFlag())
 				&& StringUtils.isBlank(dto.getMeetFlag())) {
@@ -171,6 +177,19 @@ public class StyleOrderBookServiceImpl extends BaseServiceImpl<StyleOrderBookMap
 				.set(StringUtils.isNotBlank(dto.getLockFlag()), "lock_flag", dto.getLockFlag())
 				.set(StringUtils.isNotBlank(dto.getMeetFlag()), "meet_flag", dto.getMeetFlag())
 				.in("id", StringUtils.convertList(dto.getId())));
+		/**
+		 * 上会时同步配色
+		 * 获取订货本编号 查询订货本  使用大货款号查询配色
+		 */
+		if(StringUtils.isNotBlank(dto.getMeetFlag())){
+			List<String> styleNo = styleOrderBookColorMapper.getStyleNo(dto.getId());
+			if (!CollectionUtils.isEmpty(styleNo)) {
+				UpdateWrapper updateWrapper = new UpdateWrapper();
+				updateWrapper.set("meet_flag", dto.getMeetFlag());
+				updateWrapper.in("style_no", styleNo);
+				sampleStyleColorService.update(updateWrapper);
+			}
+		}
 		return true;
 	}
 

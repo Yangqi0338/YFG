@@ -62,13 +62,6 @@ public class StyleController {
     public PageInfo pageInfo(@Valid StylePageDto dto) {
         return styleService.queryPageInfo(dto);
     }
-
-    @ApiOperation(value = "查询款式设计及款式配色")
-    @GetMapping("/sampleSampleStyle")
-    public PageInfo sampleSampleStyle(Principal user, @Valid StylePageDto dto) {
-        return styleService.sampleSampleStyle(user, dto);
-    }
-
     /**
      * @param id
      * @param historyStyleId 引用历史款时使用

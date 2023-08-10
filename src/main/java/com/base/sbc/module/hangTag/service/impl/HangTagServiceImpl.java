@@ -27,6 +27,8 @@ import com.base.sbc.module.hangTag.vo.HangTagListVO;
 import com.base.sbc.module.hangTag.vo.HangTagVO;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.smp.entity.TagPrinting;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
@@ -35,7 +37,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -66,6 +70,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private PackInfoStatusService packInfoStatusService;
     @Autowired
     private UploadFileService uploadFileService;
+    @Autowired
+    private StyleColorMapper styleColorMapper;
 
     @Override
     public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -86,6 +92,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public String save(HangTagDTO hangTagDTO, String userCompany) {
         logger.info("HangTagService#save 保存吊牌 hangTagDTO:{}, userCompany:{}", JSON.toJSONString(hangTagDTO), userCompany);
         HangTag hangTag = new HangTag();
@@ -95,6 +102,22 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         String id = hangTag.getId();
         hangTagIngredientService.save(hangTagDTO.getHangTagIngredients(), id, userCompany);
         hangTagLogService.save(id, OperationDescriptionEnum.SAVE.getV(), userCompany);
+        /**
+         * 当存在品名时同步到配色
+         */
+        if(!StringUtils.isEmpty(hangTag.getProductCode()) && !StringUtils.isEmpty(hangTag.getProductName())){
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.eq("style_no",hangTag.getBulkStyleNo());
+            queryWrapper.eq("company_code",userCompany);
+            /**/
+            StyleColor styleColor = styleColorMapper.selectOne(queryWrapper);
+            /*同步配色品名*/
+            if(!ObjectUtils.isEmpty(styleColor)){
+                styleColor.setProductCode(hangTag.getProductCode());
+                styleColor.setProductName(hangTag.getProductName());
+                styleColorMapper.updateById(styleColor);
+            }
+        }
         return id;
     }
 
