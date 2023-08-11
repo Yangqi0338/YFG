@@ -23,7 +23,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.PreProductionSample
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-4 9:45:55
+ * @date 创建时间：2023-8-11 16:02:18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -167,7 +167,7 @@ public class PreProductionSample extends BaseDataEntity<String> {
      * 款式配色id
      */
     @ApiModelProperty(value = "款式配色id")
-    private String sampleStyleColorId;
+    private String styleColorId;
     /**
      * 颜色编码
      */

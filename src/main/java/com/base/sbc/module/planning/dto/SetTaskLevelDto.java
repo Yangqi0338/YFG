@@ -17,10 +17,13 @@ import org.hibernate.validator.constraints.NotBlank;
 @Data
 @ApiModel("产品季总览-设置任务等级 SetTaskLevelDto")
 public class SetTaskLevelDto {
-    @ApiModelProperty(value = "坑位编号" ,example = "689467740238381056",required = true)
+    @ApiModelProperty(value = "坑位编号", example = "689467740238381056", required = true)
     @NotBlank(message = "坑位编号不能为空")
     private String id;
     @NotBlank(message = "任务等级不能为空")
-    @ApiModelProperty(value = "任务等级" ,example = "0",required = true)
+    @ApiModelProperty(value = "任务等级", example = "0", required = true)
     private String taskLevel;
+    @NotBlank(message = "任务等级不能为空")
+    @ApiModelProperty(value = "任务等级名称", example = "0", required = true)
+    private String taskLevelName;
 }

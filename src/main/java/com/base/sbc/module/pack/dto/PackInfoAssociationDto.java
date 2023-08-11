@@ -21,6 +21,6 @@ public class PackInfoAssociationDto {
     @ApiModelProperty(value = "资料包id")
     private String packId;
     @ApiModelProperty(value = "款式配色id")
-    private String sampleStyleColorId;
+    private String styleColorId;
 
 }

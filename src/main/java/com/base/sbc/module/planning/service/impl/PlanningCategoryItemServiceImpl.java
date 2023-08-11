@@ -314,7 +314,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
         for (PlanningCategoryItem planningCategoryItem : planningCategoryItems) {
-            planningCategoryItem.setTaskLevel(dtoMap.get(planningCategoryItem.getId()).getTaskLevel());
+            SetTaskLevelDto setTaskLevelDto = dtoMap.get(planningCategoryItem.getId());
+            planningCategoryItem.setTaskLevel(setTaskLevelDto.getTaskLevel());
+            planningCategoryItem.setTaskLevelName(setTaskLevelDto.getTaskLevelName());
         }
         updateBatchById(planningCategoryItems);
         return true;
