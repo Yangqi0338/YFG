@@ -16,12 +16,7 @@ import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
-import com.base.sbc.module.style.dto.DimensionLabelsSearchDto;
-import com.base.sbc.module.style.dto.SendSampleMakingDto;
-import com.base.sbc.module.style.dto.StyleBomSaveDto;
-import com.base.sbc.module.style.dto.StyleBomSearchDto;
-import com.base.sbc.module.style.dto.StylePageDto;
-import com.base.sbc.module.style.dto.StyleSaveDto;
+import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.vo.CategoryStylePlanningVo;
 import com.base.sbc.module.style.vo.DesignDocTreeVo;
@@ -169,6 +164,14 @@ public interface StyleService extends BaseService<Style> {
      * @return
      */
     StyleVo getDetail(String id, String historyStyleId);
+
+
+    /**
+     * 方法描述 验证款式号型类型是否可修改
+     * @param verificationDto
+     * @return
+     */
+    Boolean  checkColorSize(VerificationDto verificationDto);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

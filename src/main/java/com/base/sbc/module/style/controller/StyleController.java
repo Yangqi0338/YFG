@@ -13,12 +13,7 @@ import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
-import com.base.sbc.module.style.dto.DimensionLabelsSearchDto;
-import com.base.sbc.module.style.dto.SendSampleMakingDto;
-import com.base.sbc.module.style.dto.StyleBomSaveDto;
-import com.base.sbc.module.style.dto.StyleBomSearchDto;
-import com.base.sbc.module.style.dto.StylePageDto;
-import com.base.sbc.module.style.dto.StyleSaveDto;
+import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.DesignDocTreeVo;
@@ -149,6 +144,18 @@ public class StyleController {
     public Boolean saveBom(@RequestBody StyleBomSaveDto dto) {
         return styleService.saveBom(dto);
     }
+
+    /**
+     * 验证款式下的尺码是否可修改
+     * @param verificationDto
+     * @return
+     */
+    @ApiOperation(value = "验证尺码组是否可修改")
+    @PostMapping("/checkColorSize")
+    public Boolean checkColorSize( @Valid @RequestBody VerificationDto verificationDto) {
+        return styleService.checkColorSize(verificationDto);
+    }
+
 }
 
 

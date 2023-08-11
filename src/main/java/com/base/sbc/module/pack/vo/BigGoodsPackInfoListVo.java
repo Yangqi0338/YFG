@@ -57,7 +57,8 @@ public class BigGoodsPackInfoListVo extends PackInfoStatusVo {
 
     @ApiModelProperty(value = "创建人Id")
     private String createId;
-
+    @ApiModelProperty(value = "编码")
+    private String code;
 
     public String getStyle() {
         return designNo + styleName;
