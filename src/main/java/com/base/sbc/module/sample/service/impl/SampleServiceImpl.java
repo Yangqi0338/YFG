@@ -10,6 +10,7 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.exception.OtherException;
@@ -72,6 +73,8 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
     SampleItemService sampleItemService;
     @Autowired
     SampleItemLogService sampleItemLogService;
+    @Autowired
+    FlowableService flowableService;
 
     private IdGen idGen = new IdGen();
 
@@ -112,8 +115,6 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
             sample.setPatternDesignId(pm.getPatternDesignId());
             sample.setPatternDesignName(pm.getPatternDesignName());
             sample.setCompleteStatus(2); //库存状态：0-完全借出，1-部分借出，2-全部在库
-            sample.setExamineStatus(0);  //审核状态：0-草稿，1-待审核、2-审核通过、3-驳回
-
             for (SampleItem item : dto.getSampleItemList()) {
                 item.setCount(1);
                 if (StringUtil.isEmpty(item.getId())) {
@@ -317,6 +318,31 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
         });
         sampleItemService.updateBatchById(sampleItems);
         super.updateBatchById(sampleMap.values());
+    }
+
+    @Override
+    public void submit(String id) {
+        Sample sample = super.getById(id);
+        if (Objects.isNull(sample)) {
+            throw new OtherException("样衣档案数据不存在");
+        }
+        if (0 != sample.getExamineStatus()) {
+            throw new OtherException("非草稿状态，不可提交");
+        }
+
+        Sample updateSample = new Sample();
+        updateSample.setId(id);
+        updateSample.updateInit();
+        updateSample.setExamineStatus(1);
+        mapper.updateById(updateSample);
+        flowableService.start(FlowableService.SAMPLE_ARCHIVES,
+                FlowableService.SAMPLE_ARCHIVES, id,
+                "/pdm/api/saas/sampleManager/approval",
+                "/pdm/api/saas/sampleManager/approval",
+                "/pdm/api/saas/sampleManager/approval",
+                "/pdm/api/saas/sampleManager/" + id, BeanUtil.beanToMap(sample));
+
+
     }
 
     private Integer getCompleteStatus(Integer count, Integer borrowCount) {

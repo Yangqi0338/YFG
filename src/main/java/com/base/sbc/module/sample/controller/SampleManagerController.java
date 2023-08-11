@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.controller;
 
+import com.alibaba.fastjson2.JSON;
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.sample.dto.SamplePageDto;
@@ -27,6 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -108,5 +111,24 @@ public class SampleManagerController extends BaseController {
         return updateSuccess("操作成功");
     }
 
+    @ApiModelProperty("提交审批")
+    @GetMapping("/submit")
+    public ApiResult submit(@Valid @NotBlank(message = "id不可为空") String id) {
+        sampleService.submit(id);
+        return updateSuccess("操作成功");
+    }
+
+    /**
+     * 处理审批
+     *
+     * @param dto
+     * @return
+     */
+    @ApiIgnore
+    @PostMapping("/approval")
+    public boolean approval(@RequestBody AnswerDto dto) {
+        logger.info("=======测试====== dto:{}", JSON.toJSONString(dto));
+        return true;
+    }
 
 }

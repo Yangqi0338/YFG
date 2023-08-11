@@ -30,6 +30,8 @@ public class FlowableService {
     public static final String MATERIAL = "素材审批";
     public static final String pack_tech_pdn = "工艺说明审批";
 
+    public static final String SAMPLE_ARCHIVES = "样衣档案审批";
+
     @Autowired
     FlowableFeignService flowableFeignService;
 

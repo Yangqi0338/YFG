@@ -99,5 +99,13 @@ public interface SampleService extends BaseService<Sample> {
     void sampleInventory(Map<String, Integer> sampleItemMap);
 
 
+    /**
+     * 提交审核
+     *
+     * @param id
+     */
+    void submit(String id);
+
+
 }
 

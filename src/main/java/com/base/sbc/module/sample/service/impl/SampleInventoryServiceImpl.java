@@ -131,6 +131,8 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
         sampleService.sampleInventory(sampleItemIdsByInventoryIds);
     }
 
+
+
     @Override
     public void cancel(List<String> inventoryIds) {
         List<SampleInventory> sampleInventories = mapper.selectBatchIds(inventoryIds);
