@@ -18,7 +18,6 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
-import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
@@ -26,9 +25,9 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.config.utils.StyleNoImgUtils;
-import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.band.service.BandService;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -62,8 +61,11 @@ import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.sample.vo.MaterialVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
+import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.smp.dto.PlmStyleSizeParam;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.StyleService;
@@ -72,13 +74,14 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -129,12 +132,13 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private BandService bandService;
     @Autowired
     private PackBomService packBomService;
-
-    @Autowired
-    private UserUtils userUtils;
     @Autowired
     private DataPermissionsService dataPermissionsService;
-
+    @Autowired
+    private BasicsdatumModelTypeMapper basicsdatumModelTypeMapper;
+    @Lazy
+    @Resource
+    private SmpService smpService;
 
     private IdGen idGen = new IdGen();
 
@@ -870,6 +874,45 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         detail.setPositioningName(hisStyle.getPositioningName());
 
         return detail;
+    }
+
+    /**
+     * 方法描述 验证款式号型类型是否可修改
+     *
+     * @param verificationDto
+     * @return
+     */
+    @Override
+    public Boolean checkColorSize(VerificationDto verificationDto) {
+        /*查询款式下已下发的的配色*/
+        QueryWrapper queryWrapper =new QueryWrapper();
+        queryWrapper.eq("style_id",verificationDto.getId());
+        queryWrapper.in("scm_send_flag", com.base.sbc.config.utils.StringUtils.convertList("1,3"));
+        List<StyleColor> list = styleColorMapper.selectList(queryWrapper);
+        Boolean b =true;
+        if(CollectionUtils.isEmpty(list)){
+            /*查询号型类型*/
+            queryWrapper.clear();
+            queryWrapper.eq("code",verificationDto.getSizeRange());
+            BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeMapper.selectOne(queryWrapper);
+            if(ObjectUtil.isEmpty(basicsdatumModelType)){
+                throw new OtherException("号型类型查询失败");
+            }
+            /*大货款号*/
+            List<String> stringList =list.stream().map(StyleColor::getStyleNo).collect(Collectors.toList());
+
+            for (String s : stringList) {
+                PlmStyleSizeParam plmStyleSizeParam =new PlmStyleSizeParam();
+                plmStyleSizeParam.setSizeCategory(verificationDto.getSizeRange());
+                plmStyleSizeParam.setStyleNo(s);
+                plmStyleSizeParam.setSizeNum(basicsdatumModelType.getSizeCode().split(",").length);
+                b = smpService.checkStyleSize(plmStyleSizeParam);
+            }
+        }
+        if(!b){
+            throw new OtherException("号型类型校验失败不支持修改");
+        }
+        return true;
     }
 
     private void getProductCategoryTreeQw(ProductCategoryTreeVo vo, QueryWrapper<?> qw) {
