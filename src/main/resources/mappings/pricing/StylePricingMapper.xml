@@ -64,9 +64,6 @@
             <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
                 and p.planning_season_id = #{dto.planningSeasonId}
             </if>
-            <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
-                and p.planning_season_id = #{dto.planningSeasonId}
-            </if>
             <if test="dto.devtType != null and dto.devtType != ''">
                 and p.devt_type = #{dto.devtType}
             </if>
