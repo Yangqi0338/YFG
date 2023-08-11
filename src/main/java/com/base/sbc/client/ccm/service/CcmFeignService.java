@@ -8,6 +8,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.entity.BasicStructureSearchDto;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
@@ -58,6 +59,7 @@ public class CcmFeignService {
         return null;
     }
 
+
     public List<BasicStructureTreeVo> basicStructureTreeByCode(String code, String hasRoot, String levels) {
         String str = ccmService.basicStructureTreeByCode(code, hasRoot, levels);
         if (StrUtil.isBlank(str)) {
@@ -89,8 +91,34 @@ public class CcmFeignService {
      * @param categoryIds
      * @return
      */
-    public Map<String, String> findStructureTreeNameByCategoryIds(String categoryIds) {
-        String str = ccmService.findStructureTreeNameByCategoryIds(categoryIds);
+    public Map<String, String> findStructureTreeNameByCategoryIds(String categoryIds, String structureCode) {
+        BasicStructureSearchDto dto = new BasicStructureSearchDto();
+        dto.setCategoryIds(categoryIds);
+        dto.setStructureCode(structureCode);
+        String str = ccmService.findStructureTreeNameByCategoryIds(dto);
+        Map<String, String> result = new HashMap<>(16);
+        if (StrUtil.isBlank(str)) {
+            return result;
+        }
+        JSONObject jsonObject = JSON.parseObject(str);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            return (Map<String, String>) jsonObject.get("data");
+
+        }
+        return result;
+    }
+
+    /**
+     * 通过code 获取结构树名称
+     *
+     * @param codes
+     * @return
+     */
+    public Map<String, String> findStructureTreeNameByCodes(String codes, String structureCode) {
+        BasicStructureSearchDto dto = new BasicStructureSearchDto();
+        dto.setCodes(codes);
+        dto.setStructureCode(structureCode);
+        String str = ccmService.findStructureTreeNameByCodes(dto);
         Map<String, String> result = new HashMap<>(16);
         if (StrUtil.isBlank(str)) {
             return result;
@@ -137,7 +165,7 @@ public class CcmFeignService {
         JSONObject jsonObject = JSON.parseObject(dictInfo);
         String ids = "";
         if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
-            ids =jsonObject.get("data").toString();
+            ids = jsonObject.get("data").toString();
         }
         return ids;
     }
@@ -145,7 +173,7 @@ public class CcmFeignService {
     /**
      * 查询 品类集合
      */
-    public List<BasicCategoryDot>  getCategorySByNameAndLevel(String structureName, String names, String level) {
+    public List<BasicCategoryDot> getCategorySByNameAndLevel(String structureName, String names, String level) {
         String dictInfo = ccmService.getCategorySByNameAndLevel(structureName, names, level);
         JSONObject jsonObject = JSON.parseObject(dictInfo);
         if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
@@ -158,11 +186,11 @@ public class CcmFeignService {
     /**
      * 查询 品类集合
      */
-    public List<BasicCategoryDot>  getTreeByNamelList(String structureName, String level) {
-        String dictInfo = ccmService.treeByName(structureName,null,level);
+    public List<BasicCategoryDot> getTreeByNamelList(String structureName, String level) {
+        String dictInfo = ccmService.treeByName(structureName, null, level);
         JSONObject jsonObject = JSON.parseObject(dictInfo);
         if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
-            List<BasicCategoryDot> data =  JSON.parseArray((JSON.parseObject( jsonObject.get("data").toString()).get("dataTree")).toString(), BasicCategoryDot.class);
+            List<BasicCategoryDot> data = JSON.parseArray((JSON.parseObject(jsonObject.get("data").toString()).get("dataTree")).toString(), BasicCategoryDot.class);
             return data;
         }
         return null;
@@ -178,7 +206,7 @@ public class CcmFeignService {
                 String id = BeanUtil.getProperty(o, idkey);
                 ids.add(id);
             }
-            Map<String, String> idNameMap = findStructureTreeNameByCategoryIds(CollUtil.join(ids, StrUtil.COMMA));
+            Map<String, String> idNameMap = findStructureTreeNameByCategoryIds(CollUtil.join(ids, StrUtil.COMMA), "品类");
             for (Object o : list) {
                 String id = BeanUtil.getProperty(o, idkey);
                 BeanUtil.setProperty(o, nameKey, Optional.ofNullable(idNameMap.get(id)).orElse(id));

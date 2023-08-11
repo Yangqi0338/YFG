@@ -259,12 +259,12 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     }
 
     @Override
-    public List categorySummary(PlanningBoardSearchDto dto) {
+    public List bandSummary(PlanningBoardSearchDto dto) {
         QueryWrapper qw = new QueryWrapper();
         planningSummaryQw(qw, dto);
         List result = new ArrayList();
         result.add(CollUtil.newArrayList("product", "总数"));
-        List<ChartBarVo> data = planningCategoryItemService.categorySummary(qw);
+        List<ChartBarVo> data = planningCategoryItemService.bandSummary(qw);
         if (CollUtil.isNotEmpty(data)) {
             data.forEach(item -> {
                 result.add(CollUtil.newArrayList(item.getDimension(), item.getTotal()));

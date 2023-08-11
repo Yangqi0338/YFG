@@ -489,7 +489,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Override
     public PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(PackInfoSearchPageDto pageDto) {
         BaseQueryWrapper<PackInfo> sdQw = new BaseQueryWrapper<>();
-        sdQw.eq("bom_status", BasicNumber.ONE.getNumber());
+//        sdQw.eq("bom_status", BasicNumber.ONE.getNumber());
         sdQw.eq("pack_type", PackUtils.PACK_TYPE_BIG_GOODS);
         sdQw.notEmptyEq("prod_category1st", pageDto.getProdCategory1st());
         sdQw.notEmptyEq("prod_category", pageDto.getProdCategory());

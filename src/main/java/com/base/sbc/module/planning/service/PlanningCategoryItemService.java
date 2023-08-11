@@ -148,7 +148,7 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
 
     List<PlanningSummaryDetailVo> planningSummaryDetail(QueryWrapper detailQw);
 
-    List<ChartBarVo> categorySummary(QueryWrapper qw);
+    List<ChartBarVo> bandSummary(QueryWrapper qw);
 
     /**
      * 坑位信息下发(坑位信息下发到产品季总览)
