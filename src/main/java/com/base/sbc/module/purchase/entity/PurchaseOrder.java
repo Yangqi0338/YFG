@@ -37,6 +37,10 @@ public class PurchaseOrder extends BaseDataEntity<String> {
     @TableField(exist = false)
     private List<PurchaseOrderDetail> purchaseOrderDetailList;
 
+    /** 送货通知单明细集合 */
+    @TableField(exist = false)
+    private List<DeliveryNotice> deliveryNoticeList;
+
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/

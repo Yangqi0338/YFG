@@ -16,4 +16,7 @@ public class PurchasePageDTO extends Page {
 
     @ApiModelProperty(value = "下发状态（0未下发 1已下发）"  )
     private String distributeStatus;
+
+    @ApiModelProperty(value = "入库状态（0未入库 1入库中 2已入库）"  )
+    private String warehouseStatus;
 }
