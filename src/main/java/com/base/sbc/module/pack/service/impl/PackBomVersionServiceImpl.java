@@ -71,6 +71,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
     @Override
     public PageInfo<PackBomVersionVo> pageInfo(PackCommonPageSearchDto dto) {
         QueryWrapper<PackBomVersion> qw = new QueryWrapper<>();
+        dto.setOrderBy("version desc");
         PackUtils.commonQw(qw, dto);
         Page<PackBomVersionVo> page = PageHelper.startPage(dto);
         list(qw);
