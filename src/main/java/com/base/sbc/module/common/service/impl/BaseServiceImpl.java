@@ -50,7 +50,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     }
 
     public String getUserName() {
-        return userUtils.getUserCompany().getName();
+        return userUtils.getUserCompany().getAliasUserName();
     }
 
     /**

@@ -147,6 +147,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
             } else {
                 mapper.updateById(sample);
             }
+            this.sendApproval(sample.getId(), sample);
         }
 
         return mapper.getDetail(id);
@@ -337,6 +338,15 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
         updateSample.updateInit();
         updateSample.setExamineStatus(1);
         mapper.updateById(updateSample);
+        this.sendApproval(id, sample);
+    }
+
+    /**
+     * 发起审批
+     * @param id
+     * @param sample
+     */
+    private void sendApproval(String id, Sample sample) {
         flowableService.start(FlowableService.SAMPLE_ARCHIVES,
                 FlowableService.SAMPLE_ARCHIVES, id,
                 "/pdm/api/saas/sampleManager/approval",
