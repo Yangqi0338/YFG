@@ -47,85 +47,81 @@ public class OperaAspect {
      * @return
      */
     @Around("@annotation(com.base.sbc.config.annotation.OperaLog)")
-    public Object logMethod(ProceedingJoinPoint joinPoint) {
+    public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable {
         Object proceed = null;
-        try {
 
-            OperaLog operaLog = getOperaLog(joinPoint);
+        OperaLog operaLog = getOperaLog(joinPoint);
 
-            OperaLogEntity operaLogEntity = new OperaLogEntity();
-            operaLogEntity.setPath(SpElParseUtil.generateKeyBySpEL(operaLog.pathSpEL(), joinPoint));
-            operaLogEntity.setParentId(SpElParseUtil.generateKeyBySpEL(operaLog.parentIdSpEl(), joinPoint));
-            if (StrUtil.isNotBlank(operaLog.valueSpEL())) {
-                operaLogEntity.setName(SpElParseUtil.generateKeyBySpEL(operaLog.valueSpEL(), joinPoint));
-            } else {
-                operaLogEntity.setName(operaLog.value());
-            }
-
-            // 获取传入数据
-            Object[] args = joinPoint.getArgs();
-            StringBuilder stringBuilder = new StringBuilder();
-            // 获取操作类型
-            if (operaLog.operationType() == OperationType.INSERT_UPDATE) {
-                String documentId = "";
-                Object pageDto = args[0];
-
-                boolean isNew = false;
-                for (Object arg : args) {
-                    if (null != arg) {
-                        String idVal = BeanUtil.getProperty(arg, operaLog.idKey());
-                        JSONObject fieldJson = CommonUtils.getFieldJson(arg);
-                        if (idVal == null || CommonUtils.isInitId(idVal)) {
-                            isNew = true;
-                            operaLogEntity.setType("新增");
-                            stringBuilder.append("新增");
-                            stringBuilder.append(CommonUtils.newStr(fieldJson, pageDto));
-                        } else {
-                            documentId = BeanUtil.getProperty(pageDto, operaLog.idKey());
-                            operaLogEntity.setType("修改");
-                            Class<?> service = operaLog.service();
-                            IService<?> bean = (IService<?>) applicationContext.getBean(service);
-                            Object dbData = bean.getById(documentId);
-                            stringBuilder.append("修改");
-                            stringBuilder.append(CommonUtils.updateStr(dbData, pageDto, fieldJson));
-
-                        }
-                        operaLogEntity.setContent(stringBuilder.toString());
-                    }
-                }
-
-                proceed = joinPoint.proceed();
-                //新增时获取id
-                if (isNew && !ObjectUtil.isBasicType(proceed)) {
-                    documentId = BeanUtil.getProperty(proceed, "id");
-
-                }
-                operaLogEntity.setDocumentId(documentId);
-                operaLogEntity.setDocumentName(BeanUtil.getProperty(pageDto, "name"));
-            } else {
-                //说明是删除操作
-                String documentId = "";
-                proceed = joinPoint.proceed();
-                if (StrUtil.isNotBlank(operaLog.delIdSpEL())) {
-                    documentId = SpElParseUtil.generateKeyBySpEL(operaLog.delIdSpEL(), joinPoint);
-                } else {
-                    Object[] arg1 = (Object[]) args[0];
-                    ArrayList<String> arrayList = new ArrayList<>();
-                    for (Object arg : arg1) {
-                        arrayList.add((String) arg);
-                    }
-                    documentId = String.join(",", arrayList);
-                }
-                operaLogEntity.setType("删除");
-                operaLogEntity.setDocumentId(documentId);
-                operaLogEntity.setContent("删除id：{" + operaLogEntity.getDocumentId() + "}");
-            }
-
-            // 记录操作日志
-            operaLogService.save(operaLogEntity);
-        } catch (Throwable e) {
-            e.printStackTrace();
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setPath(SpElParseUtil.generateKeyBySpEL(operaLog.pathSpEL(), joinPoint));
+        operaLogEntity.setParentId(SpElParseUtil.generateKeyBySpEL(operaLog.parentIdSpEl(), joinPoint));
+        if (StrUtil.isNotBlank(operaLog.valueSpEL())) {
+            operaLogEntity.setName(SpElParseUtil.generateKeyBySpEL(operaLog.valueSpEL(), joinPoint));
+        } else {
+            operaLogEntity.setName(operaLog.value());
         }
+
+        // 获取传入数据
+        Object[] args = joinPoint.getArgs();
+        StringBuilder stringBuilder = new StringBuilder();
+        // 获取操作类型
+        if (operaLog.operationType() == OperationType.INSERT_UPDATE) {
+            String documentId = "";
+            Object pageDto = args[0];
+
+            boolean isNew = false;
+            for (Object arg : args) {
+                if (null != arg) {
+                    String idVal = BeanUtil.getProperty(arg, operaLog.idKey());
+                    JSONObject fieldJson = CommonUtils.getFieldJson(arg);
+                    if (idVal == null || CommonUtils.isInitId(idVal)) {
+                        isNew = true;
+                        operaLogEntity.setType("新增");
+                        stringBuilder.append("新增");
+                        stringBuilder.append(CommonUtils.newStr(fieldJson, pageDto));
+                    } else {
+                        documentId = BeanUtil.getProperty(pageDto, operaLog.idKey());
+                        operaLogEntity.setType("修改");
+                        Class<?> service = operaLog.service();
+                        IService<?> bean = (IService<?>) applicationContext.getBean(service);
+                        Object dbData = bean.getById(documentId);
+                        stringBuilder.append("修改");
+                        stringBuilder.append(CommonUtils.updateStr(dbData, pageDto, fieldJson));
+
+                    }
+                    operaLogEntity.setContent(stringBuilder.toString());
+                }
+            }
+
+            proceed = joinPoint.proceed();
+            //新增时获取id
+            if (isNew && !ObjectUtil.isBasicType(proceed)) {
+                documentId = BeanUtil.getProperty(proceed, "id");
+
+            }
+            operaLogEntity.setDocumentId(documentId);
+            operaLogEntity.setDocumentName(BeanUtil.getProperty(pageDto, "name"));
+        } else {
+            //说明是删除操作
+            String documentId = "";
+            proceed = joinPoint.proceed();
+            if (StrUtil.isNotBlank(operaLog.delIdSpEL())) {
+                documentId = SpElParseUtil.generateKeyBySpEL(operaLog.delIdSpEL(), joinPoint);
+            } else {
+                Object[] arg1 = (Object[]) args[0];
+                ArrayList<String> arrayList = new ArrayList<>();
+                for (Object arg : arg1) {
+                    arrayList.add((String) arg);
+                }
+                documentId = String.join(",", arrayList);
+            }
+            operaLogEntity.setType("删除");
+            operaLogEntity.setDocumentId(documentId);
+            operaLogEntity.setContent("删除id：{" + operaLogEntity.getDocumentId() + "}");
+        }
+
+        // 记录操作日志
+        operaLogService.save(operaLogEntity);
         return proceed;
     }
 
@@ -134,7 +130,6 @@ public class OperaAspect {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         return methodSignature.getMethod().getAnnotation(OperaLog.class);
     }
-
 
 
 }

@@ -12,7 +12,6 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.patternmaking.dto.WorkLogSaveDto;
 import com.base.sbc.module.patternmaking.dto.WorkLogSearchDto;
-import com.base.sbc.module.patternmaking.entity.WorkLog;
 import com.base.sbc.module.patternmaking.service.WorkLogService;
 import com.base.sbc.module.patternmaking.vo.WorkLogVo;
 import com.github.pagehelper.PageInfo;
@@ -71,7 +70,7 @@ public class WorkLogController {
 
     @ApiOperation(value = "修改")
     @PutMapping
-    public WorkLogVo update(@RequestBody WorkLog workLog) {
+    public WorkLogVo update(@RequestBody WorkLogSaveDto workLog) {
         boolean b = workLogService.updateById(workLog);
         return BeanUtil.copyProperties(workLog, WorkLogVo.class);
     }
