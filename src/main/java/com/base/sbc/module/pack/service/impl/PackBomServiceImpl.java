@@ -96,10 +96,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     @Transactional(rollbackFor = {Exception.class})
     public PackBomVo saveByDto(PackBomDto dto) {
         PackBom packBom = BeanUtil.copyProperties(dto, PackBom.class);
-        PackBomVersion version = packBomVersionService.getById(dto.getBomVersionId());
-        if (version == null) {
-            throw new OtherException("找不到版本信息");
-        }
+        PackBomVersion version = packBomVersionService.checkVersion(dto.getBomVersionId());
         // 新增
         if (CommonUtils.isInitId(packBom.getId())) {
             packBom.setId(null);
@@ -134,10 +131,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     @Transactional(rollbackFor = {Exception.class})
     public boolean saveBatchByDto(String bomVersionId, String overlayFlg, List<PackBomDto> dtoList) {
         // 校验版本
-        PackBomVersion version = packBomVersionService.getById(bomVersionId);
-        if (version == null) {
-            throw new OtherException("找不到版本信息");
-        }
+        PackBomVersion version = packBomVersionService.checkVersion(bomVersionId);
         if (CollUtil.isEmpty(dtoList)) {
             dtoList = new ArrayList<>(2);
         }
@@ -215,8 +209,12 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean unusableChange(String id, String unusableFlag) {
+        List<String> split = StrUtil.split(id, CharUtil.COMMA);
+        PackBom byId = getById(split.get(0));
+        // 校验版本
+        packBomVersionService.checkVersion(byId.getBomVersionId());
         UpdateWrapper<PackBom> uw = new UpdateWrapper<>();
-        uw.in("id", StrUtil.split(id, CharUtil.COMMA));
+        uw.in("id", split);
         uw.set("unusable_flag", unusableFlag);
         setUpdateInfo(uw);
         return update(uw);

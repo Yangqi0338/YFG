@@ -152,7 +152,8 @@ public class SampleBoardVo {
     private String receiveSample;
     @ApiModelProperty(value = "节点状态")
     private Map<String, NodeStatusVo> nodeStatus;
-
+    @ApiModelProperty(value = "样衣完成状态:(0未完成,1完成)")
+    private String sampleCompleteFlag;
 
     public String getId() {
         return IdUtil.fastSimpleUUID();

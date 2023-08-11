@@ -233,6 +233,18 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
     }
 
     @Override
+    public PackBomVersion checkVersion(String id) {
+        PackBomVersion byId = getById(id);
+        if (byId == null) {
+            throw new OtherException("版本不存在");
+        }
+        if (StrUtil.equals(byId.getLockFlag(), BaseGlobal.YES)) {
+            throw new OtherException("已锁定");
+        }
+        return byId;
+    }
+
+    @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
         /**

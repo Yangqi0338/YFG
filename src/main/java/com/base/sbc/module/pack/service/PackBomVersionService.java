@@ -103,6 +103,14 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
      */
     boolean approval(AnswerDto dto);
 
+    /**
+     * 检查版本是否锁定
+     *
+     * @param id
+     * @return
+     */
+    PackBomVersion checkVersion(String id);
+
 // 自定义方法区 不替换的区域【other_end】
 
 

@@ -41,12 +41,12 @@ public class AddRevampBasicsdatumColourLibraryDto  {
     /** 库 */
     @ApiModelProperty(value = "库"  )
     private String library;
-/*    *//** 可用于款式 *//*
+//    * 可用于款式
     @ApiModelProperty(value = "可用于款式"  )
     private String isStyle;
-    *//** 可用于材料 *//*
+//    * 可用于材料
     @ApiModelProperty(value = "可用于材料"  )
-    private String isMaterials;*/
+    private String isMaterials;
     /** 潘通 */
     @ApiModelProperty(value = "潘通"  )
     private String pantone;

@@ -5,17 +5,17 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.entity;
-import java.math.BigDecimal;
-import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  * 类描述：打版管理 实体类
  *
@@ -23,7 +23,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-4 13:15:22
+ * @date 创建时间：2023-8-10 20:32:53
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -316,6 +316,11 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开")
     private String scmSendFlag;
+    /**
+     * 样衣完成状态:(0未完成,1完成)
+     */
+    @ApiModelProperty(value = "样衣完成状态:(0未完成,1完成)")
+    private String sampleCompleteFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

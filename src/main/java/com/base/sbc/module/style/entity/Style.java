@@ -25,7 +25,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.style.entity.Style
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-9 20:22:09
+ * @date 创建时间：2023-8-10 20:32:52
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

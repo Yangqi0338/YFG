@@ -390,6 +390,7 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
         for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject jsonObject = jsonArray.getJSONObject(i);
             String valType = jsonObject.getString("valType");
+            Object val = jsonObject.get("val");
             String field = jsonObject.getString("field");
             if (StrUtil.equals(valType, "loginName")) {
                 try {
@@ -400,6 +401,18 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
             } else if (StrUtil.equals(valType, "loginId")) {
                 try {
                     BeanUtil.setProperty(bean, field, user.getId());
+                } catch (Exception e) {
+                    log.error("设置值失败(" + field + ")", e);
+                }
+            } else if (StrUtil.equals(valType, "nowDateTime")) {
+                try {
+                    BeanUtil.setProperty(bean, field, new Date());
+                } catch (Exception e) {
+                    log.error("设置值失败(" + field + ")", e);
+                }
+            } else {
+                try {
+                    BeanUtil.setProperty(bean, field, val);
                 } catch (Exception e) {
                     log.error("设置值失败(" + field + ")", e);
                 }
