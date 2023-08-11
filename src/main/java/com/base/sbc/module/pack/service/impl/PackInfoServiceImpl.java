@@ -41,10 +41,10 @@ import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
-import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleService;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -226,7 +226,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException("物料清单版本未锁定");
         }
         //无配色信息
-        if (StringUtils.isAnyBlank(packInfo.getStyleNo(), packInfo.getColor(), packInfo.getSampleStyleColorId())) {
+        if (StringUtils.isAnyBlank(packInfo.getStyleNo(), packInfo.getColor(), packInfo.getStyleColorId())) {
             throw new OtherException("没有配色信息");
         }
         copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
@@ -240,6 +240,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
         packInfoStatusService.updateById(packInfoStatus);
         //updateById(packInfo);
+        //设置bom 状态
+        changeBomStatus(packInfo.getId(), BasicNumber.ONE.getNumber());
         //生成产前样
         preProductionSampleService.createByPackInfo(packInfo);
         return true;
@@ -414,14 +416,14 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (packInfo == null) {
             throw new OtherException("资料包数据为空");
         }
-        StyleColor color = styleColorMapper.selectById(dto.getSampleStyleColorId());
+        StyleColor color = styleColorMapper.selectById(dto.getStyleColorId());
         if (color == null) {
             throw new OtherException("配色数据为空");
         }
         packInfo.setColor(color.getColorName());
         packInfo.setColorCode(color.getColorCode());
         packInfo.setStyleNo(color.getStyleNo());
-        packInfo.setSampleStyleColorId(dto.getSampleStyleColorId());
+        packInfo.setStyleColorId(dto.getStyleColorId());
         updateById(packInfo);
 
         color.setBom(packInfo.getCode());
@@ -430,25 +432,51 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void changeBomStatus(String packInfoId, String bomStatus) {
+        PackInfo byId = getById(packInfoId);
+        //修改配色的bom 状态
+        if (byId == null) {
+            return;
+        }
+        String styleColorId = byId.getStyleColorId();
+        if (StrUtil.isBlank(styleColorId)) {
+            return;
+        }
+        StyleColor styleColor = new StyleColor();
+        styleColor.setBomStatus(bomStatus);
+        UpdateWrapper<StyleColor> uw = new UpdateWrapper<>();
+        uw.eq("id", styleColorId);
+        styleColorMapper.update(styleColor, uw);
+    }
+
+    @Override
 
     @Transactional(rollbackFor = {Exception.class})
     public boolean reverseApproval(AnswerDto dto) {
         PackInfo packInfo = getById(dto.getBusinessKey());
         if (packInfo != null) {
-            PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS);
+            PackInfoStatus bigGoodsPs = packInfoStatusService.get(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS);
+            PackInfoStatus designPs = packInfoStatusService.get(dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN);
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
                 copyPack(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS, dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN);
-                packInfoStatus.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
-                packInfoStatus.setScmSendFlag(BaseGlobal.NO);
+                bigGoodsPs.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+                bigGoodsPs.setScmSendFlag(BaseGlobal.NO);
+                // bom阶段设置为样衣阶段
+                bigGoodsPs.setBomStatus(BasicNumber.ZERO.getNumber());
+                designPs.setBomStatus(BasicNumber.ZERO.getNumber());
+                //设置bom 状态
+                changeBomStatus(packInfo.getId(), BasicNumber.ZERO.getNumber());
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
-                packInfoStatus.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
+                bigGoodsPs.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_REJECT);
             } else {
-                packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+                bigGoodsPs.setConfirmStatus(BaseGlobal.STOCK_STATUS_DRAFT);
             }
-            packInfoStatusService.updateById(packInfoStatus);
+            packInfoStatusService.updateById(bigGoodsPs);
+            packInfoStatusService.updateById(designPs);
         }
         return true;
     }

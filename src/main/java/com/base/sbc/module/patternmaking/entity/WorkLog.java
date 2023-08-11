@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.WorkLog
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-10 21:22:14
+ * @date 创建时间：2023-8-11 15:45:29
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

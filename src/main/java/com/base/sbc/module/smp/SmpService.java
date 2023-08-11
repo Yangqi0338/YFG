@@ -30,11 +30,11 @@ import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.Sample;
-import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
@@ -331,7 +331,7 @@ public class SmpService {
                     PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packBoms.get(0).getPackType()));
                     smpGoodsDto.setIntegrityProduct("1".equals(packInfoStatus.getBulkOrderClerkConfirm()));
                 }
-                smpGoodsDto.setIntegritySample(StringUtils.isNoneEmpty(packInfo.getSampleStyleColorId()));
+                smpGoodsDto.setIntegritySample(StringUtils.isNoneEmpty(packInfo.getStyleColorId()));
             }
             //废弃
             //smpGoodsDto.setSeriesId(null);
@@ -519,7 +519,7 @@ public class SmpService {
             StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
             smpBomDto.setBomStage("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
             //样衣-款式配色
-            StyleColor styleColor = sampleStyleColorService.getById(packInfo.getSampleStyleColorId());
+            StyleColor styleColor = sampleStyleColorService.getById(packInfo.getStyleColorId());
             if (styleColor != null) {
                 smpBomDto.setPColorCode(styleColor.getColorCode());
                 smpBomDto.setPColorName(styleColor.getColorName());
