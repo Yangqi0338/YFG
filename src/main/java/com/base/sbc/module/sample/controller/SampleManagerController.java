@@ -128,7 +128,7 @@ public class SampleManagerController extends BaseController {
     @PostMapping("/approval")
     public boolean approval(@RequestBody AnswerDto dto) {
         logger.info("=======测试====== dto:{}", JSON.toJSONString(dto));
-        return true;
+        return sampleService.approval(dto);
     }
 
 }
