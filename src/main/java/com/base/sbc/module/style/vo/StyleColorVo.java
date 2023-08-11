@@ -39,9 +39,16 @@ public class StyleColorVo {
     @ApiModelProperty(value = "款式图")
     private String  stylePic;
 
+    @ApiModelProperty(value = "款式图")
+    private String  style;
+
+    public String getStyle() {
+        return designNo+"-"+styleName;
+    }
+
     /*
-    设计款号
-    */
+        设计款号
+        */
     @ApiModelProperty(value = "设计款号"  )
     private String   designNo;
 
@@ -196,6 +203,13 @@ public class StyleColorVo {
     /*细分名称*/
     @ApiModelProperty(value = "细分名称"  )
     private String subdivideName;
+
+    /** 产品细分 */
+    @ApiModelProperty(value = "产品细分"  )
+    private String productSubdivide;
+    /** 产品细分 */
+    @ApiModelProperty(value = "产品细分"  )
+    private String productSubdivideName;
 
     /** bom */
     @ApiModelProperty(value = "bom"  )
