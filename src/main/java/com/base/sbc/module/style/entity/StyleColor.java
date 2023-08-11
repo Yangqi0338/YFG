@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.style.entity.StyleColor
  * @author mengfanjiang
  * @email XX.com
- * @date 创建时间：2023-8-10 10:49:57
+ * @date 创建时间：2023-8-11 13:58:35
  * @version 1.0
  */
 @Data
@@ -146,11 +146,11 @@ public class StyleColor extends BaseDataEntity<String> {
     private String accessoryNo;
     /** 设计下明细单 */
     @ApiModelProperty(value = "设计下明细单"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date designDetailDate;
     /** 设计下正确样 */
     @ApiModelProperty(value = "设计下正确样"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date designCorrectDate;
     /** 吊牌价 */
     @ApiModelProperty(value = "吊牌价"  )
@@ -196,7 +196,7 @@ public class StyleColor extends BaseDataEntity<String> {
     private String isDefective;
     /** 上新时间 */
     @ApiModelProperty(value = "上新时间"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date newDate;
     /** 唯一id */
     @ApiModelProperty(value = "唯一id"  )
@@ -207,9 +207,12 @@ public class StyleColor extends BaseDataEntity<String> {
     /** 品名编码 */
     @ApiModelProperty(value = "品名编码"  )
     private String productCode;
-    /*上会标记(0未上会，1已上会)*/
+    /** 上会标记(0未上会，1已上会) */
     @ApiModelProperty(value = "上会标记(0未上会，1已上会)"  )
     private String meetFlag;
+    /** bom状态:(0样品,1大货) */
+    @ApiModelProperty(value = "bom状态:(0样品,1大货)"  )
+    private String bomStatus;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;

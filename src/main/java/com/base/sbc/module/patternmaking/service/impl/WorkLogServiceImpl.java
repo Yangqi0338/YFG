@@ -56,6 +56,9 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
                     DateUtil.parse(dto.getWorkDate() + " 00:00:00"),
                     DateUtil.parse(dto.getWorkDate() + " 23:59:59"));
         }
+        if (StrUtil.isEmpty(dto.getOrderBy())) {
+            dto.setOrderBy("create_date desc");
+        }
         Page<WorkLog> objects = PageHelper.startPage(dto);
         list(qw);
         return CopyUtil.copy(objects.toPageInfo(), WorkLogVo.class);
