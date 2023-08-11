@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service;
 
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.sample.dto.SamplePageDto;
 import com.base.sbc.module.sample.dto.SampleSaveDto;
@@ -105,6 +106,14 @@ public interface SampleService extends BaseService<Sample> {
      * @param id
      */
     void submit(String id);
+
+
+    /**
+     * 审核处理
+     * @param dto
+     * @return
+     */
+    boolean approval(AnswerDto dto);
 
 
 }

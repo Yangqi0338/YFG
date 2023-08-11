@@ -49,6 +49,10 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         return userUtils.getUserCompany().getUserId();
     }
 
+    public String getUserName() {
+        return userUtils.getUserCompany().getName();
+    }
+
     /**
      * 批量提交修改，逻辑删除新增修改
      *

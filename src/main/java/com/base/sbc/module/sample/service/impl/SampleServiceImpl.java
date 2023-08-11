@@ -9,10 +9,13 @@ package com.base.sbc.module.sample.service.impl;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.basicsdatum.dto.ColorModelNumberExcelDto;
@@ -47,12 +50,10 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -321,6 +322,7 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
     }
 
     @Override
+    @Transactional
     public void submit(String id) {
         Sample sample = super.getById(id);
         if (Objects.isNull(sample)) {
@@ -341,8 +343,22 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
                 "/pdm/api/saas/sampleManager/approval",
                 "/pdm/api/saas/sampleManager/approval",
                 "/pdm/api/saas/sampleManager/" + id, BeanUtil.beanToMap(sample));
+    }
 
-
+    @Override
+    @Transactional(rollbackFor = {OtherException.class, Exception.class})
+    public boolean approval(AnswerDto dto) {
+        Sample sample = super.getById(dto.getBusinessKey());
+        if (Objects.isNull(sample)) {
+            throw new OtherException("样衣数据不存在");
+        }
+        sample.setExamineStatus(StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS) ? 2 : 3);
+        sample.setExamineId(super.getUserId());
+        sample.setExamineName(super.getUserName());
+        sample.setExamineDate(new Date());
+        sample.updateInit();
+        super.updateById(sample);
+        return true;
     }
 
     private Integer getCompleteStatus(Integer count, Integer borrowCount) {

@@ -141,6 +141,7 @@
             AND s.del_flag = '0'
             and s.company_code = #{dto.companyCode}
             and si.enable_flag = '1'
+            and s.examine_status = '2'
             <if test='dto.status != null and dto.status !="" and dto.status != "6"'>
                 AND si.`status` = #{dto.status}
             </if>
