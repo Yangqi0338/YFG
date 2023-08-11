@@ -9,9 +9,9 @@ package com.base.sbc.module.sample.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
@@ -123,9 +123,13 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
 
     @Override
     public List<PreProductionSampleTaskListVo> taskList(PreProductionSampleTaskSearchDto dto) {
-        QueryWrapper<PreProductionSampleTask> qw = new QueryWrapper<>();
+        BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
         qw.eq("node", "产前样衣任务");
         qw.isNotNull("status");
+        qw.andLike(dto.getSearch(), "s.style_no", "t.code");
+        qw.notEmptyIn("s.year", dto.getYear());
+        qw.notEmptyIn("s.season", dto.getSeason());
+        qw.notEmptyIn("s.month", dto.getMonth());
         List<PreProductionSampleTaskListVo> list = getBaseMapper().taskList(qw);
         //设置图
         attachmentService.setListStylePic(list, "stylePic");
