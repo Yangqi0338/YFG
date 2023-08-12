@@ -183,7 +183,7 @@ public class SmpService {
             smpGoodsDto.setDesignerId(usernamesByIds.get(designerId));
             smpGoodsDto.setTechnicianId(usernamesByIds.get(technicianId));
             smpGoodsDto.setPatternMakerId(usernamesByIds.get(patternDesignId));
-            smpGoodsDto.setYear(sampleDesign.getYear());
+            smpGoodsDto.setYear(sampleDesign.getYearName());
             smpGoodsDto.setPatternName(sampleDesign.getDevtType());
             smpGoodsDto.setPriorityId(sampleDesign.getTaskLevel());
             smpGoodsDto.setPriorityName(sampleDesign.getTaskLevelName());
