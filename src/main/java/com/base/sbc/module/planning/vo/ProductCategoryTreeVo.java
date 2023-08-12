@@ -12,6 +12,9 @@ import java.util.List;
 public class ProductCategoryTreeVo {
 
     private String id;
+
+    @ApiModelProperty(value = "seat坑位,style,款式")
+    private String dataForm = "style";
     /**
      * 企划名称
      */

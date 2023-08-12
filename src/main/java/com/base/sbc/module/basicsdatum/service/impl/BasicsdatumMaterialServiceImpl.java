@@ -310,7 +310,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		qw.notEmptyLike("material_code", dto.getMaterialCode());
 		qw.notEmptyLike("material_name", dto.getMaterialName());
 		qw.notEmptyIn("status", dto.getStatus());
-		qw.andLike(dto.getCategoryId(), "category_id", "category_ids");
+		qw.andLike(dto.getCategoryId(), "category1_code", "category2_code", "category3_code");
 		Page<BomSelMaterialVo> page = PageHelper.startPage(dto);
 		List<BomSelMaterialVo> list = getBaseMapper().getBomSelMaterialList(qw);
 		if (CollUtil.isNotEmpty(list)) {
