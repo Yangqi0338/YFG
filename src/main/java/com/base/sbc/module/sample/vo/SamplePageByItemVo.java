@@ -208,5 +208,10 @@ public class SamplePageByItemVo {
      */
     @ApiModelProperty(value = "小类名称")
     private String prodCategory3rdName;
+    /**
+     * 是否启用：0.否，1.是
+     */
+    @ApiModelProperty(value = "是否启用：0.否，1.是")
+    private String enableFlag;
 
 }

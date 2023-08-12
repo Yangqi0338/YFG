@@ -55,7 +55,8 @@
         si.remarks,
         si.position_id,
         si.position,
-        si.borrow_count
+        si.borrow_count,
+        si.enable_flag
         FROM
         t_sample_item si
         JOIN t_sample s ON s.id = si.sample_id
