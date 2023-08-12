@@ -299,9 +299,6 @@ public class SmpService {
 
             smpGoodsDto.setUnit(sampleDesign.getStyleUnitCode());
 
-            //测试造的数据
-            smpGoodsDto.setUnit("ST");
-
             PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()));
             if (packInfo != null) {
 
