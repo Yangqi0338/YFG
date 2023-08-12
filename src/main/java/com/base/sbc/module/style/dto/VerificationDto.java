@@ -10,7 +10,7 @@ public class VerificationDto {
     private String id;
 
     /*号型类型编码*/
-    @NotBlank(message = "号型类型编码")
+//    @NotBlank(message = "号型类型编码")
     private String sizeRange;
 
 }

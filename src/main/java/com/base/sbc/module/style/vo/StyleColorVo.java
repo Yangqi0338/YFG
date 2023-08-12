@@ -8,6 +8,7 @@ package com.base.sbc.module.style.vo;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -32,6 +33,10 @@ public class StyleColorVo {
 
     private String id;
 
+    @ApiModelProperty(value = "行id")
+    private String issuerId;
+
+
     private String styleId;
     /**
      * 款式图
@@ -43,7 +48,7 @@ public class StyleColorVo {
     private String  style;
 
     public String getStyle() {
-        return designNo+"-"+styleName;
+        return designNo+ (StringUtils.isNotBlank(styleName)? "-"+styleName:"");
     }
 
     /*
