@@ -36,6 +36,8 @@ public class StyleColorVo {
     @ApiModelProperty(value = "行id")
     private String issuerId;
 
+    @ApiModelProperty(value = "bomId")
+    private String packInfoId;
 
     private String styleId;
     /**
