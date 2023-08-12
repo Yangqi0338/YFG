@@ -25,7 +25,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.style.entity.Style
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-10 20:32:52
+ * @date 创建时间：2023-8-12 10:51:07
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -539,11 +539,6 @@ public class Style extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "企划目标倍率")
     private BigDecimal planningTargetRate;
-    /**
-     * 目标成本
-     */
-    @ApiModelProperty(value = "目标成本")
-    private BigDecimal targetCost;
     /**
      * 样衣到仓时间
      */
