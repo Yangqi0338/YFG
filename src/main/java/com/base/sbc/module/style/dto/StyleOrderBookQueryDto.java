@@ -16,6 +16,8 @@ public class StyleOrderBookQueryDto extends Page {
 
 	private static final long serialVersionUID = 1L;
 
+	@ApiModelProperty(value = "关键字")
+	private String search;
 	@ApiModelProperty(value = "企业编码")
 	private String companyCode;
 	@ApiModelProperty(value = "类型：all/design/plan/productPlan")
@@ -26,4 +28,6 @@ public class StyleOrderBookQueryDto extends Page {
 	private String orderBookCode;
 	@ApiModelProperty(value = "款号")
 	private String styleNo;
+	@ApiModelProperty(value = "设计款号")
+	private String designNo;
 }
