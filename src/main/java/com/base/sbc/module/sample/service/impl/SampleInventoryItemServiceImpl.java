@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -68,6 +69,9 @@ public class SampleInventoryItemServiceImpl extends BaseServiceImpl<SampleInvent
                 item.insertInit();
             } else {
                 item.updateInit();
+            }
+            if (Objects.isNull(item.getNewCount())) {
+                item.setNewCount(0);
             }
             super.saveOrUpdate(item);
             // 日志

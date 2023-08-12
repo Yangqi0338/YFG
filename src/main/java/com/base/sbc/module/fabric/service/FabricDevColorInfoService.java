@@ -5,24 +5,36 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.fabric.service;
+
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.fabric.dto.FabricDevColorInfoSaveDTO;
 import com.base.sbc.module.fabric.entity.FabricDevColorInfo;
 
-/** 
+import java.util.List;
+
+/**
  * 类描述：面料开发颜色信息 service类
- * @address com.base.sbc.module.fabric.service.FabricDevColorInfoService
+ *
  * @author your name
+ * @version 1.0
+ * @address com.base.sbc.module.fabric.service.FabricDevColorInfoService
  * @email your email
  * @date 创建时间：2023-8-7 11:01:29
- * @version 1.0  
  */
-public interface FabricDevColorInfoService extends BaseService<FabricDevColorInfo>{
+public interface FabricDevColorInfoService extends BaseService<FabricDevColorInfo> {
 
 // 自定义方法区 不替换的区域【other_start】
 
-
+    /**
+     * 保存开发颜色信息
+     *
+     * @param fabricDevColorInfoSaves
+     * @param bizId
+     * @param companyCode
+     */
+    void devColorInfoSave(List<FabricDevColorInfoSaveDTO> fabricDevColorInfoSaves, String bizId, String companyCode);
 
 // 自定义方法区 不替换的区域【other_end】
 
-	
+
 }
