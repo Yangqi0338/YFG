@@ -80,12 +80,22 @@ public interface PackInfoStatusService extends PackBaseService<PackInfoStatus> {
 
     /**
      * 通过大货款号获取工艺说明文件id
+     *
      * @param styleNo
      * @return
      */
     String getTechSpecFileIdByStyleNo(String styleNo);
 
 
+    /**
+     * 检查是否锁定
+     *
+     * @param foreignId
+     * @param packType
+     * @param lockField
+     * @return
+     */
+    void checkLock(String foreignId, String packType, String lockField);
 // 自定义方法区 不替换的区域【other_end】
 
 

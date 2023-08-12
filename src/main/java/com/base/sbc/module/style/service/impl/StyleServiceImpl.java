@@ -18,6 +18,7 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
@@ -683,11 +684,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             qc.eq("company_code", getCompanyCode());
             qc.eq("del_flag", BasicNumber.ZERO.getNumber());
             qc.select("id", "name", "season");
+            qc.orderByDesc("name");
             /*查询到的产品季*/
             List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
             if (CollUtil.isNotEmpty(planningSeasonList)) {
                 List<ProductCategoryTreeVo> result = planningSeasonList.stream().map(ps -> {
-                    ProductCategoryTreeVo tree = new ProductCategoryTreeVo();
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
                     tree.setChildren(true);
                     tree.setLevel(0);
                     tree.setSeason(ps.getSeason());
@@ -700,11 +702,17 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         //第二级 大类
         else if (vo.getLevel() == 0) {
-            QueryWrapper<Style> qw = new QueryWrapper<>();
+            QueryWrapper qw = new QueryWrapper();
             getProductCategoryTreeQw(vo, qw);
             qw.select("prod_category1st_name,prod_category1st");
             qw.groupBy("prod_category1st_name,prod_category1st");
-            List<Style> list = list(qw);
+            List result = null;
+            if (StrUtil.equals(vo.getDataForm(), "seat")) {
+                result = planningCategoryItemService.listMaps(qw);
+            } else {
+                result = listMaps(qw);
+            }
+            List<ProdCategoryVo> list = BeanUtil.copyToList(result, ProdCategoryVo.class);
             if (CollUtil.isNotEmpty(list)) {
                 return list.stream().map(item -> {
                     ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
@@ -718,11 +726,17 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         //第3级 品类
         else if (vo.getLevel() == 1) {
-            QueryWrapper<Style> qw = new QueryWrapper<>();
+            QueryWrapper qw = new QueryWrapper<>();
             getProductCategoryTreeQw(vo, qw);
             qw.select("prod_category_name,prod_category");
             qw.groupBy("prod_category_name,prod_category");
-            List<Style> list = list(qw);
+            List result = null;
+            if (StrUtil.equals(vo.getDataForm(), "seat")) {
+                result = planningCategoryItemService.listMaps(qw);
+            } else {
+                result = listMaps(qw);
+            }
+            List<ProdCategoryVo> list = BeanUtil.copyToList(result, ProdCategoryVo.class);
             if (CollUtil.isNotEmpty(list)) {
                 return list.stream().map(item -> {
                     ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
@@ -1016,11 +1030,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (StrUtil.isBlank(designDocTreeVo.getYear()) || StrUtil.isBlank(designDocTreeVo.getSeason())) {
             return result;
         }
-        QueryWrapper<Style> qw = new QueryWrapper<>();
+        BaseQueryWrapper<Style> qw = new BaseQueryWrapper<>();
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.eq(DEL_FLAG, BaseGlobal.DEL_FLAG_NORMAL);
         qw.eq("year", designDocTreeVo.getYear());
         qw.eq("season", designDocTreeVo.getSeason());
+        qw.notNull("band_code");
         qw.select("DISTINCT band_code,band_name");
         qw.orderByAsc("band_code");
         List<Style> list = list(qw);

@@ -61,6 +61,7 @@ public class PackTechSpecController {
     @Autowired
     private PackInfoService packInfoService;
 
+    final String lockField = "techSpecLockFlag";
     @ApiOperation(value = "列表")
     @GetMapping
     public List<PackTechSpecVo> page(PackTechSpecSearchDto dto) {
@@ -77,6 +78,7 @@ public class PackTechSpecController {
     @ApiOperation(value = "保存图片")
     @PostMapping("/savePic")
     public AttachmentVo savePic(@Valid @RequestBody PackTechSpecSavePicDto dto) {
+        packInfoStatusService.checkLock(dto.getForeignId(), dto.getPackType(), lockField);
         return packTechSpecService.savePic(dto);
     }
 
