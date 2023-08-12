@@ -639,7 +639,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 categoryIds.add(vo.getProdCategory1st());
                 categoryIds.add(vo.getProdCategory2nd());
             }
-            Map<String, String> categoryNames = ccmFeignService.findStructureTreeNameByCategoryIds(CollUtil.join(categoryIds, StrUtil.COMMA));
+            Map<String, String> categoryNames = ccmFeignService.findStructureTreeNameByCodes(CollUtil.join(categoryIds, StrUtil.COMMA), "品类");
             for (StyleBoardCategorySummaryVo vo : styleBoardCategorySummaryVos) {
                 vo.setTotal(category1stTotal.getOrDefault(vo.getProdCategory1st(), 0L));
                 vo.setProdCategory1st(categoryNames.getOrDefault(vo.getProdCategory1st(), vo.getProdCategory1st()));

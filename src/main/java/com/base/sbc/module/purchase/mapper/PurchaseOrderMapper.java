@@ -7,9 +7,13 @@
 package com.base.sbc.module.purchase.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.purchase.entity.PurchaseOrder;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 类描述：采购-采购单 dao类
@@ -24,6 +28,6 @@ public interface PurchaseOrderMapper extends BaseMapper<PurchaseOrder> {
 // 自定义方法区 不替换的区域【other_start】
     String selectMaxCodeByCompany(@Param("companyCode") String companyCode);
 
-
+    List<PurchaseOrder> purchaseRelationoNotice(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 // 自定义方法区 不替换的区域【other_end】
 }

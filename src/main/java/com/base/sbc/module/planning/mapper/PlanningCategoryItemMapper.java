@@ -16,7 +16,6 @@ import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.vo.ChartBarVo;
-
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -48,7 +47,7 @@ public interface PlanningCategoryItemMapper extends BaseMapper<PlanningCategoryI
 
     List<PlanningSummaryDetailVo> planningSummaryDetail(@Param(Constants.WRAPPER) QueryWrapper qw);
 
-    List<ChartBarVo> categorySummary(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<ChartBarVo> bandSummary(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     List<CountVo> totalSkcByPlanningSeason(@Param(Constants.WRAPPER) QueryWrapper qw);
 

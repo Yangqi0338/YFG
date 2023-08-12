@@ -559,8 +559,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     }
 
     @Override
-    public List<ChartBarVo> categorySummary(QueryWrapper qw) {
-        return getBaseMapper().categorySummary(qw);
+    public List<ChartBarVo> bandSummary(QueryWrapper qw) {
+        return getBaseMapper().bandSummary(qw);
     }
 
     @Override

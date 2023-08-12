@@ -168,7 +168,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         Map<String, String> userAvatarMap = amcFeignService.getUserAvatar(CollUtil.join(userIds, ","));
 
         // 获取素材库功能名称
-        Map<String, String> materialCategoryNames = ccmFeignService.findStructureTreeNameByCategoryIds(CollUtil.join(materialCategoryIds,","));
+        Map<String, String> materialCategoryNames = ccmFeignService.findStructureTreeNameByCategoryIds(CollUtil.join(materialCategoryIds, ","), "功能");
 
         for (MaterialVo materialVo : materialAllDtolist) {
             materialVo.setUserAvatar(userAvatarMap.get(materialVo.getCreateId()));
@@ -337,8 +337,8 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         List<String> materialCategoryIds = materials.stream().filter(item -> StrUtil.isNotBlank(item.getMaterialCategoryId()))
                 .map(Material::getMaterialCategoryId).collect(Collectors.toList());
         //查询素材库
-        Map<String, String> materialCategoryNames = ccmFeignService.findStructureTreeNameByCategoryIds(CollUtil.join(materialCategoryIds, ","));
-        Map<String,AssociationMaterialVo> result=new LinkedHashMap<>(16);
+        Map<String, String> materialCategoryNames = ccmFeignService.findStructureTreeNameByCategoryIds(CollUtil.join(materialCategoryIds, ","), "功能");
+        Map<String, AssociationMaterialVo> result = new LinkedHashMap<>(16);
         for (Material material : materials) {
             String key=material.getMaterialCategoryId();
             if(StrUtil.isBlank(key)){
