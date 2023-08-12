@@ -7,6 +7,7 @@
 package com.base.sbc.module.purchase.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.common.base.UserCompany;
@@ -17,6 +18,7 @@ import com.base.sbc.module.purchase.dto.PurchasePageDTO;
 import com.base.sbc.module.purchase.entity.PurchaseDemand;
 import com.base.sbc.module.purchase.entity.PurchaseOrder;
 import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
+import com.base.sbc.module.purchase.mapper.PurchaseOrderMapper;
 import com.base.sbc.module.purchase.service.PurchaseOrderDetailService;
 import com.base.sbc.module.purchase.service.PurchaseOrderService;
 import com.github.pagehelper.PageHelper;
@@ -50,6 +52,9 @@ public class PurchaseOrderController extends BaseController{
 
 	@Autowired
 	private PurchaseOrderDetailService purchaseOrderDetailService;
+
+	@Autowired
+	private PurchaseOrderMapper purchaseOrderMapper;
 
 	@Autowired
 	private UserCompanyUtils userCompanyUtils;
@@ -137,6 +142,31 @@ public class PurchaseOrderController extends BaseController{
 			return updateAttributeNotRequirements("ids");
 		}
 		return purchaseOrderService.cancel(userCompany, ids);
+	}
+
+	@ApiOperation(value = "入库单选择采购单使用的接口")
+	@GetMapping("/noticePage")
+	public ApiResult noticePage(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, PurchasePageDTO page) {
+		BaseQueryWrapper<PurchaseOrder> qc = new BaseQueryWrapper<>();
+		qc.eq("company_code", userCompany);
+		qc.eq(StringUtils.isNotBlank(page.getOrderStatus()),"warehouse_status", page.getWarehouseStatus());
+		if(StringUtils.isNotBlank(page.getSearch())){
+			qc.and(wrapper -> wrapper.like("code", page.getSearch())
+					.or()
+					.like("supplier_name", page.getSearch()));
+		}
+		if (!StringUtils.isEmpty(page.getOrderBy())){
+			qc.orderByAsc(page.getOrderBy());
+		}else {
+			qc.orderByDesc("create_date");
+		}
+		if (page.getPageNum() != 0 && page.getPageSize() != 0) {
+			com.github.pagehelper.Page<PurchaseOrder> purchaseDemandPage = PageHelper.startPage(page.getPageNum(), page.getPageSize());
+			purchaseOrderMapper.purchaseRelationoNotice(qc);
+			PageInfo<PurchaseOrder> pages = purchaseDemandPage.toPageInfo();
+			return ApiResult.success("success", pages);
+		}
+		return selectNotFound();
 	}
 }
 

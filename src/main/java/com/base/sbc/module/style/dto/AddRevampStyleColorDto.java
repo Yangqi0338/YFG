@@ -67,6 +67,12 @@ public class AddRevampStyleColorDto {
     /** 细分名称 */
     @ApiModelProperty(value = "细分名称"  )
     private String subdivideName;
+    /** 产品细分 */
+    @ApiModelProperty(value = "产品细分"  )
+    private String productSubdivide;
+    /** 产品细分 */
+    @ApiModelProperty(value = "产品细分"  )
+    private String productSubdivideName;
     /** 波段编码 */
     @ApiModelProperty(value = "波段编码"  )
     private String bandCode;

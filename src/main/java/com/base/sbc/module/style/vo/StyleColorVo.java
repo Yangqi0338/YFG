@@ -8,6 +8,7 @@ package com.base.sbc.module.style.vo;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -32,6 +33,10 @@ public class StyleColorVo {
 
     private String id;
 
+    @ApiModelProperty(value = "行id")
+    private String issuerId;
+
+
     private String styleId;
     /**
      * 款式图
@@ -39,9 +44,16 @@ public class StyleColorVo {
     @ApiModelProperty(value = "款式图")
     private String  stylePic;
 
+    @ApiModelProperty(value = "款式图")
+    private String  style;
+
+    public String getStyle() {
+        return designNo+ (StringUtils.isNotBlank(styleName)? "-"+styleName:"");
+    }
+
     /*
-    设计款号
-    */
+        设计款号
+        */
     @ApiModelProperty(value = "设计款号"  )
     private String   designNo;
 
@@ -196,6 +208,13 @@ public class StyleColorVo {
     /*细分名称*/
     @ApiModelProperty(value = "细分名称"  )
     private String subdivideName;
+
+    /** 产品细分 */
+    @ApiModelProperty(value = "产品细分"  )
+    private String productSubdivide;
+    /** 产品细分 */
+    @ApiModelProperty(value = "产品细分"  )
+    private String productSubdivideName;
 
     /** bom */
     @ApiModelProperty(value = "bom"  )

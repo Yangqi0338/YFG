@@ -242,7 +242,6 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             PlanningCategoryItem categoryItem = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
             // 修改
             updateById(categoryItem);
-            fieldValService.save(categoryItem.getId(), FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION, dto.getFieldVals());
             // 修改款式设计数据
             styleService.updateBySeatChange(categoryItem);
         }
@@ -559,8 +558,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     }
 
     @Override
-    public List<ChartBarVo> categorySummary(QueryWrapper qw) {
-        return getBaseMapper().categorySummary(qw);
+    public List<ChartBarVo> bandSummary(QueryWrapper qw) {
+        return getBaseMapper().bandSummary(qw);
     }
 
     @Override

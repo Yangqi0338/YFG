@@ -11,6 +11,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -101,6 +102,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getIsTrim()), "tsc.is_trim", queryDto.getIsTrim());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getColorSpecification()), "tsc.color_specification", queryDto.getColorSpecification());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getStyleNo()), "tsc.style_no", queryDto.getStyleNo());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getDesignNo()), "ts.design_no", queryDto.getDesignNo());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getColorName()), "tsc.color_name", queryDto.getColorName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getMeetFlag()), "tsc.meet_flag", queryDto.getMeetFlag());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSubdivide()), "tsc.subdivide", queryDto.getSubdivide());
@@ -113,10 +115,24 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory1st()),"ts.prod_category1st",queryDto.getProdCategory1st());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory()),"ts.prod_category",queryDto.getProdCategory());
         queryWrapper.in(StringUtils.isNotBlank(queryDto.getStyleStatus()),"ts.status", StringUtils.convertList(queryDto.getStyleStatus()));
-        queryWrapper.eq("tsc.del_flag", "0");
-        /*获取配色数据*/
-        List<StyleColorVo> sampleStyleColorList = baseMapper.styleColorList(queryWrapper);
 
+        /*获取配色数据*/
+        List<StyleColorVo> sampleStyleColorList =new ArrayList<>();
+        if(StringUtils.isNotBlank(queryDto.getColorListFlag())){
+            queryWrapper.eq("tsc.del_flag", "0");
+//            查询配色列表
+            sampleStyleColorList = baseMapper.colorList(queryWrapper);
+        }else {
+            queryWrapper.eq("ts.del_flag", "0");
+//            查询款式配色
+            sampleStyleColorList = baseMapper.styleColorList(queryWrapper);
+            List<String> stringList =  new IdGen().getIds(sampleStyleColorList.size());
+            int index =0;
+            for (StyleColorVo styleColorVo : sampleStyleColorList) {
+                styleColorVo.setIssuerId(stringList.get(index));
+                index++;
+            }
+        }
         /*查询款式图*/
         attachmentService.setListStylePic(sampleStyleColorList, "stylePic");
 

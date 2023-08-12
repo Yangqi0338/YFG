@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-28 15:52:38
+ * @date 创建时间：2023-8-12 11:02:44
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -60,9 +60,9 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "设计款号")
     private String designNo;
     /**
-     * 状态:0未下发,1已下发到产品季总览,2已下发到款式设计,-1撤回
+     * 状态:0未下发,1已下发到产品季总览,2已下发到样衣设计,-1撤回
      */
-    @ApiModelProperty(value = "状态:0未下发,1已下发到产品季总览,2已下发到款式设计,-1撤回")
+    @ApiModelProperty(value = "状态:0未下发,1已下发到产品季总览,2已下发到样衣设计,-1撤回")
     private String status;
     /**
      * 大类code
@@ -261,7 +261,7 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
      * 目标成本
      */
     @ApiModelProperty(value = "目标成本")
-    private BigDecimal targetCost;
+    private BigDecimal productCost;
     /**
      * 样衣到仓时间
      */

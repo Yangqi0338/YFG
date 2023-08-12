@@ -200,6 +200,15 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
     }
 
     @Override
+    public void checkLock(String foreignId, String packType, String lockField) {
+        PackInfoStatus packInfoStatus = get(foreignId, packType);
+        String lock = BeanUtil.getProperty(packInfoStatus, lockField);
+        if (StrUtil.equals(lock, BaseGlobal.YES)) {
+            throw new OtherException("已锁定");
+        }
+    }
+
+    @Override
     @Transactional(rollbackFor = {Exception.class})
     public PackInfoStatus get(String foreignId, String packType) {
         PackInfoStatus one = super.get(foreignId, packType);

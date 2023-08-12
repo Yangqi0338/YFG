@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.style.entity.StyleColor
  * @author mengfanjiang
  * @email XX.com
- * @date 创建时间：2023-8-11 13:58:35
+ * @date 创建时间：2023-8-11 15:11:12
  * @version 1.0
  */
 @Data
@@ -105,6 +105,12 @@ public class StyleColor extends BaseDataEntity<String> {
     /** 细分名称 */
     @ApiModelProperty(value = "细分名称"  )
     private String subdivideName;
+    /** 产品细分 */
+    @ApiModelProperty(value = "产品细分"  )
+    private String productSubdivide;
+    /** 产品细分 */
+    @ApiModelProperty(value = "产品细分"  )
+    private String productSubdivideName;
     /** 波段编码 */
     @ApiModelProperty(value = "波段编码"  )
     private String bandCode;

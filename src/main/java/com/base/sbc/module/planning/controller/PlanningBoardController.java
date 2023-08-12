@@ -47,9 +47,9 @@ public class PlanningBoardController {
     }
 
     @ApiOperation(value = "品类汇总", notes = "")
-    @GetMapping("/categorySummary")
-    public List categorySummary(PlanningBoardSearchDto dto) {
-        return planningSeasonService.categorySummary(dto);
+    @GetMapping("/bandSummary")
+    public List bandSummary(PlanningBoardSearchDto dto) {
+        return planningSeasonService.bandSummary(dto);
     }
 
     @ApiOperation(value = "参考历史款明细", notes = "")

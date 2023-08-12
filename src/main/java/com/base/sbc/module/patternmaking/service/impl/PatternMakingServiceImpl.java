@@ -510,6 +510,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdQw.eq(COMPANY_CODE, getCompanyCode());
         sdQw.eq("del_flag", BaseGlobal.NO);
         sdQw.eq("status", BasicNumber.TWO.getNumber());
+        sdQw.exists("select id from t_pattern_making where style_id=t_style.id and del_flag='0'");
         if (StrUtil.isNotBlank(dto.getOrderBy())) {
             dto.setOrderBy("create_date desc");
         }

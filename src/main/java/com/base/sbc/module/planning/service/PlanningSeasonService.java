@@ -120,7 +120,7 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
      * @param dto
      * @return
      */
-    List categorySummary(PlanningBoardSearchDto dto);
+    List bandSummary(PlanningBoardSearchDto dto);
 
     /**
      * 历史款明细

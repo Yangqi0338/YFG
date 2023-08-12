@@ -55,9 +55,15 @@ public class QueryStyleColorDto extends Page {
     @ApiModelProperty(value = "品类"  )
     private String prodCategory;
 
-    @ApiModelProperty(value = "品类"  )
+    @ApiModelProperty(value = "款式状态"  )
     private String  styleStatus;
 
     @ApiModelProperty(value = "配色"  )
     private String  colorName;
+
+    @ApiModelProperty(value = "款号"  )
+    private String   designNo;
+
+    @ApiModelProperty(value = "配色列表标记"  )
+    private String colorListFlag;
 }

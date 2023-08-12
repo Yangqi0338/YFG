@@ -54,4 +54,10 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         });
         return this;
     }
+
+    public QueryWrapper<T> notNull(String column) {
+        this.isNotNull(column);
+        this.ne(column, "");
+        return this;
+    }
 }
