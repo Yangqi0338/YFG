@@ -136,9 +136,13 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         List<PlanningDemand> planningDemandList = baseMapper.selectList(queryWrapper1);
         /*字段id*/
         List<String> stringList = planningDemandList.stream().map(PlanningDemand::getFieldId).collect(Collectors.toList());
+        List<FieldManagement> fieldManagementList2 =new ArrayList<>();
         queryWrapper.clear();
-        queryWrapper.in("id",stringList);
-        List<FieldManagement> fieldManagementList2 = fieldManagementMapper.selectList(queryWrapper);
+        if(!CollectionUtils.isEmpty(stringList)){
+            queryWrapper.in("id",stringList);
+            fieldManagementList2 = fieldManagementMapper.selectList(queryWrapper);
+        }
+
 
         map.put("demandDimensionality", fieldManagementList2);
         return ApiResult.success("查询成功", map);

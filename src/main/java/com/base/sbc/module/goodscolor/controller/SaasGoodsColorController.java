@@ -11,6 +11,7 @@ import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.goodscolor.dto.QueryGoodsColorDto;
 import com.base.sbc.module.goodscolor.entity.GoodsColor;
 import com.base.sbc.module.goodscolor.entity.UsingStatusVO;
 import com.base.sbc.module.goodscolor.service.GoodsColorService;
@@ -45,37 +46,16 @@ public class SaasGoodsColorController extends BaseController {
 
 
     @ApiOperation(value = "分页查询物料颜色详情", notes = "查询物料颜色详情(params{pageNum:第几页,pageSize:每页条数,状态:(0正常 1不正常),sql:sql条件,search:搜索条件(名称.编码)})")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userCompany", value = "用户企业ID ", required = true, dataType = "String", paramType = "header"),
-            @ApiImplicitParam(name = "pageNum", value = "第几页", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "pageSize", value = "每页条数", required = true, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "status", value = "状态(0正常 1不正常)", required = false, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "sql", value = "sql", required = false, dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "search", value = "搜索条件()", required = false, dataType = "String", paramType = "query")})
     @GetMapping("/selectColorList")
-    public ApiResult selectColorList(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, Page page) {
-
+    public ApiResult selectColorList(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, QueryGoodsColorDto queryGoodsColorDto) {
 
         // 构造查询条件
         QueryWrapper<GoodsColor> qc = new QueryWrapper<>();
         qc.eq(COMPANY_CODE, userCompany);
-        qc.eq("del_flag", "0");
-
-        // 搜索条件(颜色、颜色编码)
-        if (StringUtils.isNotBlank(page.getSearch())) {
-            qc.like("color", page.getSearch()).or().like("color_code", page.getSearch());
-        }
-        // 状态(0正常 1不正常)
-        if (StringUtils.isNotBlank(page.getStatus())) {
-            qc.eq("status", page.getStatus());
-        }
-        // 排序
-        if (StringUtils.isNotBlank(page.getOrderBy())) {
-            qc.orderByAsc(page.getOrderBy());
-        } else {
-            qc.orderByDesc("update_date");
-        }
-        PageHelper.startPage(page);
+        qc.like(StringUtils.isNotBlank(queryGoodsColorDto.getColor()),"color",queryGoodsColorDto.getColor());
+        qc.like(StringUtils.isNotBlank(queryGoodsColorDto.getColorCode()),"color_code",queryGoodsColorDto.getColorCode());
+        qc.eq(StringUtils.isNotBlank(queryGoodsColorDto.getStatus()),"status", queryGoodsColorDto.getStatus());
+        PageHelper.startPage(queryGoodsColorDto);
         List<GoodsColor> list = goodsColorService.list(qc);
         PageInfo<GoodsColor> pageInfo = new PageInfo<>(list);
         return selectSuccess(pageInfo);
