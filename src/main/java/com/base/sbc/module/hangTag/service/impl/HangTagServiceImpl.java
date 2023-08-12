@@ -10,7 +10,6 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.IdGen;
-import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -138,7 +137,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                 .eq(HangTag::getCompanyCode, userCompany);
         List<HangTag> hangTags = super.list(queryWrapper);
         if (CollectionUtils.isEmpty(hangTags)) {
-            throw new OtherException(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND);
+            throw new OtherException("存在未填写数据，请先填写");
         }
         ArrayList<HangTag> updateHangTags = Lists.newArrayList();
         hangTags.forEach(e -> {
@@ -146,11 +145,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                 if (HangTagStatusEnum.CONFIRMED.getK().equals(e.getStatus())) {
                     throw new OtherException("存在已确认数据，请勿重复确认");
                 }
-
-                if (HangTagStatusEnum.UNWRITTEN.getK().equals(e.getStatus())) {
-                    throw new OtherException("存在未填写数据，请先填写");
-                }
-
                 if (HangTagStatusEnum.NOT_SUBMIT.getK().equals(e.getStatus()) &&
                         !HangTagStatusEnum.TO_TECHNICIANS_CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
                     throw new OtherException("存在待提交数据，请先提交");
