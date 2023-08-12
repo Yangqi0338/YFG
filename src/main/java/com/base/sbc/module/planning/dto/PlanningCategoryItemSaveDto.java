@@ -32,6 +32,8 @@ public class PlanningCategoryItemSaveDto extends PlanningCategoryItem {
     @ApiModelProperty(value = "样衣到仓时间")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date sampleDeliveryDate;
+    @ApiModelProperty(value = "是否处理维度标签")
+    private String dimensionFlag = "0";
     @ApiModelProperty(value = "维度值")
     List<FieldVal> fieldVals;
 }
