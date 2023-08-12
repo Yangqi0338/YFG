@@ -179,4 +179,13 @@ public class StyleOrderBookPageVo {
 	/** 设计师id */
 	@ApiModelProperty(value = "设计师id")
 	private String designerId;
+	/** 中类名称 */
+	@ApiModelProperty(value = "中类名称")
+	private String prodCategory2ndName;
+	/** 小类名称 */
+	@ApiModelProperty(value = "小类名称")
+	private String prodCategory3rdName;
+	/** 生产类型名称 */
+	@ApiModelProperty(value = "生产类型名称")
+	private String devtTypeName;
 }

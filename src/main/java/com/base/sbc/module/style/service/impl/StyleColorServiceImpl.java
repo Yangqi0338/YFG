@@ -25,6 +25,7 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
+import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
 import com.base.sbc.module.style.dto.*;
@@ -74,6 +75,8 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     private final UserUtils userUtils;
 
     private final AttachmentService attachmentService;
+
+    private final DataUpdateScmService dataUpdateScmService;
 
     @Lazy
     @Resource
@@ -355,6 +358,8 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             styleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             styleColor.updateInit();
             baseMapper.updateById(styleColor);
+            /*重新下发配色*/
+            dataUpdateScmService.updateStyleColorSendById(styleColor.getId());
         }
         return true;
     }
@@ -430,6 +435,8 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         styleColor.setColorName(basicsdatumColourLibrary.getColourName());
         styleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
         baseMapper.updateById(styleColor);
+        /*重新下发配色*/
+        dataUpdateScmService.updateStyleColorSendById(styleColor.getId());
         return true;
     }
 
@@ -540,6 +547,8 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             }
         }
         baseMapper.updateById(sampleStyleColor);
+        /*重新下发配色*/
+        dataUpdateScmService.updateStyleColorSendById(sampleStyleColor.getId());
         return true;
     }
 
@@ -568,7 +577,6 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         }
         return true;
     }
-
     /** 自定义方法区 不替换的区域【other_end】 **/
 
 }

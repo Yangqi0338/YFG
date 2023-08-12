@@ -242,6 +242,10 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             PlanningCategoryItem categoryItem = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
             // 修改
             updateById(categoryItem);
+            //处理维度标签
+            if (StrUtil.equals(dto.getDimensionFlag(), BaseGlobal.YES)) {
+                fieldValService.save(categoryItem.getId(), FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION, dto.getFieldVals());
+            }
             // 修改款式设计数据
             styleService.updateBySeatChange(categoryItem);
         }
@@ -423,6 +427,14 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             if (StrUtil.isNotBlank(planningCategoryItem.getStylePic())) {
                 fileUrls.add(planningCategoryItem.getStylePic());
             }
+        }
+        //查询款式信息是已经存在
+        QueryWrapper<Style> sqw = new QueryWrapper<>();
+        sqw.in("planning_category_item_id", itemIds);
+        sqw.eq("del_flag", BaseGlobal.NO);
+        long count = styleService.count(sqw);
+        if (count > 0) {
+            throw new OtherException("存在下发的数据");
         }
         // 1.1 分配设计师
         this.allocationDesign(allocationDesignDtoList);

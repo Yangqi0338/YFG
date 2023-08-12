@@ -63,10 +63,13 @@
 			t2.month,
 			t2.sex,
 			t2.devt_type,
-        t2.main_materials,
-        t2.rd_mat,
-        t2.designer,
-        t2.designer_id
+			t2.main_materials,
+			t2.rd_mat,
+			t2.designer,
+			t2.designer_id,
+			t2.prod_category2nd_name,
+			t2.prod_category3rd_name,
+			t2.devt_type_name
 
         FROM
         t_style_order_book_color bc
@@ -77,12 +80,10 @@
         WHERE
         bc.del_flag = '0'
         and bc.company_code = #{companyCode}
-        <if test="orderBookCode != null and orderBookCode != ''">
+        	<if test="orderBookCode != null and orderBookCode != ''">
 				and bc.order_book_code like "%"#{orderBookCode}"%"
 			</if>
-			<if test="styleNo != null and styleNo != ''">
-				and bc.style_no like "%"#{styleNo}"%"
-			</if>
+
 			<if test='type == "design" and userId != null and userId != ""'>
 				and t2.designer_id = #{userId}
 			</if>
@@ -92,7 +93,10 @@
 			<if test='type == "productPlan" and userId != null and userId != ""'>
 				and bc.product_plan_user_id = #{userId}
 			</if>
-			
+			<if test="null != search and '' != search">
+				and (t1.design_no LIKE concat('%',#{search},'%')
+				or bc.style_no LIKE concat('%',#{search},'%'))
+			</if>
 		ORDER BY bc.order_book_code desc	
 	</select>
 </mapper>

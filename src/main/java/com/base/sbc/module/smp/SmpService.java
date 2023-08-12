@@ -183,7 +183,7 @@ public class SmpService {
             smpGoodsDto.setDesignerId(usernamesByIds.get(designerId));
             smpGoodsDto.setTechnicianId(usernamesByIds.get(technicianId));
             smpGoodsDto.setPatternMakerId(usernamesByIds.get(patternDesignId));
-            smpGoodsDto.setYear(sampleDesign.getYear());
+            smpGoodsDto.setYear(sampleDesign.getYearName());
             smpGoodsDto.setPatternName(sampleDesign.getDevtType());
             smpGoodsDto.setPriorityId(sampleDesign.getTaskLevel());
             smpGoodsDto.setPriorityName(sampleDesign.getTaskLevelName());
@@ -298,9 +298,6 @@ public class SmpService {
 
 
             smpGoodsDto.setUnit(sampleDesign.getStyleUnitCode());
-
-            //测试造的数据
-            smpGoodsDto.setUnit("ST");
 
             PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()));
             if (packInfo != null) {
