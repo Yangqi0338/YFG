@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.Arrays;
 
 public enum SampleLogOperationType {
+    ALl("-1", "全部"),
     BORROW("1", "借出"),
 
     SAMPLE_RETURN("2", "归还"),
@@ -14,6 +15,7 @@ public enum SampleLogOperationType {
     ALLOCATION("5", "调拨"),
     INSERT("6", "新增"),
     UPDATE("7", "修改"),
+
     ;
 
     private final String k;

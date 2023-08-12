@@ -35,10 +35,12 @@ public class SampleItemLogServiceImpl extends BaseServiceImpl<SampleItemLogMappe
     public List<SampleItemLog> getListBySampleItemId(String sampleItemId, String type) {
         QueryWrapper<SampleItemLog> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("sample_item_id", sampleItemId);
-        if (SampleLogOperationType.BORROW.getK().equals(type)) {
-            queryWrapper.eq("type", type);
-        } else {
-            queryWrapper.ne("type", SampleLogOperationType.BORROW.getK());
+        if (!SampleLogOperationType.ALl.getK().equals(type)) {
+            if (SampleLogOperationType.BORROW.getK().equals(type)) {
+                queryWrapper.eq("type", type);
+            } else {
+                queryWrapper.ne("type", SampleLogOperationType.BORROW.getK());
+            }
         }
         return mapper.selectList(queryWrapper);
     }
