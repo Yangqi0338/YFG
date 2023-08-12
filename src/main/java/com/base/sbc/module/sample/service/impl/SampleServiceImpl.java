@@ -329,8 +329,8 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
         if (Objects.isNull(sample)) {
             throw new OtherException("样衣档案数据不存在");
         }
-        if (0 != sample.getExamineStatus()) {
-            throw new OtherException("非草稿状态，不可提交");
+        if (0 != sample.getExamineStatus() && 3 != sample.getExamineStatus()) {
+            throw new OtherException("非草稿或驳回状态，不可提交");
         }
 
         Sample updateSample = new Sample();
