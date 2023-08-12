@@ -37,11 +37,19 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
     int getStyleColorNumber(String styleId);
 
     /**
-     * 查询款式及配色
+     * 查询款式配色
      * @param qw
      * @return
      */
     List<StyleColorVo> styleColorList(@Param(Constants.WRAPPER) QueryWrapper qw );
+
+
+    /**
+     * 查询配色列表
+     * @param qw
+     * @return
+     */
+    List<StyleColorVo>  colorList(@Param(Constants.WRAPPER) QueryWrapper qw );
 
     /**
      * 修改所有引用的大货款号

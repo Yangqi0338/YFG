@@ -114,9 +114,18 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory1st()),"ts.prod_category1st",queryDto.getProdCategory1st());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory()),"ts.prod_category",queryDto.getProdCategory());
         queryWrapper.in(StringUtils.isNotBlank(queryDto.getStyleStatus()),"ts.status", StringUtils.convertList(queryDto.getStyleStatus()));
-        queryWrapper.eq("ts.del_flag", "0");
+
         /*获取配色数据*/
-        List<StyleColorVo> sampleStyleColorList = baseMapper.styleColorList(queryWrapper);
+        List<StyleColorVo> sampleStyleColorList =new ArrayList<>();
+        if(StringUtils.isNotBlank(queryDto.getColorListFlag())){
+            queryWrapper.eq("tsc.del_flag", "0");
+//            查询配色列表
+            sampleStyleColorList = baseMapper.colorList(queryWrapper);
+        }else {
+            queryWrapper.eq("ts.del_flag", "0");
+//            查询款式配色
+            sampleStyleColorList = baseMapper.styleColorList(queryWrapper);
+        }
 
         /*查询款式图*/
         attachmentService.setListStylePic(sampleStyleColorList, "stylePic");
