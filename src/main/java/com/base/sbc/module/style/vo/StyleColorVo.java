@@ -33,6 +33,10 @@ public class StyleColorVo {
 
     private String id;
 
+    @ApiModelProperty(value = "行id")
+    private String issuerId;
+
+
     private String styleId;
     /**
      * 款式图

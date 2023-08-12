@@ -11,6 +11,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -125,8 +126,13 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             queryWrapper.eq("ts.del_flag", "0");
 //            查询款式配色
             sampleStyleColorList = baseMapper.styleColorList(queryWrapper);
+            List<String> stringList =  new IdGen().getIds(sampleStyleColorList.size());
+            int index =0;
+            for (StyleColorVo styleColorVo : sampleStyleColorList) {
+                styleColorVo.setIssuerId(stringList.get(index));
+                index++;
+            }
         }
-
         /*查询款式图*/
         attachmentService.setListStylePic(sampleStyleColorList, "stylePic");
 
