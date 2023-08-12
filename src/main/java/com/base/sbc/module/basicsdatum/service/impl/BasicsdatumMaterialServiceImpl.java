@@ -8,11 +8,16 @@ package com.base.sbc.module.basicsdatum.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.*;
@@ -310,11 +315,27 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		qw.notEmptyLike("material_code", dto.getMaterialCode());
 		qw.notEmptyLike("material_name", dto.getMaterialName());
 		qw.notEmptyIn("status", dto.getStatus());
+		qw.eq("del_flag", BaseGlobal.NO);
 		qw.andLike(dto.getCategoryId(), "category1_code", "category2_code", "category3_code");
 		Page<BomSelMaterialVo> page = PageHelper.startPage(dto);
 		List<BomSelMaterialVo> list = getBaseMapper().getBomSelMaterialList(qw);
+
 		if (CollUtil.isNotEmpty(list)) {
+			//查询默认供应商
+			List<String> materialCodeList = list.stream().map(BomSelMaterialVo::getMaterialCode).filter(StrUtil::isNotBlank).collect(Collectors.toList());
+			List<BomSelMaterialVo> priceList = materialPriceService.findDefaultToBomSel(materialCodeList);
+			List<BomSelMaterialVo> widthList = materialWidthService.findDefaultToBomSel(materialCodeList);
+			Map<String, BomSelMaterialVo> priceMap = Opt.ofEmptyAble(priceList)
+					.map(item -> item.stream().collect(Collectors.toMap(k -> k.getMaterialCode(), v -> v, (a, b) -> a)))
+					.orElse(MapUtil.empty());
+			Map<String, BomSelMaterialVo> widthMap = Opt.ofEmptyAble(widthList)
+					.map(item -> item.stream().collect(Collectors.toMap(k -> k.getMaterialCode(), v -> v, (a, b) -> a)))
+					.orElse(MapUtil.empty());
 			list.forEach(i -> {
+				BomSelMaterialVo priceInfo = priceMap.get(i.getMaterialCode());
+				BomSelMaterialVo widthInfo = widthMap.get(i.getMaterialCode());
+				BeanUtil.copyProperties(priceInfo, i, CopyOptions.create().ignoreNullValue());
+				BeanUtil.copyProperties(widthInfo, i, CopyOptions.create().ignoreNullValue());
 				i.setId(IdUtil.randomUUID());
 			});
 		}
