@@ -84,6 +84,7 @@ public class DataUpdateScmService {
      * @param styleId 款式id
      * @return
      */
+
     public void updateStyleSendById(String styleId) {
         Style style = styleMapper.selectById(styleId);
         if (!ObjectUtils.isEmpty(style)) {
