@@ -578,6 +578,26 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         }
         return true;
     }
+
+    /**
+     * 方法描述 配色解锁
+     *
+     * @param verificationDto
+     * @return
+     */
+    @Override
+    public Boolean unlockStyleColor(VerificationDto verificationDto) {
+        if(StringUtils.isBlank(verificationDto.getScmSendFlag())){
+            throw new OtherException("SCM下发状态为空");
+        }
+        StyleColor styleColor = baseMapper.selectById(verificationDto.getId());
+        if(ObjectUtils.isEmpty(styleColor)){
+            throw new OtherException("id错误无数据");
+        }
+        styleColor.setScmSendFlag(verificationDto.getScmSendFlag());
+        baseMapper.updateById(styleColor);
+        return true;
+    }
     /** 自定义方法区 不替换的区域【other_end】 **/
 
 }
