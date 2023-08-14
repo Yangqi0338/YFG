@@ -203,9 +203,8 @@ public class SmpService {
 
             //动态字段
 
-
-            if (!CollectionUtils.isEmpty(sampleDesign.getDimensionLabels())) {
-                List<FieldManagementVo> fieldManagementVoList = sampleDesign.getDimensionLabels();
+            List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsBySdId(sampleDesign.getId());
+            if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
                 fieldManagementVoList.forEach(m -> {
                     if ("衣长分类".equals(m.getFieldName())) {
                         smpGoodsDto.setLengthRangeId(m.getVal());
