@@ -37,5 +37,6 @@ public class PackInfoSearchPageDto extends Page {
     @ApiModelProperty(value = "产品季id")
     private String planningSeasonId;
 
-
+    @ApiModelProperty(value = "bom状态:(0样品,1大货)")
+    private String bomStatus;
 }

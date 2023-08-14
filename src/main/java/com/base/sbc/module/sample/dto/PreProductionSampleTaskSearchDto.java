@@ -32,5 +32,6 @@ public class PreProductionSampleTaskSearchDto extends Page {
      */
     @ApiModelProperty(value = "月份", example = "1")
     private String month;
-
+    @ApiModelProperty(value = "节点")
+    private String node;
 }

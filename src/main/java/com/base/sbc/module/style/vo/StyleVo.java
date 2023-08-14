@@ -45,7 +45,6 @@ public class StyleVo extends Style {
     @UserAvatar("revisedDesignId")
     private String revisedDesignAvatar;
     @ApiModelProperty(value = "设计师头像")
-
     @UserAvatar("designerId")
     private String designerAvatar;
     @ApiModelProperty(value = "波段名称")
