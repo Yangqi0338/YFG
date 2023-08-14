@@ -10,8 +10,7 @@ import lombok.Data;
 public class AddRevampSizeDto {
 
     private String id;
-    /*号型类型编码*/
-    private String modelTypeCode;
+
     /** 吊牌显示 */
     @ApiModelProperty(value = "吊牌显示"  )
     private String hangtags;
@@ -21,6 +20,8 @@ public class AddRevampSizeDto {
     /** 号型类型 */
     @ApiModelProperty(value = "号型类型"  )
     private String modelType;
+    /*号型类型编码*/
+    private String modelTypeCode;
     /** Internal Size */
     @ApiModelProperty(value = "Internal Size"  )
     private String internalSize;
