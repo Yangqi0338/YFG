@@ -110,7 +110,7 @@ public class WarehousingOrderController extends BaseController{
 	}
 
 	@ApiOperation(value = "修改")
-	@PutMapping
+	@PostMapping("/update")
 	public ApiResult update(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestBody WarehousingOrder warehousingOrder) {
 		if(StringUtils.isBlank(warehousingOrder.getId())){
 			return updateNotFound();
