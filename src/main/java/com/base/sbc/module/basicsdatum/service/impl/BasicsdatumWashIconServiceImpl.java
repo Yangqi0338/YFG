@@ -9,6 +9,7 @@ package com.base.sbc.module.basicsdatum.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -20,8 +21,11 @@ import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumWashIcon;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumWashIconMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumWashIconService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumWashIconVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -57,19 +61,17 @@ public class BasicsdatumWashIconServiceImpl extends BaseServiceImpl<BasicsdatumW
         @Override
         public PageInfo<BasicsdatumWashIconVo> getBasicsdatumWashIconList(QueryDto queryDto) {
             /*分页*/
-            QueryWrapper<BasicsdatumWashIcon> queryWrapper = new QueryWrapper<>();
-            if (queryDto.getPageNum() != 0 && queryDto.getPageSize() != 0) {
-                PageHelper.startPage(queryDto);
-            }else {
+            BaseQueryWrapper<BasicsdatumWashIcon> queryWrapper = new BaseQueryWrapper<>();
+            if (queryDto.getPageNum() == null && queryDto.getPageSize() == null) {
                 queryWrapper.eq("status", BaseGlobal.STATUS_NORMAL);
             }
             queryWrapper.eq("company_code", baseController.getUserCompany());
-            queryWrapper.like(StringUtils.isNotBlank(queryDto.getName()),"name",queryDto.getName());
-            queryWrapper.like(StringUtils.isNotBlank(queryDto.getName()),"code",queryDto.getCode());
+            queryWrapper.like("name",queryDto.getName());
+            queryWrapper.like("code",queryDto.getCode());
             /*查询基础资料-洗涤图标数据*/
-            List<BasicsdatumWashIconVo> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsdatumWashIconVo.class);
-            PageInfo<BasicsdatumWashIconVo> pageInfo = new PageInfo<>(list);
-            return pageInfo;
+            Page<BasicsdatumWashIconVo> objects = PageHelper.startPage(queryDto);
+            getBaseMapper().selectList(queryWrapper);
+            return objects.toPageInfo();
         }
 
 

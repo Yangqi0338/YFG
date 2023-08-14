@@ -44,10 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -127,8 +124,21 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         Map<String, String> map =   dictInfoToMap.get("C8_Brand");
 
         List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getTreeByNamelList("品类", "1");
-        for (BasicsdatumRangeDifferenceExcelDto basicsdatumRangeDifferenceExcelDto : list) {
+        /*查询测量组*/
+        Map<String, List<BasicsdatumCategoryMeasure>> categoryMeasureMap = new HashMap<>();
+        List<String> categoryMeasureCodeList = list.stream().filter(s -> StringUtils.isNotBlank(s.getCategoryMeasureCode())).map(BasicsdatumRangeDifferenceExcelDto::getCategoryMeasureCode).distinct().collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(categoryMeasureCodeList)) {
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.eq("company_code", baseController.getUserCompany());
+            queryWrapper.in("code", categoryMeasureCodeList);
+            List<BasicsdatumCategoryMeasure> basicsdatumCategoryMeasureList = basicsdatumCategoryMeasureMapper.selectList(queryWrapper);
+            if (!CollectionUtils.isEmpty(basicsdatumCategoryMeasureList)) {
+                categoryMeasureMap =   basicsdatumCategoryMeasureList.stream().collect(Collectors.groupingBy(BasicsdatumCategoryMeasure::getCode));
+            }
 
+      }
+
+        for (BasicsdatumRangeDifferenceExcelDto basicsdatumRangeDifferenceExcelDto : list) {
 //            品类
         if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getCategoryName())){
             String[] categoryNames =basicsdatumRangeDifferenceExcelDto.getCategoryName().replaceAll(" ","").split(",");
@@ -202,6 +212,11 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
                     List<String> stringList =  basicsdatumSizeList.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).map(BasicsdatumMeasurement::getCode ).collect(Collectors.toList());
                     basicsdatumRangeDifferenceExcelDto.setMeasurementIds( StringUtils.join(stringList,","));
                 }
+            }
+            /*品类测量组*/
+            if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getCategoryMeasureCode())){
+                List<BasicsdatumCategoryMeasure> categoryMeasureList =   categoryMeasureMap.get(basicsdatumRangeDifferenceExcelDto.getCategoryMeasureCode());
+                basicsdatumRangeDifferenceExcelDto.setCategoryMeasureName(categoryMeasureList.get(0).getName());
             }
         }
         List<BasicsdatumRangeDifference> basicsdatumRangeDifferenceList = BeanUtil.copyToList(list, BasicsdatumRangeDifference.class);

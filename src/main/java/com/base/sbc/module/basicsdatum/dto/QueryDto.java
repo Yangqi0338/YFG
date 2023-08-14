@@ -23,31 +23,38 @@ public class QueryDto extends Page {
     @ApiModelProperty(value = "POM类型"  )
     private String pdmType;
 
+    @ApiModelProperty(value = "POM类型名称"  )
     private String pdmTypeName;
     /** 号型类型 */
     @ApiModelProperty(value = "号型类型"  )
     private String modelType;
 
-    private String colourGroupId;
     /*编码*/
+    @ApiModelProperty(value = "编码"  )
     private String code;
 
     /*名称*/
+    @ApiModelProperty(value = "名称"  )
     private String name;
 
-    /*多哥编码*/
+    /*多个编码*/
+    @ApiModelProperty(value = "多个编码"  )
     private String codes;
     /*品类*/
+    @ApiModelProperty(value = "品类"  )
     private String categoryId;
 
     /** 创建日期 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @ApiModelProperty(value = "创建日期"  )
     private String[] createDate;
 
     /**  创建者名称 */
+    @ApiModelProperty(value = "创建者名称"  )
     private String createName;
-
+    @ApiModelProperty(value = "洗标 "  )
     private String careLabel;
+    @ApiModelProperty(value = "描述 "  )
     private String description;
 
     private String  dimensionType;
