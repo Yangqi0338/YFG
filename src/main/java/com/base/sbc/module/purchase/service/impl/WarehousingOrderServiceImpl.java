@@ -11,6 +11,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.CodeGen;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.purchase.entity.PurchaseOrder;
@@ -45,6 +46,9 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
     @Autowired
     private PurchaseOrderService purchaseOrderService;
 
+    @Autowired
+    private WarehousingOrderMapper warehousingOrderMapper;
+
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public ApiResult cancel(String companyCode, String ids) {
@@ -76,9 +80,13 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
     public ApiResult addWarehousing(UserCompany userCompany, String companyCode, WarehousingOrder warehousingOrder) {
         IdGen idGen = new IdGen();
 
+        String maxCode = warehousingOrderMapper.selectMaxCodeByCompany(companyCode);
+        String code = "RK" + CodeGen.getCode(maxCode != null ? maxCode : CodeGen.BEGIN_NUM);
+
         String id = idGen.nextIdStr();
         warehousingOrder.insertInit(userCompany);
         warehousingOrder.setId(id);
+        warehousingOrder.setCode(code);
         warehousingOrder.setCompanyCode(companyCode);
         warehousingOrder.setStatus("0");
         warehousingOrder.setOrderStatus("0");
