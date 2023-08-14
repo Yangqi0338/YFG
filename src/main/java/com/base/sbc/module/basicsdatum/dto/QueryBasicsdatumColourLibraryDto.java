@@ -57,4 +57,7 @@ public class QueryBasicsdatumColourLibraryDto extends Page {
 
     /**  创建者名称 */
     private String createName;
+
+    @ApiModelProperty(value = "下发状态"  )
+    private String  scmSendFlag;
 }

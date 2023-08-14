@@ -150,6 +150,26 @@ public class StyleColor extends BaseDataEntity<String> {
     /** 配饰款号 */
     @ApiModelProperty(value = "配饰款号"  )
     private String accessoryNo;
+    /** 下主面料单 */
+    @ApiModelProperty(value = "下主面料单"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sendMainFabricDate;
+    /** 下配料1 */
+    @ApiModelProperty(value = "下配料1"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sendBatchingDate1;
+    /** 下配料2 */
+    @ApiModelProperty(value = "下配料2"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sendBatchingDate2;
+    /** 下配料3 */
+    @ApiModelProperty(value = "下配料3"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sendBatchingDate3;
+    /** 下里布单 */
+    @ApiModelProperty(value = "下里布单"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sendSingleDate;
     /** 设计下明细单 */
     @ApiModelProperty(value = "设计下明细单"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -219,6 +239,12 @@ public class StyleColor extends BaseDataEntity<String> {
     /** bom状态:(0样品,1大货) */
     @ApiModelProperty(value = "bom状态:(0样品,1大货)"  )
     private String bomStatus;
+    /** 下稿设计师 */
+    @ApiModelProperty(value = "下稿设计师"  )
+    private String  senderDesignerId;
+    /** 下稿设计师名称 */
+    @ApiModelProperty(value = "下稿设计师名称"  )
+    private String  senderDesignerName;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;

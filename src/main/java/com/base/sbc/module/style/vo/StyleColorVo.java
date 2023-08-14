@@ -40,6 +40,9 @@ public class StyleColorVo {
     private String packInfoId;
 
     private String styleId;
+    /** 产品季节id */
+    @ApiModelProperty(value = "产品季节id"  )
+    private String planningSeasonId;
     /**
      * 款式图
      */
@@ -260,7 +263,26 @@ public class StyleColorVo {
     /** 产品风格 */
     @ApiModelProperty(value = "产品风格"  )
     private String  styleFlavourName;
-
+    /** 下主面料单 */
+    @ApiModelProperty(value = "下主面料单"  )
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date sendMainFabricDate;
+    /** 下配料1 */
+    @ApiModelProperty(value = "下配料1"  )
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date sendBatchingDate1;
+    /** 下配料2 */
+    @ApiModelProperty(value = "下配料2"  )
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date sendBatchingDate2;
+    /** 下配料3 */
+    @ApiModelProperty(value = "下配料3"  )
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date sendBatchingDate3;
+    /** 下里布单 */
+    @ApiModelProperty(value = "下里布单"  )
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date sendSingleDate;
     /** 设计下明细单 */
     @ApiModelProperty(value = "设计下明细单"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -335,6 +357,14 @@ public class StyleColorVo {
     @ApiModelProperty(value = "上新时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date newDate;
+
+    /** 下稿设计师 */
+    @ApiModelProperty(value = "下稿设计师"  )
+    private String  senderDesignerId;
+
+    /** 下稿设计师名称 */
+    @ApiModelProperty(value = "下稿设计师名称"  )
+    private String  senderDesignerName;
 
     /** 备注 */
     @ApiModelProperty(value = "备注"  )

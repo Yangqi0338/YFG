@@ -48,6 +48,7 @@
         tfm.option_dict_key,
         tfm.is_must_fill,
         tfm.category_id,
+        tfm.category_name,
         tfm.season,
         tfm.is_examine,
         tfm.status,
