@@ -10,9 +10,13 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.pack.dto.PackBomVersionDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * 类描述：资料包-物料清单-物料版本 service类
@@ -110,6 +114,8 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
      * @return
      */
     PackBomVersion checkVersion(String id);
+
+    void checkBomDataEmpty(List<PackBom> bomList, List<PackBomSize> bomSizeList);
 
 // 自定义方法区 不替换的区域【other_end】
 
