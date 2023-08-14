@@ -42,7 +42,7 @@ public class StyleColor extends BaseDataEntity<String> {
         smpGoodsDto.setColorCode(colorCode);
         smpGoodsDto.setColorName(colorName);
         smpGoodsDto.setPrice(tagPrice);
-        smpGoodsDto.setManufacture(supplier);
+        smpGoodsDto.setManufacture(supplierCode);
         smpGoodsDto.setLuxury("1".equals(isLuxury));
         smpGoodsDto.setSupplierArticle(supplierNo);
         smpGoodsDto.setSupplierArticleColor(supplierColor);
