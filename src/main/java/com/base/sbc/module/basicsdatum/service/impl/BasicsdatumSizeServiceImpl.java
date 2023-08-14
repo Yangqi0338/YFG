@@ -90,7 +90,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
             if(dto.getAll().equals("0")){
                 queryWrapper.eq("model_type_code","").or().isNull("model_type_code");
             }else {
-                queryWrapper.notEmptyEq("model_type_code", dto.getModelType()).or().eq("model_type_code","").or().isNull("model_type_code");
+                queryWrapper.like("model_type_code", dto.getModelType()).or().eq("model_type_code","").or().isNull("model_type_code");
 
             }
         }
@@ -124,11 +124,12 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
             if (!StringUtils.isEmpty(basicsdatumSizeExcelDto.getModelType())) {
                 /*查询号型类型*/
                 QueryWrapper<BasicsdatumModelType> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("model_type", basicsdatumSizeExcelDto.getModelType());
+                queryWrapper.in("model_type", StringUtils.convertList(basicsdatumSizeExcelDto.getModelType()));
                 /*关联号型类型*/
                 List<BasicsdatumModelType> modelTypeList = basicsdatumModelTypeMapper.selectList(queryWrapper);
                 if(!CollectionUtils.isEmpty(modelTypeList)){
-                    basicsdatumSizeExcelDto.setModelTypeCode(modelTypeList.get(0).getCode());
+                    List<String> stringList =     modelTypeList.stream().map(BasicsdatumModelType::getCode).collect(Collectors.toList());
+                    basicsdatumSizeExcelDto.setModelTypeCode(StringUtils.convertListToString(stringList));
                 }
             }
 
@@ -184,15 +185,6 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
     public Boolean addRevampSize(AddRevampSizeDto addRevampSizeDto) {
 
         BasicsdatumSize basicsdatumSize = new BasicsdatumSize();
-        /*获取号型类型*/
-        if(StringUtils.isNotBlank(addRevampSizeDto.getModelTypeCode()) ){
-            QueryWrapper qw=new QueryWrapper();
-            qw.eq("code",addRevampSizeDto.getModelTypeCode());
-            BasicsdatumModelType basicsdatumModelType =  basicsdatumModelTypeMapper.selectOne(qw);
-            if(!ObjectUtils.isEmpty(basicsdatumModelType)){
-                addRevampSizeDto.setModelType(basicsdatumModelType.getModelType());
-            }
-        }
         if (StringUtils.isEmpty(addRevampSizeDto.getId())) {
             QueryWrapper<BasicsdatumSize> queryWrapper =new QueryWrapper<>();
             queryWrapper.eq("sort",addRevampSizeDto.getSort());
