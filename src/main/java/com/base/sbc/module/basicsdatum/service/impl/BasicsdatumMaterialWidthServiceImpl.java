@@ -6,29 +6,42 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialWidthMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import org.springframework.stereotype.Service;
-/** 
+
+import java.util.List;
+
+/**
  * 类描述：基础资料-物料档案-物料规格 service类
- * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService
+ *
  * @author shenzhixiong
+ * @version 1.0
+ * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService
  * @email 731139982@qq.com
  * @date 创建时间：2023-6-26 17:57:19
- * @version 1.0  
  */
 @Service
 public class BasicsdatumMaterialWidthServiceImpl
-		extends BaseServiceImpl<BasicsdatumMaterialWidthMapper, BasicsdatumMaterialWidth>
-		implements BasicsdatumMaterialWidthService {
+        extends BaseServiceImpl<BasicsdatumMaterialWidthMapper, BasicsdatumMaterialWidth>
+        implements BasicsdatumMaterialWidthService {
+
 
 // 自定义方法区 不替换的区域【other_start】
 
-
+    @Override
+    public List<BomSelMaterialVo> findDefaultToBomSel(List<String> materialCodeList) {
+        QueryWrapper<BasicsdatumMaterialWidth> qw = new QueryWrapper<>();
+        qw.in("material_code", materialCodeList);
+        qw.eq("company_code", getCompanyCode());
+        return getBaseMapper().findDefaultToBomSel(qw);
+    }
 
 // 自定义方法区 不替换的区域【other_end】
-	
+
 }
 

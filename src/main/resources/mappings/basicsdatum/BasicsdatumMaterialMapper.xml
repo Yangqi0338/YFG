@@ -91,52 +91,28 @@
 	</select>
 	
 	<select id="getBomSelMaterialList" resultType="com.base.sbc.module.pack.vo.BomSelMaterialVo">
-		SELECT *
-		FROM (SELECT bm.id,
-					 bm.company_code,
-					 bm.id             AS material_id,
-					 bm.category1_code,
-					 bm.category2_code,
-					 bm.category3_code,
-					 bm.material_name,
-					 bm.material_code,
-					 bm.purchase_unit_name,
-					 bm.purchase_unit_code,
-					 bm.stock_unit_code,
-					 bm.stock_unit_name,
-					 bm.STATUS,
-					 bm.material_code_name,
-					 bm.image_url,
-					 bm.category3_name AS categoryName,
-					 bm.ingredient,
-					 bm.loss_rate,
-					 bm.supplier_factory_ingredient,
-					 bm.auxiliary_material,
-					 w.NAME            AS translate_name,
-					 w.width_code AS translate,
-		p.supplier_id,
-		p.supplier_name,
-		p.supplier_material_code,
-		p.quotation_price AS price,
-		bm.remarks
-			  FROM
-				  t_basicsdatum_material bm
-				  LEFT JOIN (
-				  SELECT
-				  p.supplier_id, p.supplier_name, p.quotation_price, p.supplier_material_code, p.material_code
-				  FROM
-				  t_basicsdatum_material_price p
-				  LEFT JOIN t_basicsdatum_material_price_detail pd ON ( p.id = pd.price_id )
-				  WHERE
-				  pd.price_id = p.id
-				  AND p.select_flag = '1'
-				  AND p.del_flag = '0'
-				  AND p.`status` = '0'
-				  LIMIT 1
-				  ) p
-			  ON ( bm.material_code = p.material_code )
-				  LEFT JOIN ( SELECT * FROM t_basicsdatum_material_width w WHERE w.del_flag = '0' AND w.`status` = '0' LIMIT 1 ) w ON ( bm.material_code = w.material_code )) m
-			${ ew.customSqlSegment}
+		SELECT id,
+			   company_code,
+			   id             AS material_id,
+			   category1_code,
+			   category2_code,
+			   category3_code,
+			   material_name,
+			   material_code,
+			   purchase_unit_name,
+			   purchase_unit_code,
+			   stock_unit_code,
+			   stock_unit_name,
+			   STATUS,
+			   material_code_name,
+			   image_url,
+			   category3_name AS categoryName,
+			   ingredient,
+			   loss_rate,
+			   supplier_factory_ingredient,
+			   auxiliary_material,
+			   remarks
+		FROM t_basicsdatum_material ${ ew.customSqlSegment}
 	</select>
 
 	<select id="getPurchaseMaterialList" resultType="com.base.sbc.module.basicsdatum.vo.WarehouseMaterialVo">

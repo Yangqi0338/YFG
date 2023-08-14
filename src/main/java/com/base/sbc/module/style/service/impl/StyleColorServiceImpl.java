@@ -108,6 +108,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getDesignNo()), "ts.design_no", queryDto.getDesignNo());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getColorName()), "tsc.color_name", queryDto.getColorName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getMeetFlag()), "tsc.meet_flag", queryDto.getMeetFlag());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategoryName()), "ts.prod_category_name", queryDto.getProdCategoryName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSubdivide()), "tsc.subdivide", queryDto.getSubdivide());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getCategoryName()),"ts.prod_category_name",queryDto.getCategoryName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getTaskLevelName()),"ts.task_level_name",queryDto.getTaskLevelName());
@@ -116,8 +117,8 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getTechnicianId()),"ts.technician_id",queryDto.getTechnicianId());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getPlanningSeasonId()),"ts.planning_season_id",queryDto.getPlanningSeasonId());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory1st()),"ts.prod_category1st",queryDto.getProdCategory1st());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory()),"ts.prod_category",queryDto.getProdCategory());
         queryWrapper.in(StringUtils.isNotBlank(queryDto.getStyleStatus()),"ts.status", StringUtils.convertList(queryDto.getStyleStatus()));
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleTypeName()),"ts.style_type_name",queryDto.getStyleTypeName());
 
         /*获取配色数据*/
         List<StyleColorVo> sampleStyleColorList =new ArrayList<>();

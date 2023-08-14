@@ -81,6 +81,7 @@
             ts.technician_id,
             ts.technician_name,
             tsc.*,
+            tpi.id packInfoId,
             tsp.control_confirm,
             tsp.product_hangtag_confirm,
             tsp.control_hangtag_confirm
@@ -94,6 +95,7 @@
     <select id="colorList" resultType="com.base.sbc.module.style.vo.StyleColorVo">
         select
             tsc.*,
+            tpi.id packInfoId,
             ts.task_level,
             ts.task_level_name,
             ts.style_type,

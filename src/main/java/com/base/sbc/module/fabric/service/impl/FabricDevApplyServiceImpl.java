@@ -13,7 +13,7 @@ import com.base.sbc.module.fabric.dto.FabricDevApplySaveDTO;
 import com.base.sbc.module.fabric.dto.FabricDevApplySearchDTO;
 import com.base.sbc.module.fabric.entity.FabricDevApply;
 import com.base.sbc.module.fabric.mapper.FabricDevApplyMapper;
-import com.base.sbc.module.fabric.service.FabricDevApplyService;
+import com.base.sbc.module.fabric.service.*;
 import com.base.sbc.module.fabric.vo.FabricDevApplyListVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -38,6 +38,15 @@ public class FabricDevApplyServiceImpl extends BaseServiceImpl<FabricDevApplyMap
     @Autowired
     private CodeGen codeGen;
 
+    @Autowired
+    private FabricDevBasicInfoService fabricDevBasicInfoService;
+    @Autowired
+    private FabricDevMaterialInfoService fabricDevMaterialInfoService;
+    @Autowired
+    private FabricDevOtherInfoService fabricDevOtherInfoService;
+    @Autowired
+    private FabricDevColorInfoService fabricDevColorInfoService;
+
     @Override
     public PageInfo<FabricDevApplyListVO> getDevApplyList(FabricDevApplySearchDTO dto) {
         PageHelper.startPage(dto);
@@ -50,12 +59,16 @@ public class FabricDevApplyServiceImpl extends BaseServiceImpl<FabricDevApplyMap
     public String devApplySave(FabricDevApplySaveDTO dto) {
         String companyCode = super.getCompanyCode();
         FabricDevApply fabricDevApply = this.getFabricDevApply(dto, companyCode);
+        super.saveOrUpdate(fabricDevApply);
+        String id = fabricDevApply.getId();
+        fabricDevBasicInfoService.devBasicInfoSave(dto.getFabricDevBasicInfoSave(), id, companyCode);
+        fabricDevMaterialInfoService.devMaterialInfoSave(dto.getFabricDevMaterialInfoSave(), id, companyCode);
+        fabricDevOtherInfoService.devOtherInfoSave(dto.getFabricDevOtherInfoSave(), id, companyCode);
         return null;
     }
 
     private FabricDevApply getFabricDevApply(FabricDevApplySaveDTO dto, String companyCode) {
         FabricDevApply fabricDevApply = new FabricDevApply();
-
         if (StringUtils.isNotEmpty(dto.getId())) {
             fabricDevApply.setRequiredArrivalDate(dto.getRequiredArrivalDate());
             fabricDevApply.updateInit();

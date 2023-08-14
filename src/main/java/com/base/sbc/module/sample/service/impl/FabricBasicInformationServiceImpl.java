@@ -9,6 +9,7 @@ package com.base.sbc.module.sample.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -76,7 +77,7 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
                     " or  tfdi.supplier_factory_ingredient like concat('%','"+queryFabricInformationDto.getSearch()+"','%')" +
                     " or  tfdi.translate like concat('%','"+queryFabricInformationDto.getSearch()+"','%'))");
         }
-
+        queryWrapper.eq("tfbi.del_flag", BaseGlobal.DEL_FLAG_NORMAL);
         queryWrapper.orderByAsc("tfbi.create_date");
         List<FabricInformationVo> list = baseMapper.getFabricInformationList(queryWrapper);
         return new PageInfo<>(list);

@@ -7,6 +7,9 @@
 package com.base.sbc.module.basicsdatum.service;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+
+import java.util.List;
 
 /** 
  * 类描述：基础资料-物料档案-物料规格 service类
@@ -20,6 +23,7 @@ public interface BasicsdatumMaterialWidthService extends BaseService<Basicsdatum
 
 // 自定义方法区 不替换的区域【other_start】
 
+    List<BomSelMaterialVo> findDefaultToBomSel(List<String> materialCodeList);
 
 
 // 自定义方法区 不替换的区域【other_end】

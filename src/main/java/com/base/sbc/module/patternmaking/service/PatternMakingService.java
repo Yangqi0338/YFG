@@ -133,7 +133,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @param dto
      * @return
      */
-    List<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto);
+    PageInfo<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto);
 
     /**
      * 设置顺序

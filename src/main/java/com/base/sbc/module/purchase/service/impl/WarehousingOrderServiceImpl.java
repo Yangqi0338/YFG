@@ -104,9 +104,10 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
             warehousingOrderDetailService.saveBatch(orderDetailList);
             //操作采购单的入库数量
             purchaseOrderService.manipulateWarehouseNum(orderDetailList, "0", true);
+            return ApiResult.success("新增成功！", warehousingOrder);
         }
 
-        return null;
+        return ApiResult.error("新增失败！", 500);
     }
 
     @Override
