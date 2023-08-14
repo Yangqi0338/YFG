@@ -1,5 +1,6 @@
 package com.base.sbc.module.patternmaking.dto;
 
+import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,7 +16,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("打版管理任务查询dto PatternMakingTaskSearchDto ")
-public class PatternMakingTaskSearchDto {
+public class PatternMakingTaskSearchDto extends Page {
 
     @ApiModelProperty(value = "关键字筛选", example = "1")
     private String search;

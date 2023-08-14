@@ -27,6 +27,9 @@ import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskListVo;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -122,7 +125,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     }
 
     @Override
-    public List<PreProductionSampleTaskListVo> taskList(PreProductionSampleTaskSearchDto dto) {
+    public PageInfo<PreProductionSampleTaskListVo> taskList(PreProductionSampleTaskSearchDto dto) {
         BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
         qw.eq("node", "产前样衣任务");
         qw.isNotNull("status");
@@ -130,11 +133,12 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         qw.notEmptyIn("s.year", dto.getYear());
         qw.notEmptyIn("s.season", dto.getSeason());
         qw.notEmptyIn("s.month", dto.getMonth());
+        Page<PreProductionSampleTaskListVo> objects = PageHelper.startPage(dto);
         List<PreProductionSampleTaskListVo> list = getBaseMapper().taskList(qw);
         //设置图
         attachmentService.setListStylePic(list, "stylePic");
         nodeStatusService.setNodeStatus(list);
-        return list;
+        return objects.toPageInfo();
     }
 
     @Override

@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.List;
 
 /**
  * 类描述：产前样 Controller类
@@ -87,7 +86,7 @@ public class PreProductionSampleController {
 
     @ApiOperation(value = "任务-列表")
     @GetMapping("/task")
-    public List<PreProductionSampleTaskListVo> taskList(PreProductionSampleTaskSearchDto dto) {
+    public PageInfo<PreProductionSampleTaskListVo> taskList(PreProductionSampleTaskSearchDto dto) {
         return preProductionSampleTaskService.taskList(dto);
     }
 
