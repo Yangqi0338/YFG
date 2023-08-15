@@ -1,16 +1,16 @@
 package com.base.sbc.module.sample.vo;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.annotation.UserAvatar;
-import com.base.sbc.module.nodestatus.entity.NodeStatus;
+import com.base.sbc.module.patternmaking.vo.NodeStatusVo;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：产前样-任务
@@ -44,9 +44,9 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
     private String technologistAvatar;
 
     @ApiModelProperty(value = "节点信息list")
-    private List<NodeStatus> nodeStatusList;
+    private List<NodeStatusVo> nodeStatusList;
     @ApiModelProperty(value = "节点信息Map")
-    private Map<String, NodeStatus> nodeStatus;
+    private Map<String, NodeStatusVo> nodeStatus;
 
 
     @ApiModelProperty(value = "品牌名称")
@@ -63,7 +63,7 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
 
 
     @ApiModelProperty(value = "波段")
-    private String bandCode;
+    private String bandName;
 
 
     @ApiModelProperty(value = "设计款号")
@@ -100,4 +100,18 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
     @ApiModelProperty(value = "修改时间")
     @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
     private Date updateDate;
+
+    public Map<String, NodeStatusVo> getNodeStatus() {
+        return Optional.ofNullable(nodeStatusList).map(ns -> {
+            return ns.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> b));
+        }).orElse(new HashMap<>(4));
+    }
+
+    public String getDesigner() {
+        if (StrUtil.contains(designer, StrUtil.COMMA)) {
+            return designer.split(",")[0];
+        }
+        return designer;
+    }
+
 }
