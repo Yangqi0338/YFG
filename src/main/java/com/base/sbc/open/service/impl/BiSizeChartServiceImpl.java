@@ -1,8 +1,10 @@
-package com.base.sbc.open.service;
+package com.base.sbc.open.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackSize;
 import com.base.sbc.module.pack.service.PackInfoService;
@@ -10,6 +12,8 @@ import com.base.sbc.module.pack.service.PackSizeService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.open.entity.BiSizeChart;
+import com.base.sbc.open.mapper.BiSizeChartMapper;
+import com.base.sbc.open.service.BiSizeChartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +27,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class BiService {
+public class BiSizeChartServiceImpl extends ServiceImpl<BiSizeChartMapper,BiSizeChart> implements BiSizeChartService{
 
     private final StyleService styleService;
 
@@ -43,10 +47,12 @@ public class BiService {
                     String[] sizeNames = packSize.getSize().split(",");
                     for (String sizeName : sizeNames) {
                         BiSizeChart biSize = new BiSizeChart();
+                        //biSize.setSizeCode(String.valueOf(packSize.getSort()));
                         biSize.setSizechartName(style.getSizeRange());//号型类型编码？
-                        biSize.setSizerangeName(null); //号型类型名称？
+                        biSize.setSizerangeUrl(style.getSizeRange());
+                        biSize.setSizerangeName(style.getSizeRangeName()); //号型类型名称？
                         biSize.setBaseSize(style.getDefaultSize());
-                        biSize.setSubrangeIncrement(null);//未确认
+                        biSize.setSubrangeIncrement(packSize.getPartName());//未确认
                         try {
                             biSize.setSizechartGroup(style.getProdCategoryName());
                             String[] split = sizeName.split("\\(");
@@ -70,15 +76,16 @@ public class BiService {
                         biSize.setPatternCode(jsonObject.getString("garment" + sizeName));
                         biSize.setShrinkageCode(jsonObject.getString("washing" + sizeName));
 
-                        biSize.setDimensionId(null);//测量点编码
-                        biSize.setStyleUrl(style.getStyleNo());
+                        biSize.setDimensionId(packSize.getPartCode());//测量点编码
+                        biSize.setStyleUrl(style.getDesignNo());
 
                         biSizeCharts.add(biSize);
                     }
                 }
             }
-
         }
+        this.remove(null);
+        this.saveBatch(biSizeCharts);
         return biSizeCharts;
     }
 }
