@@ -305,7 +305,7 @@ public class SmpService {
                 //款式定价
                 StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
                 if (stylePricingVO != null) {
-                    smpGoodsDto.setBomPhase(stylePricingVO.getBomStage());
+                    smpGoodsDto.setBomPhase ("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
                     smpGoodsDto.setPriceConfirm("1".equals(stylePricingVO.getProductTagPriceConfirm()));
                     smpGoodsDto.setPlanCost(stylePricingVO.getPlanCost());
                     try {
