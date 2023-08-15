@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.review.entity.ReviewMeeting
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-15 14:31:18
+ * @date 创建时间：2023-8-15 16:43:06
  * @version 1.0
  */
 @Data
@@ -85,9 +85,12 @@ public class ReviewMeeting extends BaseDataEntity<String> {
     @ApiModelProperty(value = "会议时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date meetingDate;
-    /** 款号 */
-    @ApiModelProperty(value = "款号"  )
+    /** 设计款号 */
+    @ApiModelProperty(value = "设计款号"  )
     private String styleNo;
+    /** 设计款号id */
+    @ApiModelProperty(value = "设计款号id"  )
+    private String styleId;
     /** 制版单id */
     @ApiModelProperty(value = "制版单id"  )
     private String plateBillId;
