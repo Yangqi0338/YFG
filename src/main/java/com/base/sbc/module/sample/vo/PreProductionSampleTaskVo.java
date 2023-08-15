@@ -3,10 +3,12 @@ package com.base.sbc.module.sample.vo;
 import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -92,4 +94,10 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
     private String designer;
     @ApiModelProperty(value = "设计师id")
     private String designerId;
+    @ApiModelProperty(value = "开始时间")
+    @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
+    private Date startDate;
+    @ApiModelProperty(value = "修改时间")
+    @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
+    private Date updateDate;
 }

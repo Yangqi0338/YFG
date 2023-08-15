@@ -226,6 +226,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (StringUtils.isAnyBlank(packInfo.getStyleNo(), packInfo.getColor(), packInfo.getStyleColorId())) {
             throw new OtherException("没有配色信息");
         }
+
+
         copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
         PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
         //设置为已转大货
@@ -240,6 +242,25 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //设置bom 状态
         changeBomStatus(packInfo.getId(), BasicNumber.ONE.getNumber());
         return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void changeBomStatus(String packInfoId, String bomStatus) {
+        PackInfo byId = getById(packInfoId);
+        //修改配色的bom 状态
+        if (byId == null) {
+            return;
+        }
+        String styleColorId = byId.getStyleColorId();
+        if (StrUtil.isBlank(styleColorId)) {
+            return;
+        }
+        StyleColor styleColor = new StyleColor();
+        styleColor.setBomStatus(bomStatus);
+        UpdateWrapper<StyleColor> uw = new UpdateWrapper<>();
+        uw.eq("id", styleColorId);
+        styleColorMapper.update(styleColor, uw);
     }
 
     @Override
@@ -426,24 +447,6 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         return true;
     }
 
-    @Override
-    @Transactional(rollbackFor = {Exception.class})
-    public void changeBomStatus(String packInfoId, String bomStatus) {
-        PackInfo byId = getById(packInfoId);
-        //修改配色的bom 状态
-        if (byId == null) {
-            return;
-        }
-        String styleColorId = byId.getStyleColorId();
-        if (StrUtil.isBlank(styleColorId)) {
-            return;
-        }
-        StyleColor styleColor = new StyleColor();
-        styleColor.setBomStatus(bomStatus);
-        UpdateWrapper<StyleColor> uw = new UpdateWrapper<>();
-        uw.eq("id", styleColorId);
-        styleColorMapper.update(styleColor, uw);
-    }
 
     @Override
 

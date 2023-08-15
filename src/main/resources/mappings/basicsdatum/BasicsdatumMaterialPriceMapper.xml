@@ -18,6 +18,7 @@
         p.supplier_id,
         p.supplier_name,
         p.quotation_price AS price,
+        p.quotation_price AS supplier_price,
         p.supplier_material_code
         FROM
         t_basicsdatum_material_price p

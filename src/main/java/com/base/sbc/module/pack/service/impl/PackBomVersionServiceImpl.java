@@ -24,9 +24,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.module.pack.dto.PackBomVersionDto;
-import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
-import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackBomVersionMapper;
 import com.base.sbc.module.pack.service.*;
@@ -39,6 +37,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -268,6 +270,11 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         // 3获取物料尺码
         List<PackBomSize> bomSizeList = packBomSizeService.list(query);
 
+        //转大货 非空校验
+        if (StrUtil.equals(targetPackType, PackUtils.PACK_TYPE_BIG_GOODS)) {
+            checkBomDataEmpty(bomList, bomSizeList);
+        }
+
         //保存版本
         if (CollUtil.isNotEmpty(versionsList)) {
             for (PackBomVersion version : versionsList) {
@@ -346,6 +353,44 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             }
         }
         return true;
+    }
+
+    @Override
+    public void checkBomDataEmpty(List<PackBom> bomList, List<PackBomSize> bomSizeList) {
+        if (CollUtil.isEmpty(bomList)) {
+            throw new OtherException("物料信息为空");
+        }
+        if (CollUtil.isEmpty(bomSizeList)) {
+            throw new OtherException("物料尺码信息为空");
+        }
+        Map<String, PackBom> bomMap = new HashMap<>(16);
+        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+        Validator validator = validatorFactory.getValidator();
+        PackBomEmptyCheckDto c = null;
+        Set<String> errorMessage = new HashSet<>(16);
+        for (PackBom packBom : bomList) {
+            bomMap.put(packBom.getId(), packBom);
+            c = BeanUtil.copyProperties(packBom, PackBomEmptyCheckDto.class);
+            Set<ConstraintViolation<PackBomEmptyCheckDto>> validate = validator.validate(c);
+            if (CollUtil.isNotEmpty(validate)) {
+                validate.forEach(item -> {
+                    errorMessage.add(item.getMessage());
+                });
+            }
+        }
+        PackBomSizeEmptyCheckDto cs = null;
+        for (PackBomSize packBom : bomSizeList) {
+            cs = BeanUtil.copyProperties(packBom, PackBomSizeEmptyCheckDto.class);
+            Set<ConstraintViolation<PackBomSizeEmptyCheckDto>> validate = validator.validate(cs);
+            if (CollUtil.isNotEmpty(validate)) {
+                validate.forEach(item -> {
+                    errorMessage.add(item.getMessage());
+                });
+            }
+        }
+        if (CollUtil.isNotEmpty(errorMessage)) {
+            throw new OtherException(CollUtil.join(errorMessage, StrUtil.COMMA));
+        }
     }
 
     @Override

@@ -167,6 +167,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @param packInfoId
      */
     void changeBomStatus(String packInfoId, String bomStatus);
+
+
 // 自定义方法区 不替换的区域【other_end】
 
 
