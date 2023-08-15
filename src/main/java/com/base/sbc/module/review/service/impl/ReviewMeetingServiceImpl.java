@@ -258,8 +258,8 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
         QueryWrapper<ReviewMeeting> qc = new QueryWrapper<>();
         qc.eq("company_code", userCompany);
         qc.in("id", StringUtils.convertList(ids));
-        boolean i = remove(qc);
-        if(i){
+        Integer i = physicalDeleteQWrap(qc);
+        if(i > 0){
             deleteDetailData(userCompany, ids);
             return ApiResult.success("删除成功！", 500);
         }
@@ -283,9 +283,9 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
         logFileQw.eq("company_code", companyCode);
         logFileQw.in("meeting_id", StringUtils.convertList(ids));
 
-        meetingDepartmentService.remove(departQw);
-        reviewMeetingLogService.remove(logQw);
-        meetingLogDetailService.remove(logDetailQw);
-        meetingLogFileService.remove(logFileQw);
+        meetingDepartmentService.physicalDeleteQWrap(departQw);
+        reviewMeetingLogService.physicalDeleteQWrap(logQw);
+        meetingLogDetailService.physicalDeleteQWrap(logDetailQw);
+        meetingLogFileService.physicalDeleteQWrap(logFileQw);
     }
 }
