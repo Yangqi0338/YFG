@@ -387,7 +387,7 @@ public class SmpService {
         TransactionStatus transactionStatus = null;
         try {
             SmpMaterialDto smpMaterialDto = basicsdatumMaterial.toSmpMaterialDto();
-            smpMaterialDto.setThirdLevelCategory(basicsdatumMaterial.getCategoryId());
+
 
             //获取颜色集合
             BasicsdatumMaterialColorQueryDto basicsdatumMaterialColorQueryDto = new BasicsdatumMaterialColorQueryDto();
