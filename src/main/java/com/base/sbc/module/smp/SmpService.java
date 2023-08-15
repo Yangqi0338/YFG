@@ -84,6 +84,7 @@ public class SmpService {
     private final StyleColorService sampleStyleColorService;
 
     private final PackBomService packBomService;
+    private final PackBomVersionService packBomVersionService;
 
     private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
 
@@ -504,7 +505,7 @@ public class SmpService {
         List<PackBom> list = packBomService.listByIds(Arrays.asList(ids));
         for (PackBom packBom : list) {
 
-
+            packBomVersionService.checkBomDataEmptyThrowException(packBom);
             SmpBomDto smpBomDto = packBom.toSmpBomDto();
 
 
@@ -533,6 +534,7 @@ public class SmpService {
 
             List<SmpSizeQty> sizeQtyList = new ArrayList<>();
             for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("bom_id", packBom.getId()))) {
+                packBomVersionService.checkBomSizeDataEmptyThrowException(packBomSize);
                 SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
                 //根据尺码id查询尺码
                 BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());

@@ -143,6 +143,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             //图片
             attachmentService.setListStylePic(sdpList, "stylePic");
             List<String> sdIds = sdpList.stream().map(StylePackInfoListVo::getId).collect(Collectors.toList());
+
             Map<String, List<PackInfoListVo>> piMaps = queryListToMapGroupByForeignId(sdIds, PackUtils.PACK_TYPE_DESIGN);
             for (StylePackInfoListVo sd : sdpList) {
                 List<PackInfoListVo> packInfoListVos = piMaps.get(sd.getId());
@@ -155,6 +156,16 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             }
         }
         return pageInfo;
+    }
+
+    @Override
+    public PageInfo<PackInfoListVo> pageInfo(PackInfoSearchPageDto pageDto) {
+        BaseQueryWrapper<PackInfo> qw = new BaseQueryWrapper<>();
+        qw.notEmptyEq("foreign_id", pageDto.getStyleId());
+        qw.notEmptyEq("pack_type", PackUtils.PACK_TYPE_DESIGN);
+        Page<PackInfoListVo> objects = PageHelper.startPage(pageDto);
+        List<PackInfoListVo> list = getBaseMapper().queryByQw(qw);
+        return objects.toPageInfo();
     }
 
     @Override
@@ -262,6 +273,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         uw.eq("id", styleColorId);
         styleColorMapper.update(styleColor, uw);
     }
+
 
     @Override
     @Transactional(rollbackFor = {Exception.class})

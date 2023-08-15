@@ -168,6 +168,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      */
     void changeBomStatus(String packInfoId, String bomStatus);
 
+    PageInfo<PackInfoListVo> pageInfo(PackInfoSearchPageDto pageDto);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

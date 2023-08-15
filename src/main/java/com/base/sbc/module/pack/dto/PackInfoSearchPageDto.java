@@ -19,6 +19,9 @@ import lombok.Data;
 public class PackInfoSearchPageDto extends Page {
 
 
+    @ApiModelProperty(value = "款式id")
+    private String styleId;
+
     @ApiModelProperty(value = "生产模式")
     private String devtType;
 

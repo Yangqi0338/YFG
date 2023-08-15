@@ -272,7 +272,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
 
         //转大货 非空校验
         if (StrUtil.equals(targetPackType, PackUtils.PACK_TYPE_BIG_GOODS)) {
-            checkBomDataEmpty(bomList, bomSizeList);
+            checkBomDataEmptyThrowException(bomList, bomSizeList);
         }
 
         //保存版本
@@ -356,7 +356,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
     }
 
     @Override
-    public void checkBomDataEmpty(List<PackBom> bomList, List<PackBomSize> bomSizeList) {
+    public void checkBomDataEmptyThrowException(List<PackBom> bomList, List<PackBomSize> bomSizeList) {
         if (CollUtil.isEmpty(bomList)) {
             throw new OtherException("物料信息为空");
         }
@@ -389,6 +389,37 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             }
         }
         if (CollUtil.isNotEmpty(errorMessage)) {
+            throw new OtherException(CollUtil.join(errorMessage, StrUtil.COMMA));
+        }
+    }
+
+    @Override
+    public void checkBomDataEmptyThrowException(PackBom bom) {
+        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+        Validator validator = validatorFactory.getValidator();
+        PackBomEmptyCheckDto c = BeanUtil.copyProperties(bom, PackBomEmptyCheckDto.class);
+        Set<String> errorMessage = new HashSet<>(16);
+        Set<ConstraintViolation<PackBomEmptyCheckDto>> validate = validator.validate(c);
+        if (CollUtil.isNotEmpty(validate)) {
+            validate.forEach(item -> {
+                errorMessage.add(item.getMessage());
+            });
+            throw new OtherException(CollUtil.join(errorMessage, StrUtil.COMMA));
+        }
+
+    }
+
+    @Override
+    public void checkBomSizeDataEmptyThrowException(PackBomSize bomSize) {
+        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+        Validator validator = validatorFactory.getValidator();
+        PackBomSizeEmptyCheckDto c = BeanUtil.copyProperties(bomSize, PackBomSizeEmptyCheckDto.class);
+        Set<String> errorMessage = new HashSet<>(16);
+        Set<ConstraintViolation<PackBomSizeEmptyCheckDto>> validate = validator.validate(c);
+        if (CollUtil.isNotEmpty(validate)) {
+            validate.forEach(item -> {
+                errorMessage.add(item.getMessage());
+            });
             throw new OtherException(CollUtil.join(errorMessage, StrUtil.COMMA));
         }
     }

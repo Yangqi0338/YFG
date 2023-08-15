@@ -65,4 +65,8 @@ public class PackBomEmptyCheckDto {
     @NotNull(message = "单件用量不能为空")
     private BigDecimal unitUse;
 
+    @ApiModelProperty(value = "成本不能为空")
+    @NotNull(message = "成本不能为空")
+    private BigDecimal cost;
+
 }

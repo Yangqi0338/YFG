@@ -115,8 +115,11 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
      */
     PackBomVersion checkVersion(String id);
 
-    void checkBomDataEmpty(List<PackBom> bomList, List<PackBomSize> bomSizeList);
+    void checkBomDataEmptyThrowException(List<PackBom> bomList, List<PackBomSize> bomSizeList);
 
+    void checkBomDataEmptyThrowException(PackBom bom);
+
+    void checkBomSizeDataEmptyThrowException(PackBomSize bomSize);
 // 自定义方法区 不替换的区域【other_end】
 
 
