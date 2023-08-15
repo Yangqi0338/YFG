@@ -165,6 +165,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         qw.notEmptyEq("pack_type", PackUtils.PACK_TYPE_DESIGN);
         Page<PackInfoListVo> objects = PageHelper.startPage(pageDto);
         List<PackInfoListVo> list = getBaseMapper().queryByQw(qw);
+        attachmentService.setListStylePic(list, "stylePic");
         return objects.toPageInfo();
     }
 

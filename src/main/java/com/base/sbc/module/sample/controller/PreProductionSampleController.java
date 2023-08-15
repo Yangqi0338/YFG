@@ -17,6 +17,7 @@ import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
+import com.base.sbc.module.patternmaking.dto.ScoreDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskSearchDto;
 import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
@@ -122,6 +123,12 @@ public class PreProductionSampleController {
     @ApiImplicitParams({@ApiImplicitParam(name = "node", value = "节点", required = false, dataType = "String", paramType = "query"), @ApiImplicitParam(name = "status", value = "状态", required = false, dataType = "String", paramType = "query"), @ApiImplicitParam(name = "dataId", value = "打版id", required = false, dataType = "String", paramType = "query"),})
     public JSONObject getNodeStatusConfig(Principal user, String node, String status, String dataId) {
         return nodeStatusService.getNodeStatusConfig(NodeStatusConfigService.PRE_PRODUCTION_SAMPLE_TASK, node, status);
+    }
+
+    @ApiOperation(value = "样衣制作评分", notes = "")
+    @PostMapping("/task/sampleMakingScore")
+    public boolean sampleMakingScore(Principal user, @Validated @RequestBody ScoreDto dto) {
+        return preProductionSampleTaskService.sampleMakingScore(user, dto.getId(), dto.getScore());
     }
 }
 

@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -232,6 +233,26 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         uw.eq("id", dto.getId());
         update(dto, uw);
         return true;
+    }
+
+    @Override
+    public boolean sampleMakingScore(Principal user, String id, BigDecimal score) {
+
+        PreProductionSampleTask bean = getById(id);
+        if (bean == null) {
+            throw new OtherException("打版信息为空");
+        }
+        GroupUser groupUser = userUtils.getUserBy(user);
+//        //校验是否是样衣组长
+//        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
+//        if(!sampleTeamLeader){
+//            throw new OtherException("您不是"+bean.getPatternRoom()+"的样衣组长");
+//        }
+        PreProductionSampleTask updateBean = new PreProductionSampleTask();
+        updateBean.setSampleMakingScore(score);
+        UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PreProductionSampleTask::getId, id);
+        return update(updateBean, uw);
     }
 
 // 自定义方法区 不替换的区域【other_end】

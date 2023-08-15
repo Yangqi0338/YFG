@@ -15,6 +15,7 @@ import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -268,6 +269,10 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
     ArrayList<ArrayList> capacityContrastStatistics(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String token);
 
     boolean nextOrPrev(Principal user, String id, String np);
+
+    boolean patternMakingScore(Principal user, String id, BigDecimal score);
+
+    boolean sampleMakingScore(Principal user, String id, BigDecimal score);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/
