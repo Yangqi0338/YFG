@@ -144,10 +144,10 @@ public interface StyleColorService extends BaseService<StyleColor> {
 
         /**
          * 方法描述 配色解锁
-         * @param verificationDto
+         * @param publicStyleColorDto
          * @return
          */
-        Boolean unlockStyleColor(VerificationDto verificationDto);
+        Boolean unlockStyleColor(PublicStyleColorDto publicStyleColorDto);
 // 自定义方法区 不替换的区域【other_end】
 
 

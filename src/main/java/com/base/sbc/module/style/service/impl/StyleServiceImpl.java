@@ -896,21 +896,21 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     /**
      * 方法描述 验证款式号型类型是否可修改
      *
-     * @param verificationDto
+     * @param publicStyleColorDto
      * @return
      */
     @Override
-    public Boolean checkColorSize(VerificationDto verificationDto) {
+    public Boolean checkColorSize(PublicStyleColorDto publicStyleColorDto) {
         /*查询款式下已下发的的配色*/
         QueryWrapper queryWrapper =new QueryWrapper();
-        queryWrapper.eq("style_id",verificationDto.getId());
+        queryWrapper.eq("style_id", publicStyleColorDto.getId());
         queryWrapper.in("scm_send_flag", com.base.sbc.config.utils.StringUtils.convertList("1,3"));
         List<StyleColor> list = styleColorMapper.selectList(queryWrapper);
         Boolean b =true;
         if(CollectionUtils.isEmpty(list)){
             /*查询号型类型*/
             queryWrapper.clear();
-            queryWrapper.eq("code",verificationDto.getSizeRange());
+            queryWrapper.eq("code", publicStyleColorDto.getSizeRange());
             BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeMapper.selectOne(queryWrapper);
             if(ObjectUtil.isEmpty(basicsdatumModelType)){
                 throw new OtherException("号型类型查询失败");
@@ -920,7 +920,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
             for (String s : stringList) {
                 PlmStyleSizeParam plmStyleSizeParam =new PlmStyleSizeParam();
-                plmStyleSizeParam.setSizeCategory(verificationDto.getSizeRange());
+                plmStyleSizeParam.setSizeCategory(publicStyleColorDto.getSizeRange());
                 plmStyleSizeParam.setStyleNo(s);
                 plmStyleSizeParam.setSizeNum(basicsdatumModelType.getSizeCode().split(",").length);
                 b = smpService.checkStyleSize(plmStyleSizeParam);
