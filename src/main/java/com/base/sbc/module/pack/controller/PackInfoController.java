@@ -50,11 +50,17 @@ public class PackInfoController {
 	@Autowired
 	private PackInfoStatusService packInfoStatusService;
 
-    @ApiOperation(value = "设计BOM管理列表-分页查询")
-    @GetMapping
-    public PageInfo<StylePackInfoListVo> pageBySampleDesign(@Valid PackInfoSearchPageDto pageDto) {
-        return packInfoService.pageBySampleDesign(pageDto);
-    }
+	@ApiOperation(value = "设计BOM管理列表-分页查询")
+	@GetMapping
+	public PageInfo<StylePackInfoListVo> pageBySampleDesign(@Valid PackInfoSearchPageDto pageDto) {
+		return packInfoService.pageBySampleDesign(pageDto);
+	}
+
+	@ApiOperation(value = "设计BOM资料包-分页查询")
+	@GetMapping("/packList")
+	public PageInfo<PackInfoListVo> pageInfo(@Valid PackInfoSearchPageDto pageDto) {
+		return packInfoService.pageInfo(pageDto);
+	}
 
 	@ApiOperation(value = "资料包明细")
 	@GetMapping("/getDetail")

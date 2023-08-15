@@ -53,7 +53,7 @@ public class QueryStyleColorDto extends Page {
     private String prodCategory1st;
 
     @ApiModelProperty(value = "品类"  )
-    private String prodCategory;
+    private String prodCategoryName;
 
     @ApiModelProperty(value = "款式状态"  )
     private String  styleStatus;
@@ -66,4 +66,131 @@ public class QueryStyleColorDto extends Page {
 
     @ApiModelProperty(value = "配色列表标记"  )
     private String colorListFlag;
+
+    @ApiModelProperty(value = "款式类型"  )
+    private String  styleTypeName;
+
+    @ApiModelProperty(value = "款式沿用")
+    private String hisDesignNo;
+
+    @ApiModelProperty(value = "颜色编码")
+    private String colorCode;
+
+    @ApiModelProperty(value = "号型类型")
+    private String sizeRangeName;
+
+    @ApiModelProperty(value = "波段")
+    private String bandName;
+
+    @ApiModelProperty(value = "设计师")
+    private String designer;
+
+    @ApiModelProperty(value = "工艺员")
+    private String technicianName;
+
+    @ApiModelProperty(value = "状态")
+    private String status;
+
+    @ApiModelProperty(value = "创建时间")
+    private String[] createDate;
+
+    @ApiModelProperty(value = "创建人")
+    private String createName;
+
+    @ApiModelProperty(value = "上新时间")
+    private String  newDate;
+
+    @ApiModelProperty(value = "轻奢款")
+    private String  isLuxury;
+
+    @ApiModelProperty(value = "细分")
+    private String  subdivideName;
+
+    @ApiModelProperty(value = "下主面料单")
+    private String sendMainFabricDate;
+
+    @ApiModelProperty(value = "下配料1")
+    private String sendBatchingDate1;
+
+    @ApiModelProperty(value = "下配料2")
+    private String sendBatchingDate2;
+
+    @ApiModelProperty(value = "下配料3")
+    private String sendBatchingDate3;
+
+    @ApiModelProperty(value = "下里布单")
+    private String sendSingleDate;
+
+    @ApiModelProperty(value = "设计下明细单")
+    private String designDetailDate;
+
+    @ApiModelProperty(value = "设计下正确样")
+    private String designCorrectDate;
+
+    @ApiModelProperty(value = "产品细分")
+    private String productSubdivideName;
+
+
+    @ApiModelProperty(value = "主款")
+    private String principalStyle;
+
+    @ApiModelProperty(value = "主款款号")
+    private String principalStyleNo;
+
+    @ApiModelProperty(value = "配饰")
+    private String accessory;
+
+    @ApiModelProperty(value = "配饰款号")
+    private String accessoryNo;
+
+    @ApiModelProperty(value = "下稿设计师")
+    private String senderDesignerName;
+
+    @ApiModelProperty(value = "跟款设计师")
+    private String merchDesignName;
+
+    @ApiModelProperty(value = "关联BOM")
+    private String bom;
+
+    @ApiModelProperty(value = "BOM阶段")
+    private String bomStatus;
+
+    @ApiModelProperty(value = "销售类型")
+    private String salesTypeName;
+
+    @ApiModelProperty(value = "吊牌价")
+    private String tagPrice;
+
+    @ApiModelProperty(value = "产品风格")
+    private String styleFlavourName;
+
+    @ApiModelProperty(value = "供应商名称")
+    private String supplier;
+
+    @ApiModelProperty(value = "供应商简称")
+    private String supplierAbbreviation;
+
+    @ApiModelProperty(value = "供应商款号")
+    private String supplierNo;
+
+    @ApiModelProperty(value = "供应商款色")
+    private String supplierColor;
+
+    @ApiModelProperty(value = "品名")
+    private String productName;
+
+    @ApiModelProperty(value = "次品编号")
+    private String defectiveName;
+
+    @ApiModelProperty(value = "计控吊牌确定")
+    private String productHangtagConfirm;
+
+    @ApiModelProperty(value = "计控成本确定")
+    private String controlConfirm;
+
+    @ApiModelProperty(value = "品控吊牌价确定")
+    private String controlHangtagConfirm;
+
+    @ApiModelProperty(value = "版式名称")
+    private String patternDesignName;
 }

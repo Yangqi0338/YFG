@@ -379,7 +379,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public List<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto) {
+    public PageInfo<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto) {
         QueryWrapper qw = new QueryWrapper();
         qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
@@ -387,6 +387,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
+        qw.eq(StrUtil.isNotBlank(dto.getPatternStatus()), "p.pattern_status", dto.getPatternStatus());
+        qw.eq(StrUtil.isNotBlank(dto.getCuttingStatus()), "p.cutting_status", dto.getCuttingStatus());
+        qw.eq(StrUtil.isNotBlank(dto.getSewingStatus()), "p.sewing_status", dto.getSewingStatus());
+
         if (StrUtil.isNotBlank(dto.getIsBlackList())) {
             if (StrUtil.equals(dto.getIsBlackList(), BasicNumber.ONE.getNumber())) {
                 //只查询黑单
@@ -400,14 +404,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
         // 版房主管和设计师 看到全部，版师、裁剪工、车缝工、样衣组长看到自己,
 
-
+        qw.orderByDesc("p.create_date");
         qw.orderByAsc("p.sort");
+        Page<PatternMakingTaskListVo> objects = PageHelper.startPage(dto);
         List<PatternMakingTaskListVo> list = getBaseMapper().patternMakingTaskList(qw);
         //设置图片
         attachmentService.setListStylePic(list, "stylePic");
         // 设置节点状态
         nodeStatusService.setNodeStatus(list);
-        return list;
+        return objects.toPageInfo();
     }
 
     @Override

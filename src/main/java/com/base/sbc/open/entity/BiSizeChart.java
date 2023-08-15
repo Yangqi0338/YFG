@@ -1,5 +1,6 @@
 package com.base.sbc.open.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.util.Date;
@@ -11,6 +12,7 @@ import java.util.Date;
  * 用于描述尺寸表的各个属性和信息
  */
 @Data
+@TableName("bi_size_chart")
 public class BiSizeChart {
     /**
      * 尺寸表名称

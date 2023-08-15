@@ -6,10 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -19,14 +22,25 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
+import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
+import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskSearchDto;
 import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
-import com.base.sbc.module.sample.vo.PreProductionSampleTaskListVo;
+import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
+import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleVo;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,9 +68,15 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     private NodeStatusService nodeStatusService;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private StyleService styleService;
 
     @Autowired
+    private PackInfoService packInfoService;
+    @Autowired
     private UserUtils userUtils;
+    @Autowired
+    private AmcFeignService amcFeignService;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -122,19 +142,22 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     }
 
     @Override
-    public List<PreProductionSampleTaskListVo> taskList(PreProductionSampleTaskSearchDto dto) {
+    public PageInfo<PreProductionSampleTaskVo> taskList(PreProductionSampleTaskSearchDto dto) {
         BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
-        qw.eq("node", "产前样衣任务");
-        qw.isNotNull("status");
+        qw.eq(StrUtil.isNotBlank(dto.getNode()), "t.node", dto.getNode());
+        qw.eq(StrUtil.isNotBlank(dto.getStatus()), "t.status", dto.getStatus());
         qw.andLike(dto.getSearch(), "s.style_no", "t.code");
         qw.notEmptyIn("s.year", dto.getYear());
         qw.notEmptyIn("s.season", dto.getSeason());
         qw.notEmptyIn("s.month", dto.getMonth());
-        List<PreProductionSampleTaskListVo> list = getBaseMapper().taskList(qw);
+        Page<PreProductionSampleTaskVo> objects = PageHelper.startPage(dto);
+        List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
         //设置图
         attachmentService.setListStylePic(list, "stylePic");
+        //设置头像
+        amcFeignService.setUserAvatarToList(list);
         nodeStatusService.setNodeStatus(list);
-        return list;
+        return objects.toPageInfo();
     }
 
     @Override
@@ -148,6 +171,67 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         boolean flg = nodeStatusService.nextOrPrev(groupUser, pm, NodeStatusConfigService.PRE_PRODUCTION_SAMPLE_TASK, np);
         updateById(pm);
         return flg;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean createByPackInfo(PackInfoListVo vo) {
+        //
+        Style style = styleService.getById(vo.getStyleId());
+        if (style == null) {
+            throw new OtherException("款式信息为空");
+        }
+        PackInfo packInfo = packInfoService.getById(vo.getId());
+
+        if (packInfo == null) {
+            throw new OtherException("标准资料包数据为空");
+        }
+        PreProductionSampleTask task = new PreProductionSampleTask();
+        task.setStyleId(style.getId());
+        task.setPackInfoId(packInfo.getId());
+        task.setPlanningSeasonId(style.getPlanningSeasonId());
+        QueryWrapper<PreProductionSampleTask> countQc = new QueryWrapper<>();
+        countQc.eq("style_id", style.getId());
+        long count = getBaseMapper().countByQw(countQc);
+        task.setCode(packInfo.getStyleNo() + StrUtil.DASHED + (count + 1));
+        return save(task);
+    }
+
+    @Override
+    public PreProductionSampleTaskDetailVo getTaskDetailById(String id) {
+        List<PreProductionSampleTaskVo> taskList = getBaseMapper().taskList(new QueryWrapper<PreProductionSampleTask>().eq("t.id", id));
+        if (CollUtil.isEmpty(taskList)) {
+            return null;
+        }
+        PreProductionSampleTaskVo task = taskList.get(0);
+
+        PreProductionSampleTaskDetailVo result = new PreProductionSampleTaskDetailVo();
+        //查询任务信息
+        PreProductionSampleTaskVo taskVo = BeanUtil.copyProperties(task, PreProductionSampleTaskVo.class);
+        //设置头像
+        amcFeignService.setUserAvatarToObj(taskVo);
+        //查询款式设计信息
+        StyleVo sampleDesignVo = styleService.getDetail(task.getStyleId());
+        //设置头像
+        amcFeignService.setUserAvatarToObj(sampleDesignVo);
+        result.setTask(taskVo);
+        result.setStyle(sampleDesignVo);
+        // 设置状态
+        nodeStatusService.setNodeStatusToBean(taskVo, "nodeStatusList", "nodeStatus");
+        return result;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean updateByDto(PreProductionSampleTaskDto dto) {
+        PreProductionSampleTask task = getById(dto.getId());
+        if (task == null) {
+            throw new OtherException("任务不存在");
+        }
+        UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
+        uw.eq("id", dto.getId());
+        update(dto, uw);
+        return true;
     }
 
 // 自定义方法区 不替换的区域【other_end】

@@ -41,7 +41,6 @@ import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
-import com.base.sbc.module.sample.service.PreProductionSampleService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
@@ -118,8 +117,6 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private FlowableService flowableService;
     @Resource
     private UreportService ureportService;
-    @Resource
-    private PreProductionSampleService preProductionSampleService;
 
     @Resource
     private StyleColorMapper styleColorMapper;
@@ -146,6 +143,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             //图片
             attachmentService.setListStylePic(sdpList, "stylePic");
             List<String> sdIds = sdpList.stream().map(StylePackInfoListVo::getId).collect(Collectors.toList());
+
             Map<String, List<PackInfoListVo>> piMaps = queryListToMapGroupByForeignId(sdIds, PackUtils.PACK_TYPE_DESIGN);
             for (StylePackInfoListVo sd : sdpList) {
                 List<PackInfoListVo> packInfoListVos = piMaps.get(sd.getId());
@@ -158,6 +156,16 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             }
         }
         return pageInfo;
+    }
+
+    @Override
+    public PageInfo<PackInfoListVo> pageInfo(PackInfoSearchPageDto pageDto) {
+        BaseQueryWrapper<PackInfo> qw = new BaseQueryWrapper<>();
+        qw.notEmptyEq("foreign_id", pageDto.getStyleId());
+        qw.notEmptyEq("pack_type", PackUtils.PACK_TYPE_DESIGN);
+        Page<PackInfoListVo> objects = PageHelper.startPage(pageDto);
+        List<PackInfoListVo> list = getBaseMapper().queryByQw(qw);
+        return objects.toPageInfo();
     }
 
     @Override
@@ -229,6 +237,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (StringUtils.isAnyBlank(packInfo.getStyleNo(), packInfo.getColor(), packInfo.getStyleColorId())) {
             throw new OtherException("没有配色信息");
         }
+
+
         copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
         PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
         //设置为已转大货
@@ -242,10 +252,28 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //updateById(packInfo);
         //设置bom 状态
         changeBomStatus(packInfo.getId(), BasicNumber.ONE.getNumber());
-        //生成产前样
-        preProductionSampleService.createByPackInfo(packInfo);
         return true;
     }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void changeBomStatus(String packInfoId, String bomStatus) {
+        PackInfo byId = getById(packInfoId);
+        //修改配色的bom 状态
+        if (byId == null) {
+            return;
+        }
+        String styleColorId = byId.getStyleColorId();
+        if (StrUtil.isBlank(styleColorId)) {
+            return;
+        }
+        StyleColor styleColor = new StyleColor();
+        styleColor.setBomStatus(bomStatus);
+        UpdateWrapper<StyleColor> uw = new UpdateWrapper<>();
+        uw.eq("id", styleColorId);
+        styleColorMapper.update(styleColor, uw);
+    }
+
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -431,24 +459,6 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         return true;
     }
 
-    @Override
-    @Transactional(rollbackFor = {Exception.class})
-    public void changeBomStatus(String packInfoId, String bomStatus) {
-        PackInfo byId = getById(packInfoId);
-        //修改配色的bom 状态
-        if (byId == null) {
-            return;
-        }
-        String styleColorId = byId.getStyleColorId();
-        if (StrUtil.isBlank(styleColorId)) {
-            return;
-        }
-        StyleColor styleColor = new StyleColor();
-        styleColor.setBomStatus(bomStatus);
-        UpdateWrapper<StyleColor> uw = new UpdateWrapper<>();
-        uw.eq("id", styleColorId);
-        styleColorMapper.update(styleColor, uw);
-    }
 
     @Override
 
@@ -489,7 +499,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Override
     public PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(PackInfoSearchPageDto pageDto) {
         BaseQueryWrapper<PackInfo> sdQw = new BaseQueryWrapper<>();
-//        sdQw.eq("bom_status", BasicNumber.ONE.getNumber());
+        sdQw.notEmptyEq("bom_status", pageDto.getBomStatus());
         sdQw.eq("pack_type", PackUtils.PACK_TYPE_BIG_GOODS);
         sdQw.notEmptyEq("prod_category1st", pageDto.getProdCategory1st());
         sdQw.notEmptyEq("prod_category", pageDto.getProdCategory());

@@ -84,6 +84,7 @@ public class SmpService {
     private final StyleColorService sampleStyleColorService;
 
     private final PackBomService packBomService;
+    private final PackBomVersionService packBomVersionService;
 
     private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
 
@@ -203,9 +204,8 @@ public class SmpService {
 
             //动态字段
 
-
-            if (!CollectionUtils.isEmpty(sampleDesign.getDimensionLabels())) {
-                List<FieldManagementVo> fieldManagementVoList = sampleDesign.getDimensionLabels();
+            List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsBySdId(sampleDesign.getId());
+            if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
                 fieldManagementVoList.forEach(m -> {
                     if ("衣长分类".equals(m.getFieldName())) {
                         smpGoodsDto.setLengthRangeId(m.getVal());
@@ -306,7 +306,7 @@ public class SmpService {
                 //款式定价
                 StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
                 if (stylePricingVO != null) {
-                    smpGoodsDto.setBomPhase(stylePricingVO.getBomStage());
+                    smpGoodsDto.setBomPhase ("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
                     smpGoodsDto.setPriceConfirm("1".equals(stylePricingVO.getProductTagPriceConfirm()));
                     smpGoodsDto.setPlanCost(stylePricingVO.getPlanCost());
                     try {
@@ -387,7 +387,7 @@ public class SmpService {
         TransactionStatus transactionStatus = null;
         try {
             SmpMaterialDto smpMaterialDto = basicsdatumMaterial.toSmpMaterialDto();
-            smpMaterialDto.setThirdLevelCategory(basicsdatumMaterial.getCategoryId());
+
 
             //获取颜色集合
             BasicsdatumMaterialColorQueryDto basicsdatumMaterialColorQueryDto = new BasicsdatumMaterialColorQueryDto();
@@ -505,7 +505,7 @@ public class SmpService {
         List<PackBom> list = packBomService.listByIds(Arrays.asList(ids));
         for (PackBom packBom : list) {
 
-
+            packBomVersionService.checkBomDataEmptyThrowException(packBom);
             SmpBomDto smpBomDto = packBom.toSmpBomDto();
 
 
@@ -534,6 +534,7 @@ public class SmpService {
 
             List<SmpSizeQty> sizeQtyList = new ArrayList<>();
             for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("bom_id", packBom.getId()))) {
+                packBomVersionService.checkBomSizeDataEmptyThrowException(packBomSize);
                 SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
                 //根据尺码id查询尺码
                 BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());

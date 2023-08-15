@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.review.mapper.ReviewResultMapper">
+    <!--
+        评审会-评审结果配置
+        创建人：tzy
+        邮箱：974849633@qq.com
+        创建时间：2023-8-14 16:00:19
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <select id="selectResultVo" resultType="com.base.sbc.module.review.vo.ReviewResultVo">
+        select
+        r.id,
+        r.company_code,
+        r.status,
+        r.create_id,
+        r.create_name,
+        r.create_date,
+        r.update_id,
+        r.update_name,
+        r.update_date,
+        r.del_flag,
+        r.remarks,
+        r.meeting_type,
+        t.name as meeting_type_name
+        from t_review_result as r
+        left join t_review_meeting_type as t on r.meeting_type = t.id
+        ${ ew.customSqlSegment}
+    </select>
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>

@@ -24,7 +24,7 @@ public class SmpOpenMaterialDto {
     /**
      * 工艺要求
      */
-    private String finishl;
+    private String finish;
     /**
      * 辅料材质
      */
@@ -249,7 +249,7 @@ public class SmpOpenMaterialDto {
         basicsdatumMaterial.setMaterialCodeName(Code+MaterialName);
         basicsdatumMaterial.setCategoryName(ProductType);
         basicsdatumMaterial.setIngredientSay(c8MaterialAttrCompositionComment);
-        basicsdatumMaterial.setProcessRequire(finishl);
+        basicsdatumMaterial.setProcessRequire(finish);
         basicsdatumMaterial.setAuxiliaryMaterial(width);
         basicsdatumMaterial.setCheckResult(c8MaterialAttrIspectionStatus);
         basicsdatumMaterial.setSpecification(c8MaterialAttrSaoriSpecifications);
@@ -428,12 +428,6 @@ public class SmpOpenMaterialDto {
          * 单位
          */
         private String C8_Material_UOM;
-
-        public QuotItem(String supperCode, String color, String s) {
-            this.SupplierCode=supperCode;
-            this.SUPPLIERCOLORNAME =color;
-            this.SUPPLIERSIZE =s;
-        }
     }
 
 }

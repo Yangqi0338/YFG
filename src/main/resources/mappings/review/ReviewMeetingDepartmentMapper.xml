@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.base.sbc.module.sample.mapper.PreProductionSampleMapper">
+<mapper namespace="com.base.sbc.module.review.mapper.ReviewMeetingDepartmentMapper">
     <!--
-        产前样
-        创建人：your name
-        邮箱：your email
-        创建时间：2023-7-18 11:04:06
+        评审会-部门员工信息表
+        创建人：tzy
+        邮箱：974849633@qq.com
+        创建时间：2023-8-14 17:06:34
         版本号：1.0
       -->
 

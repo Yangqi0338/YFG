@@ -1,5 +1,6 @@
 package com.base.sbc.module.patternmaking.dto;
 
+import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,7 +16,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("打版管理任务查询dto PatternMakingTaskSearchDto ")
-public class PatternMakingTaskSearchDto {
+public class PatternMakingTaskSearchDto extends Page {
 
     @ApiModelProperty(value = "关键字筛选", example = "1")
     private String search;
@@ -42,4 +43,20 @@ public class PatternMakingTaskSearchDto {
 
     @ApiModelProperty(value = "黑单(0:排除黑单数据,1只查黑单数据,空：都查)", example = "1")
     private String isBlackList;
+
+    /**
+     * 打版状态:0待接收,1已接受,2进行中,3完成
+     */
+    @ApiModelProperty(value = "打版状态:0待接收,1已接受,2进行中,3完成")
+    private String patternStatus;
+    /**
+     * 裁剪状态:0待接收,1已接受,2进行中,3完成
+     */
+    @ApiModelProperty(value = "裁剪状态:0待接收,1已接受,2进行中,3完成")
+    private String cuttingStatus;
+    /**
+     * 车缝状态:0待接收,1已接受,2进行中,3完成
+     */
+    @ApiModelProperty(value = "车缝状态:0待接收,1已接受,2进行中,3完成")
+    private String sewingStatus;
 }

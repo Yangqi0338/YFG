@@ -9,7 +9,9 @@ package com.base.sbc.module.purchase.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.purchase.entity.WarehousingOrder;
-/** 
+import org.apache.ibatis.annotations.Param;
+
+/**
  * 类描述：入库单 dao类
  * @address com.base.sbc.module.purchase.dao.WarehousingOrderDao
  * @author tzy  
@@ -19,9 +21,6 @@ import com.base.sbc.module.purchase.entity.WarehousingOrder;
  */
 @Mapper
 public interface WarehousingOrderMapper extends BaseMapper<WarehousingOrder> {
-// 自定义方法区 不替换的区域【other_start】
+    String selectMaxCodeByCompany(@Param("companyCode") String companyCode);
 
-
-
-// 自定义方法区 不替换的区域【other_end】
 }

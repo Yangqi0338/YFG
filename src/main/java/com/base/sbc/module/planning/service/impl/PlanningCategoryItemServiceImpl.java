@@ -9,6 +9,7 @@ package com.base.sbc.module.planning.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -61,8 +62,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.text.MessageFormat;
-import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -258,13 +257,13 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         List<String> textFormats = new ArrayList<>(12);
         data.getValueMap().forEach((key, val) -> {
             if (BaseConstant.FLOWING.equals(key)) {
-                textFormats.add("{0}");
+                textFormats.add("(" + val + ")");
             } else {
                 textFormats.add(String.valueOf(val));
             }
             regexps.add(String.valueOf(val));
         });
-        String regexp = "^" + CollUtil.join(regexps, "") + "$";
+        String regexp = "^" + CollUtil.join(regexps, "");
         System.out.println("传过来的正则:" + regexp);
         QueryWrapper qc = new QueryWrapper();
         qc.eq(COMPANY_CODE, userCompany);
@@ -276,14 +275,13 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         }
         // 替换,保留流水号
         String formatStr = CollUtil.join(textFormats, "");
-        MessageFormat mf = new MessageFormat(formatStr);
         try {
-            Object[] parse = mf.parse(maxCode);
-            if (parse != null && parse.length > 0) {
-                return String.valueOf(parse[0]);
+            String flowing = ReUtil.get(formatStr, maxCode, 1);
+            if (StrUtil.isNotBlank(flowing)) {
+                return flowing;
             }
             return null;
-        } catch (ParseException e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -781,6 +779,5 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         BeanUtil.copyProperties(style, byId, "createId", "createName", "id", "status", "stylePic");
         updateById(byId);
     }
-
 
 }

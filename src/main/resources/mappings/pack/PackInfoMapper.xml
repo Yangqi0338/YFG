@@ -14,6 +14,7 @@
     <select id="queryByQw" resultType="com.base.sbc.module.pack.vo.PackInfoListVo">
         select *
         from (SELECT p.*,
+                     sd.id as style_id,
                      sd.style_pic,
                      ps.pack_type,
                      ps.enable_flag,

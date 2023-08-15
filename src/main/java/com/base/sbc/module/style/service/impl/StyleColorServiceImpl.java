@@ -11,6 +11,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -100,14 +101,16 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         /*分页*/
         queryDto.setOrderBy("ts.design_no asc,tsc.create_date desc");
         PageHelper.startPage(queryDto);
-        QueryWrapper queryWrapper = new QueryWrapper<>();
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleId()), "tsc.style_id", queryDto.getStyleId());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getIsTrim()), "tsc.is_trim", queryDto.getIsTrim());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getColorSpecification()), "tsc.color_specification", queryDto.getColorSpecification());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getStyleNo()), "tsc.style_no", queryDto.getStyleNo());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getDesignNo()), "ts.design_no", queryDto.getDesignNo());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getColorName()), "tsc.color_name", queryDto.getColorName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getColorCode()), "tsc.color_code", queryDto.getColorCode());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getMeetFlag()), "tsc.meet_flag", queryDto.getMeetFlag());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategoryName()), "ts.prod_category_name", queryDto.getProdCategoryName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSubdivide()), "tsc.subdivide", queryDto.getSubdivide());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getCategoryName()),"ts.prod_category_name",queryDto.getCategoryName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getTaskLevelName()),"ts.task_level_name",queryDto.getTaskLevelName());
@@ -116,8 +119,50 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getTechnicianId()),"ts.technician_id",queryDto.getTechnicianId());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getPlanningSeasonId()),"ts.planning_season_id",queryDto.getPlanningSeasonId());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory1st()),"ts.prod_category1st",queryDto.getProdCategory1st());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory()),"ts.prod_category",queryDto.getProdCategory());
         queryWrapper.in(StringUtils.isNotBlank(queryDto.getStyleStatus()),"ts.status", StringUtils.convertList(queryDto.getStyleStatus()));
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleTypeName()),"ts.style_type_name",queryDto.getStyleTypeName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getHisDesignNo()), "ts.his_design_no", queryDto.getHisDesignNo());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSizeRangeName()),"ts.size_range_name",queryDto.getSizeRangeName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getBandName()),"ts.band_name",queryDto.getBandName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getDesigner()),"ts.designer",queryDto.getDesigner());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getTechnicianName()),"ts.technician_name",queryDto.getTechnicianName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStatus()),"tsc.status",queryDto.getStatus());
+        queryWrapper.between("tsc.create_date",queryDto.getCreateDate());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getCreateName()),"tsc.create_name",queryDto.getCreateName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getNewDate()),"tsc.new_date",queryDto.getNewDate());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getIsTrim()),"tsc.is_luxury",queryDto.getIsTrim());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSubdivideName()),"tsc.subdivide_name",queryDto.getSubdivideName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendMainFabricDate()),"tsc.send_main_fabric_date",queryDto.getSendMainFabricDate());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendBatchingDate1()),"tsc.send_batching_date1",queryDto.getSendBatchingDate1());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendBatchingDate2()),"tsc.send_batching_date2",queryDto.getSendBatchingDate2());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendBatchingDate3()),"tsc.send_batching_date3",queryDto.getSendBatchingDate3());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendSingleDate()),"tsc.send_single_date",queryDto.getSendSingleDate());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDesignDetailDate()),"tsc.design_detail_date",queryDto.getDesignDetailDate());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDesignCorrectDate()),"tsc.design_correct_date",queryDto.getDesignCorrectDate());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductSubdivideName()),"tsc.product_subdivide_name",queryDto.getProductSubdivideName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getPrincipalStyle()),"tsc.principal_style",queryDto.getPrincipalStyle());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getPrincipalStyleNo()),"tsc.principal_style_no",queryDto.getPrincipalStyleNo());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getAccessory()),"tsc.accessory",queryDto.getAccessory());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getAccessoryNo()),"tsc.accessory_no",queryDto.getAccessoryNo());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSenderDesignerName()),"tsc.sender_designer_name",queryDto.getSenderDesignerName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getMerchDesignName()),"ts.merch_design_name",queryDto.getMerchDesignName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getBom()),"tsc.bom",queryDto.getBom());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getBomStatus()),"tsc.bom_status",queryDto.getBomStatus());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSalesTypeName()),"tsc.sales_type_name",queryDto.getSalesTypeName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getTagPrice()),"tsc.tag_price",queryDto.getTagPrice());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleFlavourName()),"ts.style_flavour_name",queryDto.getStyleFlavourName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplier()),"tsc.supplier",queryDto.getSupplier());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplier()),"tsc.supplier",queryDto.getSupplier());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplier()),"tsc.supplier",queryDto.getSupplier());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierColor()),"tsc.supplier_color",queryDto.getSupplierColor());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierAbbreviation()),"tsc.supplier_abbreviation",queryDto.getSupplierAbbreviation());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierNo()),"tsc.supplier_no",queryDto.getSupplierNo());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductName()),"tsc.product_name",queryDto.getProductName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDefectiveName()),"tsc.defective_name",queryDto.getDefectiveName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductHangtagConfirm()),"tsp.control_confirm",queryDto.getProductHangtagConfirm());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlConfirm()),"tsp.product_hangtag_confirm",queryDto.getControlConfirm());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlHangtagConfirm()),"tsp.control_hangtag_confirm",queryDto.getControlHangtagConfirm());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getPatternDesignName()),"ts.pattern_design_name",queryDto.getPatternDesignName());
 
         /*获取配色数据*/
         List<StyleColorVo> sampleStyleColorList =new ArrayList<>();
@@ -220,7 +265,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             addRevampStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
-            addRevampStyleColorDto.setStyleNo(getNextCode(addRevampStyleColorDto.getStyleId(), style.getBrand(), style.getYearName(), style.getMonth(), style.getBandName(), style.getProdCategory(), style.getDesignNo(), index++));
+            addRevampStyleColorDto.setStyleNo(getNextCode(addRevampStyleColorDto.getStyleId(), style.getBrand(), style.getYearName(), style.getMonth(), style.getBandName(), style.getProdCategory(), style.getDesignNo(),style.getDesigner(), index++));
         }
         List<StyleColor> styleColorList = BeanUtil.copyToList(list, StyleColor.class);
         saveBatch(styleColorList);
@@ -228,7 +273,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     }
 
     /**
-     * 大货款号生成规则 品牌 + 年份 +月份 + 波段 +品类 +设计款号流水号+颜色标识
+     * 大货款号生成规则 品牌 + 年份 +月份 + 波段 +品类 +设计款号流水号+颜色流水号
      *
      * @param styleId
      * @param brand
@@ -240,7 +285,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
      * @return
      */
 
-    public String getNextCode(String styleId, String brand, String year, String month, String bandName, String category, String designNo, int index) {
+    public String getNextCode(String styleId, String brand, String year, String month, String bandName, String category, String designNo, String designer,int index) {
         if (StrUtil.contains(category, StrUtil.COMMA)) {
             category = getCategory(category);
         }
@@ -253,62 +298,85 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         if (StringUtils.isBlank(brand)) {
             throw new OtherException("款式品牌为空");
         }
-        if (StringUtils.isBlank(year)){
+        if (StringUtils.isBlank(year)) {
             throw new OtherException("款式年份为空");
         }
 
-        String yearOn ="";
+        String yearOn = "";
         try {
 //        获取年份
+            /**
+             * 年份 初始值从2019开始为A依次往后推 超过26年份为A1
+             */
             int initial = Integer.parseInt("2019");
             int year1 = Integer.parseInt(year);
             int ascii = 'A';
             /*超过2044年重新开始*/
-            if(year1 <= 2044){
-                char c = (char) (ascii +  Math.abs(year1 - initial));
-                yearOn =String.valueOf(c);
-            }else {
-                char c1 = (char) (ascii + (year1 - initial) -((year1 - initial)/26)*26 );
-                yearOn =String.valueOf(c1) + (year1 - initial)/26;
+            if (year1 <= 2044) {
+                char c = (char) (ascii + Math.abs(year1 - initial));
+                yearOn = String.valueOf(c);
+            } else {
+                char c1 = (char) (ascii + (year1 - initial) - ((year1 - initial) / 26) * 26);
+                yearOn = String.valueOf(c1) + (year1 - initial) / 26;
             }
             /*判断月份是否是1到九月*/
+            /**
+             * 月份: 超过9的月份为A
+             */
             month = month.replace("0", "");
             if (!month.matches("[1-9]")) {
                 month = month.equals("10") ? "A" : month.equals("11") ? "B" : month.equals("12") ? "C" : "";
             }
 
             // 使用正则表达式匹配字母
+            /**
+             * 波段：使用波段中的字母生产 A1：1 B1：2
+             */
             Pattern pattern = Pattern.compile("[a-z||A-Z]");
             Matcher matcher = pattern.matcher(bandName);
-            String Letter="";
+            String Letter = "";
             // 打印匹配到的字母
             while (matcher.find()) {
-                Letter+=matcher.group();
+                Letter += matcher.group();
             }
-
-            if(!StringUtils.isEmpty(Letter)){
+            if (!StringUtils.isEmpty(Letter)) {
                 Letter = Letter.toUpperCase();
                 char[] charArray = Letter.toCharArray();
                 int char1 = charArray[0];
-                bandName = String.valueOf(char1-64);
-            }else {
-                bandName="";
+                bandName = String.valueOf(char1 - 64);
+            } else {
+                bandName = "";
             }
-            /*流水号*/
-            designNo = designNo.substring(5, 8);
+
+            /*获取款式流水号*/
+            /**
+             *款式流水号： 款式去掉设计师设计师标识 获取后三位字符串
+             */
+            String[] designers = designer.split(",");
+            if (designers == null || designers.length == 0) {
+                throw new OtherException("设计师未缺少编码");
+            }
+            String designNo1 = designNo.replace(designers[1], "");
+            designNo = designNo1.substring(designNo1.length() - 3);
         } catch (Exception e) {
             throw new OtherException("大货编码生成失败");
         }
 //        获取款式下的配色
         int number = baseMapper.getStyleColorNumber(styleId);
-        String styleNo = brand + yearOn + month + bandName + category + designNo + (number + 1 +index);
+        String styleNo = brand + yearOn + month + bandName + category + designNo + (number + 1 + index);
         /*查询编码是否重复*/
-       int i = baseMapper.isStyleNoExist(styleNo);
-       if(i!=0){
-           throw new OtherException("编码重复");
-       }
+        int i = baseMapper.isStyleNoExist(styleNo);
+        if (i != 0) {
+            throw new OtherException("编码重复");
+        }
         return styleNo;
     }
+
+    /**
+     * 获取品类生产的字符
+     * @param categoryName
+     * @return
+     */
     private String getCategory(String categoryName) {
         if (StrUtil.isBlank(categoryName)) {
             throw new OtherException("未选择品类,不能生成设计款号");
@@ -575,6 +643,26 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
         }
+        return true;
+    }
+
+    /**
+     * 方法描述 配色解锁
+     *
+     * @param verificationDto
+     * @return
+     */
+    @Override
+    public Boolean unlockStyleColor(VerificationDto verificationDto) {
+        if(StringUtils.isBlank(verificationDto.getScmSendFlag())){
+            throw new OtherException("SCM下发状态为空");
+        }
+        StyleColor styleColor = baseMapper.selectById(verificationDto.getId());
+        if(ObjectUtils.isEmpty(styleColor)){
+            throw new OtherException("id错误无数据");
+        }
+        styleColor.setScmSendFlag(verificationDto.getScmSendFlag());
+        baseMapper.updateById(styleColor);
         return true;
     }
     /** 自定义方法区 不替换的区域【other_end】 **/

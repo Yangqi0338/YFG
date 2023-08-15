@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.review.mapper.ReviewMeetingLogDetailMapper">
+    <!--
+        评审会-会议记录-明细
+        创建人：tzy
+        邮箱：974849633@qq.com
+        创建时间：2023-8-14 17:06:44
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <select id="selectByLogId" resultType="com.base.sbc.module.review.entity.ReviewMeetingLogDetail" parameterType="java.util.Map">
+        select * from t_review_meeting_log_detail where meeting_log_id = #{logId}
+    </select>
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>

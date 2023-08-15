@@ -95,8 +95,10 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public PackBomVo saveByDto(PackBomDto dto) {
+        dto.calculateCost();
         PackBom packBom = BeanUtil.copyProperties(dto, PackBom.class);
         PackBomVersion version = packBomVersionService.checkVersion(dto.getBomVersionId());
+
         // 新增
         if (CommonUtils.isInitId(packBom.getId())) {
             packBom.setId(null);
@@ -152,6 +154,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                 }
                 packBom.setCode(version.getVersion() + StrUtil.DASHED + (++versionBomCount));
             }
+            packBom.calculateCost();
         }
         QueryWrapper<PackBom> bomQw = new QueryWrapper<>();
         bomQw.eq("bom_version_id", version.getId());

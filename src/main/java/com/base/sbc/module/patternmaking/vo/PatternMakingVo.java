@@ -2,7 +2,6 @@ package com.base.sbc.module.patternmaking.vo;
 
 import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -40,7 +39,7 @@ public class PatternMakingVo extends PatternMaking {
     private List<AttachmentVo> attachmentList;
 
     @ApiModelProperty(value = "节点信息list")
-    private List<NodeStatus> nodeStatusList;
+    private List<NodeStatusVo> nodeStatusList;
     @ApiModelProperty(value = "节点信息Map")
-    private Map<String, NodeStatus> nodeStatus;
+    private Map<String, NodeStatusVo> nodeStatus;
 }

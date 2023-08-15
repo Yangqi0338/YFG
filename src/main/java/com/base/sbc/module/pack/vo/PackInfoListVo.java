@@ -29,6 +29,9 @@ public class PackInfoListVo extends PackInfoStatusVo {
 
     @ApiModelProperty(value = "id")
     private String id;
+
+    @ApiModelProperty(value = "款式id")
+    private String styleId;
     /**
      * 设计款号
      */

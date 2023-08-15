@@ -157,18 +157,18 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
             qw.eq("data_id", id);
             qw.eq("del_flag", BaseGlobal.NO);
             qw.orderByAsc("start_date");
-            List<NodeStatus> list = list(qw);
-            if (CollUtil.isEmpty(list)) {
+            List<NodeStatus> beanList = list(qw);
+            if (CollUtil.isEmpty(beanList)) {
                 return;
             }
-
-            Map<String, NodeStatus> nodeStatus = list.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> {
+            List<NodeStatusVo> voList = BeanUtil.copyToList(beanList, NodeStatusVo.class);
+            Map<String, NodeStatusVo> nodeStatus = voList.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> {
                 if (DateUtil.compare(b.getStartDate(), a.getStartDate()) > 0) {
                     return b;
                 }
                 return a;
             }));
-            BeanUtil.setProperty(obj, listKey, list);
+            BeanUtil.setProperty(obj, listKey, voList);
             BeanUtil.setProperty(obj, mapKey, nodeStatus);
         } catch (Exception e) {
             log.error("设置节点状态信息失败", e);

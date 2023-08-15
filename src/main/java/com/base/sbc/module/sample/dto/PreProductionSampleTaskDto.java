@@ -2,9 +2,7 @@ package com.base.sbc.module.sample.dto;
 
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * 类描述：产前样-任务
@@ -19,9 +17,5 @@ import org.hibernate.validator.constraints.NotBlank;
 @ApiModel("产前样-任务 PreProductionSampleTaskDto")
 public class PreProductionSampleTaskDto extends PreProductionSampleTask {
 
-
-    @ApiModelProperty(value = "产前样id")
-    @NotBlank(message = "产前样id不能为空")
-    private String preProductionSampleId;
 
 }

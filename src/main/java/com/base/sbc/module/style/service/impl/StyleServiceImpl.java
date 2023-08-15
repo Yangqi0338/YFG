@@ -351,6 +351,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (style == null) {
             throw new OtherException("样衣数据不存在,请先保存");
         }
+        if (StrUtil.equals(style.getConfirmStatus(), BaseGlobal.STOCK_STATUS_WAIT_CHECK)) {
+            throw new OtherException("当前数据已在审批中");
+        }
         style.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);

@@ -89,6 +89,8 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
             queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getStatus()), "lr.status", queryDto.getStatus());
             queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCode()), "lr.code", queryDto.getCode());
             queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCareLabel()),"lr.care_label",queryDto.getCareLabel());
+            queryWrapper.like(StringUtils.isNotEmpty(queryDto.getDescription()),"lr.description",queryDto.getDescription());
+
             /*查询基础资料-洗涤图标与温馨提示数据*/
             List<BasicsdatumLavationReminderVo> basicsdatumLavationReminderList = baseMapper.getLavationReminderList(queryWrapper);
             PageInfo<BasicsdatumLavationReminderVo> pageInfo = new PageInfo<>(basicsdatumLavationReminderList);

@@ -20,11 +20,11 @@ import java.util.Date;
 /**
  * 类描述：产前样-任务 实体类
  *
- * @author your name
+ * @author lxl
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.PreProductionSampleTask
- * @email your email
- * @date 创建时间：2023-7-18 16:19:49
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-8-15 11:37:53
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -50,20 +50,30 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
     /**
-     * 产前样id
+     * 款式id
      */
-    @ApiModelProperty(value = "产前样id")
-    private String preProductionSampleId;
+    @ApiModelProperty(value = "款式id")
+    private String styleId;
+    /**
+     * 资料包id
+     */
+    @ApiModelProperty(value = "资料包id")
+    private String packInfoId;
+    /**
+     * 工艺师id
+     */
+    @ApiModelProperty(value = "工艺师id")
+    private String technologistId;
     /**
      * 工艺师名称
      */
     @ApiModelProperty(value = "工艺师名称")
     private String technologistName;
     /**
-     * 工艺师id
+     * 当前状态
      */
-    @ApiModelProperty(value = "工艺师id")
-    private String technologistId;
+    @ApiModelProperty(value = "当前状态")
+    private String status;
     /**
      * 放码师id
      */
@@ -157,10 +167,75 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
     @ApiModelProperty(value = "当前节点")
     private String node;
     /**
-     * 当前状态
+     * 紧急程度
      */
-    @ApiModelProperty(value = "当前状态")
-    private String status;
+    @ApiModelProperty(value = "紧急程度")
+    private String urgency;
+    /**
+     * 是否齐套:0未齐套，1已齐套
+     */
+    @ApiModelProperty(value = "是否齐套:0未齐套，1已齐套")
+    private String kitting;
+    /**
+     * 后技术备注说明
+     */
+    @ApiModelProperty(value = "后技术备注说明")
+    private String techRemarks;
+    /**
+     * 正确样是否接收:(0未接收,1已接收)
+     */
+    @ApiModelProperty(value = "正确样是否接收:(0未接收,1已接收)")
+    private String correctSampleReceivedFlag;
+    /**
+     * 样衣是否接收:(0未接收,1已接收)
+     */
+    @ApiModelProperty(value = "样衣是否接收:(0未接收,1已接收)")
+    private String receiveSample;
+    /**
+     * 设计下明细单时间
+     */
+    @ApiModelProperty(value = "设计下明细单时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date designDetailTime;
+    /**
+     * 计控接收明细单时间
+     */
+    @ApiModelProperty(value = "计控接收明细单时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date planningReceiveTime;
+    /**
+     * 工艺接收明细单时间
+     */
+    @ApiModelProperty(value = "工艺接收明细单时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date techReceiveTime;
+    /**
+     * 大货接收明细单时间
+     */
+    @ApiModelProperty(value = "大货接收明细单时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date productionReceiveTime;
+    /**
+     * 品控接收明细单时间
+     */
+    @ApiModelProperty(value = "品控接收明细单时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date qcReceiveTime;
+    /**
+     * 面辅料信息
+     */
+    @ApiModelProperty(value = "面辅料信息")
+    private String materialInfo;
+    /**
+     * 裁剪状态:0待接收,1已接收,2进行中,3完成
+     */
+    @ApiModelProperty(value = "裁剪状态:0待接收,1已接收,2进行中,3完成")
+    private String cuttingStatus;
+    /**
+     * 车缝状态:0待接收,1已接收,2进行中,3完成
+     */
+    @ApiModelProperty(value = "车缝状态:0待接收,1已接收,2进行中,3完成")
+    private String sewingStatus;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
