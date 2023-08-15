@@ -5,7 +5,7 @@
         评审会
         创建人：tzy
         邮箱：974849633@qq.com
-        创建时间：2023-8-14 17:06:29
+        创建时间：2023-8-15 14:31:18
         版本号：1.0
       -->
 
@@ -46,6 +46,43 @@
         ${ ew.customSqlSegment}
     </select>
 
+    <select id="selectNeedMeMeeting" resultType="com.base.sbc.module.review.entity.ReviewMeeting">
+        select
+            m.id,
+            m.company_code,
+            m.status,
+            m.create_id,
+            m.create_name,
+            m.create_date,
+            m.update_id,
+            m.update_name,
+            m.update_date,
+            m.del_flag,
+            m.remarks,
+            m.code,
+            m.picture_url,
+            m.meeting_name,
+            m.speaker_id,
+            m.speaker_name,
+            m.meeting_type,
+            m.customer,
+            m.meeting_date,
+            m.style_no,
+            m.plate_bill_code,
+            m.meeting_address,
+            m.meeting_no,
+            m.is_pass,
+            m.review_result,
+            m.notifier_id,
+            m.notifier_name,
+            m.meeting_summarize,
+            t.name as meeting_type_name
+            from t_review_meeting as m
+            left join t_review_meeting_type as t on m.meeting_type = t.id
+            LEFT JOIN t_review_meeting_department as d on m.id = d.meeting_id
+            ${ ew.customSqlSegment}
+    </select>
+
     <select id="selectMaxCodeByCompany" resultType="java.lang.String" parameterType="java.lang.String">
         select Max(code) code from t_review_meeting
         where company_code = #{companyCode}
@@ -53,3 +90,4 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
+

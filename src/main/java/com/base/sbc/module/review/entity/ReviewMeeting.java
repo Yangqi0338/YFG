@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.review.entity.ReviewMeeting
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-14 17:06:30
+ * @date 创建时间：2023-8-15 14:31:18
  * @version 1.0
  */
 @Data
@@ -69,6 +69,9 @@ public class ReviewMeeting extends BaseDataEntity<String> {
     /** 主讲人名称 */
     @ApiModelProperty(value = "主讲人名称"  )
     private String speakerName;
+    /** 父级会议类型 */
+    @ApiModelProperty(value = "父级会议类型"  )
+    private String parentMeetingType;
     /** 会议类型 */
     @ApiModelProperty(value = "会议类型"  )
     private String meetingType;
@@ -114,3 +117,4 @@ public class ReviewMeeting extends BaseDataEntity<String> {
     private String meetingSummarize;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+

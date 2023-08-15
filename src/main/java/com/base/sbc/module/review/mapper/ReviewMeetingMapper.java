@@ -27,5 +27,7 @@ import java.util.List;
 public interface ReviewMeetingMapper extends BaseMapper<ReviewMeeting> {
     List<ReviewMeeting> selectMeetingRelation(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 
+    List<ReviewMeeting> selectNeedMeMeeting(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
+
     String selectMaxCodeByCompany(@Param("companyCode") String companyCode);
 }

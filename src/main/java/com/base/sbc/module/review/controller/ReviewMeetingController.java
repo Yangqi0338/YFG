@@ -12,6 +12,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserCompanyUtils;
@@ -72,6 +73,38 @@ public class ReviewMeetingController extends BaseController{
 			qc.orderByDesc("m.create_date");
 		}
 		reviewMeetingMapper.selectMeetingRelation(qc);
+		PageInfo<ReviewMeeting> pageList = pages.toPageInfo();
+		if (CollectionUtil.isNotEmpty(pageList.getList())) {
+			return selectSuccess(pageList);
+		}
+		return selectNotFound();
+	}
+
+	@ApiOperation(value="查询该用户参与的会议", notes="")
+	@GetMapping("/selectNeedMeMeeting")
+	public ApiResult selectNeedMeMeeting(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode, ReviewMeetingPageDTO page, String typeIds) {
+		UserCompany userCompany = userCompanyUtils.getCompanyUser(user);
+
+		com.github.pagehelper.Page<ReviewMeeting> pages = PageHelper.startPage(page.getPageNum(), page.getPageSize());
+		BaseQueryWrapper<ReviewMeeting> qc = new BaseQueryWrapper<>();
+		qc.eq("m.company_code", companyCode);
+		if(StringUtils.isNoneBlank(typeIds)) {
+			qc.in("m.meeting_type", StringUtils.convertList(typeIds));
+		}
+		if (page.getStartDate() != null && page.getEndDate() != null) {
+			qc.between("m.meeting_date", page.getStartDate(), page.getEndDate());
+		}
+
+		if(userCompany != null){
+			qc.eq("d.staff_id", userCompany.getUserId());
+		}
+
+		if (!StringUtils.isEmpty(page.getOrderBy())){
+			qc.orderByAsc(page.getOrderBy());
+		}else {
+			qc.orderByDesc("m.create_date");
+		}
+		reviewMeetingMapper.selectNeedMeMeeting(qc);
 		PageInfo<ReviewMeeting> pageList = pages.toPageInfo();
 		if (CollectionUtil.isNotEmpty(pageList.getList())) {
 			return selectSuccess(pageList);
