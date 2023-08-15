@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.review.mapper.ReviewMeetingLogMapper">
+    <!--
+        评审会-会议记录
+        创建人：tzy
+        邮箱：974849633@qq.com
+        创建时间：2023-8-14 17:06:39
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <select id="selectMeetingLogRelation" resultMap="meetingLogRelation">
+        select * from t_review_meeting_log
+        ${ ew.customSqlSegment}
+    </select>
+
+    <resultMap id="meetingLogRelation" type="com.base.sbc.module.review.entity.ReviewMeetingLog" >
+        <id column="id" property="id"/>
+        <result column="review_meeting_id" property="reviewMeetingId"/>
+        <result column="review_dimension_id" property="reviewDimensionId"/>
+        <result column="review_dimension" property="reviewDimension"/>
+        <result column="is_pass" property="isPass"/>
+        <result column="meeting_minutes" property="meetingMinutes"/>
+        <result column="person_charge_id" property="personChargeId"/>
+        <result column="person_charge" property="personCharge"/>
+        <result column="follow_up_minutes" property="followUpMinutes"/>
+        <result column="type" property="type"/>
+        <association property="reviewMeetingLogFile" javaType="com.base.sbc.module.review.entity.ReviewMeetingLogFile"
+                     select="com.base.sbc.module.review.mapper.ReviewMeetingLogFileMapper.selectByLogId" column="{logId=id}">
+        </association>
+        <collection property="meetingLogDetailList" ofType="com.base.sbc.module.review.entity.ReviewMeetingLogDetail"
+                    select="com.base.sbc.module.review.mapper.ReviewMeetingLogDetailMapper.selectByLogId" column="{logId=id}" fetchType="eager">
+        </collection>
+    </resultMap>
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>

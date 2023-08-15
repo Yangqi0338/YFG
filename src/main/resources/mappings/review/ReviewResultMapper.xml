@@ -10,7 +10,7 @@
       -->
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
-    <select id="selectResultVo" resultType="com.base.sbc.module.review.vo.ReviewResultVo" parameterType="queryCondition">
+    <select id="selectResultVo" resultType="com.base.sbc.module.review.vo.ReviewResultVo">
         select
         r.id,
         r.company_code,

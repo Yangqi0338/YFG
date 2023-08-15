@@ -55,7 +55,7 @@ public class ReviewMeetingTypeServiceImpl extends BaseServiceImpl<ReviewMeetingT
         reviewMeetingType.insertInit(userCompany);
         reviewMeetingType.setId(id);
         reviewMeetingType.setCompanyCode(companyCode);
-        reviewMeetingType.setStatus("1");
+//        reviewMeetingType.setStatus("1");
         reviewMeetingType.setDelFlag("0");
 
         boolean i = save(reviewMeetingType);
