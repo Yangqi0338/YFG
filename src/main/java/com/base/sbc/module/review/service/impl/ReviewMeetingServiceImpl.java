@@ -127,7 +127,7 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
         reviewMeeting.setDelFlag("0");
         reviewMeeting.setStatus("0");
         String maxCode = reviewMeetingMapper.selectMaxCodeByCompany(companyCode);
-        String code = "PSH" + CodeGen.getCode(maxCode != null ? maxCode : CodeGen.BEGIN_NUM);
+        String code = "PSH" + CodeGen.getBoxCode(3, maxCode != null ? maxCode : CodeGen.BEGIN_NUM);
         String meetingNo = redisCodeGenUtils.getCode_MMDD00(companyCode, "reviewMeetingTwo", "",true, false);
         reviewMeeting.setCode(code);
         reviewMeeting.setMeetingNo(meetingNo);
