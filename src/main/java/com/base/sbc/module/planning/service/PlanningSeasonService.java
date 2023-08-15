@@ -13,10 +13,7 @@ import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
-import com.base.sbc.module.planning.vo.PlanningSeasonVo;
-import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
-import com.base.sbc.module.planning.vo.PlanningSummaryVo;
-import com.base.sbc.module.planning.vo.YearSeasonBandVo;
+import com.base.sbc.module.planning.vo.*;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -132,5 +129,12 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
 
 
     List<YearSeasonBandVo> queryYearBrandTree(YearSeasonBandVo vo);
+
+    /**
+     * 通过年份获取产品季下拉列表
+     * @param year
+     * @return
+     */
+    List<ProductSeasonSelectVO> getByYear(String year);
 
 }

@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
@@ -12,6 +13,7 @@ import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -28,12 +30,14 @@ import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.*;
 import com.base.sbc.module.style.vo.ChartBarVo;
+import com.beust.jcommander.internal.Lists;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -338,6 +342,17 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             return result;
         }
 
+    }
+
+    @Override
+    public List<ProductSeasonSelectVO> getByYear(String year) {
+        LambdaQueryWrapper<PlanningSeason> queryWrapper = new QueryWrapper<PlanningSeason>()
+                .lambda()
+                .eq(PlanningSeason::getCompanyCode, getCompanyCode())
+                .eq(PlanningSeason::getYear, year)
+                .select(PlanningSeason::getId, PlanningSeason::getName);
+        List<PlanningSeason> planningSeasons = super.list(queryWrapper);
+        return CollectionUtils.isEmpty(planningSeasons) ? Lists.newArrayList() : CopyUtil.copy(planningSeasons, ProductSeasonSelectVO.class);
     }
 
 
