@@ -6,6 +6,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmService;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.UserCompany;
@@ -246,5 +247,13 @@ public class PlanningController extends BaseController {
     public List<FieldManagementVo> querySeatDimension(String id, String isSelected) {
         return planningCategoryItemService.querySeatDimension(id, isSelected);
     }
+
+    @ApiOperation(value = "通过年份获取产品季下拉列表", notes = "")
+    @GetMapping("/getByYear")
+    public ApiResult getByYear(@Valid @NotBlank(message = "年份不可为空") String year) {
+        return selectSuccess(planningSeasonService.getByYear(year));
+    }
+
+
 
 }

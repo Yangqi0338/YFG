@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.planning.mapper.ColorPlanningMapper">
+    <!--
+        颜色企划
+        创建人：your name
+        邮箱：your email
+        创建时间：2023-8-15 13:58:50
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+
+    <select id="getColorPlanningList" resultType="com.base.sbc.module.planning.vo.ColorPlanningListVO">
+        SELECT
+        id,
+        create_date,
+        create_name,
+        remarks,
+        STATUS,
+        color_planning_name,
+        brand,
+        YEAR,
+        season,
+        planning_season,
+        confirm_status
+        FROM
+        t_color_planning
+        <where>
+            del_flag = '0'
+            AND company_code = #{dto.companyCode}
+            <if test="dto.search != null and dto.search != ''">
+                AND color_planning_name LIKE concat( '%',#{dto.search},'%' )
+            </if>
+            <if test="dto.yearCode != null and dto.yearCode != ''">
+                AND year_code = #{yearCode}
+            </if>
+            <if test="dto.brandCode != null and dto.brandCode != ''">
+                AND brand_code = #{dto.brandCode}
+            </if>
+        </where>
+        order by create_date desc
+    </select>
+
+    <select id="getDetailById" resultType="com.base.sbc.module.planning.vo.ColorPlanningVO">
+        SELECT id,
+        remarks,
+        STATUS,
+        color_planning_name,
+        brand_code,
+        brand,
+        YEAR,
+        year_code,
+        season,
+        season_code,
+        planning_season_id,
+        planning_season,
+        confirm_status
+        FROM t_color_planning
+        <where>
+            del_flag = '0'
+            AND id = #{id}
+        </where>
+    </select>
+
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>
+
