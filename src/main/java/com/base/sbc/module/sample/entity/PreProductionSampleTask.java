@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.PreProductionSampleTask
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-14 17:10:21
+ * @date 创建时间：2023-8-15 11:37:53
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -226,6 +226,16 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "面辅料信息")
     private String materialInfo;
+    /**
+     * 裁剪状态:0待接收,1已接收,2进行中,3完成
+     */
+    @ApiModelProperty(value = "裁剪状态:0待接收,1已接收,2进行中,3完成")
+    private String cuttingStatus;
+    /**
+     * 车缝状态:0待接收,1已接收,2进行中,3完成
+     */
+    @ApiModelProperty(value = "车缝状态:0待接收,1已接收,2进行中,3完成")
+    private String sewingStatus;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

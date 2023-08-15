@@ -387,6 +387,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
+        qw.eq(StrUtil.isNotBlank(dto.getPatternStatus()), "p.pattern_status", dto.getPatternStatus());
+        qw.eq(StrUtil.isNotBlank(dto.getCuttingStatus()), "p.cutting_status", dto.getCuttingStatus());
+        qw.eq(StrUtil.isNotBlank(dto.getSewingStatus()), "p.sewing_status", dto.getSewingStatus());
+
         if (StrUtil.isNotBlank(dto.getIsBlackList())) {
             if (StrUtil.equals(dto.getIsBlackList(), BasicNumber.ONE.getNumber())) {
                 //只查询黑单
