@@ -265,7 +265,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             addRevampStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
-            addRevampStyleColorDto.setStyleNo(getNextCode(addRevampStyleColorDto.getStyleId(), style.getBrand(), style.getYearName(), style.getMonth(), style.getBandName(), style.getProdCategory(), style.getDesignNo(), index++));
+            addRevampStyleColorDto.setStyleNo(getNextCode(addRevampStyleColorDto.getStyleId(), style.getBrand(), style.getYearName(), style.getMonth(), style.getBandName(), style.getProdCategory(), style.getDesignNo(),style.getDesigner(), index++));
         }
         List<StyleColor> styleColorList = BeanUtil.copyToList(list, StyleColor.class);
         saveBatch(styleColorList);
@@ -273,7 +273,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     }
 
     /**
-     * 大货款号生成规则 品牌 + 年份 +月份 + 波段 +品类 +设计款号流水号+颜色标识
+     * 大货款号生成规则 品牌 + 年份 +月份 + 波段 +品类 +设计款号流水号+颜色流水号
      *
      * @param styleId
      * @param brand
@@ -285,7 +285,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
      * @return
      */
 
-    public String getNextCode(String styleId, String brand, String year, String month, String bandName, String category, String designNo, int index) {
+    public String getNextCode(String styleId, String brand, String year, String month, String bandName, String category, String designNo, String designer,int index) {
         if (StrUtil.contains(category, StrUtil.COMMA)) {
             category = getCategory(category);
         }
@@ -298,62 +298,85 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         if (StringUtils.isBlank(brand)) {
             throw new OtherException("款式品牌为空");
         }
-        if (StringUtils.isBlank(year)){
+        if (StringUtils.isBlank(year)) {
             throw new OtherException("款式年份为空");
         }
 
-        String yearOn ="";
+        String yearOn = "";
         try {
 //        获取年份
+            /**
+             * 年份 初始值从2019开始为A依次往后推 超过26年份为A1
+             */
             int initial = Integer.parseInt("2019");
             int year1 = Integer.parseInt(year);
             int ascii = 'A';
             /*超过2044年重新开始*/
-            if(year1 <= 2044){
-                char c = (char) (ascii +  Math.abs(year1 - initial));
-                yearOn =String.valueOf(c);
-            }else {
-                char c1 = (char) (ascii + (year1 - initial) -((year1 - initial)/26)*26 );
-                yearOn =String.valueOf(c1) + (year1 - initial)/26;
+            if (year1 <= 2044) {
+                char c = (char) (ascii + Math.abs(year1 - initial));
+                yearOn = String.valueOf(c);
+            } else {
+                char c1 = (char) (ascii + (year1 - initial) - ((year1 - initial) / 26) * 26);
+                yearOn = String.valueOf(c1) + (year1 - initial) / 26;
             }
             /*判断月份是否是1到九月*/
+            /**
+             * 月份: 超过9的月份为A
+             */
             month = month.replace("0", "");
             if (!month.matches("[1-9]")) {
                 month = month.equals("10") ? "A" : month.equals("11") ? "B" : month.equals("12") ? "C" : "";
             }
 
             // 使用正则表达式匹配字母
+            /**
+             * 波段：使用波段中的字母生产 A1：1 B1：2
+             */
             Pattern pattern = Pattern.compile("[a-z||A-Z]");
             Matcher matcher = pattern.matcher(bandName);
-            String Letter="";
+            String Letter = "";
             // 打印匹配到的字母
             while (matcher.find()) {
-                Letter+=matcher.group();
+                Letter += matcher.group();
             }
-
-            if(!StringUtils.isEmpty(Letter)){
+            if (!StringUtils.isEmpty(Letter)) {
                 Letter = Letter.toUpperCase();
                 char[] charArray = Letter.toCharArray();
                 int char1 = charArray[0];
-                bandName = String.valueOf(char1-64);
-            }else {
-                bandName="";
+                bandName = String.valueOf(char1 - 64);
+            } else {
+                bandName = "";
             }
-            /*流水号*/
-            designNo = designNo.substring(5, 8);
+
+            /*获取款式流水号*/
+            /**
+             *款式流水号： 款式去掉设计师设计师标识 获取后三位字符串
+             */
+            String[] designers = designer.split(",");
+            if (designers == null || designers.length == 0) {
+                throw new OtherException("设计师未缺少编码");
+            }
+            String designNo1 = designNo.replace(designers[1], "");
+            designNo = designNo1.substring(designNo1.length() - 3);
         } catch (Exception e) {
             throw new OtherException("大货编码生成失败");
         }
 //        获取款式下的配色
         int number = baseMapper.getStyleColorNumber(styleId);
-        String styleNo = brand + yearOn + month + bandName + category + designNo + (number + 1 +index);
+        String styleNo = brand + yearOn + month + bandName + category + designNo + (number + 1 + index);
         /*查询编码是否重复*/
-       int i = baseMapper.isStyleNoExist(styleNo);
-       if(i!=0){
-           throw new OtherException("编码重复");
-       }
+        int i = baseMapper.isStyleNoExist(styleNo);
+        if (i != 0) {
+            throw new OtherException("编码重复");
+        }
         return styleNo;
     }
+
+    /**
+     * 获取品类生产的字符
+     * @param categoryName
+     * @return
+     */
     private String getCategory(String categoryName) {
         if (StrUtil.isBlank(categoryName)) {
             throw new OtherException("未选择品类,不能生成设计款号");
