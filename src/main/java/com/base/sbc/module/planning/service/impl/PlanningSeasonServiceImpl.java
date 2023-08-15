@@ -228,6 +228,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         QueryWrapper qw = new QueryWrapper();
         qw.eq(StrUtil.isNotBlank(userCompany), "COMPANY_CODE", userCompany);
         qw.eq("del_flag", BaseGlobal.NO);
+        qw.orderByDesc("name");
         return getBaseMapper().getPlanningSeasonOptions(qw);
     }
 
