@@ -248,6 +248,8 @@ public class SmpOpenMaterialDto {
         basicsdatumMaterial.setCategoryId(ProductTypeID);
         basicsdatumMaterial.setMaterialCodeName(Code+MaterialName);
         basicsdatumMaterial.setCategoryName(ProductType);
+        basicsdatumMaterial.setMaterialCategoryName(ProductType);
+        basicsdatumMaterial.setMaterialCategory(ProductTypeID);
         basicsdatumMaterial.setIngredientSay(c8MaterialAttrCompositionComment);
         basicsdatumMaterial.setProcessRequire(finish);
         basicsdatumMaterial.setAuxiliaryMaterial(width);
