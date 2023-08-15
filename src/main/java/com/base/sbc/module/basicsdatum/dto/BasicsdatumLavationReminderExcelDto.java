@@ -25,13 +25,17 @@ public class BasicsdatumLavationReminderExcelDto  {
 
     private String id;
     /** 编码 */
-    @ApiModelProperty(value = "编码"  )
+    @ApiModelProperty(value = "洗标编码"  )
     @Excel(name = "洗标编码")
     private String code;
-    /** 类别 */
-    @ApiModelProperty(value = "洗标"  )
-    @Excel(name = "洗标")
-    private String careLabel;
+    /** 洗涤图标名称 */
+    @ApiModelProperty(value = "洗标名称"  )
+    @Excel(name = "洗标名称")
+    private String  name;
+
+    @ApiModelProperty(value = "图标编码"  )
+    @Excel(name = "图标编码")
+    private String washIconCode;
     /** 贮藏要求 */
     @ApiModelProperty(value = "描述"  )
     @Excel(name = "描述")
@@ -42,8 +46,8 @@ public class BasicsdatumLavationReminderExcelDto  {
     private String washType;
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
-    @Excel(name = "图标",type = 2)
-    private String picture;
+    @Excel(name = "图片",type = 2)
+    private String url;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     @Excel(name  = "可用的" , replace = {"true_0", "false_1"} )

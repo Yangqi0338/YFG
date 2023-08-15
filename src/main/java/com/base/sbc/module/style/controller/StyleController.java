@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.List;
 
 /**
@@ -147,13 +146,13 @@ public class StyleController {
 
     /**
      * 验证款式下的尺码是否可修改
-     * @param verificationDto
+     * @param publicStyleColorDto
      * @return
      */
     @ApiOperation(value = "验证尺码组是否可修改")
     @PostMapping("/checkColorSize")
-    public Boolean checkColorSize( @Valid @RequestBody VerificationDto verificationDto) {
-        return styleService.checkColorSize(verificationDto);
+    public Boolean checkColorSize( @Valid @RequestBody PublicStyleColorDto publicStyleColorDto) {
+        return styleService.checkColorSize(publicStyleColorDto);
     }
 
 }

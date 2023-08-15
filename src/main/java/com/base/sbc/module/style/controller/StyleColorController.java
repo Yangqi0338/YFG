@@ -146,14 +146,14 @@ public class StyleColorController {
 
 	@ApiOperation(value = "验证配色是否可修改")
 	@PostMapping("/verification")
-	public Boolean verification( @Valid @RequestBody VerificationDto verificationDto) {
-		return styleColorService.verification(verificationDto.getId());
+	public Boolean verification( @Valid @RequestBody PublicStyleColorDto publicStyleColorDto) {
+		return styleColorService.verification(publicStyleColorDto.getId());
 	}
 
 	@ApiOperation(value = "解锁配色")
 	@PostMapping("/unlockStyleColor")
-	public Boolean unlockStyleColor( @Valid @RequestBody VerificationDto verificationDto) {
-		return styleColorService.unlockStyleColor(verificationDto);
+	public Boolean unlockStyleColor( @Valid @RequestBody PublicStyleColorDto publicStyleColorDto) {
+		return styleColorService.unlockStyleColor(publicStyleColorDto);
 	}
 
 }

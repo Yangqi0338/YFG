@@ -24,7 +24,6 @@ import com.base.sbc.module.style.vo.StyleBoardCategorySummaryVo;
 import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.PageInfo;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -168,10 +167,10 @@ public interface StyleService extends BaseService<Style> {
 
     /**
      * 方法描述 验证款式号型类型是否可修改
-     * @param verificationDto
+     * @param publicStyleColorDto
      * @return
      */
-    Boolean  checkColorSize(VerificationDto verificationDto);
+    Boolean  checkColorSize(PublicStyleColorDto publicStyleColorDto);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 
