@@ -17,6 +17,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 /**
  * 类描述：资料包-物料清单 实体类
@@ -36,6 +37,18 @@ public class PackBom extends BaseDataEntity<String> {
     private static final long serialVersionUID = 1L;
 
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+
+    /**
+     * 计算成本
+     */
+    public void calculateCost() {
+        //成本价=单据*用量*(1+损耗)
+        this.cost = Optional.ofNullable(this.price).orElse(BigDecimal.ZERO)
+                .multiply(Optional.ofNullable(this.unitUse).orElse(BigDecimal.ZERO)).multiply(
+                        BigDecimal.ONE.add(Optional.ofNullable(this.lossRate).orElse(BigDecimal.ZERO))
+                );
+    }
+
     public SmpBomDto toSmpBomDto() {
         SmpBomDto smpBomDto = new SmpBomDto();
         smpBomDto.setColorName(color);
