@@ -1,5 +1,6 @@
 package com.base.sbc.module.planning.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -54,6 +55,7 @@ public class ColorPlanningListVO {
     @ApiModelProperty(value = "审核状态：0：未提交，1：待审核，2：审核通过，-1：驳回）")
     private String confirmStatus;
     @ApiModelProperty(value = "创建时间")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date createDate;
     @ApiModelProperty(value = "创建人")
     private String createName;
