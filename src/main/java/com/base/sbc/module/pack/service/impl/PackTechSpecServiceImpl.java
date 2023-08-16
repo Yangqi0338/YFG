@@ -109,9 +109,11 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
 
     @Override
     public void genContentImgUrl(String newContent, String oldContent, PackTechSpec bean) {
+
         if (StrUtil.equals(newContent, oldContent) && StrUtil.isNotBlank(bean.getContentImgUrl())) {
             return;
         }
+//        newContent=HtmlUtil.filter(newContent);
         if (StrUtil.isBlank(newContent)) {
             bean.setContentImgUrl("");
             return;
@@ -122,6 +124,7 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
             AttachmentVo attachmentVo = uploadFileService.uploadToMinio(bufferedImage, fileName);
             uploadFileService.delByUrl(bean.getContentImgUrl());
             bean.setContentImgUrl(Optional.ofNullable(attachmentVo).map(AttachmentVo::getUrl).orElse(""));
+            bean.setContent(newContent);
         } catch (Exception e) {
             e.printStackTrace();
         }

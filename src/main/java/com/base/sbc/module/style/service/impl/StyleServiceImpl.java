@@ -332,9 +332,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             if (selectFlag) {
                 return new PageInfo<>();
             }
-        } else {
-//            amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
-            // amcFeignService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
         }
         Page<StylePageVo> objects = PageHelper.startPage(dto);
         getBaseMapper().selectByQw(qw);
@@ -359,12 +356,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         style.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
-        boolean flg = flowableService.start(FlowableService.sample_design_pdn + "[" + style.getDesignNo() + "]",
-                FlowableService.sample_design_pdn, id,
-                "/pdm/api/saas/style/approval",
-                "/pdm/api/saas/style/approval",
-                "/pdm/api/saas/style/approval",
-                "/sampleClothesDesign/sampleDesign/" + id, variables);
+        boolean flg = flowableService.start(FlowableService.sample_design_pdn + "[" + style.getDesignNo() + "]", FlowableService.sample_design_pdn, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleDesign/" + id, variables);
         return flg;
     }
 
@@ -634,10 +626,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<StyleBoardCategorySummaryVo> styleBoardCategorySummaryVos = getBaseMapper().categorySummary(qw);
         // 统计大类数量
         if (CollUtil.isNotEmpty(styleBoardCategorySummaryVos)) {
-            Map<String, Long> category1stTotal = styleBoardCategorySummaryVos.stream().collect(Collectors.groupingBy(StyleBoardCategorySummaryVo::getProdCategory1st))
-                    .entrySet().stream().collect(Collectors.toMap(k -> k.getKey(), v -> {
-                        return v.getValue().stream().map(StyleBoardCategorySummaryVo::getSkc).reduce((a, b) -> a + b).orElse(0L);
-                    }));
+            Map<String, Long> category1stTotal = styleBoardCategorySummaryVos.stream().collect(Collectors.groupingBy(StyleBoardCategorySummaryVo::getProdCategory1st)).entrySet().stream().collect(Collectors.toMap(k -> k.getKey(), v -> {
+                return v.getValue().stream().map(StyleBoardCategorySummaryVo::getSkc).reduce((a, b) -> a + b).orElse(0L);
+            }));
             //反写品类名称
             Set<String> categoryIds = new HashSet<>(16);
             for (StyleBoardCategorySummaryVo vo : styleBoardCategorySummaryVos) {
@@ -906,31 +897,31 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Override
     public Boolean checkColorSize(PublicStyleColorDto publicStyleColorDto) {
         /*查询款式下已下发的的配色*/
-        QueryWrapper queryWrapper =new QueryWrapper();
+        QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("style_id", publicStyleColorDto.getId());
         queryWrapper.in("scm_send_flag", com.base.sbc.config.utils.StringUtils.convertList("1,3"));
         List<StyleColor> list = styleColorMapper.selectList(queryWrapper);
-        Boolean b =true;
-        if(CollectionUtils.isEmpty(list)){
+        Boolean b = true;
+        if (CollectionUtils.isEmpty(list)) {
             /*查询号型类型*/
             queryWrapper.clear();
             queryWrapper.eq("code", publicStyleColorDto.getSizeRange());
             BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeMapper.selectOne(queryWrapper);
-            if(ObjectUtil.isEmpty(basicsdatumModelType)){
+            if (ObjectUtil.isEmpty(basicsdatumModelType)) {
                 throw new OtherException("号型类型查询失败");
             }
             /*大货款号*/
-            List<String> stringList =list.stream().map(StyleColor::getStyleNo).collect(Collectors.toList());
+            List<String> stringList = list.stream().map(StyleColor::getStyleNo).collect(Collectors.toList());
 
             for (String s : stringList) {
-                PlmStyleSizeParam plmStyleSizeParam =new PlmStyleSizeParam();
+                PlmStyleSizeParam plmStyleSizeParam = new PlmStyleSizeParam();
                 plmStyleSizeParam.setSizeCategory(publicStyleColorDto.getSizeRange());
                 plmStyleSizeParam.setStyleNo(s);
                 plmStyleSizeParam.setSizeNum(basicsdatumModelType.getSizeCode().split(",").length);
                 b = smpService.checkStyleSize(plmStyleSizeParam);
             }
         }
-        if(!b){
+        if (!b) {
             throw new OtherException("号型类型校验失败不支持修改");
         }
         return true;
