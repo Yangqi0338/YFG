@@ -18,87 +18,48 @@ public class FabricSummaryVO {
     @ApiModelProperty(value = "订货本与配色中间id")
     private String id;
 
-    @ApiModelProperty(value = "订货本id")
-    private String bookId;
+    @ApiModelProperty(value = "面料实物图")
+    private String imageUrl;
 
-    @ApiModelProperty(value = "订货本编号")
-    private String orderBookCode;
-
-    @ApiModelProperty(value = "款式(大货款号)")
-    private String styleNo;
-
-    @ApiModelProperty(value = "设计款号")
-    private String designNo;
-
-
-    @ApiModelProperty(value = "上会标记(0未上会，1已上会)")
-    private String meetFlag;
-
-
-    @ApiModelProperty(value = "锁定标记(0未锁定，1已锁定)")
-    private String lockFlag;
-
-
-    @ApiModelProperty(value = "物料id")
-    private String materialId;
-
+    @ApiModelProperty(value = "材料")
+    private String materialCode;
 
     @ApiModelProperty(value = "物料名称")
     private String materialName;
 
-    @ApiModelProperty(value = "物料图片")
-    private String imageUrl;
+    @ApiModelProperty(value = "询价编号")
+    private String inquiryNumber;
 
-    @ApiModelProperty(value = "类别名称（物料分类名称）")
-    private String categoryName;
-
-    @ApiModelProperty(value = "供应商id")
-    private String supplierId;
+    @ApiModelProperty(value = "裁数")
+    private String cuttingNumber;
 
     @ApiModelProperty(value = "供应商名称")
     private String supplierName;
 
-    @ApiModelProperty(value = "供应商料号")
-    private String supplierMaterialCode;
+    @ApiModelProperty(value = "材料成分")
+    private String ingredient;
 
-    @ApiModelProperty(value = "物料编号")
-    private String materialCode;
+    @ApiModelProperty(value = "面料克重")
+    private String gramWeight;
 
-    @ApiModelProperty(value = "厂家成分")
-    private String factoryComposition;
+    @ApiModelProperty(value = "纱织规格")
+    private String specification;
 
-    @ApiModelProperty(value = "部位")
-    private String part;
+    @ApiModelProperty(value = "密度")
+    private String density;
 
-    @ApiModelProperty(value = "门幅")
-    private String translate;
+    @ApiModelProperty(value = "起订量")
+    private String minimumOrderQuantity;
 
+    @ApiModelProperty(value = "货期")
+    private String deliveryName;
 
-    @ApiModelProperty(value = "颜色")
-    private String color;
+    @ApiModelProperty(value = "有效门幅")
+    private String widthList;
 
+    @ApiModelProperty(value = "含税价格")
+    private String supplierQuotationPrice;
 
-    @ApiModelProperty(value = "备注")
-    private String remarks;
-
-
-    @ApiModelProperty(value = "单位名称")
-    private String purchaseUnitName;
-
-    @ApiModelProperty(value = "单价")
-    private String price;
-
-    @ApiModelProperty(value = "损耗率")
-    private String lossRate;
-
-    @ApiModelProperty(value = "成本")
-    private String cost;
-
-    @ApiModelProperty(value = "供应商报价")
-    private String supplierPrice;
-
-    @ApiModelProperty(value = "设计款号")
-    private String designNoTwo;
 
 
 }

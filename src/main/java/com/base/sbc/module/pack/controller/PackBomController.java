@@ -151,10 +151,11 @@ public class PackBomController extends BaseController{
         return ApiResult.success("查询成功", packBomService.fabricSummaryList(fabricSummaryDTO));
     }
 
-    @GetMapping("/querySampleDesignInfoByMaterialId")
+    @PostMapping("/querySampleDesignInfoByMaterialId")
     @ApiOperation(value = "查询物料被那些样衣应用")
-    public ApiResult querySampleDesignInfoByMaterialId(@NotNull @RequestParam("materialId") String materialId) {
-        return ApiResult.success("查询成功", packBomService.querySampleDesignInfoByMaterialId(materialId, super.getUserCompany()));
+    public ApiResult querySampleDesignInfoByMaterialId(@RequestBody FabricSummaryDTO fabricSummaryDTO) {
+        fabricSummaryDTO.setCompanyCode(super.getUserCompany());
+        return ApiResult.success("查询成功", packBomService.querySampleDesignInfoByMaterialId(fabricSummaryDTO));
     }
 
     @GetMapping("/moveUp")
