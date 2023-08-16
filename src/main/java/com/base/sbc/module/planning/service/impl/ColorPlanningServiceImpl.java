@@ -7,6 +7,8 @@
 package com.base.sbc.module.planning.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
@@ -19,6 +21,7 @@ import com.base.sbc.module.planning.service.ColorPlanningItemService;
 import com.base.sbc.module.planning.service.ColorPlanningService;
 import com.base.sbc.module.planning.vo.ColorPlanningListVO;
 import com.base.sbc.module.planning.vo.ColorPlanningVO;
+import com.beust.jcommander.internal.Lists;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang.StringUtils;
@@ -82,6 +85,28 @@ public class ColorPlanningServiceImpl extends BaseServiceImpl<ColorPlanningMappe
         }
         colorPlanningVO.setColorPlanningItems(colorPlanningItemService.getBYColorPlanningId(id));
         return colorPlanningVO;
+    }
+
+    @Override
+    public Long getColorPlanningCount(String planningSeasonId) {
+        if (StringUtils.isEmpty(planningSeasonId)) {
+            return 0L;
+        }
+        LambdaQueryWrapper<ColorPlanning> qw = new QueryWrapper<ColorPlanning>().lambda()
+                .eq(ColorPlanning::getPlanningSeasonId, planningSeasonId)
+                .eq(ColorPlanning::getDelFlag, "0");
+        return super.count(qw);
+    }
+
+    @Override
+    public List<ColorPlanningListVO> getListByPlanningSeasonId(String planningSeasonId) {
+        if (StringUtils.isEmpty(planningSeasonId)) {
+            return Lists.newArrayList();
+        }
+        ColorPlanningSearchDTO colorPlanningSearchDTO = new ColorPlanningSearchDTO();
+        colorPlanningSearchDTO.setCompanyCode(super.getCompanyCode());
+        colorPlanningSearchDTO.setPlanningSeasonId(planningSeasonId);
+        return super.getBaseMapper().getColorPlanningList(colorPlanningSearchDTO);
     }
 
 

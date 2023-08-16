@@ -15,6 +15,8 @@ public class ColorPlanningSearchDTO extends Page {
     @ApiModelProperty(value = "品牌编码")
     private String brandCode;
     private String companyCode;
+    @ApiModelProperty(value = "产品季id")
+    private String planningSeasonId;
 
 
 }

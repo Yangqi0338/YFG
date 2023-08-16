@@ -14,6 +14,8 @@ import com.base.sbc.module.planning.vo.ThemePlanningListVO;
 import com.base.sbc.module.planning.vo.ThemePlanningVO;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
+
 /**
  * 类描述：主题企划 service类
  *
@@ -48,6 +50,23 @@ public interface ThemePlanningService extends BaseService<ThemePlanning> {
      * @param dto
      */
     String themePlanningSave(ThemePlanningSaveDTO dto);
+
+
+    /**
+     * 通过产品季id统计
+     *
+     * @param planningSeasonId
+     * @return
+     */
+    Long getThemePlanningCount(String planningSeasonId);
+
+    /**
+     * 通过产品季id获取
+     *
+     * @param planningSeasonId
+     * @return
+     */
+    List<ThemePlanningListVO> getThemeListByPlanningSeasonId(String planningSeasonId);
 
 // 自定义方法区 不替换的区域【other_end】
 

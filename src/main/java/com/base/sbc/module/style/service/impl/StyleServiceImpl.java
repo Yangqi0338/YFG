@@ -50,10 +50,7 @@ import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.QueryPlanningDimensionalityDto;
 import com.base.sbc.module.planning.entity.*;
-import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
-import com.base.sbc.module.planning.service.PlanningCategoryItemService;
-import com.base.sbc.module.planning.service.PlanningDimensionalityService;
-import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
@@ -140,6 +137,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Lazy
     @Resource
     private SmpService smpService;
+
+    @Autowired
+    private ColorPlanningService colorPlanningService;
+    @Autowired
+    private ThemePlanningService themePlanningService;
 
     private IdGen idGen = new IdGen();
 
@@ -821,6 +823,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Override
     public StyleVo getDetail(String id, String historyStyleId) {
         StyleVo detail = getDetail(id);
+        detail.setColorPlanningCount(colorPlanningService.getColorPlanningCount(detail.getPlanningSeasonId()));
+        detail.setThemePlanningCount(themePlanningService.getThemePlanningCount(detail.getPlanningSeasonId()));
         if (StrUtil.isBlank(historyStyleId)) {
             return detail;
         }

@@ -58,6 +58,12 @@ public class ThemePlanningController extends BaseController {
     public ApiResult getThemePlanningById(@Valid @NotBlank(message = "主题企划id不可为空") String id) {
         return selectSuccess(themePlanningService.getThemePlanningById(id));
     }
+
+    @ApiOperation(value = "通过产品季获取")
+    @GetMapping("/getThemeListByPlanningSeasonId")
+    public ApiResult getThemeListByPlanningSeasonId(String planningSeasonId) {
+        return selectSuccess(themePlanningService.getThemeListByPlanningSeasonId(planningSeasonId));
+    }
 }
 
 

@@ -38,6 +38,9 @@
             <if test="dto.brandCode != null and dto.brandCode != ''">
                 AND brand_code = #{dto.brandCode}
             </if>
+            <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
+                AND planning_season_id = #{dto.planningSeasonId}
+            </if>
         </where>
         order by create_date desc
     </select>

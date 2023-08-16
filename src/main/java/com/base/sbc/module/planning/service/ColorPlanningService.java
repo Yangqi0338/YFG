@@ -14,6 +14,8 @@ import com.base.sbc.module.planning.vo.ColorPlanningListVO;
 import com.base.sbc.module.planning.vo.ColorPlanningVO;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
+
 /**
  * 类描述：颜色企划 service类
  *
@@ -47,6 +49,22 @@ public interface ColorPlanningService extends BaseService<ColorPlanning> {
      * @param id
      */
     ColorPlanningVO getDetailById(String id);
+
+    /**
+     * 通过产品季id统计
+     *
+     * @param planningSeasonId
+     * @return
+     */
+    Long getColorPlanningCount(String planningSeasonId);
+
+    /**
+     * 通过产品季id获取
+     *
+     * @param planningSeasonId
+     * @return
+     */
+    List<ColorPlanningListVO> getListByPlanningSeasonId(String planningSeasonId);
 
 
 // 自定义方法区 不替换的区域【other_end】

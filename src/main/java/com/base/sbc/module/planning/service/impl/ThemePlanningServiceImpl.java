@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
@@ -20,6 +22,7 @@ import com.base.sbc.module.planning.service.ThemePlanningMaterialService;
 import com.base.sbc.module.planning.service.ThemePlanningService;
 import com.base.sbc.module.planning.vo.ThemePlanningListVO;
 import com.base.sbc.module.planning.vo.ThemePlanningVO;
+import com.beust.jcommander.internal.Lists;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,6 +84,27 @@ public class ThemePlanningServiceImpl extends BaseServiceImpl<ThemePlanningMappe
         return themePlanning.getId();
     }
 
+    @Override
+    public Long getThemePlanningCount(String planningSeasonId) {
+        if (StringUtils.isEmpty(planningSeasonId)) {
+            return 0L;
+        }
+        LambdaQueryWrapper<ThemePlanning> qw = new QueryWrapper<ThemePlanning>().lambda()
+                .eq(ThemePlanning::getPlanningSeasonId, planningSeasonId)
+                .eq(ThemePlanning::getDelFlag, "0");
+        return super.count(qw);
+    }
+
+    @Override
+    public List<ThemePlanningListVO> getThemeListByPlanningSeasonId(String planningSeasonId) {
+        if (StringUtils.isEmpty(planningSeasonId)) {
+            return Lists.newArrayList();
+        }
+        ThemePlanningSearchDTO themePlanningSearchDTO = new ThemePlanningSearchDTO();
+        themePlanningSearchDTO.setCompanyCode(super.getCompanyCode());
+        themePlanningSearchDTO.setPlanningSeasonId(planningSeasonId);
+        return super.getBaseMapper().getThemePlanningList(themePlanningSearchDTO);
+    }
 
 // 自定义方法区 不替换的区域【other_end】
 

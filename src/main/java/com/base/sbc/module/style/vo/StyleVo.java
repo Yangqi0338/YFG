@@ -69,4 +69,9 @@ public class StyleVo extends Style {
 
     @ApiModelProperty(value = "坑位信息图片")
     private String seatStylePic;
+
+    @ApiModelProperty(value = "颜色企划数量")
+    public Long colorPlanningCount;
+    @ApiModelProperty(value = "主题企划数量")
+    public Long themePlanningCount;
 }

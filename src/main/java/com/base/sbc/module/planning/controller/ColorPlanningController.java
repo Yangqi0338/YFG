@@ -59,6 +59,12 @@ public class ColorPlanningController extends BaseController {
     public ApiResult getDetailById(@Valid @NotBlank(message = "颜色企划id不可为空") String id) {
         return selectSuccess(colorPlanningService.getDetailById(id));
     }
+
+    @ApiOperation(value = "通过产品季获取")
+    @GetMapping("/getListByPlanningSeasonId")
+    public ApiResult getListByPlanningSeasonId(String planningSeasonId) {
+        return selectSuccess(colorPlanningService.getListByPlanningSeasonId(planningSeasonId));
+    }
 }
 
 

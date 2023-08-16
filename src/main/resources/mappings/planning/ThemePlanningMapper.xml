@@ -28,13 +28,16 @@
             del_flag = '0'
             AND company_code = #{dto.companyCode}
             <if test="dto.search != null and dto.search != ''">
-                AND color_planning_name LIKE concat( '%',#{dto.search},'%' )
+                AND theme_name LIKE concat( '%',#{dto.search},'%' )
             </if>
             <if test="dto.yearCode != null and dto.yearCode != ''">
                 AND year_code = #{yearCode}
             </if>
             <if test="dto.brandCode != null and dto.brandCode != ''">
                 AND brand_code = #{dto.brandCode}
+            </if>
+            <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
+                AND planning_season_id = #{dto.planningSeasonId}
             </if>
         </where>
         order by create_date desc
