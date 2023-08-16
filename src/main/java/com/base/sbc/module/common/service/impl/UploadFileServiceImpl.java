@@ -43,6 +43,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.security.Principal;
@@ -212,13 +213,17 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     @Transactional(rollbackFor = {Exception.class})
     public Boolean uploadStyleImage(UploadStylePicDto dto, Principal user) throws Exception {
         GroupUser userBy = userUtils.getUserBy(user);
+
+        if(StringUtils.isBlank(dto.getStyleColorId())){
+            throw new OtherException("配色id不能为空");
+        }
         /*获取年季节品牌等信息*/
         StyleUploadVo styleUploadVo = styleColorMapper.getStyleUploadInfo(dto.getStyleColorId());
         /*获取文件类型*/
         String type = dto.getFile().getOriginalFilename().substring(dto.getFile().getOriginalFilename().lastIndexOf(".")+1);
         File file = null;
         try {
-             file = File.createTempFile(dto.getFile().getOriginalFilename(), styleUploadVo.getStyleNo());
+             file = File.createTempFile("temp", null);
         } catch (Exception e) {
             throw new OtherException("文件错误");
         }
@@ -265,6 +270,8 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             res = ImgUtils.formUpload(UPLOAD_PHOTO, paraMap, fileMap);
         } catch (Exception e) {
             throw new OtherException("图片上传失败");
+        }finally {
+            file.delete();
         }
         JSONObject jsonObject =  JSON.parseObject(res);
         if (Boolean.parseBoolean (jsonObject.get("Sucess").toString())) {
@@ -276,6 +283,21 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         }
     }
 
+    public String getTemporaryFilePath(MultipartFile multipartFile) throws IOException {
+        // 创建临时文件
+        File tempFile = File.createTempFile("temp", null);
+
+        // 将 MultipartFile 的内容写入临时文件
+        multipartFile.transferTo(tempFile);
+
+        // 获取临时文件的路径
+        String temporaryFilePath = tempFile.getAbsolutePath();
+/*        String[] temporaryFilePaths =  temporaryFilePath.split("\\\\");
+        temporaryFilePath =  temporaryFilePath.replaceAll(temporaryFilePaths[temporaryFilePaths.length-1],multipartFile.getOriginalFilename());*/
+        // 删除临时文件
+        tempFile.delete();
+        return temporaryFilePath;
+    }
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
