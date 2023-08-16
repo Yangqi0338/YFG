@@ -100,8 +100,8 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColourSpecification()), "colour_specification", queryBasicsdatumColourLibraryDto.getColourSpecification());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColourName()), "colour_name", queryBasicsdatumColourLibraryDto.getColourName());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getLibrary()), "library", queryBasicsdatumColourLibraryDto.getLibrary());
-        queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getIsStyle()), "is_style", queryBasicsdatumColourLibraryDto.getIsStyle());
-        queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getIsMaterials()), "is_materials", queryBasicsdatumColourLibraryDto.getIsMaterials());
+        queryWrapper.eq(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getIsStyle()), "is_style", queryBasicsdatumColourLibraryDto.getIsStyle());
+        queryWrapper.eq(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getIsMaterials()), "is_materials", queryBasicsdatumColourLibraryDto.getIsMaterials());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getPantone()), "pantone", queryBasicsdatumColourLibraryDto.getPantone());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColorType()),"color_type", queryBasicsdatumColourLibraryDto.getColorType());
         queryWrapper.in(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getScmSendFlag()),"scm_send_flag", StringUtils.convertList(queryBasicsdatumColourLibraryDto.getScmSendFlag()));
@@ -284,10 +284,12 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
     }
 
     @Override
-    public List<SelectOptionsVo> getAllColourSpecification(String status) {
+    public List<SelectOptionsVo> getAllColourSpecification(String status,String isStyle,String isMaterials) {
         QueryWrapper<BasicsdatumColourLibrary> qw = new QueryWrapper<>();
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.eq(StrUtil.isNotBlank(status), "status", status);
+        qw.eq(!StringUtils.isEmpty(isStyle), "is_style", isStyle);
+        qw.eq(!StringUtils.isEmpty(isMaterials), "is_materials", isMaterials);
         qw.ne("del_flag", BaseGlobal.YES);
         return this.getBaseMapper().getAllColourSpecification(qw);
 
