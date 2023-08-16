@@ -40,5 +40,22 @@ public class FabricSummaryDTO  extends Page {
     @ApiModelProperty(value = "企业编码")
     private String companyCode;
 
+    @ApiModelProperty(value = "物料id")
+    private String materialId;
+
+    @ApiModelProperty(value = "供应商id")
+    private String supplierId;
+
+    @ApiModelProperty(value = "面料成分")
+    private String ingredient;
+
+    @ApiModelProperty(value = "版师id")
+    private String patternDesignId;
+
+    @ApiModelProperty(value = "设计师id")
+    private List<String> designerIds;
+
+
+
 
 }

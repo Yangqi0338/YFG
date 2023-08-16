@@ -272,8 +272,10 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     }
 
     @Override
-    public List<MaterialSampleDesignVO> querySampleDesignInfoByMaterialId(String materialId, String companyCode) {
-        return baseMapper.querySampleDesignInfoByMaterialId(materialId, companyCode);
+    public PageInfo<MaterialSampleDesignVO> querySampleDesignInfoByMaterialId(FabricSummaryDTO fabricSummaryDTO) {
+        Page<MaterialSampleDesignVO> page = PageHelper.startPage(fabricSummaryDTO);
+        baseMapper.querySampleDesignInfoByMaterialIdPage(fabricSummaryDTO);
+        return page.toPageInfo();
     }
 
     @Override

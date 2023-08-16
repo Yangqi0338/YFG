@@ -437,7 +437,7 @@ public class SmpService {
             for (BasicsdatumMaterialPricePageVo basicsdatumMaterialPricePageVo : basicsdatumMaterialService.getBasicsdatumMaterialPriceList(dto).getList()) {
                 SmpQuot smpQuot = new SmpQuot();
                 smpQuot.setSupplierSize(basicsdatumMaterialPricePageVo.getWidth());
-                smpQuot.setSizeUrl(null);
+                smpQuot.setSizeUrl(basicsdatumMaterialPricePageVo.getWidth());
                 smpQuot.setSupplierColorId(basicsdatumMaterialPricePageVo.getColor());
                 smpQuot.setSupplierColorName(basicsdatumMaterialPricePageVo.getColorName());
                 smpQuot.setOrderGoodsDay(basicsdatumMaterialPricePageVo.getOrderDay());

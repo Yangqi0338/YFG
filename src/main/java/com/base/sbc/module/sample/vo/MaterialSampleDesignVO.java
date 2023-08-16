@@ -56,5 +56,38 @@ public class MaterialSampleDesignVO {
     @ApiModelProperty(value = "小类")
     private String prodCategory3ndName;
 
+    @ApiModelProperty(value = "部位名称")
+    private String partName;
+
+    @ApiModelProperty(value = "损耗")
+    private String lossRate;
+
+    @ApiModelProperty(value = "物料颜色")
+    private String color;
+
+    @ApiModelProperty(value = "单件用量")
+    private String unitUse;
+
+    @ApiModelProperty(value = "投产数量")
+    private String productionQuantity;
+
+    @ApiModelProperty(value = "采购单位")
+    private String purchaseUnitName;
+
+    @ApiModelProperty(value = "需求米数")
+    private String requiredMeters;
+
+    @ApiModelProperty(value = "供应商色号")
+    private String supplierColorNo;
+
+    @ApiModelProperty(value = "版师名称")
+    private String patternDesignName;
+
+    @ApiModelProperty(value = "材料成分")
+    private String  ingredient;
+
+    @ApiModelProperty(value = "备注")
+    private String  remarks;
+
 
 }
