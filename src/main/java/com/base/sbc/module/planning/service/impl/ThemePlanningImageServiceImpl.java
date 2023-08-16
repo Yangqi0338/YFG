@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service.impl;
 
-import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.IdGen;
@@ -16,10 +15,12 @@ import com.base.sbc.module.planning.mapper.ThemePlanningImageMapper;
 import com.base.sbc.module.planning.service.ThemePlanningImageService;
 import com.beust.jcommander.internal.Lists;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,30 +38,30 @@ public class ThemePlanningImageServiceImpl extends BaseServiceImpl<ThemePlanning
     private static final Logger logger = LoggerFactory.getLogger(ThemePlanningImageService.class);
 
     @Override
-    public List<String> getByThemePlanningId(String themePlanningId) {
+    public String getByThemePlanningId(String themePlanningId) {
         LambdaQueryWrapper<ThemePlanningImage> qw = new QueryWrapper<ThemePlanningImage>().lambda()
                 .eq(ThemePlanningImage::getThemePlanningId, themePlanningId)
                 .eq(ThemePlanningImage::getDelFlag, "0")
                 .select(ThemePlanningImage::getImageUrl);
         List<ThemePlanningImage> list = super.list(qw);
-        return CollectionUtils.isEmpty(list) ? Lists.newArrayList() : list.stream()
+        return CollectionUtils.isEmpty(list) ? null : list.stream()
                 .map(ThemePlanningImage::getImageUrl)
-                .collect(Collectors.toList());
+                .collect(Collectors.joining(","));
     }
 
     @Override
-    public void save(List<String> images, String themePlanningId) {
-        logger.info("ThemePlanningImageService#save 保存 images：{},themePlanningId:{}", JSON.toJSONString(images), themePlanningId);
+    public void save(String images, String themePlanningId) {
+        logger.info("ThemePlanningImageService#save 保存 images：{},themePlanningId:{}", images, themePlanningId);
         LambdaQueryWrapper<ThemePlanningImage> qw = new QueryWrapper<ThemePlanningImage>()
                 .lambda()
                 .eq(ThemePlanningImage::getThemePlanningId, themePlanningId)
                 .eq(ThemePlanningImage::getDelFlag, "0");
         super.getBaseMapper().delete(qw);
-        if (CollectionUtils.isEmpty(images)) {
+        if (StringUtils.isEmpty(images)) {
             return;
         }
         IdGen idGen = new IdGen();
-        List<ThemePlanningImage> themePlanningImages = images.stream()
+        List<ThemePlanningImage> themePlanningImages = Arrays.stream(images.split(","))
                 .map(e -> {
                     ThemePlanningImage themePlanningImage = new ThemePlanningImage();
                     themePlanningImage.setImageUrl(e);

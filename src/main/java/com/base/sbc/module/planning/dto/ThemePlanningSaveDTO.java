@@ -80,7 +80,7 @@ public class ThemePlanningSaveDTO {
      * 图片信息
      */
     @ApiModelProperty(value = "图片信息")
-    private List<String> images;
+    private String images;
 
     /**
      * 素材信息
