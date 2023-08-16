@@ -6,12 +6,22 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.controller;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.planning.dto.ThemePlanningSaveDTO;
+import com.base.sbc.module.planning.dto.ThemePlanningSearchDTO;
+import com.base.sbc.module.planning.service.ThemePlanningService;
+import com.base.sbc.module.planning.vo.ThemePlanningListVO;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 /**
  * 类描述：主题企划 Controller类
@@ -26,7 +36,28 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "主题企划")
 @RequestMapping(value = BaseController.SAAS_URL + "/themePlanning", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class ThemePlanningController {
+public class ThemePlanningController extends BaseController {
+    @Autowired
+    private ThemePlanningService themePlanningService;
+
+    @ApiOperation(value = "获取主题企划列表")
+    @PostMapping("/getThemePlanningList")
+    public PageInfo<ThemePlanningListVO> getThemePlanningList(@Valid @RequestBody ThemePlanningSearchDTO themePlanningSearchDTO) {
+        return themePlanningService.getThemePlanningList(themePlanningSearchDTO);
+    }
+
+    @ApiOperation(value = "保存")
+    @PostMapping("/themePlanningSave")
+    public ApiResult themePlanningSave(@Valid @RequestBody ThemePlanningSaveDTO dto) {
+        return updateSuccess(themePlanningService.themePlanningSave(dto));
+    }
+
+
+    @ApiOperation(value = "获取详情")
+    @GetMapping("/getThemePlanningById")
+    public ApiResult getThemePlanningById(@Valid @NotBlank(message = "主题企划id不可为空") String id) {
+        return selectSuccess(themePlanningService.getThemePlanningById(id));
+    }
 }
 
 

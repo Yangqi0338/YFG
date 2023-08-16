@@ -10,7 +10,59 @@
       -->
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
-
+    <select id="getThemePlanningList" resultType="com.base.sbc.module.planning.vo.ThemePlanningListVO">
+        SELECT id,
+        remarks,
+        theme_description,
+        STATUS,
+        theme_name,
+        brand,
+        YEAR,
+        season,
+        planning_season,
+        confirm_status,
+        create_date,
+        create_Name
+        FROM t_theme_planning
+        <where>
+            del_flag = '0'
+            AND company_code = #{dto.companyCode}
+            <if test="dto.search != null and dto.search != ''">
+                AND color_planning_name LIKE concat( '%',#{dto.search},'%' )
+            </if>
+            <if test="dto.yearCode != null and dto.yearCode != ''">
+                AND year_code = #{yearCode}
+            </if>
+            <if test="dto.brandCode != null and dto.brandCode != ''">
+                AND brand_code = #{dto.brandCode}
+            </if>
+        </where>
+        order by create_date desc
+    </select>
+    <select id="getThemePlanningById" resultType="com.base.sbc.module.planning.vo.ThemePlanningVO">
+        SELECT
+        id,
+        remarks,
+        theme_description,
+        STATUS,
+        theme_name,
+        brand_code,
+        brand,
+        YEAR,
+        year_code,
+        season,
+        season_code,
+        planning_season,
+        planning_season_id,
+        confirm_status,
+        refer_attachment
+        FROM
+        t_theme_planning
+        <where>
+            del_flag = '0'
+            AND id = #{id}
+        </where>
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
