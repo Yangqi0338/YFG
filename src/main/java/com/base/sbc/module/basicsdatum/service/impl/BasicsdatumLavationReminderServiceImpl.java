@@ -115,14 +115,6 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
            Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("wxts");
            Map<String, String> map =   dictInfoToMap.get("wxts");
            for (BasicsdatumLavationReminderExcelDto basicsdatumLavationReminderExcelDto : list) {
-               if(!StringUtils.isEmpty(basicsdatumLavationReminderExcelDto.getPicture())){
-                   if (StringUtils.isNotEmpty(basicsdatumLavationReminderExcelDto.getPicture())) {
-                       File file1 = new File(basicsdatumLavationReminderExcelDto.getPicture());
-                       /*上传图*/
-                       AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
-                       basicsdatumLavationReminderExcelDto.setPicture(attachmentVo.getUrl());
-                   }
-               }
                if(StringUtils.isNotBlank(basicsdatumLavationReminderExcelDto.getReminderName())){
                    for(Map.Entry<String, String> entry : map.entrySet()){
                        String key = entry.getKey();
@@ -154,7 +146,7 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
         @Override
         public void basicsdatumLavationReminderDeriveExcel(HttpServletResponse response) throws Exception {
         QueryWrapper<BasicsdatumLavationReminder> queryWrapper=new QueryWrapper<>();
-        List<BasicsdatumLavationReminderExcelDto> list = BeanUtil.copyToList( baseMapper.selectList(queryWrapper), BasicsdatumLavationReminderExcelDto.class);
+        List<BasicsdatumLavationReminderExcelDto> list = BeanUtil.copyToList( baseMapper.getLavationReminderList(queryWrapper), BasicsdatumLavationReminderExcelDto.class);
         ExcelUtils.exportExcel(list,  BasicsdatumLavationReminderExcelDto.class, "基础资料-洗涤图标与温馨提示.xlsx",new ExportParams() ,response);
         }
 

@@ -5,7 +5,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
 @Data
-public class VerificationDto {
+public class PublicStyleColorDto {
     /*id*/
     @NotBlank(message = "id必填")
     private String id;

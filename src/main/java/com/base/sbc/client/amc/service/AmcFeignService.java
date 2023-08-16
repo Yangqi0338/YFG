@@ -95,6 +95,19 @@ public class AmcFeignService {
         return null;
     }
 
+    public boolean isSampleTeamLeader(String deptId, String userId) {
+        List<UserCompany> deptManager = getDeptManager(deptId, "2");
+        if (CollUtil.isNotEmpty(deptManager)) {
+            for (UserCompany userCompany : deptManager) {
+                if (StrUtil.equals(userCompany.getUserId(), userId)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
     /**
      * 获取团队信息
      *

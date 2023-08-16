@@ -106,7 +106,9 @@
         p.break_off_sample,
         p.break_off_pattern,
         p.update_date,
-        p.pattern_design_name
+        p.pattern_design_name,
+        p.sample_making_score,
+        p.pattern_making_score
         FROM
         t_pattern_making p,
         t_style s

@@ -27,6 +27,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -340,14 +341,13 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         qw.eq(StrUtil.isNotBlank(dto.getBandCode()), "c.band_code", dto.getBandCode());
         qw.eq(StrUtil.isNotBlank(dto.getBandName()), "c.band_name", dto.getBandName());
         qw.eq(StrUtil.isNotBlank(dto.getPlanningChannelId()), "c.planning_channel_id", dto.getPlanningChannelId());
-        qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "c.prod_category", dto.getProdCategory());
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), "c.prod_category1st", dto.getProdCategory1st());
         // 品类
         qw.in(StrUtil.isNotEmpty(dto.getProdCategory()), "c.prod_category", StrUtil.split(dto.getProdCategory(), CharUtil.COMMA));
         // 设计师
-        qw.in(CollUtil.isNotEmpty(dto.getDesignerIds()), "c.designer_id", dto.getDesignerIds());
+        qw.in(StrUtil.isNotEmpty(dto.getDesignerIds()), "c.designer_id", StringUtils.convertList(dto.getDesignerIds()));
         // 任务等级
-        qw.in(CollUtil.isNotEmpty(dto.getTaskLevels()), "c.task_level", dto.getTaskLevels());
+        qw.in(StrUtil.isNotEmpty(dto.getTaskLevels()), "c.task_level", StringUtils.convertList(dto.getTaskLevels()));
         // 状态
         qw.in(StrUtil.isNotBlank(dto.getStatus()), "c.status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
         //款式状态

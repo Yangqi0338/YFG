@@ -67,8 +67,8 @@ public class ProductSeasonController extends BaseController {
 
 
     @ApiOperation(value = "查询坑位列表")
-    @PostMapping("/findProductCategoryItem")
-    public PageInfo<PlanningSeasonOverviewVo> findProductCategoryItem(@Valid @RequestBody ProductCategoryItemSearchDto dto) {
+    @GetMapping("/findProductCategoryItem")
+    public PageInfo<PlanningSeasonOverviewVo> findProductCategoryItem(@Valid ProductCategoryItemSearchDto dto) {
         dto.setStatus("1,2");
         dto.setOrderBy("c.status asc ,c.id desc ");
         return planningCategoryItemService.findProductCategoryItem(dto);

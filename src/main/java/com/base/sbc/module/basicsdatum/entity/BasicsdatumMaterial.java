@@ -13,6 +13,7 @@ import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.smp.dto.SmpMaterialDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -56,7 +57,7 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setSeasonQuarterId(season);
 		smpMaterialDto.setSeasonBrand(brandName);
 		smpMaterialDto.setSeasonBrandId(brand);
-		smpMaterialDto.setKilogramsAndMeters(kgMNum);
+		smpMaterialDto.setKilogramsAndMeters(kgMNum==null ? BigDecimal.valueOf(0) : kgMNum);
 		smpMaterialDto.setDeveloper(devName);
 		smpMaterialDto.setBuyer(purchaseName);
 		smpMaterialDto.setBuyerTeam(purchaseDeptName);

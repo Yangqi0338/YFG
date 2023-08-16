@@ -18,6 +18,7 @@ import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.github.pagehelper.PageInfo;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 
@@ -58,6 +59,8 @@ public interface PreProductionSampleTaskService extends BaseService<PreProductio
     PreProductionSampleTaskDetailVo getTaskDetailById(String id);
 
     boolean updateByDto(PreProductionSampleTaskDto dto);
+
+    boolean sampleMakingScore(Principal user, String id, BigDecimal score);
 // 自定义方法区 不替换的区域【other_end】
 
 
