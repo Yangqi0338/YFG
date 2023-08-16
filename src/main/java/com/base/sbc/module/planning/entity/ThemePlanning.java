@@ -5,8 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.planning.entity;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -61,18 +60,12 @@ public class ThemePlanning extends BaseDataEntity<String> {
     /** 季节编码 */
     @ApiModelProperty(value = "季节编码"  )
     private String seasonCode;
-    /** 品类 */
-    @ApiModelProperty(value = "品类"  )
-    private String category;
-    /** 品类编码 */
-    @ApiModelProperty(value = "品类编码"  )
-    private String categoryCode;
-    /** 波段编码 */
-    @ApiModelProperty(value = "波段编码"  )
-    private String bandCode;
-    /** 波段名称 */
-    @ApiModelProperty(value = "波段名称"  )
-    private String bandName;
+    /** 产品季 */
+    @ApiModelProperty(value = "产品季"  )
+    private String planningSeason;
+    /** 产品季id */
+    @ApiModelProperty(value = "产品季id"  )
+    private String planningSeasonId;
     /** 主题描述 */
     @ApiModelProperty(value = "主题描述"  )
     private String themeDescription;

@@ -64,6 +64,11 @@ public class ThemePlanningMaterial extends BaseDataEntity<String> {
     /** 标签编码（多个逗号分割） */
     @ApiModelProperty(value = "标签编码（多个逗号分割）"  )
     private String tagCode;
+    /**
+     * 标签颜色（多个逗号分割）
+     */
+    @ApiModelProperty(value = "标签颜色（多个逗号分割）")
+    private String tagColor;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

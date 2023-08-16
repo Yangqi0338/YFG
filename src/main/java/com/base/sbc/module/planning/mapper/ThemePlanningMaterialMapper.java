@@ -7,20 +7,33 @@
 package com.base.sbc.module.planning.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.planning.entity.ThemePlanningMaterial;
-/** 
+import com.base.sbc.module.planning.vo.ThemePlanningMaterialVO;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
  * 类描述：主题企划素材 dao类
+ *
+ * @author your name
+ * @version 1.0
  * @address com.base.sbc.module.planning.dao.ThemePlanningMaterialDao
- * @author your name  
- * @email  your email
- * @date 创建时间：2023-8-15 13:58:45 
- * @version 1.0  
+ * @email your email
+ * @date 创建时间：2023-8-15 13:58:45
  */
 @Mapper
 public interface ThemePlanningMaterialMapper extends BaseMapper<ThemePlanningMaterial> {
-// 自定义方法区 不替换的区域【other_start】
+    // 自定义方法区 不替换的区域【other_start】
 
+    /**
+     * 通过主题企划id获取
+     *
+     * @param themePlanningId
+     * @return
+     */
+    List<ThemePlanningMaterialVO> getByThemePlanningId(@Param("themePlanningId") String themePlanningId);
 
 
 // 自定义方法区 不替换的区域【other_end】

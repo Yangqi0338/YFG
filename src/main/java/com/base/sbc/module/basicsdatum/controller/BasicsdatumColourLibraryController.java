@@ -91,8 +91,8 @@ public class BasicsdatumColourLibraryController{
 
 	@ApiOperation(value = "获取所有颜色规格(下拉选择)")
 	@GetMapping("/getAllColourSpecification")
-	public List<SelectOptionsVo> getAllColourSpecification(String status) {
-		return basicsdatumColourLibraryService.getAllColourSpecification(status);
+	public List<SelectOptionsVo> getAllColourSpecification(String status,String isStyle,String isMaterials) {
+		return basicsdatumColourLibraryService.getAllColourSpecification(status,isStyle,isMaterials);
 	}
 
 

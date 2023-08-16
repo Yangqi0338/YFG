@@ -6,8 +6,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * 类描述：产品季总览-波段企划查询
  * @address com.base.sbc.module.planning.dto.ProductSeasonBandSearchDto
@@ -37,13 +35,13 @@ public class ProductCategoryItemSearchDto extends Page {
 
 
     @ApiModelProperty(value = "设计师ids", required = false, example = "['1233']")
-    private List<String> designerIds;
+    private String designerIds;
 
     @ApiModelProperty(value = "任务等级", required = false, example = "['1']")
-    private List<String> taskLevels;
+    private String taskLevels;
 
     @ApiModelProperty(value = "状态", required = false, example = "['1']")
-    private List<String> statusList;
+    private String statusList;
 
     @ApiModelProperty(value = "大类code")
     private String prodCategory1st;

@@ -5,25 +5,52 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
-import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.planning.entity.ThemePlanning;
 
-/** 
+import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.planning.dto.ThemePlanningSaveDTO;
+import com.base.sbc.module.planning.dto.ThemePlanningSearchDTO;
+import com.base.sbc.module.planning.entity.ThemePlanning;
+import com.base.sbc.module.planning.vo.ThemePlanningListVO;
+import com.base.sbc.module.planning.vo.ThemePlanningVO;
+import com.github.pagehelper.PageInfo;
+
+/**
  * 类描述：主题企划 service类
- * @address com.base.sbc.module.planning.service.ThemePlanningService
+ *
  * @author your name
+ * @version 1.0
+ * @address com.base.sbc.module.planning.service.ThemePlanningService
  * @email your email
  * @date 创建时间：2023-8-15 13:58:35
- * @version 1.0  
  */
-public interface ThemePlanningService extends BaseService<ThemePlanning>{
-
+public interface ThemePlanningService extends BaseService<ThemePlanning> {
 // 自定义方法区 不替换的区域【other_start】
 
+    /**
+     * 获取主题企划列表
+     *
+     * @param dto
+     * @return
+     */
+    PageInfo<ThemePlanningListVO> getThemePlanningList(ThemePlanningSearchDTO dto);
 
+    /**
+     * 获取主题企划详情
+     *
+     * @param id
+     * @return
+     */
+    ThemePlanningVO getThemePlanningById(String id);
+
+    /**
+     * 保存
+     *
+     * @param dto
+     */
+    String themePlanningSave(ThemePlanningSaveDTO dto);
 
 // 自定义方法区 不替换的区域【other_end】
 
-	
+
 }
 

@@ -275,7 +275,7 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
     public Boolean startStopBasicsdatumSupplier(StartStopDto startStopDto) {
         UpdateWrapper<BasicsdatumSupplier> updateWrapper = new UpdateWrapper<>();
         updateWrapper.in("id", StringUtils.convertList(startStopDto.getIds()));
-        updateWrapper.set("status", startStopDto.getStatus());
+        updateWrapper.set("is_supplier", startStopDto.getStatus());
         /*修改状态*/
         return baseMapper.update(null, updateWrapper) > 0;
     }

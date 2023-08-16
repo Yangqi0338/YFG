@@ -5,25 +5,44 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
+
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planning.entity.ThemePlanningImage;
 
-/** 
+import java.util.List;
+
+/**
  * 类描述：主题企划图片 service类
- * @address com.base.sbc.module.planning.service.ThemePlanningImageService
+ *
  * @author your name
+ * @version 1.0
+ * @address com.base.sbc.module.planning.service.ThemePlanningImageService
  * @email your email
  * @date 创建时间：2023-8-15 13:58:40
- * @version 1.0  
  */
-public interface ThemePlanningImageService extends BaseService<ThemePlanningImage>{
+public interface ThemePlanningImageService extends BaseService<ThemePlanningImage> {
 
 // 自定义方法区 不替换的区域【other_start】
 
+    /**
+     * 通过主题企划id获取
+     *
+     * @param themePlanningId
+     * @return
+     */
+    List<String> getByThemePlanningId(String themePlanningId);
+
+    /**
+     * 保存
+     *
+     * @param images
+     * @param themePlanningId
+     */
+    void save(List<String> images, String themePlanningId);
 
 
 // 自定义方法区 不替换的区域【other_end】
 
-	
+
 }
 

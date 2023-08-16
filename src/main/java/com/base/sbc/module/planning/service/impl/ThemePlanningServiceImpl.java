@@ -6,27 +6,83 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service.impl;
 
+import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.planning.mapper.ThemePlanningMapper;
+import com.base.sbc.module.planning.dto.ThemePlanningSaveDTO;
+import com.base.sbc.module.planning.dto.ThemePlanningSearchDTO;
 import com.base.sbc.module.planning.entity.ThemePlanning;
+import com.base.sbc.module.planning.mapper.ThemePlanningMapper;
+import com.base.sbc.module.planning.service.ThemePlanningImageService;
+import com.base.sbc.module.planning.service.ThemePlanningMaterialService;
 import com.base.sbc.module.planning.service.ThemePlanningService;
+import com.base.sbc.module.planning.vo.ThemePlanningListVO;
+import com.base.sbc.module.planning.vo.ThemePlanningVO;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-/** 
+
+import java.util.List;
+import java.util.Objects;
+
+/**
  * 类描述：主题企划 service类
- * @address com.base.sbc.module.planning.service.ThemePlanningService
+ *
  * @author your name
+ * @version 1.0
+ * @address com.base.sbc.module.planning.service.ThemePlanningService
  * @email your email
  * @date 创建时间：2023-8-15 13:58:35
- * @version 1.0  
  */
 @Service
 public class ThemePlanningServiceImpl extends BaseServiceImpl<ThemePlanningMapper, ThemePlanning> implements ThemePlanningService {
+    // 自定义方法区 不替换的区域【other_start】
+    @Autowired
+    private ThemePlanningMaterialService themePlanningMaterialService;
+    @Autowired
+    private ThemePlanningImageService themePlanningImageService;
 
-// 自定义方法区 不替换的区域【other_start】
+    @Override
+    public PageInfo<ThemePlanningListVO> getThemePlanningList(ThemePlanningSearchDTO dto) {
+        dto.setCompanyCode(super.getCompanyCode());
+        PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
+        List<ThemePlanningListVO> themePlanningList = super.getBaseMapper().getThemePlanningList(dto);
+        return new PageInfo<>(themePlanningList);
+    }
 
+    @Override
+    public ThemePlanningVO getThemePlanningById(String id) {
+        ThemePlanningVO themePlanningVO = super.getBaseMapper().getThemePlanningById(id);
+        if (Objects.isNull(themePlanningVO)) {
+            throw new OtherException("主题企划数据不存在");
+        }
+        themePlanningVO.setThemePlanningMaterials(themePlanningMaterialService.getByThemePlanningId(id));
+        themePlanningVO.setImages(themePlanningImageService.getByThemePlanningId(id));
+        return themePlanningVO;
+    }
+
+    @Override
+    public String themePlanningSave(ThemePlanningSaveDTO dto) {
+        ThemePlanning themePlanning = CopyUtil.copy(dto, ThemePlanning.class);
+        String companyCode = super.getCompanyCode();
+        if (StringUtils.isEmpty(themePlanning.getId())) {
+            themePlanning.setId(new IdGen().nextIdStr());
+            themePlanning.setCompanyCode(companyCode);
+            themePlanning.insertInit();
+        } else {
+            themePlanning.updateInit();
+        }
+        super.saveOrUpdate(themePlanning);
+        themePlanningMaterialService.save(dto.getThemePlanningMaterials(), themePlanning.getId());
+        themePlanningImageService.save(dto.getImages(), themePlanning.getId());
+        return themePlanning.getId();
+    }
 
 
 // 自定义方法区 不替换的区域【other_end】
-	
+
 }
 
