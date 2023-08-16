@@ -7,9 +7,14 @@
 package com.base.sbc.module.basicsdatum.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.base.sbc.module.basicsdatum.dto.QueryRevampBasicsdatumSupplierDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
+import com.base.sbc.module.basicsdatum.vo.SelectVo;
 import org.apache.ibatis.annotations.Mapper;
-/** 
+
+import java.util.List;
+
+/**
  * 类描述：基础资料-供应商 dao类
  * @address com.base.sbc.module.basicsdatum.dao.BasicsdatumSupplierDao
  * @author mengfanjiang  
@@ -21,7 +26,12 @@ import org.apache.ibatis.annotations.Mapper;
 public interface BasicsdatumSupplierMapper extends BaseMapper<BasicsdatumSupplier> {
 /** 自定义方法区 不替换的区域【other_start】 **/
 
-
+    /**
+     * 分页查询下拉框供应商
+     * @param queryRevampBasicsdatumSupplierDto 参数
+     * @return 下拉框VO
+     */
+    List<SelectVo> selectSupplierPage(QueryRevampBasicsdatumSupplierDto queryRevampBasicsdatumSupplierDto);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

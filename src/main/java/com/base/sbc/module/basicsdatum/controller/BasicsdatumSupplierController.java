@@ -12,6 +12,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.constant.BaseConstant;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +74,17 @@ public class BasicsdatumSupplierController{
 		}
 		return newList;
 	}
+	@ApiOperation(value = "下拉组件查询")
+	@GetMapping("/selectSupplierPage")
+	public PageInfo<SelectVo> selectSupplierPage(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany,QueryRevampBasicsdatumSupplierDto queryRevampBasicsdatumSupplierDto) {
+		queryRevampBasicsdatumSupplierDto.setCompanyCode(userCompany);
+		if(null == queryRevampBasicsdatumSupplierDto.getPageNum() || null == queryRevampBasicsdatumSupplierDto.getPageSize()){
+			queryRevampBasicsdatumSupplierDto.setPageNum(Page.PAGE_NUM);
+			queryRevampBasicsdatumSupplierDto.setPageSize(Page.PAGE_SIZE);
+		}
+		return basicsdatumSupplierService.selectSupplierPage(queryRevampBasicsdatumSupplierDto);
+	}
+
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getBasicsdatumSupplierList")
