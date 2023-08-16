@@ -342,4 +342,10 @@ public class BasicsdatumMaterialSaveDto {
 	/** 门幅 */
 	@ApiModelProperty(value = "门幅")
 	private BigDecimal translate;
+	/** 询价编号 */
+	@ApiModelProperty(value = "询价编号")
+	private String inquiryNumber;
+	/** 货期 */
+	@ApiModelProperty(value = "货期")
+	private BigDecimal deliveryName;
 }

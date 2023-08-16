@@ -92,5 +92,12 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	Boolean delBasicsdatumMaterialOld(String id);
 
 	PageInfo<WarehouseMaterialVo> getPurchaseMaterialList(BasicsdatumMaterialQueryDto dto);
+
+	/**
+	 * 修改物料询价编号、货期数据
+	 * @param dto 物料档案主表保存实体
+	 * @return 是否成功
+	 */
+	Boolean updateInquiryNumberDeliveryName(BasicsdatumMaterialSaveDto dto);
 }
 

@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
@@ -268,6 +269,13 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     public PageInfo<FabricSummaryVO> fabricSummaryList(FabricSummaryDTO fabricSummaryDTO) {
         Page<FabricSummaryVO> page = PageHelper.startPage(fabricSummaryDTO);
         baseMapper.fabricSummaryList(fabricSummaryDTO);
+        if(CollectionUtil.isNotEmpty(page.toPageInfo().getList())){
+            for (FabricSummaryVO fabricSummaryVO : page.toPageInfo().getList()) {
+                // 统计物料下被多少款使用
+                Integer count = baseMapper.querySampleDesignInfoByMaterialIdCount(new FabricSummaryDTO(fabricSummaryDTO.getCompanyCode(), fabricSummaryVO.getId()));
+                fabricSummaryVO.setCuttingNumber(null != count ? count.toString() : String.valueOf(BaseGlobal.ZERO));
+            }
+        }
         return page.toPageInfo();
     }
 

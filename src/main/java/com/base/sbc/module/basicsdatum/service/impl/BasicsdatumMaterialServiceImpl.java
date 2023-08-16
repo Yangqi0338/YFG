@@ -692,4 +692,13 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		}
 		return page.toPageInfo();
 	}
+
+	public Boolean updateInquiryNumberDeliveryName(BasicsdatumMaterialSaveDto dto){
+			BasicsdatumMaterial basicsdatumMaterial = new BasicsdatumMaterial();
+			basicsdatumMaterial.setId(dto.getId());
+			basicsdatumMaterial.setInquiryNumber(dto.getInquiryNumber());
+			basicsdatumMaterial.setDeliveryName(dto.getDeliveryName());
+			int countNum = this.baseMapper.updateById(basicsdatumMaterial);
+			return countNum > 0 ? true : false;
+	}
 }

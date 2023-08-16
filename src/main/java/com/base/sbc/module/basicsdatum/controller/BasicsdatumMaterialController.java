@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.base.sbc.config.common.ApiResult;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -296,6 +297,16 @@ public class BasicsdatumMaterialController {
 	public PageInfo<WarehouseMaterialVo> getPurchaseMaterialList(
 			@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, BasicsdatumMaterialQueryDto dto) {
 		return basicsdatumMaterialService.getPurchaseMaterialList(dto);
+	}
+
+	@ApiOperation(value = "修改物料询价编号、货期数据")
+	@PostMapping("/updateInquiryNumberDeliveryName")
+	public ApiResult updateInquiryNumberDeliveryName(@Valid @RequestBody BasicsdatumMaterialSaveDto dto) {
+		if(StringUtils.isEmpty(dto.getId())){
+			return ApiResult.error("物料ID不能为空" , 500);
+		}
+		Boolean flg = basicsdatumMaterialService.updateInquiryNumberDeliveryName(dto);
+		return flg ? ApiResult.success() : ApiResult.error("修改物料询价编号、货期数据失败" , 500);
 	}
 
 }

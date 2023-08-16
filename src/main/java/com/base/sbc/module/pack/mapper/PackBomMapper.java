@@ -54,6 +54,13 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
      */
     List<MaterialSampleDesignVO> querySampleDesignInfoByMaterialIdPage(FabricSummaryDTO fabricSummaryDTO);
 
+    /**
+     * 根据物料id查询被应用的样衣-款式数量
+     * @param fabricSummaryDTO 面料汇总DTO层
+     * @return 裁数
+     */
+    Integer querySampleDesignInfoByMaterialIdCount(FabricSummaryDTO fabricSummaryDTO);
+
 
     /**
      * 通过主id获取核价物料信息
