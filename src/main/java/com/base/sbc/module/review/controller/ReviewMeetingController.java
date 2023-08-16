@@ -17,8 +17,12 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserCompanyUtils;
 import com.base.sbc.module.review.dto.ReviewMeetingPageDTO;
+import com.base.sbc.module.review.entity.ReviewDimension;
 import com.base.sbc.module.review.entity.ReviewMeeting;
+import com.base.sbc.module.review.entity.ReviewMeetingDepartment;
 import com.base.sbc.module.review.mapper.ReviewMeetingMapper;
+import com.base.sbc.module.review.service.ReviewDimensionService;
+import com.base.sbc.module.review.service.ReviewMeetingDepartmentService;
 import com.base.sbc.module.review.service.ReviewMeetingService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -30,7 +34,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
 * 类描述：评审会 Controller类
@@ -52,6 +60,12 @@ public class ReviewMeetingController extends BaseController{
 	private ReviewMeetingMapper reviewMeetingMapper;
 
 	@Autowired
+	private ReviewMeetingDepartmentService departmentService;
+
+	@Autowired
+	private ReviewDimensionService dimensionService;
+
+	@Autowired
 	private UserCompanyUtils userCompanyUtils;
 
 	@ApiOperation(value="分页查询数据", notes="")
@@ -60,6 +74,15 @@ public class ReviewMeetingController extends BaseController{
 		com.github.pagehelper.Page<ReviewMeeting> pages = PageHelper.startPage(page.getPageNum(), page.getPageSize());
 		BaseQueryWrapper<ReviewMeeting> qc = new BaseQueryWrapper<>();
 		qc.eq("m.company_code", companyCode);
+		if(StringUtils.isNoneBlank(page.getSearch())){
+			qc.and(wrapper -> wrapper.like("m.code", page.getSearch())
+					.or()
+					.like("m.meeting_name", page.getSearch())
+					.or()
+					.like("m.style_no", page.getSearch())
+					.or()
+					.like("m.plate_bill_code", page.getSearch()));
+		}
 		if(StringUtils.isNoneBlank(typeIds)) {
 			qc.in("m.meeting_type", StringUtils.convertList(typeIds));
 		}
@@ -75,6 +98,27 @@ public class ReviewMeetingController extends BaseController{
 		reviewMeetingMapper.selectMeetingRelation(qc);
 		PageInfo<ReviewMeeting> pageList = pages.toPageInfo();
 		if (CollectionUtil.isNotEmpty(pageList.getList())) {
+			for(ReviewMeeting reviewMeeting : pageList.getList()){
+				QueryWrapper<ReviewMeetingDepartment> qw = new QueryWrapper<>();
+				qw.eq("company_code", companyCode);
+				qw.eq("meeting_id", reviewMeeting.getId());
+				List<ReviewMeetingDepartment> departmentList = departmentService.list(qw);
+				if(CollectionUtil.isNotEmpty(departmentList)){
+					List<String> idList = departmentList.stream().map(ReviewMeetingDepartment::getDepartmentId).collect(Collectors.toList());
+					QueryWrapper<ReviewDimension> dimensionQw = new QueryWrapper<>();
+					dimensionQw.eq("company_code", companyCode);
+					dimensionQw.in("department_id", idList);
+					List<ReviewDimension> dimensionList = dimensionService.list(dimensionQw);
+					if(CollectionUtil.isNotEmpty(dimensionList)){
+						Set<String> resultSet = new HashSet<>();
+						for(ReviewDimension reviewDimension : dimensionList){
+							resultSet.add(reviewDimension.getReviewDimension());
+						}
+
+						reviewMeeting.setDimensionList(new ArrayList<>(resultSet));
+					}
+				}
+			}
 			return selectSuccess(pageList);
 		}
 		return selectNotFound();

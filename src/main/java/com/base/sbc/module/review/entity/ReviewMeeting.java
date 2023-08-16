@@ -37,6 +37,9 @@ public class ReviewMeeting extends BaseDataEntity<String> {
     @TableField(exist = false)
     private String meetingTypeName;
 
+    @TableField(exist = false)
+    private List<String> dimensionList;
+
     /** 部门员工信息集合 */
     @TableField(exist = false)
     private List<ReviewMeetingDepartment> meetingDepartmentList;
