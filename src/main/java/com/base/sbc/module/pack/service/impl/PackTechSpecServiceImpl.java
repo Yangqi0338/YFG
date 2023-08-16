@@ -117,7 +117,7 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
             return;
         }
         try {
-            BufferedImage bufferedImage = MdUtils.mdToImage(newContent);
+            BufferedImage bufferedImage = MdUtils.htmlToImage(newContent);
             String fileName = bean.getForeignId() + StrUtil.DASHED + bean.getPackType() + bean.getSpecType() + ".png";
             AttachmentVo attachmentVo = uploadFileService.uploadToMinio(bufferedImage, fileName);
             uploadFileService.delByUrl(bean.getContentImgUrl());
@@ -139,6 +139,29 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
             packTechSpec.setId(null);
             CommonUtils.resetCreateUpdate(packTechSpec);
             packTechSpec.setSort(new BigDecimal(++count));
+        }
+        saveBatch(packTechSpecs);
+        return BeanUtil.copyToList(packTechSpecs, PackTechSpecVo.class);
+    }
+
+    @Override
+    public List<PackTechSpecVo> batchSave(PackTechSpecBatchSaveDto dto) {
+        List<PackTechSpecDto> list = dto.getList();
+
+        if (StrUtil.isNotBlank(dto.getOverlayFlg())) {
+            //删除
+            QueryWrapper<PackTechSpec> delQw = new QueryWrapper<PackTechSpec>();
+            delQw.eq("foreign_id", dto.getForeignId());
+            delQw.eq("pack_type", dto.getPackType());
+            delQw.eq("spec_type", dto.getSpecType());
+            remove(delQw);
+        }
+        List<PackTechSpec> packTechSpecs = BeanUtil.copyToList(list, PackTechSpec.class);
+        for (PackTechSpec packTechSpec : packTechSpecs) {
+            packTechSpec.setForeignId(dto.getForeignId());
+            packTechSpec.setPackType(dto.getPackType());
+            packTechSpec.setSpecType(dto.getSpecType());
+            packTechSpec.setId(null);
         }
         saveBatch(packTechSpecs);
         return BeanUtil.copyToList(packTechSpecs, PackTechSpecVo.class);

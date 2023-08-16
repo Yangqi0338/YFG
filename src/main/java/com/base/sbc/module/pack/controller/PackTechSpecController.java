@@ -102,6 +102,11 @@ public class PackTechSpecController {
         return packTechSpecService.saveByDto(dto);
     }
 
+    @ApiOperation(value = "批量保存")
+    @PostMapping("/batchSave")
+    public List<PackTechSpecVo> batchSave(@Valid @RequestBody PackTechSpecBatchSaveDto dto) {
+        return packTechSpecService.batchSave(dto);
+    }
 
     @ApiOperation(value = "复制")
     @PostMapping("/copyOther")

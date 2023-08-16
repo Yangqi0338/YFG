@@ -44,10 +44,19 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     /**
      * 保存
+     *
      * @param dto
      * @return
      */
     PatternMaking savePatternMaking(PatternMakingDto dto);
+
+    /**
+     * 校验制版号是否重复
+     *
+     * @param id
+     * @param patternNo
+     */
+    void checkPatternNoRepeat(String id, String patternNo);
 
     /**
      * 款式设计下发

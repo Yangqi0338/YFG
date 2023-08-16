@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-15 11:37:54
+ * @date 创建时间：2023-8-16 16:50:59
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -44,6 +44,11 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "打版编码")
     private String code;
+    /**
+     * 样板号
+     */
+    @ApiModelProperty(value = "样板号")
+    private String patternNo;
     /**
      * 当前状态
      */

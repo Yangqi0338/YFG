@@ -95,6 +95,8 @@ public interface PackTechSpecService extends PackBaseService<PackTechSpec> {
      */
     List<PackTechSpecVo> copyOther(List<PackTechSpecDto> list);
 
+    List<PackTechSpecVo> batchSave(PackTechSpecBatchSaveDto dto);
+
 // 自定义方法区 不替换的区域【other_end】
 
 
