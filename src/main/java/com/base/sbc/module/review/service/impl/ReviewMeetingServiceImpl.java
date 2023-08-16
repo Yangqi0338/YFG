@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.review.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -18,11 +19,13 @@ import com.base.sbc.config.utils.CodeGen;
 import com.base.sbc.config.utils.RedisCodeGenUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.review.dto.ReviewMeetingStyleDTO;
 import com.base.sbc.module.review.entity.*;
 import com.base.sbc.module.review.mapper.ReviewMeetingLogMapper;
 import com.base.sbc.module.review.mapper.ReviewMeetingMapper;
 import com.base.sbc.module.review.service.*;
 import org.apache.poi.ss.formula.functions.T;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -266,6 +269,139 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
             return ApiResult.success("删除成功！", 500);
         }
         return ApiResult.error("找不到数据！", 500);
+    }
+
+    @Override
+    public ApiResult batchAddReviewMeeting(String companyCode, UserCompany userCompany, ReviewMeeting reviewMeetings) {
+        IdGen idGen = new IdGen();
+        String maxCode = reviewMeetingMapper.selectMaxCodeByCompany(companyCode);
+
+        List<ReviewMeeting> reviewMeetingList = new ArrayList<>();
+        List<ReviewMeetingDepartment> addMeetingDepartmentList = new ArrayList<>();
+        List<ReviewMeetingLog> addMeetingLogList = new ArrayList<>();
+        List<ReviewMeetingLogDetail> addMeetingLogDetailList = new ArrayList<>();
+        List<ReviewMeetingLogFile> addMeetingLogFileList = new ArrayList<>();
+
+        List<ReviewMeetingStyleDTO> styleList = reviewMeetings.getStyleList();
+        for(ReviewMeetingStyleDTO style : styleList) {
+            ReviewMeeting reviewMeeting = new ReviewMeeting();
+            BeanUtils.copyProperties(reviewMeetings, reviewMeeting);
+            String id = idGen.nextIdStr();
+            reviewMeeting.insertInit(userCompany);
+            reviewMeeting.setId(id);
+            reviewMeeting.setCompanyCode(companyCode);
+            reviewMeeting.setDelFlag("0");
+            reviewMeeting.setStatus("0");
+
+            String code = "PSH" + CodeGen.getBoxCode(3, maxCode != null ? maxCode : CodeGen.BEGIN_NUM);
+            String meetingNo = redisCodeGenUtils.getCode_MMDD00(companyCode, "reviewMeetingTwo", "", true, false);
+            reviewMeeting.setCode(code);
+            reviewMeeting.setMeetingNo(meetingNo);
+            maxCode = code;
+
+            reviewMeeting.setStyleNo(style.getStyleNo());
+            reviewMeeting.setPlateBillId(style.getPlateBillId());
+            reviewMeeting.setPlateBillCode(style.getPlateBillCode());
+            reviewMeeting.setPictureUrl(style.getPictureUrl());
+
+            //部门信息
+            List<ReviewMeetingDepartment> meetingDepartmentList = reviewMeetings.getMeetingDepartmentList();
+            for (ReviewMeetingDepartment department : meetingDepartmentList) {
+                department.setId(idGen.nextIdStr());
+                department.setCompanyCode(companyCode);
+                department.setMeetingId(id);
+                addMeetingDepartmentList.add(department);
+            }
+
+            //会议记录
+            List<ReviewMeetingLog> reviewMeetingLogList = reviewMeetings.getMeetingLogList();
+            if (CollectionUtil.isNotEmpty(reviewMeetingLogList)) {
+                for (ReviewMeetingLog reviewMeetingLog : reviewMeetingLogList) {
+                    String logId = idGen.nextIdStr();
+                    reviewMeetingLog.setId(logId);
+                    reviewMeetingLog.setCompanyCode(companyCode);
+                    reviewMeetingLog.setMeetingId(id);
+                    reviewMeetingLog.setType("0");
+
+                    //维度信息
+                    for (ReviewMeetingLogDetail detail : reviewMeetingLog.getMeetingLogDetailList()) {
+                        detail.setId(idGen.nextIdStr());
+                        detail.setCompanyCode(companyCode);
+                        detail.setMeetingLogId(logId);
+                        detail.setMeetingId(id);
+                        addMeetingLogDetailList.add(detail);
+                    }
+
+                    //附件
+                    if (reviewMeetingLog.getReviewMeetingLogFile() != null) {
+                        ReviewMeetingLogFile reviewMeetingLogFile = reviewMeetingLog.getReviewMeetingLogFile();
+                        reviewMeetingLogFile.insertInit(userCompany);
+                        reviewMeetingLogFile.setId(idGen.nextIdStr());
+                        reviewMeetingLogFile.setCompanyCode(companyCode);
+                        reviewMeetingLogFile.setMeetingId(id);
+                        reviewMeetingLogFile.setLogId(logId);
+                        addMeetingLogFileList.add(reviewMeetingLogFile);
+                    }
+
+                    addMeetingLogList.add(reviewMeetingLog);
+                }
+            }
+
+            //引用信息
+            List<ReviewMeetingLog> quoteLogList = reviewMeetings.getQuoteLogList();
+            if (CollectionUtil.isNotEmpty(quoteLogList)) {
+                for (ReviewMeetingLog reviewMeetingLog : quoteLogList) {
+                    String logId = idGen.nextIdStr();
+                    reviewMeetingLog.setId(logId);
+                    reviewMeetingLog.setCompanyCode(companyCode);
+                    reviewMeetingLog.setMeetingId(id);
+                    reviewMeetingLog.setType("0");
+
+                    //维度信息
+                    for (ReviewMeetingLogDetail detail : reviewMeetingLog.getMeetingLogDetailList()) {
+                        detail.setId(idGen.nextIdStr());
+                        detail.setCompanyCode(companyCode);
+                        detail.setMeetingLogId(logId);
+                        detail.setMeetingId(id);
+                        addMeetingLogDetailList.add(detail);
+                    }
+
+                    //附件
+                    if (reviewMeetingLog.getReviewMeetingLogFile() != null) {
+                        ReviewMeetingLogFile reviewMeetingLogFile = reviewMeetingLog.getReviewMeetingLogFile();
+                        reviewMeetingLogFile.insertInit(userCompany);
+                        reviewMeetingLogFile.setId(idGen.nextIdStr());
+                        reviewMeetingLogFile.setCompanyCode(companyCode);
+                        reviewMeetingLogFile.setMeetingId(id);
+                        reviewMeetingLogFile.setLogId(logId);
+                        addMeetingLogFileList.add(reviewMeetingLogFile);
+                    }
+
+                    addMeetingLogList.add(reviewMeetingLog);
+                }
+            }
+
+            reviewMeetingList.add(reviewMeeting);
+        }
+
+        if(CollectionUtil.isNotEmpty(addMeetingDepartmentList)){
+            meetingDepartmentService.saveBatch(addMeetingDepartmentList);
+        }
+        if(CollectionUtil.isNotEmpty(addMeetingLogList)){
+            reviewMeetingLogService.saveBatch(addMeetingLogList);
+        }
+        if(CollectionUtil.isNotEmpty(addMeetingLogDetailList)){
+            meetingLogDetailService.saveBatch(addMeetingLogDetailList);
+        }
+        if(CollectionUtil.isNotEmpty(addMeetingLogFileList)){
+            meetingLogFileService.saveBatch(addMeetingLogFileList);
+        }
+
+        boolean i = saveBatch(reviewMeetingList);
+        if(i){
+            return ApiResult.success("新增成功！", i);
+        }
+        return ApiResult.error("新增失败！", 500);
     }
 
     public void deleteDetailData(String companyCode, String ids){

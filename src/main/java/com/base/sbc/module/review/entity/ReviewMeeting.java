@@ -5,17 +5,19 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.review.entity;
-import java.util.Date;
-import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.review.dto.ReviewMeetingStyleDTO;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Date;
+import java.util.List;
 /**
  * 类描述：评审会 实体类
  * @address com.base.sbc.module.review.entity.ReviewMeeting
@@ -45,6 +47,9 @@ public class ReviewMeeting extends BaseDataEntity<String> {
     @TableField(exist = false)
     private List<ReviewMeetingLog> meetingLogList;
 
+    /** 设计款号+ 款式BOM 集合 */
+    @TableField(exist = false)
+    private List<ReviewMeetingStyleDTO> styleList;
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/

@@ -124,6 +124,12 @@ public class ReviewMeetingController extends BaseController{
 		return reviewMeetingService.addReviewMeeting(companyCode, userCompanyUtils.getCompanyUser(user), reviewMeeting, true);
 	}
 
+	@ApiOperation(value = "批量新增评审会")
+	@PostMapping("/batchAdd")
+	public ApiResult batchAdd(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode, @RequestBody ReviewMeeting reviewMeeting) {
+		return reviewMeetingService.addReviewMeeting(companyCode, userCompanyUtils.getCompanyUser(user), reviewMeeting, true);
+	}
+
 	@ApiOperation(value = "修改评审会")
 	@PostMapping("/update")
 	public ApiResult update(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode, @RequestBody ReviewMeeting reviewMeeting) {
