@@ -127,7 +127,7 @@ public class ReviewMeetingController extends BaseController{
 	@ApiOperation(value = "批量新增评审会")
 	@PostMapping("/batchAdd")
 	public ApiResult batchAdd(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode, @RequestBody ReviewMeeting reviewMeeting) {
-		return reviewMeetingService.addReviewMeeting(companyCode, userCompanyUtils.getCompanyUser(user), reviewMeeting, true);
+		return reviewMeetingService.batchAddReviewMeeting(companyCode, userCompanyUtils.getCompanyUser(user), reviewMeeting);
 	}
 
 	@ApiOperation(value = "修改评审会")
