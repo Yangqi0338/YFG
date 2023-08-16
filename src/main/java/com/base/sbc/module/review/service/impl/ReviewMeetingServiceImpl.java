@@ -147,34 +147,36 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
         List<ReviewMeetingLogFile> addMeetingLogFileList = new ArrayList<>();
         //会议记录
         List<ReviewMeetingLog> reviewMeetingLogList = reviewMeeting.getMeetingLogList();
-        for (ReviewMeetingLog reviewMeetingLog : reviewMeetingLogList) {
-            String logId = idGen.nextIdStr();
-            reviewMeetingLog.setId(logId);
-            reviewMeetingLog.setCompanyCode(companyCode);
-            reviewMeetingLog.setMeetingId(id);
-            reviewMeetingLog.setType("0");
+        if(CollectionUtil.isNotEmpty(reviewMeetingLogList)) {
+            for (ReviewMeetingLog reviewMeetingLog : reviewMeetingLogList) {
+                String logId = idGen.nextIdStr();
+                reviewMeetingLog.setId(logId);
+                reviewMeetingLog.setCompanyCode(companyCode);
+                reviewMeetingLog.setMeetingId(id);
+                reviewMeetingLog.setType("0");
 
-            //维度信息
-            for (ReviewMeetingLogDetail detail : reviewMeetingLog.getMeetingLogDetailList()) {
-                detail.setId(idGen.nextIdStr());
-                detail.setCompanyCode(companyCode);
-                detail.setMeetingLogId(logId);
-                detail.setMeetingId(id);
-                addMeetingLogDetailList.add(detail);
+                //维度信息
+                for (ReviewMeetingLogDetail detail : reviewMeetingLog.getMeetingLogDetailList()) {
+                    detail.setId(idGen.nextIdStr());
+                    detail.setCompanyCode(companyCode);
+                    detail.setMeetingLogId(logId);
+                    detail.setMeetingId(id);
+                    addMeetingLogDetailList.add(detail);
+                }
+
+                //附件
+                if (reviewMeetingLog.getReviewMeetingLogFile() != null) {
+                    ReviewMeetingLogFile reviewMeetingLogFile = reviewMeetingLog.getReviewMeetingLogFile();
+                    reviewMeetingLogFile.insertInit(userCompany);
+                    reviewMeetingLogFile.setId(idGen.nextIdStr());
+                    reviewMeetingLogFile.setCompanyCode(companyCode);
+                    reviewMeetingLogFile.setMeetingId(id);
+                    reviewMeetingLogFile.setLogId(logId);
+                    addMeetingLogFileList.add(reviewMeetingLogFile);
+                }
+
+                addMeetingLogList.add(reviewMeetingLog);
             }
-
-            //附件
-            if(reviewMeetingLog.getReviewMeetingLogFile() != null) {
-                ReviewMeetingLogFile reviewMeetingLogFile = reviewMeetingLog.getReviewMeetingLogFile();
-                reviewMeetingLogFile.insertInit(userCompany);
-                reviewMeetingLogFile.setId(idGen.nextIdStr());
-                reviewMeetingLogFile.setCompanyCode(companyCode);
-                reviewMeetingLogFile.setMeetingId(id);
-                reviewMeetingLogFile.setLogId(logId);
-                addMeetingLogFileList.add(reviewMeetingLogFile);
-            }
-
-            addMeetingLogList.add(reviewMeetingLog);
         }
 
         //引用信息
