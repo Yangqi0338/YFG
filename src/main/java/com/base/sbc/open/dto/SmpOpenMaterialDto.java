@@ -259,9 +259,9 @@ public class SmpOpenMaterialDto {
         basicsdatumMaterial.setDensity(c8MaterialAttrDensity);
 //        basicsdatumMaterial.setCategoryIds(ProductTypeID+","+C8_Material_2ndCategory+","+C8_Material_3rdCategory);
         basicsdatumMaterial.setYear(C8_Season_Year);
-        //basicsdatumMaterial.setCategory1Code(ProductTypeID);
-        basicsdatumMaterial.setCategory2Code(ProductTypeID);
-        basicsdatumMaterial.setCategory3Code(C8_Material_2ndCategory);
+        basicsdatumMaterial.setCategory1Code(ProductTypeID);
+        basicsdatumMaterial.setCategory2Code(C8_Material_2ndCategory);
+        basicsdatumMaterial.setCategory3Code(C8_Material_3rdCategory);
         basicsdatumMaterial.setCategoryId(C8_Material_3rdCategory);
         basicsdatumMaterial.setSeasonName(C8_Season_Quarter);
         basicsdatumMaterial.setSeason(C8_Season_QuarterID);
