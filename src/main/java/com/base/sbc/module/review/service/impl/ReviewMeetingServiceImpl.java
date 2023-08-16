@@ -67,6 +67,8 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
     @Autowired
     private RedisCodeGenUtils redisCodeGenUtils;
 
+    private IdGen idGen = new IdGen();
+
     /**
      * 评审会 数据处理
      */
@@ -121,8 +123,6 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
 
     @Transactional(readOnly = false)
     public ApiResult addReviewMeeting(String companyCode, UserCompany userCompany, ReviewMeeting reviewMeeting, Boolean addOrUpdate) {
-        IdGen idGen = new IdGen();
-
         String id = addOrUpdate ? idGen.nextIdStr() : reviewMeeting.getId();
         reviewMeeting.insertInit(userCompany);
         reviewMeeting.setId(id);
@@ -273,7 +273,6 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
 
     @Override
     public ApiResult batchAddReviewMeeting(String companyCode, UserCompany userCompany, ReviewMeeting reviewMeetings) {
-        IdGen idGen = new IdGen();
         String maxCode = reviewMeetingMapper.selectMaxCodeByCompany(companyCode);
 
         List<ReviewMeeting> reviewMeetingList = new ArrayList<>();
@@ -283,10 +282,11 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
         List<ReviewMeetingLogFile> addMeetingLogFileList = new ArrayList<>();
 
         List<ReviewMeetingStyleDTO> styleList = reviewMeetings.getStyleList();
+        long startId = idGen.nextId();
         for(ReviewMeetingStyleDTO style : styleList) {
             ReviewMeeting reviewMeeting = new ReviewMeeting();
             BeanUtils.copyProperties(reviewMeetings, reviewMeeting);
-            String id = idGen.nextIdStr();
+            String id = String.valueOf(startId++);
             reviewMeeting.insertInit(userCompany);
             reviewMeeting.setId(id);
             reviewMeeting.setCompanyCode(companyCode);
@@ -307,43 +307,52 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
             //部门信息
             List<ReviewMeetingDepartment> meetingDepartmentList = reviewMeetings.getMeetingDepartmentList();
             for (ReviewMeetingDepartment department : meetingDepartmentList) {
-                department.setId(idGen.nextIdStr());
-                department.setCompanyCode(companyCode);
-                department.setMeetingId(id);
-                addMeetingDepartmentList.add(department);
+                ReviewMeetingDepartment addDepartment = new ReviewMeetingDepartment();
+                BeanUtils.copyProperties(department, addDepartment);
+                addDepartment.setId(String.valueOf(startId++));
+                addDepartment.setCompanyCode(companyCode);
+                addDepartment.setMeetingId(id);
+                addMeetingDepartmentList.add(addDepartment);
             }
 
             //会议记录
             List<ReviewMeetingLog> reviewMeetingLogList = reviewMeetings.getMeetingLogList();
             if (CollectionUtil.isNotEmpty(reviewMeetingLogList)) {
                 for (ReviewMeetingLog reviewMeetingLog : reviewMeetingLogList) {
-                    String logId = idGen.nextIdStr();
-                    reviewMeetingLog.setId(logId);
-                    reviewMeetingLog.setCompanyCode(companyCode);
-                    reviewMeetingLog.setMeetingId(id);
-                    reviewMeetingLog.setType("0");
+                    ReviewMeetingLog addLog = new ReviewMeetingLog();
+                    BeanUtils.copyProperties(reviewMeetingLog, addLog);
+                    String logId = String.valueOf(startId++);
+                    addLog.setId(logId);
+                    addLog.setCompanyCode(companyCode);
+                    addLog.setMeetingId(id);
+                    addLog.setType("0");
 
                     //维度信息
-                    for (ReviewMeetingLogDetail detail : reviewMeetingLog.getMeetingLogDetailList()) {
-                        detail.setId(idGen.nextIdStr());
-                        detail.setCompanyCode(companyCode);
-                        detail.setMeetingLogId(logId);
-                        detail.setMeetingId(id);
-                        addMeetingLogDetailList.add(detail);
+                    for (ReviewMeetingLogDetail detail : addLog.getMeetingLogDetailList()) {
+                        ReviewMeetingLogDetail addDetail = new ReviewMeetingLogDetail();
+                        BeanUtils.copyProperties(detail, addDetail);
+                        addDetail.setId(String.valueOf(startId++));
+                        addDetail.setCompanyCode(companyCode);
+                        addDetail.setMeetingLogId(logId);
+                        addDetail.setMeetingId(id);
+                        addMeetingLogDetailList.add(addDetail);
                     }
 
                     //附件
-                    if (reviewMeetingLog.getReviewMeetingLogFile() != null) {
-                        ReviewMeetingLogFile reviewMeetingLogFile = reviewMeetingLog.getReviewMeetingLogFile();
-                        reviewMeetingLogFile.insertInit(userCompany);
-                        reviewMeetingLogFile.setId(idGen.nextIdStr());
-                        reviewMeetingLogFile.setCompanyCode(companyCode);
-                        reviewMeetingLogFile.setMeetingId(id);
-                        reviewMeetingLogFile.setLogId(logId);
-                        addMeetingLogFileList.add(reviewMeetingLogFile);
+                    if (addLog.getReviewMeetingLogFile() != null) {
+                        ReviewMeetingLogFile reviewMeetingLogFile = addLog.getReviewMeetingLogFile();
+
+                        ReviewMeetingLogFile addFile = new ReviewMeetingLogFile();
+                        BeanUtils.copyProperties(reviewMeetingLogFile, addFile);
+                        addFile.insertInit(userCompany);
+                        addFile.setId(String.valueOf(startId++));
+                        addFile.setCompanyCode(companyCode);
+                        addFile.setMeetingId(id);
+                        addFile.setLogId(logId);
+                        addMeetingLogFileList.add(addFile);
                     }
 
-                    addMeetingLogList.add(reviewMeetingLog);
+                    addMeetingLogList.add(addLog);
                 }
             }
 
@@ -351,33 +360,40 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
             List<ReviewMeetingLog> quoteLogList = reviewMeetings.getQuoteLogList();
             if (CollectionUtil.isNotEmpty(quoteLogList)) {
                 for (ReviewMeetingLog reviewMeetingLog : quoteLogList) {
-                    String logId = idGen.nextIdStr();
-                    reviewMeetingLog.setId(logId);
-                    reviewMeetingLog.setCompanyCode(companyCode);
-                    reviewMeetingLog.setMeetingId(id);
-                    reviewMeetingLog.setType("0");
+                    ReviewMeetingLog addLog = new ReviewMeetingLog();
+                    BeanUtils.copyProperties(reviewMeetingLog, addLog);
+                    String logId = String.valueOf(startId++);
+                    addLog.setId(logId);
+                    addLog.setCompanyCode(companyCode);
+                    addLog.setMeetingId(id);
+                    addLog.setType("0");
 
                     //维度信息
-                    for (ReviewMeetingLogDetail detail : reviewMeetingLog.getMeetingLogDetailList()) {
-                        detail.setId(idGen.nextIdStr());
-                        detail.setCompanyCode(companyCode);
-                        detail.setMeetingLogId(logId);
-                        detail.setMeetingId(id);
-                        addMeetingLogDetailList.add(detail);
+                    for (ReviewMeetingLogDetail detail : addLog.getMeetingLogDetailList()) {
+                        ReviewMeetingLogDetail addDetail = new ReviewMeetingLogDetail();
+                        BeanUtils.copyProperties(detail, addDetail);
+                        addDetail.setId(String.valueOf(startId++));
+                        addDetail.setCompanyCode(companyCode);
+                        addDetail.setMeetingLogId(logId);
+                        addDetail.setMeetingId(id);
+                        addMeetingLogDetailList.add(addDetail);
                     }
 
                     //附件
-                    if (reviewMeetingLog.getReviewMeetingLogFile() != null) {
-                        ReviewMeetingLogFile reviewMeetingLogFile = reviewMeetingLog.getReviewMeetingLogFile();
-                        reviewMeetingLogFile.insertInit(userCompany);
-                        reviewMeetingLogFile.setId(idGen.nextIdStr());
-                        reviewMeetingLogFile.setCompanyCode(companyCode);
-                        reviewMeetingLogFile.setMeetingId(id);
-                        reviewMeetingLogFile.setLogId(logId);
-                        addMeetingLogFileList.add(reviewMeetingLogFile);
+                    if (addLog.getReviewMeetingLogFile() != null) {
+                        ReviewMeetingLogFile reviewMeetingLogFile = addLog.getReviewMeetingLogFile();
+
+                        ReviewMeetingLogFile addFile = new ReviewMeetingLogFile();
+                        BeanUtils.copyProperties(reviewMeetingLogFile, addFile);
+                        addFile.insertInit(userCompany);
+                        addFile.setId(String.valueOf(startId++));
+                        addFile.setCompanyCode(companyCode);
+                        addFile.setMeetingId(id);
+                        addFile.setLogId(logId);
+                        addMeetingLogFileList.add(addFile);
                     }
 
-                    addMeetingLogList.add(reviewMeetingLog);
+                    addMeetingLogList.add(addLog);
                 }
             }
 
