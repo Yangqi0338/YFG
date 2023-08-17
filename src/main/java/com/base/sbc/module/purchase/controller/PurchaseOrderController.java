@@ -5,7 +5,10 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.purchase.controller;
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
@@ -30,6 +33,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.security.Principal;
 import java.util.List;
 
@@ -55,6 +59,9 @@ public class PurchaseOrderController extends BaseController{
 
 	@Autowired
 	private PurchaseOrderMapper purchaseOrderMapper;
+
+	@Autowired
+	private FlowableService flowableService;
 
 	@Autowired
 	private UserCompanyUtils userCompanyUtils;
@@ -167,6 +174,41 @@ public class PurchaseOrderController extends BaseController{
 			return ApiResult.success("success", pages);
 		}
 		return selectNotFound();
+	}
+
+	@ApiOperation(value = "提交")
+	@GetMapping("/submit")
+	public ApiResult submit(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany,@RequestParam("id") String id) {
+		if(StringUtils.isBlank(id)){
+			return selectAttributeNotRequirements("id");
+		}
+		PurchaseOrder purchaseOrder = purchaseOrderService.getById(id);
+		if(purchaseOrder != null){
+			if(!StringUtils.equals(purchaseOrder.getStatus(), "0") || !StringUtils.equals(purchaseOrder.getOrderStatus(), "0")){
+				return ApiResult.error("请选择草稿状态的单据！", 500);
+			}
+
+			Boolean result = flowableService.start("单号:"+purchaseOrder.getCode(), flowableService.PURCHASE_ORDER, purchaseOrder.getId(),
+					"/pdm/api/saas/purchaseOrder/examine", "/pdm/api/saas/purchaseOrder/examine", "/pdm/api/saas/purchaseOrder/examine",
+					null, BeanUtil.beanToMap(purchaseOrder));
+			if(result){
+				ApiResult.success("提交成功！", result);
+			}
+		}
+		return ApiResult.error("提交失败！", 500);
+	}
+
+	@ApiOperation(value = "审核")
+	@PostMapping("/examine")
+	public void examinePass(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestBody AnswerDto dto) {
+		UserCompany userInfo = userCompanyUtils.getCompanyUser();
+		if(StringUtils.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+			purchaseOrderService.examinePass(userInfo, dto);
+		}else if(StringUtils.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)){
+			purchaseOrderService.examineNoPass(userInfo, dto);
+		}else{
+			purchaseOrderService.cancelExamine(userInfo, dto);
+		}
 	}
 }
 

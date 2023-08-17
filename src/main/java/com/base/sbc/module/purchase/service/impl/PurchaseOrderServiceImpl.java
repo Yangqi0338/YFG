@@ -8,6 +8,7 @@ package com.base.sbc.module.purchase.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.UserCompany;
@@ -227,6 +228,46 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
             updateBatchById(orderList);
         }
 
+    }
+
+    /**
+     * 审核通过
+     * */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void examinePass(UserCompany userCompany, AnswerDto dto) {
+        PurchaseOrder purchaseOrder = getById(dto.getBusinessKey());
+        purchaseOrder.setReviewer(userCompany.getUserId());
+        purchaseOrder.setReviewDate(new Date());
+        purchaseOrder.setStatus("1");
+        updateById(purchaseOrder);
+    }
+
+    /**
+     * 审核驳回
+     * */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void examineNoPass(UserCompany userCompany, AnswerDto dto) {
+        PurchaseOrder purchaseOrder = getById(dto.getBusinessKey());
+        purchaseOrder.setReviewer(userCompany.getUserId());
+        purchaseOrder.setReviewDate(new Date());
+        purchaseOrder.setRejectReason(dto.getConfirmSay());
+        purchaseOrder.setStatus("2");
+        updateById(purchaseOrder);
+    }
+
+    /**
+     * 取消审核
+     * */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void cancelExamine(UserCompany userCompany, AnswerDto dto) {
+        PurchaseOrder purchaseOrder = getById(dto.getBusinessKey());
+        purchaseOrder.setReviewer(userCompany.getUserId());
+        purchaseOrder.setReviewDate(new Date());
+        purchaseOrder.setStatus("0");
+        updateById(purchaseOrder);
     }
 
 
