@@ -148,6 +148,14 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @return
          */
         Boolean unlockStyleColor(PublicStyleColorDto publicStyleColorDto);
+
+        /**
+         * 方法描述 新增次品款
+         * @param publicStyleColorDto
+         * @return
+         */
+        Boolean addDefective(PublicStyleColorDto publicStyleColorDto);
+
 // 自定义方法区 不替换的区域【other_end】
 
 

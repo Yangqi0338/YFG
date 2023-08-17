@@ -156,6 +156,12 @@ public class StyleColorController {
 		return styleColorService.unlockStyleColor(publicStyleColorDto);
 	}
 
+	@ApiOperation(value = "新增次品款")
+	@PostMapping("/addDefective")
+	public Boolean addDefective( @Valid @RequestBody PublicStyleColorDto publicStyleColorDto) {
+		return styleColorService.addDefective(publicStyleColorDto);
+	}
+
 }
 
 
