@@ -17,12 +17,12 @@ public class PublicStyleColorDto {
     @ApiModelProperty(value = "SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开"  )
     private String scmSendFlag;
 
-    @NotBlank(message = "次品编号")
+    @ApiModelProperty(value = "次品编号")
     private String defectiveNo;
 
-    @NotBlank(message = "次品名称")
+    @ApiModelProperty(value = "次品名称")
     private String defectiveName;
 
-    @NotBlank(message = "颜色库id")
+    @ApiModelProperty(value = "颜色库id")
     private String colourLibraryId;
 }

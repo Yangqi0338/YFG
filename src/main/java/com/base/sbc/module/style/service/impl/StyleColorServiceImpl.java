@@ -728,13 +728,12 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         codeQw.eq("foreign_id", styleColor.getStyleId());
         long count = packInfoMapper.countByQw(codeQw);
         /*复制配色*/
-        if(StringUtils.isNotBlank(publicStyleColorDto.getColourLibraryId())){
-            BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(publicStyleColorDto.getColourLibraryId());
-            copyStyleColor.setColorName(basicsdatumColourLibrary.getColourName());
-            copyStyleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
-            copyStyleColor.setColorCode(basicsdatumColourLibrary.getColourCode());
-            copyStyleColor.setColourLibraryId(basicsdatumColourLibrary.getId());
-        }
+
+        BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(publicStyleColorDto.getColourLibraryId());
+        copyStyleColor.setColorName(basicsdatumColourLibrary.getColourName());
+        copyStyleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
+        copyStyleColor.setColorCode(basicsdatumColourLibrary.getColourCode());
+        copyStyleColor.setColourLibraryId(basicsdatumColourLibrary.getId());
         copyStyleColor.setStyleNo(styleColor.getStyleNo()+ publicStyleColorDto.getDefectiveNo());
         copyStyleColor.setDefectiveName(publicStyleColorDto.getDefectiveName());
         copyStyleColor.setDefectiveNo(publicStyleColorDto.getDefectiveNo());
@@ -751,6 +750,8 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         copyPackInfo.setStyleColorId(copyStyleColor.getId());
         copyPackInfo.setCode(styleColor.getDesignNo() + StrUtil.DASHED + (count + 1));
         copyPackInfo.setName(publicStyleColorDto.getDefectiveNo());
+        copyPackInfo.setColor(basicsdatumColourLibrary.getColourName());
+        copyPackInfo.setColorCode(basicsdatumColourLibrary.getColourCode());
         packInfoService.save(copyPackInfo);
 
         /*查询bom下的状态*/
