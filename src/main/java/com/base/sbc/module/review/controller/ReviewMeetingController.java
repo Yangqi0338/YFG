@@ -143,6 +143,15 @@ public class ReviewMeetingController extends BaseController{
 		if (page.getStartDate() != null && page.getEndDate() != null) {
 			qc.between("m.meeting_date", page.getStartDate(), page.getEndDate());
 		}
+		if(StringUtils.isNoneBlank(page.getSearch())){
+			qc.and(wrapper -> wrapper.like("m.code", page.getSearch())
+					.or()
+					.like("m.meeting_name", page.getSearch())
+					.or()
+					.like("m.style_no", page.getSearch())
+					.or()
+					.like("m.plate_bill_code", page.getSearch()));
+		}
 
 		if(userCompany != null){
 			qc.eq("d.staff_id", userCompany.getUserId());
