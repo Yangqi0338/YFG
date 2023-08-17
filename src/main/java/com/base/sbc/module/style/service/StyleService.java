@@ -167,10 +167,19 @@ public interface StyleService extends BaseService<Style> {
 
     /**
      * 方法描述 验证款式号型类型是否可修改
+     *
      * @param publicStyleColorDto
      * @return
      */
-    Boolean  checkColorSize(PublicStyleColorDto publicStyleColorDto);
+    Boolean checkColorSize(PublicStyleColorDto publicStyleColorDto);
+
+    /**
+     * 企划需求统计
+     *
+     * @param id 款式id
+     * @return
+     */
+    Object planningDemandStatistics(String id);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

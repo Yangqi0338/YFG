@@ -927,6 +927,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         return true;
     }
 
+    @Override
+    public Object planningDemandStatistics(String id) {
+        Style style = getById(id);
+        //查询需求占比
+
+        return null;
+    }
+
     private void getProductCategoryTreeQw(ProductCategoryTreeVo vo, QueryWrapper<?> qw) {
         qw.eq(StrUtil.isNotBlank(vo.getPlanningSeasonId()), "planning_season_id", vo.getPlanningSeasonId());
         qw.eq(StrUtil.isNotBlank(vo.getProdCategory1stName()), "prod_category1st_name", vo.getProdCategory1stName());

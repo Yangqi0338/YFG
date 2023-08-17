@@ -9,6 +9,7 @@ package com.base.sbc.module.style.controller;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
@@ -151,9 +152,17 @@ public class StyleController {
      */
     @ApiOperation(value = "验证尺码组是否可修改")
     @PostMapping("/checkColorSize")
-    public Boolean checkColorSize( @Valid @RequestBody PublicStyleColorDto publicStyleColorDto) {
+    public Boolean checkColorSize(@Valid @RequestBody PublicStyleColorDto publicStyleColorDto) {
         return styleService.checkColorSize(publicStyleColorDto);
     }
+
+
+    @ApiOperation(value = "企划需求统计")
+    @PostMapping("/planningDemandStatistics")
+    public Object planningDemandStatistics(@Valid @RequestBody IdDto idDto) {
+        return styleService.planningDemandStatistics(idDto.getId());
+    }
+
 
 }
 

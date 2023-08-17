@@ -167,7 +167,7 @@ public class PackInfoController {
 	}
 
 	@ApiOperation(value = "关联样板号")
-	@PostMapping("/association")
+	@PostMapping("/setPatternNo")
 	public boolean setPatternNo(@Validated @RequestBody PackInfoSetPatternNoDto dto) {
 		return packInfoService.setPatternNo(dto);
 	}
