@@ -67,6 +67,9 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
     @Autowired
     private RedisCodeGenUtils redisCodeGenUtils;
 
+    @Autowired
+    private ReviewMeetingPeopleService peopleService;
+
     private IdGen idGen = new IdGen();
 
     /**
@@ -121,7 +124,7 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
         return ApiResult.error("找不到数据！", 500);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional(rollbackFor = {Exception.class})
     public ApiResult addReviewMeeting(String companyCode, UserCompany userCompany, ReviewMeeting reviewMeeting, Boolean addOrUpdate) {
         String id = addOrUpdate ? idGen.nextIdStr() : reviewMeeting.getId();
         reviewMeeting.insertInit(userCompany);
@@ -239,7 +242,7 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
         return ApiResult.error("新增失败！", 500);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional(rollbackFor = {Exception.class})
     public ApiResult updateReviewMeeting(String companyCode, UserCompany userCompany, ReviewMeeting reviewMeeting, Boolean addOrUpdate){
         //删除相关明细数据
         deleteDetailData(companyCode, reviewMeeting.getId());
@@ -248,6 +251,27 @@ public class ReviewMeetingServiceImpl extends BaseServiceImpl<ReviewMeetingMappe
         boolean i = updateById(reviewMeeting);
         if(i){
             addReviewMeeting(companyCode, userCompany, reviewMeeting, addOrUpdate);
+            return ApiResult.success("修改成功！", reviewMeeting);
+        }
+        return ApiResult.error("修改失败！", 500);
+    }
+
+    @Transactional(rollbackFor = {Exception.class})
+    public ApiResult staffUpdate(String companyCode, UserCompany userCompany, ReviewMeeting reviewMeeting, Boolean addOrUpdate){
+        //删除相关明细数据
+        deleteDetailData(companyCode, reviewMeeting.getId());
+
+        reviewMeeting.updateInit(userCompany);
+        boolean i = updateById(reviewMeeting);
+        if(i){
+            addReviewMeeting(companyCode, userCompany, reviewMeeting, addOrUpdate);
+            //新增员工参与会议记录
+            ReviewMeetingPeople people = new ReviewMeetingPeople();
+            people.insertInit(userCompany);
+            people.setId(idGen.nextIdStr());
+            people.setCompanyCode(companyCode);
+            people.setMeetingId(reviewMeeting.getId());
+            peopleService.save(people);
             return ApiResult.success("修改成功！", reviewMeeting);
         }
         return ApiResult.error("修改失败！", 500);
