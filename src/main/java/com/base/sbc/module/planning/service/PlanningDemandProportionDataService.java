@@ -11,6 +11,8 @@ import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planning.dto.SaveUpdateDemandProportionDataDto;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
 
+import java.util.List;
+
 /**
  * 类描述：企划-需求维度数据表 service类
  *
@@ -26,6 +28,13 @@ public interface PlanningDemandProportionDataService extends BaseService<Plannin
      * 自定义方法区 不替换的区域【other_start】
      **/
     ApiResult saveUpdate(SaveUpdateDemandProportionDataDto saveUpdateDemandDimensionalityDataDto);
+
+    /**
+     * 批量新增修改需求占比数据表
+     * @param list
+     * @return
+     */
+    Boolean  batchSaveUpdate( List<SaveUpdateDemandProportionDataDto> list);
 
     ApiResult del(String id);
 /** 自定义方法区 不替换的区域【other_end】 **/
