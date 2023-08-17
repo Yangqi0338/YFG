@@ -192,7 +192,7 @@ public class PurchaseOrderController extends BaseController{
 					"/pdm/api/saas/purchaseOrder/examine", "/pdm/api/saas/purchaseOrder/examine", "/pdm/api/saas/purchaseOrder/examine",
 					null, BeanUtil.beanToMap(purchaseOrder));
 			if(result){
-				ApiResult.success("提交成功！", result);
+				return ApiResult.success("提交成功！", result);
 			}
 		}
 		return ApiResult.error("提交失败！", 500);
