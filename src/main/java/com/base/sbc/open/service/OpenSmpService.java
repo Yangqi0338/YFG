@@ -244,6 +244,7 @@ public class OpenSmpService {
                 basicsdatumMaterialPrice.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
                 basicsdatumMaterialPrice.setSelectFlag(quotItem.getDefaultQuote());
                 basicsdatumMaterialPrice.setUpdateName("外部系统推送");
+                basicsdatumMaterialPrice.setRemarks(quotItem.getComment());
                 basicsdatumMaterialPrice.setIndex(String.valueOf(index.get()));
                 basicsdatumMaterialPrices.add(basicsdatumMaterialPrice);
                 index.getAndIncrement();

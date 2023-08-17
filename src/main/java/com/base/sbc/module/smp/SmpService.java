@@ -1,5 +1,6 @@
 package com.base.sbc.module.smp;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
@@ -115,7 +116,6 @@ public class SmpService {
     private final PatternMakingService patternMakingService;
 
     private final BasicsdatumIngredientService basicsdatumIngredientService;
-
 
     private static final String SMP_URL = "http://10.98.250.31:7006/pdm";
     //private static final String PDM_URL = "http://smp-i.eifini.com/service-manager/pdm";
@@ -306,7 +306,7 @@ public class SmpService {
                 //款式定价
                 StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
                 if (stylePricingVO != null) {
-                    smpGoodsDto.setBomPhase ("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
+                    smpGoodsDto.setBomPhase("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
                     smpGoodsDto.setPriceConfirm("1".equals(stylePricingVO.getProductTagPriceConfirm()));
                     smpGoodsDto.setPlanCost(stylePricingVO.getPlanCost());
                     try {
@@ -434,7 +434,35 @@ public class SmpService {
             dto.setMaterialCode(basicsdatumMaterial.getMaterialCode());
 
             List<SmpQuot> quotList = new ArrayList<>();
-            for (BasicsdatumMaterialPricePageVo basicsdatumMaterialPricePageVo : basicsdatumMaterialService.getBasicsdatumMaterialPriceList(dto).getList()) {
+
+            List<BasicsdatumMaterialPricePageVo> materialPricePageVoList = new ArrayList<>();
+            List<BasicsdatumMaterialPricePageVo> list = basicsdatumMaterialService.getBasicsdatumMaterialPriceList(dto).getList();
+            //拆分sku
+            for (BasicsdatumMaterialPricePageVo basicsdatumMaterialPricePageVo : list) {
+                String[] widths = basicsdatumMaterialPricePageVo.getWidth().split(",");
+                String[] widthNames = basicsdatumMaterialPricePageVo.getWidthName().split(",");
+                String[] colors = basicsdatumMaterialPricePageVo.getColor().split(",");
+                String[] colorNames = basicsdatumMaterialPricePageVo.getColorName().split(",");
+
+                for (int i = 0; i < colors.length; i++) {
+                    for (int j = 0; j < widths.length; j++) {
+                        BasicsdatumMaterialPricePageVo basicsdatumMaterialPricePageVo1 = new BasicsdatumMaterialPricePageVo();
+                        BeanUtil.copyProperties(basicsdatumMaterialPricePageVo, basicsdatumMaterialPricePageVo1);
+                        basicsdatumMaterialPricePageVo1.setColor(colors[i]);
+                        basicsdatumMaterialPricePageVo1.setWidth(widths[j]);
+                        try {
+                            basicsdatumMaterialPricePageVo1.setColorName(colorNames[i]);
+                            basicsdatumMaterialPricePageVo1.setWidthName(widthNames[j]);
+
+                        } catch (Exception ignored) {
+
+                        }
+                        materialPricePageVoList.add(basicsdatumMaterialPricePageVo1);
+                    }
+                }
+            }
+
+            for (BasicsdatumMaterialPricePageVo basicsdatumMaterialPricePageVo : materialPricePageVoList) {
                 SmpQuot smpQuot = new SmpQuot();
                 smpQuot.setSupplierSize(basicsdatumMaterialPricePageVo.getWidth());
                 smpQuot.setSizeUrl(basicsdatumMaterialPricePageVo.getWidth());
@@ -447,15 +475,12 @@ public class SmpService {
                 smpQuot.setSupplierMaterial(basicsdatumMaterialPricePageVo.getSupplierMaterialCode());
                 smpQuot.setSupplierCode(basicsdatumMaterialPricePageVo.getSupplierId());
                 smpQuot.setSupplierName(basicsdatumMaterialPricePageVo.getSupplierName());
-                smpQuot.setComment(null);
+                smpQuot.setComment(basicsdatumMaterialPricePageVo.getRemarks());
                 smpQuot.setTradeTermKey(null);
-                if (basicsdatumMaterialPricePageVo.getSupplierId().equals(basicsdatumMaterial.getSupplierId())) {
-                    smpQuot.setDefaultQuote(true);
-                } else {
-                    smpQuot.setDefaultQuote(false);
-                }
-
                 smpQuot.setTradeTermName(null);
+                smpQuot.setDefaultQuote(basicsdatumMaterialPricePageVo.getSelectFlag());
+
+
                 smpQuot.setMaterialUom(basicsdatumMaterialPricePageVo.getWidth());
                 quotList.add(smpQuot);
             }
