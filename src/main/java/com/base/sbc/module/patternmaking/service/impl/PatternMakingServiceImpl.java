@@ -836,6 +836,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return update(updateBean, uw);
     }
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean setSampleBarCode(SetSampleBarCodeDto dto) {
+        PatternMaking update = new PatternMaking();
+        update.setSampleBarCode(dto.getSampleBarCode());
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PatternMaking::getId, dto.getId());
+        return update(update, uw);
+    }
+
 
     /**
      * 产能对比统计 查数据库

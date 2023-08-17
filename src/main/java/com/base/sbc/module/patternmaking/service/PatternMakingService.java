@@ -283,6 +283,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     boolean sampleMakingScore(Principal user, String id, BigDecimal score);
 
+    boolean setSampleBarCode(SetSampleBarCodeDto dto);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

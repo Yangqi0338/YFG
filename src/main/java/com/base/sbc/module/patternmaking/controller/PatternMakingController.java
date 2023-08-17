@@ -300,6 +300,12 @@ public class PatternMakingController {
     public boolean sampleMakingScore(Principal user, @Validated @RequestBody ScoreDto dto) {
         return patternMakingService.sampleMakingScore(user, dto.getId(), dto.getScore());
     }
+
+    @ApiOperation(value = "设置样衣条码", notes = "")
+    @PostMapping("/setSampleBarCode")
+    public boolean setSampleBarCode(@Validated @RequestBody SetSampleBarCodeDto dto) {
+        return patternMakingService.setSampleBarCode(dto);
+    }
 }
 
 

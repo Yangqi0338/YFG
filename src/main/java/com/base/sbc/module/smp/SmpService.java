@@ -726,7 +726,7 @@ public class SmpService {
             smpSampleDto.setPmlId(null);
             smpSampleDto.setBExtAuxiliary("1".equals(patternMaking.getExtAuxiliary()));
             smpSampleDto.setSampleNumberName(patternMaking.getCode());
-            smpSampleDto.setBarcode(patternMaking.getSampleNo());
+            smpSampleDto.setBarcode(patternMaking.getSampleBarCode());
 
             HttpResp httpResp = restTemplateService.spmPost("http://10.8.240.161:40002/mps-interfaces/sample/setSampleTask", smpSampleDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpSampleDto, "oa", "样衣下发");

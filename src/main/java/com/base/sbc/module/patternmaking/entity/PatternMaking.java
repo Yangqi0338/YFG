@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-16 17:52:53
+ * @date 创建时间：2023-8-17 15:50:10
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -313,10 +313,10 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "样衣结束标识:(0:未结束,1结束)")
     private String endFlg;
     /**
-     * 样衣编号
+     * 样衣条码
      */
-    @ApiModelProperty(value = "样衣编号")
-    private String sampleNo;
+    @ApiModelProperty(value = "样衣条码")
+    private String sampleBarCode;
     /**
      * SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开
      */
