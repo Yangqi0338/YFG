@@ -1,6 +1,7 @@
 package com.base.sbc.module.smp;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.map.MapUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
@@ -135,7 +136,7 @@ public class SmpService {
         for (StyleColor styleColor : styleColors) {
             SmpGoodsDto smpGoodsDto = styleColor.toSmpGoodsDto();
 
-            StyleVo sampleDesign = styleService.getDetail(styleColor.getStyleId());
+            Style sampleDesign = styleService.getById(styleColor.getStyleId());
             smpGoodsDto.setMaxClassName(sampleDesign.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(sampleDesign.getProdCategory1st());
             smpGoodsDto.setCategoryName(sampleDesign.getProdCategoryName());
@@ -167,7 +168,8 @@ public class SmpService {
             smpGoodsDto.setImgList(imgList);
 
             //设计师id,下稿设计师,工艺员,工艺员id,版师名称,版师ID
-            smpGoodsDto.setDesigner(sampleDesign.getDesigner());
+            String designer = sampleDesign.getDesigner();
+            smpGoodsDto.setDesigner(StringUtils.isNotEmpty(designer) ? designer.split(",")[0] : "");
             smpGoodsDto.setTechnician(sampleDesign.getTechnicianName());
             smpGoodsDto.setPatternMakerName(sampleDesign.getPatternDesignName());
 
@@ -185,7 +187,7 @@ public class SmpService {
             smpGoodsDto.setTechnicianId(usernamesByIds.get(technicianId));
             smpGoodsDto.setPatternMakerId(usernamesByIds.get(patternDesignId));
             smpGoodsDto.setYear(sampleDesign.getYearName());
-            smpGoodsDto.setPatternName(sampleDesign.getDevtType());
+            smpGoodsDto.setPatternName("常规");
             smpGoodsDto.setPriorityId(sampleDesign.getTaskLevel());
             smpGoodsDto.setPriorityName(sampleDesign.getTaskLevelName());
             smpGoodsDto.setSeason(sampleDesign.getSeason());
@@ -269,10 +271,9 @@ public class SmpService {
             PackPricing packPricing = packPricingService.getOne(new QueryWrapper<PackPricing>().eq("foreign_id", sampleDesign.getId()).eq("pack_type", "packBigGoods"));
             if (packPricing != null) {
                 JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
-                smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价"));
-                smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费"));
-                smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费"));
-                smpGoodsDto.setPlanningRate(packPricing.getCostPrice());
+                smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价")==null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
+                smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费")==null ? new BigDecimal(0) : jsonObject.getBigDecimal("车缝加工费"));
+                smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费")==null ? new BigDecimal(0) : jsonObject.getBigDecimal("物料费"));
             }
 
 
@@ -284,7 +285,7 @@ public class SmpService {
             }
 
             smpGoodsDto.setProductTypeId(sampleDesign.getStyleType());
-            smpGoodsDto.setProductType(sampleDesign.getStyleName());
+            smpGoodsDto.setProductType(sampleDesign.getStyleTypeName());
 
             smpGoodsDto.setSaleTime(styleColor.getNewDate());
             smpGoodsDto.setProdSeg(styleColor.getSubdivide());
@@ -300,26 +301,32 @@ public class SmpService {
             smpGoodsDto.setUnit(sampleDesign.getStyleUnitCode());
 
             PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()));
+            String downContent ="";
             if (packInfo != null) {
-
-
                 //款式定价
                 StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
+
+
                 if (stylePricingVO != null) {
                     smpGoodsDto.setBomPhase("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
                     smpGoodsDto.setPriceConfirm("1".equals(stylePricingVO.getProductTagPriceConfirm()));
                     smpGoodsDto.setPlanCost(stylePricingVO.getPlanCost());
+                    smpGoodsDto.setPlanningRate(stylePricingVO.getPlanningRatio());
                     try {
+
                         smpGoodsDto.setActualRate(BigDecimal.valueOf(Long.parseLong(stylePricingVO.getActualMagnification())));
 
                     } catch (Exception e) {
 
                     }
+                    downContent=stylePricingVO.getDownContent();
                     smpGoodsDto.setPlanActualRate(stylePricingVO.getPlanActualMagnification());
                     smpGoodsDto.setProcessCost(stylePricingVO.getCoordinationProcessingFee().add(stylePricingVO.getWoolenYarnProcessingFee()).add(stylePricingVO.getCoordinationProcessingFee()).add(stylePricingVO.getSewingProcessingFee()));
                     smpGoodsDto.setProductName(stylePricingVO.getProductName());
                     //吊牌
                     smpGoodsDto.setSeries(stylePricingVO.getSeries());
+                    smpGoodsDto.setSeriesId(stylePricingVO.getSeries());
+                    smpGoodsDto.setSeriesName(stylePricingVO.getSeriesName());
                     smpGoodsDto.setComposition(stylePricingVO.getIngredient());
                 }
                 List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
@@ -346,12 +353,11 @@ public class SmpService {
                 smpSize.setCode(basicsdatumSize.getSort());
                 smpSize.setProductSizeName(basicsdatumSize.getHangtags());
                 smpSize.setBaseSize("0".equals(basicsdatumSize.getStatus()));
-                smpSize.setSkuFiller(null);
+                smpSize.setSkuFiller(downContent);
                 smpSize.setSpecialSpec(basicsdatumSize.getInternalSize());
                 smpSizes.add(smpSize);
             }
             smpGoodsDto.setItemList(smpSizes);
-
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", smpGoodsDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpGoodsDto, "smp", "商品主数据下发");
             if (aBoolean) {

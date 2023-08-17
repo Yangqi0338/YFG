@@ -18,6 +18,8 @@ public class StylePricingVO {
     private String packType;
 
     private String ingredient;
+
+    private String downContent;
     /**
      * 样衣图片
      */
