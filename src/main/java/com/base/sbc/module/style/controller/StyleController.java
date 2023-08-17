@@ -12,6 +12,7 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.pack.dto.PlanningDemandStatisticsResultVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.dto.*;
@@ -159,7 +160,7 @@ public class StyleController {
 
     @ApiOperation(value = "企划需求统计")
     @PostMapping("/planningDemandStatistics")
-    public Object planningDemandStatistics(@Valid @RequestBody IdDto idDto) {
+    public PlanningDemandStatisticsResultVo planningDemandStatistics(@Valid @RequestBody IdDto idDto) {
         return styleService.planningDemandStatistics(idDto.getId());
     }
 

@@ -199,6 +199,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packInfo.setCode(style.getDesignNo() + StrUtil.DASHED + (count + 1));
         packInfo.setName(Opt.ofBlankAble(dto.getName()).orElse(packInfo.getCode()));
         packInfo.setPatternNo(dto.getPatternNo());
+        packInfo.setPatternMakingId(dto.getPatternMakingId());
         save(packInfo);
         //新建bom版本
         PackBomVersionDto versionDto = BeanUtil.copyProperties(packInfo, PackBomVersionDto.class, "id");

@@ -9,6 +9,7 @@ package com.base.sbc.module.style.service;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.pack.dto.PlanningDemandStatisticsResultVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
@@ -179,7 +180,7 @@ public interface StyleService extends BaseService<Style> {
      * @param id 款式id
      * @return
      */
-    Object planningDemandStatistics(String id);
+    PlanningDemandStatisticsResultVo planningDemandStatistics(String id);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

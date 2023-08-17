@@ -65,7 +65,11 @@ public class PackInfoListVo extends PackInfoStatusVo {
     private String color;
     @ApiModelProperty(value = "编号")
     private String code;
+    @ApiModelProperty(value = "名称")
+    private String name;
 
+    @ApiModelProperty(value = "样板号")
+    private String patternNo;
 
     public String getStyle() {
         return designNo + styleName;
