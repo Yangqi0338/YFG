@@ -193,7 +193,7 @@ public class PurchaseOrderController extends BaseController{
 					null, BeanUtil.beanToMap(purchaseOrder));
 			if(result){
 				purchaseOrder.setStatus("1");
-				purchaseOrderService.save(purchaseOrder);
+				purchaseOrderService.updateById(purchaseOrder);
 				return ApiResult.success("提交成功！", result);
 			}
 		}
