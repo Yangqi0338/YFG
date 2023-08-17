@@ -151,6 +151,8 @@ public class WarehousingOrderController extends BaseController{
 					"/pdm/api/saas/warehousingOrder/examine", "/pdm/api/saas/warehousingOrder/examine",
 					"/pdm/api/saas/warehousingOrder/examine", null, BeanUtil.beanToMap(warehousingOrder));
 			if(result){
+				warehousingOrder.setStatus("1");
+				warehousingOrderService.save(warehousingOrder);
 				return ApiResult.success("提交成功！", result);
 			}
 		}

@@ -239,7 +239,7 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
         PurchaseOrder purchaseOrder = getById(dto.getBusinessKey());
         purchaseOrder.setReviewer(userCompany.getUserId());
         purchaseOrder.setReviewDate(new Date());
-        purchaseOrder.setStatus("1");
+        purchaseOrder.setStatus("2");
         updateById(purchaseOrder);
     }
 
@@ -253,7 +253,7 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
         purchaseOrder.setReviewer(userCompany.getUserId());
         purchaseOrder.setReviewDate(new Date());
         purchaseOrder.setRejectReason(dto.getConfirmSay());
-        purchaseOrder.setStatus("2");
+        purchaseOrder.setStatus("-1");
         updateById(purchaseOrder);
     }
 

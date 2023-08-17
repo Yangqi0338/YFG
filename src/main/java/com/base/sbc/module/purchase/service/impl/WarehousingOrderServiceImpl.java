@@ -159,7 +159,7 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
         warehousingOrder.setReviewerId(userCompany.getUserId());
         warehousingOrder.setReviewerName(userCompany.getAliasUserName());
         warehousingOrder.setReviewDate(new Date());
-        warehousingOrder.setStatus("1");
+        warehousingOrder.setStatus("2");
         updateById(warehousingOrder);
     }
 
@@ -173,7 +173,7 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
         warehousingOrder.setReviewerId(userCompany.getUserId());
         warehousingOrder.setReviewerName(userCompany.getAliasUserName());
         warehousingOrder.setReviewDate(new Date());
-        warehousingOrder.setStatus("2");
+        warehousingOrder.setStatus("-1");
         warehousingOrder.setRejectReason(dto.getConfirmSay());
         updateById(warehousingOrder);
     }

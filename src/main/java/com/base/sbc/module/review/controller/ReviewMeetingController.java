@@ -170,6 +170,26 @@ public class ReviewMeetingController extends BaseController{
 					}else{
 						reviewMeeting.setParticipation("未上");
 					}
+
+					QueryWrapper<ReviewMeetingDepartment> dw = new QueryWrapper<>();
+					dw.eq("company_code", companyCode);
+					dw.eq("meeting_id", reviewMeeting.getId());
+					List<ReviewMeetingDepartment> departmentList = departmentService.list(dw);
+					if(CollectionUtil.isNotEmpty(departmentList)){
+						List<String> idList = departmentList.stream().map(ReviewMeetingDepartment::getDepartmentId).collect(Collectors.toList());
+						QueryWrapper<ReviewDimension> dimensionQw = new QueryWrapper<>();
+						dimensionQw.eq("company_code", companyCode);
+						dimensionQw.in("department_id", idList);
+						List<ReviewDimension> dimensionList = dimensionService.list(dimensionQw);
+						if(CollectionUtil.isNotEmpty(dimensionList)){
+							Set<String> resultSet = new HashSet<>();
+							for(ReviewDimension reviewDimension : dimensionList){
+								resultSet.add(reviewDimension.getReviewDimension());
+							}
+
+							reviewMeeting.setDimensionList(new ArrayList<>(resultSet));
+						}
+					}
 				}
 			}
 			return selectSuccess(pageList);
@@ -204,7 +224,7 @@ public class ReviewMeetingController extends BaseController{
 	@ApiOperation(value = "员工上传会议记录")
 	@PostMapping("/staffUpdate")
 	public ApiResult staffUpdate(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode, @RequestBody ReviewMeeting reviewMeeting) {
-		return reviewMeetingService.updateReviewMeeting(companyCode, userCompanyUtils.getCompanyUser(user), reviewMeeting, false);
+		return reviewMeetingService.staffUpdate(companyCode, userCompanyUtils.getCompanyUser(user), reviewMeeting, false);
 	}
 
 	@ApiOperation(value = "删除")

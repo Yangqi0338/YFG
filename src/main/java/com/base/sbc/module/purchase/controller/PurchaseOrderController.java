@@ -192,6 +192,8 @@ public class PurchaseOrderController extends BaseController{
 					"/pdm/api/saas/purchaseOrder/examine", "/pdm/api/saas/purchaseOrder/examine", "/pdm/api/saas/purchaseOrder/examine",
 					null, BeanUtil.beanToMap(purchaseOrder));
 			if(result){
+				purchaseOrder.setStatus("1");
+				purchaseOrderService.save(purchaseOrder);
 				return ApiResult.success("提交成功！", result);
 			}
 		}
