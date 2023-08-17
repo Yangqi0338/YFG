@@ -347,5 +347,5 @@ public class BasicsdatumMaterialSaveDto {
 	private String inquiryNumber;
 	/** 货期 */
 	@ApiModelProperty(value = "货期")
-	private BigDecimal deliveryName;
+	private String deliveryName;
 }
