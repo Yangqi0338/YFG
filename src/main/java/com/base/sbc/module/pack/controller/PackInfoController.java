@@ -82,9 +82,9 @@ public class PackInfoController {
 
 
 	@ApiOperation(value = "新建BOM(通过款式设计)")
-    @GetMapping("/createBySampleDesign")
-	public PackInfoListVo createBySampleDesign(@Valid IdDto idDto) {
-		return packInfoService.createBySampleDesign(idDto.getId());
+	@PostMapping("/createByStyle")
+	public PackInfoListVo createByStyle(@Valid @RequestBody CreatePackInfoByStyleDto dto) {
+		return packInfoService.createByStyle(dto);
 	}
 
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")

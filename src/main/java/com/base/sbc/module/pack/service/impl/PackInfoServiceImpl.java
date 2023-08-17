@@ -170,8 +170,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     }
 
     @Override
-    public PackInfoListVo createBySampleDesign(String id) {
-        Style style = styleService.getById(id);
+    public PackInfoListVo createByStyle(CreatePackInfoByStyleDto dto) {
+        Style style = styleService.getById(dto.getId());
         if (style == null) {
             throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
         }
@@ -179,13 +179,15 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         CommonUtils.resetCreateUpdate(packInfo);
         String newId = IdUtil.getSnowflake().nextIdStr();
         packInfo.setId(newId);
-        packInfo.setForeignId(id);
+        packInfo.setForeignId(dto.getId());
 
         //设置编码
         QueryWrapper codeQw = new QueryWrapper();
-        codeQw.eq("foreign_id", id);
-        long count = count(codeQw);
+        codeQw.eq("foreign_id", dto.getId());
+        long count = getBaseMapper().countByQw(codeQw);
         packInfo.setCode(style.getDesignNo() + StrUtil.DASHED + (count + 1));
+        packInfo.setName(Opt.ofBlankAble(dto.getName()).orElse(packInfo.getCode()));
+        packInfo.setPatternNo(dto.getPatternNo());
         save(packInfo);
         //新建bom版本
         PackBomVersionDto versionDto = BeanUtil.copyProperties(packInfo, PackBomVersionDto.class, "id");

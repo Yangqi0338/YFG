@@ -46,10 +46,9 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
     /**
      * 通过款式设计创建BOM基础信息
      *
-     * @param id
-     * @return
+     * @param dto@return
      */
-    PackInfoListVo createBySampleDesign(String id);
+    PackInfoListVo createByStyle(CreatePackInfoByStyleDto dto);
 
     /**
      * 查询
