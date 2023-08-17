@@ -14,6 +14,7 @@ import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
@@ -25,7 +26,10 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
@@ -83,10 +87,11 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     @Resource
 	private SmpService smpService;
 
+    private final PackInfoService packInfoService;
 
-	private final PackInfoMapper packInfoMapper;
+    private final PackInfoMapper packInfoMapper;
 
-
+    private final PackInfoStatusService packInfoStatusService;
 /** 自定义方法区 不替换的区域【other_start】 **/
 
     /**
@@ -531,6 +536,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     public List<String> getStyleColorId(String styleId) {
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("style_id", styleId);
+        queryWrapper.eq("is_defective", BaseGlobal.NO);
         List<StyleColor> styleColorList = baseMapper.selectList(queryWrapper);
         if (CollectionUtils.isEmpty(styleColorList)) {
             return new ArrayList<>();
@@ -556,7 +562,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             throw new OtherException("该配色已关联bom");
         }
         /*查询bom信息*/
-        PackInfo packInfo = packInfoMapper.selectById(relevanceBomDto.getPackInfoId());
+        PackInfo packInfo = packInfoService.getById(relevanceBomDto.getPackInfoId());
         if(ObjectUtils.isEmpty(packInfo)){
             throw new OtherException("无bom信息");
         }
@@ -571,7 +577,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         packInfo.setColor(styleColor.getColorName());
         packInfo.setStyleColorId(styleColor.getId());
         baseMapper.updateById(styleColor);
-        packInfoMapper.updateById(packInfo);
+        packInfoService.updateById(packInfo);
         return true;
     }
 
@@ -663,6 +669,101 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         }
         styleColor.setScmSendFlag(publicStyleColorDto.getScmSendFlag());
         baseMapper.updateById(styleColor);
+        return true;
+    }
+
+    /**
+     * 方法描述 新增次品款
+     *
+     * @param publicStyleColorDto
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public Boolean addDefective(PublicStyleColorDto publicStyleColorDto) {
+        /**
+         *复制一个配色次品款
+         * 校验 计控吊牌确定已确定
+         * 大货款号加上次品编号，改为次品 ，同时复制一个bom名称为次品编号
+         */
+        if(StringUtils.isBlank(publicStyleColorDto.getDefectiveName())){
+            throw new OtherException("次品名称");
+        }
+        if(StringUtils.isBlank(publicStyleColorDto.getDefectiveNo())){
+            throw new OtherException("次品编号");
+        }
+        /*配色信息*/
+        StyleColor styleColor = baseMapper.selectById(publicStyleColorDto.getId());
+        if(ObjectUtils.isEmpty(styleColor) || StringUtils.isBlank(styleColor.getBom())){
+            throw new OtherException("id错误无数据或该配色无bom");
+        }
+        /*查询次品的大货款号是否重复*/
+        int i =  baseMapper.isStyleNoExist(styleColor.getStyleNo()+ publicStyleColorDto.getDefectiveNo());
+        if (i != 0) {
+            throw new OtherException("该次品已生成款");
+        }
+
+        QueryWrapper queryWrapper =new QueryWrapper();
+        queryWrapper.eq( "tsc.style_no", styleColor.getStyleNo());
+        List<StyleColorVo>  styleColorVoList = baseMapper.colorList(queryWrapper);
+       if(CollectionUtils.isEmpty(styleColorVoList)){
+           throw new OtherException("大货款号");
+       }
+        /*判断吊牌价是否确定*/
+        if(StringUtils.isNotBlank(styleColorVoList.get(0).getProductHangtagConfirm()) && styleColorVoList.get(0).getProductHangtagConfirm().equals(BaseGlobal.NO)){
+            throw new OtherException("计控吊牌确定未确定");
+        }
+
+        /*查询配色关联的资料包*/
+        QueryWrapper queryWrapper1 =new QueryWrapper();
+        queryWrapper1.eq("style_color_id",styleColor.getId());
+        PackInfo packInfo = packInfoService.getOne(queryWrapper1);
+
+        /*复制配色数据*/
+        StyleColor copyStyleColor =new StyleColor();
+        BeanUtils.copyProperties(styleColor, copyStyleColor,"id");
+
+        //设置bom编码
+        QueryWrapper codeQw = new QueryWrapper();
+        codeQw.eq("foreign_id", styleColor.getStyleId());
+        long count = packInfoMapper.countByQw(codeQw);
+        /*复制配色*/
+
+        BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(publicStyleColorDto.getColourLibraryId());
+        copyStyleColor.setColorName(basicsdatumColourLibrary.getColourName());
+        copyStyleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
+        copyStyleColor.setColorCode(basicsdatumColourLibrary.getColourCode());
+        copyStyleColor.setColourLibraryId(basicsdatumColourLibrary.getId());
+        copyStyleColor.setStyleNo(styleColor.getStyleNo()+ publicStyleColorDto.getDefectiveNo());
+        copyStyleColor.setDefectiveName(publicStyleColorDto.getDefectiveName());
+        copyStyleColor.setDefectiveNo(publicStyleColorDto.getDefectiveNo());
+        copyStyleColor.setIsDefective(BaseGlobal.YES);
+        copyStyleColor.setBom(styleColor.getDesignNo() + StrUtil.DASHED + (count + 1));
+        copyStyleColor.setWareCode(null);
+        copyStyleColor.setScmSendFlag(BaseGlobal.NO);
+        baseMapper.insert(copyStyleColor);
+
+        /*新建一个资料包*/
+        PackInfo copyPackInfo =new PackInfo();
+        BeanUtils.copyProperties(packInfo, copyPackInfo,"id");
+        copyPackInfo.setStyleNo(copyStyleColor.getStyleNo());
+        copyPackInfo.setStyleColorId(copyStyleColor.getId());
+        copyPackInfo.setCode(styleColor.getDesignNo() + StrUtil.DASHED + (count + 1));
+        copyPackInfo.setName(publicStyleColorDto.getDefectiveNo());
+        copyPackInfo.setColor(basicsdatumColourLibrary.getColourName());
+        copyPackInfo.setColorCode(basicsdatumColourLibrary.getColourCode());
+        packInfoService.save(copyPackInfo);
+
+        /*查询bom下的状态*/
+        QueryWrapper queryWrapper2 =new QueryWrapper();
+        queryWrapper2.eq("foreign_id",packInfo.getId());
+        PackInfoStatus packInfoStatus = packInfoStatusService.getOne(queryWrapper2);
+
+       /*复制资料包里面的数据*/
+        packInfoService.copyPack(packInfo.getId(),packInfoStatus.getPackType(),copyPackInfo.getId(),packInfoStatus.getPackType());
+        /*复制状态*/
+        packInfoStatusService.copy(packInfo.getId(),packInfoStatus.getPackType(),copyPackInfo.getId(),packInfoStatus.getPackType());
+
         return true;
     }
     /** 自定义方法区 不替换的区域【other_end】 **/

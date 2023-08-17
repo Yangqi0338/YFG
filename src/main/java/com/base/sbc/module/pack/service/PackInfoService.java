@@ -169,6 +169,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 
     PageInfo<PackInfoListVo> pageInfo(PackInfoSearchPageDto pageDto);
 
+    boolean setPatternNo(PackInfoSetPatternNoDto dto);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

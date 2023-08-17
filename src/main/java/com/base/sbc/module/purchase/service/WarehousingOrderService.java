@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.purchase.service;
 
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.module.common.service.BaseService;
@@ -25,4 +26,10 @@ public interface WarehousingOrderService extends BaseService<WarehousingOrder>{
     ApiResult addWarehousing(UserCompany userCompany, String companyCode, WarehousingOrder warehousingOrder);
 
     ApiResult updateWarehousing(UserCompany userCompany, String companyCode,WarehousingOrder warehousingOrder);
+
+    void examinePass(UserCompany userCompany, AnswerDto dto);
+
+    void examineNoPass(UserCompany userCompany, AnswerDto dto);
+
+    void cancelExamine(UserCompany userCompany, AnswerDto dto);
 }

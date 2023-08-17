@@ -43,6 +43,8 @@ import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.dto.PackBomDto;
 import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
+import com.base.sbc.module.pack.dto.PlanningDemandStatisticsResultVo;
+import com.base.sbc.module.pack.dto.PlanningDemandStatisticsVo;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -50,6 +52,7 @@ import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.QueryPlanningDimensionalityDto;
 import com.base.sbc.module.planning.entity.*;
+import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
@@ -142,7 +145,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private ColorPlanningService colorPlanningService;
     @Autowired
     private ThemePlanningService themePlanningService;
-
+    @Autowired
+    private PlanningDemandService planningDemandService;
+    @Autowired
+    private PlanningDemandMapper planningDemandMapper;
+    @Autowired
+    private PlanningDemandProportionDataService planningDemandProportionDataService;
     private IdGen idGen = new IdGen();
 
     @Override
@@ -925,6 +933,83 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             throw new OtherException("号型类型校验失败不支持修改");
         }
         return true;
+    }
+
+    @Override
+    public PlanningDemandStatisticsResultVo planningDemandStatistics(String id) {
+        Style style = getById(id);
+        //查询需求占比
+        QueryWrapper<PlanningDemand> qw = new QueryWrapper<>();
+        qw.eq("d.category_id", style.getProdCategory())
+                .eq("d.company_code", getCompanyCode())
+                .eq("d.planning_season_id", style.getPlanningSeasonId())
+        ;
+        List<PlanningDemandStatisticsVo> demands = planningDemandMapper.queryDemandStatistics(qw);
+
+        if (CollUtil.isEmpty(demands)) {
+            return null;
+        }
+        Map<String, List<PlanningDemandStatisticsVo>> resultMap = new LinkedHashMap<>();
+        List<String> demandIds = new ArrayList<>();
+        for (PlanningDemandStatisticsVo demand : demands) {
+            demandIds.add(demand.getDemandId());
+            resultMap.put(demand.getDemandId(), CollUtil.newArrayList(demand));
+        }
+        //查询款式的维度标签
+        QueryWrapper<Style> styleQw = new QueryWrapper<>();
+        styleQw.lambda().eq(Style::getProdCategory, style.getProdCategory())
+                .eq(Style::getPlanningSeasonId, style.getPlanningSeasonId())
+                .eq(Style::getCompanyCode, style.getCompanyCode());
+        List<Object> styleIds = listObjs(styleQw);
+
+        List<FieldVal> fv = fieldValService.list(new QueryWrapper<FieldVal>().lambda().in(FieldVal::getForeignId, styleIds).eq(FieldVal::getDataGroup, FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY));
+        List<String> fvItem = new ArrayList<>(16);
+
+        if (CollUtil.isNotEmpty(fv)) {
+            for (FieldVal fieldVal : fv) {
+                if (StrUtil.contains(fieldVal.getVal(), StrUtil.COMMA)) {
+                    List<String> split = StrUtil.split(fieldVal.getVal(), StrUtil.COMMA);
+                    for (String s : split) {
+                        fvItem.add(fieldVal.getFieldName() + StrUtil.DASHED + s);
+                    }
+                } else {
+                    fvItem.add(fieldVal.getFieldName() + StrUtil.DASHED + fieldVal.getVal());
+                }
+            }
+        }
+        int maxLength = 0;
+        //查询企划维度数量配置
+        Map<String, List<String>> fvItemMap = fvItem.stream().collect(Collectors.groupingBy(item -> item));
+        QueryWrapper<PlanningDemandProportionData> pdpdQw = new QueryWrapper<>();
+        pdpdQw.lambda().in(PlanningDemandProportionData::getDemandId, demandIds);
+        List<PlanningDemandProportionData> pdpdList = planningDemandProportionDataService.list(pdpdQw);
+        Map<String, List<PlanningDemandProportionData>> pdpdMap = Optional.ofNullable(pdpdList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.groupingBy(PlanningDemandProportionData::getDemandId));
+        for (Map.Entry<String, List<PlanningDemandStatisticsVo>> r : resultMap.entrySet()) {
+            List<PlanningDemandProportionData> itemList = pdpdMap.get(r.getKey());
+            List<PlanningDemandStatisticsVo> value = r.getValue();
+            PlanningDemandStatisticsVo first = value.get(0);
+            if (CollUtil.isEmpty(itemList)) {
+                continue;
+            }
+            maxLength = Math.max(maxLength, itemList.size());
+            for (PlanningDemandProportionData item : itemList) {
+                PlanningDemandStatisticsVo vo = new PlanningDemandStatisticsVo();
+                vo.setDemandId(first.getDemandId());
+                vo.setFieldId(first.getFieldId());
+                vo.setName(item.getClassifyName());
+                vo.setCode(item.getClassify());
+                vo.setTotal(item.getProportion());
+                vo.setQuantity(Optional.ofNullable(fvItemMap.get(first.getCode() + StrUtil.DASHED + item.getClassify())).map(il -> String.valueOf(CollUtil.size(il))).orElse("0"));
+
+                value.add(vo);
+            }
+        }
+
+        Collection<List<PlanningDemandStatisticsVo>> values = resultMap.values();
+        PlanningDemandStatisticsResultVo resultVo = new PlanningDemandStatisticsResultVo();
+        resultVo.setList(values);
+        resultVo.setMaxLength(maxLength);
+        return resultVo;
     }
 
     private void getProductCategoryTreeQw(ProductCategoryTreeVo vo, QueryWrapper<?> qw) {

@@ -16,8 +16,8 @@
     <select id="findDefaultToBomSel" resultType="com.base.sbc.module.pack.vo.BomSelMaterialVo">
         SELECT
         material_code,
-        NAME AS translate_name,
-        width_code AS translate
+        NAME AS `translate`,
+        width_code AS `translateCode`
         FROM t_basicsdatum_material_width w WHERE w.del_flag = '0' AND w.`status` = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}

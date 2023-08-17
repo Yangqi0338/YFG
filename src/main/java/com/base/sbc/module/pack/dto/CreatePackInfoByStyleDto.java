@@ -27,4 +27,6 @@ public class CreatePackInfoByStyleDto {
 
     @ApiModelProperty(value = "样板号", example = "123")
     private String patternNo;
+    @ApiModelProperty(value = "打版id", example = "123")
+    private String patternMakingId;
 }

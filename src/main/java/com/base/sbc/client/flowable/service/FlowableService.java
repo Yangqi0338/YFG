@@ -32,6 +32,8 @@ public class FlowableService {
 
     public static final String SAMPLE_ARCHIVES = "样衣档案审批";
 
+    public static final String PURCHASE_ORDER = "采购单";
+
     @Autowired
     FlowableFeignService flowableFeignService;
 

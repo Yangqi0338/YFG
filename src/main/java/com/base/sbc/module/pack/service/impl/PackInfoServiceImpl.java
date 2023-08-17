@@ -170,6 +170,17 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean setPatternNo(PackInfoSetPatternNoDto dto) {
+        PackInfo packInfo = new PackInfo();
+        packInfo.setPatternNo(dto.getPatternNo());
+        packInfo.setPatternMakingId(dto.getPatternMakingId());
+        UpdateWrapper<PackInfo> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PackInfo::getId, dto.getPackId());
+        return update(packInfo, uw);
+    }
+
+    @Override
     public PackInfoListVo createByStyle(CreatePackInfoByStyleDto dto) {
         Style style = styleService.getById(dto.getId());
         if (style == null) {
@@ -188,6 +199,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packInfo.setCode(style.getDesignNo() + StrUtil.DASHED + (count + 1));
         packInfo.setName(Opt.ofBlankAble(dto.getName()).orElse(packInfo.getCode()));
         packInfo.setPatternNo(dto.getPatternNo());
+        packInfo.setPatternMakingId(dto.getPatternMakingId());
         save(packInfo);
         //新建bom版本
         PackBomVersionDto versionDto = BeanUtil.copyProperties(packInfo, PackBomVersionDto.class, "id");

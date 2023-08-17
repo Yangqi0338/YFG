@@ -34,9 +34,13 @@ public class ReviewMeeting extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    /** 会议类型 */
     @TableField(exist = false)
     private String meetingTypeName;
-
+    /** 员工是否已经参与会议 */
+    @TableField(exist = false)
+    private String participation;
+    /** 评审维度集合 */
     @TableField(exist = false)
     private List<String> dimensionList;
 

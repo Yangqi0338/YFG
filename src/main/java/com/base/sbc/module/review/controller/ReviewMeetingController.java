@@ -20,9 +20,11 @@ import com.base.sbc.module.review.dto.ReviewMeetingPageDTO;
 import com.base.sbc.module.review.entity.ReviewDimension;
 import com.base.sbc.module.review.entity.ReviewMeeting;
 import com.base.sbc.module.review.entity.ReviewMeetingDepartment;
+import com.base.sbc.module.review.entity.ReviewMeetingPeople;
 import com.base.sbc.module.review.mapper.ReviewMeetingMapper;
 import com.base.sbc.module.review.service.ReviewDimensionService;
 import com.base.sbc.module.review.service.ReviewMeetingDepartmentService;
+import com.base.sbc.module.review.service.ReviewMeetingPeopleService;
 import com.base.sbc.module.review.service.ReviewMeetingService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -64,6 +66,9 @@ public class ReviewMeetingController extends BaseController{
 
 	@Autowired
 	private ReviewDimensionService dimensionService;
+
+	@Autowired
+	private ReviewMeetingPeopleService peopleService;
 
 	@Autowired
 	private UserCompanyUtils userCompanyUtils;
@@ -126,7 +131,7 @@ public class ReviewMeetingController extends BaseController{
 
 	@ApiOperation(value="查询该用户参与的会议", notes="")
 	@GetMapping("/selectNeedMeMeeting")
-	public ApiResult selectNeedMeMeeting(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode, ReviewMeetingPageDTO page, String typeIds) {
+	public ApiResult selectNeedMeMeeting(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode, ReviewMeetingPageDTO page, String typeIds, String type) {
 		UserCompany userCompany = userCompanyUtils.getCompanyUser(user);
 
 		com.github.pagehelper.Page<ReviewMeeting> pages = PageHelper.startPage(page.getPageNum(), page.getPageSize());
@@ -151,6 +156,42 @@ public class ReviewMeetingController extends BaseController{
 		reviewMeetingMapper.selectNeedMeMeeting(qc);
 		PageInfo<ReviewMeeting> pageList = pages.toPageInfo();
 		if (CollectionUtil.isNotEmpty(pageList.getList())) {
+			if(StringUtils.equals(type, "1")) {
+				//查询员工是否已经参加此次会议
+				QueryWrapper<ReviewMeetingPeople> qw;
+				for(ReviewMeeting reviewMeeting : pageList.getList()){
+					qw = new QueryWrapper<>();
+					qw.eq("company_code", companyCode);
+					qw.eq("meeting_id", reviewMeeting.getId());
+					qw.eq("create_id", userCompany.getUserId());
+					List<ReviewMeetingPeople> peopleList = peopleService.list(qw);
+					if(CollectionUtil.isNotEmpty(peopleList)){
+						reviewMeeting.setParticipation("已上");
+					}else{
+						reviewMeeting.setParticipation("未上");
+					}
+
+					QueryWrapper<ReviewMeetingDepartment> dw = new QueryWrapper<>();
+					dw.eq("company_code", companyCode);
+					dw.eq("meeting_id", reviewMeeting.getId());
+					List<ReviewMeetingDepartment> departmentList = departmentService.list(dw);
+					if(CollectionUtil.isNotEmpty(departmentList)){
+						List<String> idList = departmentList.stream().map(ReviewMeetingDepartment::getDepartmentId).collect(Collectors.toList());
+						QueryWrapper<ReviewDimension> dimensionQw = new QueryWrapper<>();
+						dimensionQw.eq("company_code", companyCode);
+						dimensionQw.in("department_id", idList);
+						List<ReviewDimension> dimensionList = dimensionService.list(dimensionQw);
+						if(CollectionUtil.isNotEmpty(dimensionList)){
+							Set<String> resultSet = new HashSet<>();
+							for(ReviewDimension reviewDimension : dimensionList){
+								resultSet.add(reviewDimension.getReviewDimension());
+							}
+
+							reviewMeeting.setDimensionList(new ArrayList<>(resultSet));
+						}
+					}
+				}
+			}
 			return selectSuccess(pageList);
 		}
 		return selectNotFound();
@@ -178,6 +219,12 @@ public class ReviewMeetingController extends BaseController{
 	@PostMapping("/update")
 	public ApiResult update(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode, @RequestBody ReviewMeeting reviewMeeting) {
 		return reviewMeetingService.updateReviewMeeting(companyCode, userCompanyUtils.getCompanyUser(user), reviewMeeting, false);
+	}
+
+	@ApiOperation(value = "员工上传会议记录")
+	@PostMapping("/staffUpdate")
+	public ApiResult staffUpdate(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode, @RequestBody ReviewMeeting reviewMeeting) {
+		return reviewMeetingService.staffUpdate(companyCode, userCompanyUtils.getCompanyUser(user), reviewMeeting, false);
 	}
 
 	@ApiOperation(value = "删除")
