@@ -415,10 +415,12 @@ public class SmpService {
             for (BasicsdatumMaterialWidth basicsdatumMaterialWidth : basicsdatumMaterialWidthService.list(queryWrapper1)) {
                 SmpModuleSize smpModuleSize = new SmpModuleSize();
                 smpModuleSize.setActive("0".equals(basicsdatumMaterialWidth.getStatus()));
-                smpModuleSize.setSizeCode(basicsdatumMaterialWidth.getWidthCode());
-                smpModuleSize.setSizeUrl(null);
-                smpModuleSize.setSizeName(basicsdatumMaterialWidth.getName());
-                smpModuleSize.setCode(null);
+                smpModuleSize.setSizeCode(basicsdatumMaterialWidth.getName());
+                smpModuleSize.setSizeUrl(basicsdatumMaterialWidth.getWidthCode());
+
+                smpModuleSize.setSizeName(basicsdatumMaterialWidth.getSizeName());
+                smpModuleSize.setSortCode(basicsdatumMaterialWidth.getSortCode());
+                smpModuleSize.setCode(basicsdatumMaterialWidth.getCode());
                 moduleSizeList.add(smpModuleSize);
             }
 
@@ -464,7 +466,7 @@ public class SmpService {
 
             for (BasicsdatumMaterialPricePageVo basicsdatumMaterialPricePageVo : materialPricePageVoList) {
                 SmpQuot smpQuot = new SmpQuot();
-                smpQuot.setSupplierSize(basicsdatumMaterialPricePageVo.getWidth());
+                smpQuot.setSupplierSize(basicsdatumMaterialPricePageVo.getWidthName());
                 smpQuot.setSizeUrl(basicsdatumMaterialPricePageVo.getWidth());
                 smpQuot.setSupplierColorId(basicsdatumMaterialPricePageVo.getColor());
                 smpQuot.setSupplierColorName(basicsdatumMaterialPricePageVo.getColorName());
@@ -481,7 +483,7 @@ public class SmpService {
                 smpQuot.setDefaultQuote(basicsdatumMaterialPricePageVo.getSelectFlag());
 
 
-                smpQuot.setMaterialUom(basicsdatumMaterialPricePageVo.getWidth());
+                smpQuot.setMaterialUom(basicsdatumMaterial.getStockUnitCode());
                 quotList.add(smpQuot);
             }
             if (quotList.size() == 0) {

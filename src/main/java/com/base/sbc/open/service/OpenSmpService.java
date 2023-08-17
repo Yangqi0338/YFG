@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.open.dto.SmpOpenMaterialDto;
@@ -133,6 +134,7 @@ public class OpenSmpService {
         basicsdatumMaterial.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
         basicsdatumMaterial.setUpdateName("外部系统推送");
 
+
         String c8ProcMode = ccmService.getOpenDictInfo(BaseConstant.DEF_COMPANY_CODE, "C8_ProcMode");
         JSONArray data = JSONObject.parseObject(c8ProcMode).getJSONArray("data");
         for (int i = 0; i < data.size(); i++) {
@@ -141,6 +143,17 @@ public class OpenSmpService {
                 basicsdatumMaterial.setProcModeName(obj.getString("name"));
             }
         }
+
+
+        String c8MaterialUom = ccmService.getOpenDictInfo(BaseConstant.DEF_COMPANY_CODE, "C8_Material_UOM");
+        JSONArray data1 = JSONObject.parseObject(c8MaterialUom).getJSONArray("data");
+        for (int i = 0; i < data1.size(); i++) {
+            JSONObject obj = data1.getJSONObject(i);
+            if (obj.getString("value").equals(basicsdatumMaterial.getStockUnitCode())) {
+                basicsdatumMaterial.setStockUnitName(obj.getString("name"));
+            }
+        }
+
 
 
         String c8PickingMethod = ccmService.getOpenDictInfo(BaseConstant.DEF_COMPANY_CODE, "C8_PickingMethod");
@@ -198,6 +211,9 @@ public class OpenSmpService {
                 basicsdatumMaterialWidth.setStatus(modelItem.isActive() ? "0" : "1");
                 basicsdatumMaterialWidth.setWidthCode(modelItem.getSizeURL());
                 basicsdatumMaterialWidth.setName(modelItem.getSIZECODE());
+                basicsdatumMaterialWidth.setCode(modelItem.getCODE());
+                basicsdatumMaterialWidth.setSizeName(modelItem.getSIZENAME());
+                basicsdatumMaterialWidth.setSortCode(modelItem.getSORTCODE());
                 basicsdatumMaterialWidth.setMaterialCode(basicsdatumMaterial.getMaterialCode());
                 basicsdatumMaterialWidth.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
                 basicsdatumMaterialWidth.setUpdateName("外部系统推送");
@@ -221,12 +237,15 @@ public class OpenSmpService {
                 BasicsdatumMaterialPrice basicsdatumMaterialPrice = new BasicsdatumMaterialPrice();
 
                 basicsdatumMaterialPrice.setWidthName(quotItem.getSUPPLIERSIZE());
-                if (!smpOpenMaterialDto.getMODELITEMS().isEmpty()) {
+
+                if (StringUtils.isEmpty(quotItem.getMat_SizeURL()) && !smpOpenMaterialDto.getMODELITEMS().isEmpty()) {
                     for (SmpOpenMaterialDto.ModelItem modelitem : smpOpenMaterialDto.getMODELITEMS()) {
                         if (basicsdatumMaterialPrice.getWidthName().equals(modelitem.getSIZECODE())){
                             basicsdatumMaterialPrice.setWidth(modelitem.getSizeURL());
                         }
                     }
+                }else {
+                    basicsdatumMaterialPrice.setWidth(quotItem.getMat_SizeURL());
                 }
 
 

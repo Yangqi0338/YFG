@@ -10,7 +10,7 @@ import lombok.Data;
  */
 @Data
 public class SmpModuleSize {
-    /** 尺码 */
+    /** 尺码 规格名称*/
     private String sizeCode;
     /** 尺码号型 */
     private String sizeName;
@@ -20,6 +20,6 @@ public class SmpModuleSize {
     private String code;
     /** 规格是否启用 */
     private Boolean active;
-    /** 尺码URL */
+    /** 尺码URL 规格编码*/
     private String sizeUrl;
 }

@@ -332,7 +332,7 @@ public class SmpOpenMaterialDto {
         /**
          * 排序码
          */
-        private int SORTCODE;
+        private String SORTCODE;
 
         /**
          * 尺码号型
