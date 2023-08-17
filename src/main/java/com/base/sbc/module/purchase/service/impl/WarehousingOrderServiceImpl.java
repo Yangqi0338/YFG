@@ -7,6 +7,7 @@
 package com.base.sbc.module.purchase.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.UserCompany;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -145,5 +147,48 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
             return ApiResult.success("修改成功！", warehousingOrder);
         }
         return ApiResult.error("修改失败！", 500);
+    }
+
+    /**
+     * 审核通过
+     * */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void examinePass(UserCompany userCompany, AnswerDto dto) {
+        WarehousingOrder warehousingOrder = getById(dto.getBusinessKey());
+        warehousingOrder.setReviewerId(userCompany.getUserId());
+        warehousingOrder.setReviewerName(userCompany.getAliasUserName());
+        warehousingOrder.setReviewDate(new Date());
+        warehousingOrder.setStatus("1");
+        updateById(warehousingOrder);
+    }
+
+    /**
+     * 审核驳回
+     * */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void examineNoPass(UserCompany userCompany, AnswerDto dto) {
+        WarehousingOrder warehousingOrder = getById(dto.getBusinessKey());
+        warehousingOrder.setReviewerId(userCompany.getUserId());
+        warehousingOrder.setReviewerName(userCompany.getAliasUserName());
+        warehousingOrder.setReviewDate(new Date());
+        warehousingOrder.setStatus("2");
+        warehousingOrder.setRejectReason(dto.getConfirmSay());
+        updateById(warehousingOrder);
+    }
+
+    /**
+     * 取消审核
+     * */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void cancelExamine(UserCompany userCompany, AnswerDto dto) {
+        WarehousingOrder warehousingOrder = getById(dto.getBusinessKey());
+        warehousingOrder.setReviewerId(userCompany.getUserId());
+        warehousingOrder.setReviewerName(userCompany.getAliasUserName());
+        warehousingOrder.setReviewDate(new Date());
+        warehousingOrder.setStatus("0");
+        updateById(warehousingOrder);
     }
 }
