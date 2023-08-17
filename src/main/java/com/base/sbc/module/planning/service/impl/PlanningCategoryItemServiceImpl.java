@@ -581,8 +581,10 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             seatIds.add(planningCategoryItem.getId());
 
         }
+        Date sendDate = new Date();
         UpdateWrapper<PlanningCategoryItem> seatUw = new UpdateWrapper<>();
         seatUw.set("status", BasicNumber.ONE.getNumber());
+        seatUw.set("send_date", sendDate);
         seatUw.in("status", BasicNumber.ZERO.getNumber(), "-1");
         seatUw.in("id", seatIds);
         update(seatUw);
