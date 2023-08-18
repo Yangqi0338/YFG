@@ -698,10 +698,13 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
          * 大货款号加上次品编号，改为次品 ，同时复制一个bom名称为次品编号
          */
         if(StringUtils.isBlank(publicStyleColorDto.getDefectiveName())){
-            throw new OtherException("次品名称");
+            throw new OtherException("次品必填");
         }
         if(StringUtils.isBlank(publicStyleColorDto.getDefectiveNo())){
-            throw new OtherException("次品编号");
+            throw new OtherException("次品必填");
+        }
+        if(StringUtils.isBlank(publicStyleColorDto.getColourLibraryId())){
+            throw new OtherException("颜色必填");
         }
         /*配色信息*/
         StyleColor styleColor = baseMapper.selectById(publicStyleColorDto.getId());
@@ -722,7 +725,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
        }
         StyleColorVo styleColorVo =  styleColorVoList.get(0);
         /*判断吊牌价是否确定*/
-        if(StringUtils.isNotBlank(styleColorVo.getProductHangtagConfirm()) && styleColorVo.getProductHangtagConfirm().equals(BaseGlobal.NO)){
+        if(StringUtils.isBlank(styleColorVo.getProductHangtagConfirm()) || styleColorVo.getProductHangtagConfirm().equals(BaseGlobal.NO)){
             throw new OtherException("计控吊牌确定未确定");
         }
 
@@ -753,6 +756,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         copyStyleColor.setBom(styleColor.getDesignNo() + StrUtil.DASHED + (count + 1));
         copyStyleColor.setWareCode(null);
         copyStyleColor.setScmSendFlag(BaseGlobal.NO);
+        copyStyleColor.setId(null);
         baseMapper.insert(copyStyleColor);
 
         /*新建一个资料包*/
