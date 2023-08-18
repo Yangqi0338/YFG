@@ -26,20 +26,19 @@ public class PackBomSizeEmptyCheckDto {
      * 尺码
      */
     @ApiModelProperty(value = "尺码")
-    @NotBlank(message = "尺码不能为空")
+    @NotBlank(message = "尺码")
     private String size;
     /**
      * 数量
      */
     @ApiModelProperty(value = "数量")
-
-    @NotNull(message = "用量不能为空")
+    @NotNull(message = "用量")
     private BigDecimal quantity;
     /**
      * 门幅/规格
      */
     @ApiModelProperty(value = "门幅/规格")
-    @NotEmpty(message = "门幅/规格不能为空")
+    @NotEmpty(message = "门幅/规格")
     private String width;
 
 }

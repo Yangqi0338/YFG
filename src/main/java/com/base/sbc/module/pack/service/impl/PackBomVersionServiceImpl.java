@@ -272,13 +272,19 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
 
         //转大货 非空校验
         if (StrUtil.equals(targetPackType, PackUtils.PACK_TYPE_BIG_GOODS)) {
-            checkBomDataEmptyThrowException(bomList, bomSizeList);
+            //获取启动版本
+            PackBomVersion version = CollUtil.findOne(versionsList, (a) -> StrUtil.equals(a.getStatus(), BaseGlobal.YES));
+            //获取启动版本的BOM数据
+            Collection<PackBom> packBoms = CollUtil.filterNew(bomList, bom -> StrUtil.equals(version.getId(), bom.getBomVersionId()));
+            Collection<PackBomSize> packBomSizes = CollUtil.filterNew(bomSizeList, bom -> StrUtil.equals(version.getId(), bom.getBomVersionId()));
+            checkBomDataEmptyThrowException(packBoms, packBomSizes);
         }
 
         //保存版本
         if (CollUtil.isNotEmpty(versionsList)) {
             for (PackBomVersion version : versionsList) {
                 version.setPackType(targetPackType);
+                version.setForeignId(targetForeignId);
                 String newId = snowflake.nextIdStr();
                 newIdMaps.put(version.getId(), newId);
                 version.setId(newId);
@@ -290,6 +296,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             for (PackBom bom : bomList) {
                 String newId = snowflake.nextIdStr();
                 bom.setPackType(targetPackType);
+                bom.setForeignId(targetForeignId);
                 newIdMaps.put(bom.getId(), newId);
                 bom.setId(newId);
                 bom.setBomVersionId(newIdMaps.get(bom.getBomVersionId()));
@@ -301,6 +308,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             for (PackBomSize bomSize : bomSizeList) {
                 String newId = snowflake.nextIdStr();
                 bomSize.setPackType(targetPackType);
+                bomSize.setForeignId(targetForeignId);
                 bomSize.setId(newId);
                 bomSize.setBomVersionId(newIdMaps.get(bomSize.getBomVersionId()));
                 bomSize.setBomId(newIdMaps.get(bomSize.getBomId()));
@@ -356,7 +364,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
     }
 
     @Override
-    public void checkBomDataEmptyThrowException(List<PackBom> bomList, List<PackBomSize> bomSizeList) {
+    public void checkBomDataEmptyThrowException(Collection<PackBom> bomList, Collection<PackBomSize> bomSizeList) {
         if (CollUtil.isEmpty(bomList)) {
             throw new OtherException("物料信息为空");
         }
@@ -367,29 +375,40 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         Validator validator = validatorFactory.getValidator();
         PackBomEmptyCheckDto c = null;
-        Set<String> errorMessage = new HashSet<>(16);
+        List<String> errorMessage = new ArrayList<>(16);
+        Map<String, List<String>> errorMsg = new HashMap<>(16);
         for (PackBom packBom : bomList) {
+            errorMsg.put(packBom.getId(), CollUtil.newArrayList());
             bomMap.put(packBom.getId(), packBom);
             c = BeanUtil.copyProperties(packBom, PackBomEmptyCheckDto.class);
             Set<ConstraintViolation<PackBomEmptyCheckDto>> validate = validator.validate(c);
             if (CollUtil.isNotEmpty(validate)) {
-                validate.forEach(item -> {
-                    errorMessage.add(item.getMessage());
-                });
+                errorMsg.get(packBom.getId()).addAll(validate.stream().map(item -> item.getMessage()).collect(Collectors.toList()));
             }
         }
         PackBomSizeEmptyCheckDto cs = null;
-        for (PackBomSize packBom : bomSizeList) {
-            cs = BeanUtil.copyProperties(packBom, PackBomSizeEmptyCheckDto.class);
+        for (PackBomSize packBomSize : bomSizeList) {
+            cs = BeanUtil.copyProperties(packBomSize, PackBomSizeEmptyCheckDto.class);
             Set<ConstraintViolation<PackBomSizeEmptyCheckDto>> validate = validator.validate(cs);
-            if (CollUtil.isNotEmpty(validate)) {
-                validate.forEach(item -> {
-                    errorMessage.add(item.getMessage());
-                });
+            if (CollUtil.isNotEmpty(validate) && bomMap.containsKey(packBomSize.getBomId())) {
+                errorMsg.get(packBomSize.getBomId()).addAll(validate.stream().map(item -> packBomSize.getSize() + item.getMessage()).collect(Collectors.toList()));
             }
         }
+        for (Map.Entry<String, List<String>> em : errorMsg.entrySet()) {
+            List<String> value = em.getValue();
+            String key = em.getKey();
+            if (CollUtil.isEmpty(value)) {
+                continue;
+            }
+            PackBom packBom = bomMap.get(key);
+            if (packBom == null) {
+                continue;
+            }
+            errorMessage.add(StrUtil.format("物料【{}】{}不能为空", packBom.getMaterialCodeName(), CollUtil.join(value, StrUtil.COMMA)));
+
+        }
         if (CollUtil.isNotEmpty(errorMessage)) {
-            throw new OtherException(CollUtil.join(errorMessage, StrUtil.COMMA));
+            throw new OtherException(CollUtil.join(errorMessage, StrUtil.LF));
         }
     }
 

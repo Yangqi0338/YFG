@@ -163,6 +163,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         BaseQueryWrapper<PackInfo> qw = new BaseQueryWrapper<>();
         qw.notEmptyEq("foreign_id", pageDto.getStyleId());
         qw.notEmptyEq("pack_type", PackUtils.PACK_TYPE_DESIGN);
+        qw.orderByDesc("id");
         Page<PackInfoListVo> objects = PageHelper.startPage(pageDto);
         List<PackInfoListVo> list = getBaseMapper().queryByQw(qw);
         attachmentService.setListStylePic(list, "stylePic");

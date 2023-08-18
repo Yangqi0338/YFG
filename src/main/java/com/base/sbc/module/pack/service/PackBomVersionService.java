@@ -16,7 +16,7 @@ import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.github.pagehelper.PageInfo;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * 类描述：资料包-物料清单-物料版本 service类
@@ -115,7 +115,8 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
      */
     PackBomVersion checkVersion(String id);
 
-    void checkBomDataEmptyThrowException(List<PackBom> bomList, List<PackBomSize> bomSizeList);
+
+    void checkBomDataEmptyThrowException(Collection<PackBom> bomList, Collection<PackBomSize> bomSizeList);
 
     void checkBomDataEmptyThrowException(PackBom bom);
 

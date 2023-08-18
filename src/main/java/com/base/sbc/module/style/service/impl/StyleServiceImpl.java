@@ -1011,7 +1011,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         Collection<List<PlanningDemandStatisticsVo>> values = resultMap.values();
         PlanningDemandStatisticsResultVo resultVo = new PlanningDemandStatisticsResultVo();
         resultVo.setList(values);
-        resultVo.setMaxLength(maxLength);
+        resultVo.setMaxLength(maxLength + 1);
         return resultVo;
     }
 
