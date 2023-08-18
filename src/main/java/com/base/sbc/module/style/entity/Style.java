@@ -25,7 +25,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.style.entity.Style
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-12 10:51:07
+ * @date 创建时间：2023-8-18 9:36:50
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -555,6 +555,16 @@ public class Style extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "状态:1启用,0未启用")
     private String enableFlag;
+    /**
+     * 款式来源编码
+     */
+    @ApiModelProperty(value = "款式来源编码")
+    private String styleOrigin;
+    /**
+     * 款式来源名称
+     */
+    @ApiModelProperty(value = "款式来源名称")
+    private String styleOriginName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
