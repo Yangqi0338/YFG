@@ -11,6 +11,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
@@ -30,6 +31,8 @@ import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pricing.entity.StylePricing;
+import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
@@ -82,6 +85,8 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     private final AttachmentService attachmentService;
 
     private final DataUpdateScmService dataUpdateScmService;
+
+    private final StylePricingMapper stylePricingMapper;
 
     @Lazy
     @Resource
@@ -520,11 +525,17 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
      * @return
      */
     @Override
-    public Boolean issueScm(String ids) {
-        if(StringUtils.isBlank(ids)){
+    public ApiResult issueScm(String ids) {
+        if (StringUtils.isBlank(ids)) {
             throw new OtherException("ids为空");
         }
-        return smpService.goods(ids.split(","))>0;
+        List<StyleColor> styleColorList = baseMapper.selectBatchIds(StringUtils.convertList(ids));
+        List<String> stringList = styleColorList.stream().filter(s -> StringUtils.isNotBlank(s.getBom())).map(StyleColor::getId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(stringList)) {
+            throw new OtherException("无数据关联bom");
+        }
+        int i = smpService.goods(StringUtils.convertListToString(stringList).split(","));
+        return  ApiResult.success("共下发"+ids.split(",").length+"条，成功"+i+"条");
     }
 
     /**
@@ -707,10 +718,11 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         queryWrapper.eq( "tsc.style_no", styleColor.getStyleNo());
         List<StyleColorVo>  styleColorVoList = baseMapper.colorList(queryWrapper);
        if(CollectionUtils.isEmpty(styleColorVoList)){
-           throw new OtherException("大货款号");
+           throw new OtherException("大货款号查无数据");
        }
+        StyleColorVo styleColorVo =  styleColorVoList.get(0);
         /*判断吊牌价是否确定*/
-        if(StringUtils.isNotBlank(styleColorVoList.get(0).getProductHangtagConfirm()) && styleColorVoList.get(0).getProductHangtagConfirm().equals(BaseGlobal.NO)){
+        if(StringUtils.isNotBlank(styleColorVo.getProductHangtagConfirm()) && styleColorVo.getProductHangtagConfirm().equals(BaseGlobal.NO)){
             throw new OtherException("计控吊牌确定未确定");
         }
 
@@ -763,6 +775,14 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         packInfoService.copyPack(packInfo.getId(),packInfoStatus.getPackType(),copyPackInfo.getId(),packInfoStatus.getPackType());
         /*复制状态*/
         packInfoStatusService.copy(packInfo.getId(),packInfoStatus.getPackType(),copyPackInfo.getId(),packInfoStatus.getPackType());
+        /*复制出款式定价确定数据*/
+        StylePricing stylePricing = new StylePricing();
+        stylePricing.setControlConfirm(styleColorVo.getControlConfirm());
+        stylePricing.setProductHangtagConfirm(styleColorVo.getProductHangtagConfirm());
+        stylePricing.setControlHangtagConfirm(styleColorVo.getControlHangtagConfirm());
+        stylePricing.setPackId(copyPackInfo.getId());
+        stylePricing.setCompanyCode(baseController.getUserCompany());
+        stylePricingMapper.insert(stylePricing);
 
         return true;
     }

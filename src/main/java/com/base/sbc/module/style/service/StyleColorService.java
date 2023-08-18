@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.style.dto.*;
@@ -110,7 +111,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @param ids
          * @return
          */
-        Boolean  issueScm(String ids);
+        ApiResult issueScm(String ids);
 
 
         /**
