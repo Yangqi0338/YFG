@@ -130,14 +130,23 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
         detailQw.eq("warehouse_order_id", warehousingOrder.getId());
         List<WarehousingOrderDetail> oldList = warehousingOrderDetailService.list(detailQw);
         purchaseOrderService.manipulateWarehouseNum(oldList, "1", true);
-        warehousingOrderDetailService.remove(detailQw);
+        warehousingOrderDetailService.physicalDeleteQWrap(detailQw);
 
         warehousingOrder.updateInit(userCompany);
+
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal totalNum = BigDecimal.ZERO;
         List<WarehousingOrderDetail> warehousingOrderDetailList = warehousingOrder.getOrderDetailList();
         for(WarehousingOrderDetail detail : warehousingOrderDetailList){
             detail.setId(idGen.nextIdStr());
             detail.setWarehouseOrderId(warehousingOrder.getId());
+
+            totalAmount = BigDecimalUtil.add(totalAmount, detail.getActualAmount());
+            totalNum = BigDecimalUtil.add(totalNum, detail.getReceivedQuantity());
         }
+
+        warehousingOrder.setMoney(totalAmount);
+        warehousingOrder.setDeliveryQuantity(totalNum);
 
         boolean result = updateById(warehousingOrder);
         if(result){
