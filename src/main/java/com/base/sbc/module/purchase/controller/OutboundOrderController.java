@@ -17,9 +17,12 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserCompanyUtils;
 import com.base.sbc.module.purchase.dto.WarehouseingPageDTO;
-import com.base.sbc.module.purchase.entity.*;
-import com.base.sbc.module.purchase.service.WarehousingOrderDetailService;
-import com.base.sbc.module.purchase.service.WarehousingOrderService;
+import com.base.sbc.module.purchase.entity.OutboundOrder;
+import com.base.sbc.module.purchase.entity.OutboundOrderDetail;
+import com.base.sbc.module.purchase.entity.WarehousingOrder;
+import com.base.sbc.module.purchase.entity.WarehousingOrderDetail;
+import com.base.sbc.module.purchase.service.OutboundOrderDetailService;
+import com.base.sbc.module.purchase.service.OutboundOrderService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -33,24 +36,24 @@ import java.security.Principal;
 import java.util.List;
 
 /**
-* 类描述：入库单 Controller类
-* @address com.base.sbc.module.purchase.web.WarehousingOrderController
+* 类描述：出库单 Controller类
+* @address com.base.sbc.module.purchase.web.OutboundOrderController
 * @author tzy
 * @email 974849633@qq.com
-* @date 创建时间：2023-8-9 16:21:43
+* @date 创建时间：2023-8-18 15:21:46
 * @version 1.0
 */
 @RestController
-@Api(tags = "入库单")
-@RequestMapping(value = BaseController.SAAS_URL + "/warehousingOrder", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@Api(tags = "出库单")
+@RequestMapping(value = BaseController.SAAS_URL + "/outboundOrder", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class WarehousingOrderController extends BaseController{
+public class OutboundOrderController extends BaseController{
 
 	@Autowired
-	private WarehousingOrderService warehousingOrderService;
+	private OutboundOrderService outboundOrderService;
 
 	@Autowired
-	private WarehousingOrderDetailService warehousingOrderDetailService;
+	private OutboundOrderDetailService outboundOrderDetailService;
 
 	@Autowired
 	private UserCompanyUtils userCompanyUtils;
@@ -61,14 +64,12 @@ public class WarehousingOrderController extends BaseController{
 	@ApiOperation(value = "分页查询")
 	@GetMapping
 	public ApiResult page(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, WarehouseingPageDTO page) {
-		QueryWrapper<WarehousingOrder> qc = new QueryWrapper<>();
+		QueryWrapper<OutboundOrder> qc = new QueryWrapper<>();
 		qc.eq("company_code", userCompany);
 		qc.eq(StringUtils.isNotBlank(page.getStatus()),"status", page.getStatus());
 		qc.eq(StringUtils.isNotBlank(page.getOrderStatus()), "order_status", page.getOrderStatus());
 		if(StringUtils.isNotBlank(page.getSearch())){
-			qc.and(wrapper -> wrapper.like("code", page.getSearch())
-					.or()
-					.like("source_code", page.getSearch()));
+			qc.and(wrapper -> wrapper.like("code", page.getSearch()));
 		}
 		if (!StringUtils.isEmpty(page.getOrderBy())){
 			qc.orderByAsc(page.getOrderBy());
@@ -76,10 +77,10 @@ public class WarehousingOrderController extends BaseController{
 			qc.orderByDesc("create_date");
 		}
 		if (page.getPageNum() != 0 && page.getPageSize() != 0) {
-			com.github.pagehelper.Page<WarehousingOrder> warehousingOrderPage = PageHelper.startPage(page.getPageNum(), page.getPageSize());
-			warehousingOrderService.list(qc);
-			PageInfo<WarehousingOrder> pages = warehousingOrderPage.toPageInfo();
-			return ApiResult.success("success", pages);
+			com.github.pagehelper.Page<OutboundOrder> outboundOrderPage = PageHelper.startPage(page.getPageNum(), page.getPageSize());
+			outboundOrderService.list(qc);
+			PageInfo<OutboundOrder> pages = outboundOrderPage.toPageInfo();
+			return selectSuccess(pages);
 		}
 		return selectNotFound();
 	}
@@ -90,13 +91,13 @@ public class WarehousingOrderController extends BaseController{
 		if(StringUtils.isBlank(id)){
 			return selectAttributeNotRequirements("id");
 		}
-		WarehousingOrder warehousingOrder = warehousingOrderService.getById(id);
-		if(warehousingOrder != null){
-			QueryWrapper<WarehousingOrderDetail> detailQw = new QueryWrapper<>();
-			detailQw.eq("warehouse_order_id", id);
-			List<WarehousingOrderDetail> orderDetailList = warehousingOrderDetailService.list(detailQw);
-			warehousingOrder.setOrderDetailList(orderDetailList);
-			return selectSuccess(warehousingOrder);
+		OutboundOrder outboundOrder = outboundOrderService.getById(id);
+		if(outboundOrder != null){
+			QueryWrapper<OutboundOrderDetail> detailQw = new QueryWrapper<>();
+			detailQw.eq("outbound_id", id);
+			List<OutboundOrderDetail> orderDetailList = outboundOrderDetailService.list(detailQw);
+			outboundOrder.setOrderDetailList(orderDetailList);
+			return selectSuccess(outboundOrder);
 		}
 		return selectNotFound();
 	}
@@ -105,25 +106,7 @@ public class WarehousingOrderController extends BaseController{
 	@DeleteMapping("/{id}")
 	public Boolean removeById(@PathVariable("id") String id) {
 		List<String> ids = StringUtils.convertList(id);
-		return warehousingOrderService.removeByIds(ids);
-	}
-
-	@ApiOperation(value = "新增")
-	@PostMapping
-	public ApiResult save(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestBody WarehousingOrder warehousingOrder) {
-		UserCompany userInfo = userCompanyUtils.getCompanyUser(user);
-		return warehousingOrderService.addWarehousing(userInfo, userCompany, warehousingOrder);
-	}
-
-	@ApiOperation(value = "修改")
-	@PostMapping("/update")
-	public ApiResult update(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestBody WarehousingOrder warehousingOrder) {
-		if(StringUtils.isBlank(warehousingOrder.getId())){
-			return updateNotFound();
-		}
-
-		UserCompany userInfo = userCompanyUtils.getCompanyUser(user);
-		return warehousingOrderService.updateWarehousing(userInfo, userCompany, warehousingOrder);
+		return outboundOrderService.removeByIds(ids);
 	}
 
 	@ApiOperation(value = "作废-通过id查询,多个逗号分开")
@@ -132,7 +115,25 @@ public class WarehousingOrderController extends BaseController{
 		if(StringUtils.isBlank(ids)){
 			return updateAttributeNotRequirements("ids");
 		}
-		return warehousingOrderService.cancel(userCompany, ids);
+		return outboundOrderService.cancel(userCompany, ids);
+	}
+
+	@ApiOperation(value = "新增")
+	@PostMapping
+	public ApiResult save(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestBody OutboundOrder outboundOrder) {
+		UserCompany userInfo = userCompanyUtils.getCompanyUser(user);
+		return outboundOrderService.addWarehousing(userInfo, userCompany, outboundOrder);
+	}
+
+	@ApiOperation(value = "修改")
+	@PostMapping("/update")
+	public ApiResult update(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestBody OutboundOrder outboundOrder) {
+		if(StringUtils.isBlank(outboundOrder.getId())){
+			return updateNotFound();
+		}
+
+		UserCompany userInfo = userCompanyUtils.getCompanyUser(user);
+		return outboundOrderService.updateWarehousing(userInfo, userCompany, outboundOrder);
 	}
 
 	@ApiOperation(value = "提交")
@@ -141,18 +142,18 @@ public class WarehousingOrderController extends BaseController{
 		if(StringUtils.isBlank(id)){
 			return selectAttributeNotRequirements("id");
 		}
-		WarehousingOrder warehousingOrder = warehousingOrderService.getById(id);
-		if(warehousingOrder != null){
-			if(!StringUtils.equals(warehousingOrder.getStatus(), "0") || !StringUtils.equals(warehousingOrder.getOrderStatus(), "0")){
+		OutboundOrder outboundOrder = outboundOrderService.getById(id);
+		if(outboundOrder != null){
+			if(!StringUtils.equals(outboundOrder.getStatus(), "0") || !StringUtils.equals(outboundOrder.getOrderStatus(), "0")){
 				return ApiResult.error("请选择草稿状态的单据！", 500);
 			}
 
-			Boolean result = flowableService.start("单号:"+ warehousingOrder.getCode(), flowableService.WAREHOUSING_ORDER, warehousingOrder.getId(),
-					"/pdm/api/saas/warehousingOrder/examine", "/pdm/api/saas/warehousingOrder/examine",
-					"/pdm/api/saas/warehousingOrder/examine", null, BeanUtil.beanToMap(warehousingOrder));
+			Boolean result = flowableService.start("单号:"+ outboundOrder.getCode(), flowableService.OUTBOUND_ORDER, outboundOrder.getId(),
+					"/pdm/api/saas/outboundOrder/examine", "/pdm/api/saas/outboundOrder/examine",
+					"/pdm/api/saas/outboundOrder/examine", null, BeanUtil.beanToMap(outboundOrder));
 			if(result){
-				warehousingOrder.setStatus("1");
-				warehousingOrderService.updateById(warehousingOrder);
+				outboundOrder.setStatus("1");
+				outboundOrderService.updateById(outboundOrder);
 				return ApiResult.success("提交成功！", result);
 			}
 		}
@@ -164,11 +165,11 @@ public class WarehousingOrderController extends BaseController{
 	public void examinePass(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestBody AnswerDto dto) {
 		UserCompany userInfo = userCompanyUtils.getCompanyUser();
 		if(StringUtils.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
-			warehousingOrderService.examinePass(userInfo, dto);
+			outboundOrderService.examinePass(userInfo, dto);
 		}else if(StringUtils.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)){
-			warehousingOrderService.examineNoPass(userInfo, dto);
+			outboundOrderService.examineNoPass(userInfo, dto);
 		}else{
-			warehousingOrderService.cancelExamine(userInfo, dto);
+			outboundOrderService.cancelExamine(userInfo, dto);
 		}
 	}
 }
