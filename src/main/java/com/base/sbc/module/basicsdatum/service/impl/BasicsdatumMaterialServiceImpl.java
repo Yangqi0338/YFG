@@ -29,6 +29,8 @@ import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
+import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -70,6 +72,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	private final BasicsdatumMaterialPriceService materialPriceService;
 	private final BasicsdatumMaterialIngredientService materialIngredientService;
 	private final BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
+	private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 
 	/**
 	 * 解决循环依赖报错的问题
@@ -88,7 +91,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
 	/**
 	 * 转换为对象集合
-	 * 
+	 *
 	 * @param str
 	 * @return
 	 */
@@ -133,7 +136,23 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 					.eq("category3_code", dto.getCategoryId()));
 		}
 		List<BasicsdatumMaterial> list = this.list(qc);
-		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
+		PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
+
+		for (BasicsdatumMaterialPageVo basicsdatumMaterialPageVo : copy.getList()) {
+			String materialCode = basicsdatumMaterialPageVo.getMaterialCode();
+			EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getOne(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode));
+			if (escmMaterialCompnentInspectCompanyDto!=null){
+				basicsdatumMaterialPageVo.setFabricEvaluation(escmMaterialCompnentInspectCompanyDto.getRemark());
+				basicsdatumMaterialPageVo.setCheckCompanyName(escmMaterialCompnentInspectCompanyDto.getCompanyFullName());
+				basicsdatumMaterialPageVo.setCheckDate(escmMaterialCompnentInspectCompanyDto.getArriveDate());
+				basicsdatumMaterialPageVo.setCheckValidDate(String.valueOf(escmMaterialCompnentInspectCompanyDto.getValidityTime()));
+				basicsdatumMaterialPageVo.setCheckItems(escmMaterialCompnentInspectCompanyDto.getSendInspectContent());
+				basicsdatumMaterialPageVo.setCheckOrderUserName(escmMaterialCompnentInspectCompanyDto.getMakerByName());
+				basicsdatumMaterialPageVo.setCheckFileUrl(escmMaterialCompnentInspectCompanyDto.getFileUrl());
+			}
+
+		}
+		return copy;
 	}
 
 	@Override
@@ -166,7 +185,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
 	/**
 	 * 保存成分数据
-	 * 
+	 *
 	 * @param dto
 	 */
 	private void saveIngredient(BasicsdatumMaterialSaveDto dto) {

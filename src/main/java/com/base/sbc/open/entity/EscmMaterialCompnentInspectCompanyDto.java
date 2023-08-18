@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -23,7 +24,7 @@ public class EscmMaterialCompnentInspectCompanyDto extends BaseDataEntity<String
     /**
      * 到货日期
      */
-    private String arriveDate;
+    private Date arriveDate;
     /**
      * 送检日期
      */
