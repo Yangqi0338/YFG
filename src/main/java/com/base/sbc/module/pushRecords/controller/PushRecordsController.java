@@ -32,6 +32,12 @@ public class PushRecordsController extends BaseController {
     @GetMapping("/queryPage")
     public ApiResult queryPage(PushRecordsDto pushRecordsDto) {
         BaseQueryWrapper<PushRecords> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.notEmptyIn("module_name",pushRecordsDto.getModuleName());
+        queryWrapper.notEmptyIn("function_name",pushRecordsDto.getFunctionName());
+        queryWrapper.notEmptyIn("related_id",pushRecordsDto.getRelatedId());
+        queryWrapper.notEmptyIn("related_name",pushRecordsDto.getRelatedName());
+        queryWrapper.notEmptyIn("create_name",pushRecordsDto.getCreateName());
+        queryWrapper.between("create_date",pushRecordsDto.getCreateDate());
         PageHelper.startPage(pushRecordsDto);
         List<PushRecords> list = pushRecordsService.list(queryWrapper);
         return selectSuccess(new PageInfo<>(list));
