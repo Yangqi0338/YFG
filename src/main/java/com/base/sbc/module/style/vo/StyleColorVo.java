@@ -6,17 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.style.vo;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
-import com.base.sbc.config.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
-import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * 类描述：样衣-款式配色 Vo类
@@ -53,7 +49,7 @@ public class StyleColorVo {
     private String  style;
 
     public String getStyle() {
-        return designNo+ (StringUtils.isNotBlank(styleName)? "-"+styleName:"");
+        return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
     }
 
     /*

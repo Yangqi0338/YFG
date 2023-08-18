@@ -2,12 +2,20 @@ package com.base.sbc.module.pack.utils;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
+import com.base.sbc.module.pack.entity.PackSize;
+import com.base.sbc.module.pack.entity.PackSizeDetail;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 类描述：资料包帮助类
@@ -95,5 +103,32 @@ public class PackUtils {
         if (StrUtil.isNotBlank(status)) {
             qw.eq("status", status);
         }
+    }
+
+    /**
+     * 解析尺寸表数据
+     *
+     * @return
+     */
+    public static List<PackSizeDetail> parseSizeDetail(PackSize packSize) {
+        List<PackSizeDetail> result = new ArrayList<>(16);
+
+        if (StrUtil.isAllNotBlank(packSize.getStandard(), packSize.getSize())) {
+            JSONObject standardMap = JSONObject.parseObject(packSize.getStandard());
+            List<String> sizeList = StrUtil.split(packSize.getSize(), CharUtil.COMMA);
+            for (String s : sizeList) {
+                PackSizeDetail sd = new PackSizeDetail();
+                sd.setForeignId(packSize.getForeignId());
+                sd.setPackType(packSize.getPackType());
+                sd.setPackSizeId(packSize.getId());
+                sd.setSize(s);
+                sd.setWashing(MapUtil.getStr(standardMap, "washing" + s, ""));
+                sd.setTemplate(MapUtil.getStr(standardMap, "template" + s, ""));
+                sd.setGarment(MapUtil.getStr(standardMap, "garment" + s, ""));
+                result.add(sd);
+            }
+        }
+
+        return result;
     }
 }

@@ -938,6 +938,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Override
     public PlanningDemandStatisticsResultVo planningDemandStatistics(String id) {
         Style style = getById(id);
+        if (style == null) {
+            return null;
+        }
         //查询需求占比
         QueryWrapper<PlanningDemand> qw = new QueryWrapper<>();
         qw.eq("d.category_id", style.getProdCategory())
@@ -1008,7 +1011,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         Collection<List<PlanningDemandStatisticsVo>> values = resultMap.values();
         PlanningDemandStatisticsResultVo resultVo = new PlanningDemandStatisticsResultVo();
         resultVo.setList(values);
-        resultVo.setMaxLength(maxLength);
+        resultVo.setMaxLength(maxLength + 1);
         return resultVo;
     }
 

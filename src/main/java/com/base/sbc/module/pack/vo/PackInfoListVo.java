@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * 类描述：资料包-基础信息列表Vo
@@ -72,7 +73,7 @@ public class PackInfoListVo extends PackInfoStatusVo {
     private String patternNo;
 
     public String getStyle() {
-        return designNo + styleName;
+        return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
     }
 
     @ApiModelProperty(value = "工艺说明文件信息")

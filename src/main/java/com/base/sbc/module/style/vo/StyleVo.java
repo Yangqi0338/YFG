@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 类描述：样衣明细
@@ -64,7 +65,7 @@ public class StyleVo extends Style {
 
     @ApiModelProperty(value = "款式")
     public String getStyle() {
-        return getDesignNo() + getStyleName();
+        return Optional.ofNullable(getDesignNo()).orElse("") + Optional.ofNullable(getStyleName()).orElse("");
     }
 
     @ApiModelProperty(value = "坑位信息图片")

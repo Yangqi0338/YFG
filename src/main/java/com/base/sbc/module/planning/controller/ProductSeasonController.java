@@ -72,7 +72,7 @@ public class ProductSeasonController extends BaseController {
         if (StrUtil.isBlank(dto.getStatus())) {
             dto.setStatus("1,2");
         }
-        dto.setOrderBy("c.status asc ,c.id desc ");
+        dto.setOrderBy("c.status asc ,c.send_date desc ");
         return planningCategoryItemService.findProductCategoryItem(dto);
     }
 

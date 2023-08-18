@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * 类描述：标准资料包分页查询
@@ -61,7 +62,7 @@ public class BigGoodsPackInfoListVo extends PackInfoStatusVo {
     private String code;
 
     public String getStyle() {
-        return designNo + styleName;
+        return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
     }
 
     public String getStyleId() {

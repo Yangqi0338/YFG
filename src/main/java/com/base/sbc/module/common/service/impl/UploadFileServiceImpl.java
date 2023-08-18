@@ -217,7 +217,6 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         if(StringUtils.isBlank(dto.getStyleColorId())){
             throw new OtherException("配色id不能为空");
         }
-        log.info("_____________________上传款式图___________________________");
         /*获取年季节品牌等信息*/
         StyleUploadVo styleUploadVo = styleColorMapper.getStyleUploadInfo(dto.getStyleColorId());
         /*获取文件类型*/
@@ -233,20 +232,18 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         /*图片类型 （0 jpg,1 png 可以不传 默认0），非必填*/
         String pictype = "0";
         if (StringUtils.isNotBlank(type)) {
-            if (type.equals("jpg")) {
+            if (type.equalsIgnoreCase("jpg")) {
                 pictype = "0";
-            } else if (type.equals("png")) {
+            } else if (type.equalsIgnoreCase("png")) {
                 pictype = "1";
             }
         }
 
         String path =  file.toURI().getPath(); //图片路径
-        log.info("_____________________图片路径___________________________"+path);
         Map<String, String> paraMap = new HashMap<String, String>();
 
         /*账号*/
         String useraccount = userBy.getUsername();
-        log.info("_____________________账号___________________________"+useraccount);
         /*申请开通权限APPKEY ，AES182 结果url编码*/
         String key = "PDMImage";
         String APPsecret = "925091ef18f40b662a55c058cb475137";
@@ -270,8 +267,6 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         fileMap.put("img", path);
         String res = "";
         try {
-            log.info("_____________________参数1___________________________"+paraMap);
-            log.info("_____________________参数2___________________________"+fileMap);
             res = ImgUtils.formUpload(UPLOAD_PHOTO, paraMap, fileMap);
         } catch (Exception e) {
             throw new OtherException("图片上传失败");
@@ -279,9 +274,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             file.delete();
         }
         JSONObject jsonObject =  JSON.parseObject(res);
-        log.info("_____________________jsonObject___________________________"+jsonObject);
         if (Boolean.parseBoolean (jsonObject.get("Sucess").toString())) {
-            log.info("_____________________FileName___________________________"+jsonObject.get("FileName"));
             StyleColor styleColor = styleColorMapper.selectById(dto.getStyleColorId());
             styleColor.setStyleColorPic(jsonObject.get("FileName").toString());
             return  styleColorMapper.updateById(styleColor)>0;

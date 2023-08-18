@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.style.dto.*;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,7 +123,7 @@ public class StyleColorController {
 
 	@ApiOperation(value = "下发-款式配色")
 	@PostMapping("/issueScm")
-	public Boolean issueScm(@Valid @RequestBody QueryStyleColorDto querySampleStyleColorDto) {
+	public ApiResult issueScm(@Valid @RequestBody QueryStyleColorDto querySampleStyleColorDto) {
 		return styleColorService.issueScm(querySampleStyleColorDto.getIds());
 	}
 
