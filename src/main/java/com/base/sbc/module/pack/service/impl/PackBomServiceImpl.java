@@ -239,10 +239,15 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         }
 
         //物料费用=物料大货用量*物料大货单价*（1+损耗率)
-        return bomList.stream().map(packBom -> NumberUtil.mul(
-                packBom.getBulkUnitUse(),
-                packBom.getBulkPrice(),
-                BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO)).divide(new BigDecimal("100")))
+        return bomList.stream().map(packBom -> {
+                    BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")));
+                    BigDecimal mul = NumberUtil.mul(
+                            packBom.getBulkUnitUse(),
+                            packBom.getBulkPrice(),
+                            divide
+                    );
+                    return mul;
+                }
         ).reduce((a, b) -> a.add(b)).orElse(BigDecimal.ZERO);
     }
 
@@ -269,7 +274,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     public PageInfo<FabricSummaryVO> fabricSummaryList(FabricSummaryDTO fabricSummaryDTO) {
         Page<FabricSummaryVO> page = PageHelper.startPage(fabricSummaryDTO);
         baseMapper.fabricSummaryList(fabricSummaryDTO);
-        if(CollectionUtil.isNotEmpty(page.toPageInfo().getList())){
+        if (CollectionUtil.isNotEmpty(page.toPageInfo().getList())) {
             for (FabricSummaryVO fabricSummaryVO : page.toPageInfo().getList()) {
                 // 统计物料下被多少款使用
                 Integer count = baseMapper.querySampleDesignInfoByMaterialIdCount(new FabricSummaryDTO(fabricSummaryDTO.getCompanyCode(), fabricSummaryVO.getId()));
