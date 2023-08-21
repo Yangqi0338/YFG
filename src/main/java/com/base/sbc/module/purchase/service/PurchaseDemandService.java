@@ -8,6 +8,7 @@ package com.base.sbc.module.purchase.service;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.purchase.entity.OutboundOrderDetail;
 import com.base.sbc.module.purchase.entity.PurchaseDemand;
 import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
 
@@ -33,6 +34,6 @@ public interface PurchaseDemandService extends BaseService<PurchaseDemand>{
     void manipulatePlanNum(List<PurchaseOrderDetail> purchaseOrderDetailList, String type);
 // 自定义方法区 不替换的区域【other_end】
 
-	
+	void manipulateReadyNum(List<OutboundOrderDetail> outboundOrderDetailList, String type);
 }
 
