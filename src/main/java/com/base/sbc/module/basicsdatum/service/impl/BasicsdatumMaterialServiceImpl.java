@@ -431,6 +431,20 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		UpdateWrapper<BasicsdatumMaterialWidth> uw = new UpdateWrapper<>();
 		uw.in("id", StringUtils.convertList(dto.getIds()));
 		uw.set("status", dto.getStatus());
+
+		//停用需要校验下游系统是否引用
+		if ("1".equals(dto.getStatus())){
+			QueryWrapper<BasicsdatumMaterialWidth> queryWrapper= new BaseQueryWrapper<>();
+			queryWrapper.in("id",StringUtils.convertList(dto.getIds()));
+			List<BasicsdatumMaterialWidth> list = materialWidthService.list(queryWrapper);
+			for (BasicsdatumMaterialWidth basicsdatumMaterialWidth : list) {
+				Boolean b = smpService.checkSizeAndColor(basicsdatumMaterialWidth.getMaterialCode(), "1", basicsdatumMaterialWidth.getWidthCode());
+				if (!b){
+					throw new OtherException("\""+basicsdatumMaterialWidth.getName()+"\"下游系统以引用,不允许停用");
+				}
+			}
+		}
+
 		return this.materialWidthService.update(null, uw);
 	}
 
@@ -475,6 +489,20 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		UpdateWrapper<BasicsdatumMaterialColor> uw = new UpdateWrapper<>();
 		uw.in("id", StringUtils.convertList(dto.getIds()));
 		uw.set("status", dto.getStatus());
+
+		//停用需要校验下游系统是否引用
+		if ("1".equals(dto.getStatus())){
+			QueryWrapper<BasicsdatumMaterialColor> queryWrapper= new BaseQueryWrapper<>();
+			queryWrapper.in("id",StringUtils.convertList(dto.getIds()));
+			List<BasicsdatumMaterialColor> list = materialColorService.list(queryWrapper);
+			for (BasicsdatumMaterialColor basicsdatumMaterialColor : list) {
+				Boolean b = smpService.checkSizeAndColor(basicsdatumMaterialColor.getMaterialCode(), "2", basicsdatumMaterialColor.getColorCode());
+				if (!b){
+					throw new OtherException("\""+basicsdatumMaterialColor.getColorName()+"\"下游系统以引用,不允许停用");
+				}
+			}
+		}
+
 		return this.materialColorService.update(null, uw);
 	}
 

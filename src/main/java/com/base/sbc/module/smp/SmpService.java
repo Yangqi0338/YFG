@@ -75,8 +75,6 @@ public class SmpService {
 
     private final BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
 
-    private final CcmService ccmService;
-
     private final AmcService amcService;
 
     private final UserUtils userUtils;
@@ -100,8 +98,6 @@ public class SmpService {
 
     private final AttachmentService attachmentService;
 
-    private final BasicsdatumModelTypeService basicsdatumModelTypeService;
-
     private final PackInfoStatusService packInfoStatusService;
 
     private final SampleService sampleService;
@@ -117,6 +113,7 @@ public class SmpService {
     private final PatternMakingService patternMakingService;
 
     private final BasicsdatumIngredientService basicsdatumIngredientService;
+    private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
 
     private static final String SMP_URL = "http://10.98.250.31:7006/pdm";
     //private static final String PDM_URL = "http://smp-i.eifini.com/service-manager/pdm";
@@ -784,6 +781,35 @@ public class SmpService {
     public Boolean checkColorSize(PdmStyleCheckParam param) {
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkColorSize", param);
         return pushRecordsService.pushRecordSave(httpResp, param, "scm", "修改商品颜色的时候验证");
+    }
+
+    /**
+     * 停用物料的规格和颜色的时候校验
+     */
+    public Boolean checkSizeAndColor(String materialCode,String type,String code){
+        CheckMaterial checkMaterial =new CheckMaterial();
+        List<CheckMaterial.CheckSku> checkSkuList =new ArrayList<>();
+        if ("1".equals(type)){
+            for (BasicsdatumMaterialColor basicsdatumMaterialColor : basicsdatumMaterialColorService.list(new QueryWrapper<BasicsdatumMaterialColor>().eq("material_code", materialCode))) {
+                CheckMaterial.CheckSku checkSku =new CheckMaterial.CheckSku();
+                checkSku.setColorCode(basicsdatumMaterialColor.getColorCode());
+                checkSku.setSizeCode(code);
+                checkSkuList.add(checkSku);
+            }
+            checkMaterial.setCheckSkuList(checkSkuList);
+        }
+        if ("2".equals(type)){
+            for (BasicsdatumMaterialWidth basicsdatumMaterialWidth : basicsdatumMaterialWidthService.list(new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", materialCode))) {
+                CheckMaterial.CheckSku checkSku =new CheckMaterial.CheckSku();
+                checkSku.setColorCode(code);
+                checkSku.setSizeCode(basicsdatumMaterialWidth.getWidthCode());
+                checkSkuList.add(checkSku);
+            }
+            checkMaterial.setCheckSkuList(checkSkuList);
+        }
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkMaterialsStopAndStock", checkMaterial);
+        return pushRecordsService.pushRecordSave(httpResp, checkMaterial, "scm", "停用物料尺码和颜色的时候验证");
+
     }
 }
 
