@@ -621,7 +621,10 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
              * 修改下放大货款号
              */
             baseMapper.reviseAllStyleNo(sampleStyleColor.getStyleNo(),updateStyleNoBandDto.getStyleNo());
-            sampleStyleColor.setHisStyleNo(sampleStyleColor.getStyleNo());
+            /*只会记录最开始的大货款号*/
+            if(StringUtils.isBlank(sampleStyleColor.getHisStyleNo())){
+                sampleStyleColor.setHisStyleNo(sampleStyleColor.getStyleNo());
+            }
             sampleStyleColor.setStyleNo(updateStyleNoBandDto.getStyleNo());
         }
         /*修改波段*/

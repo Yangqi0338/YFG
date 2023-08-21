@@ -47,10 +47,6 @@ public class PackBomEmptyCheckDto {
     @NotNull(message = "单价")
     private BigDecimal price;
 
-    @ApiModelProperty(value = "采购单位")
-    @NotBlank(message = "采购单位")
-    private String purchaseUnitCode;
-
     @ApiModelProperty(value = "库存单位")
     @NotBlank(message = "库存单位")
     private String stockUnitCode;

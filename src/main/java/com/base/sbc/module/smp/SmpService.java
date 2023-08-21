@@ -774,7 +774,7 @@ public class SmpService {
      * 修改商品尺码的时候验证
      */
     public Boolean checkStyleSize(PlmStyleSizeParam param) {
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkStyleSize", param);
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkStyleGroup", param);
         return pushRecordsService.pushRecordSave(httpResp, param, "scm", "修改尺码的时候验证");
     }
 
