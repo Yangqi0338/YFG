@@ -188,11 +188,17 @@ public class PurchaseDemandController extends BaseController{
 				qw.eq("date_format(need_date, '%Y-%m-%d')", DateUtil.format(item.getNeedDate(), "yyyy-MM-dd"));
 				List<PurchaseDemand> list = purchaseDemandService.list(qw);
 				String isComplete = "齐料";
+				BigDecimal completeNum = BigDecimal.ZERO;
 				for(PurchaseDemand demand : list){
 					if(demand.getReadyNum().compareTo(demand.getNeedNum()) == -1){
 						isComplete = "未齐料";
+					}else {
+						completeNum = completeNum.add(BigDecimal.ONE);
 					}
 				}
+
+				BigDecimal proportion = BigDecimalUtil.equalZero(completeNum) ? BigDecimal.ZERO : completeNum.divide(new BigDecimal(list.size()), 2 , BigDecimal.ROUND_DOWN).multiply(new BigDecimal(100.0));
+				item.setProportion(proportion);
 				item.setIsComplete(isComplete);
 				item.setDetailList(list);
 			}
