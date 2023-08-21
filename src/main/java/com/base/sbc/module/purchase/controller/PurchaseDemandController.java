@@ -12,6 +12,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserCompanyUtils;
 import com.base.sbc.module.purchase.dto.DemandPageDTO;
@@ -27,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 
@@ -177,6 +179,23 @@ public class PurchaseDemandController extends BaseController{
 			com.github.pagehelper.Page<PurchaseDemand> purchaseDemandPage = PageHelper.startPage(page.getPageNum(), page.getPageSize());
 			purchaseDemandService.list(qc);
 			PageInfo<PurchaseDemand> pages = purchaseDemandPage.toPageInfo();
+
+			for(PurchaseDemand item : pages.getList()){
+				QueryWrapper<PurchaseDemand> qw = new QueryWrapper<>();
+				qw.eq("company_code", userCompany);
+				qw.eq("design_style_code", item.getDesignStyleCode());
+				qw.eq("plate_bill_code", item.getPlateBillCode());
+				qw.eq("date_format(need_date, '%Y-%m-%d')", DateUtil.format(item.getNeedDate(), "yyyy-MM-dd"));
+				List<PurchaseDemand> list = purchaseDemandService.list(qw);
+				String isComplete = "齐料";
+				for(PurchaseDemand demand : list){
+					if(demand.getReadyNum().compareTo(demand.getNeedNum()) == -1){
+						isComplete = "未齐料";
+					}
+				}
+				item.setIsComplete(isComplete);
+				item.setDetailList(list);
+			}
 			return ApiResult.success("success", pages);
 		}
 		return selectNotFound();

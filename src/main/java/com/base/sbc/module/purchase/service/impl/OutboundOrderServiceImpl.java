@@ -22,10 +22,12 @@ import com.base.sbc.module.purchase.mapper.OutboundOrderMapper;
 import com.base.sbc.module.purchase.entity.OutboundOrder;
 import com.base.sbc.module.purchase.service.OutboundOrderDetailService;
 import com.base.sbc.module.purchase.service.OutboundOrderService;
+import com.base.sbc.module.purchase.service.PurchaseDemandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +48,9 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
     @Autowired
     private OutboundOrderDetailService outboundOrderDetailService;
 
+    @Autowired
+    private PurchaseDemandService purchaseDemandService;
+
     @Override
     public ApiResult cancel(String companyCode, String ids) {
         QueryWrapper<OutboundOrder> qw = new QueryWrapper();
@@ -53,15 +58,22 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
         qw.in("id", StringUtils.convertList(ids));
         List<OutboundOrder> outboundOrderList = this.list(qw);
 
+        List<String> idList = new ArrayList<>();
         for (OutboundOrder item : outboundOrderList) {
             if (StringUtils.equals(item.getOrderStatus(), "1") || StringUtils.equals(item.getStatus(), "1")) {
                 return ApiResult.error("请选择单据状态为正常或者审核状态为待审核", 500);
             }
             item.setOrderStatus("1");
+
+            idList.add(item.getId());
         }
 
         boolean result = this.updateBatchById(outboundOrderList);
         if (result) {
+            QueryWrapper<OutboundOrderDetail> detailQw = new QueryWrapper<>();
+            detailQw.in("outbound_id", idList);
+            List<OutboundOrderDetail> detailList = outboundOrderDetailService.list(detailQw);
+            purchaseDemandService.manipulateReadyNum(detailList, "1");
             return ApiResult.success("操作成功！", result);
         }
         return ApiResult.error("操作失败！", 500);
@@ -97,6 +109,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
         boolean result = save(outboundOrder);
         if(result){
             outboundOrderDetailService.saveBatch(orderDetailList);
+            purchaseDemandService.manipulateReadyNum(orderDetailList, "0");
             return ApiResult.success("新增成功！", outboundOrder);
         }
         return ApiResult.error("新增失败！", 500);
@@ -108,6 +121,8 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
         //删除旧数据，返回旧数据所占用的数量
         QueryWrapper<OutboundOrderDetail> detailQw = new QueryWrapper<>();
         detailQw.eq("outbound_id", outboundOrder.getId());
+        List<OutboundOrderDetail> detailList = outboundOrderDetailService.list(detailQw);
+        purchaseDemandService.manipulateReadyNum(detailList, "1");
         outboundOrderDetailService.physicalDeleteQWrap(detailQw);
 
         outboundOrder.updateInit(userCompany);
@@ -126,6 +141,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
         boolean result = updateById(outboundOrder);
         if(result){
             outboundOrderDetailService.saveBatch(orderDetailList);
+            purchaseDemandService.manipulateReadyNum(orderDetailList, "0");
             return ApiResult.success("修改成功！", outboundOrder);
         }
         return ApiResult.error("修改失败！", 500);

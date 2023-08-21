@@ -29,10 +29,7 @@ import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.purchase.entity.MaterialWarehouse;
-import com.base.sbc.module.purchase.entity.PurchaseDemand;
-import com.base.sbc.module.purchase.entity.PurchaseOrder;
-import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
+import com.base.sbc.module.purchase.entity.*;
 import com.base.sbc.module.purchase.mapper.PurchaseDemandMapper;
 import com.base.sbc.module.purchase.mapper.PurchaseOrderMapper;
 import com.base.sbc.module.purchase.service.MaterialWarehouseService;
@@ -188,6 +185,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                     demand.setId(idGen.nextIdStr());
                     demand.setCompanyCode(companyCode);
                     demand.setPurchasedNum(BigDecimal.ZERO);
+                    demand.setReadyNum(BigDecimal.ZERO);
                     demand.setOrderStatus("0");
                     demand.setStatus("0");
                     demand.setDelFlag("0");
@@ -375,6 +373,48 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 }
             }
             purchaseDemandMap.put(details.getDemandId(), item);
+        }
+
+        List<PurchaseDemand> updateList = new ArrayList<>(purchaseDemandMap.values());
+        updateBatchById(updateList);
+    }
+
+    /**
+     * 用于 出库单 操作采购需求单的已配料数量
+     * @param type 0 占用  1 返还
+     * */
+    @Override
+    public void manipulateReadyNum(List<OutboundOrderDetail> outboundOrderDetailList, String type) {
+        List<String> idList = new ArrayList<>();
+        for(OutboundOrderDetail detail : outboundOrderDetailList){
+            if(StringUtils.isNotBlank(detail.getSourceId())){
+                idList.add(detail.getSourceId());
+            }
+        }
+
+        if(CollectionUtil.isEmpty(idList)){
+            return;
+        }
+
+        QueryWrapper<PurchaseDemand> qw = new QueryWrapper<>();
+        qw.in("id", idList);
+        List<PurchaseDemand> purchaseDemandList = list(qw);
+        if(CollectionUtil.isEmpty(purchaseDemandList)){
+            return;
+        }
+
+        Map<String, PurchaseDemand> purchaseDemandMap = purchaseDemandList.stream().collect(Collectors.toMap(PurchaseDemand::getId, item -> item));
+
+        for(OutboundOrderDetail details : outboundOrderDetailList){
+            PurchaseDemand item = purchaseDemandMap.get(details.getSourceId());
+            if(item != null){
+                if(StringUtils.equals(type, "0")){
+                    item.setPurchasedNum(BigDecimalUtil.add(item.getReadyNum(), details.getOutNum()));
+                }else{
+                    item.setPurchasedNum(BigDecimalUtil.sub(item.getReadyNum(), details.getOutNum()));
+                }
+            }
+            purchaseDemandMap.put(details.getSourceId(), item);
         }
 
         List<PurchaseDemand> updateList = new ArrayList<>(purchaseDemandMap.values());

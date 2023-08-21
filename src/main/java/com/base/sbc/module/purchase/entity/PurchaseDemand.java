@@ -7,6 +7,7 @@
 package com.base.sbc.module.purchase.entity;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
@@ -24,7 +25,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.PurchaseDemand
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-4 16:41:44
+ * @date 创建时间：2023-8-21 14:21:52
  * @version 1.0
  */
 @Data
@@ -48,6 +49,13 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     @TableField(exist = false)
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date deliveryDate;
+
+    /** 是否齐料 */
+    @TableField(exist = false)
+    private String isComplete;
+    /** 明细集合 */
+    @TableField(exist = false)
+    List<PurchaseDemand> detailList;
 
     public PurchaseDemand(){
 
@@ -151,6 +159,9 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     /** 已采购数量 */
     @ApiModelProperty(value = "已采购数量"  )
     private BigDecimal purchasedNum;
+    /** 已配料数 */
+    @ApiModelProperty(value = "已配料数"  )
+    private BigDecimal readyNum;
     /** 驳回理由 */
     @ApiModelProperty(value = "驳回理由"  )
     private String rejectReason;
