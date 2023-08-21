@@ -910,7 +910,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         queryWrapper.in("scm_send_flag", com.base.sbc.config.utils.StringUtils.convertList("1,3"));
         List<StyleColor> list = styleColorMapper.selectList(queryWrapper);
         Boolean b = true;
-        if (CollectionUtils.isEmpty(list)) {
+        if (!CollectionUtils.isEmpty(list)) {
             /*查询号型类型*/
             queryWrapper.clear();
             queryWrapper.eq("code", publicStyleColorDto.getSizeRange());
