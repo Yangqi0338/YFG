@@ -5,19 +5,17 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.purchase.controller;
+
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserCompanyUtils;
-import com.base.sbc.module.band.entity.Band;
-import com.base.sbc.module.band.vo.BandQueryReturnVo;
 import com.base.sbc.module.purchase.dto.DemandPageDTO;
 import com.base.sbc.module.purchase.entity.PurchaseDemand;
-import com.base.sbc.module.purchase.entity.PurchaseOrder;
 import com.base.sbc.module.purchase.service.PurchaseDemandService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -30,7 +28,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -161,6 +158,48 @@ public class PurchaseDemandController extends BaseController{
 		}
 		UserCompany userInfo = userCompanyUtils.getCompanyUser(user);
 		return purchaseDemandService.generatePurchaseOrder(userInfo, userCompany, purchaseDemandList);
+	}
+
+	@ApiOperation(value = "出库单选择采购需求列表")
+	@GetMapping("/outboundOrderPage")
+	public ApiResult outboundOrderPage(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, DemandPageDTO page) {
+		QueryWrapper<PurchaseDemand> qc = new QueryWrapper<>();
+		qc.eq("company_code", userCompany);
+		if(StringUtils.isNotBlank(page.getSearch())){
+			qc.and(wrapper -> wrapper.like("design_style_code", page.getSearch())
+					.or()
+					.like("plate_bill_code", page.getSearch()));
+		}
+		qc.groupBy("design_style_code", "plate_bill_code", "DATE(need_date)");
+		qc.orderByAsc("need_date");
+
+		if (page.getPageNum() != 0 && page.getPageSize() != 0) {
+			com.github.pagehelper.Page<PurchaseDemand> purchaseDemandPage = PageHelper.startPage(page.getPageNum(), page.getPageSize());
+			purchaseDemandService.list(qc);
+			PageInfo<PurchaseDemand> pages = purchaseDemandPage.toPageInfo();
+			return ApiResult.success("success", pages);
+		}
+		return selectNotFound();
+	}
+
+	@ApiOperation(value = "根据 设计款号+制版号+需求日期 查询 采购需求单")
+	@GetMapping("/outboundOrderUse")
+	public ApiResult outboundOrderUse(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String designStyleCode, String plateBillCode, String needDate) {
+		if(StringUtils.isBlank(designStyleCode) || StringUtils.isBlank(plateBillCode) || StringUtils.isBlank(needDate)){
+			return selectAttributeNotRequirements("designStyleCode, plateBillCode, needDate");
+		}
+
+		QueryWrapper<PurchaseDemand> qc = new QueryWrapper<>();
+		qc.eq("company_code", userCompany);
+		qc.eq("design_style_code", designStyleCode);
+		qc.eq("plate_bill_code", plateBillCode);
+		qc.eq("date_format(need_date, '%Y-%m-%d')", needDate);
+		List<PurchaseDemand> list = purchaseDemandService.list(qc);
+
+		if (!CollectionUtils.isEmpty(list)) {
+			return ApiResult.success("success", list);
+		}
+		return selectNotFound();
 	}
 }
 

@@ -49,7 +49,7 @@ public class OutboundOrder extends BaseDataEntity<String> {
     @ApiModelProperty(value = "状态（0草稿 1待审核 2审核通过 -1驳回）"  )
     private String status;
     /** 单据类型（0采购单入库 1手工） */
-    @ApiModelProperty(value = "单据类型（0采购单入库 1手工）"  )
+    @ApiModelProperty(value = "单据类型（0制版单入库 1手工）"  )
     private String orderType;
     /** 供应商id */
     @ApiModelProperty(value = "供应商id"  )
