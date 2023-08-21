@@ -122,7 +122,7 @@ public class OutboundOrderController extends BaseController{
 	@PostMapping
 	public ApiResult save(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestBody OutboundOrder outboundOrder) {
 		UserCompany userInfo = userCompanyUtils.getCompanyUser(user);
-		return outboundOrderService.addWarehousing(userInfo, userCompany, outboundOrder);
+		return outboundOrderService.addOutbound(userInfo, userCompany, outboundOrder);
 	}
 
 	@ApiOperation(value = "修改")
@@ -133,7 +133,7 @@ public class OutboundOrderController extends BaseController{
 		}
 
 		UserCompany userInfo = userCompanyUtils.getCompanyUser(user);
-		return outboundOrderService.updateWarehousing(userInfo, userCompany, outboundOrder);
+		return outboundOrderService.updateOutbound(userInfo, userCompany, outboundOrder);
 	}
 
 	@ApiOperation(value = "提交")

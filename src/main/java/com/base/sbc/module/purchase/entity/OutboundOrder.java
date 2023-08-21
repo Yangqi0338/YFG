@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.OutboundOrder
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-18 15:21:46
+ * @date 创建时间：2023-8-21 16:11:45
  * @version 1.0
  */
 @Data
@@ -50,7 +50,7 @@ public class OutboundOrder extends BaseDataEntity<String> {
     /** 状态（0草稿 1待审核 2审核通过 -1驳回） */
     @ApiModelProperty(value = "状态（0草稿 1待审核 2审核通过 -1驳回）"  )
     private String status;
-    /** 单据类型（0采购单入库 1手工） */
+    /** 单据类型（0制版单入库 1手工） */
     @ApiModelProperty(value = "单据类型（0制版单入库 1手工）"  )
     private String orderType;
     /** 供应商id */
@@ -99,6 +99,13 @@ public class OutboundOrder extends BaseDataEntity<String> {
     /** 经办人名称 */
     @ApiModelProperty(value = "经办人名称"  )
     private String agentName;
+    /** 出库时间 */
+    @ApiModelProperty(value = "出库时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date outboundDate;
+    /** 出库数量 */
+    @ApiModelProperty(value = "出库数量"  )
+    private BigDecimal outboundNum;
     /** 出库金额 */
     @ApiModelProperty(value = "出库金额"  )
     private BigDecimal outboundAmount;

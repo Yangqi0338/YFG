@@ -24,9 +24,9 @@ public interface OutboundOrderService extends BaseService<OutboundOrder>{
 
     ApiResult cancel(String companyCode, String ids) ;
 
-    ApiResult addWarehousing(UserCompany userCompany, String companyCode, OutboundOrder outboundOrder);
+    ApiResult addOutbound(UserCompany userCompany, String companyCode, OutboundOrder outboundOrder);
 
-    ApiResult updateWarehousing(UserCompany userCompany, String companyCode, OutboundOrder outboundOrder);
+    ApiResult updateOutbound(UserCompany userCompany, String companyCode, OutboundOrder outboundOrder);
 
     void examinePass(UserCompany userCompany, AnswerDto dto);
 
