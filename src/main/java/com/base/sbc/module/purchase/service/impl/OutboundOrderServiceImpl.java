@@ -80,7 +80,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
     }
 
     @Override
-    public ApiResult addWarehousing(UserCompany userCompany, String companyCode, OutboundOrder outboundOrder) {
+    public ApiResult addOutbound(UserCompany userCompany, String companyCode, OutboundOrder outboundOrder) {
         IdGen idGen = new IdGen();
 
         String maxCode = outboundOrderMapper.selectMaxCodeByCompany(companyCode);
@@ -96,6 +96,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
         outboundOrder.setDelFlag("0");
 
         BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal totalNum = BigDecimal.ZERO;
         List<OutboundOrderDetail> orderDetailList = outboundOrder.getOrderDetailList();
         for(OutboundOrderDetail detail : orderDetailList){
             detail.setId(idGen.nextIdStr());
@@ -103,9 +104,11 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
             detail.setOutboundId(id);
 
             totalAmount = BigDecimalUtil.add(totalAmount, detail.getOutNum().multiply(detail.getStockPrice()));
+            totalNum = BigDecimalUtil.add(totalNum, detail.getOutNum());
         }
 
         outboundOrder.setOutboundAmount(totalAmount);
+        outboundOrder.setOutboundNum(totalNum);
         boolean result = save(outboundOrder);
         if(result){
             outboundOrderDetailService.saveBatch(orderDetailList);
@@ -116,7 +119,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
     }
 
     @Override
-    public ApiResult updateWarehousing(UserCompany userCompany, String companyCode, OutboundOrder outboundOrder) {
+    public ApiResult updateOutbound(UserCompany userCompany, String companyCode, OutboundOrder outboundOrder) {
         IdGen idGen = new IdGen();
         //删除旧数据，返回旧数据所占用的数量
         QueryWrapper<OutboundOrderDetail> detailQw = new QueryWrapper<>();
@@ -128,6 +131,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
         outboundOrder.updateInit(userCompany);
 
         BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal totalNum = BigDecimal.ZERO;
         List<OutboundOrderDetail> orderDetailList = outboundOrder.getOrderDetailList();
         for(OutboundOrderDetail detail : orderDetailList){
             detail.setId(idGen.nextIdStr());
@@ -135,9 +139,11 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
             detail.setOutboundId(outboundOrder.getId());
 
             totalAmount = BigDecimalUtil.add(totalAmount, detail.getOutNum().multiply(detail.getStockPrice()));
+            totalNum = BigDecimalUtil.add(totalNum, detail.getOutNum());
         }
 
         outboundOrder.setOutboundAmount(totalAmount);
+        outboundOrder.setOutboundNum(totalNum);
         boolean result = updateById(outboundOrder);
         if(result){
             outboundOrderDetailService.saveBatch(orderDetailList);
