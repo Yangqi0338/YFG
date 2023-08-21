@@ -256,6 +256,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
 		qc.select("material_code");
 		qc.eq("company_code", this.getCompanyCode());
+		qc.eq("del_flag", "0").or().eq("del_flag", "1");
 //		qc.eq(" length(material_code)", categoryCode.length() + 5);
 //		qc.likeRight("material_code", categoryCode);
 		qc.orderByDesc(" create_date ");
