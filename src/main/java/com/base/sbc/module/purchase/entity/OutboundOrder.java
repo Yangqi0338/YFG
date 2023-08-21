@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -33,6 +34,7 @@ public class OutboundOrder extends BaseDataEntity<String> {
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
     /** 出库单明细 */
+    @TableField(exist = false)
     private List<OutboundOrderDetail> orderDetailList;
 
 
