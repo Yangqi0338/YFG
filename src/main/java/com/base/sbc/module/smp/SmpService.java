@@ -267,16 +267,6 @@ public class SmpService {
 
             smpGoodsDto.setAccessories(StringUtils.isNotEmpty(styleColor.getAccessoryNo()));
 
-            // 核价
-            PackPricing packPricing = packPricingService.getOne(new QueryWrapper<PackPricing>().eq("foreign_id", sampleDesign.getId()).eq("pack_type", "packBigGoods"));
-            if (packPricing != null) {
-                JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
-                smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价")==null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
-                smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费")==null ? new BigDecimal(0) : jsonObject.getBigDecimal("车缝加工费"));
-                smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费")==null ? new BigDecimal(0) : jsonObject.getBigDecimal("物料费"));
-            }
-
-
             // 资料包
             PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", sampleDesign.getId()).eq("pack_type", "packBigGoods"));
             if (packTechPackaging != null) {
@@ -303,6 +293,14 @@ public class SmpService {
             PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()));
             String downContent ="";
             if (packInfo != null) {
+                // 核价
+                PackPricing packPricing = packPricingService.getOne(new QueryWrapper<PackPricing>().eq("foreign_id", packInfo.getId()).eq("pack_type", "packBigGoods"));
+                if (packPricing != null) {
+                    JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
+                    smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价")==null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
+                    smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费")==null ? new BigDecimal(0) : jsonObject.getBigDecimal("车缝加工费"));
+                    smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费")==null ? new BigDecimal(0) : jsonObject.getBigDecimal("物料费"));
+                }
                 //款式定价
                 StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
 
