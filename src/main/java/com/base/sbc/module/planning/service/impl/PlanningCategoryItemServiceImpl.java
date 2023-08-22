@@ -17,6 +17,7 @@ import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
+import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseEntity;
@@ -100,6 +101,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     @Autowired
     AttachmentService attachmentService;
 
+    @Autowired
+    MessageUtils messageUtils;
 
 
     @Autowired
@@ -508,6 +511,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
 
         }
+        /*产品季下发提醒*/
+        messageUtils.seasonSendMessage(categoryItemList.stream().map(PlanningCategoryItem::getDesignerId).collect(Collectors.toList()));
         return true;
     }
 
@@ -588,6 +593,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         seatUw.in("status", BasicNumber.ZERO.getNumber(), "-1");
         seatUw.in("id", seatIds);
         update(seatUw);
+        /*发送消息*/
+        messageUtils.seatSendMessage(seatIds,"");
         return true;
     }
 
