@@ -171,4 +171,9 @@ public interface AmcService {
     Map<String,String> getUsernamesByIds(@RequestParam("ids") String ids);
 
 
+    /**
+     * 获取团队下的用户组用户
+     */
+    @GetMapping("/amc/api/token/teamRelation/getUserGroupUserId")
+    String getUserGroupUserId(@RequestParam("seasonId") String seasonId,@RequestParam("teamId") String teamId,@RequestParam("groupName") String groupName);
 }

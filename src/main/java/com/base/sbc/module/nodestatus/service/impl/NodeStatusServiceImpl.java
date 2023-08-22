@@ -17,12 +17,14 @@ import com.alibaba.fastjson.parser.Feature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.dto.NodeStatusChangeDto;
@@ -60,6 +62,9 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
     private NodeStatusConfigService nodeStatusConfigService;
     @Autowired
     private UserUtils userUtils;
+    @Autowired
+    private MessageUtils messageUtils;
+
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -379,6 +384,8 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
         setUpdateVal(bean, config, user);
         BeanUtil.setProperty(bean, "node", lastNs.getNode());
         BeanUtil.setProperty(bean, "status", lastNs.getStatus());
+        /*发送消息*/
+        messageUtils.sampleTaskSendMessage(bean,config,lastNs.getStatus());
         return true;
     }
 

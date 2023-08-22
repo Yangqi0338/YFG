@@ -17,6 +17,7 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
@@ -319,4 +320,26 @@ public class AmcFeignService {
         }
         return avatarUserIdKey;
     }
+
+    /**
+     * 方法描述： 获取团队下的用户组用户
+     *
+     * @param seasonId  产品季id
+     * @param teamId    团队id
+     * @param groupName 用户组名称
+     * @return
+     */
+    public String getUserGroupUserId(String seasonId, String teamId, String groupName) {
+        try {
+            String str = amcService.getUserGroupUserId(seasonId, teamId, groupName);
+            JSONObject jsonObject = JSON.parseObject(str);
+            if (jsonObject.getBoolean("success")) {
+                return ObjectUtils.isEmpty(jsonObject.get("data")) ? "" : jsonObject.get("data").toString();
+            }
+        } catch (Exception e) {
+            log.error("获取团队下的用户组用户异常", e);
+        }
+        return null;
+    }
+
 }
