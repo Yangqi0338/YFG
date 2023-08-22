@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper">
+    <!--
+        基础资料-BOM模板与物料档案中间表
+        创建人：mengfanjiang
+        邮箱：XX.com
+        创建时间：2023-8-22 17:27:44
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+    <select id="getBomTemplateMateriaList"  resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo">
+        select
+        tbm.*
+        from t_basicsdatum_bom_template_material tbbtm
+        left join  t_basicsdatum_bom_template tbbt on tbbtm.bom_template_id = tbbt.id
+        left join t_basicsdatum_material tbm  on tbbtm.material_id = tbm.id
+        ${ ew.customSqlSegment}
+    </select>
+</mapper>
