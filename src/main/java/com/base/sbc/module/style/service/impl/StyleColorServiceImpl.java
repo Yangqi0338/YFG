@@ -793,6 +793,24 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
 
         return true;
     }
+
+    /**
+     * 方法描述 更新下单标记
+     *
+     * @param publicStyleColorDto
+     * @return
+     */
+    @Override
+    public Boolean updateOrderFlag(PublicStyleColorDto publicStyleColorDto) {
+        if (StringUtils.isBlank(publicStyleColorDto.getOrderFlag())) {
+            throw new OtherException("下单标记为空");
+        }
+        UpdateWrapper updateWrapper = new UpdateWrapper();
+        updateWrapper.set("order_flag", publicStyleColorDto.getOrderFlag());
+        updateWrapper.in("id", StringUtils.convertList(publicStyleColorDto.getId()));
+        baseMapper.update(null, updateWrapper);
+        return  true;
+    }
     /** 自定义方法区 不替换的区域【other_end】 **/
 
 }

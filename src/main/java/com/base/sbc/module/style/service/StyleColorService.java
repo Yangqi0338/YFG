@@ -157,6 +157,14 @@ public interface StyleColorService extends BaseService<StyleColor> {
          */
         Boolean addDefective(PublicStyleColorDto publicStyleColorDto);
 
+        /**
+         * 方法描述 更新下单标记
+         * @param publicStyleColorDto
+         * @return
+         */
+        Boolean updateOrderFlag(PublicStyleColorDto publicStyleColorDto);
+
+
 // 自定义方法区 不替换的区域【other_end】
 
 

@@ -249,6 +249,9 @@ public class StyleColor extends BaseDataEntity<String> {
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
+    /** 下单标记（0否 1是） */
+    @ApiModelProperty(value = "下单标记（0否 1是）"  )
+    private String  orderFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

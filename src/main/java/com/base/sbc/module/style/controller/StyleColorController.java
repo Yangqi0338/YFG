@@ -163,35 +163,11 @@ public class StyleColorController {
 		return styleColorService.addDefective(publicStyleColorDto);
 	}
 
+	@ApiOperation(value = "更新下单标记")
+	@PostMapping("/updateOrderFlag")
+	public Boolean updateOrderFlag( @Valid @RequestBody PublicStyleColorDto publicStyleColorDto) {
+		return styleColorService.updateOrderFlag(publicStyleColorDto);
+	}
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
