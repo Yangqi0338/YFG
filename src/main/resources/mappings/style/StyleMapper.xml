@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.base.sbc.module.style.mapper.StyleMapper">
     <!--
-        样衣
-        创建人：lxl
-        邮箱：lxl.fml@gmail.com
-        创建时间：2023-5-9 17:32:40
+        款式设计
+        创建人：tzy
+        邮箱：974849633@qq.com
+        创建时间：2023-8-22 17:26:23
         版本号：1.0
       -->
 
