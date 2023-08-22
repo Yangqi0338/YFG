@@ -288,15 +288,15 @@ public class SmpService {
             smpGoodsDto.setUnit(sampleDesign.getStyleUnitCode());
 
             PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()));
-            String downContent ="";
+            String downContent = "";
             if (packInfo != null) {
                 // 核价
                 PackPricing packPricing = packPricingService.getOne(new QueryWrapper<PackPricing>().eq("foreign_id", packInfo.getId()).eq("pack_type", "packBigGoods"));
                 if (packPricing != null) {
                     JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
-                    smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价")==null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
-                    smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费")==null ? new BigDecimal(0) : jsonObject.getBigDecimal("车缝加工费"));
-                    smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费")==null ? new BigDecimal(0) : jsonObject.getBigDecimal("物料费"));
+                    smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
+                    smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("车缝加工费"));
+                    smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("物料费"));
                 }
                 //款式定价
                 StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
@@ -314,7 +314,7 @@ public class SmpService {
                     } catch (Exception e) {
 
                     }
-                    downContent=stylePricingVO.getDownContent();
+                    downContent = stylePricingVO.getDownContent();
                     smpGoodsDto.setPlanActualRate(stylePricingVO.getPlanActualMagnification());
                     smpGoodsDto.setProcessCost(stylePricingVO.getCoordinationProcessingFee().add(stylePricingVO.getWoolenYarnProcessingFee()).add(stylePricingVO.getCoordinationProcessingFee()).add(stylePricingVO.getSewingProcessingFee()));
                     smpGoodsDto.setProductName(stylePricingVO.getProductName());
@@ -539,7 +539,9 @@ public class SmpService {
 
             //bom主表
             PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
-
+            if (StringUtils.isEmpty(packInfo.getStyleNo())) {
+                throw new OtherException(packBom.getMaterialName() + "未关联大货(配色)信息,无法下发");
+            }
             Style style = styleService.getOne(new QueryWrapper<Style>().eq("id", packInfo.getForeignId()));
             StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
             smpBomDto.setBomStage("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
@@ -663,24 +665,27 @@ public class SmpService {
         for (PatternMaking patternMaking : patternMakingService.listByIds(Arrays.asList(ids))) {
             Style style = styleService.getById(patternMaking.getStyleId());
             SmpSampleDto smpSampleDto = style.toSmpSampleDto();
-            Sample sample = sampleService.getOne(new QueryWrapper<Sample>().eq("pattern_making_id", patternMaking.getId()));
-            if (sample == null) {
-                throw new OtherException("请先在样衣编辑界面绑定打板指令");
-            }
+            //QueryWrapper<Sample> queryWrapper = new QueryWrapper<Sample>().eq("pattern_making_id", patternMaking.getId());
+            //queryWrapper.orderByAsc("update_date");
+            //queryWrapper.last("limit 1");
+            //Sample sample = sampleService.getOne(queryWrapper);
+            //if (sample == null) {
+            //    throw new OtherException("请先在样衣编辑界面绑定打板指令");
+            //}
             try {
-                smpSampleDto.setImgList(Arrays.asList(sample.getImages().split(",")));
+                smpSampleDto.setImgList(Arrays.asList(style.getStylePic().split(",")));
             } catch (Exception ignored) {
             }
 
-            smpSampleDto.setSampleType(String.valueOf(sample.getType()));
-            smpSampleDto.setSampleTypeName(sample.getType() == 1 ? "内部研发" : sample.getType() == 2 ? "外采" : sample.getType() == 3 ? "ODM提供" : "");
+            smpSampleDto.setSampleType(style.getDevtType());
+            smpSampleDto.setSampleTypeName(style.getDevtTypeName());
 
             //取跟款设计师，如果跟款设计师不存在就取设计师
             smpSampleDto.setProofingDesigner(style.getMerchDesignName() == null ? style.getDesigner() : style.getMerchDesignName());
             smpSampleDto.setPatDiff(style.getPatDiff());
             smpSampleDto.setSampleNumber(patternMaking.getCode());
             smpSampleDto.setColorwayCode(style.getStyleNo());
-            smpSampleDto.setCode(style.getStyleNo());
+            smpSampleDto.setCode(patternMaking.getCode());
             smpSampleDto.setColorwayPlmId(style.getStyleNo());
             smpSampleDto.setSampleStatus(style.getStatus());
             smpSampleDto.setSampleStatusName("0".equals(style.getStatus()) ? "未开款" : "1".equals(style.getStatus()) ? "已开款" : "已下发打板(完成)");
@@ -788,23 +793,23 @@ public class SmpService {
     /**
      * 停用物料的规格和颜色的时候校验
      */
-    public Boolean checkSizeAndColor(String materialCode,String type,String code){
-        CheckMaterial checkMaterial =new CheckMaterial();
-        List<CheckMaterial.CheckSku> checkSkuList =new ArrayList<>();
+    public Boolean checkSizeAndColor(String materialCode, String type, String code) {
+        CheckMaterial checkMaterial = new CheckMaterial();
+        List<CheckMaterial.CheckSku> checkSkuList = new ArrayList<>();
         checkMaterial.setMaterialCode(materialCode);
         checkMaterial.setCode(materialCode);
-        if ("1".equals(type)){
+        if ("1".equals(type)) {
             for (BasicsdatumMaterialColor basicsdatumMaterialColor : basicsdatumMaterialColorService.list(new QueryWrapper<BasicsdatumMaterialColor>().eq("material_code", materialCode))) {
-                CheckMaterial.CheckSku checkSku =new CheckMaterial.CheckSku();
+                CheckMaterial.CheckSku checkSku = new CheckMaterial.CheckSku();
                 checkSku.setColorCode(basicsdatumMaterialColor.getColorCode());
                 checkSku.setSizeCode(code);
                 checkSkuList.add(checkSku);
             }
             checkMaterial.setCheckSkuList(checkSkuList);
         }
-        if ("2".equals(type)){
+        if ("2".equals(type)) {
             for (BasicsdatumMaterialWidth basicsdatumMaterialWidth : basicsdatumMaterialWidthService.list(new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", materialCode))) {
-                CheckMaterial.CheckSku checkSku =new CheckMaterial.CheckSku();
+                CheckMaterial.CheckSku checkSku = new CheckMaterial.CheckSku();
                 checkSku.setColorCode(code);
                 checkSku.setSizeCode(basicsdatumMaterialWidth.getWidthCode());
                 checkSkuList.add(checkSku);

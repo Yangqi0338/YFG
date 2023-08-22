@@ -3,15 +3,18 @@ package com.base.sbc.module.pushRecords.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.restTemplate.RestTemplateService;
 import com.base.sbc.module.pushRecords.dto.PushRecordsDto;
 import com.base.sbc.module.pushRecords.entity.PushRecords;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
+import com.base.sbc.module.smp.dto.HttpResp;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,6 +31,7 @@ import java.util.List;
 @RequestMapping(value = BaseController.SAAS_URL + "/pushRecords", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class PushRecordsController extends BaseController {
     private final PushRecordsService pushRecordsService;
+    private final RestTemplateService restTemplateService;
 
     @GetMapping("/queryPage")
     public ApiResult queryPage(PushRecordsDto pushRecordsDto) {
@@ -38,8 +42,32 @@ public class PushRecordsController extends BaseController {
         queryWrapper.notEmptyIn("related_name",pushRecordsDto.getRelatedName());
         queryWrapper.notEmptyIn("create_name",pushRecordsDto.getCreateName());
         queryWrapper.between("create_date",pushRecordsDto.getCreateDate());
+        queryWrapper.orderByDesc("create_date");
         PageHelper.startPage(pushRecordsDto);
         List<PushRecords> list = pushRecordsService.list(queryWrapper);
         return selectSuccess(new PageInfo<>(list));
+    }
+
+
+    /**
+     * 重推
+     */
+    @PostMapping("/rePush")
+    public ApiResult rePush(String id){
+        PushRecords pushRecords = pushRecordsService.getById(id);
+        HttpResp httpResp = restTemplateService.spmPost(pushRecords.getPushAddress(), pushRecords.getPushContent());
+        pushRecords.setPushStatus(httpResp.isSuccess() ? "成功" : "失败");
+        pushRecords.setResponseMessage(httpResp.getMessage());
+        pushRecords.setResponseStatusCode(httpResp.getCode());
+        pushRecordsService.updateById(pushRecords);
+        ApiResult apiResult = new ApiResult();
+        if (httpResp.isSuccess()){
+            apiResult.setMessage("重推成功");
+            apiResult.setSuccess(true);
+        }else {
+            apiResult.setMessage("重推失败");
+            apiResult.setSuccess(false);
+        }
+        return apiResult;
     }
 }
