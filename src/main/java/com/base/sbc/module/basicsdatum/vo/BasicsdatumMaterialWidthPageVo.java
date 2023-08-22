@@ -7,9 +7,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * 
+ *
  * 物料规格分页数据
- * 
+ *
  * @author shenzhixiong
  * @email 731139982@qq.com
  * @date 2023年6月26日
@@ -33,4 +33,6 @@ public class BasicsdatumMaterialWidthPageVo extends BaseDataEntity<String> {
 	/** 规格代码 */
 	@ApiModelProperty(value = "规格名称")
 	private String name;
+	/**是否在报价引用*/
+	private String quote;
 }
