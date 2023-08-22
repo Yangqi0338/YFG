@@ -16,12 +16,12 @@
 			t.*,
 		t.color_name as color,
 		t1.color_hex,
-		MAX( tb.width ) AS quote
+		tb.color AS quote
 		FROM
 		t_basicsdatum_material_color t
 		LEFT JOIN t_goods_color t1 ON t.company_code = t1.company_code
 		AND t.color_code = t1.color_code and t1.del_flag = '0'
-		LEFT JOIN t_basicsdatum_material_price tb ON tb.width LIKE CONCAT('%', t.color_code, '%')
+		LEFT JOIN t_basicsdatum_material_price tb ON tb.color LIKE CONCAT('%', t.color_code, '%')
 		WHERE
 		t.company_code = #{companyCode}
 		and t.del_flag = '0'
@@ -29,6 +29,7 @@
 		<if test="status!=null and status !=''">
 			and t.status=#{status}
 		</if>
+		GROUP BY t.id
 	</select>
 	<select id="getBasicsdatumMaterialColorSelect"
 		resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo">
@@ -46,11 +47,7 @@
 	<select id="getBasicsdatumMaterialWidthList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo">
 		SELECT
 		t.*,
-		MAX(tb.width) AS quote,
-		CASE
-		WHEN MAX(tb.width) IS NOT NULL THEN 1
-		ELSE 0
-		END AS tb_exists
+		tb.width AS quote
 		FROM
 		t_basicsdatum_material_width t
 		LEFT JOIN t_basicsdatum_specification t1 ON t.company_code = t1.company_code
@@ -64,6 +61,7 @@
 		<if test="status!=null and status !=''">
 			and t.status=#{status}
 		</if>
+		GROUP BY t.id
 	</select>
 
 	<select id="getBasicsdatumMaterialWidthSelect" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo">

@@ -38,8 +38,6 @@ public class OpenSmpService {
 
     private final BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
 
-    private final SpecificationGroupService specificationGroupService;
-
     private final BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
 
     private final CcmService ccmService;
@@ -199,7 +197,8 @@ public class OpenSmpService {
                 basicsdatumMaterialColor.setUpdateName("外部系统推送");
                 basicsdatumMaterialColors.add(basicsdatumMaterialColor);
             });
-            basicsdatumMaterialColorService.addAndUpdateAndDelList(basicsdatumMaterialColors, new QueryWrapper<BasicsdatumMaterialColor>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            basicsdatumMaterialColorService.remove(new QueryWrapper<BasicsdatumMaterialColor>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            basicsdatumMaterialColorService.saveBatch(basicsdatumMaterialColors);
 
         }
 
@@ -226,7 +225,8 @@ public class OpenSmpService {
             //    basicsdatumMaterial.setWidthGroup(specifications.get(0).getCode());
             //    basicsdatumMaterial.setWidthGroupName(specifications.get(0).getName());
             //}
-            basicsdatumMaterialWidthService.addAndUpdateAndDelList(basicsdatumMaterialWidths, new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            basicsdatumMaterialWidthService.remove(new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            basicsdatumMaterialWidthService.saveBatch(basicsdatumMaterialWidths);
 
         }
 
@@ -278,7 +278,9 @@ public class OpenSmpService {
 
             });
             List<BasicsdatumMaterialPrice> list = this.merge(basicsdatumMaterialPrices);
-            basicsdatumMaterialPriceService.addAndUpdateAndDelList(list, new QueryWrapper<BasicsdatumMaterialPrice>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+
+            basicsdatumMaterialPriceService.remove( new QueryWrapper<BasicsdatumMaterialPrice>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            basicsdatumMaterialPriceService.saveBatch(list);
             List<BasicsdatumMaterialPriceDetail> basicsdatumMaterialPriceDetails = new ArrayList<>();
             for (BasicsdatumMaterialPrice basicsdatumMaterialPrice : list) {
 
