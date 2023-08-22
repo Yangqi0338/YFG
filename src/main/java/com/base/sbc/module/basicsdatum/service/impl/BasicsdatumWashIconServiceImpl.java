@@ -66,8 +66,8 @@ public class BasicsdatumWashIconServiceImpl extends BaseServiceImpl<BasicsdatumW
                 queryWrapper.eq("status", BaseGlobal.STATUS_NORMAL);
             }
             queryWrapper.eq("company_code", baseController.getUserCompany());
-            queryWrapper.like("name",queryDto.getName());
-            queryWrapper.like("code",queryDto.getCode());
+            queryWrapper.like(StringUtils.isNotBlank(queryDto.getName()),"name",queryDto.getName());
+            queryWrapper.like(StringUtils.isNotBlank(queryDto.getCode()),"code",queryDto.getCode());
             /*查询基础资料-洗涤图标数据*/
             Page<BasicsdatumWashIconVo> objects = PageHelper.startPage(queryDto);
             getBaseMapper().selectList(queryWrapper);
