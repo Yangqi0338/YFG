@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
@@ -170,6 +171,15 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
     PageInfo<PackInfoListVo> pageInfo(PackInfoSearchPageDto pageDto);
 
     boolean setPatternNo(PackInfoSetPatternNoDto dto);
+
+    /**
+     * 生成文件
+     *
+     * @param groupUser
+     * @param dto
+     * @return
+     */
+    AttachmentVo genTechSpecFile2(GroupUser groupUser, PackCommonSearchDto dto);
 
 
 // 自定义方法区 不替换的区域【other_end】

@@ -12,8 +12,6 @@ import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.*;
-import com.base.sbc.module.planning.entity.PlanningBand;
-import com.base.sbc.module.planning.entity.PlanningCategory;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
@@ -38,7 +36,6 @@ import java.util.Map;
  * @date 创建时间：2023-3-31 13:40:49
  */
 public interface PlanningCategoryItemService extends BaseService<PlanningCategoryItem> {
-    public int saveCategoryItem(PlanningBand band, PlanningCategory category,List<PlanningCategoryItem> dbCategoryItemList);
     @Transactional(readOnly = false)
     public boolean delByPlanningCategory(String companyCode,List<String> ids);
     public boolean delByPlanningBand(String userCompany, String id);
@@ -51,25 +48,17 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
     /**
      * 获取下一个编码
      *
-     * @param brand
-     * @param year
-     * @param season
-     * @param category
      * @return
      */
-    String getNextCode(String brand, String year, String season, String category);
+    String getNextCode(Object obj);
 
     /**
      * 获取下一个编码批量
      *
-     * @param brand
-     * @param year
-     * @param season
-     * @param category
-     * @param count    生成数量
+     * @param count 生成数量
      * @return
      */
-    List<String> getNextCode(String brand, String year, String season, String category, int count);
+    List<String> getNextCode(Object obj, int count);
 
     /**
      * 修改/提交

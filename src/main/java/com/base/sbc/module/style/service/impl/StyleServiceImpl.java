@@ -271,7 +271,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         categoryItem.setMaterialCount(new BigDecimal(String.valueOf(CollUtil.size(dto.getMaterialList()))));
         categoryItem.setHisDesignNo(dto.getHisDesignNo());
         // 设置款号
-        String designNo = planningCategoryItemService.getNextCode(dto.getBrand(), dto.getYear(), dto.getSeason(), dto.getProdCategory());
+        String designNo = planningCategoryItemService.getNextCode(dto);
         if (StrUtil.isBlank(designNo)) {
             throw new OtherException("款号生成失败");
         }

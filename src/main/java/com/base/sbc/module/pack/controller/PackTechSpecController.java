@@ -8,10 +8,12 @@ package com.base.sbc.module.pack.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -60,8 +63,10 @@ public class PackTechSpecController {
     private PackInfoStatusService packInfoStatusService;
     @Autowired
     private PackInfoService packInfoService;
-
+    @Autowired
+    private UserUtils userUtils;
     final String lockField = "techSpecLockFlag";
+
     @ApiOperation(value = "列表")
     @GetMapping
     public List<PackTechSpecVo> page(PackTechSpecSearchDto dto) {
@@ -169,8 +174,10 @@ public class PackTechSpecController {
 
     @ApiOperation(value = "生成工艺说明文件")
     @PostMapping("/genTechSpecFile")
-    public AttachmentVo genTechSpecFile(@Valid PackCommonSearchDto dto) {
-        return packInfoService.genTechSpecFile(dto);
+    public AttachmentVo genTechSpecFile(Principal user, @Valid PackCommonSearchDto dto) {
+//        return packInfoService.genTechSpecFile(dto);
+        GroupUser groupUser = userUtils.getUserBy(user);
+        return packInfoService.genTechSpecFile2(groupUser, dto);
     }
 
     @ApiOperation(value = "删除工艺说明文件")
@@ -178,6 +185,8 @@ public class PackTechSpecController {
     public boolean delTechSpecFile(@Valid PackCommonSearchDto dto) {
         return packInfoService.delTechSpecFile(dto);
     }
+
+
 }
 
 

@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
@@ -16,6 +17,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
@@ -25,34 +27,43 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StyleNoImgUtils;
 import com.base.sbc.module.common.eumns.UreportDownEnum;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.UreportService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.hangTag.service.HangTagService;
+import com.base.sbc.module.hangTag.vo.HangTagVO;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
+import com.base.sbc.module.pack.entity.PackSize;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
+import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -121,6 +132,11 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Resource
     private StyleColorMapper styleColorMapper;
 
+    @Resource
+    private StyleColorService styleColorService;
+    @Resource
+    private HangTagService hangTagService;
+
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
 
@@ -180,6 +196,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         uw.lambda().eq(PackInfo::getId, dto.getPackId());
         return update(packInfo, uw);
     }
+
 
     @Override
     public PackInfoListVo createByStyle(CreatePackInfoByStyleDto dto) {
@@ -413,6 +430,67 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packInfoStatus.setTechSpecFileId(attachmentVo.getFileId());
         packInfoStatusService.updateById(packInfoStatus);
         return attachmentVo;
+    }
+
+    @Override
+    public AttachmentVo genTechSpecFile2(GroupUser groupUser, PackCommonSearchDto dto) {
+        //获取款式信息
+        PackInfoListVo detail = getDetail(dto.getForeignId(), dto.getPackType());
+
+        if (detail == null) {
+            throw new OtherException("获取资料包数据失败");
+        }
+        //获取款式信息
+        Style style = styleService.getById(detail.getForeignId());
+        if (style == null) {
+            throw new OtherException("获取款式信息失败");
+        }
+        GenTechSpecPdfFile vo = new GenTechSpecPdfFile();
+        // 获取吊牌信息
+        if (StrUtil.isNotBlank(detail.getStyleNo())) {
+            HangTagVO tag = hangTagService.getDetailsByBulkStyleNo(detail.getStyleNo(), getCompanyCode());
+            if (tag != null) {
+                BeanUtil.copyProperties(tag, vo);
+            }
+        }
+        if (StrUtil.isNotBlank(vo.getStylePic())) {
+            vo.setStylePic(uploadFileService.getUrlById(vo.getStylePic()));
+        }
+
+        //图片
+        if (StrUtil.isNotBlank(detail.getStyleColorId())) {
+            StyleColor styleColor = styleColorMapper.selectById(detail.getStyleColorId());
+            String styleNoImgUrl = StyleNoImgUtils.getStyleNoImgUrl(groupUser, styleColor.getStyleColorPic());
+            vo.setStylePic(styleNoImgUrl);
+        }
+        vo.setCompanyName("意丰歌集团有限公司");
+        vo.setBrandName(style.getBrandName());
+        vo.setDesignNo(style.getDesignNo());
+        vo.setStyleNo(detail.getStyleNo());
+        vo.setDesigner(style.getDesigner());
+        vo.setProductSizes(style.getProductSizes());
+        vo.setPatternDesignName(style.getPatternDesignName());
+        vo.setSizeRangeName(style.getSizeRangeName());
+        vo.setProdCategoryName(style.getProdCategoryName());
+        PackTechSpecSearchDto techSearch = BeanUtil.copyProperties(dto, PackTechSpecSearchDto.class);
+        //工艺信息
+        vo.setTechSpecVoList(packTechSpecService.list(techSearch));
+        //图片
+        vo.setPicList(packTechSpecService.picList(techSearch));
+        //尺寸表
+        List<PackSize> sizeList = packSizeService.list(dto.getForeignId(), dto.getPackType());
+        vo.setSizeList(BeanUtil.copyToList(sizeList, PackSizeVo.class));
+        ByteArrayOutputStream gen = vo.gen();
+        String fileName = detail.getCode() + ".pdf";
+
+        try {
+            MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(gen.toByteArray()));
+            return uploadFileService.uploadToMinio(mockMultipartFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new OtherException("生成工艺文件失败");
+        }
+
     }
 
     @Override

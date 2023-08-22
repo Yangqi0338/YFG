@@ -19,7 +19,6 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.IdGen;
-import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
@@ -42,7 +41,10 @@ import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.utils.FormTypeCodes;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.*;
-import com.base.sbc.module.planning.entity.*;
+import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
+import com.base.sbc.module.planning.entity.PlanningChannel;
+import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
@@ -63,7 +65,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -111,68 +112,32 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
     private IdGen idGen = new IdGen();
 
-    /**
-     * 保存坑位信息
-     *
-     * @return
-     */
-    @Transactional(readOnly = false)
-    public int saveCategoryItem(PlanningBand band, PlanningCategory category, List<PlanningCategoryItem> dbCategoryItemList) {
-        //通过企划需求数生成
-        BigDecimal planRequirementNum = category.getPlanRequirementNum();
-        String companyCode = band.getCompanyCode();
-        //坑位信息条件
-        QueryCondition categoryItemQc = new QueryCondition(companyCode);
-        categoryItemQc.andEqualTo("planning_category_id", category.getId());
-        //删除之前数据
-        delByPlanningCategory(companyCode, CollUtil.newArrayList(category.getId()));
-        if (planRequirementNum == null || planRequirementNum.intValue() == 0) {
-            return 0;
-        }
-        PlanningSeason planningSeason = planningSeasonService.getById(band.getPlanningSeasonId());
-        IdGen idGen = new IdGen();
-        int insertCount = 0;
-        for (int i = 0; i < planRequirementNum.intValue(); i++) {
-            PlanningCategoryItem item = new PlanningCategoryItem();
-            item.setCompanyCode(companyCode);
-            item.preInsert(idGen.nextIdStr());
-            item.preUpdate();
-            item.setPlanningSeasonId(category.getPlanningSeasonId());
-
-            String designCode = Optional.ofNullable(CollUtil.get(dbCategoryItemList, i)).map(PlanningCategoryItem::getDesignNo).orElse(
-                    getNextCode(
-                            planningSeason.getBrand(),
-                            planningSeason.getYear(),
-                            planningSeason.getSeason(),
-                            category.getProdCategory()));
-            System.out.println("planningDesignNo:" + designCode);
-            item.setDesignNo(designCode);
-            insertCount += save(item) ? 1 : 0;
-
-        }
-        return insertCount;
-    }
 
     @Override
-    public String getNextCode(String brand, String year, String season, String category) {
-        Map<String, String> params = genNexcCodeParams(brand, year, season, category);
+    public String getNextCode(Object obj) {
+        Map<String, String> params = genNexcCodeParams(obj);
         GetMaxCodeRedis getMaxCode = new GetMaxCodeRedis(ccmService);
         String planningDesignNo = getMaxCode.genCode("PLANNING_DESIGN_NO", params);
         return planningDesignNo;
     }
 
     @Override
-    public List<String> getNextCode(String brand, String year, String season, String category, int count) {
-        Map<String, String> params = genNexcCodeParams(brand, year, season, category);
+    public List<String> getNextCode(Object obj, int count) {
+        Map<String, String> params = genNexcCodeParams(obj);
         GetMaxCodeRedis getMaxCode = new GetMaxCodeRedis(ccmService);
         List<String> planningDesignNo = getMaxCode.genCode("PLANNING_DESIGN_NO", count, params);
         return planningDesignNo;
     }
 
-    private Map<String, String> genNexcCodeParams(String brand, String year, String season, String category) {
-        if (StrUtil.contains(category, StrUtil.COMMA)) {
-            category = getCategory(category);
-        }
+    private Map<String, String> genNexcCodeParams(Object obj) {
+
+        String brand = BeanUtil.getProperty(obj, "brand");
+        String year = BeanUtil.getProperty(obj, "year");
+        String season = BeanUtil.getProperty(obj, "season");
+        String category = BeanUtil.getProperty(obj, "prodCategory");
+        String prodCategory3rd = BeanUtil.getProperty(obj, "prodCategory3rd");
+        String channel = BeanUtil.getProperty(obj, "channel");
+
         Map<String, String> params = new HashMap<>(12);
         // ED 品牌取E品牌的编码 （暂时这么做，后续优化）
         if (StrUtil.equals(brand, "ED")) {
@@ -183,6 +148,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         params.put("year", year);
         params.put("season", season);
         params.put("category", category);
+        params.put("channel", channel);
+        params.put("prodCategory3rd", prodCategory3rd);
         return params;
     }
 
@@ -304,6 +271,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             String newDesignNO = PlanningUtils.getNewDesignNo(planningCategoryItem.getDesignNo(), planningCategoryItem.getDesigner(), allocationDesignDto.getDesigner());
             planningCategoryItem.setDesignNo(newDesignNO);
             BeanUtil.copyProperties(allocationDesignDto, planningCategoryItem);
+            planningCategoryItem.setOldDesignNo(newDesignNO);
         }
         return updateBatchById(planningCategoryItems);
     }
@@ -674,7 +642,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         PlanningCategoryItem base = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
         BeanUtil.copyProperties(channel, base);
         //获取设计编号
-        List<String> nextCode = getNextCode(base.getBrand(), base.getYear(), base.getSeason(), base.getProdCategory(), dto.getCount());
+        List<String> nextCode = getNextCode(base, dto.getCount());
         if (CollUtil.isEmpty(nextCode)) {
             throw new OtherException("设计编号生成失败");
         }
