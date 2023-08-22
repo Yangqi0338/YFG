@@ -46,6 +46,7 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		IdGen idGen = new IdGen();
 		SmpMaterialDto smpMaterialDto = new SmpMaterialDto();
 		smpMaterialDto.setMaterialCode(materialCode);
+		smpMaterialDto.setCode(materialCode);
 		smpMaterialDto.setMaterialName(materialName);
 		smpMaterialDto.setMaterialUnit(purchaseUnitCode);
 		smpMaterialDto.setStockUnit(stockUnitCode);

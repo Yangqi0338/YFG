@@ -48,6 +48,7 @@ public class StyleColor extends BaseDataEntity<String> {
         smpGoodsDto.setSupplierArticleColor(supplierColor);
         smpGoodsDto.setSaleType(salesType);
         smpGoodsDto.setBulkNumber(styleNo);
+        smpGoodsDto.setCode(styleNo);
         smpGoodsDto.setMainCode(principalStyleNo);
         smpGoodsDto.setSecCode(accessoryNo);
 

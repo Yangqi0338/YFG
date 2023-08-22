@@ -550,7 +550,7 @@ public class SmpService {
                 smpBomDto.setPColorName(styleColor.getColorName());
                 smpBomDto.setBulkNumber(packInfo.getStyleNo());
                 smpBomDto.setBomCode(packInfo.getCode());
-
+                smpBomDto.setCode(packInfo.getCode());
             }
 
             //List<BomMaterial> bomMaterials = new ArrayList<>();
@@ -639,7 +639,7 @@ public class SmpService {
         for (SmpProcessSheetDto smpProcessSheetDto : sheetDtoList) {
             String id = String.valueOf(idGen.nextId());
             PackInfoStatus packInfoStatus = packInfoStatusService.get(smpProcessSheetDto.getForeignId(), smpProcessSheetDto.getPackType());
-
+            smpProcessSheetDto.setCode(smpProcessSheetDto.getBulkNumber());
             smpProcessSheetDto.setSyncId(id);
             smpProcessSheetDto.setId(id);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/processSheet", smpProcessSheetDto);
@@ -680,6 +680,7 @@ public class SmpService {
             smpSampleDto.setPatDiff(style.getPatDiff());
             smpSampleDto.setSampleNumber(patternMaking.getCode());
             smpSampleDto.setColorwayCode(style.getStyleNo());
+            smpSampleDto.setCode(style.getStyleNo());
             smpSampleDto.setColorwayPlmId(style.getStyleNo());
             smpSampleDto.setSampleStatus(style.getStatus());
             smpSampleDto.setSampleStatusName("0".equals(style.getStatus()) ? "未开款" : "1".equals(style.getStatus()) ? "已开款" : "已下发打板(完成)");
@@ -771,6 +772,7 @@ public class SmpService {
      * 修改商品尺码的时候验证
      */
     public Boolean checkStyleSize(PlmStyleSizeParam param) {
+        param.setCode(param.getStyleNo());
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkStyleGroup", param);
         return pushRecordsService.pushRecordSave(httpResp, param, "scm", "修改尺码的时候验证");
     }
@@ -790,6 +792,7 @@ public class SmpService {
         CheckMaterial checkMaterial =new CheckMaterial();
         List<CheckMaterial.CheckSku> checkSkuList =new ArrayList<>();
         checkMaterial.setMaterialCode(materialCode);
+        checkMaterial.setCode(materialCode);
         if ("1".equals(type)){
             for (BasicsdatumMaterialColor basicsdatumMaterialColor : basicsdatumMaterialColorService.list(new QueryWrapper<BasicsdatumMaterialColor>().eq("material_code", materialCode))) {
                 CheckMaterial.CheckSku checkSku =new CheckMaterial.CheckSku();

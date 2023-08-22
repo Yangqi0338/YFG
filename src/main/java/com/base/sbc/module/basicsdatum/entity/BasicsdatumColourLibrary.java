@@ -38,6 +38,7 @@ public class BasicsdatumColourLibrary extends BaseDataEntity<String> {
         SmpColorDto smpColorDto =new SmpColorDto();
         smpColorDto.setId(id);
         smpColorDto.setName(colourName);
+        smpColorDto.setCode(colourCode);
         smpColorDto.setSyncId(String.valueOf(idGen.nextId()));
         smpColorDto.setActive("0".equals(status));
         smpColorDto.setCreator(getCreateName());

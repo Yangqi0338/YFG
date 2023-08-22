@@ -13,6 +13,8 @@ public class PlmStyleSizeParam  {
     /**大货款号*/
     private String styleNo;
 
+    private String code;
+
     /**尺码组*/
 
     private String sizeCategory;

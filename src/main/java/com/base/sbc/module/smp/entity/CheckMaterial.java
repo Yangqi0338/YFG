@@ -16,6 +16,8 @@ public class CheckMaterial {
      */
     private String materialCode;
 
+    private String code;
+
     List<CheckSku> checkSkuList;
 
     @Data
