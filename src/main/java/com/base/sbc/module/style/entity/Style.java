@@ -565,6 +565,17 @@ public class Style extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "款式来源名称")
     private String styleOriginName;
+
+    /**
+     * 款式来源名称
+     */
+    @ApiModelProperty(value = "颜色codes")
+    private String colorCodes;
+    /**
+     * 款式来源名称
+     */
+    @ApiModelProperty(value = "颜色名称")
+    private String productColors;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
