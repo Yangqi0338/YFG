@@ -304,5 +304,12 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         return super.getBaseMapper().selectProcessDatabase(type, categoryName, companyCode);
     }
 
-
+    @Override
+    public List<ProcessDatabase> getAll() {
+        QueryWrapper<ProcessDatabase> qw = new QueryWrapper<>();
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.ne("del_flag", BaseGlobal.YES);
+        qw.eq("type", BasicNumber.SEVEN.getNumber());
+        return list(qw);
+    }
 }

@@ -3,6 +3,7 @@ package com.base.sbc.module.basicsdatum.controller;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.module.basicsdatum.dto.AddRevampProcessDatabaseDto;
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
@@ -111,6 +112,12 @@ public class ProcessDatabaseController extends BaseController {
     @GetMapping("/getAllPatternPartsCode")
     public List<String> getAllPatternPartsCode() {
         return processDatabaseService.getAllPatternPartsCode();
+    }
+
+    @ApiOperation(value = "获取所有模板部件")
+    @GetMapping("/getAll")
+    public List<ProcessDatabase> getAll(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+        return processDatabaseService.getAll();
     }
 
     @ApiOperation(value = "通过类型查询")
