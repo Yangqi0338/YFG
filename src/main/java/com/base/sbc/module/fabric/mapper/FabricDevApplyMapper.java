@@ -7,7 +7,7 @@
 package com.base.sbc.module.fabric.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.module.fabric.dto.FabricDevApplySearchDTO;
+import com.base.sbc.module.fabric.dto.FabricDevSearchDTO;
 import com.base.sbc.module.fabric.entity.FabricDevApply;
 import com.base.sbc.module.fabric.vo.FabricDevApplyListVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -16,25 +16,25 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 类描述：面料开发申请（主表） dao类
+ * 类描述：面料开发申请 dao类
  *
  * @author your name
  * @version 1.0
  * @address com.base.sbc.module.fabric.dao.FabricDevApplyDao
  * @email your email
- * @date 创建时间：2023-8-7 11:01:20
+ * @date 创建时间：2023-8-17 9:57:28
  */
 @Mapper
 public interface FabricDevApplyMapper extends BaseMapper<FabricDevApply> {
     // 自定义方法区 不替换的区域【other_start】
 
     /**
-     * 获取开发申请列表
+     * 查询列表
      *
      * @param dto
      * @return
      */
-    List<FabricDevApplyListVO> getDevApplyList(@Param("dto") FabricDevApplySearchDTO dto);
+    List<FabricDevApplyListVO> getDevApplyList(@Param("dto") FabricDevSearchDTO dto);
 
 
 // 自定义方法区 不替换的区域【other_end】

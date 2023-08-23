@@ -13,7 +13,7 @@ import com.base.sbc.module.fabric.entity.FabricPlanning;
  * @address com.base.sbc.module.fabric.service.FabricPlanningService
  * @author your name
  * @email your email
- * @date 创建时间：2023-8-7 11:01:59
+ * @date 创建时间：2023-8-23 11:03:00
  * @version 1.0  
  */
 public interface FabricPlanningService extends BaseService<FabricPlanning>{

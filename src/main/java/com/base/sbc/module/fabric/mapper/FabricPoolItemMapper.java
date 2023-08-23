@@ -8,17 +8,17 @@ package com.base.sbc.module.fabric.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.fabric.entity.FabricDevOtherInfo;
+import com.base.sbc.module.fabric.entity.FabricPoolItem;
 /** 
- * 类描述：面料开发其他信息 dao类
- * @address com.base.sbc.module.fabric.dao.FabricDevOtherInfoDao
+ * 类描述：面料池明细 dao类
+ * @address com.base.sbc.module.fabric.dao.FabricPoolItemDao
  * @author your name  
  * @email  your email
- * @date 创建时间：2023-8-7 11:01:50 
+ * @date 创建时间：2023-8-23 11:02:45 
  * @version 1.0  
  */
 @Mapper
-public interface FabricDevOtherInfoMapper extends BaseMapper<FabricDevOtherInfo> {
+public interface FabricPoolItemMapper extends BaseMapper<FabricPoolItem> {
 // 自定义方法区 不替换的区域【other_start】
 
 

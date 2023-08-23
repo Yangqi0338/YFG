@@ -13,7 +13,7 @@ import com.base.sbc.module.fabric.dto.DelDTO;
 import com.base.sbc.module.fabric.dto.EnableOrDeactivateDTO;
 import com.base.sbc.module.fabric.dto.FabricDevConfigInfoSaveDTO;
 import com.base.sbc.module.fabric.service.FabricDevConfigInfoService;
-import com.base.sbc.module.fabric.vo.FabricDevConfigInfoVO;
+import com.base.sbc.module.fabric.vo.FabricDevConfigInfoListVO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -47,7 +47,7 @@ public class FabricDevConfigInfoController extends BaseController {
 
     @ApiOperation(value = "获取开发配置列表")
     @PostMapping("/getDevConfigList")
-    public PageInfo<FabricDevConfigInfoVO> getDevConfigList(@Valid @RequestBody Page page) {
+    public PageInfo<FabricDevConfigInfoListVO> getDevConfigList(@Valid @RequestBody Page page) {
         return fabricDevConfigInfoService.getDevConfigList(page);
     }
 
@@ -71,8 +71,6 @@ public class FabricDevConfigInfoController extends BaseController {
         fabricDevConfigInfoService.del(dto);
         return updateSuccess("操作成功");
     }
-
-
 }
 
 

@@ -12,6 +12,7 @@ import com.base.sbc.module.fabric.dto.DelDTO;
 import com.base.sbc.module.fabric.dto.EnableOrDeactivateDTO;
 import com.base.sbc.module.fabric.dto.FabricDevConfigInfoSaveDTO;
 import com.base.sbc.module.fabric.entity.FabricDevConfigInfo;
+import com.base.sbc.module.fabric.vo.FabricDevConfigInfoListVO;
 import com.base.sbc.module.fabric.vo.FabricDevConfigInfoVO;
 import com.github.pagehelper.PageInfo;
 
@@ -34,7 +35,7 @@ public interface FabricDevConfigInfoService extends BaseService<FabricDevConfigI
      * @param page
      * @return
      */
-    PageInfo<FabricDevConfigInfoVO> getDevConfigList(Page page);
+    PageInfo<FabricDevConfigInfoListVO> getDevConfigList(Page page);
 
     /**
      * 保存
@@ -56,6 +57,25 @@ public interface FabricDevConfigInfoService extends BaseService<FabricDevConfigI
      * @param dto
      */
     void del(DelDTO dto);
+
+
+    /**
+     * 获取开发申请配置信息
+     *
+     * @param devApplyCode
+     * @return
+     */
+    PageInfo<FabricDevConfigInfoVO> getDevApplyConfigList(String devApplyCode, Integer pageNum, Integer pageSize);
+
+    /**
+     * 获取开发信息配置
+     *
+     * @param devCode
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    PageInfo<FabricDevConfigInfoVO> getDevConfigList(String devCode, Integer pageNum, Integer pageSize);
 
 
 // 自定义方法区 不替换的区域【other_end】

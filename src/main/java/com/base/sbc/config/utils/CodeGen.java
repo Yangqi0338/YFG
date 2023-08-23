@@ -100,13 +100,27 @@ public class CodeGen {
 
 	/**
 	 * 获取编码
+	 *
 	 * @param prefix
 	 * @param businessFlag
 	 * @param companyCode
 	 * @return
 	 */
-	public String getCode(String prefix, String businessFlag, String companyCode) {
+	public String getCodeYYYYMMDD(String prefix, String businessFlag, String companyCode) {
 		long incr = redisUtils.incr(businessFlag + ":" + prefix + companyCode, 1);
-		return prefix + DateUtils.getDate(FORMAT_NO_DATE) + String.format("%03d", incr);
+		return prefix + DateUtils.getDate(FORMAT_NO_DATE) + String.format("%04d", incr);
+	}
+
+	/**
+	 * 获取编码
+	 *
+	 * @param prefix
+	 * @param businessFlag
+	 * @param companyCode
+	 * @return
+	 */
+	public String getIncrCode(String prefix, String businessFlag, String companyCode) {
+		long incr = redisUtils.incr(businessFlag + ":" + prefix + companyCode, 1);
+		return prefix + String.format("%04d", incr);
 	}
 }

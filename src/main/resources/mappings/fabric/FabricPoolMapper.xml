@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.base.sbc.module.fabric.mapper.FabricDevMaterialInfoMapper">
+<mapper namespace="com.base.sbc.module.fabric.mapper.FabricPoolMapper">
     <!--
-        面料开发物料信息
+        面料池
         创建人：your name
         邮箱：your email
-        创建时间：2023-8-7 11:01:46
+        创建时间：2023-8-23 11:02:50
         版本号：1.0
       -->
 

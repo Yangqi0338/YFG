@@ -14,18 +14,18 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
- * 类描述：面料开发颜色信息 实体类
- * @address com.base.sbc.module.fabric.entity.FabricDevColorInfo
+ * 类描述：面料池明细 实体类
+ * @address com.base.sbc.module.fabric.entity.FabricPoolItem
  * @author your name
  * @email your email
- * @date 创建时间：2023-8-7 11:01:29
+ * @date 创建时间：2023-8-23 11:02:45
  * @version 1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_fabric_dev_color_info")
-@ApiModel("面料开发颜色信息 FabricDevColorInfo")
-public class FabricDevColorInfo extends BaseDataEntity<String> {
+@TableName("t_fabric_pool_item")
+@ApiModel("面料池明细 FabricPoolItem")
+public class FabricPoolItem extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -37,23 +37,20 @@ public class FabricDevColorInfo extends BaseDataEntity<String> {
     /** 备注信息 */
     @ApiModelProperty(value = "备注信息"  )
     private String remarks;
-    /** 状态(0正常,1停用) */
-    @ApiModelProperty(value = "状态(0正常,1停用)"  )
-    private String status;
-    /** 业务id */
-    @ApiModelProperty(value = "业务id"  )
-    private String bizId;
-    /** 颜色代码 */
-    @ApiModelProperty(value = "颜色代码"  )
-    private String colorCode;
-    /** 颜色名称 */
-    @ApiModelProperty(value = "颜色名称"  )
-    private String colorName;
-    /** 物料编号 */
-    @ApiModelProperty(value = "物料编号"  )
-    private String materialCode;
-    /** 供应商色号 */
-    @ApiModelProperty(value = "供应商色号"  )
-    private String supplierColorCode;
+    /** 面料企划 */
+    @ApiModelProperty(value = "面料企划"  )
+    private String fabricPlanningCode;
+    /** 面料企划id */
+    @ApiModelProperty(value = "面料企划id"  )
+    private String fabricPlanningId;
+    /** 来源：1.新增，2.基础面料库、3.面料企划、4.其他 */
+    @ApiModelProperty(value = "来源：1.新增，2.基础面料库、3.面料企划、4.其他"  )
+    private String source;
+    /** 来源id */
+    @ApiModelProperty(value = "来源id"  )
+    private String sourceId;
+    /** 面料标签:1.新面料、2.长青面料、3.延续面料、4.库存面料； */
+    @ApiModelProperty(value = "面料标签:1.新面料、2.长青面料、3.延续面料、4.库存面料；"  )
+    private String fabricLabel;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

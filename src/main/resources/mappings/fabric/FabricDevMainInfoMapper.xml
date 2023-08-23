@@ -5,12 +5,58 @@
         面料开发主信息
         创建人：your name
         邮箱：your email
-        创建时间：2023-8-7 11:01:42
+        创建时间：2023-8-17 9:58:04
         版本号：1.0
       -->
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
-
+    <select id="getDevList" resultType="com.base.sbc.module.fabric.vo.FabricDevMainListVO">
+        SELECT fdmi.id,
+        fdmi.create_name,
+        fdmi.create_date,
+        fdmi.update_name,
+        fdmi.update_date,
+        fdmi.dev_apply_code,
+        fdmi.dev_code,
+        fdmi.expect_start_date,
+        fdmi.expect_end_date,
+        fdmi.practical_start_date,
+        fdmi.practical_end_date,
+        fdmi.suppler,
+        fdmi.status,
+        fdb.fabric_label,
+        fdb.category1_name,
+        fdb.category2_name,
+        fdb.category3_name,
+        fdb.category_name,
+        fdb.price,
+        fdb.prod_cycle,
+        fdb.short_code,
+        fdb.inquiry,
+        fdb.to_material_flag,
+        fdb.category,
+        fdb.material_accept_flag,
+        fdb.source,
+        fdb.required_arrival_date,
+        fdb.moq,
+        bm.material_code,
+        bm.material_name,
+        bm.image_url
+        FROM t_fabric_dev_main_info fdmi
+        JOIN t_fabric_dev_basic_info fdb ON fdb.biz_id = fdmi.id
+        JOIN t_basicsdatum_material bm ON bm.id = fdmi.material_id
+        <where>
+            fdmi.del_flag = '0'
+            and fdmi.company_code = #{dto.companyCode}
+            <if test="dto.search != null and dto.search != ''">
+                AND (fdmi.dev_apply_code LIKE concat('%',#{dto.search},'%') OR fdb.short_code LIKE
+                concat('%',#{dto.search},'%') OR fdmi.dev_code LIKE concat('%',#{dto.search},'%'))
+            </if>
+            <if test="dto.source != null and dto.source != ''">
+                and fdb.source = #{dto.source}
+            </if>
+        </where>
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

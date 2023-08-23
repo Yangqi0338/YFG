@@ -342,4 +342,10 @@ public class BasicsdatumMaterialSaveDto {
 	/** 门幅 */
 	@ApiModelProperty(value = "门幅")
 	private BigDecimal translate;
+
+	/**
+	 * 业务类型:material.物料、dev.面料开发
+	 */
+	@ApiModelProperty(value = "业务类型:material.物料、dev.面料开发")
+	private String bizType;
 }
