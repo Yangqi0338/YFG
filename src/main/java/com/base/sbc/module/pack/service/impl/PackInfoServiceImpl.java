@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
@@ -38,10 +39,7 @@ import com.base.sbc.module.hangTag.vo.HangTagVO;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
 import com.base.sbc.module.pack.dto.*;
-import com.base.sbc.module.pack.entity.PackBomVersion;
-import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.entity.PackInfoStatus;
-import com.base.sbc.module.pack.entity.PackSize;
+import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
@@ -63,10 +61,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -131,9 +126,13 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Resource
     private StyleColorMapper styleColorMapper;
 
+    @Resource
+    private PackBomColorService packBomColorService;
+
 
     @Resource
     private HangTagService hangTagService;
+
 
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -225,6 +224,59 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packInfoStatusService.newStatus(newId, PackUtils.PACK_TYPE_DESIGN);
         PackBomVersionVo packBomVersionVo = packBomVersionService.saveVersion(versionDto);
         packBomVersionService.enable(BeanUtil.copyProperties(packBomVersionVo, PackBomVersion.class));
+
+        if(null == dto.getIsWithBom() || !dto.getIsWithBom()){
+            return BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
+        }
+
+        //如果勾选了关联款式BOM物料信息则复制保存款式设计中的bom信息
+        List<PackBom> bomList = packBomService.list(style.getId(),PackUtils.PACK_TYPE_STYLE);
+        if(CollectionUtil.isNotEmpty(bomList)){
+            //保存bom尺码跟颜色
+            List<PackBomSize> bomSizeList = packBomSizeService.list(style.getId(),PackUtils.PACK_TYPE_STYLE);
+            Map<String,List<PackBomSize>> bomSizeMap = bomSizeList.stream().collect(Collectors.groupingBy(PackBomSize::getBomId));
+            List<PackBomColor> bomColorList = packBomColorService.list(style.getId(),PackUtils.PACK_TYPE_STYLE);
+            Map<String,List<PackBomColor>> bomColorMap = bomColorList.stream().collect(Collectors.groupingBy(PackBomColor::getBomId));
+
+            for (PackBom bom:bomList) {
+                String bomId = IdUtil.getSnowflake().nextIdStr();
+                List<PackBomSize> bomSizes = bomSizeMap.get(bom.getId());
+                if(CollectionUtil.isNotEmpty(bomSizes)){
+                    for(PackBomSize bomSize:bomSizes){
+                        bomSize.setId(null);
+                        bomSize.setBomId(bomId);
+                        bomSize.setPackType(PackUtils.PACK_TYPE_DESIGN);
+                        bomSize.setForeignId(newId);
+                        bomSize.setBomVersionId(packBomVersionVo.getId());
+                        bomSize.updateInit();
+                    }
+                }
+                List<PackBomColor> bomColors= bomColorMap.get(bom.getId());
+                if(CollectionUtil.isNotEmpty(bomColors)){
+                    for(PackBomColor bomColor:bomColors){
+                        bomColor.setId(null);
+                        bomColor.setBomId(bomId);
+                        bomColor.setPackType(PackUtils.PACK_TYPE_DESIGN);
+                        bomColor.setForeignId(newId);
+                        bomColor.setBomVersionId(packBomVersionVo.getId());
+                        bomColor.updateInit();
+                    }
+                }
+                bom.setId(bomId);
+                bom.setBomVersionId(packBomVersionVo.getId());
+                bom.setForeignId(packInfo.getId());
+                bom.setPackType(PackUtils.PACK_TYPE_DESIGN);
+                bom.updateInit();
+            }
+            packBomService.saveBatch(bomList);
+            if(CollectionUtil.isNotEmpty(bomColorList)){
+                packBomColorService.saveBatch(bomColorList);
+            }
+            if(CollectionUtil.isNotEmpty(bomSizeList)){
+                packBomSizeService.saveBatch(bomSizeList);
+            }
+        }
+
         return BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
     }
 
