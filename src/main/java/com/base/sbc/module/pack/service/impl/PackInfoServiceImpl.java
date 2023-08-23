@@ -479,7 +479,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         List<PackSize> sizeList = packSizeService.list(dto.getForeignId(), dto.getPackType());
         vo.setSizeList(BeanUtil.copyToList(sizeList, PackSizeVo.class));
         ByteArrayOutputStream gen = vo.gen();
-        String fileName = detail.getCode() + ".pdf";
+        String fileName = Opt.ofBlankAble(detail.getStyleNo()).orElse(detail.getCode()) + ".pdf";
 
         try {
             MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(gen.toByteArray()));

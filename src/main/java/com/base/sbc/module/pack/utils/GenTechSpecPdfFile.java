@@ -261,7 +261,7 @@ public class GenTechSpecPdfFile {
             PageFootEventHandler event = new PageFootEventHandler(pdfDocument, document, pageStart);
             pdfDocument.addEventHandler(PdfDocumentEvent.START_PAGE, event);
             // 定义页眉
-            document.setMargins(30, 10, 0, 10);
+            document.setMargins(40, 10, 0, 10);
             for (int i = 1; i < elements.size(); i++) {
                 IElement element = elements.get(i);
                 // 分页符
@@ -281,7 +281,7 @@ public class GenTechSpecPdfFile {
                 pageNumber.setTextAlignment(TextAlignment.CENTER);
                 float x = pdfDocument.getDefaultPageSize().getWidth() - 20;
                 // 距离底部的距离
-                float y = pdfDocument.getDefaultPageSize().getTop() - 5;
+                float y = pdfDocument.getDefaultPageSize().getTop() - 15;
                 document.showTextAligned(pageNumber, x, y, i, TextAlignment.CENTER, VerticalAlignment.TOP, 0);
             }
 
@@ -315,10 +315,9 @@ public class GenTechSpecPdfFile {
             PdfCanvas pdfCanvas = new PdfCanvas(page);
             float pageWith = pageSize.getWidth();
             float footHeight = 30;
-            float marginWith = 0;
-            float marginBottom = pageSize.getHeight() - footHeight;
+            float marginBottom = pageSize.getHeight() - footHeight - 10;
 
-            Rectangle rectangle = new Rectangle(marginWith, marginBottom, pageWith, footHeight);
+            Rectangle rectangle = new Rectangle(0, marginBottom, pageWith, footHeight);
             Canvas canvas = new Canvas(pdfCanvas, pdfDocument, rectangle);
             canvas.add((IBlockElement) element);
             pdfCanvas.release();
