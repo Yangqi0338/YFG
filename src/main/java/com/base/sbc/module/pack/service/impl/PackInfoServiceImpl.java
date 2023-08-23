@@ -51,7 +51,6 @@ import com.base.sbc.module.pricing.vo.PricingVO;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
-import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -132,8 +131,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Resource
     private StyleColorMapper styleColorMapper;
 
-    @Resource
-    private StyleColorService styleColorService;
+
     @Resource
     private HangTagService hangTagService;
 
