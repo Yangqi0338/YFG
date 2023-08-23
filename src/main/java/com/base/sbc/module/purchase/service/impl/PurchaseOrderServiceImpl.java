@@ -7,16 +7,26 @@
 package com.base.sbc.module.purchase.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjectUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.ccm.entity.CcmEntity;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.tas.service.TasService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CodeGen;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.purchase.entity.PurchaseDemand;
+import com.base.sbc.module.purchase.dto.LinkMorePurchaseOrderDto;
 import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
 import com.base.sbc.module.purchase.entity.WarehousingOrderDetail;
 import com.base.sbc.module.purchase.mapper.PurchaseOrderMapper;
@@ -24,6 +34,7 @@ import com.base.sbc.module.purchase.entity.PurchaseOrder;
 import com.base.sbc.module.purchase.service.PurchaseDemandService;
 import com.base.sbc.module.purchase.service.PurchaseOrderDetailService;
 import com.base.sbc.module.purchase.service.PurchaseOrderService;
+import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +49,7 @@ import java.util.stream.Collectors;
  * @author tzy
  * @email 974849633@qq.com
  * @date 创建时间：2023-8-4 9:43:16
- * @version 1.0  
+ * @version 1.0
  */
 @Service
 public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMapper, PurchaseOrder> implements PurchaseOrderService {
@@ -51,6 +62,18 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
 
     @Autowired
     private PurchaseDemandService purchaseDemandService;
+
+    @Autowired
+    private BasicsdatumMaterialColorService colorService;
+
+    @Autowired
+    private BasicsdatumMaterialWidthService widthService;
+
+    @Autowired
+    private TasService tasService;
+
+    @Autowired
+    private CcmService ccmService;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -237,10 +260,63 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
     @Transactional(rollbackFor = {Exception.class})
     public void examinePass(UserCompany userCompany, AnswerDto dto) {
         PurchaseOrder purchaseOrder = getById(dto.getBusinessKey());
-        purchaseOrder.setReviewer(userCompany.getUserId());
-        purchaseOrder.setReviewDate(new Date());
-        purchaseOrder.setStatus("2");
-        updateById(purchaseOrder);
+        if (ObjectUtil.isNotEmpty(purchaseOrder)){
+            purchaseOrder.setReviewer(userCompany.getUserId());
+            purchaseOrder.setReviewDate(new Date());
+            purchaseOrder.setStatus("2");
+            updateById(purchaseOrder);
+
+            //审核通过推送到领猫
+            List<String> unitList = new ArrayList<>();
+            List<String> materialCodeList = new ArrayList<>();
+            Map<String,String> unitMap = Maps.newHashMap();
+            Map<String,String> colorMap = Maps.newHashMap();
+            Map<String,String> widthMap = Maps.newHashMap();
+            for (PurchaseOrderDetail detail : purchaseOrder.getPurchaseOrderDetailList()) {
+                if (!unitList.contains(detail.getPurchaseUnit())){
+                    unitList.add(detail.getPurchaseUnit());
+                }
+                if (!materialCodeList.contains(detail.getMaterialCode())){
+                    materialCodeList.add(detail.getMaterialCode());
+                }
+            }
+            //获取颜色规格编码
+            QueryWrapper<BasicsdatumMaterialColor> colorQueryWrapper = new QueryWrapper<>();
+            QueryWrapper<BasicsdatumMaterialWidth> widthQueryWrapper = new QueryWrapper<>();
+            colorQueryWrapper.in("material_code",materialCodeList);
+            widthQueryWrapper.in("material_code",materialCodeList);
+            List<BasicsdatumMaterialColor> colors = colorService.list(colorQueryWrapper);
+            List<BasicsdatumMaterialWidth> widths = widthService.list(widthQueryWrapper);
+            colorMap = colors.stream().collect(Collectors.toMap(c->c.getMaterialCode()+c.getColorName(),c->c.getColorCode(),(c1,c2)->c2));
+            widthMap = widths.stream().collect(Collectors.toMap(w->w.getMaterialCode()+w.getName(),w->w.getCode(),(w1,w2)->w2));
+
+            String ccmStr = ccmService.selectDictCodeByNameAndType(userCompany.getCompanyCode(), "C8_Material_UOM", StringUtils.convertListToString(unitList));
+            if (StringUtils.isNotBlank(ccmStr)) {
+                JSONObject jsonObject = JSONObject.parseObject(ccmStr);
+                if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+                    CcmEntity dict;
+                    List<Object> dictList = jsonObject.getJSONArray(BaseConstant.DATA);
+                    for (Object o : dictList) {
+                        dict = (CcmEntity) o;
+                        unitMap.put(dict.getName(), dict.getCode());
+                    }
+                }
+            }
+            for (PurchaseOrderDetail detail : purchaseOrder.getPurchaseOrderDetailList()) {
+                if (unitMap.get(detail.getPurchaseUnit()) != null) {
+                    detail.setPurchaseUnit(unitMap.get(detail.getPurchaseUnit()));
+                }
+                if (colorMap.get(detail.getMaterialColor()) != null) {
+                    detail.setMaterialColorCode(colorMap.get(detail.getMaterialColor()));
+                }
+                if (widthMap.get(detail.getMaterialSpecifications()) != null) {
+                    detail.setMaterialSpecificationsCode(widthMap.get(detail.getMaterialSpecifications()));
+                }
+            }
+            LinkMorePurchaseOrderDto purchaseOrderDto = new LinkMorePurchaseOrderDto();
+            purchaseOrderDto.init(purchaseOrder);
+            tasService.pushPurchaseOrder(purchaseOrderDto);
+        }
     }
 
     /**
