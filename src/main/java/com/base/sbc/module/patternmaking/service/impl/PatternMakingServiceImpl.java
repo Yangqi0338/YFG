@@ -102,6 +102,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public PatternMaking savePatternMaking(PatternMakingDto dto) {
+        checkPatternNoRepeat(dto.getId(), dto.getPatternNo());
         Style style = styleService.getById(dto.getStyleId());
         if (style == null) {
             throw new OtherException("款式设计不存在");
@@ -145,6 +146,18 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         save(patternMaking);
 
         return patternMaking;
+    }
+
+    @Override
+    public void checkPatternNoRepeat(String id, String patternNo) {
+        QueryWrapper<PatternMaking> countQw = new QueryWrapper<>();
+        countQw.eq("company_code", getCompanyCode());
+        countQw.eq("pattern_no", patternNo);
+        countQw.ne(StrUtil.isNotBlank(id), "id", id);
+        long count = count(countQw);
+        if (count > 0) {
+            throw new OtherException("样板号【" + patternNo + "】重复");
+        }
     }
 
     @Override
@@ -821,6 +834,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.lambda().eq(PatternMaking::getId, id);
         return update(updateBean, uw);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean setSampleBarCode(SetSampleBarCodeDto dto) {
+        PatternMaking update = new PatternMaking();
+        update.setSampleBarCode(dto.getSampleBarCode());
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PatternMaking::getId, dto.getId());
+        return update(update, uw);
     }
 
 

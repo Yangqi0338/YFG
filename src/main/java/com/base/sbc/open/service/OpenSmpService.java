@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.open.dto.SmpOpenMaterialDto;
@@ -36,8 +37,6 @@ public class OpenSmpService {
     private final BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
 
     private final BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
-
-    private final SpecificationGroupService specificationGroupService;
 
     private final BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
 
@@ -133,6 +132,7 @@ public class OpenSmpService {
         basicsdatumMaterial.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
         basicsdatumMaterial.setUpdateName("外部系统推送");
 
+
         String c8ProcMode = ccmService.getOpenDictInfo(BaseConstant.DEF_COMPANY_CODE, "C8_ProcMode");
         JSONArray data = JSONObject.parseObject(c8ProcMode).getJSONArray("data");
         for (int i = 0; i < data.size(); i++) {
@@ -141,6 +141,17 @@ public class OpenSmpService {
                 basicsdatumMaterial.setProcModeName(obj.getString("name"));
             }
         }
+
+
+        String c8MaterialUom = ccmService.getOpenDictInfo(BaseConstant.DEF_COMPANY_CODE, "C8_Material_UOM");
+        JSONArray data1 = JSONObject.parseObject(c8MaterialUom).getJSONArray("data");
+        for (int i = 0; i < data1.size(); i++) {
+            JSONObject obj = data1.getJSONObject(i);
+            if (obj.getString("value").equals(basicsdatumMaterial.getStockUnitCode())) {
+                basicsdatumMaterial.setStockUnitName(obj.getString("name"));
+            }
+        }
+
 
 
         String c8PickingMethod = ccmService.getOpenDictInfo(BaseConstant.DEF_COMPANY_CODE, "C8_PickingMethod");
@@ -186,7 +197,8 @@ public class OpenSmpService {
                 basicsdatumMaterialColor.setUpdateName("外部系统推送");
                 basicsdatumMaterialColors.add(basicsdatumMaterialColor);
             });
-            basicsdatumMaterialColorService.addAndUpdateAndDelList(basicsdatumMaterialColors, new QueryWrapper<BasicsdatumMaterialColor>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            basicsdatumMaterialColorService.remove(new QueryWrapper<BasicsdatumMaterialColor>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            basicsdatumMaterialColorService.saveBatch(basicsdatumMaterialColors);
 
         }
 
@@ -198,6 +210,9 @@ public class OpenSmpService {
                 basicsdatumMaterialWidth.setStatus(modelItem.isActive() ? "0" : "1");
                 basicsdatumMaterialWidth.setWidthCode(modelItem.getSizeURL());
                 basicsdatumMaterialWidth.setName(modelItem.getSIZECODE());
+                basicsdatumMaterialWidth.setCode(modelItem.getCODE());
+                basicsdatumMaterialWidth.setSizeName(modelItem.getSIZENAME());
+                basicsdatumMaterialWidth.setSortCode(modelItem.getSORTCODE());
                 basicsdatumMaterialWidth.setMaterialCode(basicsdatumMaterial.getMaterialCode());
                 basicsdatumMaterialWidth.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
                 basicsdatumMaterialWidth.setUpdateName("外部系统推送");
@@ -210,7 +225,8 @@ public class OpenSmpService {
             //    basicsdatumMaterial.setWidthGroup(specifications.get(0).getCode());
             //    basicsdatumMaterial.setWidthGroupName(specifications.get(0).getName());
             //}
-            basicsdatumMaterialWidthService.addAndUpdateAndDelList(basicsdatumMaterialWidths, new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            basicsdatumMaterialWidthService.remove(new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            basicsdatumMaterialWidthService.saveBatch(basicsdatumMaterialWidths);
 
         }
 
@@ -221,12 +237,15 @@ public class OpenSmpService {
                 BasicsdatumMaterialPrice basicsdatumMaterialPrice = new BasicsdatumMaterialPrice();
 
                 basicsdatumMaterialPrice.setWidthName(quotItem.getSUPPLIERSIZE());
-                if (!smpOpenMaterialDto.getMODELITEMS().isEmpty()) {
+
+                if (StringUtils.isEmpty(quotItem.getMat_SizeURL()) && !smpOpenMaterialDto.getMODELITEMS().isEmpty()) {
                     for (SmpOpenMaterialDto.ModelItem modelitem : smpOpenMaterialDto.getMODELITEMS()) {
                         if (basicsdatumMaterialPrice.getWidthName().equals(modelitem.getSIZECODE())){
                             basicsdatumMaterialPrice.setWidth(modelitem.getSizeURL());
                         }
                     }
+                }else {
+                    basicsdatumMaterialPrice.setWidth(quotItem.getMat_SizeURL());
                 }
 
 
@@ -244,6 +263,7 @@ public class OpenSmpService {
                 basicsdatumMaterialPrice.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
                 basicsdatumMaterialPrice.setSelectFlag(quotItem.getDefaultQuote());
                 basicsdatumMaterialPrice.setUpdateName("外部系统推送");
+                basicsdatumMaterialPrice.setRemarks(quotItem.getComment());
                 basicsdatumMaterialPrice.setIndex(String.valueOf(index.get()));
                 basicsdatumMaterialPrices.add(basicsdatumMaterialPrice);
                 index.getAndIncrement();
@@ -258,7 +278,9 @@ public class OpenSmpService {
 
             });
             List<BasicsdatumMaterialPrice> list = this.merge(basicsdatumMaterialPrices);
-            basicsdatumMaterialPriceService.addAndUpdateAndDelList(list, new QueryWrapper<BasicsdatumMaterialPrice>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+
+            basicsdatumMaterialPriceService.remove( new QueryWrapper<BasicsdatumMaterialPrice>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            basicsdatumMaterialPriceService.saveBatch(list);
             List<BasicsdatumMaterialPriceDetail> basicsdatumMaterialPriceDetails = new ArrayList<>();
             for (BasicsdatumMaterialPrice basicsdatumMaterialPrice : list) {
 
@@ -344,7 +366,7 @@ public class OpenSmpService {
         //排除第二轮
         Map<String, BasicsdatumMaterialPrice> map1 = new HashMap<>();
         for (BasicsdatumMaterialPrice item : mergedList) {
-            String key = item.getSupplierName() + item.getWidthName();
+            String key = item.getSupplierName() + item.getWidthName()+item.getQuotationPrice();
             if (map1.containsKey(key)) {
                 BasicsdatumMaterialPrice existingItem = map1.get(key);
 

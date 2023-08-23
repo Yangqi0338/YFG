@@ -109,19 +109,22 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
 
     @Override
     public void genContentImgUrl(String newContent, String oldContent, PackTechSpec bean) {
+
         if (StrUtil.equals(newContent, oldContent) && StrUtil.isNotBlank(bean.getContentImgUrl())) {
             return;
         }
+//        newContent=HtmlUtil.filter(newContent);
         if (StrUtil.isBlank(newContent)) {
             bean.setContentImgUrl("");
             return;
         }
         try {
-            BufferedImage bufferedImage = MdUtils.mdToImage(newContent);
+            BufferedImage bufferedImage = MdUtils.htmlToImage(newContent);
             String fileName = bean.getForeignId() + StrUtil.DASHED + bean.getPackType() + bean.getSpecType() + ".png";
             AttachmentVo attachmentVo = uploadFileService.uploadToMinio(bufferedImage, fileName);
             uploadFileService.delByUrl(bean.getContentImgUrl());
             bean.setContentImgUrl(Optional.ofNullable(attachmentVo).map(AttachmentVo::getUrl).orElse(""));
+            bean.setContent(newContent);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -145,6 +148,29 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
     }
 
     @Override
+    public List<PackTechSpecVo> batchSave(PackTechSpecBatchSaveDto dto) {
+        List<PackTechSpecDto> list = dto.getList();
+
+        if (StrUtil.isNotBlank(dto.getOverlayFlg())) {
+            //删除
+            QueryWrapper<PackTechSpec> delQw = new QueryWrapper<PackTechSpec>();
+            delQw.eq("foreign_id", dto.getForeignId());
+            delQw.eq("pack_type", dto.getPackType());
+            delQw.eq("spec_type", dto.getSpecType());
+            remove(delQw);
+        }
+        List<PackTechSpec> packTechSpecs = BeanUtil.copyToList(list, PackTechSpec.class);
+        for (PackTechSpec packTechSpec : packTechSpecs) {
+            packTechSpec.setForeignId(dto.getForeignId());
+            packTechSpec.setPackType(dto.getPackType());
+            packTechSpec.setSpecType(dto.getSpecType());
+            packTechSpec.setId(null);
+        }
+        saveBatch(packTechSpecs);
+        return BeanUtil.copyToList(packTechSpecs, PackTechSpecVo.class);
+    }
+
+    @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean sort(String id) {
         List<String> ids = StrUtil.split(id, CharUtil.COMMA);
@@ -162,7 +188,7 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
         if (StrUtil.isAllNotBlank(dto.getPackType(), dto.getSpecType())) {
             attachmentVos = attachmentService.findByforeignId(dto.getForeignId(), dto.getPackType() + StrUtil.DASHED + dto.getSpecType());
         } else {
-            attachmentVos = attachmentService.findByforeignIdTypeLikeStart(dto.getForeignId(), dto.getPackType() + StrUtil.DASHED + dto.getSpecType());
+            attachmentVos = attachmentService.findByforeignIdTypeLikeStart(dto.getForeignId(), dto.getPackType() + StrUtil.DASHED);
         }
         return BeanUtil.copyToList(attachmentVos, PackTechAttachmentVo.class);
     }

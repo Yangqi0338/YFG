@@ -43,6 +43,8 @@ import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.dto.PackBomDto;
 import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
+import com.base.sbc.module.pack.dto.PlanningDemandStatisticsResultVo;
+import com.base.sbc.module.pack.dto.PlanningDemandStatisticsVo;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -50,6 +52,7 @@ import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.QueryPlanningDimensionalityDto;
 import com.base.sbc.module.planning.entity.*;
+import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
@@ -142,7 +145,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private ColorPlanningService colorPlanningService;
     @Autowired
     private ThemePlanningService themePlanningService;
-
+    @Autowired
+    private PlanningDemandService planningDemandService;
+    @Autowired
+    private PlanningDemandMapper planningDemandMapper;
+    @Autowired
+    private PlanningDemandProportionDataService planningDemandProportionDataService;
     private IdGen idGen = new IdGen();
 
     @Override
@@ -263,7 +271,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         categoryItem.setMaterialCount(new BigDecimal(String.valueOf(CollUtil.size(dto.getMaterialList()))));
         categoryItem.setHisDesignNo(dto.getHisDesignNo());
         // 设置款号
-        String designNo = planningCategoryItemService.getNextCode(dto.getBrand(), dto.getYear(), dto.getSeason(), dto.getProdCategory());
+        String designNo = planningCategoryItemService.getNextCode(dto);
         if (StrUtil.isBlank(designNo)) {
             throw new OtherException("款号生成失败");
         }
@@ -299,6 +307,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "prod_category", dto.getProdCategory());
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), "prod_category1st", dto.getProdCategory1st());
         qw.like(StrUtil.isNotBlank(dto.getDesignNo()), "design_no", dto.getDesignNo());
+        qw.in(StrUtil.isNotBlank(dto.getBandCode()), "band_code", StrUtil.split(dto.getBandCode(), StrUtil.COMMA));
         qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "devt_type", dto.getDevtType());
         qw.eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "planning_season_id", dto.getPlanningSeasonId());
         qw.eq("del_flag", BaseGlobal.NO);
@@ -332,9 +341,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             if (selectFlag) {
                 return new PageInfo<>();
             }
-        } else {
-//            amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
-            // amcFeignService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
         }
         Page<StylePageVo> objects = PageHelper.startPage(dto);
         getBaseMapper().selectByQw(qw);
@@ -359,12 +365,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         style.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
-        boolean flg = flowableService.start(FlowableService.sample_design_pdn + "[" + style.getDesignNo() + "]",
-                FlowableService.sample_design_pdn, id,
-                "/pdm/api/saas/style/approval",
-                "/pdm/api/saas/style/approval",
-                "/pdm/api/saas/style/approval",
-                "/sampleClothesDesign/sampleDesign/" + id, variables);
+        boolean flg = flowableService.start(FlowableService.sample_design_pdn + "[" + style.getDesignNo() + "]", FlowableService.sample_design_pdn, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleDesign/" + id, variables);
         return flg;
     }
 
@@ -634,10 +635,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<StyleBoardCategorySummaryVo> styleBoardCategorySummaryVos = getBaseMapper().categorySummary(qw);
         // 统计大类数量
         if (CollUtil.isNotEmpty(styleBoardCategorySummaryVos)) {
-            Map<String, Long> category1stTotal = styleBoardCategorySummaryVos.stream().collect(Collectors.groupingBy(StyleBoardCategorySummaryVo::getProdCategory1st))
-                    .entrySet().stream().collect(Collectors.toMap(k -> k.getKey(), v -> {
-                        return v.getValue().stream().map(StyleBoardCategorySummaryVo::getSkc).reduce((a, b) -> a + b).orElse(0L);
-                    }));
+            Map<String, Long> category1stTotal = styleBoardCategorySummaryVos.stream().collect(Collectors.groupingBy(StyleBoardCategorySummaryVo::getProdCategory1st)).entrySet().stream().collect(Collectors.toMap(k -> k.getKey(), v -> {
+                return v.getValue().stream().map(StyleBoardCategorySummaryVo::getSkc).reduce((a, b) -> a + b).orElse(0L);
+            }));
             //反写品类名称
             Set<String> categoryIds = new HashSet<>(16);
             for (StyleBoardCategorySummaryVo vo : styleBoardCategorySummaryVos) {
@@ -906,34 +906,114 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Override
     public Boolean checkColorSize(PublicStyleColorDto publicStyleColorDto) {
         /*查询款式下已下发的的配色*/
-        QueryWrapper queryWrapper =new QueryWrapper();
+        QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("style_id", publicStyleColorDto.getId());
         queryWrapper.in("scm_send_flag", com.base.sbc.config.utils.StringUtils.convertList("1,3"));
         List<StyleColor> list = styleColorMapper.selectList(queryWrapper);
-        Boolean b =true;
-        if(CollectionUtils.isEmpty(list)){
+        Boolean b = true;
+        if (!CollectionUtils.isEmpty(list)) {
             /*查询号型类型*/
             queryWrapper.clear();
             queryWrapper.eq("code", publicStyleColorDto.getSizeRange());
             BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeMapper.selectOne(queryWrapper);
-            if(ObjectUtil.isEmpty(basicsdatumModelType)){
+            if (ObjectUtil.isEmpty(basicsdatumModelType)) {
                 throw new OtherException("号型类型查询失败");
             }
             /*大货款号*/
-            List<String> stringList =list.stream().map(StyleColor::getStyleNo).collect(Collectors.toList());
+            List<String> stringList = list.stream().map(StyleColor::getStyleNo).collect(Collectors.toList());
 
             for (String s : stringList) {
-                PlmStyleSizeParam plmStyleSizeParam =new PlmStyleSizeParam();
+                PlmStyleSizeParam plmStyleSizeParam = new PlmStyleSizeParam();
                 plmStyleSizeParam.setSizeCategory(publicStyleColorDto.getSizeRange());
                 plmStyleSizeParam.setStyleNo(s);
                 plmStyleSizeParam.setSizeNum(basicsdatumModelType.getSizeCode().split(",").length);
                 b = smpService.checkStyleSize(plmStyleSizeParam);
             }
         }
-        if(!b){
+        if (!b) {
             throw new OtherException("号型类型校验失败不支持修改");
         }
         return true;
+    }
+
+    @Override
+    public PlanningDemandStatisticsResultVo planningDemandStatistics(String id) {
+        Style style = getById(id);
+        if (style == null) {
+            return null;
+        }
+        //查询需求占比
+        QueryWrapper<PlanningDemand> qw = new QueryWrapper<>();
+        qw.eq("d.category_id", style.getProdCategory())
+                .eq("d.company_code", getCompanyCode())
+                .eq("d.planning_season_id", style.getPlanningSeasonId())
+        ;
+        List<PlanningDemandStatisticsVo> demands = planningDemandMapper.queryDemandStatistics(qw);
+
+        if (CollUtil.isEmpty(demands)) {
+            return null;
+        }
+        Map<String, List<PlanningDemandStatisticsVo>> resultMap = new LinkedHashMap<>();
+        List<String> demandIds = new ArrayList<>();
+        for (PlanningDemandStatisticsVo demand : demands) {
+            demandIds.add(demand.getDemandId());
+            resultMap.put(demand.getDemandId(), CollUtil.newArrayList(demand));
+        }
+        //查询款式的维度标签
+        QueryWrapper<Style> styleQw = new QueryWrapper<>();
+        styleQw.lambda().eq(Style::getProdCategory, style.getProdCategory())
+                .eq(Style::getPlanningSeasonId, style.getPlanningSeasonId())
+                .eq(Style::getCompanyCode, style.getCompanyCode());
+        List<Object> styleIds = listObjs(styleQw);
+
+        List<FieldVal> fv = fieldValService.list(new QueryWrapper<FieldVal>().lambda().in(FieldVal::getForeignId, styleIds).eq(FieldVal::getDataGroup, FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY));
+        List<String> fvItem = new ArrayList<>(16);
+
+        if (CollUtil.isNotEmpty(fv)) {
+            for (FieldVal fieldVal : fv) {
+                if (StrUtil.contains(fieldVal.getVal(), StrUtil.COMMA)) {
+                    List<String> split = StrUtil.split(fieldVal.getVal(), StrUtil.COMMA);
+                    for (String s : split) {
+                        fvItem.add(fieldVal.getFieldName() + StrUtil.DASHED + s);
+                    }
+                } else {
+                    fvItem.add(fieldVal.getFieldName() + StrUtil.DASHED + fieldVal.getVal());
+                }
+            }
+        }
+        int maxLength = 0;
+        //查询企划维度数量配置
+        Map<String, List<String>> fvItemMap = fvItem.stream().collect(Collectors.groupingBy(item -> item));
+        QueryWrapper<PlanningDemandProportionData> pdpdQw = new QueryWrapper<>();
+        pdpdQw.lambda().in(PlanningDemandProportionData::getDemandId, demandIds);
+        List<PlanningDemandProportionData> pdpdList = planningDemandProportionDataService.list(pdpdQw);
+        Map<String, List<PlanningDemandProportionData>> pdpdMap = Optional.ofNullable(pdpdList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.groupingBy(PlanningDemandProportionData::getDemandId));
+        for (Map.Entry<String, List<PlanningDemandStatisticsVo>> r : resultMap.entrySet()) {
+            List<PlanningDemandProportionData> itemList = pdpdMap.get(r.getKey());
+            List<PlanningDemandStatisticsVo> value = r.getValue();
+            PlanningDemandStatisticsVo first = value.get(0);
+            if (CollUtil.isEmpty(itemList)) {
+                continue;
+            }
+            maxLength = Math.max(maxLength, itemList.size());
+            for (PlanningDemandProportionData item : itemList) {
+                PlanningDemandStatisticsVo vo = new PlanningDemandStatisticsVo();
+                vo.setDemandId(first.getDemandId());
+                vo.setFieldId(first.getFieldId());
+                vo.setName(item.getClassifyName());
+                vo.setCode(item.getClassify());
+                vo.setTotal(item.getProportion());
+                vo.setQuantity(Optional.ofNullable(fvItemMap.get(first.getCode() + StrUtil.DASHED + item.getClassify())).map(il -> String.valueOf(CollUtil.size(il))).orElse("0"));
+
+                value.add(vo);
+            }
+        }
+
+        Collection<List<PlanningDemandStatisticsVo>> values = resultMap.values();
+        PlanningDemandStatisticsResultVo resultVo = new PlanningDemandStatisticsResultVo();
+        resultVo.setList(values);
+        resultVo.setMaxLength(maxLength + 1);
+        return resultVo;
     }
 
     private void getProductCategoryTreeQw(ProductCategoryTreeVo vo, QueryWrapper<?> qw) {

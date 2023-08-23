@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.style.dto.*;
@@ -110,7 +111,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @param ids
          * @return
          */
-        Boolean  issueScm(String ids);
+        ApiResult issueScm(String ids);
 
 
         /**
@@ -148,6 +149,22 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @return
          */
         Boolean unlockStyleColor(PublicStyleColorDto publicStyleColorDto);
+
+        /**
+         * 方法描述 新增次品款
+         * @param publicStyleColorDto
+         * @return
+         */
+        Boolean addDefective(PublicStyleColorDto publicStyleColorDto);
+
+        /**
+         * 方法描述 更新下单标记
+         * @param publicStyleColorDto
+         * @return
+         */
+        Boolean updateOrderFlag(PublicStyleColorDto publicStyleColorDto);
+
+
 // 自定义方法区 不替换的区域【other_end】
 
 

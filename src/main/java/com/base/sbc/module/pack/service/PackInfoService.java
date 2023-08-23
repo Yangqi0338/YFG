@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
@@ -46,10 +47,9 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
     /**
      * 通过款式设计创建BOM基础信息
      *
-     * @param id
-     * @return
+     * @param dto@return
      */
-    PackInfoListVo createBySampleDesign(String id);
+    PackInfoListVo createByStyle(CreatePackInfoByStyleDto dto);
 
     /**
      * 查询
@@ -169,6 +169,17 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
     void changeBomStatus(String packInfoId, String bomStatus);
 
     PageInfo<PackInfoListVo> pageInfo(PackInfoSearchPageDto pageDto);
+
+    boolean setPatternNo(PackInfoSetPatternNoDto dto);
+
+    /**
+     * 生成文件
+     *
+     * @param groupUser
+     * @param dto
+     * @return
+     */
+    AttachmentVo genTechSpecFile2(GroupUser groupUser, PackCommonSearchDto dto);
 
 
 // 自定义方法区 不替换的区域【other_end】

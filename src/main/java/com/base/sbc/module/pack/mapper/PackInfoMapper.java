@@ -49,5 +49,7 @@ public interface PackInfoMapper extends BaseMapper<PackInfo> {
      */
     PricingVO getPricingVoById(@Param("id") String id);
 
+    long countByQw(@Param(Constants.WRAPPER) QueryWrapper codeQw);
+
 // 自定义方法区 不替换的区域【other_end】
 }

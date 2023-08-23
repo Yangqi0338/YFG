@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-15 11:37:54
+ * @date 创建时间：2023-8-17 15:50:10
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -44,6 +44,11 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "打版编码")
     private String code;
+    /**
+     * 样板号
+     */
+    @ApiModelProperty(value = "样板号")
+    private String patternNo;
     /**
      * 当前状态
      */
@@ -167,6 +172,16 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "版师id")
     private String patternDesignId;
+    /**
+     * 颜色名称
+     */
+    @ApiModelProperty(value = "颜色名称")
+    private String colorName;
+    /**
+     * 颜色编码
+     */
+    @ApiModelProperty(value = "颜色编码")
+    private String colorCode;
     /**
      * 尺码
      */
@@ -308,10 +323,10 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "样衣结束标识:(0:未结束,1结束)")
     private String endFlg;
     /**
-     * 样衣编号
+     * 样衣条码
      */
-    @ApiModelProperty(value = "样衣编号")
-    private String sampleNo;
+    @ApiModelProperty(value = "样衣条码")
+    private String sampleBarCode;
     /**
      * SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开
      */
@@ -337,6 +352,7 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "车缝状态:0待接收,1已接收,2进行中,3完成")
     private String sewingStatus;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

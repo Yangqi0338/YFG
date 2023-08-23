@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
@@ -21,14 +22,17 @@ import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomColor;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.mapper.PackBomMapper;
+import com.base.sbc.module.pack.service.PackBomColorService;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
+import com.base.sbc.module.pack.vo.PackBomColorVo;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
@@ -68,6 +72,9 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
 
     @Resource
     private PackBomVersionService packBomVersionService;
+
+    @Resource
+    private PackBomColorService packBomColorService;
 
 
     @Override
@@ -121,11 +128,24 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         for (PackBomSize packBomSize : packBomSizeList) {
             packBomSize.setBomId(packBom.getId());
         }
+        //保存资料包颜色表
+        List<PackBomColorDto> packBomColorDtoList = Optional.ofNullable(dto.getPackBomColorDtoList()).orElse(new ArrayList<>(2));
+        List<PackBomColor> packBomColorList = BeanUtil.copyToList(packBomColorDtoList, PackBomColor.class);
+        for (PackBomColor packBomColor : packBomColorList) {
+            packBomColor.setBomId(packBom.getId());
+        }
         QueryWrapper sizeQw = new QueryWrapper();
         sizeQw.eq("bom_id", packBom.getId());
+        sizeQw.eq("bom_version_id", version.getId());
         packBomSizeService.addAndUpdateAndDelList(packBomSizeList, sizeQw, true);
         PackBomVo packBomVo = BeanUtil.copyProperties(packBom, PackBomVo.class);
         packBomVo.setPackBomSizeList(BeanUtil.copyToList(packBomSizeList, PackBomSizeVo.class));
+
+        QueryWrapper colorQw = new QueryWrapper();
+        colorQw.eq("bom_id", packBom.getId());
+        colorQw.eq("bom_version_id", version.getId());
+        packBomColorService.addAndUpdateAndDelList(packBomColorList, colorQw, true);
+        packBomVo.setPackBomColorVoList(BeanUtil.copyToList(packBomColorList, PackBomColorVo.class));
         return packBomVo;
     }
 
@@ -164,26 +184,32 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             //删除之前的尺寸信息
             if (CollUtil.isNotEmpty(dbBomIds)) {
                 QueryWrapper delSizeQw = new QueryWrapper();
+                delSizeQw.eq("bom_version_id", version.getId());
                 delSizeQw.in("bom_id", dbBomIds);
                 packBomSizeService.remove(delSizeQw);
+                packBomColorService.remove(delSizeQw);
             }
         } else {
             //删除之前的尺寸信息
             if (CollUtil.isNotEmpty(pageBomIds)) {
                 QueryWrapper delSizeQw = new QueryWrapper();
+                delSizeQw.eq("bom_version_id", version.getId());
                 delSizeQw.in("bom_id", pageBomIds);
                 packBomSizeService.remove(delSizeQw);
+                packBomColorService.remove(delSizeQw);
             }
         }
 
         //保存
-
         addAndUpdateAndDelList(packBoms, bomQw, fg);
         // 处理尺码
         List<PackBomSize> bomSizeList = new ArrayList<>(16);
+        // 处理物料颜色
+        List<PackBomColor> packBomColorList = new ArrayList<>(16);
         for (int i = 0; i < dtoList.size(); i++) {
             PackBomDto packBomDto = dtoList.get(i);
             PackBom packBom = packBoms.get(i);
+            // 获取尺码列表
             List<PackBomSizeDto> sizeDtoList = packBomDto.getPackBomSizeList();
             if (CollUtil.isNotEmpty(sizeDtoList)) {
                 List<PackBomSize> packBomSizeList = BeanUtil.copyToList(sizeDtoList, PackBomSize.class);
@@ -196,10 +222,28 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                 }
                 bomSizeList.addAll(packBomSizeList);
             }
+            // 获取颜色列表
+            List<PackBomColorDto> packBomColorDtoList = packBomDto.getPackBomColorDtoList();
+            if (CollUtil.isNotEmpty(packBomColorDtoList)) {
+                List<PackBomColor> packBomColors = BeanUtil.copyToList(packBomColorDtoList, PackBomColor.class);
+                for (PackBomColor packBomColor : packBomColors) {
+                    packBomColor.setId(null);
+                    packBomColor.setBomId(packBom.getId());
+                    packBomColor.setPackType(version.getPackType());
+                    packBomColor.setForeignId(version.getForeignId());
+                    packBomColor.setBomVersionId(version.getId());
+                    packBomColor.insertInit();
+                }
+                packBomColorList.addAll(packBomColors);
+            }
         }
-        //保存
+        // 保存尺码
         if (CollUtil.isNotEmpty(bomSizeList)) {
             packBomSizeService.saveBatch(bomSizeList);
+        }
+        // 保存物料颜色
+        if (CollUtil.isNotEmpty(packBomColorList)) {
+            packBomColorService.saveBatch(packBomColorList);
         }
         return true;
     }
@@ -238,10 +282,15 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         }
 
         //物料费用=物料大货用量*物料大货单价*（1+损耗率)
-        return bomList.stream().map(packBom -> NumberUtil.mul(
-                packBom.getBulkUnitUse(),
-                packBom.getBulkPrice(),
-                BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO)).divide(new BigDecimal("100")))
+        return bomList.stream().map(packBom -> {
+                    BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")));
+                    BigDecimal mul = NumberUtil.mul(
+                            packBom.getBulkUnitUse(),
+                            packBom.getBulkPrice(),
+                            divide
+                    );
+                    return mul;
+                }
         ).reduce((a, b) -> a.add(b)).orElse(BigDecimal.ZERO);
     }
 
@@ -268,6 +317,13 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     public PageInfo<FabricSummaryVO> fabricSummaryList(FabricSummaryDTO fabricSummaryDTO) {
         Page<FabricSummaryVO> page = PageHelper.startPage(fabricSummaryDTO);
         baseMapper.fabricSummaryList(fabricSummaryDTO);
+        if (CollectionUtil.isNotEmpty(page.toPageInfo().getList())) {
+            for (FabricSummaryVO fabricSummaryVO : page.toPageInfo().getList()) {
+                // 统计物料下被多少款使用
+                Integer count = baseMapper.querySampleDesignInfoByMaterialIdCount(new FabricSummaryDTO(fabricSummaryDTO.getCompanyCode(), fabricSummaryVO.getId()));
+                fabricSummaryVO.setCuttingNumber(null != count ? count.toString() : String.valueOf(BaseGlobal.ZERO));
+            }
+        }
         return page.toPageInfo();
     }
 

@@ -8,6 +8,8 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Snowflake;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -18,9 +20,11 @@ import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackSizeDto;
 import com.base.sbc.module.pack.entity.PackSize;
+import com.base.sbc.module.pack.entity.PackSizeDetail;
 import com.base.sbc.module.pack.mapper.PackSizeMapper;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.service.PackSizeDetailService;
 import com.base.sbc.module.pack.service.PackSizeService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackSizeVo;
@@ -32,7 +36,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：资料包-尺寸表 service类
@@ -57,6 +64,8 @@ public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, Pac
     private StyleService styleService;
     @Autowired
     private UploadFileService uploadFileService;
+    @Autowired
+    private PackSizeDetailService packSizeDetailService;
 
     @Override
     public PageInfo<PackSizeVo> pageInfo(PackCommonPageSearchDto dto) {
@@ -81,6 +90,7 @@ public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, Pac
             pageData.setId(null);
             save(pageData);
             sizeToHtml(new PackCommonSearchDto(dto.getForeignId(), dto.getPackType()));
+            packSizeDetailService.saveSizeDetail(PackUtils.parseSizeDetail(pageData));
             return BeanUtil.copyProperties(pageData, PackSizeVo.class);
         }
         //修改
@@ -92,6 +102,7 @@ public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, Pac
             BeanUtil.copyProperties(dto, dbData);
             boolean b = updateById(dbData);
             sizeToHtml(new PackCommonSearchDto(dto.getForeignId(), dto.getPackType()));
+            packSizeDetailService.saveSizeDetail(PackUtils.parseSizeDetail(dbData));
             return BeanUtil.copyProperties(dbData, PackSizeVo.class);
         }
     }
@@ -101,15 +112,20 @@ public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, Pac
     @Transactional(rollbackFor = {Exception.class})
     public boolean saveBatchByDto(PackCommonSearchDto commonDto, List<PackSizeDto> dtoList) {
         List<PackSize> packSizes = BeanUtil.copyToList(dtoList, PackSize.class);
+        List<PackSizeDetail> allSizeDetail = new ArrayList<>(16);
         if (CollUtil.isNotEmpty(packSizes)) {
             for (PackSize packSize : packSizes) {
                 packSize.setForeignId(commonDto.getForeignId());
                 packSize.setPackType(commonDto.getPackType());
+                allSizeDetail.addAll(PackUtils.parseSizeDetail(packSize));
             }
         }
         QueryWrapper<PackSize> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, commonDto);
         addAndUpdateAndDelList(packSizes, qw, false);
+        if (CollUtil.isNotEmpty(allSizeDetail)) {
+            packSizeDetailService.saveSizeDetail(allSizeDetail);
+        }
         sizeToHtml(commonDto);
         return true;
     }
@@ -182,6 +198,51 @@ public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, Pac
 //            e.printStackTrace();
 //        }
         return;
+    }
+
+
+    @Override
+    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+        //删除目标数据
+        del(targetForeignId, targetPackType);
+        packSizeDetailService.del(targetForeignId, targetPackType);
+
+        //复制尺码表
+        List<PackSize> sizeList = list(sourceForeignId, sourcePackType);
+
+        if (CollUtil.isNotEmpty(sizeList)) {
+            Snowflake snowflake = IdUtil.getSnowflake();
+            Map<String, String> newIdMaps = new HashMap<>(16);
+            for (PackSize packSize : sizeList) {
+                String newId = snowflake.nextIdStr();
+                newIdMaps.put(packSize.getId(), newId);
+                packSize.setId(newId);
+                packSize.setForeignId(targetForeignId);
+                packSize.setPackType(targetPackType);
+            }
+            saveBatch(sizeList);
+            //复制尺寸表明细
+            List<PackSizeDetail> sizeDetails = packSizeDetailService.list(sourceForeignId, sourcePackType);
+            if (CollUtil.isNotEmpty(sizeDetails)) {
+                for (PackSizeDetail sizeDetail : sizeDetails) {
+                    String newId = snowflake.nextIdStr();
+                    sizeDetail.setId(newId);
+                    sizeDetail.setPackSizeId(newIdMaps.get(sizeDetail.getPackSizeId()));
+                    sizeDetail.setForeignId(targetForeignId);
+                    sizeDetail.setPackType(targetPackType);
+                }
+                packSizeDetailService.saveSizeDetail(sizeDetails);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean delByIds(String id) {
+        boolean flg = super.delByIds(id);
+        packSizeDetailService.delBypackSizeIds(id);
+        return flg;
     }
 
     @Override

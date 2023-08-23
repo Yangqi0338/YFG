@@ -36,12 +36,12 @@ public class SmpQuot {
     private String supplierName;
     /** 意见 */
     private String comment;
-    /** 结算方式 */
+    /** 结算方式(废弃?) */
     private String tradeTermKey;
+    /** 结算方式名称(废弃?) */
+    private String tradeTermName;
     /** 默认报价标识 */
     private Boolean defaultQuote;
-    /** 结算方式名称 */
-    private String tradeTermName;
     /** 单位 */
     private String materialUom;
 }

@@ -89,7 +89,10 @@
         </where>
         GROUP BY tpi.id
     </select>
-
+    <select id="countByQw" resultType="java.lang.Long">
+        select count(id)
+        from t_pack_info ${ ew.customSqlSegment}
+    </select>
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

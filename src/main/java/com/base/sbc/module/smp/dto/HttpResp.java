@@ -1,6 +1,8 @@
 package com.base.sbc.module.smp.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author 卞康

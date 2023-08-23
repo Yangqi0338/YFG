@@ -124,6 +124,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         }
         QueryWrapper<FieldManagement> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("form_type_id", formTypeList.get(0).getId());
+        queryWrapper.like("category_id",queryDemandDimensionalityDto.getCategoryId());
         /*配置的字段*/
         /**
          * 查询需求占比中依赖于字段id
@@ -131,7 +132,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         List<FieldManagement> fieldManagementList = fieldManagementMapper.selectList(queryWrapper);
         map.put("fieldManagement", fieldManagementList);
         QueryWrapper<PlanningDemand> queryWrapper1 = new QueryWrapper<>();
-        queryWrapper1.eq("category_id", queryDemandDimensionalityDto.getCategoryId());
+        queryWrapper1.like("category_id", queryDemandDimensionalityDto.getCategoryId());
         queryWrapper1.eq("planning_season_id", queryDemandDimensionalityDto.getPlanningSeasonId());
         List<PlanningDemand> planningDemandList = baseMapper.selectList(queryWrapper1);
         /*字段id*/

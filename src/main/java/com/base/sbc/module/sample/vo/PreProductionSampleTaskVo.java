@@ -94,6 +94,8 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
     private String designer;
     @ApiModelProperty(value = "设计师id")
     private String designerId;
+    @ApiModelProperty(value = "大货款号")
+    private String styleName;
     @ApiModelProperty(value = "开始时间")
     @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
     private Date startDate;
@@ -112,6 +114,10 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
             return designer.split(",")[0];
         }
         return designer;
+    }
+
+    public String getStyle() {
+        return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
     }
 
 }

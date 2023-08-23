@@ -3,7 +3,9 @@ package com.base.sbc.module.sample.dto;
 import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -14,6 +16,8 @@ import java.util.List;
  */
 @Data
 @ApiModel("面料汇总")
+@AllArgsConstructor
+@NoArgsConstructor
 public class FabricSummaryDTO  extends Page {
 
     @ApiModelProperty(value = "搜索")
@@ -55,7 +59,8 @@ public class FabricSummaryDTO  extends Page {
     @ApiModelProperty(value = "设计师id")
     private List<String> designerIds;
 
-
-
-
+    public FabricSummaryDTO(String companyCode, String materialId) {
+        this.companyCode = companyCode;
+        this.materialId = materialId;
+    }
 }

@@ -7,6 +7,7 @@
 package com.base.sbc.module.purchase.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.UserCompany;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -128,14 +130,23 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
         detailQw.eq("warehouse_order_id", warehousingOrder.getId());
         List<WarehousingOrderDetail> oldList = warehousingOrderDetailService.list(detailQw);
         purchaseOrderService.manipulateWarehouseNum(oldList, "1", true);
-        warehousingOrderDetailService.remove(detailQw);
+        warehousingOrderDetailService.physicalDeleteQWrap(detailQw);
 
         warehousingOrder.updateInit(userCompany);
+
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal totalNum = BigDecimal.ZERO;
         List<WarehousingOrderDetail> warehousingOrderDetailList = warehousingOrder.getOrderDetailList();
         for(WarehousingOrderDetail detail : warehousingOrderDetailList){
             detail.setId(idGen.nextIdStr());
             detail.setWarehouseOrderId(warehousingOrder.getId());
+
+            totalAmount = BigDecimalUtil.add(totalAmount, detail.getActualAmount());
+            totalNum = BigDecimalUtil.add(totalNum, detail.getReceivedQuantity());
         }
+
+        warehousingOrder.setMoney(totalAmount);
+        warehousingOrder.setDeliveryQuantity(totalNum);
 
         boolean result = updateById(warehousingOrder);
         if(result){
@@ -145,5 +156,48 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
             return ApiResult.success("修改成功！", warehousingOrder);
         }
         return ApiResult.error("修改失败！", 500);
+    }
+
+    /**
+     * 审核通过
+     * */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void examinePass(UserCompany userCompany, AnswerDto dto) {
+        WarehousingOrder warehousingOrder = getById(dto.getBusinessKey());
+        warehousingOrder.setReviewerId(userCompany.getUserId());
+        warehousingOrder.setReviewerName(userCompany.getAliasUserName());
+        warehousingOrder.setReviewDate(new Date());
+        warehousingOrder.setStatus("2");
+        updateById(warehousingOrder);
+    }
+
+    /**
+     * 审核驳回
+     * */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void examineNoPass(UserCompany userCompany, AnswerDto dto) {
+        WarehousingOrder warehousingOrder = getById(dto.getBusinessKey());
+        warehousingOrder.setReviewerId(userCompany.getUserId());
+        warehousingOrder.setReviewerName(userCompany.getAliasUserName());
+        warehousingOrder.setReviewDate(new Date());
+        warehousingOrder.setStatus("-1");
+        warehousingOrder.setRejectReason(dto.getConfirmSay());
+        updateById(warehousingOrder);
+    }
+
+    /**
+     * 取消审核
+     * */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void cancelExamine(UserCompany userCompany, AnswerDto dto) {
+        WarehousingOrder warehousingOrder = getById(dto.getBusinessKey());
+        warehousingOrder.setReviewerId(userCompany.getUserId());
+        warehousingOrder.setReviewerName(userCompany.getAliasUserName());
+        warehousingOrder.setReviewDate(new Date());
+        warehousingOrder.setStatus("0");
+        updateById(warehousingOrder);
     }
 }

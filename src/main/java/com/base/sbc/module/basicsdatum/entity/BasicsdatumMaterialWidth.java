@@ -45,4 +45,12 @@ public class BasicsdatumMaterialWidth extends BaseDataEntity<String> {
 	/** 规格名称 */
 	@ApiModelProperty(value = "规格名称")
 	private String name;
+
+
+	/** 尺码号型 */
+	private String sizeName;
+	/** 排序码 */
+	private String sortCode;
+	/** 尺码排序码 */
+	private String code;
 }

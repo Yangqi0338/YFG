@@ -6,8 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.pushRecords.service.impl;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.base.sbc.config.JSONStringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pushRecords.mapper.PushRecordsMapper;
 import com.base.sbc.module.pushRecords.entity.PushRecords;
@@ -42,12 +43,13 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
     @Override
     public Boolean pushRecordSave(HttpResp httpResp, Object data, String moduleName, String functionName) {
         PushRecords pushRecords = new PushRecords();
-        String jsonString = JSON.toJSONString(data);
+
+        String jsonString = JSONStringUtils.toJSONString(data);
         JSONObject json = JSON.parseObject(jsonString);
 
         pushRecords.setModuleName(moduleName);
         pushRecords.setFunctionName(functionName);
-        pushRecords.setRelatedId(json.getString("id"));
+        pushRecords.setRelatedId(json.getString("code"));
         pushRecords.setRelatedName(json.getString("name"));
         pushRecords.setPushAddress(httpResp.getUrl());
         pushRecords.setPushContent(jsonString);
@@ -55,7 +57,6 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
         pushRecords.setPushStatus(httpResp.isSuccess() ? "成功" : "失败");
         pushRecords.setResponseMessage(httpResp.getMessage());
         pushRecords.setResponseStatusCode(httpResp.getCode());
-        pushRecords.setId(json.getString("syncId"));
         this.save(pushRecords);
         return httpResp.isSuccess();
     }

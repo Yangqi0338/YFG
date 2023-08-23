@@ -1,5 +1,6 @@
 package com.base.sbc.module.smp.dto;
 
+import com.base.sbc.module.smp.base.SmpBaseDto;
 import lombok.Data;
 
 import java.util.Date;
@@ -12,7 +13,7 @@ import java.util.List;
  * 样品下发
  */
 @Data
-public class SmpSampleDto {
+public class SmpSampleDto extends SmpBaseDto {
     /**设计师*/
     private String proofingDesigner;
     /**设计师工号*/

@@ -9,6 +9,7 @@ package com.base.sbc.module.planning.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.module.pack.dto.PlanningDemandStatisticsVo;
 import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.vo.PlanningDemandVo;
 import org.apache.ibatis.annotations.Mapper;
@@ -22,14 +23,18 @@ import java.util.List;
  * @author lxl  
  * @email  lxl.fml@gmail.com
  * @date 创建时间：2023-4-26 17:42:18 
- * @version 1.0  
+ * @version 1.0
  */
 @Mapper
 public interface PlanningDemandMapper extends BaseMapper<PlanningDemand> {
-/** 自定义方法区 不替换的区域【other_start】 **/
+    /**
+     * 自定义方法区 不替换的区域【other_start】
+     **/
 
 
     List<PlanningDemandVo> getDemandDimensionalityById(@Param(Constants.WRAPPER) QueryWrapper<PlanningDemand> wrapper);
+
+    List<PlanningDemandStatisticsVo> queryDemandStatistics(@Param(Constants.WRAPPER) QueryWrapper<PlanningDemand> qw);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 }

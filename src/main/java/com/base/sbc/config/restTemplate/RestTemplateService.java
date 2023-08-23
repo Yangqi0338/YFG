@@ -1,8 +1,7 @@
 package com.base.sbc.config.restTemplate;
 
-
-import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.base.sbc.config.JSONStringUtils;
 import com.base.sbc.module.smp.dto.HttpResp;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +36,7 @@ public class RestTemplateService {
         try {
             requestHeaders.add("Content-Type", "application/json");
             // 2.请求头 & 请求体
-            String jsonStr = JSONUtil.toJsonStr(o);
-            System.out.println(jsonStr);
+            String jsonStr = JSONStringUtils.toJSONString(o);
             HttpEntity<String> fromEntity = new HttpEntity<>(jsonStr, requestHeaders);
             ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(url, fromEntity, String.class);
 
@@ -46,12 +44,11 @@ public class RestTemplateService {
             httpResp.setStatusCode(String.valueOf(stringResponseEntity.getStatusCodeValue()));
 
             String body = stringResponseEntity.getBody();
-            log.info(body);
+
             JSONObject jsonObject = JSONObject.parseObject(body);
 
 
             if (jsonObject != null) {
-
                 httpResp.setMessage(jsonObject.getString("message"));
                 httpResp.setCode(jsonObject.getString("code"));
                 httpResp.setSuccess(jsonObject.getBoolean("success"));
@@ -62,4 +59,7 @@ public class RestTemplateService {
         }
         return httpResp;
     }
+
+
+
 }

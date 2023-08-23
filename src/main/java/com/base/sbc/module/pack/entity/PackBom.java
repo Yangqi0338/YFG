@@ -26,7 +26,7 @@ import java.util.Optional;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-7 14:54:33
+ * @date 创建时间：2023-8-23 9:56:06
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -35,7 +35,6 @@ import java.util.Optional;
 public class PackBom extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
-
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
     /**
@@ -266,6 +265,11 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "购买币种")
     private String purchaseCurrency;
     /**
+     * 购买币种名称
+     */
+    @ApiModelProperty(value = "购买币种名称")
+    private String purchaseCurrencyName;
+    /**
      * 单价
      */
     @ApiModelProperty(value = "单价")
@@ -365,6 +369,16 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "排序")
     private Integer sort;
+    /**
+     * 克重
+     */
+    @ApiModelProperty(value = "克重")
+    private BigDecimal gramWeight;
+    /**
+     * 货期
+     */
+    @ApiModelProperty(value = "货期")
+    private String deliveryName;
     /**
      * 采购单位
      */

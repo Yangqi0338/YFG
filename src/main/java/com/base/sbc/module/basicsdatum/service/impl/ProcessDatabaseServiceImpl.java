@@ -271,6 +271,9 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCreateName()), "create_name", pageDto.getCreateName());
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getProcessName()), "process_name", pageDto.getProcessName());
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCode()), "code", pageDto.getCode());
+        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getBrandCode()), "brand_id", pageDto.getBrandCode());
+        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getComponent()), "component", pageDto.getComponent());
+        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCategoryCode()), "category_id", pageDto.getCategoryCode());
         queryWrapper.between("create_date", pageDto.getCreateDate());
         queryWrapper.orderByDesc("create_date");
         //if (pageDto.getTime() != null && pageDto.getTime().length > 0) {
@@ -301,5 +304,12 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         return super.getBaseMapper().selectProcessDatabase(type, categoryName, companyCode);
     }
 
-
+    @Override
+    public List<ProcessDatabase> getAll() {
+        QueryWrapper<ProcessDatabase> qw = new QueryWrapper<>();
+        qw.eq(COMPANY_CODE, getCompanyCode());
+        qw.ne("del_flag", BaseGlobal.YES);
+        qw.eq("type", BasicNumber.SEVEN.getNumber());
+        return list(qw);
+    }
 }

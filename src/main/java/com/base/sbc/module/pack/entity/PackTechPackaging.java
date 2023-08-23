@@ -12,14 +12,15 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 /**
  * 类描述：资料包-工艺说明-包装方式和体积重量 实体类
  *
- * @author your name
+ * @author lxl
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackTechPackaging
- * @email your email
- * @date 创建时间：2023-7-13 20:34:48
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-8-16 17:52:52
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -50,10 +51,20 @@ public class PackTechPackaging extends BaseDataEntity<String> {
     @ApiModelProperty(value = "包装形式")
     private String packagingForm;
     /**
+     * 包装形式名称
+     */
+    @ApiModelProperty(value = "包装形式名称")
+    private String packagingFormName;
+    /**
      * 包装袋标准
      */
     @ApiModelProperty(value = "包装袋标准")
     private String packagingBagStandard;
+    /**
+     * 包装袋标准名称
+     */
+    @ApiModelProperty(value = "包装袋标准名称")
+    private String packagingBagStandardName;
     /**
      * 重量
      */

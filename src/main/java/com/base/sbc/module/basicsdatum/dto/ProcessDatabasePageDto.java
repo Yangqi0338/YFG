@@ -2,6 +2,7 @@ package com.base.sbc.module.basicsdatum.dto;
 
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.module.common.dto.BaseDto;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -11,14 +12,27 @@ import lombok.Data;
  */
 @Data
 public class ProcessDatabasePageDto extends BaseDto {
+    @ApiModelProperty(value = "编码")
     private String code;
+    @ApiModelProperty(value = "类型")
     private String type;
+    @ApiModelProperty(value = "类型")
     private String processName;
     private String processType;
     private String description;
     private String createName;
     private String[] time;
     private String status;
-    /*品牌*/
+    @ApiModelProperty(value = "品牌")
     private String brandName;
+
+    @ApiModelProperty(value = "品牌编码")
+    private String brandCode;
+
+    @ApiModelProperty(value = "部件编码")
+    private String  component;
+
+    @ApiModelProperty(value = "品类编码")
+    private String   categoryCode;
+
 }

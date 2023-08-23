@@ -44,10 +44,19 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     /**
      * 保存
+     *
      * @param dto
      * @return
      */
     PatternMaking savePatternMaking(PatternMakingDto dto);
+
+    /**
+     * 校验制版号是否重复
+     *
+     * @param id
+     * @param patternNo
+     */
+    void checkPatternNoRepeat(String id, String patternNo);
 
     /**
      * 款式设计下发
@@ -273,6 +282,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
     boolean patternMakingScore(Principal user, String id, BigDecimal score);
 
     boolean sampleMakingScore(Principal user, String id, BigDecimal score);
+
+    boolean setSampleBarCode(SetSampleBarCodeDto dto);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

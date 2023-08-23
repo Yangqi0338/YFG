@@ -95,4 +95,6 @@ public class QueryRevampBasicsdatumSupplierDto extends Page {
     private String createName;
 
     private String   createDate;
+
+    private String companyCode;
 }

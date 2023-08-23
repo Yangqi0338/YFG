@@ -77,6 +77,12 @@ public class PlanningDemandController {
 		return planningDemandService.saveDel(saveDelDemandDto);
 	}
 
+	/*新增修改需求占比数据表*/
+	@ApiOperation(value = "批量新增修改需求占比数据表")
+	@PostMapping("batchSaveUpdate")
+	public Boolean batchSaveUpdate(@Valid @RequestBody List<SaveUpdateDemandProportionDataDto> list) {
+		return planningDemandProportionDataService.batchSaveUpdate(list);
+	}
 
 	/*新增修改需求占比数据表*/
 	@ApiOperation(value = "新增修改需求占比数据表")

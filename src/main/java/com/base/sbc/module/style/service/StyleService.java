@@ -9,6 +9,7 @@ package com.base.sbc.module.style.service;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.pack.dto.PlanningDemandStatisticsResultVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
@@ -167,10 +168,19 @@ public interface StyleService extends BaseService<Style> {
 
     /**
      * 方法描述 验证款式号型类型是否可修改
+     *
      * @param publicStyleColorDto
      * @return
      */
-    Boolean  checkColorSize(PublicStyleColorDto publicStyleColorDto);
+    Boolean checkColorSize(PublicStyleColorDto publicStyleColorDto);
+
+    /**
+     * 企划需求统计
+     *
+     * @param id 款式id
+     * @return
+     */
+    PlanningDemandStatisticsResultVo planningDemandStatistics(String id);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

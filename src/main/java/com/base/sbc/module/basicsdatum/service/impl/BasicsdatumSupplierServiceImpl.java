@@ -29,9 +29,12 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumSupplierMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumSupplierVo;
+import com.base.sbc.module.basicsdatum.vo.SelectVo;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -311,6 +314,14 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
         pageInfo1.setPageNum(pageInfo.getPageNum());
         pageInfo1.setPageSize(pageInfo.getPageSize());
         return pageInfo1;
+    }
+
+    @Override
+    public PageInfo<SelectVo> selectSupplierPage(QueryRevampBasicsdatumSupplierDto queryRevampBasicsdatumSupplierDto) {
+        /*分页*/
+        Page<SelectVo> page = PageHelper.startPage(queryRevampBasicsdatumSupplierDto);
+        baseMapper.selectSupplierPage(queryRevampBasicsdatumSupplierDto);
+        return page.toPageInfo();
     }
 
 

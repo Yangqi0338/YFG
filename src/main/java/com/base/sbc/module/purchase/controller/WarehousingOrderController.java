@@ -5,7 +5,10 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.purchase.controller;
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
@@ -52,6 +55,9 @@ public class WarehousingOrderController extends BaseController{
 	@Autowired
 	private UserCompanyUtils userCompanyUtils;
 
+	@Autowired
+	private FlowableService flowableService;
+
 	@ApiOperation(value = "分页查询")
 	@GetMapping
 	public ApiResult page(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, WarehouseingPageDTO page) {
@@ -70,9 +76,9 @@ public class WarehousingOrderController extends BaseController{
 			qc.orderByDesc("create_date");
 		}
 		if (page.getPageNum() != 0 && page.getPageSize() != 0) {
-			com.github.pagehelper.Page<WarehousingOrder> deliveryNoticePage = PageHelper.startPage(page.getPageNum(), page.getPageSize());
+			com.github.pagehelper.Page<WarehousingOrder> warehousingOrderPage = PageHelper.startPage(page.getPageNum(), page.getPageSize());
 			warehousingOrderService.list(qc);
-			PageInfo<WarehousingOrder> pages = deliveryNoticePage.toPageInfo();
+			PageInfo<WarehousingOrder> pages = warehousingOrderPage.toPageInfo();
 			return ApiResult.success("success", pages);
 		}
 		return selectNotFound();
@@ -127,6 +133,43 @@ public class WarehousingOrderController extends BaseController{
 			return updateAttributeNotRequirements("ids");
 		}
 		return warehousingOrderService.cancel(userCompany, ids);
+	}
+
+	@ApiOperation(value = "提交")
+	@GetMapping("/submit")
+	public ApiResult submit(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany,@RequestParam("id") String id) {
+		if(StringUtils.isBlank(id)){
+			return selectAttributeNotRequirements("id");
+		}
+		WarehousingOrder warehousingOrder = warehousingOrderService.getById(id);
+		if(warehousingOrder != null){
+			if(!StringUtils.equals(warehousingOrder.getStatus(), "0") || !StringUtils.equals(warehousingOrder.getOrderStatus(), "0")){
+				return ApiResult.error("请选择草稿状态的单据！", 500);
+			}
+
+			Boolean result = flowableService.start("单号:"+ warehousingOrder.getCode(), flowableService.WAREHOUSING_ORDER, warehousingOrder.getId(),
+					"/pdm/api/saas/warehousingOrder/examine", "/pdm/api/saas/warehousingOrder/examine",
+					"/pdm/api/saas/warehousingOrder/examine", null, BeanUtil.beanToMap(warehousingOrder));
+			if(result){
+				warehousingOrder.setStatus("1");
+				warehousingOrderService.updateById(warehousingOrder);
+				return ApiResult.success("提交成功！", result);
+			}
+		}
+		return ApiResult.error("提交失败！", 500);
+	}
+
+	@ApiOperation(value = "审核")
+	@PostMapping("/examine")
+	public void examinePass(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestBody AnswerDto dto) {
+		UserCompany userInfo = userCompanyUtils.getCompanyUser();
+		if(StringUtils.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+			warehousingOrderService.examinePass(userInfo, dto);
+		}else if(StringUtils.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)){
+			warehousingOrderService.examineNoPass(userInfo, dto);
+		}else{
+			warehousingOrderService.cancelExamine(userInfo, dto);
+		}
 	}
 }
 

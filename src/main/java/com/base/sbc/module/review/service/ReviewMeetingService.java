@@ -26,6 +26,8 @@ public interface ReviewMeetingService extends BaseService<ReviewMeeting>{
 
     ApiResult updateReviewMeeting(String companyCode, UserCompany userCompany, ReviewMeeting reviewMeeting, Boolean addOrUpdate);
 
+    ApiResult staffUpdate(String companyCode, UserCompany userCompany, ReviewMeeting reviewMeeting, Boolean addOrUpdate);
+
     ApiResult deleteOrder(String userCompany, String ids);
 
     ApiResult batchAddReviewMeeting(String companyCode, UserCompany userCompany, ReviewMeeting reviewMeeting);

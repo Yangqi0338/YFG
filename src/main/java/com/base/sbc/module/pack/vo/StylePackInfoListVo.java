@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 设计BOM管理页面列表Vo
@@ -59,7 +60,7 @@ public class StylePackInfoListVo {
 
     @ApiModelProperty(value = "款式")
     public String getStyle() {
-        return designNo + styleName;
+        return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
     }
 
 }

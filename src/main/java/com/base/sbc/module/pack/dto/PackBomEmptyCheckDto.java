@@ -22,51 +22,46 @@ import java.math.BigDecimal;
 public class PackBomEmptyCheckDto {
 
 
-    @ApiModelProperty(value = "搭配编码")
-    @NotBlank(message = "搭配不能为空")
+    @NotBlank(message = "搭配")
     private String collocationCode;
 
     @ApiModelProperty(value = "搭配名称")
-    @NotBlank(message = "搭配不能为空")
+    @NotBlank(message = "搭配")
     private String collocationName;
 
 
     @ApiModelProperty(value = "材料")
-    @NotBlank(message = "材料不能为空")
+    @NotBlank(message = "材料")
     private String materialCodeName;
 
     @ApiModelProperty(value = "供应商报价")
-    @NotNull(message = "供应商报价不能为空")
+    @NotNull(message = "供应商报价")
     private BigDecimal supplierPrice;
 
     @ApiModelProperty(value = "供应商物料号")
-    @NotBlank(message = "供应商物料号不能为空")
+    @NotBlank(message = "供应商物料号")
     private String supplierMaterialCode;
 
 
     @ApiModelProperty(value = "单价")
-    @NotNull(message = "单价不能为空")
+    @NotNull(message = "单价")
     private BigDecimal price;
 
-    @ApiModelProperty(value = "采购单位")
-    @NotBlank(message = "采购单位不能为空")
-    private String purchaseUnitCode;
-
     @ApiModelProperty(value = "库存单位")
-    @NotBlank(message = "库存单位不能为空")
+    @NotBlank(message = "库存单位")
     private String stockUnitCode;
 
 
     @ApiModelProperty(value = "颜色名称")
-    @NotBlank(message = "颜色不能为空")
+    @NotBlank(message = "颜色")
     private String color;
 
     @ApiModelProperty(value = "单件用量")
-    @NotNull(message = "单件用量不能为空")
+    @NotNull(message = "单件用量")
     private BigDecimal unitUse;
 
-    @ApiModelProperty(value = "成本不能为空")
-    @NotNull(message = "成本不能为空")
+    @ApiModelProperty(value = "成本")
+    @NotNull(message = "成本")
     private BigDecimal cost;
 
 }

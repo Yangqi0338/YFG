@@ -45,7 +45,7 @@ public class SmpController extends BaseController {
     }
 
     /**
-     * 颜色主数据下发
+     * 颜色主数据下发  已验证
      */
     @PutMapping("/color")
     public ApiResult color(String[] ids) {

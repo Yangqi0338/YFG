@@ -7,9 +7,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * 
+ *
  * 物料规格列表数据
- * 
+ *
  * @author shenzhixiong
  * @email 731139982@qq.com
  * @date 2023年6月26日
@@ -39,4 +39,7 @@ public class BasicsdatumMaterialColorPageVo extends BaseDataEntity<String> {
 	/** 供应商色号 */
 	@ApiModelProperty(value = "供应商色号")
 	private String supplierColorCode;
+
+	/**是否在报价引用*/
+	private String quote;
 }

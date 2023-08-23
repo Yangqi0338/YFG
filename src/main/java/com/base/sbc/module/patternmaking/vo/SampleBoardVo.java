@@ -53,6 +53,9 @@ public class SampleBoardVo {
     @ApiModelProperty(value = "设计款号")
     private String designNo;
 
+    @ApiModelProperty(value = "样板号")
+    private String patternNo;
+
     @ApiModelProperty(value = "款式(大货款号)")
     private String styleNo;
 
@@ -154,6 +157,8 @@ public class SampleBoardVo {
     private Map<String, NodeStatusVo> nodeStatus;
     @ApiModelProperty(value = "样衣完成状态:(0未完成,1完成)")
     private String sampleCompleteFlag;
+    @ApiModelProperty(value = "样衣条码")
+    private String sampleBarCode;
 
     public String getId() {
         return IdUtil.fastSimpleUUID();

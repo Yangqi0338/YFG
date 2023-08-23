@@ -14,14 +14,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+
 /**
  * 类描述：资料包-工序工价 实体类
  *
- * @author your name
+ * @author lxl
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackProcessPrice
- * @email your email
- * @date 创建时间：2023-7-13 20:34:41
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-8-18 14:19:44
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -57,10 +58,15 @@ public class PackProcessPrice extends BaseDataEntity<String> {
     @ApiModelProperty(value = "工序编号")
     private String processSort;
     /**
-     * 部位
+     * 部位编码
      */
-    @ApiModelProperty(value = "部位")
+    @ApiModelProperty(value = "部位编码")
     private String part;
+    /**
+     * 部位名称
+     */
+    @ApiModelProperty(value = "部位名称")
+    private String partName;
     /**
      * 工序名称
      */

@@ -79,7 +79,9 @@
                 ssc.design_no AS design_no_two,
                 ssc.style_no AS style_no_two,
                 sd.MONTH,
-                sd.band_code
+                sd.band_code,
+                pmm.pattern_design_id,
+                sd.designer_id
             FROM
                 t_pack_bom pb
             LEFT JOIN t_pack_bom_version pbv ON pbv.id = pb.bom_version_id
@@ -91,6 +93,7 @@
                 AND pi.del_flag = '0'
             LEFT JOIN t_style sd ON sd.id = pi.foreign_id
                 AND sd.del_flag = '0'
+            LEFT JOIN t_pattern_making pmm ON pmm.style_id = sd.id
             LEFT JOIN t_style_color ssc ON sd.id = ssc.style_id
                 AND ssc.del_flag = '0'
             WHERE
@@ -106,7 +109,8 @@
         WHERE
             bid.material_code IS NOT NULL
         <if test="null != search and '' != search">
-            AND (bid.material_code LIKE concat('%',#{search},'%') OR bid.material_name LIKE concat('%',#{search},'%'))
+            AND (bid.material_code LIKE concat('%',#{search},'%') OR bid.material_name LIKE concat('%',#{search},'%') OR cbgcd.style_no LIKE concat('%',#{search},'%')
+            OR cbgcd.design_no LIKE concat('%',#{search},'%'))
         </if>
         <if test="null != month and '' != month">
             AND bid.month = #{month}
@@ -126,8 +130,107 @@
                 #{bandCode}
             </foreach>
         </if>
+        <if test="null != supplierId and '' != supplierId">
+            AND bid.supplier_id = #{supplierId}
+        </if>
+        <if test="null != patternDesignId and '' != patternDesignId">
+            AND bid.pattern_design_id = #{patternDesignId}
+        </if>
+        <if test="null != designerIds and designerIds.size() > 0">
+            AND bid.designer_id IN
+            <foreach collection="designerIds" item="designerId" open="(" close=")" separator=",">
+                #{designerId}
+            </foreach>
+
+        </if>
         GROUP BY
             bid.material_code
+    </select>
+
+
+    <select id="querySampleDesignInfoByMaterialIdCount" parameterType="com.base.sbc.module.sample.dto.FabricSummaryDTO" resultType="integer">
+        SELECT
+            count( 0 )
+        FROM
+            (
+                SELECT
+                    ssc.id
+                FROM
+                    t_style_color ssc
+                        LEFT JOIN t_style sd ON sd.id = ssc.style_id
+                        LEFT JOIN t_upload_file uf ON uf.id = sd.style_pic
+                        LEFT JOIN (
+                        SELECT
+                            pb.bom_version_id,
+                            pb.id AS pd_id,
+                            pi.id AS pi_id,
+                            sd.design_no AS design_no_two,
+                            pi.style_no,
+                            pb.material_id,
+                            pb.material_code,
+                            pb.material_name,
+                            pi.prod_category_name,
+                            pi.prod_category2nd_name,
+                            pi.prod_category3rd_name,
+                            pb.part_name,
+                            pb.loss_rate,
+                            pb.color,
+                            pb.unit_use,
+                            (
+                                SELECT
+                                    SUM( pbz.quantity )
+                                FROM
+                                    t_pack_bom_size pbz
+                                WHERE
+                                    pbz.bom_id = pb.id
+                                  AND pbz.foreign_id = pi.id
+                                  AND pb.bom_version_id = pbz.bom_version_id
+                                  AND pbz.del_flag = '0'
+                            ) AS production_quantity,
+                            pb.purchase_unit_name,
+                            bm.supplier_color_no,
+                            pmm.pattern_design_id,
+                            pmm.pattern_design_name,
+                            bm.ingredient,
+                            bm.remarks,
+                            bm.supplier_id,
+                            bm.supplier_name,
+                            sd.designer_id
+                        FROM
+                            t_pack_bom pb
+                                LEFT JOIN t_basicsdatum_material bm ON bm.id = pb.material_id
+                                LEFT JOIN t_pack_bom_version pbv ON pbv.id = pb.bom_version_id
+                                AND pbv.`status` = '1'
+                                LEFT JOIN t_pack_info pi ON pi.id = pb.foreign_id
+                                AND pi.del_flag = '0'
+                                LEFT JOIN t_style sd ON sd.id = pi.foreign_id
+                                AND sd.del_flag = '0'
+                                LEFT JOIN t_pattern_making pmm ON pmm.style_id = sd.id
+                        WHERE
+                            pb.pack_type = 'packDesign'
+                          AND pb.company_code = #{companyCode}
+
+                          AND pb.del_flag = '0'
+                        GROUP BY
+                            pi.style_no,
+                            sd.design_no
+                    ) AS bmid ON bmid.design_no_two = ssc.design_no
+                        AND ssc.style_no = bmid.style_no
+                WHERE
+                    ssc.del_flag = '0'
+                  AND ssc.company_code = #{companyCode}
+
+                  AND sd.company_code = #{companyCode}
+
+                  AND uf.company_code = #{companyCode}
+
+                  AND bmid.material_id = #{materialId}
+
+                GROUP BY
+                    bmid.design_no_two,
+                    bmid.style_no
+            ) count1
+
     </select>
 
     <select id="querySampleDesignInfoByMaterialIdPage" parameterType="com.base.sbc.module.sample.dto.FabricSummaryDTO" resultType="com.base.sbc.module.sample.vo.MaterialSampleDesignVO">

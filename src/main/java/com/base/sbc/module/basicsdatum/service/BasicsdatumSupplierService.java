@@ -11,6 +11,7 @@ import com.base.sbc.module.basicsdatum.dto.QueryRevampBasicsdatumSupplierDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumSupplierVo;
+import com.base.sbc.module.basicsdatum.vo.SelectVo;
 import com.base.sbc.module.common.service.BaseService;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
@@ -90,6 +91,15 @@ public interface BasicsdatumSupplierService extends BaseService<BasicsdatumSuppl
          * @return PageInfo<BasicsdatumComponentVo>
          */
         PageInfo<BasicsdatumSupplierVo> getSupplierListPopup(QueryRevampBasicsdatumSupplierDto queryDto);
+
+        /**
+         * 分页查询下拉框供应商
+         * @param queryRevampBasicsdatumSupplierDto 参数
+         * @return 下拉框分页
+         */
+        PageInfo<SelectVo> selectSupplierPage(QueryRevampBasicsdatumSupplierDto queryRevampBasicsdatumSupplierDto);
+
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 	

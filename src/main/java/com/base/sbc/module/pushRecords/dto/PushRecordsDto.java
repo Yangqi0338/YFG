@@ -10,4 +10,12 @@ import lombok.Data;
  */
 @Data
 public class PushRecordsDto extends BaseDto {
+    private String moduleName;
+
+    private String functionName;
+
+    private String relatedId;
+
+    private String relatedName;
+
 }

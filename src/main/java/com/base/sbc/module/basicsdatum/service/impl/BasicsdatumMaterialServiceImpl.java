@@ -29,6 +29,8 @@ import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
+import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -70,6 +72,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	private final BasicsdatumMaterialPriceService materialPriceService;
 	private final BasicsdatumMaterialIngredientService materialIngredientService;
 	private final BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
+	private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 
 	/**
 	 * 解决循环依赖报错的问题
@@ -88,7 +91,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
 	/**
 	 * 转换为对象集合
-	 * 
+	 *
 	 * @param str
 	 * @return
 	 */
@@ -133,7 +136,23 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 					.eq("category3_code", dto.getCategoryId()));
 		}
 		List<BasicsdatumMaterial> list = this.list(qc);
-		return CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
+		PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
+
+		for (BasicsdatumMaterialPageVo basicsdatumMaterialPageVo : copy.getList()) {
+			String materialCode = basicsdatumMaterialPageVo.getMaterialCode();
+			EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getOne(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode));
+			if (escmMaterialCompnentInspectCompanyDto!=null){
+				basicsdatumMaterialPageVo.setFabricEvaluation(escmMaterialCompnentInspectCompanyDto.getRemark());
+				basicsdatumMaterialPageVo.setCheckCompanyName(escmMaterialCompnentInspectCompanyDto.getCompanyFullName());
+				basicsdatumMaterialPageVo.setCheckDate(escmMaterialCompnentInspectCompanyDto.getArriveDate());
+				basicsdatumMaterialPageVo.setCheckValidDate(String.valueOf(escmMaterialCompnentInspectCompanyDto.getValidityTime()));
+				basicsdatumMaterialPageVo.setCheckItems(escmMaterialCompnentInspectCompanyDto.getSendInspectContent());
+				basicsdatumMaterialPageVo.setCheckOrderUserName(escmMaterialCompnentInspectCompanyDto.getMakerByName());
+				basicsdatumMaterialPageVo.setCheckFileUrl(escmMaterialCompnentInspectCompanyDto.getFileUrl());
+			}
+
+		}
+		return copy;
 	}
 
 	@Override
@@ -166,7 +185,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
 	/**
 	 * 保存成分数据
-	 * 
+	 *
 	 * @param dto
 	 */
 	private void saveIngredient(BasicsdatumMaterialSaveDto dto) {
@@ -237,6 +256,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
 		qc.select("material_code");
 		qc.eq("company_code", this.getCompanyCode());
+		qc.eq("del_flag", "0").or().eq("del_flag", "1");
 //		qc.eq(" length(material_code)", categoryCode.length() + 5);
 //		qc.likeRight("material_code", categoryCode);
 		qc.orderByDesc(" create_date ");
@@ -412,6 +432,20 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		UpdateWrapper<BasicsdatumMaterialWidth> uw = new UpdateWrapper<>();
 		uw.in("id", StringUtils.convertList(dto.getIds()));
 		uw.set("status", dto.getStatus());
+
+		//停用需要校验下游系统是否引用
+		if ("1".equals(dto.getStatus())){
+			QueryWrapper<BasicsdatumMaterialWidth> queryWrapper= new BaseQueryWrapper<>();
+			queryWrapper.in("id",StringUtils.convertList(dto.getIds()));
+			List<BasicsdatumMaterialWidth> list = materialWidthService.list(queryWrapper);
+			for (BasicsdatumMaterialWidth basicsdatumMaterialWidth : list) {
+				Boolean b = smpService.checkSizeAndColor(basicsdatumMaterialWidth.getMaterialCode(), "1", basicsdatumMaterialWidth.getWidthCode());
+				if (!b){
+					throw new OtherException("\""+basicsdatumMaterialWidth.getName()+"\"下游系统以引用,不允许停用");
+				}
+			}
+		}
+
 		return this.materialWidthService.update(null, uw);
 	}
 
@@ -456,6 +490,20 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		UpdateWrapper<BasicsdatumMaterialColor> uw = new UpdateWrapper<>();
 		uw.in("id", StringUtils.convertList(dto.getIds()));
 		uw.set("status", dto.getStatus());
+
+		//停用需要校验下游系统是否引用
+		if ("1".equals(dto.getStatus())){
+			QueryWrapper<BasicsdatumMaterialColor> queryWrapper= new BaseQueryWrapper<>();
+			queryWrapper.in("id",StringUtils.convertList(dto.getIds()));
+			List<BasicsdatumMaterialColor> list = materialColorService.list(queryWrapper);
+			for (BasicsdatumMaterialColor basicsdatumMaterialColor : list) {
+				Boolean b = smpService.checkSizeAndColor(basicsdatumMaterialColor.getMaterialCode(), "2", basicsdatumMaterialColor.getColorCode());
+				if (!b){
+					throw new OtherException("\""+basicsdatumMaterialColor.getColorName()+"\"下游系统以引用,不允许停用");
+				}
+			}
+		}
+
 		return this.materialColorService.update(null, uw);
 	}
 
@@ -691,5 +739,14 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			item.setId(IdUtil.randomUUID());
 		}
 		return page.toPageInfo();
+	}
+
+	public Boolean updateInquiryNumberDeliveryName(BasicsdatumMaterialSaveDto dto){
+			BasicsdatumMaterial basicsdatumMaterial = new BasicsdatumMaterial();
+			basicsdatumMaterial.setId(dto.getId());
+			basicsdatumMaterial.setInquiryNumber(dto.getInquiryNumber());
+			basicsdatumMaterial.setDeliveryName(dto.getDeliveryName());
+			int countNum = this.baseMapper.updateById(basicsdatumMaterial);
+			return countNum > 0 ? true : false;
 	}
 }

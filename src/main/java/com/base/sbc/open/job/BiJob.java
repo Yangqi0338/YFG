@@ -1,5 +1,6 @@
 package com.base.sbc.open.job;
 
+import com.base.sbc.open.service.BiColorwayService;
 import com.base.sbc.open.service.BiSizeChartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BiJob {
     private final BiSizeChartService biSizeChartService;
+    private final BiColorwayService biColorwayService;
 
 
     /**
@@ -24,4 +26,16 @@ public class BiJob {
     public void sizeChart(){
         biSizeChartService.sizeChart();
     }
+
+
+
+    /**
+     * 配色表数据
+     */
+    @Scheduled(cron = "0 0 1 * * ?")
+    //@Scheduled(cron = "0 * * * * ?")
+    public void colorway(){
+        biColorwayService.colorway();
+    }
+
 }
