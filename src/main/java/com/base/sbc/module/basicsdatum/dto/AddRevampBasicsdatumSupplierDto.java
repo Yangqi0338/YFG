@@ -9,6 +9,9 @@ package com.base.sbc.module.basicsdatum.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.Date;
+
 /**
  * 类描述：新增修改基础资料-供应商 dto类
  * @address com.base.sbc.module.basicsdatum.dto.BasicsdatumSupplier
@@ -124,4 +127,12 @@ public class AddRevampBasicsdatumSupplierDto  {
     private String street;
     /** 电话 */
     private String telephone;
+    /** 创建人 */
+    private String creatName;
+    /** 创建时间 */
+    private Date creatDate;
+    /** 修改人 */
+    private String updateName;
+    /** 修改时间 */
+    private Date updateDate;
 }
