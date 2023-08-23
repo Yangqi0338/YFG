@@ -279,7 +279,7 @@ public class GenTechSpecPdfFile {
             for (int i = 1; i <= numberOfPages; i++) {
                 Paragraph pageNumber = new Paragraph(String.format(" %d  /  %d ", i, numberOfPages));
                 pageNumber.setTextAlignment(TextAlignment.CENTER);
-                float x = pdfDocument.getDefaultPageSize().getWidth() - 20;
+                float x = pdfDocument.getDefaultPageSize().getWidth() - 30;
                 // 距离底部的距离
                 float y = pdfDocument.getDefaultPageSize().getTop() - 15;
                 document.showTextAligned(pageNumber, x, y, i, TextAlignment.CENTER, VerticalAlignment.TOP, 0);
@@ -313,11 +313,11 @@ public class GenTechSpecPdfFile {
             //也可以传入  List<IElement> iElements ，直接添加 ，
             Rectangle pageSize = page.getPageSize();
             PdfCanvas pdfCanvas = new PdfCanvas(page);
-            float pageWith = pageSize.getWidth();
+            float pageWith = pageSize.getWidth() - 20;
             float footHeight = 30;
             float marginBottom = pageSize.getHeight() - footHeight - 10;
 
-            Rectangle rectangle = new Rectangle(0, marginBottom, pageWith, footHeight);
+            Rectangle rectangle = new Rectangle(10, marginBottom, pageWith, footHeight);
             Canvas canvas = new Canvas(pdfCanvas, pdfDocument, rectangle);
             canvas.add((IBlockElement) element);
             pdfCanvas.release();
