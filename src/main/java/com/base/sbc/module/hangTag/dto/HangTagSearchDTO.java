@@ -51,8 +51,8 @@ public class HangTagSearchDTO extends Page {
      */
     @ApiModelProperty(value = "款号是否模糊查询")
     private String likeQueryFlag;
-
-
+    @ApiModelProperty(value = "设计款号")
+    private String designNo;
     private String companyCode;
 
 }
