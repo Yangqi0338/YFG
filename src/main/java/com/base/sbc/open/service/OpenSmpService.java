@@ -366,7 +366,7 @@ public class OpenSmpService {
         //排除第二轮
         Map<String, BasicsdatumMaterialPrice> map1 = new HashMap<>();
         for (BasicsdatumMaterialPrice item : mergedList) {
-            String key = item.getSupplierName() + item.getWidthName();
+            String key = item.getSupplierName() + item.getWidthName()+item.getQuotationPrice();
             if (map1.containsKey(key)) {
                 BasicsdatumMaterialPrice existingItem = map1.get(key);
 

@@ -443,9 +443,7 @@ public class SmpService {
             //拆分sku
             for (BasicsdatumMaterialPricePageVo basicsdatumMaterialPricePageVo : list) {
                 String[] widths = basicsdatumMaterialPricePageVo.getWidth().split(",");
-                String[] widthNames = basicsdatumMaterialPricePageVo.getWidthName().split(",");
                 String[] colors = basicsdatumMaterialPricePageVo.getColor().split(",");
-                String[] colorNames = basicsdatumMaterialPricePageVo.getColorName().split(",");
 
                 for (int i = 0; i < colors.length; i++) {
                     for (int j = 0; j < widths.length; j++) {
@@ -454,8 +452,16 @@ public class SmpService {
                         basicsdatumMaterialPricePageVo1.setColor(colors[i]);
                         basicsdatumMaterialPricePageVo1.setWidth(widths[j]);
                         try {
-                            basicsdatumMaterialPricePageVo1.setColorName(colorNames[i]);
-                            basicsdatumMaterialPricePageVo1.setWidthName(widthNames[j]);
+                            for (SmpColor smpColor : colorList) {
+                                if (colors[i].equals(smpColor.getColorCode())){
+                                    basicsdatumMaterialPricePageVo1.setColorName(smpColor.getColorName());
+                                }
+                            }
+                            for (SmpModuleSize smpModuleSize : moduleSizeList) {
+                                if (widths[j].equals(smpModuleSize.getSizeUrl())){
+                                    basicsdatumMaterialPricePageVo1.setWidthName(smpModuleSize.getSizeCode());
+                                }
+                            }
 
                         } catch (Exception ignored) {
 

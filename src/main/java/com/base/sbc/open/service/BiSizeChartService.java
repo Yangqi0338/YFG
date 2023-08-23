@@ -14,5 +14,5 @@ import java.util.List;
  */
 public interface BiSizeChartService extends IService<BiSizeChart> {
 
-    public List<BiSizeChart> sizeChart();
+   void sizeChart();
 }

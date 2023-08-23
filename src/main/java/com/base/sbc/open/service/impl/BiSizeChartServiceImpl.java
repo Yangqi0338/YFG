@@ -35,7 +35,7 @@ public class BiSizeChartServiceImpl extends ServiceImpl<BiSizeChartMapper,BiSize
 
     private final PackInfoService packInfoService;
 
-    public List<BiSizeChart> sizeChart() {
+    public void sizeChart() {
         List<BiSizeChart> biSizeCharts = new ArrayList<>();
         // TODO: 2023/7/24 字段未确认
         List<Style> list = styleService.list();
@@ -86,6 +86,5 @@ public class BiSizeChartServiceImpl extends ServiceImpl<BiSizeChartMapper,BiSize
         }
         this.remove(null);
         this.saveBatch(biSizeCharts);
-        return biSizeCharts;
     }
 }

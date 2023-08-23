@@ -107,7 +107,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
      */
     @Override
     public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto queryDto) {
-        GroupUser userBy = userUtils.getUserBy(user);
+
         /*分页*/
         queryDto.setOrderBy("ts.design_no asc,tsc.create_date desc");
         PageHelper.startPage(queryDto);
@@ -194,8 +194,11 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         /*查询款式图*/
         attachmentService.setListStylePic(sampleStyleColorList, "stylePic");
 
-        /*查询款式配色图*/
-        StyleNoImgUtils.setStyleColorPic(userBy, sampleStyleColorList,"styleColorPic");
+        if (user!=null){
+            /*查询款式配色图*/
+            GroupUser userBy = userUtils.getUserBy(user);
+            StyleNoImgUtils.setStyleColorPic(userBy, sampleStyleColorList,"styleColorPic");
+        }
 
         PageInfo<StyleColorVo> pageInfo = new PageInfo<>(sampleStyleColorList);
         return pageInfo;
