@@ -4,7 +4,7 @@
 </head>
 <style>
     html {
-
+        font-family: 'STSong-Light', WenQuanYi Zen Hei, Open Sans;
         width: 277mm;
         margin: 50px auto;
         background-color: #fff;

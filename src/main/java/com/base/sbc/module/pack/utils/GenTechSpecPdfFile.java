@@ -32,7 +32,9 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.*;
+import com.itextpdf.layout.element.IBlockElement;
+import com.itextpdf.layout.element.IElement;
+import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.VerticalAlignment;
@@ -45,7 +47,6 @@ import lombok.Data;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
-import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -305,11 +306,6 @@ public class GenTechSpecPdfFile {
             PdfPage page = docEvent.getPage();
             //通过 page 进行一些处理  ，这个需要去了解如何在page上进行添加内容
             //也可以传入  List<IElement> iElements ，直接添加 ，
-            Table table = (Table) element;
-            Cell cell = new Cell();
-            cell.add(new Paragraph("123"));
-            table.addCell(cell);
-
             Rectangle pageSize = page.getPageSize();
             PdfCanvas pdfCanvas = new PdfCanvas(page);
             float pageWith = pageSize.getWidth();
@@ -319,7 +315,7 @@ public class GenTechSpecPdfFile {
 
             Rectangle rectangle = new Rectangle(marginWith, marginBottom, pageWith, footHeight);
             Canvas canvas = new Canvas(pdfCanvas, pdfDocument, rectangle);
-            canvas.add((IBlockElement) table);
+            canvas.add((IBlockElement) element);
             pdfCanvas.release();
         }
     }
