@@ -1,5 +1,6 @@
 package com.base.sbc.module.smp.dto;
 
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.smp.base.SmpBaseDto;
 import lombok.Data;
 
@@ -167,7 +168,9 @@ public class SmpSampleDto extends SmpBaseDto {
         style.setC8_StyleAttr_TechnicianID(technicianId);
         style.setC8_StyleAttr_Technician(technician);
         style.setC8_StyleAttr_DesignerID(designerId);
-        style.setC8_StyleAttr_Designer(designer);
+        if (StringUtils.isNotBlank(designer)){
+            style.setC8_StyleAttr_Designer(designer.split(",")[0]);
+        }
         style.setC8_StyleAttr_PatternMaker(patternMaker);
         style.setC8_StyleAttr_PatternMakerID(patternMakerId);
         style.setC8_Style_PLMID(styleUrl);
