@@ -4,7 +4,7 @@
 </head>
 <style>
     * {
-        font-family: Courier New, SimSun, LiSu;
+        font-family: LiSu;
     }
 
     html {
