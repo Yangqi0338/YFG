@@ -27,7 +27,10 @@ public enum EnumNodeStatus {
     GARMENT_ASSIGNED("样衣任务", "已分配"),
     GARMENT_SEWING_STARTED("样衣任务", "车缝开始"),
     GARMENT_SEWING_COMPLETE("样衣任务", "车缝完成"),
-    GARMENT_COMPLETE("样衣任务", "样衣完成");
+    GARMENT_COMPLETE("样衣任务", "样衣完成"),
+    GARMENT_SEWING_NOT_START("样衣任务", "车缝未开始"),
+    GARMENT_SEWING_ING("样衣任务", "车缝进行中");
+
 
     private final String node;
     private final String status;

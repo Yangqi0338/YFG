@@ -3,8 +3,12 @@
     <meta charset="UTF-8">
 </head>
 <style>
+    * {
+        font-family: LiSu;
+    }
+
     html {
-        font-family: 文泉驿正黑;
+
         width: 277mm;
         margin: 50px auto;
         background-color: #fff;

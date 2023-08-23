@@ -306,6 +306,13 @@ public class PatternMakingController {
     public boolean setSampleBarCode(@Validated @RequestBody SetSampleBarCodeDto dto) {
         return patternMakingService.setSampleBarCode(dto);
     }
+
+    @ApiOperation(value = "获取车缝工列表")
+    @GetMapping("/getStitcherList")
+    @ApiImplicitParams({@ApiImplicitParam(name = "planningSeasonId", value = "产品季节id", required = true, paramType = "query")})
+    public List<PatternDesignVo> getStitcherList(@Valid @NotBlank(message = "产品季节id不能为空") String planningSeasonId) {
+        return patternMakingService.getStitcherList(planningSeasonId);
+    }
 }
 
 
