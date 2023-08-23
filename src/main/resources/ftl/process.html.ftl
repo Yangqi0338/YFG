@@ -1,4 +1,7 @@
 <html>
+<head>
+    <meta charset="UTF-8">
+</head>
 <style>
     html {
 
@@ -152,7 +155,7 @@
 <!-- 页眉 -->
 <table class="table_no_border page_start">
     <tr>
-        <td>品牌22</td>
+        <td>品牌</td>
         <td>${brandName}</td>
         <td>设计款号</td>
         <td>${designNo}</td>
