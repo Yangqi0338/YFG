@@ -29,8 +29,19 @@ import java.util.List;
 public interface BasicsdatumBomTemplateMaterialMapper extends BaseMapper<BasicsdatumBomTemplateMaterial> {
 // 自定义方法区 不替换的区域【other_start】
 
+  /**
+   * 查询物料
+   * @param qw
+   * @return
+   */
   List<BasicsdatumMaterialPageVo>  getBomTemplateMateriaList(@Param(Constants.WRAPPER) QueryWrapper qw);
 
+  /**
+   *
+   * @param bomTemplateId
+   * @return
+   */
+  List<String> getTemplateMateriaId(String bomTemplateId);
 
 // 自定义方法区 不替换的区域【other_end】
 }

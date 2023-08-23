@@ -9,6 +9,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBomTemplateDto;
+import com.base.sbc.module.basicsdatum.dto.AddRevampBomTemplateMaterialDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBomTemplateDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplate;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumBomTemplateMaterialService;
@@ -59,14 +60,11 @@ public class BasicsdatumBomTemplateController{
 	}
 
 
-
-
 	@ApiOperation(value = "新增或修改BOM模板")
 	@PostMapping("/addRevampBomTemplate")
 	public Boolean addRevampBomTemplate(@Valid @RequestBody AddRevampBomTemplateDto addRevampBomTemplateDto) {
 		return basicsdatumBomTemplateService.addRevampBomTemplate(addRevampBomTemplateDto);
 	}
-
 
 
 	@ApiOperation(value = "删除基础资料-BOM模板")
@@ -75,40 +73,35 @@ public class BasicsdatumBomTemplateController{
 		return basicsdatumBomTemplateService.delBomTemplate(id);
 	}
 
+	@ApiOperation(value = "添加一行物料")
+	@PostMapping("/addMateria")
+	public Boolean addMateria(@RequestParam("bomTemplateId") String bomTemplateId) {
+		return basicsdatumBomTemplateMaterialServicel.addMateria(bomTemplateId);
+	}
+
+	@ApiOperation(value = "修改BOM模板物料")
+	@PostMapping("/revampBomTemplateMaterial")
+	public Boolean revampBomTemplateMaterial(@Valid @RequestBody AddRevampBomTemplateMaterialDto bomTemplateMaterialDto) {
+		return basicsdatumBomTemplateMaterialServicel.revampBomTemplateMaterial(bomTemplateMaterialDto);
+	}
 
 
+	@ApiOperation(value = "选择物料")
+	@PostMapping("/selectMateria")
+	public Boolean selectMateria(@Valid @RequestBody List<AddRevampBomTemplateMaterialDto> list) {
+		return basicsdatumBomTemplateMaterialServicel.selectMateria(list);
+	}
 
 
+	@ApiOperation(value = "查询bom模板下的物料id")
+	@GetMapping("/getTemplateMateriaId")
+	public List<String> getTemplateMateriaId(@Valid @NotBlank(message = "bom模板id不能为空") String bomTemplateId) {
+		return basicsdatumBomTemplateMaterialServicel.getTemplateMateriaId(bomTemplateId);
+	}
 
+	@ApiOperation(value = "删除基础资料-BOM模板物料")
+	@DeleteMapping("/delBomTemplateMateria")
+	public Boolean delBomTemplateMateria(@Valid @NotBlank(message = "编号id不能为空") String id) {
+		return basicsdatumBomTemplateMaterialServicel.delBomTemplateMateria(id);
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -5,10 +5,13 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
+import com.base.sbc.module.basicsdatum.dto.AddRevampBomTemplateMaterialDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBomTemplateDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /** 
  * 类描述：基础资料-BOM模板与物料档案中间表 service类
@@ -27,6 +30,42 @@ public interface BasicsdatumBomTemplateMaterialService extends BaseService<Basic
      * @return
      */
     PageInfo getBomTemplateMateriaList(QueryBomTemplateDto queryBomTemplateDto);
+
+
+    /**
+     * 添加一行物料
+     * @param bomTemplateId
+     * @return
+     */
+    Boolean addMateria(String bomTemplateId);
+
+    /**
+     * 选择物料
+     * @param list
+     * @return
+     */
+    Boolean selectMateria(List<AddRevampBomTemplateMaterialDto> list);
+
+    /**
+     * 查询bom模板下的物料id
+     * @param bomTemplateId bom模板id
+     * @return
+     */
+     List<String> getTemplateMateriaId(String bomTemplateId);
+
+    /**
+     * 删除-BOM模板物料
+     * @param id bom模板物料id
+     * @return
+     */
+    Boolean delBomTemplateMateria(String id);
+
+    /**
+     * 修改BOM模板物料
+     * @param addRevampBomTemplateMaterialDto
+     * @return
+     */
+    Boolean revampBomTemplateMaterial(AddRevampBomTemplateMaterialDto addRevampBomTemplateMaterialDto);
 
 // 自定义方法区 不替换的区域【other_end】
 
