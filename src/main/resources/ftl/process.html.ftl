@@ -1,7 +1,10 @@
 <html>
+<head>
+    <meta charset="UTF-8">
+</head>
 <style>
     html {
-        font-family: 'STSong-Light';
+        font-family: 文泉驿正黑;
         width: 277mm;
         margin: 50px auto;
         background-color: #fff;

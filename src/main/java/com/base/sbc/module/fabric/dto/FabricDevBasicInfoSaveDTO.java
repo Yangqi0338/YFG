@@ -6,11 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.fabric.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 面料开发基本信息保存
@@ -18,42 +20,17 @@ import java.math.BigDecimal;
 @Data
 @ApiModel("面料开发基本信息保存")
 public class FabricDevBasicInfoSaveDTO {
-
     /**
      * 备注信息
      */
     @ApiModelProperty(value = "备注信息")
     private String remarks;
-    /**
-     * 业务id
-     */
-    @ApiModelProperty(value = "业务id")
-    private String bizId;
-    /**
-     * 物料编码
-     */
-    @ApiModelProperty(value = "物料编码")
-    private String materialCode;
-    /**
-     * 物料名称
-     */
-    @ApiModelProperty(value = "物料名称")
-    private String materialName;
+
     /**
      * 面料标签:1.新面料、2.长青面料、3.延续面料、4.库存面料；
      */
     @ApiModelProperty(value = "面料标签:1.新面料、2.长青面料、3.延续面料、4.库存面料；")
     private String fabricLabel;
-    /**
-     * 面料分类编码
-     */
-    @ApiModelProperty(value = "面料分类编码")
-    private String fabricClassifCode;
-    /**
-     * 面料分类
-     */
-    @ApiModelProperty(value = "面料分类")
-    private String fabricClassif;
     /**
      * 单价
      */
@@ -75,6 +52,11 @@ public class FabricDevBasicInfoSaveDTO {
     @ApiModelProperty(value = "询价")
     private BigDecimal inquiry;
     /**
+     * 是否转至物料档案 0.否、1.是
+     */
+    @ApiModelProperty(value = "是否转至物料档案 0.否、1.是")
+    private String toMaterialFlag;
+    /**
      * 顺序
      */
     @ApiModelProperty(value = "顺序")
@@ -89,50 +71,50 @@ public class FabricDevBasicInfoSaveDTO {
      */
     @ApiModelProperty(value = "品类编码")
     private String categoryCode;
-
     /**
-     * 物料属性编码
+     * 是否物料档案接受 0.否、1.是
      */
-    @ApiModelProperty(value = "物料属性编码")
-    private String materialAttributeCode;
-    /**
-     * 物料属性
-     */
-    @ApiModelProperty(value = "物料属性")
-    private String materialAttribute;
+    @ApiModelProperty(value = "是否物料档案接受 0.否、1.是")
+    private String materialAcceptFlag;
     /**
      * 来源1.新增、2.其他
      */
     @ApiModelProperty(value = "来源1.新增、2.其他")
     private String source;
     /**
+     * 要求到料日期
+     */
+    @ApiModelProperty(value = "要求到料日期")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date requiredArrivalDate;
+    /**
      * 起订量（米）
      */
     @ApiModelProperty(value = "起订量（米）")
     private Integer moq;
-    /**
-     * 品牌名称
-     */
-    @ApiModelProperty(value = "品牌名称")
-    private String brand;
-    /**
-     * 品牌编码
-     */
-    @ApiModelProperty(value = "品牌编码")
-    private String brandCode;
-    /**
-     * 图片
-     */
-    @ApiModelProperty(value = "图片")
-    private String image;
-    /**
-     * 物料类别编码
-     */
-    @ApiModelProperty(value = "物料类别编码")
-    private String materialCategoryCode;
-    /**
-     * 物料类别
-     */
-    @ApiModelProperty(value = "物料类别")
-    private String materialCategory;
+
+    /** 大类编码 */
+    @ApiModelProperty(value = "大类编码")
+    private String category1Code;
+    /** 大类名称 */
+    @ApiModelProperty(value = "大类名称")
+    private String category1Name;
+    /** 中类编码 */
+    @ApiModelProperty(value = "中类编码")
+    private String category2Code;
+    /** 中类名称 */
+    @ApiModelProperty(value = "中类名称")
+    private String category2Name;
+    /** 小类编码 */
+    @ApiModelProperty(value = "小类编码")
+    private String category3Code;
+    /** 小类名称 */
+    @ApiModelProperty(value = "小类名称")
+    private String category3Name;
+    /** 物料类别第4级编码 */
+    @ApiModelProperty(value = "物料类别第4级编码")
+    private String categoryId;
+    /** 类别名称第4级名称 */
+    @ApiModelProperty(value = "类别名称第4级名称")
+    private String categoryName;
 }

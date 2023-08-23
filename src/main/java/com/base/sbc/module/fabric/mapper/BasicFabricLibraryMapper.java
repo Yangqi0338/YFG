@@ -7,20 +7,34 @@
 package com.base.sbc.module.fabric.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
+import com.base.sbc.module.fabric.dto.BasicFabricLibrarySearchDTO;
 import com.base.sbc.module.fabric.entity.BasicFabricLibrary;
-/** 
+import com.base.sbc.module.fabric.vo.BasicFabricLibraryListVO;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
  * 类描述：基础面料库 dao类
+ *
+ * @author your name
+ * @version 1.0
  * @address com.base.sbc.module.fabric.dao.BasicFabricLibraryDao
- * @author your name  
- * @email  your email
- * @date 创建时间：2023-8-7 11:01:16 
- * @version 1.0  
+ * @email your email
+ * @date 创建时间：2023-8-17 9:57:23
  */
 @Mapper
 public interface BasicFabricLibraryMapper extends BaseMapper<BasicFabricLibrary> {
 // 自定义方法区 不替换的区域【other_start】
 
+    /**
+     * 获取列表
+     *
+     * @param dto
+     * @return
+     */
+    List<BasicFabricLibraryListVO> getBasicFabricLibraryList(@Param("dto") BasicFabricLibrarySearchDTO dto);
 
 
 // 自定义方法区 不替换的区域【other_end】

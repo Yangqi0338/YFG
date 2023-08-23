@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.fabric.entity.FabricDevInfo
  * @author your name
  * @email your email
- * @date 创建时间：2023-8-7 11:01:37
+ * @date 创建时间：2023-8-17 9:57:39
  * @version 1.0
  */
 @Data
@@ -63,5 +63,13 @@ public class FabricDevInfo extends BaseDataEntity<String> {
     /** 面料开发主id */
     @ApiModelProperty(value = "面料开发主id"  )
     private String devMainId;
+    /** 预计开始时间 */
+    @ApiModelProperty(value = "预计开始时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date expectStartDate;
+    /** 预计结束时间 */
+    @ApiModelProperty(value = "预计结束时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date expectEndDate;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

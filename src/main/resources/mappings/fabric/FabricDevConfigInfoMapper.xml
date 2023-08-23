@@ -10,7 +10,7 @@
       -->
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
-    <select id="getDevConfigList" resultType="com.base.sbc.module.fabric.vo.FabricDevConfigInfoVO">
+    <select id="getDevConfigList" resultType="com.base.sbc.module.fabric.vo.FabricDevConfigInfoListVO">
         SELECT
         id,
         remarks,

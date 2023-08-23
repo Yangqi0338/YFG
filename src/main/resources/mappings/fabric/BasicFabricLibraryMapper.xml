@@ -5,12 +5,68 @@
         基础面料库
         创建人：your name
         邮箱：your email
-        创建时间：2023-8-7 11:01:16
+        创建时间：2023-8-17 9:57:23
         版本号：1.0
       -->
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <select id="getBasicFabricLibraryList" resultType="com.base.sbc.module.fabric.vo.BasicFabricLibraryListVO">
+        SELECT bfl.id,
+        bfl.create_name,
+        bfl.create_date,
+        bfl.update_name,
+        bfl.update_date,
+        bfl.dev_apply_code,
+        bfl.dev_code,
+        bfl.approve_status,
+        fdb.fabric_label,
+        fdb.category1_name,
+        fdb.category2_name,
+        fdb.category3_name,
+        fdb.category_name,
+        fdb.price,
+        fdb.prod_cycle,
+        fdb.short_code,
+        fdb.inquiry,
+        fdb.to_material_flag,
+        fdb.category,
+        fdb.material_accept_flag,
+        fdb.source,
+        fdb.required_arrival_date,
+        fdb.moq,
+        bm.material_code,
+        bm.material_name,
+        bm.image_url
+        FROM t_basic_fabric_library bfl
+        JOIN t_fabric_dev_basic_info fdb ON fdb.biz_id = bfl.id
+        JOIN t_basicsdatum_material bm ON bm.id = bfl.material_id
+        <where>
+            bfl.del_flag = '0'
+            and bfl.company_code = #{dto.companyCode}
+            <if test="dto.search != null and dto.search != ''">
+                AND (bfl.dev_apply_code LIKE concat('%',#{dto.search},'%') OR bfl.short_code LIKE
+                concat('%',#{dto.search},'%') or bfl.dev_code LIKE concat('%',#{dto.search},'%'))
+            </if>
+            <if test="dto.source != null and dto.source != ''">
+                and fdb.source = #{dto.source}
+            </if>
+            <if test="dto.toMaterialFlag != null and dto.toMaterialFlag != ''">
+                and fdb.to_material_flag = #{dto.toMaterialFlag}
+            </if>
+            <if test="dto.materialAcceptFlag != null and dto.materialAcceptFlag != ''">
+                and fdb.material_accept_flag = #{dto.materialAcceptFlag}
+            </if>
+            <if test="dto.categoryId != null and dto.categoryId != ''">
+                AND (fdb.category1_code = #{dto.categoryId} OR fdb.category2_code = #{dto.categoryId} or
+                fdb.category3_code = #{dto.categoryId}
+                or fdb.category_id = #{dto.categoryId})
+            </if>
 
+            <if test="dto.approveStatus != null and dto.approveStatus != ''">
+                and bfl.approve_status = #{dto.approveStatus}
+            </if>
+        </where>
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.fabric.entity.FabricPlanning
  * @author your name
  * @email your email
- * @date 创建时间：2023-8-7 11:01:59
+ * @date 创建时间：2023-8-23 11:03:00
  * @version 1.0
  */
 @Data
@@ -73,5 +73,18 @@ public class FabricPlanning extends BaseDataEntity<String> {
     /** 类型编码 */
     @ApiModelProperty(value = "类型编码"  )
     private String typeCode;
+    /** 审核状态：0.未提交、1.待审核、2.审核中、3.审核通过、4.审核失败 */
+    @ApiModelProperty(value = "审核状态：0.未提交、1.待审核、2.审核中、3.审核通过、4.审核失败"  )
+    private String approveStatus;
+    /** 审核时间 */
+    @ApiModelProperty(value = "审核时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date approveDate;
+    /** 审核人id */
+    @ApiModelProperty(value = "审核人id"  )
+    private String approveUserId;
+    /** 审核人名称 */
+    @ApiModelProperty(value = "审核人名称"  )
+    private String approveUserName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

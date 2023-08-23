@@ -5,20 +5,21 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.fabric.entity;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Date;
 /**
  * 类描述：基础面料库 实体类
  * @address com.base.sbc.module.fabric.entity.BasicFabricLibrary
  * @author your name
  * @email your email
- * @date 创建时间：2023-8-7 11:01:16
+ * @date 创建时间：2023-8-17 9:57:23
  * @version 1.0
  */
 @Data
@@ -49,9 +50,29 @@ public class BasicFabricLibrary extends BaseDataEntity<String> {
     /** 开发申请单号 */
     @ApiModelProperty(value = "开发申请单号"  )
     private String devApplyCode;
-    /** 要求到料日期 */
-    @ApiModelProperty(value = "要求到料日期"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date requiredArrivalDate;
+    /** 开发主id */
+    @ApiModelProperty(value = "开发主id"  )
+    private String devMainId;
+    /** 物料id */
+    @ApiModelProperty(value = "物料id"  )
+    private String materialId;
+
+    /** 审核状态：0.未提交、1.待审核、2.审核中、3.审核通过、4.审核失败 */
+    @ApiModelProperty(value = "审核状态：0.未提交、1.待审核、2.审核中、3.审核通过、4.审核失败"  )
+    private String approveStatus;
+
+    /** 审核时间 */
+    @ApiModelProperty(value = "审核时间"  )
+    private Date approveDate;
+
+    /** 审核人 */
+    @ApiModelProperty(value = "审核人"  )
+    private String approveUserId;
+
+    /** 审核人名称 */
+    @ApiModelProperty(value = "审核人名称"  )
+    private String approveUserName;
+
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

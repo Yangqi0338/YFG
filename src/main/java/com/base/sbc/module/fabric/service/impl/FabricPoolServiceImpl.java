@@ -7,20 +7,20 @@
 package com.base.sbc.module.fabric.service.impl;
 
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.fabric.mapper.FabricDevSupplerInfoMapper;
-import com.base.sbc.module.fabric.entity.FabricDevSupplerInfo;
-import com.base.sbc.module.fabric.service.FabricDevSupplerInfoService;
+import com.base.sbc.module.fabric.mapper.FabricPoolMapper;
+import com.base.sbc.module.fabric.entity.FabricPool;
+import com.base.sbc.module.fabric.service.FabricPoolService;
 import org.springframework.stereotype.Service;
 /** 
- * 类描述：面料开发颜色信息 service类
- * @address com.base.sbc.module.fabric.service.FabricDevSupplerInfoService
+ * 类描述：面料池 service类
+ * @address com.base.sbc.module.fabric.service.FabricPoolService
  * @author your name
  * @email your email
- * @date 创建时间：2023-8-7 11:01:55
+ * @date 创建时间：2023-8-23 11:02:50
  * @version 1.0  
  */
 @Service
-public class FabricDevSupplerInfoServiceImpl extends BaseServiceImpl<FabricDevSupplerInfoMapper, FabricDevSupplerInfo> implements FabricDevSupplerInfoService {
+public class FabricPoolServiceImpl extends BaseServiceImpl<FabricPoolMapper, FabricPool> implements FabricPoolService {
 
 // 自定义方法区 不替换的区域【other_start】
 

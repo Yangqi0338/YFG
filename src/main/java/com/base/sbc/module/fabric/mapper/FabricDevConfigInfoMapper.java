@@ -8,7 +8,7 @@ package com.base.sbc.module.fabric.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.fabric.entity.FabricDevConfigInfo;
-import com.base.sbc.module.fabric.vo.FabricDevConfigInfoVO;
+import com.base.sbc.module.fabric.vo.FabricDevConfigInfoListVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -33,8 +33,8 @@ public interface FabricDevConfigInfoMapper extends BaseMapper<FabricDevConfigInf
      * @param companyCode
      * @return
      */
-    List<FabricDevConfigInfoVO> getDevConfigList(@Param("companyCode") String companyCode,
-                                                 @Param("status") String status);
+    List<FabricDevConfigInfoListVO> getDevConfigList(@Param("companyCode") String companyCode,
+                                                     @Param("status") String status);
 
 
 // 自定义方法区 不替换的区域【other_end】

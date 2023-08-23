@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.fabric.entity.FabricDevMainInfo
  * @author your name
  * @email your email
- * @date 创建时间：2023-8-7 11:01:42
+ * @date 创建时间：2023-8-17 9:58:04
  * @version 1.0
  */
 @Data
@@ -68,5 +68,8 @@ public class FabricDevMainInfo extends BaseDataEntity<String> {
     /** 开发单号 */
     @ApiModelProperty(value = "开发单号"  )
     private String devCode;
+    /** 物料id */
+    @ApiModelProperty(value = "物料id"  )
+    private String materialId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

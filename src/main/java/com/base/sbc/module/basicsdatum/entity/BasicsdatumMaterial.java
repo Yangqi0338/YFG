@@ -402,6 +402,7 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	@ApiModelProperty(value = "厂家成分")
 	private String factoryComposition;
 	/** 门幅 */
+
 	@ApiModelProperty(value = "门幅")
 	private BigDecimal translate;
 	/** 询价编号 */
@@ -415,6 +416,12 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	 * 面料成分下发状态 0未发送,1发送成功，2发送失败,3重新打开
 	 */
     private String compositionSendStatus;
+
+	/**
+	 * 业务类型:material.物料、dev.面料开发
+	 */
+	@ApiModelProperty(value = "业务类型:material.物料、dev.面料开发")
+	private String bizType;
 	/*****************************
 	 * 数据库字段区 不包含父类公共字段(属性) 【end】
 	 ***********************************/

@@ -14,7 +14,7 @@ import com.base.sbc.module.fabric.entity.FabricPlanningItem;
  * @address com.base.sbc.module.fabric.dao.FabricPlanningItemDao
  * @author your name  
  * @email  your email
- * @date 创建时间：2023-8-7 11:02:03 
+ * @date 创建时间：2023-8-23 11:02:55 
  * @version 1.0  
  */
 @Mapper

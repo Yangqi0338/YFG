@@ -6,108 +6,75 @@
  *****************************************************************************/
 package com.base.sbc.module.fabric.controller;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.fabric.dto.FabricDevApplySearchDTO;
-import com.base.sbc.module.fabric.entity.FabricDevApply;
+import com.base.sbc.module.fabric.dto.FabricDevApplyAllocationDTO;
+import com.base.sbc.module.fabric.dto.FabricDevApplySaveDTO;
+import com.base.sbc.module.fabric.dto.FabricDevSearchDTO;
 import com.base.sbc.module.fabric.service.FabricDevApplyService;
+import com.base.sbc.module.fabric.service.FabricDevConfigInfoService;
 import com.base.sbc.module.fabric.vo.FabricDevApplyListVO;
+import com.base.sbc.module.fabric.vo.FabricDevConfigInfoVO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 /**
- * 类描述：面料开发申请（主表） Controller类
+ * 类描述：面料开发申请 Controller类
  *
  * @author your name
  * @version 1.0
  * @address com.base.sbc.module.fabric.web.FabricDevApplyController
  * @email your email
- * @date 创建时间：2023-8-7 11:01:20
+ * @date 创建时间：2023-8-17 9:57:28
  */
 @RestController
-@Api(tags = "面料开发申请（主表）")
+@Api(tags = "面料开发申请")
 @RequestMapping(value = BaseController.SAAS_URL + "/fabricDevApply", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class FabricDevApplyController {
+public class FabricDevApplyController extends BaseController {
 
     @Autowired
     private FabricDevApplyService fabricDevApplyService;
+    @Autowired
+    private FabricDevConfigInfoService fabricDevConfigInfoService;
 
-    @ApiOperation(value = "获取开发申请列表")
+    @ApiOperation(value = "分页查询")
     @PostMapping("/getDevApplyList")
-    public PageInfo<FabricDevApplyListVO> getDevApplyList(@Valid @RequestBody FabricDevApplySearchDTO fabricDevApplySearchDTO) {
-        return fabricDevApplyService.getDevApplyList(fabricDevApplySearchDTO);
-    }
-
-
-    @ApiOperation(value = "明细-通过id查询")
-    @GetMapping("/{id}")
-    public FabricDevApply getById(@PathVariable("id") String id) {
-        return fabricDevApplyService.getById(id);
-    }
-
-    @ApiOperation(value = "删除-通过id查询,多个逗号分开")
-    @DeleteMapping("/{id}")
-    public Boolean removeById(@PathVariable("id") String id) {
-        List<String> ids = StringUtils.convertList(id);
-        return fabricDevApplyService.removeByIds(ids);
+    public PageInfo<FabricDevApplyListVO> getDevApplyList(@Valid @RequestBody FabricDevSearchDTO dto) {
+        return fabricDevApplyService.getDevApplyList(dto);
     }
 
     @ApiOperation(value = "保存")
-    @PostMapping
-    public FabricDevApply save(@RequestBody FabricDevApply fabricDevApply) {
-        fabricDevApplyService.save(fabricDevApply);
-        return fabricDevApply;
+    @PostMapping("/devAppSave")
+    public ApiResult devAppSave(@Valid @RequestBody FabricDevApplySaveDTO fabricDevApplySaveDTO) {
+        return updateSuccess(fabricDevApplyService.devAppSave(fabricDevApplySaveDTO));
     }
 
-    @ApiOperation(value = "修改")
-    @PutMapping
-    public FabricDevApply update(@RequestBody FabricDevApply fabricDevApply) {
-        boolean b = fabricDevApplyService.updateById(fabricDevApply);
-        if (!b) {
-            //影响行数为0（数据未改变或者数据不存在）
-            //返回影响行数需要配置jdbcURL参数useAffectedRows=true
-        }
-        return fabricDevApply;
+    @ApiOperation(value = "获取详情")
+    @GetMapping("/getDetail")
+    public ApiResult getDetail(@Valid @NotBlank(message = "开发申请id不可为空") String id) {
+        return selectSuccess(fabricDevApplyService.getDetail(id));
     }
 
+    @ApiOperation(value = "分配任务")
+    @PostMapping("/allocationTasks")
+    public ApiResult allocationTasks(@Valid @RequestBody FabricDevApplyAllocationDTO fabricDevApplyAssignDTO) {
+        fabricDevApplyService.allocationTasks(fabricDevApplyAssignDTO);
+        return updateSuccess("操作成功");
+    }
+
+
+    @ApiOperation(value = "获取开发申请配置信息")
+    @GetMapping("/getDevApplyConfigList")
+    public PageInfo<FabricDevConfigInfoVO> getDevApplyConfigList(String devApplyCode, Integer pageNum, Integer pageSize) {
+        return fabricDevConfigInfoService.getDevApplyConfigList(devApplyCode, pageNum, pageSize);
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

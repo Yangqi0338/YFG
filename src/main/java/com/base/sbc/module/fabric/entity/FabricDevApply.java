@@ -14,17 +14,17 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
- * 类描述：面料开发申请（主表） 实体类
+ * 类描述：面料开发申请 实体类
  * @address com.base.sbc.module.fabric.entity.FabricDevApply
  * @author your name
  * @email your email
- * @date 创建时间：2023-8-7 11:01:20
+ * @date 创建时间：2023-8-17 9:57:28
  * @version 1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("t_fabric_dev_apply")
-@ApiModel("面料开发申请（主表） FabricDevApply")
+@ApiModel("面料开发申请 FabricDevApply")
 public class FabricDevApply extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
@@ -40,12 +40,11 @@ public class FabricDevApply extends BaseDataEntity<String> {
     /** 开发申请单号 */
     @ApiModelProperty(value = "开发申请单号"  )
     private String devApplyCode;
-    /** 要求到料日期 */
-    @ApiModelProperty(value = "要求到料日期"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date requiredArrivalDate;
     /** 分配状态:1.待分配、2.进行中、3.已完成 */
     @ApiModelProperty(value = "分配状态:1.待分配、2.进行中、3.已完成"  )
     private String allocationStatus;
+    /** 物料id */
+    @ApiModelProperty(value = "物料id"  )
+    private String materialId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
