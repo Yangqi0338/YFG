@@ -84,8 +84,7 @@
             tpi.id packInfoId,
             tsp.control_confirm,
             tsp.product_hangtag_confirm,
-            tsp.control_hangtag_confirm,
-            tsc.ware_code
+            tsp.control_hangtag_confirm
             FROM
             t_style ts
             LEFT JOIN  t_style_color tsc ON (ts.id = tsc.style_id  AND tsc.del_flag = '0')
