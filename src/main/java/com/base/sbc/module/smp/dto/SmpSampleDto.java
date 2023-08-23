@@ -108,7 +108,7 @@ public class SmpSampleDto extends SmpBaseDto {
     public SampleBean toSampleBean(){
         SimpleDateFormat simpleDateFormat =new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         SampleBean sampleBean =new SampleBean();
-        sampleBean.setNodeName(nodeName);
+        sampleBean.setNodeName(styleCode+"/"+nodeName);
         sampleBean.setCode(getCode());
         sampleBean.setSampleType(sampleType);
         sampleBean.setSampleTypeName(sampleTypeName);
@@ -119,13 +119,26 @@ public class SmpSampleDto extends SmpBaseDto {
         sampleBean.setC8_Sample_SampleNumber(sampleNumber);
         sampleBean.setC8_Sample_SampleNumberName(sampleNumberName);
         sampleBean.setC8_Sample_BExtAuxiliary(String.valueOf(BExtAuxiliary));
-        sampleBean.setC8_Sample_EAValidTo(simpleDateFormat.format(EAValidToTime));
-        sampleBean.setC8_Sample_EAValidFrom(simpleDateFormat.format(EAValidFromTime));
+        if(EAValidToTime!=null){
+            sampleBean.setC8_Sample_EAValidTo(simpleDateFormat.format(EAValidToTime));
+        }
+        if(EAValidFromTime!=null){
+            sampleBean.setC8_Sample_EAValidFrom(simpleDateFormat.format(EAValidFromTime));
+        }
+
+        if(sampleReceivedDate!=null){
+            sampleBean.setSampleReceivedDate(simpleDateFormat.format(sampleReceivedDate));
+        }
+
+        if(MCDate!=null){
+            sampleBean.setC8_Sample_MCDate(simpleDateFormat.format(MCDate));
+        }
+
         sampleBean.setC8_Sample_Barcode(barcode);
         sampleBean.setC8_Sample_PLMID(pmlId);
-        sampleBean.setSampleReceivedDate(simpleDateFormat.format(sampleReceivedDate));
+
         sampleBean.setC8_Sample_IfFinished(String.valueOf(finished));
-        sampleBean.setC8_Sample_MCDate(simpleDateFormat.format(MCDate));
+
         sampleBean.setC8_ProductSample_ProofingDesigner(proofingDesigner);
         sampleBean.setC8_ProductSample_ProofingDesignerID(proofingDesignerId);
         sampleBean.setSupplier(supplier);

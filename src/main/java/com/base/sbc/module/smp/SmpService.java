@@ -178,7 +178,6 @@ public class SmpService {
             Map<String, String> usernamesByIds = amcService.getUsernamesByIds(StringUtils.join(list, ","));
             smpGoodsDto.setDesignerId(usernamesByIds.get(designerId));
             smpGoodsDto.setTechnicianId(usernamesByIds.get(technicianId));
-            smpGoodsDto.setPatternMakerId(usernamesByIds.get(patternDesignId));
             smpGoodsDto.setYear(sampleDesign.getYearName());
             smpGoodsDto.setPatternName("常规");
             smpGoodsDto.setPriorityId(sampleDesign.getTaskLevel());
@@ -679,8 +678,8 @@ public class SmpService {
             } catch (Exception ignored) {
             }
 
-            smpSampleDto.setSampleType(style.getDevtType());
-            smpSampleDto.setSampleTypeName(style.getDevtTypeName());
+            smpSampleDto.setSampleType(patternMaking.getSampleType());
+            smpSampleDto.setSampleTypeName(patternMaking.getSampleTypeName());
 
             //取跟款设计师，如果跟款设计师不存在就取设计师
             smpSampleDto.setProofingDesigner(style.getMerchDesignName() == null ? style.getDesigner() : style.getMerchDesignName());
@@ -732,7 +731,7 @@ public class SmpService {
             smpSampleDto.setEAValidToTime(patternMaking.getExtAuxiliaryReceiveDate());
             smpSampleDto.setFinished("1".equals(patternMaking.getEndFlg()));
             smpSampleDto.setMCDate(patternMaking.getSglKittingDate());
-            smpSampleDto.setPmlId(null);
+            smpSampleDto.setPmlId(style.getId());
             smpSampleDto.setBExtAuxiliary("1".equals(patternMaking.getExtAuxiliary()));
             smpSampleDto.setSampleNumberName(patternMaking.getCode());
             smpSampleDto.setBarcode(patternMaking.getSampleBarCode());

@@ -51,7 +51,11 @@ public class RestTemplateService {
             if (jsonObject != null) {
                 httpResp.setMessage(jsonObject.getString("message"));
                 httpResp.setCode(jsonObject.getString("code"));
-                httpResp.setSuccess(jsonObject.getBoolean("success"));
+                if (jsonObject.getBoolean("success") || "0000000".equals(jsonObject.getString("code"))){
+                    httpResp.setSuccess(true);
+                }else {
+                    httpResp.setSuccess(false);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

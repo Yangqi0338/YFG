@@ -53,7 +53,8 @@ public class Style extends BaseDataEntity<String> {
         }
 
         smpSampleDto.setQuarterCode(season);
-        smpSampleDto.setPatternMaker(patternDesignId);
+        smpSampleDto.setPatternMaker(patternDesignName);
+        smpSampleDto.setPatternMakerId(patternDesignId);
         smpSampleDto.setStyleCode(designNo);
         return smpSampleDto;
 
