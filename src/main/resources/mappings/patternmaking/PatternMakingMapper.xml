@@ -365,9 +365,6 @@
         and p.prm_send_status='1'
         and p.del_flag &lt;&gt; '1'
         and s.del_flag &lt;&gt; '1'
-        and p.stitcher_id is not null
-        and p.sewing_status > -1
-        and p.`status` &lt;&gt; '样衣完成'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
