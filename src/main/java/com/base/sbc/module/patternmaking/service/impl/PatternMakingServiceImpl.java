@@ -846,6 +846,42 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return update(update, uw);
     }
 
+    @Override
+    public List<PatternDesignVo> getStitcherList(String planningSeasonId) {
+        List<UserCompany> userList = amcFeignService.getTeamUserListByPost(planningSeasonId, "车缝工");
+        if (CollUtil.isEmpty(userList)) {
+            return null;
+        }
+        List<String> userIds = userList.stream().map(UserCompany::getUserId).collect(Collectors.toList());
+        List<PatternMaking> patternMakings = getBaseMapper().getPatternMakingSewingStatus(new QueryWrapper<>().in("p.stitcher_id",userIds)
+                .isNotNull("p.stitcher_id").gt("p.sewing_status",-1).in("p.status",CollUtil.newArrayList(
+                        EnumNodeStatus.GARMENT_SEWING_NOT_START.getStatus(),
+                        EnumNodeStatus.GARMENT_SEWING_ING.getStatus(),
+                        EnumNodeStatus.GARMENT_SEWING_COMPLETE.getStatus()
+                )));
+
+        Map<String, List<PatternMaking>> qtyMap = patternMakings.stream().collect(Collectors.groupingBy(PatternMaking :: getStitcherId));
+        List<PatternDesignVo> result = new ArrayList<>();
+        for (UserCompany user : userList) {
+            PatternDesignVo patternDesignVo = BeanUtil.copyProperties(user,PatternDesignVo.class);
+            LinkedHashMap<String, Long> sampleTypeCount = new LinkedHashMap<>(16);
+            if(CollectionUtil.isNotEmpty(qtyMap.get(user.getUserId()))){
+                sampleTypeCount.put("未开始",qtyMap.get(user.getUserId()).stream().filter(f -> EnumNodeStatus.GARMENT_SEWING_NOT_START.getStatus().equals(f.getStatus())).count());
+                sampleTypeCount.put("进行中",qtyMap.get(user.getUserId()).stream().filter(f -> EnumNodeStatus.GARMENT_SEWING_ING.getStatus().equals(f.getStatus())).count());
+                sampleTypeCount.put("已完成",qtyMap.get(user.getUserId()).stream().filter(f -> EnumNodeStatus.GARMENT_SEWING_COMPLETE.getStatus().equals(f.getStatus())).count());
+            }else{
+                sampleTypeCount.put("未开始",0L);
+                sampleTypeCount.put("进行中",0L);
+                sampleTypeCount.put("已完成",0L);
+            }
+            String deptName = Optional.ofNullable(user.getDeptList()).map(item -> item.stream().map(Dept::getName).collect(Collectors.joining(StrUtil.COMMA))).orElse("");
+            patternDesignVo.setDeptName(deptName);
+            patternDesignVo.setSampleTypeCount(sampleTypeCount);
+            result.add(patternDesignVo);
+        }
+        return result;
+    }
+
 
     /**
      * 产能对比统计 查数据库

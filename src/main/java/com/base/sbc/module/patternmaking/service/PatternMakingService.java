@@ -285,6 +285,13 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     boolean setSampleBarCode(SetSampleBarCodeDto dto);
 
+    /**
+     * 获取车缝工列表
+     *
+     * @param planningSeasonId
+     * @return
+     */
+    List<PatternDesignVo> getStitcherList(String planningSeasonId);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
