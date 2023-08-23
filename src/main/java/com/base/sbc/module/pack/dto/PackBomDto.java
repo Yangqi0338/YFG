@@ -1,6 +1,7 @@
 package com.base.sbc.module.pack.dto;
 
 import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomColor;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -27,4 +28,8 @@ public class PackBomDto extends PackBom {
 
     @ApiModelProperty(value = "尺码信息")
     List<PackBomSizeDto> packBomSizeList;
+
+    @ApiModelProperty(value = "物料清单-配色列表")
+    private List<PackBomColorDto> packBomColorDtoList;
+
 }

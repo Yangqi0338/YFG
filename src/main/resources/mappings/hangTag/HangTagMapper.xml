@@ -71,6 +71,9 @@
             <if test="dto.confirmDate != null and dto.confirmDate != ''">
                 AND ht.confirm_date = #{dto.confirmDate}
             </if>
+            <if test="dto.designNo != null and dto.designNo != ''">
+                AND tsd.design_no = #{dto.designNo}
+            </if>
 
             <if test="dto.styleNo != null and dto.styleNo != ''">
                 <choose>

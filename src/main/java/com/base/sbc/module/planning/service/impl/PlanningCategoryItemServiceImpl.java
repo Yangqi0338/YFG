@@ -412,8 +412,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
         // 2 状态修改为已下发 下发时间
         UpdateWrapper<PlanningCategoryItem> uw = new UpdateWrapper<>();
+        Date sendDate = new Date();
         uw.set("status", "2");
-        uw.set("send_date", new Date());
+        uw.set("send_date", sendDate);
         uw.in("id", itemIds);
         update(uw);
         // 3 将数据写入款式设计
@@ -439,6 +440,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             }
             Style style = PlanningUtils.toSampleDesign(seasonMap.get(item.getPlanningSeasonId()), item);
             style.setSender(getUserId());
+            style.setStartTime(sendDate);
+            style.setEndTime(item.getPlanningFinishDate());
             style.setStylePic(Optional.ofNullable(fileUrlId.get(style.getStylePic())).orElse(""));
             styleList.add(style);
 

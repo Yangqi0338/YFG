@@ -5,6 +5,8 @@ import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * @author 卞康
  * @date 2023/6/2 17:48:27
@@ -80,4 +82,7 @@ public class ProcessDatabase extends BaseDataEntity<String> {
     private String status;
     /**类别 1：部件库，2：基础工艺，3：外辅工艺，4：裁剪工艺，5：注意事项，6：整烫包装，7：模板部件*/
     private String type;
+    /** 工价 */
+    @ApiModelProperty(value = "工价"  )
+    private BigDecimal price;
 }

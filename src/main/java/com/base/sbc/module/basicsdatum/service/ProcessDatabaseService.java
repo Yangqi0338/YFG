@@ -58,4 +58,6 @@ public interface ProcessDatabaseService extends BaseService<ProcessDatabase> {
      * @return
      */
     List<ProcessDatabaseSelectVO> selectProcessDatabase(String type, String categoryName, String companyCode);
+
+    List<ProcessDatabase> getAll();
 }

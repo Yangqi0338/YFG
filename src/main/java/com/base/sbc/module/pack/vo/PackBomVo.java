@@ -23,4 +23,7 @@ public class PackBomVo extends PackBom {
 
     @ApiModelProperty(value = "尺码信息")
     private List<PackBomSizeVo> packBomSizeList;
+
+    @ApiModelProperty(value = "物料清单-配色列表")
+    private List<PackBomColorVo> packBomColorVoList;
 }
