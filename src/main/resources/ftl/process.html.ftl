@@ -1,7 +1,7 @@
 <html>
 <style>
     html {
-        font-family: 'STSong-Light';
+
         width: 277mm;
         margin: 50px auto;
         background-color: #fff;
@@ -152,7 +152,7 @@
 <!-- 页眉 -->
 <table class="table_no_border page_start">
     <tr>
-        <td>品牌</td>
+        <td>品牌22</td>
         <td>${brandName}</td>
         <td>设计款号</td>
         <td>${designNo}</td>

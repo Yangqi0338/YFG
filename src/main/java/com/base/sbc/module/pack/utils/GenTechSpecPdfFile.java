@@ -1,6 +1,5 @@
 package com.base.sbc.module.pack.utils;
 
-import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
@@ -182,12 +181,7 @@ public class GenTechSpecPdfFile {
             config.setTemplateLoader(new ClassTemplateLoader(UtilFreemarker.class, "/"));
             config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
             Template template = config.getTemplate("ftl/process.html.ftl");
-            CopyOptions copyOptions = new CopyOptions();
-            copyOptions.setConverter((targetType, value) -> {
 
-                System.out.println(targetType.getTypeName() + value);
-                return value;
-            });
             String str = JSON.toJSONString(this, JSONWriter.Feature.WriteNullStringAsEmpty);
 
             JSONObject dataModel = JSON.parseObject(str);
@@ -264,14 +258,11 @@ public class GenTechSpecPdfFile {
             document.setMargins(30, 10, 0, 10);
             for (int i = 1; i < elements.size(); i++) {
                 IElement element = elements.get(i);
-                System.out.println(element.getClass().getSimpleName());
                 // 分页符
                 if (element instanceof HtmlPageBreak) {
-                    System.out.println("分页");
                     document.add((HtmlPageBreak) element);
                     //普通块级元素
                 } else {
-                    System.out.println("普通块级元素");
                     document.add((IBlockElement) element);
                 }
             }
@@ -310,7 +301,6 @@ public class GenTechSpecPdfFile {
 
         @Override
         public void handleEvent(Event event) {
-            System.out.println(event.getType());
             PdfDocumentEvent docEvent = (PdfDocumentEvent) event;
             PdfPage page = docEvent.getPage();
             //通过 page 进行一些处理  ，这个需要去了解如何在page上进行添加内容
