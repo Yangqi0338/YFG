@@ -3,6 +3,8 @@ package com.base.sbc.module.basicsdatum.dto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 /*新增或者修改*/
 public class AddRevampProcessDatabaseDto {
@@ -68,5 +70,5 @@ public class AddRevampProcessDatabaseDto {
      * 工价
      * */
     @ApiModelProperty(value = "工价")
-    private String price;
+    private BigDecimal price;
 }
