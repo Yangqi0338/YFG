@@ -3,6 +3,9 @@ package com.base.sbc.open.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 
 @Data
 @TableName("bi_colorway")
@@ -45,7 +48,7 @@ public class BiColorway {
     /**
      * 上新时间
      */
-    private String c8ColorwaySaleTime;
+    private Date c8ColorwaySaleTime;
 
     /**
      * 产品风格
@@ -60,7 +63,7 @@ public class BiColorway {
     /**
      * 总成本
      */
-    private String c8ColorwayTotalCosts;
+    private BigDecimal c8ColorwayTotalCosts;
 
     /**
      * 实际倍率
@@ -70,27 +73,27 @@ public class BiColorway {
     /**
      * 商品吊牌价确认
      */
-    private String c8ColorwaySpPriceConfirm;
+    private Boolean c8ColorwaySpPriceConfirm;
 
     /**
      * 计控实际成本
      */
-    private String c8ColorwayJkCosts;
+    private BigDecimal c8ColorwayJkCosts;
 
     /**
      * 计控实际倍率
      */
-    private String c8ColorwayMarckup4Pc;
+    private BigDecimal c8ColorwayMarckup4Pc;
 
     /**
      * 车缝加工费
      */
-    private String c8ColorwayLaborCosts;
+    private BigDecimal c8ColorwayLaborCosts;
 
     /**
      * 材料成本
      */
-    private String c8ColorwayMaterialCost;
+    private BigDecimal c8ColorwayMaterialCost;
 
     /**
      * 品名*

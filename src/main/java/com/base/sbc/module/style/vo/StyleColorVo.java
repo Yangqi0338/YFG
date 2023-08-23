@@ -369,4 +369,6 @@ public class StyleColorVo {
     /** 下单标记（0否 1是） */
     @ApiModelProperty(value = "下单标记（0否 1是）"  )
     private String  orderFlag;
+
+    private String wareCode;
 }
