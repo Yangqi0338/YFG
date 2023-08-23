@@ -5,24 +5,26 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.style.entity;
-import java.math.BigDecimal;
-import java.util.Date;
 
-import com.base.sbc.module.smp.dto.SmpSampleDto;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.smp.dto.SmpSampleDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  * 类描述：款式设计 实体类
- * @address com.base.sbc.module.style.entity.Style
- * @author tzy
- * @email 974849633@qq.com
- * @date 创建时间：2023-8-22 17:26:23
+ *
+ * @author lxl
  * @version 1.0
+ * @address com.base.sbc.module.style.entity.Style
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-8-23 9:47:03
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -288,23 +290,40 @@ public class Style extends BaseDataEntity<String> {
     @ApiModelProperty(value = "实际出稿时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date actualPublicationDate;
-    /** 下发人 */
-    @ApiModelProperty(value = "下发人"  )
+    /**
+     * 下发人
+     */
+    @ApiModelProperty(value = "下发人")
     private String sender;
-    /** 是否齐套:0未齐套，1已齐套 */
-    @ApiModelProperty(value = "是否齐套:0未齐套，1已齐套"  )
+    /**
+     * 是否齐套:0未齐套，1已齐套
+     */
+    @ApiModelProperty(value = "是否齐套:0未齐套，1已齐套")
     private String kitting;
-    /** 模板部件 */
-    @ApiModelProperty(value = "模板部件"  )
+    /**
+     * 模板部件
+     */
+    @ApiModelProperty(value = "模板部件")
     private String patternParts;
-    /** 版师id */
-    @ApiModelProperty(value = "版师id"  )
+    /**
+     * 模板部件图片
+     */
+    @ApiModelProperty(value = "模板部件图片")
+    private String patternPartsPic;
+    /**
+     * 版师id
+     */
+    @ApiModelProperty(value = "版师id")
     private String patternDesignId;
-    /** 版师名称 */
-    @ApiModelProperty(value = "版师名称"  )
+    /**
+     * 版师名称
+     */
+    @ApiModelProperty(value = "版师名称")
     private String patternDesignName;
-    /** 跟款设计师Id */
-    @ApiModelProperty(value = "跟款设计师Id"  )
+    /**
+     * 跟款设计师Id
+     */
+    @ApiModelProperty(value = "跟款设计师Id")
     private String merchDesignId;
     /** 跟款设计师 */
     @ApiModelProperty(value = "跟款设计师"  )

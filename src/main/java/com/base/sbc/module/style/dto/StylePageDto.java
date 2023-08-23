@@ -66,27 +66,23 @@ public class StylePageDto extends Page {
     private String userType;
 
 
-    @ApiModelProperty(value = "设计师id",example = "680014765321355265" )
+    @ApiModelProperty(value = "设计师id", example = "680014765321355265")
     private String designerId;
-    /*小类*/
+    @ApiModelProperty(value = "小类")
     private String prodCategory3rd;
-//    产品季节id
-private String planningSeasonId;
-    /*设计款号*/
+    @ApiModelProperty(value = "产品季节id")
+    private String planningSeasonId;
+    @ApiModelProperty(value = "设计款号")
     private String designNo;
-    /*生产模式*/
-    private String devtType;
-    //    款式状态
-    private String styleStatus;
-    //   是否上会
-    private String meetFlag;
 
+    @ApiModelProperty(value = "生产模式")
+    private String devtType;
 
     @ApiModelProperty(value = "大类code")
     private String prodCategory1st;
-    /**
-     * 品类id
-     */
     @ApiModelProperty(value = "品类code")
     private String prodCategory;
+
+    @ApiModelProperty(value = "波段code")
+    private String bandCode;
 }
