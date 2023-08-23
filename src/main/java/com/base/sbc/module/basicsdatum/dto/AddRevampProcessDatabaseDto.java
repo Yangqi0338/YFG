@@ -63,4 +63,10 @@ public class AddRevampProcessDatabaseDto {
      * */
     @ApiModelProperty(value = "小类")
     private String smallCategory;
+
+    /**
+     * 工价
+     * */
+    @ApiModelProperty(value = "工价")
+    private String price;
 }
