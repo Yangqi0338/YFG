@@ -13,6 +13,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -47,6 +48,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -324,6 +327,58 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
         return page.toPageInfo();
     }
 
+    @Override
+    public ApiResult addSupplierBatch(List<AddRevampBasicsdatumSupplierDto> supplierList) {
+        List<BasicsdatumSupplier> insertList = new ArrayList<>();
+        List<BasicsdatumSupplier> updateList = new ArrayList<>();
+        BasicsdatumSupplier basicsdatumSupplier;
+
+        List<String> codeList = supplierList.stream().map(s -> s.getSupplierCode()).collect(Collectors.toList());
+        QueryWrapper<BasicsdatumSupplier> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("supplier_code", codeList);
+        List<BasicsdatumSupplier> selectList = baseMapper.selectList(queryWrapper);
+        Map<String, BasicsdatumSupplier> supplierMap = new HashMap<>();
+        if (!CollectionUtils.isEmpty(selectList)){
+            supplierMap = selectList.stream().collect(Collectors.toMap(s -> s.getSupplierCode(), s -> s, (s1, s2) -> s2));
+        }
+
+        for (AddRevampBasicsdatumSupplierDto dto : supplierList) {
+            basicsdatumSupplier = new BasicsdatumSupplier();
+            if (StringUtils.isEmpty(dto.getId())) {
+                if (supplierMap.get(dto.getSupplierCode()) != null) {
+                    return ApiResult.error("新增失败：数据重复",500);
+                }
+                /*新增*/
+                BeanUtils.copyProperties(dto, basicsdatumSupplier);
+                basicsdatumSupplier.setCompanyCode(baseController.getUserCompany());
+                basicsdatumSupplier.setDataState("0");
+                basicsdatumSupplier.setCreateName("linkMore");
+                basicsdatumSupplier.setUpdateName("linkMore");
+                insertList.add(basicsdatumSupplier);
+            } else {
+                /*修改*/
+                if (supplierMap.get(dto.getSupplierCode()) == null) {
+                    return ApiResult.error("查询失败：找不到数据",400);
+                }
+                basicsdatumSupplier = supplierMap.get(dto.getSupplierCode());
+                BeanUtils.copyProperties(dto, basicsdatumSupplier);
+                basicsdatumSupplier.setDataState("1");
+                basicsdatumSupplier.setCreateName("linkMore");
+                basicsdatumSupplier.setUpdateName("linkMore");
+                updateList.add(basicsdatumSupplier);
+            }
+
+            if (insertList.size() > 0){
+                this.saveBatch(insertList);
+            }
+            if (updateList.size() > 0){
+                this.updateBatchById(updateList);
+            }
+        }
+        ApiResult result = ApiResult.success("新增成功");
+        result.setStatus(200);
+        return result;
+    }
 
     /** 自定义方法区 不替换的区域【other_end】 **/
 

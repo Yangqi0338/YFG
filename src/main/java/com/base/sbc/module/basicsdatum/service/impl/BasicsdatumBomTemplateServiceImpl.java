@@ -12,6 +12,8 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBomTemplateDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBomTemplateDto;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumCategoryMeasureMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumCategoryMeasureService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumBomTemplateVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -22,8 +24,12 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+
+import java.util.List;
 
 /**
  * 类描述：基础资料-BOM模板 service类
@@ -35,6 +41,10 @@ import org.springframework.util.CollectionUtils;
  */
 @Service
 public class BasicsdatumBomTemplateServiceImpl extends BaseServiceImpl<BasicsdatumBomTemplateMapper, BasicsdatumBomTemplate> implements BasicsdatumBomTemplateService {
+
+
+    @Autowired
+    private BasicsdatumCategoryMeasureMapper basicsdatumCategoryMeasureMapper;
 
 
 // 自定义方法区 不替换的区域【other_start】
@@ -92,14 +102,19 @@ public class BasicsdatumBomTemplateServiceImpl extends BaseServiceImpl<Basicsdat
 
     /**
      * 删除BOM模板
-     * 先查看关系表中是否有数据
+     * 先删除关系表中是否有数据
      * @param id
      * @return
      */
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public Boolean delBomTemplate(String id) {
-
-        return null;
+        List<String> stringList = StringUtils.convertList(id) ;
+        QueryWrapper queryWrapper =new QueryWrapper();
+        queryWrapper.in("bom_template_id",stringList);
+        basicsdatumCategoryMeasureMapper.delete(queryWrapper);
+        baseMapper.deleteBatchIds(stringList);
+        return true;
     }
 
 // 自定义方法区 不替换的区域【other_end】

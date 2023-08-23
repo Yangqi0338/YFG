@@ -5,24 +5,28 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.purchase.service;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
 
-/** 
+import java.util.List;
+
+/**
  * 类描述：采购-采购单-明细 service类
  * @address com.base.sbc.module.purchase.service.PurchaseOrderDetailService
  * @author tzy
  * @email 974849633@qq.com
  * @date 创建时间：2023-8-4 9:43:21
- * @version 1.0  
+ * @version 1.0
  */
 public interface PurchaseOrderDetailService extends BaseService<PurchaseOrderDetail>{
 
 // 自定义方法区 不替换的区域【other_start】
 
 
+    List<PurchaseOrderDetail> selectPurchaseCode(QueryWrapper<PurchaseOrderDetail> qw);
 
 // 自定义方法区 不替换的区域【other_end】
 
-	
+
 }

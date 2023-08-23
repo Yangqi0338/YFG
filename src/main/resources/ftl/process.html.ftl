@@ -4,7 +4,7 @@
 </head>
 <style>
     * {
-        font-family: LiSu;
+        font-family: SimSun;
     }
 
     html {
@@ -128,7 +128,7 @@
 
     .img_item {
         margin: 5px;
-        width: 30%;
+        width: 45%;
     }
 
     .info_tr3:nth-child(even) {

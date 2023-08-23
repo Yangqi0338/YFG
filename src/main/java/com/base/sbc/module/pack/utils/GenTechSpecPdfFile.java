@@ -181,6 +181,7 @@ public class GenTechSpecPdfFile {
             config.setDefaultEncoding("UTF-8");
             config.setTemplateLoader(new ClassTemplateLoader(UtilFreemarker.class, "/"));
             config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+
             Template template = config.getTemplate("ftl/process.html.ftl");
 
             String str = JSON.toJSONString(this, JSONWriter.Feature.WriteNullStringAsEmpty);
@@ -219,7 +220,11 @@ public class GenTechSpecPdfFile {
             }
             Map<String, List<PackTechSpecVo>> gyMap = new HashMap<>(16);
             if (CollUtil.isNotEmpty(this.getTechSpecVoList())) {
-                gyMap = this.getTechSpecVoList().stream().collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
+//                gyMap = this.getTechSpecVoList().stream().collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
+                gyMap = JSON.parseArray(JSON.toJSONString(this.getTechSpecVoList(), JSONWriter.Feature.WriteNullStringAsEmpty))
+                        .toJavaList(PackTechSpecVo.class)
+                        .stream()
+                        .collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
             }
             dataModel.put("sizeDataList", dataList);
             dataModel.put("ztbzDataList", Optional.ofNullable(gyMap.get("整烫包装")).orElse(CollUtil.newArrayList()));
@@ -256,7 +261,7 @@ public class GenTechSpecPdfFile {
             PageFootEventHandler event = new PageFootEventHandler(pdfDocument, document, pageStart);
             pdfDocument.addEventHandler(PdfDocumentEvent.START_PAGE, event);
             // 定义页眉
-            document.setMargins(30, 10, 0, 10);
+            document.setMargins(40, 10, 0, 10);
             for (int i = 1; i < elements.size(); i++) {
                 IElement element = elements.get(i);
                 // 分页符
@@ -274,9 +279,9 @@ public class GenTechSpecPdfFile {
             for (int i = 1; i <= numberOfPages; i++) {
                 Paragraph pageNumber = new Paragraph(String.format(" %d  /  %d ", i, numberOfPages));
                 pageNumber.setTextAlignment(TextAlignment.CENTER);
-                float x = pdfDocument.getDefaultPageSize().getWidth() - 20;
+                float x = pdfDocument.getDefaultPageSize().getWidth() - 30;
                 // 距离底部的距离
-                float y = pdfDocument.getDefaultPageSize().getTop() - 5;
+                float y = pdfDocument.getDefaultPageSize().getTop() - 15;
                 document.showTextAligned(pageNumber, x, y, i, TextAlignment.CENTER, VerticalAlignment.TOP, 0);
             }
 
@@ -308,12 +313,11 @@ public class GenTechSpecPdfFile {
             //也可以传入  List<IElement> iElements ，直接添加 ，
             Rectangle pageSize = page.getPageSize();
             PdfCanvas pdfCanvas = new PdfCanvas(page);
-            float pageWith = pageSize.getWidth();
+            float pageWith = pageSize.getWidth() - 20;
             float footHeight = 30;
-            float marginWith = 0;
-            float marginBottom = pageSize.getHeight() - footHeight;
+            float marginBottom = pageSize.getHeight() - footHeight - 10;
 
-            Rectangle rectangle = new Rectangle(marginWith, marginBottom, pageWith, footHeight);
+            Rectangle rectangle = new Rectangle(10, marginBottom, pageWith, footHeight);
             Canvas canvas = new Canvas(pdfCanvas, pdfDocument, rectangle);
             canvas.add((IBlockElement) element);
             pdfCanvas.release();

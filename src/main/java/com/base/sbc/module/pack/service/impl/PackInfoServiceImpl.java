@@ -531,11 +531,16 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         List<PackSize> sizeList = packSizeService.list(dto.getForeignId(), dto.getPackType());
         vo.setSizeList(BeanUtil.copyToList(sizeList, PackSizeVo.class));
         ByteArrayOutputStream gen = vo.gen();
-        String fileName = detail.getCode() + ".pdf";
+        String fileName = Opt.ofBlankAble(detail.getStyleNo()).orElse(detail.getCode()) + ".pdf";
 
         try {
             MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(gen.toByteArray()));
-            return uploadFileService.uploadToMinio(mockMultipartFile);
+            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile);
+            // 将文件id保存到状态表
+            PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), dto.getPackType());
+            packInfoStatus.setTechSpecFileId(attachmentVo.getFileId());
+            packInfoStatusService.updateById(packInfoStatus);
+            return attachmentVo;
         } catch (Exception e) {
             e.printStackTrace();
             throw new OtherException("生成工艺文件失败");
