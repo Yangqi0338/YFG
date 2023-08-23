@@ -383,5 +383,5 @@ public class BiColorway {
     /**
      * 下单时间
      */
-    private String c8AppbomOrderTime;
+    private Date c8AppbomOrderTime;
 }

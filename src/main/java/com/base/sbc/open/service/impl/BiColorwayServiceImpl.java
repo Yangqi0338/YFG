@@ -5,10 +5,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.hangTag.entity.HangTag;
+import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackPricing;
+import com.base.sbc.module.pack.entity.PackTechSpec;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackPricingService;
+import com.base.sbc.module.pack.service.PackTechSpecService;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.style.dto.QueryStyleColorDto;
@@ -42,6 +46,8 @@ public class BiColorwayServiceImpl extends ServiceImpl<BiColorwayMapper, BiColor
     private final PackPricingService packPricingService;
     private final StylePricingService stylePricingService;
     private final StyleService styleService;
+    private final PackTechSpecService packTechSpecService;
+    private final HangTagService hangTagService;
 
     /**
      *
@@ -95,6 +101,8 @@ public class BiColorwayServiceImpl extends ServiceImpl<BiColorwayMapper, BiColor
                 biColorway.setC8ColorwayMarckup4Pc(stylePricingVO.getPlanActualMagnification());
                 biColorway.setC8ColorwaySeries(stylePricingVO.getSeries());
 
+                //充绒量
+                biColorway.setC8ColorwayFabricQuantity(stylePricingVO.getDownContent());
 
             }
             biColorway.setC8AppbomProductName(styleColorVo.getProductName());
@@ -188,28 +196,37 @@ public class BiColorwayServiceImpl extends ServiceImpl<BiColorwayMapper, BiColor
             biColorway.setC8AppbomProTechnician(style.getTechnicianName());
             biColorway.setC8AppbomOrdePersonnel(StringUtils.isNotEmpty(style.getDesigner()) ? style.getDesigner().split(",")[0] : "");
 
+
+            //暂不需要
+            //包含于
+            biColorway.setContainedBy(null);
             //预计销售价
             biColorway.setC8ColorwayTargetPrice(null);
             //折扣率
             biColorway.setC8ColorwayDiscountRate(null);
-            //包含于
-            biColorway.setContainedBy(null);
-            //下单时间
-            biColorway.setC8AppbomOrderTime(null);
-            //编码方式结束
-            biColorway.setC8ColorwayCodeWayEnd(null);
+            //开发类型
+            biColorway.setDevelopmentType(null);
             //下单量
             biColorway.setC8ColorwayOrderQty(null);
             //上新价
             biColorway.setC8ColorwayFinalSalesPrice(null);
-            //默认条形码
+            //编码方式结束
+            biColorway.setC8ColorwayCodeWayEnd(null);
+
+
+            HangTag hangTag = hangTagService.getOne(new QueryWrapper<HangTag>().eq("bulkStyle_no", styleColorVo.getStyleNo()));
+            //下单时间
+            biColorway.setC8AppbomOrderTime(hangTag.getPlaceOrderDate());
+
+
+            //默认条形码  (默认条形码-配色编码+颜色编码+尺码代码)
             biColorway.setC8ColorwayDefaultBarcode(null);
-            //开发类型
-            biColorway.setDevelopmentType(null);
-            //充绒量
-            biColorway.setC8ColorwayFabricQuantity(null);
-            //含外辅工艺
-            biColorway.setC8ColorwayIsOutsource(null);
+
+
+            //工艺说明             //含外辅工艺
+            long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", style.getId()).eq("spec_type", "外辅工艺"));
+            biColorway.setC8ColorwayIsOutsource(count > 0 ? "是" :"否");
+
 
             list.add(biColorway);
         }
