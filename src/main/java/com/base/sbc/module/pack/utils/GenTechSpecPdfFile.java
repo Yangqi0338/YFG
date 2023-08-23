@@ -181,6 +181,7 @@ public class GenTechSpecPdfFile {
             config.setDefaultEncoding("UTF-8");
             config.setTemplateLoader(new ClassTemplateLoader(UtilFreemarker.class, "/"));
             config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+
             Template template = config.getTemplate("ftl/process.html.ftl");
 
             String str = JSON.toJSONString(this, JSONWriter.Feature.WriteNullStringAsEmpty);
@@ -219,7 +220,11 @@ public class GenTechSpecPdfFile {
             }
             Map<String, List<PackTechSpecVo>> gyMap = new HashMap<>(16);
             if (CollUtil.isNotEmpty(this.getTechSpecVoList())) {
-                gyMap = this.getTechSpecVoList().stream().collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
+//                gyMap = this.getTechSpecVoList().stream().collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
+                gyMap = JSON.parseArray(JSON.toJSONString(this.getTechSpecVoList(), JSONWriter.Feature.WriteNullStringAsEmpty))
+                        .toJavaList(PackTechSpecVo.class)
+                        .stream()
+                        .collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
             }
             dataModel.put("sizeDataList", dataList);
             dataModel.put("ztbzDataList", Optional.ofNullable(gyMap.get("整烫包装")).orElse(CollUtil.newArrayList()));
