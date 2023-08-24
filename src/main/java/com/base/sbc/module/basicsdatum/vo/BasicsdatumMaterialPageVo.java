@@ -347,4 +347,10 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	 * 面料成分下发状态 0未发送,1发送成功，2发送失败,3重新打开
 	 */
 	private String compositionSendStatus;
+
+	/**
+	 * 审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）
+	 */
+	@ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）")
+	private String confirmStatus;
 }

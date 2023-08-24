@@ -8,6 +8,7 @@ package com.base.sbc.module.fabric.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
@@ -20,7 +21,6 @@ import com.base.sbc.module.fabric.dto.BasicFabricLibrarySaveDTO;
 import com.base.sbc.module.fabric.dto.BasicFabricLibrarySearchDTO;
 import com.base.sbc.module.fabric.dto.FabricDevBasicInfoSaveDTO;
 import com.base.sbc.module.fabric.entity.BasicFabricLibrary;
-import com.base.sbc.module.fabric.enums.FabricLibraryApproveStatusEnum;
 import com.base.sbc.module.fabric.mapper.BasicFabricLibraryMapper;
 import com.base.sbc.module.fabric.service.BasicFabricLibraryService;
 import com.base.sbc.module.fabric.service.FabricDevApplyService;
@@ -135,15 +135,27 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
         }
         // 生成物料档案
         BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveMaterial(CopyUtil.copy(basicFabricLibraryVO.getBasicsdatumMaterial(), BasicsdatumMaterialSaveDto.class), null, BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
-        //更新基础面料库审核状态状态
-        BasicFabricLibrary basicFabricLibrary = new BasicFabricLibrary();
-        basicFabricLibrary.setId(id);
-        basicFabricLibrary.setApproveStatus(FabricLibraryApproveStatusEnum.TO_BE_REVIEWED.getK());
-        basicFabricLibrary.updateInit();
-        super.updateById(basicFabricLibrary);
         // 更新基本信息“是否转至物料档案”、“转至物料档案id”(包括开发、开发申请)
         String devApplyId = fabricDevApplyService.getByDevApplyCode(basicFabricLibraryVO.getDevApplyCode());
-        fabricDevBasicInfoService.synchMaterialUpdate(basicFabricLibraryVO.getId(), basicFabricLibraryVO.getDevMainId(), devApplyId, basicsdatumMaterialVo.getId(), YesOrNoEnum.YES.getValueStr());
+        fabricDevBasicInfoService.synchMaterialUpdate(basicsdatumMaterialVo.getId(), YesOrNoEnum.YES.getValueStr(), YesOrNoEnum.NO.getValueStr(),
+                basicFabricLibraryVO.getId(), basicFabricLibraryVO.getDevMainId(), devApplyId);
+    }
+
+    @Override
+    public void materialApproveProcessing(String materialId, String approveStatus) {
+        BasicFabricLibrary basicFabricLibrary = super.getBaseMapper().getByToMaterialId(materialId);
+        if (Objects.isNull(basicFabricLibrary)) {
+            return;
+        }
+        String devApplyId = fabricDevApplyService.getByDevApplyCode(basicFabricLibrary.getDevApplyCode());
+
+        if (BaseConstant.APPROVAL_PASS.equals(approveStatus)) {
+            fabricDevBasicInfoService.synchMaterialUpdate(materialId, YesOrNoEnum.YES.getValueStr(), YesOrNoEnum.YES.getValueStr(),
+                    basicFabricLibrary.getId(), basicFabricLibrary.getDevMainId(), devApplyId);
+        } else {
+            fabricDevBasicInfoService.synchMaterialUpdate(null, YesOrNoEnum.NO.getValueStr(), YesOrNoEnum.NO.getValueStr(),
+                    basicFabricLibrary.getId(), basicFabricLibrary.getDevMainId(), devApplyId);
+        }
     }
 
 

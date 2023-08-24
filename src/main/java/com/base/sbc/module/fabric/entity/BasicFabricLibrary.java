@@ -12,8 +12,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.util.Date;
 /**
  * 类描述：基础面料库 实体类
  * @address com.base.sbc.module.fabric.entity.BasicFabricLibrary
@@ -56,22 +54,6 @@ public class BasicFabricLibrary extends BaseDataEntity<String> {
     /** 物料id */
     @ApiModelProperty(value = "物料id"  )
     private String materialId;
-
-    /** 审核状态：1.未提交、2.审核中、3.审核通过、4.审核失败 */
-    @ApiModelProperty(value = "审核状态：1.未提交、2.审核中、3.审核通过、4.审核失败"  )
-    private String approveStatus;
-
-    /** 审核时间 */
-    @ApiModelProperty(value = "审核时间"  )
-    private Date approveDate;
-
-    /** 审核人 */
-    @ApiModelProperty(value = "审核人"  )
-    private String approveUserId;
-
-    /** 审核人名称 */
-    @ApiModelProperty(value = "审核人名称"  )
-    private String approveUserName;
 
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/

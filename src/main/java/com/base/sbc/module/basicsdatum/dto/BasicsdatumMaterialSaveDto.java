@@ -354,4 +354,10 @@ public class BasicsdatumMaterialSaveDto {
 	 */
 	@ApiModelProperty(value = "业务类型:material.物料、dev.面料开发")
 	private String bizType;
+
+	/**
+	 * 审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）
+	 */
+	@ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）")
+	private String confirmStatus;
 }

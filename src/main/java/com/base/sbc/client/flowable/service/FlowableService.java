@@ -40,6 +40,7 @@ public class FlowableService {
 
     public static final String FABRIC_PLANNING = "面料企划审批";
     public static final String FABRIC_POOL = "设计面料池审批";
+    public static final String BASICSDATUM_MATERIAL = "物料审批";
 
     @Autowired
     FlowableFeignService flowableFeignService;

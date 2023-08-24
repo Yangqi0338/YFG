@@ -16,17 +16,23 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.*;
+import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.fabric.service.BasicFabricLibraryService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
@@ -36,6 +42,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,6 +80,10 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	private final BasicsdatumMaterialIngredientService materialIngredientService;
 	private final BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
 	private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
+	private final FlowableService flowableService;
+
+	@Autowired
+	private BasicFabricLibraryService basicFabricLibraryService;
 
 	/**
 	 * 解决循环依赖报错的问题
@@ -134,6 +145,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			qc.and(Wrapper -> Wrapper.eq("category_id", dto.getCategoryId()).or()
 					.eq("category1_code ", dto.getCategoryId()).or().eq("category2_code", dto.getCategoryId()).or()
 					.eq("category3_code", dto.getCategoryId()));
+		}
+		qc.eq("biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
+		if (YesOrNoEnum.NO.getValueStr().equals(dto.getCompletionFlag())) {
+			qc.in("confirm_status", "0", "1");
+		} else {
+			qc.eq("confirm_status", "2");
 		}
 		List<BasicsdatumMaterial> list = this.list(qc);
 		PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
@@ -337,6 +354,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		qw.notEmptyIn("status", dto.getStatus());
 		qw.eq("del_flag", BaseGlobal.NO);
 		qw.andLike(dto.getCategoryId(), "category1_code", "category2_code", "category3_code");
+		qw.eq("biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
+		qw.eq("confirm_status", "2");
 		Page<BomSelMaterialVo> page = PageHelper.startPage(dto);
 		List<BomSelMaterialVo> list = getBaseMapper().getBomSelMaterialList(qw);
 
@@ -734,6 +753,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			qc.and(Wrapper -> Wrapper.eq("m.material_code", dto.getSearch()).or().eq("m.material_name ",
 					dto.getSearch()));
 		}
+		qc.eq("m.biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
+		qc.eq("m.confirm_status", "2");
+
 		List<WarehouseMaterialVo> list = getBaseMapper().getPurchaseMaterialList(qc);
 		for (WarehouseMaterialVo item : list) {
 			item.setId(IdUtil.randomUUID());
@@ -748,5 +770,39 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			basicsdatumMaterial.setDeliveryName(dto.getDeliveryName());
 			int countNum = this.baseMapper.updateById(basicsdatumMaterial);
 			return countNum > 0 ? true : false;
+	}
+
+	@Override
+	public void saveSubmit(BasicsdatumMaterialSaveDto dto) {
+		dto.setConfirmStatus("1");
+		this.saveBasicsdatumMaterial(dto);
+			flowableService.start(FlowableService.BASICSDATUM_MATERIAL,
+					FlowableService.BASICSDATUM_MATERIAL, dto.getId(),
+					"/pdm/api/saas/basicsdatumMaterial/approval",
+					"/pdm/api/saas/basicsdatumMaterial/approval",
+					"/pdm/api/saas/basicsdatumMaterial/approval",
+					"pdm/api/saas/basicsdatumMaterial/getBasicsdatumMaterial?id=" + dto.getId(), BeanUtil.beanToMap(dto));
+	}
+
+	@Override
+	@Transactional(rollbackFor = {OtherException.class, Exception.class})
+	public boolean approval(AnswerDto dto) {
+		BasicsdatumMaterialVo basicsdatumMaterialVo = this.getBasicsdatumMaterial(dto.getBusinessKey());
+		if (Objects.isNull(basicsdatumMaterialVo)) {
+			throw new OtherException("数据不存在");
+		}
+		if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+			BasicsdatumMaterial basicsdatumMaterial = new BasicsdatumMaterial();
+			basicsdatumMaterial.setId(basicsdatumMaterialVo.getId());
+			basicsdatumMaterial.updateInit();
+			basicsdatumMaterial.setConfirmStatus("2");
+			basicsdatumMaterial.setConfirmId(super.getUserId());
+			basicsdatumMaterial.setConfirmName(super.getUserName());
+			super.updateById(basicsdatumMaterial);
+		} else {
+			super.getBaseMapper().deleteById(basicsdatumMaterialVo.getId());
+		}
+		basicFabricLibraryService.materialApproveProcessing(basicsdatumMaterialVo.getId(), dto.getApprovalType());
+		return true;
 	}
 }

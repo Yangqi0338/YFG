@@ -6,21 +6,19 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
-
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.smp.dto.SmpMaterialDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Date;
 
 /**
  * 类描述：基础资料-物料档案 实体类
@@ -422,6 +420,27 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	 */
 	@ApiModelProperty(value = "业务类型:material.物料、dev.面料开发")
 	private String bizType;
+
+	/**
+	 * 审核时间
+	 */
+	@ApiModelProperty(value = "审核时间")
+	private Date confirmDate;
+	/**
+	 * 审核人id
+	 */
+	@ApiModelProperty(value = "审核人id")
+	private String confirmId;
+	/**
+	 * 审核人名称
+	 */
+	@ApiModelProperty(value = "审核人名称")
+	private String confirmName;
+	/**
+	 * 审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）
+	 */
+	@ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）")
+	private String confirmStatus;
 	/*****************************
 	 * 数据库字段区 不包含父类公共字段(属性) 【end】
 	 ***********************************/

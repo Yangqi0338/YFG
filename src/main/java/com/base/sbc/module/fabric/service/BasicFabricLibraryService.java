@@ -64,6 +64,13 @@ public interface BasicFabricLibraryService extends BaseService<BasicFabricLibrar
      */
     void generateMaterial(String id);
 
+    /**
+     * 转至物料审核处理
+     *
+     * @param materialId
+     */
+    void materialApproveProcessing(String materialId, String approveStatus);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

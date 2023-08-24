@@ -12,6 +12,7 @@ import com.base.sbc.module.fabric.entity.BasicFabricLibrary;
 import com.base.sbc.module.fabric.vo.BasicFabricLibraryListVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.security.access.method.P;
 
 import java.util.List;
 
@@ -35,6 +36,14 @@ public interface BasicFabricLibraryMapper extends BaseMapper<BasicFabricLibrary>
      * @return
      */
     List<BasicFabricLibraryListVO> getBasicFabricLibraryList(@Param("dto") BasicFabricLibrarySearchDTO dto);
+
+    /**
+     * 通过物料id获取
+     *
+     * @param toMaterialId
+     * @return
+     */
+    BasicFabricLibrary getByToMaterialId(@Param("toMaterialId") String toMaterialId);
 
 
 // 自定义方法区 不替换的区域【other_end】

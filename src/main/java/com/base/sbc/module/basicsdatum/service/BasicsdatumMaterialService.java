@@ -11,6 +11,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldQueryDto;
@@ -99,5 +100,18 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 * @return 是否成功
 	 */
 	Boolean updateInquiryNumberDeliveryName(BasicsdatumMaterialSaveDto dto);
+
+	/**
+	 * 保存提交
+	 * @param dto
+	 */
+	void saveSubmit(BasicsdatumMaterialSaveDto dto);
+
+	/**
+	 * 审批处理
+	 * @param dto
+	 * @return
+	 */
+	boolean approval(AnswerDto dto);
 }
 

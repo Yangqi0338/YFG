@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,7 +133,10 @@ public class BasicsdatumMaterialController {
 		List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(new BaseQueryWrapper<BasicsdatumMaterial>()
 				.select("id,material_name,material_code").eq("company_code", baseController.getUserCompany())
 				.like(StringUtils.isNotBlank(search), "material_code_name", search)
-				.eq(StringUtils.isNotBlank(status), "status", status).last(" limit 0,50 "));
+				.eq(StringUtils.isNotBlank(status), "status", status)
+				.eq("biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK())
+				.eq("confirm_status", "2")
+				.last(" limit 0,50 "));
 		return CopyUtil.copy(list, BasicsdatumMaterialSelectVo.class);
 	}
 

@@ -44,13 +44,11 @@ public interface FabricDevBasicInfoService extends BaseService<FabricDevBasicInf
     /**
      * 同步至物料档案修改
      *
-     * @param bizId
-     * @param devId
-     * @param devApplyId
      * @param toMaterialId
      * @param toMaterialFlag
+     * @param bizId
      */
-    void synchMaterialUpdate(String bizId, String devId, String devApplyId, String toMaterialId, String toMaterialFlag);
+    void synchMaterialUpdate(String toMaterialId, String toMaterialFlag,String materialAcceptFlag, String... bizId);
 
 
 // 自定义方法区 不替换的区域【other_end】
