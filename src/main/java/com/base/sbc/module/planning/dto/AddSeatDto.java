@@ -24,7 +24,6 @@ public class AddSeatDto {
     @NotBlank(message = "坑位编号不能为空")
     private String planningChannelId;
 
-
     @ApiModelProperty(value = "大类code")
     @NotBlank(message = "大类不能为空")
     private String prodCategory1st;
@@ -38,6 +37,19 @@ public class AddSeatDto {
     @ApiModelProperty(value = "品类名称")
     @NotBlank(message = "品类不能为空")
     private String prodCategoryName;
+
+    /** 中类名称 */
+    @ApiModelProperty(value = "中类名称"  )
+    private String prodCategory2ndName;
+    /** 小类名称 */
+    @ApiModelProperty(value = "小类名称"  )
+    private String prodCategory3rdName;
+    /** 中类code */
+    @ApiModelProperty(value = "中类code"  )
+    private String prodCategory2nd;
+    /** 小类code */
+    @ApiModelProperty(value = "小类code"  )
+    private String prodCategory3rd;
     @ApiModelProperty(value = "坑位数量")
     @Range(min = 1, max = 500)
     private Integer count;
