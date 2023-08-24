@@ -147,8 +147,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 					.eq("category3_code", dto.getCategoryId()));
 		}
 		qc.eq("biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
-		if (YesOrNoEnum.NO.getValueStr().equals(dto.getCompletionFlag())) {
-			qc.in("confirm_status", "0", "1");
+		if (StringUtils.isEmpty(dto.getConfirmStatus())) {
+			List<String> confirmStatus = Arrays.stream(dto.getConfirmStatus().split(",")).collect(Collectors.toList());
+			qc.in("confirm_status", confirmStatus);
 		} else {
 			qc.eq("confirm_status", "2");
 		}

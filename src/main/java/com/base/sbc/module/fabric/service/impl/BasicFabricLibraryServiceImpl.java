@@ -134,7 +134,9 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
             throw new OtherException("该面料库已经转至物料档案");
         }
         // 生成物料档案
-        BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveMaterial(CopyUtil.copy(basicFabricLibraryVO.getBasicsdatumMaterial(), BasicsdatumMaterialSaveDto.class), null, BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
+        BasicsdatumMaterialSaveDto basicsdatumMaterialSaveDto = CopyUtil.copy(basicFabricLibraryVO.getBasicsdatumMaterial(), BasicsdatumMaterialSaveDto.class);
+        basicsdatumMaterialSaveDto.setConfirmStatus("0");
+        BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveMaterial(basicsdatumMaterialSaveDto, null, BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
         // 更新基本信息“是否转至物料档案”、“转至物料档案id”(包括开发、开发申请)
         String devApplyId = fabricDevApplyService.getByDevApplyCode(basicFabricLibraryVO.getDevApplyCode());
         fabricDevBasicInfoService.synchMaterialUpdate(basicsdatumMaterialVo.getId(), YesOrNoEnum.YES.getValueStr(), YesOrNoEnum.NO.getValueStr(),
