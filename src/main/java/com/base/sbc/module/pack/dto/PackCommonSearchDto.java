@@ -33,4 +33,10 @@ public class PackCommonSearchDto {
     @ApiModelProperty(value = "资料包类型:packDesign:设计资料包")
     @NotBlank(message = "资料包类型为空")
     private String packType;
+
+    @ApiModelProperty(value = "资料包类型:packDesign:颜色编码")
+    private String colorCode;
+
+    @ApiModelProperty(value = "版本id")
+    private String bomVersionId;
 }

@@ -76,7 +76,6 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     @Resource
     private PackBomColorService packBomColorService;
 
-
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
         QueryWrapper<PackBom> qw = new QueryWrapper<>();
@@ -279,7 +278,9 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             return result;
         }
         // 查询物料列表
-        List<PackBom> bomList = getListByVersionId(version.getId(), BaseGlobal.NO);
+        PackCommonPageSearchDto packCommonPageSearchDto = BeanUtil.copyProperties(dto, PackCommonPageSearchDto.class);
+        List<PackBomVo> packBomPage = baseMapper.getPackBomPage(packCommonPageSearchDto);
+        List<PackBom> bomList = BeanUtil.copyToList(packBomPage,PackBom.class);
         if (CollUtil.isEmpty(bomList)) {
             return result;
         }
@@ -313,7 +314,23 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         }
         PackBomPageSearchDto bomDto = BeanUtil.copyProperties(dto, PackBomPageSearchDto.class);
         bomDto.setBomVersionId(enableVersion.getId());
-        return pageInfo(bomDto);
+
+        Page<PackBomVo> page = PageHelper.startPage(dto);
+        baseMapper.getPackBomPage(dto);
+        PageInfo<PackBomVo> pageInfo = page.toPageInfo();
+        // 查询尺码、颜色信息
+        List<PackBomVo> packBomVos = pageInfo.getList();
+        if (CollUtil.isNotEmpty(packBomVos)) {
+            List<String> bomIds = packBomVos.stream().map(PackBomVo::getId).collect(Collectors.toList());
+            Map<String, List<PackBomSizeVo>> packBomSizeMap = packBomSizeService.getByBomIdsToMap(bomIds);
+            // 查询资料包-物料清单-配色
+            Map<String, List<PackBomColorVo>> packBomColorMap = packBomColorService.getByBomIdsToMap(bomIds);
+            for (PackBomVo pbv : packBomVos) {
+                pbv.setPackBomSizeList(packBomSizeMap.get(pbv.getId()));
+                pbv.setPackBomColorVoList(packBomColorMap.get(pbv.getId()));
+            }
+        }
+        return pageInfo;
     }
 
     @Override

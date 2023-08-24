@@ -7,8 +7,10 @@
 package com.base.sbc.module.pack.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
 import com.base.sbc.module.sample.dto.FabricSummaryDTO;
 import com.base.sbc.module.sample.vo.FabricSummaryVO;
@@ -80,6 +82,12 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
 
     Long countByVersion(@Param("bomVersionId") String bomVersionId);
 
+    /**
+     *  物料清单查询分页
+     * @param packCommonPageSearchDto 资料包-公共筛选条件
+     * @return 物料清单
+     */
+    List<PackBomVo> getPackBomPage(PackCommonPageSearchDto packCommonPageSearchDto);
 
 // 自定义方法区 不替换的区域【other_end】
 }
