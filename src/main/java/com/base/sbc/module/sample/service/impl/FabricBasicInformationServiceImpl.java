@@ -7,6 +7,7 @@
 package com.base.sbc.module.sample.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -50,7 +51,8 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
     @Autowired
     private FabricDetailedInformationMapper fabricDetailedInformationMapper;
 
-
+    @Autowired
+    private MessageUtils messageUtils;
 
     @Override
     public PageInfo<FabricInformationVo> getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto) {
@@ -100,6 +102,8 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
             fabricBasicInformation.setRegisterDate(new Date());
             baseMapper.insert(fabricBasicInformation);
         }
+        /*发送面料调样单消息给面辅料专员*/
+        messageUtils.atactiformSendMessage("fabric","1",baseController.getUser());
         return ApiResult.success("操作成功");
     }
 

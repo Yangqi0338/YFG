@@ -19,6 +19,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
@@ -104,7 +105,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
     @Autowired
     MessageUtils messageUtils;
-
+    @Autowired
+    BaseController baseController;
 
     @Autowired
     PlanningChannelService planningChannelService;
@@ -483,7 +485,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
         }
         /*产品季下发提醒*/
-        messageUtils.seasonSendMessage(categoryItemList.stream().map(PlanningCategoryItem::getDesignerId).collect(Collectors.toList()));
+        messageUtils.seasonSendMessage(categoryItemList.stream().map(PlanningCategoryItem::getDesignerId).collect(Collectors.toList()),baseController.getUser());
         return true;
     }
 
@@ -565,7 +567,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         seatUw.in("id", seatIds);
         update(seatUw);
         /*发送消息*/
-        messageUtils.seatSendMessage(seatIds,"");
+        messageUtils.seatSendMessage(seatIds,"",baseController.getUser());
         return true;
     }
 

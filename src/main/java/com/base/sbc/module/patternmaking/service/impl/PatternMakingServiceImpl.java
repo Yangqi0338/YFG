@@ -20,7 +20,9 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.entity.Dept;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.TechnologyBoardConstant;
@@ -80,14 +82,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     private final AmcFeignService amcFeignService;
 
     private final CcmFeignService ccmFeignService;
-    private final NodeStatusConfigService nodeStatusConfigService;
+
+    private final MessageUtils messageUtils;
 
     @Autowired
     private UserUtils userUtils;
 
     @Autowired
     private RedisUtils redisUtils;
-
+    @Autowired
+    private BaseController baseController;
 
     @Override
     public List<PatternMakingListVo> findBySampleDesignId(String styleId) {
@@ -180,6 +184,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdUw.eq("id", patternMaking.getStyleId());
         sdUw.set("status", BasicNumber.TWO.getNumber());
         styleService.update(sdUw);
+
+        /*发送消息*/
+
+        messageUtils.sampleDesignSendMessage(patternMaking.getPatternRoomId(),patternMaking.getPatternNo(),baseController.getUser());
         // 修改单据
         return update(uw);
     }

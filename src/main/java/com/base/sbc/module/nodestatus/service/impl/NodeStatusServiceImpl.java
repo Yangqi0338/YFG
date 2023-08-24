@@ -19,6 +19,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
@@ -61,10 +62,7 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
     @Autowired
     private NodeStatusConfigService nodeStatusConfigService;
     @Autowired
-    private UserUtils userUtils;
-    @Autowired
     private MessageUtils messageUtils;
-
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -385,7 +383,7 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
         BeanUtil.setProperty(bean, "node", lastNs.getNode());
         BeanUtil.setProperty(bean, "status", lastNs.getStatus());
         /*发送消息*/
-        messageUtils.sampleTaskSendMessage(bean,config,lastNs.getStatus());
+        messageUtils.sampleTaskSendMessage(bean,config,lastNs.getStatus(),user);
         return true;
     }
 

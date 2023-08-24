@@ -7,6 +7,7 @@
 package com.base.sbc.module.sample.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -45,6 +46,8 @@ public class FabricDetailedInformationServiceImpl extends BaseServiceImpl<Fabric
     @Autowired
     private FilesUtils filesUtils;
 
+    @Autowired
+    private MessageUtils messageUtils;
 
     @Override
     @Transactional(readOnly = false)
@@ -58,6 +61,7 @@ public class FabricDetailedInformationServiceImpl extends BaseServiceImpl<Fabric
         BeanUtils.copyProperties(saveUpdateFabricBasicDto, fabricDetailedInformation);
         fabricDetailedInformation.setCompanyCode(baseController.getUserCompany());
         saveOrUpdate(fabricDetailedInformation);
+        messageUtils.atactiformSendMessage("fabric","0",baseController.getUser());
         return ApiResult.success("操作成功");
     }
 
