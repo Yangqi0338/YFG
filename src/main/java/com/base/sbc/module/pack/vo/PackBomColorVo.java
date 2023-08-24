@@ -18,7 +18,7 @@ import lombok.Data;
  * @version 1.0
  */
 @Data
-@ApiModel("资料包-物料清单-配色 PackBomColorDTO")
+@ApiModel("资料包-物料清单-配色 PackBomColorVO")
 public class PackBomColorVo {
 
 	private static final long serialVersionUID = 1L;
