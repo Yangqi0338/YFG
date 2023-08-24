@@ -5,24 +5,45 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.fabric.service;
-import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.fabric.entity.FabricPoolItem;
 
-/** 
+import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.fabric.dto.FabricPoolItemSaveDTO;
+import com.base.sbc.module.fabric.entity.FabricPoolItem;
+import com.base.sbc.module.fabric.vo.FabricPoolItemVO;
+
+import java.util.List;
+
+/**
  * 类描述：面料池明细 service类
- * @address com.base.sbc.module.fabric.service.FabricPoolItemService
+ *
  * @author your name
+ * @version 1.0
+ * @address com.base.sbc.module.fabric.service.FabricPoolItemService
  * @email your email
  * @date 创建时间：2023-8-23 11:02:45
- * @version 1.0  
  */
-public interface FabricPoolItemService extends BaseService<FabricPoolItem>{
+public interface FabricPoolItemService extends BaseService<FabricPoolItem> {
 
-// 自定义方法区 不替换的区域【other_start】
+    // 自定义方法区 不替换的区域【other_start】
 
+    /**
+     * 面料明细保存
+     *
+     * @param dto
+     * @param fabricPoolId
+     */
+    void saveItem(List<FabricPoolItemSaveDTO> dto, String fabricPoolId);
+
+    /**
+     * 通过面料库id获取
+     *
+     * @param fabricPoolId
+     * @return
+     */
+    List<FabricPoolItemVO> getByFabricPoolId(String fabricPoolId);
 
 
 // 自定义方法区 不替换的区域【other_end】
 
-	
+
 }

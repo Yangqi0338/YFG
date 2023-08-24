@@ -5,14 +5,16 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.fabric.entity;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Date;
 /**
  * 类描述：面料池 实体类
  * @address com.base.sbc.module.fabric.entity.FabricPool
@@ -40,9 +42,9 @@ public class FabricPool extends BaseDataEntity<String> {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
-    /** 面料企划 */
-    @ApiModelProperty(value = "面料企划"  )
-    private String fabricPlanningCode;
+    /** 面料池名称 */
+    @ApiModelProperty(value = "面料池名称"  )
+    private String fabricPoolName;
     /** 品牌编码 */
     @ApiModelProperty(value = "品牌编码"  )
     private String brandCode;
@@ -76,8 +78,8 @@ public class FabricPool extends BaseDataEntity<String> {
     /** 面料企划id */
     @ApiModelProperty(value = "面料企划id"  )
     private String fabricPlanningId;
-    /** 审核状态：0.未提交、1.待审核、2.审核中、3.审核通过、4.审核失败 */
-    @ApiModelProperty(value = "审核状态：0.未提交、1.待审核、2.审核中、3.审核通过、4.审核失败"  )
+    /** 审核状态：1.未提交、2.审核中、3.审核通过、4.审核失败 */
+    @ApiModelProperty(value = "审核状态：1.未提交、2.审核中、3.审核通过、4.审核失败"  )
     private String approveStatus;
     /** 审核时间 */
     @ApiModelProperty(value = "审核时间"  )

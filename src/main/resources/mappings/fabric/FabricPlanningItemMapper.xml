@@ -10,7 +10,42 @@
       -->
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
-
+    <select id="getByFabricPlanningId" resultType="com.base.sbc.module.fabric.vo.FabricPlanningItemVO">
+        SELECT fpi.id,
+        fpi.remarks,
+        fpi.source,
+        fpi.source_id,
+        fpi.fabric_label,
+        fdb.category1_name,
+        fdb.category1_code,
+        fdb.category2_name,
+        fdb.category2_code,
+        fdb.category3_name,
+        fdb.category3_code,
+        fdb.category_id,
+        fdb.category_name,
+        fdb.price,
+        fdb.prod_cycle,
+        fdb.short_code,
+        fdb.inquiry,
+        fdb.to_material_flag,
+        fdb.category,
+        fdb.material_accept_flag,
+        fdb.source,
+        fdb.required_arrival_date,
+        fdb.moq,
+        bm.material_code,
+        bm.material_name,
+        bm.image_url
+        FROM t_fabric_planning_item fpi
+        JOIN t_basic_fabric_library bfl on bfl.id = fpi.source_id
+        JOIN t_fabric_dev_basic_info fdb ON fdb.biz_id = bfl.id
+        JOIN t_basicsdatum_material bm ON bm.id = bfl.material_id
+        <where>
+            fpi.del_flag = '0'
+            and fpi.fabric_planning_id = #{fabricPlanningId}
+        </where>
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

@@ -37,9 +37,6 @@ public class FabricPlanningItem extends BaseDataEntity<String> {
     /** 备注信息 */
     @ApiModelProperty(value = "备注信息"  )
     private String remarks;
-    /** 面料企划 */
-    @ApiModelProperty(value = "面料企划"  )
-    private String fabricPlanningCode;
     /** 面料企划id */
     @ApiModelProperty(value = "面料企划id"  )
     private String fabricPlanningId;

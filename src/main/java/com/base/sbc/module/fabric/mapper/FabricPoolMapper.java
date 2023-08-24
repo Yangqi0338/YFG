@@ -7,20 +7,43 @@
 package com.base.sbc.module.fabric.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
+import com.base.sbc.module.fabric.dto.FabricPlanningSearchDTO;
 import com.base.sbc.module.fabric.entity.FabricPool;
-/** 
+import com.base.sbc.module.fabric.vo.FabricPoolListVO;
+import com.base.sbc.module.fabric.vo.FabricPoolVO;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
  * 类描述：面料池 dao类
+ *
+ * @author your name
+ * @version 1.0
  * @address com.base.sbc.module.fabric.dao.FabricPoolDao
- * @author your name  
- * @email  your email
- * @date 创建时间：2023-8-23 11:02:50 
- * @version 1.0  
+ * @email your email
+ * @date 创建时间：2023-8-23 11:02:50
  */
 @Mapper
 public interface FabricPoolMapper extends BaseMapper<FabricPool> {
-// 自定义方法区 不替换的区域【other_start】
+    // 自定义方法区 不替换的区域【other_start】
 
+    /**
+     * 获取列表
+     *
+     * @param dto
+     * @return
+     */
+    List<FabricPoolListVO> getFabricPoolList(@Param("dto") FabricPlanningSearchDTO dto);
+
+    /**
+     * 获取详情
+     *
+     * @param id
+     * @return
+     */
+    FabricPoolVO getDetail(@Param("id") String id);
 
 
 // 自定义方法区 不替换的区域【other_end】

@@ -5,8 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.fabric.entity;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -37,12 +36,9 @@ public class FabricPoolItem extends BaseDataEntity<String> {
     /** 备注信息 */
     @ApiModelProperty(value = "备注信息"  )
     private String remarks;
-    /** 面料企划 */
-    @ApiModelProperty(value = "面料企划"  )
-    private String fabricPlanningCode;
-    /** 面料企划id */
-    @ApiModelProperty(value = "面料企划id"  )
-    private String fabricPlanningId;
+    /** 面料企划明细id */
+    @ApiModelProperty(value = "面料企划明细id"  )
+    private String fabricPlanningItemId;
     /** 来源：1.新增，2.基础面料库、3.面料企划、4.其他 */
     @ApiModelProperty(value = "来源：1.新增，2.基础面料库、3.面料企划、4.其他"  )
     private String source;
@@ -52,5 +48,8 @@ public class FabricPoolItem extends BaseDataEntity<String> {
     /** 面料标签:1.新面料、2.长青面料、3.延续面料、4.库存面料； */
     @ApiModelProperty(value = "面料标签:1.新面料、2.长青面料、3.延续面料、4.库存面料；"  )
     private String fabricLabel;
+    /** 面料池id */
+    @ApiModelProperty(value = "面料池id"  )
+    private String fabricPoolId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

@@ -10,7 +10,56 @@
       -->
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
-
+    <select id="getFabricPoolList" resultType="com.base.sbc.module.fabric.vo.FabricPoolListVO">
+        SELECT fp.id,
+        fp.create_date,
+        fp.update_date,
+        fp.update_name,
+        fp.create_name,
+        fp.fabric_pool_name,
+        fp.brand,
+        fp.year,
+        fp.season,
+        fp.category,
+        fp.approve_status,
+        count(fpi.id) as fabricCount
+        FROM t_fabric_pool fp
+        left join t_fabric_pool_item fpi on fpi.fabric_pool_id = fp.id
+        <where>
+            fp.del_flag = '0'
+            <if test="dto.year != null and dto.year != ''">
+                and fp.year_code = #{dto.year}
+            </if>
+            <if test="dto.season != null and dto.season != ''">
+                and fp.season_code = #{dto.season}
+            </if>
+            <if test="dto.brand != null and dto.brand != ''">
+                and fp.brand_code = #{dto.brand}
+            </if>
+            <if test="dto.approveStatus != null and dto.approveStatus != ''">
+                and fp.approve_status = #{dto.approveStatus}
+            </if>
+            <if test="dto.approveStatus != null and dto.approveStatus != ''">
+                and fp.approve_status = #{dto.approveStatus}
+            </if>
+            <if test="dto.search != null and dto.search != ''">
+                and fp.fabric_planning_name LIKE concat('%',#{dto.search},'%')
+            </if>
+        </where>
+        GROUP BY fp.id ORDER BY create_date desc
+    </select>
+    <select id="getDetail" resultType="com.base.sbc.module.fabric.vo.FabricPoolVO">
+        SELECT
+        fpa.fabric_planning_name,
+        fp.*
+        FROM
+        t_fabric_pool fp
+        join t_fabric_planning fpa on fp.fabric_planning_id = fpa.id
+        <where>
+            fp.del_flag = '0'
+            and fp.id = #{id}
+        </where>
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

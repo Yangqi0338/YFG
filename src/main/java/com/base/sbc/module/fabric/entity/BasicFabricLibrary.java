@@ -57,8 +57,8 @@ public class BasicFabricLibrary extends BaseDataEntity<String> {
     @ApiModelProperty(value = "物料id"  )
     private String materialId;
 
-    /** 审核状态：0.未提交、1.待审核、2.审核中、3.审核通过、4.审核失败 */
-    @ApiModelProperty(value = "审核状态：0.未提交、1.待审核、2.审核中、3.审核通过、4.审核失败"  )
+    /** 审核状态：1.未提交、2.审核中、3.审核通过、4.审核失败 */
+    @ApiModelProperty(value = "审核状态：1.未提交、2.审核中、3.审核通过、4.审核失败"  )
     private String approveStatus;
 
     /** 审核时间 */

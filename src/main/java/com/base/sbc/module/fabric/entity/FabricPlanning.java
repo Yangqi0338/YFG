@@ -42,7 +42,7 @@ public class FabricPlanning extends BaseDataEntity<String> {
     private String status;
     /** 面料企划 */
     @ApiModelProperty(value = "面料企划"  )
-    private String fabricPlanningCode;
+    private String fabricPlanningName;
     /** 品牌编码 */
     @ApiModelProperty(value = "品牌编码"  )
     private String brandCode;
@@ -73,8 +73,8 @@ public class FabricPlanning extends BaseDataEntity<String> {
     /** 类型编码 */
     @ApiModelProperty(value = "类型编码"  )
     private String typeCode;
-    /** 审核状态：0.未提交、1.待审核、2.审核中、3.审核通过、4.审核失败 */
-    @ApiModelProperty(value = "审核状态：0.未提交、1.待审核、2.审核中、3.审核通过、4.审核失败"  )
+    /** 审核状态：1.未提交、2.审核中、3.审核通过、4.审核失败 */
+    @ApiModelProperty(value = "审核状态：1.未提交、2.审核中、3.审核通过、4.审核失败"  )
     private String approveStatus;
     /** 审核时间 */
     @ApiModelProperty(value = "审核时间"  )
