@@ -4,7 +4,7 @@
 </head>
 <style>
     * {
-        font-family: SimSun;
+        font-family: 'Noto Serif SC', SimSun;
     }
 
     html {
