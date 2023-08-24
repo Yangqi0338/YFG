@@ -36,10 +36,12 @@
         fdb.moq,
         bm.material_code,
         bm.material_name,
-        bm.image_url
+        bm.image_url,
+        IFNULL(bm1.confirm_Status,'0') as approveStatus
         FROM t_basic_fabric_library bfl
         JOIN t_fabric_dev_basic_info fdb ON fdb.biz_id = bfl.id
         JOIN t_basicsdatum_material bm ON bm.id = bfl.material_id
+        left JOIN t_basicsdatum_material bm1 ON bm1.id = fdb.to_material_id
         <where>
             bfl.del_flag = '0'
             and bfl.company_code = #{dto.companyCode}
@@ -67,6 +69,16 @@
             </if>
         </where>
     </select>
+
+    <select id="getByToMaterialId" resultType="com.base.sbc.module.fabric.entity.BasicFabricLibrary">
+        SELECT bfl.id,
+               bfl.dev_main_id,
+               bfl.dev_apply_code
+        FROM t_basic_fabric_library bfl
+                 JOIN t_fabric_dev_basic_info fdb ON fdb.biz_id = bfl.id
+        WHERE to_material_id = #{toMaterialId}
+    </select>
+
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

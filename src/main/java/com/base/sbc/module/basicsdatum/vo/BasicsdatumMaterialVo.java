@@ -350,6 +350,11 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	/** 门幅 */
 	@ApiModelProperty(value = "门幅")
 	private BigDecimal translate;
+	/**
+	 * 审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）
+	 */
+	@ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）")
+	private String confirmStatus;
 
 }
 

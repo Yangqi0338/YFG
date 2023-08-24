@@ -13,7 +13,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +65,7 @@ import com.github.pagehelper.PageInfo;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * 类描述：基础资料-物料档案
@@ -132,7 +135,10 @@ public class BasicsdatumMaterialController {
 		List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(new BaseQueryWrapper<BasicsdatumMaterial>()
 				.select("id,material_name,material_code").eq("company_code", baseController.getUserCompany())
 				.like(StringUtils.isNotBlank(search), "material_code_name", search)
-				.eq(StringUtils.isNotBlank(status), "status", status).last(" limit 0,50 "));
+				.eq(StringUtils.isNotBlank(status), "status", status)
+				.eq("biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK())
+				.eq("confirm_status", "2")
+				.last(" limit 0,50 "));
 		return CopyUtil.copy(list, BasicsdatumMaterialSelectVo.class);
 	}
 
@@ -309,4 +315,24 @@ public class BasicsdatumMaterialController {
 		return flg ? ApiResult.success() : ApiResult.error("修改物料询价编号、货期数据失败" , 500);
 	}
 
+
+	@ApiOperation(value = "保存提交")
+	@PostMapping("/saveSubmit")
+	public ApiResult saveSubmit(@Valid @RequestBody BasicsdatumMaterialSaveDto dto) {
+		basicsdatumMaterialService.saveSubmit(dto);
+		return ApiResult.success("操作成功");
+	}
+
+
+	/**
+	 * 处理审批
+	 *
+	 * @param dto
+	 * @return
+	 */
+	@ApiIgnore
+	@PostMapping("/approval")
+	public boolean approval(@RequestBody AnswerDto dto) {
+		return basicsdatumMaterialService.approval(dto);
+	}
 }

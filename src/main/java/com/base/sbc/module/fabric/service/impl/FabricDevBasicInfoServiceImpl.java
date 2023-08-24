@@ -78,17 +78,15 @@ public class FabricDevBasicInfoServiceImpl extends BaseServiceImpl<FabricDevBasi
     }
 
     @Override
-    public void synchMaterialUpdate(String bizId, String devId, String devApplyId, String toMaterialId, String toMaterialFlag) {
-        super.update(this.updateWrapper(bizId, toMaterialId, toMaterialFlag));
-        super.update(this.updateWrapper(devId, toMaterialId, toMaterialFlag));
-        super.update(this.updateWrapper(devApplyId, toMaterialId, toMaterialFlag));
-    }
-
-    private LambdaUpdateWrapper<FabricDevBasicInfo> updateWrapper(String bizId, String toMaterialId, String toMaterialFlag) {
-        return new UpdateWrapper<FabricDevBasicInfo>().lambda()
-                .eq(FabricDevBasicInfo::getBizId, bizId)
-                .set(FabricDevBasicInfo::getToMaterialFlag, toMaterialFlag)
-                .set(FabricDevBasicInfo::getToMaterialId, toMaterialId);
+    public void synchMaterialUpdate(String toMaterialId, String toMaterialFlag, String materialAcceptFlag, String... bizIds) {
+        for (String bizId : bizIds) {
+            LambdaUpdateWrapper<FabricDevBasicInfo> wrapper = new UpdateWrapper<FabricDevBasicInfo>().lambda()
+                    .eq(FabricDevBasicInfo::getBizId, bizId)
+                    .set(FabricDevBasicInfo::getToMaterialFlag, toMaterialFlag)
+                    .set(FabricDevBasicInfo::getMaterialAcceptFlag, materialAcceptFlag)
+                    .set(FabricDevBasicInfo::getToMaterialId, toMaterialId);
+            super.update(wrapper);
+        }
     }
 
 
