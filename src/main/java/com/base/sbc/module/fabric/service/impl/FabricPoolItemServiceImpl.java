@@ -6,26 +6,88 @@
  *****************************************************************************/
 package com.base.sbc.module.fabric.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.fabric.mapper.FabricPoolItemMapper;
+import com.base.sbc.module.fabric.dto.FabricPoolItemSaveDTO;
 import com.base.sbc.module.fabric.entity.FabricPoolItem;
+import com.base.sbc.module.fabric.mapper.FabricPoolItemMapper;
 import com.base.sbc.module.fabric.service.FabricPoolItemService;
+import com.base.sbc.module.fabric.vo.FabricPoolItemVO;
+import com.beust.jcommander.internal.Lists;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
-/** 
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
  * 类描述：面料池明细 service类
- * @address com.base.sbc.module.fabric.service.FabricPoolItemService
+ *
  * @author your name
+ * @version 1.0
+ * @address com.base.sbc.module.fabric.service.FabricPoolItemService
  * @email your email
  * @date 创建时间：2023-8-23 11:02:45
- * @version 1.0  
  */
 @Service
 public class FabricPoolItemServiceImpl extends BaseServiceImpl<FabricPoolItemMapper, FabricPoolItem> implements FabricPoolItemService {
+    // 自定义方法区 不替换的区域【other_start】
 
-// 自定义方法区 不替换的区域【other_start】
+    @Override
+    public void saveItem(List<FabricPoolItemSaveDTO> dto, String fabricPoolId) {
+        if (CollectionUtils.isEmpty(dto)) {
+            LambdaQueryWrapper<FabricPoolItem> queryWrapper = new QueryWrapper<FabricPoolItem>()
+                    .lambda()
+                    .eq(FabricPoolItem::getFabricPoolId, fabricPoolId)
+                    .eq(FabricPoolItem::getDelFlag, "0");
+            super.getBaseMapper().delete(queryWrapper);
+            return;
+        }
+        List<String> ids = this.getIdByFabricPoolId(fabricPoolId);
+        String companyCode = super.getCompanyCode();
+        IdGen idGen = new IdGen();
+        List<FabricPoolItem> fabricPoolItems = dto.stream()
+                .map(e -> {
+                    FabricPoolItem fabricPoolItem = CopyUtil.copy(e, FabricPoolItem.class);
+                    if (StringUtils.isEmpty(fabricPoolItem.getId())) {
+                        fabricPoolItem.setId(idGen.nextIdStr());
+                        fabricPoolItem.setCompanyCode(companyCode);
+                        fabricPoolItem.insertInit();
+                    } else {
+                        fabricPoolItem.updateInit();
+                    }
+                    fabricPoolItem.setFabricPoolId(fabricPoolId);
+                    ids.remove(fabricPoolItem.getId());
+                    return fabricPoolItem;
+                }).collect(Collectors.toList());
+        super.saveOrUpdateBatch(fabricPoolItems);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            super.getBaseMapper().deleteBatchIds(ids);
+        }
+    }
 
+    @Override
+    public List<FabricPoolItemVO> getByFabricPoolId(String fabricPoolId) {
+        return super.getBaseMapper().getByFabricPoolId(fabricPoolId);
+    }
+
+    private List<String> getIdByFabricPoolId(String fabricPoolId) {
+        LambdaQueryWrapper<FabricPoolItem> qw = new QueryWrapper<FabricPoolItem>().lambda()
+                .eq(FabricPoolItem::getFabricPoolId, fabricPoolId)
+                .eq(FabricPoolItem::getDelFlag, "0")
+                .select(FabricPoolItem::getId);
+        List<FabricPoolItem> list = super.list(qw);
+        return CollectionUtils.isEmpty(list) ? Lists.newArrayList() : list.stream()
+                .map(FabricPoolItem::getId)
+                .collect(Collectors.toList());
+    }
 
 
 // 自定义方法区 不替换的区域【other_end】
-	
+
 }
+

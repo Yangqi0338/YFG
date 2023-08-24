@@ -8,9 +8,7 @@ package com.base.sbc.module.basicsdatum.controller;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBomTemplateDto;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBomTemplateMaterialDto;
-import com.base.sbc.module.basicsdatum.dto.QueryBomTemplateDto;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplate;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumBomTemplateMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumBomTemplateService;
@@ -104,4 +102,25 @@ public class BasicsdatumBomTemplateController{
 	public Boolean delBomTemplateMateria(@Valid @NotBlank(message = "编号id不能为空") String id) {
 		return basicsdatumBomTemplateMaterialServicel.delBomTemplateMateria(id);
 	}
+
+	@ApiOperation(value = "批量启用/停用-BOM模板物料", notes = "ids:, status:0启用1停用")
+	@PostMapping("/startStopBomTemplateMateria")
+	public Boolean startStopBomTemplateMateria(@Valid @RequestBody StartStopDto startStopDto) {
+		return basicsdatumBomTemplateMaterialServicel.startStopBomTemplateMateria(startStopDto);
+	}
+
+
+	@ApiOperation(value = "复制BOM模板物料")
+	@PostMapping("/copyBomTemplateMateria")
+	public Boolean copyBomTemplateMateria(@RequestParam("id") String id) {
+		return basicsdatumBomTemplateMaterialServicel.copyBomTemplateMateria(id);
+	}
+
+	@ApiOperation(value = "修改顺序")
+	@PostMapping("/revampSort")
+	public Boolean revampSort(@Valid @RequestBody RevampSortDto revampSortDto) {
+		return basicsdatumBomTemplateMaterialServicel.revampSort(revampSortDto);
+	}
+
+
 }

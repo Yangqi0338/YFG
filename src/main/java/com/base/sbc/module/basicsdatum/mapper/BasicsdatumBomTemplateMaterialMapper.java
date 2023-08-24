@@ -43,5 +43,14 @@ public interface BasicsdatumBomTemplateMaterialMapper extends BaseMapper<Basicsd
    */
   List<String> getTemplateMateriaId(String bomTemplateId);
 
+
+  /**
+   * 查询模板部件最大的顺序
+   * @param bomTemplateId
+   * @return
+   */
+  Integer getMaxSort(String bomTemplateId);
+
+
 // 自定义方法区 不替换的区域【other_end】
 }

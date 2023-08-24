@@ -38,6 +38,9 @@ public class FlowableService {
 
     public static final String OUTBOUND_ORDER = "出库单";
 
+    public static final String FABRIC_PLANNING = "面料企划审批";
+    public static final String FABRIC_POOL = "设计面料池审批";
+
     @Autowired
     FlowableFeignService flowableFeignService;
 

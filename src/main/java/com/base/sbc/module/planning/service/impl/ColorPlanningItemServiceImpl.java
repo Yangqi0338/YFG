@@ -50,8 +50,7 @@ public class ColorPlanningItemServiceImpl extends BaseServiceImpl<ColorPlanningI
             LambdaQueryWrapper<ColorPlanningItem> queryWrapper = new QueryWrapper<ColorPlanningItem>()
                     .lambda()
                     .eq(ColorPlanningItem::getColorPlanningId, colorPlanningId)
-                    .eq(ColorPlanningItem::getDelFlag, "0")
-                    .select(ColorPlanningItem::getId);
+                    .eq(ColorPlanningItem::getDelFlag, "0");
             super.getBaseMapper().delete(queryWrapper);
             return;
         }

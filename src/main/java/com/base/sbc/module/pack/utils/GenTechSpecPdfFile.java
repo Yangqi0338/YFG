@@ -185,7 +185,6 @@ public class GenTechSpecPdfFile {
             Template template = config.getTemplate("ftl/process.html.ftl");
 
             String str = JSON.toJSONString(this, JSONWriter.Feature.WriteNullStringAsEmpty);
-
             JSONObject dataModel = JSON.parseObject(str);
             dataModel.put("sizeList", sizeList);
             int sizeColspan = washSkippingFlag ? 3 : 2;
@@ -208,8 +207,10 @@ public class GenTechSpecPdfFile {
                         }
 
                     }
-                    row.add(StrUtil.isBlank(packSize.getCodeError()) ? "-" : StrUtil.DASHED + packSize.getCodeError());
-                    row.add(Opt.ofNullable(packSize.getCodeError()).orElse(""));
+                    //公差-
+                    row.add(Opt.ofNullable(packSize.getMinus()).orElse(""));
+                    //公差+
+                    row.add(Opt.ofNullable(packSize.getPositive()).orElse(""));
                     dataList.add(row);
                 }
             }
@@ -247,6 +248,8 @@ public class GenTechSpecPdfFile {
             ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
 //            FileUtil.writeString(output, new File("d://process.html"), Charset.defaultCharset());
 //            FileOutputStream fos=new FileOutputStream("D://htmltoPdf.pdf");
+
+            //  FileUtil.writeString(output,new File("C:/Users/ZCYLGZ/htmltoPdf.html"), Charset.defaultCharset());
             // 创建PDF写入器
             ConverterProperties props = new ConverterProperties();
             props.setCharset("UFT-8");

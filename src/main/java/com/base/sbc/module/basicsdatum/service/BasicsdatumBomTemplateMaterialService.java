@@ -7,6 +7,8 @@
 package com.base.sbc.module.basicsdatum.service;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBomTemplateMaterialDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBomTemplateDto;
+import com.base.sbc.module.basicsdatum.dto.RevampSortDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
 import com.github.pagehelper.PageInfo;
@@ -66,6 +68,29 @@ public interface BasicsdatumBomTemplateMaterialService extends BaseService<Basic
      * @return
      */
     Boolean revampBomTemplateMaterial(AddRevampBomTemplateMaterialDto addRevampBomTemplateMaterialDto);
+
+
+    /**
+     * 批量启用/停用-BOM模板物料
+     * @param startStopDto
+     * @return
+     */
+    Boolean startStopBomTemplateMateria(StartStopDto startStopDto);
+
+    /**
+     * 复制BOM模板物料
+     * @param id
+     * @return
+     */
+    Boolean copyBomTemplateMateria(String id);
+
+    /**
+     * 修改顺序
+     * @param revampSortDto
+     * @return
+     */
+    Boolean revampSort(RevampSortDto revampSortDto);
+
 
 // 自定义方法区 不替换的区域【other_end】
 
