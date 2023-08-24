@@ -27,9 +27,11 @@ public class JSONStringUtils {
             Class<?> type = field.getType();
             String name = type.getName();
             field.setAccessible(true);
-            if ("java.math.BigDecimal".equals(name)){
+            if ("java.math.BigDecimal".equals(name) ){
                 try {
-                    field.set(o,new BigDecimal(0));
+                    if ( field.get(o) ==null){
+                        field.set(o,new BigDecimal(0));
+                    }
                 }catch (Exception e){
                     e.printStackTrace();
                 }
