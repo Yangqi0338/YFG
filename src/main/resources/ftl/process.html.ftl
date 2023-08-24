@@ -12,7 +12,6 @@
         width: 277mm;
         margin: 50px auto;
         background-color: #fff;
-        padding: 16px;
     }
 
     * {
@@ -22,10 +21,15 @@
 
     body {
         background-color: #f3f3f3;
+        padding: 0 10px !important;
     }
 
     tr {
         page-break-inside: avoid;
+    }
+
+    td {
+        padding: 0 8px;
     }
 
     .page_height {
@@ -75,7 +79,6 @@
     }
 
     .div_img_list {
-
         display: flex;
         flex-wrap: wrap;
         gap: 16px;
@@ -105,12 +108,13 @@
 
     }
 
-    .sizeItemWidtd {
-        min-widtd: 65px;
+    .sizeItemWidth {
+        width: 36px;
+        text-align: center;
     }
 
-    .sizeWidtd {
-        min-widtd: ${65*sizeColspan}px;
+    .sizeWidth {
+        width: 100px;
         text-align: center;
     }
 
@@ -153,6 +157,23 @@
 
     .page_start {
         background-color: #e7e6e6;
+    }
+
+    .td_center {
+        text-align: center;
+    }
+
+    .gc {
+        width: 44px;
+        text-align: center !important;
+    }
+
+    .size_table {
+        width: auto;
+    }
+
+    .size_tr {
+        text-align: center;
     }
 </style>
 <body>
@@ -201,7 +222,7 @@
 
     <tr class="info_tr3">
         <td class="info_table_b">执行标准</td>
-        <td>${executeStandardCode}</td>
+        <td>${executeStandard}</td>
         <td class="info_table_b">洗唛材质备注</td>
         <td>${washingMaterialRemarks}</td>
         <td class="info_table_b">后技术放码师</td>
@@ -241,14 +262,14 @@
     <tr class="info_tr3">
         <td class="info_table_b">成分信息</td>
         <td colspan="2">${composition}</td>
-        <td colspan="2" class="info_table_b">充绒量</td>
-        <td>${downContent}</td>
+        <td class="info_table_b">充绒量</td>
+        <td colspan="2">${downContent}</td>
     </tr>
     <tr class="info_tr3">
         <td class="info_table_b">贮藏要求</td>
         <td colspan="2">${storageDemand}</td>
-        <td colspan="2" class="info_table_b">面料详情</td>
-        <td>${fabricDetails}</td>
+        <td class="info_table_b">面料详情</td>
+        <td colspan="2">${fabricDetails}</td>
     </tr>
     <tr class="info_tr3">
         <td>产地:${producer}</td>
@@ -316,31 +337,31 @@
     </tr>
 </table>
 
-<#--尺寸表-->
-<table class="table_border small_table mt" style="page-break-before: always; ">
+<!--尺寸表-->
+<table class="table_border small_table mt size_table" style="page-break-before: always; ">
     <tr>
         <td colspan="${sizeTitleColspan}" class="table_header">尺寸表</td>
     </tr>
-    <tr>
-        <td rowspan="2">部位</td>
-        <td rowspan="2">描述</td>
+    <tr class="size_tr">
+        <td rowspan="2" style="text-align: left;">部位</td>
+        <td rowspan="2" style="text-align: left;">描述</td>
         <#list sizeList as size>
-            <td colspan="${sizeColspan}" class="sizeWidtd">${size}</td>
+            <td colspan="${sizeColspan}" class="sizeWidth">${size}</td>
         </#list>
-        <td rowspan="2">公差(- )</td>
-        <td rowspan="2">公差(+)</td>
+        <td rowspan="2" class="gc">公差(-)</td>
+        <td rowspan="2" class="gc">公差(+)</td>
     </tr>
     <tr>
         <#list sizeList as size>
-            <td class="sizeItemWidtd">样板尺寸</td>
-            <td class="sizeItemWidtd">成衣尺寸</td>
+            <td class="sizeItemWidth">样板<br>尺寸</td>
+            <td class="sizeItemWidth">成衣<br>尺寸</td>
             <#if washSkippingFlag>
-                <td class="sizeItemWidtd">洗后尺寸</td>
+                <td class="sizeItemWidth">洗后<br>尺寸</td>
             </#if>
         </#list>
     </tr>
     <#list sizeDataList as item>
-        <tr>
+        <tr class="size_tr">
             <#list item as c>
                 <td>${c}</td>
             </#list>
@@ -348,7 +369,7 @@
     </#list>
 
 </table>
-<#--    小部件-->
+<!--    小部件-->
 <table class="table_border mt" style="page-break-before: always;">
     <tr>
         <td colspan="4" class="table_header">小部件</td>
@@ -376,7 +397,7 @@
     </#list>
 </table>
 
-<#--    基础工艺 -->
+<!--    基础工艺 -->
 <table class="table_border mt" style="page-break-before: always">
     <tr>
         <td colspan="3" class="table_header">基础工艺</td>
@@ -407,7 +428,7 @@
     </#list>
 </table>
 
-<#--    整烫包装 -->
+<!--    整烫包装 -->
 <table class="table_border mt">
     <tr>
         <td colspan="3" class="table_header">整烫包装</td>
