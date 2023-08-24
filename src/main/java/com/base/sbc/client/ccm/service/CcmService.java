@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.*;
  * @author Youkehai
  * @data 创建时间:2021/1/4
  */
-//@FeignClient(name = "ccm", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
-//@FeignClient(name = "ccm", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
-@FeignClient(name = "ccm", url = "http://" + "10.98.250.44" + ":9151/", decode404 = true)
+@FeignClient(name = "ccm", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
 public interface CcmService {
     /**
      * 获取最后一级的品类信息
