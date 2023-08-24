@@ -1,7 +1,14 @@
 <html>
+<head>
+    <meta charset="UTF-8">
+</head>
 <style>
+    * {
+        font-family: SimSun;
+    }
+
     html {
-        font-family: 'STSong-Light';
+
         width: 277mm;
         margin: 50px auto;
         background-color: #fff;
@@ -121,7 +128,7 @@
 
     .img_item {
         margin: 5px;
-        width: 30%;
+        width: 45%;
     }
 
     .info_tr3:nth-child(even) {

@@ -31,6 +31,12 @@ public class PurchaseOrderDetail extends BaseDataEntity<String> {
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
+    /** 采购单编码 */
+    private String code;
+    /** 物料颜色编码 */
+    private String materialColorCode;
+    /** 物料规格编码 */
+    private String materialSpecificationsCode;
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 

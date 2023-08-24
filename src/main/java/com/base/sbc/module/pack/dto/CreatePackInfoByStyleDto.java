@@ -29,4 +29,7 @@ public class CreatePackInfoByStyleDto {
     private String patternNo;
     @ApiModelProperty(value = "打版id", example = "123")
     private String patternMakingId;
+
+    @ApiModelProperty(value = "是否关联款式BOM物料信息", example = "true")
+    private Boolean isWithBom;
 }

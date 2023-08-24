@@ -1,10 +1,11 @@
 package com.base.sbc.module.smp.dto;
 
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.smp.base.SmpBaseDto;
 import lombok.Data;
 
-import java.util.Date;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author 卞康
@@ -103,4 +104,86 @@ public class SmpSampleDto extends SmpBaseDto {
     private String supplierNumber;
     /**图片集合*/
     private List<String> imgList;
+
+
+    public SampleBean toSampleBean(){
+        SimpleDateFormat simpleDateFormat =new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SampleBean sampleBean =new SampleBean();
+        sampleBean.setNodeName(styleCode+"/"+nodeName);
+        sampleBean.setCode(getCode());
+        sampleBean.setSampleType(sampleType);
+        sampleBean.setSampleTypeName(sampleTypeName);
+        sampleBean.setC8_Sample_PatDiff(patDiff);
+        sampleBean.setC8_Sample_PatDiffName(patDiffName);
+        sampleBean.setC8_Sample_PatSeq(patSeq);
+        sampleBean.setC8_Sample_PatSeqName(patSeqName);
+        sampleBean.setC8_Sample_SampleNumber(sampleNumber);
+        sampleBean.setC8_Sample_SampleNumberName(sampleNumberName);
+        sampleBean.setC8_Sample_BExtAuxiliary(String.valueOf(BExtAuxiliary));
+        if(EAValidToTime!=null){
+            sampleBean.setC8_Sample_EAValidTo(simpleDateFormat.format(EAValidToTime));
+        }
+        if(EAValidFromTime!=null){
+            sampleBean.setC8_Sample_EAValidFrom(simpleDateFormat.format(EAValidFromTime));
+        }
+
+        if(sampleReceivedDate!=null){
+            sampleBean.setSampleReceivedDate(simpleDateFormat.format(sampleReceivedDate));
+        }
+
+        if(MCDate!=null){
+            sampleBean.setC8_Sample_MCDate(simpleDateFormat.format(MCDate));
+        }
+
+        sampleBean.setC8_Sample_Barcode(barcode);
+        sampleBean.setC8_Sample_PLMID(pmlId);
+
+        sampleBean.setC8_Sample_IfFinished(String.valueOf(finished));
+
+        sampleBean.setC8_ProductSample_ProofingDesigner(proofingDesigner);
+        sampleBean.setC8_ProductSample_ProofingDesignerID(proofingDesignerId);
+        sampleBean.setSupplier(supplier);
+        sampleBean.setSupplierNumber(supplierNumber);
+        sampleBean.setSampleStatus(sampleStatus);
+        sampleBean.setSampleStatusName(sampleStatusName);
+
+        SampleBean.Colorway colorway =new SampleBean.Colorway();
+        colorway.setC8_Colorway_PLMID(null);
+        colorway.setC8_Colorway_Code(colorwayCode);
+
+        sampleBean.setColorway(colorway);
+
+        SampleBean.Style style =new SampleBean.Style();
+        style.setStyleCode(styleCode);
+        style.setC8_Season_Year(year);
+        style.setC8_Season_Quarter(quarterCode);
+        style.setC8_Season_Brand(brandCode);
+        style.setC8_Season_BrandName(brandName);
+        style.setC8_Category2_1stCategory(majorCategories);
+        style.setC8_Category2_1stCategoryName(majorCategoriesName);
+        style.setC8_Collection_ProdCategory(category);
+        style.setC8_Collection_ProdCategoryName(categoryName);
+        style.setC8_Style_2ndCategory(middleClassId);
+        style.setC8_Style_2ndCategoryName(middleClassName);
+        style.setC8_StyleAttr_TechnicianID(technicianId);
+        style.setC8_StyleAttr_Technician(technician);
+        style.setC8_StyleAttr_DesignerID(designerId);
+        if (StringUtils.isNotBlank(designer)){
+            style.setC8_StyleAttr_Designer(designer.split(",")[0]);
+        }
+        style.setC8_StyleAttr_PatternMaker(patternMaker);
+        style.setC8_StyleAttr_PatternMakerID(patternMakerId);
+        style.setC8_Style_PLMID(styleUrl);
+        style.setStyle_Active(String.valueOf(getActive()));
+        sampleBean.setStyle(style);
+
+        List<Map<String,String>> images=new ArrayList<>();
+        for (String s : imgList) {
+            Map<String,String> img =new HashMap<>();
+            img.put("Filename",s);
+            images.add(img);
+        }
+        sampleBean.setImages(images);
+        return sampleBean;
+    }
 }

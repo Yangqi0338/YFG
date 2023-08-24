@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.style.vo;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -199,6 +201,17 @@ public class StyleColorVo {
     @ApiModelProperty(value = "创建人"  )
     private String createName;
 
+
+    /**  更新者id */
+    private String updateId;
+
+    /** 更新者名称  */
+    private String updateName;
+
+    /** 更新日期 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date updateDate;
+
     /*是否上会*/
     @ApiModelProperty(value = "上会"  )
     private String meetFlag;
@@ -369,4 +382,6 @@ public class StyleColorVo {
     /** 下单标记（0否 1是） */
     @ApiModelProperty(value = "下单标记（0否 1是）"  )
     private String  orderFlag;
+
+    private String wareCode;
 }

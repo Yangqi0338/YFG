@@ -15,10 +15,14 @@
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
     <select id="getBomTemplateMateriaList"  resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo">
         select
+        tbbtm.id,
+        tbm.id materialId,
         tbm.*
         from t_basicsdatum_bom_template_material tbbtm
-        left join  t_basicsdatum_bom_template tbbt on tbbtm.bom_template_id = tbbt.id
         left join t_basicsdatum_material tbm  on tbbtm.material_id = tbm.id
         ${ ew.customSqlSegment}
+    </select>
+    <select id="getTemplateMateriaId" resultType="java.lang.String">
+        select material_id from   t_basicsdatum_bom_template_material where  bom_template_id =#{bomTemplateId}
     </select>
 </mapper>

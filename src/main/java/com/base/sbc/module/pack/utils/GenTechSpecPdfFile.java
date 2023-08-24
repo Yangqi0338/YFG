@@ -1,6 +1,5 @@
 package com.base.sbc.module.pack.utils;
 
-import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
@@ -33,7 +32,9 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.*;
+import com.itextpdf.layout.element.IBlockElement;
+import com.itextpdf.layout.element.IElement;
+import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.VerticalAlignment;
@@ -46,7 +47,6 @@ import lombok.Data;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
-import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -181,13 +181,9 @@ public class GenTechSpecPdfFile {
             config.setDefaultEncoding("UTF-8");
             config.setTemplateLoader(new ClassTemplateLoader(UtilFreemarker.class, "/"));
             config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-            Template template = config.getTemplate("ftl/process.html.ftl");
-            CopyOptions copyOptions = new CopyOptions();
-            copyOptions.setConverter((targetType, value) -> {
 
-                System.out.println(targetType.getTypeName() + value);
-                return value;
-            });
+            Template template = config.getTemplate("ftl/process.html.ftl");
+
             String str = JSON.toJSONString(this, JSONWriter.Feature.WriteNullStringAsEmpty);
 
             JSONObject dataModel = JSON.parseObject(str);
@@ -224,7 +220,11 @@ public class GenTechSpecPdfFile {
             }
             Map<String, List<PackTechSpecVo>> gyMap = new HashMap<>(16);
             if (CollUtil.isNotEmpty(this.getTechSpecVoList())) {
-                gyMap = this.getTechSpecVoList().stream().collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
+//                gyMap = this.getTechSpecVoList().stream().collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
+                gyMap = JSON.parseArray(JSON.toJSONString(this.getTechSpecVoList(), JSONWriter.Feature.WriteNullStringAsEmpty))
+                        .toJavaList(PackTechSpecVo.class)
+                        .stream()
+                        .collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
             }
             dataModel.put("sizeDataList", dataList);
             dataModel.put("ztbzDataList", Optional.ofNullable(gyMap.get("整烫包装")).orElse(CollUtil.newArrayList()));
@@ -261,17 +261,14 @@ public class GenTechSpecPdfFile {
             PageFootEventHandler event = new PageFootEventHandler(pdfDocument, document, pageStart);
             pdfDocument.addEventHandler(PdfDocumentEvent.START_PAGE, event);
             // 定义页眉
-            document.setMargins(30, 10, 0, 10);
+            document.setMargins(40, 10, 0, 10);
             for (int i = 1; i < elements.size(); i++) {
                 IElement element = elements.get(i);
-                System.out.println(element.getClass().getSimpleName());
                 // 分页符
                 if (element instanceof HtmlPageBreak) {
-                    System.out.println("分页");
                     document.add((HtmlPageBreak) element);
                     //普通块级元素
                 } else {
-                    System.out.println("普通块级元素");
                     document.add((IBlockElement) element);
                 }
             }
@@ -282,9 +279,9 @@ public class GenTechSpecPdfFile {
             for (int i = 1; i <= numberOfPages; i++) {
                 Paragraph pageNumber = new Paragraph(String.format(" %d  /  %d ", i, numberOfPages));
                 pageNumber.setTextAlignment(TextAlignment.CENTER);
-                float x = pdfDocument.getDefaultPageSize().getWidth() - 20;
+                float x = pdfDocument.getDefaultPageSize().getWidth() - 30;
                 // 距离底部的距离
-                float y = pdfDocument.getDefaultPageSize().getTop() - 5;
+                float y = pdfDocument.getDefaultPageSize().getTop() - 15;
                 document.showTextAligned(pageNumber, x, y, i, TextAlignment.CENTER, VerticalAlignment.TOP, 0);
             }
 
@@ -310,26 +307,19 @@ public class GenTechSpecPdfFile {
 
         @Override
         public void handleEvent(Event event) {
-            System.out.println(event.getType());
             PdfDocumentEvent docEvent = (PdfDocumentEvent) event;
             PdfPage page = docEvent.getPage();
             //通过 page 进行一些处理  ，这个需要去了解如何在page上进行添加内容
             //也可以传入  List<IElement> iElements ，直接添加 ，
-            Table table = (Table) element;
-            Cell cell = new Cell();
-            cell.add(new Paragraph("123"));
-            table.addCell(cell);
-
             Rectangle pageSize = page.getPageSize();
             PdfCanvas pdfCanvas = new PdfCanvas(page);
-            float pageWith = pageSize.getWidth();
+            float pageWith = pageSize.getWidth() - 20;
             float footHeight = 30;
-            float marginWith = 0;
-            float marginBottom = pageSize.getHeight() - footHeight;
+            float marginBottom = pageSize.getHeight() - footHeight - 10;
 
-            Rectangle rectangle = new Rectangle(marginWith, marginBottom, pageWith, footHeight);
+            Rectangle rectangle = new Rectangle(10, marginBottom, pageWith, footHeight);
             Canvas canvas = new Canvas(pdfCanvas, pdfDocument, rectangle);
-            canvas.add((IBlockElement) table);
+            canvas.add((IBlockElement) element);
             pdfCanvas.release();
         }
     }

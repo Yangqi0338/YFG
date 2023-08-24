@@ -350,6 +350,24 @@
 
     </select>
 
-
+    <select id="getPatternMakingSewingStatus" resultType="com.base.sbc.module.patternmaking.entity.PatternMaking">
+        SELECT
+        p.id,
+        p.stitcher,
+        p.stitcher_id,
+        p.`status`,
+        p.sewing_status
+        FROM
+        t_pattern_making p,
+        t_style s
+        where p.style_id = s.id
+        and p.design_send_status='1'
+        and p.prm_send_status='1'
+        and p.del_flag &lt;&gt; '1'
+        and s.del_flag &lt;&gt; '1'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
 </mapper>
 

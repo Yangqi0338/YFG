@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumSupplierDto;
 import com.base.sbc.module.basicsdatum.dto.QueryRevampBasicsdatumSupplierDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
@@ -18,14 +19,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
-/** 
+/**
  * 类描述：基础资料-供应商 service类
  * @address com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService
  * @author mengfanjiang
  * @email 2915350015@qq.com
  * @date 创建时间：2023-5-22 10:51:07
- * @version 1.0  
+ * @version 1.0
  */
 public interface BasicsdatumSupplierService extends BaseService<BasicsdatumSupplier> {
 
@@ -102,5 +104,12 @@ public interface BasicsdatumSupplierService extends BaseService<BasicsdatumSuppl
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
-	
+
+        /**
+         * 方法描述：新增修改基础资料-供应商
+         *
+         * @param supplierList 供应商集合
+         * @return boolean
+         */
+        ApiResult addSupplierBatch(List<AddRevampBasicsdatumSupplierDto> supplierList);
 }
