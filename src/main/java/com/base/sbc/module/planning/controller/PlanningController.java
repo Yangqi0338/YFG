@@ -3,19 +3,29 @@ package com.base.sbc.module.planning.controller;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.entity.BasicStructureTree;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.band.entity.Band;
+import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.excel.ExportPlanningExcel;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
@@ -29,6 +39,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -36,11 +47,16 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：商品企划 相关接口
@@ -67,7 +83,11 @@ public class PlanningController extends BaseController {
     @Resource
     private PlanningChannelService planningChannelService;
     @Autowired
+    private BandService bandService;
+    @Autowired
     private CcmService ccmService;
+    @Autowired
+    private CcmFeignService ccmFeignService;
     @Autowired
     private AmcFeignService amcFeignService;
     private IdGen idGen = new IdGen();
@@ -254,6 +274,55 @@ public class PlanningController extends BaseController {
         return selectSuccess(planningSeasonService.getByYear(year));
     }
 
+
+    @ApiOperation(value = "导出坑位信息Excel模板")
+    @GetMapping(value = "/exportPlanningExcel")
+    public void exportPlanningExcel(HttpServletResponse response, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String season) {
+        //查询字典月份
+        List<BasicBaseDict> baseDictList = ccmFeignService.basicDictDependsByTypes(null, "C8_Month", "C8_Quarter", season);
+        List<String> monthList = baseDictList.stream().map(BasicBaseDict::getName).collect(Collectors.toList());
+
+        QueryWrapper<Band> qc = new QueryWrapper<>();
+        qc.eq("company_code", getUserCompany());
+        qc.eq("status", BaseGlobal.STATUS_NORMAL);
+        qc.eq("season", season);
+        qc.in("month", monthList);
+        List<Band> bandList = bandService.list(qc);
+        Map<String, List<Band>> monthBandMap = bandList.stream().collect(Collectors.groupingBy(Band::getMonth));
+
+        //查询 品类，中类，小类
+        List<BasicStructureTree> categoryList = ccmFeignService.appointNextLevelList("品类", "1");
+        List<BasicStructureTree> centreList = ccmFeignService.appointNextLevelList("品类", "2");
+        List<BasicStructureTree> smallList = ccmFeignService.appointNextLevelList("品类", "3");
+
+        // 生成文件名称
+        String strFileName = "坑位信息导入模板.xls";
+        OutputStream objStream = null;
+        try {
+            objStream = response.getOutputStream();
+            response.reset();
+            // 设置文件名称
+            response.setContentType("application/x-msdownload");
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(strFileName, "UTF-8"));
+            // 文档对象
+            ExportPlanningExcel excel = new ExportPlanningExcel();
+            XSSFWorkbook objWb = excel.createWorkBook(monthBandMap, categoryList, centreList, smallList);
+            objWb.write(objStream);
+            objStream.flush();
+            objStream.close();
+        } catch (Exception e) {
+            logger.error("生成坑位信息导入模板异常：", e);
+            e.printStackTrace();
+        } finally {
+            if (objStream != null) {
+                try {
+                    objStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
 
 }
