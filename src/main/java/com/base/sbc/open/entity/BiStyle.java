@@ -6,11 +6,11 @@ import lombok.Data;
 /**
  * 款式样品实体类
  * @address com.base.sbc.open.entity.BiStyle
- * @version 1.0
+ * @version 1.0  样衣表
  */
 @Data
 @TableName("bi_style")
-public class BiStyleEntity {
+public class BiStyle {
     /** 季节 品牌 */
     private String c8SeasonBrand;
     /** 季节 年度 */

@@ -7,6 +7,7 @@ import java.util.Date;
 
 /**
  * 表名：bi_sample
+ * 款式样品  样衣看板
  */
 @Data
 @TableName("bi_sample")
