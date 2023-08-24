@@ -620,6 +620,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.in("id", StrUtil.split(id, StrUtil.COMMA));
         uw.set("receive_sample", BaseGlobal.YES);
         uw.set("receive_sample_date", new Date());
+        /*消息通知*/
+        PatternMaking patternMaking= baseMapper.selectById(id);
+        Style style =  styleService.getById(patternMaking.getStyleId());
+        messageUtils.receiveSampleSendMessage(patternMaking.getPatternRoomId(),style.getDesignNo(),baseController.getUser());
         return update(uw);
     }
 

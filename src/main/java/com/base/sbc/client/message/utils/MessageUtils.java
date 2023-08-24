@@ -246,4 +246,42 @@ public class MessageUtils {
             }
         }
     }
+
+
+    /**
+     * 确认收到样衣消息提醒
+     * @param patternRoomId
+     * @param designNo
+     * @param groupUser
+     */
+    @Async
+    public void receiveSampleSendMessage(String patternRoomId,String designNo,GroupUser groupUser) {
+
+        if (StringUtils.isNotBlank(patternRoomId)) {
+            String userId = "";
+            List<UserCompany> userCompanies = amcFeignService.getDeptManager(patternRoomId, "2");
+            if (CollUtil.isNotEmpty(userCompanies)) {
+                userId = userCompanies.stream().map(UserCompany::getUserId).collect(Collectors.joining(StrUtil.COMMA));
+            }
+            if(StringUtils.isNotBlank(userId)){
+                log.info("————————————————————————确认收到样衣消息提醒发送提醒消息用户" + userId);
+                Map<String, String> map = new HashMap<>();
+                map.put("title", designNo);
+                map.put("userId", groupUser.getId());
+                map.put("userName", groupUser.getName());
+                map.put("avatar", groupUser.getAvatar());
+                ModelMessage modelMessage = new ModelMessage();
+                modelMessage.setUserIds(userId);
+                modelMessage.setModelCode("YFG006");
+                modelMessage.setParams(map);
+                String s = messagesService.sendNoticeByModel(modelMessage);
+            }
+
+        }
+    }
+
+
+
+
+
 }
