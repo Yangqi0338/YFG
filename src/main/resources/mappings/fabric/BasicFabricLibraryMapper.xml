@@ -18,7 +18,6 @@
         bfl.update_date,
         bfl.dev_apply_code,
         bfl.dev_code,
-        bfl.approve_status,
         fdb.fabric_label,
         fdb.category1_name,
         fdb.category2_name,
@@ -62,10 +61,6 @@
                 AND (fdb.category1_code = #{dto.categoryId} OR fdb.category2_code = #{dto.categoryId} or
                 fdb.category3_code = #{dto.categoryId}
                 or fdb.category_id = #{dto.categoryId})
-            </if>
-
-            <if test="dto.approveStatus != null and dto.approveStatus != ''">
-                and bfl.approve_status = #{dto.approveStatus}
             </if>
         </where>
     </select>
