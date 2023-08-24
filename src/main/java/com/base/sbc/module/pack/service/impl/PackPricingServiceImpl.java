@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.NumberUtil;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingDto;
 import com.base.sbc.module.pack.entity.PackPricing;
@@ -94,16 +95,20 @@ public class PackPricingServiceImpl extends PackBaseServiceImpl<PackPricingMappe
 
     @Override
     public BigDecimal formula(String formula, Map<String, Object> itemVal) {
-        JEP jep = new JEP();
-        for (Map.Entry<String, Object> item : itemVal.entrySet()) {
-            if (NumberUtil.isNumber(String.valueOf(item.getValue()))) {
-                jep.addVariable(item.getKey(), Double.valueOf(item.getValue().toString()));
+        try {
+            JEP jep = new JEP();
+            for (Map.Entry<String, Object> item : itemVal.entrySet()) {
+                if (NumberUtil.isNumber(String.valueOf(item.getValue()))) {
+                    jep.addVariable(item.getKey(), Double.valueOf(item.getValue().toString()));
+                }
             }
+            jep.parseExpression(formula);
+            double value = jep.getValue();
+            BigDecimal b = new BigDecimal(value);
+            return b.setScale(2, RoundingMode.HALF_UP);
+        } catch (NumberFormatException e) {
+            throw new OtherException("计算异常,请检查公式是否有误");
         }
-        jep.parseExpression(formula);
-        double value = jep.getValue();
-        BigDecimal b = new BigDecimal(value);
-        return b.setScale(2, RoundingMode.HALF_UP);
     }
 
 

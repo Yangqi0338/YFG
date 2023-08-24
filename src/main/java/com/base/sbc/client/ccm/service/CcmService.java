@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
  * @data 创建时间:2021/1/4
  */
 //@FeignClient(name = "ccm", url = "http://" + "${baseGateAwayIpaddress}" + ":9151/", decode404 = true)
-@FeignClient(name = "ccm", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
+//@FeignClient(name = "ccm", url = "http://" + "127.0.0.1" + ":9151/", decode404 = true)
+@FeignClient(name = "ccm", url = "http://" + "10.98.250.44" + ":9151/", decode404 = true)
 public interface CcmService {
     /**
      * 获取最后一级的品类信息
@@ -187,4 +188,22 @@ public interface CcmService {
     @GetMapping(value = "/ccm/api/open/structure/getCategorySByNameAndLevel")
     public String getOpenCategorySByNameAndLevel(@RequestParam("structureName") String structureName, @RequestParam("code") String code, @RequestParam("level") String level);
 
+    /**
+     * 根据多个类型查询最后一级字典信息(联调)
+     * @param isLeaf 子节点
+     * @param type 字典类型
+     * @param dependCode 依赖字段编码
+     * @param dependDictType 依赖字典类型
+     */
+    @GetMapping(value = "/ccm/api/saas/basicDictDepends/selectDictByTypes")
+    String basicDictDependsByTypes(@RequestParam("isLeaf") String isLeaf,@RequestParam("type") String type,@RequestParam("dependDictType") String dependDictType,
+                                   @RequestParam("dependCode") String dependCode);
+
+    /**
+     * 根据结构名称，查询指定level的下级列表
+     * @param structureCode 结构名称
+     * @param level 第几级
+     */
+    @GetMapping(value = "/ccm/api/saas/basicStructure/appointNextLevelList")
+    String appointNextLevelList(@RequestParam("structureCode") String structureCode, @RequestParam("level") String level);
 }

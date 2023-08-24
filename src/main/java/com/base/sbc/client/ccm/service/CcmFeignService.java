@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicStructureSearchDto;
+import com.base.sbc.client.ccm.entity.BasicStructureTree;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
@@ -214,5 +215,31 @@ public class CcmFeignService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public List<BasicBaseDict> basicDictDependsByTypes(String isLeaf, String type, String dependDictType, String dependCode) {
+        String str = ccmService.basicDictDependsByTypes(isLeaf, type, dependDictType, dependCode);
+        if (StrUtil.isBlank(str)) {
+            return null;
+        }
+        JSONObject jsonObject = JSON.parseObject(str);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            List<BasicBaseDict> data = jsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);
+            return data;
+        }
+        return null;
+    }
+
+    public List<BasicStructureTree> appointNextLevelList(String structureCode, String level) {
+        String str = ccmService.appointNextLevelList(structureCode, level);
+        if (StrUtil.isBlank(str)) {
+            return null;
+        }
+        JSONObject jsonObject = JSON.parseObject(str);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            List<BasicStructureTree> data = jsonObject.getJSONArray("data").toJavaList(BasicStructureTree.class);
+            return data;
+        }
+        return null;
     }
 }

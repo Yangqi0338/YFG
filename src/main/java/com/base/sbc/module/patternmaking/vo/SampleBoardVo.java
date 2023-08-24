@@ -1,6 +1,5 @@
 package com.base.sbc.module.patternmaking.vo;
 
-import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -28,6 +27,47 @@ public class SampleBoardVo {
     private String patternMakingId;
     @ApiModelProperty(value = "款式设计id")
     private String styleId;
+
+    /**
+     * 大类code
+     */
+    @ApiModelProperty(value = "大类code")
+    private String prodCategory1st;
+    /**
+     * 大类名称
+     */
+    @ApiModelProperty(value = "大类名称")
+    private String prodCategory1stName;
+    /**
+     * 品类code
+     */
+    @ApiModelProperty(value = "品类code")
+    private String prodCategory;
+    /**
+     * 品类名称
+     */
+    @ApiModelProperty(value = "品类名称")
+    private String prodCategoryName;
+    /**
+     * 中类code
+     */
+    @ApiModelProperty(value = "中类code")
+    private String prodCategory2nd;
+    /**
+     * 中类名称
+     */
+    @ApiModelProperty(value = "中类名称")
+    private String prodCategory2ndName;
+    /**
+     * 小类code
+     */
+    @ApiModelProperty(value = "小类code")
+    private String prodCategory3rd;
+    /**
+     * 小类名称
+     */
+    @ApiModelProperty(value = "小类名称")
+    private String prodCategory3rdName;
 
     @ApiModelProperty(value = "款图")
     private String stylePic;
@@ -128,6 +168,9 @@ public class SampleBoardVo {
     @ApiModelProperty(value = "打版质量评分")
     private BigDecimal patternMakingScore;
 
+    @ApiModelProperty(value = "样衣制作评分")
+    private BigDecimal sampleMakingScore;
+
     /**
      * 改版原因
      */
@@ -161,6 +204,6 @@ public class SampleBoardVo {
     private String sampleBarCode;
 
     public String getId() {
-        return IdUtil.fastSimpleUUID();
+        return patternMakingId;
     }
 }

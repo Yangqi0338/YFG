@@ -42,6 +42,6 @@ public class BasicsdatumMaterialQueryDto extends Page {
 	@ApiModelProperty(value = "供应商id")
 	private String supplierId;
 
-	@ApiModelProperty(value = "是否待补全：1.是、0.否")
-	private String completionFlag;
+	@ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）")
+	private String confirmStatus;
 }
