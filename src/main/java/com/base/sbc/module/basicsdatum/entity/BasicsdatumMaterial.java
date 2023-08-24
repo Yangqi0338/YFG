@@ -67,8 +67,8 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setWeight(gramWeight);
 		smpMaterialDto.setComposition(ingredient);
 		smpMaterialDto.setJIT(null);
-		smpMaterialDto.setProductTypeId(materialCategory);
-		smpMaterialDto.setProductType(materialCategoryName);
+		smpMaterialDto.setProductTypeId(category1Code);
+		smpMaterialDto.setProductType(category1Name);
 		smpMaterialDto.setProcurementMode(procMode);
 		smpMaterialDto.setTolerance(null);
 		smpMaterialDto.setSupplierComposition(factoryComposition);

@@ -32,8 +32,8 @@ public class BiJob {
     /**
      * 配色表数据
      */
-    @Scheduled(cron = "0 0 1 * * ?")
-    //@Scheduled(cron = "0 * * * * ?")
+    //@Scheduled(cron = "0 0 1 * * ?")
+    @Scheduled(cron = "0 * * * * ?")
     public void colorway(){
         biColorwayService.colorway();
     }

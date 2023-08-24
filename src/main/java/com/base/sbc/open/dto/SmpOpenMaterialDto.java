@@ -245,11 +245,12 @@ public class SmpOpenMaterialDto {
         //basicsdatumMaterial.setPurchaseUnitCode(C8_Material_UOM);
         basicsdatumMaterial.setStockUnitCode(C8_Material_UOM);
         basicsdatumMaterial.setMaterialSourceName(Source);
-        basicsdatumMaterial.setCategoryId(ProductTypeID);
+        basicsdatumMaterial.setCategory1Code(ProductTypeID);
+        basicsdatumMaterial.setCategory1Name(ProductType);
         basicsdatumMaterial.setMaterialCodeName(Code+MaterialName);
         basicsdatumMaterial.setCategoryName(ProductType);
-        basicsdatumMaterial.setMaterialCategoryName(ProductType);
-        basicsdatumMaterial.setMaterialCategory(ProductTypeID);
+        //basicsdatumMaterial.setMaterialCategoryName(ProductType);
+        //basicsdatumMaterial.setMaterialCategory(ProductTypeID);
         basicsdatumMaterial.setIngredientSay(c8MaterialAttrCompositionComment);
         basicsdatumMaterial.setProcessRequire(finish);
         basicsdatumMaterial.setAuxiliaryMaterial(width);
