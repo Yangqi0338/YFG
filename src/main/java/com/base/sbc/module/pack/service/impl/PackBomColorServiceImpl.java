@@ -6,18 +6,31 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.mapper.PackBomColorMapper;
 import com.base.sbc.module.pack.entity.PackBomColor;
 import com.base.sbc.module.pack.service.PackBomColorService;
+import com.base.sbc.module.pack.vo.PackBomColorVo;
+import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 /**
  * 类描述：资料包-物料清单-配色 service类
- * @address com.base.sbc.module.pack.service.PackBomColorService
+ *
  * @author LiZan
+ * @version 1.0
+ * @address com.base.sbc.module.pack.service.PackBomColorService
  * @email 2682766618@qq.com
  * @date 创建时间：2023-8-23 9:44:43
- * @version 1.0
  */
 @Service
 public class PackBomColorServiceImpl extends PackBaseServiceImpl<PackBomColorMapper, PackBomColor> implements PackBomColorService {
@@ -26,11 +39,40 @@ public class PackBomColorServiceImpl extends PackBaseServiceImpl<PackBomColorMap
         return "物料颜色";
     }
 
-// 自定义方法区 不替换的区域【other_start】
+    // 自定义方法区 不替换的区域【other_start】
+
+    /**
+     * 通过bomId查询资料包-物料清单-配色
+     * @param bomIds bomId集合
+     * @return 资料包-物料清单-配色
+     */
+    @Override
+    public List<PackBomColorVo> getByBomIds(List<String> bomIds) {
+        if (CollUtil.isEmpty(bomIds)) {
+            return null;
+        }
+        QueryWrapper<PackBomColor> pbsQw = new QueryWrapper<>();
+        pbsQw.in("bom_id", bomIds);
+        List<PackBomColor> packBomSizeList = list(pbsQw);
+        return BeanUtil.copyToList(packBomSizeList, PackBomColorVo.class);
+    }
+
+    /**
+     * 资料包-物料清单-配色列表 转换MAP
+     * @param bomIds  bomId集合
+     * @return 料包-物料清单-配色
+     */
+    @Override
+    public Map<String, List<PackBomColorVo>> getByBomIdsToMap(List<String> bomIds) {
+        List<PackBomColorVo> packBomSizeList = getByBomIds(bomIds);
+        Map<String, List<PackBomColorVo>> packBomSizeMap = Optional.ofNullable(packBomSizeList).map((pbsl -> {
+            return pbsl.stream().collect(Collectors.groupingBy(PackBomColorVo::getBomId));
+        })).orElse(new HashMap<>(2));
+        return packBomSizeMap;
+    }
 
 
-
-// 自定义方法区 不替换的区域【other_end】
+    // 自定义方法区 不替换的区域【other_end】
 
 }
 

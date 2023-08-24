@@ -7,6 +7,8 @@
 package com.base.sbc.module.purchase.entity;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -32,10 +34,13 @@ public class PurchaseOrderDetail extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
     /** 采购单编码 */
+    @TableField(exist = false)
     private String code;
     /** 物料颜色编码 */
+    @TableField(exist = false)
     private String materialColorCode;
     /** 物料规格编码 */
+    @TableField(exist = false)
     private String materialSpecificationsCode;
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/

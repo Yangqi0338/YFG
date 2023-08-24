@@ -8,6 +8,8 @@ package com.base.sbc.module.basicsdatum.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -15,15 +17,20 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBomTemplateMaterialDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBomTemplateDto;
+import com.base.sbc.module.basicsdatum.dto.RevampSortDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialMapper;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumBomTemplateMaterialVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumRangeDifferenceVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumBomTemplateMaterialService;
+import com.base.sbc.module.formType.entity.FieldManagement;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -50,6 +57,9 @@ import java.util.stream.Collectors;
 public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<BasicsdatumBomTemplateMaterialMapper, BasicsdatumBomTemplateMaterial> implements BasicsdatumBomTemplateMaterialService {
 
 
+    @Autowired
+    private BasicsdatumColourLibraryMapper basicsdatumColourLibraryMapper;
+
 // 自定义方法区 不替换的区域【other_start】
 
     /**
@@ -66,9 +76,9 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
         /*查询*/
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("bom_template_id", queryBomTemplateDto.getBomTemplateId());
-
+        queryWrapper.orderByDesc("sort");
         /*查询基础资料-档差数据*/
-        Page<BasicsdatumMaterialPageVo> objects = PageHelper.startPage(queryBomTemplateDto);
+        Page<BasicsdatumBomTemplateMaterialVo> objects = PageHelper.startPage(queryBomTemplateDto);
         baseMapper.selectList(queryWrapper);
         return objects.toPageInfo();
     }
@@ -95,7 +105,15 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
      */
     @Override
     public Boolean selectMateria(List<AddRevampBomTemplateMaterialDto> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            throw new OtherException("数据为空");
+        }
         List<BasicsdatumBomTemplateMaterial> templateMaterialList = BeanUtil.copyToList(list, BasicsdatumBomTemplateMaterial.class);
+        /*获取模板下最大顺序*/
+        Integer sort = baseMapper.getMaxSort(list.get(0).getBomTemplateId());
+        for (int i = 0; i < templateMaterialList.size(); i++) {
+            templateMaterialList.get(i).setSort(sort + i + 1);
+        }
         saveOrUpdateBatch(templateMaterialList);
         return true;
     }
@@ -135,11 +153,82 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
             throw new OtherException("bom模板物料id不能为空");
         }
         BasicsdatumBomTemplateMaterial bomTemplateMaterial = baseMapper.selectById(addRevampBomTemplateMaterialDto.getId());
-        if(!ObjectUtils.isEmpty(addRevampBomTemplateMaterialDto.getUnitUse()) && !ObjectUtils.isEmpty(addRevampBomTemplateMaterialDto.getPrice()) ){
+        if (!ObjectUtils.isEmpty(addRevampBomTemplateMaterialDto.getUnitUse()) && !ObjectUtils.isEmpty(addRevampBomTemplateMaterialDto.getPrice())) {
             addRevampBomTemplateMaterialDto.setCost(addRevampBomTemplateMaterialDto.getUnitUse().multiply(addRevampBomTemplateMaterialDto.getPrice()));
+        }
+        if (StringUtils.isNotBlank(addRevampBomTemplateMaterialDto.getColorCode())) {
+//颜色图
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.eq("colour_code", addRevampBomTemplateMaterialDto.getColorCode());
+            List<BasicsdatumColourLibrary> libraryList = basicsdatumColourLibraryMapper.selectList(queryWrapper);
+            if (!CollectionUtils.isEmpty(libraryList)) {
+                addRevampBomTemplateMaterialDto.setColorPic(libraryList.get(0).getPicture());
+            }
         }
         BeanUtils.copyProperties(addRevampBomTemplateMaterialDto, bomTemplateMaterial);
         baseMapper.updateById(bomTemplateMaterial);
+        return true;
+    }
+
+    /**
+     * 批量启用/停用-BOM模板物料
+     *
+     * @param startStopDto
+     * @return
+     */
+    @Override
+    public Boolean startStopBomTemplateMateria(StartStopDto startStopDto) {
+        UpdateWrapper<BasicsdatumBomTemplateMaterial> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.in("id", StringUtils.convertList(startStopDto.getIds()));
+        updateWrapper.set("status", startStopDto.getStatus());
+        /*修改状态*/
+        baseMapper.update(null, updateWrapper) ;
+        return true;
+    }
+
+    /**
+     * 复制BOM模板物料
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public Boolean copyBomTemplateMateria(String id) {
+        if(StringUtils.isBlank(id)){
+            throw new OtherException("bom模板物料id不能为空");
+        }
+        BasicsdatumBomTemplateMaterial basicsdatumBomTemplateMaterial =  baseMapper.selectById(id);
+        /*获取模板下最大顺序*/
+        Integer sort = baseMapper.getMaxSort(basicsdatumBomTemplateMaterial.getBomTemplateId());
+        basicsdatumBomTemplateMaterial.setId(null);
+        basicsdatumBomTemplateMaterial.setSort(sort+1);
+        basicsdatumBomTemplateMaterial.insertInit();
+        basicsdatumBomTemplateMaterial.updateInit();
+        baseMapper.insert(basicsdatumBomTemplateMaterial);
+        return true;
+    }
+
+    /**
+     * 修改顺序
+     *
+     * @param revampSortDto
+     * @return
+     */
+    @Override
+    public Boolean revampSort(RevampSortDto revampSortDto) {
+
+        BasicsdatumBomTemplateMaterial basicsdatumBomTemplateMaterial=new BasicsdatumBomTemplateMaterial();
+        Integer  currentId =    baseMapper.selectById( revampSortDto.getCurrentId()).getSort();
+        Integer targetId =  baseMapper.selectById( revampSortDto.getTargetId()) .getSort();
+        basicsdatumBomTemplateMaterial.setId(revampSortDto.getCurrentId());
+        basicsdatumBomTemplateMaterial.setSort(targetId);
+        basicsdatumBomTemplateMaterial.updateInit();
+        baseMapper.updateById(basicsdatumBomTemplateMaterial);
+        BasicsdatumBomTemplateMaterial basicsdatumBomTemplateMaterial1=new BasicsdatumBomTemplateMaterial();
+        basicsdatumBomTemplateMaterial1.setId(revampSortDto.getTargetId());
+        basicsdatumBomTemplateMaterial1.setSort(currentId);
+        basicsdatumBomTemplateMaterial1.updateInit();
+        baseMapper.updateById(basicsdatumBomTemplateMaterial1);
         return true;
     }
 

@@ -25,4 +25,10 @@
     <select id="getTemplateMateriaId" resultType="java.lang.String">
         select material_id from   t_basicsdatum_bom_template_material where  bom_template_id =#{bomTemplateId}
     </select>
+
+    <select id="getMaxSort" resultType="java.lang.Integer">
+
+     SELECT MAX(sort)  FROM `t_basicsdatum_bom_template_material` where  bom_template_id =#{bomTemplateId}
+
+    </select>
 </mapper>

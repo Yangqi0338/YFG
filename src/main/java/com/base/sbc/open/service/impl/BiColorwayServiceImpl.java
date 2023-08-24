@@ -1,10 +1,13 @@
 package com.base.sbc.open.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.hangTag.entity.HangTag;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.pack.entity.PackInfo;
@@ -31,6 +34,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -48,6 +52,7 @@ public class BiColorwayServiceImpl extends ServiceImpl<BiColorwayMapper, BiColor
     private final StyleService styleService;
     private final PackTechSpecService packTechSpecService;
     private final HangTagService hangTagService;
+    private final BasicsdatumSizeService basicsdatumSizeService;
 
     /**
      *
@@ -74,7 +79,7 @@ public class BiColorwayServiceImpl extends ServiceImpl<BiColorwayMapper, BiColor
             biColorway.setC8ColorwaySaleTime(styleColorVo.getNewDate());
             biColorway.setC8ColorwayStyles(styleColorVo.getStyleFlavourName());
             biColorway.setPatternName(styleColorVo.getPatternDesignName());
-            PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", styleColorVo.getBom()));
+            PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", styleColorVo.getBom()).eq("style_color_id",styleColorVo.getId()));
             if (packInfo != null) {
                 // 核价
                 PackPricing packPricing = packPricingService.getOne(new QueryWrapper<PackPricing>().eq("foreign_id", packInfo.getId()).eq("pack_type", "packBigGoods"));
@@ -110,21 +115,24 @@ public class BiColorwayServiceImpl extends ServiceImpl<BiColorwayMapper, BiColor
             biColorway.setColorwayActive("0".equals(styleColorVo.getStatus()) ? "启用" : "停用");
             biColorway.setC8ColorwayBomPhase(styleColorVo.getBomStatus());
             String scmSendFlag = styleColorVo.getScmSendFlag();
-            String status="";
-            switch (scmSendFlag) {
-                case "0":
-                    status = "未发送";
-                    break;
-                case "1":
-                    status = "发送成功";
-                    break;
-                case "2":
-                    status = "发送失败";
-                    break;
-                case "3":
-                    status = "重新打开 ";
-                    break;
+            String status = "";
+            if (scmSendFlag!=null){
+                switch (scmSendFlag) {
+                    case "0":
+                        status = "未发送";
+                        break;
+                    case "1":
+                        status = "发送成功";
+                        break;
+                    case "2":
+                        status = "发送失败";
+                        break;
+                    case "3":
+                        status = "重新打开 ";
+                        break;
+                }
             }
+
             biColorway.setC8SyncSendStatus(status);
 
             biColorway.setC8ColorwayBimages(styleColorVo.getStylePic());
@@ -139,43 +147,42 @@ public class BiColorwayServiceImpl extends ServiceImpl<BiColorwayMapper, BiColor
 
             biColorway.setC8ColorwayAccessories(styleColorVo.getIsTrim());
             biColorway.setC8ColorwayCollectAccCodes(styleColorVo.getAccessoryNo());
-            biColorway.setC8ColorwayIfQ(("1".equals(styleColorVo.getIsLuxury()) ? "是" :"否"));
+            biColorway.setC8ColorwayIfQ(("1".equals(styleColorVo.getIsLuxury()) ? "是" : "否"));
 
 
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-            SimpleDateFormat simpleDateFormat =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-            if (styleColorVo.getDesignDetailDate()!=null){
+            if (styleColorVo.getDesignDetailDate() != null) {
                 biColorway.setC8ColorwayDetailedListTs(simpleDateFormat.format(styleColorVo.getDesignDetailDate()));
             }
 
-            if (styleColorVo.getDesignCorrectDate()!=null){
+            if (styleColorVo.getDesignCorrectDate() != null) {
                 biColorway.setC8ColorwayCorrectSampleTs(simpleDateFormat.format(styleColorVo.getDesignCorrectDate()));
             }
             biColorway.setC8ColorwayIfOrderMeeting("1".equals(styleColorVo.getMeetFlag()) ? "未上会" : "已上会");
 
 
-            if (styleColorVo.getSendBatchingDate1()!=null){
+            if (styleColorVo.getSendBatchingDate1() != null) {
                 biColorway.setC8ColorwaySubMat1Ts(simpleDateFormat.format(styleColorVo.getSendBatchingDate1()));
             }
 
-            if (styleColorVo.getSendBatchingDate2()!=null){
+            if (styleColorVo.getSendBatchingDate2() != null) {
                 biColorway.setC8ColorwaySubMat2Ts(simpleDateFormat.format(styleColorVo.getSendBatchingDate2()));
             }
-            if (styleColorVo.getSendMainFabricDate()!=null){
+            if (styleColorVo.getSendMainFabricDate() != null) {
                 biColorway.setC8ColorwayMainMatts(simpleDateFormat.format(styleColorVo.getSendMainFabricDate()));
             }
 
-            if (styleColorVo.getSendSingleDate()!=null){
+            if (styleColorVo.getSendSingleDate() != null) {
                 biColorway.setC8ColorwayInterMatTs(simpleDateFormat.format(styleColorVo.getSendSingleDate()));
             }
 
 
-            if (styleColorVo.getCreateDate()!=null){
+            if (styleColorVo.getCreateDate() != null) {
                 biColorway.setCreatedAt(simpleDateFormat.format(styleColorVo.getCreateDate()));
             }
 
-            if (styleColorVo.getUpdateDate()!=null){
+            if (styleColorVo.getUpdateDate() != null) {
                 biColorway.setModifiedAt(simpleDateFormat.format(styleColorVo.getUpdateDate()));
             }
 
@@ -189,7 +196,7 @@ public class BiColorwayServiceImpl extends ServiceImpl<BiColorwayMapper, BiColor
             biColorway.setC8ColorwaySupplierArticleColor(styleColorVo.getSupplierColor());
             biColorway.setC8ColorwayPlmid(styleColorVo.getId());
             biColorway.setC8StylePlmid(style.getId());
-            biColorway.setC8ColorwayIsFeaturedPro("0".equals(styleColorVo.getIsMainly()) ? "否" :"是");
+            biColorway.setC8ColorwayIsFeaturedPro("0".equals(styleColorVo.getIsMainly()) ? "否" : "是");
 
             biColorway.setCreatedBy(styleColorVo.getCreateName());
             biColorway.setModifiedBy(styleColorVo.getUpdateName());
@@ -214,24 +221,48 @@ public class BiColorwayServiceImpl extends ServiceImpl<BiColorwayMapper, BiColor
             biColorway.setC8ColorwayCodeWayEnd(null);
 
 
-            HangTag hangTag = hangTagService.getOne(new QueryWrapper<HangTag>().eq("bulkStyle_no", styleColorVo.getStyleNo()));
+            HangTag hangTag = hangTagService.getOne(new QueryWrapper<HangTag>().eq("bulk_style_no", styleColorVo.getStyleNo()));
             //下单时间
-            biColorway.setC8AppbomOrderTime(hangTag.getPlaceOrderDate());
+            if(hangTag!=null){
+                biColorway.setC8AppbomOrderTime(hangTag.getPlaceOrderDate());
+            }
 
 
-            //默认条形码  (默认条形码-配色编码+颜色编码+尺码代码)
-            biColorway.setC8ColorwayDefaultBarcode(null);
+
+
 
 
             //工艺说明             //含外辅工艺
             long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", style.getId()).eq("spec_type", "外辅工艺"));
-            biColorway.setC8ColorwayIsOutsource(count > 0 ? "是" :"否");
+            biColorway.setC8ColorwayIsOutsource(count > 0 ? "是" : "否");
+            String sizeIds = style.getSizeIds();
+            if (sizeIds != null) {
+                List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByIds(Arrays.asList(sizeIds.split(",")));
+                for (BasicsdatumSize basicsdatumSize : basicsdatumSizes) {
+                    BiColorway newbiColorway=new BiColorway();
+                    BeanUtil.copyProperties(biColorway,newbiColorway);
+                    //默认条形码  (默认条形码=配色编码+颜色编码+尺码代码)
+                    String wareCode="";
+                    if (StringUtils.isNotEmpty(styleColorVo.getWareCode())){
+                        wareCode=styleColorVo.getWareCode();
+                    }
+                    String colorCode="";
+                    if (StringUtils.isNotEmpty(styleColorVo.getColorCode())){
+                        colorCode= styleColorVo.getColorCode();
+                    }
 
+                    String code="";
+                    if (StringUtils.isNotEmpty(basicsdatumSize.getCode())){
+                        code = basicsdatumSize.getCode();
+                    }
 
-            list.add(biColorway);
+                    newbiColorway.setC8ColorwayDefaultBarcode(wareCode+colorCode+code);
+                    list.add(newbiColorway);
+                }
+            }
         }
 
         this.remove(null);
-        this.saveBatch(list);
+        this.saveBatch(list,100);
     }
 }

@@ -92,8 +92,11 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         if (CollUtil.isNotEmpty(pbvs)) {
             List<String> bomIds = pbvs.stream().map(PackBomVo::getId).collect(Collectors.toList());
             Map<String, List<PackBomSizeVo>> packBomSizeMap = packBomSizeService.getByBomIdsToMap(bomIds);
+            // 查询资料包-物料清单-配色
+            Map<String, List<PackBomColorVo>> packBomColorMap = packBomColorService.getByBomIdsToMap(bomIds);
             for (PackBomVo pbv : pbvs) {
                 pbv.setPackBomSizeList(packBomSizeMap.get(pbv.getId()));
+                pbv.setPackBomColorVoList(packBomColorMap.get(pbv.getId()));
             }
         }
         return voPageInfo;
