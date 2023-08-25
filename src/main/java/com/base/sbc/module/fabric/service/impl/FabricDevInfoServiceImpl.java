@@ -18,10 +18,10 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 类描述：面料开发信息 service类
@@ -40,7 +40,8 @@ public class FabricDevInfoServiceImpl extends BaseServiceImpl<FabricDevInfoMappe
         if (StringUtils.isEmpty(devApplyCode)) {
             return new FabricDevConfigInfoVO();
         }
-        return super.getBaseMapper().getByDevConfigId(devConfigId, devApplyCode);
+        FabricDevConfigInfoVO devConfigInfoVO = super.getBaseMapper().getByDevConfigId(devConfigId, devApplyCode);
+        return Objects.isNull(devConfigInfoVO) ? new FabricDevConfigInfoVO() : devConfigInfoVO;
     }
 
     @Override
