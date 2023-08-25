@@ -266,6 +266,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.eq("id", dto.getId());
         // 修改单据
         update(uw);
+        /*消息通知*/
+      messageUtils.prmSendMessage(dto.getPatternDesignId(),byId.getPatternNo(),baseController.getUser());
         return true;
     }
 
