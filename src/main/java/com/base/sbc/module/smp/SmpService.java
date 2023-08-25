@@ -828,7 +828,7 @@ public class SmpService {
      * 修改吊牌价的时候验证
      */
     public Boolean checkUpdatePrice(UpdatePriceDto updatePriceDto){
-        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkMaterialsStopAndStock", updatePriceDto);
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkUpdatePrice", updatePriceDto);
         return pushRecordsService.pushRecordSave(httpResp, updatePriceDto, "smp", "修改吊牌价的时候验证");
     }
 }
