@@ -94,6 +94,13 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
     boolean setTaskLevel(List<SetTaskLevelDto> dtoList);
 
     /**
+     * 设置任务等级
+     * @param dtoList
+     * @return
+     */
+    boolean setSeries(List<SetSeriesDto> dtoList);
+
+    /**
      * 查找坑位信息
      *
      * @param dto

@@ -305,6 +305,28 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         return true;
     }
 
+    @Override
+    @Transactional(rollbackFor = {OtherException.class, Exception.class})
+    public boolean setSeries(List<SetSeriesDto> dtoList) {
+        Map<String, SetSeriesDto> dtoMap = dtoList.stream().collect(Collectors.toMap(SetSeriesDto::getId, v -> v, (a, b) -> b));
+        List<PlanningCategoryItem> planningCategoryItems = listByIds(dtoMap.keySet());
+        if (dtoList.size() != planningCategoryItems.size()) {
+            throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+        }
+        Map<String,PlanningCategoryItem> planningCategoryItemMap = planningCategoryItems.stream().collect(Collectors.toMap(BaseEntity::getId, m->m));
+        List<Style> styles = styleService.list(new QueryWrapper<Style>().eq("del_flag","0").in("planning_category_item_id",planningCategoryItemMap.keySet()));
+        if(CollUtil.isEmpty(styles)){
+            throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+        }
+        for (Style style : styles){
+            SetSeriesDto setSeriesDto = dtoMap.get(planningCategoryItemMap.get(style.getPlanningCategoryItemId()).getId());
+            style.setSeriesId(setSeriesDto.getSeriesId());
+            style.setSeries(setSeriesDto.getSeries());
+        }
+        styleService.updateBatchById(styles);
+        return true;
+    }
+
     private void setSeatQw(QueryWrapper<PlanningCategoryItem> qw, ProductCategoryItemSearchDto dto) {
 
     }
