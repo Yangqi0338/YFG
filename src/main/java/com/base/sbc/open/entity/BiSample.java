@@ -3,6 +3,7 @@ package com.base.sbc.open.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -31,7 +32,7 @@ public class BiSample {
     /**
      * 版师质量评分
      */
-    private String c8SampleDesignerScore;
+    private BigDecimal c8SampleDesignerScore;
 
     /**
      * 裁剪件数
@@ -79,7 +80,7 @@ public class BiSample {
     private String sampleSRLineItem;
 
     /**
-     * __Parent__
+     * 产品供应商
      */
     private String parent;
 

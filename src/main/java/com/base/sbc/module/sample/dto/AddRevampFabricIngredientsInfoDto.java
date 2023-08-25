@@ -116,4 +116,7 @@ public class AddRevampFabricIngredientsInfoDto  {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+    /** 提交标记(1设计师,0辅料专员) */
+    @ApiModelProperty(value = "提交标记(1设计师,0辅料专员)"  )
+    private String submitFlag;
 }

@@ -9,8 +9,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.message.entity.ModelMessage;
 import com.base.sbc.client.message.service.MessagesService;
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
@@ -78,7 +80,7 @@ public class MessageUtils {
      * @param teamId 团队id （不传查产品季使用团队）
      */
     @Async
-    public void seatSendMessage(List<String> ids, String teamId) {
+    public void seatSendMessage(List<String> ids, String teamId, GroupUser groupUser) {
         log.info("————————————————————————商品企划下发消息方法参数" + ids + teamId);
         PlanningCategoryItem planningCategoryItem = planningCategoryItemMapper.selectById(ids.get(0));
         String userId = amcFeignService.getUserGroupUserId(planningCategoryItem.getPlanningSeasonId(), teamId, "M设计总监");
@@ -87,9 +89,9 @@ public class MessageUtils {
             Map<String, String> map = new HashMap<>();
             map.put("categoryName", planningCategoryItem.getProdCategoryName());
             map.put("count", Integer.toString(ids.size()));
-            map.put("userId", baseController.getUserId());
-            map.put("userName", baseController.getUser().getName());
-            map.put("avatar", baseController.getUser().getAvatar());
+            map.put("userId", groupUser.getId());
+            map.put("userName", groupUser.getName());
+            map.put("avatar", groupUser.getAvatar());
             ModelMessage modelMessage = new ModelMessage();
             modelMessage.setUserIds(userId);
             modelMessage.setModelCode("YFG001");
@@ -107,13 +109,13 @@ public class MessageUtils {
      * @param userId 用户id
      */
     @Async
-    public void seasonSendMessage(List<String> userId) {
+    public void seasonSendMessage(List<String> userId,GroupUser groupUser) {
         log.info("————————————————————————产品季下发提醒消息用户" + userId);
         if (!CollectionUtils.isEmpty(userId)) {
             Map<String, String> map = new HashMap<>();
-            map.put("userId", baseController.getUserId());
-            map.put("userName", baseController.getUser().getName());
-            map.put("avatar", baseController.getUser().getAvatar());
+            map.put("userId", groupUser.getId());
+            map.put("userName", groupUser.getName());
+            map.put("avatar", groupUser.getAvatar());
             ModelMessage modelMessage = new ModelMessage();
             modelMessage.setUserIds(StringUtils.convertListToString(userId));
             modelMessage.setModelCode("YFG002");
@@ -125,6 +127,73 @@ public class MessageUtils {
 
 
     /**
+     * 调样发送提醒
+     * @param type fabric:面料  ingredients：辅料
+     * @param status 1 消息 0 通知
+     */
+    @Async
+    public void atactiformSendMessage(String type,String status,GroupUser groupUser) {
+        /*面料*/
+        Map<String, String> map = new HashMap<>();
+        String userId = "";
+        ModelMessage modelMessage = new ModelMessage();
+        if (type.equals("fabric")) {
+            map.put("title", "面料调样单");
+        } else {
+            map.put("title", "辅料调样单");
+        }
+        if (StringUtils.isNotBlank(status) && status.equals(BaseGlobal.YES)){
+            userId = amcFeignService.getUserGroupUserId("", "", "M面辅料专员");
+            modelMessage.setModelCode("YFG004");
+        }else {
+            userId = amcFeignService.getUserGroupUserId("", "", "M设计师");
+            modelMessage.setModelCode("YFG005");
+        }
+        if (StringUtils.isNotBlank(userId)) {
+            log.info("————————————————————————发送提醒消息用户" + userId);
+            map.put("userId", groupUser.getId());
+            map.put("userName", groupUser.getName());
+            map.put("avatar", groupUser.getAvatar());
+            modelMessage.setUserIds(userId);
+            modelMessage.setParams(map);
+            String s = messagesService.sendNoticeByModel(modelMessage);
+        }
+
+    }
+
+
+    /**
+     * 下发打版指令
+     * @param deptId
+     */
+    @Async
+    public void sampleDesignSendMessage(String deptId,String patternNo,GroupUser groupUser) {
+
+        if (StringUtils.isNotBlank(deptId)) {
+            String userId = "";
+            List<UserCompany> userCompanies = amcFeignService.getDeptManager(deptId, "1");
+            if (CollUtil.isNotEmpty(userCompanies)) {
+                userId = userCompanies.stream().map(UserCompany::getUserId).collect(Collectors.joining(StrUtil.COMMA));
+            }
+            if(StringUtils.isNotBlank(userId)){
+                log.info("————————————————————————下发打版指令发送提醒消息用户" + userId);
+                Map<String, String> map = new HashMap<>();
+                map.put("patternNo", patternNo);
+                map.put("status", "分配版师打版");
+                map.put("userId", groupUser.getId());
+                map.put("userName", groupUser.getName());
+                map.put("avatar", groupUser.getAvatar());
+                ModelMessage modelMessage = new ModelMessage();
+                modelMessage.setUserIds(userId);
+                modelMessage.setModelCode("YFG003");
+                modelMessage.setParams(map);
+                String s = messagesService.sendNoticeByModel(modelMessage);
+            }
+
+        }
+    }
+
+    /**
      * 样衣任务在状态提醒
      * 从节点配置里获取当前节点要发送的用户及节点信息
      *
@@ -133,7 +202,7 @@ public class MessageUtils {
      * @param status 下一步的状态
      */
     @Async
-    public void sampleTaskSendMessage(BaseDataEntity bean, JSONObject config, String status) {
+    public void sampleTaskSendMessage(BaseDataEntity bean, JSONObject config, String status,GroupUser groupUser) {
         JSONArray msgList = config.getJSONArray("message");
         if (CollUtil.isNotEmpty(msgList)) {
             for (int i = 0; i < msgList.size(); i++) {
@@ -151,6 +220,12 @@ public class MessageUtils {
                     if (CollUtil.isNotEmpty(userCompanies)) {
                         userId = userCompanies.stream().map(UserCompany::getUserId).collect(Collectors.joining(StrUtil.COMMA));
                     }
+                }else if (StrUtil.equals(userType, "technology")) {
+                    /*工艺员*/
+                     userId = amcFeignService.getUserGroupUserId(BeanUtil.getProperty(bean, "planningSeasonId"), "", "M工艺员");
+                }else if (StrUtil.equals(userType, "designer")) {
+                    /*设计师*/
+                    userId = amcFeignService.getUserGroupUserId(BeanUtil.getProperty(bean, "planningSeasonId"), "", "M设计师");
                 }
                 /*消息提醒*/
                 log.info("————————————————————————样衣任务提醒消息用户" + userId);
@@ -158,9 +233,9 @@ public class MessageUtils {
                     Map<String, String> map = new HashMap<>();
                     map.put("patternNo", BeanUtil.getProperty(bean, patternNo));
                     map.put("status", status);
-                    map.put("userId", baseController.getUserId());
-                    map.put("userName", baseController.getUser().getName());
-                    map.put("avatar", baseController.getUser().getAvatar());
+                    map.put("userId", groupUser.getId());
+                    map.put("userName", groupUser.getName());
+                    map.put("avatar", groupUser.getAvatar());
                     ModelMessage modelMessage = new ModelMessage();
                     modelMessage.setUserIds(userId);
                     modelMessage.setModelCode("YFG003");
@@ -171,4 +246,42 @@ public class MessageUtils {
             }
         }
     }
+
+
+    /**
+     * 确认收到样衣消息提醒
+     * @param patternRoomId
+     * @param designNo
+     * @param groupUser
+     */
+    @Async
+    public void receiveSampleSendMessage(String patternRoomId,String designNo,GroupUser groupUser) {
+
+        if (StringUtils.isNotBlank(patternRoomId)) {
+            String userId = "";
+            List<UserCompany> userCompanies = amcFeignService.getDeptManager(patternRoomId, "2");
+            if (CollUtil.isNotEmpty(userCompanies)) {
+                userId = userCompanies.stream().map(UserCompany::getUserId).collect(Collectors.joining(StrUtil.COMMA));
+            }
+            if(StringUtils.isNotBlank(userId)){
+                log.info("————————————————————————确认收到样衣消息提醒发送提醒消息用户" + userId);
+                Map<String, String> map = new HashMap<>();
+                map.put("title", designNo);
+                map.put("userId", groupUser.getId());
+                map.put("userName", groupUser.getName());
+                map.put("avatar", groupUser.getAvatar());
+                ModelMessage modelMessage = new ModelMessage();
+                modelMessage.setUserIds(userId);
+                modelMessage.setModelCode("YFG006");
+                modelMessage.setParams(map);
+                String s = messagesService.sendNoticeByModel(modelMessage);
+            }
+
+        }
+    }
+
+
+
+
+
 }
