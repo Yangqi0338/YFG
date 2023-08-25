@@ -2,6 +2,7 @@ package com.base.sbc.module.planning.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -13,11 +14,13 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.band.entity.Band;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
@@ -35,24 +38,33 @@ import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonVo;
 import com.base.sbc.module.planning.vo.YearSeasonBandVo;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -152,10 +164,6 @@ public class PlanningController extends BaseController {
     public List<BasicStructureTreeVo> categoryTree(String planningChannelId) {
         return planningCategoryItemService.categoryTree(planningChannelId);
     }
-
-
-
-
 
     @ApiOperation(value = "修改坑位信息")
     @PostMapping("/updateCategoryItem")
@@ -290,11 +298,6 @@ public class PlanningController extends BaseController {
         List<Band> bandList = bandService.list(qc);
         Map<String, List<Band>> monthBandMap = bandList.stream().collect(Collectors.groupingBy(Band::getMonth));
 
-        //查询 品类，中类，小类
-        List<BasicStructureTree> categoryList = ccmFeignService.appointNextLevelList("品类", "1");
-        List<BasicStructureTree> centreList = ccmFeignService.appointNextLevelList("品类", "2");
-        List<BasicStructureTree> smallList = ccmFeignService.appointNextLevelList("品类", "3");
-
         // 生成文件名称
         String strFileName = "坑位信息导入模板.xls";
         OutputStream objStream = null;
@@ -306,7 +309,7 @@ public class PlanningController extends BaseController {
             response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(strFileName, "UTF-8"));
             // 文档对象
             ExportPlanningExcel excel = new ExportPlanningExcel();
-            XSSFWorkbook objWb = excel.createWorkBook(monthBandMap, categoryList, centreList, smallList);
+            XSSFWorkbook objWb = excel.createWorkBook(monthBandMap);
             objWb.write(objStream);
             objStream.flush();
             objStream.close();
@@ -324,5 +327,10 @@ public class PlanningController extends BaseController {
         }
     }
 
-
+    @ApiOperation(value = "批量导入坑位信息", notes = "")
+    @PostMapping("/importPlanningExcel")
+    public ApiResult importPlanningExcel(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode, @RequestParam("file") MultipartFile file,
+                                         @RequestParam("planningChannelId") String planningChannelId) throws Exception {
+        return planningCategoryItemService.importPlanningExcel(file, planningChannelId);
+    }
 }

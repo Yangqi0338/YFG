@@ -293,6 +293,10 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     List<PatternDesignVo> getStitcherList(String planningSeasonId);
 
+    boolean patternMakingQualityScore(Principal user, String id, BigDecimal score);
+
+    boolean sampleMakingQualityScore(Principal user, String id, BigDecimal score);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

@@ -289,16 +289,29 @@ public class PatternMakingController {
         return patternMakingService.nextOrPrev(user, idDto.getId(), NodeStatusConfigService.PREV);
     }
 
-    @ApiOperation(value = "打版评分", notes = "")
+    @ApiOperation(value = "版师工作量打分", notes = "")
     @PostMapping("/patternMakingScore")
     public boolean patternMakingScore(Principal user, @Validated @RequestBody ScoreDto dto) {
         return patternMakingService.patternMakingScore(user, dto.getId(), dto.getScore());
+    }
+
+    @ApiOperation(value = "版师的质量打分", notes = "")
+    @PostMapping("/patternMakingQualityScore")
+    public boolean patternMakingQualityScore(Principal user, @Validated @RequestBody ScoreDto dto) {
+        return patternMakingService.patternMakingQualityScore(user, dto.getId(), dto.getScore());
     }
 
     @ApiOperation(value = "样衣制作评分", notes = "")
     @PostMapping("/sampleMakingScore")
     public boolean sampleMakingScore(Principal user, @Validated @RequestBody ScoreDto dto) {
         return patternMakingService.sampleMakingScore(user, dto.getId(), dto.getScore());
+    }
+
+
+    @ApiOperation(value = "样衣工的质量打分", notes = "")
+    @PostMapping("/sampleMakingQualityScore")
+    public boolean sampleMakingQualityScore(Principal user, @Validated @RequestBody ScoreDto dto) {
+        return patternMakingService.sampleMakingQualityScore(user, dto.getId(), dto.getScore());
     }
 
     @ApiOperation(value = "设置样衣条码", notes = "")

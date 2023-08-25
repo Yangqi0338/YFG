@@ -408,6 +408,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
+        qw.eq(StrUtil.isNotBlank(dto.getFinishFlag()), "p.finish_flag", dto.getFinishFlag());
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
         qw.eq(StrUtil.isNotBlank(dto.getPatternStatus()), "p.pattern_status", dto.getPatternStatus());
         qw.eq(StrUtil.isNotBlank(dto.getCuttingStatus()), "p.cutting_status", dto.getCuttingStatus());
@@ -824,6 +825,44 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         PatternMaking updateBean = new PatternMaking();
         updateBean.setPatternMakingScore(score);
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PatternMaking::getId, id);
+        return update(updateBean, uw);
+    }
+
+    @Override
+    public boolean patternMakingQualityScore(Principal user, String id, BigDecimal score) {
+        PatternMaking bean = getById(id);
+        if (bean == null) {
+            throw new OtherException("打版信息为空");
+        }
+        GroupUser groupUser = userUtils.getUserBy(user);
+        //校验是否是样衣组长
+        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
+        if (!sampleTeamLeader) {
+            throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
+        }
+        PatternMaking updateBean = new PatternMaking();
+        updateBean.setPatternMakingQualityScore(score);
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PatternMaking::getId, id);
+        return update(updateBean, uw);
+    }
+
+    @Override
+    public boolean sampleMakingQualityScore(Principal user, String id, BigDecimal score) {
+        PatternMaking bean = getById(id);
+        if (bean == null) {
+            throw new OtherException("打版信息为空");
+        }
+        GroupUser groupUser = userUtils.getUserBy(user);
+        //校验是否是样衣组长
+        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
+        if (!sampleTeamLeader) {
+            throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
+        }
+        PatternMaking updateBean = new PatternMaking();
+        updateBean.setSampleMakingQualityScore(score);
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.lambda().eq(PatternMaking::getId, id);
         return update(updateBean, uw);

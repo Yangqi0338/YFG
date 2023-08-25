@@ -395,6 +395,27 @@ public class Style extends BaseDataEntity<String> {
     /** 颜色名称 */
     @ApiModelProperty(value = "颜色名称"  )
     private String productColors;
+    /** 卖点 */
+    @ApiModelProperty(value = "卖点"  )
+    private String sellingPoint;
+    /** 备注 */
+    @ApiModelProperty(value = "备注"  )
+    private String remarks;
+    /** 是否授权款(1是，0否) */
+    @ApiModelProperty(value = "是否授权款(1是，0否)"  )
+    private String isAccredit;
+    /** 针梭织id */
+    @ApiModelProperty(value = "针梭织id"  )
+    private String needleWeavingId;
+    /** 针梭织名 */
+    @ApiModelProperty(value = "针梭织名"  )
+    private String needleWeaving;
+    /** 系列id */
+    @ApiModelProperty(value = "系列id"  )
+    private String seriesId;
+    /** 系列名 */
+    @ApiModelProperty(value = "系列名"  )
+    private String series;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
