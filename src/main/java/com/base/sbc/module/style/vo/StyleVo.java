@@ -5,6 +5,7 @@ import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.sample.vo.MaterialVo;
+import com.base.sbc.module.style.dto.StyleInfoColorDto;
 import com.base.sbc.module.style.entity.Style;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -75,4 +76,7 @@ public class StyleVo extends Style {
     public Long colorPlanningCount;
     @ApiModelProperty(value = "主题企划数量")
     public Long themePlanningCount;
+
+    @ApiModelProperty(value = "款式设计详情-颜色")
+    private List<StyleInfoColorVo> styleInfoColorVoList;
 }
