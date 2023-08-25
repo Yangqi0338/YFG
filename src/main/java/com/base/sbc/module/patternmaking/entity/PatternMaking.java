@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-17 15:50:10
+ * @date 创建时间：2023-8-25 15:14:11
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -240,15 +240,25 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "裁剪完成数量")
     private BigDecimal cutterFinishNum;
     /**
-     * 样衣制作评分
+     * 样衣工工作量评分
      */
-    @ApiModelProperty(value = "样衣制作评分")
+    @ApiModelProperty(value = "样衣工工作量评分")
     private BigDecimal sampleMakingScore;
     /**
-     * 打版质量评分
+     * 样衣工质量评分
      */
-    @ApiModelProperty(value = "打版质量评分")
+    @ApiModelProperty(value = "样衣工质量评分")
+    private BigDecimal sampleMakingQualityScore;
+    /**
+     * 版师工作量评分
+     */
+    @ApiModelProperty(value = "版师工作量评分")
     private BigDecimal patternMakingScore;
+    /**
+     * 版师质量评分
+     */
+    @ApiModelProperty(value = "版师质量评分")
+    private BigDecimal patternMakingQualityScore;
     /**
      * 车缝工名称
      */
@@ -352,7 +362,6 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "车缝状态:0待接收,1已接收,2进行中,3完成")
     private String sewingStatus;
-
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
