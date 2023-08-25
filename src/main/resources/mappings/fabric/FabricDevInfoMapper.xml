@@ -26,7 +26,7 @@
             and fdi.del_flag = '0'
             and fdi.dev_config_id = #{devConfigId}
             <if test="devApplyCode != null and devApplyCode != ''">
-                fdmi.dev_apply_code = #{devApplyCode}
+               and fdmi.dev_apply_code = #{devApplyCode}
             </if>
         </where>
         order by fdi.create_date desc limit 1
