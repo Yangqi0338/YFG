@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-25 15:14:11
+ * @date 创建时间：2023-8-25 15:34:32
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -362,6 +362,11 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "车缝状态:0待接收,1已接收,2进行中,3完成")
     private String sewingStatus;
+    /**
+     * 流程完成状态:(0未完成,1已完成)
+     */
+    @ApiModelProperty(value = "流程完成状态:(0未完成,1已完成)")
+    private String finishFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
