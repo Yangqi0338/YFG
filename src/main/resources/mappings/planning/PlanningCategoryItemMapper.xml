@@ -20,7 +20,8 @@
         c.*,
         s.name as name,
         sd.`status` AS sd_status,
-        sd.confirm_status AS sd_confirm_status
+        sd.confirm_status AS sd_confirm_status,
+        sd.series
         FROM
         t_planning_category_item c
         join t_planning_season s on(s.id=c.planning_season_id )
