@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.vo.FieldDataPermissionVO;
+import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -48,7 +49,7 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
         private BaseController baseController;
 
         @Autowired
-        private AmcFeignService amcFeignService;
+        private MessageUtils messageUtils;
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -119,6 +120,8 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
                 fabricIngredientsInfo.updateInit();
                 baseMapper.updateById(fabricIngredientsInfo);
                 }
+                /*发送辅料消息给面辅料专员*/
+                messageUtils.atactiformSendMessage("ingredients",addRevampFabricIngredientsInfoDto.getSubmitFlag(),baseController.getUser());
                 return true;
          }
 

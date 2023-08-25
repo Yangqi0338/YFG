@@ -22,6 +22,7 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.hangTag.dto.UpdatePriceDto;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
@@ -820,6 +821,15 @@ public class SmpService {
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkMaterialsStopAndStock", checkMaterial);
         return pushRecordsService.pushRecordSave(httpResp, checkMaterial, "scm", "停用物料尺码和颜色的时候验证");
 
+    }
+
+
+    /**
+     * 修改吊牌价的时候验证(暂不需要)
+     */
+    public Boolean checkUpdatePrice(UpdatePriceDto updatePriceDto){
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkUpdatePrice", updatePriceDto);
+        return pushRecordsService.pushRecordSave(httpResp, updatePriceDto, "smp", "修改吊牌价的时候验证");
     }
 }
 

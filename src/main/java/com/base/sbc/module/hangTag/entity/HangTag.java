@@ -40,7 +40,7 @@ public class HangTag extends BaseDataEntity<String> {
     @ApiModelProperty(value = "备注信息"  )
     private String remarks;
     /** 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认 */
-    @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认"  )
+    @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认,6.不通过"  )
     private String status;
     /** 确认时间 */
     @ApiModelProperty(value = "确认时间"  )

@@ -6,9 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.hangTag.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -32,6 +34,7 @@ import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -56,6 +59,7 @@ import java.util.List;
  * @date 创建时间：2023-6-26 17:15:53
  */
 @Service
+@RequiredArgsConstructor
 public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> implements HangTagService {
     // 自定义方法区 不替换的区域【other_start】
     private static final Logger logger = LoggerFactory.getLogger(HangTagService.class);
@@ -72,6 +76,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private UploadFileService uploadFileService;
     @Autowired
     private StyleColorMapper styleColorMapper;
+    private final FlowableService flowableService;
 
     @Override
     public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -172,9 +177,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                 hangTag.setConfirmDate(new Date());
             }
             updateHangTags.add(hangTag);
+
         });
         super.updateBatchById(updateHangTags);
         hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds(), OperationDescriptionEnum.getV(hangTagUpdateStatusDTO.getStatus()), userCompany);
+        //发送审批
+        for (HangTag tag : updateHangTags) {
+            flowableService.start(FlowableService.HANGING_TAG_REVIEW + tag.getBulkStyleNo(), FlowableService.HANGING_TAG_REVIEW, tag.getBulkStyleNo(), "/pdm/api/saas/hangTag/toExamine",
+                    "/pdm/api/saas/hangTag/toExamine", "/pdm/api/saas/hangTag/toExamine", null, BeanUtil.beanToMap(tag));
+
+        }
     }
 
     @Override

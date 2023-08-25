@@ -20,7 +20,9 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.entity.Dept;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.TechnologyBoardConstant;
@@ -80,14 +82,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     private final AmcFeignService amcFeignService;
 
     private final CcmFeignService ccmFeignService;
-    private final NodeStatusConfigService nodeStatusConfigService;
+
+    private final MessageUtils messageUtils;
 
     @Autowired
     private UserUtils userUtils;
 
     @Autowired
     private RedisUtils redisUtils;
-
+    @Autowired
+    private BaseController baseController;
 
     @Override
     public List<PatternMakingListVo> findBySampleDesignId(String styleId) {
@@ -180,6 +184,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdUw.eq("id", patternMaking.getStyleId());
         sdUw.set("status", BasicNumber.TWO.getNumber());
         styleService.update(sdUw);
+
+        /*发送消息*/
+
+        messageUtils.sampleDesignSendMessage(patternMaking.getPatternRoomId(),patternMaking.getPatternNo(),baseController.getUser());
         // 修改单据
         return update(uw);
     }
@@ -400,6 +408,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
+        qw.eq(StrUtil.isNotBlank(dto.getFinishFlag()), "p.finish_flag", dto.getFinishFlag());
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
         qw.eq(StrUtil.isNotBlank(dto.getPatternStatus()), "p.pattern_status", dto.getPatternStatus());
         qw.eq(StrUtil.isNotBlank(dto.getCuttingStatus()), "p.cutting_status", dto.getCuttingStatus());
@@ -612,6 +621,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.in("id", StrUtil.split(id, StrUtil.COMMA));
         uw.set("receive_sample", BaseGlobal.YES);
         uw.set("receive_sample_date", new Date());
+        /*消息通知*/
+        PatternMaking patternMaking= baseMapper.selectById(id);
+        Style style =  styleService.getById(patternMaking.getStyleId());
+        messageUtils.receiveSampleSendMessage(patternMaking.getPatternRoomId(),style.getDesignNo(),baseController.getUser());
         return update(uw);
     }
 
@@ -812,6 +825,44 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         PatternMaking updateBean = new PatternMaking();
         updateBean.setPatternMakingScore(score);
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PatternMaking::getId, id);
+        return update(updateBean, uw);
+    }
+
+    @Override
+    public boolean patternMakingQualityScore(Principal user, String id, BigDecimal score) {
+        PatternMaking bean = getById(id);
+        if (bean == null) {
+            throw new OtherException("打版信息为空");
+        }
+        GroupUser groupUser = userUtils.getUserBy(user);
+        //校验是否是样衣组长
+        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
+        if (!sampleTeamLeader) {
+            throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
+        }
+        PatternMaking updateBean = new PatternMaking();
+        updateBean.setPatternMakingQualityScore(score);
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PatternMaking::getId, id);
+        return update(updateBean, uw);
+    }
+
+    @Override
+    public boolean sampleMakingQualityScore(Principal user, String id, BigDecimal score) {
+        PatternMaking bean = getById(id);
+        if (bean == null) {
+            throw new OtherException("打版信息为空");
+        }
+        GroupUser groupUser = userUtils.getUserBy(user);
+        //校验是否是样衣组长
+        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
+        if (!sampleTeamLeader) {
+            throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
+        }
+        PatternMaking updateBean = new PatternMaking();
+        updateBean.setSampleMakingQualityScore(score);
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.lambda().eq(PatternMaking::getId, id);
         return update(updateBean, uw);

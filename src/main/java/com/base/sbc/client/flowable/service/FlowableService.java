@@ -28,6 +28,8 @@ public class FlowableService {
     public static final String design_bom_pdn = "设计BOM物料审批";
 
     public static final String MATERIAL = "素材审批";
+
+    public static final String HANGING_TAG_REVIEW = "吊牌审核";
     public static final String pack_tech_pdn = "工艺说明审批";
 
     public static final String SAMPLE_ARCHIVES = "样衣档案审批";

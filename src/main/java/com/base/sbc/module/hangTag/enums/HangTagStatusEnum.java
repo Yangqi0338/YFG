@@ -11,6 +11,7 @@ public enum HangTagStatusEnum {
     TO_TECHNOLOGIST_CONFIRMED("3", "待技术员确认"),
     TO_QUALITY_CONTROL_CONFIRMED("4", "待品控确认"),
     CONFIRMED("5", "已确认"),
+    AUDIT_FAILED("6", "审核失败"),
     ;
     private final String k;
     private final String v;

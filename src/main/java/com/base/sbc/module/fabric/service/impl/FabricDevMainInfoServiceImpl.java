@@ -156,6 +156,7 @@ public class FabricDevMainInfoServiceImpl extends BaseServiceImpl<FabricDevMainI
 
         // 更新开发主信息的实际完成时间
         Date practicalStartDate = aLlPass.stream()
+                .filter(x ->  Objects.nonNull(x.getPracticalStartDate()))
                 .sorted(Comparator.comparing(FabricDevInfo::getPracticalStartDate).reversed())
                 .map(FabricDevInfo::getPracticalStartDate)
                 .findFirst()

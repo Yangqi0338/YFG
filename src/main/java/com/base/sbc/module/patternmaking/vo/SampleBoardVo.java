@@ -165,11 +165,26 @@ public class SampleBoardVo {
     private String stitcherId;
 
 
-    @ApiModelProperty(value = "打版质量评分")
-    private BigDecimal patternMakingScore;
-
-    @ApiModelProperty(value = "样衣制作评分")
+    /**
+     * 样衣工工作量评分
+     */
+    @ApiModelProperty(value = "样衣工工作量评分")
     private BigDecimal sampleMakingScore;
+    /**
+     * 样衣工质量评分
+     */
+    @ApiModelProperty(value = "样衣工质量评分")
+    private BigDecimal sampleMakingQualityScore;
+    /**
+     * 版师工作量评分
+     */
+    @ApiModelProperty(value = "版师工作量评分")
+    private BigDecimal patternMakingScore;
+    /**
+     * 版师质量评分
+     */
+    @ApiModelProperty(value = "版师质量评分")
+    private BigDecimal patternMakingQualityScore;
 
     /**
      * 改版原因

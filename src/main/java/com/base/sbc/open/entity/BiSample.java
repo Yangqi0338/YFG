@@ -3,6 +3,7 @@ package com.base.sbc.open.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -26,12 +27,12 @@ public class BiSample {
     /**
      * 版师工作量评分
      */
-    private String c8SamplePaperPatternScore;
+    private BigDecimal c8SamplePaperPatternScore;
 
     /**
      * 版师质量评分
      */
-    private String c8SampleDesignerScore;
+    private BigDecimal c8SampleDesignerScore;
 
     /**
      * 裁剪件数
@@ -41,7 +42,7 @@ public class BiSample {
     /**
      * 裁剪开始时间
      */
-    private String c8ProductSampleCutterStartDate;
+    private Date c8ProductSampleCutterStartDate;
 
     /**
      * 裁剪师
@@ -51,7 +52,7 @@ public class BiSample {
     /**
      * 裁剪完成时间
      */
-    private String c8ProductSampleCutterFinDate;
+    private Date c8ProductSampleCutterFinDate;
 
     /**
      * 采购的产品
@@ -79,19 +80,19 @@ public class BiSample {
     private String sampleSRLineItem;
 
     /**
-     * __Parent__
+     * 产品供应商
      */
     private String parent;
 
     /**
      * 车缝开始日期
      */
-    private String c8ProductSampleActStartData;
+    private Date c8ProductSampleActStartData;
 
     /**
      * 车缝完成日期
      */
-    private String c8ProductSampleSweiningFinData;
+    private Date c8ProductSampleSweiningFinData;
 
     /**
      * 尺码
@@ -111,7 +112,7 @@ public class BiSample {
     /**
      * 打样需求数量
      */
-    private String c8SampleSampleQty;
+    private BigDecimal c8SampleSampleQty;
 
     /**
      * 放码日期
@@ -191,7 +192,7 @@ public class BiSample {
     /**
      * 齐套日期*
      */
-    private String c8ProductSampleSamplingDate;
+    private Date c8ProductSampleSamplingDate;
 
     /**
      * 前技术确认是否齐套
