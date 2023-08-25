@@ -243,6 +243,25 @@ public class MessageUtils {
                         map.put("userId", groupUser.getId());
                         map.put("userName", groupUser.getName());
                         map.put("avatar", groupUser.getAvatar());
+                        String node =   BeanUtil.getProperty(bean, "node");
+                        /*判断阶段*/
+                        if(node.equals("打版任务")){
+                            /*是否是黑蛋*/
+                            if(urgency1.equals(BaseGlobal.NO)){
+                              /*黑蛋打板*/
+                                map.put("address", "/patternMaking/blackTask/blackPatternMakingTask");
+                            }else {
+                                map.put("address", "/patternMaking/patternMakingTask");
+                            }
+                        }else {
+                            /*是否是黑蛋*/
+                            if(urgency1.equals(BaseGlobal.NO)){
+                                /*黑蛋打板*/
+                                map.put("address", "/patternMaking/blackTask/blackSampleClothesTask");
+                            }else {
+                                map.put("address", "/patternMaking/sampleClothesTask");
+                            }
+                        }
                         ModelMessage modelMessage = new ModelMessage();
                         modelMessage.setUserIds(userId);
                         modelMessage.setModelCode("YFG003");
