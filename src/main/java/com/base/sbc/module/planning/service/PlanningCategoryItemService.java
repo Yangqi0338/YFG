@@ -8,6 +8,7 @@ package com.base.sbc.module.planning.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
@@ -22,7 +23,10 @@ import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.vo.ChartBarVo;
 import com.github.pagehelper.PageInfo;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -184,4 +188,5 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
 
     String getStylePicUrlById(String id);
 
+    ApiResult importPlanningExcel(MultipartFile file, String planningChannelId) throws Exception;
 }

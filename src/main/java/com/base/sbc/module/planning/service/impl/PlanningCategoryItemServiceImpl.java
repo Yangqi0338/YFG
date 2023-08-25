@@ -6,18 +6,23 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service.impl;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.ccm.entity.BasicStructureTree;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.message.utils.MessageUtils;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -28,6 +33,7 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.ProcessDatabaseExcelDto;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -64,7 +70,9 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -632,6 +640,149 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     @Override
     public String getStylePicUrlById(String id) {
         return getBaseMapper().getStylePicUrlById(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult importPlanningExcel(MultipartFile file, String planningChannelId) throws Exception {
+        //查询渠道信息
+        PlanningChannel channel = planningChannelService.getById(planningChannelId);
+        if (channel == null) {
+            throw new OtherException("渠道信息为空");
+        }
+
+        ImportParams params = new ImportParams();
+        params.setNeedSave(false);
+        List<PlanningCategoryItemImportDto> list = ExcelImportUtil.importExcel(file.getInputStream(), PlanningCategoryItemImportDto.class, params);
+
+        //大类
+        List<BasicStructureTree> bigList = ccmFeignService.appointNextLevelList("品类", "0");
+        Map<String, BasicStructureTree> bigMap = bigList.stream().collect(Collectors.toMap(BasicStructureTree::getId, item -> item));
+        //品类
+        List<BasicStructureTree> categoryList = ccmFeignService.appointNextLevelList("品类", "1");
+        Map<String, BasicStructureTree> categoryMap = new HashMap<>();
+        Map<String, BasicStructureTree> categoryNameMap = new HashMap<>();
+        for(BasicStructureTree item : categoryList){
+            categoryMap.put(item.getId(), item);
+
+            BasicStructureTree basicStructureTree = categoryNameMap.get(item.getName());
+            if(basicStructureTree == null){
+                categoryNameMap.put(item.getName(), item);
+            }
+        }
+        //中类
+        List<BasicStructureTree> centerList = ccmFeignService.appointNextLevelList("品类", "2");
+        Map<String, List<BasicStructureTree>> centreMap = new HashMap<>();
+        Map<String, BasicStructureTree> centreNameMap = new HashMap<>();
+        for(BasicStructureTree item : centerList){
+            List<BasicStructureTree> currentList = centreMap.get(item.getParentId());
+            if(currentList == null){
+                currentList = new ArrayList<>();
+            }
+            currentList.add(item);
+            centreMap.put(item.getParentId(), currentList);
+
+            BasicStructureTree basicStructureTree = centreNameMap.get(item.getName());
+            if(basicStructureTree == null){
+                centreNameMap.put(item.getName(), item);
+            }
+        }
+        //小类
+        List<BasicStructureTree> smallList = ccmFeignService.appointNextLevelList("品类", "3");
+        Map<String, List<BasicStructureTree>> smallMap = smallList.stream().collect(Collectors.groupingBy(BasicStructureTree::getParentId));
+
+        Map<String, Map<String, Map<String, BasicStructureTree>>> treeMap = new HashMap<>();
+        for(Map.Entry<String, BasicStructureTree> category : categoryMap.entrySet()){
+            List<BasicStructureTree> currentCenterList = centreMap.get(category.getKey());
+            if(CollectionUtil.isNotEmpty(currentCenterList)){
+                Map<String, Map<String, BasicStructureTree>> centerTemporaryMap = new HashMap<>();
+                for(BasicStructureTree center : currentCenterList){
+                    List<BasicStructureTree> currentSmallList = smallMap.get(center.getId());
+                    if(CollectionUtil.isNotEmpty(currentSmallList)){
+                        Map<String, BasicStructureTree> currentSmallMap = currentSmallList.stream().collect(Collectors.toMap(BasicStructureTree::getName, item -> item));
+                        centerTemporaryMap.put(center.getName(), currentSmallMap);
+                    }
+                }
+                treeMap.put(category.getValue().getName(), centerTemporaryMap);
+            }
+        }
+
+        List<PlanningCategoryItem> addList = new ArrayList<>();
+        List<Integer> dataCompleteErrorList = new ArrayList<>();
+        List<Integer> dataCorrectErrorList = new ArrayList<>();
+        for(int i = 0; i < list.size(); i++){
+            PlanningCategoryItemImportDto itemImportDto = list.get(i);
+            if(StringUtils.isBlank(itemImportDto.getProdCategory()) || StringUtils.isBlank(itemImportDto.getProdCategory2nd()) || StringUtils.isBlank(itemImportDto.getProdCategory3rd())){
+                dataCompleteErrorList.add(i+1);
+            }
+
+            Map<String, Map<String, BasicStructureTree>> currentCenterMap = treeMap.get(itemImportDto.getProdCategory());
+            if(CollectionUtil.isNotEmpty(currentCenterMap)){
+                BasicStructureTree prodCategory = categoryNameMap.get(itemImportDto.getProdCategory());
+                BasicStructureTree prodCategory1st = bigMap.get(prodCategory.getParentId());
+
+                Map<String, BasicStructureTree> currentSmallMap = currentCenterMap.get(itemImportDto.getProdCategory2nd());
+                if(CollectionUtil.isNotEmpty(currentSmallMap)){
+                    BasicStructureTree prodCategory2st = centreNameMap.get(itemImportDto.getProdCategory2nd());
+                    BasicStructureTree prodCategory3st = currentSmallMap.get(itemImportDto.getProdCategory3rd());
+                    if(prodCategory3st != null){
+                        PlanningCategoryItem categoryItem = new PlanningCategoryItem();
+                        BeanUtil.copyProperties(channel, categoryItem);
+
+                        categoryItem.setPlanningChannelId(planningChannelId);
+                        categoryItem.setProdCategory1st(prodCategory1st.getValue());
+                        categoryItem.setProdCategory1stName(prodCategory1st.getName());
+                        categoryItem.setProdCategory(prodCategory.getValue());
+                        categoryItem.setProdCategoryName(prodCategory.getName());
+                        categoryItem.setProdCategory2nd(prodCategory2st.getValue());
+                        categoryItem.setProdCategory2ndName(prodCategory2st.getName());
+                        categoryItem.setProdCategory3rd(prodCategory3st.getValue());
+                        categoryItem.setProdCategory3rdName(prodCategory3st.getName());
+
+                        categoryItem.setImportantStyleFlag(StringUtils.equals(itemImportDto.getImportantStyleFlag(), "是") ? "1" : "0");
+                        categoryItem.setSpecialNeedsFlag(StringUtils.equals(itemImportDto.getImportantStyleFlag(), "是") ? "1" : "0");
+
+                        String[] arrays = itemImportDto.getMonthBandName().split("-");
+                        categoryItem.setMonth(arrays[0]);
+                        categoryItem.setMonthName(arrays[0]);
+                        categoryItem.setBandCode(arrays[1]);
+                        categoryItem.setBandName(arrays[1]);
+
+                        addList.add(categoryItem);
+                    }else{
+                        dataCorrectErrorList.add(i+1);
+                    }
+                }else{
+                    dataCorrectErrorList.add(i+1);
+                }
+            }else{
+                dataCorrectErrorList.add(i+1);
+            }
+        }
+
+        if(CollectionUtil.isNotEmpty(dataCompleteErrorList)){
+            String rowInfo = dataCompleteErrorList.stream().map(String::valueOf).collect(Collectors.joining(","));
+            return ApiResult.error("第" + rowInfo + "行数据的品类，请填写完整！", 500);
+        }
+
+        if(CollectionUtil.isNotEmpty(dataCorrectErrorList)){
+            String rowInfo = dataCorrectErrorList.stream().map(String::valueOf).collect(Collectors.joining(","));
+            return ApiResult.error("第" + rowInfo + "行数据的品类与系统数据不匹配！", 500);
+        }
+
+        //获取设计编号
+        List<String> designCodeList = getNextCode(addList.get(0), addList.size());
+        for(int i = 0; i < addList.size(); i++){
+            PlanningCategoryItem item = addList.get(i);
+            item.setDesignNo(designCodeList.get(i));
+            CommonUtils.resetCreateUpdate(item);
+        }
+
+        Boolean result = saveBatch(addList);
+        if(result){
+            return ApiResult.success("导入成功！", result);
+        }
+        return ApiResult.error("导入成功！", 500);
     }
 
     @Override
