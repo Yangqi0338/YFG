@@ -88,12 +88,12 @@ public class HangTagController extends BaseController {
         if (styleColor == null) {
             throw new OtherException("大货款号:" + bulkStyleNo + " 不存在");
         }
-        //判断是否下发,下发的需要去验证是否可以修改
-        if ("1".equals(styleColor.getScmSendFlag())) {
-            if (!smpService.checkUpdatePrice(updatePriceDto)) {
-                throw new OtherException("该大货款号已下发并且使用,无法修改吊牌价");
-            }
-        }
+        ////判断是否下发,下发的需要去验证是否可以修改
+        //if ("1".equals(styleColor.getScmSendFlag())) {
+        //    if (!smpService.checkUpdatePrice(updatePriceDto)) {
+        //        throw new OtherException("该大货款号已下发并且使用,无法修改吊牌价");
+        //    }
+        //}
 
         styleColor.setTagPrice(updatePriceDto.getTagPrice());
         styleColorService.updateById(styleColor);
