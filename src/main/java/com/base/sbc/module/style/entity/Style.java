@@ -416,6 +416,12 @@ public class Style extends BaseDataEntity<String> {
     /** 系列名 */
     @ApiModelProperty(value = "系列名"  )
     private String series;
+    /** 设计渠道id */
+    @ApiModelProperty(value = "设计渠道id"  )
+    private String designChannelId;
+    /** 设计渠道名 */
+    @ApiModelProperty(value = "设计渠道名"  )
+    private String designChannel;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
