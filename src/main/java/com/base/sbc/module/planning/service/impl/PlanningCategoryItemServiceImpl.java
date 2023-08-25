@@ -798,6 +798,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         List<String> designCodeList = getNextCode(addList.get(0), addList.size());
         for(int i = 0; i < addList.size(); i++){
             PlanningCategoryItem item = addList.get(i);
+            item.setId(null);
             item.setDesignNo(designCodeList.get(i));
             CommonUtils.resetCreateUpdate(item);
         }

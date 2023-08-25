@@ -6,7 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.style.dto.StyleInfoColorDto;
 import com.base.sbc.module.style.entity.StyleInfoColor;
+import com.base.sbc.module.style.vo.StyleInfoColorVo;
+import com.github.pagehelper.PageInfo;
 
 /** 
  * 类描述：款式设计详情颜色表 service类
@@ -20,7 +23,18 @@ public interface StyleInfoColorService extends BaseService<StyleInfoColor>{
 
 // 自定义方法区 不替换的区域【other_start】
 
-
+    /**
+     * 分页查询 款式设计详情颜色
+     * @param styleInfoColorDto 款式设计详情颜色DTO
+     * @return 分页款式设计详情颜色
+     */
+    public PageInfo<StyleInfoColorVo> pageList(StyleInfoColorDto styleInfoColorDto);
+    /**
+     * 根据id删除款式设计详情颜色
+     * @param ids 款式设计详情颜色id
+     * @param companyCode 公司编码
+     */
+    void delStyleInfoColorById(String ids,String companyCode);
 
 // 自定义方法区 不替换的区域【other_end】
 

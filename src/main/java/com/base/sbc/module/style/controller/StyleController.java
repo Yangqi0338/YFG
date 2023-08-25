@@ -6,9 +6,12 @@
  *****************************************************************************/
 package com.base.sbc.module.style.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
@@ -19,6 +22,7 @@ import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.DesignDocTreeVo;
+import com.base.sbc.module.style.vo.StyleInfoColorVo;
 import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -162,6 +166,15 @@ public class StyleController {
     @PostMapping("/planningDemandStatistics")
     public PlanningDemandStatisticsResultVo planningDemandStatistics(@Valid @RequestBody IdDto idDto) {
         return styleService.planningDemandStatistics(idDto.getId());
+    }
+    @ApiOperation(value = "保存款式详情颜色并生成SKU")
+    @PostMapping("/saveBomInfoColorList")
+    public ApiResult saveBomInfoColorList(@RequestBody StyleSaveDto styleSaveDto) {
+        if (null == styleSaveDto || CollectionUtil.isEmpty(styleSaveDto.getStyleInfoColorDtoList())  || StringUtils.isEmpty(styleSaveDto.getProductSizes())
+                || StringUtils.isEmpty(styleSaveDto.getId()) || StringUtils.isEmpty(styleSaveDto.getSizeCodes()) ) {
+           return ApiResult.error("相关参数不能为空：款式详情颜色列表不能为空 || 尺码集合不能为空 ||  尺码Code集合不能为空", 500);
+        }
+        return ApiResult.success("新增成功" , styleService.saveBomInfoColorList(styleSaveDto));
     }
 
 
