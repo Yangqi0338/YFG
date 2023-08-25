@@ -34,4 +34,7 @@ public class PreProductionSampleTaskSearchDto extends Page {
     private String month;
     @ApiModelProperty(value = "节点")
     private String node;
+
+    @ApiModelProperty(value = "流程完成状态:(0未完成,1已完成)")
+    private String finishFlag;
 }

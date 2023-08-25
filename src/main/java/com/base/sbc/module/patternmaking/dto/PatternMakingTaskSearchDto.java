@@ -59,4 +59,8 @@ public class PatternMakingTaskSearchDto extends Page {
      */
     @ApiModelProperty(value = "车缝状态:0待接收,1已接受,2进行中,3完成")
     private String sewingStatus;
+
+
+    @ApiModelProperty(value = "流程完成状态:(0未完成,1已完成)")
+    private String finishFlag;
 }

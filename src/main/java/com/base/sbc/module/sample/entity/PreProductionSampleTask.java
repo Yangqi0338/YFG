@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.PreProductionSampleTask
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-15 15:55:53
+ * @date 创建时间：2023-8-25 16:14:29
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -241,6 +241,11 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "样衣制作评分")
     private BigDecimal sampleMakingScore;
+    /**
+     * 流程完成状态:(0未完成,1已完成)
+     */
+    @ApiModelProperty(value = "流程完成状态:(0未完成,1已完成)")
+    private String finishFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
