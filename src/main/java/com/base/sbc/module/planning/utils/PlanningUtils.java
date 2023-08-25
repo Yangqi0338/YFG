@@ -78,8 +78,13 @@ public class PlanningUtils {
         if (StrUtil.equals(newDesigner, oldDesigner)) {
             return newDesignNo;
         }
+        List<String> split = StrUtil.split(newDesigner, CharUtil.COMMA);
 
-        String newDesignerCode = newDesigner.split(",")[1];
+        String newDesignerCode = CollUtil.get(split,1);
+
+        if (StrUtil.isBlank(newDesignerCode)) {
+            throw new OtherException("设计师没有配置代码");
+        }
 
         //如果还没设置设计师 款号= 款号+设计师代码
         if (StrUtil.isBlank(oldDesigner)) {
