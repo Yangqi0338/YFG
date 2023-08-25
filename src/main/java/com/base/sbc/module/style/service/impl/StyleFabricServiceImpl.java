@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -14,9 +16,13 @@ import com.base.sbc.module.style.entity.StyleFabric;
 import com.base.sbc.module.style.mapper.StyleFabricMapper;
 import com.base.sbc.module.style.service.StyleFabricService;
 import com.base.sbc.module.style.vo.StyleFabricVO;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -33,15 +39,39 @@ public class StyleFabricServiceImpl extends BaseServiceImpl<StyleFabricMapper, S
     // 自定义方法区 不替换的区域【other_start】
     @Override
     public void save(List<StyleFabricSaveDTO> dtos) {
+        if (CollectionUtils.isEmpty(dtos)) {
+            return;
+        }
+
+        Map<String, String> map = this.getId(dtos.get(0).getStyleId());
         IdGen idGen = new IdGen();
-        List<StyleFabric> styleFabrics = dtos.stream().map(e -> {
-            StyleFabric styleFabric = CopyUtil.copy(e, StyleFabric.class);
-            styleFabric.setId(idGen.nextIdStr());
-            styleFabric.setCompanyCode(super.getCompanyCode());
-            styleFabric.insertInit();
-            return styleFabric;
-        }).collect(Collectors.toList());
-        super.saveBatch(styleFabrics);
+        List<StyleFabric> styleFabrics = dtos.stream()
+                .map(e -> {
+                    StyleFabric styleFabric = CopyUtil.copy(e, StyleFabric.class);
+                    String id = map.get(styleFabric.getFabricLibraryId());
+                    styleFabric.setId(StringUtils.isEmpty(id) ? idGen.nextIdStr() : id);
+                    styleFabric.setCompanyCode(super.getCompanyCode());
+                    styleFabric.insertInit();
+                    return styleFabric;
+                }).collect(Collectors.toList());
+        super.saveOrUpdateBatch(styleFabrics);
+    }
+
+    private Map<String, String> getId(String styleId) {
+        if (StringUtils.isEmpty(styleId)) {
+            return new HashMap<>();
+        }
+        LambdaQueryWrapper<StyleFabric> qw = new QueryWrapper<StyleFabric>()
+                .lambda()
+                .eq(StyleFabric::getStyleId, styleId)
+                .eq(StyleFabric::getDelFlag, "0")
+                .select(StyleFabric::getId, StyleFabric::getFabricLibraryId);
+        List<StyleFabric> list = super.list(qw);
+        if (CollectionUtils.isEmpty(list)) {
+            return new HashMap<>();
+        }
+        return list.stream()
+                .collect(Collectors.toMap(StyleFabric::getFabricLibraryId, StyleFabric::getId, (k1, k2) -> k2));
     }
 
     @Override
