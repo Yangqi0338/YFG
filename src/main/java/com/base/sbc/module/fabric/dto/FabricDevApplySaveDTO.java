@@ -25,11 +25,7 @@ public class FabricDevApplySaveDTO {
      */
     @ApiModelProperty(value = "备注信息")
     private String remarks;
-    /**
-     * 开发申请单号
-     */
-    @ApiModelProperty(value = "开发申请单号")
-    private String devApplyCode;
+
     /**
      * 分配状态:1.待分配、2.进行中、3.已完成
      */
