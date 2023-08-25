@@ -121,7 +121,7 @@ public interface CcmService {
      * @param dataMap
      * @return
      */
-    @PostMapping("/ccm/api/saas/companyCodeGen/getGenCodeByRedis")
+    @PostMapping(value = "/ccm/api/saas/companyCodeGen/getGenCodeByRedis", headers = {"Content-type=application/json"})
     String getGenCodeByRedis(@RequestParam("genCode") String genCode, @RequestParam("count") Integer count, @RequestBody Object dataMap);
 
 
