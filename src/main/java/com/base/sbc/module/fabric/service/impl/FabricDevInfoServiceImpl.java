@@ -66,11 +66,14 @@ public class FabricDevInfoServiceImpl extends BaseServiceImpl<FabricDevInfoMappe
 
     @Override
     public void updateFile(String id, String attachmentUrl) {
+        FabricDevInfo devInfo = super.getById(id);
         FabricDevInfo fabricDevInfo = new FabricDevInfo();
         fabricDevInfo.setId(id);
         fabricDevInfo.updateInit();
         fabricDevInfo.setAttachmentUrl(attachmentUrl);
-        fabricDevInfo.setPracticalStartDate(new Date());
+        if (Objects.isNull(devInfo.getPracticalStartDate())) {
+            fabricDevInfo.setPracticalStartDate(new Date());
+        }
         fabricDevInfo.setOperator(super.getUserName());
         fabricDevInfo.setOperatorId(super.getUserId());
         super.updateById(fabricDevInfo);
