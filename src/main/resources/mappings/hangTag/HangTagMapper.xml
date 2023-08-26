@@ -147,7 +147,8 @@
         tssc.color_name AS color,
         tssc.tag_price AS tagPrice,
         <!--        st.describe as `describe`,-->
-        GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) AS ingredient,
+        GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) AS ingredient_B,
+
         ht.*,
         IFNULL(ht.template_part,tsd.pattern_parts) as templatePart
         FROM
