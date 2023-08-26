@@ -15,6 +15,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
@@ -76,6 +77,8 @@ import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -100,6 +103,7 @@ import java.util.stream.Collectors;
 @Service
 public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implements StyleService {
 
+    protected static Logger logger = LoggerFactory.getLogger(StyleServiceImpl.class);
 
     @Autowired
     private FlowableService flowableService;
@@ -184,8 +188,17 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
         //保存关联的素材库
         planningCategoryItemMaterialService.saveMaterialList(dto);
-        // 保存款式设计详情颜色
-        this.saveBomInfoColorList(dto);
+        try {
+            // 是否开启单款多色开关
+            Boolean ifSwitch = ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.STYLE_MANY_COLOR.getKeyCode());
+            if (ifSwitch) {
+                // 保存款式设计详情颜色
+                this.saveBomInfoColorList(dto);
+            }
+        } catch (Exception e) {
+            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
+        }
+
 
         return style;
     }
@@ -197,6 +210,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
      */
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public List<StyleInfoColorVo> saveBomInfoColorList(StyleSaveDto styleSaveDto) {
+        if(null == styleSaveDto && null == styleSaveDto.getStyleInfoColorDtoList()){
+            return null;
+        }
         List<StyleInfoColor> styleInfoColors = BeanUtil.copyToList(styleSaveDto.getStyleInfoColorDtoList(), StyleInfoColor.class);
         // 初始化数据
         styleInfoColors.forEach(styleInfoColor -> {
