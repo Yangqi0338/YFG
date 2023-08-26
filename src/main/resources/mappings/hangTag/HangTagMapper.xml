@@ -67,7 +67,7 @@
             </if>
             <if test="dto.status != null and dto.status != ''">
                 <choose>
-                    <when test="dto.status == '0'">
+                    <when test="dto.status == 0">
                         AND (ht.status = '' or ht.status = '0' or ht.status is null)
                     </when>
                     <otherwise>
