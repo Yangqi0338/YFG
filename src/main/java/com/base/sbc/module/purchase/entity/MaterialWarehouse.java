@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.MaterialWarehouse
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-4 14:46:11
+ * @date 创建时间：2023-8-26 10:12:36
  * @version 1.0
  */
 @Data
@@ -37,6 +37,9 @@ public class MaterialWarehouse extends BaseDataEntity<String> {
     /** 状态（0禁用 1启用） */
     @ApiModelProperty(value = "状态（0禁用 1启用）"  )
     private String status;
+    /** 编码 */
+    @ApiModelProperty(value = "编码"  )
+    private String code;
     /** 仓库名称 */
     @ApiModelProperty(value = "仓库名称"  )
     private String warehouseName;
