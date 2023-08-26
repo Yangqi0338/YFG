@@ -616,19 +616,24 @@ public class SmpService {
             return 0;
         }
         List<BasicsdatumColourLibrary> basicsdatumColourLibraries = basicsdatumColourLibraryService.list(new QueryWrapper<BasicsdatumColourLibrary>().in("id", Arrays.asList(ids)));
+        Boolean issuedToExternalSmpSystemSwitch = ccmFeignService.getSwitchByCode("ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH");
 
         int i = 0;
         for (BasicsdatumColourLibrary basicsdatumColourLibrary : basicsdatumColourLibraries) {
-            SmpColorDto smpColorDto = basicsdatumColourLibrary.toSmpColorDto();
-
-            HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/color", smpColorDto);
-            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpColorDto, "smp", "颜色主数据下发");
-            if (aBoolean) {
-                i++;
-                basicsdatumColourLibrary.setScmSendFlag("1");
+            if (issuedToExternalSmpSystemSwitch) {
+                SmpColorDto smpColorDto = basicsdatumColourLibrary.toSmpColorDto();
+                HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/color", smpColorDto);
+                Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpColorDto, "smp", "颜色主数据下发");
+                if (aBoolean) {
+                    i++;
+                    basicsdatumColourLibrary.setScmSendFlag("1");
+                } else {
+                    basicsdatumColourLibrary.setScmSendFlag("2");
+                }
             } else {
-                basicsdatumColourLibrary.setScmSendFlag("2");
+                basicsdatumColourLibrary.setScmSendFlag("1");
             }
+
             basicsdatumColourLibraryService.updateById(basicsdatumColourLibrary);
         }
         return i;

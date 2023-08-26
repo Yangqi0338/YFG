@@ -63,4 +63,11 @@ public class PatternMakingTaskSearchDto extends Page {
 
     @ApiModelProperty(value = "流程完成状态:(0未完成,1已完成)")
     private String finishFlag;
+
+    @ApiModelProperty(value = "车缝工id")
+    private String stitcherId;
+
+    @ApiModelProperty(value = "裁剪工id")
+    private String cutterId;
+
 }

@@ -112,7 +112,7 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
         /*获取模板下最大顺序*/
         Integer sort = baseMapper.getMaxSort(list.get(0).getBomTemplateId());
         for (int i = 0; i < templateMaterialList.size(); i++) {
-            templateMaterialList.get(i).setSort(sort + i + 1);
+            templateMaterialList.get(i).setSort(sort==null?0:sort + i + 1);
         }
         saveOrUpdateBatch(templateMaterialList);
         return true;
@@ -163,6 +163,8 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
             List<BasicsdatumColourLibrary> libraryList = basicsdatumColourLibraryMapper.selectList(queryWrapper);
             if (!CollectionUtils.isEmpty(libraryList)) {
                 addRevampBomTemplateMaterialDto.setColorPic(libraryList.get(0).getPicture());
+                addRevampBomTemplateMaterialDto.setColor(libraryList.get(0).getColourName());
+                addRevampBomTemplateMaterialDto.setColorCode(libraryList.get(0).getColourCode());
             }
         }
         BeanUtils.copyProperties(addRevampBomTemplateMaterialDto, bomTemplateMaterial);

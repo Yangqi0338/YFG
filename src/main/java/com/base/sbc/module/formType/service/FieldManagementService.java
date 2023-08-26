@@ -60,6 +60,14 @@ public interface FieldManagementService extends BaseService<FieldManagement> {
      */
     void conversion(List<FieldManagementVo> fieldList, List<FieldVal> valueList);
 
+    /**
+     * 删除字段
+     * @param id
+     * @return
+     */
+    Boolean  removeById(String id);
+
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

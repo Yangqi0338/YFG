@@ -113,6 +113,8 @@ public class BomSelMaterialVo {
      */
     @ApiModelProperty(value = "损耗%")
     private BigDecimal lossRate;
+    @ApiModelProperty(value = "克重")
+    private BigDecimal gramWeight;
     /**
      * 成本
      */
@@ -173,6 +175,11 @@ public class BomSelMaterialVo {
 
     @ApiModelProperty(value = "规格名称")
     private String widthName;
+
+    @ApiModelProperty(value = "货期名称")
+    private String deliveryName;
+    @ApiModelProperty(value = "货期编码")
+    private String deliveryCode;
 
 
 }

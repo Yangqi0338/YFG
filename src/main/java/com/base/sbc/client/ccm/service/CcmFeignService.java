@@ -12,6 +12,7 @@ import com.base.sbc.client.ccm.entity.BasicStructureSearchDto;
 import com.base.sbc.client.ccm.entity.BasicStructureTree;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -241,5 +242,19 @@ public class CcmFeignService {
             return data;
         }
         return null;
+    }
+
+    /**
+     * 通过编码获取开关是否开启或关闭
+     * @param code
+     * @return
+     */
+    public Boolean getSwitchByCode(String code) {
+        String resultStr = ccmService.getCompanySettingData(code);
+        JSONObject jsonObject = JSON.parseObject(resultStr);
+        if (Objects.isNull(jsonObject.getJSONObject("data")) || !jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            return Boolean.TRUE;
+        }
+        return !YesOrNoEnum.NO.getValueStr().equals(jsonObject.getJSONObject("data").getString("value"));
     }
 }
