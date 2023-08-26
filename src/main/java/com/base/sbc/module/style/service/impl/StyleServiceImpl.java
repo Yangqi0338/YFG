@@ -210,7 +210,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
      */
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public List<StyleInfoColorVo> saveBomInfoColorList(StyleSaveDto styleSaveDto) {
-        if(null == styleSaveDto && null == styleSaveDto.getStyleInfoColorDtoList()){
+        if(null == styleSaveDto || null == styleSaveDto.getStyleInfoColorDtoList()){
             return null;
         }
         List<StyleInfoColor> styleInfoColors = BeanUtil.copyToList(styleSaveDto.getStyleInfoColorDtoList(), StyleInfoColor.class);
