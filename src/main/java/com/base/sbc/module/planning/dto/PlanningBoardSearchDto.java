@@ -36,4 +36,7 @@ public class PlanningBoardSearchDto {
     @ApiModelProperty(value = "品类", required = false, example = "700655279267643450")
     private String prodCategory;
 
+    @ApiModelProperty(value = "维度字段id", required = false, example = "122222")
+    private String fieldId;
+
 }

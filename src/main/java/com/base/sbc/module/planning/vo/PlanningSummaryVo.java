@@ -20,15 +20,15 @@ import java.util.Map;
 @ApiModel("企划汇总Vo PlanningSummaryVo")
 public class PlanningSummaryVo {
 
+    @ApiModelProperty(value = "品类数量统计")
+    private List<DimensionTotalVo> xList;
 
     @ApiModelProperty(value = "波段数量统计")
-    private List<DimensionTotalVo> bandTotal;
+    private List<DimensionTotalVo> yList;
 
-    @ApiModelProperty(value = "品类数量统计")
-    private List<DimensionTotalVo> categoryTotal;
 
     @ApiModelProperty(value = "明细数据")
-    private Map<String, List<PlanningSummaryDetailVo>> seatData;
+    private Map<String, List<PlanningSummaryDetailVo>> xyData;
 
 
 }

@@ -10,6 +10,7 @@ import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.dto.SaveDelDemandDto;
 import com.base.sbc.module.planning.entity.PlanningDemand;
+import com.base.sbc.module.planning.vo.PlanningDemandVo;
 
 import java.util.List;
 
@@ -23,9 +24,11 @@ import java.util.List;
  */
 public interface PlanningDemandService extends BaseService<PlanningDemand> {
 
-/** 自定义方法区 不替换的区域【other_start】 **/
+    /**
+     * 自定义方法区 不替换的区域【other_start】
+     **/
 
-    ApiResult getDemandListById(QueryDemandDto queryDemandDimensionalityDto);
+    List<PlanningDemandVo> getDemandListById(QueryDemandDto queryDemandDimensionalityDto);
 
 
     ApiResult getFormDemand(QueryDemandDto queryDemandDimensionalityDto);
