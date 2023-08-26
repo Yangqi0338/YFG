@@ -19,10 +19,7 @@ import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.style.vo.CategoryStylePlanningVo;
-import com.base.sbc.module.style.vo.DesignDocTreeVo;
-import com.base.sbc.module.style.vo.StyleBoardCategorySummaryVo;
-import com.base.sbc.module.style.vo.StyleVo;
+import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -181,6 +178,13 @@ public interface StyleService extends BaseService<Style> {
      * @return
      */
     PlanningDemandStatisticsResultVo planningDemandStatistics(String id);
+
+    /**
+     * 保存款式设计详情颜色
+     * @param styleSaveDto 款式设计详情颜色DTO
+     * @return 款式设计详情颜色列表
+     */
+    List<StyleInfoColorVo> saveBomInfoColorList(StyleSaveDto styleSaveDto);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

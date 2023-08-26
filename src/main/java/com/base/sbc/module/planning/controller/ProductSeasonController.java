@@ -9,10 +9,7 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
-import com.base.sbc.module.planning.dto.AllocationDesignDto;
-import com.base.sbc.module.planning.dto.PlanningCategoryItemBatchUpdateDto;
-import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
-import com.base.sbc.module.planning.dto.SetTaskLevelDto;
+import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
@@ -90,6 +87,13 @@ public class ProductSeasonController extends BaseController {
     public boolean allocationDesign(@Valid @RequestBody List<AllocationDesignDto> dtoList){
         return planningCategoryItemService.allocationDesign(dtoList);
 
+    }
+
+    @ApiOperation(value = "设置系列")
+    @PostMapping("/setSeries")
+    public boolean setSeries(@Valid @RequestBody List<SetSeriesDto> dtoList){
+        // 查询数据是否存在
+        return planningCategoryItemService.setSeries(dtoList);
     }
 
     /**

@@ -90,6 +90,9 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
             planningChannel.setChannelName(dto.getChannelName());
             planningChannel.setSex(dto.getSex());
             planningChannel.setSexName(dto.getSexName());
+            planningChannel.setProductLine(dto.getProductLine());
+            planningChannel.setProductLineName(dto.getProductLineName());
+
             updateById(planningChannel);
             //修改对应的坑位信息
             planningCategoryItemService.updateByChannelChange(planningChannel);

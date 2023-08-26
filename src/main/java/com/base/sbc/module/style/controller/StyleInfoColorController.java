@@ -5,11 +5,14 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.style.controller;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.style.dto.StyleInfoColorDto;
 import com.base.sbc.module.style.entity.StyleInfoColor;
 import com.base.sbc.module.style.service.StyleInfoColorService;
+import com.base.sbc.module.style.vo.StyleInfoColorVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -19,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -33,17 +37,15 @@ import java.util.List;
 @Api(tags = "款式设计详情颜色表")
 @RequestMapping(value = BaseController.SAAS_URL + "/styleInfoColor", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class StyleInfoColorController{
+public class StyleInfoColorController extends BaseController{
 
 	@Autowired
 	private StyleInfoColorService styleInfoColorService;
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping
-	public PageInfo<StyleInfoColor> page(Page page) {
-		PageHelper.startPage(page);
-		List<StyleInfoColor> list = styleInfoColorService.list();
-		return new PageInfo<>(list);
+	public PageInfo<StyleInfoColorVo> page(@Valid StyleInfoColorDto styleInfoColorDto) {
+		return styleInfoColorService.pageList(styleInfoColorDto);
 	}
 
 	@ApiOperation(value = "明细-通过id查询")
@@ -54,9 +56,9 @@ public class StyleInfoColorController{
 
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
 	@DeleteMapping("/{id}")
-	public Boolean removeById(@PathVariable("id") String id) {
-		List<String> ids = StringUtils.convertList(id);
-		return styleInfoColorService.removeByIds(ids);
+	public ApiResult removeById(@PathVariable("id") String id) {
+		styleInfoColorService.delStyleInfoColorById(id, getUserCompany());
+		return deleteSuccess("删除成功");
 	}
 
 	@ApiOperation(value = "保存")

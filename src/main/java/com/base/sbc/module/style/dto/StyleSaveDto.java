@@ -1,9 +1,12 @@
 package com.base.sbc.module.style.dto;
 
 import com.base.sbc.module.formType.entity.FieldVal;
+import com.base.sbc.module.pack.dto.PackBomColorDto;
+import com.base.sbc.module.pack.vo.PackBomColorVo;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.sample.vo.MaterialVo;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleInfoColor;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -35,5 +38,10 @@ public class StyleSaveDto extends Style {
 
     @ApiModelProperty(value = "关联的素材库")
     private List<MaterialVo> materialList;
+
+    @ApiModelProperty(value = "款式设计详情-颜色")
+    private List<StyleInfoColorDto> styleInfoColorDtoList;
+
+
 
 }

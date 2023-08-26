@@ -41,10 +41,7 @@ import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FieldValService;
 import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
-import com.base.sbc.module.pack.dto.PackBomDto;
-import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
-import com.base.sbc.module.pack.dto.PlanningDemandStatisticsResultVo;
-import com.base.sbc.module.pack.dto.PlanningDemandStatisticsVo;
+import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -67,8 +64,13 @@ import com.base.sbc.module.smp.dto.PlmStyleSizeParam;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.entity.StyleInfoColor;
+import com.base.sbc.module.style.entity.StyleInfoSku;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
+import com.base.sbc.module.style.mapper.StyleInfoColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
+import com.base.sbc.module.style.service.StyleInfoColorService;
+import com.base.sbc.module.style.service.StyleInfoSkuService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
@@ -151,6 +153,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private PlanningDemandMapper planningDemandMapper;
     @Autowired
     private PlanningDemandProportionDataService planningDemandProportionDataService;
+    @Resource
+    private StyleInfoColorService styleInfoColorService;
+    @Resource
+    private StyleInfoSkuService styleInfoSkuService;
     private IdGen idGen = new IdGen();
 
     @Override
@@ -178,9 +184,63 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
         //保存关联的素材库
         planningCategoryItemMaterialService.saveMaterialList(dto);
-
+        // 保存款式设计详情颜色
+        this.saveBomInfoColorList(dto);
 
         return style;
+    }
+
+    /**
+     * 保存款式设计详情颜色
+     * @param styleSaveDto 款式设计详情颜色DTO
+     * @return 款式设计详情颜色列表
+     */
+    @Transactional(rollbackFor = {Exception.class, OtherException.class})
+    public List<StyleInfoColorVo> saveBomInfoColorList(StyleSaveDto styleSaveDto) {
+        List<StyleInfoColor> styleInfoColors = BeanUtil.copyToList(styleSaveDto.getStyleInfoColorDtoList(), StyleInfoColor.class);
+        // 初始化数据
+        styleInfoColors.forEach(styleInfoColor -> {
+            styleInfoColor.insertInit();
+        });
+        // 保存款式设计详情颜色
+        boolean flg = styleInfoColorService.saveBatch(styleInfoColors);
+        if (!flg) {
+            throw new OtherException("新增款式设计详情颜色失败，请联系管理员");
+        }
+        // 保存款式设计SKU
+        List<StyleInfoSku> styleInfoSkuList = new ArrayList<>();
+        // 拼接款式SKU数据： 颜色多个尺码
+        styleInfoColors.forEach(styleInfoColor -> {
+            // 取款式尺码编码
+            List<String> sizeCodeList = com.base.sbc.config.utils.StringUtils.convertList(styleSaveDto.getSizeCodes());
+            // 取除款式尺码
+            List<String> productSizeList = com.base.sbc.config.utils.StringUtils.convertList(styleSaveDto.getProductSizes());
+            // 拼接款式SKU ：颜色code + 尺码code
+            for (int i = 0; i < sizeCodeList.size(); i++) {
+                // 尺码code
+                String sizeCode = sizeCodeList.get(i);
+                // 尺码名称
+                String sizeName =  null != productSizeList.get(i) ? productSizeList.get(i) : "";
+                // SKU ：颜色code + - + 尺码code
+                String skuCode = styleInfoColor.getColorCode() + BaseGlobal.H + sizeCode;
+                StyleInfoSku styleInfoSku = new StyleInfoSku();
+                styleInfoSku.setForeignId(styleInfoColor.getForeignId());
+                styleInfoSku.setPackType(styleInfoColor.getPackType());
+                styleInfoSku.setSkuCode(skuCode);
+                styleInfoSku.setColorCode(styleInfoColor.getColorCode());
+                styleInfoSku.setColorName(styleInfoColor.getColorName());
+                styleInfoSku.setSizeCode(sizeCode);
+                styleInfoSku.setSizeName(sizeName);
+                styleInfoSku.insertInit();
+                styleInfoSkuList.add(styleInfoSku);
+            }
+        });
+        // 保存款式SKU数据
+        boolean skuFlg = styleInfoSkuService.saveBatch(styleInfoSkuList);
+        if (!skuFlg) {
+            throw new OtherException("新增款式SKU失败，请联系管理员");
+        }
+        return BeanUtil.copyToList(styleInfoColors, StyleInfoColorVo.class);
     }
 
     private void resetDesignNo(StyleSaveDto dto, Style db) {
