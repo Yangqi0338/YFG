@@ -32,7 +32,8 @@
         ht.safty_type_code,
         ht.safty_type,
         ht.quality_grade,
-        GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) AS ingredient,
+        GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) AS ingredient_b,
+        ht.ingredient,
         ht.warm_tips,
         ht.washing_label,
         ht.storage_demand,
@@ -62,10 +63,17 @@
                 AND tssc.style_no like concat('%',#{dto.bulkStyleNo},'%')
             </if>
             <if test="dto.ingredient != null and dto.ingredient != ''">
-                AND hti.type = like concat('%',#{dto.ingredient},'%')
+                AND ht.ingredient  like concat('%',#{dto.ingredient},'%')
             </if>
             <if test="dto.status != null and dto.status != ''">
-                AND ht.status = #{dto.status}
+                <choose>
+                    <when test="dto.status == '0'">
+                        AND (ht.status = '' or ht.status = '0' or ht.status is null)
+                    </when>
+                    <otherwise>
+                        AND ht.status = #{dto.status}
+                    </otherwise>
+                </choose>
             </if>
 
             <if test="dto.confirmDate != null and dto.confirmDate != ''">
