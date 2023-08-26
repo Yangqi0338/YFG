@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.purchase.entity;
 import java.math.BigDecimal;
+import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -17,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.WarehousingOrderDetail
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-10 10:03:33
+ * @date 创建时间：2023-8-26 15:28:39
  * @version 1.0
  */
 @Data
@@ -60,6 +62,9 @@ public class WarehousingOrderDetail extends BaseDataEntity<String> {
     /** 物料规格 */
     @ApiModelProperty(value = "物料规格"  )
     private String materialSpecifications;
+    /** 款式名称 */
+    @ApiModelProperty(value = "款式名称"  )
+    private String styleName;
     /** 物料颜色 */
     @ApiModelProperty(value = "物料颜色"  )
     private String materialColor;
@@ -98,3 +103,4 @@ public class WarehousingOrderDetail extends BaseDataEntity<String> {
     private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+
