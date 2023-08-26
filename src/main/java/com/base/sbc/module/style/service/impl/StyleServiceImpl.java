@@ -678,7 +678,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         brandTotalQw.groupBy("sd.band_name");
         stylePlanningCommonQw(brandTotalQw, dto);
         List<DimensionTotalVo> bandTotal = getBaseMapper().dimensionTotal(brandTotalQw);
-        vo.setBandTotal(PlanningUtils.removeEmptyAndSort(bandTotal));
+        vo.setXList(PlanningUtils.removeEmptyAndSort(bandTotal));
 
         //查询品类统计
         QueryWrapper categoryQw = new QueryWrapper();
@@ -686,7 +686,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         categoryQw.groupBy("prod_category_name");
         stylePlanningCommonQw(categoryQw, dto);
         List<DimensionTotalVo> categoryTotal = getBaseMapper().dimensionTotal(categoryQw);
-        vo.setCategoryTotal(PlanningUtils.removeEmptyAndSort(categoryTotal));
+        vo.setYList(PlanningUtils.removeEmptyAndSort(categoryTotal));
         //查询明细
         QueryWrapper detailQw = new QueryWrapper();
         stylePlanningCommonQw(detailQw, dto);
@@ -695,7 +695,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             amcFeignService.setUserAvatarToList(detailVoList);
             attachmentService.setListStylePic(detailVoList, "stylePic");
             Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getProdCategoryName() + StrUtil.DASHED + k.getBandName()));
-            vo.setSeatData(seatData);
+            vo.setXyData(seatData);
         }
         return vo;
     }
@@ -1078,7 +1078,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 vo.setFieldId(first.getFieldId());
                 vo.setName(item.getClassifyName());
                 vo.setCode(item.getClassify());
-                vo.setTotal(item.getProportion());
+                vo.setTotal(String.valueOf(item.getNum()));
                 vo.setQuantity(Optional.ofNullable(fvItemMap.get(first.getCode() + StrUtil.DASHED + item.getClassify())).map(il -> String.valueOf(CollUtil.size(il))).orElse("0"));
 
                 value.add(vo);

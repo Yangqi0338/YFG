@@ -7,12 +7,12 @@
 package com.base.sbc.module.planning.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumWashIconVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formType.entity.FieldManagement;
@@ -28,7 +28,6 @@ import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.mapper.PlanningDemandProportionDataMapper;
 import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.vo.PlanningDemandVo;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,12 +62,13 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
 
 
     @Override
-    public ApiResult getDemandListById(QueryDemandDto queryDemandDimensionalityDto) {
+    public List<PlanningDemandVo> getDemandListById(QueryDemandDto queryDemandDimensionalityDto) {
         QueryWrapper<PlanningDemand> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("category_id", queryDemandDimensionalityDto.getCategoryId());
         queryWrapper.eq("planning_season_id", queryDemandDimensionalityDto.getPlanningSeasonId());
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
+        queryWrapper.eq(StrUtil.isNotBlank(queryDemandDimensionalityDto.getFieldId()), "field_id", queryDemandDimensionalityDto.getFieldId());
         /*选中的需求*/
         List<PlanningDemandVo> list = baseMapper.getDemandDimensionalityById(queryWrapper);
 
@@ -109,7 +109,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
                 }
             });
         };
-        return ApiResult.success("查询成功", list);
+        return list;
     }
 
     @Override
