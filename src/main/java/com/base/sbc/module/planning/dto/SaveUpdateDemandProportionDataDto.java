@@ -19,6 +19,10 @@ public class SaveUpdateDemandProportionDataDto {
     @NotBlank(message = "分类不能为空")
     private String   classify;
 
+    /** 数量 */
+    @ApiModelProperty(value = "数量"  )
+    private Integer num;
+
     @ApiModelProperty(value = "分类名称" ,required = true,example = "122222")
     private String   classifyName;
 

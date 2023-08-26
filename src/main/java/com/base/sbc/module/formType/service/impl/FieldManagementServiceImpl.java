@@ -27,6 +27,8 @@ import com.base.sbc.module.formType.mapper.OptionMapper;
 import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FormTypeService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.planning.entity.PlanningDemand;
+import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -61,6 +63,9 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
     private OptionMapper optionMapper;
     @Autowired
     private FormTypeService formTypeService;
+
+    @Autowired
+    private PlanningDemandMapper planningDemandMapper;
 
     private IdGen idGen = new IdGen();
 
@@ -211,6 +216,30 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
             vo.setSelected(valMap.containsKey(vo.getFieldName()));
         }
 
+    }
+
+    /**
+     * 删除字段
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public Boolean removeById(String id) {
+        /*先验证企划企划需求是否保存的该字段*/
+        QueryWrapper queryWrapper1 =new QueryWrapper();
+        queryWrapper1.eq("field_id",id);
+        List<PlanningDemand> planningDemandList = planningDemandMapper.selectList(queryWrapper1);
+        if(!CollectionUtils.isEmpty(planningDemandList)){
+            throw new OtherException("删除失败 需求占比引用");
+        }
+        List<String> ids = com.base.sbc.config.utils.StringUtils.convertList(id);
+        QueryWrapper<Option> queryWrapper=new QueryWrapper<>();
+        queryWrapper.in("field_id",ids);
+        List<Option> optionList= optionMapper.selectList(queryWrapper);
+        List<String> optionIds =	optionList.stream().map(Option::getId).collect(Collectors.toList());
+        optionMapper.deleteBatchIds(optionIds);
+        return baseMapper.deleteBatchIds(com.base.sbc.config.utils.StringUtils.convertList(id))>0;
     }
 
 
