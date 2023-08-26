@@ -209,8 +209,21 @@ public class PatternMakingController {
 
     @ApiOperation(value = "版师列表", notes = "")
     @GetMapping("/getAllPatternDesignList")
-    public List<SampleUserVo> getAllPatternDesignList(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode) {
-        return patternMakingService.getAllPatternDesignList(companyCode);
+    public List<SampleUserVo> getAllPatternDesignList(PatternUserSearchVo vo) {
+        return patternMakingService.getAllPatternDesignList(vo);
+    }
+
+    @ApiOperation(value = "所有裁剪工列表", notes = "")
+    @GetMapping("/getAllCutterList")
+    public List<SampleUserVo> getAllCutterList(PatternUserSearchVo vo) {
+
+        return patternMakingService.getAllCutterList(vo);
+    }
+
+    @ApiOperation(value = "所有车缝工列表", notes = "")
+    @GetMapping("/getAllStitcherList")
+    public List<SampleUserVo> getAllStitcherList(PatternUserSearchVo vo) {
+        return patternMakingService.getAllStitcherList(vo);
     }
 
     @ApiOperation(value = "板房数据总览", notes = "")
@@ -221,7 +234,7 @@ public class PatternMakingController {
 
     @ApiOperation(value = "版类对比统计", notes = "")
     @GetMapping("/versionComparisonViewWeekMonth")
-    public ApiResult versionComparisonViewWeekMonth(@RequestHeader(BaseConstant.AUTHORIZATION)String token,@RequestHeader(BaseConstant.USER_COMPANY)String companyCode, PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
+    public ApiResult versionComparisonViewWeekMonth(@RequestHeader(BaseConstant.AUTHORIZATION) String token, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode, PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
         patternMakingWeekMonthViewDto.setCompanyCode(companyCode);
         return ApiResult.success("查询成功",patternMakingService.versionComparisonViewWeekMonth(patternMakingWeekMonthViewDto,token));
     }

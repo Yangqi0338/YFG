@@ -224,13 +224,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     boolean receiveSample(String id);
 
-    /**
-     * 获取所有版师列表
-     *
-     * @param companyCode
-     * @return
-     */
-    List<SampleUserVo> getAllPatternDesignList(String companyCode);
+
 
     List prmDataOverview(String time);
 
@@ -296,6 +290,18 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
     boolean patternMakingQualityScore(Principal user, String id, BigDecimal score);
 
     boolean sampleMakingQualityScore(Principal user, String id, BigDecimal score);
+
+    /**
+     * 获取所有版师列表
+     *
+     * @param companyCode
+     * @return
+     */
+    List<SampleUserVo> getAllPatternDesignList(PatternUserSearchVo vo);
+
+    List<SampleUserVo> getAllCutterList(PatternUserSearchVo vo);
+
+    List<SampleUserVo> getAllStitcherList(PatternUserSearchVo vo);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

@@ -26,7 +26,7 @@ import java.util.Optional;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackBom
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-23 9:56:06
+ * @date 创建时间：2023-8-26 9:58:54
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -360,6 +360,16 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "搭配编码")
     private String collocationName;
     /**
+     * 货期
+     */
+    @ApiModelProperty(value = "货期")
+    private String deliveryName;
+    /**
+     * 货期code
+     */
+    @ApiModelProperty(value = "货期code")
+    private String deliveryCode;
+    /**
      * SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开
      */
     @ApiModelProperty(value = "SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开")
@@ -374,11 +384,6 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "克重")
     private BigDecimal gramWeight;
-    /**
-     * 货期
-     */
-    @ApiModelProperty(value = "货期")
-    private String deliveryName;
     /**
      * 采购单位
      */
