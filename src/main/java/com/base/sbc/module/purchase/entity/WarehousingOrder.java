@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.WarehousingOrder
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-9 16:21:42
+ * @date 创建时间：2023-8-26 14:33:37
  * @version 1.0
  */
 @Data
@@ -46,8 +46,8 @@ public class WarehousingOrder extends BaseDataEntity<String> {
     /** 单据状态（0正常 1作废） */
     @ApiModelProperty(value = "单据状态（0正常 1作废）"  )
     private String orderStatus;
-    /** 状态（0草稿 1待审核 2审核通过 3驳回） */
-    @ApiModelProperty(value = "状态（0草稿 1待审核 2审核通过 3驳回）"  )
+    /** 状态（0草稿 1待审核 2审核通过 -1驳回） */
+    @ApiModelProperty(value = "状态（0草稿 1待审核 2审核通过 -1驳回）"  )
     private String status;
     /** 单据类型（0采购单入库 1手工） */
     @ApiModelProperty(value = "单据类型（0采购单入库 1手工）"  )
@@ -70,6 +70,9 @@ public class WarehousingOrder extends BaseDataEntity<String> {
     /** 入库仓库id */
     @ApiModelProperty(value = "入库仓库id"  )
     private String warehouseId;
+    /** 入库仓库code */
+    @ApiModelProperty(value = "入库仓库code"  )
+    private String warehouseCode;
     /** 入库仓库名称 */
     @ApiModelProperty(value = "入库仓库名称"  )
     private String warehouseName;
@@ -116,3 +119,4 @@ public class WarehousingOrder extends BaseDataEntity<String> {
     private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+
