@@ -312,6 +312,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
 		qc.select("material_code");
 		qc.eq("company_code", this.getCompanyCode());
+		qc.in("id", list);
 		List<String> list2 = this.list(qc).stream().map(BasicsdatumMaterial::getMaterialCode)
 				.collect(Collectors.toList());
 		// 删除主表
