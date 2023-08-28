@@ -54,10 +54,20 @@ public class StyleInfoColorController extends BaseController{
 		return styleInfoColorService.getById(id);
 	}
 
+
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
 	@DeleteMapping("/{id}")
-	public ApiResult removeById(@PathVariable("id") String id) {
-		styleInfoColorService.delStyleInfoColorById(id, getUserCompany());
+	public Boolean removeById(@PathVariable("id") String id) {
+		List<String> ids = StringUtils.convertList(id);
+		return styleInfoColorService.removeByIds(ids);
+	}
+	@ApiOperation(value = "删除-通过颜色code查询,多个逗号分开")
+	@DeleteMapping("/removeByCode")
+	public ApiResult removeByCode(@RequestParam("codes") String codes) {
+		if (StringUtils.isBlank(codes)) {
+			return deleteNotFound("删除失败，颜色code不能为空");
+		}
+		styleInfoColorService.delStyleInfoColorById(codes, getUserCompany());
 		return deleteSuccess("删除成功");
 	}
 
