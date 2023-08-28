@@ -7,6 +7,7 @@
 package com.base.sbc.module.style.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.GroupQuery;
 import com.base.sbc.config.common.base.GroupUpdate;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
@@ -44,7 +45,7 @@ public class StyleInfoSkuController {
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping
-	public PageInfo<StyleInfoSkuVo> page(StyleInfoSkuDto styleInfoSkuDto) {
+	public PageInfo<StyleInfoSkuVo> page(@Validated(GroupQuery.class) StyleInfoSkuDto styleInfoSkuDto) {
 		return styleInfoSkuService.pageList(styleInfoSkuDto);
 	}
 
