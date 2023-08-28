@@ -7,11 +7,15 @@
 package com.base.sbc.module.pricing.service.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
@@ -20,6 +24,8 @@ import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections4.CollectionUtils;
@@ -56,6 +62,12 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     private PackBomService packBomService;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private PackInfoService packInfoService;
+    @Autowired
+    private StyleService styleService;
+    @Autowired
+    private StyleColorService styleColorService;
 
     @Override
     public PageInfo<StylePricingVO> getStylePricingList(StylePricingSearchDTO dto) {
@@ -95,7 +107,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             //计控实际倍率 = 吊牌价/计控实际成本
             stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getPlanCost(), 2));
             //实际倍率 = 吊牌价/总成本
-            stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getTotalCost(),2));
+            stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getTotalCost(), 2));
         });
         attachmentService.setListStylePic(stylePricingList, "sampleDesignPic");
     }
@@ -121,6 +133,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         logger.info("StylePricingService#insertOrUpdate 保存 stylePricingSaveDTO:{}, userCompany:{}", JSON.toJSONString(stylePricingSaveDTO), companyCode);
         StylePricing stylePricing = new StylePricing();
         if (StringUtils.isEmpty(stylePricingSaveDTO.getId())) {
+            stylePricing.setId(new IdGen().nextIdStr());
             stylePricing.insertInit();
         } else {
             stylePricing.updateInit();
@@ -128,6 +141,17 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         stylePricing.setCompanyCode(companyCode);
         BeanUtils.copyProperties(stylePricingSaveDTO, stylePricing);
         super.saveOrUpdate(stylePricing);
+
+        StylePricing pricing = super.getById(stylePricing.getId());
+
+        if (YesOrNoEnum.NO.getValueStr().equals(pricing.getProductHangtagConfirm()) || YesOrNoEnum.NO.getValueStr().equals(pricing.getControlHangtagConfirm())) {
+            PackInfo packInfo = packInfoService.getById(stylePricingSaveDTO.getPackId());
+            if (Objects.isNull(packInfo)) {
+                return;
+            }
+            styleService.updateProductCost(packInfo.getForeignId(), stylePricingSaveDTO.getTargetCost());
+            styleColorService.updateTagPrice(packInfo.getStyleColorId(), stylePricingSaveDTO.getTagPrice());
+        }
     }
 
     @Override

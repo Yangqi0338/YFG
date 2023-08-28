@@ -5,9 +5,12 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.style.controller;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.GroupUpdate;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.style.dto.StyleInfoSkuDto;
 import com.base.sbc.module.style.entity.StyleInfoSku;
 import com.base.sbc.module.style.service.StyleInfoSkuService;
 import com.github.pagehelper.PageHelper;
@@ -33,7 +36,7 @@ import java.util.List;
 @Api(tags = "款式设计SKU表")
 @RequestMapping(value = BaseController.SAAS_URL + "/styleInfoSku", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class StyleInfoSkuController{
+public class StyleInfoSkuController {
 
 	@Autowired
 	private StyleInfoSkuService styleInfoSkuService;
@@ -68,13 +71,9 @@ public class StyleInfoSkuController{
 
 	@ApiOperation(value = "修改")
 	@PutMapping
-	public StyleInfoSku update(@RequestBody StyleInfoSku styleInfoSku) {
-		boolean b = styleInfoSkuService.updateById(styleInfoSku);
-		if (!b) {
-			//影响行数为0（数据未改变或者数据不存在）
-			//返回影响行数需要配置jdbcURL参数useAffectedRows=true
-		}
-		return styleInfoSku;
+	public ApiResult updateStyleInfoSkuById(@RequestBody @Validated(GroupUpdate.class) StyleInfoSkuDto styleInfoSkuDto) {
+		styleInfoSkuService.updateStyleInfoSkuById(styleInfoSkuDto);
+		return ApiResult.success("修改成功");
 	}
 
 }

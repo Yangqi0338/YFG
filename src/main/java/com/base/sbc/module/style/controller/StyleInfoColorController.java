@@ -7,13 +7,13 @@
 package com.base.sbc.module.style.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.common.base.GroupInsert;
+import com.base.sbc.config.common.base.GroupUpdate;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.style.dto.StyleInfoColorDto;
 import com.base.sbc.module.style.entity.StyleInfoColor;
 import com.base.sbc.module.style.service.StyleInfoColorService;
 import com.base.sbc.module.style.vo.StyleInfoColorVo;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -73,20 +73,16 @@ public class StyleInfoColorController extends BaseController{
 
 	@ApiOperation(value = "保存")
 	@PostMapping
-	public StyleInfoColor save(@RequestBody StyleInfoColor styleInfoColor) {
+	public StyleInfoColor save(@RequestBody @Validated(GroupInsert.class) StyleInfoColor styleInfoColor) {
 		styleInfoColorService.save(styleInfoColor);
 		return styleInfoColor;
 	}
 
 	@ApiOperation(value = "修改")
 	@PutMapping
-	public StyleInfoColor update(@RequestBody StyleInfoColor styleInfoColor) {
-		boolean b = styleInfoColorService.updateById(styleInfoColor);
-		if (!b) {
-			//影响行数为0（数据未改变或者数据不存在）
-			//返回影响行数需要配置jdbcURL参数useAffectedRows=true
-		}
-		return styleInfoColor;
+	public ApiResult update(@RequestBody @Validated(GroupUpdate.class) StyleInfoColorDto styleInfoColorDto) {
+		styleInfoColorService.updateStyleInfoColorById(styleInfoColorDto);
+		return updateSuccess("修改成功");
 	}
 
 }

@@ -8,6 +8,7 @@ package com.base.sbc.module.planning.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -32,4 +33,13 @@ public interface PlanningCategoryItemMaterialMapper extends BaseMapper<PlanningC
      * 根据传入的素材id列表查询对应收藏的数量
      */
     List<Map<String,Integer>> numList(@Param("materialIds")List<String> materialIds);
+
+    /**
+     * 获取波段数量
+     * @return
+     */
+    @MapKey("label")
+   List<Map<String,Long>>  getbandSum();
+
+
 }
