@@ -541,9 +541,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<MaterialVo> materialList = BeanUtil.copyToList(list, MaterialVo.class);
         sampleVo.setMaterialList(materialList);
         //号型类型
-        sampleVo.setSizeRangeName(basicsdatumModelTypeService.getNameById(sampleVo.getSizeRange()));
+//        sampleVo.setSizeRangeName(basicsdatumModelTypeService.getNameById(sampleVo.getSizeRange()));
         //波段
-        sampleVo.setBandName(bandService.getNameByCode(sampleVo.getBandCode()));
+//        sampleVo.setBandName(bandService.getNameByCode(sampleVo.getBandCode()));
         // 款式图片
         List<AttachmentVo> stylePicList = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
         sampleVo.setStylePicList(stylePicList);

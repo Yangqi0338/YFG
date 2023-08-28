@@ -228,6 +228,12 @@ public class Style extends BaseDataEntity<String> {
     /** 打版难度名称 */
     @ApiModelProperty(value = "打版难度名称"  )
     private String patDiffName;
+    /** 产品线等级 */
+    @ApiModelProperty(value = "产品线等级"  )
+    private String  productLineGrade;
+    /** 产品线等级 */
+    @ApiModelProperty(value = "产品线等级名称"  )
+    private String  productLineGradeName;
     /** 尺码 */
     @ApiModelProperty(value = "尺码"  )
     private String productSizes;
@@ -360,6 +366,10 @@ public class Style extends BaseDataEntity<String> {
     @ApiModelProperty(value = "计划完成时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date planningFinishDate;
+    /** 样衣需求完成时间 */
+    @ApiModelProperty(value = "样衣需求完成时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date demandFinishDate;
     /** 特别需求:(1是,0否) */
     @ApiModelProperty(value = "特别需求:(1是,0否)"  )
     private String specialNeedsFlag;

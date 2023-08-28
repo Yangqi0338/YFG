@@ -94,6 +94,10 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "计划完成时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date planningFinishDate;
+    /** 样衣需求完成时间 */
+    @ApiModelProperty(value = "样衣需求完成时间"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date demandFinishDate;
     /** 设计师名称 */
     @ApiModelProperty(value = "设计师名称"  )
     private String designer;

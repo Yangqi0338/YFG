@@ -142,6 +142,13 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "纸样需求完成日期")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date patternReqDate;
+
+    /**
+     * 样衣需求完成日期
+     */
+    @ApiModelProperty(value = "样衣需求完成日期")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date demandFinishDate;
     /**
      * 缺料备注
      */
