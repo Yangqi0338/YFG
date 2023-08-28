@@ -108,7 +108,7 @@ public class ProductSeasonController extends BaseController {
 
     @ApiOperation(value = "坑位信息下发(产品季总览-下发到款式设计)")
     @PostMapping("/send")
-    public boolean send(@RequestBody List<PlanningCategoryItem> categoryItemList){
+    public boolean send(@RequestBody List<SeatSendDto> categoryItemList){
         if(CollUtil.isEmpty(categoryItemList)){
             throw  new OtherException("数据为空");
         }

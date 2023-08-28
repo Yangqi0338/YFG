@@ -8,6 +8,7 @@ package com.base.sbc.module.style.dto;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.common.base.GroupQuery;
 import com.base.sbc.config.common.base.GroupUpdate;
 import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
@@ -37,7 +38,7 @@ public class StyleInfoSkuDto  extends Page {
     private String id;
     /** 主数据id */
     @ApiModelProperty(value = "主数据id"  )
-    @NotNull(message = "id不能为空" , groups = {GroupUpdate.class})
+    @NotNull(message = "主数据id不能为空" , groups = {GroupUpdate.class, GroupQuery.class})
     private String foreignId;
     /** 资料包类型:packDesign:设计资料包 */
     @ApiModelProperty(value = "资料包类型:packDesign:设计资料包"  )

@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -32,6 +33,7 @@ import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
 import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMaterialMapper;
 import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
@@ -51,7 +53,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -77,6 +81,8 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     private PlanningChannelService planningChannelService;
     @Resource
     private PlanningCategoryItemService planningCategoryItemService;
+    @Resource
+    private PlanningCategoryItemMapper planningCategoryItemMapper;
     @Resource
     private BandService bandService;
     @Resource
@@ -294,21 +300,36 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getBandName() + StrUtil.DASHED + k.getProdCategoryName()));
             vo.setXyData(seatData);
         } else {
+            //维度统计数据
+            List<List<String>> demandSummary=CollUtil.newArrayList(
+                    //维度
+                    CollUtil.newArrayList(),
+                    CollUtil.newArrayList("企划skc数"),
+                    CollUtil.newArrayList("企划占比"),
+                    CollUtil.newArrayList("下单skc"),
+                    CollUtil.newArrayList("下单占比"),
+                    CollUtil.newArrayList("缺口"));
             //当选择维度时，y轴为维度 （企划需求管理的需求占比）
             QueryDemandDto queryDemandDto = new QueryDemandDto();
             queryDemandDto.setPlanningSeasonId(dto.getPlanningSeasonId());
             queryDemandDto.setCategoryId(dto.getProdCategory());
             queryDemandDto.setFieldId(dto.getFieldId());
             List<PlanningDemandVo> demandList = planningDemandService.getDemandListById(queryDemandDto);
-            List<String> yValueS = new ArrayList<>();
+            HashMap<String,List<String>> yValueS = new LinkedHashMap();
+            AtomicInteger dTotal= new AtomicInteger(0);
             if (CollUtil.isNotEmpty(demandList) && CollUtil.isNotEmpty(demandList.get(0).getList())) {
                 PlanningDemandVo planningDemandVo = demandList.get(0);
+                demandSummary.get(0).add(planningDemandVo.getDemandName());
                 List<PlanningDemandProportionData> list = planningDemandVo.getList();
                 List<DimensionTotalVo> yList = list.stream().map(e -> {
                     DimensionTotalVo yvo = new DimensionTotalVo();
                     yvo.setTotal(Optional.ofNullable(e.getNum()).map(Integer::longValue).orElse(0L));
                     yvo.setName(e.getClassifyName());
-                    yValueS.add(e.getClassifyName());
+                    dTotal.set(dTotal.get() + Optional.ofNullable(e.getNum()).orElse(0));
+                    demandSummary.get(0).add(e.getClassifyName());
+                    demandSummary.get(1).add(String.valueOf(yvo.getTotal()));
+                    demandSummary.get(2).add(Optional.ofNullable(e.getProportion()).map(a->a.toString()).orElse(""));
+                    yValueS.put(e.getClassifyName(),CollUtil.newArrayList());
                     return yvo;
                 }).collect(Collectors.toList());
                 vo.setYList(PlanningUtils.removeEmptyAndSort(yList));
@@ -327,9 +348,11 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                     Map<String, Long> xMap = new HashMap<>(16);
                     for (PlanningSummaryDetailVo psdv : detailVoList) {
                         String dv = Optional.ofNullable(seatFvMap.get(psdv.getId())).map(FieldVal::getValName).orElse("_null_");
-                        if (!yValueS.contains(dv)) {
+                        //维度没匹配跳过
+                        if (!yValueS.containsKey(dv)) {
                             continue;
                         }
+                        yValueS.get(dv).add(psdv.getId());
                         String bandName = psdv.getBandName();
                         String key = bandName + StrUtil.DASHED + dv;
                         if (seatData.containsKey(key)) {
@@ -351,6 +374,30 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                         return dtv;
                     }).collect(Collectors.toList()));
                     vo.setXyData(seatData);
+
+                    // 查询下单skc,计算下单占比、计算缺口
+                    QueryWrapper osQw=new QueryWrapper();
+                    int index=1;
+                    int dTotalInt = dTotal.get();
+                    for (Map.Entry<String, List<String>> d : yValueS.entrySet()) {
+                        List<String> dSeatIds = d.getValue();
+                        Long count=0L;
+                        if(CollUtil.isNotEmpty(dSeatIds)){
+                            osQw.clear();
+                            osQw.in("c.id",dSeatIds);
+                            count=planningCategoryItemMapper.queryOrderSkc(osQw);
+                        }
+                        //下单skc
+                        demandSummary.get(3).add(String.valueOf(count));
+                        //下单占比
+                        BigDecimal xdzb = new BigDecimal(String.valueOf(count)).divide(new BigDecimal(String.valueOf(dTotalInt)),8,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal("100"));
+                        demandSummary.get(4).add(NumberUtil.toStr(NumberUtil.round(xdzb,2))+"%");
+                        //缺口
+                        String dCount = demandSummary.get(1).get(index);
+                        demandSummary.get(5).add(String.valueOf(NumberUtil.parseInt(dCount)-count));
+                        index++;
+                    }
+                    vo.setDemandSummary(demandSummary);
                 }
             }
 

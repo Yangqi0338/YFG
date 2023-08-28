@@ -10,6 +10,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
@@ -77,14 +79,15 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
      * 根据id删除款式设计详情颜色
      * @param codes 款式设计详情颜色id
      * @param companyCode 公司编码
+     * @param foreignId 主数据id
      */
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public void delStyleInfoColorById(String codes, String companyCode) {
+    public void delStyleInfoColorById(String codes, String companyCode, String foreignId) {
         List<String> codeList = StringUtils.convertList(codes);
         // 查找数据是否存在
         List<StyleInfoColor> styleInfoColors = baseMapper.selectList(new QueryWrapper<StyleInfoColor>().in("color_code", codeList)
-                .eq("company_code", companyCode));
+                .eq("company_code", companyCode).eq("foreign_id", foreignId));
         if (CollectionUtil.isEmpty(styleInfoColors)) {
             throw new OtherException(codes + "未找到数据，删除失败");
         }
@@ -114,11 +117,17 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
             String productColors = styleInfoColorList.stream().map(StyleInfoColor::getColorName).collect(Collectors.joining(BaseGlobal.D));
             style.setColorCodes(colorCodes);
             style.setProductColors(productColors);
+            styleService.updateById(style);
         } else {
-            style.setColorCodes(BaseGlobal.H);
-            style.setProductColors(BaseGlobal.H);
+            // 删除所有数据 把款式设计里的颜色清空
+            LambdaUpdateWrapper<Style> lambdaUpdate = Wrappers.lambdaUpdate();
+            lambdaUpdate.eq(Style::getId, styleInfoColors.get(BaseGlobal.ZERO).getForeignId());
+            lambdaUpdate.set(Style::getColorCodes, null);
+            lambdaUpdate.set(Style::getProductColors, null);
+            style.updateInit();
+            styleService.update(style,lambdaUpdate);
         }
-        styleService.updateById(style);
+
         // 删除相关数据
         baseMapper.deleteBatchIds(styleInfoColors.stream().map(StyleInfoColor::getId).collect(Collectors.toList()));
 

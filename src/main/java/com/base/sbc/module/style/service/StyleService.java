@@ -212,5 +212,7 @@ public interface StyleService extends BaseService<Style> {
      */
     String genDesignNo(Style style);
 
+    void saveDesignNo(Style style);
+
 }
 

@@ -23,10 +23,8 @@ import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.vo.ChartBarVo;
 import com.github.pagehelper.PageInfo;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -115,7 +113,7 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
      * @param categoryItemList
      * @return
      */
-    boolean send(List<PlanningCategoryItem> categoryItemList);
+    boolean send(List<SeatSendDto> categoryItemList);
 
     /**
      * 查询坑位信息的维度数据
@@ -196,4 +194,6 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
     String getStylePicUrlById(String id);
 
     ApiResult importPlanningExcel(MultipartFile file, String planningChannelId) throws Exception;
+
+
 }

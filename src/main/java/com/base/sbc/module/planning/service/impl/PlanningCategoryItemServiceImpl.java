@@ -34,7 +34,6 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.ProcessDatabaseExcelDto;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -73,7 +72,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -404,7 +402,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
-    public boolean send(List<PlanningCategoryItem> categoryItemList) {
+    public boolean send(List<SeatSendDto> categoryItemList) {
         // 1、保存
         List<AllocationDesignDto> allocationDesignDtoList = new ArrayList<>(16);
         List<SetTaskLevelDto> setTaskLevelDtoList = new ArrayList<>(16);
@@ -510,7 +508,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
         }
         /*产品季下发提醒*/
-        messageUtils.seasonSendMessage(categoryItemList,baseController.getUser());
+        messageUtils.seasonSendMessage(BeanUtil.copyToList(categoryItemList,PlanningCategoryItem.class),baseController.getUser());
         return true;
     }
 
