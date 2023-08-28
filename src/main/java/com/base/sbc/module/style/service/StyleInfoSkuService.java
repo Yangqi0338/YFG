@@ -8,6 +8,8 @@ package com.base.sbc.module.style.service;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.style.dto.StyleInfoSkuDto;
 import com.base.sbc.module.style.entity.StyleInfoSku;
+import com.base.sbc.module.style.vo.StyleInfoSkuVo;
+import com.github.pagehelper.PageInfo;
 
 /** 
  * 类描述：款式设计SKU表 service类
@@ -26,6 +28,13 @@ public interface StyleInfoSkuService extends BaseService<StyleInfoSku>{
      * @param styleInfoSkuDto 款式设计SKU DTO
      */
     void updateStyleInfoSkuById(StyleInfoSkuDto styleInfoSkuDto);
+
+    /**
+     * 分页查询 款式设计SKU
+     * @param styleInfoSkuDto 款式设计SKU DTO
+     * @return 分页款式设计SKU
+     */
+    public PageInfo<StyleInfoSkuVo> pageList(StyleInfoSkuDto styleInfoSkuDto);
 
 
 // 自定义方法区 不替换的区域【other_end】

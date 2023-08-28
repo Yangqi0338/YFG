@@ -13,6 +13,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.style.dto.StyleInfoSkuDto;
 import com.base.sbc.module.style.entity.StyleInfoSku;
 import com.base.sbc.module.style.service.StyleInfoSkuService;
+import com.base.sbc.module.style.vo.StyleInfoSkuVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -43,10 +44,8 @@ public class StyleInfoSkuController {
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping
-	public PageInfo<StyleInfoSku> page(Page page) {
-		PageHelper.startPage(page);
-		List<StyleInfoSku> list = styleInfoSkuService.list();
-		return new PageInfo<>(list);
+	public PageInfo<StyleInfoSkuVo> page(StyleInfoSkuDto styleInfoSkuDto) {
+		return styleInfoSkuService.pageList(styleInfoSkuDto);
 	}
 
 	@ApiOperation(value = "明细-通过id查询")
