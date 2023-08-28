@@ -105,17 +105,20 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
         qwColor.eq("foreign_id", styleInfoColors.get(BaseGlobal.ZERO).getForeignId());
         qwColor.select("id","color_code","color_name", "foreign_id");
         List<StyleInfoColor> styleInfoColorList = baseMapper.selectList(qwColor);
+        Style style = new Style();
+        style.setId(styleInfoColors.get(BaseGlobal.ZERO).getForeignId());
         if (CollectionUtil.isNotEmpty(styleInfoColorList)) {
             // 颜色code集合逗号分隔
             String colorCodes = styleInfoColorList.stream().map(StyleInfoColor::getColorCode).collect(Collectors.joining(BaseGlobal.D));
             // 颜色名称集合逗号分隔
             String productColors = styleInfoColorList.stream().map(StyleInfoColor::getColorName).collect(Collectors.joining(BaseGlobal.D));
-            Style style = new Style();
-            style.setId(styleInfoColors.get(BaseGlobal.ZERO).getForeignId());
             style.setColorCodes(colorCodes);
             style.setProductColors(productColors);
-            styleService.updateById(style);
+        } else {
+            style.setColorCodes(BaseGlobal.H);
+            style.setProductColors(BaseGlobal.H);
         }
+        styleService.updateById(style);
         // 删除相关数据
         baseMapper.deleteBatchIds(styleInfoColors.stream().map(StyleInfoColor::getId).collect(Collectors.toList()));
 
