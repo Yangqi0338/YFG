@@ -559,6 +559,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             wrapper.set("series",style.getSeries());
             planningCategoryItemService.update(null,wrapper);
         }
+        // 查询 款式设计详情颜色列表
+        List<StyleInfoColor> styleInfoColorList = styleInfoColorService.list(new QueryWrapper<StyleInfoColor>().eq("foreign_id", id));
+        if (CollectionUtil.isNotEmpty(styleInfoColorList)) {
+            sampleVo.setStyleInfoColorVoList(BeanUtil.copyToList(styleInfoColorList, StyleInfoColorVo.class));
+        }
+
         return sampleVo;
     }
 
@@ -999,7 +1005,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         //款式定位
         detail.setPositioning(hisStyle.getPositioning());
         detail.setPositioningName(hisStyle.getPositioningName());
-
         return detail;
     }
 
