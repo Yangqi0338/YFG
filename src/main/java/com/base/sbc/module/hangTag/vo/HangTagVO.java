@@ -51,7 +51,7 @@ public class HangTagVO {
      */
     @ApiModelProperty(value = "号型类型编码")
     private String modelType;
-    
+
     @ApiModelProperty(value = "号型类型名称")
     private String modelTypeName;
 
@@ -155,6 +155,12 @@ public class HangTagVO {
      */
     @ApiModelProperty(value = "外辅助工艺")
     private String extAuxiliaryTechnics;
+
+    /**
+     * 外辅助工艺
+     */
+    @ApiModelProperty(value = "外辅助工艺编码")
+    private String extAuxiliaryTechnicsCode;
     /**
      * 包装形式编码
      */
