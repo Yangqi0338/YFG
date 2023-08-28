@@ -12,4 +12,16 @@
         and del_flag ='0'
         group by material_id
     </select>
+    <select id="getbandSum" resultType="java.util.Map">
+		SELECT
+        a.planning_season_id label,
+        count( 1 ) AS `count`
+        FROM
+        ( SELECT planning_season_id , band_name, count( 1 ) AS `count` FROM t_planning_category_item GROUP BY planning_season_id, band_name ) a
+        WHERE
+        a.band_name  &lt;&gt; ''
+        AND a.band_name IS NOT NULL
+        GROUP BY
+        a.planning_season_id
+    </select>
 </mapper>

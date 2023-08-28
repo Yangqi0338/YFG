@@ -16,6 +16,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -31,6 +32,7 @@ import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
 import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.mapper.PlanningCategoryItemMaterialMapper;
 import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
@@ -84,7 +86,8 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
 
     @Resource
     private FieldValMapper fieldValMapper;
-
+    @Resource
+    private PlanningCategoryItemMaterialMapper planningCategoryItemMaterialMapper;
     @Override
     public boolean del(String companyCode, String id) {
         return removeById(id);
@@ -409,7 +412,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             }
             //统计产品季skc数量
             // Map<String, Long> sckCountMap = planningCategoryItemService.totalSkcByPlanningSeason(null);
-            Map<String, Long> sckCountMap = planningChannelService.countByPlanningSeason();
+            Map<String, Long> sckCountMap =getSckCountMap(vo.getBandflag());
             List<YearSeasonBandVo> slist = seasonList.stream().map(s -> {
                 YearSeasonBandVo v = new YearSeasonBandVo();
                 v.setPlanningSeasonId(s.getId());
@@ -437,6 +440,23 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             return result;
         }
 
+    }
+
+    /**
+     * 查询产品季下的波段或渠道数量
+     * @param bandflag
+     * @return
+     */
+    public Map<String, Long> getSckCountMap(String bandflag) {
+        if (StringUtils.isNotBlank(bandflag)) {
+            List<Map<String, Long>> list = planningCategoryItemMaterialMapper.getbandSum();
+            Map<String, Long>  map =new HashMap<>();
+            for (Map<String, Long> stringLongMap : list) {
+                map.put( String.valueOf(stringLongMap.get("label")) ,stringLongMap.get("count"));
+            }
+            return map;
+        }
+        return planningChannelService.countByPlanningSeason();
     }
 
     @Override
