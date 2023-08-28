@@ -223,7 +223,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<StyleInfoColor> styleInfoColors = BeanUtil.copyToList(styleSaveDto.getStyleInfoColorDtoList(), StyleInfoColor.class);
         List<StyleInfoColor> colorCodeList =
                 styleInfoColorService.list(new QueryWrapper<StyleInfoColor>().in("color_code",
-                        styleInfoColors.stream().map(StyleInfoColor::getColorCode).collect(Collectors.toList())));
+                        styleInfoColors.stream().map(StyleInfoColor::getColorCode).collect(Collectors.toList())).eq("foreign_id", styleSaveDto.getId()));
         if (CollectionUtil.isNotEmpty(colorCodeList)) {
             String colorNames = colorCodeList.stream().map(StyleInfoColor::getColorName).collect(Collectors.joining(BaseGlobal.D));
             throw new OtherException(colorNames + "已添加颜色，请勿重新添加");
