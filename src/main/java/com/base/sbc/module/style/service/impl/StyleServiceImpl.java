@@ -42,6 +42,8 @@ import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FieldValService;
 import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.hangTag.entity.HangTag;
+import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.service.PackBomService;
@@ -68,15 +70,16 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.entity.StyleInfoColor;
 import com.base.sbc.module.style.entity.StyleInfoSku;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
-import com.base.sbc.module.style.mapper.StyleInfoColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.StyleInfoColorService;
 import com.base.sbc.module.style.service.StyleInfoSkuService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.*;
+import com.base.sbc.open.dto.OpenStyleDto;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -161,6 +164,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private StyleInfoColorService styleInfoColorService;
     @Resource
     private StyleInfoSkuService styleInfoSkuService;
+    @Resource
+    private HangTagService hangTagService;
     private IdGen idGen = new IdGen();
 
     @Override
@@ -208,6 +213,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
      * @param styleSaveDto 款式设计详情颜色DTO
      * @return 款式设计详情颜色列表
      */
+    @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public List<StyleInfoColorVo> saveBomInfoColorList(StyleSaveDto styleSaveDto) {
         if(null == styleSaveDto || null == styleSaveDto.getStyleInfoColorDtoList()){
@@ -314,6 +320,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
     }
 
+    @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public Style saveNewStyle(StyleSaveDto dto) {
 
@@ -1248,6 +1255,70 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         return result;
     }
 
+
+    /**
+     * 领猫同步数据
+     * @param companyCode
+     * @return
+     */
+    @Override
+    public List<OpenStyleDto> getStyleListForLinkMore(String companyCode) {
+        //资料包主表
+        QueryWrapper<Style> qwStyle = new QueryWrapper<>();
+        qwStyle.eq("company_code",companyCode);
+        List<Style> styleList = this.list(qwStyle);
+
+        //查询条件
+        List<String> codeList = new ArrayList<>();
+        List<String> idList = new ArrayList<>();
+        List<OpenStyleDto> styleDtoList = new ArrayList<>();
+        Map<String, OpenStyleDto> styleDtoMap = Maps.newHashMap();
+        for (Style style : styleList) {
+            OpenStyleDto dto = new OpenStyleDto();
+            dto.init(style);
+            codeList.add(style.getDesignNo());
+            idList.add(style.getId());
+            styleDtoList.add(dto);
+            styleDtoMap.put(style.getId(), dto);
+        }
+
+        //sku数据
+        QueryWrapper<StyleInfoSku> qwSku = new QueryWrapper<>();
+        qwSku.eq("company_code",companyCode);
+        qwSku.in("foreign_id",idList);
+        Map<String, List<StyleInfoSku>> skuMap = styleInfoSkuService.list(qwSku)
+                .stream().collect(Collectors.groupingBy(s -> s.getForeignId()));
+        skuMap.forEach((k,v)->{
+            if (!CollectionUtils.isEmpty(v)){
+                styleDtoMap.get(k).initSku(v);
+            }
+        });
+
+        //skc
+        QueryWrapper<StyleInfoColor> qwSkc = new QueryWrapper<>();
+        qwSkc.eq("company_code",companyCode);
+        qwSkc.in("foreign_id",idList);
+        Map<String, List<StyleInfoColor>> skcMap = styleInfoColorService.list(qwSkc)
+                .stream().collect(Collectors.groupingBy(s -> s.getForeignId()));
+        skcMap.forEach((k,v)->{
+            if (!CollectionUtils.isEmpty(v)){
+                styleDtoMap.get(k).initSkc(v);
+            }
+        });
+
+        //吊牌列表
+        QueryWrapper<HangTag> qwTag = new QueryWrapper<>();
+        qwTag.in("design_no",codeList);
+        Map<String, HangTag> tagMap = hangTagService.list(qwTag)
+                .stream().collect(Collectors.toMap(t -> t.getStyleNo(), t -> t, (t1, t2) -> t2));
+        for (OpenStyleDto styleDto : styleDtoList) {
+            if (tagMap.get(styleDto.getCode()) != null){
+                styleDto.setHangTag(tagMap.get(styleDto.getCode()));
+            }
+        }
+
+        return styleDtoList;
+    }
 
 }
 

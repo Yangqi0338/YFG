@@ -9,6 +9,8 @@ import com.base.sbc.config.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * 笛莎领猫scm对接实体
  *
@@ -111,4 +113,28 @@ public class DsLinkMoreScm {
         return result;
     }
 
+
+    /**
+     * 校验失败的数据
+     * @param errorList
+     * @param body
+     * @param code
+     * @return
+     */
+    public List<String> checkAndReturn(List<String> errorList, String body, String code){
+        if (StringUtils.isNotBlank(body)){
+            JSONObject jsonObject = JSONObject.parseObject(body);
+            try {
+                int status = jsonObject.getInteger("code");
+                if (status != 200){
+                    errorList.add(code);
+                }
+            }catch (Exception e){
+                errorList.add(code);
+            }
+        }else{
+            errorList.add(code);
+        }
+        return errorList;
+    }
 }
