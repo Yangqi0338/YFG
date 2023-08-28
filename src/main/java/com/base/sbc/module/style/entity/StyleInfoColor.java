@@ -50,6 +50,9 @@ public class StyleInfoColor extends BaseDataEntity<String> {
     /** 颜色色号 */
     @ApiModelProperty(value = "颜色色号"  )
     private String colorNumber;
+    /** 图片名称 */
+    @ApiModelProperty(value = "图片名称"  )
+    private String imagesName;
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
     private String images;
