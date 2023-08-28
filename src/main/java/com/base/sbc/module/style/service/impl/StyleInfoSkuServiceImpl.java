@@ -33,7 +33,7 @@ public class StyleInfoSkuServiceImpl extends BaseServiceImpl<StyleInfoSkuMapper,
     public void updateStyleInfoSkuById(StyleInfoSkuDto styleInfoSkuDto) {
         StyleInfoSku styleInfoSkuInfo = baseMapper.selectById(styleInfoSkuDto.getId());
         if (null == styleInfoSkuInfo) {
-            throw new OtherException(styleInfoSkuDto.getId() + "此数据未找到，请重试");
+            throw new OtherException(styleInfoSkuDto.getColorName() + "此数据未找到，请重试");
         }
         StyleInfoSku styleInfoSku = BeanUtil.copyProperties(styleInfoSkuDto, StyleInfoSku.class);
         styleInfoSku.updateInit();

@@ -12,8 +12,11 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 /**
  * 类描述：款式设计SKU表 实体类
  * @address com.base.sbc.module.style.entity.StyleInfoSku
@@ -26,6 +29,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName("t_style_info_sku")
 @ApiModel("款式设计SKU表 StyleInfoSku")
+@NoArgsConstructor
+@AllArgsConstructor
 public class StyleInfoSku extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
@@ -50,11 +55,11 @@ public class StyleInfoSku extends BaseDataEntity<String> {
     /** 颜色编码 */
     @ApiModelProperty(value = "颜色编码"  )
     private String colorCode;
-    /** 颜色名称 */
-    @ApiModelProperty(value = "颜色名称"  )
+    /** 尺码名称 */
+    @ApiModelProperty(value = "尺码名称"  )
     private String sizeName;
-    /** 颜色编码 */
-    @ApiModelProperty(value = "颜色编码"  )
+    /** 尺码编码 */
+    @ApiModelProperty(value = "尺码编码"  )
     private String sizeCode;
     /** 成本价格 */
     @ApiModelProperty(value = "成本价格"  )

@@ -43,11 +43,11 @@ public class StyleInfoSkuVo {
     /** 颜色编码 */
     @ApiModelProperty(value = "颜色编码"  )
     private String colorCode;
-    /** 颜色名称 */
-    @ApiModelProperty(value = "颜色名称"  )
+    /** 尺码名称 */
+    @ApiModelProperty(value = "尺码名称"  )
     private String sizeName;
-    /** 颜色编码 */
-    @ApiModelProperty(value = "颜色编码"  )
+    /** 尺码编码 */
+    @ApiModelProperty(value = "尺码编码"  )
     private String sizeCode;
     /** 成本价格 */
     @ApiModelProperty(value = "成本价格"  )
