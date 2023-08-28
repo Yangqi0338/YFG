@@ -1328,5 +1328,13 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         return styleDtoList;
     }
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class, OtherException.class})
+    public String genDesignNo(Style style) {
+        String designNo = planningCategoryItemService.getNextCode(style);
+        this.update(new UpdateWrapper<Style>().set("is_gen_design_no",1).set("design_no",designNo).eq("id",style.getId()));
+        return designNo;
+    }
+
 }
 

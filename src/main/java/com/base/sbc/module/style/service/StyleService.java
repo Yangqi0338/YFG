@@ -196,5 +196,12 @@ public interface StyleService extends BaseService<Style> {
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 
+    /**
+     * 获取下一个编码
+     *
+     * @return
+     */
+    String genDesignNo(Style style);
+
 }
 

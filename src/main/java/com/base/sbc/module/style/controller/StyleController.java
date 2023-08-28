@@ -177,7 +177,15 @@ public class StyleController {
         return ApiResult.success("新增成功" , styleService.saveBomInfoColorList(styleSaveDto));
     }
 
-
+    @ApiOperation(value = "生成设计款号")
+    @PostMapping("/genDesignNo")
+    public ApiResult genDesignNo(@RequestBody Style style) {
+        if (null == style || StringUtils.isBlank(style.getSeriesId()) || StringUtils.isBlank(style.getDesignChannelId()) || StringUtils.isBlank(style.getYear())
+                || StringUtils.isBlank(style.getSeason()) || StringUtils.isBlank(style.getProdCategory3rd())) {
+            return ApiResult.error("相关参数不能为空：款式详情系列不能为空 || 设计渠道不能为空 || 年份不能为空 || 季节不能为空 || 小类不能为空", 500);
+        }
+        return ApiResult.success("新增成功" , styleService.genDesignNo(style));
+    }
 }
 
 
