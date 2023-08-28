@@ -81,6 +81,13 @@ public class FieldManagement extends BaseDataEntity<String> {
     private String season;
     /*季节名称*/
     private String seasonName;
+
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+    /** 品牌名称 */
+    @ApiModelProperty(value = "品牌名称"  )
+    private String brandName;
     /**
      * 是否检查(0否，1是)
      */

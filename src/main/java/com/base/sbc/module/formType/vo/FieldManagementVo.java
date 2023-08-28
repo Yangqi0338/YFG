@@ -48,6 +48,12 @@ public class FieldManagementVo {
     @ApiModelProperty(value = "季节"  )
     private String season;
     private String seasonName;
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+    /** 品牌名称 */
+    @ApiModelProperty(value = "品牌名称"  )
+    private String brandName;
     /** 是否检查(0是，1否) */
     @ApiModelProperty(value = "是否检查(0是，1否)"  )
     private String isExamine;
