@@ -9,6 +9,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：PlanningSummaryDetailVo
@@ -25,7 +27,10 @@ public class PlanningSummaryDetailVo {
 
     @ApiModelProperty(value = "坑位信息id", example = "719579649834745856")
     private String id;
-
+    @ApiModelProperty(value = "产品季节id"  )
+    private String planningSeasonId;
+    @ApiModelProperty(value = "渠道id"  )
+    private String planningChannelId;
     @ApiModelProperty(value = "设计款号", example = "5CA232731")
     private String designNo;
 
@@ -43,8 +48,35 @@ public class PlanningSummaryDetailVo {
     @FieldDisplay(value = "波段", display = true)
     private String bandName;
 
-    @ApiModelProperty(value = "品类", example = "上衣")
+    @ApiModelProperty(value = "波段(编码)"  )
+    private String bandCode;
+    @ApiModelProperty(value = "渠道"  )
+    private String channel;
+    @ApiModelProperty(value = "渠道名称"  )
+    private String channelName;
+    @ApiModelProperty(value = "大类code"  )
+    private String prodCategory1st;
+    /** 品类code */
+    @ApiModelProperty(value = "品类code"  )
+    private String prodCategory;
+    /** 中类code */
+    @ApiModelProperty(value = "中类code"  )
+    private String prodCategory2nd;
+    /** 小类code */
+    @ApiModelProperty(value = "小类code"  )
+    private String prodCategory3rd;
+    /** 大类名称 */
+    @ApiModelProperty(value = "大类名称"  )
+    private String prodCategory1stName;
+    /** 品类名称 */
+    @ApiModelProperty(value = "品类名称"  )
     private String prodCategoryName;
+    /** 中类名称 */
+    @ApiModelProperty(value = "中类名称"  )
+    private String prodCategory2ndName;
+    /** 小类名称 */
+    @ApiModelProperty(value = "小类名称"  )
+    private String prodCategory3rdName;
 
     @ApiModelProperty(value = "图片", example = "http://sdr.saas123.com/static/img/defaultUser.png")
     private String stylePic;
@@ -102,4 +134,6 @@ public class PlanningSummaryDetailVo {
     public String getFinalNo() {
         return Opt.ofBlankAble(styleNo).orElse(designNo);
     }
+    @ApiModelProperty(value = "维度信息")
+    private Map<String,String> dimension;
 }

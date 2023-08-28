@@ -1,10 +1,12 @@
 package com.base.sbc.module.planning.controller;
 
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.planning.dto.GetStyleNoListDto;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
+import com.base.sbc.module.style.vo.StyleColorVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -12,9 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -44,6 +44,11 @@ public class PlanningBoardController {
     @GetMapping("/planningSummary")
     public PlanningSummaryVo planningSummary(@Valid PlanningBoardSearchDto dto) {
         return planningSeasonService.planningSummary(dto);
+    }
+    @ApiOperation(value = "获取大货款号", notes = "用于关联坑位")
+    @PostMapping("/getStyleNoList")
+    public List<StyleColorVo> getStyleNoList(@RequestBody GetStyleNoListDto dto){
+        return planningSeasonService.getStyleNoList(dto);
     }
 
     @ApiOperation(value = "品类汇总", notes = "")

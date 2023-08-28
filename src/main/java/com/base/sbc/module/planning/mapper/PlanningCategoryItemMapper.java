@@ -20,6 +20,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：企划-坑位信息 dao类
@@ -59,5 +60,5 @@ public interface PlanningCategoryItemMapper extends BaseMapper<PlanningCategoryI
 
     String getStylePicUrlById(@Param("id") String id);
 
-    Long queryOrderSkc(@Param(Constants.WRAPPER) QueryWrapper osQw);
+    List<Map<String,Object>> queryOrderSkc(@Param(Constants.WRAPPER) QueryWrapper osQw);
 }
