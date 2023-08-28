@@ -3,6 +3,7 @@ package com.base.sbc.module.planning.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -32,4 +33,10 @@ public class PlanningCategoryItemBatchUpdateDto {
     @ApiModelProperty(value = "计划完成时间", required = false)
     private String planningFinishDate;
 
+    @NotBlank(message = "系列不能为空")
+    @ApiModelProperty(value = "系列id", example = "0", required = true)
+    private String seriesId;
+    @NotBlank(message = "系列不能为空")
+    @ApiModelProperty(value = "系列名称", example = "0", required = true)
+    private String series;
 }
