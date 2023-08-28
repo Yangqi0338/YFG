@@ -103,10 +103,10 @@
         tssc.color_code AS ColorCode,
         tssc.style_no AS StyleCode,
         tssc.tag_price AS C8_Colorway_SalesPrice,
-        tsd.subject as Theme
+        tsd.subject as Theme,
         tsd.prod_category AS C8_Collection_ProdCategory,
         tsd.prod_category3rd AS C8_Style_3rdCategory,
-        tsd.prod_category2rd AS C8_Style_2ndCategory,
+        tsd.prod_category2nd AS C8_Style_2ndCategory,
         tsd.size_range AS SizeRangeCode,
         tbmt.model_Type AS SizeRangeName,
         tsd.dev_class AS ProductType,
@@ -129,18 +129,11 @@
         LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
         LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
         LEFT JOIN t_basicsdatum_model_type tbmt ON tsd.size_range = tbmt.id
-        <where>
-            tssc.del_flag = 0
-            AND tssc.company_code = #{dto.companyCode}
-            <choose>
-                <when test='dto.likeQueryFlag == "1"'>
-                    AND tssc.style_no like concat('%',#{styleNo},'%')
-                </when>
-                <otherwise>
-                    AND tssc.style_no = #{styleNo}
-                </otherwise>
-            </choose>
-        </where>
+        where tssc.del_flag = 0
+        <if test="styleNo != null and styleNo != ''">
+            AND tssc.style_no = #{styleNo}
+        </if>
+
         GROUP BY tssc.style_no
     </select>
 

@@ -143,7 +143,7 @@ public class OpenSmpController extends BaseController {
     @GetMapping("/TagPrinting")
     @ApiOperation(value = "吊牌打印获取", notes = "吊牌打印获取")
     public ApiResult tagPrinting(String id, Boolean bl) {
-        List<TagPrinting> tagPrintings1 = hangTagService.hangTagPrinting(id, bl, super.getUserCompany());
+        List<TagPrinting> tagPrintings1 = hangTagService.hangTagPrinting(id, bl, null);
         return selectSuccess(tagPrintings1);
     }
 
