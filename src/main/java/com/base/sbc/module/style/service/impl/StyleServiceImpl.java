@@ -1365,7 +1365,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public void saveDesignNo(Style style) {
-        this.update(new UpdateWrapper<Style>().set("is_gen_design_no","1").set("design_no",style.getDesignNo()).eq("id",style.getId()));
+        style.setIsGenDesignNo("1");
+        this.update(style,new UpdateWrapper<Style>().eq("id",style.getId()));
     }
 
 }
