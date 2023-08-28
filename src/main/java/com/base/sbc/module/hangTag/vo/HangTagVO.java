@@ -49,8 +49,11 @@ public class HangTagVO {
     /**
      * 号型类型
      */
-    @ApiModelProperty(value = "号型类型")
+    @ApiModelProperty(value = "号型类型编码")
     private String modelType;
+    
+    @ApiModelProperty(value = "号型类型名称")
+    private String modelTypeName;
 
     /**
      * 描述

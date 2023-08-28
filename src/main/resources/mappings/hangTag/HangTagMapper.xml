@@ -144,9 +144,13 @@
         tsd.devt_type AS produceType,
         tsd.style_type AS styleType,
         tsd.size_range AS modelType,
+        tsd.size_range_name AS modelTypeName,
+        tsd.designer as designer,
+        tsd.pattern_design_name as patternDesign,
         tssc.style_no AS bulkStyleNo,
         tssc.color_name AS color,
         tssc.tag_price AS tagPrice,
+
         <!--        st.describe as `describe`,-->
         GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) AS ingredient_B,
 
