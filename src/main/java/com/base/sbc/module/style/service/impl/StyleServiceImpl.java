@@ -529,6 +529,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //        //维度标签
 //        sampleVo.setDimensionLabels(queryDimensionLabelsBySdId(id));
 
+        //如果有设置系列，则同步更新坑位信息表
+        if(com.base.sbc.config.utils.StringUtils.isNotBlank(style.getSeriesId()) || com.base.sbc.config.utils.StringUtils.isNotBlank(style.getSeries())){
+            UpdateWrapper<PlanningCategoryItem> wrapper = new UpdateWrapper<>();
+            wrapper.eq("id",style.getPlanningCategoryItemId());
+            wrapper.set("series_id",style.getSeriesId());
+            wrapper.set("series",style.getSeries());
+            planningCategoryItemService.update(null,wrapper);
+        }
         return sampleVo;
     }
 
