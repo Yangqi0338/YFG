@@ -63,11 +63,11 @@ public class StyleInfoColorController extends BaseController{
 	}
 	@ApiOperation(value = "删除-通过颜色code查询,多个逗号分开")
 	@DeleteMapping("/removeByCode")
-	public ApiResult removeByCode(@RequestParam("codes") String codes) {
+	public ApiResult removeByCode(@RequestParam("codes") String codes, @RequestParam("foreignId") String foreignId) {
 		if (StringUtils.isBlank(codes)) {
 			return deleteNotFound("删除失败，颜色code不能为空");
 		}
-		styleInfoColorService.delStyleInfoColorById(codes, getUserCompany());
+		styleInfoColorService.delStyleInfoColorById(codes, getUserCompany(), foreignId);
 		return deleteSuccess("删除成功");
 	}
 

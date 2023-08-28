@@ -33,8 +33,9 @@ public interface StyleInfoColorService extends BaseService<StyleInfoColor>{
      * 根据颜色code删除款式设计详情颜色
      * @param codes 款式设计详情颜色id
      * @param companyCode 公司编码
+     * @param foreignId 主数据id
      */
-    void delStyleInfoColorById(String codes,String companyCode);
+    void delStyleInfoColorById(String codes,String companyCode, String foreignId);
 
     /**
      * 根据id修改款式设计详情颜色
