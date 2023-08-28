@@ -9,6 +9,7 @@ package com.base.sbc.module.style.dto;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.common.base.GroupUpdate;
+import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -27,7 +28,7 @@ import java.math.BigDecimal;
  */
 @Data
 @ApiModel("款式设计SKU表 StyleInfoSkuDto")
-public class StyleInfoSkuDto  {
+public class StyleInfoSkuDto  extends Page {
 
 	private static final long serialVersionUID = 1L;
     /** id */
