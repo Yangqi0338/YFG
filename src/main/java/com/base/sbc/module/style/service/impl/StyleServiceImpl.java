@@ -8,6 +8,7 @@ package com.base.sbc.module.style.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -220,6 +221,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             return null;
         }
         List<StyleInfoColor> styleInfoColors = BeanUtil.copyToList(styleSaveDto.getStyleInfoColorDtoList(), StyleInfoColor.class);
+        List<StyleInfoColor> colorCodeList =
+                styleInfoColorService.list(new QueryWrapper<StyleInfoColor>().in("color_code",
+                        styleInfoColors.stream().map(StyleInfoColor::getColorCode).collect(Collectors.toList())));
+        if (CollectionUtil.isNotEmpty(colorCodeList)) {
+            String colorNames = colorCodeList.stream().map(StyleInfoColor::getColorName).collect(Collectors.joining(BaseGlobal.D));
+            throw new OtherException(colorNames + "已添加颜色，请勿重新添加");
+        }
+
         // 初始化数据
         styleInfoColors.forEach(styleInfoColor -> {
             styleInfoColor.insertInit();
@@ -262,6 +271,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (!skuFlg) {
             throw new OtherException("新增款式SKU失败，请联系管理员");
         }
+        // 修改颜色codes、颜色名称
+        Style style = new Style();
+        style.setId(styleSaveDto.getId());
+        style.setColorCodes(styleSaveDto.getColorCodes());
+        style.setProductColors(styleSaveDto.getProductColors());
+        baseMapper.updateById(style);
         return BeanUtil.copyToList(styleInfoColors, StyleInfoColorVo.class);
     }
 
