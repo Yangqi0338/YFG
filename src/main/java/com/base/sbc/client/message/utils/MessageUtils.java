@@ -107,19 +107,23 @@ public class MessageUtils {
      * @param userId 用户id
      */
     @Async
-    public void seasonSendMessage(List<String> userId, GroupUser groupUser) {
-        log.info("————————————————————————产品季下发提醒消息用户" + userId);
-        if (!CollectionUtils.isEmpty(userId)) {
-            Map<String, String> map = new HashMap<>();
-            map.put("userId", groupUser.getId());
-            map.put("userName", groupUser.getName());
-            map.put("avatar", groupUser.getAvatar());
-            ModelMessage modelMessage = new ModelMessage();
-            modelMessage.setUserIds(StringUtils.convertListToString(userId));
-            modelMessage.setModelCode("YFG002");
-            modelMessage.setParams(map);
-            String s = messagesService.sendNoticeByModel(modelMessage);
-            log.info("————————————————————————产品季下发提醒消息" + s);
+    public void seasonSendMessage(List<PlanningCategoryItem> list, GroupUser groupUser) {
+
+        if (!CollectionUtils.isEmpty(list)) {
+            for (PlanningCategoryItem planningCategoryItem : list) {
+                log.info("————————————————————————产品季下发提醒消息用户" + planningCategoryItem.getDesignerId());
+                Map<String, String> map = new HashMap<>();
+                map.put("userId", groupUser.getId());
+                map.put("userName", groupUser.getName());
+                map.put("avatar", groupUser.getAvatar());
+                map.put("sampleDesignId", planningCategoryItem.getId());
+                ModelMessage modelMessage = new ModelMessage();
+                modelMessage.setUserIds(planningCategoryItem.getDesignerId());
+                modelMessage.setModelCode("YFG002");
+                modelMessage.setParams(map);
+                String s = messagesService.sendNoticeByModel(modelMessage);
+                log.info("————————————————————————产品季下发提醒消息" + s);
+            }
         }
     }
 
@@ -348,5 +352,31 @@ public class MessageUtils {
             }
         }
     }
+
+
+    /**
+     * 确认收到样衣消息提醒
+     *
+     * @param patternRoomId
+     * @param designNo
+     * @param groupUser
+     */
+    @Async
+    public void prmSendMessage(String userId, String designNo, GroupUser groupUser) {
+            if (StringUtils.isNotBlank(userId)) {
+                log.info("————————————————————————确认收到样衣消息提醒发送提醒消息用户" + userId);
+                Map<String, String> map = new HashMap<>();
+                map.put("title", designNo);
+                map.put("userId", groupUser.getId());
+                map.put("userName", groupUser.getName());
+                map.put("avatar", groupUser.getAvatar());
+                ModelMessage modelMessage = new ModelMessage();
+                modelMessage.setUserIds(userId);
+                modelMessage.setModelCode("YFG008");
+                modelMessage.setParams(map);
+                String s = messagesService.sendNoticeByModel(modelMessage);
+            }
+    }
+
 
 }

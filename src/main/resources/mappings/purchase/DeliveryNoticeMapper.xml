@@ -11,7 +11,9 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
     <select id="selectByPurchaseId" resultType="com.base.sbc.module.purchase.entity.DeliveryNotice" parameterType="java.util.Map">
-        select * from t_delivery_notice where purcahse_id = #{id}
+        SELECT n.*, d.style_name FROM `t_delivery_notice` as n
+        left join t_purchase_order_detail as d on n.purchase_order_detail_id = d.id
+        where n.purcahse_id = #{id}
     </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

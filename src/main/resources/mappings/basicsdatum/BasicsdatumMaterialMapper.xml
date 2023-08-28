@@ -114,10 +114,13 @@
 			   image_url,
 			   category3_name AS categoryName,
 			   ingredient,
+			   gram_weight,
 			   loss_rate,
 			   supplier_factory_ingredient,
 			   auxiliary_material,
-			   remarks
+			   remarks,
+			   delivery_code,
+			   delivery_name
 		FROM t_basicsdatum_material ${ ew.customSqlSegment}
 	</select>
 

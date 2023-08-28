@@ -510,7 +510,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
         }
         /*产品季下发提醒*/
-        messageUtils.seasonSendMessage(categoryItemList.stream().map(PlanningCategoryItem::getDesignerId).collect(Collectors.toList()),baseController.getUser());
+        messageUtils.seasonSendMessage(categoryItemList,baseController.getUser());
         return true;
     }
 

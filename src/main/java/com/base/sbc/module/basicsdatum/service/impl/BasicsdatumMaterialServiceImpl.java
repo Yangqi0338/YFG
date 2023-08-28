@@ -25,6 +25,7 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.*;
+import com.base.sbc.module.basicsdatum.controller.BasicsdatumMaterialController;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
@@ -312,6 +313,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
 		qc.select("material_code");
 		qc.eq("company_code", this.getCompanyCode());
+		qc.in("id", list);
 		List<String> list2 = this.list(qc).stream().map(BasicsdatumMaterial::getMaterialCode)
 				.collect(Collectors.toList());
 		// 删除主表

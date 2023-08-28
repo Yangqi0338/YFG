@@ -47,9 +47,17 @@ public class MaterialWarehouseServiceImpl extends BaseServiceImpl<MaterialWareho
         QueryWrapper<MaterialWarehouse> qw = new QueryWrapper<>();
         qw.eq("company_code", companyCode);
         qw.eq("warehouse_name", materialWarehouse.getWarehouseName());
-        List<MaterialWarehouse> list = list(qw);
-        if(CollectionUtil.isNotEmpty(list)){
+        List<MaterialWarehouse> nameList = list(qw);
+        if(CollectionUtil.isNotEmpty(nameList)){
             return ApiResult.error("已经有相同名称的仓库，请更换！", 500);
+        }
+
+        qw.clear();
+        qw.eq("company_code", companyCode);
+        qw.eq("code", materialWarehouse.getCode());
+        List<MaterialWarehouse> codeList = list(qw);
+        if(CollectionUtil.isNotEmpty(codeList)){
+            return ApiResult.error("仓库编码重复，请更换！", 500);
         }
 
         String id = idGen.nextIdStr();
@@ -84,6 +92,15 @@ public class MaterialWarehouseServiceImpl extends BaseServiceImpl<MaterialWareho
         List<MaterialWarehouse> list = list(qw);
         if(CollectionUtil.isNotEmpty(list)){
             return ApiResult.error("已经有相同名称的仓库，请更换！", 500);
+        }
+
+        qw.clear();
+        qw.eq("company_code", companyCode);
+        qw.eq("code", materialWarehouse.getCode());
+        qw.ne("id", materialWarehouse.getId());
+        List<MaterialWarehouse> codeList = list(qw);
+        if(CollectionUtil.isNotEmpty(codeList)){
+            return ApiResult.error("仓库编码重复，请更换！", 500);
         }
 
         materialWarehouse.updateInit(userCompany);

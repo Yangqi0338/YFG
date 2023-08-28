@@ -266,6 +266,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.eq("id", dto.getId());
         // 修改单据
         update(uw);
+        /*消息通知*/
+      messageUtils.prmSendMessage(dto.getPatternDesignId(),byId.getPatternNo(),baseController.getUser());
         return true;
     }
 
@@ -410,6 +412,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
         qw.eq(StrUtil.isNotBlank(dto.getFinishFlag()), "p.finish_flag", dto.getFinishFlag());
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
+        qw.eq(StrUtil.isNotBlank(dto.getCutterId()), "p.cutter_id", dto.getCutterId());
+        qw.eq(StrUtil.isNotBlank(dto.getStitcherId()), "p.stitcher_id", dto.getStitcherId());
         qw.eq(StrUtil.isNotBlank(dto.getPatternStatus()), "p.pattern_status", dto.getPatternStatus());
         qw.eq(StrUtil.isNotBlank(dto.getCuttingStatus()), "p.cutting_status", dto.getCuttingStatus());
         qw.eq(StrUtil.isNotBlank(dto.getSewingStatus()), "p.sewing_status", dto.getSewingStatus());
@@ -426,9 +430,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
         // 版房主管和设计师 看到全部，版师、裁剪工、车缝工、样衣组长看到自己,
+        if (StrUtil.isBlank(dto.getOrderBy())) {
+            qw.orderByDesc("p.create_date");
+            qw.orderByAsc("p.sort");
+        }
 
-        qw.orderByDesc("p.create_date");
-        qw.orderByAsc("p.sort");
         Page<PatternMakingTaskListVo> objects = PageHelper.startPage(dto);
         List<PatternMakingTaskListVo> list = getBaseMapper().patternMakingTaskList(qw);
         //设置图片
@@ -629,8 +635,54 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public List<SampleUserVo> getAllPatternDesignList(String companyCode) {
-        List<SampleUserVo> list = getBaseMapper().getAllPatternDesignList(companyCode);
+    public List<SampleUserVo> getAllPatternDesignList(PatternUserSearchVo vo) {
+
+        QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
+        qw.select("DISTINCT pattern_design_id as user_id, pattern_design_name as name");
+        qw.lambda().eq(PatternMaking::getCompanyCode, getCompanyCode())
+                .isNotNull(PatternMaking::getPatternDesignId)
+                .isNotNull(PatternMaking::getPatternDesignName)
+                .ne(PatternMaking::getPatternDesignName, "")
+                .ne(PatternMaking::getPatternDesignId, "")
+                .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
+        ;
+        List<Map<String, Object>> maps = listMaps(qw);
+        List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
+        amcFeignService.setUserAvatarToList(list);
+        return list;
+    }
+
+    @Override
+    public List<SampleUserVo> getAllCutterList(PatternUserSearchVo vo) {
+        QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
+        qw.select("DISTINCT cutter_id as user_id, cutter_name as name");
+        qw.lambda().eq(PatternMaking::getCompanyCode, getCompanyCode())
+                .isNotNull(PatternMaking::getCutterName)
+                .isNotNull(PatternMaking::getCutterId)
+                .ne(PatternMaking::getCutterName, "")
+                .ne(PatternMaking::getCutterId, "")
+                .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
+        ;
+        List<Map<String, Object>> maps = listMaps(qw);
+        List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
+        amcFeignService.setUserAvatarToList(list);
+        return list;
+    }
+
+    @Override
+    public List<SampleUserVo> getAllStitcherList(PatternUserSearchVo vo) {
+        QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
+        qw.select("DISTINCT stitcher_id as user_id,  stitcher as name");
+        qw.lambda().eq(PatternMaking::getCompanyCode, getCompanyCode())
+                .isNotNull(PatternMaking::getStitcher)
+                .isNotNull(PatternMaking::getStitcherId)
+                .ne(PatternMaking::getStitcher, "")
+                .ne(PatternMaking::getStitcherId, "")
+                .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
+        ;
+
+        List<Map<String, Object>> maps = listMaps(qw);
+        List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
         amcFeignService.setUserAvatarToList(list);
         return list;
     }
@@ -867,6 +919,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.lambda().eq(PatternMaking::getId, id);
         return update(updateBean, uw);
     }
+
 
     @Override
     public boolean sampleMakingScore(Principal user, String id, BigDecimal score) {
