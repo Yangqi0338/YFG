@@ -29,6 +29,6 @@ public class PlanningSummaryVo {
 
     @ApiModelProperty(value = "明细数据")
     private Map<String, List<PlanningSummaryDetailVo>> xyData;
-
-
+    @ApiModelProperty(value = "维度统计数据")
+    private List<List<String>> demandSummary;
 }

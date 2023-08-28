@@ -149,6 +149,18 @@
         from t_planning_category_item
         where id = #{id} limit 1
     </select>
+    <select id="queryOrderSkc" resultType="java.lang.Long">
+        select count(1) from t_style s, t_style_color sc,  t_planning_category_item c
+        where s.planning_category_item_id=c.id
+        and s.id=sc.style_id
+        and s.del_flag='0'
+        and sc.del_flag='0'
+        and c.del_flag='0'
+        and sc.order_flag='1'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
