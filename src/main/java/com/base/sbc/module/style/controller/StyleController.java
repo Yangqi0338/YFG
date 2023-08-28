@@ -186,6 +186,16 @@ public class StyleController {
         }
         return ApiResult.success("新增成功" , styleService.genDesignNo(style));
     }
+
+    @ApiOperation(value = "保存设计款号")
+    @PostMapping("/保存设计款号")
+    public ApiResult saveDesignNo(@RequestBody Style style) {
+        if (null == style || StringUtils.isBlank(style.getId()) || StringUtils.isBlank(style.getDesignNo())) {
+            return ApiResult.error("相关参数不能为空：款式详情id不能为空 || 设计款号不能为空 ", 500);
+        }
+        styleService.saveDesignNo(style);
+        return ApiResult.success("新增成功");
+    }
 }
 
 
