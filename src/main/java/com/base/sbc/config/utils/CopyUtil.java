@@ -1,5 +1,6 @@
 package com.base.sbc.config.utils;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.github.pagehelper.PageInfo;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
@@ -81,10 +82,7 @@ public class CopyUtil {
 	 * @return
 	 */
 	public static <T, E> PageInfo<T> copy(PageInfo<?> page, List<E> sourceList, Class<T> targetClazz) {
-		PageInfo<T> pageResult = new PageInfo<T>();
-		pageResult.setTotal(page.getTotal());
-		pageResult.setPageNum(page.getPageNum());
-		pageResult.setPageSize(page.getPageSize());
+		PageInfo pageResult = mapperFactory.getMapperFacade().map(page,PageInfo.class);
 		List<T> records = copy(sourceList, targetClazz);
 		pageResult.setList(records);
 		return pageResult;
