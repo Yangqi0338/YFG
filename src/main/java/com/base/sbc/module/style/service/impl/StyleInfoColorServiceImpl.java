@@ -10,6 +10,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
@@ -114,11 +116,19 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
             String productColors = styleInfoColorList.stream().map(StyleInfoColor::getColorName).collect(Collectors.joining(BaseGlobal.D));
             style.setColorCodes(colorCodes);
             style.setProductColors(productColors);
+            styleService.updateById(style);
         } else {
-            style.setColorCodes(BaseGlobal.H);
-            style.setProductColors(BaseGlobal.H);
+            // 删除所有数据 把款式设计里的颜色清空
+            style = styleService.lambdaQuery().eq(Style::getId, styleInfoColors.get(BaseGlobal.ZERO).getForeignId()).one();
+            style.setColorCodes(null);
+            style.setProductColors(null);
+            LambdaUpdateWrapper<Style> lambdaUpdate = Wrappers.lambdaUpdate();
+            lambdaUpdate.eq(Style::getId, styleInfoColors.get(BaseGlobal.ZERO).getForeignId());
+            lambdaUpdate.set(Style::getColorCodes, null);
+            lambdaUpdate.set(Style::getProductColors, null);
+            styleService.update(style,lambdaUpdate);
         }
-        styleService.updateById(style);
+
         // 删除相关数据
         baseMapper.deleteBatchIds(styleInfoColors.stream().map(StyleInfoColor::getId).collect(Collectors.toList()));
 
