@@ -3,6 +3,7 @@ package com.base.sbc.client.amc.service;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.common.dto.AdTree;
+import com.base.sbc.open.dto.DesignerDto;
 import com.base.sbc.open.entity.SmpDept;
 import com.base.sbc.open.entity.SmpPost;
 import com.base.sbc.open.entity.SmpUser;
@@ -131,6 +132,9 @@ public interface AmcService {
 
     @PostMapping(value = "/amc/api/open/initData/user",headers = {"Content-type=application/json"})
     String user(@RequestBody List<SmpUser> list);
+
+    @PostMapping(value = "/amc/api/open/initData/designerCode",headers = {"Content-type=application/json"})
+    String designerCode(@RequestBody List<DesignerDto> list);
 
     @PostMapping(value = "/amc/api/open/initData/post",headers = {"Content-type=application/json"})
     String post(@RequestBody List<SmpPost> list);
