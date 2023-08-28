@@ -45,6 +45,9 @@ public class BigGoodsPackInfoListVo extends PackInfoStatusVo {
     @ApiModelProperty(value = "生产模式")
     private String devtType;
 
+    @ApiModelProperty(value = "生产模式名称")
+    private String devtTypeName;
+
     @ApiModelProperty(value = "款式图")
     private String stylePic;
 

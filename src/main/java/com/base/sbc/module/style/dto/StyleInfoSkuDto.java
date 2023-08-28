@@ -8,11 +8,13 @@ package com.base.sbc.module.style.dto;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.common.base.GroupUpdate;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
@@ -30,9 +32,11 @@ public class StyleInfoSkuDto  {
 	private static final long serialVersionUID = 1L;
     /** id */
     @ApiModelProperty(value = "id"  )
+    @NotNull(message = "id不能为空" , groups = {GroupUpdate.class})
     private String id;
     /** 主数据id */
     @ApiModelProperty(value = "主数据id"  )
+    @NotNull(message = "id不能为空" , groups = {GroupUpdate.class})
     private String foreignId;
     /** 资料包类型:packDesign:设计资料包 */
     @ApiModelProperty(value = "资料包类型:packDesign:设计资料包"  )
@@ -46,11 +50,11 @@ public class StyleInfoSkuDto  {
     /** 颜色编码 */
     @ApiModelProperty(value = "颜色编码"  )
     private String colorCode;
-    /** 颜色名称 */
-    @ApiModelProperty(value = "颜色名称"  )
+    /** 尺码名称 */
+    @ApiModelProperty(value = "尺码名称"  )
     private String sizeName;
-    /** 颜色编码 */
-    @ApiModelProperty(value = "颜色编码"  )
+    /** 尺码编码 */
+    @ApiModelProperty(value = "尺码编码"  )
     private String sizeCode;
     /** 成本价格 */
     @ApiModelProperty(value = "成本价格"  )

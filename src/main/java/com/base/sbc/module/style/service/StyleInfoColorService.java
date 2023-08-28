@@ -30,11 +30,17 @@ public interface StyleInfoColorService extends BaseService<StyleInfoColor>{
      */
     public PageInfo<StyleInfoColorVo> pageList(StyleInfoColorDto styleInfoColorDto);
     /**
-     * 根据id删除款式设计详情颜色
-     * @param ids 款式设计详情颜色id
+     * 根据颜色code删除款式设计详情颜色
+     * @param codes 款式设计详情颜色id
      * @param companyCode 公司编码
      */
-    void delStyleInfoColorById(String ids,String companyCode);
+    void delStyleInfoColorById(String codes,String companyCode);
+
+    /**
+     * 根据id修改款式设计详情颜色
+     * @param styleInfoColorDto 款式设计详情颜色DTO
+     */
+    void updateStyleInfoColorById(StyleInfoColorDto styleInfoColorDto);
 
 // 自定义方法区 不替换的区域【other_end】
 

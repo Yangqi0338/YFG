@@ -30,6 +30,7 @@ public class HangTagDTO {
     private static final long serialVersionUID = 1L;
 
     private String id;
+    private String ingredient;
     /**
      * 备注信息
      */

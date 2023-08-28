@@ -44,6 +44,9 @@ public class YearSeasonBandVo {
     @ApiModelProperty(value = "是否有波段级别", example = "0")
     private String hasBand;
 
+    @ApiModelProperty(value = "波段标记 存在查询波段数量", example = "0")
+    private String   bandflag;
+
     public String getLabel() {
         if (level == 0) {
             return this.yearName + "(" + total + ")";

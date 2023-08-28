@@ -3,7 +3,9 @@ package com.base.sbc.open.controller;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.open.dto.DesignerDto;
 import com.base.sbc.open.dto.SmpDeptDto;
 import com.base.sbc.open.dto.SmpPostDto;
 import com.base.sbc.open.dto.SmpUserDto;
@@ -77,6 +79,18 @@ public class InitDataController {
             smpUsers.add(smpUser1);
         }
         amcService.user(smpUsers);
+    }
+
+
+    /**
+     * 设计师编码初始化
+     */
+    @PostMapping("/designerCode")
+    public void designerCode(MultipartFile file) throws Exception {
+        ImportParams params = new ImportParams();
+        params.setNeedSave(false);
+        List<DesignerDto> designerDtoList = ExcelImportUtil.importExcel(file.getInputStream(), DesignerDto.class, params);
+        amcService.designerCode(designerDtoList);
     }
 
     @PostMapping("/post")

@@ -15,10 +15,13 @@ public class QueryDemandDto {
 
 
     /*品类id*/
-    @ApiModelProperty(value = "品类id" ,required = true,example = "111")
+    @ApiModelProperty(value = "品类id", required = true, example = "111")
     private String categoryId;
 
 
-    @ApiModelProperty(value = "表单编码" ,required = false,example = "122222")
+    @ApiModelProperty(value = "表单编码", required = false, example = "122222")
     private String formCode;
+
+    @ApiModelProperty(value = "维度字段id", required = false, example = "122222")
+    private String fieldId;
 }

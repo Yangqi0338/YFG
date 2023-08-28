@@ -1,9 +1,9 @@
 /******************************************************************************
-* Copyright (C) 2018 广州尚捷科技有限责任公司
-* All Rights Reserved.
-* 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
-* 不得使用、复制、修改或发布本软件.
-*****************************************************************************/
+ * Copyright (C) 2018 广州尚捷科技有限责任公司
+ * All Rights Reserved.
+ * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
+ * 不得使用、复制、修改或发布本软件.
+ *****************************************************************************/
 package com.base.sbc.module.planning.controller;
 
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -14,6 +14,7 @@ import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningDemandProportionDataService;
 import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
+import com.base.sbc.module.planning.vo.PlanningDemandVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
@@ -26,13 +27,13 @@ import javax.validation.Valid;
 import java.util.List;
 
 /**
-* 类描述：企划-需求管理相关接口
-* @address com.base.sbc.module.planning.web.PlanningDemandDimensionalityController
-* @author lxl
-* @email lxl.fml@gmail.com
-* @date 创建时间：2023-4-26 17:42:18
-* @version 1.0
-*/
+ * 类描述：企划-需求管理相关接口
+ * @address com.base.sbc.module.planning.web.PlanningDemandDimensionalityController
+ * @author lxl
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-4-26 17:42:18
+ * @version 1.0
+ */
 @RestController
 @Api(tags = "企划-需求管理相关接口")
 @RequestMapping(value = BaseController.SAAS_URL + "/planningDemand", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -52,13 +53,13 @@ public class PlanningDemandController {
 	private	PlanningCategoryItemService planningCategoryItemService;
 
 
-    @Resource
+	@Resource
 	private CcmFeignService ccmFeignService;
 
 	/*品类id获取需求及维度*/
 	@ApiOperation(value = "品类id获取需求列表")
 	@GetMapping("/getDemandListById")
-	public ApiResult getDemandListById(QueryDemandDto queryDemandDto) {
+	public List<PlanningDemandVo> getDemandListById(QueryDemandDto queryDemandDto) {
 		return planningDemandService.getDemandListById(queryDemandDto);
 	}
 
@@ -70,7 +71,7 @@ public class PlanningDemandController {
 	}
 
 
-   /*穿梭框新增删除需求占比数据*/
+	/*穿梭框新增删除需求占比数据*/
 	@ApiOperation(value = "穿梭框新增删除需求占比数据")
 	@PostMapping("saveDel")
 	public ApiResult saveDel(@RequestBody List<SaveDelDemandDto> saveDelDemandDto) {

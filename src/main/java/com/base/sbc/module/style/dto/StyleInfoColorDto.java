@@ -8,6 +8,8 @@ package com.base.sbc.module.style.dto;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.common.base.GroupInsert;
+import com.base.sbc.config.common.base.GroupUpdate;
 import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -31,23 +33,30 @@ public class StyleInfoColorDto extends Page {
 
 	private static final long serialVersionUID = 1L;
     @ApiModelProperty(value = "id"  )
+    @NotNull(message = "id不能为空" , groups = {GroupUpdate.class})
     private String id;
     /** 主数据id */
     @ApiModelProperty(value = "主数据id"  )
-    @NotNull(message = "主数据id不能为空")
+    @NotNull(message = "主数据id不能为空" , groups = {GroupUpdate.class , GroupInsert.class})
     private String foreignId;
     /** 资料包类型:packDesign:设计资料包 */
     @ApiModelProperty(value = "资料包类型:packDesign:设计资料包"  )
+    @NotNull(message = "资料包类型不能为空" , groups = {GroupInsert.class})
     private String packType;
     /** 颜色编码 */
     @ApiModelProperty(value = "颜色编码"  )
+    @NotNull(message = "颜色编码不能为空" , groups = {GroupInsert.class})
     private String colorCode;
     /** 颜色名称 */
     @ApiModelProperty(value = "颜色名称"  )
+    @NotNull(message = "颜色名称不能为空" , groups = {GroupInsert.class})
     private String colorName;
     /** 颜色色号 */
     @ApiModelProperty(value = "颜色色号"  )
     private String colorNumber;
+    /** 图片名称 */
+    @ApiModelProperty(value = "图片名称"  )
+    private String imagesName;
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
     private String images;
@@ -60,4 +69,6 @@ public class StyleInfoColorDto extends Page {
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
+
+
 }

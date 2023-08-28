@@ -2,6 +2,8 @@ package com.base.sbc.module.planning.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -14,18 +16,27 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
+import com.base.sbc.module.formType.entity.FieldManagement;
+import com.base.sbc.module.formType.entity.FieldVal;
+import com.base.sbc.module.formType.mapper.FieldManagementMapper;
+import com.base.sbc.module.formType.mapper.FieldValMapper;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
+import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.entity.PlanningChannel;
+import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
 import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.mapper.PlanningCategoryItemMaterialMapper;
 import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
+import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.*;
@@ -40,10 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -71,7 +79,15 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     private PlanningCategoryItemService planningCategoryItemService;
     @Resource
     private BandService bandService;
+    @Resource
+    private PlanningDemandService planningDemandService;
+    @Resource
+    private FieldManagementMapper fieldManagementMapper;
 
+    @Resource
+    private FieldValMapper fieldValMapper;
+    @Resource
+    private PlanningCategoryItemMaterialMapper planningCategoryItemMaterialMapper;
     @Override
     public boolean del(String companyCode, String id) {
         return removeById(id);
@@ -235,31 +251,112 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     @Override
     public PlanningSummaryVo planningSummary(PlanningBoardSearchDto dto) {
         PlanningSummaryVo vo = new PlanningSummaryVo();
-        //查询波段统计
-        QueryWrapper brandTotalQw = new QueryWrapper();
-        brandTotalQw.select("band_name as name,count(1) as total");
-        brandTotalQw.groupBy("band_name");
-        planningSummaryQw(brandTotalQw, dto);
-        List<DimensionTotalVo> bandTotal = planningCategoryItemService.dimensionTotal(brandTotalQw);
-        vo.setBandTotal(PlanningUtils.removeEmptyAndSort(bandTotal));
 
-
-        //查询品类统计
-        QueryWrapper categoryQw = new QueryWrapper();
-        categoryQw.select("prod_category_name as name,count(1) as total");
-        categoryQw.groupBy("prod_category_name");
-        planningSummaryQw(categoryQw, dto);
-        List<DimensionTotalVo> categoryTotal = planningCategoryItemService.dimensionTotal(categoryQw);
-        vo.setCategoryTotal(PlanningUtils.removeEmptyAndSort(categoryTotal));
         //查询明细
         QueryWrapper detailQw = new QueryWrapper();
         planningSummaryQw(detailQw, dto);
         List<PlanningSummaryDetailVo> detailVoList = planningCategoryItemService.planningSummaryDetail(detailQw);
-        if (CollUtil.isNotEmpty(detailVoList)) {
-            amcFeignService.setUserAvatarToList(detailVoList);
-            Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getProdCategoryName() + StrUtil.DASHED + k.getBandName()));
-            vo.setSeatData(seatData);
+        if (CollUtil.isEmpty(detailVoList)) {
+            return null;
         }
+        //  默认y 轴为品类,x为波段
+        if (StrUtil.isBlank(dto.getFieldId()) || StrUtil.isBlank(dto.getProdCategory())) {
+
+            Map<String, Long> xMap = new HashMap<>(16);
+            Map<String, Long> yMap = new HashMap<>(16);
+            for (PlanningSummaryDetailVo dv : detailVoList) {
+                if (xMap.containsKey(dv.getBandName())) {
+                    Long aLong = xMap.get(dv.getBandName());
+                    xMap.put(dv.getBandName(), aLong + 1);
+                } else {
+                    xMap.put(dv.getBandName(), 1L);
+                }
+                if (yMap.containsKey(dv.getProdCategoryName())) {
+                    Long aLong = yMap.get(dv.getProdCategoryName());
+                    yMap.put(dv.getProdCategoryName(), aLong + 1);
+                } else {
+                    yMap.put(dv.getProdCategoryName(), 1L);
+                }
+            }
+            vo.setXList(xMap.entrySet().stream().map(item -> {
+                DimensionTotalVo dtv = new DimensionTotalVo();
+                dtv.setName(item.getKey());
+                dtv.setTotal(item.getValue());
+                return dtv;
+            }).collect(Collectors.toList()));
+            vo.setYList(yMap.entrySet().stream().map(item -> {
+                DimensionTotalVo dtv = new DimensionTotalVo();
+                dtv.setName(item.getKey());
+                dtv.setTotal(item.getValue());
+                return dtv;
+            }).collect(Collectors.toList()));
+            amcFeignService.setUserAvatarToList(detailVoList);
+            Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getBandName() + StrUtil.DASHED + k.getProdCategoryName()));
+            vo.setXyData(seatData);
+        } else {
+            //当选择维度时，y轴为维度 （企划需求管理的需求占比）
+            QueryDemandDto queryDemandDto = new QueryDemandDto();
+            queryDemandDto.setPlanningSeasonId(dto.getPlanningSeasonId());
+            queryDemandDto.setCategoryId(dto.getProdCategory());
+            queryDemandDto.setFieldId(dto.getFieldId());
+            List<PlanningDemandVo> demandList = planningDemandService.getDemandListById(queryDemandDto);
+            List<String> yValueS = new ArrayList<>();
+            if (CollUtil.isNotEmpty(demandList) && CollUtil.isNotEmpty(demandList.get(0).getList())) {
+                PlanningDemandVo planningDemandVo = demandList.get(0);
+                List<PlanningDemandProportionData> list = planningDemandVo.getList();
+                List<DimensionTotalVo> yList = list.stream().map(e -> {
+                    DimensionTotalVo yvo = new DimensionTotalVo();
+                    yvo.setTotal(Optional.ofNullable(e.getNum()).map(Integer::longValue).orElse(0L));
+                    yvo.setName(e.getClassifyName());
+                    yValueS.add(e.getClassifyName());
+                    return yvo;
+                }).collect(Collectors.toList());
+                vo.setYList(PlanningUtils.removeEmptyAndSort(yList));
+
+                if (CollUtil.isNotEmpty(detailVoList)) {
+                    List<String> seatIds = detailVoList.stream().map(PlanningSummaryDetailVo::getId).collect(Collectors.toList());
+                    FieldManagement fieldManagement = fieldManagementMapper.selectById(planningDemandVo.getFieldId());
+                    QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
+                    fvQw.in("foreign_id", seatIds);
+                    fvQw.eq("field_name", fieldManagement.getFieldName());
+                    List<FieldVal> fieldVals = fieldValMapper.selectList(fvQw);
+                    Map<String, FieldVal> seatFvMap = Opt.ofNullable(fieldVals).map(fvs -> {
+                        return fvs.stream().collect(Collectors.toMap(k -> k.getForeignId(), v -> v, (a, b) -> a));
+                    }).orElse(MapUtil.empty());
+                    Map<String, List<PlanningSummaryDetailVo>> seatData = new HashMap<>(16);
+                    Map<String, Long> xMap = new HashMap<>(16);
+                    for (PlanningSummaryDetailVo psdv : detailVoList) {
+                        String dv = Optional.ofNullable(seatFvMap.get(psdv.getId())).map(FieldVal::getValName).orElse("_null_");
+                        if (!yValueS.contains(dv)) {
+                            continue;
+                        }
+                        String bandName = psdv.getBandName();
+                        String key = bandName + StrUtil.DASHED + dv;
+                        if (seatData.containsKey(key)) {
+                            seatData.get(key).add(psdv);
+                        } else {
+                            seatData.put(key, CollUtil.newArrayList(psdv));
+                        }
+                        if (xMap.containsKey(bandName)) {
+                            Long aLong = xMap.get(bandName);
+                            xMap.put(bandName, aLong + 1);
+                        } else {
+                            xMap.put(bandName, 1L);
+                        }
+                    }
+                    vo.setXList(xMap.entrySet().stream().map(item -> {
+                        DimensionTotalVo dtv = new DimensionTotalVo();
+                        dtv.setName(item.getKey());
+                        dtv.setTotal(item.getValue());
+                        return dtv;
+                    }).collect(Collectors.toList()));
+                    vo.setXyData(seatData);
+                }
+            }
+
+        }
+
+
         return vo;
     }
 
@@ -315,7 +412,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             }
             //统计产品季skc数量
             // Map<String, Long> sckCountMap = planningCategoryItemService.totalSkcByPlanningSeason(null);
-            Map<String, Long> sckCountMap = planningChannelService.countByPlanningSeason();
+            Map<String, Long> sckCountMap =getSckCountMap(vo.getBandflag());
             List<YearSeasonBandVo> slist = seasonList.stream().map(s -> {
                 YearSeasonBandVo v = new YearSeasonBandVo();
                 v.setPlanningSeasonId(s.getId());
@@ -343,6 +440,23 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             return result;
         }
 
+    }
+
+    /**
+     * 查询产品季下的波段或渠道数量
+     * @param bandflag
+     * @return
+     */
+    public Map<String, Long> getSckCountMap(String bandflag) {
+        if (StringUtils.isNotBlank(bandflag)) {
+            List<Map<String, Long>> list = planningCategoryItemMaterialMapper.getbandSum();
+            Map<String, Long>  map =new HashMap<>();
+            for (Map<String, Long> stringLongMap : list) {
+                map.put( String.valueOf(stringLongMap.get("label")) ,stringLongMap.get("count"));
+            }
+            return map;
+        }
+        return planningChannelService.countByPlanningSeason();
     }
 
     @Override

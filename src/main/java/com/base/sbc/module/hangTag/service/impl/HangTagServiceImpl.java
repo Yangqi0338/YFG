@@ -13,12 +13,16 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.basicsdatum.controller.BasicsdatumMaterialController;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangTag.dto.HangTagDTO;
+import com.base.sbc.module.hangTag.dto.HangTagIngredientDTO;
 import com.base.sbc.module.hangTag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangTag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangTag.entity.HangTag;
+import com.base.sbc.module.hangTag.entity.HangTagIngredient;
 import com.base.sbc.module.hangTag.entity.HangTagLog;
 import com.base.sbc.module.hangTag.enums.HangTagStatusEnum;
 import com.base.sbc.module.hangTag.enums.OperationDescriptionEnum;
@@ -40,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -78,6 +83,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     @Autowired
     private StyleColorMapper styleColorMapper;
     private final FlowableService flowableService;
+    @Autowired
+    @Lazy
+    private  BasicsdatumMaterialController basicsdatumMaterialController;
 
     @Override
     public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -112,7 +120,20 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         hangTag.insertInit();
         super.saveOrUpdate(hangTag);
         String id = hangTag.getId();
-        hangTagIngredientService.save(hangTagDTO.getHangTagIngredients(), id, userCompany);
+
+        List<BasicsdatumMaterialIngredient> materialIngredientList = basicsdatumMaterialController.formatToList(hangTagDTO.getIngredient(), "0", "");
+
+        List<HangTagIngredientDTO> hangTagIngredients =new ArrayList<>();
+        for (BasicsdatumMaterialIngredient basicsdatumMaterialIngredient : materialIngredientList) {
+            HangTagIngredientDTO hangTagIngredient =new HangTagIngredientDTO();
+            hangTagIngredient.setPercentage(basicsdatumMaterialIngredient.getRatio());
+            hangTagIngredient.setType(basicsdatumMaterialIngredient.getName());
+            hangTagIngredient.setTypeCode(basicsdatumMaterialIngredient.getType());
+            hangTagIngredient.setDescriptionRemarks(basicsdatumMaterialIngredient.getSay());
+            hangTagIngredients.add(hangTagIngredient);
+        }
+        hangTagIngredientService.remove(new QueryWrapper<HangTagIngredient>().eq("hang_tag_id",id));
+        hangTagIngredientService.save(hangTagIngredients, id, userCompany);
         hangTagLogService.save(id, OperationDescriptionEnum.SAVE.getV(), userCompany);
         /**
          * 当存在品名时同步到配色
@@ -129,6 +150,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                 styleColor.setProductName(hangTag.getProductName());
                 styleColorMapper.updateById(styleColor);
             }
+        }
+        if ("2".equals(hangTag.getStatus())){
+            hangTag = this.getById(hangTag.getId());
+            //发起审批
+            flowableService.start(FlowableService.HANGING_TAG_REVIEW + hangTag.getBulkStyleNo(), FlowableService.HANGING_TAG_REVIEW, hangTag.getBulkStyleNo(), "/pdm/api/saas/hangTag/toExamine",
+                    "/pdm/api/saas/hangTag/toExamine", "/pdm/api/saas/hangTag/toExamine", null, BeanUtil.beanToMap(hangTag));
         }
         return id;
     }

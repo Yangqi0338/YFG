@@ -8,6 +8,7 @@ package com.base.sbc.module.style.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -15,6 +16,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
@@ -41,6 +43,8 @@ import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FieldValService;
 import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.hangTag.entity.HangTag;
+import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.service.PackBomService;
@@ -67,15 +71,18 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.entity.StyleInfoColor;
 import com.base.sbc.module.style.entity.StyleInfoSku;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
-import com.base.sbc.module.style.mapper.StyleInfoColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.StyleInfoColorService;
 import com.base.sbc.module.style.service.StyleInfoSkuService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.*;
+import com.base.sbc.open.dto.OpenStyleDto;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -100,6 +107,7 @@ import java.util.stream.Collectors;
 @Service
 public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implements StyleService {
 
+    protected static Logger logger = LoggerFactory.getLogger(StyleServiceImpl.class);
 
     @Autowired
     private FlowableService flowableService;
@@ -157,6 +165,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private StyleInfoColorService styleInfoColorService;
     @Resource
     private StyleInfoSkuService styleInfoSkuService;
+    @Resource
+    private HangTagService hangTagService;
     private IdGen idGen = new IdGen();
 
     @Override
@@ -184,8 +194,17 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
         //保存关联的素材库
         planningCategoryItemMaterialService.saveMaterialList(dto);
-        // 保存款式设计详情颜色
-        this.saveBomInfoColorList(dto);
+        try {
+            // 是否开启单款多色开关
+            Boolean ifSwitch = ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.STYLE_MANY_COLOR.getKeyCode());
+            if (ifSwitch) {
+                // 保存款式设计详情颜色
+                this.saveBomInfoColorList(dto);
+            }
+        } catch (Exception e) {
+            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
+        }
+
 
         return style;
     }
@@ -195,9 +214,21 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
      * @param styleSaveDto 款式设计详情颜色DTO
      * @return 款式设计详情颜色列表
      */
+    @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public List<StyleInfoColorVo> saveBomInfoColorList(StyleSaveDto styleSaveDto) {
+        if(null == styleSaveDto || null == styleSaveDto.getStyleInfoColorDtoList()){
+            return null;
+        }
         List<StyleInfoColor> styleInfoColors = BeanUtil.copyToList(styleSaveDto.getStyleInfoColorDtoList(), StyleInfoColor.class);
+        List<StyleInfoColor> colorCodeList =
+                styleInfoColorService.list(new QueryWrapper<StyleInfoColor>().in("color_code",
+                        styleInfoColors.stream().map(StyleInfoColor::getColorCode).collect(Collectors.toList())).eq("foreign_id", styleSaveDto.getId()));
+        if (CollectionUtil.isNotEmpty(colorCodeList)) {
+            String colorNames = colorCodeList.stream().map(StyleInfoColor::getColorName).collect(Collectors.joining(BaseGlobal.D));
+            throw new OtherException(colorNames + "已添加颜色，请勿重新添加");
+        }
+
         // 初始化数据
         styleInfoColors.forEach(styleInfoColor -> {
             styleInfoColor.insertInit();
@@ -240,6 +271,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (!skuFlg) {
             throw new OtherException("新增款式SKU失败，请联系管理员");
         }
+        // 修改颜色codes、颜色名称
+        Style style = new Style();
+        style.setId(styleSaveDto.getId());
+        style.setColorCodes(styleSaveDto.getColorCodes());
+        style.setProductColors(styleSaveDto.getProductColors());
+        baseMapper.updateById(style);
         return BeanUtil.copyToList(styleInfoColors, StyleInfoColorVo.class);
     }
 
@@ -307,6 +344,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
     }
 
+    @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public Style saveNewStyle(StyleSaveDto dto) {
 
@@ -522,6 +560,20 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //        //维度标签
 //        sampleVo.setDimensionLabels(queryDimensionLabelsBySdId(id));
 
+        //如果有设置系列，则同步更新坑位信息表
+        if(com.base.sbc.config.utils.StringUtils.isNotBlank(style.getSeriesId()) || com.base.sbc.config.utils.StringUtils.isNotBlank(style.getSeries())){
+            UpdateWrapper<PlanningCategoryItem> wrapper = new UpdateWrapper<>();
+            wrapper.eq("id",style.getPlanningCategoryItemId());
+            wrapper.set("series_id",style.getSeriesId());
+            wrapper.set("series",style.getSeries());
+            planningCategoryItemService.update(null,wrapper);
+        }
+        // 查询 款式设计详情颜色列表
+        List<StyleInfoColor> styleInfoColorList = styleInfoColorService.list(new QueryWrapper<StyleInfoColor>().eq("foreign_id", id));
+        if (CollectionUtil.isNotEmpty(styleInfoColorList)) {
+            sampleVo.setStyleInfoColorVoList(BeanUtil.copyToList(styleInfoColorList, StyleInfoColorVo.class));
+        }
+
         return sampleVo;
     }
 
@@ -671,7 +723,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         brandTotalQw.groupBy("sd.band_name");
         stylePlanningCommonQw(brandTotalQw, dto);
         List<DimensionTotalVo> bandTotal = getBaseMapper().dimensionTotal(brandTotalQw);
-        vo.setBandTotal(PlanningUtils.removeEmptyAndSort(bandTotal));
+        vo.setXList(PlanningUtils.removeEmptyAndSort(bandTotal));
 
         //查询品类统计
         QueryWrapper categoryQw = new QueryWrapper();
@@ -679,7 +731,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         categoryQw.groupBy("prod_category_name");
         stylePlanningCommonQw(categoryQw, dto);
         List<DimensionTotalVo> categoryTotal = getBaseMapper().dimensionTotal(categoryQw);
-        vo.setCategoryTotal(PlanningUtils.removeEmptyAndSort(categoryTotal));
+        vo.setYList(PlanningUtils.removeEmptyAndSort(categoryTotal));
         //查询明细
         QueryWrapper detailQw = new QueryWrapper();
         stylePlanningCommonQw(detailQw, dto);
@@ -687,8 +739,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (CollUtil.isNotEmpty(detailVoList)) {
             amcFeignService.setUserAvatarToList(detailVoList);
             attachmentService.setListStylePic(detailVoList, "stylePic");
-            Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getProdCategoryName() + StrUtil.DASHED + k.getBandName()));
-            vo.setSeatData(seatData);
+            Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k ->  k.getBandName()+ StrUtil.DASHED +k.getProdCategoryName() ));
+            vo.setXyData(seatData);
         }
         return vo;
     }
@@ -962,7 +1014,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         //款式定位
         detail.setPositioning(hisStyle.getPositioning());
         detail.setPositioningName(hisStyle.getPositioningName());
-
         return detail;
     }
 
@@ -1071,7 +1122,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 vo.setFieldId(first.getFieldId());
                 vo.setName(item.getClassifyName());
                 vo.setCode(item.getClassify());
-                vo.setTotal(item.getProportion());
+                vo.setTotal(String.valueOf(item.getNum()));
                 vo.setQuantity(Optional.ofNullable(fvItemMap.get(first.getCode() + StrUtil.DASHED + item.getClassify())).map(il -> String.valueOf(CollUtil.size(il))).orElse("0"));
 
                 value.add(vo);
@@ -1241,6 +1292,70 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         return result;
     }
 
+
+    /**
+     * 领猫同步数据
+     * @param companyCode
+     * @return
+     */
+    @Override
+    public List<OpenStyleDto> getStyleListForLinkMore(String companyCode) {
+        //资料包主表
+        QueryWrapper<Style> qwStyle = new QueryWrapper<>();
+        qwStyle.eq("company_code",companyCode);
+        List<Style> styleList = this.list(qwStyle);
+
+        //查询条件
+        List<String> codeList = new ArrayList<>();
+        List<String> idList = new ArrayList<>();
+        List<OpenStyleDto> styleDtoList = new ArrayList<>();
+        Map<String, OpenStyleDto> styleDtoMap = Maps.newHashMap();
+        for (Style style : styleList) {
+            OpenStyleDto dto = new OpenStyleDto();
+            dto.init(style);
+            codeList.add(style.getDesignNo());
+            idList.add(style.getId());
+            styleDtoList.add(dto);
+            styleDtoMap.put(style.getId(), dto);
+        }
+
+        //sku数据
+        QueryWrapper<StyleInfoSku> qwSku = new QueryWrapper<>();
+        qwSku.eq("company_code",companyCode);
+        qwSku.in("foreign_id",idList);
+        Map<String, List<StyleInfoSku>> skuMap = styleInfoSkuService.list(qwSku)
+                .stream().collect(Collectors.groupingBy(s -> s.getForeignId()));
+        skuMap.forEach((k,v)->{
+            if (!CollectionUtils.isEmpty(v)){
+                styleDtoMap.get(k).initSku(v);
+            }
+        });
+
+        //skc
+        QueryWrapper<StyleInfoColor> qwSkc = new QueryWrapper<>();
+        qwSkc.eq("company_code",companyCode);
+        qwSkc.in("foreign_id",idList);
+        Map<String, List<StyleInfoColor>> skcMap = styleInfoColorService.list(qwSkc)
+                .stream().collect(Collectors.groupingBy(s -> s.getForeignId()));
+        skcMap.forEach((k,v)->{
+            if (!CollectionUtils.isEmpty(v)){
+                styleDtoMap.get(k).initSkc(v);
+            }
+        });
+
+        //吊牌列表
+        QueryWrapper<HangTag> qwTag = new QueryWrapper<>();
+        qwTag.in("design_no",codeList);
+        Map<String, HangTag> tagMap = hangTagService.list(qwTag)
+                .stream().collect(Collectors.toMap(t -> t.getStyleNo(), t -> t, (t1, t2) -> t2));
+        for (OpenStyleDto styleDto : styleDtoList) {
+            if (tagMap.get(styleDto.getCode()) != null){
+                styleDto.setHangTag(tagMap.get(styleDto.getCode()));
+            }
+        }
+
+        return styleDtoList;
+    }
 
 }
 

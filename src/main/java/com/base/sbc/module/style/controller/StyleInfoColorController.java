@@ -7,13 +7,13 @@
 package com.base.sbc.module.style.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.common.base.GroupInsert;
+import com.base.sbc.config.common.base.GroupUpdate;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.style.dto.StyleInfoColorDto;
 import com.base.sbc.module.style.entity.StyleInfoColor;
 import com.base.sbc.module.style.service.StyleInfoColorService;
 import com.base.sbc.module.style.vo.StyleInfoColorVo;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -54,29 +54,35 @@ public class StyleInfoColorController extends BaseController{
 		return styleInfoColorService.getById(id);
 	}
 
+
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
 	@DeleteMapping("/{id}")
-	public ApiResult removeById(@PathVariable("id") String id) {
-		styleInfoColorService.delStyleInfoColorById(id, getUserCompany());
+	public Boolean removeById(@PathVariable("id") String id) {
+		List<String> ids = StringUtils.convertList(id);
+		return styleInfoColorService.removeByIds(ids);
+	}
+	@ApiOperation(value = "删除-通过颜色code查询,多个逗号分开")
+	@DeleteMapping("/removeByCode")
+	public ApiResult removeByCode(@RequestParam("codes") String codes) {
+		if (StringUtils.isBlank(codes)) {
+			return deleteNotFound("删除失败，颜色code不能为空");
+		}
+		styleInfoColorService.delStyleInfoColorById(codes, getUserCompany());
 		return deleteSuccess("删除成功");
 	}
 
 	@ApiOperation(value = "保存")
 	@PostMapping
-	public StyleInfoColor save(@RequestBody StyleInfoColor styleInfoColor) {
+	public StyleInfoColor save(@RequestBody @Validated(GroupInsert.class) StyleInfoColor styleInfoColor) {
 		styleInfoColorService.save(styleInfoColor);
 		return styleInfoColor;
 	}
 
 	@ApiOperation(value = "修改")
 	@PutMapping
-	public StyleInfoColor update(@RequestBody StyleInfoColor styleInfoColor) {
-		boolean b = styleInfoColorService.updateById(styleInfoColor);
-		if (!b) {
-			//影响行数为0（数据未改变或者数据不存在）
-			//返回影响行数需要配置jdbcURL参数useAffectedRows=true
-		}
-		return styleInfoColor;
+	public ApiResult update(@RequestBody @Validated(GroupUpdate.class) StyleInfoColorDto styleInfoColorDto) {
+		styleInfoColorService.updateStyleInfoColorById(styleInfoColorDto);
+		return updateSuccess("修改成功");
 	}
 
 }

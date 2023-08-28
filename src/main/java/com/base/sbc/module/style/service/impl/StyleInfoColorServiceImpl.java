@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -74,17 +75,18 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
 
     /**
      * 根据id删除款式设计详情颜色
-     * @param ids 款式设计详情颜色id
+     * @param codes 款式设计详情颜色id
      * @param companyCode 公司编码
      */
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public void delStyleInfoColorById(String ids, String companyCode) {
-        List<String> idList = StringUtils.convertList(ids);
+    public void delStyleInfoColorById(String codes, String companyCode) {
+        List<String> codeList = StringUtils.convertList(codes);
         // 查找数据是否存在
-        List<StyleInfoColor> styleInfoColors = baseMapper.selectBatchIds(idList);
+        List<StyleInfoColor> styleInfoColors = baseMapper.selectList(new QueryWrapper<StyleInfoColor>().in("color_code", codeList)
+                .eq("company_code", companyCode));
         if (CollectionUtil.isEmpty(styleInfoColors)) {
-            throw new OtherException(ids + "未找到数据，删除失败");
+            throw new OtherException(codes + "未找到数据，删除失败");
         }
         // 删除颜色对应的SKU数据
         styleInfoColors.forEach( styleInfoColor -> {
@@ -98,7 +100,7 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
         });
         // 查找未删除的颜色数据，拼接数据修改款式设计里的颜色code、颜色名称集合
         QueryWrapper<StyleInfoColor> qwColor = new QueryWrapper<>();
-        qwColor.notIn("id", idList);
+        qwColor.notIn("color_code", codeList);
         qwColor.eq("company_code", companyCode);
         qwColor.eq("foreign_id", styleInfoColors.get(BaseGlobal.ZERO).getForeignId());
         qwColor.select("id","color_code","color_name", "foreign_id");
@@ -115,8 +117,23 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
             styleService.updateById(style);
         }
         // 删除相关数据
-        baseMapper.deleteBatchIds(idList);
+        baseMapper.deleteBatchIds(styleInfoColors.stream().map(StyleInfoColor::getId).collect(Collectors.toList()));
 
+    }
+
+    /**
+     * 根据id修改款式设计详情颜色
+     * @param styleInfoColorDto 款式设计详情颜色DTO
+     */
+    @Override
+    public void updateStyleInfoColorById(StyleInfoColorDto styleInfoColorDto) {
+        StyleInfoColor styleInfoColorInfo = baseMapper.selectById(styleInfoColorDto.getId());
+        if (null == styleInfoColorInfo) {
+            throw new OtherException(styleInfoColorDto.getId() + "删除颜色数据未找到！！！");
+        }
+        StyleInfoColor styleInfoColor = BeanUtil.copyProperties(styleInfoColorDto, StyleInfoColor.class);
+        styleInfoColor.updateInit();
+        baseMapper.updateById(styleInfoColor);
     }
 
 // 自定义方法区 不替换的区域【other_start】

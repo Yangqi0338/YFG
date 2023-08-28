@@ -6,7 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.style.dto.StyleInfoSkuDto;
 import com.base.sbc.module.style.mapper.StyleInfoSkuMapper;
 import com.base.sbc.module.style.entity.StyleInfoSku;
 import com.base.sbc.module.style.service.StyleInfoSkuService;
@@ -21,6 +24,21 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class StyleInfoSkuServiceImpl extends BaseServiceImpl<StyleInfoSkuMapper, StyleInfoSku> implements StyleInfoSkuService {
+
+    /**
+     * 根据id修改款式设计SKU
+     * @param styleInfoSkuDto 款式设计SKU DTO
+     */
+    @Override
+    public void updateStyleInfoSkuById(StyleInfoSkuDto styleInfoSkuDto) {
+        StyleInfoSku styleInfoSkuInfo = baseMapper.selectById(styleInfoSkuDto.getId());
+        if (null == styleInfoSkuInfo) {
+            throw new OtherException(styleInfoSkuDto.getColorName() + "此数据未找到，请重试");
+        }
+        StyleInfoSku styleInfoSku = BeanUtil.copyProperties(styleInfoSkuDto, StyleInfoSku.class);
+        styleInfoSku.updateInit();
+        baseMapper.updateById(styleInfoSku);
+    }
 
 // 自定义方法区 不替换的区域【other_start】
 

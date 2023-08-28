@@ -43,5 +43,4 @@ public class StyleSaveDto extends Style {
     private List<StyleInfoColorDto> styleInfoColorDtoList;
 
 
-
 }

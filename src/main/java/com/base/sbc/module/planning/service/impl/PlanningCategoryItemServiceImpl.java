@@ -313,17 +313,12 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         if (dtoList.size() != planningCategoryItems.size()) {
             throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
-        Map<String,PlanningCategoryItem> planningCategoryItemMap = planningCategoryItems.stream().collect(Collectors.toMap(BaseEntity::getId, m->m));
-        List<Style> styles = styleService.list(new QueryWrapper<Style>().eq("del_flag","0").in("planning_category_item_id",planningCategoryItemMap.keySet()));
-        if(CollUtil.isEmpty(styles)){
-            throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+        for (PlanningCategoryItem planningCategoryItem : planningCategoryItems){
+            SetSeriesDto setSeriesDto = dtoMap.get(planningCategoryItem.getId());
+            planningCategoryItem.setSeriesId(setSeriesDto.getSeriesId());
+            planningCategoryItem.setSeries(setSeriesDto.getSeries());
         }
-        for (Style style : styles){
-            SetSeriesDto setSeriesDto = dtoMap.get(planningCategoryItemMap.get(style.getPlanningCategoryItemId()).getId());
-            style.setSeriesId(setSeriesDto.getSeriesId());
-            style.setSeries(setSeriesDto.getSeries());
-        }
-        styleService.updateBatchById(styles);
+        updateBatchById(planningCategoryItems);
         return true;
     }
 
