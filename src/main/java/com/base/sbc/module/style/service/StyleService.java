@@ -22,6 +22,7 @@ import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.PageInfo;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -185,6 +186,14 @@ public interface StyleService extends BaseService<Style> {
      * @return 款式设计详情颜色列表
      */
     List<StyleInfoColorVo> saveBomInfoColorList(StyleSaveDto styleSaveDto);
+
+    /**
+     * 修改目标成本
+     *
+     * @param foreignId
+     * @param productCost
+     */
+    void updateProductCost(String id, BigDecimal productCost);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

@@ -44,4 +44,13 @@ public class StylePricingSaveDTO {
     /** 系列名称 */
     @ApiModelProperty(value = "系列名称"  )
     private String seriesName;
+    /**
+     * 吊牌价
+     */
+    @ApiModelProperty(value = "吊牌价")
+    private BigDecimal tagPrice;
+    /** 目标成本 */
+    @ApiModelProperty(value = "目标成本"  )
+    private BigDecimal targetCost;
+
 }

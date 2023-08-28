@@ -243,6 +243,15 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         return BeanUtil.copyToList(styleInfoColors, StyleInfoColorVo.class);
     }
 
+    @Override
+    public void updateProductCost(String id, BigDecimal productCost) {
+        Style style = new Style();
+        style.setId(id);
+        style.setProductCost(productCost);
+        style.updateInit();
+        super.updateById(style);
+    }
+
     private void resetDesignNo(StyleSaveDto dto, Style db) {
         boolean initId = CommonUtils.isInitId(dto.getId());
         if (StrUtil.isBlank(dto.getDesignNo()) && !initId) {

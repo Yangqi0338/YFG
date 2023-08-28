@@ -14,6 +14,7 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.PageInfo;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 
@@ -164,6 +165,12 @@ public interface StyleColorService extends BaseService<StyleColor> {
          */
         Boolean updateOrderFlag(PublicStyleColorDto publicStyleColorDto);
 
+    /**
+     * 修改吊牌价
+     * @param id
+     * @param tagPrice
+     */
+    void updateTagPrice(String id, BigDecimal tagPrice);
 
 // 自定义方法区 不替换的区域【other_end】
 

@@ -5,6 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.pricing.entity;
+import java.math.BigDecimal;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -42,7 +43,7 @@ public class StylePricing extends BaseDataEntity<String> {
     private String status;
     /** 企划倍率 */
     @ApiModelProperty(value = "企划倍率"  )
-    private String planningRate;
+    private BigDecimal planningRate;
     /** 是否计控确认 0.否、1.是 */
     @ApiModelProperty(value = "是否计控确认 0.否、1.是"  )
     private String controlConfirm;

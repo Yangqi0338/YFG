@@ -54,6 +54,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -813,6 +814,15 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         updateWrapper.in("id", StringUtils.convertList(publicStyleColorDto.getId()));
         baseMapper.update(null, updateWrapper);
         return  true;
+    }
+
+    @Override
+    public void updateTagPrice(String id, BigDecimal tagPrice) {
+        StyleColor styleColor = new StyleColor();
+        styleColor.setId(id);
+        styleColor.setTagPrice(tagPrice);
+        styleColor.updateInit();
+        super.updateById(styleColor);
     }
     /** 自定义方法区 不替换的区域【other_end】 **/
 
