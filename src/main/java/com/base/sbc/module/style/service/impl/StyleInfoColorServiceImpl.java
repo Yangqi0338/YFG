@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -118,6 +119,21 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
         // 删除相关数据
         baseMapper.deleteBatchIds(styleInfoColors.stream().map(StyleInfoColor::getId).collect(Collectors.toList()));
 
+    }
+
+    /**
+     * 根据id修改款式设计详情颜色
+     * @param styleInfoColorDto 款式设计详情颜色DTO
+     */
+    @Override
+    public void updateStyleInfoColorById(StyleInfoColorDto styleInfoColorDto) {
+        StyleInfoColor styleInfoColorInfo = baseMapper.selectById(styleInfoColorDto.getId());
+        if (null == styleInfoColorInfo) {
+            throw new OtherException(styleInfoColorDto.getId() + "删除颜色数据未找到！！！");
+        }
+        StyleInfoColor styleInfoColor = BeanUtil.copyProperties(styleInfoColorDto, StyleInfoColor.class);
+        styleInfoColor.updateInit();
+        baseMapper.updateById(styleInfoColor);
     }
 
 // 自定义方法区 不替换的区域【other_start】
