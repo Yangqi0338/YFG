@@ -35,6 +35,9 @@ public class HangTagListVO {
     @ApiModelProperty(value = "款式id")
     private String styleId;
 
+    @ApiModelProperty(value = "bom状态:(0样品,1大货)")
+    private String bomStatus;
+
 
     /**
      * 款式
