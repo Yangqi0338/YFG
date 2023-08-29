@@ -52,6 +52,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.poi.ss.formula.functions.T;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -89,8 +90,10 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     private PlanningCategoryItemMapper planningCategoryItemMapper;
 
     @Resource
+    @Lazy
     private StyleService styleService;
     @Resource
+    @Lazy
     private StyleColorService styleColorService;
     @Resource
     private BandService bandService;
