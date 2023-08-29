@@ -71,6 +71,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
     @Override
     public PageInfo<StylePricingVO> getStylePricingList(StylePricingSearchDTO dto) {
+        dto.setCompanyCode(super.getCompanyCode());
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(dto);
         if (CollectionUtils.isEmpty(stylePricingList)) {
