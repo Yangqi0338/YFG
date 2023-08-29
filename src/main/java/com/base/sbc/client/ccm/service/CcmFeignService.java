@@ -253,8 +253,8 @@ public class CcmFeignService {
         String resultStr = ccmService.getCompanySettingData(code);
         JSONObject jsonObject = JSON.parseObject(resultStr);
         if (Objects.isNull(jsonObject.getJSONObject("data")) || !jsonObject.getBoolean(BaseConstant.SUCCESS)) {
-            return Boolean.TRUE;
+            return Boolean.FALSE;
         }
-        return !YesOrNoEnum.NO.getValueStr().equals(jsonObject.getJSONObject("data").getString("value"));
+        return !YesOrNoEnum.YES.getValueStr().equals(jsonObject.getJSONObject("data").getString("value"));
     }
 }
