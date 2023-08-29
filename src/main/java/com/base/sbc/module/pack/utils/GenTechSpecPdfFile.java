@@ -85,11 +85,12 @@ public class GenTechSpecPdfFile {
     private String styleNo;
     @ApiModelProperty(value = "版师名称")
     private String patternDesignName;
-
+    @ApiModelProperty(value = "品名")
+    private String productName;
     @ApiModelProperty(value = "品类名称")
     private String prodCategoryName;
     @ApiModelProperty(value = "成分信息")
-    private String composition;
+    private String ingredient;
 
     @ApiModelProperty(value = "执行标准")
     private String executeStandardCode;
@@ -122,6 +123,8 @@ public class GenTechSpecPdfFile {
     private String fabricDetails;
     @ApiModelProperty(value = "工艺师名称")
     private String technologistName;
+    @ApiModelProperty(value = "下单员")
+    private String placeOrderStaffName;
     @ApiModelProperty(value = "备注")
     private String remarks;
 
@@ -178,6 +181,10 @@ public class GenTechSpecPdfFile {
 
     public ByteArrayOutputStream gen() {
         try {
+            //处理设计师
+            if (StrUtil.isNotBlank(designer)) {
+                this.designer = CollUtil.getFirst(StrUtil.split(designer, CharUtil.COMMA));
+            }
             this.placeOrderDateStr = DateUtil.format(placeOrderDate, DatePattern.NORM_DATETIME_PATTERN);
             this.produceDateStr = DateUtil.format(produceDate, DatePattern.NORM_DATETIME_PATTERN);
             Date newDate = new Date();

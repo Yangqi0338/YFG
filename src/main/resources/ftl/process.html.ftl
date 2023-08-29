@@ -192,7 +192,7 @@
     </tr>
     <tr>
         <td class="l">品名*</td>
-        <td class="r">${prodCategoryName}</td>
+        <td class="r">${productName}</td>
         <td class="l td_lt" rowspan="3">★★注意事项</td>
         <td class="r td_lt" rowspan="3">${mattersAttention}</td>
     </tr>
@@ -251,9 +251,9 @@
     <!-- 13 -->
     <tr>
         <td class="l gb">版师*</td>
-        <td class="r gb"></td>
+        <td class="r gb">${patternDesignName}</td>
         <td class="l ">后技术下单员</td>
-        <td class="r "></td>
+        <td class="r ">${placeOrderStaffName}</td>
     </tr>
     <tr>
         <!-- 14 -->
@@ -262,7 +262,7 @@
         </td>
         <td class="l td_lt">成分信息*</td>
         <td class="r td_lt">
-            ${composition}</td>
+            ${ingredient}</td>
         <td class="l r " colspan="2" style="vertical-align: top;">
             <table class="table_no_border gb">
                 <tr>
@@ -310,7 +310,7 @@
             <p>洗标</p>
             <hr>
             <#if  washingLabel != '' >
-                <img style="width:120px" src="${washingLabel}">
+                <img style="height:50px" src="${washingLabel}">
             </#if>
         </td>
     </tr>

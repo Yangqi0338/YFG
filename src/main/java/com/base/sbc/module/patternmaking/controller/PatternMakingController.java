@@ -339,6 +339,12 @@ public class PatternMakingController {
     public List<PatternDesignVo> getStitcherList(@Valid @NotBlank(message = "产品季节id不能为空") String planningSeasonId) {
         return patternMakingService.getStitcherList(planningSeasonId);
     }
+
+    @ApiOperation(value = "完成流程")
+    @GetMapping("/finish")
+    public boolean finish(IdDto dto) {
+        return patternMakingService.finish(dto.getId());
+    }
 }
 
 
