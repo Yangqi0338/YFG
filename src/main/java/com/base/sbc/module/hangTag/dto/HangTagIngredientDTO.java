@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.hangTag.dto;
 
+import com.base.sbc.module.common.dto.BaseDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -22,11 +23,12 @@ import java.math.BigDecimal;
  */
 @Data
 @ApiModel(value = "吊牌成分")
-public class HangTagIngredientDTO {
+public class HangTagIngredientDTO extends BaseDto {
 
     private static final long serialVersionUID = 1L;
 
     private String id;
+    private String hangTagId;
     /**
      * 备注信息
      */
