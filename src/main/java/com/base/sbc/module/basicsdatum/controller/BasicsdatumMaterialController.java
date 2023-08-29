@@ -370,10 +370,15 @@ public class BasicsdatumMaterialController extends BaseController {
      */
     @GetMapping("/listByStyleNo")
     public ApiResult listByStyleNo(String styleNo, int pageSize, int pageNum) {
+        List<BasicsdatumMaterial> list = new ArrayList<>();
         PackInfo packInfo = packInfoService.getOne(new BaseQueryWrapper<PackInfo>().select("id").eq("style_no", styleNo));
+        if (packInfo == null) {
+            return selectSuccess(new PageInfo<>(list));
+        }
+
         List<PackBom> packBomList = packBomService.list(new BaseQueryWrapper<PackBom>().select("material_code").eq("foreign_id", packInfo.getId()));
         List<String> materialCodes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
-        List<BasicsdatumMaterial> list = new ArrayList<>();
+
         if (!materialCodes.isEmpty()) {
             PageHelper.startPage(pageNum, pageSize);
             list = basicsdatumMaterialService.list(new BaseQueryWrapper<BasicsdatumMaterial>().in("material_code", materialCodes));

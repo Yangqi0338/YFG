@@ -11,10 +11,13 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.basicsdatum.controller.BasicsdatumMaterialController;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangTag.dto.HangTagDTO;
@@ -32,10 +35,17 @@ import com.base.sbc.module.hangTag.service.HangTagLogService;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.hangTag.vo.HangTagListVO;
 import com.base.sbc.module.hangTag.vo.HangTagVO;
+import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pricing.service.StylePricingService;
+import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.smp.entity.TagPrinting;
+import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
@@ -52,6 +62,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -85,7 +96,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private final FlowableService flowableService;
     @Autowired
     @Lazy
-    private  BasicsdatumMaterialController basicsdatumMaterialController;
+    private BasicsdatumMaterialController basicsdatumMaterialController;
+    private final StyleColorService styleColorService;
+    private final PackInfoService packInfoService;
+    private final StylePricingService stylePricingService;
+    private final StyleService styleService;
+    private final BasicsdatumSizeService basicsdatumSizeService;
 
     @Override
     public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -123,16 +139,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
         List<BasicsdatumMaterialIngredient> materialIngredientList = basicsdatumMaterialController.formatToList(hangTagDTO.getIngredient(), "0", "");
 
-        List<HangTagIngredientDTO> hangTagIngredients =new ArrayList<>();
+        List<HangTagIngredientDTO> hangTagIngredients = new ArrayList<>();
         for (BasicsdatumMaterialIngredient basicsdatumMaterialIngredient : materialIngredientList) {
-            HangTagIngredientDTO hangTagIngredient =new HangTagIngredientDTO();
+            HangTagIngredientDTO hangTagIngredient = new HangTagIngredientDTO();
             hangTagIngredient.setPercentage(basicsdatumMaterialIngredient.getRatio());
             hangTagIngredient.setType(basicsdatumMaterialIngredient.getName());
             hangTagIngredient.setTypeCode(basicsdatumMaterialIngredient.getType());
             hangTagIngredient.setDescriptionRemarks(basicsdatumMaterialIngredient.getSay());
             hangTagIngredients.add(hangTagIngredient);
         }
-        hangTagIngredientService.remove(new QueryWrapper<HangTagIngredient>().eq("hang_tag_id",id));
+        hangTagIngredientService.remove(new QueryWrapper<HangTagIngredient>().eq("hang_tag_id", id));
         hangTagIngredientService.save(hangTagIngredients, id, userCompany);
         hangTagLogService.save(id, OperationDescriptionEnum.SAVE.getV(), userCompany);
         /**
@@ -151,7 +167,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                 styleColorMapper.updateById(styleColor);
             }
         }
-        if ("2".equals(hangTag.getStatus())){
+        if ("2".equals(hangTag.getStatus())) {
             hangTag = this.getById(hangTag.getId());
             //发起审批
             flowableService.start(FlowableService.HANGING_TAG_REVIEW + hangTag.getBulkStyleNo(), FlowableService.HANGING_TAG_REVIEW, hangTag.getBulkStyleNo(), "/pdm/api/saas/hangTag/toExamine",
@@ -223,33 +239,135 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     }
 
     @Override
-    public List<TagPrinting> hangTagPrinting(String styleNo, Boolean likeQueryFlag, String companyCode) {
-        String flag = Boolean.TRUE.equals(likeQueryFlag) ? "1" : "0";
-        return hangTagMapper.hangTagPrinting(companyCode, styleNo, flag);
-//        HangTagSearchDTO hangTagSearchDTO = new HangTagSearchDTO();
-//        List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagSearchDTO);
-//        List<TagPrinting> tagPrintings = hangTagListVOS.stream()
-//                .map(hangTagListVO -> {
-//                    TagPrinting tagPrinting = new TagPrinting();
-//                    tagPrinting.setColorCode(hangTagListVO.getColorCode());
-//                    tagPrinting.setColorDescription(hangTagListVO.getColor());
-//                    tagPrinting.setStyleCode(hangTagListVO.getBulkStyleNo());
-//                    tagPrinting.setComposition(hangTagListVO.getIngredient());
-//                    tagPrinting.setCareSymbols(hangTagListVO.getWashingLabel());
-//                    tagPrinting.setQualityClass(hangTagListVO.getQualityGrade());
-//                    tagPrinting.setSaftyType(hangTagListVO.getSaftyType());
-//                    tagPrinting.setOPStandard(hangTagListVO.getExecuteStandard());
-//                    boolean isApproved = HangTagStatusEnum.CONFIRMED.getK().equals(hangTagListVO.getStatus());
-//                    tagPrinting.setApproved(isApproved);
-//                    tagPrinting.setAttention(hangTagListVO.getWarmTips());
-//                    boolean isTechApproved = HangTagStatusEnum.TO_QUALITY_CONTROL_CONFIRMED.getK().equals(hangTagListVO.getStatus());
-//                    tagPrinting.setTechApproved(isApproved || isTechApproved);
-//                    tagPrinting.setSaftyTitle(hangTagListVO.getSaftyTitle());
-//                    tagPrinting.setC8_APPBOM_Comment(hangTagListVO.getWashingMaterialRemarks());
-//                    tagPrinting.setStorageRequirement(hangTagListVO.getStorageDemand());
-//                    return tagPrinting;
-//                }).collect(Collectors.toList());
-//        return tagPrintings;
+    public List<TagPrinting> hangTagPrinting(String styleNo, boolean likeQueryFlag) {
+        BaseQueryWrapper<HangTag> baseQueryWrapper = new BaseQueryWrapper<>();
+        List<TagPrinting> tagPrintings = new ArrayList<>();
+        if (likeQueryFlag) {
+            baseQueryWrapper.notEmptyEq("bulk_style_no", styleNo);
+        } else {
+            baseQueryWrapper.notEmptyLike("bulk_style_no", styleNo);
+        }
+
+        List<HangTag> list = this.list(baseQueryWrapper);
+        if (!list.isEmpty()) {
+            for (HangTag hangTag : list) {
+                //配色
+                StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", hangTag.getBulkStyleNo()));
+                Style style = styleService.getById(styleColor.getStyleId());
+
+
+                TagPrinting tagPrinting = new TagPrinting();
+                // 唯一码
+                tagPrinting.setC8_Colorway_WareCode(styleColor.getWareCode());
+                // 是否赠品
+                tagPrinting.setIsGift(null);
+                // 批次
+                tagPrinting.setC8_Colorway_BatchNo(null);
+                // 颜色名称
+                tagPrinting.setColorDescription(styleColor.getColorName());
+                // 颜色编码
+                tagPrinting.setColorCode(styleColor.getColorCode());
+                // 大货款号
+                tagPrinting.setStyleCode(hangTag.getBulkStyleNo());
+
+
+                PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()));
+                if (packInfo != null) {
+                    //款式定价
+                    StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), styleColor.getCompanyCode());
+                    if (stylePricingVO != null) {
+                        // 商品吊牌价确认
+                        tagPrinting.setMerchApproved("1".equals(stylePricingVO.getProductTagPriceConfirm()));
+                        // 系列
+                        tagPrinting.setC8_Colorway_Series(stylePricingVO.getSeries());
+
+                    }
+                }
+
+                // 配饰款号
+                tagPrinting.setSecCode(styleColor.getAccessoryNo());
+                // 主款款号
+                tagPrinting.setMainCode(styleColor.getPrincipalStyleNo());
+                // 吊牌价
+                tagPrinting.setC8_Colorway_SalesPrice(styleColor.getTagPrice());
+                // 是否内配饰
+                tagPrinting.setIsAccessories(!StringUtils.isEmpty(styleColor.getAccessoryNo()));
+                // 大货款号是否激活
+                tagPrinting.setActive("0".equals(styleColor.getStatus()));
+                // 销售类型
+                tagPrinting.setC8_Colorway_SaleType(styleColor.getSalesType());
+                // 品牌_描述
+                tagPrinting.setC8_Season_Brand(style.getYear() + style.getSeason() + style.getBrandName());
+                // 品类id
+                tagPrinting.setC8_Collection_ProdCategory(style.getProdCategory());
+                // 主题
+                tagPrinting.setTheme(style.getSubject());
+                // 小类编码
+                tagPrinting.setC8_Style_3rdCategory(style.getProdCategory3rd());
+                // 中类编码
+                tagPrinting.setC8_Style_2ndCategory(style.getProdCategory2nd());
+                // 尺码号型编码
+                tagPrinting.setSizeRangeCode(style.getSizeRange());
+                // 尺码号型名称
+                tagPrinting.setSizeRangeName(style.getSizeRangeName());
+                // 款式分类
+                tagPrinting.setProductType(style.getStyleName());
+                // 大类
+                tagPrinting.setC8_1stProdCategory(style.getProdCategory1stName());
+                // 尺码号型:分类
+                tagPrinting.setSizeRangeDimensionType("size");
+                // 成分
+                tagPrinting.setComposition(hangTag.getIngredient());
+                // 洗标
+                tagPrinting.setCareSymbols(hangTag.getWashingLabel());
+                // 质量等级
+                tagPrinting.setQualityClass(hangTag.getQualityGrade());
+                // 品名
+                tagPrinting.setProductName(hangTag.getProductName());
+                // 安全类别
+                tagPrinting.setSaftyType(hangTag.getSaftyType());
+                // 执行标准
+                tagPrinting.setOPStandard(hangTag.getExecuteStandard());
+                // 品控部确认
+                tagPrinting.setApproved("5".equals(hangTag.getStatus()));
+                // 温馨提示
+                tagPrinting.setAttention(hangTag.getWarmTips());
+                // 后技术确认
+                tagPrinting.setTechApproved(Integer.parseInt(hangTag.getStatus()) > 2 && !"6".equals(hangTag.getStatus()));
+                // 安全标题
+                tagPrinting.setSaftyTitle(hangTag.getSaftyTitle());
+                // 洗唛材质备注
+                tagPrinting.setC8_APPBOM_Comment(hangTag.getWashingMaterialRemarks());
+                // 贮藏要求
+                tagPrinting.setStorageRequirement(hangTag.getStorageDemand());
+
+                List<TagPrinting.Size> size = new ArrayList<>();
+
+                String sizeIds = style.getSizeIds();
+                if (!StringUtils.isEmpty(sizeIds)) {
+                    for (BasicsdatumSize basicsdatumSize : basicsdatumSizeService.listByIds(Arrays.asList(sizeIds.split(",")))) {
+                        TagPrinting.Size size1 = new TagPrinting.Size();
+                        size1.setSIZECODE(basicsdatumSize.getInternalSize());
+                        size1.setSORTCODE(basicsdatumSize.getCode());
+                        size1.setSIZENAME(basicsdatumSize.getModel());
+                        size1.setSizeID(basicsdatumSize.getSort());
+                        size1.setEXTSIZECODE("");
+                        size1.setShowIntSize("0".equals(basicsdatumSize.getShowSizeStatus()));
+                        size1.setEuropeCode(basicsdatumSize.getEuropeanSize());
+                        size1.setSKUFiller(hangTag.getDownContent());
+                        size1.setSpecialSpec("");
+                        size.add(size1);
+                    }
+
+                }
+                // 款式尺码明细
+                tagPrinting.setSize(size);
+
+                tagPrintings.add(tagPrinting);
+            }
+
+        }
+        return tagPrintings;
     }
 
     @Override

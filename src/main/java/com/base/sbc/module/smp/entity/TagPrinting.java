@@ -2,6 +2,7 @@ package com.base.sbc.module.smp.entity;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -54,7 +55,7 @@ public class TagPrinting {
     /**
      * 吊牌价
      */
-    private String C8_Colorway_SalesPrice;
+    private BigDecimal C8_Colorway_SalesPrice;
 
     /**
      * 是否内配饰
