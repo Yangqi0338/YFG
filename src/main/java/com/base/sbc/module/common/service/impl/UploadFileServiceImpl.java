@@ -16,7 +16,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.minio.MinioConfig;
 import com.base.sbc.config.minio.MinioUtils;
+import com.base.sbc.config.utils.DateUtils;
 import com.base.sbc.config.utils.ImgUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
@@ -27,9 +29,9 @@ import com.base.sbc.module.common.mapper.UploadFileMapper;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.sample.vo.StyleUploadVo;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
-import com.base.sbc.module.sample.vo.StyleUploadVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
@@ -81,10 +83,16 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
 
     @Autowired
     private UserUtils userUtils;
-
+    @Autowired
+    private MinioConfig minioConfig;
 
     @Override
     public AttachmentVo uploadToMinio(MultipartFile file) {
+        return uploadToMinio(file, null);
+    }
+
+    @Override
+    public AttachmentVo uploadToMinio(MultipartFile file, String path) {
         try {
             String md5Hex = DigestUtils.md5DigestAsHex(file.getInputStream());
 //            UploadFile byMd5 = findByMd5(md5Hex);
@@ -93,11 +101,15 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
 //                log.info("文件已经存在:"+md5Hex);
 //                return byMd5;
 //            }
-            String extName = FileUtil.extName(file.getOriginalFilename());
-            if (StrUtil.isBlank(extName)) {
-                throw new OtherException("文件无后缀名");
+            String objectName = path;
+            if (path == null) {
+                String extName = FileUtil.extName(file.getOriginalFilename());
+                if (StrUtil.isBlank(extName)) {
+                    throw new OtherException("文件无后缀名");
+                }
+                objectName = minioConfig.getDir() + "/" + DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
             }
-            String objectName = System.currentTimeMillis() + "." + extName;
+
             String contentType = file.getContentType();
             String url = minioUtils.uploadFile(file, objectName, contentType);
             UploadFile newFile = new UploadFile();

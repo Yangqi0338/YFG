@@ -549,14 +549,15 @@ public class SmpService {
             smpBomDto.setBomStage("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
             //样衣-款式配色
             StyleColor styleColor = sampleStyleColorService.getById(packInfo.getStyleColorId());
-            if (styleColor != null) {
-                smpBomDto.setPColorCode(styleColor.getColorCode());
-                smpBomDto.setPColorName(styleColor.getColorName());
-                smpBomDto.setBulkNumber(packInfo.getStyleNo());
-                smpBomDto.setBomCode(packInfo.getCode());
-                smpBomDto.setCode(packInfo.getCode());
-            }
+            if (styleColor == null) {
+                throw new OtherException("未关联配色,无法下发");
 
+            }
+            smpBomDto.setPColorCode(styleColor.getColorCode());
+            smpBomDto.setPColorName(styleColor.getColorName());
+            smpBomDto.setBulkNumber(packInfo.getStyleNo());
+            smpBomDto.setBomCode(packInfo.getCode());
+            smpBomDto.setCode(packInfo.getCode());
             //List<BomMaterial> bomMaterials = new ArrayList<>();
             //
             //BomMaterial bomMaterial = packBom.toBomMaterial();

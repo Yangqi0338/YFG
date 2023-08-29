@@ -16,6 +16,7 @@
         CONCAT( tsd.design_no, tsd.style_name ) AS style,
         tsd.devt_type AS produceType,
         tsd.style_type AS styleType,
+        tsd.size_range_name AS modelTypeName,
         tsd.design_no AS designNo,
         tssc.style_no AS bulkStyleNo,
         tssc.color_name AS color,

@@ -83,6 +83,12 @@ public class HangTagListVO {
     private String modelType;
 
     /**
+     * 号型类型名称
+     */
+    @ApiModelProperty(value = "号型类型名称")
+    private String modelTypeName;
+
+    /**
      * 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认
      */
     @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认")
