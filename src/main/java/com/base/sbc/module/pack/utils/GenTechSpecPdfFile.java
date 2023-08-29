@@ -1,6 +1,7 @@
 package com.base.sbc.module.pack.utils;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
@@ -161,6 +162,8 @@ public class GenTechSpecPdfFile {
     private String placeOrderDateStr;
     private String createDate;
     private String createTime;
+    @ApiModelProperty(value = "二维码图片地址")
+    private String qrCodeUrl;
     @ApiModelProperty(value = "工艺信息")
     private List<PackTechSpecVo> techSpecVoList;
 
@@ -211,7 +214,6 @@ public class GenTechSpecPdfFile {
                         if (washSkippingFlag) {
                             row.add(MapUtil.getStr(jsonObject, "washing" + size, "-"));
                         }
-
                     }
                     //公差-
                     row.add(Opt.ofNullable(packSize.getMinus()).orElse(""));
@@ -233,7 +235,10 @@ public class GenTechSpecPdfFile {
                         .stream()
                         .collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
             }
-            dataModel.put("sizeDataList", dataList);
+
+            ArrayList<Object> sizeDataListAll = CollUtil.newArrayList();
+            ListUtil.page(dataList, 18, d -> sizeDataListAll.add(d));
+            dataModel.put("sizeDataListAll", sizeDataListAll);
             dataModel.put("ztbzDataList", Optional.ofNullable(gyMap.get("整烫包装")).orElse(CollUtil.newArrayList()));
             dataModel.put("cjgyDataList", Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()));
             dataModel.put("cjgyImgList", Optional.ofNullable(picMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()));

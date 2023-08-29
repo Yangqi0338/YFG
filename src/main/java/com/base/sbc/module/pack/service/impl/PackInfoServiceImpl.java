@@ -14,6 +14,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
@@ -27,10 +28,8 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.utils.StyleNoImgUtils;
+import com.base.sbc.config.minio.MinioConfig;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.module.common.eumns.UreportDownEnum;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -56,6 +55,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +64,10 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -141,6 +144,11 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Autowired
     private BaseController baseController;
 
+    @Autowired
+    private MinioConfig minioConfig;
+
+    @Value("${baseRequestUrl}")
+    private String baseRequestUrl;
 
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -494,6 +502,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
 
     @Override
     public AttachmentVo genTechSpecFile2(GroupUser groupUser, PackCommonSearchDto dto) {
+
         //获取款式信息
         PackInfoListVo detail = getDetail(dto.getForeignId(), dto.getPackType());
 
@@ -506,6 +515,13 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException("获取款式信息失败");
         }
         GenTechSpecPdfFile vo = new GenTechSpecPdfFile();
+        String objectFileName = minioConfig.getDir() + "/" + DateUtils.getDate() + "/" + System.currentTimeMillis() + ".pdf";
+        String fileWebUrl = String.format("%s/%s/%s", minioConfig.getEndpoint(), minioConfig.getBucketName(), objectFileName);
+        //二维码url
+        String qrCodeUrl = baseRequestUrl + "/pdm/api/open/qrCode?content=" + URLUtil.encode(fileWebUrl);
+        System.out.println("qrCodeUrl:" + qrCodeUrl);
+        vo.setQrCodeUrl(qrCodeUrl);
+
         // 获取吊牌信息
         if (StrUtil.isNotBlank(detail.getStyleNo())) {
             HangTagVO tag = hangTagService.getDetailsByBulkStyleNo(detail.getStyleNo(), getCompanyCode());
@@ -545,7 +561,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
 
         try {
             MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(gen.toByteArray()));
-            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile);
+            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, objectFileName);
             // 将文件id保存到状态表
             PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), dto.getPackType());
             packInfoStatus.setTechSpecFileId(attachmentVo.getFileId());

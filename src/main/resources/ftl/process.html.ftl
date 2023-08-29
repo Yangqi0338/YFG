@@ -4,14 +4,13 @@
 </head>
 <style>
     * {
-        font-family: 'Noto Serif SC', SimSun;
+        font-family: '思源宋体', 'Noto Serif SC', SimSun;
     }
 
     html {
 
         width: 277mm;
         margin: 50px auto;
-        background-color: #fff;
     }
 
     * {
@@ -20,16 +19,11 @@
     }
 
     body {
-        background-color: #f3f3f3;
         padding: 0 10px !important;
     }
 
     tr {
         page-break-inside: avoid;
-    }
-
-    td {
-        padding: 0 8px;
     }
 
     .page_height {
@@ -53,16 +47,13 @@
     }
 
     .info_table td {
-        height: 32px;
+        height: 20px;
     }
 
     .info_table tr, td {
         border: none;
     }
 
-    .info_table_b {
-        border-left: 12px solid white !important;
-    }
 
     .table_border td {
         border: 1px solid black;
@@ -78,14 +69,6 @@
         margin-top: 16px;
     }
 
-    .div_img_list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        justify-content: space-between;
-        align-items: center;
-        border: 1px solid black;
-    }
 
     .one_imgs {
         text-align: center;
@@ -96,17 +79,6 @@
         width: 80%;
     }
 
-    .div_img_list .title {
-        width: 100%;
-        text-align: center;
-        font-weight: 700;
-        font-size: 18px;
-    }
-
-    .div_img_list .border {
-        border-bottom: 1px solid black;
-
-    }
 
     .sizeItemWidth {
         width: 36px;
@@ -135,13 +107,6 @@
         width: 45%;
     }
 
-    .info_tr3:nth-child(even) {
-        background-color: #e7e6e6;
-    }
-
-    .info_tr4 {
-        background-color: #e7e6e6;
-    }
 
     .info_tr4 td:nth-child(1) {
         background-color: white;
@@ -159,10 +124,6 @@
         background-color: #e7e6e6;
     }
 
-    .td_center {
-        text-align: center;
-    }
-
     .gc {
         width: 44px;
         text-align: center !important;
@@ -175,20 +136,42 @@
     .size_tr {
         text-align: center;
     }
+
+    .font_bold {
+        font-weight: bold;
+    }
+
+    .gb {
+        background-color: #999999;
+    }
+
+    .td_lt {
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .info_table .l {
+        border-left: 16px solid white;
+    }
+
+    .info_table .r {
+        border-right: 16px solid white;
+    }
+
+    hr {
+        border: 1px solid black;
+        margin: 8px 0px;
+
+    }
 </style>
 <body>
 <!-- 页眉 -->
-<table class="table_no_border page_start">
+<table class="table_no_border page_start font_bold">
     <tr>
-        <td>品牌</td>
-        <td>${brandName}</td>
-        <td>设计款号</td>
+        <td>Eifini</td>
         <td>${designNo}</td>
-        <td>大货号</td>
-        <td>${styleNo}</td>
-        <td>制单日期</td>
-        <td>${createDate}</td>
-        <td>${createTime}</td>
+        <td>${designNo} BOM</td>
+        <td>DRAFT-大货生产${createDate}${createTime}</td>
         <td style="width: 120px;"></td>
     </tr>
 </table>
@@ -198,92 +181,134 @@
 
 <table class="info_table">
     <tr>
-        <td colspan="7" class="table_header">${companyName}</td>
-    </tr>
-    <tr class="info_tr4">
-        <td style="width: 25%;" rowspan="9">
+        <!-- 图片-->
+        <td style="width: 20%;" rowspan="13">
             <img style="width: 100%" src="${stylePic}">
         </td>
-        <td class="info_table_b">大货款号</td>
-        <td>${styleNo}</td>
-        <td class="info_table_b">注意事项</td>
-        <td>${mattersAttention}</td>
-        <td class="info_table_b">设计师</td>
-        <td>${designer}</td>
+        <td class="l gb" style="width:15%;">大货款号</td>
+        <td class="r gb" style="width:25%;">${styleNo}</td>
+        <td class="l gb" style="width:15%;">外辅工艺</td>
+        <td class="r gb" style="width:25%;">${extAuxiliaryTechnics}</td>
     </tr>
-    <tr class="info_tr3">
-        <td class="info_table_b">品名</td>
-        <td>${prodCategoryName}</td>
-        <td class="info_table_b">外辅工艺</td>
-        <td>${extAuxiliaryTechnics}</td>
-        <td class="info_table_b">后技术放码师</td>
-        <td>${gradingName}</td>
+    <tr>
+        <td class="l">品名*</td>
+        <td class="r">${prodCategoryName}</td>
+        <td class="l td_lt" rowspan="3">★★注意事项</td>
+        <td class="r td_lt" rowspan="3">${mattersAttention}</td>
+    </tr>
+    <tr>
+        <td class="l gb">执行标准*</td>
+        <td class="r gb font_bold">${executeStandard}</td>
+    </tr>
+    <tr>
+        <td class="l">质量等级</td>
+        <td class="r">${qualityGrade}</td>
+    </tr>
+    <tr>
+        <td class="l gb">安全标题</td>
+        <td class="r gb">${saftyTitle}</td>
+        <td class="l gb">洗唛材质备注</td>
+        <td class="r gb">${washingMaterialRemarks}</td>
+    </tr>
+    <tr>
+        <td class="l">安全类别</td>
+        <td class="r">${saftyType}</td>
+        <td class="l">充绒量</td>
+        <td class="r">${downContent}</td>
+    </tr>
+    <tr>
+        <td class="l gb">包装形式*</td>
+        <td class="r gb">${packagingForm}</td>
+        <td class="l gb">特殊规格</td>
+        <td class="r gb">2</td>
+    </tr>
+    <tr>
+        <td class="l">包装袋标准*</td>
+        <td class="r">${packagingBagStandard}</td>
+        <td rowspan="3" class="l td_lt">面料详情</td>
+        <td rowspan="3" class="r td_lt">${fabricDetails}</td>
+    </tr>
+    <tr>
+        <td class="l  gb">后技术工艺师</td>
+        <td class="r  gb">${technologistName}</td>
+    </tr>
+    <tr>
+        <td class="l">后技术放码师</td>
+        <td class="r">${gradingName}</td>
+    </tr>
+    <tr>
+        <td class="l gb">后技术样衣工</td>
+        <td class="r gb">${sampleMakerName}</td>
+        <td class="l gb">号型类型*</td>
+        <td class="r gb">${sizeRangeName}</td>
+    </tr>
+    <tr>
+        <td class="l">设计师*</td>
+        <td class="r">${designer}</td>
+        <td class="l">模板部件</td>
+        <td class="r">${templatePart}</td>
+    </tr>
+    <!-- 13 -->
+    <tr>
+        <td class="l gb">版师*</td>
+        <td class="r gb"></td>
+        <td class="l ">后技术下单员</td>
+        <td class="r "></td>
+    </tr>
+    <tr>
+        <!-- 14 -->
+        <td style="text-align: center;font-weight: bold;">
+            <a href="http://www.baidu.com" target="_blank">扫码查看视频加工艺单</a>
+        </td>
+        <td class="l td_lt">成分信息*</td>
+        <td class="r td_lt">
+            ${composition}</td>
+        <td class="l r " colspan="2" style="vertical-align: top;">
+            <table class="table_no_border gb">
+                <tr>
+                    <td>下单时间</td>
+                    <td>${placeOrderDateStr}</td>
+                </tr>
+            </table>
+        </td>
     </tr>
 
-    <tr class="info_tr3">
-        <td class="info_table_b">执行标准</td>
-        <td>${executeStandard}</td>
-        <td class="info_table_b">洗唛材质备注</td>
-        <td>${washingMaterialRemarks}</td>
-        <td class="info_table_b">后技术放码师</td>
-        <td>${gradingName}</td>
-    </tr>
-    <tr class="info_tr3">
-        <td class="info_table_b">质量等级</td>
-        <td>${qualityGrade}</td>
-        <td class="info_table_b">包装形式</td>
-        <td>${packagingForm}</td>
-        <td class="info_table_b">后技术样衣工</td>
-        <td>${sampleMakerName}</td>
-    </tr>
-    <tr class="info_tr3">
-        <td class="info_table_b">安全标题</td>
-        <td>${saftyTitle}</td>
-        <td class="info_table_b">包装袋标准</td>
-        <td>${packagingBagStandard}</td>
-        <td class="info_table_b">后技术工艺师</td>
-        <td>${technologistName}</td>
-    </tr>
-    <tr class="info_tr3">
-        <td class="info_table_b">安全类别</td>
-        <td>${saftyType}</td>
-        <td class="info_table_b">特殊规格</td>
-        <td></td>
-        <td class="info_table_b">模板部件</td>
-        <td>${templatePart}</td>
-    </tr>
-    <tr class="info_tr3">
-        <td class="info_table_b">号型类型</td>
-        <td>${sizeRangeName}</td>
-        <td class="info_table_b" colspan="2">${specialSpec}</td>
-        <td class="info_table_b">下单时间</td>
-        <td>${placeOrderDateStr}</td>
-    </tr>
-    <tr class="info_tr3">
-        <td class="info_table_b">成分信息</td>
-        <td colspan="2">${composition}</td>
-        <td class="info_table_b">充绒量</td>
-        <td colspan="2">${downContent}</td>
-    </tr>
-    <tr class="info_tr3">
-        <td class="info_table_b">贮藏要求</td>
-        <td colspan="2">${storageDemand}</td>
-        <td class="info_table_b">面料详情</td>
-        <td colspan="2">${fabricDetails}</td>
-    </tr>
-    <tr class="info_tr3">
-        <td>产地:${producer}</td>
-        <td colspan="3" style="padding-left: 6px;">温馨提示:</td>
-        <td colspan="3" style="padding-left: 6px;">洗标:</td>
-    </tr>
-    <tr class="info_tr3">
-        <td>
-            生产日期:${produceDateStr}
-            <hr/>
-            <p>如果品类为鞋且非陈列品，请维护属性</p>
+    <tr>
+        <!-- 二维码 -->
+        <td rowspan="4">
+            <#if  qrCodeUrl != '' >
+                <img style="width: 100%" src="${qrCodeUrl}">
+            </#if>
         </td>
-        <td colspan="3">${warmTips}</td>
-        <td colspan="3">
+        <td class="l r" colspan="4">
+            <p>提示信息</p>
+            <hr>
+        </td>
+    </tr>
+    <tr>
+
+        <td class="td_lt l gb">温馨提示*</td>
+        <td class="td_lt r  gb">${warmTips}</td>
+
+        <td class="td_lt l gb">贮藏要求</td>
+        <td class="td_lt r gb">${storageDemand}</td>
+    </tr>
+    <tr>
+        <td class="l r" colspan="4">
+            <p>如果品类为鞋且非陈列品,请维护属性</p>
+            <hr>
+        </td>
+    </tr>
+    <tr>
+        <td class="l gb">产地</td>
+        <td class="r gb">${producer}</td>
+        <td class="l gb">生产日期</td>
+        <td class="r gb">${produceDateStr}</td>
+    </tr>
+    <tr>
+        <td class="l r" colspan="5">
+            <p>洗标</p>
+            <hr>
             <#if  washingLabel != '' >
                 <img style="width:120px" src="${washingLabel}">
             </#if>
@@ -337,17 +362,18 @@
     </tr>
 </table>
 
-<!--尺寸表-->
-<table class="table_border small_table mt size_table" style="page-break-before: always; ">
-    <tr>
-        <td colspan="${sizeTitleColspan}" class="table_header">尺寸表</td>
-    </tr>
-    <tr class="size_tr">
-        <td rowspan="2" style="text-align: left;">部位</td>
-        <td rowspan="2" style="text-align: left;">描述</td>
-        <#list sizeList as size>
-            <td colspan="${sizeColspan}" class="sizeWidth">${size}</td>
-        </#list>
+<!--尺寸表 18条每页-->
+<#list sizeDataListAll as sizeDataList>
+    <table class="table_border small_table mt size_table" style="page-break-before: always; ">
+        <tr>
+            <td colspan="${sizeTitleColspan}" class="table_header">尺寸表</td>
+        </tr>
+        <tr class="size_tr">
+            <td rowspan="2" style="text-align: left;">部位</td>
+            <td rowspan="2" style="text-align: left;">描述</td>
+            <#list sizeList as size>
+                <td colspan="${sizeColspan}" class="sizeWidth">${size}</td>
+            </#list>
         <td rowspan="2" class="gc">公差(-)</td>
         <td rowspan="2" class="gc">公差(+)</td>
     </tr>
@@ -360,15 +386,17 @@
             </#if>
         </#list>
     </tr>
-    <#list sizeDataList as item>
-        <tr class="size_tr">
-            <#list item as c>
-                <td>${c}</td>
-            </#list>
-        </tr>
-    </#list>
+        <#list sizeDataList as item>
+            <tr class="size_tr">
+                <#list item as c>
+                    <td>${c}</td>
+                </#list>
+            </tr>
+        </#list>
 
-</table>
+    </table>
+</#list>
+
 <!--    小部件-->
 <table class="table_border mt" style="page-break-before: always;">
     <tr>

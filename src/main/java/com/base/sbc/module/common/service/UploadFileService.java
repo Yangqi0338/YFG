@@ -40,6 +40,15 @@ public interface UploadFileService extends BaseService<UploadFile> {
     /**
      * 上传到minio
      *
+     * @param file
+     * @param path 路径
+     * @return
+     */
+    AttachmentVo uploadToMinio(MultipartFile file, String path);
+
+    /**
+     * 上传到minio
+     *
      * @param bufferedImage
      * @return
      */
