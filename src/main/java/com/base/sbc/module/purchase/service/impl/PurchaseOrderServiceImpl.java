@@ -266,13 +266,16 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
             purchaseOrder.setStatus("2");
             updateById(purchaseOrder);
 
+            QueryWrapper<PurchaseOrderDetail> detailQw = new QueryWrapper<>();
+            detailQw.eq("purchase_order_id", purchaseOrder.getId());
+            List<PurchaseOrderDetail> purchaseOrderDetailList = purchaseOrderDetailService.list(detailQw);
             //审核通过推送到领猫
             List<String> unitList = new ArrayList<>();
             List<String> materialCodeList = new ArrayList<>();
             Map<String,String> unitMap = Maps.newHashMap();
             Map<String,String> colorMap = Maps.newHashMap();
             Map<String,String> widthMap = Maps.newHashMap();
-            for (PurchaseOrderDetail detail : purchaseOrder.getPurchaseOrderDetailList()) {
+            for (PurchaseOrderDetail detail : purchaseOrderDetailList) {
                 if (!unitList.contains(detail.getPurchaseUnit())){
                     unitList.add(detail.getPurchaseUnit());
                 }

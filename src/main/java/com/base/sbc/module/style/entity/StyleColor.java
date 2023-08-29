@@ -20,9 +20,9 @@ import lombok.EqualsAndHashCode;
 /**
  * 类描述：款式-款式配色 实体类
  * @address com.base.sbc.module.style.entity.StyleColor
- * @author mengfanjiang
- * @email XX.com
- * @date 创建时间：2023-8-11 15:11:12
+ * @author your name
+ * @email your email
+ * @date 创建时间：2023-8-28 19:53:24
  * @version 1.0
  */
 @Data
@@ -97,6 +97,9 @@ public class StyleColor extends BaseDataEntity<String> {
     /** 设计款号 */
     @ApiModelProperty(value = "设计款号"  )
     private String designNo;
+    /** 关联的设计款号 */
+    @ApiModelProperty(value = "关联的设计款号"  )
+    private String seatDesignNo;
     /** 轻奢款(0否,1:是) */
     @ApiModelProperty(value = "轻奢款(0否,1:是)"  )
     private String isLuxury;
@@ -112,6 +115,12 @@ public class StyleColor extends BaseDataEntity<String> {
     /** 产品细分 */
     @ApiModelProperty(value = "产品细分"  )
     private String productSubdivideName;
+    /** 配色风格 */
+    @ApiModelProperty(value = "配色风格"  )
+    private String colorStyleFlavour;
+    /** 配色风格名称 */
+    @ApiModelProperty(value = "配色风格名称"  )
+    private String colorStyleFlavourName;
     /** 波段编码 */
     @ApiModelProperty(value = "波段编码"  )
     private String bandCode;
@@ -242,16 +251,16 @@ public class StyleColor extends BaseDataEntity<String> {
     private String bomStatus;
     /** 下稿设计师 */
     @ApiModelProperty(value = "下稿设计师"  )
-    private String  senderDesignerId;
+    private String senderDesignerId;
     /** 下稿设计师名称 */
     @ApiModelProperty(value = "下稿设计师名称"  )
-    private String  senderDesignerName;
+    private String senderDesignerName;
+    /** 下单标记（0否 1是） */
+    @ApiModelProperty(value = "下单标记（0否 1是）"  )
+    private String orderFlag;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
-    /** 下单标记（0否 1是） */
-    @ApiModelProperty(value = "下单标记（0否 1是）"  )
-    private String  orderFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

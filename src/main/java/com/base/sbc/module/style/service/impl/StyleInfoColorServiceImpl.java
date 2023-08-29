@@ -68,11 +68,10 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
         if (StrUtil.isNotBlank(styleInfoColorDto.getColorCode())) {
             qw.like("color_code" , styleInfoColorDto.getColorCode());
         }
-        Page<StyleInfoColor> page = PageHelper.startPage(styleInfoColorDto);
+        Page<StyleInfoColorVo> page = PageHelper.startPage(styleInfoColorDto);
         list(qw);
-        PageInfo<StyleInfoColor> pageInfo = page.toPageInfo();
-        PageInfo<StyleInfoColorVo> voPageInfo = CopyUtil.copy(pageInfo, StyleInfoColorVo.class);
-        return voPageInfo;
+        PageInfo<StyleInfoColorVo> pageInfo = page.toPageInfo();
+        return pageInfo;
     }
 
     /**

@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -26,10 +27,9 @@ import com.base.sbc.module.formType.entity.FieldManagement;
 import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.mapper.FieldManagementMapper;
 import com.base.sbc.module.formType.mapper.FieldValMapper;
-import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
-import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
-import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
-import com.base.sbc.module.planning.dto.QueryDemandDto;
+import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.planning.dto.*;
+import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
 import com.base.sbc.module.planning.entity.PlanningSeason;
@@ -40,14 +40,19 @@ import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
-import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.*;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.ChartBarVo;
+import com.base.sbc.module.style.vo.StyleColorVo;
 import com.beust.jcommander.internal.Lists;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.poi.ss.formula.functions.T;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -83,6 +88,13 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     private PlanningCategoryItemService planningCategoryItemService;
     @Resource
     private PlanningCategoryItemMapper planningCategoryItemMapper;
+
+    @Resource
+    @Lazy
+    private StyleService styleService;
+    @Resource
+    @Lazy
+    private StyleColorService styleColorService;
     @Resource
     private BandService bandService;
     @Resource
@@ -255,6 +267,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public PlanningSummaryVo planningSummary(PlanningBoardSearchDto dto) {
         PlanningSummaryVo vo = new PlanningSummaryVo();
 
@@ -332,9 +345,11 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                     yValueS.put(e.getClassifyName(),CollUtil.newArrayList());
                     return yvo;
                 }).collect(Collectors.toList());
-                vo.setYList(PlanningUtils.removeEmptyAndSort(yList));
+                vo.setYList(yList);
 
                 if (CollUtil.isNotEmpty(detailVoList)) {
+                    List<Style> updateStyle=new ArrayList<>(16);
+                    List<StyleColor> updateStyleColor=new ArrayList<>(16);
                     List<String> seatIds = detailVoList.stream().map(PlanningSummaryDetailVo::getId).collect(Collectors.toList());
                     FieldManagement fieldManagement = fieldManagementMapper.selectById(planningDemandVo.getFieldId());
                     QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
@@ -346,6 +361,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                     }).orElse(MapUtil.empty());
                     Map<String, List<PlanningSummaryDetailVo>> seatData = new HashMap<>(16);
                     Map<String, Long> xMap = new HashMap<>(16);
+                    QueryWrapper<PlanningCategoryItem> snQw=new QueryWrapper<>();
                     for (PlanningSummaryDetailVo psdv : detailVoList) {
                         String dv = Optional.ofNullable(seatFvMap.get(psdv.getId())).map(FieldVal::getValName).orElse("_null_");
                         //维度没匹配跳过
@@ -366,7 +382,33 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                         } else {
                             xMap.put(bandName, 1L);
                         }
+                        //如果大货款号为空 自动设置大货款号
+                        if(StrUtil.isBlank(psdv.getStyleNo())){
+                            snQw.clear();
+                            snQw.eq("c.id",psdv.getId());
+                            snQw.exists("select id from t_field_val where foreign_id=s.id and t_field_val.del_flag='0' and data_group={0} and field_name={1} and val_name={2} ",
+                                    FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY,
+                                    demandSummary.get(0).get(0),
+                                    dv
+                            );
+                            psdv.setDimension(MapUtil.of(demandSummary.get(0).get(0),dv));
+                            snQw.orderByAsc("sc.id");
+                            snQw.last("limit 1");
+                            List<Map<String, Object>> orderSckList = planningCategoryItemMapper.queryOrderSkc(snQw);
+                            if(CollUtil.isNotEmpty(orderSckList)){
+                                Map<String, Object> scMap = orderSckList.get(0);
+                                Style uStyle=new Style();
+                                uStyle.setId(MapUtil.getStr(scMap,"styleId"));
+                                uStyle.setStyleNo(MapUtil.getStr(scMap,"styleNo"));
+                                updateStyle.add(uStyle);
+                                StyleColor uStyleColor=new StyleColor();
+                                uStyleColor.setId(MapUtil.getStr(scMap,"id"));
+                                uStyleColor.setSeatDesignNo(psdv.getDesignNo());
+                                updateStyleColor.add(uStyleColor);
+                            }
+                        }
                     }
+
                     vo.setXList(xMap.entrySet().stream().map(item -> {
                         DimensionTotalVo dtv = new DimensionTotalVo();
                         dtv.setName(item.getKey());
@@ -381,11 +423,17 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                     int dTotalInt = dTotal.get();
                     for (Map.Entry<String, List<String>> d : yValueS.entrySet()) {
                         List<String> dSeatIds = d.getValue();
-                        Long count=0L;
+                        int count=0;
                         if(CollUtil.isNotEmpty(dSeatIds)){
                             osQw.clear();
                             osQw.in("c.id",dSeatIds);
-                            count=planningCategoryItemMapper.queryOrderSkc(osQw);
+                            osQw.exists("select id from t_field_val where foreign_id=s.id and data_group={0} and field_name={1} and val_name={2}",
+                                    FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY,
+                                    demandSummary.get(0).get(0),
+                                    d.getKey()
+                                    );
+                            List<Map<String, Object>> orderSckList = planningCategoryItemMapper.queryOrderSkc(osQw);
+                            count= CollUtil.size(orderSckList);
                         }
                         //下单skc
                         demandSummary.get(3).add(String.valueOf(count));
@@ -398,6 +446,14 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                         index++;
                     }
                     vo.setDemandSummary(demandSummary);
+
+                    if(CollUtil.isNotEmpty(updateStyle)){
+                        styleService.updateBatchById(updateStyle);
+
+                    }
+                    if(CollUtil.isNotEmpty(updateStyleColor)){
+                        styleColorService.updateBatchById(updateStyleColor);
+                    }
                 }
             }
 
@@ -515,6 +571,28 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                 .select(PlanningSeason::getId, PlanningSeason::getName);
         List<PlanningSeason> planningSeasons = super.list(queryWrapper);
         return CollectionUtils.isEmpty(planningSeasons) ? Lists.newArrayList() : CopyUtil.copy(planningSeasons, ProductSeasonSelectVO.class);
+    }
+
+    @Override
+    public List<StyleColorVo> getStyleNoList(GetStyleNoListDto dto) {
+        BaseQueryWrapper<PlanningCategoryItem> snQw=new BaseQueryWrapper<>();
+        snQw.eq("c.planning_season_id",dto.getPlanningSeasonId());
+        snQw.eq("c.prod_category",dto.getProdCategory());
+        //snQw.eq("c.prod_category3rd",psdv.getProdCategory3rd());
+        snQw.eq("c.planning_channel_id",dto.getPlanningChannelId());
+        snQw.and(q->q.isNull("sc.seat_design_no").or(q2->q2.eq("sc.seat_design_no","")));
+
+        if(CollUtil.isNotEmpty(dto.getDimension())){
+            Map.Entry<String, String> dv = dto.getDimension().entrySet().stream().collect(Collectors.toList()).get(0);
+            snQw.exists("select id from t_field_val where foreign_id=s.id and del_flag='0' and data_group={0} and field_name={1} and val_name={2}",
+                    FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY,
+                    dv.getKey(),
+                    dv.getValue()
+            );
+        }
+
+        List<Map<String, Object>> styleNoList = planningCategoryItemMapper.queryOrderSkc(snQw);
+        return BeanUtil.copyToList(styleNoList,StyleColorVo.class);
     }
 
 

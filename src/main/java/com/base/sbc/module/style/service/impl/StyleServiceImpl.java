@@ -18,6 +18,7 @@ import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -32,6 +33,7 @@ import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
+import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -167,6 +169,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private StyleInfoSkuService styleInfoSkuService;
     @Resource
     private HangTagService hangTagService;
+    @Autowired
+    private CcmService ccmService;
     private IdGen idGen = new IdGen();
 
     @Override
@@ -537,9 +541,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<MaterialVo> materialList = BeanUtil.copyToList(list, MaterialVo.class);
         sampleVo.setMaterialList(materialList);
         //号型类型
-        sampleVo.setSizeRangeName(basicsdatumModelTypeService.getNameById(sampleVo.getSizeRange()));
+//        sampleVo.setSizeRangeName(basicsdatumModelTypeService.getNameById(sampleVo.getSizeRange()));
         //波段
-        sampleVo.setBandName(bandService.getNameByCode(sampleVo.getBandCode()));
+//        sampleVo.setBandName(bandService.getNameByCode(sampleVo.getBandCode()));
         // 款式图片
         List<AttachmentVo> stylePicList = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
         sampleVo.setStylePicList(stylePicList);
@@ -1359,13 +1363,27 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     @Override
     public String genDesignNo(Style style) {
-        return planningCategoryItemService.getNextCode(style);
+        GetMaxCodeRedis getNextCode = new GetMaxCodeRedis(ccmService);
+        Map<String, String> params = new HashMap<>(12);
+        params.put("seriesId", style.getSeriesId());
+        params.put("designChannelId", style.getDesignChannelId());
+        params.put("year", style.getYear());
+        params.put("season", style.getSeason());
+        String prodCategory3rd = style.getProdCategory3rd();
+        params.put("prodCategory3rd", prodCategory3rd.substring(prodCategory3rd.length()-2));
+        return getNextCode.genCode("STYLE_DESIGN_NO", params);
     }
 
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public void saveDesignNo(Style style) {
-        this.update(new UpdateWrapper<Style>().set("is_gen_design_no","1").set("design_no",style.getDesignNo()).eq("id",style.getId()));
+        boolean flag = this.update(style,new UpdateWrapper<Style>().eq("id",style.getId()));
+        if(flag){
+            Style hasStyle = getById(style.getId());
+            PlanningCategoryItem planningCategoryItem = new PlanningCategoryItem();
+            planningCategoryItem.setDesignNo(style.getDesignNo());
+            planningCategoryItemService.update(planningCategoryItem,new UpdateWrapper<PlanningCategoryItem>().eq("id",hasStyle.getPlanningCategoryItemId()));
+        }
     }
 
 }

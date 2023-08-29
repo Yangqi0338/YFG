@@ -67,11 +67,10 @@ public class StyleInfoSkuServiceImpl extends BaseServiceImpl<StyleInfoSkuMapper,
         if (StrUtil.isNotBlank(styleInfoSkuDto.getColorCode())) {
             qw.like("color_code" , styleInfoSkuDto.getColorCode());
         }
-        Page<StyleInfoSku> page = PageHelper.startPage(styleInfoSkuDto);
+        Page<StyleInfoSkuVo> page = PageHelper.startPage(styleInfoSkuDto);
         list(qw);
-        PageInfo<StyleInfoSku> pageInfo = page.toPageInfo();
-        PageInfo<StyleInfoSkuVo> voPageInfo = CopyUtil.copy(pageInfo, StyleInfoSkuVo.class);
-        return voPageInfo;
+        PageInfo<StyleInfoSkuVo> pageInfo = page.toPageInfo();
+        return pageInfo;
     }
 
 // 自定义方法区 不替换的区域【other_start】

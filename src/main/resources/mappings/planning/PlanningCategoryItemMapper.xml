@@ -52,7 +52,6 @@
     <select id="planningSummaryDetail" resultType="com.base.sbc.module.planning.vo.PlanningSummaryDetailVo">
         SELECT
         ci.id,
-        ci.prod_category_name,
         ci.design_no,
         ci.his_design_no,
         ci.price,
@@ -62,6 +61,19 @@
         ci.designer,
         ci.designer_id,
         ci.band_name,
+        ci.band_code,
+        ci.prod_category1st,
+        ci.prod_category1st_name,
+        ci.prod_category,
+        ci.prod_category_name,
+        ci.prod_category2nd_name,
+        ci.prod_category2nd,
+        ci.prod_category3rd,
+        ci.prod_category3rd_name,
+        ci.planning_channel_id,
+        ci.planning_season_id,
+        ci.channel,
+        ci.channel_name,
         sd.style_no
         FROM
         t_planning_category_item ci
@@ -149,8 +161,13 @@
         from t_planning_category_item
         where id = #{id} limit 1
     </select>
-    <select id="queryOrderSkc" resultType="java.lang.Long">
-        select count(1) from t_style s, t_style_color sc,  t_planning_category_item c
+    <select id="queryOrderSkc" resultType="java.util.HashMap">
+        select sc.style_id as `styleId`,
+               s.planning_category_item_id as `planningCategoryItemId`,
+               sc.style_no as `styleNo`,
+               sc.id,
+               sc.style_color_pic as styleColorPic
+        from t_style s, t_style_color sc,  t_planning_category_item c
         where s.planning_category_item_id=c.id
         and s.id=sc.style_id
         and s.del_flag='0'

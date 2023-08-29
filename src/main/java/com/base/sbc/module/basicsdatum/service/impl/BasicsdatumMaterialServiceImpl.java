@@ -182,7 +182,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			entity.setStatus("0");
 			String categoryCode = entity.getMaterialCode();
 			// 获取并放入最大code
-			entity.setMaterialCode(getMaxCode(categoryCode));
+			if (!BasicsdatumMaterialBizTypeEnum.DEV.getK().equals(dto.getBizType())) {
+				entity.setMaterialCode(getMaxCode(categoryCode));
+			}
 		}
 		entity.setMaterialCodeName(entity.getMaterialCode() + entity.getMaterialName());
 

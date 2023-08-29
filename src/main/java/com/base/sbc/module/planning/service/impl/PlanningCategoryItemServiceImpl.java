@@ -468,6 +468,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             style.setStartTime(sendDate);
             style.setEndTime(item.getPlanningFinishDate());
             style.setStylePic(Optional.ofNullable(fileUrlId.get(style.getStylePic())).orElse(""));
+            if(ccmFeignService.getSwitchByCode("GEN_DESIGN_NO_ACTION")){
+                style.setDesignNo(null);
+            }
             styleList.add(style);
 
 
