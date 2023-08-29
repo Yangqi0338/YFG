@@ -128,7 +128,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
             }
         }
         for (HangTagListVO hangTagListVO : hangTagListVOS) {
-            hangTagListVO.setBomStatus(hashMap.get(hangTagListVO.getBomStatus()));
+            hangTagListVO.setBomStatus(hashMap.get(hangTagListVO.getBulkStyleNo()));
         }
 
 
