@@ -113,6 +113,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         hangTagDTO.setCompanyCode(userCompany);
         PageHelper.startPage(hangTagDTO.getPageNum(), hangTagDTO.getPageSize());
         List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO);
+
+        if (hangTagListVOS.isEmpty()){
+           return new PageInfo<>(hangTagListVOS);
+        }
         /*获取大货款号*/
         List<String> stringList = hangTagListVOS.stream().filter(h -> !StringUtils.isEmpty(h.getBulkStyleNo())).map(HangTagListVO::getBulkStyleNo).distinct().collect(Collectors.toList());
         /*查询流程审批的结果*/
@@ -172,23 +176,22 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         logger.info("HangTagService#save 保存吊牌 hangTagDTO:{}, userCompany:{}", JSON.toJSONString(hangTagDTO), userCompany);
         HangTag hangTag = new HangTag();
         BeanUtils.copyProperties(hangTagDTO, hangTag);
-        hangTag.insertInit();
         super.saveOrUpdate(hangTag);
         String id = hangTag.getId();
 
-        List<BasicsdatumMaterialIngredient> materialIngredientList = basicsdatumMaterialController.formatToList(hangTagDTO.getIngredient(), "0", "");
+        //List<BasicsdatumMaterialIngredient> materialIngredientList = basicsdatumMaterialController.formatToList(hangTagDTO.getIngredient(), "0", "");
 
-        List<HangTagIngredientDTO> hangTagIngredients = new ArrayList<>();
-        for (BasicsdatumMaterialIngredient basicsdatumMaterialIngredient : materialIngredientList) {
-            HangTagIngredientDTO hangTagIngredient = new HangTagIngredientDTO();
-            hangTagIngredient.setPercentage(basicsdatumMaterialIngredient.getRatio());
-            hangTagIngredient.setType(basicsdatumMaterialIngredient.getName());
-            hangTagIngredient.setTypeCode(basicsdatumMaterialIngredient.getType());
-            hangTagIngredient.setDescriptionRemarks(basicsdatumMaterialIngredient.getSay());
-            hangTagIngredients.add(hangTagIngredient);
-        }
-        hangTagIngredientService.remove(new QueryWrapper<HangTagIngredient>().eq("hang_tag_id", id));
-        hangTagIngredientService.save(hangTagIngredients, id, userCompany);
+        //List<HangTagIngredientDTO> hangTagIngredients = new ArrayList<>();
+        //for (BasicsdatumMaterialIngredient basicsdatumMaterialIngredient : materialIngredientList) {
+        //    HangTagIngredientDTO hangTagIngredient = new HangTagIngredientDTO();
+        //    hangTagIngredient.setPercentage(basicsdatumMaterialIngredient.getRatio());
+        //    hangTagIngredient.setType(basicsdatumMaterialIngredient.getName());
+        //    hangTagIngredient.setTypeCode(basicsdatumMaterialIngredient.getType());
+        //    hangTagIngredient.setDescriptionRemarks(basicsdatumMaterialIngredient.getSay());
+        //    hangTagIngredients.add(hangTagIngredient);
+        //}
+        //hangTagIngredientService.remove(new QueryWrapper<HangTagIngredient>().eq("hang_tag_id", id));
+        //hangTagIngredientService.save(hangTagIngredients, id, userCompany);
         hangTagLogService.save(id, OperationDescriptionEnum.SAVE.getV(), userCompany);
         /**
          * 当存在品名时同步到配色
