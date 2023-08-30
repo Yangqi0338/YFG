@@ -2,6 +2,7 @@ package com.base.sbc.client.flowable.service;
 
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,4 +40,15 @@ public interface FlowableFeignService {
             @ApiParam(value = "业务id") @RequestParam(value = "businessKey") String businessKey,
             @ApiParam(value = "版本") @RequestParam(value = "version", required = false) Integer version,
             @ApiParam(value = "变量集合,json对象") @RequestBody Map<String, Object> variables);
+
+
+    /**
+     * 获取流程当前节点，是否完成
+     * @param businessKeys
+     * @return
+     */
+    @GetMapping(value = "/flowable/api/saas/task/getFlowRecordMapBybusinessKey")
+    String getFlowRecordMapBybusinessKey(@RequestParam("businessKeys") String businessKeys);
+
+
 }

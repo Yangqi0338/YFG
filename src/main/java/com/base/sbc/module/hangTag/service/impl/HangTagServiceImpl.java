@@ -12,7 +12,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.client.flowable.vo.FlowRecordVo;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.basicsdatum.controller.BasicsdatumMaterialController;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
@@ -107,9 +109,24 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         hangTagDTO.setCompanyCode(userCompany);
         PageHelper.startPage(hangTagDTO.getPageNum(), hangTagDTO.getPageSize());
         List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO);
+        /*获取大货款号*/
+        List<String> stringList = hangTagListVOS.stream().filter(h -> !StringUtils.isEmpty(h.getBulkStyleNo())).map(HangTagListVO::getBulkStyleNo).distinct().collect(Collectors.toList());
+        /*查询流程审批的结果*/
+        Map<String, FlowRecordVo> flowRecordVoMap = flowableService.getFlowRecordMapBybusinessKey(stringList);
+
         IdGen idGen = new IdGen();
         List<String> bulkStyleNos=new ArrayList<>();
         hangTagListVOS.forEach(e -> {
+            FlowRecordVo flowRecordVo = flowRecordVoMap.get(e.getBulkStyleNo());
+            if (!ObjectUtils.isEmpty(flowRecordVo)) {
+//                判断流程是否完成
+                if (flowRecordVo.getEndFlag().equals(BaseGlobal.YES)) {
+                    e.setConfirmDate(flowRecordVo.getEndTime());
+                    e.setExamineUserNema("完成");
+                } else {
+                    e.setExamineUserNema(flowRecordVo.getUserName());
+                }
+            }
             if (StringUtils.isEmpty(e.getId())) {
                 e.setId(idGen.nextIdStr());
             }
