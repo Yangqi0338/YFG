@@ -71,6 +71,7 @@ public class BasicsdatumIngredientServiceImpl extends BaseServiceImpl<Basicsdatu
             queryWrapper.notEmptyLike("code",queryDto.getCode());
             queryWrapper.notEmptyLike("ingredient",queryDto.getIngredient());
             queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getCreateName()),"create_name",queryDto.getCreateName());
+            queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getStatus()),"status",queryDto.getStatus());
             queryWrapper.between("create_date",queryDto.getCreateDate());
             queryWrapper.orderByDesc("create_date");
 

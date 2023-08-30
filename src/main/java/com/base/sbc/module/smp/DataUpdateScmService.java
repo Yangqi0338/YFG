@@ -28,15 +28,20 @@ import java.util.stream.Collectors;
  */
 
 @Service
-@RequiredArgsConstructor
 public class DataUpdateScmService {
 
 
-    private final StyleColorMapper styleColorMapper;
+    @Autowired
+    @Lazy
+    private StyleColorMapper styleColorMapper;
 
-    private final StyleMapper styleMapper;
+    @Autowired
+    @Lazy
+    private StyleMapper styleMapper;
 
-    private final BasicsdatumColourLibraryMapper basicsdatumColourLibraryMapper;
+    @Autowired
+    @Lazy
+    private BasicsdatumColourLibraryMapper basicsdatumColourLibraryMapper;
 
     @Autowired
     @Lazy

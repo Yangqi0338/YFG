@@ -47,6 +47,7 @@ import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
+import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
@@ -149,6 +150,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
 
     @Value("${baseRequestUrl}")
     private String baseRequestUrl;
+
+    @Autowired
+    private DataUpdateScmService dataUpdateScmService;
 
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -351,6 +355,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //updateById(packInfo);
         //设置bom 状态
         changeBomStatus(packInfo.getId(), BasicNumber.ONE.getNumber());
+        /*配色下发*/
+        dataUpdateScmService.updateStyleColorSend(packInfo.getStyleNo());
         /*xiao消息*/
         messageUtils.toBigGoodsSendMessage(packInfo.getPlanningSeasonId(),packInfo.getDesignNo(),baseController.getUser());
         return true;
