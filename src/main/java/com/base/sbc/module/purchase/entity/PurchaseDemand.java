@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.PurchaseDemand
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-30 10:05:31
+ * @date 创建时间：2023-8-30 14:30:19
  * @version 1.0
  */
 @Data
@@ -67,7 +67,8 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     public PurchaseDemand(PackInfo packInfo, PackBom packBom, BasicsdatumMaterial material, String specifications, BigDecimal needNum){
         this.materialImage = material.getImageUrl();
         this.designStyleCode = packInfo.getDesignNo();
-        this.plateBillCode = packInfo.getDesignNo() + packInfo.getStyleName();
+        this.plateBillCode = packInfo.getPatternNo();
+        this.styleBom = packInfo.getName();
         this.styleName = packInfo.getStyleName();
         this.category = packInfo.getProdCategoryName();
         this.materialCode = material.getMaterialCode();
@@ -81,6 +82,7 @@ public class PurchaseDemand extends BaseDataEntity<String> {
         this.needNum = needNum;
         this.price = packBom.getPrice();
         this.unit = material.getPurchaseUnitCode();
+        this.unitName = material.getPurchaseUnitName();
         this.usePosition = packBom.getPartName();
         this.materialSpecifications = specifications;
         this.loss = packBom.getLossRate();
@@ -104,6 +106,9 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     /** 制版号 */
     @ApiModelProperty(value = "制版号"  )
     private String plateBillCode;
+    /** 款式Bom */
+    @ApiModelProperty(value = "款式Bom"  )
+    private String styleBom;
     /** 款式名称 */
     @ApiModelProperty(value = "款式名称"  )
     private String styleName;

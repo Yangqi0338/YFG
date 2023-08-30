@@ -15,6 +15,7 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CodeGen;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.UserCompanyUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
@@ -86,6 +87,9 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
     @Autowired
     private PurchaseOrderDetailService purchaseOrderDetailService;
 
+    @Autowired
+    private UserCompanyUtils userCompanyUtils;
+
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public ApiResult cancel(String companyCode, String ids) {
@@ -116,28 +120,33 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
      */
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public void generatePurchaseDemand(UserCompany userCompany, String companyCode, String id) {
+    public void generatePurchaseDemand(String companyCode, String id) {
         IdGen idGen = new IdGen();
-
-        QueryWrapper<PackInfo> qw = new QueryWrapper<>();
-        qw.eq("company_code", companyCode);
-        qw.eq("id", id);
-        qw.last("limit 1");
-        PackInfo packInfo = packInfoService.getOne(qw);
+        UserCompany userCompany = userCompanyUtils.getCompanyUser();
 
         //查询资料包-物料清单-物料版本 启用状态的数据
         QueryWrapper<PackBomVersion> versionQw = new QueryWrapper<>();
-        PackUtils.commonQw(versionQw, id, "packDesign", "1");
+        versionQw.eq("id", id);
         List<PackBomVersion> packBomVersionList = packBomVersionService.list(versionQw);
 
         if (CollectionUtil.isNotEmpty(packBomVersionList)) {
             //再根据版本，查找物料清单
             PackBomVersion packBomVersion = packBomVersionList.get(0);
 
+            QueryWrapper<PackInfo> qw = new QueryWrapper<>();
+            qw.eq("company_code", companyCode);
+            qw.eq("id", packBomVersion.getForeignId());
+            qw.last("limit 1");
+            PackInfo packInfo = packInfoService.getOne(qw);
+
             QueryWrapper<PackBom> packBomQw = new QueryWrapper<>();
-            PackUtils.commonQw(packBomQw, id, "packDesign", "1");
+            PackUtils.commonQw(packBomQw, packInfo.getId(), "packDesign", "0");
             packBomQw.eq("bom_version_id", packBomVersion.getId());
             List<PackBom> packBomList = packBomService.list(packBomQw);
+            if(CollectionUtil.isEmpty(packBomList)){
+                //没有物料
+                return;
+            }
 
             List<String> materialIdList = new ArrayList<>();
             List<String> supplierIdList = new ArrayList<>();
@@ -161,7 +170,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             for (PackBom bom : packBomList) {
                 //查询物料清单 - 配码
                 bomSizeQw = new QueryWrapper<>();
-                PackUtils.commonQw(bomSizeQw, id, "packDesign", null);
+                PackUtils.commonQw(bomSizeQw, packInfo.getId(), "packDesign", null);
                 bomSizeQw.eq("bom_id", bom.getId());
                 List<PackBomSize> packBomSizeList = packBomSizeService.list(bomSizeQw);
 
@@ -197,6 +206,39 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             if(CollectionUtil.isNotEmpty(purchaseDemandList)){
                 this.saveBatch(purchaseDemandList);
             }
+        }
+    }
+
+    /**
+     * 删除相关联设计款号的采购需求数据（设计BOM资料包 解锁触发）
+     *
+     * @param companyCode 企业编码
+     * @param id          资料包id
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void deleteRelationData(String companyCode, String id) {
+        QueryWrapper<PackBomVersion> versionQw = new QueryWrapper<>();
+        versionQw.eq("id", id);
+        List<PackBomVersion> packBomVersionList = packBomVersionService.list(versionQw);
+
+        QueryWrapper<PackInfo> qw = new QueryWrapper<>();
+        qw.eq("company_code", companyCode);
+        qw.eq("id", packBomVersionList.get(0).getForeignId());
+        qw.last("limit 1");
+        PackInfo packInfo = packInfoService.getOne(qw);
+
+        //查询没有被采购单引用过的采购需求单，删除
+        QueryWrapper<PurchaseDemand> qc = new QueryWrapper<>();
+        qc.eq("company_code", companyCode);
+        qc.eq("design_style_code", packInfo.getDesignNo());
+        qc.eq("plate_bill_code", packInfo.getPatternNo());
+        qc.eq("style_bom", packInfo.getName());
+        qc.eq("purchased_num", 0);
+        List<PurchaseDemand> purchaseDemandList = list(qc);
+
+        if(CollectionUtil.isNotEmpty(purchaseDemandList)){
+            physicalDeleteQWrap(qc);
         }
     }
 
@@ -308,6 +350,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
 
                 detail.setSupplierColor(demandInfo.getSupplierColor());
                 detail.setPurchaseUnit(demandInfo.getUnit());
+                detail.setPurchaseUnitName(demandInfo.getUnitName());
                 detail.setConvertUnitRatio(new BigDecimal(material.getPurchaseConvertStock()));
                 detail.setPurchaseNum(demandInfo.getNeedNum());
                 detail.setPrice(demandInfo.getPrice());

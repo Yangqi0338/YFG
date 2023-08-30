@@ -23,16 +23,15 @@ import java.util.List;
  * @version 1.0  
  */
 public interface PurchaseDemandService extends BaseService<PurchaseDemand>{
-
-// 自定义方法区 不替换的区域【other_start】
     ApiResult cancel(String companyCode, String ids);
 
-    void generatePurchaseDemand(UserCompany userCompany, String companyCode, String id);
+    void generatePurchaseDemand(String companyCode, String id);
 
     ApiResult generatePurchaseOrder(UserCompany userCompany, String companyCode, List<PurchaseDemand> purchaseDemandList);
 
+    void deleteRelationData(String companyCode, String id);
+
     void manipulatePlanNum(List<PurchaseOrderDetail> purchaseOrderDetailList, String type);
-// 自定义方法区 不替换的区域【other_end】
 
 	void manipulateReadyNum(List<OutboundOrderDetail> outboundOrderDetailList, String type);
 }
