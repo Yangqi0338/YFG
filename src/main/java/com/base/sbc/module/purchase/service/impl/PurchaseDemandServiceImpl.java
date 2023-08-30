@@ -148,17 +148,17 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 return;
             }
 
-            List<String> materialIdList = new ArrayList<>();
+            List<String> materialCodeList = new ArrayList<>();
             List<String> supplierIdList = new ArrayList<>();
             for(PackBom bom : packBomList){
-                materialIdList.add(bom.getMaterialId());
+                materialCodeList.add(bom.getMaterialCode());
                 supplierIdList.add(bom.getSupplierId());
             }
 
             QueryWrapper<BasicsdatumMaterial> materialQw = new QueryWrapper<>();
-            materialQw.in("id", materialIdList);
+            materialQw.in("code", materialCodeList);
             List<BasicsdatumMaterial> materialList = materialService.list(materialQw);
-            Map<String, BasicsdatumMaterial> materialMap = materialList.stream().collect(Collectors.toMap(BasicsdatumMaterial::getId, item -> item));
+            Map<String, BasicsdatumMaterial> materialMap = materialList.stream().collect(Collectors.toMap(BasicsdatumMaterial::getId, item -> item, (item1, item2) -> item1));
 
             QueryWrapper<BasicsdatumSupplier> supplierQw = new QueryWrapper<>();
             supplierQw.in("supplier_code", supplierIdList);
@@ -185,7 +185,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                     }
                 }
 
-                BasicsdatumMaterial material = materialMap.get(bom.getMaterialId());
+                BasicsdatumMaterial material = materialMap.get(bom.getMaterialCode());
                 BasicsdatumSupplier supplier = supplierMap.get(bom.getSupplierId());
 
                 for (Map.Entry<String, BigDecimal> entry : specificationsMap.entrySet()) {
