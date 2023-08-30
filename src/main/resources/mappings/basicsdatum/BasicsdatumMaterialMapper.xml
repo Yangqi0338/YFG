@@ -121,7 +121,7 @@
 			   remarks,
 			   delivery_code,
 			   delivery_name,
-			   auxiliaryMaterial
+			   auxiliary_material
 		FROM t_basicsdatum_material ${ ew.customSqlSegment}
 	</select>
 
