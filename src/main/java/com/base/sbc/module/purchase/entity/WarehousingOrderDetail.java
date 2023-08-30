@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.WarehousingOrderDetail
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-26 15:28:39
+ * @date 创建时间：2023-8-30 10:05:42
  * @version 1.0
  */
 @Data
@@ -77,6 +77,9 @@ public class WarehousingOrderDetail extends BaseDataEntity<String> {
     /** 采购单位 */
     @ApiModelProperty(value = "采购单位"  )
     private String purchaseUnit;
+    /** 采购单位名称 */
+    @ApiModelProperty(value = "采购单位名称"  )
+    private String purchaseUnitCode;
     /** 采购送货数量 */
     @ApiModelProperty(value = "采购送货数量"  )
     private BigDecimal deliveryQuantity;

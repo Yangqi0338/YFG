@@ -136,7 +136,9 @@
 			m.supplier_quotation_price,
 			w.`name` AS width,
 			m.purchase_unit_code,
+			m.purchase_unit_name,
 			m.stock_unit_code,
+			m.stock_unit_name,
 			c.color_name as color,
 			c.supplier_color_code
 		FROM

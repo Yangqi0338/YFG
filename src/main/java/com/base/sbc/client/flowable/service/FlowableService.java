@@ -1,13 +1,20 @@
 package com.base.sbc.client.flowable.service;
 
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
+import com.base.sbc.client.flowable.vo.FlowRecordVo;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -80,4 +87,24 @@ public class FlowableService {
         }
         return false;
     }
+
+    /**
+     * 获取流程当前节点，是否完成
+     * @param businessKeys
+     * @return
+     */
+    public Map<String, FlowRecordVo> getFlowRecordMapBybusinessKey(List<String> businessKeys) {
+        if (CollectionUtils.isEmpty(businessKeys)) {
+            throw new OtherException("业务编码为空");
+        }
+        String s = flowableFeignService.getFlowRecordMapBybusinessKey(StringUtils.convertListToString(businessKeys));
+        Map<String, FlowRecordVo> map = new HashMap<>();
+        if (StringUtils.isNotBlank(s)) {
+            map = JSON.parseObject(s, new TypeReference<HashMap<String, FlowRecordVo>>() {
+            });
+        }
+        return map;
+    }
+
+
 }

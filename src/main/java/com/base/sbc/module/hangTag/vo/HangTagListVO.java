@@ -97,6 +97,9 @@ public class HangTagListVO {
     @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认")
     private String status;
 
+    @ApiModelProperty(value = "当前审核用户")
+    private String  examineUserNema;
+
     /**
      * 确认时间
      */

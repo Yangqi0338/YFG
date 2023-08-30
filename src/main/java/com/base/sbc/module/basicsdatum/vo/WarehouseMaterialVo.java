@@ -27,12 +27,18 @@ public class WarehouseMaterialVo {
     /** 规格 */
     @ApiModelProperty(value = "规格"  )
     private String width;
-    /** 采购单位 */
-    @ApiModelProperty(value = "采购单位"  )
+    /** 采购单位编码 */
+    @ApiModelProperty(value = "采购单位编码"  )
     private String purchaseUnitCode;
-    /** 库存单位 */
+    /** 采购单位 */
+    @ApiModelProperty(value = "采购单位名称"  )
+    private String purchaseUnitName;
+    /** 库存单位编码 */
     @ApiModelProperty(value = "库存单位"  )
     private String stockUnitCode;
+    /** 库存单位名称 */
+    @ApiModelProperty(value = "库存单位名称"  )
+    private String stockUnitName;
     /** 颜色 */
     @ApiModelProperty(value = "颜色"  )
     private String color;
