@@ -57,6 +57,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -140,6 +141,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private MessageUtils messageUtils;
 
     @Resource
+    @Lazy
     private HangTagService hangTagService;
 
     @Autowired
@@ -526,7 +528,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //二维码url
         String qrCodeUrl = baseRequestUrl + "/pdm/api/open/qrCode?content=" + URLUtil.encode(fileWebUrl);
         System.out.println("qrCodeUrl:" + qrCodeUrl);
-        vo.setQrCodeUrl(qrCodeUrl);
+//        vo.setQrCodeUrl(qrCodeUrl);
 
         // 获取吊牌信息
         if (StrUtil.isNotBlank(detail.getStyleNo())) {

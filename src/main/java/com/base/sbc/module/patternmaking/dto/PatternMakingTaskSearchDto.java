@@ -70,4 +70,12 @@ public class PatternMakingTaskSearchDto extends Page {
     @ApiModelProperty(value = "裁剪工id")
     private String cutterId;
 
+
+    @ApiModelProperty(value = "中断打版(0正常，1中断)")
+    private String breakOffPattern;
+
+    @ApiModelProperty(value = "中断样衣(0正常，1中断)")
+    private String breakOffSample;
+
+
 }
