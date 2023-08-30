@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -67,6 +68,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     @Autowired
     private StyleService styleService;
     @Autowired
+    @Lazy
     private StyleColorService styleColorService;
 
     @Override
