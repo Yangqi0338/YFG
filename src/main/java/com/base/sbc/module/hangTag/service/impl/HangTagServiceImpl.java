@@ -114,40 +114,48 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         PageHelper.startPage(hangTagDTO.getPageNum(), hangTagDTO.getPageSize());
         List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO);
 
-        if (hangTagListVOS.isEmpty()){
-           return new PageInfo<>(hangTagListVOS);
+        if (hangTagListVOS.isEmpty()) {
+            return new PageInfo<>(hangTagListVOS);
         }
         /*获取大货款号*/
         List<String> stringList = hangTagListVOS.stream().filter(h -> !StringUtils.isEmpty(h.getBulkStyleNo())).map(HangTagListVO::getBulkStyleNo).distinct().collect(Collectors.toList());
         /*查询流程审批的结果*/
         Map<String, FlowRecordVo> flowRecordVoMap = flowableService.getFlowRecordMapBybusinessKey(stringList);
-
+        //1A7290012
         IdGen idGen = new IdGen();
-        List<String> bulkStyleNos=new ArrayList<>();
+        List<String> bulkStyleNos = new ArrayList<>();
         hangTagListVOS.forEach(e -> {
             FlowRecordVo flowRecordVo = flowRecordVoMap.get(e.getBulkStyleNo());
             if (!ObjectUtils.isEmpty(flowRecordVo)) {
 //                判断流程是否完成
                 if (flowRecordVo.getEndFlag().equals(BaseGlobal.YES)) {
                     e.setConfirmDate(flowRecordVo.getEndTime());
-                    e.setExamineUserNema("完成");
+                    e.setStatus("5");
                 } else {
-                    e.setExamineUserNema(flowRecordVo.getUserName());
+                    //状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认
+                    switch (flowRecordVo.getName()) {
+                        case "大货工艺员确认":
+                            e.setStatus("2");
+                            break;
+                        case "后技术确认":
+                            e.setStatus("3");
+                            break;
+                        case "品控确认":
+                            e.setStatus("4");
+                            break;
+                    }
                 }
-            }
-            if (StringUtils.isEmpty(e.getId())) {
-                e.setId(idGen.nextIdStr());
             }
             bulkStyleNos.add(e.getBulkStyleNo());
 
         });
-        List<PackInfo> packInfos = packInfoService.list(new QueryWrapper<PackInfo>().in("style_no", bulkStyleNos).select("id","style_no"));
+        List<PackInfo> packInfos = packInfoService.list(new QueryWrapper<PackInfo>().in("style_no", bulkStyleNos).select("id", "style_no"));
         List<String> packInfoIds = packInfos.stream().map(PackInfo::getId).collect(Collectors.toList());
-        List<PackInfoStatus> packInfoStatus = packInfoStatusService.list(new QueryWrapper<PackInfoStatus>().in("foreign_id", packInfoIds).select("foreign_id","bom_status"));
-        Map<String,String> hashMap = new HashMap<>();
+        List<PackInfoStatus> packInfoStatus = packInfoStatusService.list(new QueryWrapper<PackInfoStatus>().in("foreign_id", packInfoIds).select("foreign_id", "bom_status"));
+        Map<String, String> hashMap = new HashMap<>();
         for (PackInfo packInfo : packInfos) {
             for (PackInfoStatus infoStatus : packInfoStatus) {
-                if (packInfo.getId().equals(infoStatus.getForeignId())){
+                if (packInfo.getId().equals(infoStatus.getForeignId())) {
                     hashMap.put(packInfo.getStyleNo(), infoStatus.getBomStatus());
                 }
             }
