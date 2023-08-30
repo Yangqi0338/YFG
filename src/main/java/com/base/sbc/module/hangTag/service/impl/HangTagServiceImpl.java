@@ -36,6 +36,7 @@ import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.hangTag.vo.HangTagListVO;
 import com.base.sbc.module.hangTag.vo.HangTagVO;
 import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pricing.service.StylePricingService;
@@ -61,10 +62,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：吊牌表 service类
@@ -109,11 +108,30 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         PageHelper.startPage(hangTagDTO.getPageNum(), hangTagDTO.getPageSize());
         List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO);
         IdGen idGen = new IdGen();
+        List<String> bulkStyleNos=new ArrayList<>();
         hangTagListVOS.forEach(e -> {
             if (StringUtils.isEmpty(e.getId())) {
                 e.setId(idGen.nextIdStr());
             }
+            bulkStyleNos.add(e.getBulkStyleNo());
+
         });
+        List<PackInfo> packInfos = packInfoService.list(new QueryWrapper<PackInfo>().in("style_no", bulkStyleNos).select("id","style_no"));
+        List<String> packInfoIds = packInfos.stream().map(PackInfo::getId).collect(Collectors.toList());
+        List<PackInfoStatus> packInfoStatus = packInfoStatusService.list(new QueryWrapper<PackInfoStatus>().in("foreign_id", packInfoIds).select("foreign_id","bom_status"));
+        Map<String,String> hashMap = new HashMap<>();
+        for (PackInfo packInfo : packInfos) {
+            for (PackInfoStatus infoStatus : packInfoStatus) {
+                if (packInfo.getId().equals(infoStatus.getForeignId())){
+                    hashMap.put(packInfo.getStyleNo(), infoStatus.getBomStatus());
+                }
+            }
+        }
+        for (HangTagListVO hangTagListVO : hangTagListVOS) {
+            hangTagListVO.setBomStatus(hashMap.get(hangTagListVO.getBulkStyleNo()));
+        }
+
+
         return new PageInfo<>(hangTagListVOS);
     }
 

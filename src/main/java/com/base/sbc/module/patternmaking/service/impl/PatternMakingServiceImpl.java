@@ -688,6 +688,21 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean finish(String id) {
+        PatternMaking pm = getById(id);
+        if (pm == null) {
+            throw new OtherException("打版指令不存在");
+        }
+        PatternMaking upm = new PatternMaking();
+        upm.setId(id);
+        upm.setFinishFlag(BaseGlobal.YES);
+        upm.setSampleCompleteFlag(BaseGlobal.YES);
+        updateById(upm);
+        return true;
+    }
+
+    @Override
     public List prmDataOverview(String time) {
         List result = new ArrayList(16);
         List<String> timeRange = StrUtil.split(time, CharUtil.COMMA);

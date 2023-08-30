@@ -303,6 +303,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     List<SampleUserVo> getAllStitcherList(PatternUserSearchVo vo);
 
+    boolean finish(String id);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 
