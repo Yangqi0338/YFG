@@ -761,7 +761,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		}
 		qc.eq("m.biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
 		qc.eq("m.confirm_status", "2");
-
+		qc.eq("m.del_flag", "0");
 		List<WarehouseMaterialVo> list = getBaseMapper().getPurchaseMaterialList(qc);
 		for (WarehouseMaterialVo item : list) {
 			item.setId(IdUtil.randomUUID());

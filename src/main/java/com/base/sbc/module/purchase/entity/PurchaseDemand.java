@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.PurchaseDemand
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-21 14:21:52
+ * @date 创建时间：2023-8-30 10:05:31
  * @version 1.0
  */
 @Data
@@ -147,9 +147,12 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     /** 单价 */
     @ApiModelProperty(value = "单价"  )
     private BigDecimal price;
-    /** 单位 */
-    @ApiModelProperty(value = "单位"  )
+    /** 采购单位 */
+    @ApiModelProperty(value = "采购单位"  )
     private String unit;
+    /** 采购单位名称 */
+    @ApiModelProperty(value = "采购单位名称"  )
+    private String unitName;
     /** 使用部位 */
     @ApiModelProperty(value = "使用部位"  )
     private String usePosition;
