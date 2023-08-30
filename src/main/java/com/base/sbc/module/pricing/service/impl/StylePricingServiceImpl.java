@@ -269,6 +269,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             return new HashMap<>();
         }
         return packPricingOtherCosts.stream()
+                .filter(x -> Objects.nonNull(x.getPrice()))
                 .collect(Collectors.toMap(e -> e.getForeignId() + e.getCostsItem(), PackPricingOtherCosts::getPrice, (k1, k2) -> k1));
 
     }
