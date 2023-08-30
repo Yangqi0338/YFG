@@ -370,19 +370,19 @@ public class BasicsdatumMaterialController extends BaseController {
      */
     @GetMapping("/listByStyleNo")
     public ApiResult listByStyleNo(String styleNo, int pageSize, int pageNum) {
-        List<BasicsdatumMaterial> list = new ArrayList<>();
+
         PackInfo packInfo = packInfoService.getOne(new BaseQueryWrapper<PackInfo>().select("id").eq("style_no", styleNo));
         if (packInfo == null) {
-            return selectSuccess(new PageInfo<>(list));
+            return selectSuccess(new PageInfo<>(new ArrayList<>()));
         }
+        PageHelper.startPage(pageNum, pageSize);
+        List<PackBom> packBomList = packBomService.list(new BaseQueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("pack_type","packBigGoods"));
+        //List<String> materialCodes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
 
-        List<PackBom> packBomList = packBomService.list(new BaseQueryWrapper<PackBom>().select("material_code").eq("foreign_id", packInfo.getId()));
-        List<String> materialCodes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
-
-        if (!materialCodes.isEmpty()) {
-            PageHelper.startPage(pageNum, pageSize);
-            list = basicsdatumMaterialService.list(new BaseQueryWrapper<BasicsdatumMaterial>().in("material_code", materialCodes));
-        }
-        return selectSuccess(new PageInfo<>(list));
+        //if (!materialCodes.isEmpty()) {
+        //    PageHelper.startPage(pageNum, pageSize);
+        //    list = basicsdatumMaterialService.list(new BaseQueryWrapper<BasicsdatumMaterial>().in("material_code", materialCodes));
+        //}
+        return selectSuccess(new PageInfo<>(packBomList));
     }
 }

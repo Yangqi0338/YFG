@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.hangTag.dto;
 
+import com.base.sbc.module.hangTag.entity.HangTagIngredient;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -253,6 +254,6 @@ public class HangTagDTO {
      * 成分集合
      */
     @ApiModelProperty(value = "成分集合")
-    private List<HangTagIngredientDTO> hangTagIngredients;
+    private List<HangTagIngredient> hangTagIngredients;
 }
 

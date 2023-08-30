@@ -1,20 +1,25 @@
 package com.base.sbc.module.hangTag.controller;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.hangTag.dto.HangTagDTO;
 import com.base.sbc.module.hangTag.dto.HangTagIngredientDTO;
+import com.base.sbc.module.hangTag.entity.HangTag;
 import com.base.sbc.module.hangTag.entity.HangTagIngredient;
 import com.base.sbc.module.hangTag.service.HangTagIngredientService;
+import com.base.sbc.module.hangTag.service.HangTagService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -28,6 +33,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HangTagIngredientController extends BaseController{
     private final HangTagIngredientService hangTagIngredientService;
+    private final HangTagService hangTagService;
     @GetMapping("/queryPage")
     public ApiResult queryPage(HangTagIngredientDTO hangTagIngredientDTO){
         BaseQueryWrapper<HangTagIngredient> queryWrapper =new BaseQueryWrapper<>();
@@ -35,5 +41,37 @@ public class HangTagIngredientController extends BaseController{
         PageHelper.startPage(hangTagIngredientDTO);
         List<HangTagIngredient> list = hangTagIngredientService.list(queryWrapper);
         return selectSuccess(new PageInfo<>(list));
+    }
+
+    @PostMapping("/save")
+    public ApiResult save(@RequestBody HangTagIngredient hangTagIngredient){
+        hangTagIngredientService.saveOrUpdate(hangTagIngredient);
+        return updateSuccess("保存成功");
+    }
+
+    @PostMapping("/saveList")
+    public ApiResult saveList(@RequestBody HangTagDTO hangTagDTO){
+
+        List<HangTagIngredient> hangTagIngredients = hangTagDTO.getHangTagIngredients();
+        HangTag hangTag =BeanUtil.copyProperties(hangTagDTO, HangTag.class);
+        String id = hangTag.getId();
+        if (StringUtils.isEmpty(id)){
+            hangTag.setStatus("1");
+            hangTagService.save(hangTag);
+        }else {
+            hangTagIngredientService.remove(new QueryWrapper<HangTagIngredient>().eq("hang_tag_id",hangTag.getId()));
+        }
+        for (HangTagIngredient hangTagIngredient : hangTagIngredients) {
+            hangTagIngredient.setId(null);
+            hangTagIngredient.setHangTagId(hangTag.getId());
+        }
+        hangTagIngredientService.saveBatch(hangTagIngredients);
+        return updateSuccess(hangTag.getId());
+    }
+
+    @DeleteMapping("/delByIds")
+    public ApiResult delByIds(String[] ids){
+        hangTagIngredientService.removeByIds(Arrays.asList(ids));
+        return deleteSuccess("删除成功");
     }
 }
