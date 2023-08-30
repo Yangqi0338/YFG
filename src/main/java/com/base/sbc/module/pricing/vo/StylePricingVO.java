@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 /**
  * 款式定价
@@ -45,6 +46,12 @@ public class StylePricingVO {
      */
     @ApiModelProperty(value = "色号")
     private String colourCode;
+
+    /**
+     * 颜色编码
+     */
+    @ApiModelProperty(value = "颜色编码")
+    private String colorCode;
     /**
      * 是否上会
      */
@@ -55,6 +62,12 @@ public class StylePricingVO {
      */
     @ApiModelProperty(value = "款式")
     private String style;
+
+    public String getStyle() {
+        return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
+    }
+    @ApiModelProperty(value = "款式名称")
+    private String styleName;
     /**
      * 设计款号
      */
