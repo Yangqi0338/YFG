@@ -1,5 +1,6 @@
 package com.base.sbc.module.basicsdatum.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -11,6 +12,9 @@ import lombok.Data;
 public class BasicsdatumIngredientDto extends QueryDto{
     private String material;
     private String ingredient;
+    @ApiModelProperty(value = "编码")
     private String code;
 
+    @ApiModelProperty(value = "状态")
+    private String status;
 }

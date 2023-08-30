@@ -71,7 +71,7 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
      * @param lockFlag 0正常 1锁定
      * @return
      */
-    boolean lockChange(String id, String lockFlag);
+    boolean lockChange(String userCompany,String id, String lockFlag);
 
 
     /**

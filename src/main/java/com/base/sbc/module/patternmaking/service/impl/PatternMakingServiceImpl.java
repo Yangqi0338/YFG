@@ -261,6 +261,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.set("status", enumNodeStatus2.getStatus());
         uw.set("prm_send_date", nodeStatus2.getStartDate());
         uw.set("prm_send_status", BaseGlobal.YES);
+        uw.set("pattern_status", BasicNumber.ZERO.getNumber());
         uw.set(StrUtil.isNotBlank(dto.getPatternDesignId()), "pattern_design_id", dto.getPatternDesignId());
         uw.set(StrUtil.isNotBlank(dto.getPatternDesignName()), "pattern_design_name", dto.getPatternDesignName());
         uw.eq("id", dto.getId());
@@ -414,9 +415,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
         qw.eq(StrUtil.isNotBlank(dto.getCutterId()), "p.cutter_id", dto.getCutterId());
         qw.eq(StrUtil.isNotBlank(dto.getStitcherId()), "p.stitcher_id", dto.getStitcherId());
-        qw.eq(StrUtil.isNotBlank(dto.getPatternStatus()), "p.pattern_status", dto.getPatternStatus());
-        qw.eq(StrUtil.isNotBlank(dto.getCuttingStatus()), "p.cutting_status", dto.getCuttingStatus());
-        qw.eq(StrUtil.isNotBlank(dto.getSewingStatus()), "p.sewing_status", dto.getSewingStatus());
+        qw.in(StrUtil.isNotBlank(dto.getPatternStatus()), "p.pattern_status", StrUtil.split(dto.getPatternStatus(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotBlank(dto.getCuttingStatus()), "p.cutting_status", StrUtil.split(dto.getCuttingStatus(), CharUtil.COMMA));
+        qw.in(StrUtil.isNotBlank(dto.getSewingStatus()), "p.sewing_status", StrUtil.split(dto.getSewingStatus(), CharUtil.COMMA));
+        qw.eq(StrUtil.isNotBlank(dto.getBreakOffPattern()), "p.break_off_pattern", dto.getBreakOffPattern());
+        qw.eq(StrUtil.isNotBlank(dto.getBreakOffSample()), "p.break_off_sample", dto.getBreakOffSample());
 
         if (StrUtil.isNotBlank(dto.getIsBlackList())) {
             if (StrUtil.equals(dto.getIsBlackList(), BasicNumber.ONE.getNumber())) {

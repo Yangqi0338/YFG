@@ -30,6 +30,7 @@ import com.base.sbc.module.pack.mapper.PackBomVersionMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
+import com.base.sbc.module.purchase.service.PurchaseDemandService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -69,6 +70,8 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
     private PackInfoStatusService packInfoStatusService;
     @Resource
     private FlowableService flowableService;
+    @Resource
+    private PurchaseDemandService purchaseDemandService;
 
     @Override
     public PageInfo<PackBomVersionVo> pageInfo(PackCommonPageSearchDto dto) {
@@ -158,12 +161,16 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean lockChange(String id, String lockFlag) {
+    public boolean lockChange(String userCompany, String id, String lockFlag) {
         UpdateWrapper<PackBomVersion> uw = new UpdateWrapper<>();
         uw.in("id", StrUtil.split(id, CharUtil.COMMA));
         uw.set("lock_flag", lockFlag);
         setUpdateInfo(uw);
         log(id, StrUtil.equals(lockFlag, BaseGlobal.YES) ? "版本锁定" : "版本解锁");
+        if(StrUtil.equals(lockFlag, BaseGlobal.YES)){
+            //版本锁定后，生成采购需求单数据
+            purchaseDemandService.generatePurchaseDemand(userCompany, id);
+        }
         return update(uw);
     }
 

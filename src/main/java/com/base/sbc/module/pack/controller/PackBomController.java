@@ -11,6 +11,7 @@ import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
@@ -86,14 +87,14 @@ public class PackBomController extends BaseController{
 
     @ApiOperation(value = "版本锁定")
     @GetMapping("/version/lock")
-    public boolean versionLock(@Valid IdsDto ids) {
-        return packBomVersionService.lockChange(ids.getId(), BaseGlobal.YES);
+    public boolean versionLock(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @Valid IdsDto ids) {
+        return packBomVersionService.lockChange(userCompany, ids.getId(), BaseGlobal.YES);
     }
 
     @ApiOperation(value = "版本解锁")
     @GetMapping("/version/unlock")
-    public boolean versionUnlock(@Valid IdsDto ids) {
-        return packBomVersionService.lockChange(ids.getId(), BaseGlobal.NO);
+    public boolean versionUnlock(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @Valid IdsDto ids) {
+        return packBomVersionService.lockChange(userCompany, ids.getId(), BaseGlobal.NO);
     }
 
     @ApiOperation(value = "版本启用/停用")

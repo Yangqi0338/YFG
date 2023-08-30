@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.PurchaseOrderDetail
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-26 15:28:34
+ * @date 创建时间：2023-8-30 10:05:37
  * @version 1.0
  */
 @Data
@@ -85,9 +85,12 @@ public class PurchaseOrderDetail extends BaseDataEntity<String> {
     /** 供应商色号 */
     @ApiModelProperty(value = "供应商色号"  )
     private String supplierColor;
-    /** 采购单位 */
-    @ApiModelProperty(value = "采购单位"  )
+    /** 采购单位编码 */
+    @ApiModelProperty(value = "采购单位编码"  )
     private String purchaseUnit;
+    /** 采购单位名称 */
+    @ApiModelProperty(value = "采购单位名称"  )
+    private String purchaseUnitName;
     /** 采购转库存 */
     @ApiModelProperty(value = "采购转库存"  )
     private BigDecimal convertUnitRatio;
@@ -108,7 +111,7 @@ public class PurchaseOrderDetail extends BaseDataEntity<String> {
     private BigDecimal totalAmount;
     /** 物料交期 */
     @ApiModelProperty(value = "物料交期"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date deliveryDate;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )

@@ -47,6 +47,7 @@ import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
+import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
@@ -56,6 +57,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -139,6 +141,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private MessageUtils messageUtils;
 
     @Resource
+    @Lazy
     private HangTagService hangTagService;
 
     @Autowired
@@ -149,6 +152,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
 
     @Value("${baseRequestUrl}")
     private String baseRequestUrl;
+
+    @Autowired
+    private DataUpdateScmService dataUpdateScmService;
 
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -351,6 +357,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //updateById(packInfo);
         //设置bom 状态
         changeBomStatus(packInfo.getId(), BasicNumber.ONE.getNumber());
+        /*配色下发*/
+        dataUpdateScmService.updateStyleColorSend(packInfo.getStyleNo());
         /*xiao消息*/
         messageUtils.toBigGoodsSendMessage(packInfo.getPlanningSeasonId(),packInfo.getDesignNo(),baseController.getUser());
         return true;
@@ -520,7 +528,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //二维码url
         String qrCodeUrl = baseRequestUrl + "/pdm/api/open/qrCode?content=" + URLUtil.encode(fileWebUrl);
         System.out.println("qrCodeUrl:" + qrCodeUrl);
-        vo.setQrCodeUrl(qrCodeUrl);
+//        vo.setQrCodeUrl(qrCodeUrl);
 
         // 获取吊牌信息
         if (StrUtil.isNotBlank(detail.getStyleNo())) {

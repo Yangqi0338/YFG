@@ -105,13 +105,13 @@ public class PatternMakingController {
     }
 
 
-    @ApiOperation(value = "款式设计下发")
+    @ApiOperation(value = "款式设计下发", notes = "打版指令从款式设计下发到技术中心看板")
     @PostMapping("/sampleDesignSend")
     public boolean sampleDesignSend(@Valid @RequestBody StyleSendDto dto) {
         return patternMakingService.sampleDesignSend(dto);
     }
 
-    @ApiOperation(value = "版房主管下发")
+    @ApiOperation(value = "版房主管下发", notes = "打版指令从技术中心看板下发到打版任务")
     @PostMapping("/prmSend")
     public Integer prmSend(@Valid @RequestBody List<SetPatternDesignDto> dtos) {
         return patternMakingService.prmSendBatch(dtos);

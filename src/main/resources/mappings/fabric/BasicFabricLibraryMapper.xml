@@ -63,6 +63,7 @@
                 or fdb.category_id = #{dto.categoryId})
             </if>
         </where>
+        order by bfl.create_date desc
     </select>
 
     <select id="getByToMaterialId" resultType="com.base.sbc.module.fabric.entity.BasicFabricLibrary">

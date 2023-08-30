@@ -11,8 +11,10 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.client.flowable.vo.FlowRecordVo;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.basicsdatum.controller.BasicsdatumMaterialController;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
@@ -26,7 +28,6 @@ import com.base.sbc.module.hangTag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangTag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangTag.entity.HangTag;
 import com.base.sbc.module.hangTag.entity.HangTagIngredient;
-import com.base.sbc.module.hangTag.entity.HangTagLog;
 import com.base.sbc.module.hangTag.enums.HangTagStatusEnum;
 import com.base.sbc.module.hangTag.enums.OperationDescriptionEnum;
 import com.base.sbc.module.hangTag.mapper.HangTagMapper;
@@ -96,8 +97,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     @Autowired
     @Lazy
     private BasicsdatumMaterialController basicsdatumMaterialController;
-    private final StyleColorService styleColorService;
-    private final PackInfoService packInfoService;
+    @Autowired
+    @Lazy
+    private StyleColorService styleColorService;
+
+    @Autowired
+    @Lazy
+    private PackInfoService packInfoService;
     private final StylePricingService stylePricingService;
     private final StyleService styleService;
     private final BasicsdatumSizeService basicsdatumSizeService;
@@ -107,9 +113,24 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         hangTagDTO.setCompanyCode(userCompany);
         PageHelper.startPage(hangTagDTO.getPageNum(), hangTagDTO.getPageSize());
         List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO);
+        /*获取大货款号*/
+        List<String> stringList = hangTagListVOS.stream().filter(h -> !StringUtils.isEmpty(h.getBulkStyleNo())).map(HangTagListVO::getBulkStyleNo).distinct().collect(Collectors.toList());
+        /*查询流程审批的结果*/
+        Map<String, FlowRecordVo> flowRecordVoMap = flowableService.getFlowRecordMapBybusinessKey(stringList);
+
         IdGen idGen = new IdGen();
         List<String> bulkStyleNos=new ArrayList<>();
         hangTagListVOS.forEach(e -> {
+            FlowRecordVo flowRecordVo = flowRecordVoMap.get(e.getBulkStyleNo());
+            if (!ObjectUtils.isEmpty(flowRecordVo)) {
+//                判断流程是否完成
+                if (flowRecordVo.getEndFlag().equals(BaseGlobal.YES)) {
+                    e.setConfirmDate(flowRecordVo.getEndTime());
+                    e.setExamineUserNema("完成");
+                } else {
+                    e.setExamineUserNema(flowRecordVo.getUserName());
+                }
+            }
             if (StringUtils.isEmpty(e.getId())) {
                 e.setId(idGen.nextIdStr());
             }

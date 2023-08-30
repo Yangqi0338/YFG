@@ -174,7 +174,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlConfirm()),"tsp.product_hangtag_confirm",queryDto.getControlConfirm());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlHangtagConfirm()),"tsp.control_hangtag_confirm",queryDto.getControlHangtagConfirm());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getPatternDesignName()),"ts.pattern_design_name",queryDto.getPatternDesignName());
-
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getOrderFlag()),"tsc.order_flag",queryDto.getOrderFlag());
         /*获取配色数据*/
         List<StyleColorVo> sampleStyleColorList =new ArrayList<>();
         if(StringUtils.isNotBlank(queryDto.getColorListFlag())){
