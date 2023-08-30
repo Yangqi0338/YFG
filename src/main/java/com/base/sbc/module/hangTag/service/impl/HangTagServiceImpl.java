@@ -128,7 +128,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
             FlowRecordVo flowRecordVo = flowRecordVoMap.get(e.getBulkStyleNo());
             if (!ObjectUtils.isEmpty(flowRecordVo)) {
 //                判断流程是否完成
-                if (flowRecordVo.getEndFlag().equals(BaseGlobal.YES)) {
+                if (BaseGlobal.YES.equals(flowRecordVo.getEndFlag())) {
                     e.setConfirmDate(flowRecordVo.getEndTime());
                     e.setStatus("5");
                 } else {
