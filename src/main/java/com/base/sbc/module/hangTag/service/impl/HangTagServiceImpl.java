@@ -151,19 +151,20 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         });
         List<PackInfo> packInfos = packInfoService.list(new QueryWrapper<PackInfo>().in("style_no", bulkStyleNos).select("id", "style_no"));
         List<String> packInfoIds = packInfos.stream().map(PackInfo::getId).collect(Collectors.toList());
-        List<PackInfoStatus> packInfoStatus = packInfoStatusService.list(new QueryWrapper<PackInfoStatus>().in("foreign_id", packInfoIds).select("foreign_id", "bom_status"));
-        Map<String, String> hashMap = new HashMap<>();
-        for (PackInfo packInfo : packInfos) {
-            for (PackInfoStatus infoStatus : packInfoStatus) {
-                if (packInfo.getId().equals(infoStatus.getForeignId())) {
-                    hashMap.put(packInfo.getStyleNo(), infoStatus.getBomStatus());
+        if (!packInfoIds.isEmpty()){
+            List<PackInfoStatus> packInfoStatus = packInfoStatusService.list(new QueryWrapper<PackInfoStatus>().in("foreign_id", packInfoIds).select("foreign_id", "bom_status"));
+            Map<String, String> hashMap = new HashMap<>();
+            for (PackInfo packInfo : packInfos) {
+                for (PackInfoStatus infoStatus : packInfoStatus) {
+                    if (packInfo.getId().equals(infoStatus.getForeignId())) {
+                        hashMap.put(packInfo.getStyleNo(), infoStatus.getBomStatus());
+                    }
                 }
             }
+            for (HangTagListVO hangTagListVO : hangTagListVOS) {
+                hangTagListVO.setBomStatus(hashMap.get(hangTagListVO.getBulkStyleNo()));
+            }
         }
-        for (HangTagListVO hangTagListVO : hangTagListVOS) {
-            hangTagListVO.setBomStatus(hashMap.get(hangTagListVO.getBulkStyleNo()));
-        }
-
 
         return new PageInfo<>(hangTagListVOS);
     }
@@ -390,7 +391,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                 tagPrinting.setC8_APPBOM_Comment(hangTag.getWashingMaterialRemarks());
                 // 贮藏要求
                 tagPrinting.setStorageRequirement(hangTag.getStorageDemand());
-
+                // 产地
+                tagPrinting.setC8_APPBOM_MadeIn(hangTag.getProducer());
+                // 入库时间
+                tagPrinting.setC8_APPBOM_StorageTime(null);
+                // 英文成分
+                tagPrinting.setCompsitionMix(null);
+                // 英文温馨提示
+                tagPrinting.setWarmPointEN(null);
+                // 英文贮藏要求
+                tagPrinting.setStorageReqEN(null);
                 List<TagPrinting.Size> size = new ArrayList<>();
 
                 String sizeIds = style.getSizeIds();
