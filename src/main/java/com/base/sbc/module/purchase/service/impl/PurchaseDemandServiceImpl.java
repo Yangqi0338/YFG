@@ -156,7 +156,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             }
 
             QueryWrapper<BasicsdatumMaterial> materialQw = new QueryWrapper<>();
-            materialQw.in("code", materialCodeList);
+            materialQw.in("material_code", materialCodeList);
             List<BasicsdatumMaterial> materialList = materialService.list(materialQw);
             Map<String, BasicsdatumMaterial> materialMap = materialList.stream().
                     collect(Collectors.toMap(BasicsdatumMaterial::getId, item -> item, (item1, item2) -> item1));
