@@ -61,7 +61,7 @@
             tssc.del_flag = 0
             AND tssc.company_code = #{dto.companyCode}
             <if test="dto.style != null and dto.style != ''">
-                AND tsd.style_no like concat('%',#{dto.style},'%')
+                AND tsd.design_no like concat('%',#{dto.style},'%')
             </if>
             <if test="dto.bulkStyleNo != null and dto.bulkStyleNo != ''">
                 AND tssc.style_no like concat('%',#{dto.bulkStyleNo},'%')
