@@ -11,8 +11,8 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.service.FlowableService;
-import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.client.flowable.vo.FlowRecordVo;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
@@ -28,7 +28,6 @@ import com.base.sbc.module.hangTag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangTag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangTag.entity.HangTag;
 import com.base.sbc.module.hangTag.entity.HangTagIngredient;
-import com.base.sbc.module.hangTag.entity.HangTagLog;
 import com.base.sbc.module.hangTag.enums.HangTagStatusEnum;
 import com.base.sbc.module.hangTag.enums.OperationDescriptionEnum;
 import com.base.sbc.module.hangTag.mapper.HangTagMapper;
@@ -98,8 +97,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     @Autowired
     @Lazy
     private BasicsdatumMaterialController basicsdatumMaterialController;
-    private final StyleColorService styleColorService;
-    private final PackInfoService packInfoService;
+    @Autowired
+    @Lazy
+    private StyleColorService styleColorService;
+
+    @Autowired
+    @Lazy
+    private PackInfoService packInfoService;
     private final StylePricingService stylePricingService;
     private final StyleService styleService;
     private final BasicsdatumSizeService basicsdatumSizeService;
