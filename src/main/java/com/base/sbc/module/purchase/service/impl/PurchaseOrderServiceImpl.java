@@ -105,7 +105,7 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
             purchaseOrderDetailService.saveBatch(purchaseOrderDetailList);
             //操作采购需求单的已采购数量
             purchaseDemandService.manipulatePlanNum(purchaseOrderDetailList, "0");
-            return ApiResult.success("新增成功！", id);
+            return ApiResult.success("新增成功！", purchaseOrder);
         }
         return ApiResult.error("新增失败！", 500);
     }
