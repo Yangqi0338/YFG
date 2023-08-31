@@ -21,8 +21,10 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
+import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
@@ -99,6 +101,7 @@ public class BasicsdatumMaterialController extends BaseController {
     private BaseController baseController;
     private final PackInfoService packInfoService;
     private final PackBomService packBomService;
+    private final PackBomVersionService packBomVersionService;
 
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
@@ -375,14 +378,11 @@ public class BasicsdatumMaterialController extends BaseController {
         if (packInfo == null) {
             return selectSuccess(new PageInfo<>(new ArrayList<>()));
         }
-        PageHelper.startPage(pageNum, pageSize);
-        List<PackBom> packBomList = packBomService.list(new BaseQueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("pack_type","packBigGoods"));
-        //List<String> materialCodes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
 
-        //if (!materialCodes.isEmpty()) {
-        //    PageHelper.startPage(pageNum, pageSize);
-        //    list = basicsdatumMaterialService.list(new BaseQueryWrapper<BasicsdatumMaterial>().in("material_code", materialCodes));
-        //}
+        PackBomVersion packBomVersion = packBomVersionService.getEnableVersion(packInfo.getId(), "packBigGoods");
+        PageHelper.startPage(pageNum, pageSize);
+        List<PackBom> packBomList = packBomService.list(new BaseQueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("pack_type","packBigGoods").eq("bom_version_id", packBomVersion.getId()));
+
         return selectSuccess(new PageInfo<>(packBomList));
     }
 }
