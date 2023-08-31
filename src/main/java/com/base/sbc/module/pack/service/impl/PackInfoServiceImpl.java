@@ -528,7 +528,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //二维码url
         String qrCodeUrl = baseRequestUrl + "/pdm/api/open/qrCode?content=" + URLUtil.encode(fileWebUrl);
         System.out.println("qrCodeUrl:" + qrCodeUrl);
-//        vo.setQrCodeUrl(qrCodeUrl);
+        vo.setQrCodeUrl(qrCodeUrl);
 
         // 获取吊牌信息
         if (StrUtil.isNotBlank(detail.getStyleNo())) {
@@ -552,6 +552,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         vo.setDesignNo(style.getDesignNo());
         vo.setStyleNo(detail.getStyleNo());
         vo.setDesigner(style.getDesigner());
+        vo.setDefaultSize(style.getDefaultSize());
         vo.setProductSizes(style.getProductSizes());
         vo.setPatternDesignName(style.getPatternDesignName());
         vo.setSizeRangeName(style.getSizeRangeName());

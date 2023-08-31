@@ -26,13 +26,24 @@
         page-break-inside: avoid;
     }
 
+    th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .tbody {
+        display: block;
+        max-height: 300px; /* 设置最大高度以启用滚动 */
+        overflow-y: scroll; /* 垂直滚动 */
+    }
+
     .page_height {
         height: 210px;
     }
 
     .table_border {
         width: 100%;
-        border: 1px solid black;
         border-collapse: collapse;
     }
 
@@ -55,7 +66,7 @@
     }
 
 
-    .table_border td {
+    .table_border td, th {
         border: 1px solid black;
     }
 
@@ -135,6 +146,7 @@
 
     .size_tr {
         text-align: center;
+        height: 35px;
     }
 
     .font_bold {
@@ -163,10 +175,15 @@
         margin: 8px 0px;
 
     }
+
+    .th_title {
+        border: none;
+        text-align: left;
+    }
 </style>
 <body>
 <!-- 页眉 -->
-<table class="table_no_border page_start font_bold">
+<table data-name="pageStart" class="table_no_border page_start font_bold">
     <tr>
         <td>Eifini</td>
         <td>${designNo}</td>
@@ -258,7 +275,7 @@
     <tr>
         <!-- 14 -->
         <td style="text-align: center;font-weight: bold;">
-            <a href="http://www.baidu.com" target="_blank">扫码查看视频加工艺单</a>
+            扫码查看工艺单
         </td>
         <td class="l td_lt">成分信息*</td>
         <td class="r td_lt">
@@ -317,15 +334,21 @@
 </table>
 <!--    裁剪工艺-->
 <table class="table_border mt" style="page-break-before: always;">
+    <thead>
     <tr>
-        <td colspan="2" class="table_header">裁剪工艺描述</td>
+        <th class="th_title" colspan="2">
+            <p>裁剪工艺</p>
+            <hr>
+        </th>
     </tr>
     <tr>
-        <td class="item_td">工艺项目</td>
-        <td class="content_tr">
+        <th class="item_td">工艺项目</th>
+        <th class="content_tr">
             描述
-        </td>
+        </th>
     </tr>
+    </thead>
+    <tbody>
     <#list cjgyDataList as item>
         <tr>
             <td>${item.item}</td>
@@ -334,9 +357,15 @@
             </td>
         </tr>
     </#list>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="2">裁剪工艺-${cjgyDataList?size} </td>
+    </tr>
+    </tfoot>
 </table>
 <!-- 朴条位置 归拔位置 -->
-<table class="table_border mt">
+<table class="table_border mt" style="page-break-inside: avoid;">
     <tr>
         <td class="table_header">朴条位置 归拔位置</td>
     </tr>
@@ -349,7 +378,7 @@
     </tr>
 </table>
 <#--注意事项-->
-<table class="table_border mt" style="page-break-before: always;">
+<table class="table_border mt" style="page-break-before: always;page-break-inside: avoid;">
     <tr>
         <td class="table_header">注意事项</td>
     </tr>
@@ -362,46 +391,60 @@
     </tr>
 </table>
 
-<!--尺寸表 18条每页-->
-<#list sizeDataListAll as sizeDataList>
-    <table class="table_border small_table mt size_table" style="page-break-before: always; ">
-        <tr>
-            <td colspan="${sizeTitleColspan}" class="table_header">尺寸表</td>
-        </tr>
-        <tr class="size_tr">
-            <td rowspan="2" style="text-align: left;">部位</td>
-            <td rowspan="2" style="text-align: left;">描述</td>
-            <#list sizeList as size>
-                <td colspan="${sizeColspan}" class="sizeWidth">${size}</td>
-            </#list>
-        <td rowspan="2" class="gc">公差(-)</td>
-        <td rowspan="2" class="gc">公差(+)</td>
+<!--尺寸表 -->
+
+<table class="table_border small_table mt size_table" style="page-break-before: always; ">
+    <thead>
+    <tr>
+        <th colspan="${sizeTitleColspan}" class="th_title">
+            <p>尺寸表</p>
+            <hr>
+        </th>
     </tr>
+    <tr class="size_tr">
+        <th rowspan="2" style="text-align: left;">部位</th>
+        <th rowspan="2" style="text-align: left;">描述</th>
+        <#list sizeList as size>
+            <#if defaultSize==size>
+                <th colspan="${sizeColspan}" class="sizeWidth gb">${size}</th>
+            <#else>
+                <th colspan="${sizeColspan}" class="sizeWidth">${size}</th>
+            </#if>
+        </#list>
+        <th rowspan="2" class="gc">公差(-)</th>
+        <th rowspan="2" class="gc">公差(+)</th>
+    </tr>
+
     <tr>
         <#list sizeList as size>
-            <td class="sizeItemWidth">样板<br>尺寸</td>
-            <td class="sizeItemWidth">成衣<br>尺寸</td>
+            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan]}">样板<br>尺寸</td>
+            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1]}">成衣<br>尺寸</td>
             <#if washSkippingFlag>
-                <td class="sizeItemWidth">洗后<br>尺寸</td>
+                <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">洗后<br>尺寸</td>
             </#if>
         </#list>
     </tr>
-        <#list sizeDataList as item>
-            <tr class="size_tr">
-                <#list item as c>
-                    <td>${c}</td>
-                </#list>
-            </tr>
-        </#list>
+    </thead>
+    <tbody>
+    <#list sizeDataList as item>
+        <tr class="size_tr">
+            <#list item as c>
+                <td style="height: 32px" class="${c.className}"> ${c.text}</td>
+            </#list>
+        </tr>
+    </#list>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="${sizeTitleColspan}" style="height: 32px;">尺寸表-${sizeDataList?size}</td>
+    </tr>
+    </tfoot>
+</table>
 
-    </table>
-</#list>
 
 <!--    小部件-->
 <table class="table_border mt" style="page-break-before: always;">
-    <tr>
-        <td colspan="4" class="table_header">小部件</td>
-    </tr>
+
     <tr>
         <td rowspan="${xbjRowsPan}" style="width: 30%">
             <div class="one_imgs">

@@ -159,7 +159,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             materialQw.in("material_code", materialCodeList);
             List<BasicsdatumMaterial> materialList = materialService.list(materialQw);
             Map<String, BasicsdatumMaterial> materialMap = materialList.stream().
-                    collect(Collectors.toMap(BasicsdatumMaterial::getId, item -> item, (item1, item2) -> item1));
+                    collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode, item -> item, (item1, item2) -> item1));
 
             QueryWrapper<BasicsdatumSupplier> supplierQw = new QueryWrapper<>();
             supplierQw.in("supplier_code", supplierIdList);
@@ -190,17 +190,19 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 BasicsdatumSupplier supplier = supplierMap.get(bom.getSupplierId());
 
                 for (Map.Entry<String, BigDecimal> entry : specificationsMap.entrySet()) {
-                    PurchaseDemand demand = new PurchaseDemand(packInfo, bom, material, entry.getKey(), entry.getValue());
-                    demand.insertInit(userCompany);
-                    demand.setId(idGen.nextIdStr());
-                    demand.setCompanyCode(companyCode);
-                    demand.setPurchasedNum(BigDecimal.ZERO);
-                    demand.setReadyNum(BigDecimal.ZERO);
-                    demand.setOrderStatus("0");
-                    demand.setStatus("0");
-                    demand.setDelFlag("0");
-                    demand.setSupplierId(supplier.getId());
-                    purchaseDemandList.add(demand);
+                    if(material != null){
+                        PurchaseDemand demand = new PurchaseDemand(packInfo, bom, material, entry.getKey(), entry.getValue());
+                        demand.insertInit(userCompany);
+                        demand.setId(idGen.nextIdStr());
+                        demand.setCompanyCode(companyCode);
+                        demand.setPurchasedNum(BigDecimal.ZERO);
+                        demand.setReadyNum(BigDecimal.ZERO);
+                        demand.setOrderStatus("0");
+                        demand.setStatus("0");
+                        demand.setDelFlag("0");
+                        demand.setSupplierId(supplier == null ? "" : supplier.getId());
+                        purchaseDemandList.add(demand);
+                    }
                 }
             }
 
