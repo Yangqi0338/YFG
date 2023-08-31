@@ -3,6 +3,8 @@ package com.base.sbc.open.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * 款式样品实体类
  * @address com.base.sbc.open.entity.BiStyle
@@ -20,7 +22,7 @@ public class BiStyle {
     /** 设计款号 */
     private String styleCode;
     /** 启用 */
-    private String styleActive;
+    private Boolean styleActive;
     /** 大类 */
     private String style1stCategory;
     /** 品类 */
@@ -64,7 +66,7 @@ public class BiStyle {
     /** 材料专员 用户登录 */
     private String c8StyleAttrFabDevelopeID;
     /** 实际出稿时间 */
-    private String c8StyleAttrActualDesignTime;
+    private Date c8StyleAttrActualDesignTime;
     /** 单位 */
     private String c8StyleAttrUOM;
     /** 材质 */
@@ -110,11 +112,11 @@ public class BiStyle {
     /** Style URL */
     private String c8StylePLMID;
     /** 创建时间 */
-    private String createdAt;
+    private Date createdAt;
     /** 创建人 */
     private String createdBy;
     /** 修改时间 */
-    private String modifiedAt;
+    private Date modifiedAt;
     /** 修改人 */
     private String modifiedBy;
     /** 复制自 */
