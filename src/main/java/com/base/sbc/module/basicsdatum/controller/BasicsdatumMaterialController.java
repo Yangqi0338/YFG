@@ -180,6 +180,12 @@ public class BasicsdatumMaterialController extends BaseController {
         return basicsdatumMaterialService.getBasicsdatumMaterialList(dto);
     }
 
+    @ApiOperation(value = "主物料:解锁")
+    @PostMapping("/unlock")
+    public Boolean unlock(@Valid @RequestBody BasicsdatumMaterialSaveDto dto) {
+        return basicsdatumMaterialService.unlock(dto.getId());
+    }
+
     @ApiOperation(value = "物料清单-选择物料档案列表")
     @GetMapping("/getBomSelMaterialList")
     public PageInfo<BomSelMaterialVo> getBomSelMaterialList(BasicsdatumMaterialQueryDto dto) {

@@ -113,5 +113,12 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 * @return
 	 */
 	boolean approval(AnswerDto dto);
+
+	/**
+	 * 解锁下发
+	 * @param id
+	 * @return
+	 */
+	Boolean unlock(String id);
 }
 
