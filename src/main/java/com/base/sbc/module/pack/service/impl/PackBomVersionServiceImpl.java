@@ -15,6 +15,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.OperaLog;
@@ -72,6 +73,8 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
     private FlowableService flowableService;
     @Resource
     private PurchaseDemandService purchaseDemandService;
+    @Resource
+    private CcmFeignService ccmFeignService;
 
     @Override
     public PageInfo<PackBomVersionVo> pageInfo(PackCommonPageSearchDto dto) {
@@ -167,7 +170,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         uw.set("lock_flag", lockFlag);
         setUpdateInfo(uw);
         log(id, StrUtil.equals(lockFlag, BaseGlobal.YES) ? "版本锁定" : "版本解锁");
-        if(StrUtil.equals(lockFlag, BaseGlobal.YES)){
+        if(ccmFeignService.getSwitchByCode("LOCK_GENERATE_PURCHASE_DEMAND") && StrUtil.equals(lockFlag, BaseGlobal.YES)){
             //版本锁定后，生成采购需求单数据
             purchaseDemandService.generatePurchaseDemand(userCompany, id);
         }

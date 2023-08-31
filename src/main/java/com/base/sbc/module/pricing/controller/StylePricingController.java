@@ -22,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -44,8 +45,8 @@ public class StylePricingController extends BaseController {
 
     @ApiOperation(value = "获取款式定价列表")
     @PostMapping("/getStylePricingList")
-    public PageInfo<StylePricingVO> getStylePricingList(@Valid @RequestBody StylePricingSearchDTO stylePricingSearchDTO) {
-        return stylePricingService.getStylePricingList(stylePricingSearchDTO);
+    public PageInfo<StylePricingVO> getStylePricingList(Principal user, @Valid @RequestBody StylePricingSearchDTO stylePricingSearchDTO) {
+        return stylePricingService.getStylePricingList(user,stylePricingSearchDTO);
     }
 
     @ApiOperation(value = "通过资料包id获取")

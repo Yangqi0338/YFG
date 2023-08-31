@@ -188,6 +188,35 @@ public class TagPrinting {
     private String StorageRequirement;
 
     /**
+     * 产地
+     */
+    private String C8_APPBOM_MadeIn;
+
+    /**
+     * 入库时间
+     */
+    private String C8_APPBOM_StorageTime;
+
+    /**
+     * 英文成分
+     */
+    private String CompsitionMix;
+
+
+    /**
+     * 英文温馨提示
+     */
+    private String WarmPointEN;
+
+
+    /**
+     * 英文贮藏要求
+     */
+    private String StorageReqEN;
+
+
+
+    /**
      * 款式尺码明细
      */
     private List<Size> size;
