@@ -200,7 +200,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                         demand.setOrderStatus("0");
                         demand.setStatus("0");
                         demand.setDelFlag("0");
-                        demand.setSupplierId(supplier.getId());
+                        demand.setSupplierId(supplier == null ? "" : supplier.getId());
                         purchaseDemandList.add(demand);
                     }
                 }
