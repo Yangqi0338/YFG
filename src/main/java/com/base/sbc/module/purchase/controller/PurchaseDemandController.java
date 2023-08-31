@@ -6,6 +6,7 @@
 *****************************************************************************/
 package com.base.sbc.module.purchase.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
@@ -87,6 +88,23 @@ public class PurchaseDemandController extends BaseController{
 		PurchaseDemand purchaseDemand = purchaseDemandService.getById(id);
 		if(purchaseDemand != null){
 			return selectSuccess(purchaseDemand);
+		}
+		return selectNotFound();
+	}
+
+	@ApiOperation(value = "明细-通过ids查询多条数据")
+	@GetMapping("/byIdList")
+	public ApiResult byIdList(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestParam("ods") String ids) {
+		if(StringUtils.isBlank(ids)){
+			return selectAttributeNotRequirements("ids");
+		}
+		List<String> idList = StringUtils.convertList(ids);
+		QueryWrapper<PurchaseDemand> qw = new QueryWrapper<>();
+		qw.eq("company_code", userCompany);
+		qw.in("id", idList);
+		List<PurchaseDemand> list = purchaseDemandService.list(qw);
+		if(CollectionUtil.isNotEmpty(list)){
+			return selectSuccess(list);
 		}
 		return selectNotFound();
 	}
