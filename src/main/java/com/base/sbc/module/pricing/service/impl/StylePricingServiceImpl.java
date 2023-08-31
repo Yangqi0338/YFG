@@ -7,9 +7,12 @@
 package com.base.sbc.module.pricing.service.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.StyleNoImgUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackInfo;
@@ -38,6 +41,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,16 +74,18 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     @Autowired
     @Lazy
     private StyleColorService styleColorService;
-
+    @Autowired
+    private UserUtils userUtils;
     @Override
-    public PageInfo<StylePricingVO> getStylePricingList(StylePricingSearchDTO dto) {
+    public PageInfo<StylePricingVO> getStylePricingList(Principal user,StylePricingSearchDTO dto) {
         dto.setCompanyCode(super.getCompanyCode());
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(dto);
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return page.toPageInfo();
         }
-
+        GroupUser userBy = userUtils.getUserBy(user);
+        StyleNoImgUtils.setStyleColorPic(userBy, stylePricingList,"styleColorPic");
         this.dataProcessing(stylePricingList, dto.getCompanyCode());
         return new PageInfo<>(stylePricingList);
     }

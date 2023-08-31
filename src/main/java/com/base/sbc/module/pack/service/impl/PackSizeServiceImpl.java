@@ -72,7 +72,7 @@ public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, Pac
         QueryWrapper<PackSize> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
         if (StrUtil.isBlank(dto.getOrderBy())) {
-            qw.orderByDesc("id");
+            qw.orderByAsc("sort");
         }
         Page<PackSize> page = PageHelper.startPage(dto);
         list(qw);

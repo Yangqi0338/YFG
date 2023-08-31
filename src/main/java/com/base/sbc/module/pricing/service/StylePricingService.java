@@ -13,6 +13,7 @@ import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.github.pagehelper.PageInfo;
 
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -34,7 +35,7 @@ public interface StylePricingService extends BaseService<StylePricing> {
      * @param stylePricingSearchDTO
      * @return
      */
-    PageInfo<StylePricingVO> getStylePricingList(StylePricingSearchDTO stylePricingSearchDTO);
+    PageInfo<StylePricingVO> getStylePricingList(Principal user,StylePricingSearchDTO stylePricingSearchDTO);
 
     /**
      * 通过资料包id获取

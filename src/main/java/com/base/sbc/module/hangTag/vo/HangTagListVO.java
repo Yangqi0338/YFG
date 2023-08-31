@@ -29,6 +29,8 @@ public class HangTagListVO {
 
     private String id;
 
+    private String packInfoId;
+
     /**
      * 款式id
      */
