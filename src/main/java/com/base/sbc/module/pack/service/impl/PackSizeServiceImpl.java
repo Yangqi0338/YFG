@@ -126,6 +126,7 @@ public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, Pac
         if (CollUtil.isNotEmpty(allSizeDetail)) {
             packSizeDetailService.saveSizeDetail(allSizeDetail);
         }
+
         sizeToHtml(commonDto);
         return true;
     }
@@ -243,6 +244,15 @@ public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, Pac
         boolean flg = super.delByIds(id);
         packSizeDetailService.delBypackSizeIds(id);
         return flg;
+    }
+
+    @Override
+    public List<PackSize> list(String foreignId, String packType) {
+        QueryWrapper<PackSize> query = new QueryWrapper<>();
+        query.eq("foreign_id", foreignId);
+        query.eq("pack_type", packType);
+        query.orderByAsc("sort");
+        return list(query);
     }
 
     @Override

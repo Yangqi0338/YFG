@@ -8,10 +8,8 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
@@ -170,17 +168,6 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
         return BeanUtil.copyToList(packTechSpecs, PackTechSpecVo.class);
     }
 
-    @Override
-    @Transactional(rollbackFor = {Exception.class})
-    public boolean sort(String id) {
-        List<String> ids = StrUtil.split(id, CharUtil.COMMA);
-        for (int i = 0; i < ids.size(); i++) {
-            UpdateWrapper<PackTechSpec> uw = new UpdateWrapper<>();
-            uw.lambda().eq(PackTechSpec::getId, ids.get(i)).set(PackTechSpec::getSort, i + 1);
-            update(uw);
-        }
-        return true;
-    }
 
     @Override
     public List<PackTechAttachmentVo> picList(PackTechSpecSearchDto dto) {

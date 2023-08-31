@@ -10,12 +10,11 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.OperationType;
-import com.base.sbc.module.common.dto.IdDto;
+import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackSizeDto;
 import com.base.sbc.module.pack.dto.WashSkippingFlagSettingDto;
-import com.base.sbc.module.pack.service.PackBaseService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.service.PackSizeService;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -114,11 +113,14 @@ public class PackSizeController {
         return packInfoStatusService.approvalForSize(dto);
     }
 
-    @PostMapping("/moveSort")
+
+    @GetMapping("/sort")
     @ApiOperation(value = "移动排序")
-    public boolean moveSort(@RequestBody IdDto dto) {
-        return packSizeService.move(dto.getId(), "sort", dto.getMoveFlag());
+    public boolean sort(@Validated IdsDto dto) {
+        return packSizeService.sort(dto.getId(), "sort");
     }
+
+
 }
 
 
