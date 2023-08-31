@@ -201,6 +201,12 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         qw.orderByDesc("id");
         Page<PackInfoListVo> objects = PageHelper.startPage(pageDto);
         List<PackInfoListVo> list = getBaseMapper().queryByQw(qw);
+        List<String> stringList = list.stream().map(PackInfoListVo::getId).collect(Collectors.toList());
+        Map<String,String> map = packBomService.getPackSendStatus(stringList);
+        list.forEach(p ->{
+            /*0:全部下发 1:全部未下发 2:部分下发 null:无物料清单*/
+            p.setScmSendFlag(map.get(p.getId()));
+        });
         attachmentService.setListStylePic(list, "stylePic");
         return objects.toPageInfo();
     }

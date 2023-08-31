@@ -476,6 +476,24 @@
         GROUP BY pb.id
         ORDER BY sort ASC
     </select>
+    <select id="getPackSendStatus" resultType="java.util.Map">
+
+    SELECT
+        foreign_id,
+        CASE
+            WHEN SUM(CASE WHEN scm_send_flag IN (1, 3) THEN 1 ELSE 0 END) = COUNT(*) THEN '0'
+            WHEN SUM(CASE WHEN scm_send_flag IN (0, 2) THEN 1 ELSE 0 END) = COUNT(*) THEN '1'
+            ELSE '2'
+        END AS send_status
+    FROM
+        t_pack_bom WHERE foreign_id IN
+        <foreach collection="foreignIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach> and pack_type = 'packDesign' and del_flag = '0'
+    GROUP BY
+        foreign_id;
+
+    </select>
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

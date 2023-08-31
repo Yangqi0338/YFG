@@ -22,6 +22,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：资料包-物料清单 service类
@@ -116,6 +117,14 @@ public interface PackBomService extends PackBaseService<PackBom> {
      * @return
      */
     List<PackBomCalculateBaseVo> getPackBomCalculateBaseVo(List<String> foreignIds);
+
+
+    /**
+     * 查询物料下发状态
+     * @param stringList
+     * @return
+     */
+    Map<String,String> getPackSendStatus(List<String> stringList);
 
 // 自定义方法区 不替换的区域【other_end】
 

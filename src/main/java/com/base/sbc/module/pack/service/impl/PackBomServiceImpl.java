@@ -47,10 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -368,6 +365,25 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     @Override
     public List<PackBomCalculateBaseVo> getPackBomCalculateBaseVo(List<String> foreignIds) {
         return baseMapper.getPackBomCalculateBaseVo(foreignIds);
+    }
+
+    /**
+     * 查询物料下发状态
+     * @param stringList
+     * @return
+     */
+    @Override
+    public Map<String, String> getPackSendStatus(List<String> stringList) {
+        Map<String, String> map = new HashMap<>();
+        if(CollUtil.isNotEmpty(stringList)){
+            List<Map<String, String>> list =  baseMapper.getPackSendStatus(stringList);
+            if(CollUtil.isNotEmpty(list)){
+                for (Map<String, String> stringStringMap : list) {
+                    map.put(stringStringMap.get("foreign_id"),stringStringMap.get("send_status"));
+                }
+            }
+        }
+        return map;
     }
 
     @Override
