@@ -53,6 +53,10 @@ public class HangTagDTO {
      */
     @ApiModelProperty(value = "款式id")
     private String styleId;
+
+    /** 洗标名称 */
+    @ApiModelProperty(value = "洗标名称"  )
+    private String washingLabelName;
     /**
      * 大货款号
      */

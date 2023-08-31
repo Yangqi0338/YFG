@@ -162,6 +162,9 @@ public class HangTag extends BaseDataEntity<String> {
     /** 洗标 */
     @ApiModelProperty(value = "洗标"  )
     private String washingLabel;
+    /** 洗标名称 */
+    @ApiModelProperty(value = "洗标名称"  )
+    private String washingLabelName;
     /** 贮藏要求 */
     @ApiModelProperty(value = "贮藏要求"  )
     private String storageDemand;

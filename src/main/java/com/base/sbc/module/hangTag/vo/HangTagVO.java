@@ -72,7 +72,9 @@ public class HangTagVO {
     @ApiModelProperty(value = "版师")
     private String patternDesign;
 
-
+    /** 洗标名称 */
+    @ApiModelProperty(value = "洗标名称"  )
+    private String washingLabelName;
     /**
      * 颜色编码
      */
