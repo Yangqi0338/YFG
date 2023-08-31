@@ -17,17 +17,14 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.basicsdatum.controller.BasicsdatumMaterialController;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangTag.dto.HangTagDTO;
-import com.base.sbc.module.hangTag.dto.HangTagIngredientDTO;
 import com.base.sbc.module.hangTag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangTag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangTag.entity.HangTag;
-import com.base.sbc.module.hangTag.entity.HangTagIngredient;
 import com.base.sbc.module.hangTag.enums.HangTagStatusEnum;
 import com.base.sbc.module.hangTag.enums.OperationDescriptionEnum;
 import com.base.sbc.module.hangTag.mapper.HangTagMapper;
@@ -370,7 +367,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                 // 成分
                 tagPrinting.setComposition(hangTag.getIngredient());
                 // 洗标
-                tagPrinting.setCareSymbols(hangTag.getWashingLabel());
+                tagPrinting.setCareSymbols(hangTag.getWashingLabelName());
                 // 质量等级
                 tagPrinting.setQualityClass(hangTag.getQualityGrade());
                 // 品名
@@ -390,7 +387,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                 // 洗唛材质备注
                 tagPrinting.setC8_APPBOM_Comment(hangTag.getWashingMaterialRemarks());
                 // 贮藏要求
-                tagPrinting.setStorageRequirement(hangTag.getStorageDemand());
+                tagPrinting.setC8_APPBOM_StorageReq(hangTag.getStorageDemand());
                 // 产地
                 tagPrinting.setC8_APPBOM_MadeIn(hangTag.getProducer());
                 // 入库时间

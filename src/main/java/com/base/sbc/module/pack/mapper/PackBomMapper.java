@@ -15,10 +15,12 @@ import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
 import com.base.sbc.module.sample.dto.FabricSummaryDTO;
 import com.base.sbc.module.sample.vo.FabricSummaryVO;
 import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：资料包-物料清单 dao类
@@ -88,6 +90,13 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
      * @return 物料清单
      */
     List<PackBomVo> getPackBomPage(PackCommonPageSearchDto packCommonPageSearchDto);
+
+    /**
+     * 查询物料下发状态
+     * @return
+     */
+    @MapKey("foreign_id")
+    List<Map<String, String>>  getPackSendStatus(@Param("foreignIds") List<String> foreignIds);
 
 // 自定义方法区 不替换的区域【other_end】
 }

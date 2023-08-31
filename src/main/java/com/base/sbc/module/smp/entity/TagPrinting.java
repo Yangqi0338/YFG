@@ -185,7 +185,7 @@ public class TagPrinting {
     /**
      * 贮藏要求
      */
-    private String StorageRequirement;
+    private String C8_APPBOM_StorageReq;
 
     /**
      * 产地

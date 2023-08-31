@@ -30,6 +30,9 @@ public class HangTagListVO {
     private String id;
 
     private String packInfoId;
+    /** 洗标名称 */
+    @ApiModelProperty(value = "洗标名称"  )
+    private String washingLabelName;
 
     /**
      * 款式id

@@ -35,6 +35,7 @@
         ht.safty_type_code,
         ht.safty_type,
         ht.quality_grade,
+        ht.washing_label_name,
         GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) AS ingredient_b,
         ht.ingredient,
         ht.warm_tips,
