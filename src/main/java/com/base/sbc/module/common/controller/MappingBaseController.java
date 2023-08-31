@@ -65,15 +65,6 @@ public class MappingBaseController<T> extends BaseController {
     }
 
     /**
-     * 保存或者修改
-     */
-    @PostMapping("/save")
-    public ApiResult save(@RequestBody T t) {
-        return selectSuccess(baseService.saveOrUpdate(t));
-    }
-
-
-    /**
      * 批量启用/停用
      * @param baseDto ids:, status:0启用1停用
      * @return 是否成功
