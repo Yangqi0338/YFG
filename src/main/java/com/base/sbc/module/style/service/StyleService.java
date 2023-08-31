@@ -144,6 +144,12 @@ public interface StyleService extends BaseService<Style> {
 
     List<ProductCategoryTreeVo> getProductCategoryTree(ProductCategoryTreeVo vo);
 
+    /**
+     * 获取产品季全品类
+     * @param vo
+     * @return
+     */
+    List getProductAllCategory(ProductCategoryTreeVo vo);
 
     void updateBySeatChange(PlanningCategoryItem item);
 

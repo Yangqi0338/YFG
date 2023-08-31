@@ -19,6 +19,19 @@ public class SaveUpdateDemandProportionDataDto {
     @NotBlank(message = "分类不能为空")
     private String   classify;
 
+    /** 渠道 */
+    @ApiModelProperty(value = "渠道"  )
+    private String channel;
+    /** 渠道名称 */
+    @ApiModelProperty(value = "渠道名称"  )
+    private String channelName;
+    /** 波段 */
+    @ApiModelProperty(value = "波段"  )
+    private String bandCode;
+    /** 波段名称 */
+    @ApiModelProperty(value = "波段名称"  )
+    private String bandName;
+
     /** 数量 */
     @ApiModelProperty(value = "数量"  )
     private Integer num;
