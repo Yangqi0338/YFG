@@ -30,7 +30,7 @@ public interface ThemePlanningImageService extends BaseService<ThemePlanningImag
      * @param themePlanningId
      * @return
      */
-    String getByThemePlanningId(String themePlanningId);
+    List<String> getByThemePlanningId(String themePlanningId);
 
     /**
      * 保存
@@ -38,7 +38,7 @@ public interface ThemePlanningImageService extends BaseService<ThemePlanningImag
      * @param images
      * @param themePlanningId
      */
-    void save(String images, String themePlanningId);
+    void save(List<String> images, String themePlanningId);
 
 
 // 自定义方法区 不替换的区域【other_end】

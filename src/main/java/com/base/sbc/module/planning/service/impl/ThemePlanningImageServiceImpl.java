@@ -15,12 +15,10 @@ import com.base.sbc.module.planning.mapper.ThemePlanningImageMapper;
 import com.base.sbc.module.planning.service.ThemePlanningImageService;
 import com.beust.jcommander.internal.Lists;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,30 +36,30 @@ public class ThemePlanningImageServiceImpl extends BaseServiceImpl<ThemePlanning
     private static final Logger logger = LoggerFactory.getLogger(ThemePlanningImageService.class);
 
     @Override
-    public String getByThemePlanningId(String themePlanningId) {
+    public List<String> getByThemePlanningId(String themePlanningId) {
         LambdaQueryWrapper<ThemePlanningImage> qw = new QueryWrapper<ThemePlanningImage>().lambda()
                 .eq(ThemePlanningImage::getThemePlanningId, themePlanningId)
                 .eq(ThemePlanningImage::getDelFlag, "0")
                 .select(ThemePlanningImage::getImageUrl);
         List<ThemePlanningImage> list = super.list(qw);
-        return CollectionUtils.isEmpty(list) ? null : list.stream()
+        return CollectionUtils.isEmpty(list) ? Lists.newArrayList() : list.stream()
                 .map(ThemePlanningImage::getImageUrl)
-                .collect(Collectors.joining(","));
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void save(String images, String themePlanningId) {
+    public void save(List<String> images, String themePlanningId) {
         logger.info("ThemePlanningImageService#save 保存 images：{},themePlanningId:{}", images, themePlanningId);
         LambdaQueryWrapper<ThemePlanningImage> qw = new QueryWrapper<ThemePlanningImage>()
                 .lambda()
                 .eq(ThemePlanningImage::getThemePlanningId, themePlanningId)
                 .eq(ThemePlanningImage::getDelFlag, "0");
         super.getBaseMapper().delete(qw);
-        if (StringUtils.isEmpty(images)) {
+        if (CollectionUtils.isEmpty(images)) {
             return;
         }
         IdGen idGen = new IdGen();
-        List<ThemePlanningImage> themePlanningImages = Arrays.stream(images.split(","))
+        List<ThemePlanningImage> themePlanningImages = images.stream()
                 .map(e -> {
                     ThemePlanningImage themePlanningImage = new ThemePlanningImage();
                     themePlanningImage.setImageUrl(e);
