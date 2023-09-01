@@ -453,6 +453,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 return new PageInfo<>();
             }
         }
+        qw.orderByDesc("create_date");
         Page<StylePageVo> objects = PageHelper.startPage(dto);
         getBaseMapper().selectByQw(qw);
         List<StylePageVo> result = objects.getResult();
