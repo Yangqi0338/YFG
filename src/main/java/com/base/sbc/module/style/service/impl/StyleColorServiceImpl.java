@@ -10,6 +10,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -98,6 +99,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     private final PackInfoMapper packInfoMapper;
 
     private final PackInfoStatusService packInfoStatusService;
+    private final CcmFeignService ccmFeignService;
 /** 自定义方法区 不替换的区域【other_start】 **/
 
     /**
@@ -300,6 +302,9 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
      */
 
     public String getNextCode(String styleId, String brand, String year, String month, String bandName, String category, String designNo, String designer,int index) {
+        if(ccmFeignService.getSwitchByCode("STYLE_EQUAL_DESIGN_NO")){
+           return  designNo;
+        }
         if (StrUtil.contains(category, StrUtil.COMMA)) {
             category = getCategory(category);
         }
