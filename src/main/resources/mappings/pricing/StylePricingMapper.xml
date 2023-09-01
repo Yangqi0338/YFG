@@ -27,13 +27,13 @@
         sd.style_flavour_name as productStyle,
         sd.designer as designer,
         sd.style_type_name as styleType,
-        ssc.product_name as productName,
+        ht.product_name as productName,
         GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) AS ingredient,
         ssc.tag_price as tagPrice,
         ssc.supplier as supplierName,
         ssc.supplier_abbreviation as supplierAbbreviation,
         ssc.style_color_pic as styleColorPic,
-        ssob.meet_flag as meetFlag,
+        ssc.order_flag as meetFlag, #临时改为取配色的是否下单
         sp.id as stylePricingId,
         sp.planning_rate as planningRatio,
         sp.control_confirm as planCostConfirm,
@@ -48,7 +48,7 @@
         left join t_style sd on (sd.id = p.foreign_id and sd.del_flag = '0')
         left join t_style_color ssc on (ssc.id = p.style_color_id and ssc.del_flag = '0')
         left join t_style_pricing sp on (sp.pack_id = p.id and sp.del_flag = '0')
-        left join t_hang_tag ht on (ht.bulk_style_no = sd.style_no and ht.del_flag = '0')
+        left join t_hang_tag ht on (ht.bulk_style_no = ssc.style_no and ht.del_flag = '0')
         left join t_style_order_book_color ssobc on (ssobc.style_no = p.style_no and ssobc.del_flag = '0')
         LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
         left join t_style_order_book ssob

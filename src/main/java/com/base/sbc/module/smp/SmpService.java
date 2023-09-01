@@ -667,7 +667,7 @@ public class SmpService {
     }
 
     /**
-     * 样衣下发
+     * 样衣下发,打板管理
      */
     public Integer sample(String[] ids) {
         int i = 0;
