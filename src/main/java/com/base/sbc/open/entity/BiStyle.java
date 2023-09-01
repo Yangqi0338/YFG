@@ -3,6 +3,7 @@ package com.base.sbc.open.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -96,7 +97,7 @@ public class BiStyle {
     /** 领型 */
     private String c8StyleAttrLingXing;
     /** 克重 */
-    private String c8StyleAttrKezhong;
+    private BigDecimal c8StyleAttrKezhong;
     /** 开发分类 */
     private String c8StyleAttrDevClass;
     /** 款式工艺 */
