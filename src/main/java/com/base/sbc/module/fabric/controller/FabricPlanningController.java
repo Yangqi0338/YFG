@@ -6,14 +6,19 @@
  *****************************************************************************/
 package com.base.sbc.module.fabric.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.fabric.dto.FabricPlanningSaveDTO;
 import com.base.sbc.module.fabric.dto.FabricPlanningSearchDTO;
 import com.base.sbc.module.fabric.service.FabricPlanningItemService;
 import com.base.sbc.module.fabric.service.FabricPlanningService;
 import com.base.sbc.module.fabric.vo.FabricPlanningListVO;
+import com.base.sbc.module.fabric.vo.FabricPlanningVO;
+import com.base.sbc.module.planning.vo.ThemePlanningVO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -82,6 +87,24 @@ public class FabricPlanningController extends BaseController {
     @GetMapping("/getByFabricPlanningId")
     public ApiResult getByFabricPlanningId(@Valid @NotBlank(message = "面料企划id不可为空") String id) {
         return selectSuccess(fabricPlanningItemService.getByFabricPlanningId(id));
+    }
+
+    @ApiOperation(value = "删除-通过id查询")
+    @DeleteMapping
+    public ApiResult delete(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestParam("id") String id) {
+        if(StringUtils.isBlank(id)){
+            return deleteAttributeNotRequirements("id");
+        }
+        FabricPlanningVO fabricPlanningVO = fabricPlanningService.getDetail(id);
+        if(CollectionUtil.isNotEmpty(fabricPlanningVO.getFabricPlanningItems())){
+            return ApiResult.error("该主体企划还存在明细数据无法删除，请处理！", 500);
+        }
+
+        boolean result = fabricPlanningService.removeById(id);
+        if(result) {
+            return ApiResult.success("删除成功！");
+        }
+        return deleteNotFound();
     }
 
 }
