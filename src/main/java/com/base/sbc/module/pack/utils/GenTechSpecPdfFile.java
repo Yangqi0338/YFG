@@ -67,8 +67,8 @@ public class GenTechSpecPdfFile {
 
     @ApiModelProperty(value = "企业名称")
     private String companyName;
-    @ApiModelProperty(value = "尺码")
-    private String productSizes;
+    @ApiModelProperty(value = "编辑的尺码")
+    private String activeSizes;
 
     @ApiModelProperty(value = "洗后尺码标识")
     private String washSkippingFlag;
@@ -191,7 +191,7 @@ public class GenTechSpecPdfFile {
             this.createDate = DateUtil.format(newDate, DatePattern.NORM_DATE_PATTERN);
             this.createTime = DateUtil.format(newDate, "a HH:mm");
 
-            List<String> sizeList = StrUtil.split(this.getProductSizes(), CharUtil.COMMA);
+            List<String> sizeList = StrUtil.split(this.activeSizes, CharUtil.COMMA);
             boolean washSkippingFlag = StrUtil.equals(this.getWashSkippingFlag(), BaseGlobal.YES);
 //            washSkippingFlag=true;
             Configuration config = new Configuration();
