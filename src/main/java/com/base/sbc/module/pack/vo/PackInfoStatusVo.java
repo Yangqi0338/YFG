@@ -120,11 +120,7 @@ public class PackInfoStatusVo {
      */
     @ApiModelProperty(value = "工艺说明审批状态:待审核(1)、审核通过(2)、被驳回(-1)")
     private String techSpecConfirmStatus;
-    /**
-     * 尺寸表洗后尺寸跳码:(0关闭,1开启)
-     */
-    @ApiModelProperty(value = "尺寸表洗后尺寸跳码:(0关闭,1开启)")
-    private String washSkippingFlag;
+
 
     @ApiModelProperty(value = "工艺说明文件id")
     private String techSpecFileId;
