@@ -97,7 +97,7 @@ public class FabricPlanningController extends BaseController {
         }
         FabricPlanningVO fabricPlanningVO = fabricPlanningService.getDetail(id);
         if(CollectionUtil.isNotEmpty(fabricPlanningVO.getFabricPlanningItems())){
-            return ApiResult.error("该主体企划还存在明细数据无法删除，请处理！", 500);
+            return ApiResult.error("该面料企划还存在明细数据无法删除，请处理！", 500);
         }
 
         boolean result = fabricPlanningService.removeById(id);

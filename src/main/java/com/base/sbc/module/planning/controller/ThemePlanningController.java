@@ -78,7 +78,7 @@ public class ThemePlanningController extends BaseController {
         }
         ThemePlanningVO themePlanningVO = themePlanningService.getThemePlanningById(id);
         if(CollectionUtil.isNotEmpty(themePlanningVO.getThemePlanningMaterials()) || CollectionUtil.isNotEmpty(themePlanningVO.getImages())){
-            return ApiResult.error("该主体企划还存在明细数据无法删除，请处理！", 500);
+            return ApiResult.error("该主题企划还存在明细数据无法删除，请处理！", 500);
         }
 
         boolean result = themePlanningService.removeById(id);
