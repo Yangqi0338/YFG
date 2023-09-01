@@ -381,8 +381,9 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             throw new OtherException("大货编码生成失败");
         }
 //        获取款式下的配色
-        int number = baseMapper.getStyleColorNumber(styleId);
-        String styleNo = brand + yearOn + month + bandName + category + designNo + (number + 1 + index);
+        String styleNo = brand + yearOn + month + bandName + category + designNo;
+        int number = baseMapper.getStyleColorNumber(styleNo);
+         styleNo = styleNo + (number + 1 + index);
         /*查询编码是否重复*/
         int i = baseMapper.isStyleNoExist(styleNo);
         if (i != 0) {
