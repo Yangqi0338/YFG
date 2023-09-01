@@ -19,11 +19,11 @@ import java.util.Date;
 /**
  * 类描述：资料包-状态 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfoStatus
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-4 10:12:13
+ * @email your email
+ * @date 创建时间：2023-9-1 17:16:19
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -157,11 +157,6 @@ public class PackInfoStatus extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "工艺说明下发状态:0未发送,1发送成功，2发送失败,3重新打开")
     private String techScmSendFlag;
-    /**
-     * 尺寸表洗后尺寸跳码:(0关闭,1开启)
-     */
-    @ApiModelProperty(value = "尺寸表洗后尺寸跳码:(0关闭,1开启)")
-    private String washSkippingFlag;
     /**
      * 工艺说明文件id
      */
