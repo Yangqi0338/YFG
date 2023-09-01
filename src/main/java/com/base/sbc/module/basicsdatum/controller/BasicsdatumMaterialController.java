@@ -386,6 +386,9 @@ public class BasicsdatumMaterialController extends BaseController {
         }
 
         PackBomVersion packBomVersion = packBomVersionService.getEnableVersion(packInfo.getId(), "packBigGoods");
+        if (packBomVersion==null){
+            return selectSuccess(new PageInfo<>(new ArrayList<>()));
+        }
         PageHelper.startPage(pageNum, pageSize);
         List<PackBom> packBomList = packBomService.list(new BaseQueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("pack_type","packBigGoods").eq("bom_version_id", packBomVersion.getId()));
 
