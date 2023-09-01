@@ -169,6 +169,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
         sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
         sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
+        sdQw.orderByDesc("create_date");
         Page<Style> page = PageHelper.startPage(pageDto);
         styleService.list(sdQw);
         PageInfo<StylePackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), StylePackInfoListVo.class);
@@ -698,6 +699,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
         sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
         sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
+        sdQw.orderByDesc("create_date");
         Page<PackInfoListVo> page = PageHelper.startPage(pageDto);
 //        list(sdQw);
         List<PackInfoListVo> packInfoListVos = queryByQw(sdQw);
