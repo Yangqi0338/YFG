@@ -88,6 +88,12 @@ public interface PricingTemplateService extends BaseService<PricingTemplate> {
      */
     List<PricingTemplateItemVO> formulaCount(FormulaCountDTO formulaCountDTO, String userCompany);
 
+    /**
+     * 获取默认模板
+     * @return
+     */
+    PricingTemplateVO getDefaultPricingTemplate( String userCompany);
+
     // 自定义方法区 不替换的区域【other_end】
 
 

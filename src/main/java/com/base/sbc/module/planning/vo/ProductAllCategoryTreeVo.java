@@ -1,6 +1,7 @@
 package com.base.sbc.module.planning.vo;
 
 import cn.hutool.core.collection.CollUtil;
+import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -9,10 +10,12 @@ import java.util.List;
 
 @Data
 @ApiModel("产品季品类树Vo ProductCategoryTreeVo")
-public class ProductCategoryTreeVo {
+public class ProductAllCategoryTreeVo {
 
     private String id;
+
     private String ids;
+
     @ApiModelProperty(value = "seat坑位,style,款式")
     private String dataForm = "style";
     /**
@@ -28,7 +31,7 @@ public class ProductCategoryTreeVo {
     private Integer level;
 
     @ApiModelProperty(value = "是否有子节点")
-    private Boolean children;
+    private List<BasicStructureTreeVo> children;
     @ApiModelProperty(value = "大类名称")
     private String prodCategory1stName;
 

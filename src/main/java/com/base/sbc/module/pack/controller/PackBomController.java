@@ -36,7 +36,6 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -170,6 +169,8 @@ public class PackBomController extends BaseController{
     public boolean moveDown(@Valid IdDto dto) {
         return packBomService.move(dto.getId(), "sort", PackBaseService.MOVE_DOWN);
     }
+
+
 }
 
 

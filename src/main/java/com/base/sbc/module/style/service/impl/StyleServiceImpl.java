@@ -9,6 +9,8 @@ package com.base.sbc.module.style.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Snowflake;
+import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -16,6 +18,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
@@ -58,10 +61,7 @@ import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
-import com.base.sbc.module.planning.vo.DimensionTotalVo;
-import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
-import com.base.sbc.module.planning.vo.PlanningSummaryVo;
-import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
+import com.base.sbc.module.planning.vo.*;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.sample.vo.MaterialVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
@@ -876,6 +876,79 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                     tree.setChildren(false);
                     return tree;
                 }).collect(Collectors.toList());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取产品季全品类
+     *
+     * @param vo
+     * @return
+     */
+    @Override
+    public List getProductAllCategory(ProductCategoryTreeVo vo) {
+        QueryWrapper<PlanningSeason> qc = new QueryWrapper<>();
+        qc.eq("company_code", getCompanyCode());
+        qc.eq("del_flag", BasicNumber.ZERO.getNumber());
+        qc.select("id", "name", "season");
+        qc.orderByDesc("name");
+        /*查询到的产品季*/
+        List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
+        Snowflake idGen = IdUtil.getSnowflake();
+        /*查品类*/
+        List<BasicStructureTreeVo> basicStructureTreeVoList = new ArrayList<>();
+        /*重新赋值新ids*/
+        if (vo.getLevel() == null) {
+
+            if (CollUtil.isNotEmpty(planningSeasonList)) {
+                List<ProductCategoryTreeVo> result = planningSeasonList.stream().map(ps -> {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setIds(idGen.nextIdStr());
+                    tree.setChildren(true);
+                    tree.setLevel(0);
+                    tree.setSeason(ps.getSeason());
+                    tree.setPlanningSeasonId(ps.getId());
+                    tree.setName(ps.getName());
+                    return tree;
+                }).collect(Collectors.toList());
+                return result;
+            }
+        } else if (vo.getLevel() == 0) {
+            basicStructureTreeVoList = ccmFeignService.basicStructureTreeByCode("品类", "", "0");
+            if (CollUtil.isNotEmpty(planningSeasonList)) {
+                List<ProductCategoryTreeVo> result = basicStructureTreeVoList.stream().map(ps -> {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setId(ps.getId());
+                    tree.setIds(idGen.nextIdStr());
+                    tree.setProdCategory1st(ps.getValue());
+                    tree.setProdCategory1stName(ps.getName());
+                    tree.setLevel(1);
+                    tree.setPlanningSeasonId(vo.getPlanningSeasonId());
+                    tree.setName(ps.getName());
+                    return tree;
+                }).collect(Collectors.toList());
+                return result;
+            }
+        } else if (vo.getLevel() == 1) {
+            basicStructureTreeVoList = ccmFeignService.basicStructureTreeByCode("品类", "", "1");
+            basicStructureTreeVoList = basicStructureTreeVoList.stream().filter(s -> s.getParentId().equals(vo.getId())).collect(Collectors.toList());
+            if (CollUtil.isNotEmpty(planningSeasonList)) {
+                List<ProductCategoryTreeVo> result = basicStructureTreeVoList.stream().map(ps -> {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setIds(idGen.nextIdStr());
+                    tree.setLevel(2);
+                    tree.setChildren(false);
+                    tree.setProdCategory(ps.getValue());
+                    tree.setProdCategoryName(ps.getName());
+                    tree.setProdCategory1st(vo.getProdCategory1st());
+                    tree.setProdCategory1stName(vo.getProdCategory1stName());
+                    tree.setPlanningSeasonId(vo.getPlanningSeasonId());
+                    tree.setName(ps.getName());
+                    return tree;
+                }).collect(Collectors.toList());
+                return result;
             }
         }
         return null;

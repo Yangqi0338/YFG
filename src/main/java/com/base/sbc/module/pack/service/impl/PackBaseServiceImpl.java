@@ -3,6 +3,7 @@ package com.base.sbc.module.pack.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONObject;
@@ -236,6 +237,19 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
             UpdateWrapper<T> uw = new UpdateWrapper<T>();
             uw.set(column, j + 1);
             uw.eq("id", objects.get(j));
+            update(uw);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean sort(String ids, String column) {
+        List<String> idList = StrUtil.split(ids, CharUtil.COMMA);
+
+        for (int i = 0; i < idList.size(); i++) {
+            UpdateWrapper<T> uw = new UpdateWrapper<>();
+            uw.eq("id", idList.get(i));
+            uw.set(column, i);
             update(uw);
         }
         return true;

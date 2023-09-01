@@ -210,13 +210,16 @@ public class GenTechSpecPdfFile {
             dataModel.put("washSkippingFlag", washSkippingFlag);
             //处理尺码数据
             // 3个白色开始 2个灰色开始
-            List<List<Map<String, Object>>> dataList = new ArrayList<>(16);
+            List<Map<String, Object>> dataList = new ArrayList<>(16);
             ArrayList<String> tdClassList = CollUtil.newArrayList("gb", "");
             Map<Object, Object> sizeClass = new LinkedHashMap<>();
             int classIndex = sizeColspan;
             if (CollUtil.isNotEmpty(this.getSizeList())) {
                 for (int i = 0; i < this.getSizeList().size(); i++) {
                     PackSizeVo packSize = this.getSizeList().get(i);
+                    sizeDataDetail rowData = new sizeDataDetail();
+                    rowData.setRowType(packSize.getRowType());
+                    rowData.setRemark(packSize.getRemark());
                     List<Map<String, Object>> row = new ArrayList<>();
 
                     row.add(new TdDetail(Opt.ofNullable(packSize.getPartName()).orElse("")).toMap());
@@ -245,7 +248,8 @@ public class GenTechSpecPdfFile {
                     row.add(new TdDetail(Opt.ofNullable(packSize.getMinus()).orElse("")).toMap());
                     //公差+
                     row.add(new TdDetail(Opt.ofNullable(packSize.getPositive()).orElse("")).toMap());
-                    dataList.add(row);
+                    rowData.setRowData(row);
+                    dataList.add(rowData.toMap());
                 }
             }
             Map<String, List<PackTechAttachmentVo>> picMap = new HashMap<>(16);
@@ -350,6 +354,16 @@ public class GenTechSpecPdfFile {
 
     }
 
+    @Data
+    class sizeDataDetail {
+        private String rowType;
+        private String remark;
+        private List<Map<String, Object>> rowData;
+
+        public Map<String, Object> toMap() {
+            return BeanUtil.beanToMap(this);
+        }
+    }
 
     class TdDetail {
         public TdDetail() {

@@ -428,9 +428,13 @@
     <tbody>
     <#list sizeDataList as item>
         <tr class="size_tr">
-            <#list item as c>
-                <td style="height: 32px" class="${c.className}"> ${c.text}</td>
-            </#list>
+            <#if item.rowType=="1">
+                <td style="height: 32px;text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
+            <#else>
+                <#list item.rowData as c>
+                    <td style="height: 32px" class="${c.className}"> ${c.text}</td>
+                </#list>
+            </#if>
         </tr>
     </#list>
     </tbody>

@@ -88,4 +88,12 @@ public interface PackBaseService<T> extends BaseService<T> {
      * @return
      */
     boolean move(String id, String column, int moveType);
+
+    /**
+     * 排序
+     *
+     * @param ids
+     * @return
+     */
+    boolean sort(String ids, String column);
 }

@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service.impl;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -13,6 +14,8 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumModelTypeExcelDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formType.entity.FieldManagement;
@@ -64,14 +67,13 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     @Override
     public List<PlanningDemandVo> getDemandListById(QueryDemandDto queryDemandDimensionalityDto) {
         QueryWrapper<PlanningDemand> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("category_id", queryDemandDimensionalityDto.getCategoryId());
+        queryWrapper.eq("prod_category", queryDemandDimensionalityDto.getCategoryId());
         queryWrapper.eq("planning_season_id", queryDemandDimensionalityDto.getPlanningSeasonId());
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
         queryWrapper.eq(StrUtil.isNotBlank(queryDemandDimensionalityDto.getFieldId()), "field_id", queryDemandDimensionalityDto.getFieldId());
         /*选中的需求*/
-        List<PlanningDemandVo> list = baseMapper.getDemandDimensionalityById(queryWrapper);
-
+        List<PlanningDemandVo> list =   BeanUtil.copyToList(baseMapper.selectList(queryWrapper), PlanningDemandVo.class);
         List<String> stringList1 = list.stream().map(PlanningDemandVo::getFieldId).collect(Collectors.toList());
         List<FieldManagementVo> fieldManagementVoList = new ArrayList<>();
         if(!CollectionUtils.isEmpty(stringList1)){
@@ -132,7 +134,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         List<FieldManagement> fieldManagementList = fieldManagementMapper.selectList(queryWrapper);
         map.put("fieldManagement", fieldManagementList);
         QueryWrapper<PlanningDemand> queryWrapper1 = new QueryWrapper<>();
-        queryWrapper1.like("category_id", queryDemandDimensionalityDto.getCategoryId());
+        queryWrapper1.like("prod_category", queryDemandDimensionalityDto.getCategoryId());
         queryWrapper1.eq("planning_season_id", queryDemandDimensionalityDto.getPlanningSeasonId());
         List<PlanningDemand> planningDemandList = baseMapper.selectList(queryWrapper1);
         /*字段id*/
@@ -154,7 +156,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     public ApiResult saveDel(List<SaveDelDemandDto> saveDelDemandDto) {
         /*查询已存在的*/
         QueryWrapper<PlanningDemand> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("category_id", saveDelDemandDto.get(0).getCategoryId());
+        queryWrapper.eq("prod_category", saveDelDemandDto.get(0).getProdCategory());
         queryWrapper.eq("planning_season_id", saveDelDemandDto.get(0).getPlanningSeasonId());
         List<PlanningDemand> list = baseMapper.selectList(queryWrapper);
         /*添加的数据*/

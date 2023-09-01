@@ -1,5 +1,6 @@
 package com.base.sbc.client.ccm.entity;
 
+import cn.hutool.core.util.IdUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -13,6 +14,9 @@ public class BasicStructureTreeVo {
 
     @ApiModelProperty(value = "编号", example = "691374423193681920")
     private String id;
+
+    private String ids;
+
     @ApiModelProperty(value = "名称", example = "上衣")
     private String name;
     @ApiModelProperty(value = "编码", example = "sy")
@@ -34,4 +38,8 @@ public class BasicStructureTreeVo {
 
     @ApiModelProperty(value = "子节点")
     private List<BasicStructureTreeVo> children;
+
+    public String getIds() {
+        return IdUtil.getSnowflake().nextIdStr();
+    }
 }
