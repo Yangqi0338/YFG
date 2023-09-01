@@ -291,7 +291,7 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
             List<BasicsdatumMaterialColor> colors = colorService.list(colorQueryWrapper);
             List<BasicsdatumMaterialWidth> widths = widthService.list(widthQueryWrapper);
             colorMap = colors.stream().collect(Collectors.toMap(c->c.getMaterialCode()+c.getColorName(),c->c.getColorCode(),(c1,c2)->c2));
-            widthMap = widths.stream().collect(Collectors.toMap(w->w.getMaterialCode()+w.getName(),w->w.getCode(),(w1,w2)->w2));
+            widthMap = widths.stream().collect(Collectors.toMap(w->w.getMaterialCode()+w.getName(),w->w.getWidthCode(),(w1,w2)->w2));
 
             String ccmStr = ccmService.selectDictCodeByNameAndType(userCompany.getCompanyCode(), "C8_Material_UOM", StringUtils.convertListToString(unitList));
             if (StringUtils.isNotBlank(ccmStr)) {
