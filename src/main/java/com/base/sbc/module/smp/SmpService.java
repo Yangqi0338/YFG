@@ -49,6 +49,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
+
 
 /**
  * @author 卞康
@@ -618,7 +620,7 @@ public class SmpService {
             return 0;
         }
         List<BasicsdatumColourLibrary> basicsdatumColourLibraries = basicsdatumColourLibraryService.list(new QueryWrapper<BasicsdatumColourLibrary>().in("id", Arrays.asList(ids)));
-        Boolean issuedToExternalSmpSystemSwitch = ccmFeignService.getSwitchByCode("ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH");
+        Boolean issuedToExternalSmpSystemSwitch = ccmFeignService.getSwitchByCode(ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH.getKeyCode());
 
         int i = 0;
         for (BasicsdatumColourLibrary basicsdatumColourLibrary : basicsdatumColourLibraries) {

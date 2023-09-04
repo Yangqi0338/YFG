@@ -24,7 +24,9 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.*;
+import com.base.sbc.module.basicsdatum.constant.MaterialConstant;
 import com.base.sbc.module.basicsdatum.controller.BasicsdatumMaterialController;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.*;
@@ -87,6 +89,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	@Autowired
 	private BasicFabricLibraryService basicFabricLibraryService;
 
+	@Autowired
+	private RedisUtils redisUtils;
 	/**
 	 * 解决循环依赖报错的问题
 	 */
@@ -274,24 +278,49 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		}
 	}
 
+	/**
+	 * 生成物料编码
+	 * @param categoryCode 物料前缀
+	 * @return 物料编码
+	 */
 	private String getMaxCode(String categoryCode) {
+		// 物料序号
+		Integer num = 0;
+		// 生成的物料编码
+		String materialCode = "";
+		// 组成物料编码缓存KEY
+		String materialCodeKey = MaterialConstant.MATERIAL_CODE_KEY + categoryCode + this.getCompanyCode();
+		if (redisUtils.hasKey(materialCodeKey)) {
+			// 获取物料编码数值
+			String categoryCodeKey = redisUtils.get(materialCodeKey).toString();
+			num = Integer.valueOf(categoryCodeKey) + BaseGlobal.ONE;
+			// 重新设置编码数值
+			redisUtils.set(materialCodeKey, num);
+			return  ProducerNumUtil.getPrefixNum(categoryCode, num);
+		}
+		// redis未缓存数据，中数据库查询生最大数值
 		BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
-		qc.select("material_code");
+		qc.select("SUBSTRING(material_code,-5) AS material_code");
 		qc.eq("company_code", this.getCompanyCode());
 		qc.eq("biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
-		qc.eq("del_flag", "0").or().eq("del_flag", "1");
-//		qc.eq(" length(material_code)", categoryCode.length() + 5);
-//		qc.likeRight("material_code", categoryCode);
-		qc.orderByDesc(" create_date ");
-		qc.last(" limit 1 ");
+		qc.and(wq ->{
+			wq.eq("del_flag", BaseGlobal.ZERO).or().eq("del_flag", BaseGlobal.ONE);
+		});
+		qc.eq(" length(material_code)", categoryCode.length() + 5);
+		qc.likeRight("material_code", categoryCode);
+		qc.notLike("material_code", BaseGlobal.H);
+		qc.last("AND TRIM(SUBSTRING(material_code,-5)) REGEXP '[^0-9]' = 0 " +
+				"ORDER BY SUBSTRING(material_code,-5) DESC  limit 1 ");
 		BasicsdatumMaterial one = this.baseMapper.selectOne(qc);
-		if (one != null) {
-			String code = one.getMaterialCode();// code.replace(categoryCode, "")
-			Integer replace = Integer.parseInt(code.substring(code.length() - 5));
-			return categoryCode + String.format("%05d", replace + 1);
+		if (one != null && null != one.getMaterialCode()) {
+			num = Integer.valueOf(one.getMaterialCode());
+			materialCode = ProducerNumUtil.getPrefixNum(categoryCode, ++num);
 		} else {
-			return categoryCode + "00001";
+			num = BaseGlobal.ONE;
+			materialCode = ProducerNumUtil.getPrefixNum(categoryCode, BaseGlobal.ONE);
 		}
+		redisUtils.set(materialCodeKey, num);
+		return materialCode;
 	}
 
 	@Override

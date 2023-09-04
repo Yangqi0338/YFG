@@ -7,7 +7,9 @@ package com.base.sbc.client.ccm.enums;
  */
 public enum CcmBaseSettingEnum {
     // 单款多色开关
-    STYLE_MANY_COLOR("STYLE_MANY_COLOR","单款多色开关")
+    STYLE_MANY_COLOR("STYLE_MANY_COLOR","单款多色开关"),
+    ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH("ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH","控制是否下发外部SMP系统开关"),
+    DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH("DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH","设计bom转大货校验开关"),
     ;
     private final String keyCode;
 
