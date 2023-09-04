@@ -478,6 +478,19 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		BasicsdatumMaterialWidth entity = CopyUtil.copy(dto, BasicsdatumMaterialWidth.class);
 		if ("-1".equals(entity.getId())) {
 			entity.setId(null);
+			//生成规格编码,先去查询最大的规格编码
+			String code = dto.getMaterialCode()+"SP";
+			BasicsdatumMaterialWidth one = materialWidthService.getOne(new QueryWrapper<BasicsdatumMaterialWidth>().like("width_code", code).orderByDesc("create_date").last("limit 1"));
+			if (one!=null){
+				String widthCode = one.getWidthCode();
+				String substring = widthCode.substring(widthCode.length() - 3);
+				int i = Integer.parseInt(substring);
+				i++;
+				String formatted = String.format("%03d", i);
+				entity.setWidthCode(code + formatted);
+            }else {
+                entity.setWidthCode(code+"001");
+            }
 		}
 		return this.materialWidthService.saveOrUpdate(entity);
 	}
