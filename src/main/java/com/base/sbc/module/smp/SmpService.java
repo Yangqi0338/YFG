@@ -305,7 +305,7 @@ public class SmpService {
                     smpGoodsDto.setPlanningRate(stylePricingVO.getPlanningRatio());
                     try {
 
-                        smpGoodsDto.setActualRate(BigDecimal.valueOf(Long.parseLong(stylePricingVO.getActualMagnification())));
+                        smpGoodsDto.setActualRate(stylePricingVO.getActualMagnification());
 
                     } catch (Exception e) {
 

@@ -422,8 +422,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
                 tagPrintings.add(tagPrinting);
             }
-
         }
+
+        //改变吊牌打印状态
+        list.forEach(e -> {
+            e.setPrintOrNot("1");
+        });
+        this.updateBatchById(list);
+
         return tagPrintings;
     }
 

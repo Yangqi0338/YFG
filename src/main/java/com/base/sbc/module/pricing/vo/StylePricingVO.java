@@ -21,6 +21,9 @@ public class StylePricingVO {
     private String ingredient;
 
     private String downContent;
+
+    private String styleId;
+
     /**
      * 样衣图片
      */
@@ -134,6 +137,11 @@ public class StylePricingVO {
     @ApiModelProperty(value = "外协加工费")
     private BigDecimal coordinationProcessingFee;
     /**
+     * 二次加工费
+     */
+    @ApiModelProperty(value = "二次加工费")
+    private BigDecimal secondaryProcessingFee;
+    /**
      * 总成本
      */
     @ApiModelProperty(value = "总成本")
@@ -187,7 +195,7 @@ public class StylePricingVO {
      * 实际倍率
      */
     @ApiModelProperty(value = "实际倍率")
-    private String actualMagnification;
+    private BigDecimal actualMagnification;
     /**
      * 产品风格
      */

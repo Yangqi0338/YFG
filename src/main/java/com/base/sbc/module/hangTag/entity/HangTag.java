@@ -52,7 +52,10 @@ public class HangTag extends BaseDataEntity<String> {
     /** 大货款号 */
     @ApiModelProperty(value = "大货款号"  )
     private String bulkStyleNo;
-
+    /**
+     * 是否打印 0.否, 1.是
+     */
+    private String printOrNot;
     /**
      * 品名编码
      */

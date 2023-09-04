@@ -68,7 +68,7 @@ public class BiColorway {
     /**
      * 实际倍率
      */
-    private String c8ColorwayMarckup;
+    private BigDecimal c8ColorwayMarckup;
 
     /**
      * 商品吊牌价确认
