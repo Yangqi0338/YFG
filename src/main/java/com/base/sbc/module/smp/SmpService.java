@@ -335,7 +335,7 @@ public class SmpService {
             //smpGoodsDto.setSeriesName(null);
             //smpGoodsDto.setRegion(null);
             //smpGoodsDto.setSalesGroup(null);
-
+            Style style = styleService.getById(styleColor.getStyleId());
             String sizeIds = sampleDesign.getSizeIds();
             List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByIds(Arrays.asList(sizeIds.split(",")));
             List<SmpSize> smpSizes = new ArrayList<>();
@@ -345,7 +345,8 @@ public class SmpService {
                 smpSize.setSizeNumber(basicsdatumSize.getCode());
                 smpSize.setCode(basicsdatumSize.getSort());
                 smpSize.setProductSizeName(basicsdatumSize.getHangtags());
-                smpSize.setBaseSize("0".equals(basicsdatumSize.getStatus()));
+                smpSize.setBaseSize(StringUtils.isNoneBlank(style.getDefaultSize()) && style.getDefaultSize().equals(basicsdatumSize.getHangtags()));
+
                 smpSize.setSkuFiller(downContent);
                 smpSize.setSpecialSpec(basicsdatumSize.getInternalSize());
                 smpSizes.add(smpSize);
@@ -668,7 +669,7 @@ public class SmpService {
     }
 
     /**
-     * 样衣下发
+     * 样衣下发,打板管理
      */
     public Integer sample(String[] ids) {
         int i = 0;

@@ -51,7 +51,6 @@ public class PricingTemplateController extends BaseController {
     public PageInfo<PricingTemplateVO> queryPageInfo(@Valid @RequestBody PricingTemplateSearchDTO pricingTemplateSearchDTO) {
         return pricingTemplateService.queryPageInfo(pricingTemplateSearchDTO, super.getUserCompany());
     }
-
     /**
      * 通过id查询
      *
@@ -126,5 +125,11 @@ public class PricingTemplateController extends BaseController {
     @PostMapping(value = "/formulaCount")
     public ApiResult formulaCount(@Valid @RequestBody FormulaCountDTO formulaCountDTO) {
         return selectSuccess(pricingTemplateService.formulaCount(formulaCountDTO, super.getUserCompany()));
+    }
+
+    @ApiOperation(value = "获取默认模板")
+    @GetMapping("/getDefaultPricingTemplate")
+    public PricingTemplateVO  getDefaultPricingTemplate(){
+        return pricingTemplateService.getDefaultPricingTemplate( super.getUserCompany());
     }
 }

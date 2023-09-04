@@ -47,6 +47,14 @@ public class MappingBaseController<T> extends BaseController {
     }
 
     /**
+     * 根据ids查询对应的列表1,2,3
+     */
+    @GetMapping("/listByIds")
+    public ApiResult listByIds(String ids) {
+        return selectSuccess(baseService.listByIds(Arrays.asList(ids.split(","))));
+    }
+
+    /**
      * 根据id查询所有字段
      * @param id 注解id
      * @return 实体对象
@@ -55,7 +63,6 @@ public class MappingBaseController<T> extends BaseController {
     public ApiResult getById(String id) {
         return selectSuccess(baseService.getById(id));
     }
-
 
     /**
      * 批量启用/停用

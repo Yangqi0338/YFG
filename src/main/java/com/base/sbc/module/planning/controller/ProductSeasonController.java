@@ -14,6 +14,7 @@ import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
+import com.base.sbc.module.planning.vo.ProductAllCategoryTreeVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.service.StyleService;
@@ -167,4 +168,11 @@ public class ProductSeasonController extends BaseController {
     public List<ProductCategoryTreeVo> getProductCategoryTree(ProductCategoryTreeVo vo) {
         return styleService.getProductCategoryTree(vo);
     }
+
+    @ApiOperation(value = "获取产品季全品类")
+    @GetMapping("/getProductAllCategory")
+    public List getProductAllCategory(ProductCategoryTreeVo vo) {
+        return styleService.getProductAllCategory(vo);
+    }
+
 }

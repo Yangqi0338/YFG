@@ -1,8 +1,30 @@
 package com.base.sbc.open.service.impl;
 
+import com.alibaba.nacos.client.naming.utils.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomVersion;
+import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomVersionService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.patternmaking.dto.PatternMakingCommonPageSearchDto;
+import com.base.sbc.module.patternmaking.entity.PatternMaking;
+import com.base.sbc.module.patternmaking.service.PatternMakingService;
+import com.base.sbc.module.patternmaking.vo.NodeStatusVo;
+import com.base.sbc.module.patternmaking.vo.SampleBoardVo;
+import com.base.sbc.module.pricing.entity.StylePricing;
+import com.base.sbc.module.pricing.service.StylePricingService;
+import com.base.sbc.module.pricing.vo.StylePricingVO;
+import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.style.dto.StylePageDto;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.open.entity.BiSample;
 import com.base.sbc.open.entity.BiStyle;
@@ -13,6 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 卞康
@@ -23,145 +46,277 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> implements BiStyleService {
     private final StyleService styleService;
+    private final PatternMakingService patternMakingService;
 
     /**
-     * 款式样衣表
+     * 样衣看板.产前样
      */
     @Override
     public void style() {
         List<BiStyle> list = new ArrayList<>();
 
-        for (Style style : styleService.list()) {
-            BiStyle biStyle = new BiStyle();
-            //季节,品牌
-            biStyle.setC8SeasonBrand(style.getBrandName());
-            //季节,年度
-            biStyle.setC8SeasonYear(style.getYearName());
-            //季节,季节
-            biStyle.setC8SeasonQuarter(style.getSeasonName());
-            //设计款号
-            biStyle.setStyleCode(style.getDesignNo());
-            //启用
-            biStyle.setStyleActive(true);
-            //大类
-            biStyle.setStyle1stCategory(style.getProdCategory1stName());
-            //品类
-            biStyle.setC8StyleProdCategory(style.getProdCategoryName());
-            //中类
-            biStyle.setC8Style2ndCategory(style.getProdCategory2ndName());
-            //小类
-            biStyle.setC8Style3rdCategory(style.getProdCategory3rdName());
-            //款式类型
-            biStyle.setProductType(style.getStyleTypeName());
-            //生产类型
-            biStyle.setDevelopmentType(style.getDevtTypeName());
-            //款式名称
-            biStyle.setStyleName(style.getStyleName());
-            //廓形
-            biStyle.setC8StylerKuoXing(style.getSilhouetteName());
-            //设计师
-            biStyle.setC8StyleAttrDesigner(style.getDesigner());
-            //设计师,用户登录
-            biStyle.setC8StyleAttrDesignerID(style.getDesignerId());
-            //跟款设计师
-            biStyle.setC8StyleAttrMerchDesigner(style.getMerchDesignName());
-            //跟款设计师,用户登录
-            biStyle.setC8StyleAttrMerchDesignerID(style.getMerchDesignId());
-            //工艺员
-            biStyle.setC8StyleAttrTechnician(style.getTechnicianName());
-            //工艺员,用户登录
-            biStyle.setC8StyleAttrTechnicianID(style.getTechnicianId());
-            //版师
-            biStyle.setC8StyleAttrPatternMaker(style.getPatternDesignName());
-            //版师,用户登录
-            biStyle.setC8StyleAttrPatternMakerID(style.getPatternDesignId());
-            //材料专员
-            biStyle.setC8StyleAttrFabDevelope(style.getFabDevelopeName());
-            //材料专员,用户登录
-            biStyle.setC8StyleAttrFabDevelopeID(style.getFabDevelopeId());
-            //实际出稿时间
-            biStyle.setC8StyleAttrActualDesignTime(style.getActualPublicationDate());
-            //单位
-            biStyle.setC8StyleAttrUOM(style.getStyleUnit());
-            //开发分类
-            biStyle.setC8StyleAttrDevClass(style.getDevClassName());
-            //打版难度
-            biStyle.setC8StylePatDiff(style.getPatDiffName());
-            //创建时间
-            biStyle.setCreatedAt(style.getCreateDate());
-            //创建人
-            biStyle.setCreatedBy(style.getCreateName());
-            //修改时间
-            biStyle.setModifiedAt(style.getUpdateDate());
-            //修改人
-            biStyle.setModifiedBy(style.getUpdateName());
-            //审版设计师
-            biStyle.setC8SAReviewedDesigner(style.getReviewedDesignName());
-            //审版设计师,用户登录
-            biStyle.setC8SAReviewedDesignerID(style.getReviewedDesignId());
-            //款式来源
-            biStyle.setC8StyleOrigin(style.getStyleOriginName());
-            //款式风格
-            biStyle.setC8StyleAttrFlavour(style.getStyleFlavourName());
 
-            //市场调研
-            biStyle.setCompetitiveStyles(null);
-            //Style URL
+
+        PatternMakingCommonPageSearchDto pageSearchDto = new PatternMakingCommonPageSearchDto();
+        pageSearchDto.setPageNum(1);
+        pageSearchDto.setPageSize(9999);
+        for (SampleBoardVo sampleBoardVo : patternMakingService.sampleBoardList(pageSearchDto).getList()) {
+            BiStyle biStyle = new BiStyle();
+            PatternMaking patternMaking = patternMakingService.getById(sampleBoardVo.getId());
+            Style style = styleService.getById(sampleBoardVo.getId());
+
+            Map<String, NodeStatusVo> nodeStatus = sampleBoardVo.getNodeStatus();
+            NodeStatusVo nodeStatusVo = nodeStatus.get("打版任务-已接收");
+            NodeStatusVo nodeStatusVo1 = nodeStatus.get("打版任务-待接收");
+            NodeStatusVo nodeStatusVo2 = nodeStatus.get("打版任务-打版中");
+            NodeStatusVo nodeStatusVo3 = nodeStatus.get("打版任务-打版完成");
+            NodeStatusVo nodeStatusVo4 = nodeStatus.get("技术中心-已接收");
+            NodeStatusVo nodeStatusVo5 = nodeStatus.get("技术中心-版房主管下发");
+            NodeStatusVo nodeStatusVo6 = nodeStatus.get("样衣任务-待分配");
+            NodeStatusVo nodeStatusVo7 = nodeStatus.get("样衣任务-样衣完成");
+            NodeStatusVo nodeStatusVo8 = nodeStatus.get("样衣任务-物料齐套");
+            NodeStatusVo nodeStatusVo9 = nodeStatus.get("样衣任务-裁剪完成");
+            NodeStatusVo nodeStatusVo10 = nodeStatus.get("样衣任务-裁剪开始");
+            NodeStatusVo nodeStatusVo11 = nodeStatus.get("样衣任务-车缝完成");
+            NodeStatusVo nodeStatusVo12 = nodeStatus.get("样衣任务-车缝未开始");
+            NodeStatusVo nodeStatusVo13 = nodeStatus.get("样衣任务-车缝进行中");
+            NodeStatusVo nodeStatusVo14 = nodeStatus.get("款式设计-设计下发");
+
+
+            //产品供应商
+            biStyle.setParent(null);
+            // 供应商 供应商编码
+            biStyle.setSupplierNumber(null);
+            biStyle.setSampleName(style.getStyleName());
+            // 状态
+            biStyle.setSampleStatus(style.getStatus());
+
+
+            /*
+                打板样
+             */
+            biStyle.setC8ProductSampleSamplingDate(patternMaking.getSglKittingDate());
+            biStyle.setC8SampleSampleQty(patternMaking.getRequirementNum());
+            biStyle.setC8ProductSampleCutterStartDate(nodeStatusVo9.getStartDate());
+            biStyle.setC8ProductSampleCutterFinDate(nodeStatusVo10.getEndDate());
+            biStyle.setC8ProductSampleActStartData(nodeStatusVo13.getStartDate());
+            biStyle.setC8ProductSampleSweiningFinData(nodeStatusVo11.getEndDate());
+            biStyle.setC8SamplePaperPatternScore(patternMaking.getPatternMakingScore());
+            biStyle.setSamplePOColors(patternMaking.getColorName());
+            biStyle.setProductSize(patternMaking.getSize());
+            biStyle.setSampleType(patternMaking.getSampleType());
+            biStyle.setC8ProductSampleCutter(patternMaking.getCutterName());
+            biStyle.setC8SampleDesignerScore(patternMaking.getPatternMakingScore());
+            //打样设计师
+            biStyle.setC8ProductSampleProofingDesigner(patternMaking.getPatternDesignerName());
+            //打样设计师 用户登录
+            biStyle.setProofingDesignerID(patternMaking.getPatternDesignerId());
+            //样衣需求完成日期
+            biStyle.setSampleNotes(patternMaking.getDemandFinishDate());
+            // 样衣工工作量评分
+            biStyle.setC8SampleSampleScore(patternMaking.getSampleMakingScore());
+            // 样衣工质量评分
+            biStyle.setC8SamplePatternScore(patternMaking.getSampleMakingQualityScore());
+            //改版原因
+            biStyle.setC8SampleCauseOfReversion(patternMaking.getRevisionReason());
+            // 改版意见
+            biStyle.setC8SampleWhyModify(patternMaking.getRevisionComments());
+            // 样衣条码
+            biStyle.setSampleDataSheets(patternMaking.getSampleBarCode());
+            // 样板号
+            biStyle.setC8SampleSampleNumber(patternMaking.getPatternNo());
+            // 样品条码
+            biStyle.setC8SampleBarcode(patternMaking.getSampleBarCode());
+            // 打版难度
+            biStyle.setC8SamplePatDiff(patternMaking.getPatDiffName());
+            // 打样顺序
+            biStyle.setC8SamplePatSeq(patternMaking.getPatSeqName());
+            // 面辅料齐套
+            biStyle.setC8ProductSampleMatIfQitao(nodeStatusVo8.getEndDate());
+            // 纸样需求完成日期
+            biStyle.setC8ProductSamplePatternReqDate(patternMaking.getPatternReqDate());
+
+
+
+            /*
+              产前样
+             */
+            //放码日期
+            biStyle.setC8SampleFangMaData(null);
+            //放码师
+            biStyle.setC8ProductSampleFangMaShi(null);
+            //工艺单完成日期
+            biStyle.setC8SampleTechPackData(null);
+            //后技术备注说明
+            biStyle.setC8ProductSampleProComment(null);
+
+
+            /*
+            未知字段
+             */
+
+            //采购的产品
+            biStyle.setSamplePOProducts(null);
+            //参考分类
+            biStyle.setC8ProductSampleReferenceCategory(null);
+            //查版日期
+            biStyle.setC8SampleChaBanData(null);
+            //产品
+            biStyle.setSampleSRLineItem(null);
+            //负责人
+            biStyle.setResponsibleUsers(null);
+            //工价/件
+            biStyle.setC8SamplePriceCost(null);
+
+
+            //计划开始时间
+            biStyle.setC8ProductSamplePlanStartData(null);
+            //计提收入
+            biStyle.setC8SamplePriceIncomet(null);
+            //技术收到日期
+            biStyle.setSampleReceivedDate(null);
+            //面辅料信息
+            biStyle.setC8SampleMaterialInfo(null);
+            //面辅料信息(含格式)
+            biStyle.setC8SampleMaterialInfo2(null);
+            //面料检测单日期
+            biStyle.setC8SampleMaterialDetData(null);
+            //配色
+            biStyle.setProductColor(null);
+            //前技术确认是否齐套
+            biStyle.setC8SampleTechIfQitao(null);
+
+            // 收到正确样日期
+            biStyle.setC8ProductSampleMatLackNote(null);
+
+            // 数据表单
+            biStyle.setC8SampleIfQitao(null);
+
+            // 实际收到数量
+            biStyle.setC8SampleSampleRecQty(null);
+
+            // 收到正确样日期
+            biStyle.setC8SampleRecivedCorrectData(null);
+
+
+            // 替代产品
+            biStyle.setSampleProductAlternative(null);
+
+            // 完成件数
+            biStyle.setC8ProductSampleSampleFinQty(null);
+
+            // 下发给版师时间
+            biStyle.setC8ProductSampleHO2SDTime(null);
+
+            // 下发给版师状态
+            biStyle.setC8ProductSampleHO2SDState(null);
+
+            // 下发给样衣组长时间
+            biStyle.setC8ProductSampleHO2STime(null);
+
+            // 下发给样衣组长状态
+            biStyle.setC8ProductSampleHO2SState(null);
+
+            // 需求数量
+            biStyle.setRequestedQty(null);
+
+            // 样品工厂
+            biStyle.setC8SampleRequestDate(null);
+
+
+
+            // 样品存储
+            biStyle.setSampleStorage(null);
+
+            // 样品存储 Bin Number
+            biStyle.setStorageBinNumber(null);
+
+            // 样品存储名称
+            biStyle.setStorageName(null);
+
+            // 样品工厂
+            biStyle.setSampleFactory(null);
+
+            // 请求编号
+            biStyle.setRequestNumber(null);
+
+
+            // 样衣师
+            biStyle.setC8ProductSampleSeiwer(null);
+
+            // 样衣实际完成日期
+            biStyle.setC8SampleSampleFinDate(null);
+
+            // 样衣完成
+            biStyle.setC8SampleIfFinished(null);
+
+            // 已创建款式
+            biStyle.setCreatedStyles(null);
+
+            // 纸样完成件数
+            biStyle.setC8ProductSamplePatternFinQty(null);
+
+            // 纸样完成时间
+            biStyle.setC8ProductSamplePatternFinData(null);
+
+
+            // 主搭配
+            biStyle.setMainMaterialsList(null);
+
+            // Dimensions
+            biStyle.setDimensions(null);
+
+
+            // Style PLM ID
             biStyle.setC8StylePLMID(null);
-            //紧急状态
-            biStyle.setC8StyleStatus(null);
-            //款式工艺
-            biStyle.setC8StyleAttrProductSpecs(null);
-            //是否大货
-            biStyle.setC8SyncIfProduction(null);
-            //是否上会
-            biStyle.setC8SyncIfSalesconfernce(null);
-            //材质
-            biStyle.setC8StyleAttrCaiZhi(null);
-            //毛纱针法
-            biStyle.setC8StyleAttrYarnNeedle(null);
-            //毛纱针型
-            biStyle.setC8StyleAttrYarnNeedleType(null);
-            //肩宽
-            biStyle.setC8StyleAttrJianKuan(null);
-            //胸围
-            biStyle.setC8StyleAttrXiongWei(null);
-            //腰型
-            biStyle.setC8StyleAttrYaoXing(null);
-            //花型
-            biStyle.setC8StyleAttrPrintting(null);
-            //衣长(CM)
-            biStyle.setC8StyleAttrCoatLength(null);
-            //衣长分类
-            biStyle.setC8StyleAttrLengthRange(null);
-            //袖型
-            biStyle.setC8StyleAttrXiuXing(null);
-            //袖长
-            biStyle.setC8StyleAttrXiuChang(null);
-            //门襟
-            biStyle.setC8StyleAttrMenJIng(null);
-            //领型
-            biStyle.setC8StyleAttrLingXing(null);
-            //克重
-            biStyle.setC8StyleAttrKezhong(null);
-            //样品数
-            biStyle.setC8StyleCntSample(null);
-            //模式
-            biStyle.setDevelopmentMode(null);
-            //复制自
-            biStyle.setCopiedFrom(null);
-            //改款设计师
-            biStyle.setC8SARevisedDesigner(null);
-            //改款设计师,用户登录
-            biStyle.setC8SARevisedDesignerID(null);
-            //下稿设计师
-            biStyle.setC8SADataDesigner(null);
-            //下稿设计师,用户登录
-            biStyle.setC8SADataDesignerID(null);
-            //款式定位
-            biStyle.setC8StyleAttrOrientation(null);
+
+            // Colorway PLM ID
+            biStyle.setC8ColorwayPLMID(null);
+
+
+            // 延迟打板原因
+            biStyle.setC8ProductSampleDelayedReason(null);
+
+
+
+            // 样品 PLM ID
+            biStyle.setC8SamplePLMID(null);
+
+            // Style URL
+            biStyle.setC8ProductSampleStyleURL(null);
+
+            // 样品 MC Date
+            biStyle.setC8SampleMCDate(null);
+
+            // 样品 BExt Auxiliary
+            biStyle.setC8SampleBExtAuxiliary(null);
+
+            // 样品 EA Valid From
+            biStyle.setC8SampleEAValidFrom(null);
+
+            // 样品 EA Valid To
+            biStyle.setC8SampleEAValidTo(null);
+
+
+            /*
+              通用
+             */
+            // 创建时间
+            biStyle.setCreatedAt(patternMaking.getCreateDate());
+
+            // 创建人
+            biStyle.setCreatedBy(patternMaking.getCreateName());
+
+            // 修改时间
+            biStyle.setModifiedAt(patternMaking.getUpdateDate());
+
+            // 修改者
+            biStyle.setModifiedBy(patternMaking.getUpdateName());
+
             list.add(biStyle);
+
         }
+
 
 
         this.remove(null);

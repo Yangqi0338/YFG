@@ -10,15 +10,16 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.OperationType;
-import com.base.sbc.module.common.dto.IdDto;
+import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.PackSizeConfigDto;
 import com.base.sbc.module.pack.dto.PackSizeDto;
-import com.base.sbc.module.pack.dto.WashSkippingFlagSettingDto;
-import com.base.sbc.module.pack.service.PackBaseService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.service.PackSizeConfigService;
 import com.base.sbc.module.pack.service.PackSizeService;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackSizeConfigVo;
 import com.base.sbc.module.pack.vo.PackSizeVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -52,7 +53,8 @@ public class PackSizeController {
 
     @Autowired
     private PackSizeService packSizeService;
-
+    @Autowired
+    private PackSizeConfigService packSizeConfigService;
     @Autowired
     private PackInfoStatusService packInfoStatusService;
 
@@ -84,11 +86,7 @@ public class PackSizeController {
         return packSizeService.saveBatchByDto(commonDto, dtoList);
     }
 
-    @PostMapping("/washSkippingFlagSetting")
-    @ApiOperation(value = "洗后尺寸设置")
-    public boolean washSkippingFlagSetting(@Valid WashSkippingFlagSettingDto dto) {
-        return packInfoStatusService.washSkippingFlagSetting(dto.getForeignId(), dto.getPackType(), dto.getWashSkippingFlag());
-    }
+
 
     @ApiOperation(value = "锁定")
     @GetMapping("/lock")
@@ -114,11 +112,24 @@ public class PackSizeController {
         return packInfoStatusService.approvalForSize(dto);
     }
 
-    @PostMapping("/moveSort")
+
+    @GetMapping("/sort")
     @ApiOperation(value = "移动排序")
-    public boolean moveSort(@RequestBody IdDto dto) {
-        return packSizeService.move(dto.getId(), "sort", dto.getMoveFlag());
+    public boolean sort(@Validated IdsDto dto) {
+        return packSizeService.sort(dto.getId(), "sort");
     }
+
+    @GetMapping("/config")
+    public PackSizeConfigVo getConfig(@Valid PackCommonSearchDto dto) {
+        return packSizeConfigService.getConfig(dto.getForeignId(), dto.getPackType());
+    }
+
+    @PostMapping("/saveConfig")
+    public PackSizeConfigVo saveConfig(@RequestBody PackSizeConfigDto dto) {
+        return packSizeConfigService.saveConfig(dto);
+    }
+
+
 }
 
 

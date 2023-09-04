@@ -41,6 +41,7 @@ public class OpenSmpService {
     private final BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
 
     private final CcmService ccmService;
+    private final BasicsdatumSupplierService basicsdatumSupplierService;
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -251,7 +252,11 @@ public class OpenSmpService {
 
                 basicsdatumMaterialPrice.setMaterialCode(basicsdatumMaterial.getMaterialCode());
                 basicsdatumMaterialPrice.setSupplierId(quotItem.getSupplierCode());
-                basicsdatumMaterialPrice.setSupplierName(quotItem.getSupplierName());
+                BasicsdatumSupplier basicsdatumSupplier = basicsdatumSupplierService.getOne(new QueryWrapper<BasicsdatumSupplier>().eq("supplier_code", quotItem.getSupplierCode()));
+                if (basicsdatumSupplier==null){
+                    throw new RuntimeException("供应商编码:"+quotItem.getSupplierCode()+",不存在");
+                }
+                basicsdatumMaterialPrice.setSupplierName(basicsdatumSupplier.getSupplier());
                 basicsdatumMaterialPrice.setColor(quotItem.getSUPPLIERCOLORID());
                 basicsdatumMaterialPrice.setQuotationPrice(quotItem.getFOBFullPrice());
                 basicsdatumMaterialPrice.setOrderDay(quotItem.getLeadTime());
@@ -270,7 +275,7 @@ public class OpenSmpService {
 
 
                 if (quotItem.getDefaultQuote()){
-                    basicsdatumMaterial.setSupplierName(quotItem.getSupplierName());
+                    basicsdatumMaterial.setSupplierName(basicsdatumSupplier.getSupplier());
                     basicsdatumMaterial.setSupplierId(quotItem.getSupplierCode());
                     basicsdatumMaterial.setSupplierFabricCode(quotItem.getSupplierMaterial());
                     basicsdatumMaterial.setSupplierQuotationPrice(quotItem.getFOBFullPrice());

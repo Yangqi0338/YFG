@@ -122,7 +122,7 @@ public class PackTechSpecController {
     @ApiOperation(value = "排序")
     @GetMapping("/sort")
     public boolean sort(@Valid IdsDto dto) {
-        return packTechSpecService.sort(dto.getId());
+        return packTechSpecService.sort(dto.getId(), "sort");
     }
 
     @ApiOperation(value = "变更日志")

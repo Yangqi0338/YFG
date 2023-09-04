@@ -120,13 +120,6 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
         return true;
     }
 
-    @Override
-    @Transactional(rollbackFor = {Exception.class})
-    public boolean washSkippingFlagSetting(String foreignId, String packType, String washSkippingFlag) {
-        PackInfoStatus packInfoStatus = get(foreignId, packType);
-        packInfoStatus.setWashSkippingFlag(washSkippingFlag);
-        return updateById(packInfoStatus);
-    }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})

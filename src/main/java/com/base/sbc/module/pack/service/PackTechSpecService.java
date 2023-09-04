@@ -55,13 +55,6 @@ public interface PackTechSpecService extends PackBaseService<PackTechSpec> {
      */
     void genContentImgUrl(String newContent, String oldContent, PackTechSpec bean);
 
-    /**
-     * 排序
-     *
-     * @param id
-     * @return
-     */
-    boolean sort(String id);
 
     /**
      * 图片列表

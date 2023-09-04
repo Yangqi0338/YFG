@@ -39,7 +39,7 @@
     <select id="getStyleColorNumber" resultType="java.lang.Integer">
         select count(1)
         from t_style_color
-        where style_id = #{styleNo}
+        where style_no like  concat(concat('%',#{styleNo}),'%')
     </select>
     <select id="getStyleUploadInfo" resultType="com.base.sbc.module.sample.vo.StyleUploadVo">
         SELECT ssc.style_no,

@@ -47,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -809,6 +810,22 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			super.getBaseMapper().deleteById(basicsdatumMaterialVo.getId());
 		}
 		basicFabricLibraryService.materialApproveProcessing(basicsdatumMaterialVo.getId(), dto.getApprovalType());
+		return true;
+	}
+
+	/**
+	 * 解锁下发
+	 * @param id
+	 * @return
+	 */
+	@Override
+	public Boolean unlock(String id) {
+		BasicsdatumMaterial basicsdatumMaterial = baseMapper.selectById(id);
+		if (ObjectUtils.isEmpty(basicsdatumMaterial)) {
+			throw new OtherException("数据不存在");
+		}
+		basicsdatumMaterial.setDistribute("3");
+		baseMapper.updateById(basicsdatumMaterial);
 		return true;
 	}
 }

@@ -16,11 +16,11 @@ import lombok.EqualsAndHashCode;
 /**
  * 类描述：资料包-尺寸表 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackSize
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-25 14:00:54
+ * @email your email
+ * @date 创建时间：2023-8-31 19:31:18
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -50,6 +50,11 @@ public class PackSize extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "序号")
     private Integer sort;
+    /**
+     * 行类型:0默认,1分割
+     */
+    @ApiModelProperty(value = "行类型:0默认,1分割")
+    private String rowType;
     /**
      * 部位编码
      */

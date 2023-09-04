@@ -94,7 +94,7 @@ public class PurchaseDemandController extends BaseController{
 
 	@ApiOperation(value = "明细-通过ids查询多条数据")
 	@GetMapping("/byIdList")
-	public ApiResult byIdList(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestParam("ods") String ids) {
+	public ApiResult byIdList(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestParam("ids") String ids) {
 		if(StringUtils.isBlank(ids)){
 			return selectAttributeNotRequirements("ids");
 		}

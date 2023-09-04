@@ -104,6 +104,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private PackBomService packBomService;
     @Resource
     private PackBomSizeService packBomSizeService;
+
+    @Resource
+    private PackSizeConfigService packSizeConfigService;
     @Resource
     private PackSizeService packSizeService;
     @Resource
@@ -174,6 +177,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
         sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
         sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
+        sdQw.orderByDesc("create_date");
         Page<Style> page = PageHelper.startPage(pageDto);
         styleService.list(sdQw);
         PageInfo<StylePackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), StylePackInfoListVo.class);
@@ -257,16 +261,18 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packInfoStatusService.newStatus(newId, PackUtils.PACK_TYPE_DESIGN);
         PackBomVersionVo packBomVersionVo = packBomVersionService.saveVersion(versionDto);
         packBomVersionService.enable(BeanUtil.copyProperties(packBomVersionVo, PackBomVersion.class));
+        //新建尺码表配置
+        packSizeConfigService.createByStyle(newId, PackUtils.PACK_TYPE_DESIGN, style);
 
-        if(null == dto.getIsWithBom() || !dto.getIsWithBom()){
+        if (null == dto.getIsWithBom() || !dto.getIsWithBom()) {
             return BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
         }
 
         //如果勾选了关联款式BOM物料信息则复制保存款式设计中的bom信息
-        List<PackBom> bomList = packBomService.list(style.getId(),PackUtils.PACK_TYPE_STYLE);
-        if(CollectionUtil.isNotEmpty(bomList)){
+        List<PackBom> bomList = packBomService.list(style.getId(), PackUtils.PACK_TYPE_STYLE);
+        if (CollectionUtil.isNotEmpty(bomList)) {
             //保存bom尺码跟颜色
-            List<PackBomSize> bomSizeList = packBomSizeService.list(style.getId(),PackUtils.PACK_TYPE_STYLE);
+            List<PackBomSize> bomSizeList = packBomSizeService.list(style.getId(), PackUtils.PACK_TYPE_STYLE);
             Map<String,List<PackBomSize>> bomSizeMap = bomSizeList.stream().collect(Collectors.groupingBy(PackBomSize::getBomId));
             List<PackBomColor> bomColorList = packBomColorService.list(style.getId(),PackUtils.PACK_TYPE_STYLE);
             Map<String,List<PackBomColor>> bomColorMap = bomColorList.stream().collect(Collectors.groupingBy(PackBomColor::getBomId));
@@ -405,6 +411,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //物料清单
         packBomVersionService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
         //尺寸表
+        packSizeConfigService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
         packSizeService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
         //工序工价
         packProcessPriceService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
@@ -558,13 +565,14 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             String styleNoImgUrl = StyleNoImgUtils.getStyleNoImgUrl(groupUser, styleColor.getStyleColorPic());
             vo.setStylePic(styleNoImgUrl);
         }
+        PackSizeConfigVo sizeConfig = packSizeConfigService.getConfig(dto.getForeignId(), dto.getPackType());
         vo.setCompanyName("意丰歌集团有限公司");
         vo.setBrandName(style.getBrandName());
         vo.setDesignNo(style.getDesignNo());
         vo.setStyleNo(detail.getStyleNo());
         vo.setDesigner(style.getDesigner());
-        vo.setDefaultSize(style.getDefaultSize());
-        vo.setProductSizes(style.getProductSizes());
+        vo.setDefaultSize(sizeConfig.getDefaultSize());
+        vo.setActiveSizes(sizeConfig.getActiveSizes());
         vo.setPatternDesignName(style.getPatternDesignName());
         vo.setSizeRangeName(style.getSizeRangeName());
         vo.setProdCategoryName(style.getProdCategoryName());
@@ -703,6 +711,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
         sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
         sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
+        sdQw.orderByDesc("create_date");
         Page<PackInfoListVo> page = PageHelper.startPage(pageDto);
 //        list(sdQw);
         List<PackInfoListVo> packInfoListVos = queryByQw(sdQw);

@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -13,9 +14,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.BusinessException;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pricing.dto.*;
 import com.base.sbc.module.pricing.entity.PricingTemplate;
@@ -193,6 +196,25 @@ public class PricingTemplateServiceImpl extends BaseServiceImpl<PricingTemplateM
             count(item.getKey(), nameMap);
         }
         return new ArrayList<>(nameMap.values());
+    }
+
+    /**
+     * 获取默认模板
+     *
+     * @return
+     */
+    @Override
+    public PricingTemplateVO getDefaultPricingTemplate( String userCompany) {
+        PricingTemplateVO pricingTemplateVO=new PricingTemplateVO();
+        QueryWrapper queryWrapper =new QueryWrapper();
+        queryWrapper.eq("company_code", userCompany);
+        queryWrapper.eq("default_flag", BaseGlobal.YES);
+        List<PricingTemplate> templateList =  baseMapper.selectList(queryWrapper);
+        if(CollUtil.isEmpty(templateList)){
+            throw new OtherException("无默认模板");
+        }
+        BeanUtils.copyProperties(templateList.get(0), pricingTemplateVO);
+        return pricingTemplateVO;
     }
 
     /**

@@ -21,6 +21,5 @@ public class IdDto {
     @NotBlank(message = "id不能为空")
     private String id;
 
-    @ApiModelProperty(value = "移动标记", required = false, example = "1：下 -1:上")
-    private Integer moveFlag;
+
 }

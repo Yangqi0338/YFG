@@ -17,9 +17,18 @@ public class SaveDelDemandDto {
     @NotBlank(message = "产品季id不能为空")
     private String planningSeasonId;
 
-    @ApiModelProperty(value = "品类id" ,required = true,example = "122222")
-    @NotBlank(message = "品类id不能为空")
-    private String categoryId;
+    /** 大类 */
+    @ApiModelProperty(value = "大类"  )
+    private String prodCategory1st;
+    /** 大类名称 */
+    @ApiModelProperty(value = "大类名称"  )
+    private String prodCategory1stName;
+    /** 品类 */
+    @ApiModelProperty(value = "品类"  )
+    private String prodCategory;
+    /** 品类名称 */
+    @ApiModelProperty(value = "品类名称"  )
+    private String prodCategoryName;
 
     @ApiModelProperty(value = "需求占比" ,  required = true ,example = "111")
     @NotBlank(message = "需求名称")

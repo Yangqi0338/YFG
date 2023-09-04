@@ -6,12 +6,19 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.planning.dto.ColorPlanningSaveDTO;
 import com.base.sbc.module.planning.dto.ColorPlanningSearchDTO;
+import com.base.sbc.module.planning.entity.ColorPlanning;
 import com.base.sbc.module.planning.service.ColorPlanningService;
 import com.base.sbc.module.planning.vo.ColorPlanningListVO;
+import com.base.sbc.module.planning.vo.ColorPlanningVO;
+import com.base.sbc.module.purchase.entity.MaterialWarehouse;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,6 +29,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 类描述：颜色企划 Controller类
@@ -64,6 +72,24 @@ public class ColorPlanningController extends BaseController {
     @GetMapping("/getListByPlanningSeasonId")
     public ApiResult getListByPlanningSeasonId(String planningSeasonId) {
         return selectSuccess(colorPlanningService.getListByPlanningSeasonId(planningSeasonId));
+    }
+
+    @ApiOperation(value = "删除-通过id查询")
+    @DeleteMapping
+    public ApiResult delete(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestParam("id") String id) {
+        if(StringUtils.isBlank(id)){
+            return deleteAttributeNotRequirements("id");
+        }
+        ColorPlanningVO colorPlanningVO = colorPlanningService.getDetailById(id);
+        if(CollectionUtil.isNotEmpty(colorPlanningVO.getColorPlanningItems())){
+            return ApiResult.error("该颜色企划还存在明细数据无法删除，请处理！", 500);
+        }
+
+        boolean result = colorPlanningService.removeById(id);
+        if(result) {
+            return ApiResult.success("删除成功！");
+        }
+        return deleteNotFound();
     }
 }
 
