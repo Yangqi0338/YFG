@@ -36,6 +36,12 @@ public class BandSaveDto {
     @ApiModelProperty(value = "排序",  required = false, example = "1")
     private Integer sort;
 
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+
+    @ApiModelProperty(value = "品牌名称"  )
+    private String brandName;
+
     @ApiModelProperty(value = "状态",  required = true, example = "0")
     @NotBlank(message = "状态必填")
     private String   status;

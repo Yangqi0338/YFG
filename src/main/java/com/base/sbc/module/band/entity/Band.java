@@ -10,6 +10,7 @@ package com.base.sbc.module.band.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -51,6 +52,13 @@ public class Band extends BaseDataEntity<String> {
     private String code;
     /** 排序 */
     private Integer sort;
+
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+
+    @ApiModelProperty(value = "品牌名称"  )
+    private String brandName;
+
     /** 是否启用(0启用，1删除) */
     private String status;
 }

@@ -5,14 +5,12 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.basicsdatum.controller;
+
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
-import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplate;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumBomTemplateMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumBomTemplateService;
-import com.github.pagehelper.PageHelper;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumBomTemplateMaterialVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -122,5 +120,10 @@ public class BasicsdatumBomTemplateController{
 		return basicsdatumBomTemplateMaterialServicel.revampSort(revampSortDto);
 	}
 
+	@ApiOperation(value = "查询bom模板下的物料")
+	@GetMapping("/getTemplateMateria")
+	public List<BasicsdatumBomTemplateMaterialVo> getTemplateMateria(@Valid @NotBlank(message = "bom模板id不能为空") String bomTemplateId) {
+		return basicsdatumBomTemplateMaterialServicel.getTemplateMateria(bomTemplateId);
+	}
 
 }

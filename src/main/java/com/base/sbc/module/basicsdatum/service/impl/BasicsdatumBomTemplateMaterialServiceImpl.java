@@ -77,7 +77,7 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("bom_template_id", queryBomTemplateDto.getBomTemplateId());
         queryWrapper.orderByDesc("sort");
-        /*查询基础资料-档差数据*/
+        /*查询基础资料-物料数据*/
         Page<BasicsdatumBomTemplateMaterialVo> objects = PageHelper.startPage(queryBomTemplateDto);
         baseMapper.selectList(queryWrapper);
         return objects.toPageInfo();
@@ -232,6 +232,21 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
         basicsdatumBomTemplateMaterial1.updateInit();
         baseMapper.updateById(basicsdatumBomTemplateMaterial1);
         return true;
+    }
+
+    /**
+     * 查询模板下的物料
+     *
+     * @param bomTemplateId
+     * @return
+     */
+    @Override
+    public List<BasicsdatumBomTemplateMaterialVo> getTemplateMateria(String bomTemplateId) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("bom_template_id", bomTemplateId);
+        List<BasicsdatumBomTemplateMaterial> templateMaterialList = baseMapper.selectList(queryWrapper);
+        List<BasicsdatumBomTemplateMaterialVo> list = BeanUtil.copyToList(templateMaterialList, BasicsdatumBomTemplateMaterialVo.class);
+        return list;
     }
 
 
