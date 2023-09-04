@@ -278,19 +278,24 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		}
 	}
 
+	/**
+	 * 生成物料编码
+	 * @param categoryCode 物料前缀
+	 * @return 物料编码
+	 */
 	private String getMaxCode(String categoryCode) {
 		// 物料序号
 		Integer num = 0;
 		// 生成的物料编码
 		String materialCode = "";
-		// 缓存生成
+		// 组成物料编码缓存KEY
 		String materialCodeKey = MaterialConstant.MATERIAL_CODE_KEY + categoryCode + this.getCompanyCode();
 		if (redisUtils.hasKey(materialCodeKey)) {
 			// 获取物料编码数值
 			String categoryCodeKey = redisUtils.get(materialCodeKey).toString();
-			num = Integer.valueOf(categoryCodeKey);
+			num = Integer.valueOf(categoryCodeKey) + BaseGlobal.ONE;
 			// 重新设置编码数值
-			redisUtils.set(materialCodeKey, num + BaseGlobal.ONE);
+			redisUtils.set(materialCodeKey, num);
 			return  ProducerNumUtil.getPrefixNum(categoryCode, num);
 		}
 		// redis未缓存数据，中数据库查询生最大数值
