@@ -28,6 +28,42 @@ public class BaseGlobal {
      * 1
      */
     public static final Integer ONE = 1;
+    /**
+     * 数字2
+     */
+    public static final int TWO = 2;
+    /**
+     * 数字3
+     */
+    public static final int THREE = 3;
+    /**
+     * 数字4
+     */
+    public static final int FOUR = 4;
+    /**
+     * 数字5
+     */
+    public static final int FIVE = 5;
+
+    /**
+     * 数字6
+     */
+    public static final int SIX = 6;
+
+    /**
+     * 数字7
+     */
+    public static final int SEVEN = 7;
+
+    /**
+     * 数字8
+     */
+    public static final int EIGHT = 8;
+
+    /**
+     * 数字9
+     */
+    public static final int NINE = 9;
 
     /**横杠 */
     public static final String H = "-";
