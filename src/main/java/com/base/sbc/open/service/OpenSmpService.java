@@ -132,7 +132,7 @@ public class OpenSmpService {
         BasicsdatumMaterial basicsdatumMaterial = smpOpenMaterialDto.toBasicsdatumMaterial();
         basicsdatumMaterial.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
         basicsdatumMaterial.setUpdateName("外部系统推送");
-
+        basicsdatumMaterial.setDistribute("1");
 
         String c8ProcMode = ccmService.getOpenDictInfo(BaseConstant.DEF_COMPANY_CODE, "C8_ProcMode");
         JSONArray data = JSONObject.parseObject(c8ProcMode).getJSONArray("data");

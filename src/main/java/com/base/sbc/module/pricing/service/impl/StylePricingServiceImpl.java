@@ -7,6 +7,7 @@
 package com.base.sbc.module.pricing.service.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -16,10 +17,10 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackPricingCraftCosts;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
-import com.base.sbc.module.pack.service.PackBomService;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
+import com.base.sbc.module.pack.entity.PackPricingProcessCosts;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
@@ -31,6 +32,7 @@ import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -58,6 +60,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-7-20 11:10:33
  */
 @Service
+@RequiredArgsConstructor
 public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper, StylePricing> implements StylePricingService {
     private static final Logger logger = LoggerFactory.getLogger(StylePricingService.class);
 
@@ -76,6 +79,9 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     private StyleColorService styleColorService;
     @Autowired
     private UserUtils userUtils;
+
+    private final PackPricingCraftCostsService packPricingCraftCostsService;
+    private final PackPricingProcessCostsService packPricingProcessCostsService;
     @Override
     public PageInfo<StylePricingVO> getStylePricingList(Principal user,StylePricingSearchDTO dto) {
         dto.setCompanyCode(super.getCompanyCode());
@@ -105,18 +111,36 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         stylePricingList.forEach(stylePricingVO -> {
             List<PackBomCalculateBaseVo> packBomCalculateBaseVos = packBomCalculateBaseVoS.get(stylePricingVO.getId() + stylePricingVO.getPackType());
             stylePricingVO.setMaterialCost(this.getMaterialCost(packBomCalculateBaseVos));
-            stylePricingVO.setTotalCost(this.getMaterialAmount(packBomCalculateBaseVos));
+
             stylePricingVO.setPackagingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "包装费")));
             stylePricingVO.setTestingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "检测费")));
             stylePricingVO.setSewingProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "车缝加工费")));
             stylePricingVO.setWoolenYarnProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "毛纱加工费")));
             stylePricingVO.setCoordinationProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协加工费")));
+
+            //加工费
+            packPricingProcessCostsService.list(new QueryWrapper<PackPricingProcessCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type","packBigGoods")).stream()
+                    .map(costs -> costs.getProcessPrice().multiply(costs.getMultiple()))
+                    .reduce(BigDecimal::add)
+                    .ifPresent(stylePricingVO::setProcessingFee);
+            //二次加工费用
+             packPricingCraftCostsService.list(new QueryWrapper<PackPricingCraftCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type","packBigGoods")).stream()
+                    .map(costs -> costs.getPrice().multiply(costs.getNum()))
+                    .reduce(BigDecimal::add)
+                    .ifPresent(stylePricingVO::setSecondaryProcessingFee);
+
+
+            stylePricingVO.setTotalCost(BigDecimalUtil.add(stylePricingVO.getMaterialCost(), stylePricingVO.getPackagingFee(),
+                    stylePricingVO.getTestingFee(), stylePricingVO.getSewingProcessingFee(), stylePricingVO.getWoolenYarnProcessingFee(),
+                    stylePricingVO.getCoordinationProcessingFee(),stylePricingVO.getSecondaryProcessingFee(),stylePricingVO.getProcessingFee()));
+
             stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
             stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
+
             //计控实际倍率 = 吊牌价/计控实际成本
             stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getPlanCost(), 2));
             //实际倍率 = 吊牌价/总成本
-            stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getTotalCost(), 2));
+            stylePricingVO.setActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getTotalCost(), 2));
         });
         attachmentService.setListStylePic(stylePricingList, "sampleDesignPic");
     }
