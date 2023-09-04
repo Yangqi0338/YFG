@@ -57,5 +57,7 @@ public interface StyleMapper extends BaseMapper<Style> {
     List<StyleBoardCategorySummaryVo> categorySummary(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     Long colorCount(@Param(Constants.WRAPPER) QueryWrapper prsQw);
+
+    String selectMaxDesignNo(@Param(Constants.WRAPPER) QueryWrapper qc);
 }
 

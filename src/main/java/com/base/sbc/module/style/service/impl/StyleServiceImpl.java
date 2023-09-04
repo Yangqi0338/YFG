@@ -257,7 +257,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 // 尺码名称
                 String sizeName =  null != productSizeList.get(i) ? productSizeList.get(i) : "";
                 // SKU ：颜色code + - + 尺码code
-                String skuCode = styleInfoColor.getColorCode() + BaseGlobal.H + sizeCode;
+                String skuCode = styleSaveDto.getDesignNo() + styleInfoColor.getColorCode() + sizeCode;
                 StyleInfoSku styleInfoSku = new StyleInfoSku();
                 styleInfoSku.setForeignId(styleInfoColor.getForeignId());
                 styleInfoSku.setPackType(styleInfoColor.getPackType());
@@ -1446,6 +1446,41 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         String prodCategory3rd = style.getProdCategory3rd();
         params.put("prodCategory3rd", prodCategory3rd.substring(prodCategory3rd.length()-2));
         return getNextCode.genCode("STYLE_DESIGN_NO", params);
+    }
+
+    @Override
+    public String getMaxDesignNo(GetMaxCodeRedis data,String userCompany) {
+        List<String> regexps = new ArrayList<>(12);
+        List<String> textFormats = new ArrayList<>(12);
+        data.getValueMap().forEach((key, val) -> {
+            if (BaseConstant.FLOWING.equals(key)) {
+                textFormats.add("(" + val + ")");
+            } else {
+                textFormats.add(String.valueOf(val));
+            }
+            regexps.add(String.valueOf(val));
+        });
+        String regexp = "^" + CollUtil.join(regexps, "");
+        System.out.println("传过来的正则:" + regexp);
+        QueryWrapper qc = new QueryWrapper();
+        qc.eq(COMPANY_CODE, userCompany);
+        qc.apply(" design_no REGEXP '" + regexp + "'");
+        qc.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
+        String maxCode = baseMapper.selectMaxDesignNo(qc);
+        if (StrUtil.isBlank(maxCode)) {
+            return null;
+        }
+        // 替换,保留流水号
+        String formatStr = CollUtil.join(textFormats, "");
+        try {
+            String flowing = ReUtil.get(formatStr, maxCode, 1);
+            if (StrUtil.isNotBlank(flowing)) {
+                return flowing;
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
