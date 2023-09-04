@@ -7,9 +7,11 @@
 package com.base.sbc.module.pack.service;
 
 import com.base.sbc.module.pack.dto.PackSizeConfigDto;
+import com.base.sbc.module.pack.dto.PackSizeConfigSearchDto;
 import com.base.sbc.module.pack.entity.PackSizeConfig;
 import com.base.sbc.module.pack.vo.PackSizeConfigVo;
 import com.base.sbc.module.style.entity.Style;
+import com.github.pagehelper.PageInfo;
 
 /**
  * 类描述：资料包-尺寸表配置 service类
@@ -29,6 +31,8 @@ public interface PackSizeConfigService extends PackBaseService<PackSizeConfig> {
     PackSizeConfigVo saveConfig(PackSizeConfigDto dto);
 
     PackSizeConfig createByStyle(String foreignId, String packType, Style style);
+
+    PageInfo<PackSizeConfigVo> pageInfo(PackSizeConfigSearchDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 

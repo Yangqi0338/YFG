@@ -18,14 +18,12 @@ import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.PackSizeConfigReferencesDto;
 import com.base.sbc.module.pack.dto.PackSizeDto;
 import com.base.sbc.module.pack.entity.PackSize;
 import com.base.sbc.module.pack.entity.PackSizeDetail;
 import com.base.sbc.module.pack.mapper.PackSizeMapper;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackInfoStatusService;
-import com.base.sbc.module.pack.service.PackSizeDetailService;
-import com.base.sbc.module.pack.service.PackSizeService;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackSizeVo;
 import com.base.sbc.module.style.service.StyleService;
@@ -66,6 +64,9 @@ public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, Pac
     private UploadFileService uploadFileService;
     @Autowired
     private PackSizeDetailService packSizeDetailService;
+
+    @Autowired
+    private PackSizeConfigService packSizeConfigService;
 
     @Override
     public PageInfo<PackSizeVo> pageInfo(PackCommonPageSearchDto dto) {
@@ -201,9 +202,21 @@ public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, Pac
         return;
     }
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean references(PackSizeConfigReferencesDto dto) {
+        packSizeConfigService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+        this.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+        return true;
+    }
+
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+        if (StrUtil.equals(sourceForeignId, targetForeignId) && StrUtil.equals(sourcePackType, targetPackType)) {
+            return true;
+        }
         //删除目标数据
         del(targetForeignId, targetPackType);
         packSizeDetailService.del(targetForeignId, targetPackType);

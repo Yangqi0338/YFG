@@ -262,6 +262,10 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+        if (StrUtil.equals(sourceForeignId, targetForeignId) && StrUtil.equals(sourcePackType, targetPackType)) {
+            return true;
+        }
+
         /**
          * eg
          *设计A（物料版本)——大货A（物料版本），大货A（物料版本）反审——设计生成B版本，并启用。修改完成后，下发设计B（物料版本）——大货也变成B版本

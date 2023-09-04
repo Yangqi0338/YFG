@@ -76,9 +76,10 @@ public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<Basicsdat
      */
     @Override
     public PageInfo getMeasurement(QueryDto queryDto) {
-        QueryWrapper<BasicsdatumMeasurement> queryWrapper = new QueryWrapper<>();
+        BaseQueryWrapper<BasicsdatumMeasurement> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
-        queryWrapper.like(StringUtils.isNotEmpty(queryDto.getPdmType()),"PDM_type",queryDto.getPdmType());
+        queryWrapper.andLike(queryDto.getSearch(), "description", "code", "measurement");
+        queryWrapper.like(StringUtils.isNotEmpty(queryDto.getPdmType()), "PDM_type", queryDto.getPdmType());
         queryWrapper.like(StringUtils.isNotEmpty(queryDto.getDescription()),"description",queryDto.getDescription());
         queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCreateName()),"create_name",queryDto.getCreateName());
         queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCode()),"code",queryDto.getCode());
@@ -91,7 +92,7 @@ public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<Basicsdat
             }
         }
         queryWrapper.orderByDesc("create_date");
-        queryWrapper.in(StrUtil.isNotEmpty(queryDto.getMeasurement()), "measurement", queryDto.getMeasurement());
+        queryWrapper.like(StrUtil.isNotEmpty(queryDto.getMeasurement()), "measurement", queryDto.getMeasurement());
         /*查询基础资料-号型类型数据*/
         Page<BasicsdatumMeasurementVo> objects = PageHelper.startPage(queryDto);
         getBaseMapper().selectList(queryWrapper);

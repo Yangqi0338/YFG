@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service;
 
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.PackSizeConfigReferencesDto;
 import com.base.sbc.module.pack.dto.PackSizeDto;
 import com.base.sbc.module.pack.entity.PackSize;
 import com.base.sbc.module.pack.vo.PackSizeVo;
@@ -59,6 +60,8 @@ public interface PackSizeService extends PackBaseService<PackSize> {
      * @return
      */
     void sizeToHtml(PackCommonSearchDto commonDto);
+
+    boolean references(PackSizeConfigReferencesDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 

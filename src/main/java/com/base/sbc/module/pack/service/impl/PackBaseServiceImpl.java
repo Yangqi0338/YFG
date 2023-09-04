@@ -200,6 +200,10 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
 
     @Override
     public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+        if (StrUtil.equals(sourceForeignId, targetForeignId) && StrUtil.equals(sourcePackType, targetPackType)) {
+            return true;
+        }
+
         del(targetForeignId, targetPackType);
         QueryWrapper<T> query = new QueryWrapper<T>();
         query.eq("foreign_id", sourceForeignId);

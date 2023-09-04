@@ -7,8 +7,11 @@
 package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.pack.dto.PackSizeConfigDto;
+import com.base.sbc.module.pack.dto.PackSizeConfigSearchDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackSizeConfig;
 import com.base.sbc.module.pack.mapper.PackSizeConfigMapper;
@@ -17,6 +20,9 @@ import com.base.sbc.module.pack.service.PackSizeConfigService;
 import com.base.sbc.module.pack.vo.PackSizeConfigVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -70,6 +76,17 @@ public class PackSizeConfigServiceImpl extends PackBaseServiceImpl<PackSizeConfi
         packSizeConfig.setActiveSizes(style.getProductSizes());
         save(packSizeConfig);
         return packSizeConfig;
+    }
+
+    @Override
+    public PageInfo<PackSizeConfigVo> pageInfo(PackSizeConfigSearchDto dto) {
+        BaseQueryWrapper<PackSizeConfig> qw = new BaseQueryWrapper<>();
+        qw.lambda().eq(PackSizeConfig::getCompanyCode, getCompanyCode());
+        qw.andLike(dto.getSearch(), "product_sizes", "size_range_name", "size_codes", "size_range");
+        Page<PackSizeConfig> objects = PageHelper.startPage(dto);
+        list(qw);
+        PageInfo<PackSizeConfig> packSizeConfigPageInfo = objects.toPageInfo();
+        return CopyUtil.copy(packSizeConfigPageInfo, PackSizeConfigVo.class);
     }
 
     @Override

@@ -11,10 +11,7 @@ import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.module.common.dto.IdsDto;
-import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
-import com.base.sbc.module.pack.dto.PackCommonSearchDto;
-import com.base.sbc.module.pack.dto.PackSizeConfigDto;
-import com.base.sbc.module.pack.dto.PackSizeDto;
+import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.service.PackSizeConfigService;
 import com.base.sbc.module.pack.service.PackSizeService;
@@ -120,15 +117,28 @@ public class PackSizeController {
     }
 
     @GetMapping("/config")
+    @ApiOperation(value = "获取尺寸表配置")
     public PackSizeConfigVo getConfig(@Valid PackCommonSearchDto dto) {
         return packSizeConfigService.getConfig(dto.getForeignId(), dto.getPackType());
     }
 
     @PostMapping("/saveConfig")
+    @ApiOperation(value = "保存尺寸表配置")
     public PackSizeConfigVo saveConfig(@RequestBody PackSizeConfigDto dto) {
         return packSizeConfigService.saveConfig(dto);
     }
 
+    @GetMapping("/configList")
+    @ApiOperation(value = "尺寸表配置列表分页查询")
+    public PageInfo<PackSizeConfigVo> configList(PackSizeConfigSearchDto dto) {
+        return packSizeConfigService.pageInfo(dto);
+    }
+
+    @GetMapping("/references")
+    @ApiOperation(value = "引用")
+    public boolean references(PackSizeConfigReferencesDto dto) {
+        return packSizeService.references(dto);
+    }
 
 }
 
