@@ -18,9 +18,11 @@ import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackProcessPrice;
+import com.base.sbc.module.pack.service.PackBomColorService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackProcessPriceVo;
 import com.base.sbc.module.style.dto.StyleInfoColorDto;
+import com.base.sbc.module.style.dto.StyleSaveDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleInfoSku;
 import com.base.sbc.module.style.mapper.StyleInfoColorMapper;
@@ -36,6 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,6 +58,9 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
     @Resource
     private StyleService styleService;
 
+    @Resource
+    private PackBomColorService packBomColorService;
+
     @Override
     public PageInfo<StyleInfoColorVo> pageList(StyleInfoColorDto styleInfoColorDto) {
         QueryWrapper<StyleInfoColor> qw = new QueryWrapper();
@@ -67,6 +73,9 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
         }
         if (StrUtil.isNotBlank(styleInfoColorDto.getColorCode())) {
             qw.like("color_code" , styleInfoColorDto.getColorCode());
+        }
+        if (StrUtil.isNotBlank(styleInfoColorDto.getPackType())) {
+            qw.like("pack_type" , styleInfoColorDto.getPackType());
         }
         Page<StyleInfoColorVo> page = PageHelper.startPage(styleInfoColorDto);
         list(qw);
@@ -145,6 +154,56 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
         StyleInfoColor styleInfoColor = BeanUtil.copyProperties(styleInfoColorDto, StyleInfoColor.class);
         styleInfoColor.updateInit();
         baseMapper.updateById(styleInfoColor);
+    }
+
+
+    /**
+     * 添加款式设计详情颜色
+     * @param styleSaveDto 样衣dto
+     */    @Override
+    public void insertStyleInfoColorList(StyleSaveDto styleSaveDto, String sourcePackType, String targetPackType) {
+        if(null == styleSaveDto || null == styleSaveDto.getStyleInfoColorDtoList()){
+                return;
+        }
+        QueryWrapper delWrapper = new QueryWrapper<>();
+        delWrapper.eq("company_code", this.getCompanyCode());
+        delWrapper.eq("foreign_id", styleSaveDto.getId());
+        delWrapper.eq("pack_type", targetPackType);
+        // 删除款式设计详情颜色
+        this.remove(delWrapper);
+        // 删除款式设计详情颜色
+        styleInfoSkuService.remove(delWrapper);
+        QueryWrapper queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("company_code", this.getCompanyCode());
+        queryWrapper.eq("foreign_id", styleSaveDto.getId());
+        queryWrapper.eq("pack_type", sourcePackType);
+        List<StyleInfoColor> styleInfoColorList = this.list(queryWrapper);
+        if (CollectionUtil.isEmpty(styleInfoColorList)) {
+            return;
+        }
+        for (StyleInfoColor styleInfoColor : styleInfoColorList) {
+            styleInfoColor.setId(null);
+            styleInfoColor.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
+            styleInfoColor.insertInit();
+        }
+        // 保存款式设计详情颜色
+        boolean flg = this.saveBatch(styleInfoColorList);
+        if (!flg) {
+            throw new OtherException("新增大货款式设计详情颜色失败，请联系管理员");
+        }
+        List<StyleInfoSku> styleInfoSkuList = styleInfoSkuService.list(queryWrapper);
+        if (CollectionUtil.isNotEmpty(styleInfoSkuList)) {
+            for (StyleInfoSku styleInfoSku : styleInfoSkuList) {
+                styleInfoSku.setId(null);
+                styleInfoSku.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
+                styleInfoSku.insertInit();
+            }
+            // 保存款式SKU数据
+            boolean skuFlg = styleInfoSkuService.saveBatch(styleInfoSkuList);
+            if (!skuFlg) {
+                throw new OtherException("新增款式SKU失败，请联系管理员");
+            }
+        }
     }
 
 // 自定义方法区 不替换的区域【other_start】

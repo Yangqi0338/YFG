@@ -15,6 +15,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
@@ -32,9 +33,14 @@ import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.purchase.service.PurchaseDemandService;
+import com.base.sbc.module.style.dto.StyleSaveDto;
+import com.base.sbc.module.style.service.StyleInfoColorService;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +66,7 @@ import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG
 @Service
 public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersionMapper, PackBomVersion> implements PackBomVersionService {
 
+    protected static Logger logger = LoggerFactory.getLogger(PackBomVersionServiceImpl.class);
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -77,6 +84,10 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
     private PurchaseDemandService purchaseDemandService;
     @Resource
     private CcmFeignService ccmFeignService;
+    @Resource
+    private StyleInfoColorService styleInfoColorService;
+    @Resource
+    private PackBomColorService packBomColorService;
 
     @Override
     public PageInfo<PackBomVersionVo> pageInfo(PackCommonPageSearchDto dto) {
@@ -273,6 +284,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         this.del(targetForeignId, targetPackType);
         packBomService.del(targetForeignId, targetPackType);
         packBomSizeService.del(targetForeignId, targetPackType);
+        packBomColorService.del(targetForeignId, targetPackType);
         Snowflake snowflake = IdUtil.getSnowflake();
         Map<String, String> newIdMaps = new HashMap<>(16);
         // 获取源数据
@@ -309,15 +321,35 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         }
         //保存物料清单
         if (CollUtil.isNotEmpty(bomList)) {
+            List<PackBomColor> packBomColorListAll = new ArrayList<>();
             for (PackBom bom : bomList) {
+                // 查询物料清单-单款多色数据
+                QueryWrapper<PackBomColor> bomColorQueryWrapper = new QueryWrapper<>();
+                bomColorQueryWrapper.eq("foreign_id", sourceForeignId);
+                bomColorQueryWrapper.eq("pack_type", sourcePackType);
+                bomColorQueryWrapper.eq("bom_id", bom.getId());
+                List<PackBomColor> packBomColorList = packBomColorService.list(bomColorQueryWrapper);
                 String newId = snowflake.nextIdStr();
                 bom.setPackType(targetPackType);
                 bom.setForeignId(targetForeignId);
                 newIdMaps.put(bom.getId(), newId);
                 bom.setId(newId);
                 bom.setBomVersionId(newIdMaps.get(bom.getBomVersionId()));
+                // 复制物料清单-单款多色数据到大货资料包
+                if (CollUtil.isNotEmpty(packBomColorList)) {
+                    for (PackBomColor packBomColor : packBomColorList) {
+                        packBomColor.setId(null);
+                        packBomColor.insertInit();
+                        packBomColor.setBomVersionId(bom.getBomVersionId());
+                        packBomColor.setBomId(bom.getId());
+                        packBomColor.setPackType(bom.getPackType());
+                        packBomColor.setForeignId(bom.getForeignId());
+                    }
+                    packBomColorListAll.addAll(packBomColorList);
+                }
             }
             packBomService.saveBatch(bomList);
+            packBomColorService.saveBatch(packBomColorListAll);
         }
         //保存尺码
         if (CollUtil.isNotEmpty(bomSizeList)) {
@@ -331,6 +363,10 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             }
             packBomSizeService.saveBatch(bomSizeList);
         }
+        // 保存款式设计详情颜色
+        StyleSaveDto styleSaveDto = new StyleSaveDto();
+        styleSaveDto.setId(sourceForeignId);
+        styleInfoColorService.insertStyleInfoColorList(styleSaveDto, sourcePackType, targetPackType);
         //大货 到设计 表示反审，则新建一个bom版本
         if (StrUtil.equals(targetPackType, PackUtils.PACK_TYPE_DESIGN) && StrUtil.equals(sourcePackType, PackUtils.PACK_TYPE_BIG_GOODS)) {
             //查找启动版本

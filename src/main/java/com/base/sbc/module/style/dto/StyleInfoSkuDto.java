@@ -42,6 +42,7 @@ public class StyleInfoSkuDto  extends Page {
     private String foreignId;
     /** 资料包类型:packDesign:设计资料包 */
     @ApiModelProperty(value = "资料包类型:packDesign:设计资料包"  )
+    @NotNull(message = "资料包类型不能为空" , groups = {GroupQuery.class})
     private String packType;
     /** SKU编码 */
     @ApiModelProperty(value = "SKU编码"  )

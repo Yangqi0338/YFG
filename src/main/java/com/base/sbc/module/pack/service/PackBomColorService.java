@@ -43,6 +43,7 @@ public interface PackBomColorService extends  PackBaseService<PackBomColor> {
      */
     Map<String, List<PackBomColorVo>> getByBomIdsToMap(List<String> bomIds);
 
+
 // 自定义方法区 不替换的区域【other_end】
 
 	

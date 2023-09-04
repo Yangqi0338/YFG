@@ -67,6 +67,9 @@ public class StyleInfoSkuServiceImpl extends BaseServiceImpl<StyleInfoSkuMapper,
         if (StrUtil.isNotBlank(styleInfoSkuDto.getColorCode())) {
             qw.like("color_code" , styleInfoSkuDto.getColorCode());
         }
+        if (StrUtil.isNotBlank(styleInfoSkuDto.getPackType())) {
+            qw.like("pack_type" , styleInfoSkuDto.getPackType());
+        }
         Page<StyleInfoSkuVo> page = PageHelper.startPage(styleInfoSkuDto);
         list(qw);
         PageInfo<StyleInfoSkuVo> pageInfo = page.toPageInfo();
