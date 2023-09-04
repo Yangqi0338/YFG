@@ -46,6 +46,8 @@ import javax.validation.ValidatorFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
+
 /**
  * 类描述：资料包-物料清单-物料版本 service类
  *
@@ -281,7 +283,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         List<PackBomSize> bomSizeList = packBomSizeService.list(query);
 
         //转大货 非空校验
-        if (StrUtil.equals(targetPackType, PackUtils.PACK_TYPE_BIG_GOODS)) {
+        if (StrUtil.equals(targetPackType, PackUtils.PACK_TYPE_BIG_GOODS) && ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH.getKeyCode())) {
             //获取启动版本
             PackBomVersion version = CollUtil.findOne(versionsList, (a) -> StrUtil.equals(a.getStatus(), BaseGlobal.YES));
             //获取启动版本的BOM数据
