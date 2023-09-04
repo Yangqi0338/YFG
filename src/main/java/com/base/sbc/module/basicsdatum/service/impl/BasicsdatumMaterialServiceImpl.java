@@ -318,9 +318,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		return materialCode;
 	}
 
-	public static void main(String[] args) {
-		System.out.println(0001 + 1);
-	}
 	@Override
 	public Boolean startStopBasicsdatumMaterial(StartStopDto dto) {
 		UpdateWrapper<BasicsdatumMaterial> uw = new UpdateWrapper<>();
