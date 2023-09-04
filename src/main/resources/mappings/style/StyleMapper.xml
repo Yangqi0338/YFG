@@ -125,6 +125,11 @@
 
     </select>
 
+    <select id="selectMaxDesignNo" resultType="java.lang.String">
+        select max(design_no)
+        from t_style ${ ew.customSqlSegment}
+    </select>
+
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

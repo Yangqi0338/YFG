@@ -7,6 +7,7 @@
 package com.base.sbc.module.style.service;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.dto.PlanningDemandStatisticsResultVo;
@@ -217,6 +218,13 @@ public interface StyleService extends BaseService<Style> {
      * @return
      */
     String genDesignNo(Style style);
+
+    /**
+     * 获取下一个编码
+     *
+     * @return
+     */
+    String getMaxDesignNo(GetMaxCodeRedis data,String userCompany);
 
     void saveDesignNo(Style style);
 

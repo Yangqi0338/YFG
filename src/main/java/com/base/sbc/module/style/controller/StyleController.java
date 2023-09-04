@@ -7,11 +7,14 @@
 package com.base.sbc.module.style.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
@@ -52,7 +55,7 @@ import java.util.List;
 @Api(tags = "款式设计相关接口")
 @RequestMapping(value = BaseController.SAAS_URL + "/style", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class StyleController {
+public class StyleController extends BaseController{
 
     @Autowired
     private StyleService styleService;
@@ -186,6 +189,16 @@ public class StyleController {
         }
         return ApiResult.success("新增成功" , styleService.genDesignNo(style));
     }
+
+    @ApiOperation(value = "获取设计款号最大流水号")
+    @PostMapping("/maxDesignNo")
+    public String maxDesignNo(@RequestBody GetMaxCodeRedis data) {
+        if (ObjectUtil.isEmpty(data.getValueMap())) {
+            throw new OtherException("条件不能为空");
+        }
+        return styleService.getMaxDesignNo(data,getUserCompany());
+    }
+
 
     @ApiOperation(value = "保存设计款号")
     @PostMapping("/saveDesignNo")
