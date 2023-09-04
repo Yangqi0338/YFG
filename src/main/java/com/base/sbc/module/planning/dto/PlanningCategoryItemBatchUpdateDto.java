@@ -32,6 +32,8 @@ public class PlanningCategoryItemBatchUpdateDto {
     private String taskLevel;
     @ApiModelProperty(value = "计划完成时间", required = false)
     private String planningFinishDate;
+    @ApiModelProperty(value = "样衣需求完成时间")
+    private String demandFinishDate;
 
     @NotBlank(message = "系列不能为空")
     @ApiModelProperty(value = "系列id", example = "0", required = true)
