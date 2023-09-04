@@ -28,6 +28,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.minio.MinioConfig;
 import com.base.sbc.config.utils.*;
@@ -74,6 +75,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH;
 
 /**
  * 类描述：资料包 service类
@@ -360,9 +362,12 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException("没有配色信息");
         }
 
+        PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
+        if (ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH.getKeyCode()) && YesOrNoEnum.YES.getValueStr().equals(packDesignStatus.getBomStatus())) {
+            throw new OtherException("已转大货，不可重复转入");
+        }
 
         copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
-        PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
         //设置为已转大货
         packDesignStatus.setBomStatus(BasicNumber.ONE.getNumber());
         packInfoStatusService.updateById(packDesignStatus);
