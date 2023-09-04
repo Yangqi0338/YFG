@@ -127,6 +127,11 @@ public class StylePricingVO {
     @ApiModelProperty(value = "车缝加工费")
     private BigDecimal sewingProcessingFee;
     /**
+     * 加工费
+     */
+    @ApiModelProperty(value = "加工费")
+    private BigDecimal processingFee;
+    /**
      * 毛纱加工费
      */
     @ApiModelProperty(value = "毛纱加工费")

@@ -19,6 +19,7 @@ import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackPricingCraftCosts;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
+import com.base.sbc.module.pack.entity.PackPricingProcessCosts;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
@@ -80,6 +81,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     private UserUtils userUtils;
 
     private final PackPricingCraftCostsService packPricingCraftCostsService;
+    private final PackPricingProcessCostsService packPricingProcessCostsService;
     @Override
     public PageInfo<StylePricingVO> getStylePricingList(Principal user,StylePricingSearchDTO dto) {
         dto.setCompanyCode(super.getCompanyCode());
@@ -109,12 +111,18 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         stylePricingList.forEach(stylePricingVO -> {
             List<PackBomCalculateBaseVo> packBomCalculateBaseVos = packBomCalculateBaseVoS.get(stylePricingVO.getId() + stylePricingVO.getPackType());
             stylePricingVO.setMaterialCost(this.getMaterialCost(packBomCalculateBaseVos));
-            //stylePricingVO.setTotalCost(this.getMaterialAmount(packBomCalculateBaseVos));
+
             stylePricingVO.setPackagingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "包装费")));
             stylePricingVO.setTestingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "检测费")));
             stylePricingVO.setSewingProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "车缝加工费")));
             stylePricingVO.setWoolenYarnProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "毛纱加工费")));
             stylePricingVO.setCoordinationProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协加工费")));
+
+            //加工费
+            packPricingProcessCostsService.list(new QueryWrapper<PackPricingProcessCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type","packBigGoods")).stream()
+                    .map(costs -> costs.getProcessPrice().multiply(costs.getMultiple()))
+                    .reduce(BigDecimal::add)
+                    .ifPresent(stylePricingVO::setProcessingFee);
             //二次加工费用
              packPricingCraftCostsService.list(new QueryWrapper<PackPricingCraftCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type","packBigGoods")).stream()
                     .map(costs -> costs.getPrice().multiply(costs.getNum()))
@@ -122,7 +130,9 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                     .ifPresent(stylePricingVO::setSecondaryProcessingFee);
 
 
-            stylePricingVO.setTotalCost(BigDecimalUtil.add(stylePricingVO.getMaterialCost(), stylePricingVO.getPackagingFee(), stylePricingVO.getTestingFee(), stylePricingVO.getSewingProcessingFee(), stylePricingVO.getWoolenYarnProcessingFee(), stylePricingVO.getCoordinationProcessingFee(),stylePricingVO.getSecondaryProcessingFee()));
+            stylePricingVO.setTotalCost(BigDecimalUtil.add(stylePricingVO.getMaterialCost(), stylePricingVO.getPackagingFee(),
+                    stylePricingVO.getTestingFee(), stylePricingVO.getSewingProcessingFee(), stylePricingVO.getWoolenYarnProcessingFee(),
+                    stylePricingVO.getCoordinationProcessingFee(),stylePricingVO.getSecondaryProcessingFee(),stylePricingVO.getProcessingFee()));
 
             stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
             stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
