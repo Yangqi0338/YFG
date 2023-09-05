@@ -82,7 +82,24 @@ public class StyleColorVo {
      */
     @ApiModelProperty(value = "品类")
     private String  prodCategoryName;
-
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+    /** 品牌名称 */
+    @ApiModelProperty(value = "品牌名称"  )
+    private String brandName;
+    /** 年份 */
+    @ApiModelProperty(value = "年份"  )
+    private String year;
+    /** 年份名称 */
+    @ApiModelProperty(value = "年份名称"  )
+    private String yearName;
+    /** 季节 */
+    @ApiModelProperty(value = "季节"  )
+    private String season;
+    /** 季节名称 */
+    @ApiModelProperty(value = "季节名称"  )
+    private String seasonName;
 
     /**
      * 历史款

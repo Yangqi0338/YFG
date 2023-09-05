@@ -120,6 +120,12 @@
             ts.designer,
             ts.technician_id,
             ts.technician_name,
+            ts.brand,
+            ts.brand_name,
+            ts.year,
+            ts.year_name,
+            ts.season,
+            ts.season_name,
             tsp.control_confirm,
             tsp.product_hangtag_confirm,
             tsp.control_hangtag_confirm
