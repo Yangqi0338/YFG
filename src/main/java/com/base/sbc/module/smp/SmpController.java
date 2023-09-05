@@ -72,6 +72,15 @@ public class SmpController extends BaseController {
     }
 
     /**
+     * 产前样下发
+     */
+    @PutMapping("/antenatalSample")
+    public ApiResult antenatalSample(String[] ids) {
+        Integer i = smpService.antenatalSample(ids);
+        return insertSuccess("下发："+ids.length+"条，成功："+i+"条");
+    }
+
+    /**
      * processSheet 下发
      */
     @PutMapping("/processSheet")
