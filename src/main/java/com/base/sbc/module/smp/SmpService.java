@@ -30,6 +30,8 @@ import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
+import com.base.sbc.module.sample.entity.PreProductionSampleTask;
+import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
@@ -99,8 +101,6 @@ public class SmpService {
 
     private final PackInfoStatusService packInfoStatusService;
 
-    private final SampleService sampleService;
-
     private final PackPricingService packPricingService;
 
     private final PackTechPackagingService packTechPackagingService;
@@ -113,11 +113,14 @@ public class SmpService {
 
     private final BasicsdatumIngredientService basicsdatumIngredientService;
     private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
+    private final PreProductionSampleTaskService preProductionSampleTaskService;
 
     private static final String SMP_URL = "http://10.98.250.31:7006/pdm";
     //private static final String PDM_URL = "http://smp-i.eifini.com/service-manager/pdm";
 
     private static final String SCM_URL = "http://10.8.250.100:1980/escm-app/information/pdm";
+
+    private static final String OA_URL = "http://10.8.240.161:40002/mps-interfaces/sample";
 
 
     /**
@@ -132,18 +135,18 @@ public class SmpService {
         for (StyleColor styleColor : styleColors) {
             SmpGoodsDto smpGoodsDto = styleColor.toSmpGoodsDto();
 
-            Style sampleDesign = styleService.getById(styleColor.getStyleId());
-            smpGoodsDto.setMaxClassName(sampleDesign.getProdCategory1stName());
-            smpGoodsDto.setStyleBigClass(sampleDesign.getProdCategory1st());
-            smpGoodsDto.setCategoryName(sampleDesign.getProdCategoryName());
-            smpGoodsDto.setStyleCategory(sampleDesign.getProdCategory());
-            smpGoodsDto.setMiddleClassName(sampleDesign.getProdCategory2ndName());
-            smpGoodsDto.setStyleMiddleClass(sampleDesign.getProdCategory2nd());
-            smpGoodsDto.setMinClassName(sampleDesign.getProdCategory3rdName());
-            smpGoodsDto.setStyleSmallClass(sampleDesign.getProdCategory3rd());
+            Style style = styleService.getById(styleColor.getStyleId());
+            smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
+            smpGoodsDto.setStyleBigClass(style.getProdCategory1st());
+            smpGoodsDto.setCategoryName(style.getProdCategoryName());
+            smpGoodsDto.setStyleCategory(style.getProdCategory());
+            smpGoodsDto.setMiddleClassName(style.getProdCategory2ndName());
+            smpGoodsDto.setStyleMiddleClass(style.getProdCategory2nd());
+            smpGoodsDto.setMinClassName(style.getProdCategory3rdName());
+            smpGoodsDto.setStyleSmallClass(style.getProdCategory3rd());
 
-            smpGoodsDto.setBrandId(sampleDesign.getBrand());
-            smpGoodsDto.setBrandName(sampleDesign.getBrandName());
+            smpGoodsDto.setBrandId(style.getBrand());
+            smpGoodsDto.setBrandName(style.getBrandName());
             //String sizeRange = sampleDesign.getSizeRange();
             //BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeService.getById(sizeRange);
             //PlmStyleSizeParam param = new PlmStyleSizeParam();
@@ -156,7 +159,7 @@ public class SmpService {
             //}
 
             // 款式图片
-            List<AttachmentVo> stylePicList = attachmentService.findByforeignId(sampleDesign.getId(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
+            List<AttachmentVo> stylePicList = attachmentService.findByforeignId(style.getId(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
             List<String> imgList = new ArrayList<>();
             for (AttachmentVo attachmentVo : stylePicList) {
                 imgList.add(attachmentVo.getUrl());
@@ -164,14 +167,14 @@ public class SmpService {
             smpGoodsDto.setImgList(imgList);
 
             //设计师id,下稿设计师,工艺员,工艺员id,版师名称,版师ID
-            String designer = sampleDesign.getDesigner();
+            String designer = style.getDesigner();
             smpGoodsDto.setDesigner(StringUtils.isNotEmpty(designer) ? designer.split(",")[0] : "");
-            smpGoodsDto.setTechnician(sampleDesign.getTechnicianName());
-            smpGoodsDto.setPatternMakerName(sampleDesign.getPatternDesignName());
+            smpGoodsDto.setTechnician(style.getTechnicianName());
+            smpGoodsDto.setPatternMakerName(style.getPatternDesignName());
 
-            String designerId = sampleDesign.getDesignerId();
-            String technicianId = sampleDesign.getTechnicianId();
-            String patternDesignId = sampleDesign.getPatternDesignId();
+            String designerId = style.getDesignerId();
+            String technicianId = style.getTechnicianId();
+            String patternDesignId = style.getPatternDesignId();
 
             ArrayList<String> list = new ArrayList<>();
             list.add(designerId);
@@ -181,27 +184,27 @@ public class SmpService {
             Map<String, String> usernamesByIds = amcService.getUsernamesByIds(StringUtils.join(list, ","));
             smpGoodsDto.setDesignerId(usernamesByIds.get(designerId));
             smpGoodsDto.setTechnicianId(usernamesByIds.get(technicianId));
-            smpGoodsDto.setYear(sampleDesign.getYearName());
+            smpGoodsDto.setYear(style.getYearName());
             smpGoodsDto.setPatternName("常规");
-            smpGoodsDto.setPriorityId(sampleDesign.getTaskLevel());
-            smpGoodsDto.setPriorityName(sampleDesign.getTaskLevelName());
-            smpGoodsDto.setSeason(sampleDesign.getSeason());
-            smpGoodsDto.setTheme(sampleDesign.getSubject());
-            smpGoodsDto.setStyleName(sampleDesign.getStyleName());
-            smpGoodsDto.setTargetCost(sampleDesign.getProductCost());
-            smpGoodsDto.setShapeName(sampleDesign.getPlateType());
+            smpGoodsDto.setPriorityId(style.getTaskLevel());
+            smpGoodsDto.setPriorityName(style.getTaskLevelName());
+            smpGoodsDto.setSeason(style.getSeason());
+            smpGoodsDto.setTheme(style.getSubject());
+            smpGoodsDto.setStyleName(style.getStyleName());
+            smpGoodsDto.setTargetCost(style.getProductCost());
+            smpGoodsDto.setShapeName(style.getPlateType());
             smpGoodsDto.setUniqueCode(styleColor.getWareCode());
 
             Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Band");
             Map<String, String> map = dictInfoToMap.get("C8_Band");
-            smpGoodsDto.setBandName(map.get(sampleDesign.getBandCode()));
+            smpGoodsDto.setBandName(map.get(style.getBandCode()));
 
             //List<FieldVal> list1 = fieldValService.list(sampleDesign.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
 
 
             //动态字段
 
-            List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsBySdId(sampleDesign.getId());
+            List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsBySdId(style.getId());
             if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
                 fieldManagementVoList.forEach(m -> {
                     if ("衣长分类".equals(m.getFieldName())) {
@@ -258,32 +261,32 @@ public class SmpService {
             }
 
 
-            smpGoodsDto.setBandName(sampleDesign.getBandName());
+            smpGoodsDto.setBandName(style.getBandName());
 
             smpGoodsDto.setAccessories(StringUtils.isNotEmpty(styleColor.getAccessoryNo()));
 
             // 资料包
-            PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", sampleDesign.getId()).eq("pack_type", "packBigGoods"));
+            PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", style.getId()).eq("pack_type", "packBigGoods"));
             if (packTechPackaging != null) {
                 smpGoodsDto.setPackageType(packTechPackaging.getPackagingForm());
                 smpGoodsDto.setPackageSize(packTechPackaging.getPackagingBagStandard());
             }
 
-            smpGoodsDto.setProductTypeId(sampleDesign.getStyleType());
-            smpGoodsDto.setProductType(sampleDesign.getStyleTypeName());
+            smpGoodsDto.setProductTypeId(style.getStyleType());
+            smpGoodsDto.setProductType(style.getStyleTypeName());
 
             smpGoodsDto.setSaleTime(styleColor.getNewDate());
             smpGoodsDto.setProdSeg(styleColor.getSubdivide());
-            smpGoodsDto.setSizeGroupId(sampleDesign.getSizeRange());
-            smpGoodsDto.setSizeGroupName(sampleDesign.getSizeRangeName());
-            smpGoodsDto.setStyleCode(sampleDesign.getDesignNo());
+            smpGoodsDto.setSizeGroupId(style.getSizeRange());
+            smpGoodsDto.setSizeGroupName(style.getSizeRangeName());
+            smpGoodsDto.setStyleCode(style.getDesignNo());
 
             //工艺说明
-            long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", sampleDesign.getId()).eq("spec_type", "外辅工艺"));
+            long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", style.getId()).eq("spec_type", "外辅工艺"));
             smpGoodsDto.setAuProcess(count > 0);
 
 
-            smpGoodsDto.setUnit(sampleDesign.getStyleUnitCode());
+            smpGoodsDto.setUnit(style.getStyleUnitCode());
 
             PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()));
             String downContent = "";
@@ -297,7 +300,7 @@ public class SmpService {
                     smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("物料费"));
                 }
                 //款式定价
-                StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), sampleDesign.getCompanyCode());
+                StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
 
 
                 if (stylePricingVO != null) {
@@ -335,8 +338,7 @@ public class SmpService {
             //smpGoodsDto.setSeriesName(null);
             //smpGoodsDto.setRegion(null);
             //smpGoodsDto.setSalesGroup(null);
-            Style style = styleService.getById(styleColor.getStyleId());
-            String sizeIds = sampleDesign.getSizeIds();
+            String sizeIds = style.getSizeIds();
             List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByIds(Arrays.asList(sizeIds.split(",")));
             List<SmpSize> smpSizes = new ArrayList<>();
             for (BasicsdatumSize basicsdatumSize : basicsdatumSizes) {
@@ -452,12 +454,12 @@ public class SmpService {
                         basicsdatumMaterialPricePageVo1.setWidth(widths[j]);
                         try {
                             for (SmpColor smpColor : colorList) {
-                                if (colors[i].equals(smpColor.getColorCode())){
+                                if (colors[i].equals(smpColor.getColorCode())) {
                                     basicsdatumMaterialPricePageVo1.setColorName(smpColor.getColorName());
                                 }
                             }
                             for (SmpModuleSize smpModuleSize : moduleSizeList) {
-                                if (widths[j].equals(smpModuleSize.getSizeUrl())){
+                                if (widths[j].equals(smpModuleSize.getSizeUrl())) {
                                     basicsdatumMaterialPricePageVo1.setWidthName(smpModuleSize.getSizeCode());
                                 }
                             }
@@ -741,12 +743,12 @@ public class SmpService {
             smpSampleDto.setEAValidToTime(patternMaking.getExtAuxiliaryReceiveDate());
             smpSampleDto.setFinished("1".equals(patternMaking.getEndFlg()));
             smpSampleDto.setMCDate(patternMaking.getSglKittingDate());
-            smpSampleDto.setPmlId(style.getId());
+            smpSampleDto.setPmlId(patternMaking.getId());
             smpSampleDto.setBExtAuxiliary("1".equals(patternMaking.getExtAuxiliary()));
             smpSampleDto.setSampleNumberName(patternMaking.getCode());
             smpSampleDto.setBarcode(patternMaking.getSampleBarCode());
 
-            HttpResp httpResp = restTemplateService.spmPost("http://10.8.240.161:40002/mps-interfaces/sample/setSampleTask", smpSampleDto.toSampleBean());
+            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask", smpSampleDto.toSampleBean());
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpSampleDto.toSampleBean(), "oa", "样衣下发");
             if (aBoolean) {
                 i++;
@@ -836,9 +838,146 @@ public class SmpService {
     /**
      * 修改吊牌价的时候验证(暂不需要)
      */
-    public Boolean checkUpdatePrice(UpdatePriceDto updatePriceDto){
+    public Boolean checkUpdatePrice(UpdatePriceDto updatePriceDto) {
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkUpdatePrice", updatePriceDto);
         return pushRecordsService.pushRecordSave(httpResp, updatePriceDto, "smp", "修改吊牌价的时候验证");
+    }
+
+    /**
+     * 产前样下发
+     *
+     * @param ids 产前样任务id集合
+     * @return 下发成功的数量
+     */
+    public Integer antenatalSample(String[] ids) {
+        int i = 0;
+        IdGen idGen = new IdGen();
+        for (PreProductionSampleTask preProductionSampleTask : preProductionSampleTaskService.listByIds(Arrays.asList(ids))) {
+            Style style = styleService.getById(preProductionSampleTask.getStyleId());
+            SmpSampleDto smpSampleDto = new SmpSampleDto();
+            // 跟款设计师
+            smpSampleDto.setProofingDesigner(style.getMerchDesignName() == null ? style.getDesigner() : style.getMerchDesignName());
+            // 跟款设计师工号
+            smpSampleDto.setProofingDesignerId(style.getMerchDesignId() == null ? style.getDesignerId() : style.getMerchDesignId());
+
+            // 样衣编号
+            smpSampleDto.setBarcode(preProductionSampleTask.getSampleBarCode());
+
+
+            // 样衣结束标志
+            smpSampleDto.setFinished("1".equals(preProductionSampleTask.getFinishFlag()));
+
+            // 打样URL
+            smpSampleDto.setPmlId(preProductionSampleTask.getId());
+
+            // 打样顺序名称
+            smpSampleDto.setPatSeqName(preProductionSampleTask.getPatSeq());
+            // 版号
+            smpSampleDto.setSampleNumber(preProductionSampleTask.getCode());
+            // 版号名称
+            smpSampleDto.setSampleNumberName(preProductionSampleTask.getCode());
+            // 大货款号
+            smpSampleDto.setColorwayCode(style.getStyleNo());
+            // 大货款号唯一标识
+            smpSampleDto.setColorwayPlmId(style.getStyleNo());
+            // 样衣名
+            smpSampleDto.setNodeName(style.getStyleName());
+            // 设计收样日期
+            smpSampleDto.setSampleReceivedDate(style.getCreateDate());
+            // 状态
+            smpSampleDto.setSampleStatus(style.getStatus());
+            // 状态名称
+            smpSampleDto.setSampleStatusName("0".equals(style.getStatus()) ? "未开款" : "1".equals(style.getStatus()) ? "已开款" : "已下发打板(完成)");
+            // 样衣类型
+            smpSampleDto.setSampleType("产前样");
+            // 样衣类型名称
+            smpSampleDto.setSampleTypeName("产前样");
+            // 大类
+            smpSampleDto.setMajorCategories(style.getProdCategory1st());
+            // 大类名称
+            smpSampleDto.setMajorCategoriesName(style.getProdCategory1stName());
+            // 品类
+            smpSampleDto.setCategory(style.getProdCategory());
+            // 品类名称
+            smpSampleDto.setCategoryName(style.getProdCategoryName());
+            // 品牌code
+            smpSampleDto.setBrandCode(style.getBrand());
+            // 品牌名称
+            smpSampleDto.setBrandName(style.getBrandName());
+            // 季节code
+            smpSampleDto.setQuarterCode(style.getSeason());
+            // 年份
+            smpSampleDto.setYear(style.getYear());
+            // 设计师
+            smpSampleDto.setDesigner(style.getDesigner());
+            // 设计师工号
+            smpSampleDto.setDesignerId(style.getDesignerId());
+            // 版师
+            smpSampleDto.setPatternMaker(style.getPatternDesignName());
+            // 版师id
+            smpSampleDto.setPatternMakerId(style.getPatternDesignId());
+            // 工艺员
+            smpSampleDto.setTechnician(preProductionSampleTask.getTechnologistName());
+            // 工艺员id
+            smpSampleDto.setTechnicianId(preProductionSampleTask.getTechnologistId());
+            // 中类id
+            smpSampleDto.setMiddleClassId(style.getProdCategory2nd());
+            // 中类名称
+            smpSampleDto.setMiddleClassName(style.getProdCategory2ndName());
+            // 款式URL
+            smpSampleDto.setStyleUrl(style.getStylePic());
+            // 设计款号
+            smpSampleDto.setStyleCode(style.getDesignNo());
+            // 供应商：打样部门
+            smpSampleDto.setSupplier(preProductionSampleTask.getPatternRoom());
+            // 打样部门编号
+            smpSampleDto.setSupplierNumber(preProductionSampleTask.getPatternRoomId());
+            // 图片集合
+            smpSampleDto.setImgList(Arrays.asList(style.getStylePic().split(",")));
+
+            smpSampleDto.setId(preProductionSampleTask.getId()); // ID
+            smpSampleDto.setCode(preProductionSampleTask.getCode()); // Code
+            smpSampleDto.setName(null); // Name
+            smpSampleDto.setCreator(preProductionSampleTask.getCreateName()); // 创建人
+            smpSampleDto.setCreateTime(preProductionSampleTask.getCreateDate()); // 创建时间
+            smpSampleDto.setModifiedPerson(preProductionSampleTask.getUpdateName()); // 修改人
+            smpSampleDto.setModifiedTime(preProductionSampleTask.getUpdateDate()); // 修改时间
+            String id = String.valueOf(idGen.nextId());
+            smpSampleDto.setPlmId(id); // PLMID
+            smpSampleDto.setSyncId(id); // 同步ID
+            smpSampleDto.setActive(true); // 是否启用
+
+            //样衣条码    款式id 打版编码
+            PatternMaking patternMaking = patternMakingService.getOne(new QueryWrapper<PatternMaking>().eq("code", preProductionSampleTask.getCode()).eq("style_id", style.getId()).eq("sample_bar_code", preProductionSampleTask.getSampleBarCode()));
+            if (patternMaking != null) {
+                // 打版难度编号
+                smpSampleDto.setPatDiff(patternMaking.getPatDiff());
+                // 打版难度名称
+                smpSampleDto.setPatDiffName(patternMaking.getPatDiffName());
+                // 打样顺序编号
+                smpSampleDto.setPatSeq(patternMaking.getPatSeq());
+                // 外辅标志
+                smpSampleDto.setBExtAuxiliary("1".equals(patternMaking.getExtAuxiliary()));
+                // 外辅发出时间
+                smpSampleDto.setEAValidFromTime(patternMaking.getExtAuxiliaryDispatchDate());
+                // 外辅接收时间
+                smpSampleDto.setEAValidToTime(patternMaking.getExtAuxiliaryReceiveDate());
+            }
+            // 齐套时间
+            smpSampleDto.setMCDate("1".equals(preProductionSampleTask.getKitting()) ? preProductionSampleTask.getKittingTime() : null);
+
+            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask", smpSampleDto.toSampleBean());
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpSampleDto.toSampleBean(), "oa", "样衣下发");
+            if (aBoolean) {
+                i++;
+                preProductionSampleTask.setScmSendFlag("1");
+            } else {
+                preProductionSampleTask.setScmSendFlag("2");
+            }
+            preProductionSampleTaskService.updateById(preProductionSampleTask);
+        }
+
+        return i;
     }
 }
 

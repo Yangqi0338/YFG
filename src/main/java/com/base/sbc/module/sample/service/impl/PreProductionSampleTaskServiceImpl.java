@@ -47,6 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -229,6 +230,11 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         PreProductionSampleTask task = getById(dto.getId());
         if (task == null) {
             throw new OtherException("任务不存在");
+        }
+
+        //齐套状态发生改变,修改齐套时间
+        if (!task.getKitting().equals(dto.getKitting())){
+            dto.setKittingTime(new Date());
         }
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
         uw.eq("id", dto.getId());

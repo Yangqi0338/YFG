@@ -137,6 +137,10 @@ public class TechnologyCenterTaskVo {
 
     @ApiModelProperty(value = "版师列表")
     private List<PatternDesignVo> pdList;
+    @ApiModelProperty(value = "颜色编码")
+    private String colorCode;
+    @ApiModelProperty(value = "颜色名称")
+    private String colorName;
 
 
 }
