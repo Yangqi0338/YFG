@@ -26,6 +26,7 @@ import com.base.sbc.module.pack.vo.PackPricingCraftCostsVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -77,6 +78,7 @@ public class PackPricingCraftCostsServiceImpl extends PackBaseServiceImpl<PackPr
         QueryWrapper<PackPricingCraftCosts> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
         Page<PackPricingCraftCosts> page = PageHelper.startPage(dto);
+        qw.eq(StringUtils.isNotEmpty(dto.getColorCode()), "color_code", dto.getColorCode());
         list(qw);
         PageInfo<PackPricingCraftCosts> pageInfo = page.toPageInfo();
         return CopyUtil.copy(pageInfo, PackPricingCraftCostsVo.class);
@@ -87,6 +89,7 @@ public class PackPricingCraftCostsServiceImpl extends PackBaseServiceImpl<PackPr
         BigDecimal result = BigDecimal.ZERO;
         QueryWrapper<PackPricingCraftCosts> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
+        qw.eq(StringUtils.isNotEmpty(dto.getColorCode()), "color_code", dto.getColorCode());
         List<PackPricingCraftCosts> list = list(qw);
         if (CollUtil.isEmpty(list)) {
             return result;

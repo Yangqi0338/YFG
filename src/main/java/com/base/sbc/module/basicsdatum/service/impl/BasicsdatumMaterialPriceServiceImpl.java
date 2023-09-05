@@ -6,15 +6,21 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialPriceMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：基础资料-物料档案-供应商报价 service类
@@ -39,6 +45,25 @@ public class BasicsdatumMaterialPriceServiceImpl
         qw.in("p.material_code", materialCodeList);
         qw.eq("p.company_code", getCompanyCode());
         return getBaseMapper().findDefaultToBomSel(qw);
+    }
+
+    @Override
+    public Map<String, BigDecimal> getDefaultSupplerQuotationPrice(List<String> materialCodes) {
+        if (CollectionUtils.isEmpty(materialCodes)) {
+            return new HashMap<>();
+        }
+        LambdaQueryWrapper<BasicsdatumMaterialPrice> qw = new QueryWrapper<BasicsdatumMaterialPrice>().lambda()
+                .eq(BasicsdatumMaterialPrice::getMaterialCode, materialCodes)
+                .eq(BasicsdatumMaterialPrice::getCompanyCode, super.getCompanyCode())
+                .eq(BasicsdatumMaterialPrice::getDelFlag, "0")
+                .eq(BasicsdatumMaterialPrice::getSelectFlag, Boolean.TRUE)
+                .select(BasicsdatumMaterialPrice::getQuotationPrice, BasicsdatumMaterialPrice::getMaterialCode);
+        List<BasicsdatumMaterialPrice> list = super.list(qw);
+        if (CollectionUtils.isEmpty(list)) {
+            return new HashMap<>();
+        }
+        return list.stream()
+                .collect(Collectors.toMap(BasicsdatumMaterialPrice::getMaterialCode, BasicsdatumMaterialPrice::getQuotationPrice, (k1, k2) -> k2));
     }
 
 // 自定义方法区 不替换的区域【other_end】

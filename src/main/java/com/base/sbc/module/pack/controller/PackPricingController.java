@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.*;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -97,6 +99,13 @@ public class PackPricingController {
     @PostMapping("/processCosts")
     public PackPricingProcessCostsVo saveProcessCosts(@Valid @RequestBody PackPricingProcessCostsDto dto) {
         return packPricingProcessCostsService.saveByDto(dto);
+    }
+
+    @ApiOperation(value = "批量新增加工费用")
+    @PostMapping("/batchInsertProcessCosts")
+    public ApiResult batchInsertProcessCosts(@Valid @RequestBody List<PackPricingProcessCostsDto> dto) {
+        packPricingProcessCostsService.batchInsertProcessCosts(dto);
+        return ApiResult.success();
     }
 
     @ApiOperation(value = "加工费用-删除")

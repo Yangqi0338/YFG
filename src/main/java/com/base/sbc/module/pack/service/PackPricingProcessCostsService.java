@@ -14,6 +14,7 @@ import com.base.sbc.module.pack.vo.PackPricingProcessCostsVo;
 import com.github.pagehelper.PageInfo;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 类描述：资料包-加工费 service类
@@ -33,6 +34,13 @@ public interface PackPricingProcessCostsService extends PackBaseService<PackPric
     PageInfo<PackPricingProcessCostsVo> pageInfo(PackCommonPageSearchDto dto);
 
     BigDecimal calculateCosts(PackCommonSearchDto dto);
+
+    /**
+     * 批量添加
+     * @param dto
+     */
+    void batchInsertProcessCosts(List<PackPricingProcessCostsDto> dto);
+
 
 
 // 自定义方法区 不替换的区域【other_end】
