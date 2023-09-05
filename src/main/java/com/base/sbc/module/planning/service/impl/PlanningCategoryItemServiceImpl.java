@@ -39,24 +39,28 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.CountVo;
+import com.base.sbc.module.formType.dto.QueryFieldOptionConfigDto;
+import com.base.sbc.module.formType.entity.FieldOptionConfig;
 import com.base.sbc.module.formType.entity.FieldVal;
+import com.base.sbc.module.formType.mapper.FieldOptionConfigMapper;
 import com.base.sbc.module.formType.service.FieldManagementService;
+import com.base.sbc.module.formType.service.FieldOptionConfigService;
 import com.base.sbc.module.formType.service.FieldValService;
 import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.utils.FormTypeCodes;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.formType.vo.FieldOptionConfigVo;
 import com.base.sbc.module.planning.dto.*;
-import com.base.sbc.module.planning.entity.PlanningCategoryItem;
-import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
-import com.base.sbc.module.planning.entity.PlanningChannel;
-import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
+import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
+import com.base.sbc.module.planning.vo.PlanningDemandVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
@@ -116,6 +120,11 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     @Autowired
     PlanningChannelService planningChannelService;
 
+    @Autowired
+    PlanningDimensionalityMapper planningDimensionalityMapper;
+
+    @Autowired
+    FieldOptionConfigService fieldOptionConfigService;
 
     private IdGen idGen = new IdGen();
 
@@ -515,16 +524,56 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     }
 
     @Override
-    public List<FieldManagementVo> querySeatDimension(String id, String isSelected) {
+    public List<FieldManagementVo> querySeatDimension(String id, String isSelected,String categoryFlag) {
         PlanningCategoryItem seat = getById(id);
         PlanningSeason season = planningSeasonService.getById(seat.getPlanningSeasonId());
+        /**
+         * 查询标签维度中选中的字段
+         */
+        List<FieldManagementVo> fieldList = new ArrayList<>();
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("planning_season_id", seat.getPlanningSeasonId());
+        List<PlanningDimensionality> dimensionalityList = planningDimensionalityMapper.selectList(queryWrapper);
+        if (CollUtil.isNotEmpty(dimensionalityList)) {
+            List<String> stringList = dimensionalityList.stream().map(PlanningDimensionality::getFieldId).distinct().collect(Collectors.toList());
+            fieldList = BeanUtil.copyToList(fieldManagementService.listByIds(stringList), FieldManagementVo.class);
+            List<String> stringList2 = fieldList.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
+            QueryFieldOptionConfigDto queryFieldOptionConfigDto =new QueryFieldOptionConfigDto();
 
-        List<FieldManagementVo> fieldList = fieldManagementService.list(FormTypeCodes.DIMENSION_LABELS, seat.getProdCategory(), season.getSeason());
+            if(StringUtils.isNotBlank(categoryFlag)){
+//                修改坑位品类标识
+                if(StringUtils.isNotBlank(categoryFlag)){
+                    seat.setCategoryFlag(categoryFlag);
+                    baseMapper.updateById(seat);
+                }
+            }else {
+//                那坑位的数据
+                categoryFlag = seat.getCategoryFlag();
+            }
+            if(categoryFlag.equals(BaseGlobal.YES)){
+                queryFieldOptionConfigDto.setProdCategory2nd(seat.getProdCategory2nd());
+            }else {
+                queryFieldOptionConfigDto.setCategoryCode(seat.getProdCategory());
+            }
+            /*查询每个字段下的配置选项*/
+            queryFieldOptionConfigDto.setBrand(season.getBrand());
+            queryFieldOptionConfigDto.setSeason(season.getSeason());
+            queryFieldOptionConfigDto.setFieldManagementIdList(stringList2);
+            Map<String, List<FieldOptionConfig>> listMap =  fieldOptionConfigService.getFieldConfig(queryFieldOptionConfigDto);
+
+            fieldList.forEach(f -> {
+                List<FieldOptionConfig> list = listMap.get(f.getId());
+                if (CollUtil.isNotEmpty(list)) {
+                    f.setConfigVoList(BeanUtil.copyToList(list, FieldOptionConfigVo.class));
+                }
+            });
+        }
         List<FieldVal> valueList = fieldValService.list(id, FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION);
         fieldManagementService.conversion(fieldList, valueList);
         if (StrUtil.isNotBlank(isSelected) && CollUtil.isNotEmpty(fieldList)) {
             return fieldList.stream().filter(FieldManagementVo::isSelected).collect(Collectors.toList());
         }
+
         return fieldList;
     }
 

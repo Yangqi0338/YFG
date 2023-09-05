@@ -43,11 +43,15 @@ import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.formType.dto.QueryFieldOptionConfigDto;
+import com.base.sbc.module.formType.entity.FieldOptionConfig;
 import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.service.FieldManagementService;
+import com.base.sbc.module.formType.service.FieldOptionConfigService;
 import com.base.sbc.module.formType.service.FieldValService;
 import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.formType.vo.FieldOptionConfigVo;
 import com.base.sbc.module.hangTag.entity.HangTag;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.pack.dto.*;
@@ -171,6 +175,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private HangTagService hangTagService;
     @Autowired
     private CcmService ccmService;
+
+    @Autowired
+    private FieldOptionConfigService fieldOptionConfigService;
     private IdGen idGen = new IdGen();
 
     @Override
@@ -607,6 +614,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Override
     public List<FieldManagementVo> queryDimensionLabels(DimensionLabelsSearchDto dto) {
         List<FieldManagementVo> result = new ArrayList<>(16);
+        List<String> stringList2 = new ArrayList<>();
         //1 查询企划需求管理
         QueryPlanningDimensionalityDto pdqw = new QueryPlanningDimensionalityDto();
         pdqw.setCategoryId(dto.getCategoryId());
@@ -617,6 +625,28 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
             List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
+            /*用于查询字段配置数据*/
+            stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
+            Style style = getById(dto.getStyleId());
+            QueryFieldOptionConfigDto queryFieldOptionConfigDto = new QueryFieldOptionConfigDto();
+            if (style.getCategoryFlag().equals(BaseGlobal.YES)) {
+                queryFieldOptionConfigDto.setProdCategory2nd(style.getProdCategory2nd());
+            } else {
+                queryFieldOptionConfigDto.setCategoryCode(style.getProdCategory());
+            }
+            /*查询每个字段下的配置选项*/
+            queryFieldOptionConfigDto.setBrand(style.getBrand());
+            queryFieldOptionConfigDto.setSeason(style.getSeason());
+            queryFieldOptionConfigDto.setFieldManagementIdList(stringList2);
+            Map<String, List<FieldOptionConfig>> listMap = fieldOptionConfigService.getFieldConfig(queryFieldOptionConfigDto);
+            /*赋值*/
+            fieldManagementListByIds.forEach(i -> {
+                List<FieldOptionConfig> configList = listMap.get(i.getId());
+                if (CollUtil.isNotEmpty(configList)) {
+                    i.setConfigVoList(BeanUtil.copyToList(configList, FieldOptionConfigVo.class));
+                }
+            });
+
             // [3].查询字段值
             if (CollUtil.isNotEmpty(fieldManagementListByIds) && StrUtil.isNotBlank(dto.getStyleId())) {
                 fieldManagementService.conversion(fieldManagementListByIds, fvList);
@@ -624,19 +654,17 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             }
         }
         //查询坑位信息的
-        if (StrUtil.isNotBlank(dto.getPlanningCategoryItemId())) {
-            List<FieldManagementVo> seatFmList = planningCategoryItemService.querySeatDimension(dto.getPlanningCategoryItemId(), BaseGlobal.YES);
+/*        if (StrUtil.isNotBlank(dto.getPlanningCategoryItemId())) {
+            List<FieldManagementVo> seatFmList = planningCategoryItemService.querySeatDimension(dto.getPlanningCategoryItemId(), BaseGlobal.YES,BaseGlobal.NO);
             fieldManagementService.conversion(seatFmList, fvList);
             if (CollUtil.isNotEmpty(seatFmList)) {
                 Set<String> fnSet = result.stream().map(FieldManagementVo::getFieldName).collect(Collectors.toSet());
                 List<FieldManagementVo> seatFmListNotInSd = seatFmList.stream().filter(item -> !fnSet.contains(item.getFieldName())).collect(Collectors.toList());
                 result.addAll(0, seatFmListNotInSd);
             }
-        }
-
+        }*/
         return result;
     }
-
     @Override
     public List<FieldManagementVo> queryDimensionLabelsBySdId(String id) {
         Style style = getById(id);

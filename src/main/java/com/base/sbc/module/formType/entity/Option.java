@@ -36,24 +36,12 @@ public class Option extends BaseDataEntity<String> {
     /** 字段管理id */
     @ApiModelProperty(value = "字段管理id"  )
     private String fieldId;
+    /** 选项编码 */
+    @ApiModelProperty(value = "选项编码"  )
+    private String optionCode;
     /** 选项名 */
     @ApiModelProperty(value = "选项名"  )
     private String optionName;
-
-    @ApiModelProperty(value = "选项文件地址"  )
-    private String optionUrl;
-
-    @ApiModelProperty(value = "选项数值"  )
-    private Long optionNumber;
-
-    /** 选项地址  日期区间，分开 */
-    @ApiModelProperty(value = "选项地址  日期区间，分开"  )
-    private String optionDate;
-    /** 创建时间 */
-    /** 备注 */
-    @ApiModelProperty(value = "备注"  )
-    private String remark;
-
     @TableField(exist = false)
     private Boolean disabled;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/

@@ -35,6 +35,12 @@ public interface FieldManagementService extends BaseService<FieldManagement> {
 
     PageInfo<FieldManagementVo> getFieldManagementList(QueryFieldManagementDto queryFieldManagementDto);
 
+    /**
+     * 查询维度-字段有配置的选项
+     * @param queryFieldManagementDto
+     * @return
+     */
+    List<FieldManagementVo> getFieldConfigList(QueryFieldManagementDto queryFieldManagementDto);
 
     ApiResult adjustmentOrder(QueryFieldManagementDto queryFieldManagementDto);
 

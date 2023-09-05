@@ -87,5 +87,7 @@ public class FieldManagementVo {
 
     List<FieldManagementVo> list;
 
+    List<FieldOptionConfigVo> configVoList;
+
 
 }

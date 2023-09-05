@@ -117,12 +117,12 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
 
     /**
      * 查询坑位信息的维度数据
-     *
-     * @param id       坑位id
-     * @param isSelect
+     * @param id
+     * @param isSelected
+     * @param categoryFlag 用于查询品类或中类 0品类1中类
      * @return
      */
-    List<FieldManagementVo> querySeatDimension(String id, String isSelected);
+    List<FieldManagementVo> querySeatDimension(String id, String isSelected,String categoryFlag);
 
     /**
      * 修改图片

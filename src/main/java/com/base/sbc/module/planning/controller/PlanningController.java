@@ -271,9 +271,10 @@ public class PlanningController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "坑位信息id", paramType = "query", required = true),
             @ApiImplicitParam(name = "isSelected", value = "选择标识(非空只返回选择了的维度)", paramType = "query", required = true),
+            @ApiImplicitParam(name = "categoryFlag", value = "用于是否查询品类", paramType = "query", required = true),
     })
-    public List<FieldManagementVo> querySeatDimension(String id, String isSelected) {
-        return planningCategoryItemService.querySeatDimension(id, isSelected);
+    public List<FieldManagementVo> querySeatDimension(String id, String isSelected,String categoryFlag) {
+        return planningCategoryItemService.querySeatDimension(id, isSelected,categoryFlag);
     }
 
     @ApiOperation(value = "通过年份获取产品季下拉列表", notes = "")

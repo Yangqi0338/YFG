@@ -435,6 +435,9 @@ public class Style extends BaseDataEntity<String> {
     /** 是否已生成设计款号(1是，0否) */
     @ApiModelProperty(value = "是否已生成设计款号(1是，0否)"  )
     private String isGenDesignNo;
+    /** 品类标识 0品类 1中类 */
+    @ApiModelProperty(value = "品类标识 0品类 1中类"  )
+    private String categoryFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
