@@ -949,7 +949,7 @@ public class SmpService {
 
             //样衣条码    款式id 打版编码
             PatternMaking patternMaking = patternMakingService.getOne(new QueryWrapper<PatternMaking>().eq("code", preProductionSampleTask.getCode()).eq("style_id", style.getId()).eq("sample_bar_code", preProductionSampleTask.getSampleBarCode()));
-            if (patternMaking!=null){
+            if (patternMaking != null) {
                 // 打版难度编号
                 smpSampleDto.setPatDiff(patternMaking.getPatDiff());
                 // 打版难度名称
@@ -964,7 +964,7 @@ public class SmpService {
                 smpSampleDto.setEAValidToTime(patternMaking.getExtAuxiliaryReceiveDate());
             }
             // 齐套时间
-            smpSampleDto.setMCDate(null);
+            smpSampleDto.setMCDate("1".equals(preProductionSampleTask.getKitting()) ? preProductionSampleTask.getKittingTime() : null);
 
             HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask", smpSampleDto.toSampleBean());
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpSampleDto.toSampleBean(), "oa", "样衣下发");

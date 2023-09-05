@@ -250,6 +250,12 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "流程完成状态:(0未完成,1已完成)")
     private String finishFlag;
+
+    /**
+     * 齐套时间
+     */
+    private Date kittingTime;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
