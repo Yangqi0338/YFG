@@ -16,9 +16,12 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
+import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackBomVersion;
@@ -26,6 +29,7 @@ import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.style.entity.Style;
 import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -393,5 +397,24 @@ public class BasicsdatumMaterialController extends BaseController {
         List<PackBom> packBomList = packBomService.list(new BaseQueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("pack_type","packBigGoods").eq("bom_version_id", packBomVersion.getId()));
 
         return selectSuccess(new PageInfo<>(packBomList));
+    }
+
+    @ApiOperation(value = "生成物料编号")
+    @PostMapping("/genMaterialCode")
+    public ApiResult genMaterialCode(@RequestBody BasicsdatumMaterial material) {
+        if (null == material || StringUtils.isBlank(material.getCategory2Code()) ||StringUtils.isBlank(material.getCategory3Code())
+                ||StringUtils.isBlank(material.getSeason()) ||StringUtils.isBlank(material.getYear())) {
+            return ApiResult.error("相关参数不能为空：物料二级类目不能为空 || 物料三级类目不能为空 || 年份不能为空 || 季节不能为空", 500);
+        }
+        return ApiResult.success("新增成功" , basicsdatumMaterialService.genMaterialCode(material));
+    }
+
+    @ApiOperation(value = "获取物料编号最大流水号")
+    @PostMapping("/maxMaterialCode")
+    public String maxMaterialCode(@RequestBody GetMaxCodeRedis data) {
+        if (ObjectUtil.isEmpty(data.getValueMap())) {
+            throw new OtherException("条件不能为空");
+        }
+        return basicsdatumMaterialService.getMaxMaterialCode(data,getUserCompany());
     }
 }

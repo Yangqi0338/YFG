@@ -13,9 +13,11 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -34,6 +36,7 @@ import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.*;
+import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabric.service.BasicFabricLibraryService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
@@ -97,6 +100,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	@Lazy
 	@Resource
 	private SmpService smpService;
+	@Autowired
+	private CcmService ccmService;
 
 	@ApiOperation(value = "主物料成分转换")
 	@GetMapping("/formatIngredient")
@@ -869,5 +874,50 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		basicsdatumMaterial.setDistribute("3");
 		baseMapper.updateById(basicsdatumMaterial);
 		return true;
+	}
+
+    @Override
+    public String genMaterialCode(BasicsdatumMaterial material) {
+		GetMaxCodeRedis getNextCode = new GetMaxCodeRedis(ccmService);
+		Map<String, String> params = new HashMap<>(12);
+		params.put("category2Code", material.getCategory2Code());
+		params.put("category3Code", material.getCategory3Code());
+		params.put("year", material.getYear());
+		params.put("season", material.getSeason());
+		return getNextCode.genCode("MATERIAL_CODE", params);
+    }
+
+	@Override
+	public String getMaxMaterialCode(GetMaxCodeRedis data, String userCompany) {
+		List<String> regexps = new ArrayList<>(12);
+		List<String> textFormats = new ArrayList<>(12);
+		data.getValueMap().forEach((key, val) -> {
+			if (BaseConstant.FLOWING.equals(key)) {
+				textFormats.add("(" + val + ")");
+			} else {
+				textFormats.add(String.valueOf(val));
+			}
+			regexps.add(String.valueOf(val));
+		});
+		String regexp = "^" + CollUtil.join(regexps, "");
+		QueryWrapper qc = new QueryWrapper();
+		qc.eq(COMPANY_CODE, userCompany);
+		qc.apply(" material_code REGEXP '" + regexp + "'");
+		qc.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
+		String maxCode = baseMapper.selectMaxMaterialCode(qc);
+		if (StrUtil.isBlank(maxCode)) {
+			return null;
+		}
+		// 替换,保留流水号
+		String formatStr = CollUtil.join(textFormats, "");
+		try {
+			String flowing = ReUtil.get(formatStr, maxCode, 1);
+			if (StrUtil.isNotBlank(flowing)) {
+				return flowing;
+			}
+			return null;
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }

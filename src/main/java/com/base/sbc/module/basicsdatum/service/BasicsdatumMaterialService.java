@@ -27,6 +27,7 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthsSaveDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.vo.*;
+import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.github.pagehelper.PageInfo;
@@ -120,5 +121,18 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 * @return
 	 */
 	Boolean unlock(String id);
+	/**
+	 * 获取下一个编码
+	 *
+	 * @return
+	 */
+	String genMaterialCode(BasicsdatumMaterial material);
+
+	/**
+	 * 获取下一个编码
+	 *
+	 * @return
+	 */
+	String getMaxMaterialCode(GetMaxCodeRedis data, String userCompany);
 }
 
