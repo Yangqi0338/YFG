@@ -27,7 +27,6 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
@@ -365,27 +364,27 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         //获取设计师信息
         // 设置版师列表
         if (CollUtil.isNotEmpty(list)) {
-            Map<String, List<SampleUserVo>> pdMap = new HashMap<>(16);
-            for (PlanningSeasonOverviewVo tct : list) {
-                String key = tct.getPlanningSeasonId();
-                if (pdMap.containsKey(key)) {
-                    tct.setDesigners(pdMap.get(key));
-                } else {
-                    List<UserCompany> designList = amcFeignService.getTeamUserListByPost(tct.getPlanningSeasonId(), "设计师");
-                    List<SampleUserVo> sampleUserVos = Optional.of(designList).map(dl -> {
-                        return dl.stream().map(item -> {
-                            SampleUserVo su = new SampleUserVo();
-                            su.setUserId(item.getUserId());
-                            su.setAvatar(Optional.ofNullable(item.getAvatar()).orElse(item.getAliasUserAvatar()));
-                            su.setName(item.getAliasUserName());
-                            su.setUserCode(item.getUserCode());
-                            return su;
-                        }).collect(Collectors.toList());
-                    }).orElse(null);
-                    tct.setDesigners(sampleUserVos);
-                    pdMap.put(key, sampleUserVos);
-                }
-            }
+//            Map<String, List<SampleUserVo>> pdMap = new HashMap<>(16);
+//            for (PlanningSeasonOverviewVo tct : list) {
+//                String key = tct.getPlanningSeasonId();
+//                if (pdMap.containsKey(key)) {
+//                    tct.setDesigners(pdMap.get(key));
+//                } else {
+//                    List<UserCompany> designList = amcFeignService.getTeamUserListByPost(tct.getPlanningSeasonId(), "设计师");
+//                    List<SampleUserVo> sampleUserVos = Optional.of(designList).map(dl -> {
+//                        return dl.stream().map(item -> {
+//                            SampleUserVo su = new SampleUserVo();
+//                            su.setUserId(item.getUserId());
+//                            su.setAvatar(Optional.ofNullable(item.getAvatar()).orElse(item.getAliasUserAvatar()));
+//                            su.setName(item.getAliasUserName());
+//                            su.setUserCode(item.getUserCode());
+//                            return su;
+//                        }).collect(Collectors.toList());
+//                    }).orElse(null);
+//                    tct.setDesigners(sampleUserVos);
+//                    pdMap.put(key, sampleUserVos);
+//                }
+//            }
             // 素材信息
             List<PlanningCategoryItemMaterial> materialVoList = planningCategoryItemMaterialService.findBySeatIds(list.stream().map(item -> item.getId()).collect(Collectors.toList()));
             if (CollUtil.isNotEmpty(materialVoList)) {

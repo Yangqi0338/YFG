@@ -18,7 +18,9 @@ import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
+import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
@@ -46,10 +48,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
 
@@ -94,6 +93,7 @@ public class SmpService {
     private final BasicsdatumSizeService basicsdatumSizeService;
 
     private final StyleService styleService;
+    private final StyleColorService styleColorService;
 
     private final CcmFeignService ccmFeignService;
 
@@ -114,6 +114,7 @@ public class SmpService {
     private final BasicsdatumIngredientService basicsdatumIngredientService;
     private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
     private final PreProductionSampleTaskService preProductionSampleTaskService;
+    private final UploadFileService uploadFileService;
 
     private static final String SMP_URL = "http://10.98.250.31:7006/pdm";
     //private static final String PDM_URL = "http://smp-i.eifini.com/service-manager/pdm";
@@ -686,7 +687,8 @@ public class SmpService {
             //    throw new OtherException("请先在样衣编辑界面绑定打板指令");
             //}
             try {
-                smpSampleDto.setImgList(Arrays.asList(style.getStylePic().split(",")));
+                UploadFile uploadFile = uploadFileService.getById(style.getStylePic());
+                smpSampleDto.setImgList(Arrays.asList(uploadFile.getUrl().split(",")));
             } catch (Exception ignored) {
             }
 
@@ -876,10 +878,13 @@ public class SmpService {
             smpSampleDto.setSampleNumber(preProductionSampleTask.getCode());
             // 版号名称
             smpSampleDto.setSampleNumberName(preProductionSampleTask.getCode());
+            PackInfo packInfo = packInfoService.getById(preProductionSampleTask.getPackInfoId());
+            StyleColor styleColor = styleColorService.getById(packInfo.getStyleColorId());
+
             // 大货款号
-            smpSampleDto.setColorwayCode(style.getStyleNo());
+            smpSampleDto.setColorwayCode(styleColor.getStyleNo());
             // 大货款号唯一标识
-            smpSampleDto.setColorwayPlmId(style.getStyleNo());
+            smpSampleDto.setColorwayPlmId(styleColor.getId());
             // 样衣名
             smpSampleDto.setNodeName(style.getStyleName());
             // 设计收样日期
@@ -907,7 +912,7 @@ public class SmpService {
             // 季节code
             smpSampleDto.setQuarterCode(style.getSeason());
             // 年份
-            smpSampleDto.setYear(style.getYear());
+            smpSampleDto.setYear(style.getYearName());
             // 设计师
             smpSampleDto.setDesigner(style.getDesigner());
             // 设计师工号
@@ -933,7 +938,8 @@ public class SmpService {
             // 打样部门编号
             smpSampleDto.setSupplierNumber(preProductionSampleTask.getPatternRoomId());
             // 图片集合
-            smpSampleDto.setImgList(Arrays.asList(style.getStylePic().split(",")));
+            UploadFile uploadFile = uploadFileService.getById(style.getStylePic());
+            smpSampleDto.setImgList(Arrays.asList(uploadFile.getUrl().split(",")));
 
             smpSampleDto.setId(preProductionSampleTask.getId()); // ID
             smpSampleDto.setCode(preProductionSampleTask.getCode()); // Code
@@ -948,7 +954,7 @@ public class SmpService {
             smpSampleDto.setActive(true); // 是否启用
 
             //样衣条码    款式id 打版编码
-            PatternMaking patternMaking = patternMakingService.getOne(new QueryWrapper<PatternMaking>().eq("code", preProductionSampleTask.getCode()).eq("style_id", style.getId()).eq("sample_bar_code", preProductionSampleTask.getSampleBarCode()));
+            PatternMaking patternMaking = patternMakingService.getOne(new QueryWrapper<PatternMaking>().eq("style_id", style.getId()).orderByDesc("create_date").last("limit 1"));
             if (patternMaking != null) {
                 // 打版难度编号
                 smpSampleDto.setPatDiff(patternMaking.getPatDiff());
