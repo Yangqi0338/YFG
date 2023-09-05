@@ -15,6 +15,7 @@ import com.base.sbc.module.pack.vo.*;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -101,10 +102,13 @@ public class PackPricingController {
         return packPricingProcessCostsService.saveByDto(dto);
     }
 
-    @ApiOperation(value = "批量新增加工费用")
-    @PostMapping("/batchInsertProcessCosts")
-    public ApiResult batchInsertProcessCosts(@Valid @RequestBody List<PackPricingProcessCostsDto> dto) {
-        packPricingProcessCostsService.batchInsertProcessCosts(dto);
+    @ApiOperation(value = "导入工序工价")
+    @GetMapping("/importProcessPrice")
+    public ApiResult importProcessPrice(@Valid @NotEmpty(message = "主id不可为空") String foreignId,
+                                        @NotEmpty(message = "类型不可为空") String packType,
+                                        @NotEmpty(message = "颜色编码不可为空") String colorCode,
+                                        @NotEmpty(message = "颜色名称不可为空") String colorName) {
+        packPricingProcessCostsService.importProcessPrice(foreignId, packType, colorCode, colorName);
         return ApiResult.success();
     }
 

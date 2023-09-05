@@ -10,6 +10,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -25,9 +26,11 @@ import com.base.sbc.module.pack.service.PackProcessPriceService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackProcessPriceVo;
 import com.base.sbc.module.pricing.vo.PricingProcessCostsVO;
+import com.beust.jcommander.internal.Lists;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -107,6 +110,18 @@ public class PackProcessPriceServiceImpl extends PackBaseServiceImpl<PackProcess
     @Override
     public List<PricingProcessCostsVO> getPricingProcessCostsByForeignId(String foreignId) {
         return super.getBaseMapper().getPricingProcessCostsByForeignId(foreignId);
+    }
+
+    @Override
+    public List<PackProcessPrice> getListByForeignId(String foreignId, String packType) {
+        if (StringUtils.isEmpty(foreignId)) {
+            return Lists.newArrayList();
+        }
+        LambdaQueryWrapper<PackProcessPrice> qw = new QueryWrapper<PackProcessPrice>().lambda()
+                .eq(PackProcessPrice::getForeignId, foreignId)
+                .eq(PackProcessPrice::getPackType, packType);
+
+        return super.list(qw);
     }
 
     @Override

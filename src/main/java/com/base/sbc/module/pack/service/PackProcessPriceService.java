@@ -70,6 +70,14 @@ public interface PackProcessPriceService extends PackBaseService<PackProcessPric
      */
     List<PricingProcessCostsVO> getPricingProcessCostsByForeignId(String foreignId);
 
+    /**
+     * 通过主id获取对应的工序工价
+     * @param foreignId
+     * @param packType
+     * @return
+     */
+    List<PackProcessPrice> getListByForeignId(String foreignId, String packType);
+
 // 自定义方法区 不替换的区域【other_end】
 
 

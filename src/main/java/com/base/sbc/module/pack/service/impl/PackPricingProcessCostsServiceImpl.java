@@ -20,8 +20,10 @@ import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingProcessCostsDto;
 import com.base.sbc.module.pack.entity.PackPricingProcessCosts;
+import com.base.sbc.module.pack.entity.PackProcessPrice;
 import com.base.sbc.module.pack.mapper.PackPricingProcessCostsMapper;
 import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
+import com.base.sbc.module.pack.service.PackProcessPriceService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackPricingProcessCostsVo;
 import com.github.pagehelper.Page;
@@ -56,6 +58,9 @@ public class PackPricingProcessCostsServiceImpl extends PackBaseServiceImpl<Pack
 // 自定义方法区 不替换的区域【other_start】
     @Autowired
     private CcmFeignService ccmFeignService;
+
+    @Autowired
+    private PackProcessPriceService packProcessPriceService;
 
 
     @Override
@@ -108,18 +113,37 @@ public class PackPricingProcessCostsServiceImpl extends PackBaseServiceImpl<Pack
     }
 
     @Override
-    public void batchInsertProcessCosts(List<PackPricingProcessCostsDto> dto) {
-        List<String> sourceIds = dto.stream()
-                .map(PackPricingProcessCostsDto::getSourceId)
-                .filter(StringUtils::isNotBlank)
+    public void importProcessPrice(String foreignId, String packType,
+                              String colorCode, String colorName) {
+        List<PackProcessPrice> packProcessPrices = packProcessPriceService.getListByForeignId(foreignId, packType);
+        if (CollectionUtils.isEmpty(packProcessPrices)) {
+            return;
+        }
+        List<String> sourceIds = packProcessPrices.stream()
+                .map(PackProcessPrice::getId)
                 .collect(Collectors.toList());
-        Map<String, String> idMap = this.getIdBySourceIds(sourceIds, dto.get(0).getForeignId());
-        List<PackPricingProcessCosts> packPricingProcessCostsList = dto.stream()
-                .map(e -> {
-                    PackPricingProcessCosts packPricingProcessCosts = CopyUtil.copy(e, PackPricingProcessCosts.class);
-                    String id = idMap.get(packPricingProcessCosts.getSourceId());
+        Map<String, String> idMap = this.getIdBySourceIds(sourceIds, foreignId);
+        List<PackPricingProcessCosts> packPricingProcessCostsList = packProcessPrices.stream()
+                .map(processPrice -> {
+                    PackPricingProcessCosts packPricingProcessCosts = new PackPricingProcessCosts();
+                    String id = idMap.get(processPrice.getId());
+                    packPricingProcessCosts.setForeignId(foreignId);
+                    packPricingProcessCosts.setPackType(packType);
+                    packPricingProcessCosts.setSourceId(processPrice.getId());
+                    packPricingProcessCosts.setSort(String.valueOf(processPrice.getSort()));
+                    packPricingProcessCosts.setPart(processPrice.getPartName());
+                    packPricingProcessCosts.setProcessSort(processPrice.getProcessSort());
+                    packPricingProcessCosts.setProcessName(processPrice.getProcessName());
+                    packPricingProcessCosts.setProcessLevel(processPrice.getLevel());
+                    packPricingProcessCosts.setFinallyNode(processPrice.getEndNode());
+                    packPricingProcessCosts.setMultiple(processPrice.getMultiple());
+                    packPricingProcessCosts.setProcessDate(processPrice.getProcessDate());
+                    packPricingProcessCosts.setProcessPrice(processPrice.getProcessPrice());
+                    packPricingProcessCosts.setCurrency(processPrice.getCurrency());
                     packPricingProcessCosts.setCompanyCode(super.getCompanyCode());
                     packPricingProcessCosts.setSourceType("1");
+                    packPricingProcessCosts.setColorCode(colorCode);
+                    packPricingProcessCosts.setColorName(colorName);
                     if (StringUtils.isEmpty(id)) {
                         packPricingProcessCosts.insertInit();
                     } else {
