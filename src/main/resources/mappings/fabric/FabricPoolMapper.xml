@@ -43,7 +43,7 @@
                 and fp.approve_status = #{dto.approveStatus}
             </if>
             <if test="dto.search != null and dto.search != ''">
-                and fp.fabric_planning_name LIKE concat('%',#{dto.search},'%')
+                and fp.fabric_pool_name LIKE concat('%',#{dto.search},'%')
             </if>
         </where>
         GROUP BY fp.id ORDER BY create_date desc
