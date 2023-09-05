@@ -18,6 +18,7 @@ import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.pack.dto.PackInfoDto;
 import com.base.sbc.module.pack.dto.PlanningDemandStatisticsResultVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
@@ -172,12 +173,12 @@ public class StyleController extends BaseController{
     }
     @ApiOperation(value = "保存款式详情颜色并生成SKU")
     @PostMapping("/saveBomInfoColorList")
-    public ApiResult saveBomInfoColorList(@RequestBody StyleSaveDto styleSaveDto) {
-        if (null == styleSaveDto || CollectionUtil.isEmpty(styleSaveDto.getStyleInfoColorDtoList())  || StringUtils.isEmpty(styleSaveDto.getProductSizes())
-                || StringUtils.isEmpty(styleSaveDto.getId()) || StringUtils.isEmpty(styleSaveDto.getSizeCodes()) ) {
+    public ApiResult saveBomInfoColorList(@RequestBody PackInfoDto packInfoDto) {
+        if (null == packInfoDto || CollectionUtil.isEmpty(packInfoDto.getStyleInfoColorDtoList())  || StringUtils.isEmpty(packInfoDto.getProductSizes())
+                || StringUtils.isEmpty(packInfoDto.getId()) || StringUtils.isEmpty(packInfoDto.getSizeCodes()) ) {
            return ApiResult.error("相关参数不能为空：款式详情颜色列表不能为空 || 尺码集合不能为空 ||  尺码Code集合不能为空", 500);
         }
-        return ApiResult.success("新增成功" , styleService.saveBomInfoColorList(styleSaveDto));
+        return ApiResult.success("新增成功" , styleService.saveBomInfoColorList(packInfoDto));
     }
 
     @ApiOperation(value = "生成设计款号")

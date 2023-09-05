@@ -20,7 +20,7 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
- * 类描述：款式设计SKU表 DTO类
+ * 类描述：资料包-款式设计SKU表 DTO类
  * @address com.base.sbc.module.style.dto.StyleInfoSkuDto
  * @author LiZan
  * @email 2682766618@qq.com
@@ -28,7 +28,7 @@ import java.math.BigDecimal;
  * @version 1.0
  */
 @Data
-@ApiModel("款式设计SKU表 StyleInfoSkuDto")
+@ApiModel("资料包-款式设计SKU表 StyleInfoSkuDto")
 public class StyleInfoSkuDto  extends Page {
 
 	private static final long serialVersionUID = 1L;
