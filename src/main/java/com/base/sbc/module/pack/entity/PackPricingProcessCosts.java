@@ -35,7 +35,8 @@ public class PackPricingProcessCosts extends BaseDataEntity<String> {
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
-    /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
+    /*****************************数据库字段区 不包含父类公共字段(属性) 【start】******
+     * *****************************/
     /**
      * 主数据id
      */
@@ -131,6 +132,27 @@ public class PackPricingProcessCosts extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "备注")
     private String remarks;
+
+    /**
+     * 来源：0.新增、1.工序工价
+     */
+    @ApiModelProperty(value = "来源：0.新增、1.工序工价")
+    private String sourceType;
+    /**
+     * 来源id
+     */
+    @ApiModelProperty(value = "来源id")
+    private String sourceId;
+    /**
+     * 颜色编码
+     */
+    @ApiModelProperty(value = "颜色编码")
+    private String colorCode;
+    /**
+     * 颜色名称
+     */
+    @ApiModelProperty(value = "颜色名称")
+    private String colorName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

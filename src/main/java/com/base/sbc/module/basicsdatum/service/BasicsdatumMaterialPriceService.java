@@ -9,7 +9,9 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /** 
  * 类描述：基础资料-物料档案-供应商报价 service类
@@ -24,6 +26,15 @@ public interface BasicsdatumMaterialPriceService extends BaseService<Basicsdatum
 // 自定义方法区 不替换的区域【other_start】
 
     List<BomSelMaterialVo> findDefaultToBomSel(List<String> materialCodeList);
+
+    /**
+     * 获取默认供应商采购单价
+     * @param materialCodes
+     * @return
+     */
+    Map<String, BigDecimal> getDefaultSupplerQuotationPrice(List<String> materialCodes);
+
+
 
 
 // 自定义方法区 不替换的区域【other_end】

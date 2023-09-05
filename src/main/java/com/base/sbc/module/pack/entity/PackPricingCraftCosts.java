@@ -111,6 +111,17 @@ public class PackPricingCraftCosts extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "金额")
     private BigDecimal sumprice;
+
+    /**
+     * 颜色编码
+     */
+    @ApiModelProperty(value = "颜色编码")
+    private String colorCode;
+    /**
+     * 颜色名称
+     */
+    @ApiModelProperty(value = "颜色名称")
+    private String colorName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

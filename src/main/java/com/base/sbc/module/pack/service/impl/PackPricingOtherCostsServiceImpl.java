@@ -28,6 +28,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -56,6 +57,7 @@ public class PackPricingOtherCostsServiceImpl extends PackBaseServiceImpl<PackPr
         PackUtils.commonQw(qw, dto);
         qw.eq(StrUtil.isNotBlank(dto.getCostsItem()), "costs_item", dto.getCostsItem());
         Page<PackPricingOtherCosts> page = PageHelper.startPage(dto);
+        qw.eq(StringUtils.isNotEmpty(dto.getColorCode()), "color_code", dto.getColorCode());
         list(qw);
         PageInfo<PackPricingOtherCosts> pageInfo = page.toPageInfo();
         return CopyUtil.copy(pageInfo, PackPricingOtherCostsVo.class);
@@ -89,6 +91,7 @@ public class PackPricingOtherCostsServiceImpl extends PackBaseServiceImpl<PackPr
         QueryWrapper<PackPricingOtherCosts> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
         // 其他费用
+        qw.eq(StringUtils.isNotEmpty(dto.getColorCode()), "color_code", dto.getColorCode());
         List<TotalVo> costsItemTotalList = getBaseMapper().costsItemTotal(qw);
         if (CollUtil.isNotEmpty(costsItemTotalList)) {
             for (TotalVo total : costsItemTotalList) {

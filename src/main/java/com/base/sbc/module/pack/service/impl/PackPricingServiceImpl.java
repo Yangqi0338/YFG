@@ -73,7 +73,7 @@ public class PackPricingServiceImpl extends PackBaseServiceImpl<PackPricingMappe
     }
 
     @Override
-    public Map<String, BigDecimal> calculateCosts(PackCommonSearchDto dto) {
+    public Map<String, BigDecimal>  calculateCosts(PackCommonSearchDto dto) {
         Map<String, BigDecimal> temp = new HashMap<>(16);
         //其他费用统计
         Map<String, BigDecimal> otherStatistics = packPricingOtherCostsService.statistics(dto);

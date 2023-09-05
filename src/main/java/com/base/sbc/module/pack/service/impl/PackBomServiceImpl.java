@@ -20,6 +20,7 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomColor;
@@ -42,6 +43,7 @@ import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,6 +74,9 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
 
     @Resource
     private PackBomColorService packBomColorService;
+
+    @Autowired
+    private BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
@@ -322,9 +327,20 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             Map<String, List<PackBomSizeVo>> packBomSizeMap = packBomSizeService.getByBomIdsToMap(bomIds);
             // 查询资料包-物料清单-配色
             Map<String, List<PackBomColorVo>> packBomColorMap = packBomColorService.getByBomIdsToMap(bomIds);
+            List<String> materialCodes = packBomVos.stream()
+                    .filter(x -> Objects.isNull(x.getBulkPrice()) && Objects.isNull(x.getSupplierPrice()))
+                    .map(PackBomVo::getMaterialCode)
+                    .collect(Collectors.toList());
+            Map<String, BigDecimal> defaultSupplerQuotationPrice = basicsdatumMaterialPriceService.getDefaultSupplerQuotationPrice(materialCodes);
             for (PackBomVo pbv : packBomVos) {
                 pbv.setPackBomSizeList(packBomSizeMap.get(pbv.getId()));
                 pbv.setPackBomColorVoList(packBomColorMap.get(pbv.getId()));
+                if (Objects.isNull(pbv.getBulkPrice()) && Objects.isNull(pbv.getSupplierPrice())) {
+                    pbv.setBulkPrice(defaultSupplerQuotationPrice.get(pbv.getMaterialCode()));
+                }
+                if (Objects.isNull(pbv.getBulkPrice()) && Objects.nonNull(pbv.getSupplierPrice())) {
+                    pbv.setBulkPrice(pbv.getSupplierPrice());
+                }
             }
         }
         return pageInfo;
