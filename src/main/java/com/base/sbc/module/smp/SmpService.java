@@ -907,7 +907,7 @@ public class SmpService {
             // 季节code
             smpSampleDto.setQuarterCode(style.getSeason());
             // 年份
-            smpSampleDto.setYear(style.getYear());
+            smpSampleDto.setYear(style.getYearName());
             // 设计师
             smpSampleDto.setDesigner(style.getDesigner());
             // 设计师工号
