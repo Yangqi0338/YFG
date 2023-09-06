@@ -18,6 +18,8 @@
         tpi.id as packInfoId,
         tsd.devt_type AS produceType,
         tsd.style_type AS styleType,
+        tsd.devt_type_name AS produceTypeName,
+        tsd.style_type_name AS styleTypeName,
         tsd.size_range_name AS modelTypeName,
         tsd.design_no AS designNo,
         tssc.style_no AS bulkStyleNo,
