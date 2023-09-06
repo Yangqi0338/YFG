@@ -230,7 +230,7 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
                     // 尺码名称
                     String sizeName =  null != productSizeList.get(i) ? productSizeList.get(i) : "";
                     // SKU ：颜色code + - + 尺码code
-                    String skuCode = packInfoDto.getDesignNo() + styleInfoColor.getColorCode() + sizeCode;
+                    String skuCode = styleDto.getDesignNo() + styleInfoColor.getColorCode() + sizeCode;
                     StyleInfoSku styleInfoSku = new StyleInfoSku();
                     styleInfoSku.setForeignId(styleInfoColor.getForeignId());
                     styleInfoSku.setPackType(styleInfoColor.getPackType());
