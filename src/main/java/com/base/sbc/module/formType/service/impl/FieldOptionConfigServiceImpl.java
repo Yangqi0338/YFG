@@ -59,6 +59,11 @@ public class FieldOptionConfigServiceImpl extends BaseServiceImpl<FieldOptionCon
     public PageInfo getFieldOptionConfigList(QueryFieldOptionConfigDto queryFieldOptionConfigDto) {
         QueryWrapper queryWrapper =new QueryWrapper();
         queryWrapper.eq("field_management_id",queryFieldOptionConfigDto.getFieldManagementId());
+        queryWrapper.eq(StringUtils.isNotBlank(queryFieldOptionConfigDto.getProdCategory2nd()),"prod_category2nd",queryFieldOptionConfigDto.getProdCategory2nd());
+        queryWrapper.eq(StringUtils.isNotBlank(queryFieldOptionConfigDto.getCategoryCode()),"category_code",queryFieldOptionConfigDto.getCategoryCode());
+        queryWrapper.eq(StringUtils.isNotBlank(queryFieldOptionConfigDto.getSeason()),"season",queryFieldOptionConfigDto.getSeason());
+        queryWrapper.eq(StringUtils.isNotBlank(queryFieldOptionConfigDto.getBrand()),"brand",queryFieldOptionConfigDto.getBrand());
+        queryWrapper.eq(StringUtils.isNotBlank(queryFieldOptionConfigDto.getStatus()),"status",queryFieldOptionConfigDto.getStatus());
         Page<FieldOptionConfigVo> objects = PageHelper.startPage(queryFieldOptionConfigDto);
         baseMapper.selectList(queryWrapper);
         return objects.toPageInfo();

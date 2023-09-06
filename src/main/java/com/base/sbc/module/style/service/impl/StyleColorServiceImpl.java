@@ -324,48 +324,11 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         String yearOn = "";
         try {
 //        获取年份
-            /**
-             * 年份 初始值从2019开始为A依次往后推 超过26年份为A1
-             */
-            int initial = Integer.parseInt("2019");
-            int year1 = Integer.parseInt(year);
-            int ascii = 'A';
-            /*超过2044年重新开始*/
-            if (year1 <= 2044) {
-                char c = (char) (ascii + Math.abs(year1 - initial));
-                yearOn = String.valueOf(c);
-            } else {
-                char c1 = (char) (ascii + (year1 - initial) - ((year1 - initial) / 26) * 26);
-                yearOn = String.valueOf(c1) + (year1 - initial) / 26;
-            }
-            /*判断月份是否是1到九月*/
-            /**
-             * 月份: 超过9的月份为A
-             */
-            month = month.replace("0", "");
-            if (!month.matches("[1-9]")) {
-                month = month.equals("10") ? "A" : month.equals("11") ? "B" : month.equals("12") ? "C" : "";
-            }
-
-            // 使用正则表达式匹配字母
-            /**
-             * 波段：使用波段中的字母生产 A1：1 B1：2
-             */
-            Pattern pattern = Pattern.compile("[a-z||A-Z]");
-            Matcher matcher = pattern.matcher(bandName);
-            String Letter = "";
-            // 打印匹配到的字母
-            while (matcher.find()) {
-                Letter += matcher.group();
-            }
-            if (!StringUtils.isEmpty(Letter)) {
-                Letter = Letter.toUpperCase();
-                char[] charArray = Letter.toCharArray();
-                int char1 = charArray[0];
-                bandName = String.valueOf(char1 - 64);
-            } else {
-                bandName = "";
-            }
+            yearOn = getYearOn(year);
+//            月份
+            month = getMonth(month);
+//            波段
+            bandName = getBandName(bandName);
 
             /*获取款式流水号*/
             /**
@@ -390,6 +353,68 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             throw new OtherException("编码重复");
         }
         return styleNo;
+    }
+
+
+    /**
+     * 波段：使用波段中的字母生产 A1：1 B1：2
+     * @param bandName
+     * @return
+     */
+    public String  getBandName(String bandName){
+        // 使用正则表达式匹配字母
+        Pattern pattern = Pattern.compile("[a-z||A-Z]");
+        Matcher matcher = pattern.matcher(bandName);
+        String Letter = "";
+        // 打印匹配到的字母
+        while (matcher.find()) {
+            Letter += matcher.group();
+        }
+        if (!StringUtils.isEmpty(Letter)) {
+            Letter = Letter.toUpperCase();
+            char[] charArray = Letter.toCharArray();
+            int char1 = charArray[0];
+            bandName = String.valueOf(char1 - 64);
+        } else {
+            bandName = "";
+        }
+
+        return bandName;
+    }
+
+    /**
+     * 年份 初始值从2019开始为A依次往后推 超过26年份为A1
+     *
+     * @param year
+     * @return
+     */
+    public String getYearOn(String year) {
+        String yearOn = "";
+        int initial = Integer.parseInt("2019");
+        int year1 = Integer.parseInt(year);
+        int ascii = 'A';
+        /*超过2044年重新开始*/
+        if (year1 <= 2044) {
+            char c = (char) (ascii + Math.abs(year1 - initial));
+            yearOn = String.valueOf(c);
+        } else {
+            char c1 = (char) (ascii + (year1 - initial) - ((year1 - initial) / 26) * 26);
+            yearOn = String.valueOf(c1) + (year1 - initial) / 26;
+        }
+        return yearOn;
+    }
+
+    /**
+     * 判断月份是否是1到九月 超过9的月份为A
+     * @param month
+     * @return
+     */
+    public String getMonth(String month) {
+        month = month.replace("0", "");
+        if (!month.matches("[1-9]")) {
+            month = month.equals("10") ? "A" : month.equals("11") ? "B" : month.equals("12") ? "C" : "";
+        }
+        return month;
     }
 
     /**
@@ -434,6 +459,45 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             }
             BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(addRevampStyleColorDto.getColourLibraryId());
             styleColor = baseMapper.selectById(addRevampStyleColorDto.getId());
+            /*判断波段及细分是否改动 改动则需要同步大货款号*/
+            if(StringUtils.isNotBlank(addRevampStyleColorDto.getSubdivide())){
+                if(!addRevampStyleColorDto.getSubdivide().equals(styleColor.getSubdivide())){
+                    /**
+                     * 修改所有引用的大货款号
+                     */
+                    baseMapper.reviseAllStyleNo(styleColor.getStyleNo(),styleColor.getStyleNo()+addRevampStyleColorDto.getSubdivide());
+                    /*新大货款号=大货款号+细分*/
+                    styleColor.setStyleNo(styleColor.getStyleNo()+addRevampStyleColorDto.getSubdivide());
+                }
+            }
+            if(!addRevampStyleColorDto.getBandCode().equals(styleColor.getBandCode())) {
+                /*新大货款号 ：换标波段生成的字符*/
+                /**
+                 * 先生成波段之前的字符串替换为空，在拼接
+                 */
+                Style style = styleMapper.selectById(styleColor.getStyleId());
+                //获取年份
+                String year = getYearOn(style.getYear());
+                //月份
+                String month = getMonth(style.getMonth());
+                /*品牌*/
+                String brand = style.getBrand();
+                /*大货款的前及位*/
+                String newStyle = brand + year + month;
+                /*后几位大货款号*/
+                String s = styleColor.getStyleNo().replaceAll(newStyle + getBandName(styleColor.getBandName()), "");
+                /*拼接新大货款号*/
+                String styleNo = newStyle + getBandName(addRevampStyleColorDto.getBandName()) + s;
+                int i = baseMapper.isStyleNoExist(styleNo);
+                if (i > 0) {
+                    throw new OtherException("波段修改失败，大货款重复");
+                }
+                addRevampStyleColorDto.setStyleNo(styleNo);
+                /**
+                 * 修改所有引用的大货款号
+                 */
+                baseMapper.reviseAllStyleNo(styleColor.getStyleNo(),addRevampStyleColorDto.getStyleNo());
+            }
             if (ObjectUtils.isEmpty(styleColor)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
@@ -638,12 +702,12 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             sampleStyleColor.setStyleNo(updateStyleNoBandDto.getStyleNo());
         }
         /*修改波段*/
-        if(StringUtils.isNotBlank(sampleStyleColor.getBandCode()) && StringUtils.isNotBlank(updateStyleNoBandDto.getBandCode())){
+    /*    if(StringUtils.isNotBlank(sampleStyleColor.getBandCode()) && StringUtils.isNotBlank(updateStyleNoBandDto.getBandCode())){
             if(!sampleStyleColor.getBandCode().equals(updateStyleNoBandDto.getBandCode())){
                 sampleStyleColor.setBandCode(updateStyleNoBandDto.getBandCode());
                 sampleStyleColor.setBandName(updateStyleNoBandDto.getBandName());
             }
-        }
+        }*/
         baseMapper.updateById(sampleStyleColor);
         /*重新下发配色*/
         dataUpdateScmService.updateStyleColorSendById(sampleStyleColor.getId());
