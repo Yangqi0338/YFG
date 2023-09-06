@@ -172,11 +172,18 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
         if(null == packInfoDto || null == packInfoDto.getId()){
             return;
         }
-        PackInfo packInfo = packInfoService.getById(packInfoDto.getId());
-        if (null == packInfo) {
-            throw new OtherException(packInfoDto.getId() + "资料包信息未找到!!!");
+        // 如果来源资料包类型是：款式设计 - packStyle， 款式设计详情颜色里主ID 存的是款式表id
+        String styleId = StrUtil.equals(packInfoDto.getSourcePackType(), PackUtils.PACK_TYPE_STYLE)
+                ? packInfoDto.getId() : BaseGlobal.H;
+        // 如果不是来源资料包类型不是款式设计 - packStyle，则查出资料包信息，取出款式id
+        if (!StrUtil.equals(packInfoDto.getSourcePackType(), PackUtils.PACK_TYPE_STYLE)) {
+            PackInfo packInfo = packInfoService.getById(packInfoDto.getId());
+            if (null == packInfo) {
+                throw new OtherException(packInfoDto.getId() + "资料包信息未找到!!!");
+            }
+            styleId = packInfo.getForeignId();
         }
-        Style styleDto = styleService.getById(packInfo.getForeignId());
+        Style styleDto = styleService.getById(styleId);
         if (null == styleDto) {
             throw new OtherException(packInfoDto.getForeignId() + "款式信息未找到!!!");
         }
