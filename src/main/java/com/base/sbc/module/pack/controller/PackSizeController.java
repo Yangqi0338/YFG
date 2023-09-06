@@ -224,6 +224,7 @@ public class PackSizeController extends BaseController{
 
         List<String> sizeList = StringUtils.convertList(packSizeConfigVo.getProductSizes());
 
+        int criticalFactor = StringUtils.equals(ifWashing, "1") ? 3 : 2;
         IdGen idGen = new IdGen();
         List<PackSize> packSizeList = new ArrayList<>();
         List<PackSizeDetail> packSizeDetailList = new ArrayList<>();
@@ -293,17 +294,17 @@ public class PackSizeController extends BaseController{
                                     packSizeDetail.setSize(key);
                                 }
 
-                                if(k == j + 6){
+                                if(k == (j * criticalFactor) + 6){
                                     //样板尺寸
                                     packSizeDetail.setTemplate(s);
                                     packSizeDetailNumMap.put("template" + key, s);
                                 }
-                                if(k == j + 7){
+                                if(k == (j * criticalFactor) + 7){
                                     //成衣尺寸
                                     packSizeDetail.setGarment(s);
                                     packSizeDetailNumMap.put("garment" + key, s);
                                 }
-                                if(StringUtils.equals(ifWashing, "1") && k == j + 8){
+                                if(StringUtils.equals(ifWashing, "1") && k == (j * criticalFactor) + 8){
                                     //洗后尺寸
                                     packSizeDetail.setWashing(s);
                                     packSizeDetailNumMap.put("washing" + key, s);
