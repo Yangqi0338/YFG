@@ -355,6 +355,7 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	 */
 	@ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）")
 	private String confirmStatus;
-
+	@ApiModelProperty(value = "是否战略备料(0是，1否)")
+	private String isStrategic;
 }
 

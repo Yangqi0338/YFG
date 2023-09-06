@@ -365,4 +365,7 @@ public class BasicsdatumMaterialSaveDto {
 	 */
 	@ApiModelProperty(value = "数据来源：1.新增、2.面料企划、3.其他")
 	private String source;
+
+	@ApiModelProperty(value = "是否战略备料(0是，1否)")
+	private String isStrategic;
 }
