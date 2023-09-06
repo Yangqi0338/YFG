@@ -159,6 +159,11 @@ public class HangTagVO {
     private String extAuxiliaryTechnics;
 
     /**
+     * 款式图片地址
+     */
+    private String stylePic;
+
+    /**
      * 外辅助工艺
      */
     @ApiModelProperty(value = "外辅助工艺编码")
