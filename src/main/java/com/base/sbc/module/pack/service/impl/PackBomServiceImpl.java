@@ -298,17 +298,19 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             return result;
         }
 
-        //物料费用=物料大货用量*物料大货单价*（1+损耗率)
-        return bomList.stream().map(packBom -> {
-                    BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")));
-                    BigDecimal mul = NumberUtil.mul(
-                            packBom.getBulkUnitUse(),
-                            packBom.getBulkPrice(),
-                            divide
-                    );
-                    return mul;
-                }
-        ).reduce((a, b) -> a.add(b)).orElse(BigDecimal.ZERO);
+
+    //款式物料费用=款式物料用量*款式物料单价*（1+损耗率)
+    //大货物料费用=物料大货用量*物料大货单价*（1+损耗率)
+    return bomList.stream().map(packBom -> {
+                BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")));
+                BigDecimal mul = NumberUtil.mul(
+                        dto.getPackType().equals("packDesign") ? packBom.getDesignUnitUse() : packBom.getBulkUnitUse(),
+                        dto.getPackType().equals("packDesign") ? packBom.getDesignPrice() : packBom.getBulkPrice(),
+                        divide
+                );
+                return mul;
+            }
+    ).reduce((a, b) -> a.add(b)).orElse(BigDecimal.ZERO);
     }
 
     @Override
