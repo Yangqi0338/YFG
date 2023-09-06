@@ -180,6 +180,11 @@ public class BomSelMaterialVo {
     private String deliveryName;
     @ApiModelProperty(value = "货期编码")
     private String deliveryCode;
+    /**
+     * 数据来源：1.新增、2.面料企划、3.其他
+     */
+    @ApiModelProperty(value = "数据来源：1.新增、2.面料企划、3.其他")
+    private String source;
 
 
 }

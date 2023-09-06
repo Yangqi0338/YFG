@@ -441,6 +441,12 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	 */
 	@ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）")
 	private String confirmStatus;
+
+	/**
+	 * 数据来源：1.新增、2.面料企划、3.其他
+	 */
+	@ApiModelProperty(value = "数据来源：1.新增、2.面料企划、3.其他")
+	private String source;
 	/*****************************
 	 * 数据库字段区 不包含父类公共字段(属性) 【end】
 	 ***********************************/
