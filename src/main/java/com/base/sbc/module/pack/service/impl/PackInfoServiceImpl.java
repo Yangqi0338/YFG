@@ -623,6 +623,41 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean copyItems(PackCopyDto dto) {
+
+        if (StrUtil.isNotBlank(dto.getStyleColorId())) {
+            //查询资料包信息
+            QueryWrapper<PackInfo> packQw = new QueryWrapper();
+            packQw.eq("style_color_id", dto.getStyleColorId());
+            packQw.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
+            List<PackInfoListVo> packInfoListVos = baseMapper.queryByQw(packQw);
+            if (CollUtil.isEmpty(packInfoListVos)) {
+                throw new OtherException("找不到款式配色的BOM信息");
+            }
+            PackInfoListVo packInfoListVo = packInfoListVos.get(0);
+            dto.setSourceForeignId(packInfoListVo.getId());
+            dto.setSourcePackType(packInfoListVo.getPackType());
+        }
+
+
+        if (StrUtil.contains(dto.getItem(), "物料清单")) {
+            packBomVersionService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+        }
+        if (StrUtil.contains(dto.getItem(), "尺寸表")) {
+            packSizeService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+            packSizeConfigService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+        }
+
+        if (StrUtil.contains(dto.getItem(), "工艺说明")) {
+            attachmentService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+            packTechSpecService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+            packTechPackagingService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+        }
+        return true;
+    }
+
+    @Override
     public boolean delTechSpecFile(PackCommonSearchDto dto) {
         UpdateWrapper qw = new UpdateWrapper();
         PackUtils.commonQw(qw, dto);

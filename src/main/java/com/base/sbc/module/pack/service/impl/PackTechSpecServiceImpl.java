@@ -7,7 +7,9 @@
 package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -21,10 +23,14 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
 import com.base.sbc.module.pack.dto.*;
+import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackTechSpec;
+import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.mapper.PackTechSpecMapper;
+import com.base.sbc.module.pack.service.PackTechPackagingService;
 import com.base.sbc.module.pack.service.PackTechSpecService;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pack.vo.PackTechSpecVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -56,10 +62,14 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
     @Resource
     private AttachmentService attachmentService;
     @Resource
+    private PackTechPackagingService packTechPackagingService;
+    @Resource
     private OperaLogService operaLogService;
 
     @Autowired
     private UploadFileService uploadFileService;
+    @Autowired
+    private PackInfoMapper packInfoMapper;
 
     @Override
     public List<PackTechSpecVo> list(PackTechSpecSearchDto dto) {
@@ -166,6 +176,62 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
         }
         saveBatch(packTechSpecs);
         return BeanUtil.copyToList(packTechSpecs, PackTechSpecVo.class);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean references(PackTechSpecReferencesDto dto) {
+        //查询资料包信息
+        QueryWrapper<PackInfo> packQw = new QueryWrapper();
+        packQw.eq("style_color_id", dto.getStyleColorId());
+        packQw.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
+        List<PackInfoListVo> packInfoListVos = packInfoMapper.queryByQw(packQw);
+        if (CollUtil.isEmpty(packInfoListVos)) {
+            throw new OtherException("找不到款式配色的BOM信息");
+        }
+
+        PackInfoListVo packInfoListVo = packInfoListVos.get(0);
+        //复制文件
+        attachmentService.copyTechFile(packInfoListVo.getId(), packInfoListVo.getPackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getItem());
+        //工艺说明
+        copyItem(packInfoListVo.getId(), packInfoListVo.getPackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getItem());
+        if (StrUtil.contains(dto.getItem(), "包装方式和体积重量")) {
+            // 工艺说明包装方式
+            packTechPackagingService.copy(packInfoListVo.getId(), packInfoListVo.getPackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+        }
+
+
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void copyItem(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String item) {
+        if (StrUtil.equals(sourceForeignId, targetForeignId) && StrUtil.equals(sourcePackType, targetPackType)) {
+            return;
+        }
+        List<String> items = StrUtil.split(item, CharUtil.COMMA);
+        //删除目标的项目
+//        QueryWrapper<PackTechSpec> delQw = new QueryWrapper<PackTechSpec>();
+//        delQw.eq("foreign_id", targetForeignId);
+//        delQw.eq("pack_type", targetPackType);
+//        delQw.in("spec_type",items);
+//        remove(delQw);
+        //复制
+        QueryWrapper<PackTechSpec> query = new QueryWrapper<PackTechSpec>();
+        query.eq("foreign_id", sourceForeignId);
+        query.eq("pack_type", sourcePackType);
+        query.in("spec_type", items);
+        List<PackTechSpec> list = list(query);
+        if (CollUtil.isNotEmpty(list)) {
+            for (PackTechSpec t : list) {
+                t.setId(null);
+                BeanUtil.setProperty(t, "foreignId", targetForeignId);
+                BeanUtil.setProperty(t, "packType", targetPackType);
+            }
+            saveBatch(list);
+        }
+
     }
 
 

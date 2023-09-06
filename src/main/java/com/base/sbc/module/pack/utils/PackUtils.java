@@ -1,6 +1,7 @@
 package com.base.sbc.module.pack.utils;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
@@ -16,6 +17,7 @@ import com.base.sbc.module.pack.entity.PackSizeDetail;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：资料包帮助类
@@ -42,6 +44,11 @@ public class PackUtils {
      * 资料包类型 款式设计
      */
     public static final String PACK_TYPE_STYLE = "packStyle";
+
+    /**
+     * 工艺说明项目
+     */
+    public static final List<String> TECH_SPEC_ITEM = CollUtil.newArrayList("裁剪工艺", "基础工艺", "小部件", "注意事项", "整烫包装", "外辅工艺");
 
     /**
      * 公共条件
@@ -130,5 +137,17 @@ public class PackUtils {
         }
 
         return result;
+    }
+
+    public static List<String> getTechSpecAttType(String packType) {
+        return TECH_SPEC_ITEM.stream().map(item -> {
+            return packType + StrUtil.DASHED + item;
+        }).collect(Collectors.toList());
+    }
+
+    public static List<String> getTechSpecAttType(String packType, List<String> items) {
+        return items.stream().map(item -> {
+            return packType + StrUtil.DASHED + item;
+        }).collect(Collectors.toList());
     }
 }

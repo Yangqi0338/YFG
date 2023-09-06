@@ -181,6 +181,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      */
     AttachmentVo genTechSpecFile2(GroupUser groupUser, PackCommonSearchDto dto);
 
+    boolean copyItems(PackCopyDto dto);
+
 
 // 自定义方法区 不替换的区域【other_end】
 
