@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
@@ -132,6 +133,9 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             bean = BeanUtil.copyProperties(dto, PlanningSeason.class);
             bean.setStatus(BaseGlobal.STATUS_NORMAL);
             save(bean);
+            if (ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.ADD_PLANNING_SEASON_DEFAULT_INSERT_TEAM_SWITCH.getKeyCode())) {
+                amcFeignService.teamSave(bean.getId(), "默认团队");
+            }
         } else {
             bean = getById(dto.getId());
             if (bean == null) {
