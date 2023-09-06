@@ -42,12 +42,10 @@ import com.base.sbc.module.common.vo.CountVo;
 import com.base.sbc.module.formType.dto.QueryFieldOptionConfigDto;
 import com.base.sbc.module.formType.entity.FieldOptionConfig;
 import com.base.sbc.module.formType.entity.FieldVal;
-import com.base.sbc.module.formType.mapper.FieldOptionConfigMapper;
 import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FieldOptionConfigService;
 import com.base.sbc.module.formType.service.FieldValService;
 import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
-import com.base.sbc.module.formType.utils.FormTypeCodes;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.formType.vo.FieldOptionConfigVo;
 import com.base.sbc.module.planning.dto.*;
@@ -60,7 +58,6 @@ import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
-import com.base.sbc.module.planning.vo.PlanningDemandVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
@@ -438,8 +435,11 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         if (count > 0) {
             throw new OtherException("存在下发的数据");
         }
-        // 1.1 分配设计师
-        this.allocationDesign(allocationDesignDtoList);
+        Boolean genDesignNoAction = ccmFeignService.getSwitchByCode("GEN_DESIGN_NO_ACTION");
+        if (!genDesignNoAction) {
+            // 1.1 分配设计师
+            this.allocationDesign(allocationDesignDtoList);
+        }
         // 1.2 设置任务等级
         this.setTaskLevel(setTaskLevelDtoList);
 
@@ -476,7 +476,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             style.setStartTime(sendDate);
             style.setEndTime(item.getPlanningFinishDate());
             style.setStylePic(Optional.ofNullable(fileUrlId.get(style.getStylePic())).orElse(""));
-            if(ccmFeignService.getSwitchByCode("GEN_DESIGN_NO_ACTION")){
+
+            if (genDesignNoAction) {
                 style.setDesignNo(null);
             }
             styleList.add(style);
