@@ -232,5 +232,18 @@ public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<Basicsdat
         return baseMapper.update(null, updateWrapper) > 0;
     }
 
-
+    /**
+     * 查询所有数据
+     *
+     * @param companyCode 企业编码
+     * @return List<BasicsdatumMeasurementVo>
+     */
+    @Override
+    public List<BasicsdatumMeasurement> getAllMeasurement(String companyCode) {
+        BaseQueryWrapper<BasicsdatumMeasurement> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("company_code", companyCode);
+        queryWrapper.orderByDesc("create_date");
+        List<BasicsdatumMeasurement> list = getBaseMapper().selectList(queryWrapper);
+        return list;
+    }
 }

@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
@@ -48,7 +49,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -206,14 +209,44 @@ public class GenTechSpecPdfFile {
             dataModel.put("sizeList", sizeList);
             int sizeColspan = washSkippingFlag ? 3 : 2;
             dataModel.put("sizeColspan", sizeColspan);
-            dataModel.put("sizeTitleColspan", sizeColspan * CollUtil.size(sizeList) + 4);
+            int sizeTitleColspan = sizeColspan * CollUtil.size(sizeList) + 4;
+            dataModel.put("sizeTitleColspan", sizeTitleColspan);
             dataModel.put("washSkippingFlag", washSkippingFlag);
             //处理尺码数据
             // 3个白色开始 2个灰色开始
             List<Map<String, Object>> dataList = new ArrayList<>(16);
-            ArrayList<String> tdClassList = CollUtil.newArrayList("gb", "");
+            ArrayList<String> tdClassList = CollUtil.newArrayList("gb", "wb");
             Map<Object, Object> sizeClass = new LinkedHashMap<>();
-            int classIndex = sizeColspan;
+            //计算尺寸表的背景颜色
+            //默认尺码下标
+            int defaultSizeIndex = CollUtil.indexOf(sizeList, (s) -> StrUtil.equals(s, defaultSize));
+            //部位、描述、列无背景
+            int sizeTdIndex = 0;
+            sizeClass.put(sizeTdIndex++, "");
+            sizeClass.put(sizeTdIndex++, "");
+            String tdBg = "";
+            int sizeResetFlg = defaultSizeIndex;
+            boolean isDefaultSize = false;
+            for (int i = 0; i < sizeList.size(); i++) {
+                isDefaultSize = StrUtil.equals(sizeList.get(i), defaultSize);
+                if (isDefaultSize) {
+                    tdBg = "gb";
+                } else {
+                    tdBg = CollUtil.get(tdClassList, sizeResetFlg % 2);
+                }
+                for (int j = 0; j < sizeColspan; j++) {
+                    sizeClass.put(sizeTdIndex++, tdBg);
+                }
+                if (isDefaultSize) {
+                    sizeResetFlg = 1;
+                } else {
+                    sizeResetFlg++;
+                }
+
+            }
+            // 公差-、公差+列无背景
+            sizeClass.put(sizeTdIndex++, "");
+            sizeClass.put(sizeTdIndex, "");
             if (CollUtil.isNotEmpty(this.getSizeList())) {
                 for (int i = 0; i < this.getSizeList().size(); i++) {
                     PackSizeVo packSize = this.getSizeList().get(i);
@@ -221,31 +254,19 @@ public class GenTechSpecPdfFile {
                     rowData.setRowType(packSize.getRowType());
                     rowData.setRemark(packSize.getRemark());
                     List<Map<String, Object>> row = new ArrayList<>();
-
                     row.add(new TdDetail(Opt.ofNullable(packSize.getPartName()).orElse("")).toMap());
                     row.add(new TdDetail(Opt.ofNullable(packSize.getMethod()).orElse("")).toMap());
                     JSONObject jsonObject = JSONObject.parseObject(packSize.getStandard());
-                    classIndex = sizeColspan;
                     for (int j = 0; j < sizeList.size(); j++) {
                         String size = sizeList.get(j);
-                        boolean isDefaultSize = StrUtil.equals(size, defaultSize);
-                        row.add(new TdDetail(MapUtil.getStr(jsonObject, "template" + size, "-"), isDefaultSize ? "gb" : CollUtil.get(tdClassList, classIndex % 2)).toMap());
-                        sizeClass.put(row.size(), CollUtil.getLast(row).get("className"));
-                        classIndex++;
-                        row.add(new TdDetail(MapUtil.getStr(jsonObject, "garment" + size, "-"), isDefaultSize ? "gb" : CollUtil.get(tdClassList, classIndex % 2)).toMap());
-                        sizeClass.put(row.size(), CollUtil.getLast(row).get("className"));
-                        classIndex++;
+                        row.add(new TdDetail(MapUtil.getStr(jsonObject, "template" + size, "-")).toMap());
+                        row.add(new TdDetail(MapUtil.getStr(jsonObject, "garment" + size, "-")).toMap());
                         if (washSkippingFlag) {
-                            row.add(new TdDetail(MapUtil.getStr(jsonObject, "washing" + size, "-"), isDefaultSize ? "gb" : CollUtil.get(tdClassList, classIndex % 2)).toMap());
-                            sizeClass.put(row.size(), CollUtil.getLast(row).get("className"));
-                            classIndex++;
-                        }
-                        if (isDefaultSize) {
-                            classIndex = 1;
+                            row.add(new TdDetail(MapUtil.getStr(jsonObject, "washing" + size, "-")).toMap());
                         }
                     }
                     //公差-
-                    row.add(new TdDetail(Opt.ofNullable(packSize.getMinus()).orElse("")).toMap());
+                    row.add(new TdDetail(Opt.ofBlankAble(packSize.getMinus()).map(minus -> "-" + minus).orElse("")).toMap());
                     //公差+
                     row.add(new TdDetail(Opt.ofNullable(packSize.getPositive()).orElse("")).toMap());
                     rowData.setRowData(row);
@@ -255,7 +276,6 @@ public class GenTechSpecPdfFile {
             Map<String, List<PackTechAttachmentVo>> picMap = new HashMap<>(16);
             if (CollUtil.isNotEmpty(this.getPicList())) {
                 picMap = this.getPicList().stream().collect(Collectors.groupingBy(PackTechAttachmentVo::getSpecType));
-
             }
             Map<String, List<PackTechSpecVo>> gyMap = new HashMap<>(16);
             if (CollUtil.isNotEmpty(this.getTechSpecVoList())) {
@@ -276,7 +296,7 @@ public class GenTechSpecPdfFile {
             List<PackTechSpecVo> xbjDataList = Optional.ofNullable(gyMap.get("小部件")).orElse(CollUtil.newArrayList());
             dataModel.put("xbjDataList", xbjDataList);
             dataModel.put("xbjImgList", Optional.ofNullable(picMap.get("小部件")).orElse(CollUtil.newArrayList()));
-            dataModel.put("xbjRowsPan", xbjDataList.size() + 1);
+            dataModel.put("xbjRowsPan", xbjDataList.size());
 
             List<PackTechSpecVo> jcgyDataList = Optional.ofNullable(gyMap.get("基础工艺")).orElse(CollUtil.newArrayList());
             dataModel.put("jcgyDataList", jcgyDataList);
@@ -291,13 +311,14 @@ public class GenTechSpecPdfFile {
 //            FileUtil.writeString(output, new File("d://process.html"), Charset.defaultCharset());
 //            FileOutputStream fos=new FileOutputStream("D://htmltoPdf.pdf");
 
-//            FileUtil.writeString(output, new File("C:/Users/ZCYLGZ/htmltoPdf.html"), Charset.defaultCharset());
+            FileUtil.writeString(output, new File("C:/Users/ZCYLGZ/htmltoPdf.html"), Charset.defaultCharset());
             // 创建PDF写入器
             ConverterProperties props = new ConverterProperties();
             props.setCharset("UFT-8");
             FontProvider provider = new DefaultFontProvider(true, true, true);
             props.setFontProvider(provider);
             List<IElement> elements = HtmlConverter.convertToElements(output, props);
+
             PdfWriter writer1 = new PdfWriter(pdfOutputStream);
             IElement pageStart = CollUtil.getFirst(elements);
             PdfDocument pdfDocument = new PdfDocument(writer1);
@@ -308,7 +329,7 @@ public class GenTechSpecPdfFile {
             pdfDocument.addEventHandler(PdfDocumentEvent.START_PAGE, event);
             pdfDocument.addEventHandler(PdfDocumentEvent.END_PAGE, endPdfPageEventHandler);
             // 定义页眉
-            document.setMargins(40, lrMargin, 0, lrMargin);
+            document.setMargins(30, lrMargin, 30, lrMargin);
             for (int i = 1; i < elements.size(); i++) {
                 IElement element = elements.get(i);
 
@@ -338,11 +359,10 @@ public class GenTechSpecPdfFile {
             for (int i = 1; i <= numberOfPages; i++) {
                 Paragraph pageNumber = new Paragraph(String.format(" %d  /  %d ", i, numberOfPages));
                 pageNumber.setTextAlignment(TextAlignment.CENTER);
-                float x = pdfDocument.getDefaultPageSize().getWidth() - lrMargin * 2 - 5;
+                float x = pdfDocument.getDefaultPageSize().getWidth() / 2 - 5;
                 // 距离底部的距离
-                float y = pdfDocument.getDefaultPageSize().getTop() - 15;
+                float y = 25;
                 document.showTextAligned(pageNumber, x, y, i, TextAlignment.CENTER, VerticalAlignment.TOP, 0);
-
             }
 
             document.close();
@@ -415,7 +435,7 @@ public class GenTechSpecPdfFile {
 
         @Override
         public void handleEvent(Event event) {
-//            System.out.println(document.getClass().getSimpleName());
+
         }
     }
 

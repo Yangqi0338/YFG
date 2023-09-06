@@ -205,16 +205,16 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
         //保存关联的素材库
         planningCategoryItemMaterialService.saveMaterialList(dto);
-        try {
-            // 是否开启单款多色开关
-            Boolean ifSwitch = ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.STYLE_MANY_COLOR.getKeyCode());
-            if (ifSwitch) {
-                // 保存款式设计详情颜色
-                this.saveBomInfoColorList(dto);
-            }
-        } catch (Exception e) {
-            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
-        }
+//        try {
+//            // 是否开启单款多色开关
+//            Boolean ifSwitch = ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.STYLE_MANY_COLOR.getKeyCode());
+//            if (ifSwitch) {
+//                // 保存款式设计详情颜色
+//                this.saveBomInfoColorList(dto);
+//            }
+//        } catch (Exception e) {
+//            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
+//        }
 
 
         return style;
@@ -222,19 +222,21 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     /**
      * 保存款式设计详情颜色
-     * @param styleSaveDto 款式设计详情颜色DTO
+     * @param packInfoDto 资料包DTO
      * @return 款式设计详情颜色列表
      */
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public List<StyleInfoColorVo> saveBomInfoColorList(StyleSaveDto styleSaveDto) {
-        if(null == styleSaveDto || null == styleSaveDto.getStyleInfoColorDtoList()){
-            return null;
+    public List<StyleInfoColorVo> saveBomInfoColorList(PackInfoDto packInfoDto) {
+        if(null == packInfoDto || null == packInfoDto.getStyleInfoColorDtoList()){
+            throw new OtherException("款式设计详情-颜色数据为空！！！");
         }
-        List<StyleInfoColor> styleInfoColors = BeanUtil.copyToList(styleSaveDto.getStyleInfoColorDtoList(), StyleInfoColor.class);
+
+        List<StyleInfoColor> styleInfoColors = BeanUtil.copyToList(packInfoDto.getStyleInfoColorDtoList(), StyleInfoColor.class);
         List<StyleInfoColor> colorCodeList =
                 styleInfoColorService.list(new QueryWrapper<StyleInfoColor>().in("color_code",
-                        styleInfoColors.stream().map(StyleInfoColor::getColorCode).collect(Collectors.toList())).eq("foreign_id", styleSaveDto.getId()));
+                        styleInfoColors.stream().map(StyleInfoColor::getColorCode).collect(Collectors.toList()))
+                        .eq("foreign_id", packInfoDto.getId()).eq("pack_type",packInfoDto.getPackType()));
         if (CollectionUtil.isNotEmpty(colorCodeList)) {
             String colorNames = colorCodeList.stream().map(StyleInfoColor::getColorName).collect(Collectors.joining(BaseGlobal.D));
             throw new OtherException(colorNames + "已添加颜色，请勿重新添加");
@@ -249,44 +251,47 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (!flg) {
             throw new OtherException("新增款式设计详情颜色失败，请联系管理员");
         }
-        // 保存款式设计SKU
-        List<StyleInfoSku> styleInfoSkuList = new ArrayList<>();
-        // 拼接款式SKU数据： 颜色多个尺码
-        styleInfoColors.forEach(styleInfoColor -> {
-            // 取款式尺码编码
-            List<String> sizeCodeList = com.base.sbc.config.utils.StringUtils.convertList(styleSaveDto.getSizeCodes());
-            // 取除款式尺码
-            List<String> productSizeList = com.base.sbc.config.utils.StringUtils.convertList(styleSaveDto.getProductSizes());
-            // 拼接款式SKU ：颜色code + 尺码code
-            for (int i = 0; i < sizeCodeList.size(); i++) {
-                // 尺码code
-                String sizeCode = sizeCodeList.get(i);
-                // 尺码名称
-                String sizeName =  null != productSizeList.get(i) ? productSizeList.get(i) : "";
-                // SKU ：颜色code + - + 尺码code
-                String skuCode = styleSaveDto.getDesignNo() + styleInfoColor.getColorCode() + sizeCode;
-                StyleInfoSku styleInfoSku = new StyleInfoSku();
-                styleInfoSku.setForeignId(styleInfoColor.getForeignId());
-                styleInfoSku.setPackType(styleInfoColor.getPackType());
-                styleInfoSku.setSkuCode(skuCode);
-                styleInfoSku.setColorCode(styleInfoColor.getColorCode());
-                styleInfoSku.setColorName(styleInfoColor.getColorName());
-                styleInfoSku.setSizeCode(sizeCode);
-                styleInfoSku.setSizeName(sizeName);
-                styleInfoSku.insertInit();
-                styleInfoSkuList.add(styleInfoSku);
+        // 添加颜色为大货资料包类型 才会生成SKU信息
+        if (null != packInfoDto.getPackType() && PackUtils.PACK_TYPE_BIG_GOODS.equals(packInfoDto.getPackType())) {
+            // 保存款式设计SKU
+            List<StyleInfoSku> styleInfoSkuList = new ArrayList<>();
+            // 拼接款式SKU数据： 颜色多个尺码
+            styleInfoColors.forEach(styleInfoColor -> {
+                // 取款式尺码编码
+                List<String> sizeCodeList = com.base.sbc.config.utils.StringUtils.convertList(packInfoDto.getSizeCodes());
+                // 取除款式尺码
+                List<String> productSizeList = com.base.sbc.config.utils.StringUtils.convertList(packInfoDto.getProductSizes());
+                // 拼接款式SKU ：颜色code + 尺码code
+                for (int i = 0; i < sizeCodeList.size(); i++) {
+                    // 尺码code
+                    String sizeCode = sizeCodeList.get(i);
+                    // 尺码名称
+                    String sizeName =  null != productSizeList.get(i) ? productSizeList.get(i) : "";
+                    // SKU ：颜色code + - + 尺码code
+                    String skuCode = packInfoDto.getDesignNo() + styleInfoColor.getColorCode() + sizeCode;
+                    StyleInfoSku styleInfoSku = new StyleInfoSku();
+                    styleInfoSku.setForeignId(styleInfoColor.getForeignId());
+                    styleInfoSku.setPackType(styleInfoColor.getPackType());
+                    styleInfoSku.setSkuCode(skuCode);
+                    styleInfoSku.setColorCode(styleInfoColor.getColorCode());
+                    styleInfoSku.setColorName(styleInfoColor.getColorName());
+                    styleInfoSku.setSizeCode(sizeCode);
+                    styleInfoSku.setSizeName(sizeName);
+                    styleInfoSku.insertInit();
+                    styleInfoSkuList.add(styleInfoSku);
+                }
+            });
+            // 保存款式SKU数据
+            boolean skuFlg = styleInfoSkuService.saveBatch(styleInfoSkuList);
+            if (!skuFlg) {
+                throw new OtherException("新增款式SKU失败，请联系管理员");
             }
-        });
-        // 保存款式SKU数据
-        boolean skuFlg = styleInfoSkuService.saveBatch(styleInfoSkuList);
-        if (!skuFlg) {
-            throw new OtherException("新增款式SKU失败，请联系管理员");
         }
         // 修改颜色codes、颜色名称
         Style style = new Style();
-        style.setId(styleSaveDto.getId());
-        style.setColorCodes(styleSaveDto.getColorCodes());
-        style.setProductColors(styleSaveDto.getProductColors());
+        style.setId(packInfoDto.getForeignId());
+        style.setColorCodes(packInfoDto.getColorCodes());
+        style.setProductColors(packInfoDto.getProductColors());
         baseMapper.updateById(style);
         return BeanUtil.copyToList(styleInfoColors, StyleInfoColorVo.class);
     }
@@ -1471,8 +1476,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         params.put("designChannelId", style.getDesignChannelId());
         params.put("year", style.getYear());
         params.put("season", style.getSeason());
-        String prodCategory3rd = style.getProdCategory3rd();
-        params.put("prodCategory3rd", prodCategory3rd.substring(prodCategory3rd.length()-2));
+        params.put("prodCategory3rd", style.getProdCategory3rd());
         return getNextCode.genCode("STYLE_DESIGN_NO", params);
     }
 
@@ -1489,7 +1493,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             regexps.add(String.valueOf(val));
         });
         String regexp = "^" + CollUtil.join(regexps, "");
-        System.out.println("传过来的正则:" + regexp);
         QueryWrapper qc = new QueryWrapper();
         qc.eq(COMPANY_CODE, userCompany);
         qc.apply(" design_no REGEXP '" + regexp + "'");

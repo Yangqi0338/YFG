@@ -53,6 +53,7 @@ import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
+import com.base.sbc.module.style.service.StyleInfoColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -166,6 +167,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Autowired
     private CcmFeignService ccmFeignService;
 
+    @Resource
+    private StyleInfoColorService styleInfoColorService;
+
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
 
@@ -265,7 +269,18 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packBomVersionService.enable(BeanUtil.copyProperties(packBomVersionVo, PackBomVersion.class));
         //新建尺码表配置
         packSizeConfigService.createByStyle(newId, PackUtils.PACK_TYPE_DESIGN, style);
-
+        try {
+            // 保存款式设计详情颜色
+            PackInfoDto packInfoDto = new PackInfoDto();
+            packInfoDto.setId(style.getId());
+            packInfoDto.setSourcePackType(PackUtils.PACK_TYPE_STYLE);
+            packInfoDto.setTargetPackType(PackUtils.PACK_TYPE_DESIGN);
+            packInfoDto.setTargetForeignId(packInfo.getId());
+            styleInfoColorService.insertStyleInfoColorList(packInfoDto);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("保存款式设计详情颜色错误信息如下：{}" + e);
+        }
         if (null == dto.getIsWithBom() || !dto.getIsWithBom()) {
             return BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
         }

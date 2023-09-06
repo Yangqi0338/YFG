@@ -360,4 +360,12 @@ public class BasicsdatumMaterialSaveDto {
 	 */
 	@ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）")
 	private String confirmStatus;
+	/**
+	 * 数据来源：1.新增、2.面料企划、3.其他
+	 */
+	@ApiModelProperty(value = "数据来源：1.新增、2.面料企划、3.其他")
+	private String source;
+
+	@ApiModelProperty(value = "是否战略备料(0是，1否)")
+	private String isStrategic;
 }

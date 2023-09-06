@@ -10,6 +10,7 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.pack.dto.PackInfoDto;
 import com.base.sbc.module.pack.dto.PlanningDemandStatisticsResultVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
@@ -190,10 +191,10 @@ public interface StyleService extends BaseService<Style> {
 
     /**
      * 保存款式设计详情颜色
-     * @param styleSaveDto 款式设计详情颜色DTO
+     * @param packInfoDto 资料包DTO
      * @return 款式设计详情颜色列表
      */
-    List<StyleInfoColorVo> saveBomInfoColorList(StyleSaveDto styleSaveDto);
+    List<StyleInfoColorVo> saveBomInfoColorList(PackInfoDto packInfoDto);
 
     /**
      * 领猫同步数据

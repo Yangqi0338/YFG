@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 /**
- * 类描述：款式设计SKU表 实体类
+ * 类描述：资料包-款式设计SKU表 实体类
  * @address com.base.sbc.module.style.entity.StyleInfoSku
  * @author LiZan
  * @email 2682766618@qq.com
@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("t_style_info_sku")
-@ApiModel("款式设计SKU表 StyleInfoSku")
+@ApiModel("资料包-款式设计SKU表 StyleInfoSku")
 @NoArgsConstructor
 @AllArgsConstructor
 public class StyleInfoSku extends BaseDataEntity<String> {

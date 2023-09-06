@@ -6,21 +6,16 @@
  *****************************************************************************/
 package com.base.sbc.module.style.dto;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
-import com.base.sbc.config.common.base.GroupInsert;
-import com.base.sbc.config.common.base.GroupUpdate;
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.common.base.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
- * 类描述：款式设计详情颜色表 实体类
+ * 类描述：资料包-款式设计详情颜色表 实体类
  * @address com.base.sbc.module.style.entity.StyleInfoColor
  * @author LiZan
  * @email 2682766618@qq.com
@@ -28,7 +23,7 @@ import java.math.BigDecimal;
  * @version 1.0
  */
 @Data
-@ApiModel("款式设计详情颜色表 StyleInfoColorDto")
+@ApiModel("资料包-款式设计详情颜色表 StyleInfoColorDto")
 public class StyleInfoColorDto extends Page {
 
 	private static final long serialVersionUID = 1L;
@@ -37,7 +32,7 @@ public class StyleInfoColorDto extends Page {
     private String id;
     /** 主数据id */
     @ApiModelProperty(value = "主数据id"  )
-    @NotNull(message = "主数据id不能为空" , groups = {GroupUpdate.class , GroupInsert.class})
+    @NotNull(message = "主数据id不能为空" , groups = {GroupUpdate.class , GroupInsert.class, GroupDelete.class})
     private String foreignId;
     /** 资料包类型:packDesign:设计资料包 */
     @ApiModelProperty(value = "资料包类型:packDesign:设计资料包"  )
@@ -69,6 +64,19 @@ public class StyleInfoColorDto extends Page {
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
+    /** 颜色codes */
+    @ApiModelProperty(value = "颜色codes"  )
+    @NotNull(message = "颜色编码不能为空" , groups = {GroupDelete.class})
+    private String codes;
+    /** 款式id */
+    @ApiModelProperty(value = "款式id"  )
+    @NotNull(message = "颜色编码不能为空" , groups = {GroupDelete.class})
+    private String styleId;
+    /** 公司编码 */
+    @ApiModelProperty(value = "公司编码"  )
+    private String companyCode;
+
+
 
 
 }

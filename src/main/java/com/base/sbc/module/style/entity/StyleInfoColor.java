@@ -15,7 +15,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
- * 类描述：款式设计详情颜色表 实体类
+ * 类描述：资料包-款式设计详情颜色表 实体类
  * @address com.base.sbc.module.style.entity.StyleInfoColor
  * @author LiZan
  * @email 2682766618@qq.com
@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("t_style_info_color")
-@ApiModel("款式设计详情颜色表 StyleInfoColor")
+@ApiModel("资料包-款式设计详情颜色表 StyleInfoColor")
 public class StyleInfoColor extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;

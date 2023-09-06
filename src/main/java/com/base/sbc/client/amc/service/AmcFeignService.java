@@ -11,6 +11,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.TeamVo;
+import com.base.sbc.client.amc.entity.Team;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
@@ -340,6 +342,15 @@ public class AmcFeignService {
             log.error("获取团队下的用户组用户异常", e);
         }
         return null;
+    }
+
+    public void teamSave(String seasonId, String teamName) {
+        log.info("AmcFeignService#teamSave 团队保存，seasonId:{}. teamName:{}", seasonId, teamName);
+        Team team = new Team();
+        team.setSeasonId(seasonId);
+        team.setName(teamName);
+        ApiResult apiResult = amcService.teamSave(team);
+        log.info("AmcFeignService#teamSave 团队保存返回结果，seasonId:{}. teamName:{},apiResult:{}", seasonId, teamName, JSON.toJSONString(apiResult));
     }
 
 }
