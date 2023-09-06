@@ -318,6 +318,7 @@ public class GenTechSpecPdfFile {
             FontProvider provider = new DefaultFontProvider(true, true, true);
             props.setFontProvider(provider);
             List<IElement> elements = HtmlConverter.convertToElements(output, props);
+
             PdfWriter writer1 = new PdfWriter(pdfOutputStream);
             IElement pageStart = CollUtil.getFirst(elements);
             PdfDocument pdfDocument = new PdfDocument(writer1);
@@ -434,7 +435,7 @@ public class GenTechSpecPdfFile {
 
         @Override
         public void handleEvent(Event event) {
-//            System.out.println(document.getClass().getSimpleName());
+
         }
     }
 

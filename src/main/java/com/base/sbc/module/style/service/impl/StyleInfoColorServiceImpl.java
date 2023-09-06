@@ -169,7 +169,7 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
      */
     @Override
     public void insertStyleInfoColorList(PackInfoDto packInfoDto) {
-        if(null == packInfoDto || null != packInfoDto.getId()){
+        if(null == packInfoDto || null == packInfoDto.getId()){
             return;
         }
         PackInfo packInfo = packInfoService.getById(packInfoDto.getId());

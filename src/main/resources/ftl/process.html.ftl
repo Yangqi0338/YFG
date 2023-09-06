@@ -8,7 +8,6 @@
     }
 
     html {
-
         width: 277mm;
         margin: 50px auto;
     }
@@ -32,16 +31,6 @@
         z-index: 1;
     }
 
-    .tbody {
-        display: block;
-        max-height: 300px; /* 设置最大高度以启用滚动 */
-        overflow-y: scroll; /* 垂直滚动 */
-    }
-
-    .page_height {
-        height: 210px;
-    }
-
     .table_border {
         width: 100%;
         border-collapse: collapse;
@@ -50,37 +39,21 @@
 
     .table_no_border {
         width: 100%;
-    }
-
-    .info_table {
-        width: 100%;
-        border: none;
         border-collapse: collapse;
-    }
-
-    .info_table td {
-        height: 20px;
-    }
-
-    .info_table tr, td {
         border: none;
     }
 
+    .table_no_border tr, td, th {
+        border: none;
+    }
 
     .table_border td, th {
         border: 1px solid black;
     }
 
-    .table_header {
-        font-size: 20px;
-        text-align: center;
-        font-weight: 700;
-    }
-
     .mt {
         margin-bottom: 5px;
     }
-
 
     .one_imgs {
         text-align: center;
@@ -118,29 +91,13 @@
         margin: 5px;
         width: 45%;
     }
-
-
-    .info_tr4 td:nth-child(1) {
-        background-color: white;
-    }
-
-    .info_tr3 td:nth-child(odd) {
-        width: 10%;
-    }
-
-    .info_tr3 td:nth-child(even) {
-        width: 15%;
-    }
-
     .page_start {
         background-color: #e7e6e6;
     }
-
     .gc {
         width: 44px;
         text-align: center !important;
     }
-
     .size_table {
         width: auto;
     }
@@ -158,6 +115,10 @@
         background-color: #dadada;
     }
 
+    .fg {
+        min-width: 30px;
+    }
+
     .wb {
         background-color: white;
     }
@@ -167,20 +128,10 @@
         vertical-align: top;
     }
 
-    .info_table .l {
-        border-left: 16px solid white;
-    }
-
-    .info_table .r {
-        border-right: 16px solid white;
-    }
-
     hr {
         border: 1px solid black;
         margin: 8px 0px;
-
     }
-
     .th_title {
         border: none;
         text-align: left;
@@ -200,94 +151,117 @@
 
 <!--基础信息-->
 
-<table class="info_table">
+<table class="table_no_border">
     <tr>
         <!-- 图片-->
         <td style="width: 20%;" rowspan="13">
             <img style="width: 100%" src="${stylePic}">
         </td>
-        <td class="l gb" style="width:15%;">大货款号</td>
-        <td class="r gb" style="width:25%;">${styleNo}</td>
-        <td class="l gb" style="width:15%;">外辅工艺</td>
-        <td class="r gb" style="width:25%;">${extAuxiliaryTechnics}</td>
+        <td class="fg"></td>
+        <td class="gb" style="width:15%;">大货款号</td>
+        <td class="gb" style="width:25%;">${styleNo}</td>
+        <td class="fg"></td>
+        <td class="gb" style="width:15%;">外辅工艺</td>
+        <td class="gb" style="width:25%;">${extAuxiliaryTechnics}</td>
     </tr>
     <tr>
-        <td class="l">品名*</td>
-        <td class="r">${productName}</td>
-        <td class="l td_lt" rowspan="3">★★注意事项</td>
-        <td class="r td_lt" rowspan="3">${mattersAttention}</td>
+        <td class="fg"></td>
+        <td>品名*</td>
+        <td>${productName}</td>
+        <td class="fg"></td>
+        <td class="td_lt" rowspan="3">★★注意事项</td>
+        <td class="td_lt" rowspan="3">${mattersAttention}</td>
     </tr>
     <tr>
-        <td class="l gb">执行标准*</td>
-        <td class="r gb font_bold">${executeStandard}</td>
+        <td class="fg"></td>
+        <td class="gb">执行标准*</td>
+        <td class="gb font_bold">${executeStandard}</td>
     </tr>
     <tr>
-        <td class="l">质量等级</td>
-        <td class="r">${qualityGrade}</td>
+        <td class="fg"></td>
+        <td>质量等级</td>
+        <td>${qualityGrade}</td>
     </tr>
     <tr>
-        <td class="l gb">安全标题</td>
-        <td class="r gb">${saftyTitle}</td>
-        <td class="l gb">洗唛材质备注</td>
-        <td class="r gb">${washingMaterialRemarks}</td>
+        <td class="fg"></td>
+        <td class="gb">安全标题</td>
+        <td class="gb">${saftyTitle}</td>
+        <td class="fg"></td>
+        <td class="gb">洗唛材质备注</td>
+        <td class="gb">${washingMaterialRemarks}</td>
     </tr>
     <tr>
-        <td class="l">安全类别</td>
-        <td class="r">${saftyType}</td>
-        <td class="l">充绒量</td>
-        <td class="r">${downContent}</td>
+        <td class="fg"></td>
+        <td>安全类别</td>
+        <td>${saftyType}</td>
+        <td class="fg"></td>
+        <td>充绒量</td>
+        <td>${downContent}</td>
     </tr>
     <tr>
-        <td class="l gb">包装形式*</td>
-        <td class="r gb">${packagingForm}</td>
-        <td class="l gb">特殊规格</td>
-        <td class="r gb">2</td>
+        <td class="fg"></td>
+        <td class="gb">包装形式*</td>
+        <td class="gb">${packagingForm}</td>
+        <td class="fg"></td>
+        <td class="gb">特殊规格</td>
+        <td class="gb">2</td>
     </tr>
     <tr>
-        <td class="l">包装袋标准*</td>
-        <td class="r">${packagingBagStandard}</td>
-        <td rowspan="3" class="l td_lt">面料详情</td>
-        <td rowspan="3" class="r td_lt">${fabricDetails}</td>
+        <td class="fg"></td>
+        <td>包装袋标准*</td>
+        <td>${packagingBagStandard}</td>
+        <td class="fg"></td>
+        <td rowspan="3" class="td_lt">面料详情</td>
+        <td rowspan="3" class="td_lt">${fabricDetails}</td>
     </tr>
     <tr>
-        <td class="l  gb">后技术工艺师</td>
-        <td class="r  gb">${technologistName}</td>
+        <td class="fg"></td>
+        <td class="gb">后技术工艺师</td>
+        <td class="gb">${technologistName}</td>
     </tr>
     <tr>
-        <td class="l">后技术放码师</td>
-        <td class="r">${gradingName}</td>
+        <td class="fg"></td>
+        <td>后技术放码师</td>
+        <td>${gradingName}</td>
     </tr>
     <tr>
-        <td class="l gb">后技术样衣工</td>
-        <td class="r gb">${sampleMakerName}</td>
-        <td class="l gb">号型类型*</td>
-        <td class="r gb">${sizeRangeName}</td>
+        <td class="fg"></td>
+        <td class="gb">后技术样衣工</td>
+        <td class="gb">${sampleMakerName}</td>
+        <td class="fg"></td>
+        <td class="gb">号型类型*</td>
+        <td class="gb">${sizeRangeName}</td>
     </tr>
     <tr>
-        <td class="l">设计师*</td>
-        <td class="r">${designer}</td>
-        <td class="l">模板部件</td>
-        <td class="r">${templatePart}</td>
+        <td class="fg"></td>
+        <td>设计师*</td>
+        <td>${designer}</td>
+        <td class="fg"></td>
+        <td>模板部件</td>
+        <td>${templatePart}</td>
     </tr>
     <!-- 13 -->
     <tr>
-        <td class="l gb">版师*</td>
-        <td class="r gb">${patternDesignName}</td>
-        <td class="l ">后技术下单员</td>
-        <td class="r ">${placeOrderStaffName}</td>
+        <td class="fg"></td>
+        <td class="gb">版师*</td>
+        <td class="gb">${patternDesignName}</td>
+        <td class="fg"></td>
+        <td>后技术下单员</td>
+        <td>${placeOrderStaffName}</td>
     </tr>
     <tr>
         <!-- 14 -->
         <td style="text-align: center;font-weight: bold;">
             扫码查看工艺单
         </td>
-        <td class="l td_lt">成分信息*</td>
-        <td class="r td_lt">
-            ${ingredient}</td>
-        <td class="l r " colspan="2" style="vertical-align: top;">
+        <td class="fg"></td>
+        <td class="td_lt">成分信息*</td>
+        <td class="td_lt">${ingredient}</td>
+        <td class="fg"></td>
+        <td colspan="2" style="vertical-align: top;">
             <table class="table_no_border gb">
                 <tr>
-                    <td>下单时间</td>
+                    <td style="width: 145px;">下单时间</td>
                     <td>${placeOrderDateStr}</td>
                 </tr>
             </table>
@@ -301,33 +275,37 @@
                 <img style="width: 100%" src="${qrCodeUrl}">
             </#if>
         </td>
-        <td class="l r" colspan="4">
+        <td class="fg"></td>
+        <td colspan="5">
             <p>提示信息</p>
             <hr>
         </td>
     </tr>
     <tr>
-
-        <td class="td_lt l gb">温馨提示*</td>
-        <td class="td_lt r  gb">${warmTips}</td>
-
-        <td class="td_lt l gb">贮藏要求</td>
-        <td class="td_lt r gb">${storageDemand}</td>
+        <td class="fg"></td>
+        <td class="td_lt gb">温馨提示*</td>
+        <td class="td_lt gb">${warmTips}</td>
+        <td class="fg"></td>
+        <td class="td_lt gb">贮藏要求</td>
+        <td class="td_lt gb">${storageDemand}</td>
     </tr>
     <tr>
-        <td class="l r" colspan="4">
+        <td class="fg"></td>
+        <td colspan="5">
             <p>如果品类为鞋且非陈列品,请维护属性</p>
             <hr>
         </td>
     </tr>
     <tr>
-        <td class="l gb">产地</td>
-        <td class="r gb">${producer}</td>
-        <td class="l gb">生产日期</td>
-        <td class="r gb">${produceDateStr}</td>
+        <td class="fg"></td>
+        <td class="gb">产地</td>
+        <td class="gb">${producer}</td>
+        <td class="fg"></td>
+        <td class="gb">生产日期</td>
+        <td class="gb">${produceDateStr}</td>
     </tr>
     <tr>
-        <td class="l r" colspan="5">
+        <td colspan="7">
             <p>洗标</p>
             <hr>
             <#if  washingLabel != '' >
@@ -415,7 +393,7 @@
     <thead>
     <tr>
         <th colspan="${sizeTitleColspan}" class="th_title">
-            <p>尺寸表</p>
+            <p>测量点</p>
             <hr>
         </th>
     </tr>
@@ -458,7 +436,7 @@
     </tbody>
     <tfoot>
     <tr>
-        <td colspan="${sizeTitleColspan}" style="height: 32px;">尺寸表-${sizeDataList?size}</td>
+        <td colspan="${sizeTitleColspan}" style="height: 32px;">测量点-${sizeDataList?size}</td>
     </tr>
     </tfoot>
 </table>
@@ -519,7 +497,7 @@
 
     </tr>
     </thead>
-
+    <tbody>
     <#list jcgyDataList as item>
         <tr>
             <td>${item.item}</td>
@@ -537,6 +515,13 @@
             </#if>
         </tr>
     </#list>
+    </tbody>
+
+    <tfoot>
+    <tr>
+        <td colspan="3" style="height: 32px;">裁剪工艺-${jcgyDataList?size}</td>
+    </tr>
+    </tfoot>
 </table>
 
 <!--    整烫包装 -->
@@ -565,6 +550,11 @@
         </tr>
     </#list>
     </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="3" style="height: 32px;">整烫包装-${ztbzDataList?size}</td>
+    </tr>
+    </tfoot>
 </table>
 
 </body>
