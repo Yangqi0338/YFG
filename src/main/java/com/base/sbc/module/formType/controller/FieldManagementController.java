@@ -8,11 +8,14 @@ package com.base.sbc.module.formType.controller;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.formType.dto.FieldOptionConfigDto;
 import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
+import com.base.sbc.module.formType.dto.QueryFieldOptionConfigDto;
 import com.base.sbc.module.formType.dto.SaveUpdateFieldManagementDto;
 import com.base.sbc.module.formType.entity.FieldManagement;
 import com.base.sbc.module.formType.service.FieldManagementService;
-import com.base.sbc.module.formType.service.OptionService;
+import com.base.sbc.module.formType.service.FieldOptionConfigService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -23,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
 * 类描述：字段管理表 Controller类
@@ -40,13 +44,20 @@ public class FieldManagementController {
 
 	@Autowired
 	private FieldManagementService fieldManagementService;
+
 	@Autowired
-	private OptionService optionService;
+	private FieldOptionConfigService fieldOptionConfigService;
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getFieldManagementList")
 	public PageInfo<FieldManagementVo> getFieldManagementList(@Valid QueryFieldManagementDto queryFieldManagementDto) {
 		return fieldManagementService.getFieldManagementList(queryFieldManagementDto);
+	}
+
+	@ApiOperation(value = "查询维度-字段有配置的选项")
+	@GetMapping("/getFieldConfigList")
+	public List<FieldManagementVo> getFieldConfigList(@Valid QueryFieldManagementDto queryFieldManagementDto) {
+		return fieldManagementService.getFieldConfigList(queryFieldManagementDto);
 	}
 
 	@ApiOperation(value = "明细-通过id查询")
@@ -73,6 +84,29 @@ public class FieldManagementController {
 		return fieldManagementService.adjustmentOrder(queryFieldManagementDto);
 	}
 
+	@ApiOperation(value = "添加配置选项")
+	@PostMapping("/addFieldOptionConfig")
+	public Boolean addFieldOptionConfig(@Valid @RequestBody List<FieldOptionConfigDto> optionConfigDtoList) {
+		return fieldOptionConfigService.addFieldOptionConfig(optionConfigDtoList);
+	}
+
+	@ApiOperation(value = "查询配置选项")
+	@GetMapping("/getFieldOptionConfigList")
+	public PageInfo getFieldOptionConfigList(@Valid QueryFieldOptionConfigDto queryFieldOptionConfigDto) {
+		return fieldOptionConfigService.getFieldOptionConfigList(queryFieldOptionConfigDto);
+	}
+
+	@ApiOperation(value = "删除-配置选项")
+	@DeleteMapping("delFieldOptionConfig/{id}")
+	public Boolean delFieldOptionConfig(@PathVariable("id") String id) {
+		return fieldOptionConfigService.delFieldOptionConfig(id);
+	}
+
+	@ApiOperation(value = "批量启用/停用", notes = "ids:, status:0启用1停用")
+	@PostMapping("/startStopFieldOptionConfig")
+	public Boolean startStopFieldOptionConfig(@Valid @RequestBody StartStopDto startStopDto) {
+		return fieldOptionConfigService.startStopFieldOptionConfig(startStopDto);
+	}
 }
 
 

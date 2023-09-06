@@ -6,9 +6,7 @@
 *****************************************************************************/
 package com.base.sbc.module.style.controller;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.GroupInsert;
-import com.base.sbc.config.common.base.GroupUpdate;
+import com.base.sbc.config.common.base.*;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.style.dto.StyleInfoColorDto;
 import com.base.sbc.module.style.entity.StyleInfoColor;
@@ -63,11 +61,12 @@ public class StyleInfoColorController extends BaseController{
 	}
 	@ApiOperation(value = "删除-通过颜色code查询,多个逗号分开")
 	@DeleteMapping("/removeByCode")
-	public ApiResult removeByCode(@RequestParam("codes") String codes, @RequestParam("foreignId") String foreignId) {
-		if (StringUtils.isBlank(codes)) {
+	public ApiResult removeByCode(@Validated(GroupDelete.class) StyleInfoColorDto styleInfoColorDto) {
+		if (StringUtils.isBlank(styleInfoColorDto.getCodes())) {
 			return deleteNotFound("删除失败，颜色code不能为空");
 		}
-		styleInfoColorService.delStyleInfoColorById(codes, getUserCompany(), foreignId);
+		styleInfoColorDto.setCompanyCode(this.getUserCompany());
+		styleInfoColorService.delStyleInfoColorById(styleInfoColorDto);
 		return deleteSuccess("删除成功");
 	}
 

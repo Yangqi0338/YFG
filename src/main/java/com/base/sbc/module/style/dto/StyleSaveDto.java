@@ -39,8 +39,5 @@ public class StyleSaveDto extends Style {
     @ApiModelProperty(value = "关联的素材库")
     private List<MaterialVo> materialList;
 
-    @ApiModelProperty(value = "款式设计详情-颜色")
-    private List<StyleInfoColorDto> styleInfoColorDtoList;
-
 
 }

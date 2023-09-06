@@ -19,16 +19,23 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formType.entity.FieldManagement;
+import com.base.sbc.module.formType.entity.FieldOptionConfig;
 import com.base.sbc.module.formType.entity.FormType;
 import com.base.sbc.module.formType.mapper.FieldManagementMapper;
+import com.base.sbc.module.formType.mapper.FieldOptionConfigMapper;
 import com.base.sbc.module.formType.mapper.FormTypeMapper;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.formType.vo.FieldOptionConfigVo;
+import com.base.sbc.module.pack.dto.PackTechAttachmentVo;
+import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.dto.SaveDelDemandDto;
 import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
+import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.mapper.PlanningDemandProportionDataMapper;
+import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
 import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.vo.PlanningDemandVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,10 +70,14 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     @Autowired
     private PlanningDemandProportionDataMapper planningDemandProportionDataMapper;
 
+    @Autowired
+    private FieldOptionConfigMapper fieldOptionConfigMapper;
+    @Autowired
+    private PlanningSeasonMapper planningSeasonMapper;
 
     @Override
     public List<PlanningDemandVo> getDemandListById(QueryDemandDto queryDemandDimensionalityDto) {
-        QueryWrapper<PlanningDemand> queryWrapper = new QueryWrapper<>();
+        QueryWrapper queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("prod_category", queryDemandDimensionalityDto.getCategoryId());
         queryWrapper.eq("planning_season_id", queryDemandDimensionalityDto.getPlanningSeasonId());
         queryWrapper.eq("company_code", baseController.getUserCompany());
@@ -74,6 +85,9 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         queryWrapper.eq(StrUtil.isNotBlank(queryDemandDimensionalityDto.getFieldId()), "field_id", queryDemandDimensionalityDto.getFieldId());
         /*选中的需求*/
         List<PlanningDemandVo> list =   BeanUtil.copyToList(baseMapper.selectList(queryWrapper), PlanningDemandVo.class);
+        if(CollectionUtils.isEmpty(list)){
+            return list;
+        }
         List<String> stringList1 = list.stream().map(PlanningDemandVo::getFieldId).collect(Collectors.toList());
         List<FieldManagementVo> fieldManagementVoList = new ArrayList<>();
         if(!CollectionUtils.isEmpty(stringList1)){
@@ -89,7 +103,23 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
             map = fieldManagementVoList.stream().collect(Collectors.groupingBy(FieldManagementVo::getId));
         }
+        /*查询出这字段下的所有配置选项*/
+        PlanningSeason season = planningSeasonMapper.selectById(queryDemandDimensionalityDto.getPlanningSeasonId());
+        List<String> stringList2 = list.stream().map(PlanningDemandVo::getFieldId).collect(Collectors.toList());
+        queryWrapper.clear();
+        queryWrapper.in("field_management_id",stringList2);
+        queryWrapper.eq("category_code",queryDemandDimensionalityDto.getCategoryId());
+        queryWrapper.eq("season",season.getSeason());
+        queryWrapper.eq("brand",season.getBrand());
+        List<FieldOptionConfig> optionConfigList =  fieldOptionConfigMapper.selectList(queryWrapper);
+
+        /*使用字段id分组*/
+        Map<String, List<FieldOptionConfig>> listMap = optionConfigList.stream().collect(Collectors.groupingBy(FieldOptionConfig::getFieldManagementId));
         for (PlanningDemandVo p : list) {
+            List<FieldOptionConfig> configList =  listMap.get(p.getFieldId());
+            if(!CollectionUtils.isEmpty(configList)){
+                p.setConfigVoList( BeanUtil.copyToList(configList, FieldOptionConfigVo.class));
+            }
             List<FieldManagementVo> list1 =  map.get(p.getFieldId());
             if(!CollectionUtils.isEmpty(list1)){
                 p.setFieldManagementVo(list1.get(0));
@@ -124,14 +154,22 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         if (CollectionUtils.isEmpty(formTypeList)) {
             throw new OtherException("获取表单失败");
         }
-        QueryWrapper<FieldManagement> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("form_type_id", formTypeList.get(0).getId());
-        queryWrapper.like("category_id",queryDemandDimensionalityDto.getCategoryId());
+        /*品类查询字段配置列表查询品类下的字段id*/
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("status", BaseGlobal.STATUS_NORMAL);
+        qw.eq("form_type_id", formTypeList.get(0).getId());
+        qw.like("category_code", queryDemandDimensionalityDto.getCategoryId());
+        List<FieldOptionConfig> optionConfigList = fieldOptionConfigMapper.selectList(qw);
+        /*获取到这个品类下存在的字段*/
+        List<String> fieldManagementIdList = optionConfigList.stream().map(FieldOptionConfig::getFieldManagementId).distinct().collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(fieldManagementIdList)) {
+            throw new OtherException("字段未配置选项");
+        }
         /*配置的字段*/
         /**
          * 查询需求占比中依赖于字段id
          */
-        List<FieldManagement> fieldManagementList = fieldManagementMapper.selectList(queryWrapper);
+        List<FieldManagement> fieldManagementList = fieldManagementMapper.selectBatchIds(fieldManagementIdList);
         map.put("fieldManagement", fieldManagementList);
         QueryWrapper<PlanningDemand> queryWrapper1 = new QueryWrapper<>();
         queryWrapper1.like("prod_category", queryDemandDimensionalityDto.getCategoryId());
@@ -139,14 +177,12 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         List<PlanningDemand> planningDemandList = baseMapper.selectList(queryWrapper1);
         /*字段id*/
         List<String> stringList = planningDemandList.stream().map(PlanningDemand::getFieldId).collect(Collectors.toList());
-        List<FieldManagement> fieldManagementList2 =new ArrayList<>();
-        queryWrapper.clear();
-        if(!CollectionUtils.isEmpty(stringList)){
-            queryWrapper.in("id",stringList);
+        List<FieldManagement> fieldManagementList2 = new ArrayList<>();
+        QueryWrapper queryWrapper = new QueryWrapper();
+        if (!CollectionUtils.isEmpty(stringList)) {
+            queryWrapper.in("id", stringList);
             fieldManagementList2 = fieldManagementMapper.selectList(queryWrapper);
         }
-
-
         map.put("demandDimensionality", fieldManagementList2);
         return ApiResult.success("查询成功", map);
     }

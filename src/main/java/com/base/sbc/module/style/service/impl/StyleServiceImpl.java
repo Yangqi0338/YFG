@@ -43,11 +43,15 @@ import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.formType.dto.QueryFieldOptionConfigDto;
+import com.base.sbc.module.formType.entity.FieldOptionConfig;
 import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.service.FieldManagementService;
+import com.base.sbc.module.formType.service.FieldOptionConfigService;
 import com.base.sbc.module.formType.service.FieldValService;
 import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.formType.vo.FieldOptionConfigVo;
 import com.base.sbc.module.hangTag.entity.HangTag;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.pack.dto.*;
@@ -171,6 +175,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private HangTagService hangTagService;
     @Autowired
     private CcmService ccmService;
+
+    @Autowired
+    private FieldOptionConfigService fieldOptionConfigService;
     private IdGen idGen = new IdGen();
 
     @Override
@@ -198,16 +205,16 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
         //保存关联的素材库
         planningCategoryItemMaterialService.saveMaterialList(dto);
-        try {
-            // 是否开启单款多色开关
-            Boolean ifSwitch = ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.STYLE_MANY_COLOR.getKeyCode());
-            if (ifSwitch) {
-                // 保存款式设计详情颜色
-                this.saveBomInfoColorList(dto);
-            }
-        } catch (Exception e) {
-            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
-        }
+//        try {
+//            // 是否开启单款多色开关
+//            Boolean ifSwitch = ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.STYLE_MANY_COLOR.getKeyCode());
+//            if (ifSwitch) {
+//                // 保存款式设计详情颜色
+//                this.saveBomInfoColorList(dto);
+//            }
+//        } catch (Exception e) {
+//            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
+//        }
 
 
         return style;
@@ -215,19 +222,19 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     /**
      * 保存款式设计详情颜色
-     * @param styleSaveDto 款式设计详情颜色DTO
+     * @param packInfoDto 资料包DTO
      * @return 款式设计详情颜色列表
      */
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public List<StyleInfoColorVo> saveBomInfoColorList(StyleSaveDto styleSaveDto) {
-        if(null == styleSaveDto || null == styleSaveDto.getStyleInfoColorDtoList()){
-            return null;
+    public List<StyleInfoColorVo> saveBomInfoColorList(PackInfoDto packInfoDto) {
+        if(null == packInfoDto || null == packInfoDto.getStyleInfoColorDtoList()){
+            throw new OtherException("款式设计详情-颜色数据为空！！！");
         }
-        List<StyleInfoColor> styleInfoColors = BeanUtil.copyToList(styleSaveDto.getStyleInfoColorDtoList(), StyleInfoColor.class);
+        List<StyleInfoColor> styleInfoColors = BeanUtil.copyToList(packInfoDto.getStyleInfoColorDtoList(), StyleInfoColor.class);
         List<StyleInfoColor> colorCodeList =
                 styleInfoColorService.list(new QueryWrapper<StyleInfoColor>().in("color_code",
-                        styleInfoColors.stream().map(StyleInfoColor::getColorCode).collect(Collectors.toList())).eq("foreign_id", styleSaveDto.getId()));
+                        styleInfoColors.stream().map(StyleInfoColor::getColorCode).collect(Collectors.toList())).eq("foreign_id", packInfoDto.getId()));
         if (CollectionUtil.isNotEmpty(colorCodeList)) {
             String colorNames = colorCodeList.stream().map(StyleInfoColor::getColorName).collect(Collectors.joining(BaseGlobal.D));
             throw new OtherException(colorNames + "已添加颜色，请勿重新添加");
@@ -242,44 +249,46 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (!flg) {
             throw new OtherException("新增款式设计详情颜色失败，请联系管理员");
         }
-        // 保存款式设计SKU
-        List<StyleInfoSku> styleInfoSkuList = new ArrayList<>();
-        // 拼接款式SKU数据： 颜色多个尺码
-        styleInfoColors.forEach(styleInfoColor -> {
-            // 取款式尺码编码
-            List<String> sizeCodeList = com.base.sbc.config.utils.StringUtils.convertList(styleSaveDto.getSizeCodes());
-            // 取除款式尺码
-            List<String> productSizeList = com.base.sbc.config.utils.StringUtils.convertList(styleSaveDto.getProductSizes());
-            // 拼接款式SKU ：颜色code + 尺码code
-            for (int i = 0; i < sizeCodeList.size(); i++) {
-                // 尺码code
-                String sizeCode = sizeCodeList.get(i);
-                // 尺码名称
-                String sizeName =  null != productSizeList.get(i) ? productSizeList.get(i) : "";
-                // SKU ：颜色code + - + 尺码code
-                String skuCode = styleSaveDto.getDesignNo() + styleInfoColor.getColorCode() + sizeCode;
-                StyleInfoSku styleInfoSku = new StyleInfoSku();
-                styleInfoSku.setForeignId(styleInfoColor.getForeignId());
-                styleInfoSku.setPackType(styleInfoColor.getPackType());
-                styleInfoSku.setSkuCode(skuCode);
-                styleInfoSku.setColorCode(styleInfoColor.getColorCode());
-                styleInfoSku.setColorName(styleInfoColor.getColorName());
-                styleInfoSku.setSizeCode(sizeCode);
-                styleInfoSku.setSizeName(sizeName);
-                styleInfoSku.insertInit();
-                styleInfoSkuList.add(styleInfoSku);
+        if (null != packInfoDto.getPackType() && PackUtils.PACK_TYPE_BIG_GOODS.equals(packInfoDto.getPackType())) {
+            // 保存款式设计SKU
+            List<StyleInfoSku> styleInfoSkuList = new ArrayList<>();
+            // 拼接款式SKU数据： 颜色多个尺码
+            styleInfoColors.forEach(styleInfoColor -> {
+                // 取款式尺码编码
+                List<String> sizeCodeList = com.base.sbc.config.utils.StringUtils.convertList(packInfoDto.getSizeCodes());
+                // 取除款式尺码
+                List<String> productSizeList = com.base.sbc.config.utils.StringUtils.convertList(packInfoDto.getProductSizes());
+                // 拼接款式SKU ：颜色code + 尺码code
+                for (int i = 0; i < sizeCodeList.size(); i++) {
+                    // 尺码code
+                    String sizeCode = sizeCodeList.get(i);
+                    // 尺码名称
+                    String sizeName =  null != productSizeList.get(i) ? productSizeList.get(i) : "";
+                    // SKU ：颜色code + - + 尺码code
+                    String skuCode = packInfoDto.getDesignNo() + styleInfoColor.getColorCode() + sizeCode;
+                    StyleInfoSku styleInfoSku = new StyleInfoSku();
+                    styleInfoSku.setForeignId(styleInfoColor.getForeignId());
+                    styleInfoSku.setPackType(styleInfoColor.getPackType());
+                    styleInfoSku.setSkuCode(skuCode);
+                    styleInfoSku.setColorCode(styleInfoColor.getColorCode());
+                    styleInfoSku.setColorName(styleInfoColor.getColorName());
+                    styleInfoSku.setSizeCode(sizeCode);
+                    styleInfoSku.setSizeName(sizeName);
+                    styleInfoSku.insertInit();
+                    styleInfoSkuList.add(styleInfoSku);
+                }
+            });
+            // 保存款式SKU数据
+            boolean skuFlg = styleInfoSkuService.saveBatch(styleInfoSkuList);
+            if (!skuFlg) {
+                throw new OtherException("新增款式SKU失败，请联系管理员");
             }
-        });
-        // 保存款式SKU数据
-        boolean skuFlg = styleInfoSkuService.saveBatch(styleInfoSkuList);
-        if (!skuFlg) {
-            throw new OtherException("新增款式SKU失败，请联系管理员");
         }
         // 修改颜色codes、颜色名称
         Style style = new Style();
-        style.setId(styleSaveDto.getId());
-        style.setColorCodes(styleSaveDto.getColorCodes());
-        style.setProductColors(styleSaveDto.getProductColors());
+        style.setId(packInfoDto.getForeignId());
+        style.setColorCodes(packInfoDto.getColorCodes());
+        style.setProductColors(packInfoDto.getProductColors());
         baseMapper.updateById(style);
         return BeanUtil.copyToList(styleInfoColors, StyleInfoColorVo.class);
     }
@@ -607,6 +616,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Override
     public List<FieldManagementVo> queryDimensionLabels(DimensionLabelsSearchDto dto) {
         List<FieldManagementVo> result = new ArrayList<>(16);
+        List<String> stringList2 = new ArrayList<>();
         //1 查询企划需求管理
         QueryPlanningDimensionalityDto pdqw = new QueryPlanningDimensionalityDto();
         pdqw.setCategoryId(dto.getCategoryId());
@@ -617,6 +627,28 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
             List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
+            /*用于查询字段配置数据*/
+            stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
+            Style style = getById(dto.getStyleId());
+            QueryFieldOptionConfigDto queryFieldOptionConfigDto = new QueryFieldOptionConfigDto();
+            if (style.getCategoryFlag().equals(BaseGlobal.YES)) {
+                queryFieldOptionConfigDto.setProdCategory2nd(style.getProdCategory2nd());
+            } else {
+                queryFieldOptionConfigDto.setCategoryCode(style.getProdCategory());
+            }
+            /*查询每个字段下的配置选项*/
+            queryFieldOptionConfigDto.setBrand(style.getBrand());
+            queryFieldOptionConfigDto.setSeason(style.getSeason());
+            queryFieldOptionConfigDto.setFieldManagementIdList(stringList2);
+            Map<String, List<FieldOptionConfig>> listMap = fieldOptionConfigService.getFieldConfig(queryFieldOptionConfigDto);
+            /*赋值*/
+            fieldManagementListByIds.forEach(i -> {
+                List<FieldOptionConfig> configList = listMap.get(i.getId());
+                if (CollUtil.isNotEmpty(configList)) {
+                    i.setConfigVoList(BeanUtil.copyToList(configList, FieldOptionConfigVo.class));
+                }
+            });
+
             // [3].查询字段值
             if (CollUtil.isNotEmpty(fieldManagementListByIds) && StrUtil.isNotBlank(dto.getStyleId())) {
                 fieldManagementService.conversion(fieldManagementListByIds, fvList);
@@ -624,19 +656,17 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             }
         }
         //查询坑位信息的
-        if (StrUtil.isNotBlank(dto.getPlanningCategoryItemId())) {
-            List<FieldManagementVo> seatFmList = planningCategoryItemService.querySeatDimension(dto.getPlanningCategoryItemId(), BaseGlobal.YES);
+/*        if (StrUtil.isNotBlank(dto.getPlanningCategoryItemId())) {
+            List<FieldManagementVo> seatFmList = planningCategoryItemService.querySeatDimension(dto.getPlanningCategoryItemId(), BaseGlobal.YES,BaseGlobal.NO);
             fieldManagementService.conversion(seatFmList, fvList);
             if (CollUtil.isNotEmpty(seatFmList)) {
                 Set<String> fnSet = result.stream().map(FieldManagementVo::getFieldName).collect(Collectors.toSet());
                 List<FieldManagementVo> seatFmListNotInSd = seatFmList.stream().filter(item -> !fnSet.contains(item.getFieldName())).collect(Collectors.toList());
                 result.addAll(0, seatFmListNotInSd);
             }
-        }
-
+        }*/
         return result;
     }
-
     @Override
     public List<FieldManagementVo> queryDimensionLabelsBySdId(String id) {
         Style style = getById(id);
