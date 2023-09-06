@@ -231,10 +231,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if(null == packInfoDto || null == packInfoDto.getStyleInfoColorDtoList()){
             throw new OtherException("款式设计详情-颜色数据为空！！！");
         }
+
         List<StyleInfoColor> styleInfoColors = BeanUtil.copyToList(packInfoDto.getStyleInfoColorDtoList(), StyleInfoColor.class);
         List<StyleInfoColor> colorCodeList =
                 styleInfoColorService.list(new QueryWrapper<StyleInfoColor>().in("color_code",
-                        styleInfoColors.stream().map(StyleInfoColor::getColorCode).collect(Collectors.toList())).eq("foreign_id", packInfoDto.getId()));
+                        styleInfoColors.stream().map(StyleInfoColor::getColorCode).collect(Collectors.toList()))
+                        .eq("foreign_id", packInfoDto.getId()).eq("pack_type",packInfoDto.getPackType()));
         if (CollectionUtil.isNotEmpty(colorCodeList)) {
             String colorNames = colorCodeList.stream().map(StyleInfoColor::getColorName).collect(Collectors.joining(BaseGlobal.D));
             throw new OtherException(colorNames + "已添加颜色，请勿重新添加");
@@ -249,6 +251,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (!flg) {
             throw new OtherException("新增款式设计详情颜色失败，请联系管理员");
         }
+        // 添加颜色为大货资料包类型 才会生成SKU信息
         if (null != packInfoDto.getPackType() && PackUtils.PACK_TYPE_BIG_GOODS.equals(packInfoDto.getPackType())) {
             // 保存款式设计SKU
             List<StyleInfoSku> styleInfoSkuList = new ArrayList<>();

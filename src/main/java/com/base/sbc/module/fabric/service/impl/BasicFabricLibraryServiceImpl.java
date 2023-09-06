@@ -136,6 +136,7 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
         // 生成物料档案
         BasicsdatumMaterialSaveDto basicsdatumMaterialSaveDto = CopyUtil.copy(basicFabricLibraryVO.getBasicsdatumMaterial(), BasicsdatumMaterialSaveDto.class);
         basicsdatumMaterialSaveDto.setConfirmStatus("0");
+        basicsdatumMaterialSaveDto.setSource("2");
         BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveMaterial(basicsdatumMaterialSaveDto, null, BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
         // 更新基本信息“是否转至物料档案”、“转至物料档案id”(包括开发、开发申请)
         String devApplyId = fabricDevApplyService.getByDevApplyCode(basicFabricLibraryVO.getDevApplyCode());

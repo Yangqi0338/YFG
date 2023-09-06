@@ -1,5 +1,6 @@
 package com.base.sbc.client.amc.service;
 
+import com.base.sbc.client.amc.entity.Team;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.common.dto.AdTree;
@@ -186,4 +187,14 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/open/user/getUserListByNames")
     ApiResult getUserListByNames(String names);
+
+    /**
+     * 团队保存
+     *
+     * @param team
+     * @return
+     */
+    @PostMapping("/amc/api/token/team/save")
+    ApiResult teamSave(@RequestBody Team team);
+
 }

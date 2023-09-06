@@ -7,6 +7,7 @@
 package com.base.sbc.module.basicsdatum.service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -134,5 +135,12 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 * @return
 	 */
 	String getMaxMaterialCode(GetMaxCodeRedis data, String userCompany);
+
+	/**
+	 * 通过物料编码获取来源
+	 * @param materialCodes
+	 * @return
+	 */
+	Map<String, String> getSource(List<String> materialCodes);
 }
 

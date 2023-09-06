@@ -15,6 +15,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -53,6 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -400,6 +402,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		qw.andLike(dto.getCategoryId(), "category1_code", "category2_code", "category3_code");
 		qw.eq("biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
 		qw.eq("confirm_status", "2");
+		qw.eq(StringUtils.isNotEmpty(dto.getSource()), "source", dto.getSource());
 		Page<BomSelMaterialVo> page = PageHelper.startPage(dto);
 		List<BomSelMaterialVo> list = getBaseMapper().getBomSelMaterialList(qw);
 
@@ -922,5 +925,22 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	@Override
+	public Map<String, String> getSource(List<String> materialCodes) {
+		if (CollectionUtils.isEmpty(materialCodes)) {
+			return new HashMap<>();
+		}
+		LambdaQueryWrapper<BasicsdatumMaterial> qw = new QueryWrapper<BasicsdatumMaterial>().lambda()
+				.in(BasicsdatumMaterial::getMaterialCode, materialCodes)
+				.eq(BasicsdatumMaterial::getDelFlag, "0")
+				.select(BasicsdatumMaterial::getMaterialCode, BasicsdatumMaterial::getSource);
+		List<BasicsdatumMaterial> list = super.list(qw);
+		if (CollectionUtils.isEmpty(list)) {
+			return new HashMap<>();
+		}
+		return list.stream()
+				.collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode, BasicsdatumMaterial::getSource, (k1, k2) -> k2));
 	}
 }

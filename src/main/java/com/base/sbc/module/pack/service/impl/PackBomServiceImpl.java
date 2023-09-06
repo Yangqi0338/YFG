@@ -12,6 +12,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -21,6 +22,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomColor;
@@ -77,6 +79,8 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
 
     @Autowired
     private BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
+    @Autowired
+    private BasicsdatumMaterialService basicsdatumMaterialService;
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
@@ -91,6 +95,12 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         // 查询尺码配置
         List<PackBomVo> pbvs = voPageInfo.getList();
         if (CollUtil.isNotEmpty(pbvs)) {
+            List<String> materialCodes = pbvs.stream()
+                    .filter(x -> StringUtils.equals(x.getDataSource(), "1"))
+                    .map(PackBomVo::getMaterialCode)
+                    .collect(Collectors.toList());
+            Map<String, String> sourceMaps = basicsdatumMaterialService.getSource(materialCodes);
+
             List<String> bomIds = pbvs.stream().map(PackBomVo::getId).collect(Collectors.toList());
             Map<String, List<PackBomSizeVo>> packBomSizeMap = packBomSizeService.getByBomIdsToMap(bomIds);
             // 查询资料包-物料清单-配色
@@ -98,6 +108,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             for (PackBomVo pbv : pbvs) {
                 pbv.setPackBomSizeList(packBomSizeMap.get(pbv.getId()));
                 pbv.setPackBomColorVoList(packBomColorMap.get(pbv.getId()));
+                pbv.setSource(sourceMaps.get(pbv.getMaterialCode()));
             }
         }
         return voPageInfo;
