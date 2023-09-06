@@ -180,7 +180,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         if (hangTagVO != null) {
             List<HangTagIngredient> list = hangTagIngredientService.list(new QueryWrapper<HangTagIngredient>().eq("hang_tag_id", hangTagVO.getId()));
             List<String> codes = list.stream().map(HangTagIngredient::getMaterialCode).collect(Collectors.toList());
-            List<EscmMaterialCompnentInspectCompanyDto> inspectCompanyDtoList = escmMaterialCompnentInspectCompanyService.list();
+            List<EscmMaterialCompnentInspectCompanyDto> inspectCompanyDtoList = escmMaterialCompnentInspectCompanyService.list(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no", codes));
             hangTagVO.setInspectCompanyDtoList(inspectCompanyDtoList);
         }
 
