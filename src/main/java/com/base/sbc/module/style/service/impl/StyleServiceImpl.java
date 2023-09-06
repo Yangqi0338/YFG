@@ -1443,8 +1443,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         params.put("designChannelId", style.getDesignChannelId());
         params.put("year", style.getYear());
         params.put("season", style.getSeason());
-        String prodCategory3rd = style.getProdCategory3rd();
-        params.put("prodCategory3rd", prodCategory3rd.substring(prodCategory3rd.length()-2));
+        params.put("prodCategory3rd", style.getProdCategory3rd());
         return getNextCode.genCode("STYLE_DESIGN_NO", params);
     }
 
@@ -1461,7 +1460,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             regexps.add(String.valueOf(val));
         });
         String regexp = "^" + CollUtil.join(regexps, "");
-        System.out.println("传过来的正则:" + regexp);
         QueryWrapper qc = new QueryWrapper();
         qc.eq(COMPANY_CODE, userCompany);
         qc.apply(" design_no REGEXP '" + regexp + "'");
