@@ -239,6 +239,8 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
                     styleInfoSku.setColorName(styleInfoColor.getColorName());
                     styleInfoSku.setSizeCode(sizeCode);
                     styleInfoSku.setSizeName(sizeName);
+                    styleInfoSku.setCostPrice(styleInfoColor.getSkcCostPrice());
+                    styleInfoSku.setTagPrice(styleInfoColor.getTagPrice());
                     styleInfoSku.insertInit();
                     styleInfoSkuList.add(styleInfoSku);
                 }
