@@ -17,6 +17,7 @@ import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
@@ -102,6 +103,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	private SmpService smpService;
 	@Autowired
 	private CcmService ccmService;
+	@Autowired
+	CcmFeignService ccmFeignService;
 
 	@ApiOperation(value = "主物料成分转换")
 	@GetMapping("/formatIngredient")
@@ -191,8 +194,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			entity.setId(null);
 			entity.setStatus("0");
 			String categoryCode = entity.getMaterialCode();
-			// 获取并放入最大code
-			if (!BasicsdatumMaterialBizTypeEnum.DEV.getK().equals(dto.getBizType())) {
+			// 获取并放入最大code(且需要满足自动生成物料编码的开关为空或者未启动)
+			if (!BasicsdatumMaterialBizTypeEnum.DEV.getK().equals(dto.getBizType())  && !ccmFeignService.getSwitchByCode("AUTO_GEN_MATERIAL_CODE")) {
 				entity.setMaterialCode(getMaxCode(categoryCode));
 			}
 		}
