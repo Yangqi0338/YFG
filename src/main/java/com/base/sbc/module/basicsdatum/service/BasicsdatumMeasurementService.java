@@ -15,6 +15,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /** 
  * 类描述：基础资料-测量点 service类
@@ -77,6 +78,11 @@ public interface BasicsdatumMeasurementService extends BaseService<BasicsdatumMe
      */
     Boolean measurementStartStop( StartStopDto startStopDto);
 
-
-	
+    /**
+     * 查询所有数据
+     *
+     * @param companyCode 企业编码
+     * @return List<BasicsdatumMeasurementVo>
+     */
+    List<BasicsdatumMeasurement> getAllMeasurement(String companyCode);
 }

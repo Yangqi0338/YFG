@@ -126,6 +126,24 @@ public class PoiUtilsXlsx {
     }
 
     /**
+     * 创建单元格样式，可以从另一样式中继承设置
+     *
+     * @param workbook  excel对象
+     * @param cellStyle 另一样式
+     * @param font      字体
+     * @return 新样式
+     */
+    public static XSSFCellStyle createCellStyle(XSSFWorkbook workbook, XSSFCellStyle cellStyle,
+                                                XSSFFont font) {
+        XSSFCellStyle objNewCellStyle = workbook.createCellStyle();
+        objNewCellStyle.setFont(font == null ? workbook.getFontAt(cellStyle.getFontIndex()) : font);
+        objNewCellStyle.setWrapText(true);
+        objNewCellStyle.setBorderLeft(cellStyle.getBorderLeft());
+        objNewCellStyle.setBorderTop(cellStyle.getBorderTop());
+        return objNewCellStyle;
+    }
+
+    /**
      * 创建单元格样式
      *
      * @param workbook
