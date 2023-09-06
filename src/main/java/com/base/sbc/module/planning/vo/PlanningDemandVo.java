@@ -1,6 +1,7 @@
 package com.base.sbc.module.planning.vo;
 
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.formType.vo.FieldOptionConfigVo;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -29,5 +30,8 @@ public class PlanningDemandVo {
     List<PlanningDemandProportionData> list;
 
     FieldManagementVo fieldManagementVo;
+
+    List<FieldOptionConfigVo> configVoList;
+
 
 }

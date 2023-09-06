@@ -187,6 +187,9 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     /** 系列名 */
     @ApiModelProperty(value = "系列名"  )
     private String series;
+    /** 品类标识 0品类 1中类 */
+    @ApiModelProperty(value = "品类标识 0品类 1中类"  )
+    private String categoryFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

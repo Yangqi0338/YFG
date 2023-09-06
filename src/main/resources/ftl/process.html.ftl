@@ -4,7 +4,7 @@
 </head>
 <style>
     * {
-        font-family: '思源宋体', 'Noto Serif SC', SimSun;
+        font-family: 'Source Han Serif CN', 'Noto Serif SC', SimSun;
     }
 
     html {
@@ -45,6 +45,7 @@
     .table_border {
         width: 100%;
         border-collapse: collapse;
+        padding-bottom: 5px;
     }
 
     .table_no_border {
@@ -77,7 +78,7 @@
     }
 
     .mt {
-        margin-top: 16px;
+        margin-bottom: 5px;
     }
 
 
@@ -154,7 +155,11 @@
     }
 
     .gb {
-        background-color: #999999;
+        background-color: #dadada;
+    }
+
+    .wb {
+        background-color: white;
     }
 
     .td_lt {
@@ -183,13 +188,12 @@
 </style>
 <body>
 <!-- 页眉 -->
-<table data-name="pageStart" class="table_no_border page_start font_bold">
+<table class="table_no_border page_start font_bold">
     <tr>
-        <td>Eifini</td>
-        <td>${designNo}</td>
-        <td>${designNo} BOM</td>
-        <td>DRAFT-大货生产${createDate}${createTime}</td>
-        <td style="width: 120px;"></td>
+        <td style="width: 15%;">Eifini</td>
+        <td style="width: 15%;">${designNo}</td>
+        <td style="width: 15%;">${designNo} BOM</td>
+        <td style="width: 55%;">DRAFT-大货生产${createDate}${createTime}</td>
     </tr>
 </table>
 
@@ -342,8 +346,8 @@
         </th>
     </tr>
     <tr>
-        <th class="item_td">工艺项目</th>
-        <th class="content_tr">
+        <th class="item_td gb">工艺项目</th>
+        <th class="content_tr gb">
             描述
         </th>
     </tr>
@@ -366,9 +370,15 @@
 </table>
 <!-- 朴条位置 归拔位置 -->
 <table class="table_border mt" style="page-break-inside: avoid;">
+    <thead>
     <tr>
-        <td class="table_header">朴条位置 归拔位置</td>
+        <th class="th_title">
+            <p>朴条位置 归拔位置</p>
+            <hr>
+        </th>
     </tr>
+    </thead>
+    <tbody>
     <tr>
         <td>
             <#list cjgyImgList as item>
@@ -376,12 +386,19 @@
             </#list>
         </td>
     </tr>
+    </tbody>
 </table>
 <#--注意事项-->
 <table class="table_border mt" style="page-break-before: always;page-break-inside: avoid;">
+    <thead>
     <tr>
-        <td class="table_header">注意事项</td>
+        <th class="th_title">
+            <p>注意事项</p>
+            <hr>
+        </th>
     </tr>
+    </thead>
+    <tbody>
     <tr>
         <td>
             <#list zysxImgList as item>
@@ -389,9 +406,10 @@
             </#list>
         </td>
     </tr>
+    </tbody>
 </table>
 
-<!--尺寸表 -->
+<!--测量点 -->
 
 <table class="table_border small_table mt size_table" style="page-break-before: always; ">
     <thead>
@@ -401,15 +419,15 @@
             <hr>
         </th>
     </tr>
-    <tr class="size_tr">
+    <tr class="size_tr gb">
         <th rowspan="2" style="text-align: left;">部位</th>
         <th rowspan="2" style="text-align: left;">描述</th>
         <#list sizeList as size>
-            <#if defaultSize==size>
-                <th colspan="${sizeColspan}" class="sizeWidth gb">${size}</th>
-            <#else>
-                <th colspan="${sizeColspan}" class="sizeWidth">${size}</th>
-            </#if>
+            <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]}">
+                <#if size==defaultSize>★</#if>
+                ${size}
+                <#if size==defaultSize>★</#if>
+            </th>
         </#list>
         <th rowspan="2" class="gc">公差(-)</th>
         <th rowspan="2" class="gc">公差(+)</th>
@@ -417,10 +435,10 @@
 
     <tr>
         <#list sizeList as size>
-            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan]}">样板<br>尺寸</td>
-            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1]}">成衣<br>尺寸</td>
+            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">样板<br>尺寸</td>
+            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}">成衣<br>尺寸</td>
             <#if washSkippingFlag>
-                <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">洗后<br>尺寸</td>
+                <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}">洗后<br>尺寸</td>
             </#if>
         </#list>
     </tr>
@@ -432,7 +450,7 @@
                 <td style="height: 32px;text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
             <#else>
                 <#list item.rowData as c>
-                    <td style="height: 32px" class="${c.className}"> ${c.text}</td>
+                    <td style="height: 32px" class="${sizeClass[c_index]}"> ${c.text}</td>
                 </#list>
             </#if>
         </tr>
@@ -448,21 +466,33 @@
 
 <!--    小部件-->
 <table class="table_border mt" style="page-break-before: always;">
-
+    <thead>
     <tr>
-        <td rowspan="${xbjRowsPan}" style="width: 30%">
-            <div class="one_imgs">
-                <#list xbjImgList as item>
-                    <img class="one_imgs_item" src="${item.url}"/>
-                </#list>
-            </div>
-        </td>
-        <td style="width: 10%">编码</td>
-        <td style="width: 10%">工艺项目</td>
-        <td style="width: 50%">工艺描述</td>
+        <th colspan="4" class="th_title">
+            <p>基础工艺</p>
+            <hr>
+        </th>
     </tr>
+    <tr>
+
+        <th class="gb" style="width: 10%">图片</th>
+        <th class="gb" style="width: 10%">编码</th>
+        <th class="gb" style="width: 10%">工艺项目</th>
+        <th class="gb" style="width: 50%">工艺描述</th>
+    </tr>
+    </thead>
+    <tbody>
     <#list xbjDataList as item>
         <tr>
+            <#if item_index==0>
+                <td rowspan="${xbjRowsPan}" style="width: 30%">
+                    <div class="one_imgs">
+                        <#list xbjImgList as item>
+                            <img class="one_imgs_item" src="${item.url}"/>
+                        </#list>
+                    </div>
+                </td>
+            </#if>
             <td>${item.itemCode}</td>
             <td>${item.item}</td>
             <td>
@@ -470,20 +500,26 @@
             </td>
         </tr>
     </#list>
+    </tbody>
 </table>
 
-<!--    基础工艺 -->
+<!--    裁剪工艺 -->
 <table class="table_border mt" style="page-break-before: always">
+    <thead>
     <tr>
-        <td colspan="3" class="table_header">基础工艺</td>
+        <th colspan="3" class="th_title">
+            <p>裁剪工艺</p>
+            <hr>
+        </th>
     </tr>
     <tr>
-
-        <td style="width: 10%">工艺项目</td>
-        <td style="width: 50%">描述</td>
-        <td style="width: 50%">图片</td>
+        <th class="gb" style="width: 10%">工艺项目</th>
+        <th class="gb" style="width: 50%">描述</th>
+        <th class="gb" style="width: 50%">图片</th>
 
     </tr>
+    </thead>
+
     <#list jcgyDataList as item>
         <tr>
             <td>${item.item}</td>
@@ -505,15 +541,21 @@
 
 <!--    整烫包装 -->
 <table class="table_border mt">
+    <thead>
     <tr>
-        <td colspan="3" class="table_header">整烫包装</td>
+        <th colspan="2" class="th_title">
+            <p>整烫包装</p>
+            <hr>
+        </th>
     </tr>
     <tr>
 
-        <td style="width: 10%">工艺项目</td>
-        <td style="width: 50%">描述</td>
+        <th class="gb" style="width: 10%">工艺项目</th>
+        <th class="gb" style="width: 50%">描述</th>
 
     </tr>
+    </thead>
+    <tbody>
     <#list ztbzDataList as item>
         <tr>
             <td>${item.item}</td>
@@ -522,6 +564,7 @@
             </td>
         </tr>
     </#list>
+    </tbody>
 </table>
 
 </body>

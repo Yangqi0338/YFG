@@ -363,10 +363,19 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             }
             packBomSizeService.saveBatch(bomSizeList);
         }
-        // 保存款式设计详情颜色
-        StyleSaveDto styleSaveDto = new StyleSaveDto();
-        styleSaveDto.setId(sourceForeignId);
-        styleInfoColorService.insertStyleInfoColorList(styleSaveDto, sourcePackType, targetPackType);
+        try {
+            // 保存款式设计详情颜色
+            PackInfoDto packInfoDto = new PackInfoDto();
+            packInfoDto.setId(sourceForeignId);
+            packInfoDto.setSourcePackType(sourcePackType);
+            packInfoDto.setTargetPackType(targetPackType);
+            packInfoDto.setTargetForeignId(targetForeignId);
+            styleInfoColorService.insertStyleInfoColorList(packInfoDto);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("保存款式设计详情颜色错误信息如下：{}", e);
+        }
+
         //大货 到设计 表示反审，则新建一个bom版本
         if (StrUtil.equals(targetPackType, PackUtils.PACK_TYPE_DESIGN) && StrUtil.equals(sourcePackType, PackUtils.PACK_TYPE_BIG_GOODS)) {
             //查找启动版本

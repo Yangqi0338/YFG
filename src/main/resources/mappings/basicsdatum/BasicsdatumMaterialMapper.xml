@@ -149,6 +149,11 @@
 		${ ew.customSqlSegment}
 	</select>
 
-	<!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+	<select id="selectMaxMaterialCode" resultType="java.lang.String">
+		select max(material_code)
+		from t_basicsdatum_material ${ ew.customSqlSegment}
+    </select>
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
 

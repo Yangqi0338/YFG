@@ -18,11 +18,10 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formType.dto.SaveUpdateFieldManagementDto;
-import com.base.sbc.module.formType.entity.FieldManagement;
-import com.base.sbc.module.formType.entity.FieldVal;
-import com.base.sbc.module.formType.entity.FormType;
-import com.base.sbc.module.formType.entity.Option;
+import com.base.sbc.module.formType.entity.*;
 import com.base.sbc.module.formType.mapper.FieldManagementMapper;
+import com.base.sbc.module.formType.mapper.FieldOptionConfigMapper;
+import com.base.sbc.module.formType.mapper.FormTypeMapper;
 import com.base.sbc.module.formType.mapper.OptionMapper;
 import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FormTypeService;
@@ -67,6 +66,12 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
     @Autowired
     private PlanningDemandMapper planningDemandMapper;
 
+    @Autowired
+    private FieldOptionConfigMapper fieldOptionConfigMapper;
+
+    @Autowired
+    private FormTypeMapper formTypeMapper;
+
     private IdGen idGen = new IdGen();
 
     @Override
@@ -78,10 +83,6 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
             if (!StringUtils.isEmpty(saveUpdateFieldManagementDto.getFieldName())) {
                 queryWrapper.or().eq("field_name", saveUpdateFieldManagementDto.getFieldName()).eq("form_type_id", saveUpdateFieldManagementDto.getFormTypeId());
             }
-        /*    if (!StringUtils.isEmpty(saveUpdateFieldManagementDto.getDefaultHint())) {
-                queryWrapper.or().eq("default_hint", saveUpdateFieldManagementDto.getDefaultHint()).eq("form_type_id",saveUpdateFieldManagementDto.getFormTypeId());
-            }*/
-
             List<FieldManagement> list=  baseMapper.selectList(queryWrapper);
             if (!CollectionUtils.isEmpty(list)) {
                 throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
@@ -98,7 +99,6 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
                     m.insertInit();
                     m.setCompanyCode(baseController.getUserCompany());
                     m.setFieldId(fieldManagement.getId());
-                    m.setRemark("");
                     optionMapper.insert(m);
                 });
             }
@@ -117,7 +117,6 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
                     m.insertInit();
                     m.setCompanyCode(baseController.getUserCompany());
                     m.setFieldId(fieldManagement1.getId());
-                    m.setRemark("");
                     optionMapper.insert(m);
                 });
                 if(!CollectionUtils.isEmpty(optionList)){
@@ -133,8 +132,6 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
         if (queryFieldManagementDto.getPageNum() != 0 && queryFieldManagementDto.getPageSize() != 0) {
             PageHelper.startPage(queryFieldManagementDto);
         }
-
-
         queryFieldManagementDto.setCompanyCode(baseController.getUserCompany());
         List<FieldManagementVo> list = baseMapper.getFieldManagementList(queryFieldManagementDto);
         /*
@@ -150,6 +147,40 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
           }
       });
         return new PageInfo<>(list);
+    }
+
+    /**
+     * 查询维度-字段有配置的选项
+     *
+     * @param queryFieldManagementDto
+     * @return
+     */
+    @Override
+    public List<FieldManagementVo> getFieldConfigList(QueryFieldManagementDto queryFieldManagementDto) {
+        /*查询表单的数据*/
+        QueryWrapper<FormType> formTypeQueryWrapper = new QueryWrapper<>();
+        formTypeQueryWrapper.eq("code", queryFieldManagementDto.getFormTypeCode());
+        List<FormType> formTypeList = formTypeMapper.selectList(formTypeQueryWrapper);
+        if (CollectionUtils.isEmpty(formTypeList)) {
+            throw new OtherException("获取表单失败");
+        }
+        /*品类查询字段配置列表查询品类下的字段id*/
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("status", BaseGlobal.STATUS_NORMAL);
+        qw.eq("form_type_id", formTypeList.get(0).getId());
+        qw.eq("category_code", queryFieldManagementDto.getCategoryId());
+        qw.eq("season", queryFieldManagementDto.getSeason());
+        List<FieldOptionConfig> optionConfigList = fieldOptionConfigMapper.selectList(qw);
+        /*获取到这个品类下存在的字段*/
+        List<String> fieldManagementIdList = optionConfigList.stream().map(FieldOptionConfig::getFieldManagementId).distinct().collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(fieldManagementIdList)) {
+            throw new OtherException("字段未配置选项");
+        }
+        /**
+         * 查询需求占比中依赖于字段id
+         */
+        List<FieldManagementVo> list =   BeanUtil.copyToList(baseMapper.selectBatchIds(fieldManagementIdList), FieldManagementVo.class);
+        return list;
     }
 
     @Override

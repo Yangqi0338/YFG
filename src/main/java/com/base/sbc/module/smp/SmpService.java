@@ -135,7 +135,10 @@ public class SmpService {
 
         for (StyleColor styleColor : styleColors) {
             SmpGoodsDto smpGoodsDto = styleColor.toSmpGoodsDto();
-
+            //吊牌价为空或者等于0
+            if (styleColor.getTagPrice()==null || styleColor.getTagPrice().compareTo(BigDecimal.ZERO)==0){
+                throw new OtherException("吊牌价不能为空或者等于0");
+            }
             Style style = styleService.getById(styleColor.getStyleId());
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(style.getProdCategory1st());

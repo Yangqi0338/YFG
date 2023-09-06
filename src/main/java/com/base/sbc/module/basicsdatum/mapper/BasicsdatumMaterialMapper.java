@@ -8,6 +8,7 @@ package com.base.sbc.module.basicsdatum.mapper;
 
 import java.util.List;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.basicsdatum.vo.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -51,6 +52,8 @@ public interface BasicsdatumMaterialMapper extends BaseMapper<BasicsdatumMateria
 			@Param("materialCode") String materialCode);
 
 	List<WarehouseMaterialVo> getPurchaseMaterialList(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
+
+	String selectMaxMaterialCode(@Param(Constants.WRAPPER) QueryWrapper qc);
 // 自定义方法区 不替换的区域【other_end】
 }
 

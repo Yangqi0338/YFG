@@ -21,14 +21,8 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.pack.entity.PackBom;
-import com.base.sbc.module.pack.entity.PackBomSize;
-import com.base.sbc.module.pack.entity.PackBomVersion;
-import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.service.PackBomService;
-import com.base.sbc.module.pack.service.PackBomSizeService;
-import com.base.sbc.module.pack.service.PackBomVersionService;
-import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.entity.*;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.purchase.entity.*;
 import com.base.sbc.module.purchase.mapper.PurchaseDemandMapper;
@@ -65,6 +59,9 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
 
     @Autowired
     private PackBomSizeService packBomSizeService;
+
+    @Autowired
+    private PackBomColorService packBomColorService;
 
     @Autowired
     private PackBomVersionService packBomVersionService;
@@ -167,6 +164,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             Map<String, BasicsdatumSupplier> supplierMap = supplierList.stream().collect(Collectors.toMap(BasicsdatumSupplier::getSupplierCode, item1 -> item1, (item1, item2) -> item1));
 
             QueryWrapper<PackBomSize> bomSizeQw;
+            QueryWrapper<PackBomColor> bomColorQw;
             List<PurchaseDemand> purchaseDemandList = new ArrayList<>();
             for (PackBom bom : packBomList) {
                 //查询物料清单 - 配码
@@ -174,34 +172,62 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 PackUtils.commonQw(bomSizeQw, packInfo.getId(), "packDesign", null);
                 bomSizeQw.eq("bom_id", bom.getId());
                 List<PackBomSize> packBomSizeList = packBomSizeService.list(bomSizeQw);
+                //查询物料清单 - 配色
+                bomColorQw = new QueryWrapper<>();
+                PackUtils.commonQw(bomColorQw, packInfo.getId(), "packDesign", null);
+                bomColorQw.eq("bom_id", bom.getId());
+                List<PackBomColor> packBomColorList = packBomColorService.list(bomColorQw).stream().filter(s -> StringUtils.isNotBlank(s.getMaterialColorName())).collect(Collectors.toList());
+
 
                 //根据规格分组合计，各个规格的数量
                 Map<String, BigDecimal> specificationsMap = new HashMap<>();
                 for (PackBomSize size : packBomSizeList) {
-                    BigDecimal num = specificationsMap.get(size.getWidth());
+                    BigDecimal num = specificationsMap.get(size.getSize());
                     if (num == null) {
-                        specificationsMap.put(size.getWidth(), size.getQuantity() == null ? BigDecimal.ZERO : size.getQuantity());
+                        specificationsMap.put(size.getSize(), size.getQuantity() == null ? BigDecimal.ZERO : size.getQuantity());
                     } else {
-                        specificationsMap.put(size.getWidth(), BigDecimalUtil.add(num, size.getQuantity() == null ? BigDecimal.ZERO : size.getQuantity()));
+                        specificationsMap.put(size.getSize(), BigDecimalUtil.add(num, size.getQuantity() == null ? BigDecimal.ZERO : size.getQuantity()));
                     }
                 }
 
                 BasicsdatumMaterial material = materialMap.get(bom.getMaterialCode());
                 BasicsdatumSupplier supplier = supplierMap.get(bom.getSupplierId());
 
-                for (Map.Entry<String, BigDecimal> entry : specificationsMap.entrySet()) {
-                    if(material != null){
-                        PurchaseDemand demand = new PurchaseDemand(packInfo, bom, material, entry.getKey(), entry.getValue());
-                        demand.insertInit(userCompany);
-                        demand.setId(idGen.nextIdStr());
-                        demand.setCompanyCode(companyCode);
-                        demand.setPurchasedNum(BigDecimal.ZERO);
-                        demand.setReadyNum(BigDecimal.ZERO);
-                        demand.setOrderStatus("0");
-                        demand.setStatus("0");
-                        demand.setDelFlag("0");
-                        demand.setSupplierId(supplier == null ? "" : supplier.getId());
-                        purchaseDemandList.add(demand);
+                if(CollectionUtil.isNotEmpty(packBomColorList)) {
+                    for (PackBomColor color : packBomColorList) {
+                        for (Map.Entry<String, BigDecimal> entry : specificationsMap.entrySet()) {
+                            if (material != null) {
+                                PurchaseDemand demand = new PurchaseDemand(packInfo, bom, material, entry.getKey(), entry.getValue());
+                                demand.insertInit(userCompany);
+                                demand.setId(idGen.nextIdStr());
+                                demand.setCompanyCode(companyCode);
+                                demand.setMaterialColor(color.getMaterialColorName());
+                                demand.setPurchasedNum(BigDecimal.ZERO);
+                                demand.setReadyNum(BigDecimal.ZERO);
+                                demand.setOrderStatus("0");
+                                demand.setStatus("0");
+                                demand.setDelFlag("0");
+                                demand.setSupplierId(supplier == null ? "" : supplier.getId());
+                                purchaseDemandList.add(demand);
+                            }
+                        }
+                    }
+                }else{
+                    //没有配色，用物料颜色
+                    for (Map.Entry<String, BigDecimal> entry : specificationsMap.entrySet()) {
+                        if (material != null) {
+                            PurchaseDemand demand = new PurchaseDemand(packInfo, bom, material, entry.getKey(), entry.getValue());
+                            demand.insertInit(userCompany);
+                            demand.setId(idGen.nextIdStr());
+                            demand.setCompanyCode(companyCode);
+                            demand.setPurchasedNum(BigDecimal.ZERO);
+                            demand.setReadyNum(BigDecimal.ZERO);
+                            demand.setOrderStatus("0");
+                            demand.setStatus("0");
+                            demand.setDelFlag("0");
+                            demand.setSupplierId(supplier == null ? "" : supplier.getId());
+                            purchaseDemandList.add(demand);
+                        }
                     }
                 }
             }
