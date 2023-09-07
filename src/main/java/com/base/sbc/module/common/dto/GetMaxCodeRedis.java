@@ -7,6 +7,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -81,7 +82,7 @@ public class GetMaxCodeRedis {
         try {
             ApiResult apiResult = this.ccmService.getGenCodeExistsRedis(billCode,1, object);
             if(apiResult.getSuccess()){
-                return apiResult.getData().toString();
+                return ((ArrayList) apiResult.getData()).get(0).toString();
             }else{
                 throw new RuntimeException(apiResult.getMessage());
             }
