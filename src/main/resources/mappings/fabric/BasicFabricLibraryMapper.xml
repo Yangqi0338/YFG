@@ -13,7 +13,7 @@
     <select id="getBasicFabricLibraryList" resultType="com.base.sbc.module.fabric.vo.BasicFabricLibraryListVO">
         SELECT
         bm.id,
-        bfl.id as basicFabricLibrary,
+        bfl.id as basicFabricLibraryId,
         bfl.create_name,
         bfl.create_date,
         bfl.update_name,
