@@ -13,7 +13,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.minio.MinioUtils;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.module.common.dto.AttachmentSaveDto;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.entity.UploadFile;

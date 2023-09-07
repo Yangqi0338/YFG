@@ -1,4 +1,4 @@
-package com.base.sbc.config.minio;
+package com.base.sbc.config.ureport.minio;
 
 import io.minio.MinioClient;
 import lombok.Data;

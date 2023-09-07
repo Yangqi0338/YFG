@@ -7,6 +7,9 @@ import java.awt.image.MemoryImageSource;
 import java.awt.image.PixelGrabber;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
@@ -18,29 +21,40 @@ import gui.ava.html.image.generator.HtmlImageGenerator;
 
 public class HtmlToImgTest {
 	public static void main(String[] args) throws InterruptedException, IOException {
-
-		String saveImageLocation = "D:\\space-spring\\sjs_yfg_pdm\\src\\test\\java\\com\\base\\sbc\\mdToImg\\md.png";
-
-		Parser parser = Parser.builder().build();
-		Node document = parser.parse("粘衬编号：4121#（水洗衬）粘衬颜色: (      )色\r\n"
-				+ "粘衬机器温度：**130-135**度，压力**2.5-3kg**,时间：**10-12**秒\r\n" + "根据面料特性适当调整机器温度与压力");
-		HtmlRenderer renderer = HtmlRenderer.builder().build();
-		String content = renderer.render(document);
-		content = content.replace("\n", "<br/>");
-		if (content.endsWith("<br/>")) {
-			content = content.substring(0, content.length() - 5);
+		String sql = "UPDATE t_style SET create_name=create_id=?company_code=? where id=? AND del_flag='0'";
+		System.out.println(sql.split("UPDATE")[1]);
+		String FF=(sql.substring(1)).split(" where ")[0];
+		List<String> sqlArr=new ArrayList<>();
+		if(sql.indexOf("?")!=-1){
+			String[] sqlArr1=(sql.replaceAll("\\?"," :; ")).split(FF.replaceAll("\\?"," :; ") + " where");
+			for (String s:sqlArr1) {
+				sqlArr.add(s.replaceAll(" :; ","\\?"));
+			}
 		}
-		System.out.println(content);
-		content = "<div style=\"font-size:16px;width:600px\">" + content + "</div>";
-		content = content.replace("<p>", "<p style=\"line-height:28px;margin:0px\">");
-		content = content.replace("<strong>", "<strong style=\"line-height:28px;color:red\">");
+		System.out.println(sqlArr.get(1));
 
-		System.out.println(content);
-		HtmlImageGenerator gen = new HtmlImageGenerator();
-		gen.loadHtml(content);
-//		gen.getBufferedImage();// 获取图片流
-
-		BufferedImage bufferedImage = gen.getBufferedImage();
+//		String saveImageLocation = "D:\\space-spring\\sjs_yfg_pdm\\src\\test\\java\\com\\base\\sbc\\mdToImg\\md.png";
+//
+//		Parser parser = Parser.builder().build();
+//		Node document = parser.parse("粘衬编号：4121#（水洗衬）粘衬颜色: (      )色\r\n"
+//				+ "粘衬机器温度：**130-135**度，压力**2.5-3kg**,时间：**10-12**秒\r\n" + "根据面料特性适当调整机器温度与压力");
+//		HtmlRenderer renderer = HtmlRenderer.builder().build();
+//		String content = renderer.render(document);
+//		content = content.replace("\n", "<br/>");
+//		if (content.endsWith("<br/>")) {
+//			content = content.substring(0, content.length() - 5);
+//		}
+//		System.out.println(content);
+//		content = "<div style=\"font-size:16px;width:600px\">" + content + "</div>";
+//		content = content.replace("<p>", "<p style=\"line-height:28px;margin:0px\">");
+//		content = content.replace("<strong>", "<strong style=\"line-height:28px;color:red\">");
+//
+//		System.out.println(content);
+//		HtmlImageGenerator gen = new HtmlImageGenerator();
+//		gen.loadHtml(content);
+////		gen.getBufferedImage();// 获取图片流
+//
+//		BufferedImage bufferedImage = gen.getBufferedImage();
 
 //		ImageIcon imageIcon = new ImageIcon(bufferedImage);
 //		Graphics2D g2D = (Graphics2D) bufferedImage.getGraphics();
@@ -59,7 +73,7 @@ public class HtmlToImgTest {
 //			}
 //		}
 //		g2D.drawImage(bufferedImage, 0, 0, imageIcon.getImageObserver());
-		ImageIO.write(bufferedImage, "png", new File(saveImageLocation));// 直接输出文件
+//		ImageIO.write(bufferedImage, "png", new File(saveImageLocation));// 直接输出文件
 
 //		gen.saveAsImage(saveImageLocation);
 //		return bufferedImage;
