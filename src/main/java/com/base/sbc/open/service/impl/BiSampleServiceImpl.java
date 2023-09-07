@@ -20,7 +20,9 @@ import com.base.sbc.module.patternmaking.vo.NodeStatusVo;
 import com.base.sbc.module.patternmaking.vo.SampleBoardVo;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
+import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.entity.Sample;
+import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -54,8 +56,10 @@ public class BiSampleServiceImpl extends ServiceImpl<BiSampleMapper, BiSample> i
     private final PackBomService packBomService;
     private final PackBomVersionService packBomVersionService;
     private final StyleService styleService;
+    private final PreProductionSampleTaskService preProductionSampleTaskService;
+    private final PatternMakingService patternMakingService;
     /**
-     *
+     *款式设计
      */
     @Override
     public void sample() {
@@ -223,26 +227,34 @@ public class BiSampleServiceImpl extends ServiceImpl<BiSampleMapper, BiSample> i
                                 }
                             });
 
-
-
-                            //市场调研
-                            biSample.setCompetitiveStyles(null);
                             //Style URL
-                            biSample.setC8StylePLMID(null);
+                            biSample.setC8StylePLMID(style.getId());
                             //款式工艺
                             biSample.setC8StyleAttrProductSpecs(null);
+                            long i = patternMakingService.count(new QueryWrapper<PatternMaking>().eq("style_id", style.getId()));
+                            PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskService.getOne(new QueryWrapper<PreProductionSampleTask>().eq("style_id", style.getId()).orderByDesc("create_date").last("limit 1"));
+                            if (preProductionSampleTask!=null){
+                                i = i+1;
+                            }
                             //样品数
-                            biSample.setC8StyleCntSample(null);
+                            biSample.setC8StyleCntSample(String.valueOf(i));
+
+                            //改款设计师
+                            biSample.setC8SARevisedDesigner(style.getRevisedDesignName());
+                            //改款设计师,用户登录
+                            biSample.setC8SARevisedDesignerID(style.getRevisedDesignId());
+                            //款式定位
+                            biSample.setC8StyleAttrOrientation(style.getPositioningName());
+
+
+
                             //模式
                             biSample.setDevelopmentMode(null);
                             //复制自
                             biSample.setCopiedFrom(null);
-                            //改款设计师
-                            biSample.setC8SARevisedDesigner(null);
-                            //改款设计师,用户登录
-                            biSample.setC8SARevisedDesignerID(null);
-                            //款式定位
-                            biSample.setC8StyleAttrOrientation(null);
+                            //市场调研   废弃
+                            biSample.setCompetitiveStyles(null);
+
                             list.add(biSample);
 
                         }

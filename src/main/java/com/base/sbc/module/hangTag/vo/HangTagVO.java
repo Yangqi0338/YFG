@@ -6,11 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.hangTag.vo;
 
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 类描述：吊牌表 实体类
@@ -27,6 +29,8 @@ public class HangTagVO {
     private static final long serialVersionUID = 1L;
 
     private String id;
+
+    private List<EscmMaterialCompnentInspectCompanyDto> inspectCompanyDtoList;
 
     /**
      * 款式id
@@ -72,8 +76,10 @@ public class HangTagVO {
     @ApiModelProperty(value = "版师")
     private String patternDesign;
 
-    /** 洗标名称 */
-    @ApiModelProperty(value = "洗标名称"  )
+    /**
+     * 洗标名称
+     */
+    @ApiModelProperty(value = "洗标名称")
     private String washingLabelName;
     /**
      * 颜色编码
@@ -157,6 +163,11 @@ public class HangTagVO {
      */
     @ApiModelProperty(value = "外辅助工艺")
     private String extAuxiliaryTechnics;
+
+    /**
+     * 款式图片地址
+     */
+    private String stylePic;
 
     /**
      * 外辅助工艺

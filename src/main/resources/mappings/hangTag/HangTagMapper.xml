@@ -18,6 +18,8 @@
         tpi.id as packInfoId,
         tsd.devt_type AS produceType,
         tsd.style_type AS styleType,
+        tsd.devt_type_name AS produceTypeName,
+        tsd.style_type_name AS styleTypeName,
         tsd.size_range_name AS modelTypeName,
         tsd.design_no AS designNo,
         tssc.style_no AS bulkStyleNo,
@@ -154,17 +156,20 @@
         tssc.style_no AS bulkStyleNo,
         tssc.color_name AS color,
         tssc.tag_price AS tagPrice,
+        tuf.url as stylePic,
         ht.*,
         IFNULL(ht.template_part,tsd.pattern_parts) as templatePart
         FROM
         t_style_color tssc
         JOIN t_style tsd ON tssc.style_id = tsd.id
         LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
+        Left Join t_upload_file tuf on tsd.style_pic = tuf.id
         <where>
             tssc.del_flag = 0
             AND tssc.company_code = #{companyCode}
             and tssc.style_no = #{bulkStyleNo}
         </where>
+        limit 1
     </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

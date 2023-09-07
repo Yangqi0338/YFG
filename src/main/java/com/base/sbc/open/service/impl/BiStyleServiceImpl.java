@@ -20,6 +20,8 @@ import com.base.sbc.module.patternmaking.vo.SampleBoardVo;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
+import com.base.sbc.module.sample.entity.PreProductionSampleTask;
+import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.style.dto.StylePageDto;
 import com.base.sbc.module.style.entity.Style;
@@ -47,6 +49,7 @@ import java.util.Map;
 public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> implements BiStyleService {
     private final StyleService styleService;
     private final PatternMakingService patternMakingService;
+    private final PreProductionSampleTaskService preProductionSampleTaskService;
 
     /**
      * 样衣看板.产前样
@@ -137,18 +140,18 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
             biStyle.setC8ProductSamplePatternReqDate(patternMaking.getPatternReqDate());
 
 
-
             /*
               产前样
              */
+            PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskService.getOne(new QueryWrapper<PreProductionSampleTask>().eq("style_id", style.getId()).orderByDesc("create_date").last("limit 1"));
             //放码日期
-            biStyle.setC8SampleFangMaData(null);
+            biStyle.setC8SampleFangMaData(preProductionSampleTask.getGradingDate());
             //放码师
-            biStyle.setC8ProductSampleFangMaShi(null);
+            biStyle.setC8ProductSampleFangMaShi(preProductionSampleTask.getGradingName());
             //工艺单完成日期
-            biStyle.setC8SampleTechPackData(null);
+            biStyle.setC8SampleTechPackData(preProductionSampleTask.getProcessCompletionDate());
             //后技术备注说明
-            biStyle.setC8ProductSampleProComment(null);
+            biStyle.setC8ProductSampleProComment(preProductionSampleTask.getTechRemarks());
 
 
             /*

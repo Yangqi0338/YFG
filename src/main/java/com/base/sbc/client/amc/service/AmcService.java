@@ -167,7 +167,7 @@ public interface AmcService {
      * @return
      */
     @GetMapping("/amc/api/token/dataPermissions/getReadDataPermissions")
-    ApiResult getReadDataPermissions(@RequestParam("businessType") String businessType);
+    ApiResult getReadDataPermissions(@RequestParam("businessType") String businessType,@RequestParam("operateType") String operateType);
 
     /**
      * 根据用户id集合获取用户工号(登录账号)集合

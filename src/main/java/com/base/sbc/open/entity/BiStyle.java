@@ -118,7 +118,7 @@ public class BiStyle {
     /**
      * 放码日期
      */
-    private String c8SampleFangMaData;
+    private Date c8SampleFangMaData;
 
     /**
      * 放码师
@@ -143,7 +143,7 @@ public class BiStyle {
     /**
      * 工艺单完成日期
      */
-    private String c8SampleTechPackData;
+    private Date c8SampleTechPackData;
 
     /**
      * 后技术备注说明

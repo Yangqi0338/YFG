@@ -132,6 +132,7 @@
         border: 1px solid black;
         margin: 8px 0px;
     }
+
     .th_title {
         border: none;
         text-align: left;
@@ -141,10 +142,10 @@
 <!-- 页眉 -->
 <table class="table_no_border page_start font_bold">
     <tr>
-        <td style="width: 15%;">Eifini</td>
-        <td style="width: 15%;">${designNo}</td>
-        <td style="width: 15%;">${designNo} BOM</td>
-        <td style="width: 55%;">DRAFT-大货生产${createDate}${createTime}</td>
+        <td style="width: 20%;">Eifini</td>
+        <td style="width: 20%;">${designNo}</td>
+        <td style="width: 20%;">${styleNo} </td>
+        <td style="width: 40%;text-align: right;">${createDate}${createTime}</td>
     </tr>
 </table>
 
@@ -309,7 +310,7 @@
             <p>洗标</p>
             <hr>
             <#if  washingLabel != '' >
-                <img style="height:50px" src="${washingLabel}">
+                <img style="height:36px" src="${washingLabel}">
             </#if>
         </td>
     </tr>
@@ -436,7 +437,8 @@
     </tbody>
     <tfoot>
     <tr>
-        <td colspan="${sizeTitleColspan}" style="height: 32px;">测量点-${sizeDataList?size}</td>
+        <td colspan="${sizeTitleColspan-2}" style="height: 32px;">测量点-${sizeDataList?size}</td>
+        <td colspan="2" style="height: 32px;">单位:CM</td>
     </tr>
     </tfoot>
 </table>

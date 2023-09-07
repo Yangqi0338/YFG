@@ -11,9 +11,9 @@ import lombok.Data;
 public class ColorPlanningSearchDTO extends Page {
 
     @ApiModelProperty(value = "年份编码")
-    private String yearCode;
+    private String year;
     @ApiModelProperty(value = "品牌编码")
-    private String brandCode;
+    private String brand;
     private String companyCode;
     @ApiModelProperty(value = "产品季id")
     private String planningSeasonId;

@@ -186,7 +186,11 @@ public class PackTechSpecController {
         return packInfoService.delTechSpecFile(dto);
     }
 
-
+    @GetMapping("/references")
+    @ApiOperation(value = "引用")
+    public boolean references(PackTechSpecReferencesDto dto) {
+        return packTechSpecService.references(dto);
+    }
 }
 
 

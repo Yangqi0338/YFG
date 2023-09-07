@@ -118,6 +118,18 @@ public interface AttachmentService extends BaseService<Attachment> {
      */
     boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType);
 
+    /**
+     * 复制工艺说明文件
+     *
+     * @param sourceForeignId
+     * @param sourcePackType
+     * @param targetForeignId
+     * @param targetPackType
+     * @param item
+     * @return
+     */
+    boolean copyTechFile(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String item);
+
     AttachmentVo getAttachmentByFileId(String fileId);
 
 /** 自定义方法区 不替换的区域【other_end】 **/

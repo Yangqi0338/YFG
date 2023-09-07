@@ -160,6 +160,12 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 
     boolean association(PackInfoAssociationDto dto);
 
+    /**
+     * 取消关联配色
+     * @param dto
+     * @return
+     */
+    boolean cancelAssociation(PackInfoAssociationDto dto);
 
     /**
      * 改变bom 状态
@@ -180,6 +186,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @return
      */
     AttachmentVo genTechSpecFile2(GroupUser groupUser, PackCommonSearchDto dto);
+
+    boolean copyItems(PackCopyDto dto);
 
 
 // 自定义方法区 不替换的区域【other_end】
