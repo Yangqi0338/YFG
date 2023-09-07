@@ -311,9 +311,9 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         if (StringUtils.isBlank(bandName)) {
             throw new OtherException("款式波段为空");
         }
-        if (StringUtils.isBlank(month)) {
+     /*   if (StringUtils.isBlank(month)) {
             throw new OtherException("款式月份为空");
-        }
+        }*/
         if (StringUtils.isBlank(brand)) {
             throw new OtherException("款式品牌为空");
         }
@@ -326,7 +326,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
 //        获取年份
             yearOn = getYearOn(year);
 //            月份
-            month = getMonth(month);
+//            month = getMonth(bandName);
 //            波段
             bandName = getBandName(bandName);
 
@@ -344,7 +344,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             throw new OtherException("大货编码生成失败");
         }
 //        获取款式下的配色
-        String styleNo = brand + yearOn + month + bandName + category + designNo;
+        String styleNo = brand + yearOn  + bandName + category + designNo;
         int number = baseMapper.getStyleColorNumber(styleNo);
          styleNo = styleNo + (number + 1 + index);
         /*查询编码是否重复*/
@@ -357,7 +357,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
 
 
     /**
-     * 波段：使用波段中的字母生产 A1：1 B1：2
+     * 波段：使用波段中的字母生产 1A：1 2B：2
      * @param bandName
      * @return
      */
@@ -366,11 +366,13 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         Pattern pattern = Pattern.compile("[a-z||A-Z]");
         Matcher matcher = pattern.matcher(bandName);
         String Letter = "";
+        String month ="";
         // 打印匹配到的字母
         while (matcher.find()) {
             Letter += matcher.group();
         }
         if (!StringUtils.isEmpty(Letter)) {
+            month = getMonth(bandName,Letter);
             Letter = Letter.toUpperCase();
             char[] charArray = Letter.toCharArray();
             int char1 = charArray[0];
@@ -379,7 +381,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             bandName = "";
         }
 
-        return bandName;
+        return month+bandName;
     }
 
     /**
@@ -405,12 +407,13 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     }
 
     /**
-     * 判断月份是否是1到九月 超过9的月份为A
-     * @param month
+     * 查询波段中的月份
+     * @param bandName
+     * @param s
      * @return
      */
-    public String getMonth(String month) {
-        month = month.replace("0", "");
+    public String getMonth(String bandName,String s) {
+        String  month = bandName.replace(s, "");
         if (!month.matches("[1-9]")) {
             month = month.equals("10") ? "A" : month.equals("11") ? "B" : month.equals("12") ? "C" : "";
         }
@@ -477,13 +480,11 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
                  */
                 Style style = styleMapper.selectById(styleColor.getStyleId());
                 //获取年份
-                String year = getYearOn(style.getYear());
-                //月份
-                String month = getMonth(style.getMonth());
+                String year = getYearOn(style.getYearName());
                 /*品牌*/
                 String brand = style.getBrand();
                 /*大货款的前及位*/
-                String newStyle = brand + year + month;
+                String newStyle = brand + year ;
                 /*后几位大货款号*/
                 String s = styleColor.getStyleNo().replaceAll(newStyle + getBandName(styleColor.getBandName()), "");
                 /*拼接新大货款号*/

@@ -34,8 +34,10 @@ import com.base.sbc.module.hangTag.service.HangTagLogService;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.hangTag.vo.HangTagListVO;
 import com.base.sbc.module.hangTag.vo.HangTagVO;
+import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
+import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pricing.service.StylePricingService;
@@ -85,7 +87,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private HangTagMapper hangTagMapper;
     @Autowired
     private HangTagIngredientService hangTagIngredientService;
-    private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
+    @Autowired
+    private EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
     @Autowired
     private HangTagLogService hangTagLogService;
     @Autowired
@@ -94,7 +97,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private UploadFileService uploadFileService;
     @Autowired
     private StyleColorMapper styleColorMapper;
-    private final FlowableService flowableService;
+    @Autowired
+    private FlowableService flowableService;
     @Autowired
     @Lazy
     private BasicsdatumMaterialController basicsdatumMaterialController;
@@ -108,6 +112,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private final StylePricingService stylePricingService;
     private final StyleService styleService;
     private final BasicsdatumSizeService basicsdatumSizeService;
+    private final PackBomService packBomService;
+
 
     @Override
     public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -176,13 +182,18 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         if (hangTagVO != null && StringUtils.isEmpty(hangTagVO.getStatus())) {
             hangTagVO.setStatus(HangTagStatusEnum.NOT_SUBMIT.getK());
         }
-        //查关联分表
+        //查关联成分表
         if (hangTagVO != null) {
-            List<HangTagIngredient> list = hangTagIngredientService.list(new QueryWrapper<HangTagIngredient>().eq("hang_tag_id", hangTagVO.getId()));
-            List<String> codes = list.stream().map(HangTagIngredient::getMaterialCode).collect(Collectors.toList());
-            if (!codes.isEmpty()) {
-                List<EscmMaterialCompnentInspectCompanyDto> inspectCompanyDtoList = escmMaterialCompnentInspectCompanyService.list(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no", codes));
-                hangTagVO.setInspectCompanyDtoList(inspectCompanyDtoList);
+            PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
+            if (packInfo != null) {
+                List<PackBom> packBomList = packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("pack_type", "packBigGoods"));
+                if (!packBomList.isEmpty()) {
+                    List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
+                    if (!codes.isEmpty()) {
+                        List<EscmMaterialCompnentInspectCompanyDto> inspectCompanyDtoList = escmMaterialCompnentInspectCompanyService.list(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no", codes));
+                        hangTagVO.setInspectCompanyDtoList(inspectCompanyDtoList);
+                    }
+                }
             }
         }
         return hangTagVO;

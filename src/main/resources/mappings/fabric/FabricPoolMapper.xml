@@ -22,6 +22,8 @@
         fp.season,
         fp.category,
         fp.approve_status,
+        fp.planning_season_id,
+        fp.planning_season,
         count(fpi.id) as fabricCount
         FROM t_fabric_pool fp
         left join t_fabric_pool_item fpi on fpi.fabric_pool_id = fp.id

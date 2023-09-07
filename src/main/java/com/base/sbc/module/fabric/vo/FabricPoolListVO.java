@@ -59,5 +59,16 @@ public class FabricPoolListVO {
     @ApiModelProperty(value = "审核状态：1.未提交、2.审核中、3.审核通过、4.审核失败")
     private String approveStatus;
 
+    /**
+     * 产品季id
+     */
+    @ApiModelProperty(value = "产品季id")
+    private String planningSeasonId;
+    /**
+     * 产品季
+     */
+    @ApiModelProperty(value = "产品季")
+    private String planningSeason;
+
 
 }

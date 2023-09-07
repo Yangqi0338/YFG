@@ -10,7 +10,16 @@
       -->
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <select id="packSizeRelation" resultMap="relationMap">
+        SELECT * FROM t_pack_size
+        ${ ew.customSqlSegment}
+    </select>
 
+    <resultMap id="relationMap" type="com.base.sbc.module.pack.entity.PackSize" >
+        <id column="id" property="id"/>
+        <collection property="packSizeDetailList" ofType="com.base.sbc.module.pack.entity.PackSizeDetail"
+                    select="com.base.sbc.module.pack.mapper.PackSizeDetailMapper.selectByForeignId" column="id" fetchType="eager"/>
+    </resultMap>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

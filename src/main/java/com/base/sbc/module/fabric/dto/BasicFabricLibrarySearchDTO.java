@@ -22,6 +22,9 @@ public class BasicFabricLibrarySearchDTO extends Page {
     private String materialAcceptFlag;
     @ApiModelProperty("分类id")
     private String categoryId;
+    @ApiModelProperty("业务类型：:material.物料、dev.面料开发")
+    private String bizType;
+
 
     private String companyCode;
 

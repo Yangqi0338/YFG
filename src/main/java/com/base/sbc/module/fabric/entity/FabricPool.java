@@ -91,5 +91,15 @@ public class FabricPool extends BaseDataEntity<String> {
     /** 审核人名称 */
     @ApiModelProperty(value = "审核人名称"  )
     private String approveUserName;
+    /**
+     * 产品季id
+     */
+    @ApiModelProperty(value = "产品季id")
+    private String planningSeasonId;
+    /**
+     * 产品季
+     */
+    @ApiModelProperty(value = "产品季")
+    private String planningSeason;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

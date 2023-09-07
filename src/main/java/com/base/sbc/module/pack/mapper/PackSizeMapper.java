@@ -7,8 +7,13 @@
 package com.base.sbc.module.pack.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.pack.entity.PackSize;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 类描述：资料包-尺寸表 dao类
@@ -21,9 +26,6 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface PackSizeMapper extends BaseMapper<PackSize> {
-// 自定义方法区 不替换的区域【other_start】
-
-
-// 自定义方法区 不替换的区域【other_end】
+    List<PackSize> packSizeRelation(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 }
 

@@ -3,9 +3,11 @@ package com.base.sbc.module.common.dto;
 import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.ccm.service.CcmService;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -62,6 +64,28 @@ public class GetMaxCodeRedis {
         try {
             String apiResultStr = this.ccmService.getGenCodeByRedis(billCode,count, object);
             return parse(apiResultStr);
+        } catch (Exception e) {
+            //未生成，或生成有异常
+            return null;
+        }
+    }
+
+    /**
+     * 生成1个编码
+     * 根据编码规则中配置的编码，获取编号
+     * @param billCode
+     * @param object
+     * @return
+     */
+    public String genCodeExists(String billCode,Object object) {
+        //远程请求获取结果
+        try {
+            ApiResult apiResult = this.ccmService.getGenCodeExistsRedis(billCode,1, object);
+            if(apiResult.getSuccess()){
+                return ((ArrayList) apiResult.getData()).get(0).toString();
+            }else{
+                throw new RuntimeException(apiResult.getMessage());
+            }
         } catch (Exception e) {
             //未生成，或生成有异常
             return null;

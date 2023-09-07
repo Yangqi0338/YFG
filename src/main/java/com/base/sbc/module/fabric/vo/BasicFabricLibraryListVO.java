@@ -20,7 +20,10 @@ import java.util.Date;
 @Data
 @ApiModel("基础面料库列表")
 public class BasicFabricLibraryListVO {
+    @ApiModelProperty(value = "物料id")
     private String id;
+    @ApiModelProperty(value = "基础面料库id")
+    private String basicFabricLibraryId;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty(value = "创建时间")
     private Date createDate;
@@ -141,4 +144,7 @@ public class BasicFabricLibraryListVO {
      */
     @ApiModelProperty(value = "类别名称第4级名称")
     private String categoryName;
+
+    @ApiModelProperty("业务类型：:material.物料、dev.面料开发")
+    private String bizType;
 }

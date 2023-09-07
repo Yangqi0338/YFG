@@ -1479,7 +1479,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         params.put("year", style.getYear());
         params.put("season", style.getSeason());
         params.put("prodCategory3rd", style.getProdCategory3rd());
-        return getNextCode.genCode("STYLE_DESIGN_NO", params);
+        return getNextCode.genCodeExists("STYLE_DESIGN_NO", params);
     }
 
     @Override

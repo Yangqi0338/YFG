@@ -119,16 +119,30 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             stylePricingVO.setCoordinationProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协加工费")));
 
             //加工费
-            packPricingProcessCostsService.list(new QueryWrapper<PackPricingProcessCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type","packBigGoods")).stream()
-                    .map(costs -> costs.getProcessPrice().multiply(costs.getMultiple()))
-                    .reduce(BigDecimal::add)
-                    .ifPresent(stylePricingVO::setProcessingFee);
-            //二次加工费用
-             packPricingCraftCostsService.list(new QueryWrapper<PackPricingCraftCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type","packBigGoods")).stream()
-                    .map(costs -> costs.getPrice().multiply(costs.getNum()))
-                    .reduce(BigDecimal::add)
-                    .ifPresent(stylePricingVO::setSecondaryProcessingFee);
+            List<PackPricingProcessCosts> processCostsList = packPricingProcessCostsService.list(new QueryWrapper<PackPricingProcessCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type", "packBigGoods"));
+            if (!processCostsList.isEmpty()){
+                try {
+                    processCostsList.stream()
+                            .map(costs -> costs.getProcessPrice().multiply(costs.getMultiple()))
+                            .reduce(BigDecimal::add)
+                            .ifPresent(stylePricingVO::setProcessingFee);
+                }catch (Exception e){
+                    logger.error("StylePricingServiceImpl#dataProcessing 加工费计算异常",e);
+                }
 
+            }
+            //二次加工费用
+            List<PackPricingCraftCosts> pricingCraftCostsList = packPricingCraftCostsService.list(new QueryWrapper<PackPricingCraftCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type", "packBigGoods"));
+            if (!pricingCraftCostsList.isEmpty()){
+                try {
+                    pricingCraftCostsList.stream()
+                            .map(costs -> costs.getPrice().multiply(costs.getNum()))
+                            .reduce(BigDecimal::add)
+                            .ifPresent(stylePricingVO::setSecondaryProcessingFee);
+                }catch (Exception e) {
+                    logger.error("StylePricingServiceImpl#dataProcessing 二次加工费用计算异常", e);
+                }
+            }
 
             stylePricingVO.setTotalCost(BigDecimalUtil.add(stylePricingVO.getMaterialCost(), stylePricingVO.getPackagingFee(),
                     stylePricingVO.getTestingFee(), stylePricingVO.getSewingProcessingFee(), stylePricingVO.getWoolenYarnProcessingFee(),
