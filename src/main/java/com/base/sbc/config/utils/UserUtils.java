@@ -101,6 +101,9 @@ public class UserUtils {
 	}
 
 	public String getCompanyCode(){
+		if (this.getUserCompany()==null){
+			return null;
+		}
 		return this.getUserCompany().getCompanyCode();
 	}
 

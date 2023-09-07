@@ -48,27 +48,27 @@ public class BiSample {
     /** 设计师 */
     private String c8StyleAttrDesigner;
     /** 设计师 用户登录 */
-    private String c8StyleAttrDesignerID;
+    private String c8StyleAttrDesignerId;
     /** 跟款设计师 */
     private String c8StyleAttrMerchDesigner;
     /** 跟款设计师 用户登录 */
-    private String c8StyleAttrMerchDesignerID;
+    private String c8StyleAttrMerchDesignerId;
     /** 工艺员 */
     private String c8StyleAttrTechnician;
     /** 工艺员 用户登录 */
-    private String c8StyleAttrTechnicianID;
+    private String c8StyleAttrTechnicianId;
     /** 版师 */
     private String c8StyleAttrPatternMaker;
     /** 版师 用户登录 */
-    private String c8StyleAttrPatternMakerID;
+    private String c8StyleAttrPatternMakerId;
     /** 材料专员 */
     private String c8StyleAttrFabDevelope;
     /** 材料专员 用户登录 */
-    private String c8StyleAttrFabDevelopeID;
+    private String c8StyleAttrFabDevelopeId;
     /** 实际出稿时间 */
     private Date c8StyleAttrActualDesignTime;
     /** 单位 */
-    private String c8StyleAttrUOM;
+    private String c8StyleAttrUom;
     /** 材质 */
     private String c8StyleAttrCaiZhi;
     /** 毛纱针法 */
@@ -96,7 +96,7 @@ public class BiSample {
     /** 领型 */
     private String c8StyleAttrLingXing;
     /** 克重 */
-    private BigDecimal c8StyleAttrKezhong;
+    private BigDecimal c8StyleAttrKeZhong;
     /** 开发分类 */
     private String c8StyleAttrDevClass;
     /** 款式工艺 */
@@ -122,17 +122,17 @@ public class BiSample {
     /** 复制自 */
     private String copiedFrom;
     /** 改款设计师 */
-    private String c8SARevisedDesigner;
+    private String c8SaRevisedDesigner;
     /** 改款设计师 用户登录 */
-    private String c8SARevisedDesignerID;
+    private String c8SaRevisedDesignerId;
     /** 审版设计师 */
-    private String c8SAReviewedDesigner;
+    private String c8SaReviewedDesigner;
     /** 审版设计师 用户登录 */
-    private String c8SAReviewedDesignerID;
+    private String c8SaReviewedDesignerId;
     /** 下稿设计师 */
-    private String c8SADataDesigner;
+    private String c8SaDataDesigner;
     /** 下稿设计师 用户登录 */
-    private String c8SADataDesignerID;
+    private String c8SaDataDesignerId;
     /** 款式来源 */
     private String c8StyleOrigin;
     /** 款式定位 */

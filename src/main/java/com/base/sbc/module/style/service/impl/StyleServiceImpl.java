@@ -637,7 +637,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
             Style style = getById(dto.getStyleId());
             QueryFieldOptionConfigDto queryFieldOptionConfigDto = new QueryFieldOptionConfigDto();
-            if (style.getCategoryFlag().equals(BaseGlobal.YES)) {
+            if (BaseGlobal.YES.equals(style.getCategoryFlag())) {
                 queryFieldOptionConfigDto.setProdCategory2nd(style.getProdCategory2nd());
             } else {
                 queryFieldOptionConfigDto.setCategoryCode(style.getProdCategory());

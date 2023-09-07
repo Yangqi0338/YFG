@@ -67,53 +67,63 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
         for (SampleBoardVo sampleBoardVo : patternMakingService.sampleBoardList(pageSearchDto).getList()) {
             BiStyle biStyle = new BiStyle();
             PatternMaking patternMaking = patternMakingService.getById(sampleBoardVo.getId());
-            Style style = styleService.getById(sampleBoardVo.getId());
+            Style style = styleService.getById(sampleBoardVo.getStyleId());
             if (style != null) {
                 PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskService.getOne(
                         new QueryWrapper<PreProductionSampleTask>().eq("style_id", style.getId()).
                                 orderByDesc("create_date").last("limit 1"));
-                PackInfo packInfo = packInfoService.getById(preProductionSampleTask.getPackInfoId());
-                StyleColor styleColor = styleColorService.getById(packInfo.getStyleColorId());
+
+                if (preProductionSampleTask != null) {
+                    PackInfo packInfo = packInfoService.getById(preProductionSampleTask.getPackInfoId());
+                    StyleColor styleColor = styleColorService.getById(packInfo.getStyleColorId());
+                    if (styleColor!=null){
+                        //配色
+                        biStyle.setProductColor(styleColor.getColorName());
+                    }
+
+                }
+
 
                 Map<String, NodeStatusVo> nodeStatus = sampleBoardVo.getNodeStatus();
-                NodeStatusVo nodeStatusVo = nodeStatus.get("打版任务-已接收");
-                NodeStatusVo nodeStatusVo1 = nodeStatus.get("打版任务-待接收");
-                NodeStatusVo nodeStatusVo2 = nodeStatus.get("打版任务-打版中");
-                NodeStatusVo nodeStatusVo3 = nodeStatus.get("打版任务-打版完成");
-                NodeStatusVo nodeStatusVo4 = nodeStatus.get("技术中心-已接收");
-                NodeStatusVo nodeStatusVo5 = nodeStatus.get("技术中心-版房主管下发");
-                NodeStatusVo nodeStatusVo6 = nodeStatus.get("样衣任务-待分配");
-                NodeStatusVo nodeStatusVo7 = nodeStatus.get("样衣任务-样衣完成");
-                NodeStatusVo nodeStatusVo8 = nodeStatus.get("样衣任务-物料齐套");
-                NodeStatusVo nodeStatusVo9 = nodeStatus.get("样衣任务-裁剪完成");
-                NodeStatusVo nodeStatusVo10 = nodeStatus.get("样衣任务-裁剪开始");
-                NodeStatusVo nodeStatusVo11 = nodeStatus.get("样衣任务-车缝完成");
-                NodeStatusVo nodeStatusVo12 = nodeStatus.get("样衣任务-车缝未开始");
-                NodeStatusVo nodeStatusVo13 = nodeStatus.get("样衣任务-车缝进行中");
-                NodeStatusVo nodeStatusVo14 = nodeStatus.get("款式设计-设计下发");
-
-
-                //配色
-                biStyle.setProductColor(styleColor.getColorName());
+                if (nodeStatus!=null){
+                    NodeStatusVo nodeStatusVo = nodeStatus.get("打版任务-已接收");
+                    NodeStatusVo nodeStatusVo1 = nodeStatus.get("打版任务-待接收");
+                    NodeStatusVo nodeStatusVo2 = nodeStatus.get("打版任务-打版中");
+                    NodeStatusVo nodeStatusVo3 = nodeStatus.get("打版任务-打版完成");
+                    NodeStatusVo nodeStatusVo4 = nodeStatus.get("技术中心-已接收");
+                    NodeStatusVo nodeStatusVo5 = nodeStatus.get("技术中心-版房主管下发");
+                    NodeStatusVo nodeStatusVo6 = nodeStatus.get("样衣任务-待分配");
+                    NodeStatusVo nodeStatusVo7 = nodeStatus.get("样衣任务-样衣完成");
+                    NodeStatusVo nodeStatusVo8 = nodeStatus.get("样衣任务-物料齐套");
+                    NodeStatusVo nodeStatusVo9 = nodeStatus.get("样衣任务-裁剪完成");
+                    NodeStatusVo nodeStatusVo10 = nodeStatus.get("样衣任务-裁剪开始");
+                    NodeStatusVo nodeStatusVo11 = nodeStatus.get("样衣任务-车缝完成");
+                    NodeStatusVo nodeStatusVo12 = nodeStatus.get("样衣任务-车缝未开始");
+                    NodeStatusVo nodeStatusVo13 = nodeStatus.get("样衣任务-车缝进行中");
+                    NodeStatusVo nodeStatusVo14 = nodeStatus.get("款式设计-设计下发");
+                    biStyle.setC8ProductSampleCutterStartDate(nodeStatusVo9 == null ? null : nodeStatusVo9.getStartDate());
+                    biStyle.setC8ProductSampleCutterFinDate(nodeStatusVo10 == null ? null : nodeStatusVo10.getEndDate());
+                    biStyle.setC8ProductSampleActStartData(nodeStatusVo13 == null ? null : nodeStatusVo13.getStartDate());
+                    biStyle.setC8ProductSampleSweiningFinData(nodeStatusVo11 == null ? null : nodeStatusVo11.getEndDate());
+                    // 面辅料齐套
+                    biStyle.setC8ProductSampleMatIfQitao(nodeStatusVo8 == null ? null : nodeStatusVo8.getEndDate());
+                }
 
 
                 biStyle.setSampleName(style.getStyleName());
                 // 状态
                 biStyle.setSampleStatus(style.getStatus());
                 //产品
-                biStyle.setSampleSRLineItem(style.getDesignNo());
+                biStyle.setSampleSrLineItem(style.getDesignNo());
                 // Style URL
-                biStyle.setC8ProductSampleStyleURL(style.getId());
+                biStyle.setC8ProductSampleStyleUrl(style.getId());
 
             /*
                 打板样
              */
                 biStyle.setC8ProductSampleSamplingDate(patternMaking.getSglKittingDate());
                 biStyle.setC8SampleSampleQty(patternMaking.getRequirementNum());
-                biStyle.setC8ProductSampleCutterStartDate(nodeStatusVo9.getStartDate());
-                biStyle.setC8ProductSampleCutterFinDate(nodeStatusVo10.getEndDate());
-                biStyle.setC8ProductSampleActStartData(nodeStatusVo13.getStartDate());
-                biStyle.setC8ProductSampleSweiningFinData(nodeStatusVo11.getEndDate());
+
                 biStyle.setC8SamplePaperPatternScore(patternMaking.getPatternMakingScore());
                 biStyle.setSamplePOColors(patternMaking.getColorName());
                 biStyle.setProductSize(patternMaking.getSize());
@@ -123,7 +133,7 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
                 //打样设计师
                 biStyle.setC8ProductSampleProofingDesigner(patternMaking.getPatternDesignerName());
                 //打样设计师 用户登录
-                biStyle.setProofingDesignerID(patternMaking.getPatternDesignerId());
+                biStyle.setProofingDesignerId(patternMaking.getPatternDesignerId());
                 //样衣需求完成日期
                 biStyle.setSampleNotes(patternMaking.getDemandFinishDate());
                 // 样衣工工作量评分
@@ -144,8 +154,7 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
                 biStyle.setC8SamplePatDiff(patternMaking.getPatDiffName());
                 // 打样顺序
                 biStyle.setC8SamplePatSeq(patternMaking.getPatSeqName());
-                // 面辅料齐套
-                biStyle.setC8ProductSampleMatIfQitao(nodeStatusVo8.getEndDate());
+
                 // 纸样需求完成日期
                 biStyle.setC8ProductSamplePatternReqDate(patternMaking.getPatternReqDate());
                 //产品供应商
@@ -174,23 +183,23 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
                  /*
                    产前样
                   */
+                if (preProductionSampleTask != null) {
+                    //放码日期
+                    biStyle.setC8SampleFangMaData(preProductionSampleTask.getGradingDate());
+                    //放码师
+                    biStyle.setC8ProductSampleFangMaShi(preProductionSampleTask.getGradingName());
+                    //工艺单完成日期
+                    biStyle.setC8SampleTechPackData(preProductionSampleTask.getProcessCompletionDate());
+                    //后技术备注说明
+                    biStyle.setC8ProductSampleProComment(preProductionSampleTask.getTechRemarks());
+                    //面辅料信息
+                    biStyle.setC8SampleMaterialInfo(preProductionSampleTask.getMaterialInfo());
+                    //前技术确认是否齐套
+                    biStyle.setC8SampleTechIfQitao("1".equals(preProductionSampleTask.getKitting()));
+                    // 样衣完成
+                    biStyle.setC8SampleIfFinished("1".equals(preProductionSampleTask.getSampleCompleteFlag()));
 
-                //放码日期
-                biStyle.setC8SampleFangMaData(preProductionSampleTask.getGradingDate());
-                //放码师
-                biStyle.setC8ProductSampleFangMaShi(preProductionSampleTask.getGradingName());
-                //工艺单完成日期
-                biStyle.setC8SampleTechPackData(preProductionSampleTask.getProcessCompletionDate());
-                //后技术备注说明
-                biStyle.setC8ProductSampleProComment(preProductionSampleTask.getTechRemarks());
-                //面辅料信息
-                biStyle.setC8SampleMaterialInfo(preProductionSampleTask.getMaterialInfo());
-                //前技术确认是否齐套
-                biStyle.setC8SampleTechIfQitao("1".equals(preProductionSampleTask.getKitting()));
-                // 样衣完成
-                biStyle.setC8SampleIfFinished("1".equals(preProductionSampleTask.getSampleCompleteFlag()));
-
-
+                }
                  /*
                  未知字段
                   */
@@ -276,7 +285,7 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
                 // Dimensions 无
                 biStyle.setDimensions(null);
                 // 样品 PLM ID
-                biStyle.setC8SamplePLMID(null);
+                biStyle.setC8SamplePLMId(null);
                 // 样品 MC Date
                 biStyle.setC8SampleMCDate(null);
                 // 样品 BExt Auxiliary
@@ -286,9 +295,9 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
                 // 样品 EA Valid To
                 biStyle.setC8SampleEAValidTo(null);
                 // Style PLM ID
-                biStyle.setC8StylePLMID(null);
+                biStyle.setC8StylePLMId(null);
                 // Colorway PLM ID
-                biStyle.setC8ColorwayPLMID(null);
+                biStyle.setC8ColorwayPLMId(null);
 
 
                 list.add(biStyle);

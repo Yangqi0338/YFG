@@ -78,7 +78,7 @@ public class BiStyle {
     /**
      * 产品
      */
-    private String sampleSRLineItem;
+    private String sampleSrLineItem;
 
     /**
      * 产品供应商
@@ -108,7 +108,7 @@ public class BiStyle {
     /**
      * 打样设计师 用户登录
      */
-    private String proofingDesignerID;
+    private String proofingDesignerId;
 
     /**
      * 打样需求数量
@@ -373,12 +373,12 @@ public class BiStyle {
     /**
      * Style PLM ID
      */
-    private String c8StylePLMID;
+    private String c8StylePLMId;
 
     /**
      * Colorway PLM ID
      */
-    private String c8ColorwayPLMID;
+    private String c8ColorwayPLMId;
 
     /**
      * 供应商 供应商编码
@@ -403,12 +403,12 @@ public class BiStyle {
     /**
      * 样品 PLM ID
      */
-    private String c8SamplePLMID;
+    private String c8SamplePLMId;
 
     /**
      * Style URL
      */
-    private String c8ProductSampleStyleURL;
+    private String c8ProductSampleStyleUrl;
 
     /**
      * 样品 MC Date
