@@ -341,7 +341,7 @@ public class BasicsdatumMaterialSaveDto {
 	private String factoryComposition;
 	/** 门幅 */
 	@ApiModelProperty(value = "门幅")
-	private BigDecimal translate;
+	private String translate;
 	/** 询价编号 */
 	@ApiModelProperty(value = "询价编号")
 	private String inquiryNumber;
