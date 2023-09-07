@@ -10,6 +10,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
@@ -78,6 +79,7 @@ public class StyleController extends BaseController{
     }
 
     @ApiOperation(value = "保存")
+    @DataIsolation(authority="sample_design",operateType=false)
     @PostMapping
     public StyleVo save(@RequestBody StyleSaveDto dto) {
         Style style = styleService.saveStyle(dto);

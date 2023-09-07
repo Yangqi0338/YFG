@@ -65,6 +65,9 @@ public class DataPermissionsService {
             ret.put("authorityState",Boolean.FALSE);
             return ret;
         }
+        if(tablePre == null){
+            return ret;
+        }
         List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
         if (CollectionUtils.isEmpty(fieldDataPermissions)) {
             return ret;

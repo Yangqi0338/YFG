@@ -12,7 +12,6 @@ import com.base.sbc.module.fabric.entity.BasicFabricLibrary;
 import com.base.sbc.module.fabric.vo.BasicFabricLibraryListVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.security.access.method.P;
 
 import java.util.List;
 

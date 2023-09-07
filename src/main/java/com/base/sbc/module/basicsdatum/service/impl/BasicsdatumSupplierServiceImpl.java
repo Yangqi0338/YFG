@@ -99,6 +99,11 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
            queryWrapper.ge("create_date",strings[0]);
            queryWrapper.le("create_date",strings[1]);
        }
+       if (StringUtils.isNotEmpty(queryRevampBasicsdatumSupplierDto.getSearch())) {
+           queryWrapper.like("supplier", queryRevampBasicsdatumSupplierDto.getSearch())
+                   .or().like("supplier_code",queryRevampBasicsdatumSupplierDto.getSearch())
+                   .or().like("supplier_abbreviation",queryRevampBasicsdatumSupplierDto.getSearch());
+       }
 
         /*查询基础资料-供应商数据*/
         List<BasicsdatumSupplier> basicsdatumSupplierList = baseMapper.selectList(queryWrapper);

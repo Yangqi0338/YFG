@@ -13,8 +13,10 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.utils.ImportExcel;
@@ -26,6 +28,7 @@ import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackSize;
 import com.base.sbc.module.pack.entity.PackSizeDetail;
 import com.base.sbc.module.pack.excel.PackBomSizeExcel;
+import com.base.sbc.module.pack.mapper.PackSizeMapper;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.service.PackSizeConfigService;
 import com.base.sbc.module.pack.service.PackSizeDetailService;
@@ -84,6 +87,8 @@ public class PackSizeController extends BaseController{
     private BasicsdatumMeasurementService measurementService;
     @Autowired
     private PackSizeDetailService packSizeDetailService;
+    @Autowired
+    private PackSizeMapper packSizeMapper;
     @Autowired
     private CcmFeignService ccmFeignService;
 
@@ -173,8 +178,8 @@ public class PackSizeController extends BaseController{
     }
 
     @ApiOperation(value = "导出资料包尺寸表Excel模板")
-    @GetMapping(value = "/exportPackBomSizeExcel")
-    public void exportPackBomSizeExcel(HttpServletResponse response, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String foreignId, String packType, String ifWashing) {
+    @GetMapping(value = "/packBomSizeExcelTemplate")
+    public void packBomSizeExcelTemplate(HttpServletResponse response, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String foreignId, String packType, String ifWashing) {
         //查询尺寸配置信息
         PackSizeConfigVo packSizeConfigVo = packSizeConfigService.getConfig(foreignId, packType);
         //查询部位信息
@@ -193,7 +198,7 @@ public class PackSizeController extends BaseController{
             response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(strFileName, "UTF-8"));
             // 文档对象
             PackBomSizeExcel excel = new PackBomSizeExcel();
-            XSSFWorkbook objWb = excel.createWorkBook(packSizeConfigVo.getProductSizes(), ifWashing, measurementList, basicUnitConfigList);
+            XSSFWorkbook objWb = excel.createWorkBook(packSizeConfigVo.getActiveSizes(), ifWashing, measurementList, basicUnitConfigList);
             objWb.write(objStream);
             objStream.flush();
             objStream.close();
@@ -222,7 +227,7 @@ public class PackSizeController extends BaseController{
         List<BasicsdatumMeasurement> measurementList = measurementService.getAllMeasurement(companyCode);
         Map<String, BasicsdatumMeasurement> basicsdatumMeasurementMap = measurementList.stream().collect(Collectors.toMap(BasicsdatumMeasurement::getMeasurement, item -> item, (item1, item2) -> item1));
 
-        List<String> sizeList = StringUtils.convertList(packSizeConfigVo.getProductSizes());
+        List<String> sizeList = StringUtils.convertList(packSizeConfigVo.getActiveSizes());
 
         int criticalFactor = StringUtils.equals(ifWashing, "1") ? 3 : 2;
         IdGen idGen = new IdGen();
@@ -336,6 +341,50 @@ public class PackSizeController extends BaseController{
             e.printStackTrace();
         }
         return ApiResult.error("导入失败！", 200);
+    }
+
+    @ApiOperation(value = "资料包尺寸表导出Excel")
+    @GetMapping(value = "/exportPackBomSizeExcel")
+    public void exportPackBomSizeExcel(HttpServletResponse response, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String foreignId, String packType, String ifWashing) {
+        //查询尺寸配置信息
+        PackSizeConfigVo packSizeConfigVo = packSizeConfigService.getConfig(foreignId, packType);
+        //查询部位信息
+        List<BasicsdatumMeasurement> measurementList = measurementService.getAllMeasurement(userCompany);
+        //查询单位信息
+        List<BasicUnitConfig> basicUnitConfigList = ccmFeignService.getAllUnitConfigList( null);
+
+        BaseQueryWrapper<PackSize> qw = new BaseQueryWrapper<>();
+        qw.eq("foreign_id", foreignId);
+        qw.eq("del_flag", BaseGlobal.NO);
+        qw.eq("pack_type", packType);
+        List<PackSize> list = packSizeMapper.packSizeRelation(qw);
+        // 生成文件名称
+        String strFileName = "尺寸表.xlsx";
+        OutputStream objStream = null;
+        try {
+            objStream = response.getOutputStream();
+            response.reset();
+            // 设置文件名称
+            response.setContentType("application/x-msdownload");
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(strFileName, "UTF-8"));
+            // 文档对象
+            PackBomSizeExcel excel = new PackBomSizeExcel();
+            XSSFWorkbook objWb = excel.createWorkBookPlus(packSizeConfigVo.getActiveSizes(), ifWashing, measurementList, basicUnitConfigList, list);
+            objWb.write(objStream);
+            objStream.flush();
+            objStream.close();
+        } catch (Exception e) {
+            logger.error("生成尺寸表异常：", e);
+            e.printStackTrace();
+        } finally {
+            if (objStream != null) {
+                try {
+                    objStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
 

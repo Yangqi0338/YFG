@@ -99,7 +99,9 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
         List<String> codeList = StringUtils.convertList(styleInfoColorDto.getCodes());
         // 查找数据是否存在
         List<StyleInfoColor> styleInfoColors = baseMapper.selectList(new QueryWrapper<StyleInfoColor>().in("color_code", codeList)
-                .eq("company_code", styleInfoColorDto.getCompanyCode()).eq("foreign_id", styleInfoColorDto.getForeignId()));
+                .eq("company_code", styleInfoColorDto.getCompanyCode())
+                .eq("foreign_id", styleInfoColorDto.getForeignId())
+                .eq("pack_type", styleInfoColorDto.getPackType()));
         if (CollectionUtil.isEmpty(styleInfoColors)) {
             throw new OtherException(styleInfoColorDto.getCodes() + "未找到数据，删除失败");
         }
@@ -111,6 +113,7 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
                     queryWrapper.eq("color_code", styleInfoColor.getColorCode());
                     queryWrapper.eq("company_code", styleInfoColorDto.getCompanyCode());
                     queryWrapper.eq("foreign_id", styleInfoColor.getForeignId());
+                    queryWrapper.eq("pack_type", styleInfoColorDto.getPackType());
                     styleInfoSkuService.remove(queryWrapper);
                 }
             });
@@ -120,6 +123,7 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
         qwColor.notIn("color_code", codeList);
         qwColor.eq("company_code", styleInfoColorDto.getCompanyCode());
         qwColor.eq("foreign_id", styleInfoColorDto.getForeignId());
+        qwColor.eq("pack_type", styleInfoColorDto.getPackType());
         qwColor.select("id","color_code","color_name", "foreign_id");
         List<StyleInfoColor> styleInfoColorList = baseMapper.selectList(qwColor);
         Style style = new Style();
