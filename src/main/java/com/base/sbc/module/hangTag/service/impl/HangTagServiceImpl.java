@@ -113,7 +113,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private final StyleService styleService;
     private final BasicsdatumSizeService basicsdatumSizeService;
     private final PackBomService packBomService;
-    private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
+
 
     @Override
     public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
