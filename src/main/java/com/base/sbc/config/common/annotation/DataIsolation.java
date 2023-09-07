@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * 是否开启数据隔离
- *
+ *定义在接口上，可以判断是否有权限执行
  * @since 1.0.0
  */
 @Retention(RetentionPolicy.RUNTIME)
