@@ -11,7 +11,9 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
     <select id="getBasicFabricLibraryList" resultType="com.base.sbc.module.fabric.vo.BasicFabricLibraryListVO">
-        SELECT bfl.id,
+        SELECT
+        bm.id,
+        bfl.id as basicFabricLibrary,
         bfl.create_name,
         bfl.create_date,
         bfl.update_name,
@@ -36,17 +38,27 @@
         bm.material_code,
         bm.material_name,
         bm.image_url,
-        IFNULL(bm1.confirm_Status,'0') as approveStatus
-        FROM t_basic_fabric_library bfl
-        JOIN t_fabric_dev_basic_info fdb ON fdb.biz_id = bfl.id
-        JOIN t_basicsdatum_material bm ON bm.id = bfl.material_id
-        left JOIN t_basicsdatum_material bm1 ON bm1.id = fdb.to_material_id
+        IFNULL( bm1.confirm_Status, '0' ) AS approveStatus,
+        bm.biz_type
+        FROM
+        t_basicsdatum_material bm
+        <choose>
+            <when test="dto.bizType != null and dto.bizType !='' and dto.bizType == 'dev'">
+                JOIN t_basic_fabric_library bfl ON bm.id = bfl.material_id and bfl.del_flag = '0'
+            </when>
+            <otherwise>
+                LEFT JOIN t_basic_fabric_library bfl ON bm.id = bfl.material_id and bfl.del_flag = '0'
+            </otherwise>
+        </choose>
+        LEFT JOIN t_fabric_dev_basic_info fdb ON fdb.biz_id = bfl.id
+        LEFT JOIN t_basicsdatum_material bm1 ON bm1.id = fdb.to_material_id
         <where>
-            bfl.del_flag = '0'
-            and bfl.company_code = #{dto.companyCode}
+            bm.del_flag = '0'
+            and bm.company_code = #{dto.companyCode}
             <if test="dto.search != null and dto.search != ''">
-                AND (bfl.dev_apply_code LIKE concat('%',#{dto.search},'%') OR bfl.short_code LIKE
-                concat('%',#{dto.search},'%') or bfl.dev_code LIKE concat('%',#{dto.search},'%'))
+                AND (bfl.dev_apply_code LIKE concat('%',#{dto.search},'%') OR fdb.short_code LIKE
+                concat('%',#{dto.search},'%') or bfl.dev_code LIKE concat('%',#{dto.search},'%') or bm.material_code
+                LIKE concat('%',#{dto.search},'%') or bm.material_name LIKE concat('%',#{dto.search},'%'))
             </if>
             <if test="dto.source != null and dto.source != ''">
                 and fdb.source = #{dto.source}
@@ -58,9 +70,12 @@
                 and fdb.material_accept_flag = #{dto.materialAcceptFlag}
             </if>
             <if test="dto.categoryId != null and dto.categoryId != ''">
-                AND (fdb.category1_code = #{dto.categoryId} OR fdb.category2_code = #{dto.categoryId} or
-                fdb.category3_code = #{dto.categoryId}
-                or fdb.category_id = #{dto.categoryId})
+                AND (bm.category1_code = #{dto.categoryId} OR bm.category2_code = #{dto.categoryId} or
+                bm.category3_code = #{dto.categoryId}
+                or bm.category_id = #{dto.categoryId})
+            </if>
+            <if test="dto.bizType != null and dto.bizType !=''">
+                and bm.biz_type = #{dto.bizType}
             </if>
         </where>
         order by bfl.create_date desc
