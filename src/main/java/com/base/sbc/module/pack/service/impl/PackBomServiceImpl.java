@@ -410,15 +410,25 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     public Map<String, String> getPackSendStatus(List<String> stringList) {
         Map<String, String> map = new HashMap<>();
         if(CollUtil.isNotEmpty(stringList)){
-            List<Map<String, String>> list =  baseMapper.getPackSendStatus(stringList);
-            if(CollUtil.isNotEmpty(list)){
+            List<Map<String, String>> list = baseMapper.getPackSendStatus(stringList);
+            if (CollUtil.isNotEmpty(list)) {
                 for (Map<String, String> stringStringMap : list) {
-                    map.put(stringStringMap.get("foreign_id"),stringStringMap.get("send_status"));
+                    map.put(stringStringMap.get("foreign_id"), stringStringMap.get("send_status"));
                 }
             }
         }
         return map;
     }
+
+    @Override
+    public List<PackBomVo> list(String foreignId, String packType, String bomVersionId) {
+        QueryWrapper<PackBom> qw = new QueryWrapper<>();
+        PackUtils.commonQw(qw, foreignId, packType, null);
+        qw.eq("bom_version_id", bomVersionId);
+        List<PackBom> list = list(qw);
+        return BeanUtil.copyToList(list, PackBomVo.class);
+    }
+
 
     @Override
     String getModeName() {

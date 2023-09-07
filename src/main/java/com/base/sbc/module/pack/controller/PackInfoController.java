@@ -7,8 +7,10 @@
 package com.base.sbc.module.pack.controller;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 /**
  * 类描述：资料包 Controller类
@@ -45,20 +48,22 @@ import javax.validation.Valid;
 @Validated
 public class PackInfoController {
 
-	@Autowired
-	private PackInfoService packInfoService;
-	@Autowired
-	private PackInfoStatusService packInfoStatusService;
+    @Autowired
+    private PackInfoService packInfoService;
+    @Autowired
+    private PackInfoStatusService packInfoStatusService;
+    @Autowired
+    private UserUtils userUtils;
 
-	@ApiOperation(value = "设计BOM管理列表-分页查询")
-	@GetMapping
-	public PageInfo<StylePackInfoListVo> pageBySampleDesign(@Valid PackInfoSearchPageDto pageDto) {
-		return packInfoService.pageBySampleDesign(pageDto);
-	}
+    @ApiOperation(value = "设计BOM管理列表-分页查询")
+    @GetMapping
+    public PageInfo<StylePackInfoListVo> pageBySampleDesign(@Valid PackInfoSearchPageDto pageDto) {
+        return packInfoService.pageBySampleDesign(pageDto);
+    }
 
-	@ApiOperation(value = "设计BOM资料包-分页查询")
-	@GetMapping("/packList")
-	public PageInfo<PackInfoListVo> pageInfo(@Valid PackInfoSearchPageDto pageDto) {
+    @ApiOperation(value = "设计BOM资料包-分页查询")
+    @GetMapping("/packList")
+    public PageInfo<PackInfoListVo> pageInfo(@Valid PackInfoSearchPageDto pageDto) {
 		return packInfoService.pageInfo(pageDto);
 	}
 
@@ -173,16 +178,24 @@ public class PackInfoController {
 	}
 
 	@ApiOperation(value = "关联样板号")
-	@PostMapping("/setPatternNo")
-	public boolean setPatternNo(@Validated @RequestBody PackInfoSetPatternNoDto dto) {
-		return packInfoService.setPatternNo(dto);
-	}
+    @PostMapping("/setPatternNo")
+    public boolean setPatternNo(@Validated @RequestBody PackInfoSetPatternNoDto dto) {
+        return packInfoService.setPatternNo(dto);
+    }
 
-	@ApiOperation(value = "资料包数据复制")
-	@GetMapping("/copyItems")
-	public boolean copyItems(PackCopyDto dto) {
-		return packInfoService.copyItems(dto);
-	}
+    @ApiOperation(value = "资料包数据复制")
+    @GetMapping("/copyItems")
+    public boolean copyItems(PackCopyDto dto) {
+        return packInfoService.copyItems(dto);
+    }
+
+
+    @GetMapping("/getBomPrint")
+    @ApiOperation(value = "获取打印信息")
+    public BomPrintVo getBomPrint(Principal principal, PackCommonSearchDto dto) {
+        GroupUser user = userUtils.getUserBy(principal);
+        return packInfoService.getBomPrint(user, dto);
+    }
 }
 
 

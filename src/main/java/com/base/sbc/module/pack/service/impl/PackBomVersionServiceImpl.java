@@ -15,7 +15,6 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
@@ -32,10 +31,9 @@ import com.base.sbc.module.pack.mapper.PackBomVersionMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.purchase.service.PurchaseDemandService;
-import com.base.sbc.module.style.dto.StyleSaveDto;
 import com.base.sbc.module.style.service.StyleInfoColorService;
-import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -199,6 +197,12 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         qw.last("limit 1");
         PackBomVersion one = getOne(qw);
         return one;
+    }
+
+    @Override
+    public List<PackBomVo> getEnableVersionBomList(String foreignId, String packType) {
+        PackBomVersion packBomVersion = get(foreignId, packType);
+        return packBomService.list(foreignId, packType, packBomVersion.getId());
     }
 
     @Override
