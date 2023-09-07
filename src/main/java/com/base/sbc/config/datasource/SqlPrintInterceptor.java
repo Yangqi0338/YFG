@@ -36,6 +36,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
 
@@ -76,9 +77,7 @@ public class SqlPrintInterceptor implements Interceptor {
         String usercompany = httpServletRequest.getHeader("Usercompany");
         String authorization = httpServletRequest.getHeader("Authorization");
 
-        String sqlCommandType = mappedStatement.getSqlCommandType().toString();
-        String operateType=sqlCommandType.equals("SELECT")?"read":"write";
-        if (!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization) && sqlCommandType.equals("UPDATE")){
+        if (!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization)){
             getAuthoritySql( boundSql, statementId, mappedStatement, sql);
         }
 
@@ -132,7 +131,6 @@ public class SqlPrintInterceptor implements Interceptor {
                 //获取当前用户id
                 String userId = httpServletRequest.getHeader("userId");
                 String usercompany = httpServletRequest.getHeader("Usercompany");
-                sql = sql.replaceAll(" {2,}", " ").replaceAll("[\\s]+", " ").replaceAll("\\( ", "\\(").replaceAll("SELECT ","select ").replaceAll(" FROM "," from ").replaceAll(" JOIN "," join ").replaceAll(" AS "," as ").replaceAll(" WHERE "," where ");
                 String sqlCommandType = mappedStatement.getSqlCommandType().toString();
                 //当前查询语句的主表
                 Map sqlAnalyst = getTable(sql,sqlCommandType);
@@ -147,17 +145,16 @@ public class SqlPrintInterceptor implements Interceptor {
                 //sql语句类型 select、delete、insert、update
                 String operateType=sqlCommandType.equals("SELECT")?"read":"write";
                 Map<String,Object> entity=null;
-//                if (!redisUtils.hasKey(usercompany+":system_setting:user_isolation:"+userId+":"+operateType+"@" + dataIsolation.authority())) {
-
+                if (!redisUtils.hasKey(usercompany+":system_setting:user_isolation:"+userId+":"+operateType+"@" + dataIsolation.authority())) {
                     DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
                     entity= dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,tablePre,dataIsolation.authorityFields());
 //                    Map entity = (Map) manageGroupRole.userDataIsolation(authorization, null, dataIsolation.toString(), userId, className);
 //                    //默认开启角色的数据隔离
 ////                    userList = (Boolean) entity.get("success") ? (List<String>) entity.get("data") : null;
-//                    redisUtils.set(usercompany+":system_setting:user_isolation:"+userId+":" +operateType+"@" + dataIsolation.authority(), entity, 60 * 3);//如数据的隔离3分钟更新一次
-//                } else {
-//                    entity = (Map) redisUtils.get(usercompany+":system_setting:user_isolation:"+userId+":" +operateType+"@" + dataIsolation.authority());
-//                }
+                    redisUtils.set(usercompany+":system_setting:user_isolation:"+userId+":" +operateType+"@" + dataIsolation.authority(), entity, 60 * 3);//如数据的隔离3分钟更新一次
+                } else {
+                    entity = (Map) redisUtils.get(usercompany+":system_setting:user_isolation:"+userId+":" +operateType+"@" + dataIsolation.authority());
+                }
                 String authorityField = entity.containsKey("authorityField")?(String)entity.get("authorityField"):null;
                 Boolean authorityState=entity.containsKey("authorityState")?(Boolean)entity.get("authorityState"):false;
                 String whereFlag = " ";
@@ -169,7 +166,7 @@ public class SqlPrintInterceptor implements Interceptor {
                 }
                 if(StringUtils.isNotBlank(whereFlag)){
                     whereFlag=" where "+whereFlag;
-                    String mSql = sqlArr != null ? (sqlArr.get(0) + " " + (String) sqlAnalyst.get("whereSql") + whereFlag + sqlArr.get(1)) : (sql + " " + whereFlag);
+                    String mSql = isWhere ? (sqlArr.get(0) + " " + whereFlag + " " + sqlArr.get(1)) : (sql + " " + whereFlag);
                     //通过反射修改sql语句
                     Field field = boundSql.getClass().getDeclaredField("sql");
                     field.setAccessible(true);
@@ -231,55 +228,109 @@ public class SqlPrintInterceptor implements Interceptor {
         return false;
     }
 
-    private Map getTable(String sql,String sqlCommandType) {
-        Map ret = new HashMap<>();
+    private Map getTable(String sql, String sqlCommandType) {
+        sql = sql.replaceAll(" {2,}", " ").replaceAll("\\( ", "\\(").replaceAll("\\) ", "\\)").replaceAll("select ","SELECT ").replaceAll(" from "," FROM ").replaceAll(" join "," JOIN ").replaceAll(" as "," AS ").replaceAll(" where "," WHERE ");
+        sql=disposeSql(sql,true);
+        Map<String,Object> ret = new HashMap<>();
         String table = "";
         String fromStr = "";
-        if(sqlCommandType.equals("SELECT")){
-            String[] selectArr = sql.split("\\(select ");
-            if (selectArr[0].indexOf("from") > -1) {
-                fromStr = (selectArr[0].split(" from "))[1];
-            } else {
-                int fromSum = 0;
-                String[] fromArr = null;
-                for (int i = 1; i < selectArr.length; i++) {
-                    fromArr = selectArr[i].split(" from ");
-                    fromSum += fromArr.length - 1;
-                    if (fromSum == i + 1) {
-                        fromStr = fromArr[fromArr.length - 1];
-                        break;
+        String fromSuf="";
+        if((sqlCommandType.toUpperCase()).equals("SELECT")){
+            int fromCount=searchStrBycount(sql," FROM ");
+            if(fromCount>0){
+                int start = 1;
+                int end=0;
+                int index=8;
+                fromfor:for (int i = 0; i < fromCount; i++) {
+                    fromStr=sql.substring(0,sql.indexOf(" FROM ",index));
+                    start=searchStrBycount(fromStr,"\\(");
+                    end=searchStrBycount(fromStr,"\\)");
+                    if(start==end){
+                        fromSuf=sql.substring(sql.indexOf(" FROM ",index)+6);
+                        String[] arrAs=fromSuf.split(" ");
+                        for (int j = 1; j <arrAs.length-1; j++) {
+                            if(arrAs[j].equals("AS")){
+                                table=arrAs[j+1];
+                                break fromfor;
+                            }else if(arrAs[j+1].equals("WHERE") || arrAs[j+1].equals("JOIN") || (j+2<arrAs.length && arrAs[j+2].equals("JOIN"))){
+                                table=arrAs[j];
+                                break fromfor;
+                            }
+                        }
+                        break fromfor;
                     }
+                    index=fromStr.length()+1;
                 }
+                ret=disposeWhere(fromSuf,sql);
             }
-            if (fromStr.indexOf(" join ") > -1) {
-                table = fromStr.split(" ")[2];
-            }
-            if (fromStr.indexOf(" join ") == -1 && !(fromStr.split(" ")[2].equals(" where "))) {
-                table = fromStr.split(" ")[2];
-            }
-            if (table.equals(" as ")) {
-                table = fromStr.split(" ")[3];
-            }
-        }else {
-            sql.replaceAll("update ","UPDATE ").replaceAll("delete ","DELETE ").replaceAll("insert ","INSERT ");
-            fromStr=sql.split(sqlCommandType)[1];
-        }
 
-        boolean isWhere = fromStr.indexOf(" where ") > -1;
-        ret.put("table", table != "" ? table + "." : "");
-        ret.put("where", isWhere);
-        ret.put("whereSql", isWhere ? fromStr.split(" where ")[0] : "");
-        List<String> sqlArr=new ArrayList<>();
-        if(isWhere && sql.indexOf("?")!=-1){
-            String[] sqlArr1=(sql.replaceAll("\\?"," :; ")).split(((String)ret.get("whereSql")).replaceAll("\\?"," :; ") + " where");
-            for (String s:sqlArr1) {
-                sqlArr.add(s.replaceAll(" :; ","\\?"));
-            }
+        }else {
+            sql=sql.replaceAll("update ","UPDATE ").replaceAll("delete ","DELETE ").replaceAll("insert ","INSERT ");
+            ret=disposeWhere(sql,sql);
         }
+        ret.put("table", StringUtils.isNotBlank(table) ? table + "." : "");
+        return ret;
+    }
+    private Map<String,Object> disposeWhere(String fromSuf, String sql){
+        Map ret = new HashMap<>();
+        List<String> sqlArr=new ArrayList<>();
+        boolean isWhere = false;
+        int start = -1;
+        int end=0;
+        int index=0;
+        String whereStr = "";
+        int whereCount=searchStrBycount(fromSuf," WHERE ");
+        if(whereCount>0){
+            wherefor:for (int i = 0; i < whereCount; i++) {
+                whereStr=fromSuf.substring(0,fromSuf.indexOf(" WHERE ",index));
+                start=searchStrBycount(whereStr,"\\(");
+                end=searchStrBycount(whereStr,"\\)");
+                if(start==end){
+                    String whereSuf=sql.substring(sql.indexOf(" WHERE ",index));
+                    sqlArr.add(disposeSql(sql.split(whereSuf)[0],false));
+                    sqlArr.add(disposeSql(whereSuf.substring(7),false));
+                    break wherefor;
+                }
+                index=whereStr.length()+1;
+            }
+            isWhere=true;
+        }
+        ret.put("where", isWhere);
         ret.put("sqlArr",sqlArr);
         return ret;
     }
-
+    private String disposeSql(String sql, Boolean type){
+        if(type){
+            sql=sql.replaceAll("\\?"," ::;,11,;:: ")
+                    .replaceAll("\\+"," ::;,22,;:: ")
+                    .replaceAll("\\|"," ::;,33,;:: ")
+                    .replaceAll("\\."," ::;,44,;:: ")
+                    .replaceAll("\\*"," ::;,55,;:: ")
+                    .replaceAll("\\$"," ::;,66,;:: ")
+                    .replaceAll("\\("," ::;,77,;:: ")
+                    .replaceAll("\\)"," ::;,88,;:: ");
+        }else {
+            sql=sql.replaceAll(" ::;,11,;:: ","\\?")
+                    .replaceAll(" ::;,22,;:: ","\\+")
+                    .replaceAll(" ::;,33,;:: ","\\|")
+                    .replaceAll(" ::;,44,;:: ","\\.")
+                    .replaceAll(" ::;,55,;:: ","\\*")
+                    .replaceAll(" ::;,66,;:: ","\\$")
+                    .replaceAll(" ::;,77,;:: ","\\(")
+                    .replaceAll(" ::;,88,;:: ","\\)");
+        }
+        return sql;
+    }
+    //查询str中有几个searchStr
+    private int searchStrBycount(String str, String searchStr){
+        Pattern pattern = Pattern.compile(searchStr);
+        Matcher matcher = pattern.matcher(str);
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+        return count;
+    }
     private String getSql(BoundSql boundSql, Object parameterObject, Configuration configuration) {
         String sql = boundSql.getSql().replaceAll("[\\s]+", " ");
         List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
