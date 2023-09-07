@@ -890,7 +890,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		params.put("category3Code", material.getCategory3Code());
 		params.put("year", material.getYear());
 		params.put("season", material.getSeason());
-		return getNextCode.genCode("MATERIAL_CODE", params);
+		return getNextCode.genCodeExists("MATERIAL_CODE", params);
     }
 
 	@Override
