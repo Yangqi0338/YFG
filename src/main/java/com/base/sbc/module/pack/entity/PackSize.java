@@ -13,6 +13,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * 类描述：资料包-尺寸表 实体类
  *
@@ -30,7 +32,8 @@ public class PackSize extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
-
+    /** 尺寸明细 */
+    private List<PackSizeDetail> packSizeDetailList;
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 

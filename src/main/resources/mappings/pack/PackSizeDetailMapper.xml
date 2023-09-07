@@ -10,7 +10,10 @@
       -->
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
-
+    <select id="selectByForeignId" resultType="com.base.sbc.module.pack.entity.PackSizeDetail" parameterType="java.util.Map">
+        SELECT * FROM t_pack_size_detail
+        where pack_size_id = #{id}
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
