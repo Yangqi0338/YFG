@@ -14,9 +14,11 @@ import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * 类描述：资料包-物料清单-物料版本 service类
@@ -81,6 +83,15 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
      * @return
      */
     PackBomVersion getEnableVersion(PackCommonSearchDto dto);
+
+    /**
+     * 获取启动版本的物料清单
+     *
+     * @param foreignId
+     * @param packType
+     * @return
+     */
+    List<PackBomVo> getEnableVersionBomList(String foreignId, String packType);
 
     /**
      * 获取启用的版本

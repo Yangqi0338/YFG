@@ -18,7 +18,6 @@ import com.base.sbc.module.sample.dto.FabricSummaryDTO;
 import com.base.sbc.module.sample.vo.FabricSummaryVO;
 import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
 import com.github.pagehelper.PageInfo;
-import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -121,11 +120,14 @@ public interface PackBomService extends PackBaseService<PackBom> {
 
     /**
      * 查询物料下发状态
+     *
      * @param stringList
      * @return
      */
-    Map<String,String> getPackSendStatus(List<String> stringList);
+    Map<String, String> getPackSendStatus(List<String> stringList);
 
+
+    List<PackBomVo> list(String foreignId, String packType, String bomVersionId);
 // 自定义方法区 不替换的区域【other_end】
 
 

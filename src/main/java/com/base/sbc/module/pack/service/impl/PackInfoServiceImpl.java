@@ -12,6 +12,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
@@ -549,7 +550,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Override
     public AttachmentVo genTechSpecFile2(GroupUser groupUser, PackCommonSearchDto dto) {
 
-        //获取款式信息
+        //获取资料包信息
         PackInfoListVo detail = getDetail(dto.getForeignId(), dto.getPackType());
 
         if (detail == null) {
@@ -582,8 +583,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //图片
         if (StrUtil.isNotBlank(detail.getStyleColorId())) {
             StyleColor styleColor = styleColorMapper.selectById(detail.getStyleColorId());
-            String styleNoImgUrl = StyleNoImgUtils.getStyleNoImgUrl(groupUser, styleColor.getStyleColorPic());
-            vo.setStylePic(styleNoImgUrl);
+            if (styleColor != null && StrUtil.isNotBlank(styleColor.getStyleColorPic())) {
+                String styleNoImgUrl = StyleNoImgUtils.getStyleNoImgUrl(groupUser, styleColor.getStyleColorPic());
+                vo.setStylePic(styleNoImgUrl);
+            }
         }
         PackSizeConfigVo sizeConfig = packSizeConfigService.getConfig(dto.getForeignId(), dto.getPackType());
         vo.setCompanyName("意丰歌集团有限公司");
@@ -655,6 +658,53 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             packTechPackagingService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
         }
         return true;
+    }
+
+    @Override
+    public BomPrintVo getBomPrint(GroupUser user, PackCommonSearchDto dto) {
+        BomPrintVo vo = new BomPrintVo();
+        //获取资料包信息
+        PackInfoListVo detail = getDetail(dto.getForeignId(), dto.getPackType());
+
+        if (detail == null) {
+            throw new OtherException("获取资料包数据失败");
+        }
+        //获取款式信息
+        Style style = styleService.getById(detail.getForeignId());
+        if (style == null) {
+            throw new OtherException("获取款式信息失败");
+        }
+        // 获取吊牌信息
+        if (StrUtil.isNotBlank(detail.getStyleNo())) {
+            HangTagVO tag = hangTagService.getDetailsByBulkStyleNo(detail.getStyleNo(), getCompanyCode());
+            if (tag != null) {
+                BeanUtil.copyProperties(tag, vo);
+            }
+        }
+        if (StrUtil.isNotBlank(vo.getStylePic())) {
+            vo.setStylePic(uploadFileService.getUrlById(vo.getStylePic()));
+
+        }
+        StyleColor styleColor = styleColorMapper.selectById(detail.getStyleColorId());
+
+        if (styleColor != null) {
+            //图片
+            if (StrUtil.isNotBlank(styleColor.getStyleColorPic())) {
+                String styleNoImgUrl = StyleNoImgUtils.getStyleNoImgUrl(user, styleColor.getStyleColorPic());
+                vo.setStylePic(styleNoImgUrl);
+            }
+            vo.setIsMainly(styleColor.getIsMainly());
+        }
+
+        vo.setBandName(style.getBandName());
+        vo.setBrandName(style.getBrandName());
+        vo.setStyleNo(detail.getStyleNo());
+        vo.setDesigner(CollUtil.getFirst(StrUtil.split(style.getDesigner(), CharUtil.COMMA)));
+        vo.setDesignNo(style.getDesignNo());
+        //获取物料信息
+        List<PackBomVo> enableVersionBomList = packBomVersionService.getEnableVersionBomList(dto.getForeignId(), dto.getPackType());
+        vo.setBomList(enableVersionBomList.stream().filter(item -> StrUtil.equals(item.getUnusableFlag(), BaseGlobal.NO)).collect(Collectors.toList()));
+        return vo;
     }
 
     @Override

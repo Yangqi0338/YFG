@@ -65,7 +65,7 @@ public class PackBom extends BaseDataEntity<String> {
         smpBomDto.setId(id);
         IdGen idGen = new IdGen();
         smpBomDto.setSyncId(String.valueOf(idGen.nextId()));
-        smpBomDto.setActive("0".equals(status));
+        smpBomDto.setActive("0".equals(unusableFlag));
         smpBomDto.setCreator(getCreateName());
         smpBomDto.setCreateTime(getCreateDate());
         smpBomDto.setModifiedPerson(getUpdateName());
@@ -81,7 +81,7 @@ public class PackBom extends BaseDataEntity<String> {
         bomMaterial.setMaterialUom(unitCode);
         bomMaterial.setPosition(partName);
         bomMaterial.setCostRate(lossRate);
-        bomMaterial.setActive("0".equals(status));
+        bomMaterial.setActive("0".equals(unusableFlag));
         bomMaterial.setPlacementName(collocationName);
         return bomMaterial;
     }
@@ -105,9 +105,9 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "资料包类型:packDesign:设计资料包/packBigGoods:标准资料包(大货资料包)")
     private String packType;
     /**
-     * 状态(0停用,1启用)
+     * 暂未使用
      */
-    @ApiModelProperty(value = "状态(0停用,1启用)")
+    @ApiModelProperty(value = "状态:暂未使用")
     private String status;
     /**
      * 主材料标识(0否,1是)
