@@ -73,9 +73,8 @@ public class OperaAspect {
             String userId = httpServletRequest.getHeader("userId");
             String usercompany = httpServletRequest.getHeader("Usercompany");
             String authorization = httpServletRequest.getHeader("Authorization");
-            if(!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization)){
-                DataIsolation dataIsolation = method.getAnnotation(DataIsolation.class);
-
+            DataIsolation dataIsolation = method.getAnnotation(DataIsolation.class);
+            if(!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization) && dataIsolation.state() && StringUtils.isNotBlank(dataIsolation.authority())){
                 // 获取注解标识值与注解描述
                 String operateType = dataIsolation.operateType()?"read":"write";
                 RedisUtils redisUtils = SpringContextHolder.getBean("redisUtils");
