@@ -191,7 +191,7 @@ public class GenTechSpecPdfFile {
             this.placeOrderDateStr = DateUtil.format(placeOrderDate, DatePattern.NORM_DATETIME_PATTERN);
             this.produceDateStr = DateUtil.format(produceDate, DatePattern.NORM_DATETIME_PATTERN);
             Date newDate = new Date();
-            this.createDate = DateUtil.format(newDate, DatePattern.NORM_DATE_PATTERN);
+            this.createDate = DateUtil.format(newDate, "yy/M/d");
             this.createTime = DateUtil.format(newDate, "a HH:mm");
 
             List<String> sizeList = StrUtil.split(this.activeSizes, CharUtil.COMMA);

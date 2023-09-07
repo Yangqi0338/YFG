@@ -110,6 +110,16 @@ public class FabricPoolVO {
     @ApiModelProperty(value = "面料企划名称")
     private String fabricPlanningName;
     /**
+     * 产品季id
+     */
+    @ApiModelProperty(value = "产品季id")
+    private String planningSeasonId;
+    /**
+     * 产品季
+     */
+    @ApiModelProperty(value = "产品季")
+    private String planningSeason;
+    /**
      * 面料池
      */
     @ApiModelProperty(value = "面料池")

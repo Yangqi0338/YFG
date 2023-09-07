@@ -461,12 +461,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             qw.eq("designer_id", userId);
         }
         // 所有
-        else if (StrUtil.equals(dto.getUserType(), StylePageDto.userType0)) {
-            Boolean selectFlag = dataPermissionsService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
-            if (selectFlag) {
-                return new PageInfo<>();
-            }
-        }
+//        else if (StrUtil.equals(dto.getUserType(), StylePageDto.userType0)) {
+//            Boolean selectFlag = dataPermissionsService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
+//            if (selectFlag) {
+//                return new PageInfo<>();
+//            }
+//        }
         qw.orderByDesc("create_date");
         Page<StylePageVo> objects = PageHelper.startPage(dto);
         getBaseMapper().selectByQw(qw);
@@ -1479,7 +1479,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         params.put("year", style.getYear());
         params.put("season", style.getSeason());
         params.put("prodCategory3rd", style.getProdCategory3rd());
-        return getNextCode.genCode("STYLE_DESIGN_NO", params);
+        return getNextCode.genCodeExists("STYLE_DESIGN_NO", params);
     }
 
     @Override

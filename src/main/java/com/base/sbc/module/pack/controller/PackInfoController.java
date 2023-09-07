@@ -166,10 +166,22 @@ public class PackInfoController {
 		return packInfoService.association(dto);
 	}
 
+	@ApiOperation(value = "取消关联配色")
+	@PostMapping("/cancelAssociation")
+	public boolean cancelAssociation(@RequestBody PackInfoAssociationDto dto) {
+		return packInfoService.cancelAssociation(dto);
+	}
+
 	@ApiOperation(value = "关联样板号")
 	@PostMapping("/setPatternNo")
 	public boolean setPatternNo(@Validated @RequestBody PackInfoSetPatternNoDto dto) {
 		return packInfoService.setPatternNo(dto);
+	}
+
+	@ApiOperation(value = "资料包数据复制")
+	@GetMapping("/copyItems")
+	public boolean copyItems(PackCopyDto dto) {
+		return packInfoService.copyItems(dto);
 	}
 }
 

@@ -100,6 +100,17 @@ public class FabricPoolSaveDTO {
     private String fabricPlanningId;
 
     /**
+     * 产品季id
+     */
+    @ApiModelProperty(value = "产品季id")
+    private String planningSeasonId;
+    /**
+     * 产品季
+     */
+    @ApiModelProperty(value = "产品季")
+    private String planningSeason;
+
+    /**
      * 面料池明细
      */
     @ApiModelProperty(value = "面料池明细")

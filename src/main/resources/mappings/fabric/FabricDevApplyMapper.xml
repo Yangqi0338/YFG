@@ -44,7 +44,7 @@
             and fda.company_code = #{dto.companyCode}
             <if test="dto.search != null and dto.search != ''">
                 AND (fda.dev_apply_code LIKE concat('%',#{dto.search},'%') OR fdb.short_code LIKE
-                concat('%',#{dto.search},'%'))
+                concat('%',#{dto.search},'%') or bm.material_name LIKE concat('%',#{dto.search},'%') OR bm.material_code LIKE concat('%',#{dto.search},'%') )
             </if>
             <if test="dto.source != null and dto.source != ''">
                 and fdb.source = #{dto.source}

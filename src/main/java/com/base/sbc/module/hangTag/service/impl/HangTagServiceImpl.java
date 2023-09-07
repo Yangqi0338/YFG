@@ -25,6 +25,7 @@ import com.base.sbc.module.hangTag.dto.HangTagDTO;
 import com.base.sbc.module.hangTag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangTag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangTag.entity.HangTag;
+import com.base.sbc.module.hangTag.entity.HangTagIngredient;
 import com.base.sbc.module.hangTag.enums.HangTagStatusEnum;
 import com.base.sbc.module.hangTag.enums.OperationDescriptionEnum;
 import com.base.sbc.module.hangTag.mapper.HangTagMapper;
@@ -87,6 +88,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     @Autowired
     private HangTagIngredientService hangTagIngredientService;
     @Autowired
+    private EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
+    @Autowired
     private HangTagLogService hangTagLogService;
     @Autowired
     private PackInfoStatusService packInfoStatusService;
@@ -94,7 +97,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private UploadFileService uploadFileService;
     @Autowired
     private StyleColorMapper styleColorMapper;
-    private final FlowableService flowableService;
+    @Autowired
+    private FlowableService flowableService;
     @Autowired
     @Lazy
     private BasicsdatumMaterialController basicsdatumMaterialController;
@@ -191,9 +195,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                     }
                 }
             }
-            //List<HangTagIngredient> list = hangTagIngredientService.list(new QueryWrapper<HangTagIngredient>().eq("hang_tag_id", hangTagVO.getId()));
-            //List<String> codes = list.stream().map(HangTagIngredient::getMaterialCode).collect(Collectors.toList());
-
         }
         return hangTagVO;
     }

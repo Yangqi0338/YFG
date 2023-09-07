@@ -169,5 +169,11 @@ public class StyleColorController {
 		return styleColorService.updateOrderFlag(publicStyleColorDto);
 	}
 
+	@ApiOperation(value = "取消关联Bom")
+	@PostMapping("/disassociateBom")
+	public Boolean disassociateBom( @Valid @RequestBody PublicStyleColorDto publicStyleColorDto) {
+		return styleColorService.disassociateBom(publicStyleColorDto);
+	}
+
 }
 

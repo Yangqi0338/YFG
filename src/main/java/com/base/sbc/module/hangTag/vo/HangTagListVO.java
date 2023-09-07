@@ -61,12 +61,23 @@ public class HangTagListVO {
     @ApiModelProperty(value = "生产类型")
     private String produceType;
 
+
+    /**
+     * 生产类型名称
+     */
+    @ApiModelProperty(value = "生产类型名称")
+    private String  produceTypeName;
     /**
      * 款式类型
      */
     @ApiModelProperty(value = "款式类型")
     private String styleType;
 
+    /**
+     * 生产类型名称
+     */
+    @ApiModelProperty(value = "生产类型名称")
+    private String  styleTypeName;
     /**
      * 颜色编码
      */

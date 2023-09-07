@@ -13,7 +13,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.minio.MinioUtils;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.module.common.dto.AttachmentSaveDto;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.entity.UploadFile;
@@ -24,6 +24,7 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackPatternAttachmentSaveDto;
 import com.base.sbc.module.pack.dto.PackTechSpecSavePicDto;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -226,10 +227,44 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+        if (StrUtil.equals(sourceForeignId, targetForeignId) && StrUtil.equals(sourcePackType, targetPackType)) {
+            return true;
+        }
         delByForeignIdType(targetForeignId, targetPackType);
         QueryWrapper qw = new QueryWrapper();
         qw.eq("foreign_id", sourceForeignId);
         qw.likeRight("type", sourcePackType + StrUtil.DASHED);
+        List<Attachment> list = list(qw);
+        if (CollUtil.isNotEmpty(list)) {
+            for (Attachment o : list) {
+                o.setId(null);
+                o.setForeignId(targetForeignId);
+                List<String> split = StrUtil.split(o.getType(), CharUtil.DASHED);
+                o.setType(targetPackType + StrUtil.DASHED + CollUtil.get(split, 1));
+            }
+            return saveBatch(list);
+        }
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean copyTechFile(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String item) {
+        if (StrUtil.equals(sourceForeignId, targetForeignId) && StrUtil.equals(sourcePackType, targetPackType)) {
+            return true;
+        }
+        List<String> items = StrUtil.split(item, CharUtil.COMMA);
+        List<String> targetAttTypes = PackUtils.getTechSpecAttType(targetPackType, items);
+        List<String> sourceAttTypes = PackUtils.getTechSpecAttType(sourcePackType, items);
+        //删除目标的
+//        QueryWrapper del = new QueryWrapper();
+//        del.eq("foreign_id", targetForeignId);
+//        del.in("type", targetAttTypes);
+//        remove(del);
+
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("foreign_id", sourceForeignId);
+        qw.in("type", sourceAttTypes);
         List<Attachment> list = list(qw);
         if (CollUtil.isNotEmpty(list)) {
             for (Attachment o : list) {
