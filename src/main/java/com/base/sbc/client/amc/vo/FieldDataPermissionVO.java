@@ -11,6 +11,10 @@ public class FieldDataPermissionVO {
      */
     private String fieldName;
     /**
+     * 自定义sql隔离
+     */
+    private String sqlField;
+    /**
      * 字段值
      */
     private List<String> fieldValues;

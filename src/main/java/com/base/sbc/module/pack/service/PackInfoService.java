@@ -160,6 +160,12 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 
     boolean association(PackInfoAssociationDto dto);
 
+    /**
+     * 取消关联配色
+     * @param dto
+     * @return
+     */
+    boolean cancelAssociation(PackInfoAssociationDto dto);
 
     /**
      * 改变bom 状态

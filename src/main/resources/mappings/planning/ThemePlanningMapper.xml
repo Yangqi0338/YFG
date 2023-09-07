@@ -30,11 +30,11 @@
             <if test="dto.search != null and dto.search != ''">
                 AND theme_name LIKE concat( '%',#{dto.search},'%' )
             </if>
-            <if test="dto.yearCode != null and dto.yearCode != ''">
-                AND year_code = #{yearCode}
+            <if test="dto.year != null and dto.year != ''">
+                AND year_code = #{dto.year}
             </if>
-            <if test="dto.brandCode != null and dto.brandCode != ''">
-                AND brand_code = #{dto.brandCode}
+            <if test="dto.brand != null and dto.brand != ''">
+                AND brand_code = #{dto.brand}
             </if>
             <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
                 AND planning_season_id = #{dto.planningSeasonId}

@@ -30,7 +30,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.minio.MinioConfig;
+import com.base.sbc.config.ureport.minio.MinioConfig;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.common.eumns.UreportDownEnum;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -717,6 +717,35 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         return true;
     }
 
+    /**
+     * 取消关联配色
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean cancelAssociation(PackInfoAssociationDto dto) {
+        PackInfo packInfo = getById(dto.getPackId());
+        if (StringUtils.isBlank(packInfo.getStyleNo())) {
+            throw new OtherException("未关联款号");
+        }
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("style_no", packInfo.getStyleNo());
+        StyleColor color = styleColorMapper.selectOne(queryWrapper);
+        /*验证是否下发*/
+        if(!color.getScmSendFlag().equals(BaseGlobal.NO)){
+            throw new OtherException("数据存在已下发");
+        }
+        packInfo.setColor("");
+        packInfo.setColorCode("");
+        packInfo.setStyleNo("");
+        packInfo.setStyleColorId("");
+        updateById(packInfo);
+        color.setBom("");
+        styleColorMapper.updateById(color);
+        return true;
+    }
 
     @Override
 
