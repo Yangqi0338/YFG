@@ -78,7 +78,6 @@ public class PurchaseDemand extends BaseDataEntity<String> {
         this.supplierName = packBom.getSupplierName();
         this.supplierColor = material.getSupplierColorNo();
         this.component = packBom.getSupplierFactoryIngredient();
-        this.materialColor = packBom.getColor();
         this.needNum = needNum;
         this.price = packBom.getPrice();
         this.unit = material.getPurchaseUnitCode();

@@ -24,6 +24,9 @@ import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackSizeConfigVo;
+import com.base.sbc.module.patternmaking.service.PatternMakingService;
+import com.base.sbc.module.patternmaking.vo.PatternMakingListVo;
 import com.base.sbc.module.purchase.entity.*;
 import com.base.sbc.module.purchase.mapper.PurchaseDemandMapper;
 import com.base.sbc.module.purchase.mapper.PurchaseOrderMapper;
@@ -83,6 +86,12 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
 
     @Autowired
     private PurchaseOrderDetailService purchaseOrderDetailService;
+
+    @Autowired
+    private PackSizeConfigService packSizeConfigService;
+
+    @Autowired
+    private PatternMakingService patternMakingService;
 
     @Autowired
     private UserCompanyUtils userCompanyUtils;
@@ -145,6 +154,11 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 return;
             }
 
+            //查询尺寸配置信息
+            PackSizeConfigVo packSizeConfigVo = packSizeConfigService.getConfig(packInfo.getId(), "packDesign");
+            //查询打版指令的成衣颜色
+            List<PatternMakingListVo> patternMakingListVoList = patternMakingService.findBySampleDesignId(packInfo.getForeignId());
+
             List<String> materialCodeList = new ArrayList<>();
             List<String> supplierIdList = new ArrayList<>();
             for(PackBom bom : packBomList){
@@ -176,8 +190,9 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 bomColorQw = new QueryWrapper<>();
                 PackUtils.commonQw(bomColorQw, packInfo.getId(), "packDesign", null);
                 bomColorQw.eq("bom_id", bom.getId());
-                List<PackBomColor> packBomColorList = packBomColorService.list(bomColorQw).stream().filter(s -> StringUtils.isNotBlank(s.getMaterialColorName())).collect(Collectors.toList());
+                List<PackBomColor> packBomColorList = packBomColorService.list(bomColorQw);
 
+                Map<String, PackBomColor>  colorMap = packBomColorList.stream().collect(Collectors.toMap(PackBomColor::getColorCode, item -> item));
 
                 //根据规格分组合计，各个规格的数量
                 Map<String, BigDecimal> specificationsMap = new HashMap<>();
@@ -193,43 +208,66 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 BasicsdatumMaterial material = materialMap.get(bom.getMaterialCode());
                 BasicsdatumSupplier supplier = supplierMap.get(bom.getSupplierId());
 
-                if(CollectionUtil.isNotEmpty(packBomColorList)) {
-                    for (PackBomColor color : packBomColorList) {
-                        for (Map.Entry<String, BigDecimal> entry : specificationsMap.entrySet()) {
-                            if (material != null) {
-                                PurchaseDemand demand = new PurchaseDemand(packInfo, bom, material, entry.getKey(), entry.getValue());
-                                demand.insertInit(userCompany);
-                                demand.setId(idGen.nextIdStr());
-                                demand.setCompanyCode(companyCode);
-                                demand.setMaterialColor(color.getMaterialColorName());
-                                demand.setPurchasedNum(BigDecimal.ZERO);
-                                demand.setReadyNum(BigDecimal.ZERO);
-                                demand.setOrderStatus("0");
-                                demand.setStatus("0");
-                                demand.setDelFlag("0");
-                                demand.setSupplierId(supplier == null ? "" : supplier.getId());
-                                purchaseDemandList.add(demand);
-                            }
-                        }
-                    }
-                }else{
-                    //没有配色，用物料颜色
-                    for (Map.Entry<String, BigDecimal> entry : specificationsMap.entrySet()) {
-                        if (material != null) {
-                            PurchaseDemand demand = new PurchaseDemand(packInfo, bom, material, entry.getKey(), entry.getValue());
-                            demand.insertInit(userCompany);
-                            demand.setId(idGen.nextIdStr());
-                            demand.setCompanyCode(companyCode);
-                            demand.setPurchasedNum(BigDecimal.ZERO);
-                            demand.setReadyNum(BigDecimal.ZERO);
-                            demand.setOrderStatus("0");
-                            demand.setStatus("0");
-                            demand.setDelFlag("0");
-                            demand.setSupplierId(supplier == null ? "" : supplier.getId());
-                            purchaseDemandList.add(demand);
-                        }
+                BigDecimal num = specificationsMap.get(packSizeConfigVo.getDefaultSize());
+
+                String materialColor = "";
+                if(CollectionUtil.isNotEmpty(patternMakingListVoList)) {
+                    PackBomColor packBomColor = colorMap.get(patternMakingListVoList.get(0).getColorCode());
+                    if(packBomColor != null){
+                        materialColor = packBomColor.getMaterialColorName();
                     }
                 }
+
+                PurchaseDemand demand = new PurchaseDemand(packInfo, bom, material, packSizeConfigVo.getDefaultSize(), num);
+                demand.insertInit(userCompany);
+                demand.setId(idGen.nextIdStr());
+                demand.setCompanyCode(companyCode);
+                demand.setMaterialColor(materialColor);
+                demand.setPurchasedNum(BigDecimal.ZERO);
+                demand.setReadyNum(BigDecimal.ZERO);
+                demand.setOrderStatus("0");
+                demand.setStatus("0");
+                demand.setDelFlag("0");
+                demand.setSupplierId(supplier == null ? "" : supplier.getId());
+                purchaseDemandList.add(demand);
+
+//                if(CollectionUtil.isNotEmpty(packBomColorList)) {
+//                    for (PackBomColor color : packBomColorList) {
+//                        for (Map.Entry<String, BigDecimal> entry : specificationsMap.entrySet()) {
+//                            if (material != null) {
+//                                PurchaseDemand demand = new PurchaseDemand(packInfo, bom, material, entry.getKey(), entry.getValue());
+//                                demand.insertInit(userCompany);
+//                                demand.setId(idGen.nextIdStr());
+//                                demand.setCompanyCode(companyCode);
+//                                demand.setMaterialColor(color.getMaterialColorName());
+//                                demand.setPurchasedNum(BigDecimal.ZERO);
+//                                demand.setReadyNum(BigDecimal.ZERO);
+//                                demand.setOrderStatus("0");
+//                                demand.setStatus("0");
+//                                demand.setDelFlag("0");
+//                                demand.setSupplierId(supplier == null ? "" : supplier.getId());
+//                                purchaseDemandList.add(demand);
+//                            }
+//                        }
+//                    }
+//                }else{
+//                    //没有配色，用物料颜色
+//                    for (Map.Entry<String, BigDecimal> entry : specificationsMap.entrySet()) {
+//                        if (material != null) {
+//                            PurchaseDemand demand = new PurchaseDemand(packInfo, bom, material, entry.getKey(), entry.getValue());
+//                            demand.insertInit(userCompany);
+//                            demand.setId(idGen.nextIdStr());
+//                            demand.setCompanyCode(companyCode);
+//                            demand.setPurchasedNum(BigDecimal.ZERO);
+//                            demand.setReadyNum(BigDecimal.ZERO);
+//                            demand.setOrderStatus("0");
+//                            demand.setStatus("0");
+//                            demand.setDelFlag("0");
+//                            demand.setSupplierId(supplier == null ? "" : supplier.getId());
+//                            purchaseDemandList.add(demand);
+//                        }
+//                    }
+//                }
             }
 
             if(CollectionUtil.isNotEmpty(purchaseDemandList)){
