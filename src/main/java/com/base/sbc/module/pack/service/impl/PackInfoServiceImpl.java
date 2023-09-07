@@ -30,7 +30,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.minio.MinioConfig;
+import com.base.sbc.config.ureport.minio.MinioConfig;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.common.eumns.UreportDownEnum;
 import com.base.sbc.module.common.service.AttachmentService;

@@ -18,7 +18,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.minio.MinioUtils;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumLavationReminderDto;
@@ -31,7 +31,6 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumLavationReminderServic
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.common.vo.AttachmentVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -42,7 +41,6 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

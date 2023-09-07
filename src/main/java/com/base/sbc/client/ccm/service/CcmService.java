@@ -124,6 +124,15 @@ public interface CcmService {
     @PostMapping(value = "/ccm/api/saas/companyCodeGen/getGenCodeByRedis", headers = {"Content-type=application/json"})
     String getGenCodeByRedis(@RequestParam("genCode") String genCode, @RequestParam("count") Integer count, @RequestBody Object dataMap);
 
+    /**
+     * 根据单据编码和数据，获取编码
+     * @param genCode
+     * @param dataMap
+     * @return
+     */
+    @PostMapping(value = "/ccm/api/saas/companyCodeGen/getGenCodeExistsRedis", headers = {"Content-type=application/json"})
+    ApiResult getGenCodeExistsRedis(@RequestParam("genCode") String genCode, @RequestParam("count") Integer count, @RequestBody Object dataMap);
+
 
     @PostMapping(value = "/ccm/api/saas/basicStructure/findByCategoryIds", headers = {"Content-type=application/json"})
     String findStructureTreeByCategoryIds(@RequestBody String categoryIds);

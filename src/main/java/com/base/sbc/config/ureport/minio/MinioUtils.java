@@ -1,4 +1,4 @@
-package com.base.sbc.config.minio;
+package com.base.sbc.config.ureport.minio;
 
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.DateUtils;

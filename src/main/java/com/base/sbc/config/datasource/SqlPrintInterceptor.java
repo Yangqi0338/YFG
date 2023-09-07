@@ -3,6 +3,7 @@ package com.base.sbc.config.datasource;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.redis.RedisUtils;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -65,72 +67,19 @@ public class SqlPrintInterceptor implements Interceptor {
         MetaObject metaObject = MetaObject.forObject(statementHandler, SystemMetaObject.DEFAULT_OBJECT_FACTORY, SystemMetaObject.DEFAULT_OBJECT_WRAPPER_FACTORY, new DefaultReflectorFactory());
         //先拦截到RoutingStatementHandler，里面有个StatementHandler类型的delegate变量，其实现类是BaseStatementHandler，然后就到BaseStatementHandler的成员变量mappedStatement
         MappedStatement mappedStatement = (MappedStatement) metaObject.getValue("delegate.mappedStatement");
-        //id为执行的mapper方法的全路径名，如com.uv.dao.UserMapper.insertUser
-        Object delegate = metaObject.getValue("delegate");
         String statementId = mappedStatement.getId();
-        //sql语句类型 select、delete、insert、update
-        String sqlCommandType = mappedStatement.getSqlCommandType().toString();
         BoundSql boundSql = statementHandler.getBoundSql();
 
         //获取到原始sql语句
         String sql = boundSql.getSql();
-        String mSql = sql;
+        String userId = httpServletRequest.getHeader("userId");
+        String usercompany = httpServletRequest.getHeader("Usercompany");
+        String authorization = httpServletRequest.getHeader("Authorization");
 
-        //String jsonString = JSON.toJSONString(boundSql.getParameterObject());
-        //JSONObject jsonObject1 = JSON.parseObject(jsonString);
-
-        try {
-            //注解逻辑判断  添加注解了才拦截
-            //1.获取目标类上的目标注解（可判断目标类是否存在该注解）
-            String className = statementId.substring(0, statementId.lastIndexOf("."));
-            String funName = statementId.substring(statementId.lastIndexOf(".") + 1);
-            Class classType = Class.forName(className);
-            DataIsolation dataIsolation = AnnotationUtils.findAnnotation(classType, DataIsolation.class);
-            boolean isExecute = false;
-            if (!Objects.isNull(dataIsolation) && dataIsolation.state() && sqlCommandType.equals("SELECT")) {
-                isExecute = true;
-                if (!ObjectUtils.isEmpty(dataIsolation.groups()) && !arrSearch(dataIsolation.groups(), funName)) {
-                    isExecute = false;
-                }
-            }
-            if (isExecute) {
-                //获取当前用户id
-                String userId = httpServletRequest.getHeader("userId");
-                String authorization = httpServletRequest.getHeader("Authorization");
-                if (!StringUtils.isBlank(authorization) && !StringUtils.isBlank(userId)) {
-                    sql = sql.replaceAll("[\\s]+", " ").replaceAll("\\( ", "\\(").toLowerCase();
-                    //当前查询语句的主表
-                    Map sqlAnalyst = getTable(sql);
-                    boolean isWhere = (boolean) sqlAnalyst.get("where");
-                    String whereFlag = " where ";
-                    String tableFlag = (String) sqlAnalyst.get("table");
-                    String[] sqlArr = isWhere ? sql.split(((String) sqlAnalyst.get("whereSql")) + "where") : null;
-                    ManageGroupRoleImp manageGroupRole = SpringContextHolder.getBean("manageGroupRoleImp");
-                    RedisUtils redisUtils = SpringContextHolder.getBean("redisUtils");
-                    List<String> userList = null;
-                    if (!redisUtils.hasKey("system_setting:user_isolation:" + userId)) {
-                        Map entity = (Map) manageGroupRole.userDataIsolation(authorization, null, dataIsolation.toString(), userId, className);
-                        //默认开启角色的数据隔离
-                        userList = (Boolean) entity.get("success") ? (List<String>) entity.get("data") : null;
-                        redisUtils.set("system_setting:user_isolation:" + userId, userList, 60 * 3);//如果是新加入的人添加信息，数据的隔离3分钟后生效
-                    } else {
-                        userList = (List<String>) redisUtils.get("system_setting:user_isolation:" + userId);
-                    }
-                    if (!Objects.isNull(userList)) {
-                        whereFlag += tableFlag + "create_id in (" + StringUtils.join(userList, ",") + ") and ";
-                    } else {
-                        whereFlag += tableFlag + "create_id = null and ";
-                    }
-                    mSql = sqlArr != null ? (sqlArr[0] + " " + (String) sqlAnalyst.get("whereSql") + whereFlag + sqlArr[1]) : (sql + " " + whereFlag);
-                    //通过反射修改sql语句
-                    Field field = boundSql.getClass().getDeclaredField("sql");
-                    field.setAccessible(true);
-                    field.set(boundSql, mSql);
-                }
-            }
-        } catch (Exception e) {
-            logger.error("  方法ID: " + statementId + "数据隔离时：");
-            logger.error(e.getMessage());
+        String sqlCommandType = mappedStatement.getSqlCommandType().toString();
+        String operateType=sqlCommandType.equals("SELECT")?"read":"write";
+        if (!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization) && sqlCommandType.equals("UPDATE")){
+            getAuthoritySql( boundSql, statementId, mappedStatement, sql);
         }
 
         Configuration configuration = mappedStatement.getConfiguration();
@@ -166,7 +115,99 @@ public class SqlPrintInterceptor implements Interceptor {
 
         return invocation.proceed();
     }
+    private void getAuthoritySql(BoundSql boundSql, String statementId, MappedStatement mappedStatement, String sql){
+        try {
+            //注解逻辑判断  添加注解了才拦截
+            //1.获取目标类上的目标注解（可判断目标类是否存在该注解）
+            String funName = statementId.substring(statementId.lastIndexOf(".") + 1);
+            DataIsolation dataIsolation = getDataIsolationAnnotation(mappedStatement);
+            boolean isExecute = false;
+            if (!Objects.isNull(dataIsolation) && dataIsolation.state() && StringUtils.isNotBlank(dataIsolation.authority())) {
+                isExecute = true;
+                if (!ObjectUtils.isEmpty(dataIsolation.groups()) && !arrSearch(dataIsolation.groups(), funName)) {
+                    isExecute = false;
+                }
+            }
+            if (isExecute) {
+                //获取当前用户id
+                String userId = httpServletRequest.getHeader("userId");
+                String usercompany = httpServletRequest.getHeader("Usercompany");
+                sql = sql.replaceAll(" {2,}", " ").replaceAll("[\\s]+", " ").replaceAll("\\( ", "\\(").replaceAll("SELECT ","select ").replaceAll(" FROM "," from ").replaceAll(" JOIN "," join ").replaceAll(" AS "," as ").replaceAll(" WHERE "," where ");
+                String sqlCommandType = mappedStatement.getSqlCommandType().toString();
+                //当前查询语句的主表
+                Map sqlAnalyst = getTable(sql,sqlCommandType);
+                //是否有where
+                boolean isWhere = (boolean) sqlAnalyst.get("where");
+                String tablePre = (String) sqlAnalyst.get("table");
+//                ManageGroupRoleImp manageGroupRole = SpringContextHolder.getBean("manageGroupRoleImp");
 
+                List<String>  sqlArr = (List<String>) sqlAnalyst.get("sqlArr");
+                RedisUtils redisUtils = SpringContextHolder.getBean("redisUtils");
+
+                //sql语句类型 select、delete、insert、update
+                String operateType=sqlCommandType.equals("SELECT")?"read":"write";
+                Map<String,Object> entity=null;
+//                if (!redisUtils.hasKey(usercompany+":system_setting:user_isolation:"+userId+":"+operateType+"@" + dataIsolation.authority())) {
+
+                    DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
+                    entity= dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,tablePre,dataIsolation.authorityFields());
+//                    Map entity = (Map) manageGroupRole.userDataIsolation(authorization, null, dataIsolation.toString(), userId, className);
+//                    //默认开启角色的数据隔离
+////                    userList = (Boolean) entity.get("success") ? (List<String>) entity.get("data") : null;
+//                    redisUtils.set(usercompany+":system_setting:user_isolation:"+userId+":" +operateType+"@" + dataIsolation.authority(), entity, 60 * 3);//如数据的隔离3分钟更新一次
+//                } else {
+//                    entity = (Map) redisUtils.get(usercompany+":system_setting:user_isolation:"+userId+":" +operateType+"@" + dataIsolation.authority());
+//                }
+                String authorityField = entity.containsKey("authorityField")?(String)entity.get("authorityField"):null;
+                Boolean authorityState=entity.containsKey("authorityState")?(Boolean)entity.get("authorityState"):false;
+                String whereFlag = " ";
+                if (authorityState && StringUtils.isNotBlank(authorityField)) {
+                    whereFlag +=  authorityField + " and ";
+                }
+                if(!authorityState){
+                    whereFlag += " 1=0 and ";
+                }
+                if(StringUtils.isNotBlank(whereFlag)){
+                    whereFlag=" where "+whereFlag;
+                    String mSql = sqlArr != null ? (sqlArr.get(0) + " " + (String) sqlAnalyst.get("whereSql") + whereFlag + sqlArr.get(1)) : (sql + " " + whereFlag);
+                    //通过反射修改sql语句
+                    Field field = boundSql.getClass().getDeclaredField("sql");
+                    field.setAccessible(true);
+                    field.set(boundSql, mSql);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("  方法ID: " + statementId + "数据隔离时：");
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    /**
+     * 获取方法上的DataIsolation注解
+     *
+     * @param mappedStatement MappedStatement
+     * @return EncryptResultFieldAnnotation注解
+     */
+    private DataIsolation getDataIsolationAnnotation(MappedStatement mappedStatement) {
+        DataIsolation annotation = null;
+        try {
+            String id = mappedStatement.getId();
+            String className = id.substring(0, id.lastIndexOf("."));
+            String methodName = id.substring(id.lastIndexOf(".") + 1);
+            methodName=methodName.indexOf("_")!=-1?methodName.substring(0,methodName.indexOf("_")):methodName;
+            Class classType = Class.forName(className);
+            final Method[] method = classType.getMethods();
+            for (Method me : method) {
+                if (me.getName().equals(methodName) && me.isAnnotationPresent(DataIsolation.class)) {
+                    return me.getAnnotation(DataIsolation.class);
+                }
+            }
+            annotation=AnnotationUtils.findAnnotation(classType, DataIsolation.class);
+        } catch (Exception ex) {
+            logger.error("", ex);
+        }
+        return annotation;
+    }
     @Override
     public Object plugin(Object target) {
         if (target instanceof StatementHandler) {
@@ -190,38 +231,52 @@ public class SqlPrintInterceptor implements Interceptor {
         return false;
     }
 
-    private Map getTable(String sql) {
+    private Map getTable(String sql,String sqlCommandType) {
         Map ret = new HashMap<>();
-        String[] selectArr = sql.split("\\(select");
         String table = "";
         String fromStr = "";
-        if (selectArr[0].indexOf("from") > -1) {
-            fromStr = (selectArr[0].split("from"))[1];
-        } else {
-            int fromSum = 0;
-            String[] fromArr = null;
-            for (int i = 1; i < selectArr.length; i++) {
-                fromArr = selectArr[i].split("from");
-                fromSum += fromArr.length - 1;
-                if (fromSum == i + 1) {
-                    fromStr = fromArr[fromArr.length - 1];
-                    break;
+        if(sqlCommandType.equals("SELECT")){
+            String[] selectArr = sql.split("\\(select ");
+            if (selectArr[0].indexOf("from") > -1) {
+                fromStr = (selectArr[0].split(" from "))[1];
+            } else {
+                int fromSum = 0;
+                String[] fromArr = null;
+                for (int i = 1; i < selectArr.length; i++) {
+                    fromArr = selectArr[i].split(" from ");
+                    fromSum += fromArr.length - 1;
+                    if (fromSum == i + 1) {
+                        fromStr = fromArr[fromArr.length - 1];
+                        break;
+                    }
                 }
             }
+            if (fromStr.indexOf(" join ") > -1) {
+                table = fromStr.split(" ")[2];
+            }
+            if (fromStr.indexOf(" join ") == -1 && !(fromStr.split(" ")[2].equals(" where "))) {
+                table = fromStr.split(" ")[2];
+            }
+            if (table.equals(" as ")) {
+                table = fromStr.split(" ")[3];
+            }
+        }else {
+            sql.replaceAll("update ","UPDATE ").replaceAll("delete ","DELETE ").replaceAll("insert ","INSERT ");
+            fromStr=sql.split(sqlCommandType)[1];
         }
-        if (fromStr.indexOf("join") > -1) {
-            table = fromStr.split(" ")[2];
-        }
-        if (fromStr.indexOf("join") == -1 && !(fromStr.split(" ")[2].equals("where"))) {
-            table = fromStr.split(" ")[2];
-        }
-        if (table.equals("as")) {
-            table = fromStr.split(" ")[3];
-        }
-        boolean isWhere = fromStr.indexOf("where") > -1;
+
+        boolean isWhere = fromStr.indexOf(" where ") > -1;
         ret.put("table", table != "" ? table + "." : "");
         ret.put("where", isWhere);
-        ret.put("whereSql", isWhere ? fromStr.split("where")[0] : "");
+        ret.put("whereSql", isWhere ? fromStr.split(" where ")[0] : "");
+        List<String> sqlArr=new ArrayList<>();
+        if(isWhere && sql.indexOf("?")!=-1){
+            String[] sqlArr1=(sql.replaceAll("\\?"," :; ")).split(((String)ret.get("whereSql")).replaceAll("\\?"," :; ") + " where");
+            for (String s:sqlArr1) {
+                sqlArr.add(s.replaceAll(" :; ","\\?"));
+            }
+        }
+        ret.put("sqlArr",sqlArr);
         return ret;
     }
 

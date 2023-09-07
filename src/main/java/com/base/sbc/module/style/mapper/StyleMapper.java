@@ -9,6 +9,7 @@ package com.base.sbc.module.style.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.module.patternmaking.vo.PatternMakingForSampleVo;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
@@ -32,11 +33,13 @@ import java.util.List;
  * @date 创建时间：2023-5-9 11:16:15
  */
 @Mapper
+
+@DataIsolation(authority="sample_design")
 public interface StyleMapper extends BaseMapper<Style> {
     /**
      * 自定义方法区 不替换的区域【other_start】
      **/
-
+    @DataIsolation(authority="sample_design",authorityFields={"s.prod_category","s.brand"})
     List<StylePageVo> selectByQw(@Param(Constants.WRAPPER) QueryWrapper<Style> wrapper);
 
     List<SampleUserVo> getDesignerList(@Param("companyCode") String companyCode);

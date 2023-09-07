@@ -310,7 +310,7 @@
             <p>洗标</p>
             <hr>
             <#if  washingLabel != '' >
-                <img style="height:50px" src="${washingLabel}">
+                <img style="height:36px" src="${washingLabel}">
             </#if>
         </td>
     </tr>
@@ -437,7 +437,8 @@
     </tbody>
     <tfoot>
     <tr>
-        <td colspan="${sizeTitleColspan}" style="height: 32px;">测量点-${sizeDataList?size}</td>
+        <td colspan="${sizeTitleColspan-2}" style="height: 32px;">测量点-${sizeDataList?size}</td>
+        <td colspan="2" style="height: 32px;">单位:CM</td>
     </tr>
     </tfoot>
 </table>
