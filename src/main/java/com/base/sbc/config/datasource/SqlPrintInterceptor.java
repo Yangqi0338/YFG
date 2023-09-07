@@ -149,15 +149,14 @@ public class SqlPrintInterceptor implements Interceptor {
                 //sql语句类型 select、delete、insert、update
                 String operateType=sqlCommandType.equals("SELECT")?"read":"write";
                 Map<String,Object> entity=null;
-                if (!redisUtils.hasKey(usercompany+":system_setting:user_isolation:"+userId+":"+operateType+"@" + dataIsolation.authority())) {
+                if (!redisUtils.hasKey("USERISOLATION:"+usercompany+":"+userId+":"+operateType+"@" + dataIsolation.authority())) {
                     DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
                     entity= dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,tablePre,dataIsolation.authorityFields());
 //                Map entity = (Map) manageGroupRole.userDataIsolation(authorization, null, dataIsolation.toString(), userId, className);
-//                //默认开启角色的数据隔离
-////                userList = (Boolean) entity.get("success") ? (List<String>) entity.get("data") : null;
-                    redisUtils.set(usercompany+":system_setting:user_isolation:"+userId+":" +operateType+"@" + dataIsolation.authority(), entity, 60 * 3);//如数据的隔离3分钟更新一次
+                //默认开启角色的数据隔离
+                    redisUtils.set("USERISOLATION:"+usercompany+":"+userId+":" +operateType+"@" + dataIsolation.authority(), entity, 60 * 3);//如数据的隔离3分钟更新一次
                 } else {
-                    entity = (Map) redisUtils.get(usercompany+":system_setting:user_isolation:"+userId+":" +operateType+"@" + dataIsolation.authority());
+                    entity = (Map) redisUtils.get("USERISOLATION:"+usercompany+":"+userId+":" +operateType+"@" + dataIsolation.authority());
                 }
                 String authorityField = entity.containsKey("authorityField")?(String)entity.get("authorityField"):null;
                 Boolean authorityState=entity.containsKey("authorityState")?(Boolean)entity.get("authorityState"):false;
