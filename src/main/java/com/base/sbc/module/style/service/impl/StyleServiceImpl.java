@@ -632,6 +632,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
             List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
+            if(!CollectionUtils.isEmpty(fieldManagementListByIds)){
             /*用于查询字段配置数据*/
             stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
             Style style = getById(dto.getStyleId());
@@ -653,7 +654,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                     i.setConfigVoList(BeanUtil.copyToList(configList, FieldOptionConfigVo.class));
                 }
             });
-
+            }
             // [3].查询字段值
             if (CollUtil.isNotEmpty(fieldManagementListByIds) && StrUtil.isNotBlank(dto.getStyleId())) {
                 fieldManagementService.conversion(fieldManagementListByIds, fvList);
