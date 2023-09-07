@@ -85,7 +85,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private HangTagMapper hangTagMapper;
     @Autowired
     private HangTagIngredientService hangTagIngredientService;
-    private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
+    @Autowired
+    private EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
     @Autowired
     private HangTagLogService hangTagLogService;
     @Autowired
@@ -94,7 +95,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private UploadFileService uploadFileService;
     @Autowired
     private StyleColorMapper styleColorMapper;
-    private final FlowableService flowableService;
+    @Autowired
+    private FlowableService flowableService;
     @Autowired
     @Lazy
     private BasicsdatumMaterialController basicsdatumMaterialController;
@@ -105,9 +107,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     @Autowired
     @Lazy
     private PackInfoService packInfoService;
-    private final StylePricingService stylePricingService;
-    private final StyleService styleService;
-    private final BasicsdatumSizeService basicsdatumSizeService;
+    @Autowired
+    private StylePricingService stylePricingService;
+    @Autowired
+    private StyleService styleService;
+    @Autowired
+    private BasicsdatumSizeService basicsdatumSizeService;
 
     @Override
     public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
