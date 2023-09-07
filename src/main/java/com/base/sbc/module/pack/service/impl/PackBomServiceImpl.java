@@ -15,6 +15,8 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
@@ -81,6 +83,8 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     private BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
     @Autowired
     private BasicsdatumMaterialService basicsdatumMaterialService;
+    @Autowired
+    private CcmFeignService ccmFeignService;
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
@@ -298,14 +302,15 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             return result;
         }
 
-
+    // 是否开启笛莎资料包计算开关 开启后资料包计算都是大货物料费用
+    Boolean ifSwitch = ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.DESIGN_DISHA_DATA_PACKAGE_COUNT.getKeyCode());
     //款式物料费用=款式物料用量*款式物料单价*（1+损耗率)
     //大货物料费用=物料大货用量*物料大货单价*（1+损耗率)
     return bomList.stream().map(packBom -> {
                 BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")));
                 BigDecimal mul = NumberUtil.mul(
-                        dto.getPackType().equals("packDesign") ? packBom.getDesignUnitUse() : packBom.getBulkUnitUse(),
-                        dto.getPackType().equals("packDesign") ? packBom.getDesignPrice() : packBom.getBulkPrice(),
+                        ifSwitch ? packBom.getBulkUnitUse() : dto.getPackType().equals("packDesign") ? packBom.getDesignUnitUse() : packBom.getBulkUnitUse(),
+                        ifSwitch ? packBom.getBulkPrice() : dto.getPackType().equals("packDesign") ? packBom.getDesignPrice() : packBom.getBulkPrice(),
                         divide
                 );
                 return mul;
