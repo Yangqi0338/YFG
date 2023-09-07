@@ -894,6 +894,46 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         styleColor.updateInit();
         super.updateById(styleColor);
     }
+
+    /**
+     * 取消关联Bom
+     *
+     * @param publicStyleColorDto
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public Boolean disassociateBom(PublicStyleColorDto publicStyleColorDto) {
+        /*查询配色数据*/
+        List<StyleColor> styleColorList = baseMapper.selectBatchIds(StringUtils.convertList(publicStyleColorDto.getId()));
+        /*校验是否关联配色*/
+        List<String> stringList = styleColorList.stream().filter(s -> StringUtils.isNotBlank(s.getBom())).map(StyleColor::getBom).collect(Collectors.toList());
+        if (styleColorList.size() != stringList.size()) {
+            throw new OtherException("未关联款号");
+        }
+        /*查询BOM*/
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.in("code", stringList);
+        List<PackInfo> packInfoList = packInfoService.list(queryWrapper);
+        /*取消关联*/
+        styleColorList.forEach(s -> {
+            /*验证是否下发*/
+            if(!s.getScmSendFlag().equals(BaseGlobal.NO)){
+                throw new OtherException("数据存在已下发");
+            }
+            s.setBom("");
+        });
+        /*取消关联*/
+        packInfoList.forEach(p -> {
+            p.setStyleNo("");
+            p.setColorCode("");
+            p.setColor("");
+            p.setStyleColorId("");
+        });
+        updateBatchById(styleColorList);
+        packInfoService.updateBatchById(packInfoList);
+        return true;
+    }
     /** 自定义方法区 不替换的区域【other_end】 **/
 
 }

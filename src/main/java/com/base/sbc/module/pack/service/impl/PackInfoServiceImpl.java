@@ -623,6 +623,41 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean copyItems(PackCopyDto dto) {
+
+        if (StrUtil.isNotBlank(dto.getStyleColorId())) {
+            //查询资料包信息
+            QueryWrapper<PackInfo> packQw = new QueryWrapper();
+            packQw.eq("style_color_id", dto.getStyleColorId());
+            packQw.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
+            List<PackInfoListVo> packInfoListVos = baseMapper.queryByQw(packQw);
+            if (CollUtil.isEmpty(packInfoListVos)) {
+                throw new OtherException("找不到款式配色的BOM信息");
+            }
+            PackInfoListVo packInfoListVo = packInfoListVos.get(0);
+            dto.setSourceForeignId(packInfoListVo.getId());
+            dto.setSourcePackType(packInfoListVo.getPackType());
+        }
+
+
+        if (StrUtil.contains(dto.getItem(), "物料清单")) {
+            packBomVersionService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+        }
+        if (StrUtil.contains(dto.getItem(), "尺寸表")) {
+            packSizeService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+            packSizeConfigService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+        }
+
+        if (StrUtil.contains(dto.getItem(), "工艺说明")) {
+            attachmentService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+            packTechSpecService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+            packTechPackagingService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+        }
+        return true;
+    }
+
+    @Override
     public boolean delTechSpecFile(PackCommonSearchDto dto) {
         UpdateWrapper qw = new UpdateWrapper();
         PackUtils.commonQw(qw, dto);
@@ -682,6 +717,35 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         return true;
     }
 
+    /**
+     * 取消关联配色
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean cancelAssociation(PackInfoAssociationDto dto) {
+        PackInfo packInfo = getById(dto.getPackId());
+        if (StringUtils.isBlank(packInfo.getStyleNo())) {
+            throw new OtherException("未关联款号");
+        }
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("style_no", packInfo.getStyleNo());
+        StyleColor color = styleColorMapper.selectOne(queryWrapper);
+        /*验证是否下发*/
+        if(!color.getScmSendFlag().equals(BaseGlobal.NO)){
+            throw new OtherException("数据存在已下发");
+        }
+        packInfo.setColor("");
+        packInfo.setColorCode("");
+        packInfo.setStyleNo("");
+        packInfo.setStyleColorId("");
+        updateById(packInfo);
+        color.setBom("");
+        styleColorMapper.updateById(color);
+        return true;
+    }
 
     @Override
 

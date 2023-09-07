@@ -25,6 +25,7 @@ import com.base.sbc.module.hangTag.dto.HangTagDTO;
 import com.base.sbc.module.hangTag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangTag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangTag.entity.HangTag;
+import com.base.sbc.module.hangTag.entity.HangTagIngredient;
 import com.base.sbc.module.hangTag.enums.HangTagStatusEnum;
 import com.base.sbc.module.hangTag.enums.OperationDescriptionEnum;
 import com.base.sbc.module.hangTag.mapper.HangTagMapper;
@@ -45,6 +46,8 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
+import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
@@ -82,6 +85,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private HangTagMapper hangTagMapper;
     @Autowired
     private HangTagIngredientService hangTagIngredientService;
+    private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
     @Autowired
     private HangTagLogService hangTagLogService;
     @Autowired
@@ -172,7 +176,15 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         if (hangTagVO != null && StringUtils.isEmpty(hangTagVO.getStatus())) {
             hangTagVO.setStatus(HangTagStatusEnum.NOT_SUBMIT.getK());
         }
-
+        //查关联分表
+        if (hangTagVO != null) {
+            List<HangTagIngredient> list = hangTagIngredientService.list(new QueryWrapper<HangTagIngredient>().eq("hang_tag_id", hangTagVO.getId()));
+            List<String> codes = list.stream().map(HangTagIngredient::getMaterialCode).collect(Collectors.toList());
+            if (!codes.isEmpty()) {
+                List<EscmMaterialCompnentInspectCompanyDto> inspectCompanyDtoList = escmMaterialCompnentInspectCompanyService.list(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no", codes));
+                hangTagVO.setInspectCompanyDtoList(inspectCompanyDtoList);
+            }
+        }
         return hangTagVO;
     }
 

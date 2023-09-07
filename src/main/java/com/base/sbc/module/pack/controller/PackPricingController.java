@@ -84,6 +84,12 @@ public class PackPricingController {
         return packPricingOtherCostsService.saveByDto(dto);
     }
 
+    @ApiOperation(value = "批量其他费用-保存/修改", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
+    @PostMapping("/batchOtherCosts")
+    public Boolean batchOtherCosts(@Valid @RequestBody List<PackPricingOtherCostsDto> dto) {
+        return packPricingOtherCostsService.batchOtherCosts(dto);
+    }
+
     @ApiOperation(value = "其他费用-删除", notes = "包装费/检测费/外协加工费/毛纱加工费/车缝加工费")
     @DeleteMapping("/otherCosts")
     public boolean delOtherCosts(@Valid IdsDto idsDto) {

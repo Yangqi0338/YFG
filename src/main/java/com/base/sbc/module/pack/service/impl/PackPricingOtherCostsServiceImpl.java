@@ -85,6 +85,19 @@ public class PackPricingOtherCostsServiceImpl extends PackBaseServiceImpl<PackPr
         }
     }
 
+    /**
+     * 批量保存他费用
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public Boolean batchOtherCosts(List<PackPricingOtherCostsDto> dto) {
+        List<PackPricingOtherCosts> list =BeanUtil.copyToList(dto,PackPricingOtherCosts.class);
+        saveOrUpdateBatch(list);
+        return true;
+    }
+
     @Override
     public Map<String, BigDecimal> statistics(PackCommonSearchDto dto) {
         Map<String, BigDecimal> result = new HashMap<>(16);

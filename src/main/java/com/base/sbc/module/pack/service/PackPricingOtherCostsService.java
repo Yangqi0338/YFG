@@ -36,10 +36,18 @@ public interface PackPricingOtherCostsService extends PackBaseService<PackPricin
 
     PackPricingOtherCostsVo saveByDto(PackPricingOtherCostsDto dto);
 
+    /**
+     * 批量保存他费用
+     * @param dto
+     * @return
+     */
+    Boolean batchOtherCosts(List<PackPricingOtherCostsDto> dto);
+
     Map<String, BigDecimal> statistics(PackCommonSearchDto dto);
 
     /**
      * 通过主id统计
+     *
      * @param foreignIds
      * @return
      */

@@ -204,4 +204,12 @@ public interface CcmService {
      */
     @GetMapping(value = "/ccm/api/saas/basicStructure/appointNextLevelList")
     String appointNextLevelList(@RequestParam("structureCode") String structureCode, @RequestParam("level") String level);
+
+    /**
+     * 查询所有单位列表，可根据类型筛选
+     * @param type 类型
+     *
+     */
+    @GetMapping(value = "/ccm/api/saas/unitConfig")
+    String getAllUnitConfigList(@RequestParam("type")String type);
 }

@@ -277,6 +277,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                     styleInfoSku.setColorName(styleInfoColor.getColorName());
                     styleInfoSku.setSizeCode(sizeCode);
                     styleInfoSku.setSizeName(sizeName);
+                    styleInfoSku.setCostPrice(styleInfoColor.getSkcCostPrice());
+                    styleInfoSku.setTagPrice(styleInfoColor.getTagPrice());
                     styleInfoSku.insertInit();
                     styleInfoSkuList.add(styleInfoSku);
                 }
