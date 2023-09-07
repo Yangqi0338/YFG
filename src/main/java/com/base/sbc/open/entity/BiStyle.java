@@ -198,7 +198,7 @@ public class BiStyle {
     /**
      * 前技术确认是否齐套
      */
-    private String c8SampleTechIfQitao;
+    private Boolean c8SampleTechIfQitao;
 
     /**
      * 样衣需求完成日期*
@@ -206,7 +206,7 @@ public class BiStyle {
     private Date sampleNotes;
 
     /**
-     * 收到正确样日期
+     * 缺料备注
      */
     private String c8ProductSampleMatLackNote;
 
@@ -266,7 +266,7 @@ public class BiStyle {
     private String requestedQty;
 
     /**
-     * 样品工厂
+     * 样衣需求完成日期*
      */
     private String c8SampleRequestDate;
 
@@ -323,7 +323,7 @@ public class BiStyle {
     /**
      * 样衣完成
      */
-    private String c8SampleIfFinished;
+    private Boolean c8SampleIfFinished;
 
     /**
      * 改版意见
