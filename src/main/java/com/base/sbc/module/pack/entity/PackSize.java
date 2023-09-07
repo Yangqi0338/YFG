@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -33,6 +34,7 @@ public class PackSize extends BaseDataEntity<String> {
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
     /** 尺寸明细 */
+    @TableField(exist = false)
     private List<PackSizeDetail> packSizeDetailList;
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
