@@ -77,8 +77,9 @@ public class SqlPrintInterceptor implements Interceptor {
             String userId = httpServletRequest.getHeader("userId");
             String usercompany = httpServletRequest.getHeader("Usercompany");
             String authorization = httpServletRequest.getHeader("Authorization");
-            if (!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization)){
-                getAuthoritySql( boundSql, statementId, mappedStatement, sql);
+            String sqlCommandType = mappedStatement.getSqlCommandType().toString();
+            if (!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization) && !sqlCommandType.equals("INSERT")){
+                getAuthoritySql( boundSql, statementId, mappedStatement, sql,sqlCommandType);
             }
         }catch (Exception e){
             logger.error("无法数据隔离");
@@ -118,7 +119,7 @@ public class SqlPrintInterceptor implements Interceptor {
 
         return invocation.proceed();
     }
-    private void getAuthoritySql(BoundSql boundSql, String statementId, MappedStatement mappedStatement, String sql){
+    private void getAuthoritySql(BoundSql boundSql, String statementId, MappedStatement mappedStatement, String sql,String sqlCommandType){
         try {
             //注解逻辑判断  添加注解了才拦截
             //1.获取目标类上的目标注解（可判断目标类是否存在该注解）
@@ -135,7 +136,6 @@ public class SqlPrintInterceptor implements Interceptor {
                 //获取当前用户id
                 String userId = httpServletRequest.getHeader("userId");
                 String usercompany = httpServletRequest.getHeader("Usercompany");
-                String sqlCommandType = mappedStatement.getSqlCommandType().toString();
                 //当前查询语句的主表
                 Map sqlAnalyst = getTable(sql,sqlCommandType);
                 //是否有where
