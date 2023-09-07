@@ -73,8 +73,17 @@ public class SqlPrintInterceptor implements Interceptor {
 
         //获取到原始sql语句
         String sql = boundSql.getSql();
+        try {
+            String userId = httpServletRequest.getHeader("userId");
+            String usercompany = httpServletRequest.getHeader("Usercompany");
+            String authorization = httpServletRequest.getHeader("Authorization");
+            if (!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization)){
+                getAuthoritySql( boundSql, statementId, mappedStatement, sql);
+            }
+        }catch (Exception e){
+            logger.error("无法数据隔离");
+        }
 
-        getAuthoritySql( boundSql, statementId, mappedStatement, sql);
 
         Configuration configuration = mappedStatement.getConfiguration();
         Object parameterObject = null;
@@ -126,50 +135,48 @@ public class SqlPrintInterceptor implements Interceptor {
                 //获取当前用户id
                 String userId = httpServletRequest.getHeader("userId");
                 String usercompany = httpServletRequest.getHeader("Usercompany");
-                String authorization = httpServletRequest.getHeader("Authorization");
-                if (!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization)){
-                    String sqlCommandType = mappedStatement.getSqlCommandType().toString();
-                    //当前查询语句的主表
-                    Map sqlAnalyst = getTable(sql,sqlCommandType);
-                    //是否有where
-                    boolean isWhere = (boolean) sqlAnalyst.get("where");
-                    String tablePre = (String) sqlAnalyst.get("table");
-//                ManageGroupRoleImp manageGroupRole = SpringContextHolder.getBean("manageGroupRoleImp");
+                String sqlCommandType = mappedStatement.getSqlCommandType().toString();
+                //当前查询语句的主表
+                Map sqlAnalyst = getTable(sql,sqlCommandType);
+                //是否有where
+                boolean isWhere = (boolean) sqlAnalyst.get("where");
+                String tablePre = (String) sqlAnalyst.get("table");
+//              nageGroupRoleImp manageGroupRole = SpringContextHolder.getBean("manageGroupRoleImp");
 
-                    List<String>  sqlArr = (List<String>) sqlAnalyst.get("sqlArr");
-                    RedisUtils redisUtils = SpringContextHolder.getBean("redisUtils");
+                List<String>  sqlArr = (List<String>) sqlAnalyst.get("sqlArr");
+                RedisUtils redisUtils = SpringContextHolder.getBean("redisUtils");
 
-                    //sql语句类型 select、delete、insert、update
-                    String operateType=sqlCommandType.equals("SELECT")?"read":"write";
-                    Map<String,Object> entity=null;
-                    if (!redisUtils.hasKey(usercompany+":system_setting:user_isolation:"+userId+":"+operateType+"@" + dataIsolation.authority())) {
-                        DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
-                        entity= dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,tablePre,dataIsolation.authorityFields());
-//                    Map entity = (Map) manageGroupRole.userDataIsolation(authorization, null, dataIsolation.toString(), userId, className);
-//                    //默认开启角色的数据隔离
-////                    userList = (Boolean) entity.get("success") ? (List<String>) entity.get("data") : null;
-                        redisUtils.set(usercompany+":system_setting:user_isolation:"+userId+":" +operateType+"@" + dataIsolation.authority(), entity, 60 * 3);//如数据的隔离3分钟更新一次
-                    } else {
-                        entity = (Map) redisUtils.get(usercompany+":system_setting:user_isolation:"+userId+":" +operateType+"@" + dataIsolation.authority());
-                    }
-                    String authorityField = entity.containsKey("authorityField")?(String)entity.get("authorityField"):null;
-                    Boolean authorityState=entity.containsKey("authorityState")?(Boolean)entity.get("authorityState"):false;
-                    String whereFlag = " ";
-                    if (authorityState && StringUtils.isNotBlank(authorityField)) {
-                        whereFlag +=  authorityField + " and ";
-                    }
-                    if(!authorityState){
-                        whereFlag += " 1=0 and ";
-                    }
-                    if(StringUtils.isNotBlank(whereFlag)){
-                        whereFlag=" where "+whereFlag;
-                        String mSql = isWhere ? (sqlArr.get(0) + " " + whereFlag + " " + sqlArr.get(1)) : (sql + " " + whereFlag);
-                        //通过反射修改sql语句
-                        Field field = boundSql.getClass().getDeclaredField("sql");
-                        field.setAccessible(true);
-                        field.set(boundSql, mSql);
-                    }
+                //sql语句类型 select、delete、insert、update
+                String operateType=sqlCommandType.equals("SELECT")?"read":"write";
+                Map<String,Object> entity=null;
+                if (!redisUtils.hasKey(usercompany+":system_setting:user_isolation:"+userId+":"+operateType+"@" + dataIsolation.authority())) {
+                    DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
+                    entity= dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,tablePre,dataIsolation.authorityFields());
+//                Map entity = (Map) manageGroupRole.userDataIsolation(authorization, null, dataIsolation.toString(), userId, className);
+//                //默认开启角色的数据隔离
+////                userList = (Boolean) entity.get("success") ? (List<String>) entity.get("data") : null;
+                    redisUtils.set(usercompany+":system_setting:user_isolation:"+userId+":" +operateType+"@" + dataIsolation.authority(), entity, 60 * 3);//如数据的隔离3分钟更新一次
+                } else {
+                    entity = (Map) redisUtils.get(usercompany+":system_setting:user_isolation:"+userId+":" +operateType+"@" + dataIsolation.authority());
                 }
+                String authorityField = entity.containsKey("authorityField")?(String)entity.get("authorityField"):null;
+                Boolean authorityState=entity.containsKey("authorityState")?(Boolean)entity.get("authorityState"):false;
+                String whereFlag = " ";
+                if (authorityState && StringUtils.isNotBlank(authorityField)) {
+                    whereFlag +=  authorityField + " and ";
+                }
+                if(!authorityState){
+                    whereFlag += " 1=0 and ";
+                }
+                if(StringUtils.isNotBlank(whereFlag)){
+                    whereFlag=" where "+whereFlag;
+                    String mSql = isWhere ? (sqlArr.get(0) + " " + whereFlag + " " + sqlArr.get(1)) : (sql + " " + whereFlag);
+                    //通过反射修改sql语句
+                    Field field = boundSql.getClass().getDeclaredField("sql");
+                    field.setAccessible(true);
+                    field.set(boundSql, mSql);
+                }
+
             }
         } catch (Exception e) {
             logger.error("  方法ID: " + statementId + "数据隔离时：");
