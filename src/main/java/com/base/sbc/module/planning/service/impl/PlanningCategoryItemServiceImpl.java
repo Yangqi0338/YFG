@@ -768,7 +768,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                 for(BasicStructureTree center : currentCenterList){
                     List<BasicStructureTree> currentSmallList = smallMap.get(center.getId());
                     if(CollectionUtil.isNotEmpty(currentSmallList)){
-                        Map<String, BasicStructureTree> currentSmallMap = currentSmallList.stream().collect(Collectors.toMap(BasicStructureTree::getName, item -> item));
+                        Map<String, BasicStructureTree> currentSmallMap = currentSmallList.stream().collect(Collectors.toMap(BasicStructureTree::getName, item -> item, (item1, item2) -> item1));
                         centerTemporaryMap.put(center.getName(), currentSmallMap);
                     }
                 }
