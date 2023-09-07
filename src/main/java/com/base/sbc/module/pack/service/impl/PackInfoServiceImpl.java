@@ -674,6 +674,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (style == null) {
             throw new OtherException("获取款式信息失败");
         }
+
+        String stylePicId = style.getStylePic();
         // 获取吊牌信息
         if (StrUtil.isNotBlank(detail.getStyleNo())) {
             HangTagVO tag = hangTagService.getDetailsByBulkStyleNo(detail.getStyleNo(), getCompanyCode());
@@ -681,8 +683,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 BeanUtil.copyProperties(tag, vo);
             }
         }
-        if (StrUtil.isNotBlank(vo.getStylePic())) {
-            vo.setStylePic(uploadFileService.getUrlById(vo.getStylePic()));
+        if (StrUtil.isNotBlank(stylePicId)) {
+            vo.setStylePic(uploadFileService.getUrlById(stylePicId));
 
         }
         StyleColor styleColor = styleColorMapper.selectById(detail.getStyleColorId());
