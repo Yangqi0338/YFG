@@ -106,7 +106,7 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColorType()),"color_type", queryBasicsdatumColourLibraryDto.getColorType());
         queryWrapper.in(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getScmSendFlag()),"scm_send_flag", StringUtils.convertList(queryBasicsdatumColourLibraryDto.getScmSendFlag()));
         if (StringUtils.isNotEmpty(queryBasicsdatumColourLibraryDto.getSearch())) {
-            queryWrapper.andLike(queryBasicsdatumColourLibraryDto.getSearch(), "colourCode", "colourName");
+            queryWrapper.andLike(queryBasicsdatumColourLibraryDto.getSearch(), "colour_code", "colour_name");
         }
 
         /*查询基础资料-颜色库数据*/
