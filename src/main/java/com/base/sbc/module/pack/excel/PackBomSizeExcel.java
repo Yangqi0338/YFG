@@ -5,6 +5,9 @@ import com.base.sbc.config.utils.PoiUtilsXlsx;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.band.entity.Band;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
+import com.base.sbc.module.pack.entity.PackBomSize;
+import com.base.sbc.module.pack.entity.PackSize;
+import com.base.sbc.module.pack.entity.PackSizeDetail;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
@@ -14,6 +17,7 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class PackBomSizeExcel {
     /**
@@ -129,6 +133,57 @@ public class PackBomSizeExcel {
         for (BasicUnitConfig item : basicUnitConfigList) {
             unitSheet.createRow(k).createCell(0).setCellValue(item.getUnitName());
             k++;
+        }
+        return this.objWb;
+    }
+
+    /**
+     *
+     * @param sizeArray 尺寸集合
+     * @return
+     * @throws Exception
+     */
+    public XSSFWorkbook createWorkBookPlus(String sizeArray, String ifWashing, List<BasicsdatumMeasurement> measurementList,
+                                           List<BasicUnitConfig> basicUnitConfigList, List<PackSize> packSizeList) throws Exception {
+        createWorkBook(sizeArray, ifWashing, measurementList, basicUnitConfigList);
+
+        XSSFSheet sheet = this.objWb.getSheetAt(0);
+
+        int startIndex = 2;
+        int criticalFactor = StringUtils.equals(ifWashing, "1") ? 3 : 2;
+        for(PackSize packSize : packSizeList){
+            XSSFRow row = sheet.createRow(startIndex);
+            //部位
+            PoiUtilsXlsx.createStringCell(row, 0, packSize.getPartName(), this.templateCellStyleCenter);
+            //测量方法
+            PoiUtilsXlsx.createStringCell(row, 1, packSize.getMethod(), this.templateCellStyleCenter);
+            //正公差
+            PoiUtilsXlsx.createStringCell(row, 2, packSize.getPositive(), this.templateCellStyleCenter);
+            //负公差
+            PoiUtilsXlsx.createStringCell(row, 3, packSize.getMinus(), this.templateCellStyleCenter);
+            //档差
+            PoiUtilsXlsx.createStringCell(row, 4, packSize.getCodeError(), this.templateCellStyleCenter);
+            //单位
+            PoiUtilsXlsx.createStringCell(row, 5, packSize.getUnit(), this.templateCellStyleCenter);
+
+            List<PackSizeDetail> packSizeDetailList = packSize.getPackSizeDetailList();
+            Map<String, PackSizeDetail> packSizeDetailMap = packSizeDetailList.stream().collect(Collectors.toMap(PackSizeDetail::getSize, item -> item));
+            List<String> sizeList = StringUtils.convertList(sizeArray);
+            for(int j = 0; j < sizeList.size(); j++){
+                PackSizeDetail packSizeDetail = packSizeDetailMap.get(sizeList.get(j));
+                if(packSizeDetail != null) {
+                    //样板尺寸
+                    PoiUtilsXlsx.createStringCell(row, (j * criticalFactor) + 6, packSizeDetail.getTemplate(), this.templateCellStyleCenter);
+                    //成衣尺寸
+                    PoiUtilsXlsx.createStringCell(row, (j * criticalFactor) + 7, packSizeDetail.getGarment(), this.templateCellStyleCenter);
+                    //洗后尺寸
+                    PoiUtilsXlsx.createStringCell(row, (j * criticalFactor) + 8, packSizeDetail.getWashing(), this.templateCellStyleCenter);
+                }
+            }
+
+            //备注
+            PoiUtilsXlsx.createStringCell(row, row.getLastCellNum(), packSize.getRemark(), this.templateCellStyleCenter);
+            startIndex++;
         }
         return this.objWb;
     }
