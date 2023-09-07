@@ -176,8 +176,11 @@ public class PackBomSizeExcel {
                     PoiUtilsXlsx.createStringCell(row, (j * criticalFactor) + 6, packSizeDetail.getTemplate(), this.templateCellStyleCenter);
                     //成衣尺寸
                     PoiUtilsXlsx.createStringCell(row, (j * criticalFactor) + 7, packSizeDetail.getGarment(), this.templateCellStyleCenter);
-                    //洗后尺寸
-                    PoiUtilsXlsx.createStringCell(row, (j * criticalFactor) + 8, packSizeDetail.getWashing(), this.templateCellStyleCenter);
+
+                    if(StringUtils.equals(ifWashing, "1")) {
+                        //洗后尺寸
+                        PoiUtilsXlsx.createStringCell(row, (j * criticalFactor) + 8, packSizeDetail.getWashing(), this.templateCellStyleCenter);
+                    }
                 }
             }
 
