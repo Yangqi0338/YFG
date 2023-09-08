@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -125,6 +126,11 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "样衣是否完成:(0否，1是)")
     private String sampleCompleteFlag;
+
+
+    //todo 工艺部接收正确样时间
+    @TableField(exist = false)
+    private Date techReceiveDate;
     /**
      * 工艺单完成日期
      */

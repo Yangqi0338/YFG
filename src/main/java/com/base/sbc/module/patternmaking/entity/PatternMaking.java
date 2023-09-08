@@ -154,11 +154,10 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 纸样完成数量 */
     @ApiModelProperty(value = "纸样完成数量"  )
     private BigDecimal patternFinishNum;
-    /** 纸样完成数量 */
-    @ApiModelProperty(value = "纸样完成数量"  )
-    /**
-     * 纸样完成时间,数据库没有字段,需添加
-     */
+
+   // TODO 纸样完成时间,数据库没有字段,需添加
+    /** 纸样完成时间 */
+    @ApiModelProperty(value = "纸样完成时间"  )
     @TableField(exist = false)
     private Date patternFinishDate;
     /** 裁剪工 */

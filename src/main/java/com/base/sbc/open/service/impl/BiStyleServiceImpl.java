@@ -203,6 +203,10 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
                     biStyle.setC8SampleTechIfQitao("1".equals(preProductionSampleTask.getKitting()));
                     // 样衣完成
                     biStyle.setC8SampleIfFinished("1".equals(preProductionSampleTask.getSampleCompleteFlag()));
+                    //技术收到日期  (缺少字段) 工艺部接收正确样时间
+                    biStyle.setSampleReceivedDate(preProductionSampleTask.getTechReceiveDate());
+                    // 收到正确样日期  产前样看板
+                    biStyle.setC8SampleRecivedCorrectData(preProductionSampleTask.getTechReceiveDate());
 
                 }
                  /*
@@ -238,16 +242,14 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
                 biStyle.setC8SampleChaBanData(null);
                 //计提收入
                 biStyle.setC8SamplePriceIncomet(null);
-                //技术收到日期  (缺少字段) 工艺部接收正确样时间
-                biStyle.setSampleReceivedDate(null);
+
                 //面辅料信息(含格式)
                 biStyle.setC8SampleMaterialInfo2(null);
                 //面料检测单日期   无字段
                 biStyle.setC8SampleMaterialDetData(null);
                 // 缺料备注
                 biStyle.setC8ProductSampleMatLackNote(null);
-                // 收到正确样日期  产前样看板
-                biStyle.setC8SampleRecivedCorrectData(null);
+
 
 
 

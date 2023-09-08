@@ -163,7 +163,7 @@ public class BiStyle {
     /**
      * 技术收到日期
      */
-    private String sampleReceivedDate;
+    private Date sampleReceivedDate;
 
     /**
      * 类型
@@ -223,7 +223,7 @@ public class BiStyle {
     /**
      * 收到正确样日期
      */
-    private String c8SampleRecivedCorrectData;
+    private Date c8SampleRecivedCorrectData;
 
     /**
      * 样衣条码
