@@ -192,7 +192,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
         sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
         sdQw.orderByDesc("create_date");
-        Page<Style> page = PageHelper.startPage(pageDto);
+        Page<StyleMasterData> page = PageHelper.startPage(pageDto);
         styleMasterDataService.list(sdQw);
         PageInfo<StylePackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), StylePackInfoListVo.class);
         //查询bom列表
