@@ -382,7 +382,9 @@ public class GenTechSpecPdfFile {
         private List<Map<String, Object>> rowData;
 
         public Map<String, Object> toMap() {
-            return BeanUtil.beanToMap(this);
+            String str = JSON.toJSONString(this, JSONWriter.Feature.WriteNullStringAsEmpty);
+            JSONObject dataModel = JSON.parseObject(str);
+            return dataModel;
         }
     }
 
