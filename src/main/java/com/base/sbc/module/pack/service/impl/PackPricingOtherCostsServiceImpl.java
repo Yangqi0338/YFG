@@ -102,10 +102,15 @@ public class PackPricingOtherCostsServiceImpl extends PackBaseServiceImpl<PackPr
     public Map<String, BigDecimal> statistics(PackCommonSearchDto dto) {
         Map<String, BigDecimal> result = new HashMap<>(16);
         QueryWrapper<PackPricingOtherCosts> qw = new QueryWrapper<>();
+        QueryWrapper<PackPricingOtherCosts> qw1 = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
+        PackUtils.commonQw(qw1, dto);
         // 其他费用
         qw.eq(StringUtils.isNotEmpty(dto.getColorCode()), "color_code", dto.getColorCode());
-        List<TotalVo> costsItemTotalList = getBaseMapper().costsItemTotal(qw);
+        qw1.eq(StringUtils.isNotEmpty(dto.getColorCode()), "color_code", dto.getColorCode());
+        qw.ne("costs_item","其它费");
+        qw1.eq("costs_item","其它费");
+        List<TotalVo> costsItemTotalList = getBaseMapper().newCostsItemTotal(qw,qw1);
         if (CollUtil.isNotEmpty(costsItemTotalList)) {
             for (TotalVo total : costsItemTotalList) {
                 result.put(total.getLabel(), total.getTotal());

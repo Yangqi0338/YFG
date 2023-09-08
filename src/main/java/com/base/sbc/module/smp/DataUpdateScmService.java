@@ -5,11 +5,10 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
-import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.entity.StyleMasterData;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
-import com.base.sbc.module.style.mapper.StyleMapper;
-import lombok.RequiredArgsConstructor;
+import com.base.sbc.module.style.mapper.StyleMasterDataMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,7 @@ public class DataUpdateScmService {
 
     @Autowired
     @Lazy
-    private StyleMapper styleMapper;
+    private StyleMasterDataMapper styleMasterDataMapper;
 
     @Autowired
     @Lazy
@@ -86,16 +85,15 @@ public class DataUpdateScmService {
      * 每次修改配色信息调用该方法
      * 发送款式下以下发或可编辑状态的数据
      *
-     * @param styleId 款式id
+     * @param styleMasterDataId 款式主数据id
      * @return
      */
-
-    public void updateStyleSendById(String styleId) {
-        Style style = styleMapper.selectById(styleId);
-        if (!ObjectUtils.isEmpty(style)) {
+    public void updateStyleSendById(String styleMasterDataId) {
+        StyleMasterData styleMasterData  = styleMasterDataMapper.selectById(styleMasterDataId);
+        if (!ObjectUtils.isEmpty(styleMasterData)) {
             /*查询款式下的已下发及可编辑配色*/
             QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq("style_id", style.getId());
+            queryWrapper.eq("style_master_data_id", styleMasterData.getId());
             queryWrapper.in("scm_send_flag", StringUtils.convertList("1,3"));
             List<StyleColor> styleColorList = styleColorMapper.selectList(queryWrapper);
             if (!CollectionUtils.isEmpty(styleColorList)) {
@@ -116,9 +114,9 @@ public class DataUpdateScmService {
     public void updateStyleSend(String designNo) {
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("design_no", designNo);
-        List<Style> styleList = styleMapper.selectList(queryWrapper);
+        List<StyleMasterData> styleList = styleMasterDataMapper.selectList(queryWrapper);
         if (!CollectionUtils.isEmpty(styleList)) {
-            updateColorSendById(styleList.get(0).getId());
+            updateStyleSendById(styleList.get(0).getId());
         }
     }
 

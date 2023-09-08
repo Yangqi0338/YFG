@@ -103,6 +103,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 
     List<PackInfoListVo> queryByQw(QueryWrapper queryWrapper);
 
+    PackInfoListVo getByQw(QueryWrapper queryWrapper);
+
     PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(PackInfoSearchPageDto pageDto);
 
     /**

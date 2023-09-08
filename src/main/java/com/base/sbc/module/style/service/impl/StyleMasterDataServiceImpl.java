@@ -33,6 +33,7 @@ import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.sample.vo.MaterialVo;
+import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.style.dto.StyleMasterDataSaveDto;
 import com.base.sbc.module.style.dto.StyleSaveDto;
 import com.base.sbc.module.style.entity.Style;
@@ -80,6 +81,8 @@ public class StyleMasterDataServiceImpl extends BaseServiceImpl<StyleMasterDataM
     private final StyleInfoColorService styleInfoColorService;
 
     private final FieldValService fieldValService;
+
+    private final DataUpdateScmService dataUpdateScmService;
 
     /**
      * 生成款式主数据

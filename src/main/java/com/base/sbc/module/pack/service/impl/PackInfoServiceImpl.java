@@ -787,6 +787,16 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (StringUtils.isBlank(packInfo.getStyleNo())) {
             throw new OtherException("未关联款号");
         }
+        /*查询bom下的物料是否存在下发*/
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("foreign_id", packInfo.getId());
+        qw.eq("pack_type", "packDesign");
+        qw.in("scm_send_flag", StringUtils.convertList("1,3"));
+        List<PackBom> packBomList = packBomService.list(qw);
+        if (CollUtil.isNotEmpty(packBomList)) {
+            throw new OtherException("物料清单存在已下发数据无法取消");
+        }
+
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("style_no", packInfo.getStyleNo());
         StyleColor color = styleColorMapper.selectOne(queryWrapper);
@@ -838,6 +848,12 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Override
     public List<PackInfoListVo> queryByQw(QueryWrapper queryWrapper) {
         return getBaseMapper().queryByQw(queryWrapper);
+    }
+
+    @Override
+    public PackInfoListVo getByQw(QueryWrapper queryWrapper) {
+        List<PackInfoListVo> packInfoListVos = queryByQw(queryWrapper);
+        return CollUtil.getFirst(packInfoListVos);
     }
 
     @Override
