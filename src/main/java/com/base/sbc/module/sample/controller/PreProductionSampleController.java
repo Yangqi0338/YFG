@@ -9,6 +9,8 @@ package com.base.sbc.module.sample.controller;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.EnableFlagSettingDto;
@@ -21,14 +23,18 @@ import com.base.sbc.module.patternmaking.dto.ScoreDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskSearchDto;
 import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
+import com.base.sbc.module.sample.dto.PreTaskAssignmentSampleBarCodeDto;
+import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
+import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -50,7 +56,8 @@ import java.security.Principal;
 @Api(tags = "产前样")
 @RequestMapping(value = BaseController.SAAS_URL + "/preProductionSample", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class PreProductionSampleController {
+@RequiredArgsConstructor
+public class PreProductionSampleController extends BaseController{
 
     @Autowired
     private PreProductionSampleTaskService preProductionSampleTaskService;
@@ -60,6 +67,7 @@ public class PreProductionSampleController {
     private NodeStatusService nodeStatusService;
     @Autowired
     private UserUtils userUtils;
+    private final SmpService smpService;
 
     @ApiOperation(value = "任务-列表")
     @GetMapping("/task")
@@ -103,6 +111,21 @@ public class PreProductionSampleController {
     @PostMapping("/task/assignment")
     public boolean taskAssignment(@Valid @RequestBody PreTaskAssignmentDto dto) {
         return preProductionSampleTaskService.taskAssignment(dto);
+    }
+
+    @ApiOperation(value = "设置样衣条码", notes = "")
+    @PostMapping("/setSampleBarCode")
+    public ApiResult setSampleBarCode(@Validated @RequestBody PreTaskAssignmentSampleBarCodeDto dto) {
+        PreProductionSampleTask update = new PreProductionSampleTask();
+        update.setSampleBarCode(dto.getSampleBarCode());
+        UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PreProductionSampleTask::getId, dto.getId());
+        preProductionSampleTaskService.update(update, uw);
+
+        //下发产前样
+        smpService.antenatalSample( new String[]{dto.getId()});
+        return  updateSuccess("绑定成功");
+
     }
 
 
