@@ -55,8 +55,8 @@ public class BiJob {
     /**
      * 款式设计
      */
-    //@Scheduled(cron = "0 0 1 * * ?")
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 0 1 * * ?")
+    //@Scheduled(cron = "0 * * * * ?")
     public void sample(){
         biSampleService.sample();
 
