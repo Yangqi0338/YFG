@@ -37,7 +37,6 @@ public class BiSizeChartServiceImpl extends ServiceImpl<BiSizeChartMapper,BiSize
 
     public void sizeChart() {
         List<BiSizeChart> biSizeCharts = new ArrayList<>();
-        // TODO: 2023/7/24 字段未确认
         List<Style> list = styleService.list();
         for (Style style : list) {
             List<PackInfo> packInfos = packInfoService.list(new QueryWrapper<PackInfo>().eq("foreign_id", style.getId()));
