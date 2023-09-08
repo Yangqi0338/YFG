@@ -73,7 +73,7 @@ public class BiStyle {
     /**
      * 查版日期
      */
-    private String c8SampleChaBanData;
+    private Date c8SampleChaBanData;
 
     /**
      * 产品

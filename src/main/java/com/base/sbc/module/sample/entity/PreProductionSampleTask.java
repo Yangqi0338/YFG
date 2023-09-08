@@ -128,9 +128,15 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
     private String sampleCompleteFlag;
 
 
-    //todo 工艺部接收正确样时间
+    //todo 工艺部接收正确样时间 ,数据库无字段
     @TableField(exist = false)
     private Date techReceiveDate;
+
+
+    //todo 查版日期 ,数据库无字段
+    @TableField(exist = false)
+    private Date sampleChaBanData;
+
     /**
      * 工艺单完成日期
      */

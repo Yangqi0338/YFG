@@ -102,6 +102,8 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
                     NodeStatusVo nodeStatusVo12 = nodeStatus.get("样衣任务-车缝未开始");
                     NodeStatusVo nodeStatusVo13 = nodeStatus.get("样衣任务-车缝进行中");
                     NodeStatusVo nodeStatusVo14 = nodeStatus.get("款式设计-设计下发");
+                    // 纸样完成时间   打板纸样完成时间
+                    biStyle.setC8ProductSamplePatternFinData(nodeStatusVo3==null?null:nodeStatusVo3.getEndDate());
                     biStyle.setC8ProductSampleCutterStartDate(nodeStatusVo10 == null ? null : nodeStatusVo10.getStartDate());
                     biStyle.setC8ProductSampleCutterFinDate(nodeStatusVo9 == null ? null : nodeStatusVo9.getEndDate());
                     // 样衣需求完成日期*
@@ -207,6 +209,8 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
                     biStyle.setSampleReceivedDate(preProductionSampleTask.getTechReceiveDate());
                     // 收到正确样日期  产前样看板
                     biStyle.setC8SampleRecivedCorrectData(preProductionSampleTask.getTechReceiveDate());
+                    //查版日期 (工艺师查版,缺少字段)
+                    biStyle.setC8SampleChaBanData(preProductionSampleTask.getSampleChaBanData());
 
                 }
                  /*
@@ -232,14 +236,12 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
 
                 // 纸样完成件数   打板纸样完成件数
                 biStyle.setC8ProductSamplePatternFinQty(patternMaking.getPatternFinishNum());
-                // 纸样完成时间   打板纸样完成时间
-                biStyle.setC8ProductSamplePatternFinData(patternMaking.getPatternFinishDate());
+
                 // 延迟打板原因   打板的时候
                 biStyle.setC8ProductSampleDelayedReason("1".equals(patternMaking.getBreakOffPattern()) ? "中断"+ patternMaking.getRevisionReason(): "正常");
                 //参考分类 (待定)
                 biStyle.setC8ProductSampleReferenceCategory(null);
-                //查版日期 (工艺师查版,缺少字段)
-                biStyle.setC8SampleChaBanData(null);
+
                 //计提收入
                 biStyle.setC8SamplePriceIncomet(null);
 
