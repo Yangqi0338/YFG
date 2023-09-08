@@ -7,6 +7,8 @@
 package com.base.sbc.module.patternmaking.entity;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -152,6 +154,13 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 纸样完成数量 */
     @ApiModelProperty(value = "纸样完成数量"  )
     private BigDecimal patternFinishNum;
+    /** 纸样完成数量 */
+    @ApiModelProperty(value = "纸样完成数量"  )
+    /**
+     * 纸样完成时间,数据库没有字段,需添加
+     */
+    @TableField(exist = false)
+    private Date patternFinishDate;
     /** 裁剪工 */
     @ApiModelProperty(value = "裁剪工"  )
     private String cutterName;

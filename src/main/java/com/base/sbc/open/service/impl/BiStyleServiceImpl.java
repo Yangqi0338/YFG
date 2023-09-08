@@ -35,6 +35,7 @@ import com.base.sbc.open.service.BiStyleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
                 if (preProductionSampleTask != null) {
                     PackInfo packInfo = packInfoService.getById(preProductionSampleTask.getPackInfoId());
                     StyleColor styleColor = styleColorService.getById(packInfo.getStyleColorId());
-                    if (styleColor!=null){
+                    if (styleColor != null) {
                         //配色
                         biStyle.setProductColor(styleColor.getColorName());
                     }
@@ -85,7 +86,7 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
 
 
                 Map<String, NodeStatusVo> nodeStatus = sampleBoardVo.getNodeStatus();
-                if (nodeStatus!=null){
+                if (nodeStatus != null) {
                     NodeStatusVo nodeStatusVo = nodeStatus.get("打版任务-已接收");
                     NodeStatusVo nodeStatusVo1 = nodeStatus.get("打版任务-待接收");
                     NodeStatusVo nodeStatusVo2 = nodeStatus.get("打版任务-打版中");
@@ -101,8 +102,12 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
                     NodeStatusVo nodeStatusVo12 = nodeStatus.get("样衣任务-车缝未开始");
                     NodeStatusVo nodeStatusVo13 = nodeStatus.get("样衣任务-车缝进行中");
                     NodeStatusVo nodeStatusVo14 = nodeStatus.get("款式设计-设计下发");
-                    biStyle.setC8ProductSampleCutterStartDate(nodeStatusVo9 == null ? null : nodeStatusVo9.getStartDate());
-                    biStyle.setC8ProductSampleCutterFinDate(nodeStatusVo10 == null ? null : nodeStatusVo10.getEndDate());
+                    biStyle.setC8ProductSampleCutterStartDate(nodeStatusVo10 == null ? null : nodeStatusVo10.getStartDate());
+                    biStyle.setC8ProductSampleCutterFinDate(nodeStatusVo9 == null ? null : nodeStatusVo9.getEndDate());
+                    // 样衣需求完成日期*
+                    biStyle.setC8SampleRequestDate(nodeStatusVo11 == null ? null : nodeStatusVo11.getEndDate());
+                    // 样衣实际完成日期   样衣完成日期
+                    biStyle.setC8SampleSampleFinDate(nodeStatusVo11 == null ? null : nodeStatusVo11.getEndDate());
                     biStyle.setC8ProductSampleActStartData(nodeStatusVo13 == null ? null : nodeStatusVo13.getStartDate());
                     biStyle.setC8ProductSampleSweiningFinData(nodeStatusVo11 == null ? null : nodeStatusVo11.getEndDate());
                     // 面辅料齐套
@@ -204,37 +209,36 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
                  未知字段
                   */
                 // 完成件数 样衣完成数量
-                biStyle.setC8ProductSampleSampleFinQty(null);
+                biStyle.setC8ProductSampleSampleFinQty(patternMaking.getRequirementNum().add(new BigDecimal(1)));
                 // 下发给版师时间 下发版师时间（指令）
-                biStyle.setC8ProductSampleHO2SDTime(null);
+                String sampleTypeName = patternMaking.getSampleTypeName();
+                biStyle.setC8ProductSampleHO2SDTime("初版样".equals(sampleTypeName) ? patternMaking.getPrmSendDate() : patternMaking.getDesignSendDate());
                 // 下发给版师状态 已发,等待下发，空白
-                biStyle.setC8ProductSampleHO2SDState(null);
+                biStyle.setC8ProductSampleHO2SDState("0".equals(patternMaking.getSampleCompleteFlag()) ? "等待下发" : "已发");
                 // 下发给样衣组长时间 下发样衣组长时间（指令）
-                biStyle.setC8ProductSampleHO2STime(null);
+                biStyle.setC8ProductSampleHO2STime(patternMaking.getDemandFinishDate());
                 // 下发给样衣组长状态  状态:已发,等待下发，空白
-                biStyle.setC8ProductSampleHO2SState(null);
+                biStyle.setC8ProductSampleHO2SState("0".equals(patternMaking.getSampleBarCode()) ? "等待下发" : "已发");
                 // 需求数量 样衣指令
-                biStyle.setRequestedQty(null);
-                // 样衣需求完成日期*
-                biStyle.setC8SampleRequestDate(null);
+                biStyle.setRequestedQty(patternMaking.getRequirementNum().add(new BigDecimal(1)));
 
-                // 样衣师   产前样看板
-                biStyle.setC8ProductSampleSeiwer(null);
-                // 样衣实际完成日期   样衣完成日期
-                biStyle.setC8SampleSampleFinDate(null);
+
+                // 样衣师   产前样看板   车缝工
+                biStyle.setC8ProductSampleSeiwer(patternMaking.getStitcher());
+
                 // 纸样完成件数   打板纸样完成件数
-                biStyle.setC8ProductSamplePatternFinQty(null);
+                biStyle.setC8ProductSamplePatternFinQty(patternMaking.getPatternFinishNum());
                 // 纸样完成时间   打板纸样完成时间
-                biStyle.setC8ProductSamplePatternFinData(null);
+                biStyle.setC8ProductSamplePatternFinData(patternMaking.getPatternFinishDate());
                 // 延迟打板原因   打板的时候
-                biStyle.setC8ProductSampleDelayedReason(null);
+                biStyle.setC8ProductSampleDelayedReason("1".equals(patternMaking.getBreakOffPattern()) ? "中断"+ patternMaking.getRevisionReason(): "正常");
                 //参考分类 (待定)
                 biStyle.setC8ProductSampleReferenceCategory(null);
                 //查版日期 (工艺师查版,缺少字段)
                 biStyle.setC8SampleChaBanData(null);
                 //计提收入
                 biStyle.setC8SamplePriceIncomet(null);
-                //技术收到日期  (缺少字段)
+                //技术收到日期  (缺少字段) 工艺部接收正确样时间
                 biStyle.setSampleReceivedDate(null);
                 //面辅料信息(含格式)
                 biStyle.setC8SampleMaterialInfo2(null);

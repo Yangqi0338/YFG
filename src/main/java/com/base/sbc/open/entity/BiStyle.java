@@ -238,12 +238,12 @@ public class BiStyle {
     /**
      * 完成件数
      */
-    private String c8ProductSampleSampleFinQty;
+    private BigDecimal c8ProductSampleSampleFinQty;
 
     /**
      * 下发给版师时间*
      */
-    private String c8ProductSampleHO2SDTime;
+    private Date c8ProductSampleHO2SDTime;
 
     /**
      * 下发给版师状态*
@@ -253,7 +253,7 @@ public class BiStyle {
     /**
      * 下发给样衣组长时间*
      */
-    private String c8ProductSampleHO2STime;
+    private Date c8ProductSampleHO2STime;
 
     /**
      * 下发给样衣组长状态*
@@ -263,12 +263,12 @@ public class BiStyle {
     /**
      * 需求数量*
      */
-    private String requestedQty;
+    private BigDecimal requestedQty;
 
     /**
      * 样衣需求完成日期*
      */
-    private String c8SampleRequestDate;
+    private Date c8SampleRequestDate;
 
     /**
      * 样板号
@@ -318,7 +318,7 @@ public class BiStyle {
     /**
      * 样衣实际完成日期
      */
-    private String c8SampleSampleFinDate;
+    private Date c8SampleSampleFinDate;
 
     /**
      * 样衣完成
@@ -338,12 +338,12 @@ public class BiStyle {
     /**
      * 纸样完成件数
      */
-    private String c8ProductSamplePatternFinQty;
+    private BigDecimal c8ProductSamplePatternFinQty;
 
     /**
      * 纸样完成时间
      */
-    private String c8ProductSamplePatternFinData;
+    private Date c8ProductSamplePatternFinData;
 
     /**
      * 状态
