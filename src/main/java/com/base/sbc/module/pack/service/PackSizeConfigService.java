@@ -11,6 +11,7 @@ import com.base.sbc.module.pack.dto.PackSizeConfigSearchDto;
 import com.base.sbc.module.pack.entity.PackSizeConfig;
 import com.base.sbc.module.pack.vo.PackSizeConfigVo;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleMasterData;
 import com.github.pagehelper.PageInfo;
 
 /**
@@ -30,7 +31,7 @@ public interface PackSizeConfigService extends PackBaseService<PackSizeConfig> {
 
     PackSizeConfigVo saveConfig(PackSizeConfigDto dto);
 
-    PackSizeConfig createByStyle(String foreignId, String packType, Style style);
+    PackSizeConfig createByStyle(String foreignId, String packType, StyleMasterData styleMasterData);
 
     PageInfo<PackSizeConfigVo> pageInfo(PackSizeConfigSearchDto dto);
 

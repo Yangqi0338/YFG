@@ -38,6 +38,8 @@ public class StyleColorVo {
     private String packInfoId;
 
     private String styleId;
+
+    private String styleMasterDataId;
     /** 产品季节id */
     @ApiModelProperty(value = "产品季节id"  )
     private String planningSeasonId;

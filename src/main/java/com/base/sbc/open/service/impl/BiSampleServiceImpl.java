@@ -4,6 +4,7 @@ import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.entity.PackBom;
@@ -160,7 +161,7 @@ public class BiSampleServiceImpl extends ServiceImpl<BiSampleMapper, BiSample> i
 
                     //动态字段
 
-                    List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsBySdId(style.getId());
+                    List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsBySdId(style.getId(), BaseGlobal.NO);
                     if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
                         fieldManagementVoList.forEach(m -> {
                             if ("衣长分类".equals(m.getFieldName())) {
