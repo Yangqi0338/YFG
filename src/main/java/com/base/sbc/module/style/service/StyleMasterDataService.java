@@ -40,11 +40,20 @@ public interface StyleMasterDataService extends BaseService<StyleMasterData> {
 
     /**
      * 保存修改款式主数据
+     *
      * @param dto
      * @return
      */
     StyleMasterDataVo saveStyle(StyleMasterDataSaveDto dto);
 
+
+    /**
+     * 通过款式id 获取
+     *
+     * @param styleId
+     * @return
+     */
+    StyleMasterDataVo getByStyleId(String styleId);
 // 自定义方法区 不替换的区域【other_end】
 
 

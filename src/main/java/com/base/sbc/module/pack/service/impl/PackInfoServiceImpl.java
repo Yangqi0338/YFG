@@ -58,6 +58,7 @@ import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.service.StyleInfoColorService;
 import com.base.sbc.module.style.service.StyleMasterDataService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleMasterDataVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -98,6 +99,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
 
     @Resource
     private StyleService styleService;
+
     @Resource
     private AttachmentService attachmentService;
     @Resource
@@ -674,10 +676,19 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (detail == null) {
             throw new OtherException("获取资料包数据失败");
         }
+        vo.setApparelLabels(detail.getApparelLabels());
+        vo.setSpecNotice(detail.getSpecNotice());
+        vo.setSpecialSpecComments(detail.getSpecialSpecComments());
         //获取款式信息
         Style style = styleService.getById(detail.getForeignId());
         if (style == null) {
             throw new OtherException("获取款式信息失败");
+        }
+        //款式主数据信息
+        StyleMasterDataVo styleMasterDataVo = styleMasterDataService.getByStyleId(style.getId());
+        if (styleMasterDataVo != null) {
+            vo.setBandName(styleMasterDataVo.getBandName());
+
         }
 
         String stylePicId = style.getStylePic();
@@ -703,7 +714,6 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             vo.setIsMainly(styleColor.getIsMainly());
         }
 
-        vo.setBandName(style.getBandName());
         vo.setBrandName(style.getBrandName());
         vo.setStyleNo(detail.getStyleNo());
         vo.setDesigner(CollUtil.getFirst(StrUtil.split(style.getDesigner(), CharUtil.COMMA)));
@@ -711,7 +721,17 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //获取物料信息
         List<PackBomVo> enableVersionBomList = packBomVersionService.getEnableVersionBomList(dto.getForeignId(), dto.getPackType());
         vo.setBomList(enableVersionBomList.stream().filter(item -> StrUtil.equals(item.getUnusableFlag(), BaseGlobal.NO)).collect(Collectors.toList()));
+        vo.setCreateName(user.getName());
         return vo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean updatePackInfoStatusField(PackInfoStatusVo dto) {
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), dto.getPackType());
+        BeanUtil.copyProperties(dto, packInfoStatus);
+        packInfoStatusService.updateById(packInfoStatus);
+        return true;
     }
 
     @Override

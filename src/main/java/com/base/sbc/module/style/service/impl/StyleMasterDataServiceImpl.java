@@ -13,7 +13,6 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
@@ -35,7 +34,6 @@ import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.sample.vo.MaterialVo;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.style.dto.StyleMasterDataSaveDto;
-import com.base.sbc.module.style.dto.StyleSaveDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleInfoColor;
 import com.base.sbc.module.style.entity.StyleMasterData;
@@ -203,6 +201,15 @@ public class StyleMasterDataServiceImpl extends BaseServiceImpl<StyleMasterDataM
         //保存关联的素材库
 //        planningCategoryItemMaterialService.saveMaterialList(dto);
         return getDetail(styleMasterData.getId());
+    }
+
+    @Override
+    public StyleMasterDataVo getByStyleId(String styleId) {
+        QueryWrapper<StyleMasterData> qw = new QueryWrapper<>();
+        qw.eq("style_id", styleId);
+        qw.last("limit 1");
+        StyleMasterData one = getOne(qw);
+        return BeanUtil.copyProperties(one, StyleMasterDataVo.class);
     }
 
     public void saveFiles(String id, List<SampleAttachmentDto> files, String type) {

@@ -21,6 +21,13 @@ import java.util.Date;
 public class PackInfoStatusVo {
 
 
+    @ApiModelProperty(value = "主数据id(款式设计id)")
+    private String foreignId;
+
+
+    @ApiModelProperty(value = "资料包类型")
+    private String packType;
+
     /**
      * 状态:1启用,0未启用
      */
@@ -124,4 +131,21 @@ public class PackInfoStatusVo {
 
     @ApiModelProperty(value = "工艺说明文件id")
     private String techSpecFileId;
+
+
+    /**
+     * 唛类信息
+     */
+    @ApiModelProperty(value = "唛类信息")
+    private String apparelLabels;
+    /**
+     * 特别注意
+     */
+    @ApiModelProperty(value = "特别注意")
+    private String specNotice;
+    /**
+     * 特殊工艺备注
+     */
+    @ApiModelProperty(value = "特殊工艺备注")
+    private String specialSpecComments;
 }

@@ -17,10 +17,7 @@ import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
-import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
-import com.base.sbc.module.pack.vo.PackInfoListVo;
-import com.base.sbc.module.pack.vo.PricingSelectListVO;
-import com.base.sbc.module.pack.vo.StylePackInfoListVo;
+import com.base.sbc.module.pack.vo.*;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -186,16 +183,22 @@ public class PackInfoController {
     @ApiOperation(value = "资料包数据复制")
     @GetMapping("/copyItems")
     public boolean copyItems(PackCopyDto dto) {
-        return packInfoService.copyItems(dto);
-    }
+		return packInfoService.copyItems(dto);
+	}
 
 
-    @GetMapping("/getBomPrint")
-    @ApiOperation(value = "获取打印信息")
-    public BomPrintVo getBomPrint(Principal principal, PackCommonSearchDto dto) {
-        GroupUser user = userUtils.getUserBy(principal);
-        return packInfoService.getBomPrint(user, dto);
-    }
+	@GetMapping("/getBomPrint")
+	@ApiOperation(value = "获取打印信息")
+	public BomPrintVo getBomPrint(Principal principal, PackCommonSearchDto dto) {
+		GroupUser user = userUtils.getUserBy(principal);
+		return packInfoService.getBomPrint(user, dto);
+	}
+
+	@PostMapping("/updatePackInfoStatusField")
+	@ApiOperation(value = "修改资料包状态表信息")
+	public boolean updatePackInfoStatusField(@RequestBody PackInfoStatusVo dto) {
+		return packInfoService.updatePackInfoStatusField(dto);
+	}
 }
 
 
