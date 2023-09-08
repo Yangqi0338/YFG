@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.restTemplate.RestTemplateService;
 import com.base.sbc.config.utils.StringUtils;
@@ -39,7 +40,9 @@ import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.entity.StyleMasterData;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleMasterDataService;
 import com.base.sbc.module.style.service.StyleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -123,6 +126,7 @@ public class SmpService {
 
     private static final String OA_URL = "http://10.8.240.161:40002/mps-interfaces/sample";
 
+    private final StyleMasterDataService styleMasterDataService;
 
     /**
      * 商品主数据下发
@@ -139,7 +143,7 @@ public class SmpService {
             if (styleColor.getTagPrice()==null || styleColor.getTagPrice().compareTo(BigDecimal.ZERO)==0){
                 throw new OtherException("吊牌价不能为空或者等于0");
             }
-            Style style = styleService.getById(styleColor.getStyleId());
+            StyleMasterData style = styleMasterDataService.getById(styleColor.getStyleMasterDataId());
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(style.getProdCategory1st());
             smpGoodsDto.setCategoryName(style.getProdCategoryName());
@@ -163,7 +167,7 @@ public class SmpService {
             //}
 
             // 款式图片
-            List<AttachmentVo> stylePicList = attachmentService.findByforeignId(style.getId(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
+            List<AttachmentVo> stylePicList = attachmentService.findByforeignId(style.getId(), AttachmentTypeConstant.STYLE_MASTER_DATA_PIC);
             List<String> imgList = new ArrayList<>();
             for (AttachmentVo attachmentVo : stylePicList) {
                 imgList.add(attachmentVo.getUrl());
@@ -208,7 +212,7 @@ public class SmpService {
 
             //动态字段
 
-            List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsBySdId(style.getId());
+            List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsBySdId(style.getId(), BaseGlobal.YES);
             if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
                 fieldManagementVoList.forEach(m -> {
                     if ("衣长分类".equals(m.getFieldName())) {

@@ -18,7 +18,12 @@ public interface FieldValDataGroupConstant {
     String PLANNING_CATEGORY_ITEM_DIMENSION = "PLANNING_CATEGORY_ITEM_DIMENSION";
 
     /**
-     * 款式设计-工艺信息
+     * 款式设计维度数据
      */
     String SAMPLE_DESIGN_TECHNOLOGY = "SAMPLE_DESIGN_TECHNOLOGY";
+
+    /**
+     * 款式主数据维度数据
+     */
+    String STYLE_MASTER_DATA_DIMENSION = "STYLE_MASTER_DATA_DIMENSION";
 }

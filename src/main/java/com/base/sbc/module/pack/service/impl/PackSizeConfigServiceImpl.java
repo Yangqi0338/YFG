@@ -19,6 +19,8 @@ import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackSizeConfigService;
 import com.base.sbc.module.pack.vo.PackSizeConfigVo;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleMasterData;
+import com.base.sbc.module.style.service.StyleMasterDataService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -45,7 +47,7 @@ public class PackSizeConfigServiceImpl extends PackBaseServiceImpl<PackSizeConfi
 
 
     @Autowired
-    private StyleService styleService;
+    private StyleMasterDataService styleMasterDataService;
 
 
     @Override
@@ -59,21 +61,21 @@ public class PackSizeConfigServiceImpl extends PackBaseServiceImpl<PackSizeConfi
         PackSizeConfig packSizeConfig = get(foreignId, packType);
         if (packSizeConfig == null) {
             PackInfo packInfo = packInfoService.getById(foreignId);
-            Style style = styleService.getById(packInfo.getForeignId());
-            packSizeConfig = createByStyle(foreignId, packType, style);
+            StyleMasterData styleMasterData = styleMasterDataService.getById(packInfo.getForeignId());
+            packSizeConfig = createByStyle(foreignId, packType, styleMasterData);
         }
 
         return BeanUtil.copyProperties(packSizeConfig, PackSizeConfigVo.class);
     }
 
     @Override
-    public PackSizeConfig createByStyle(String foreignId, String packType, Style style) {
-        PackSizeConfig packSizeConfig = BeanUtil.copyProperties(style, PackSizeConfig.class);
+    public PackSizeConfig createByStyle(String foreignId, String packType, StyleMasterData styleMasterData) {
+        PackSizeConfig packSizeConfig = BeanUtil.copyProperties(styleMasterData, PackSizeConfig.class);
         CommonUtils.resetCreateUpdate(packSizeConfig);
         packSizeConfig.setId(null);
         packSizeConfig.setForeignId(foreignId);
         packSizeConfig.setPackType(packType);
-        packSizeConfig.setActiveSizes(style.getProductSizes());
+        packSizeConfig.setActiveSizes(styleMasterData.getProductSizes());
         save(packSizeConfig);
         return packSizeConfig;
     }

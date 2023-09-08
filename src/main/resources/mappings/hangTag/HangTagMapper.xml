@@ -55,7 +55,7 @@
         ht.STATUS
         FROM
         t_style_color tssc
-        JOIN t_style tsd ON tssc.style_id = tsd.id
+        JOIN t_style_master_data tsd ON tssc.style_master_data_id = tsd.id
         LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
         LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no
         LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
@@ -132,7 +132,7 @@
         ht.storage_demand AS StorageRequirement
         FROM
         t_style_color tssc
-        JOIN t_style tsd ON tssc.style_id = tsd.id
+        JOIN t_style_master_data tsd ON tssc.style_master_data_id = tsd.id
         LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
         LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
         where tssc.del_flag = 0
@@ -161,7 +161,7 @@
         IFNULL(ht.template_part,tsd.pattern_parts) as templatePart
         FROM
         t_style_color tssc
-        JOIN t_style tsd ON tssc.style_id = tsd.id
+        JOIN t_style_master_data tsd ON tssc.style_master_data_id = tsd.id
         LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
         Left Join t_upload_file tuf on tsd.style_pic = tuf.id
         <where>

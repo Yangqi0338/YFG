@@ -119,9 +119,10 @@ public interface StyleService extends BaseService<Style> {
      * 查询维度标签
      *
      * @param id 款式设计id
+     *  @param masterDataFlag 查询主数据1 款式0
      * @return
      */
-    List<FieldManagementVo> queryDimensionLabelsBySdId(String id);
+    List<FieldManagementVo> queryDimensionLabelsBySdId(String id,String masterDataFlag);
 
     List<SampleUserVo> getDesignerList(String companyCode);
 

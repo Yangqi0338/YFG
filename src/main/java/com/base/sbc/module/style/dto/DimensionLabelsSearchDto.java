@@ -30,6 +30,7 @@ public class DimensionLabelsSearchDto {
     @ApiModelProperty(value = "品类id(2级)", example = "0")
     @NotBlank(message = "品类不能为空")
     private String categoryId;
-
+    @ApiModelProperty(value = "是否查询主数据", example = "0")
+    private String  masterDataFlag;
 
 }

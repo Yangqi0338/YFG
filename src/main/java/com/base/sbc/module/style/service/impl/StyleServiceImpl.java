@@ -78,6 +78,7 @@ import com.base.sbc.module.style.entity.StyleInfoColor;
 import com.base.sbc.module.style.entity.StyleInfoSku;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
+import com.base.sbc.module.style.mapper.StyleMasterDataMapper;
 import com.base.sbc.module.style.service.StyleInfoColorService;
 import com.base.sbc.module.style.service.StyleInfoSkuService;
 import com.base.sbc.module.style.service.StyleService;
@@ -178,6 +179,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     @Autowired
     private FieldOptionConfigService fieldOptionConfigService;
+
+    @Autowired
+    private StyleMasterDataMapper styleMasterDataMapper;
+
     private IdGen idGen = new IdGen();
 
     @Override
@@ -312,9 +317,15 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (StrUtil.isBlank(dto.getDesignNo()) && !initId) {
             throw new OtherException("设计款号不能为空");
         }
+        /*判断款号是否有改动*/
         if (StrUtil.equals(dto.getOldDesignNo(), dto.getDesignNo())) {
             String newDesignNo = PlanningUtils.getNewDesignNo(dto.getDesignNo(), db.getDesigner(), dto.getDesigner());
             dto.setDesignNo(newDesignNo);
+            /*修改款式主数据款号*/
+            UpdateWrapper updateWrapper =new UpdateWrapper();
+            updateWrapper.set("design_no",newDesignNo);
+            updateWrapper.eq("style_id",dto.getId());
+            styleMasterDataMapper.update(null,updateWrapper);
         } else {
             String prefix = PlanningUtils.getDesignNoPrefix(db.getDesignNo(), db.getDesigner());
             if (StrUtil.startWith(dto.getDesignNo(), prefix)) {
@@ -628,7 +639,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         pdqw.setPlanningSeasonId(dto.getPlanningSeasonId());
         // 查询样衣的
         List<PlanningDimensionality> pdList = (List<PlanningDimensionality>) planningDimensionalityService.getDimensionalityList(pdqw).getData();
-        List<FieldVal> fvList = fieldValService.list(dto.getStyleId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+        List<FieldVal> fvList = fieldValService.list(dto.getStyleId(), StrUtil.equals(dto.getMasterDataFlag(),BaseGlobal.YES)?FieldValDataGroupConstant.STYLE_MASTER_DATA_DIMENSION:FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
             List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
@@ -674,7 +685,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         return result;
     }
     @Override
-    public List<FieldManagementVo> queryDimensionLabelsBySdId(String id) {
+    public List<FieldManagementVo> queryDimensionLabelsBySdId(String id,String masterDataFlag) {
         Style style = getById(id);
         if (style == null) {
             return null;
@@ -684,6 +695,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         dto.setPlanningSeasonId(style.getPlanningSeasonId());
         dto.setCategoryId(style.getProdCategory());
         dto.setPlanningCategoryItemId(style.getPlanningCategoryItemId());
+        dto.setMasterDataFlag(masterDataFlag);
         return queryDimensionLabels(dto);
     }
 
