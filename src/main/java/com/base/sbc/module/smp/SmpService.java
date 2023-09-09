@@ -298,7 +298,7 @@ public class SmpService {
             PackInfoListVo packInfo=packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", PackUtils.PACK_TYPE_DESIGN));
             String downContent = "";
             if (packInfo!=null) {
-                PackPricing packPricing = packPricingService.get(packInfo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
+                PackPricing packPricing = packPricingService.get(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
                 // 核价
                 if (packPricing == null) {
                     JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
