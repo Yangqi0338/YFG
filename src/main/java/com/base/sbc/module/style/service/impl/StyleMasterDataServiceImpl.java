@@ -47,6 +47,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,11 +104,17 @@ public class StyleMasterDataServiceImpl extends BaseServiceImpl<StyleMasterDataM
         styleMasterData.setStyleId(style.getId());
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("style_id", style.getId());
-
-        List<StyleMasterData> list = baseMapper.selectList(queryWrapper);
-        if (CollectionUtils.isEmpty(list)) {
+        StyleMasterData styleMasterData1 = baseMapper.selectOne(queryWrapper);
+        /*没有数据时新增*/
+        if (ObjectUtils.isEmpty(styleMasterData1)) {
             styleMasterData.setId(null);
             baseMapper.insert(styleMasterData);
+        }else {
+            /*状态为未开款的修改*/
+            if(StringUtils.equals( styleMasterData1.getStatus(),BaseGlobal.NO)){
+                BeanUtils.copyProperties(styleMasterData, styleMasterData1);
+                baseMapper.updateById(styleMasterData1);
+            }
         }
         /*        *//*当数据存在时新增不存在时修改*//*
         QueryWrapper queryWrapper =new BaseQueryWrapper<>();
@@ -200,6 +207,8 @@ public class StyleMasterDataServiceImpl extends BaseServiceImpl<StyleMasterDataM
         saveFiles(styleMasterData.getId(), dto.getStylePicList(), AttachmentTypeConstant.STYLE_MASTER_DATA_PIC);
         //保存关联的素材库
 //        planningCategoryItemMaterialService.saveMaterialList(dto);
+        /*同步到下游系统*/
+        dataUpdateScmService.updateStyleSendById(styleMasterData.getId());
         return getDetail(styleMasterData.getId());
     }
 
