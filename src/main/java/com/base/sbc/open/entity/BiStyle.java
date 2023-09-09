@@ -243,22 +243,22 @@ public class BiStyle {
     /**
      * 下发给版师时间*
      */
-    private Date c8ProductSampleHO2SDTime;
+    private Date c8ProductSampleHo2sdTime;
 
     /**
      * 下发给版师状态*
      */
-    private String c8ProductSampleHO2SDState;
+    private String c8ProductSampleHo2sdState;
 
     /**
      * 下发给样衣组长时间*
      */
-    private Date c8ProductSampleHO2STime;
+    private Date c8ProductSampleHo2sTime;
 
     /**
      * 下发给样衣组长状态*
      */
-    private String c8ProductSampleHO2SState;
+    private String c8ProductSampleHo2sState;
 
     /**
      * 需求数量*
