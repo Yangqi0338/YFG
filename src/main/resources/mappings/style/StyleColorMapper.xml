@@ -87,7 +87,6 @@
             ts.season_name,
             tsc.*,
             ts.id styleId,
-            ts.style_id styleId,
             tpi.id packInfoId,
             tsp.control_confirm,
             tsp.product_hangtag_confirm,
