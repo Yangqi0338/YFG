@@ -477,17 +477,6 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             }
             BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(addRevampStyleColorDto.getColourLibraryId());
             styleColor = baseMapper.selectById(addRevampStyleColorDto.getId());
-            /*判断波段及细分是否改动 改动则需要同步大货款号*/
-            if(StringUtils.isNotBlank(addRevampStyleColorDto.getSubdivide())){
-                if(!addRevampStyleColorDto.getSubdivide().equals(styleColor.getSubdivide())){
-                    /**
-                     * 修改所有引用的大货款号
-                     */
-                    baseMapper.reviseAllStyleNo(styleColor.getStyleNo(),styleColor.getStyleNo()+addRevampStyleColorDto.getSubdivide());
-                    /*新大货款号=大货款号+细分*/
-                    styleColor.setStyleNo(styleColor.getStyleNo()+addRevampStyleColorDto.getSubdivide());
-                }
-            }
             if(!addRevampStyleColorDto.getBandCode().equals(styleColor.getBandCode())) {
                 /*新大货款号 ：换标波段生成的字符*/
                 /**
@@ -513,6 +502,15 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
                  * 修改所有引用的大货款号
                  */
                 baseMapper.reviseAllStyleNo(styleColor.getStyleNo(),addRevampStyleColorDto.getStyleNo());
+            }
+            /*判断波段及细分是否改动 改动则需要同步大货款号*/
+            if(StringUtils.isNotBlank(addRevampStyleColorDto.getSubdivide())) {
+                /**
+                 * 修改所有引用的大货款号
+                 */
+                baseMapper.reviseAllStyleNo(styleColor.getStyleNo(), styleColor.getStyleNo() + addRevampStyleColorDto.getSubdivide());
+                /*新大货款号=大货款号+细分*/
+                addRevampStyleColorDto.setStyleNo(styleColor.getStyleNo() + addRevampStyleColorDto.getSubdivide());
             }
             if (ObjectUtils.isEmpty(styleColor)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
