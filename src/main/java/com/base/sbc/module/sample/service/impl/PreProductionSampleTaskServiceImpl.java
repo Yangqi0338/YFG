@@ -8,6 +8,7 @@ package com.base.sbc.module.sample.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -197,7 +198,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         QueryWrapper<PreProductionSampleTask> countQc = new QueryWrapper<>();
         countQc.eq("style_id", style.getId());
         long count = getBaseMapper().countByQw(countQc);
-        task.setCode(packInfo.getStyleNo() + StrUtil.DASHED + (count + 1));
+        task.setCode(Opt.ofBlankAble(packInfo.getStyleNo()).orElse(packInfo.getDesignNo()) + StrUtil.DASHED + (count + 1));
         return save(task);
     }
 
