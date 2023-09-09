@@ -47,7 +47,6 @@ import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.style.service.StyleMasterDataService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.Page;
@@ -93,8 +92,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     private RedisUtils redisUtils;
     @Autowired
     private BaseController baseController;
-
-    private final StyleMasterDataService styleMasterDataService;
 
     @Override
     public List<PatternMakingListVo> findBySampleDesignId(String styleId) {
@@ -152,8 +149,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         patternMaking.setPatDiff(Opt.ofBlankAble(patternMaking.getPatDiff()).orElse(style.getPatDiff()));
         save(patternMaking);
 
-        /*复制出款式主数据*/
-        styleMasterDataService.createStyleMasterData(style.getId());
         return patternMaking;
     }
 

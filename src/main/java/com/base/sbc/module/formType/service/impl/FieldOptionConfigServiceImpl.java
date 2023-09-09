@@ -111,7 +111,7 @@ public class FieldOptionConfigServiceImpl extends BaseServiceImpl<FieldOptionCon
         queryWrapper.eq(StringUtils.isNotBlank(queryFieldOptionConfigDto.getProdCategory2nd()), "prod_category2nd", queryFieldOptionConfigDto.getProdCategory2nd());
         queryWrapper.eq(StringUtils.isNotBlank(queryFieldOptionConfigDto.getCategoryCode()), "category_code", queryFieldOptionConfigDto.getCategoryCode());
         queryWrapper.eq("season", queryFieldOptionConfigDto.getSeason());
-        queryWrapper.eq("brand", queryFieldOptionConfigDto.getBrand());
+        queryWrapper.like("brand", queryFieldOptionConfigDto.getBrand());
         List<FieldOptionConfig> optionConfigList = baseMapper.selectList(queryWrapper);
         /*查询字段配置中的数据*/
         Map<String, List<FieldOptionConfig>> listMap = optionConfigList.stream().collect(Collectors.groupingBy(FieldOptionConfig::getFieldManagementId));

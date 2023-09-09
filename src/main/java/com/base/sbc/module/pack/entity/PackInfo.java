@@ -59,11 +59,7 @@ public class PackInfo extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "坑位信息id")
     private String planningCategoryItemId;
-    /**
-     * 款式主数据id:款式主数据id(t_style_master_data)
-     */
-    @ApiModelProperty(value = "款式主数据id:款式主数据id(t_style_master_data)")
-    private String styleMasterDataId;
+
     /**
      * 款式设计id:款式设计id(t_style)
      */

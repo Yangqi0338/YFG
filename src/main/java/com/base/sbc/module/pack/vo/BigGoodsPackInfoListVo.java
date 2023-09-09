@@ -22,10 +22,7 @@ import java.util.Optional;
 @ApiModel("标准资料包-列表返回Vo BigGoodsPackInfoListVo")
 public class BigGoodsPackInfoListVo extends PackInfoStatusVo {
 
-    @ApiModelProperty(value = "id")
-    private String id;
-    @ApiModelProperty(value = "款式主数据id:款式主数据id(t_style_master_data)")
-    private String styleMasterDataId;
+
     /**
      * 款式设计id:款式设计id(t_style)
      */

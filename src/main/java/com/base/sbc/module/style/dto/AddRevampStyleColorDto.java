@@ -40,9 +40,6 @@ public class AddRevampStyleColorDto {
     /** 款式设计id（款式表） */
     @ApiModelProperty(value = "款式设计id（款式表）"  )
     private String styleId;
-
-    @ApiModelProperty(value = "款式主数据id"  )
-    private String styleMasterDataId;
     /** 款式配色图 */
     @ApiModelProperty(value = "款式配色图"  )
     private String styleColorPic;

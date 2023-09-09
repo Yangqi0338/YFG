@@ -27,7 +27,6 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.formType.entity.FieldOptionConfig;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
@@ -41,10 +40,8 @@ import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.entity.StyleMasterData;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
-import com.base.sbc.module.style.mapper.StyleMasterDataMapper;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.PageHelper;
@@ -99,11 +96,11 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     private final PackInfoService packInfoService;
 
     private final PackInfoMapper packInfoMapper;
+    private final StyleMapper styleMapper;
 
     private final PackInfoStatusService packInfoStatusService;
     private final CcmFeignService ccmFeignService;
 
-    private final StyleMasterDataMapper styleMasterDataMapper;
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -120,7 +117,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         queryDto.setOrderBy("ts.design_no asc,tsc.create_date desc");
         PageHelper.startPage(queryDto);
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleMasterDataId()), "tsc.style_master_data_id", queryDto.getStyleMasterDataId());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleId()), "tsc.style_id", queryDto.getStyleId());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getIsTrim()), "tsc.is_trim", queryDto.getIsTrim());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getColorSpecification()), "tsc.color_specification", queryDto.getColorSpecification());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getStyleNo()), "tsc.style_no", queryDto.getStyleNo());
@@ -221,7 +218,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     public  List<StyleColorVo> getStyleAccessoryBystyleNo(String designNo) {
         QueryWrapper qw = new QueryWrapper();
         qw.eq("design_no", designNo);
-        StyleMasterData style = styleMasterDataMapper.selectOne(qw);
+        Style style = styleMapper.selectOne(qw);
         if (ObjectUtils.isEmpty(style)) {
             throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
@@ -285,18 +282,18 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         /*颜色数据*/
         Map<String, BasicsdatumColourLibrary> map = libraryList.stream().collect(Collectors.toMap(BasicsdatumColourLibrary::getId, c -> c));
         /*查询款式主数据*/
-        List<String> styleMasterDataIds = list.stream().map(AddRevampStyleColorDto::getStyleMasterDataId).distinct().collect(Collectors.toList());
-        List<StyleMasterData> masterDataList = styleMasterDataMapper.selectBatchIds(styleMasterDataIds);
-        Map<String, StyleMasterData> map1 = masterDataList.stream().collect(Collectors.toMap(StyleMasterData::getId, s -> s));
+        List<String> styleMasterDataIds = list.stream().map(AddRevampStyleColorDto::getStyleId).distinct().collect(Collectors.toList());
+        List<Style> masterDataList = styleMapper.selectBatchIds(styleMasterDataIds);
+        Map<String, Style> map1 = masterDataList.stream().collect(Collectors.toMap(Style::getId, s -> s));
         /*款式主数据数据*/
         for (AddRevampStyleColorDto addRevampStyleColorDto : list) {
             BasicsdatumColourLibrary basicsdatumColourLibrary = map.get(addRevampStyleColorDto.getColourLibraryId());
-            StyleMasterData styleMasterData = map1.get(addRevampStyleColorDto.getStyleMasterDataId());
-            addRevampStyleColorDto.setStyleId(styleMasterData.getStyleId());
+            Style style = map1.get(addRevampStyleColorDto.getStyleId());
+            addRevampStyleColorDto.setStyleId(style.getId());
             addRevampStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
-            addRevampStyleColorDto.setStyleNo(getNextCode(styleMasterData.getBrand(), styleMasterData.getYearName(), styleMasterData.getBandName(), styleMasterData.getProdCategory(), styleMasterData.getDesignNo(), styleMasterData.getDesigner(), index++));
+            addRevampStyleColorDto.setStyleNo(getNextCode(style.getBrand(), style.getYearName(), style.getBandName(), style.getProdCategory(), style.getDesignNo(), style.getDesigner(), index++));
         }
         List<StyleColor> styleColorList = BeanUtil.copyToList(list, StyleColor.class);
         saveBatch(styleColorList);
@@ -482,11 +479,11 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
                 /**
                  * 先生成波段之前的字符串替换为空，在拼接
                  */
-                StyleMasterData styleMasterData = styleMasterDataMapper.selectById(styleColor.getStyleMasterDataId());
+                Style style = styleMapper.selectById(styleColor.getStyleId());
                 //获取年份
-                String year = getYearOn(styleMasterData.getYearName());
+                String year = getYearOn(style.getYearName());
                 /*品牌*/
-                String brand = styleMasterData.getBrand();
+                String brand = style.getBrand();
                 /*大货款的前及位*/
                 String newStyle = brand + year ;
                 /*后几位大货款号*/
@@ -632,9 +629,9 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
      * @param styleId
      */
     @Override
-    public List<String> getStyleColorId(String styleMasterDataId) {
+    public List<String> getStyleColorId(String styleId) {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("style_master_data_id", styleMasterDataId);
+        queryWrapper.eq("style_id", styleId);
         queryWrapper.eq("is_defective", BaseGlobal.NO);
         List<StyleColor> styleColorList = baseMapper.selectList(queryWrapper);
         if (CollectionUtils.isEmpty(styleColorList)) {

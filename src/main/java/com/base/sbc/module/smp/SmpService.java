@@ -41,9 +41,7 @@ import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.entity.StyleMasterData;
 import com.base.sbc.module.style.service.StyleColorService;
-import com.base.sbc.module.style.service.StyleMasterDataService;
 import com.base.sbc.module.style.service.StyleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -130,7 +128,6 @@ public class SmpService {
 
     private static final String OA_URL = "http://10.8.240.161:40002/mps-interfaces/sample";
 
-    private final StyleMasterDataService styleMasterDataService;
 
     /**
      * 商品主数据下发
@@ -147,7 +144,7 @@ public class SmpService {
             if (styleColor.getTagPrice()==null || styleColor.getTagPrice().compareTo(BigDecimal.ZERO)==0){
                 throw new OtherException("吊牌价不能为空或者等于0");
             }
-            StyleMasterData style = styleMasterDataService.getById(styleColor.getStyleMasterDataId());
+            Style style = styleService.getById(styleColor.getStyleId());
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(style.getProdCategory1st());
             smpGoodsDto.setCategoryName(style.getProdCategoryName());
@@ -216,7 +213,7 @@ public class SmpService {
 
             //动态字段
 
-            List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsBySdId(style.getId(), BaseGlobal.YES);
+            List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsBySdId(style.getId());
             if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
                 fieldManagementVoList.forEach(m -> {
                     if ("衣长分类".equals(m.getFieldName())) {
@@ -561,8 +558,8 @@ public class SmpService {
             if (StringUtils.isEmpty(packInfo.getStyleNo())) {
                 throw new OtherException(packBom.getMaterialName() + "未关联大货(配色)信息,无法下发");
             }
-            StyleMasterData styleMasterData = styleMasterDataService.getOne(new QueryWrapper<StyleMasterData>().eq("id", packInfo.getForeignId()));
-            StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), styleMasterData.getCompanyCode());
+            Style style = styleService.getOne(new QueryWrapper<Style>().eq("id", packInfo.getForeignId()));
+            StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
             smpBomDto.setBomStage("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
             //样衣-款式配色
             StyleColor styleColor = sampleStyleColorService.getById(packInfo.getStyleColorId());

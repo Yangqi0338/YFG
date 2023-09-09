@@ -110,7 +110,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         queryWrapper.in("field_management_id",stringList2);
         queryWrapper.eq("category_code",queryDemandDimensionalityDto.getCategoryId());
         queryWrapper.eq("season",season.getSeason());
-        queryWrapper.eq("brand",season.getBrand());
+        queryWrapper.like("brand",season.getBrand());
         List<FieldOptionConfig> optionConfigList =  fieldOptionConfigMapper.selectList(queryWrapper);
 
         /*使用字段id分组*/

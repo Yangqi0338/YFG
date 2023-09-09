@@ -127,8 +127,8 @@ public class StyleController extends BaseController{
 
     @ApiOperation(value = "查询款式设计维度数据(修改时使用)", notes = "")
     @GetMapping("/queryDimensionLabelsBySdId")
-    public List<FieldManagementVo> queryDimensionLabelsBySdId(String id,String masterDataFlag) {
-        return styleService.queryDimensionLabelsBySdId(id,masterDataFlag);
+    public List<FieldManagementVo> queryDimensionLabelsBySdId(String id) {
+        return styleService.queryDimensionLabelsBySdId(id);
     }
 
     @ApiOperation(value = "设计师列表", notes = "")

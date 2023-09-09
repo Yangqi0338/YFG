@@ -53,12 +53,9 @@ import com.base.sbc.module.pricing.vo.PricingVO;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.entity.StyleMasterData;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.service.StyleInfoColorService;
-import com.base.sbc.module.style.service.StyleMasterDataService;
 import com.base.sbc.module.style.service.StyleService;
-import com.base.sbc.module.style.vo.StyleMasterDataVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -175,14 +172,13 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Resource
     private StyleInfoColorService styleInfoColorService;
 
-    @Resource
-    private StyleMasterDataService styleMasterDataService;
+
 
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
 
         // 查询款式设计数据
-        BaseQueryWrapper<StyleMasterData> sdQw = new BaseQueryWrapper<>();
+        BaseQueryWrapper<Style> sdQw = new BaseQueryWrapper<>();
         sdQw.in("status", "1", "2");
         sdQw.notEmptyEq("prod_category1st", pageDto.getProdCategory1st());
         sdQw.notEmptyEq("prod_category", pageDto.getProdCategory());
@@ -192,8 +188,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
         sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
         sdQw.orderByDesc("create_date");
-        Page<StyleMasterData> page = PageHelper.startPage(pageDto);
-        styleMasterDataService.list(sdQw);
+        Page<Style> page = PageHelper.startPage(pageDto);
+        styleService.list(sdQw);
         PageInfo<StylePackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), StylePackInfoListVo.class);
         //查询bom列表
         List<StylePackInfoListVo> sdpList = pageInfo.getList();
@@ -219,7 +215,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Override
     public PageInfo<PackInfoListVo> pageInfo(PackInfoSearchPageDto pageDto) {
         BaseQueryWrapper<PackInfo> qw = new BaseQueryWrapper<>();
-        qw.notEmptyEq("foreign_id", pageDto.getStyleMasterDataId());
+        qw.notEmptyEq("foreign_id", pageDto.getStyleId());
         qw.notEmptyEq("pack_type", PackUtils.PACK_TYPE_DESIGN);
         qw.orderByDesc("id");
         Page<PackInfoListVo> objects = PageHelper.startPage(pageDto);
@@ -248,11 +244,11 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
 
     @Override
     public PackInfoListVo createByStyle(CreatePackInfoByStyleDto dto) {
-        StyleMasterData styleMasterData = styleMasterDataService.getById(dto.getId());
-        if (styleMasterData == null) {
+        Style style = styleService.getById(dto.getId());
+        if (style == null) {
             throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
         }
-        PackInfo packInfo = BeanUtil.copyProperties(styleMasterData, PackInfo.class, "id", "status");
+        PackInfo packInfo = BeanUtil.copyProperties(style, PackInfo.class, "id", "status");
         CommonUtils.resetCreateUpdate(packInfo);
         String newId = IdUtil.getSnowflake().nextIdStr();
         packInfo.setId(newId);
@@ -262,11 +258,11 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         QueryWrapper codeQw = new QueryWrapper();
         codeQw.eq("foreign_id", dto.getId());
         long count = getBaseMapper().countByQw(codeQw);
-        packInfo.setCode(styleMasterData.getDesignNo() + StrUtil.DASHED + (count + 1));
+        packInfo.setCode(style.getDesignNo() + StrUtil.DASHED + (count + 1));
         packInfo.setName(Opt.ofBlankAble(dto.getName()).orElse(packInfo.getCode()));
         packInfo.setPatternNo(dto.getPatternNo());
         packInfo.setPatternMakingId(dto.getPatternMakingId());
-        packInfo.setStyleMasterDataId(styleMasterData.getId());
+        packInfo.setStyleId(style.getId());
         save(packInfo);
         //新建bom版本
         PackBomVersionDto versionDto = BeanUtil.copyProperties(packInfo, PackBomVersionDto.class, "id");
@@ -277,11 +273,11 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         PackBomVersionVo packBomVersionVo = packBomVersionService.saveVersion(versionDto);
         packBomVersionService.enable(BeanUtil.copyProperties(packBomVersionVo, PackBomVersion.class));
         //新建尺码表配置
-        packSizeConfigService.createByStyle(newId, PackUtils.PACK_TYPE_DESIGN, styleMasterData);
+        packSizeConfigService.createByStyle(newId, PackUtils.PACK_TYPE_DESIGN, style);
         try {
             // 保存款式设计详情颜色
             PackInfoDto packInfoDto = new PackInfoDto();
-            packInfoDto.setId(styleMasterData.getStyleId());
+            packInfoDto.setId(style.getId());
             packInfoDto.setSourcePackType(PackUtils.PACK_TYPE_STYLE);
             packInfoDto.setTargetPackType(PackUtils.PACK_TYPE_DESIGN);
             packInfoDto.setTargetForeignId(packInfo.getId());
@@ -295,12 +291,12 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         }
 
         //如果勾选了关联款式BOM物料信息则复制保存款式设计中的bom信息
-        List<PackBom> bomList = packBomService.list(styleMasterData.getId(), PackUtils.PACK_TYPE_STYLE);
+        List<PackBom> bomList = packBomService.list(style.getId(), PackUtils.PACK_TYPE_STYLE);
         if (CollectionUtil.isNotEmpty(bomList)) {
             //保存bom尺码跟颜色
-            List<PackBomSize> bomSizeList = packBomSizeService.list(styleMasterData.getId(), PackUtils.PACK_TYPE_STYLE);
+            List<PackBomSize> bomSizeList = packBomSizeService.list(style.getId(), PackUtils.PACK_TYPE_STYLE);
             Map<String,List<PackBomSize>> bomSizeMap = bomSizeList.stream().collect(Collectors.groupingBy(PackBomSize::getBomId));
-            List<PackBomColor> bomColorList = packBomColorService.list(styleMasterData.getId(),PackUtils.PACK_TYPE_STYLE);
+            List<PackBomColor> bomColorList = packBomColorService.list(style.getId(),PackUtils.PACK_TYPE_STYLE);
             Map<String,List<PackBomColor>> bomColorMap = bomColorList.stream().collect(Collectors.groupingBy(PackBomColor::getBomId));
 
             for (PackBom bom:bomList) {
@@ -565,8 +561,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException("获取资料包数据失败");
         }
         //获取款式信息
-        StyleMasterDataVo style = styleMasterDataService.getByStyleId(detail.getStyleId());
-        ;
+        Style style = styleService.getById(detail.getForeignId());
 
         if (style == null) {
             throw new OtherException("获取款式信息失败");
@@ -683,17 +678,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         vo.setSpecNotice(detail.getSpecNotice());
         vo.setSpecialSpecComments(detail.getSpecialSpecComments());
         //获取款式信息
-        Style style = styleService.getById(detail.getStyleId());
+        Style style = styleService.getById(detail.getForeignId());
         if (style == null) {
             throw new OtherException("获取款式信息失败");
         }
-        //款式主数据信息
-        StyleMasterDataVo styleMasterDataVo = styleMasterDataService.getByStyleId(style.getId());
-        if (styleMasterDataVo != null) {
-            vo.setBandName(styleMasterDataVo.getBandName());
-
-        }
-
         String stylePicId = style.getStylePic();
         // 获取吊牌信息
         if (StrUtil.isNotBlank(detail.getStyleNo())) {
