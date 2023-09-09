@@ -148,4 +148,12 @@ public class PackInfoStatusVo {
      */
     @ApiModelProperty(value = "特殊工艺备注")
     private String specialSpecComments;
+
+    @ApiModelProperty(value = "设计转大货时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date toBigGoodsDate;
+
+    @ApiModelProperty(value = "大货反审回设计时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date toDesignDate;
 }

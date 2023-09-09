@@ -386,15 +386,18 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH.getKeyCode()) && YesOrNoEnum.YES.getValueStr().equals(packDesignStatus.getBomStatus())) {
             throw new OtherException("已转大货，不可重复转入");
         }
-
+        Date nowDate = new Date();
         copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
         //设置为已转大货
         packDesignStatus.setBomStatus(BasicNumber.ONE.getNumber());
+        packDesignStatus.setToBigGoodsDate(nowDate);
         packInfoStatusService.updateById(packDesignStatus);
+
         PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
         //设置为已转大货
         packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
         packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
+        packInfoStatus.setToBigGoodsDate(nowDate);
         packInfoStatusService.updateById(packInfoStatus);
         //updateById(packInfo);
         //设置bom 状态
@@ -835,12 +838,16 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             PackInfoStatus designPs = packInfoStatusService.get(dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN);
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+                Date nowDate = new Date();
                 copyPack(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS, dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN);
                 bigGoodsPs.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
                 bigGoodsPs.setScmSendFlag(BaseGlobal.NO);
                 // bom阶段设置为样衣阶段
                 bigGoodsPs.setBomStatus(BasicNumber.ZERO.getNumber());
                 designPs.setBomStatus(BasicNumber.ZERO.getNumber());
+                //设置时间
+                bigGoodsPs.setToDesignDate(nowDate);
+                designPs.setToDesignDate(nowDate);
                 //设置bom 状态
                 changeBomStatus(packInfo.getId(), BasicNumber.ZERO.getNumber());
             }
@@ -889,11 +896,13 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     }
 
     @Override
-    public PackInfo get(String foreignId, String packType) {
+    public PackInfoListVo getByQw(String foreignId, String packType) {
         QueryWrapper<PackInfo> qw = new QueryWrapper<>();
-        qw.in("id", foreignId);
+        qw.eq("foreign_id", foreignId);
+        qw.eq("pack_type", packType);
         qw.last("limit 1");
-        return getOne(qw);
+        List<PackInfoListVo> packInfoListVos = baseMapper.queryByQw(qw);
+        return CollUtil.getFirst(packInfoListVos);
     }
 
     @Override

@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.IdGen;
-import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.restTemplate.RestTemplateService;
 import com.base.sbc.config.utils.StringUtils;
@@ -299,10 +298,9 @@ public class SmpService {
             PackInfoListVo packInfo=packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", PackUtils.PACK_TYPE_DESIGN));
             String downContent = "";
             if (packInfo!=null) {
-
+                PackPricing packPricing = packPricingService.get(packInfo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
                 // 核价
-                PackPricing packPricing = packPricingService.getOne(new QueryWrapper<PackPricing>().eq("foreign_id", packInfo.getId()).eq("pack_type", "packBigGoods"));
-                if (packPricing != null) {
+                if (packPricing == null) {
                     JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
                     smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
                     smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("车缝加工费"));

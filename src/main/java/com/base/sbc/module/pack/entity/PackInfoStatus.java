@@ -23,7 +23,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfoStatus
  * @email your email
- * @date 创建时间：2023-9-8 15:11:00
+ * @date 创建时间：2023-9-9 13:50:40
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -63,6 +63,18 @@ public class PackInfoStatus extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "bom状态:(0样品,1大货)")
     private String bomStatus;
+    /**
+     * 设计转大货时间
+     */
+    @ApiModelProperty(value = "设计转大货时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date toBigGoodsDate;
+    /**
+     * 大货反审回设计时间
+     */
+    @ApiModelProperty(value = "大货反审回设计时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date toDesignDate;
     /**
      * 审核状态：待审核(1)、审核通过(2)、被驳回(-1)
      */

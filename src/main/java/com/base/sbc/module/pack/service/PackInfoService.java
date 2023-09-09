@@ -113,6 +113,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      */
     PackInfoListVo getDetail(String id, String packType);
 
+    PackInfoListVo getByQw(String foreignId, String packType);
+
     boolean startApproval(String id);
 
     boolean approval(AnswerDto dto);
