@@ -131,15 +131,20 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
     /**
      * 工艺部接收正确样时间
      */
-    @TableField(exist = false)
     private Date techReceiveDate;
+
 
 
     /**
      * 查版日期
      */
-    @TableField(exist = false)
     private Date sampleChaBanData;
+
+    /**
+     * 面料检测单日期
+     */
+    private Date materialCheckDate;
+
 
     /**
      * 工艺单完成日期
