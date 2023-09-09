@@ -200,6 +200,20 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeMapper.selectList(queryWrapper);
             addRevampBasicsdatumModelTypeDto.setBasicsSizeSort(basicsdatumSizeList.get(0).getSort());
         }
+        // 查找默认尺码
+        if(StringUtils.isNotBlank(addRevampBasicsdatumModelTypeDto.getDefaultSize())){
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.in("hangtags", StringUtils.convertList(addRevampBasicsdatumModelTypeDto.getDefaultSize()));
+            List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeMapper.selectList(queryWrapper);
+            StringBuffer sizeIds = new StringBuffer();
+            StringBuffer sizeCodes = new StringBuffer();
+            for(BasicsdatumSize item : basicsdatumSizeList){
+                sizeIds.append(item.getId() + ",");
+                sizeCodes.append(item.getSort() + ",");
+            }
+            addRevampBasicsdatumModelTypeDto.setDefaultSizeIds(sizeIds.deleteCharAt(sizeIds.length() - 1).toString());
+            addRevampBasicsdatumModelTypeDto.setDefaultSizeCode(sizeCodes.deleteCharAt(sizeCodes.length() - 1).toString());
+        }
 
         if (StringUtils.isEmpty(addRevampBasicsdatumModelTypeDto.getId())) {
             QueryWrapper<BasicsdatumModelType> queryWrapper = new QueryWrapper<>();
