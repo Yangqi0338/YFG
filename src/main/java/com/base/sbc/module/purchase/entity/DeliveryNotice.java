@@ -7,9 +7,6 @@
 package com.base.sbc.module.purchase.entity;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
-
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -22,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.DeliveryNotice
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-9 16:21:37
+ * @date 创建时间：2023-9-9 9:15:56
  * @version 1.0
  */
 @Data
@@ -43,12 +40,18 @@ public class DeliveryNotice extends BaseDataEntity<String> {
     /** 状态（0正常 1作废） */
     @ApiModelProperty(value = "状态（0正常 1作废）"  )
     private String status;
+    /** 采购单id */
+    @ApiModelProperty(value = "采购单id"  )
+    private String purcahseId;
     /** 采购单号 */
     @ApiModelProperty(value = "采购单号"  )
     private String purchaseCode;
     /** 采购单明细id */
     @ApiModelProperty(value = "采购单明细id"  )
     private String purchaseOrderDetailId;
+    /** 外部单号 */
+    @ApiModelProperty(value = "外部单号"  )
+    private String externalCode;
     /** 供应商id */
     @ApiModelProperty(value = "供应商id"  )
     private String supplierId;
