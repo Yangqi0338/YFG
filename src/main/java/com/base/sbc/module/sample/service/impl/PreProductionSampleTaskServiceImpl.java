@@ -184,7 +184,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         if (style == null) {
             throw new OtherException("款式信息为空");
         }
-        PackInfoListVo packInfo = packInfoService.getByQw(vo.getId(), vo.getPackType());
+        PackInfoListVo packInfo = packInfoService.getByQw(vo.getStyleId(), vo.getPackType());
         if (packInfo == null) {
             throw new OtherException("标准资料包数据为空");
         }
