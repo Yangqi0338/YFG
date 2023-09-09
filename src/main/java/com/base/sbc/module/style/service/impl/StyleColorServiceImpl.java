@@ -634,9 +634,9 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
      * @param styleId
      */
     @Override
-    public List<String> getStyleColorId(String styleId) {
+    public List<String> getStyleColorId(String styleMasterDataId) {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("style_id", styleId);
+        queryWrapper.eq("style_master_data_id", styleMasterDataId);
         queryWrapper.eq("is_defective", BaseGlobal.NO);
         List<StyleColor> styleColorList = baseMapper.selectList(queryWrapper);
         if (CollectionUtils.isEmpty(styleColorList)) {

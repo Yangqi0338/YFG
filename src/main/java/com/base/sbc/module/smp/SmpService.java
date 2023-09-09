@@ -561,8 +561,8 @@ public class SmpService {
             if (StringUtils.isEmpty(packInfo.getStyleNo())) {
                 throw new OtherException(packBom.getMaterialName() + "未关联大货(配色)信息,无法下发");
             }
-            Style style = styleService.getOne(new QueryWrapper<Style>().eq("id", packInfo.getForeignId()));
-            StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
+            StyleMasterData styleMasterData = styleMasterDataService.getOne(new QueryWrapper<StyleMasterData>().eq("id", packInfo.getForeignId()));
+            StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), styleMasterData.getCompanyCode());
             smpBomDto.setBomStage("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
             //样衣-款式配色
             StyleColor styleColor = sampleStyleColorService.getById(packInfo.getStyleColorId());
