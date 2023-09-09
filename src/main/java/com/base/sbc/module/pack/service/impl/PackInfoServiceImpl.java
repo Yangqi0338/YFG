@@ -565,7 +565,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException("获取资料包数据失败");
         }
         //获取款式信息
-        Style style = styleService.getById(detail.getForeignId());
+        StyleMasterDataVo style = styleMasterDataService.getByStyleId(detail.getStyleId());
+        ;
+
         if (style == null) {
             throw new OtherException("获取款式信息失败");
         }
@@ -681,7 +683,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         vo.setSpecNotice(detail.getSpecNotice());
         vo.setSpecialSpecComments(detail.getSpecialSpecComments());
         //获取款式信息
-        Style style = styleService.getById(detail.getForeignId());
+        Style style = styleService.getById(detail.getStyleId());
         if (style == null) {
             throw new OtherException("获取款式信息失败");
         }
