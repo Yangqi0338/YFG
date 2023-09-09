@@ -18,7 +18,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-9-9 11:25:06
+ * @date 创建时间：2023-9-9 15:29:29
  * @version 1.0
  */
 @Data
@@ -67,6 +67,9 @@ public class BasicsdatumModelType extends BaseDataEntity<String> {
     /** 默认尺码 */
     @ApiModelProperty(value = "默认尺码"  )
     private String defaultSize;
+    /** 默认尺码id集合 */
+    @ApiModelProperty(value = "默认尺码id集合"  )
+    private String defaultSizeIds;
     /** 默认尺码编码 */
     @ApiModelProperty(value = "默认尺码编码"  )
     private String defaultSizeCode;
