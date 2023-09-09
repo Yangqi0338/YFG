@@ -24,7 +24,13 @@ public class BigGoodsPackInfoListVo extends PackInfoStatusVo {
 
     @ApiModelProperty(value = "id")
     private String id;
-
+    @ApiModelProperty(value = "款式主数据id:款式主数据id(t_style_master_data)")
+    private String styleMasterDataId;
+    /**
+     * 款式设计id:款式设计id(t_style)
+     */
+    @ApiModelProperty(value = "款式设计id:款式设计id(t_style)")
+    private String styleId;
     @JsonIgnore
     @ApiModelProperty(value = "主数据id(款式设计id)")
     private String foreignId;
@@ -66,10 +72,6 @@ public class BigGoodsPackInfoListVo extends PackInfoStatusVo {
 
     public String getStyle() {
         return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
-    }
-
-    public String getStyleId() {
-        return foreignId;
     }
 
 
