@@ -131,18 +131,25 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
     /**
      * 工艺部接收正确样时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date techReceiveDate;
 
-
+    /**
+     * 技术下工艺部正确样
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date processDepartmentDate;
 
     /**
      * 查版日期
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date sampleChaBanData;
 
     /**
      * 面料检测单日期
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date materialCheckDate;
 
 
