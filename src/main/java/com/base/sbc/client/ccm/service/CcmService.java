@@ -195,15 +195,20 @@ public interface CcmService {
     @GetMapping(value = "/ccm/api/open/structure/getCategorySByNameAndLevel")
     public String getOpenCategorySByNameAndLevel(@RequestParam("structureName") String structureName, @RequestParam("code") String code, @RequestParam("level") String level);
 
+    @GetMapping(value = "/ccm/api/saas/basicStructure/nextLevelList")
+    public String queryBasicStructureNextLevelList(@RequestParam("structureCode") String structureCode, @RequestParam("treeCode") String treeCode, @RequestParam("level") Integer level);
+
+
     /**
      * 根据多个类型查询最后一级字典信息(联调)
-     * @param isLeaf 子节点
-     * @param type 字典类型
-     * @param dependCode 依赖字段编码
+     *
+     * @param isLeaf         子节点
+     * @param type           字典类型
+     * @param dependCode     依赖字段编码
      * @param dependDictType 依赖字典类型
      */
     @GetMapping(value = "/ccm/api/saas/basicDictDepends/selectDictByTypes")
-    String basicDictDependsByTypes(@RequestParam("isLeaf") String isLeaf,@RequestParam("type") String type,@RequestParam("dependDictType") String dependDictType,
+    String basicDictDependsByTypes(@RequestParam("isLeaf") String isLeaf, @RequestParam("type") String type, @RequestParam("dependDictType") String dependDictType,
                                    @RequestParam("dependCode") String dependCode);
 
     /**

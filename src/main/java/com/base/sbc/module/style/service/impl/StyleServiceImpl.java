@@ -72,7 +72,10 @@ import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PlmStyleSizeParam;
 import com.base.sbc.module.style.dto.*;
-import com.base.sbc.module.style.entity.*;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.entity.StyleInfoColor;
+import com.base.sbc.module.style.entity.StyleInfoSku;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.StyleInfoColorService;
@@ -86,7 +89,6 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -974,19 +976,32 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 return result;
             }
         } else if (vo.getLevel() == 1) {
-            basicStructureTreeVoList = ccmFeignService.basicStructureTreeByCode("品类", "", "1");
-            basicStructureTreeVoList = basicStructureTreeVoList.stream().filter(s -> s.getParentId().equals(vo.getId())).collect(Collectors.toList());
+            basicStructureTreeVoList = ccmFeignService.queryBasicStructureNextLevelList("品类", vo.getProdCategory1st(), 0);
             if (CollUtil.isNotEmpty(planningSeasonList)) {
                 List<ProductCategoryTreeVo> result = basicStructureTreeVoList.stream().map(ps -> {
                     ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
                     tree.setIds(idGen.nextIdStr());
+                    tree.setId(ps.getId());
                     tree.setLevel(2);
-                    tree.setChildren(false);
+                    tree.setChildren(true);
                     tree.setProdCategory(ps.getValue());
                     tree.setProdCategoryName(ps.getName());
-                    tree.setProdCategory1st(vo.getProdCategory1st());
-                    tree.setProdCategory1stName(vo.getProdCategory1stName());
                     tree.setPlanningSeasonId(vo.getPlanningSeasonId());
+                    tree.setName(ps.getName());
+                    return tree;
+                }).collect(Collectors.toList());
+                return result;
+            }
+        } else if (vo.getLevel() == 2) {
+            basicStructureTreeVoList = ccmFeignService.queryBasicStructureNextLevelList("品类", vo.getProdCategory(), 1);
+            if (CollUtil.isNotEmpty(planningSeasonList)) {
+                List<ProductCategoryTreeVo> result = basicStructureTreeVoList.stream().map(ps -> {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setIds(idGen.nextIdStr());
+                    tree.setLevel(3);
+                    tree.setChildren(false);
+                    tree.setProdCategory2nd(ps.getValue());
+                    tree.setProdCategory2ndName(ps.getName());
                     tree.setName(ps.getName());
                     return tree;
                 }).collect(Collectors.toList());

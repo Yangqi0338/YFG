@@ -9,16 +9,15 @@ import lombok.Data;
 @ApiModel("查询需求dto QueryDemandDto")
 public class QueryDemandDto {
 
-    /*产品季id*/
-    @ApiModelProperty(value = "产品季id" ,required = true,example = "111")
+
+    @ApiModelProperty(value = "产品季id", required = true, example = "111")
     private String planningSeasonId;
 
+    @ApiModelProperty(value = "品类编码", required = true, example = "111")
+    private String prodCategory;
 
-    /*品类id*/
-    @ApiModelProperty(value = "品类id", required = true, example = "111")
-    private String categoryId;
-
-
+    @ApiModelProperty(value = "中类code")
+    private String prodCategory2nd;
     @ApiModelProperty(value = "表单编码", required = false, example = "122222")
     private String formCode;
 
