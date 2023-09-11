@@ -98,10 +98,7 @@ public class BasicsdatumModelTypeController extends BaseController{
 		if(StringUtils.isBlank(code)){
 			return selectAttributeNotRequirements("code");
 		}
-		QueryWrapper<BasicsdatumModelType> qw = new QueryWrapper<>();
-		qw.eq("company_code", companyCode);
-		qw.eq("code", code);
-		List<BasicsdatumModelType> basicsdatumModelTypeList = basicsdatumModelTypeService.list(qw);
+		List<BasicsdatumModelType> basicsdatumModelTypeList = basicsdatumModelTypeService.queryByCode(companyCode, code);
 		if(CollectionUtil.isNotEmpty(basicsdatumModelTypeList)){
 			return selectSuccess(basicsdatumModelTypeList.get(0));
 		}

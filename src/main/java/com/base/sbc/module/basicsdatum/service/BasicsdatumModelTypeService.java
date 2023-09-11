@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * 类描述：基础资料-号型类型 service类
@@ -91,7 +92,13 @@ public interface BasicsdatumModelTypeService extends BaseService<BasicsdatumMode
      */
     String getNameById(String id);
 
-
+    /**
+     * 通过code查询号型类型
+     *
+     * @param code
+     * @return
+     */
+    List<BasicsdatumModelType> queryByCode(String companyCode, String code);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

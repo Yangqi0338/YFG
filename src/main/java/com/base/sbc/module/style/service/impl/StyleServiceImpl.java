@@ -1080,6 +1080,13 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         StyleVo detail = getDetail(id);
         detail.setColorPlanningCount(colorPlanningService.getColorPlanningCount(detail.getPlanningSeasonId()));
         detail.setThemePlanningCount(themePlanningService.getThemePlanningCount(detail.getPlanningSeasonId()));
+        List<BasicsdatumModelType> basicsdatumModelTypeList = basicsdatumModelTypeService.queryByCode(detail.getCompanyCode(), detail.getSizeRange());
+        if(CollectionUtil.isNotEmpty(basicsdatumModelTypeList)){
+            BasicsdatumModelType modelType = basicsdatumModelTypeList.get(0);
+            detail.setSizeRangeSizes(modelType.getSize());
+            detail.setSizeRangeSizeIds(modelType.getSizeIds());
+            detail.setSizeRangeSizeCodes(modelType.getSizeCode());
+        }
         if (StrUtil.isBlank(historyStyleId)) {
             return detail;
         }

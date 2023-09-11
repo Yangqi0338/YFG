@@ -77,6 +77,15 @@ public class StyleVo extends Style {
     @ApiModelProperty(value = "主题企划数量")
     public Long themePlanningCount;
 
+    @ApiModelProperty(value = "号型类型尺码")
+    private String sizeRangeSizes;
+
+    @ApiModelProperty(value = "号型类型尺码id")
+    private String sizeRangeSizeIds;
+
+    @ApiModelProperty(value = "号型类型尺码编码")
+    private String sizeRangeSizeCodes;
+
     @ApiModelProperty(value = "款式设计详情-颜色")
     private List<StyleInfoColorVo> styleInfoColorVoList;
 }

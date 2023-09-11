@@ -10,10 +10,12 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -305,6 +307,15 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             return null;
         }
         return getBaseMapper().getNameById(id);
+    }
+
+    @Override
+    public List<BasicsdatumModelType> queryByCode(String companyCode, String code){
+        QueryWrapper<BasicsdatumModelType> qw = new QueryWrapper<>();
+        qw.eq("company_code", companyCode);
+        qw.eq("code", code);
+        List<BasicsdatumModelType> basicsdatumModelTypeList = list(qw);
+        return basicsdatumModelTypeList;
     }
 
     /** 自定义方法区 不替换的区域【other_end】 **/
