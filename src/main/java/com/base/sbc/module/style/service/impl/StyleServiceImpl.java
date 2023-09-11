@@ -1152,6 +1152,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         //款式定位
         detail.setPositioning(hisStyle.getPositioning());
         detail.setPositioningName(hisStyle.getPositioningName());
+
+//        款式名称
+        detail.setStyleName(hisStyle.getStyleName());
         return detail;
     }
 

@@ -89,7 +89,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     private CcmFeignService ccmFeignService;
 
     @Autowired
-    private  BasicsdatumBomTemplateMaterialMapper basicsdatumBomTemplateMaterialMapper;
+    private BasicsdatumBomTemplateMaterialMapper basicsdatumBomTemplateMaterialMapper;
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
@@ -286,16 +286,16 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         queryWrapper.eq("bom_template_id", bomTemplateSaveDto.getBomTemplateId());
         List<BasicsdatumBomTemplateMaterial> templateMaterialList = basicsdatumBomTemplateMaterialMapper.selectList(queryWrapper);
 
-        if(CollUtil.isEmpty(templateMaterialList)){
+        if (CollUtil.isEmpty(templateMaterialList)) {
             throw new OtherException("模板无物料清单");
         }
         // 校验版本
         PackBomVersion version = packBomVersionService.checkVersion(bomTemplateSaveDto.getBomVersionId());
         queryWrapper.clear();
         QueryWrapper<PackBom> qw = new QueryWrapper();
-        PackUtils.commonQw(qw,version);
-        qw.eq("bom_version_id",version.getId());
-        qw.eq("foreign_id",version.getForeignId()).and(q ->q.ne("bom_template_id","").or().isNotNull("bom_template_id"));
+        PackUtils.commonQw(qw, version);
+        qw.eq("bom_version_id", version.getId());
+        qw.eq("foreign_id", version.getForeignId()).and(q -> q.ne("bom_template_id", "").or().isNotNull("bom_template_id"));
         baseMapper.delete(qw);
 
         List<PackBomDto> bomDtoList = BeanUtil.copyToList(templateMaterialList, PackBomDto.class);
@@ -335,9 +335,11 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             return result;
         }
         // 查询物料列表
+        PackBomVersion enableVersion = packBomVersionService.getEnableVersion(dto.getForeignId(), dto.getPackType());
+        dto.setBomVersionId(enableVersion.getId());
         PackCommonPageSearchDto packCommonPageSearchDto = BeanUtil.copyProperties(dto, PackCommonPageSearchDto.class);
         List<PackBomVo> packBomPage = baseMapper.getPackBomPage(packCommonPageSearchDto);
-        List<PackBom> bomList = BeanUtil.copyToList(packBomPage,PackBom.class);
+        List<PackBom> bomList = BeanUtil.copyToList(packBomPage, PackBom.class);
         if (CollUtil.isEmpty(bomList)) {
             return result;
         }
@@ -350,7 +352,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                 BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")));
                 BigDecimal mul = NumberUtil.mul(
                         ifSwitch ? packBom.getBulkUnitUse() : dto.getPackType().equals("packDesign") ? packBom.getDesignUnitUse() : packBom.getBulkUnitUse(),
-                        ifSwitch ? packBom.getBulkPrice() : dto.getPackType().equals("packDesign") ? packBom.getDesignPrice() : packBom.getBulkPrice(),
+                         packBom.getPrice(),
                         divide
                 );
                 return mul;
@@ -374,7 +376,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         }
         PackBomPageSearchDto bomDto = BeanUtil.copyProperties(dto, PackBomPageSearchDto.class);
         bomDto.setBomVersionId(enableVersion.getId());
-
+        dto.setBomVersionId(enableVersion.getId());
         Page<PackBomVo> page = PageHelper.startPage(dto);
         baseMapper.getPackBomPage(dto);
         PageInfo<PackBomVo> pageInfo = page.toPageInfo();
@@ -443,13 +445,14 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
 
     /**
      * 查询物料下发状态
+     *
      * @param stringList
      * @return
      */
     @Override
     public Map<String, String> getPackSendStatus(List<String> stringList) {
         Map<String, String> map = new HashMap<>();
-        if(CollUtil.isNotEmpty(stringList)){
+        if (CollUtil.isNotEmpty(stringList)) {
             List<Map<String, String>> list = baseMapper.getPackSendStatus(stringList);
             if (CollUtil.isNotEmpty(list)) {
                 for (Map<String, String> stringStringMap : list) {
@@ -475,6 +478,18 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         return "物料清单";
     }
 
+
+    @Override
+    public boolean delByIds(String id) {
+        /*cha*/
+        List<PackBom> packBomList = baseMapper.selectBatchIds(StrUtil.split(id, ','));
+        List<PackBom> packBomList1 = packBomList.stream().filter(s -> StrUtil.equals(s.getScmSendFlag(), BaseGlobal.YES) || StrUtil.equals(s.getScmSendFlag(), BaseGlobal.IN_READY)).collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(packBomList1)) {
+            throw new OtherException("物料中存在已下发数据");
+        }
+        baseMapper.deleteBatchIds(StrUtil.split(id, ','));
+        return true;
+    }
 
 // 自定义方法区 不替换的区域【other_end】
 
