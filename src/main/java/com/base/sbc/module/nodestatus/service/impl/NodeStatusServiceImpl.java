@@ -454,6 +454,11 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
         return config;
     }
 
+    @Override
+    public List<NodeStatus> nsWorkList(QueryWrapper qw) {
+        return getBaseMapper().nsWorkList(qw);
+    }
+
 // 自定义方法区 不替换的区域【other_end】
 
 }

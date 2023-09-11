@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：打版管理 Controller类
@@ -197,6 +198,11 @@ public class PatternMakingController {
     @GetMapping("/patternMakingSteps")
     public PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto) {
         return patternMakingService.patternMakingSteps(dto);
+    }
+    @ApiOperation(value = "工作台使用的打版进度列表", notes = "")
+    @GetMapping("/work/patternMakingSteps")
+    public Map patternMakingSteps0(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+        return patternMakingService.patternMakingSteps0(userCompany);
     }
 
     @ApiOperation(value = "样衣看板列表", notes = "")
