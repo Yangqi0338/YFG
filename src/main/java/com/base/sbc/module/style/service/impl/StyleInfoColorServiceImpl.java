@@ -14,22 +14,18 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.dto.PackInfoDto;
 import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.entity.PackProcessPrice;
 import com.base.sbc.module.pack.service.PackBomColorService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.PackProcessPriceVo;
 import com.base.sbc.module.style.dto.StyleInfoColorDto;
-import com.base.sbc.module.style.dto.StyleSaveDto;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleInfoColor;
 import com.base.sbc.module.style.entity.StyleInfoSku;
 import com.base.sbc.module.style.mapper.StyleInfoColorMapper;
-import com.base.sbc.module.style.entity.StyleInfoColor;
 import com.base.sbc.module.style.service.StyleInfoColorService;
 import com.base.sbc.module.style.service.StyleInfoSkuService;
 import com.base.sbc.module.style.service.StyleService;
@@ -256,6 +252,15 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
             }
         }
 
+    }
+
+    @Override
+    public void updatePricingFlag(String id, String pricingFlag) {
+        StyleInfoColor styleInfoColor = new StyleInfoColor();
+        styleInfoColor.setId(id);
+        styleInfoColor.setPricingFlag(pricingFlag);
+        styleInfoColor.updateInit();
+        super.updateById(styleInfoColor);
     }
 
 // 自定义方法区 不替换的区域【other_start】

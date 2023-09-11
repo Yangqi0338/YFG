@@ -57,4 +57,6 @@ public class StyleInfoColorVo {
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
+    @ApiModelProperty(value = "是否已经核价：0否，1是"  )
+    private String pricingFlag;
 }
