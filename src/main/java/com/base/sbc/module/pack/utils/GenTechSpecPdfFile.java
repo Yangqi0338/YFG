@@ -146,7 +146,7 @@ public class GenTechSpecPdfFile {
     @ApiModelProperty(value = "温馨提示")
     private String warmTips;
     @ApiModelProperty(value = "贮藏要求")
-    private String storageDemand;
+    private String storageDemandName;
 
     @ApiModelProperty(value = "产地")
     private String producer;

@@ -283,12 +283,14 @@ public class HangTagVO {
     /**
      * 贮藏要求
      */
-    @ApiModelProperty(value = "贮藏要求")
+    @ApiModelProperty(value = "贮藏要求Code")
     private String storageDemand;
+    @ApiModelProperty(value = "贮藏要求内容")
+    private String storageDemandName;
     /**
      * 贮藏要求
      */
-    @ApiModelProperty(value = "贮藏要求")
+    @ApiModelProperty(value = "产地")
     private String producer;
     /**
      * 生产日期
