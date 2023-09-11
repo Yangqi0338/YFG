@@ -12,13 +12,15 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 /**
  * 类描述：企划-需求表 实体类
- * @address com.base.sbc.module.planning.entity.PlanningDemand
- * @author mengfanjiang
- * @email XX.com
- * @date 创建时间：2023-8-31 15:17:47
+ *
+ * @author your name
  * @version 1.0
+ * @address com.base.sbc.module.planning.entity.PlanningDemand
+ * @email your email
+ * @date 创建时间：2023-9-10 13:54:14
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -37,25 +39,47 @@ public class PlanningDemand extends BaseDataEntity<String> {
     @ApiModelProperty(value = "产品季id"  )
     private String planningSeasonId;
     /** 大类 */
-    @ApiModelProperty(value = "大类"  )
+    @ApiModelProperty(value = "大类")
     private String prodCategory1st;
-    /** 大类名称 */
-    @ApiModelProperty(value = "大类名称"  )
+    /**
+     * 大类名称
+     */
+    @ApiModelProperty(value = "大类名称")
     private String prodCategory1stName;
-    /** 品类 */
-    @ApiModelProperty(value = "品类"  )
+    /**
+     * 品类
+     */
+    @ApiModelProperty(value = "品类")
     private String prodCategory;
-    /** 品类名称 */
-    @ApiModelProperty(value = "品类名称"  )
+    /**
+     * 品类名称
+     */
+    @ApiModelProperty(value = "品类名称")
     private String prodCategoryName;
-    /** 需求名称 */
-    @ApiModelProperty(value = "需求名称"  )
+    /**
+     * 中类code
+     */
+    @ApiModelProperty(value = "中类code")
+    private String prodCategory2nd;
+    /**
+     * 中类名称
+     */
+    @ApiModelProperty(value = "中类名称")
+    private String prodCategory2ndName;
+    /**
+     * 需求名称
+     */
+    @ApiModelProperty(value = "需求名称")
     private String demandName;
-    /** 表单类型id */
-    @ApiModelProperty(value = "表单类型id"  )
+    /**
+     * 表单类型id
+     */
+    @ApiModelProperty(value = "表单类型id")
     private String formTypeId;
-    /** 字段id */
-    @ApiModelProperty(value = "字段id"  )
+    /**
+     * 字段id
+     */
+    @ApiModelProperty(value = "字段id")
     private String fieldId;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )

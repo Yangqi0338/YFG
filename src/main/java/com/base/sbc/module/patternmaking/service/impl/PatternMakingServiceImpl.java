@@ -533,7 +533,41 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         attachmentService.saveAttachment(dto.getAttachmentList(), dto.getId(), AttachmentTypeConstant.PATTERN_MAKING_PATTERN);
         return true;
     }
+    @Override
+    public PageInfo patternMakingSteps0() {
 
+        QueryWrapper<PatternMaking> pmQw = new QueryWrapper<>();
+        List<PatternMaking> pmList = this.list(pmQw);
+        if (CollUtil.isEmpty(pmList)) {
+            return null;
+        }
+        List<String> pmIds = pmList.stream().map(PatternMaking::getId).collect(Collectors.toList());
+        List<StyleStepVo.PatternMakingStepVo> patternMakingStepVos = BeanUtil.copyToList(pmList, StyleStepVo.PatternMakingStepVo.class);
+        //查询节点状态
+        QueryWrapper<NodeStatus> nsQw = new QueryWrapper<>();
+        nsQw.in("data_id", pmIds);
+        List<NodeStatus> nsList = nodeStatusService.list(nsQw);
+        if (CollUtil.isNotEmpty(nsList)) {
+            Map<String, List<NodeStatus>> nsMap = nsList.stream().collect(Collectors.groupingBy(NodeStatus::getDataId));
+            for (StyleStepVo.PatternMakingStepVo patternMakingStepVo : patternMakingStepVos) {
+                Map<String, NodeStatus> stringNodeStatusMap = Optional.ofNullable(nsMap.get(patternMakingStepVo.getId())).map(item -> {
+                    return item.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> {
+                        if (DateUtil.compare(b.getStartDate(), a.getStartDate()) > 0) {
+                            return b;
+                        }
+                        return a;
+                    }));
+                }).orElse(null);
+                patternMakingStepVo.setNodeStatus(stringNodeStatusMap);
+            }
+        }
+        LinkedHashMap<String, List<StyleStepVo.PatternMakingStepVo>> pmStepMap = patternMakingStepVos.stream().collect(Collectors.groupingBy(k -> k.getStyleId(), LinkedHashMap::new, Collectors.toList()));
+//        for (StyleStepVo styleStepVo : styleStepVos) {
+//            styleStepVo.setPatternMakingSteps(pmStepMap.get(styleStepVo.getId()));
+//        }
+
+        return null;
+    }
     @Override
     public PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto) {
         // 查询样衣信息

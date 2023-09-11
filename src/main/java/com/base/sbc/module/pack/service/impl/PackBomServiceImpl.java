@@ -23,6 +23,8 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.pack.dto.*;
@@ -85,6 +87,9 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     private BasicsdatumMaterialService basicsdatumMaterialService;
     @Autowired
     private CcmFeignService ccmFeignService;
+
+    @Autowired
+    private  BasicsdatumBomTemplateMaterialMapper basicsdatumBomTemplateMaterialMapper;
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
@@ -264,6 +269,41 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         if (CollUtil.isNotEmpty(packBomColorList)) {
             packBomColorService.saveBatch(packBomColorList);
         }
+        return true;
+    }
+
+    /**
+     * bom模板引用新增
+     *
+     * @param bomTemplateSaveDto
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public Boolean bomTemplateSave(BomTemplateSaveDto bomTemplateSaveDto) {
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("bom_template_id", bomTemplateSaveDto.getBomTemplateId());
+        List<BasicsdatumBomTemplateMaterial> templateMaterialList = basicsdatumBomTemplateMaterialMapper.selectList(queryWrapper);
+
+        if(CollUtil.isEmpty(templateMaterialList)){
+            throw new OtherException("模板无物料清单");
+        }
+        // 校验版本
+        PackBomVersion version = packBomVersionService.checkVersion(bomTemplateSaveDto.getBomVersionId());
+        queryWrapper.clear();
+        QueryWrapper<PackBom> qw = new QueryWrapper();
+        PackUtils.commonQw(qw,version);
+        qw.eq("bom_version_id",version.getId());
+        qw.eq("foreign_id",version.getForeignId()).and(q ->q.ne("bom_template_id","").or().isNotNull("bom_template_id"));
+        baseMapper.delete(qw);
+
+        List<PackBomDto> bomDtoList = BeanUtil.copyToList(templateMaterialList, PackBomDto.class);
+        bomDtoList.forEach(b -> {
+            b.setId(null);
+            b.setBomTemplateId(bomTemplateSaveDto.getBomTemplateId());
+        });
+        saveBatchByDto(bomTemplateSaveDto.getBomVersionId(), null, bomDtoList);
         return true;
     }
 

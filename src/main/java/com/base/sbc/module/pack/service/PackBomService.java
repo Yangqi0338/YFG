@@ -6,10 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
-import com.base.sbc.module.pack.dto.PackBomDto;
-import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
-import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
-import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
@@ -63,6 +60,12 @@ public interface PackBomService extends PackBaseService<PackBom> {
      */
     boolean saveBatchByDto(String bomVersionId, String overlayFlg, List<PackBomDto> dtoList);
 
+    /**
+     *bom模板引用新增
+     * @param bomTemplateSaveDto
+     * @return
+     */
+    Boolean bomTemplateSave(BomTemplateSaveDto bomTemplateSaveDto);
 
     /**
      * 通过版本id 查询bom id

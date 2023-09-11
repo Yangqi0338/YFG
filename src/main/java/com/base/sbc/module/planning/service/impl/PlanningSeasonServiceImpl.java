@@ -329,7 +329,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             //当选择维度时，y轴为维度 （企划需求管理的需求占比）
             QueryDemandDto queryDemandDto = new QueryDemandDto();
             queryDemandDto.setPlanningSeasonId(dto.getPlanningSeasonId());
-            queryDemandDto.setCategoryId(dto.getProdCategory());
+            queryDemandDto.setProdCategory(dto.getProdCategory());
             queryDemandDto.setFieldId(dto.getFieldId());
             List<PlanningDemandVo> demandList = planningDemandService.getDemandListById(queryDemandDto);
             HashMap<String,List<String>> yValueS = new LinkedHashMap();
