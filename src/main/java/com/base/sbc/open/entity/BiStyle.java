@@ -73,12 +73,12 @@ public class BiStyle {
     /**
      * 查版日期
      */
-    private String c8SampleChaBanData;
+    private Date c8SampleChaBanData;
 
     /**
      * 产品
      */
-    private String sampleSRLineItem;
+    private String sampleSrLineItem;
 
     /**
      * 产品供应商
@@ -108,7 +108,7 @@ public class BiStyle {
     /**
      * 打样设计师 用户登录
      */
-    private String proofingDesignerID;
+    private String proofingDesignerId;
 
     /**
      * 打样需求数量
@@ -163,7 +163,7 @@ public class BiStyle {
     /**
      * 技术收到日期
      */
-    private String sampleReceivedDate;
+    private Date sampleReceivedDate;
 
     /**
      * 类型
@@ -223,7 +223,7 @@ public class BiStyle {
     /**
      * 收到正确样日期
      */
-    private String c8SampleRecivedCorrectData;
+    private Date c8SampleRecivedCorrectData;
 
     /**
      * 样衣条码
@@ -238,37 +238,37 @@ public class BiStyle {
     /**
      * 完成件数
      */
-    private String c8ProductSampleSampleFinQty;
+    private BigDecimal c8ProductSampleSampleFinQty;
 
     /**
      * 下发给版师时间*
      */
-    private String c8ProductSampleHO2SDTime;
+    private Date c8ProductSampleHo2sdTime;
 
     /**
      * 下发给版师状态*
      */
-    private String c8ProductSampleHO2SDState;
+    private String c8ProductSampleHo2sdState;
 
     /**
      * 下发给样衣组长时间*
      */
-    private String c8ProductSampleHO2STime;
+    private Date c8ProductSampleHo2sTime;
 
     /**
      * 下发给样衣组长状态*
      */
-    private String c8ProductSampleHO2SState;
+    private String c8ProductSampleHo2sState;
 
     /**
      * 需求数量*
      */
-    private String requestedQty;
+    private BigDecimal requestedQty;
 
     /**
      * 样衣需求完成日期*
      */
-    private String c8SampleRequestDate;
+    private Date c8SampleRequestDate;
 
     /**
      * 样板号
@@ -318,7 +318,7 @@ public class BiStyle {
     /**
      * 样衣实际完成日期
      */
-    private String c8SampleSampleFinDate;
+    private Date c8SampleSampleFinDate;
 
     /**
      * 样衣完成
@@ -338,12 +338,12 @@ public class BiStyle {
     /**
      * 纸样完成件数
      */
-    private String c8ProductSamplePatternFinQty;
+    private BigDecimal c8ProductSamplePatternFinQty;
 
     /**
      * 纸样完成时间
      */
-    private String c8ProductSamplePatternFinData;
+    private Date c8ProductSamplePatternFinData;
 
     /**
      * 状态
@@ -373,12 +373,12 @@ public class BiStyle {
     /**
      * Style PLM ID
      */
-    private String c8StylePLMID;
+    private String c8StylePLMId;
 
     /**
      * Colorway PLM ID
      */
-    private String c8ColorwayPLMID;
+    private String c8ColorwayPLMId;
 
     /**
      * 供应商 供应商编码
@@ -403,12 +403,12 @@ public class BiStyle {
     /**
      * 样品 PLM ID
      */
-    private String c8SamplePLMID;
+    private String c8SamplePLMId;
 
     /**
      * Style URL
      */
-    private String c8ProductSampleStyleURL;
+    private String c8ProductSampleStyleUrl;
 
     /**
      * 样品 MC Date

@@ -37,6 +37,30 @@
         foreign_id,costs_item
     </select>
 
+
+    <select id="newCostsItemTotal" resultType="com.base.sbc.module.common.vo.TotalVo">
+    SELECT
+        costs_item AS label,
+        sum( price ) AS total
+    FROM
+        t_pack_pricing_other_costs
+       ${ ew.customSqlSegment}
+    GROUP BY
+        costs_item
+
+        UNION
+
+        SELECT
+        costs_type AS label,
+        sum( price ) AS total
+    FROM
+        t_pack_pricing_other_costs
+        ${ ew1.customSqlSegment}
+    GROUP BY
+        costs_type
+
+    </select>
+
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 
 </mapper>

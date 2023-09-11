@@ -125,6 +125,12 @@ public class PackBomController extends BaseController{
         return packBomService.saveBatchByDto(search.getBomVersionId(), search.getOverlayFlg(), dtoList);
     }
 
+    @PostMapping("/bomTemplateSave")
+    @ApiOperation(value = "bom模板引用新增")
+    public boolean bomTemplateSave(@RequestBody BomTemplateSaveDto bomTemplateSaveDto) {
+        return packBomService.bomTemplateSave(bomTemplateSaveDto);
+    }
+
     @ApiOperation(value = "物料不可用")
     @GetMapping("/unusable")
     public boolean bomUnusable(@Valid IdsDto dto) {

@@ -24,6 +24,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
@@ -42,10 +43,11 @@ public class PackSizeConfigServiceImpl extends PackBaseServiceImpl<PackSizeConfi
 
     @Autowired
     private PackInfoService packInfoService;
-
-
     @Autowired
+    @Lazy
     private StyleService styleService;
+
+
 
 
     @Override

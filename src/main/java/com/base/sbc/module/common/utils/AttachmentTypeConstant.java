@@ -21,6 +21,11 @@ public interface AttachmentTypeConstant {
     String SAMPLE_DESIGN_FILE_STYLE_PIC = "SAMPLE_DESIGN_FILE_STYLE_PIC";
 
     /**
+     * 款式设计-款式图
+     */
+    String STYLE_MASTER_DATA_PIC = "STYLE_MASTER_DATA_PIC";
+
+    /**
      * 打版管理-纸样文件
      */
     String PATTERN_MAKING_PATTERN = "PATTERN_MAKING_PATTERN";

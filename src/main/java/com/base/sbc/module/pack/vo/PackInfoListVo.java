@@ -2,7 +2,6 @@ package com.base.sbc.module.pack.vo;
 
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -24,11 +23,10 @@ import java.util.Optional;
 public class PackInfoListVo extends PackInfoStatusVo {
 
 
-    @JsonIgnore
     @ApiModelProperty(value = "主数据id(款式设计id)")
     private String foreignId;
 
-    @JsonIgnore
+
     @ApiModelProperty(value = "资料包类型")
     private String packType;
     @ApiModelProperty(value = "id")

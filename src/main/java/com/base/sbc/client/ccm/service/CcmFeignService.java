@@ -59,6 +59,23 @@ public class CcmFeignService {
     }
 
 
+    public List<BasicStructureTreeVo> queryBasicStructureNextLevelList(String structureCode, String treeCode, Integer level) {
+        String str = ccmService.queryBasicStructureNextLevelList(structureCode, treeCode, level);
+        if (StrUtil.isBlank(str)) {
+            return null;
+        }
+        JSONObject jsonObject = JSON.parseObject(str);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            try {
+                List<BasicStructureTreeVo> data = jsonObject.getJSONArray("data").toJavaList(BasicStructureTreeVo.class);
+                return data;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
     public List<BasicStructureTreeVo> basicStructureTreeByCode(String code, String hasRoot, String levels) {
         String str = ccmService.basicStructureTreeByCode(code, hasRoot, levels);
         if (StrUtil.isBlank(str)) {

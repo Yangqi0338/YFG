@@ -20,7 +20,7 @@ import org.hibernate.validator.constraints.NotBlank;
 public class CreatePackInfoByStyleDto {
 
     @ApiModelProperty(value = "款式id", example = "12333")
-    @NotBlank(message = "款式id不能为空")
+    @NotBlank(message = "款式主数据id不能为空")
     private String id;
     @ApiModelProperty(value = "BOM名称", example = "123")
     private String name;

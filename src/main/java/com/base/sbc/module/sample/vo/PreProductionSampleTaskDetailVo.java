@@ -19,6 +19,7 @@ import lombok.Data;
 @Data
 @ApiModel("产前样任务明细 PreProductionSampleTaskDetailVo ")
 public class PreProductionSampleTaskDetailVo {
+
     @ApiModelProperty(value = "款式设计信息")
     private StyleVo style;
 

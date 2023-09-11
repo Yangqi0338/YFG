@@ -20,7 +20,6 @@ import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.style.dto.QueryStyleColorDto;
 import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleColorVo;
@@ -53,7 +52,6 @@ public class BiColorwayServiceImpl extends ServiceImpl<BiColorwayMapper, BiColor
     private final PackTechSpecService packTechSpecService;
     private final HangTagService hangTagService;
     private final BasicsdatumSizeService basicsdatumSizeService;
-
     /**
      *
      */

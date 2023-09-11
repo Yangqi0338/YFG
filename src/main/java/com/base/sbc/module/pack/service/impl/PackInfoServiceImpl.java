@@ -12,6 +12,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
@@ -95,6 +96,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
 
     @Resource
     private StyleService styleService;
+
     @Resource
     private AttachmentService attachmentService;
     @Resource
@@ -169,6 +171,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
 
     @Resource
     private StyleInfoColorService styleInfoColorService;
+
+
 
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
@@ -258,6 +262,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packInfo.setName(Opt.ofBlankAble(dto.getName()).orElse(packInfo.getCode()));
         packInfo.setPatternNo(dto.getPatternNo());
         packInfo.setPatternMakingId(dto.getPatternMakingId());
+        packInfo.setStyleId(style.getId());
         save(packInfo);
         //新建bom版本
         PackBomVersionDto versionDto = BeanUtil.copyProperties(packInfo, PackBomVersionDto.class, "id");
@@ -381,15 +386,18 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH.getKeyCode()) && YesOrNoEnum.YES.getValueStr().equals(packDesignStatus.getBomStatus())) {
             throw new OtherException("已转大货，不可重复转入");
         }
-
+        Date nowDate = new Date();
         copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
         //设置为已转大货
         packDesignStatus.setBomStatus(BasicNumber.ONE.getNumber());
+        packDesignStatus.setToBigGoodsDate(nowDate);
         packInfoStatusService.updateById(packDesignStatus);
+
         PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
         //设置为已转大货
         packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
         packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
+        packInfoStatus.setToBigGoodsDate(nowDate);
         packInfoStatusService.updateById(packInfoStatus);
         //updateById(packInfo);
         //设置bom 状态
@@ -549,7 +557,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Override
     public AttachmentVo genTechSpecFile2(GroupUser groupUser, PackCommonSearchDto dto) {
 
-        //获取款式信息
+        //获取资料包信息
         PackInfoListVo detail = getDetail(dto.getForeignId(), dto.getPackType());
 
         if (detail == null) {
@@ -557,6 +565,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         }
         //获取款式信息
         Style style = styleService.getById(detail.getForeignId());
+
         if (style == null) {
             throw new OtherException("获取款式信息失败");
         }
@@ -582,8 +591,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //图片
         if (StrUtil.isNotBlank(detail.getStyleColorId())) {
             StyleColor styleColor = styleColorMapper.selectById(detail.getStyleColorId());
-            String styleNoImgUrl = StyleNoImgUtils.getStyleNoImgUrl(groupUser, styleColor.getStyleColorPic());
-            vo.setStylePic(styleNoImgUrl);
+            if (styleColor != null && StrUtil.isNotBlank(styleColor.getStyleColorPic())) {
+                String styleNoImgUrl = StyleNoImgUtils.getStyleNoImgUrl(groupUser, styleColor.getStyleColorPic());
+                vo.setStylePic(styleNoImgUrl);
+            }
         }
         PackSizeConfigVo sizeConfig = packSizeConfigService.getConfig(dto.getForeignId(), dto.getPackType());
         vo.setCompanyName("意丰歌集团有限公司");
@@ -654,6 +665,66 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             packTechSpecService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
             packTechPackagingService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
         }
+        return true;
+    }
+
+    @Override
+    public BomPrintVo getBomPrint(GroupUser user, PackCommonSearchDto dto) {
+        BomPrintVo vo = new BomPrintVo();
+        //获取资料包信息
+        PackInfoListVo detail = getDetail(dto.getForeignId(), dto.getPackType());
+
+        if (detail == null) {
+            throw new OtherException("获取资料包数据失败");
+        }
+        vo.setApparelLabels(detail.getApparelLabels());
+        vo.setSpecNotice(detail.getSpecNotice());
+        vo.setSpecialSpecComments(detail.getSpecialSpecComments());
+        //获取款式信息
+        Style style = styleService.getById(detail.getForeignId());
+        if (style == null) {
+            throw new OtherException("获取款式信息失败");
+        }
+        String stylePicId = style.getStylePic();
+        // 获取吊牌信息
+        if (StrUtil.isNotBlank(detail.getStyleNo())) {
+            HangTagVO tag = hangTagService.getDetailsByBulkStyleNo(detail.getStyleNo(), getCompanyCode());
+            if (tag != null) {
+                BeanUtil.copyProperties(tag, vo);
+            }
+        }
+        if (StrUtil.isNotBlank(stylePicId)) {
+            vo.setStylePic(uploadFileService.getUrlById(stylePicId));
+
+        }
+        StyleColor styleColor = styleColorMapper.selectById(detail.getStyleColorId());
+
+        if (styleColor != null) {
+            //图片
+            if (StrUtil.isNotBlank(styleColor.getStyleColorPic())) {
+                String styleNoImgUrl = StyleNoImgUtils.getStyleNoImgUrl(user, styleColor.getStyleColorPic());
+                vo.setStylePic(styleNoImgUrl);
+            }
+            vo.setIsMainly(styleColor.getIsMainly());
+        }
+
+        vo.setBrandName(style.getBrandName());
+        vo.setStyleNo(detail.getStyleNo());
+        vo.setDesigner(CollUtil.getFirst(StrUtil.split(style.getDesigner(), CharUtil.COMMA)));
+        vo.setDesignNo(style.getDesignNo());
+        //获取物料信息
+        List<PackBomVo> enableVersionBomList = packBomVersionService.getEnableVersionBomList(dto.getForeignId(), dto.getPackType());
+        vo.setBomList(enableVersionBomList.stream().filter(item -> StrUtil.equals(item.getUnusableFlag(), BaseGlobal.NO)).collect(Collectors.toList()));
+        vo.setCreateName(user.getName());
+        return vo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean updatePackInfoStatusField(PackInfoStatusVo dto) {
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), dto.getPackType());
+        BeanUtil.copyProperties(dto, packInfoStatus);
+        packInfoStatusService.updateById(packInfoStatus);
         return true;
     }
 
@@ -730,6 +801,16 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (StringUtils.isBlank(packInfo.getStyleNo())) {
             throw new OtherException("未关联款号");
         }
+        /*查询bom下的物料是否存在下发*/
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("foreign_id", packInfo.getId());
+        qw.eq("pack_type", "packDesign");
+        qw.in("scm_send_flag", StringUtils.convertList("1,3"));
+        List<PackBom> packBomList = packBomService.list(qw);
+        if (CollUtil.isNotEmpty(packBomList)) {
+            throw new OtherException("物料清单存在已下发数据无法取消");
+        }
+
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("style_no", packInfo.getStyleNo());
         StyleColor color = styleColorMapper.selectOne(queryWrapper);
@@ -757,12 +838,16 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             PackInfoStatus designPs = packInfoStatusService.get(dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN);
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+                Date nowDate = new Date();
                 copyPack(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS, dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN);
                 bigGoodsPs.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
                 bigGoodsPs.setScmSendFlag(BaseGlobal.NO);
                 // bom阶段设置为样衣阶段
                 bigGoodsPs.setBomStatus(BasicNumber.ZERO.getNumber());
                 designPs.setBomStatus(BasicNumber.ZERO.getNumber());
+                //设置时间
+                bigGoodsPs.setToDesignDate(nowDate);
+                designPs.setToDesignDate(nowDate);
                 //设置bom 状态
                 changeBomStatus(packInfo.getId(), BasicNumber.ZERO.getNumber());
             }
@@ -781,6 +866,12 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Override
     public List<PackInfoListVo> queryByQw(QueryWrapper queryWrapper) {
         return getBaseMapper().queryByQw(queryWrapper);
+    }
+
+    @Override
+    public PackInfoListVo getByQw(QueryWrapper queryWrapper) {
+        List<PackInfoListVo> packInfoListVos = queryByQw(queryWrapper);
+        return CollUtil.getFirst(packInfoListVos);
     }
 
     @Override
@@ -805,11 +896,13 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     }
 
     @Override
-    public PackInfo get(String foreignId, String packType) {
+    public PackInfoListVo getByQw(String foreignId, String packType) {
         QueryWrapper<PackInfo> qw = new QueryWrapper<>();
-        qw.in("id", foreignId);
+        qw.eq("foreign_id", foreignId);
+        qw.eq("pack_type", packType);
         qw.last("limit 1");
-        return getOne(qw);
+        List<PackInfoListVo> packInfoListVos = baseMapper.queryByQw(qw);
+        return CollUtil.getFirst(packInfoListVos);
     }
 
     @Override

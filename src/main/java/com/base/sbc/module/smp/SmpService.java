@@ -27,6 +27,8 @@ import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.hangTag.dto.UpdatePriceDto;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.pricing.service.StylePricingService;
@@ -34,7 +36,6 @@ import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
-import com.base.sbc.module.sample.service.SampleService;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
 import com.base.sbc.module.style.entity.Style;
@@ -48,7 +49,10 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
 
@@ -163,7 +167,7 @@ public class SmpService {
             //}
 
             // 款式图片
-            List<AttachmentVo> stylePicList = attachmentService.findByforeignId(style.getId(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
+            List<AttachmentVo> stylePicList = attachmentService.findByforeignId(style.getId(), AttachmentTypeConstant.STYLE_MASTER_DATA_PIC);
             List<String> imgList = new ArrayList<>();
             for (AttachmentVo attachmentVo : stylePicList) {
                 imgList.add(attachmentVo.getUrl());
@@ -291,13 +295,12 @@ public class SmpService {
 
 
             smpGoodsDto.setUnit(style.getStyleUnitCode());
-
-            PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()));
+            PackInfoListVo packInfo=packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", PackUtils.PACK_TYPE_DESIGN));
             String downContent = "";
-            if (packInfo != null) {
+            if (packInfo!=null) {
+                PackPricing packPricing = packPricingService.get(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
                 // 核价
-                PackPricing packPricing = packPricingService.getOne(new QueryWrapper<PackPricing>().eq("foreign_id", packInfo.getId()).eq("pack_type", "packBigGoods"));
-                if (packPricing != null) {
+                if (packPricing == null) {
                     JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
                     smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
                     smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("车缝加工费"));

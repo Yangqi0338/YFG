@@ -84,15 +84,20 @@ public class BasicsdatumBomTemplateServiceImpl extends BaseServiceImpl<Basicsdat
         if (StringUtils.isNotBlank(addRevampBomTemplateDto.getId())) {
             /*修改*/
             basicsdatumBomTemplate = baseMapper.selectById(addRevampBomTemplateDto.getId());
+            if(StringUtils.isBlank(addRevampBomTemplateDto.getApparelLabels()) ){
+                addRevampBomTemplateDto.setApparelLabels(addRevampBomTemplateDto.getName());
+            }
             BeanUtils.copyProperties(addRevampBomTemplateDto, basicsdatumBomTemplate);
             baseMapper.updateById(basicsdatumBomTemplate);
         } else {
 //            校验编码重复
-
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("code", addRevampBomTemplateDto.getCode());
             if (!CollectionUtils.isEmpty(baseMapper.selectList(queryWrapper))) {
                 throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
+            }
+            if(StringUtils.isBlank(addRevampBomTemplateDto.getApparelLabels()) ){
+                addRevampBomTemplateDto.setApparelLabels(addRevampBomTemplateDto.getName());
             }
             BeanUtils.copyProperties(addRevampBomTemplateDto, basicsdatumBomTemplate);
             baseMapper.insert(basicsdatumBomTemplate);

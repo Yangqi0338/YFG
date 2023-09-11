@@ -21,11 +21,13 @@ import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
+import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -49,12 +51,14 @@ import java.util.List;
 @Api(tags = "打版管理")
 @RequestMapping(value = BaseController.SAAS_URL + "/patternMaking", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
+@RequiredArgsConstructor
 public class PatternMakingController {
 
     @Autowired
     private PatternMakingService patternMakingService;
     @Autowired
     private UserUtils userUtils;
+    private final SmpService smpService;
 
     @ApiOperation(value = "技术中心看板-任务列表")
     @GetMapping("/technologyCenterTaskList")
@@ -330,7 +334,9 @@ public class PatternMakingController {
     @ApiOperation(value = "设置样衣条码", notes = "")
     @PostMapping("/setSampleBarCode")
     public boolean setSampleBarCode(@Validated @RequestBody SetSampleBarCodeDto dto) {
-        return patternMakingService.setSampleBarCode(dto);
+        patternMakingService.setSampleBarCode(dto);
+        smpService.sample(new String[]{dto.getId()});
+        return true;
     }
 
     @ApiOperation(value = "获取车缝工列表")

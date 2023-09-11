@@ -538,36 +538,38 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         if (CollUtil.isNotEmpty(dimensionalityList)) {
             List<String> stringList = dimensionalityList.stream().map(PlanningDimensionality::getFieldId).distinct().collect(Collectors.toList());
             fieldList = BeanUtil.copyToList(fieldManagementService.listByIds(stringList), FieldManagementVo.class);
-            List<String> stringList2 = fieldList.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
-            QueryFieldOptionConfigDto queryFieldOptionConfigDto =new QueryFieldOptionConfigDto();
+            if (CollUtil.isNotEmpty(fieldList)) {
+                List<String> stringList2 = fieldList.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
+                QueryFieldOptionConfigDto queryFieldOptionConfigDto = new QueryFieldOptionConfigDto();
 
-            if(StringUtils.isNotBlank(categoryFlag)){
+                if (StringUtils.isNotBlank(categoryFlag)) {
 //                修改坑位品类标识
-                if(StringUtils.isNotBlank(categoryFlag)){
-                    seat.setCategoryFlag(categoryFlag);
-                    baseMapper.updateById(seat);
-                }
-            }else {
+                    if (StringUtils.isNotBlank(categoryFlag)) {
+                        seat.setCategoryFlag(categoryFlag);
+                        baseMapper.updateById(seat);
+                    }
+                } else {
 //                那坑位的数据
-                categoryFlag = seat.getCategoryFlag();
-            }
-            if(categoryFlag.equals(BaseGlobal.YES)){
-                queryFieldOptionConfigDto.setProdCategory2nd(seat.getProdCategory2nd());
-            }else {
-                queryFieldOptionConfigDto.setCategoryCode(seat.getProdCategory());
-            }
-            /*查询每个字段下的配置选项*/
-            queryFieldOptionConfigDto.setBrand(season.getBrand());
-            queryFieldOptionConfigDto.setSeason(season.getSeason());
-            queryFieldOptionConfigDto.setFieldManagementIdList(stringList2);
-            Map<String, List<FieldOptionConfig>> listMap =  fieldOptionConfigService.getFieldConfig(queryFieldOptionConfigDto);
-
-            fieldList.forEach(f -> {
-                List<FieldOptionConfig> list = listMap.get(f.getId());
-                if (CollUtil.isNotEmpty(list)) {
-                    f.setConfigVoList(BeanUtil.copyToList(list, FieldOptionConfigVo.class));
+                    categoryFlag = seat.getCategoryFlag();
                 }
-            });
+                if (categoryFlag.equals(BaseGlobal.YES)) {
+                    queryFieldOptionConfigDto.setProdCategory2nd(seat.getProdCategory2nd());
+                } else {
+                    queryFieldOptionConfigDto.setCategoryCode(seat.getProdCategory());
+                }
+                /*查询每个字段下的配置选项*/
+                queryFieldOptionConfigDto.setBrand(season.getBrand());
+                queryFieldOptionConfigDto.setSeason(season.getSeason());
+                queryFieldOptionConfigDto.setFieldManagementIdList(stringList2);
+                Map<String, List<FieldOptionConfig>> listMap = fieldOptionConfigService.getFieldConfig(queryFieldOptionConfigDto);
+
+                fieldList.forEach(f -> {
+                    List<FieldOptionConfig> list = listMap.get(f.getId());
+                    if (CollUtil.isNotEmpty(list)) {
+                        f.setConfigVoList(BeanUtil.copyToList(list, FieldOptionConfigVo.class));
+                    }
+                });
+            }
         }
         List<FieldVal> valueList = fieldValService.list(id, FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION);
         fieldManagementService.conversion(fieldList, valueList);

@@ -126,7 +126,7 @@ public class GenTechSpecPdfFile {
     private String technologistName;
     @ApiModelProperty(value = "下单员")
     private String placeOrderStaffName;
-    @ApiModelProperty(value = "备注")
+    @ApiModelProperty(value = "描述信息")
     private String remarks;
 
     @ApiModelProperty(value = "放码师名称")
@@ -180,6 +180,7 @@ public class GenTechSpecPdfFile {
     @ApiModelProperty(value = "尺寸表")
     private List<PackSizeVo> sizeList;
 
+
     private float lrMargin = 20;
 
     public ByteArrayOutputStream gen() {
@@ -230,7 +231,7 @@ public class GenTechSpecPdfFile {
             for (int i = 0; i < sizeList.size(); i++) {
                 isDefaultSize = StrUtil.equals(sizeList.get(i), defaultSize);
                 if (isDefaultSize) {
-                    tdBg = "gb";
+                    tdBg = "dgb";
                 } else {
                     tdBg = CollUtil.get(tdClassList, sizeResetFlg % 2);
                 }
@@ -255,7 +256,7 @@ public class GenTechSpecPdfFile {
                     rowData.setRemark(packSize.getRemark());
                     List<Map<String, Object>> row = new ArrayList<>();
                     row.add(new TdDetail(Opt.ofNullable(packSize.getPartName()).orElse("")).toMap());
-                    row.add(new TdDetail(Opt.ofNullable(packSize.getMethod()).orElse("")).toMap());
+                    row.add(new TdDetail(Opt.ofNullable(packSize.getMethod()).orElse(""), "td_lt").toMap());
                     JSONObject jsonObject = JSONObject.parseObject(packSize.getStandard());
                     for (int j = 0; j < sizeList.size(); j++) {
                         String size = sizeList.get(j);
@@ -381,7 +382,9 @@ public class GenTechSpecPdfFile {
         private List<Map<String, Object>> rowData;
 
         public Map<String, Object> toMap() {
-            return BeanUtil.beanToMap(this);
+            String str = JSON.toJSONString(this, JSONWriter.Feature.WriteNullStringAsEmpty);
+            JSONObject dataModel = JSON.parseObject(str);
+            return dataModel;
         }
     }
 

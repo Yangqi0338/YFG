@@ -5,6 +5,7 @@
 <style>
     * {
         font-family: 'Source Han Serif CN', 'Noto Serif SC', SimSun;
+        font-size: 12px;
     }
 
     html {
@@ -35,6 +36,10 @@
         width: 100%;
         border-collapse: collapse;
         padding-bottom: 5px;
+    }
+
+    .table_border tbody tr, td {
+        height: 25px;
     }
 
     .table_no_border {
@@ -83,9 +88,7 @@
         width: 80%;
     }
 
-    .small_table {
-        font-size: 12px;
-    }
+
 
     .img_item {
         margin: 5px;
@@ -112,11 +115,20 @@
     }
 
     .gb {
-        background-color: #dadada;
+        background-color: #b8b7b7;
+    }
+
+    .dgb {
+        background-color: #b8b7b7;
+    }
+
+    .table_border .gb {
+        background-color: #e8e8e8;
     }
 
     .fg {
         min-width: 30px;
+        height: 28px;
     }
 
     .wb {
@@ -136,7 +148,25 @@
     .th_title {
         border: none;
         text-align: left;
+
     }
+
+    .th_title p {
+        font-size: 14px;
+    }
+
+    .ql-size-small {
+        font-size: 0.75em;
+    }
+
+    .ql-size-huge {
+        font-size: 2.5em;
+    }
+
+    .ql-size-large {
+        font-size: 1.5em;
+    }
+
 </style>
 <body>
 <!-- 页眉 -->
@@ -152,10 +182,10 @@
 
 <!--基础信息-->
 
-<table class="table_no_border">
+<table class="table_no_border info_table">
     <tr>
         <!-- 图片-->
-        <td style="width: 20%;" rowspan="13">
+        <td style="width: 20%;" rowspan="10">
             <img style="width: 100%" src="${stylePic}">
         </td>
         <td class="fg"></td>
@@ -170,8 +200,8 @@
         <td>品名*</td>
         <td>${productName}</td>
         <td class="fg"></td>
-        <td class="td_lt" rowspan="3">★★注意事项</td>
-        <td class="td_lt" rowspan="3">${mattersAttention}</td>
+        <td class="td_lt" rowspan="2">★★注意事项</td>
+        <td class="td_lt" rowspan="2">${mattersAttention}</td>
     </tr>
     <tr>
         <td class="fg"></td>
@@ -182,50 +212,58 @@
         <td class="fg"></td>
         <td>质量等级</td>
         <td>${qualityGrade}</td>
-    </tr>
-    <tr>
-        <td class="fg"></td>
-        <td class="gb">安全标题</td>
-        <td class="gb">${saftyTitle}</td>
         <td class="fg"></td>
         <td class="gb">洗唛材质备注</td>
         <td class="gb">${washingMaterialRemarks}</td>
     </tr>
     <tr>
         <td class="fg"></td>
-        <td>安全类别</td>
-        <td>${saftyType}</td>
+        <td class="gb">安全标题</td>
+        <td class="gb">${saftyTitle}</td>
         <td class="fg"></td>
         <td>充绒量</td>
         <td>${downContent}</td>
     </tr>
     <tr>
         <td class="fg"></td>
+        <td>安全类别</td>
+        <td>${saftyType}</td>
+        <td class="fg"></td>
+        <td class="gb">特殊规格</td>
+        <td class="gb">${specialSpec}</td>
+    </tr>
+    <tr>
+        <td class="fg"></td>
         <td class="gb">包装形式*</td>
         <td class="gb">${packagingForm}</td>
         <td class="fg"></td>
-        <td class="gb">特殊规格</td>
-        <td class="gb">2</td>
+        <td rowspan="2" class="td_lt">面料详情</td>
+        <td rowspan="2" class="td_lt">${fabricDetails}</td>
     </tr>
     <tr>
         <td class="fg"></td>
         <td>包装袋标准*</td>
         <td>${packagingBagStandard}</td>
-        <td class="fg"></td>
-        <td rowspan="3" class="td_lt">面料详情</td>
-        <td rowspan="3" class="td_lt">${fabricDetails}</td>
     </tr>
     <tr>
         <td class="fg"></td>
         <td class="gb">后技术工艺师</td>
         <td class="gb">${technologistName}</td>
+        <td class="fg"></td>
+        <td class="gb">描述</td>
+        <td class="gb">${remarks}</td>
     </tr>
     <tr>
         <td class="fg"></td>
         <td>后技术放码师</td>
         <td>${gradingName}</td>
     </tr>
+    <!-- 11 -->
     <tr>
+
+        <td style="text-align: center;font-weight: bold;">
+            扫码查看工艺单
+        </td>
         <td class="fg"></td>
         <td class="gb">后技术样衣工</td>
         <td class="gb">${sampleMakerName}</td>
@@ -234,6 +272,13 @@
         <td class="gb">${sizeRangeName}</td>
     </tr>
     <tr>
+
+        <!-- 二维码 -->
+        <td rowspan="8">
+            <#if  qrCodeUrl != '' >
+                <img style="width: 100%" src="${qrCodeUrl}">
+            </#if>
+        </td>
         <td class="fg"></td>
         <td>设计师*</td>
         <td>${designer}</td>
@@ -251,10 +296,7 @@
         <td>${placeOrderStaffName}</td>
     </tr>
     <tr>
-        <!-- 14 -->
-        <td style="text-align: center;font-weight: bold;">
-            扫码查看工艺单
-        </td>
+
         <td class="fg"></td>
         <td class="td_lt">成分信息*</td>
         <td class="td_lt">${ingredient}</td>
@@ -270,12 +312,6 @@
     </tr>
 
     <tr>
-        <!-- 二维码 -->
-        <td rowspan="4">
-            <#if  qrCodeUrl != '' >
-                <img style="width: 100%" src="${qrCodeUrl}">
-            </#if>
-        </td>
         <td class="fg"></td>
         <td colspan="5">
             <p>提示信息</p>
@@ -306,11 +342,15 @@
         <td class="gb">${produceDateStr}</td>
     </tr>
     <tr>
+        <!-- 空行 -->
+        <td colspan="6"></td>
+    </tr>
+    <tr>
         <td colspan="7">
             <p>洗标</p>
             <hr>
             <#if  washingLabel != '' >
-                <img style="height:36px" src="${washingLabel}">
+                <img style="height:24px" src="${washingLabel}">
             </#if>
         </td>
     </tr>
@@ -390,7 +430,7 @@
 
 <!--测量点 -->
 
-<table class="table_border small_table mt size_table" style="page-break-before: always; ">
+<table class="table_border mt size_table" style="page-break-before: always; ">
     <thead>
     <tr>
         <th colspan="${sizeTitleColspan}" class="th_title">
@@ -399,13 +439,11 @@
         </th>
     </tr>
     <tr class="size_tr gb">
-        <th rowspan="2" style="text-align: left;">部位</th>
-        <th rowspan="2" style="text-align: left;">描述</th>
+        <th rowspan="2" style="text-align: center;">部位</th>
+        <th rowspan="2" style="text-align: center;">描述</th>
         <#list sizeList as size>
             <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]}">
-                <#if size==defaultSize>★</#if>
                 ${size}
-                <#if size==defaultSize>★</#if>
             </th>
         </#list>
         <th rowspan="2" class="gc">公差(-)</th>
@@ -426,10 +464,10 @@
     <#list sizeDataList as item>
         <tr class="size_tr">
             <#if item.rowType=="1">
-                <td style="height: 32px;text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
+                <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
             <#else>
                 <#list item.rowData as c>
-                    <td style="height: 32px" class="${sizeClass[c_index]}"> ${c.text}</td>
+                    <td class="${c.className} ${sizeClass[c_index]}"> ${c.text}</td>
                 </#list>
             </#if>
         </tr>

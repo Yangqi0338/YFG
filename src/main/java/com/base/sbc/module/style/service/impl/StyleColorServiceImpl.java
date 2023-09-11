@@ -59,6 +59,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -80,8 +81,6 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
 
 	private final BasicsdatumColourLibraryMapper basicsdatumColourLibraryMapper;
 
-    private final StyleMapper styleMapper;
-
     private final UserUtils userUtils;
 
     private final AttachmentService attachmentService;
@@ -97,9 +96,12 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     private final PackInfoService packInfoService;
 
     private final PackInfoMapper packInfoMapper;
+    private final StyleMapper styleMapper;
 
     private final PackInfoStatusService packInfoStatusService;
     private final CcmFeignService ccmFeignService;
+
+
 /** 自定义方法区 不替换的区域【other_start】 **/
 
     /**
@@ -273,15 +275,25 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public Boolean batchAddSampleStyleColor(List<AddRevampStyleColorDto> list) {
-
-         int index =0;
+        int index = 0;
+        /*查询颜色*/
+        List<String> colourLibraryIds = list.stream().map(AddRevampStyleColorDto::getColourLibraryId).distinct().collect(Collectors.toList());
+        List<BasicsdatumColourLibrary> libraryList = basicsdatumColourLibraryMapper.selectBatchIds(colourLibraryIds);
+        /*颜色数据*/
+        Map<String, BasicsdatumColourLibrary> map = libraryList.stream().collect(Collectors.toMap(BasicsdatumColourLibrary::getId, c -> c));
+        /*查询款式主数据*/
+        List<String> styleMasterDataIds = list.stream().map(AddRevampStyleColorDto::getStyleId).distinct().collect(Collectors.toList());
+        List<Style> masterDataList = styleMapper.selectBatchIds(styleMasterDataIds);
+        Map<String, Style> map1 = masterDataList.stream().collect(Collectors.toMap(Style::getId, s -> s));
+        /*款式主数据数据*/
         for (AddRevampStyleColorDto addRevampStyleColorDto : list) {
-            BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(addRevampStyleColorDto.getColourLibraryId());
-            Style style = styleMapper.selectById(addRevampStyleColorDto.getStyleId());
+            BasicsdatumColourLibrary basicsdatumColourLibrary = map.get(addRevampStyleColorDto.getColourLibraryId());
+            Style style = map1.get(addRevampStyleColorDto.getStyleId());
+            addRevampStyleColorDto.setStyleId(style.getId());
             addRevampStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
-            addRevampStyleColorDto.setStyleNo(getNextCode(addRevampStyleColorDto.getStyleId(), style.getBrand(), style.getYearName(), style.getMonth(), style.getBandName(), style.getProdCategory(), style.getDesignNo(),style.getDesigner(), index++));
+            addRevampStyleColorDto.setStyleNo(getNextCode(style.getBrand(), style.getYearName(), style.getBandName(), style.getProdCategory(), style.getDesignNo(), style.getDesigner(), index++));
         }
         List<StyleColor> styleColorList = BeanUtil.copyToList(list, StyleColor.class);
         saveBatch(styleColorList);
@@ -289,19 +301,19 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     }
 
     /**
-     * 大货款号生成规则 品牌 + 年份 +月份 + 波段 +品类 +设计款号流水号+颜色流水号
+     * 大货款号生成规则 品牌 + 年份  + 波段 +品类 +设计款号流水号+颜色流水号
      *
-     * @param styleId
+     * @param
      * @param brand
      * @param year
-     * @param month
+     * @param
      * @param bandName
      * @param category
      * @param designNo
      * @return
      */
 
-    public String getNextCode(String styleId, String brand, String year, String month, String bandName, String category, String designNo, String designer,int index) {
+    public String getNextCode( String brand, String year,  String bandName, String category, String designNo, String designer,int index) {
         if(ccmFeignService.getSwitchByCode("STYLE_EQUAL_DESIGN_NO")){
            return  designNo;
         }
@@ -462,17 +474,6 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             }
             BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(addRevampStyleColorDto.getColourLibraryId());
             styleColor = baseMapper.selectById(addRevampStyleColorDto.getId());
-            /*判断波段及细分是否改动 改动则需要同步大货款号*/
-            if(StringUtils.isNotBlank(addRevampStyleColorDto.getSubdivide())){
-                if(!addRevampStyleColorDto.getSubdivide().equals(styleColor.getSubdivide())){
-                    /**
-                     * 修改所有引用的大货款号
-                     */
-                    baseMapper.reviseAllStyleNo(styleColor.getStyleNo(),styleColor.getStyleNo()+addRevampStyleColorDto.getSubdivide());
-                    /*新大货款号=大货款号+细分*/
-                    styleColor.setStyleNo(styleColor.getStyleNo()+addRevampStyleColorDto.getSubdivide());
-                }
-            }
             if(!addRevampStyleColorDto.getBandCode().equals(styleColor.getBandCode())) {
                 /*新大货款号 ：换标波段生成的字符*/
                 /**
@@ -498,6 +499,15 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
                  * 修改所有引用的大货款号
                  */
                 baseMapper.reviseAllStyleNo(styleColor.getStyleNo(),addRevampStyleColorDto.getStyleNo());
+            }
+            /*判断波段及细分是否改动 改动则需要同步大货款号*/
+            if(StringUtils.isNotBlank(addRevampStyleColorDto.getSubdivide())) {
+                /**
+                 * 修改所有引用的大货款号
+                 */
+                baseMapper.reviseAllStyleNo(styleColor.getStyleNo(), styleColor.getStyleNo() + addRevampStyleColorDto.getSubdivide());
+                /*新大货款号=大货款号+细分*/
+                addRevampStyleColorDto.setStyleNo(styleColor.getStyleNo() + addRevampStyleColorDto.getSubdivide());
             }
             if (ObjectUtils.isEmpty(styleColor)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);

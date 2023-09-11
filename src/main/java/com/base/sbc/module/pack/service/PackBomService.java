@@ -6,10 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
-import com.base.sbc.module.pack.dto.PackBomDto;
-import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
-import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
-import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
@@ -18,7 +15,6 @@ import com.base.sbc.module.sample.dto.FabricSummaryDTO;
 import com.base.sbc.module.sample.vo.FabricSummaryVO;
 import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
 import com.github.pagehelper.PageInfo;
-import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -64,6 +60,12 @@ public interface PackBomService extends PackBaseService<PackBom> {
      */
     boolean saveBatchByDto(String bomVersionId, String overlayFlg, List<PackBomDto> dtoList);
 
+    /**
+     *bom模板引用新增
+     * @param bomTemplateSaveDto
+     * @return
+     */
+    Boolean bomTemplateSave(BomTemplateSaveDto bomTemplateSaveDto);
 
     /**
      * 通过版本id 查询bom id
@@ -121,11 +123,14 @@ public interface PackBomService extends PackBaseService<PackBom> {
 
     /**
      * 查询物料下发状态
+     *
      * @param stringList
      * @return
      */
-    Map<String,String> getPackSendStatus(List<String> stringList);
+    Map<String, String> getPackSendStatus(List<String> stringList);
 
+
+    List<PackBomVo> list(String foreignId, String packType, String bomVersionId);
 // 自定义方法区 不替换的区域【other_end】
 
 

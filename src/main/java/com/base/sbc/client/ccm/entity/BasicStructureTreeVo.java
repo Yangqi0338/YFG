@@ -39,7 +39,7 @@ public class BasicStructureTreeVo {
     @ApiModelProperty(value = "子节点")
     private List<BasicStructureTreeVo> children;
 
-    public String getIds() {
+    public String getUid() {
         return IdUtil.getSnowflake().nextIdStr();
     }
 }

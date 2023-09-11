@@ -1,6 +1,7 @@
 package com.base.sbc.module.sample.vo;
 
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.module.patternmaking.vo.NodeStatusVo;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
@@ -24,7 +25,17 @@ import java.util.stream.Collectors;
 @Data
 @ApiModel("产前样-任务 PreProductionSampleTask")
 public class PreProductionSampleTaskVo extends PreProductionSampleTask {
+    /**
+     * 工艺部接收正确样时间
+     */
+    @TableField(exist = false)
+    private Date techReceiveDate;
 
+    /**
+     * 查版日期
+     */
+    @TableField(exist = false)
+    private Date sampleChaBanData;
 
     @UserAvatar("cutterId")
     @ApiModelProperty(value = "裁剪工头像")
