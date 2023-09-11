@@ -213,6 +213,37 @@ public class ImportExcel {
 	}
 
 	/**
+	 * 获取单元格值,指定单元格类型
+	 *
+	 * @param row    获取的行
+	 * @param column 获取单元格列号
+	 * @return 单元格值
+	 */
+	public Object getCellValueAppoint(Row row, int column, CellType cellType) {
+		Object val = "";
+		try {
+			Cell cell = row.getCell(column);
+			if (cell != null) {
+				cell.setCellType(cellType);
+				if (cellType == CellType.NUMERIC) {
+					val = cell.getNumericCellValue();
+				} else if (cellType == CellType.STRING) {
+					val = cell.getStringCellValue();
+				} else if (cellType == CellType.FORMULA) {
+					val = cell.getCellFormula();
+				} else if (cellType == CellType.BOOLEAN) {
+					val = cell.getBooleanCellValue();
+				} else if (cellType == CellType.ERROR) {
+					val = cell.getErrorCellValue();
+				}
+			}
+		} catch (Exception e) {
+			return val;
+		}
+		return val;
+	}
+
+	/**
 	 * 获取导入数据列表
 	 * 
 	 * @param cls    导入对象类型
