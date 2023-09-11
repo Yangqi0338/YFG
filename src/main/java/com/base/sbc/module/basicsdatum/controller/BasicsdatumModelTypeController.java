@@ -6,7 +6,12 @@
 *****************************************************************************/
 package com.base.sbc.module.basicsdatum.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumModelTypeDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
@@ -25,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
 * 类描述：基础资料-号型类型 Controller类
@@ -38,7 +44,7 @@ import javax.validation.Valid;
 @Api(tags = "基础资料-号型类型")
 @RequestMapping(value = BaseController.SAAS_URL + "/basicsdatumModelType", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class BasicsdatumModelTypeController{
+public class BasicsdatumModelTypeController extends BaseController{
 
 	@Autowired
 	private BasicsdatumModelTypeService basicsdatumModelTypeService;
@@ -86,7 +92,21 @@ public class BasicsdatumModelTypeController{
 		return basicsdatumModelTypeService.getById(id);
 	}
 
-
+	@ApiOperation(value = "通过code查询号型类型")
+	@GetMapping("/queryByCode")
+	public ApiResult queryByCode(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode, @RequestParam("code") String code) {
+		if(StringUtils.isBlank(code)){
+			return selectAttributeNotRequirements("code");
+		}
+		QueryWrapper<BasicsdatumModelType> qw = new QueryWrapper<>();
+		qw.eq("company_code", companyCode);
+		qw.eq("code", code);
+		List<BasicsdatumModelType> basicsdatumModelTypeList = basicsdatumModelTypeService.list(qw);
+		if(CollectionUtil.isNotEmpty(basicsdatumModelTypeList)){
+			return selectSuccess(basicsdatumModelTypeList.get(0));
+		}
+		return selectNotFound();
+	}
 }
 
 
