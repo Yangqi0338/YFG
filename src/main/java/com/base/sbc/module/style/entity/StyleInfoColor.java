@@ -65,5 +65,7 @@ public class StyleInfoColor extends BaseDataEntity<String> {
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
+    @ApiModelProperty(value = "是否已经核价：0否，1是"  )
+    private String pricingFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

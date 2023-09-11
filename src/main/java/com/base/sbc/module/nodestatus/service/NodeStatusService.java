@@ -7,13 +7,17 @@
 package com.base.sbc.module.nodestatus.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.nodestatus.dto.NodeStatusChangeDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：节点状态记录 service类
@@ -115,6 +119,5 @@ public interface NodeStatusService extends BaseService<NodeStatus> {
     JSONObject getNodeNextAndAuth(GroupUser user, BaseDataEntity bean, String patternMakingNodeStatus, String np);
 
 // 自定义方法区 不替换的区域【other_end】
-
-
+    List<NodeStatus> nsWorkList(@Param(Constants.WRAPPER) QueryWrapper qw);
 }

@@ -49,6 +49,13 @@ public interface StyleInfoColorService extends BaseService<StyleInfoColor>{
      */
     void insertStyleInfoColorList(PackInfoDto packInfoDto);
 
+    /**
+     * 更新颜色核价状态
+     * @param id
+     * @param pricingFlag
+     */
+    void updatePricingFlag(String id, String pricingFlag);
+
 // 自定义方法区 不替换的区域【other_end】
 
 	

@@ -16,4 +16,10 @@ public class SeatSendDto extends PlanningCategoryItem {
     @ApiModelProperty(value = "预计上市时间")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date expectedLaunchDate;
+
+
+    @ApiModelProperty(value = "样衣到仓时间")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date sampleDeliveryDate;
+
 }

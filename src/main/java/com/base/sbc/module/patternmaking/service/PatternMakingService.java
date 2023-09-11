@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** 
  * 类描述：打版管理 service类
@@ -214,7 +215,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @date 创建时间：2023-06-12 11:37
      * @version 1.0
      */
-    PageInfo patternMakingSteps0();
+    Map patternMakingSteps0(String userCompany);
 
     /**
      * 状态改版批量

@@ -534,39 +534,42 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return true;
     }
     @Override
-    public PageInfo patternMakingSteps0() {
-
-        QueryWrapper<PatternMaking> pmQw = new QueryWrapper<>();
-        List<PatternMaking> pmList = this.list(pmQw);
-        if (CollUtil.isEmpty(pmList)) {
-            return null;
-        }
-        List<String> pmIds = pmList.stream().map(PatternMaking::getId).collect(Collectors.toList());
-        List<StyleStepVo.PatternMakingStepVo> patternMakingStepVos = BeanUtil.copyToList(pmList, StyleStepVo.PatternMakingStepVo.class);
+    public Map patternMakingSteps0(String userCompany) {
+        Map<String, List<Map>> retMap = new HashMap<>();
         //查询节点状态
         QueryWrapper<NodeStatus> nsQw = new QueryWrapper<>();
-        nsQw.in("data_id", pmIds);
-        List<NodeStatus> nsList = nodeStatusService.list(nsQw);
+        nsQw.eq("company_code", userCompany);
+        nsQw.eq("end_flg", BaseGlobal.NO);
+        nsQw.eq("del_flag",BaseGlobal.NO);
+        nsQw.orderByAsc("start_date");
+        List<NodeStatus> nsList = nodeStatusService.nsWorkList(nsQw);
+        if (CollUtil.isEmpty(nsList)) {
+            return retMap;
+        }
         if (CollUtil.isNotEmpty(nsList)) {
-            Map<String, List<NodeStatus>> nsMap = nsList.stream().collect(Collectors.groupingBy(NodeStatus::getDataId));
-            for (StyleStepVo.PatternMakingStepVo patternMakingStepVo : patternMakingStepVos) {
-                Map<String, NodeStatus> stringNodeStatusMap = Optional.ofNullable(nsMap.get(patternMakingStepVo.getId())).map(item -> {
-                    return item.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> {
-                        if (DateUtil.compare(b.getStartDate(), a.getStartDate()) > 0) {
-                            return b;
-                        }
-                        return a;
-                    }));
-                }).orElse(null);
-                patternMakingStepVo.setNodeStatus(stringNodeStatusMap);
+            List<String> pmIds = nsList.stream().map(NodeStatus::getDataId).collect(Collectors.toList());
+            QueryWrapper<PatternMaking> pmQw = new QueryWrapper<>();
+            pmQw.in("id",pmIds);
+            List<Map<String, Object>> pmList = getBaseMapper().workPatternMakingSteps(pmQw);
+            if (CollUtil.isEmpty(pmList)) {
+                return retMap;
+            }
+            Map<String, String> nsMap = nsList.stream().collect(Collectors.toMap(v -> v.getDataId(),k -> k.getNode() + StrUtil.DASHED + k.getStatus(),  (a, b) -> b));
+            for (Map patternMaking : pmList) {
+                if(nsMap.containsKey(patternMaking.get("id"))){
+                    List<Map> patternMakings=null;
+                    if(retMap.containsKey(nsMap.get(patternMaking.get("id")))){
+                        patternMakings=retMap.get(nsMap.get(patternMaking.get("id")));
+                        patternMakings.add(patternMaking);
+                    }else {
+                        patternMakings=new ArrayList<>();
+                        patternMakings.add(patternMaking);
+                    }
+                    retMap.put(nsMap.get(patternMaking.get("id")),patternMakings);
+                }
             }
         }
-        LinkedHashMap<String, List<StyleStepVo.PatternMakingStepVo>> pmStepMap = patternMakingStepVos.stream().collect(Collectors.groupingBy(k -> k.getStyleId(), LinkedHashMap::new, Collectors.toList()));
-//        for (StyleStepVo styleStepVo : styleStepVos) {
-//            styleStepVo.setPatternMakingSteps(pmStepMap.get(styleStepVo.getId()));
-//        }
-
-        return null;
+        return retMap;
     }
     @Override
     public PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto) {

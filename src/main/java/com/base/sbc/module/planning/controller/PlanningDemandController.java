@@ -103,19 +103,19 @@ public class PlanningDemandController {
 	/*维度相关接口*/
 
 
-	/*获取维度列表*/
-	@ApiOperation(value = "获取维度列表")
-	@GetMapping("/getDimensionalityList")
-	public ApiResult getDimensionalityList(QueryPlanningDimensionalityDto queryDemandDimensionalityDto) {
-		return planningDimensionalityService.getDimensionalityList(queryDemandDimensionalityDto);
-	}
+    /*获取维度列表*/
+    @ApiOperation(value = "获取维度列表")
+    @GetMapping("/getDimensionalityList")
+    public ApiResult getDimensionalityList(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
+        return planningDimensionalityService.getDimensionalityList(queryDemandDimensionalityDto);
+    }
 
-	/*获取穿梭框表添加维度标签*/
-	@ApiOperation(value = "获取穿梭框表维度标签")
-	@GetMapping("/getFormDimensionality")
-	public ApiResult getFormDimensionality(QueryPlanningDimensionalityDto queryDemandDimensionalityDto) {
-		return planningDimensionalityService.getFormDimensionality(queryDemandDimensionalityDto);
-	}
+    /*获取穿梭框表添加维度标签*/
+    @ApiOperation(value = "获取穿梭框表维度标签")
+    @GetMapping("/getFormDimensionality")
+    public ApiResult getFormDimensionality(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
+        return planningDimensionalityService.getFormDimensionality(queryDemandDimensionalityDto);
+    }
 
 	/*新增删除维度标签*/
 	@ApiOperation(value = "新增删除维度标签")

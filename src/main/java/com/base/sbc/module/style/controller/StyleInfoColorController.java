@@ -15,6 +15,7 @@ import com.base.sbc.module.style.vo.StyleInfoColorVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -81,6 +82,13 @@ public class StyleInfoColorController extends BaseController{
 	@PutMapping
 	public ApiResult update(@RequestBody @Validated(GroupUpdate.class) StyleInfoColorDto styleInfoColorDto) {
 		styleInfoColorService.updateStyleInfoColorById(styleInfoColorDto);
+		return updateSuccess("修改成功");
+	}
+
+	@ApiOperation(value = "更新颜色核价状态")
+	@GetMapping("/updatePricingFlag")
+	public ApiResult updatePricingFlag(@Valid @NotBlank(message = "颜色id不可为空") String id,@NotBlank(message = "核价状态不可为空") String pricingFlag) {
+		styleInfoColorService.updatePricingFlag(id, pricingFlag);
 		return updateSuccess("修改成功");
 	}
 
