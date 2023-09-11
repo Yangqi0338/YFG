@@ -19,13 +19,12 @@ import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackSizeConfigService;
 import com.base.sbc.module.pack.vo.PackSizeConfigVo;
 import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.style.entity.StyleMasterData;
-import com.base.sbc.module.style.service.StyleMasterDataService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
@@ -44,10 +43,11 @@ public class PackSizeConfigServiceImpl extends PackBaseServiceImpl<PackSizeConfi
 
     @Autowired
     private PackInfoService packInfoService;
-
-
     @Autowired
-    private StyleMasterDataService styleMasterDataService;
+    @Lazy
+    private StyleService styleService;
+
+
 
 
     @Override
@@ -61,21 +61,21 @@ public class PackSizeConfigServiceImpl extends PackBaseServiceImpl<PackSizeConfi
         PackSizeConfig packSizeConfig = get(foreignId, packType);
         if (packSizeConfig == null) {
             PackInfo packInfo = packInfoService.getById(foreignId);
-            StyleMasterData styleMasterData = styleMasterDataService.getById(packInfo.getForeignId());
-            packSizeConfig = createByStyle(foreignId, packType, styleMasterData);
+            Style style = styleService.getById(packInfo.getForeignId());
+            packSizeConfig = createByStyle(foreignId, packType, style);
         }
 
         return BeanUtil.copyProperties(packSizeConfig, PackSizeConfigVo.class);
     }
 
     @Override
-    public PackSizeConfig createByStyle(String foreignId, String packType, StyleMasterData styleMasterData) {
-        PackSizeConfig packSizeConfig = BeanUtil.copyProperties(styleMasterData, PackSizeConfig.class);
+    public PackSizeConfig createByStyle(String foreignId, String packType, Style style) {
+        PackSizeConfig packSizeConfig = BeanUtil.copyProperties(style, PackSizeConfig.class);
         CommonUtils.resetCreateUpdate(packSizeConfig);
         packSizeConfig.setId(null);
         packSizeConfig.setForeignId(foreignId);
         packSizeConfig.setPackType(packType);
-        packSizeConfig.setActiveSizes(styleMasterData.getProductSizes());
+        packSizeConfig.setActiveSizes(style.getProductSizes());
         save(packSizeConfig);
         return packSizeConfig;
     }

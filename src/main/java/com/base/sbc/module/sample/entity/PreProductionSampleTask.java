@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -21,11 +20,11 @@ import java.util.Date;
 /**
  * 类描述：产前样-任务 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.PreProductionSampleTask
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-25 16:14:29
+ * @email your email
+ * @date 创建时间：2023-9-9 13:50:40
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -126,21 +125,6 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "样衣是否完成:(0否，1是)")
     private String sampleCompleteFlag;
-
-
-    /**
-     * 工艺部接收正确样时间
-     */
-    @TableField(exist = false)
-    private Date techReceiveDate;
-
-
-    /**
-     * 查版日期
-     */
-    @TableField(exist = false)
-    private Date sampleChaBanData;
-
     /**
      * 工艺单完成日期
      */
@@ -192,6 +176,12 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "是否齐套:0未齐套，1已齐套")
     private String kitting;
+    /**
+     * 齐套时间
+     */
+    @ApiModelProperty(value = "齐套时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date kittingTime;
     /**
      * 后技术备注说明
      */
@@ -257,21 +247,28 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "样衣制作评分")
     private BigDecimal sampleMakingScore;
-
-    /** SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开 */
-    @ApiModelProperty(value = "SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开"  )
-    private String scmSendFlag;
     /**
      * 流程完成状态:(0未完成,1已完成)
      */
     @ApiModelProperty(value = "流程完成状态:(0未完成,1已完成)")
     private String finishFlag;
-
     /**
-     * 齐套时间
+     * SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开
      */
-    private Date kittingTime;
-
+    @ApiModelProperty(value = "SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开")
+    private String scmSendFlag;
+    /**
+     * 工艺部接收正确样时间
+     */
+    @ApiModelProperty(value = "工艺部接收正确样时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date techReceiveDate;
+    /**
+     * 查版日期
+     */
+    @ApiModelProperty(value = "查版日期")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sampleChaBanData;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

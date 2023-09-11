@@ -1,6 +1,7 @@
 package com.base.sbc.module.planning.vo;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -45,6 +46,10 @@ public class ProductCategoryTreeVo {
     @ApiModelProperty(value = "品类code")
     private String prodCategory;
 
+    @ApiModelProperty(value = "中类code")
+    private String prodCategory2nd;
+    @ApiModelProperty(value = "中类名称")
+    private String prodCategory2ndName;
 
     public String getLabel() {
         if (level == 0) {
@@ -61,5 +66,9 @@ public class ProductCategoryTreeVo {
         List<String> val = CollUtil.newArrayList(name, prodCategory1stName, prodCategoryName);
         CollUtil.removeBlank(val);
         return CollUtil.join(val, "/");
+    }
+
+    public String getUid() {
+        return IdUtil.getSnowflake().nextIdStr();
     }
 }

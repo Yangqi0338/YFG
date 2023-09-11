@@ -251,7 +251,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     @Override
     public void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, String userCompany) {
         logger.info("HangTagService#updateStatus 更新状态 hangTagUpdateStatusDTO:{}, userCompany:{}", JSON.toJSONString(hangTagUpdateStatusDTO), userCompany);
-
         LambdaQueryWrapper<HangTag> queryWrapper = new QueryWrapper<HangTag>().lambda()
                 .in(HangTag::getId, hangTagUpdateStatusDTO.getIds())
                 .eq(HangTag::getCompanyCode, userCompany);

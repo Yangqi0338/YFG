@@ -16,11 +16,11 @@ import lombok.EqualsAndHashCode;
 /**
  * 类描述：资料包 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfo
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-17 10:31:54
+ * @email your email
+ * @date 创建时间：2023-9-9 9:26:58
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -35,9 +35,9 @@ public class PackInfo extends BaseDataEntity<String> {
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /**
-     * 主数据id(样衣设计id)
+     * 主数据id:款式主数据id(t_style_master_data)
      */
-    @ApiModelProperty(value = "主数据id(样衣设计id)")
+    @ApiModelProperty(value = "主数据id:款式主数据id(t_style_master_data)")
     private String foreignId;
     /**
      * 编号
@@ -59,6 +59,12 @@ public class PackInfo extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "坑位信息id")
     private String planningCategoryItemId;
+
+    /**
+     * 款式设计id:款式设计id(t_style)
+     */
+    @ApiModelProperty(value = "款式设计id:款式设计id(t_style)")
+    private String styleId;
     /**
      * 大类code
      */

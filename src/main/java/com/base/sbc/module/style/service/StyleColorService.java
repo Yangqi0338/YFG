@@ -117,7 +117,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
 
         /**
          * 方法描述 获取款式下的颜色
-         * @param styleId 款式id
+         * @param styleId 款式主数据id
          */
         List<String> getStyleColorId(String styleId);
 

@@ -44,6 +44,15 @@ public class AddRevampBasicsdatumModelTypeDto  {
 
     @ApiModelProperty(value = "尺码编码"  )
     private String  sizeCode;
+    /** 默认尺码 */
+    @ApiModelProperty(value = "默认尺码"  )
+    private String defaultSize;
+    /** 默认尺码id集合 */
+    @ApiModelProperty(value = "默认尺码id集合"  )
+    private String defaultSizeIds;
+    /** 默认尺码编码 */
+    @ApiModelProperty(value = "默认尺码编码"  )
+    private String defaultSizeCode;
     /** 基础 尺码 */
     @ApiModelProperty(value = "基础 尺码"  )
     private String basicsSize;

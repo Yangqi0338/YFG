@@ -129,7 +129,7 @@ public class StyleColorController {
 
     @ApiOperation(value = "获取款式下的颜色id")
     @GetMapping("/getStyleColorId")
-    public List<String> getStyleColorId(@Valid @NotBlank(message = "款式id") String styleId) {
+    public List<String> getStyleColorId(@Valid @NotBlank(message = "款式主数据id") String styleId) {
         return styleColorService.getStyleColorId(styleId);
     }
 

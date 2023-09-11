@@ -6,8 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.entity;
 import java.math.BigDecimal;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;

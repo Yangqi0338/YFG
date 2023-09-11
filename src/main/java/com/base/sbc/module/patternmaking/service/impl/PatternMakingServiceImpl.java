@@ -47,7 +47,6 @@ import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.style.service.StyleMasterDataService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.Page;
@@ -93,8 +92,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     private RedisUtils redisUtils;
     @Autowired
     private BaseController baseController;
-
-    private final StyleMasterDataService styleMasterDataService;
 
     @Override
     public List<PatternMakingListVo> findBySampleDesignId(String styleId) {
@@ -152,8 +149,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         patternMaking.setPatDiff(Opt.ofBlankAble(patternMaking.getPatDiff()).orElse(style.getPatDiff()));
         save(patternMaking);
 
-        /*复制出款式主数据*/
-        styleMasterDataService.createStyleMasterData(style.getId());
         return patternMaking;
     }
 
@@ -538,7 +533,44 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         attachmentService.saveAttachment(dto.getAttachmentList(), dto.getId(), AttachmentTypeConstant.PATTERN_MAKING_PATTERN);
         return true;
     }
-
+    @Override
+    public Map patternMakingSteps0(String userCompany) {
+        Map<String, List<Map>> retMap = new HashMap<>();
+        //查询节点状态
+        QueryWrapper<NodeStatus> nsQw = new QueryWrapper<>();
+        nsQw.eq("company_code", userCompany);
+        nsQw.eq("end_flg", BaseGlobal.NO);
+        nsQw.eq("del_flag",BaseGlobal.NO);
+        nsQw.orderByAsc("start_date");
+        List<NodeStatus> nsList = nodeStatusService.nsWorkList(nsQw);
+        if (CollUtil.isEmpty(nsList)) {
+            return retMap;
+        }
+        if (CollUtil.isNotEmpty(nsList)) {
+            List<String> pmIds = nsList.stream().map(NodeStatus::getDataId).collect(Collectors.toList());
+            QueryWrapper<PatternMaking> pmQw = new QueryWrapper<>();
+            pmQw.in("id",pmIds);
+            List<Map<String, Object>> pmList = getBaseMapper().workPatternMakingSteps(pmQw);
+            if (CollUtil.isEmpty(pmList)) {
+                return retMap;
+            }
+            Map<String, String> nsMap = nsList.stream().collect(Collectors.toMap(v -> v.getDataId(),k -> k.getNode() + StrUtil.DASHED + k.getStatus(),  (a, b) -> b));
+            for (Map patternMaking : pmList) {
+                if(nsMap.containsKey(patternMaking.get("id"))){
+                    List<Map> patternMakings=null;
+                    if(retMap.containsKey(nsMap.get(patternMaking.get("id")))){
+                        patternMakings=retMap.get(nsMap.get(patternMaking.get("id")));
+                        patternMakings.add(patternMaking);
+                    }else {
+                        patternMakings=new ArrayList<>();
+                        patternMakings.add(patternMaking);
+                    }
+                    retMap.put(nsMap.get(patternMaking.get("id")),patternMakings);
+                }
+            }
+        }
+        return retMap;
+    }
     @Override
     public PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto) {
         // 查询样衣信息

@@ -110,6 +110,11 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "状态:暂未使用")
     private String status;
     /**
+     * bom模板id
+     */
+    @ApiModelProperty(value = "bom模板id")
+    private String  bomTemplateId;
+    /**
      * 主材料标识(0否,1是)
      */
     @ApiModelProperty(value = "主材料标识(0否,1是)")

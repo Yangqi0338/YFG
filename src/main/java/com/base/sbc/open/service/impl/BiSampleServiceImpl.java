@@ -161,7 +161,7 @@ public class BiSampleServiceImpl extends ServiceImpl<BiSampleMapper, BiSample> i
 
                     //动态字段
 
-                    List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsBySdId(style.getId(), BaseGlobal.NO);
+                    List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsBySdId(style.getId());
                     if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
                         fieldManagementVoList.forEach(m -> {
                             if ("衣长分类".equals(m.getFieldName())) {

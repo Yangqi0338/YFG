@@ -5,23 +5,20 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
-
-import com.baomidou.mybatisplus.annotation.TableField;
+import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.util.List;
-
 /**
  * 类描述：基础资料-号型类型 实体类
  * @address com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType
- * @author mengfanjiang
- * @email 2915350015@qq.com
- * @date 创建时间：2023-5-20 9:31:14
+ * @author tzy
+ * @email 974849633@qq.com
+ * @date 创建时间：2023-9-9 15:29:29
  * @version 1.0
  */
 @Data
@@ -37,53 +34,66 @@ public class BasicsdatumModelType extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 号型类型 */
-    @ApiModelProperty(value = "号型类型"  )
-    private String modelType;
     /** 编码 */
     @ApiModelProperty(value = "编码"  )
     private String code;
     /** 描述 */
     @ApiModelProperty(value = "描述"  )
     private String description;
+    /** 状态(0正常,1停用) */
+    @ApiModelProperty(value = "状态(0正常,1停用)"  )
+    private String status;
+    /** 号型类型 */
+    @ApiModelProperty(value = "号型类型"  )
+    private String modelType;
     /** Dimension 1 Type */
     @ApiModelProperty(value = "Dimension 1 Type"  )
     private String dimensionType;
     /** 尺码 */
     @ApiModelProperty(value = "尺码"  )
     private String size;
+    /** 尺码id集合 */
     @ApiModelProperty(value = "尺码id集合"  )
     private String sizeIds;
+    /** 尺码编码 */
     @ApiModelProperty(value = "尺码编码"  )
-    private String  sizeCode;
+    private String sizeCode;
     /** 基础 尺码 */
     @ApiModelProperty(value = "基础 尺码"  )
     private String basicsSize;
+    /** 基础尺码编码（对应尺码排序） */
+    @ApiModelProperty(value = "基础尺码编码（对应尺码排序）"  )
+    private String basicsSizeSort;
+    /** 默认尺码 */
+    @ApiModelProperty(value = "默认尺码"  )
+    private String defaultSize;
+    /** 默认尺码id集合 */
+    @ApiModelProperty(value = "默认尺码id集合"  )
+    private String defaultSizeIds;
+    /** 默认尺码编码 */
+    @ApiModelProperty(value = "默认尺码编码"  )
+    private String defaultSizeCode;
     /** 品类 */
     @ApiModelProperty(value = "品类"  )
     private String categoryId;
     /** 品类名称 */
     @ApiModelProperty(value = "品类名称"  )
-    private String  categoryName;
-    /** 基础 尺码排序 */
-    @ApiModelProperty(value = "基础 尺码排序"  )
-    private String basicsSizeSort;
+    private String categoryName;
     /** 款式确认(1确定，0未确认) */
     @ApiModelProperty(value = "款式确认(1确定，0未确认)"  )
     private String styleConfirmation;
-    /** 材料确认(0确定，1未确认) */
+    /** 材料确认(1确定，0未确认) */
     @ApiModelProperty(value = "材料确认(1确定，0未确认)"  )
     private String materialsConfirmation;
-    /** 尺寸确认(0确定，1未确认) */
+    /** 尺寸确认(1确定，0未确认) */
     @ApiModelProperty(value = "尺寸确认(1确定，0未确认)"  )
     private String sizeConfirmation;
-    /** 发送状态(0发送，1未发送) */
+    /** 发送状态(1发送，0未发送) */
     @ApiModelProperty(value = "发送状态(1发送，0未发送)"  )
     private String sendStatus;
-    /** 状态(0正常,1停用) */
-    @ApiModelProperty(value = "状态(0正常,1停用)"  )
-    private String status;
+    /** 尺码标签id */
     @ApiModelProperty(value = "尺码标签id"  )
     private String sizeLabelId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+

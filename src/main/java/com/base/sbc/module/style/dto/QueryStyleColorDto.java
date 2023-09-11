@@ -12,8 +12,6 @@ public class QueryStyleColorDto extends Page {
      */
     @ApiModelProperty(value = "样衣id")
     private String styleId;
-    @ApiModelProperty(value = "款式主数据id")
-    private String styleMasterDataId;
     @ApiModelProperty(value = "品类")
     private String categoryName;
 

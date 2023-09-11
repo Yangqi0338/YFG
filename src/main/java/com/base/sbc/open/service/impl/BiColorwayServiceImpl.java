@@ -19,9 +19,8 @@ import com.base.sbc.module.pack.service.PackTechSpecService;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.style.dto.QueryStyleColorDto;
-import com.base.sbc.module.style.entity.StyleMasterData;
+import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleColorService;
-import com.base.sbc.module.style.service.StyleMasterDataService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.open.entity.BiColorway;
@@ -53,7 +52,6 @@ public class BiColorwayServiceImpl extends ServiceImpl<BiColorwayMapper, BiColor
     private final PackTechSpecService packTechSpecService;
     private final HangTagService hangTagService;
     private final BasicsdatumSizeService basicsdatumSizeService;
-    private final StyleMasterDataService styleMasterDataService;
     /**
      *
      */
@@ -68,7 +66,7 @@ public class BiColorwayServiceImpl extends ServiceImpl<BiColorwayMapper, BiColor
 
         for (StyleColorVo styleColorVo : sampleStyleColorList.getList()) {
 
-            StyleMasterData style = styleMasterDataService.getById(styleColorVo.getStyleMasterDataId());
+            Style style = styleService.getById(styleColorVo.getStyleId());
             BiColorway biColorway = new BiColorway();
             biColorway.setColorwayCode(styleColorVo.getStyleNo());
             biColorway.setColorSpecification(styleColorVo.getColorSpecification());

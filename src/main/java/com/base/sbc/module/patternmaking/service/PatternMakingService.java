@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** 
  * 类描述：打版管理 service类
@@ -205,6 +206,16 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @version 1.0
      */
     PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto);
+    /**
+     * 类描述：打版进度列表，工作台上面的
+     *
+     * @address com.base.sbc.module.patternmaking.service.PatternMakingService
+     * @author lixianglin
+     * @email li_xianglin@126.com
+     * @date 创建时间：2023-06-12 11:37
+     * @version 1.0
+     */
+    Map patternMakingSteps0(String userCompany);
 
     /**
      * 状态改版批量

@@ -148,6 +148,10 @@
           and pattern_design_id is not null
           and s.del_flag = '0'
     </select>
+    <select id="workPatternMakingSteps" resultType="java.util.Map">
+        select  id,code,pattern_no as patternNo,pattern_design_name as patternDesignName,pattern_designer_name AS patternDesignerName
+        from t_pattern_making ${ew.customSqlSegment}
+    </select>
     <select id="nsCount" resultType="java.util.Map">
         select CONCAT(node, '-', status) as nodeStatus, count(1) as total
         from t_pattern_making ${ew.customSqlSegment}

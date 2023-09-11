@@ -13,10 +13,7 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
-import com.base.sbc.module.pack.vo.PackInfoListVo;
-import com.base.sbc.module.pack.vo.PricingSelectListVO;
-import com.base.sbc.module.pack.vo.StylePackInfoListVo;
+import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
 import com.github.pagehelper.PageInfo;
 
@@ -103,6 +100,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 
     List<PackInfoListVo> queryByQw(QueryWrapper queryWrapper);
 
+    PackInfoListVo getByQw(QueryWrapper queryWrapper);
+
     PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(PackInfoSearchPageDto pageDto);
 
     /**
@@ -113,6 +112,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @return
      */
     PackInfoListVo getDetail(String id, String packType);
+
+    PackInfoListVo getByQw(String foreignId, String packType);
 
     boolean startApproval(String id);
 
@@ -190,6 +191,8 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
     boolean copyItems(PackCopyDto dto);
 
     BomPrintVo getBomPrint(GroupUser user, PackCommonSearchDto dto);
+
+    boolean updatePackInfoStatusField(PackInfoStatusVo dto);
 
 
 // 自定义方法区 不替换的区域【other_end】

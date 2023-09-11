@@ -23,7 +23,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfoStatus
  * @email your email
- * @date 创建时间：2023-9-1 17:16:19
+ * @date 创建时间：2023-9-9 13:50:40
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -63,6 +63,18 @@ public class PackInfoStatus extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "bom状态:(0样品,1大货)")
     private String bomStatus;
+    /**
+     * 设计转大货时间
+     */
+    @ApiModelProperty(value = "设计转大货时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date toBigGoodsDate;
+    /**
+     * 大货反审回设计时间
+     */
+    @ApiModelProperty(value = "大货反审回设计时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date toDesignDate;
     /**
      * 审核状态：待审核(1)、审核通过(2)、被驳回(-1)
      */
@@ -162,6 +174,21 @@ public class PackInfoStatus extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "工艺说明文件id")
     private String techSpecFileId;
+    /**
+     * 唛类信息
+     */
+    @ApiModelProperty(value = "唛类信息")
+    private String apparelLabels;
+    /**
+     * 特别注意
+     */
+    @ApiModelProperty(value = "特别注意")
+    private String specNotice;
+    /**
+     * 特殊工艺备注
+     */
+    @ApiModelProperty(value = "特殊工艺备注")
+    private String specialSpecComments;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

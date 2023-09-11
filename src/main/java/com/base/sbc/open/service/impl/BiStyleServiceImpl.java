@@ -76,12 +76,13 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
 
                 if (preProductionSampleTask != null) {
                     PackInfo packInfo = packInfoService.getById(preProductionSampleTask.getPackInfoId());
-                    StyleColor styleColor = styleColorService.getById(packInfo.getStyleColorId());
-                    if (styleColor != null) {
-                        //配色
-                        biStyle.setProductColor(styleColor.getColorName());
+                    if (packInfo!=null){
+                        StyleColor styleColor = styleColorService.getById(packInfo.getStyleColorId());
+                        if (styleColor != null) {
+                            //配色
+                            biStyle.setProductColor(styleColor.getColorName());
+                        }
                     }
-
                 }
 
 
@@ -186,7 +187,6 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
 
 
 
-
                  /*
                    产前样
                   */
@@ -211,7 +211,8 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
                     biStyle.setC8SampleRecivedCorrectData(preProductionSampleTask.getTechReceiveDate());
                     //查版日期 (工艺师查版,缺少字段)
                     biStyle.setC8SampleChaBanData(preProductionSampleTask.getSampleChaBanData());
-
+                    //面料检测单日期   无字段
+                    biStyle.setC8SampleMaterialDetData(preProductionSampleTask.getMaterialInfo());
                 }
                  /*
                  未知字段
@@ -220,13 +221,13 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
                 biStyle.setC8ProductSampleSampleFinQty(patternMaking.getRequirementNum().add(new BigDecimal(1)));
                 // 下发给版师时间 下发版师时间（指令）
                 String sampleTypeName = patternMaking.getSampleTypeName();
-                biStyle.setC8ProductSampleHO2SDTime("初版样".equals(sampleTypeName) ? patternMaking.getPrmSendDate() : patternMaking.getDesignSendDate());
+                biStyle.setC8ProductSampleHo2sdTime("初版样".equals(sampleTypeName) ? patternMaking.getPrmSendDate() : patternMaking.getDesignSendDate());
                 // 下发给版师状态 已发,等待下发，空白
-                biStyle.setC8ProductSampleHO2SDState("0".equals(patternMaking.getSampleCompleteFlag()) ? "等待下发" : "已发");
+                biStyle.setC8ProductSampleHo2sdState("0".equals(patternMaking.getSampleCompleteFlag()) ? "等待下发" : "已发");
                 // 下发给样衣组长时间 下发样衣组长时间（指令）
-                biStyle.setC8ProductSampleHO2STime(patternMaking.getDemandFinishDate());
+                biStyle.setC8ProductSampleHo2sTime(patternMaking.getDemandFinishDate());
                 // 下发给样衣组长状态  状态:已发,等待下发，空白
-                biStyle.setC8ProductSampleHO2SState("0".equals(patternMaking.getSampleBarCode()) ? "等待下发" : "已发");
+                biStyle.setC8ProductSampleHo2sState("0".equals(patternMaking.getSampleBarCode()) ? "等待下发" : "已发");
                 // 需求数量 样衣指令
                 biStyle.setRequestedQty(patternMaking.getRequirementNum().add(new BigDecimal(1)));
 
@@ -247,8 +248,7 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
 
                 //面辅料信息(含格式)
                 biStyle.setC8SampleMaterialInfo2(null);
-                //面料检测单日期   无字段
-                biStyle.setC8SampleMaterialDetData(null);
+
                 // 缺料备注
                 biStyle.setC8ProductSampleMatLackNote(null);
 

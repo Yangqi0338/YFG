@@ -10,16 +10,13 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Snowflake;
-import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
-import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
@@ -65,7 +62,10 @@ import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
-import com.base.sbc.module.planning.vo.*;
+import com.base.sbc.module.planning.vo.DimensionTotalVo;
+import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
+import com.base.sbc.module.planning.vo.PlanningSummaryVo;
+import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.sample.vo.MaterialVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
@@ -78,7 +78,6 @@ import com.base.sbc.module.style.entity.StyleInfoColor;
 import com.base.sbc.module.style.entity.StyleInfoSku;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
-import com.base.sbc.module.style.mapper.StyleMasterDataMapper;
 import com.base.sbc.module.style.service.StyleInfoColorService;
 import com.base.sbc.module.style.service.StyleInfoSkuService;
 import com.base.sbc.module.style.service.StyleService;
@@ -173,6 +172,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Resource
     private StyleInfoSkuService styleInfoSkuService;
     @Resource
+    @Lazy
     private HangTagService hangTagService;
     @Autowired
     private CcmService ccmService;
@@ -180,8 +180,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     private FieldOptionConfigService fieldOptionConfigService;
 
-    @Autowired
-    private StyleMasterDataMapper styleMasterDataMapper;
+
 
     private IdGen idGen = new IdGen();
 
@@ -321,11 +320,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (StrUtil.equals(dto.getOldDesignNo(), dto.getDesignNo())) {
             String newDesignNo = PlanningUtils.getNewDesignNo(dto.getDesignNo(), db.getDesigner(), dto.getDesigner());
             dto.setDesignNo(newDesignNo);
-            /*修改款式主数据款号*/
-            UpdateWrapper updateWrapper =new UpdateWrapper();
-            updateWrapper.set("design_no",newDesignNo);
-            updateWrapper.eq("style_id",dto.getId());
-            styleMasterDataMapper.update(null,updateWrapper);
         } else {
             String prefix = PlanningUtils.getDesignNoPrefix(db.getDesignNo(), db.getDesigner());
             if (StrUtil.startWith(dto.getDesignNo(), prefix)) {
@@ -513,9 +507,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (style != null) {
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
-                //设置样衣状态为 已开款
-                style.setStatus("1");
-                style.setConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+                //设置样衣未开款状态为 已开款
+                if(style.getStatus().equals(BaseGlobal.STOCK_STATUS_DRAFT)){
+                    style.setStatus("1");
+                    style.setConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+                }
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
@@ -639,7 +635,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         pdqw.setPlanningSeasonId(dto.getPlanningSeasonId());
         // 查询样衣的
         List<PlanningDimensionality> pdList = (List<PlanningDimensionality>) planningDimensionalityService.getDimensionalityList(pdqw).getData();
-        List<FieldVal> fvList = fieldValService.list(dto.getStyleId(), StrUtil.equals(dto.getMasterDataFlag(),BaseGlobal.YES)?FieldValDataGroupConstant.STYLE_MASTER_DATA_DIMENSION:FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+        List<FieldVal> fvList = fieldValService.list(dto.getStyleId(),FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
             List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
@@ -685,7 +681,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         return result;
     }
     @Override
-    public List<FieldManagementVo> queryDimensionLabelsBySdId(String id,String masterDataFlag) {
+    public List<FieldManagementVo> queryDimensionLabelsBySdId(String id) {
         Style style = getById(id);
         if (style == null) {
             return null;
@@ -695,7 +691,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         dto.setPlanningSeasonId(style.getPlanningSeasonId());
         dto.setCategoryId(style.getProdCategory());
         dto.setPlanningCategoryItemId(style.getPlanningCategoryItemId());
-        dto.setMasterDataFlag(masterDataFlag);
         return queryDimensionLabels(dto);
     }
 
@@ -981,19 +976,32 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 return result;
             }
         } else if (vo.getLevel() == 1) {
-            basicStructureTreeVoList = ccmFeignService.basicStructureTreeByCode("品类", "", "1");
-            basicStructureTreeVoList = basicStructureTreeVoList.stream().filter(s -> s.getParentId().equals(vo.getId())).collect(Collectors.toList());
+            basicStructureTreeVoList = ccmFeignService.queryBasicStructureNextLevelList("品类", vo.getProdCategory1st(), 0);
             if (CollUtil.isNotEmpty(planningSeasonList)) {
                 List<ProductCategoryTreeVo> result = basicStructureTreeVoList.stream().map(ps -> {
                     ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
                     tree.setIds(idGen.nextIdStr());
+                    tree.setId(ps.getId());
                     tree.setLevel(2);
-                    tree.setChildren(false);
+                    tree.setChildren(true);
                     tree.setProdCategory(ps.getValue());
                     tree.setProdCategoryName(ps.getName());
-                    tree.setProdCategory1st(vo.getProdCategory1st());
-                    tree.setProdCategory1stName(vo.getProdCategory1stName());
                     tree.setPlanningSeasonId(vo.getPlanningSeasonId());
+                    tree.setName(ps.getName());
+                    return tree;
+                }).collect(Collectors.toList());
+                return result;
+            }
+        } else if (vo.getLevel() == 2) {
+            basicStructureTreeVoList = ccmFeignService.queryBasicStructureNextLevelList("品类", vo.getProdCategory(), 1);
+            if (CollUtil.isNotEmpty(planningSeasonList)) {
+                List<ProductCategoryTreeVo> result = basicStructureTreeVoList.stream().map(ps -> {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setIds(idGen.nextIdStr());
+                    tree.setLevel(3);
+                    tree.setChildren(false);
+                    tree.setProdCategory2nd(ps.getValue());
+                    tree.setProdCategory2ndName(ps.getName());
                     tree.setName(ps.getName());
                     return tree;
                 }).collect(Collectors.toList());
@@ -1072,6 +1080,13 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         StyleVo detail = getDetail(id);
         detail.setColorPlanningCount(colorPlanningService.getColorPlanningCount(detail.getPlanningSeasonId()));
         detail.setThemePlanningCount(themePlanningService.getThemePlanningCount(detail.getPlanningSeasonId()));
+        List<BasicsdatumModelType> basicsdatumModelTypeList = basicsdatumModelTypeService.queryByCode(detail.getCompanyCode(), detail.getSizeRange());
+        if(CollectionUtil.isNotEmpty(basicsdatumModelTypeList)){
+            BasicsdatumModelType modelType = basicsdatumModelTypeList.get(0);
+            detail.setSizeRangeSizes(modelType.getSize());
+            detail.setSizeRangeSizeIds(modelType.getSizeIds());
+            detail.setSizeRangeSizeCodes(modelType.getSizeCode());
+        }
         if (StrUtil.isBlank(historyStyleId)) {
             return detail;
         }

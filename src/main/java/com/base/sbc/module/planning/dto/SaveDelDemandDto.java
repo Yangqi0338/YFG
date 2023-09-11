@@ -20,25 +20,38 @@ public class SaveDelDemandDto {
     /** 大类 */
     @ApiModelProperty(value = "大类"  )
     private String prodCategory1st;
-    /** 大类名称 */
-    @ApiModelProperty(value = "大类名称"  )
+    /**
+     * 大类名称
+     */
+    @ApiModelProperty(value = "大类名称")
     private String prodCategory1stName;
-    /** 品类 */
-    @ApiModelProperty(value = "品类"  )
+    /**
+     * 品类
+     */
+    @ApiModelProperty(value = "品类")
     private String prodCategory;
-    /** 品类名称 */
-    @ApiModelProperty(value = "品类名称"  )
+    /**
+     * 品类名称
+     */
+    @ApiModelProperty(value = "品类名称")
     private String prodCategoryName;
 
-    @ApiModelProperty(value = "需求占比" ,  required = true ,example = "111")
+    @ApiModelProperty(value = "中类code")
+    private String prodCategory2nd;
+    @ApiModelProperty(value = "中类名称")
+    private String prodCategory2ndName;
+
+    @ApiModelProperty(value = "需求占比", required = true, example = "111")
     @NotBlank(message = "需求名称")
     private String demandName;
 
-    @ApiModelProperty(value = "formTypeId" ,required = true,example = "122222")
+    @ApiModelProperty(value = "formTypeId", required = true, example = "122222")
     @NotNull(message = "表单id不能为空")
-    private String  formTypeId;
+    private String formTypeId;
 
-    /** 字段id */
+    /**
+     * 字段id
+     */
     @ApiModelProperty(value = "字段id"  )
     private String fieldId;
 

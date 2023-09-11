@@ -8,6 +8,7 @@ package com.base.sbc.module.sample.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -22,7 +23,6 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
-import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
@@ -181,11 +181,11 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     public boolean createByPackInfo(PackInfoListVo vo) {
         //
         Style style = styleService.getById(vo.getStyleId());
+
         if (style == null) {
             throw new OtherException("款式信息为空");
         }
-        PackInfo packInfo = packInfoService.getById(vo.getId());
-
+        PackInfoListVo packInfo = packInfoService.getByQw(vo.getStyleId(), vo.getPackType());
         if (packInfo == null) {
             throw new OtherException("标准资料包数据为空");
         }
@@ -193,10 +193,12 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         task.setStyleId(style.getId());
         task.setPackInfoId(packInfo.getId());
         task.setPlanningSeasonId(style.getPlanningSeasonId());
+        task.setDesignDetailTime(packInfo.getToBigGoodsDate());
+
         QueryWrapper<PreProductionSampleTask> countQc = new QueryWrapper<>();
         countQc.eq("style_id", style.getId());
         long count = getBaseMapper().countByQw(countQc);
-        task.setCode(packInfo.getStyleNo() + StrUtil.DASHED + (count + 1));
+        task.setCode(Opt.ofBlankAble(packInfo.getStyleNo()).orElse(packInfo.getDesignNo()) + StrUtil.DASHED + (count + 1));
         return save(task);
     }
 

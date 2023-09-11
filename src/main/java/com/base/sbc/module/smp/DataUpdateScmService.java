@@ -9,7 +9,6 @@ import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -37,11 +36,10 @@ public class DataUpdateScmService {
 
     @Autowired
     @Lazy
-    private StyleMapper styleMapper;
-
+    private BasicsdatumColourLibraryMapper basicsdatumColourLibraryMapper;
     @Autowired
     @Lazy
-    private BasicsdatumColourLibraryMapper basicsdatumColourLibraryMapper;
+    private StyleMapper styleMapper;
 
     @Autowired
     @Lazy
@@ -86,12 +84,11 @@ public class DataUpdateScmService {
      * 每次修改配色信息调用该方法
      * 发送款式下以下发或可编辑状态的数据
      *
-     * @param styleId 款式id
+     * @param styleId 款式主数据id
      * @return
      */
-
     public void updateStyleSendById(String styleId) {
-        Style style = styleMapper.selectById(styleId);
+        Style style  = styleMapper.selectById(styleId);
         if (!ObjectUtils.isEmpty(style)) {
             /*查询款式下的已下发及可编辑配色*/
             QueryWrapper queryWrapper = new QueryWrapper();
@@ -118,7 +115,7 @@ public class DataUpdateScmService {
         queryWrapper.eq("design_no", designNo);
         List<Style> styleList = styleMapper.selectList(queryWrapper);
         if (!CollectionUtils.isEmpty(styleList)) {
-            updateColorSendById(styleList.get(0).getId());
+            updateStyleSendById(styleList.get(0).getId());
         }
     }
 
