@@ -6,8 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.CommonUtils;
@@ -17,13 +19,14 @@ import com.base.sbc.module.formType.entity.FieldManagement;
 import com.base.sbc.module.formType.entity.FormType;
 import com.base.sbc.module.formType.mapper.FieldManagementMapper;
 import com.base.sbc.module.formType.mapper.FormTypeMapper;
-import com.base.sbc.module.planning.dto.QueryPlanningDimensionalityDto;
+import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.SaveDelDimensionalityDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
+import com.base.sbc.module.planning.utils.PlanningUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,30 +61,31 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
 
 
     @Override
-    public ApiResult getDimensionalityList(QueryPlanningDimensionalityDto queryPlanningDimensionalityDto) {
-        QueryWrapper<PlanningDimensionality> planningDimensionalityQueryWrapper = new QueryWrapper<>();
-        planningDimensionalityQueryWrapper.eq("category_id", queryPlanningDimensionalityDto.getCategoryId());
-        planningDimensionalityQueryWrapper.eq("planning_season_id", queryPlanningDimensionalityDto.getPlanningSeasonId());
-        List<PlanningDimensionality> planningDimensionalityList = baseMapper.selectList(planningDimensionalityQueryWrapper);
+    public ApiResult getDimensionalityList(DimensionLabelsSearchDto dto) {
+        BaseQueryWrapper<PlanningDimensionality> qw = new BaseQueryWrapper<>();
+        PlanningUtils.dimensionCommonQw(qw, dto);
+        qw.eq("planning_season_id", dto.getPlanningSeasonId());
+        List<PlanningDimensionality> planningDimensionalityList = baseMapper.selectList(qw);
         return ApiResult.success("查询成功", planningDimensionalityList);
     }
 
     @Override
-    public ApiResult getFormDimensionality(QueryPlanningDimensionalityDto queryPlanningDimensionalityDto) {
+    public ApiResult getFormDimensionality(DimensionLabelsSearchDto DimensionLabelsSearchDto) {
         QueryWrapper<FormType> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("name", "维度标签");
         /*查询该品类已存在的需求*/
         List<FormType> planningDemandList = formTypeMapper.selectList(queryWrapper);
-        QueryWrapper<FieldManagement> fieldManagementQueryWrapper = new QueryWrapper<>();
-        fieldManagementQueryWrapper.like("category_id", queryPlanningDimensionalityDto.getCategoryId());
+        BaseQueryWrapper<FieldManagement> fieldManagementQueryWrapper = new BaseQueryWrapper<>();
+        PlanningUtils.dimensionCommonQw(fieldManagementQueryWrapper, DimensionLabelsSearchDto);
+
         fieldManagementQueryWrapper.in("form_type_id", planningDemandList.get(0).getId());
         /*查询以选择需求占比的所有字段*/
         List<FieldManagement> fieldManagementList = fieldManagementMapper.selectList(fieldManagementQueryWrapper);
         Map<String, List> map = new HashMap<>();
         map.put("fieldManagementList", fieldManagementList);
-        QueryWrapper<PlanningDimensionality> planningDimensionalityQueryWrapper = new QueryWrapper<>();
-        planningDimensionalityQueryWrapper.eq("category_id", queryPlanningDimensionalityDto.getCategoryId());
-        planningDimensionalityQueryWrapper.eq("planning_season_id", queryPlanningDimensionalityDto.getPlanningSeasonId());
+        BaseQueryWrapper<PlanningDimensionality> planningDimensionalityQueryWrapper = new BaseQueryWrapper<>();
+        PlanningUtils.dimensionCommonQw(planningDimensionalityQueryWrapper, DimensionLabelsSearchDto);
+        planningDimensionalityQueryWrapper.eq("planning_season_id", DimensionLabelsSearchDto.getPlanningSeasonId());
         List<PlanningDimensionality> planningDimensionalityList = baseMapper.selectList(planningDimensionalityQueryWrapper);
         List<String> stringList1 = planningDimensionalityList.stream().map(PlanningDimensionality::getDimensionalityName).collect(Collectors.toList());
         List<FieldManagement> fieldManagementList2 = fieldManagementList.stream().filter(f -> stringList1.contains(f.getFieldName())).collect(Collectors.toList());
@@ -139,18 +143,13 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         // 新增
         if (CommonUtils.isInitId(dto.getId())) {
             planningDimensionality = new PlanningDimensionality();
-            planningDimensionality.setDimensionalityName(dto.getDimensionalityName());
-            planningDimensionality.setIsExamine(dto.getIsExamine());
-            planningDimensionality.setCategoryId(dto.getCategoryId());
-            planningDimensionality.setPlanningSeasonId(dto.getPlanningSeasonId());
-            planningDimensionality.setFieldId(dto.getFieldId());
+            BeanUtil.copyProperties(dto, planningDimensionality);
             planningDimensionality.setDelFlag(BaseGlobal.NO);
             baseMapper.insert(planningDimensionality);
         } else {
             /*调整维度*/
             planningDimensionality = baseMapper.selectById(dto.getId());
-            planningDimensionality.setDimensionalityName(dto.getDimensionalityName());
-            planningDimensionality.setIsExamine(dto.getIsExamine());
+            BeanUtil.copyProperties(dto, planningDimensionality);
             planningDimensionality.updateInit();
             baseMapper.updateById(planningDimensionality);
         }

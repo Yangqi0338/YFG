@@ -8,48 +8,93 @@ package com.base.sbc.module.planning.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 /**
  * 类描述：企划-维度表 实体类
- * @address com.base.sbc.module.planning.entity.PlanningDimensionality
- * @author lxl
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-4-27 11:15:30
+ *
+ * @author your name
  * @version 1.0
+ * @address com.base.sbc.module.planning.entity.PlanningDimensionality
+ * @email your email
+ * @date 创建时间：2023-9-11 9:19:32
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("t_planning_dimensionality")
+@ApiModel("企划-维度表 PlanningDimensionality")
 public class PlanningDimensionality extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private static final long serialVersionUID = 1L;
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
-	/**********************************实体存放的其他字段区 【other_end】******************************************/
+    /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 字段管理id */
-    @ApiModelProperty(value = "字段管理id"  )
+    /**
+     * 字段管理id
+     */
+    @ApiModelProperty(value = "字段管理id")
     private String fieldId;
-    /** 维度名称 */
-    @ApiModelProperty(value = "维度名称"  )
-    private String dimensionalityName;
-    /** 是否检查 */
-    @ApiModelProperty(value = "是否检查"  )
-    private String isExamine;
-
-    /** 品类id */
-    @ApiModelProperty(value = "品类id"  )
+    /**
+     * 品类id
+     */
+    @ApiModelProperty(value = "品类id")
     private String categoryId;
-
-    @ApiModelProperty(value = "产品季id"  )
+    /**
+     * 产品季id
+     */
+    @ApiModelProperty(value = "产品季id")
     private String planningSeasonId;
-
-    /** 状态(0正常,1停用) */
-    @ApiModelProperty(value = "状态(0正常,1停用)"  )
+    /**
+     * 大类
+     */
+    @ApiModelProperty(value = "大类")
+    private String prodCategory1st;
+    /**
+     * 大类名称
+     */
+    @ApiModelProperty(value = "大类名称")
+    private String prodCategory1stName;
+    /**
+     * 品类
+     */
+    @ApiModelProperty(value = "品类")
+    private String prodCategory;
+    /**
+     * 品类名称
+     */
+    @ApiModelProperty(value = "品类名称")
+    private String prodCategoryName;
+    /**
+     * 中类code
+     */
+    @ApiModelProperty(value = "中类code")
+    private String prodCategory2nd;
+    /**
+     * 中类名称
+     */
+    @ApiModelProperty(value = "中类名称")
+    private String prodCategory2ndName;
+    /**
+     * 维度名称
+     */
+    @ApiModelProperty(value = "维度名称")
+    private String dimensionalityName;
+    /**
+     * 是否检查
+     */
+    @ApiModelProperty(value = "是否检查")
+    private String isExamine;
+    /**
+     * 状态(0正常,1停用)
+     */
+    @ApiModelProperty(value = "状态(0正常,1停用)")
     private String status;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+

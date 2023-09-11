@@ -12,16 +12,27 @@ import java.util.List;
 public class FieldManagementVo {
 
     private String id;
-    /** 表单类型主键 */
-    @ApiModelProperty(value = "表单类型主键"  )
+
+    @ApiModelProperty(value = "字段id")
+    private String fieldId;
+    /**
+     * 表单类型主键
+     */
+    @ApiModelProperty(value = "表单类型主键")
     private String formTypeId;
-    /** 分组名称 */
-    @ApiModelProperty(value = "分组名称"  )
+    /**
+     * 分组名称
+     */
+    @ApiModelProperty(value = "分组名称")
     private String groupName;
-    /** 字段名称 */
-    @ApiModelProperty(value = "字段名称"  )
+    /**
+     * 字段名称
+     */
+    @ApiModelProperty(value = "字段名称")
     private String fieldName;
-    /** 字段类型id */
+    /**
+     * 字段类型id
+     */
     @ApiModelProperty(value = "字段类型id"  )
     private String fieldTypeId;
     @ApiModelProperty(value = "字段类型"  )

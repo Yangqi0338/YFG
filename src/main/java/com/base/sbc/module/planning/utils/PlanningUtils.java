@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
@@ -113,4 +114,35 @@ public class PlanningUtils {
         }
         return designNo;
     }
+
+    /**
+     * 维度标签公共查询条件
+     *
+     * @param qw
+     * @param bean
+     * @param prefix 表别名
+     */
+    public static void dimensionCommonQw(BaseQueryWrapper qw, Object bean, String prefix) {
+        PlanningCategoryItem dto = BeanUtil.copyProperties(bean, PlanningCategoryItem.class);
+        if (StrUtil.equals(dto.getCategoryFlag(), BaseGlobal.NO)) {
+            dto.setProdCategory2nd("");
+        }
+        if (prefix == null) {
+            prefix = "";
+        }
+        if (StrUtil.isNotBlank(dto.getProdCategory2nd())) {
+            qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), prefix + "prod_category1st", dto.getProdCategory1st());
+            qw.eq(prefix + "prod_category", dto.getProdCategory());
+            qw.eq(prefix + "prod_category2nd", dto.getProdCategory2nd());
+        } else {
+            qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), prefix + "prod_category1st", dto.getProdCategory1st());
+            qw.eq(prefix + "prod_category", dto.getProdCategory());
+            qw.isNull(prefix + "prod_category2nd");
+        }
+    }
+
+    public static void dimensionCommonQw(BaseQueryWrapper qw, Object bean) {
+        dimensionCommonQw(qw, bean, "");
+    }
+
 }

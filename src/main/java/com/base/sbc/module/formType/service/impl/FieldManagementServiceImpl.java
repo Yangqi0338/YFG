@@ -241,6 +241,7 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
         Map<String, FieldVal> valMap = Optional.ofNullable(valueList).orElse(new ArrayList<>())
                 .stream().collect(Collectors.toMap(k -> k.getFieldName(), v -> v, (a, b) -> b));
         for (FieldManagementVo vo : fieldList) {
+            vo.setFieldId(vo.getId());
             vo.setId(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getId).orElse(idGen.nextIdStr()));
             vo.setVal(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getVal).orElse(null));
             vo.setValName(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getValName).orElse(null));

@@ -11,6 +11,7 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
@@ -23,6 +24,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseEntity;
@@ -532,8 +534,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
          * 查询标签维度中选中的字段
          */
         List<FieldManagementVo> fieldList = new ArrayList<>();
-        QueryWrapper queryWrapper = new QueryWrapper();
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
         queryWrapper.eq("planning_season_id", seat.getPlanningSeasonId());
+        PlanningUtils.dimensionCommonQw(queryWrapper, seat);
         List<PlanningDimensionality> dimensionalityList = planningDimensionalityMapper.selectList(queryWrapper);
         if (CollUtil.isNotEmpty(dimensionalityList)) {
             List<String> stringList = dimensionalityList.stream().map(PlanningDimensionality::getFieldId).distinct().collect(Collectors.toList());
@@ -541,17 +544,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             if (CollUtil.isNotEmpty(fieldList)) {
                 List<String> stringList2 = fieldList.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
                 QueryFieldOptionConfigDto queryFieldOptionConfigDto = new QueryFieldOptionConfigDto();
-
-                if (StringUtils.isNotBlank(categoryFlag)) {
-//                修改坑位品类标识
-                    if (StringUtils.isNotBlank(categoryFlag)) {
-                        seat.setCategoryFlag(categoryFlag);
-                        baseMapper.updateById(seat);
-                    }
-                } else {
-//                那坑位的数据
-                    categoryFlag = seat.getCategoryFlag();
-                }
+                categoryFlag = Opt.ofBlankAble(seat.getCategoryFlag()).orElse(BaseGlobal.NO);
                 if (categoryFlag.equals(BaseGlobal.YES)) {
                     queryFieldOptionConfigDto.setProdCategory2nd(seat.getProdCategory2nd());
                 } else {
@@ -564,6 +557,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                 Map<String, List<FieldOptionConfig>> listMap = fieldOptionConfigService.getFieldConfig(queryFieldOptionConfigDto);
 
                 fieldList.forEach(f -> {
+                    f.setFieldId(f.getId());
                     List<FieldOptionConfig> list = listMap.get(f.getId());
                     if (CollUtil.isNotEmpty(list)) {
                         f.setConfigVoList(BeanUtil.copyToList(list, FieldOptionConfigVo.class));

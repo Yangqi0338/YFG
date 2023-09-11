@@ -1,4 +1,4 @@
-package com.base.sbc.module.style.dto;
+package com.base.sbc.module.planning.dto;
 
 
 import io.swagger.annotations.ApiModel;
@@ -27,9 +27,27 @@ public class DimensionLabelsSearchDto {
     @ApiModelProperty(value = "产品季id", example = "0")
     @NotBlank(message = "产品季id不能为空")
     private String planningSeasonId;
-    @ApiModelProperty(value = "品类id(2级)", example = "0")
-    @NotBlank(message = "品类不能为空")
-    private String categoryId;
+    /**
+     * 大类code
+     */
+    @ApiModelProperty(value = "大类code")
+    private String prodCategory1st;
+    /**
+     * 品类code
+     */
+    @ApiModelProperty(value = "品类code")
+    private String prodCategory;
+    /**
+     * 中类code
+     */
+    @ApiModelProperty(value = "中类code")
+    private String prodCategory2nd;
+    /**
+     * 小类code
+     */
+    @ApiModelProperty(value = "小类code")
+    private String prodCategory3rd;
 
-
+    @ApiModelProperty(value = "品类标识 0品类 1中类")
+    private String categoryFlag;
 }
