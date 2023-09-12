@@ -199,6 +199,11 @@ public class PatternMakingController {
     public PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto) {
         return patternMakingService.patternMakingSteps(dto);
     }
+    @ApiOperation(value = "研发总进度", notes = "")
+    @GetMapping("/allProgressSteps")
+    public PageInfo allProgressSteps(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+        return patternMakingService.allProgressSteps(userCompany);
+    }
     @ApiOperation(value = "工作台使用的打版进度列表", notes = "")
     @GetMapping("/work/patternMakingSteps")
     public Map patternMakingSteps0(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
