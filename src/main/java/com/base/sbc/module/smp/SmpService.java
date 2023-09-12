@@ -561,7 +561,8 @@ public class SmpService {
             }
             Style style = styleService.getOne(new QueryWrapper<Style>().eq("id", packInfo.getForeignId()));
             StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
-            smpBomDto.setBomStage("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
+            //"0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production"
+            smpBomDto.setBomStage(stylePricingVO.getBomStage());
             //样衣-款式配色
             StyleColor styleColor = sampleStyleColorService.getById(packInfo.getStyleColorId());
             if (styleColor == null) {
