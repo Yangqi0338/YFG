@@ -240,8 +240,11 @@ public class HangTagDTO {
     /**
      * 贮藏要求
      */
-    @ApiModelProperty(value = "贮藏要求")
+    @ApiModelProperty(value = "贮藏要求code")
     private String storageDemand;
+
+    @ApiModelProperty(value = "贮藏要求内容")
+    private String storageDemandName;
     /**
      * 产地
      */
