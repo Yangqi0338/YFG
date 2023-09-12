@@ -790,6 +790,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         PatternMaking byId = getById(dto.getId());
         byId.setStitcher(dto.getStitcher());
         byId.setStitcherId(dto.getStitcherId());
+        byId.setSglKitting(dto.getSglKitting());
+        byId.setSglKittingDate(new Date());
         //分配后进入下一节点
         nodeStatusService.nextOrPrev(groupUser, byId, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
         return updateById(byId);

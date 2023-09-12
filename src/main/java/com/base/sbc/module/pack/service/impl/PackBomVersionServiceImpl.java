@@ -439,16 +439,25 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         Map<String, PackBom> bomMap = new HashMap<>(16);
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         Validator validator = validatorFactory.getValidator();
-        PackBomEmptyCheckDto c = null;
+        PackBomBigGoodsEmptyCheckDto pe =null;
+        PackBomDesignEmptyCheckDto pd =null;
         List<String> errorMessage = new ArrayList<>(16);
         Map<String, List<String>> errorMsg = new HashMap<>(16);
         for (PackBom packBom : bomList) {
             errorMsg.put(packBom.getId(), CollUtil.newArrayList());
             bomMap.put(packBom.getId(), packBom);
-            c = BeanUtil.copyProperties(packBom, PackBomEmptyCheckDto.class);
-            Set<ConstraintViolation<PackBomEmptyCheckDto>> validate = validator.validate(c);
-            if (CollUtil.isNotEmpty(validate)) {
-                errorMsg.get(packBom.getId()).addAll(validate.stream().map(item -> item.getMessage()).collect(Collectors.toList()));
+            if(StrUtil.equals(packBom.getPackType(),"packDesign")){
+                pd = BeanUtil.copyProperties(packBom, PackBomDesignEmptyCheckDto.class);
+                Set<ConstraintViolation<PackBomDesignEmptyCheckDto>> validate = validator.validate(pd);
+                if (CollUtil.isNotEmpty(validate)) {
+                    errorMsg.get(packBom.getId()).addAll(validate.stream().map(item -> item.getMessage()).collect(Collectors.toList()));
+                }
+            }else {
+                pe  = BeanUtil.copyProperties(packBom, PackBomBigGoodsEmptyCheckDto.class);
+                Set<ConstraintViolation<PackBomBigGoodsEmptyCheckDto>> validate = validator.validate(pe);
+                if (CollUtil.isNotEmpty(validate)) {
+                    errorMsg.get(packBom.getId()).addAll(validate.stream().map(item -> item.getMessage()).collect(Collectors.toList()));
+                }
             }
         }
         PackBomSizeEmptyCheckDto cs = null;

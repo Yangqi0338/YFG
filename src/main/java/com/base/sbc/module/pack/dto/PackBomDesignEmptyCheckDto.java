@@ -18,8 +18,8 @@ import java.math.BigDecimal;
  * @date 创建时间：2023-08-14 19:59
  */
 @Data
-@ApiModel("资料包-物料清单非空校验dto PackBomEmptyCheckDto")
-public class PackBomEmptyCheckDto {
+@ApiModel("资料包-设计物料清单非空校验dto PackBomPackDesignEmptyCheckDto")
+public class PackBomDesignEmptyCheckDto {
 
 
     @NotBlank(message = "搭配")
@@ -56,9 +56,9 @@ public class PackBomEmptyCheckDto {
     @NotBlank(message = "颜色")
     private String color;
 
-    @ApiModelProperty(value = "单件用量")
-//    @NotNull(message = "单件用量")
-    private BigDecimal unitUse;
+    @ApiModelProperty(value = "设计单件用量")
+    @NotNull(message = "设计单件用量")
+    private BigDecimal designUnitUse;
 
     @ApiModelProperty(value = "成本")
     @NotNull(message = "成本")

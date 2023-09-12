@@ -43,7 +43,7 @@ public class PackBom extends BaseDataEntity<String> {
     public void calculateCost() {
         //成本价=单价*用量*(1+损耗)
         this.cost = Optional.ofNullable(this.price).orElse(BigDecimal.ZERO)
-                .multiply(Optional.ofNullable(this.unitUse).orElse(BigDecimal.ZERO)).multiply(
+                .multiply(Optional.ofNullable( this.packType.equals("packDesign")?this.designUnitUse:this.bulkUnitUse)  .orElse(BigDecimal.ZERO)).multiply(
                         BigDecimal.ONE.add(Optional.ofNullable(this.lossRate).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")))
                 );
     }

@@ -76,8 +76,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
 
 /**
  * 类描述：资料包 service类
@@ -378,7 +377,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException("物料清单版本未锁定");
         }
         //无配色信息
-        if (ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH.getKeyCode()) && StringUtils.isAnyBlank(packInfo.getStyleNo(), packInfo.getColor(), packInfo.getStyleColorId())) {
+        if (ccmFeignService.getSwitchByCode(STYLE_MANY_COLOR.getKeyCode())&&ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH.getKeyCode()) && StringUtils.isAnyBlank(packInfo.getStyleNo(), packInfo.getColor(), packInfo.getStyleColorId())) {
             throw new OtherException("没有配色信息");
         }
 
@@ -706,9 +705,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 vo.setStylePic(styleNoImgUrl);
             }
             vo.setIsMainly(styleColor.getIsMainly());
+            vo.setBandName(styleColor.getBandName());
         }
         vo.setDefaultSize(style.getDefaultSize());
-        vo.setBandName(style.getBandName());
         vo.setBrandName(style.getBrandName());
         vo.setStyleNo(detail.getStyleNo());
         vo.setDesigner(CollUtil.getFirst(StrUtil.split(style.getDesigner(), CharUtil.COMMA)));

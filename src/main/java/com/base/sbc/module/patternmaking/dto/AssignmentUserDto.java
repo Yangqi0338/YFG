@@ -34,4 +34,8 @@ public class AssignmentUserDto {
     @ApiModelProperty(value = "车缝工id")
     @NotBlank(message = "车缝工id为空")
     private String stitcherId;
+
+    @ApiModelProperty(value = "样衣组长确认齐套")
+    @NotBlank(message = "样衣组长确认齐套")
+    private String sglKitting;
 }

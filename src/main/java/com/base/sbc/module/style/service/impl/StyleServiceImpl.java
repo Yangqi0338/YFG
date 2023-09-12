@@ -1155,6 +1155,15 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
 //        款式名称
         detail.setStyleName(hisStyle.getStyleName());
+//        尺码
+        detail.setSizeIds(hisStyle.getSizeIds());
+        /*号型类型*/
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("code", hisStyle.getSizeRange());
+        BasicsdatumModelType basicsdatumModelType =   basicsdatumModelTypeService.getOne(queryWrapper);
+        detail.setSizeRangeSizes(basicsdatumModelType.getSize());
+        detail.setSizeRangeSizeIds(basicsdatumModelType.getSizeIds());
+        detail.setSizeRangeSizeCodes(basicsdatumModelType.getSizeCode());
         return detail;
     }
 
