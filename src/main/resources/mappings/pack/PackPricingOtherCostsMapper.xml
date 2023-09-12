@@ -21,6 +21,7 @@
     <select id="getPriceSumByForeignIds" resultType="com.base.sbc.module.pack.entity.PackPricingOtherCosts">
         SELECT
         sum( price ) as price,
+        costs_type,
         costs_item,
         foreign_id
         FROM
@@ -34,7 +35,7 @@
         </foreach>
         AND pack_type = 'packBigGoods'
         GROUP BY
-        foreign_id,costs_item
+        foreign_id,costs_item,costs_type
     </select>
 
 

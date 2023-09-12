@@ -82,8 +82,9 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
     private final PackPricingCraftCostsService packPricingCraftCostsService;
     private final PackPricingProcessCostsService packPricingProcessCostsService;
+
     @Override
-    public PageInfo<StylePricingVO> getStylePricingList(Principal user,StylePricingSearchDTO dto) {
+    public PageInfo<StylePricingVO> getStylePricingList(Principal user, StylePricingSearchDTO dto) {
         dto.setCompanyCode(super.getCompanyCode());
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(dto);
@@ -91,7 +92,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             return page.toPageInfo();
         }
         GroupUser userBy = userUtils.getUserBy(user);
-        StyleNoImgUtils.setStyleColorPic(userBy, stylePricingList,"styleColorPic");
+        StyleNoImgUtils.setStyleColorPic(userBy, stylePricingList, "styleColorPic");
         this.dataProcessing(stylePricingList, dto.getCompanyCode());
         return new PageInfo<>(stylePricingList);
     }
@@ -116,37 +117,44 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             stylePricingVO.setTestingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "检测费")));
             stylePricingVO.setSewingProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "车缝加工费")));
             stylePricingVO.setWoolenYarnProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "毛纱加工费")));
-            stylePricingVO.setCoordinationProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协加工费")));
+            BigDecimal coordinationProcessingFee = new BigDecimal(0);
+            coordinationProcessingFee = coordinationProcessingFee.add(
+                            BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协其他"))).
+                    add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协印花"))).
+                    add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协绣花"))).
+                    add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协压皱")));
+
+            stylePricingVO.setCoordinationProcessingFee(coordinationProcessingFee);
 
             //加工费
             List<PackPricingProcessCosts> processCostsList = packPricingProcessCostsService.list(new QueryWrapper<PackPricingProcessCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type", "packBigGoods"));
-            if (!processCostsList.isEmpty()){
+            if (!processCostsList.isEmpty()) {
                 try {
                     processCostsList.stream()
                             .map(costs -> costs.getProcessPrice().multiply(costs.getMultiple()))
                             .reduce(BigDecimal::add)
                             .ifPresent(stylePricingVO::setProcessingFee);
-                }catch (Exception e){
-                    logger.error("StylePricingServiceImpl#dataProcessing 加工费计算异常",e);
+                } catch (Exception e) {
+                    logger.error("StylePricingServiceImpl#dataProcessing 加工费计算异常", e);
                 }
 
             }
             //二次加工费用
             List<PackPricingCraftCosts> pricingCraftCostsList = packPricingCraftCostsService.list(new QueryWrapper<PackPricingCraftCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type", "packBigGoods"));
-            if (!pricingCraftCostsList.isEmpty()){
+            if (!pricingCraftCostsList.isEmpty()) {
                 try {
                     pricingCraftCostsList.stream()
                             .map(costs -> costs.getPrice().multiply(costs.getNum()))
                             .reduce(BigDecimal::add)
                             .ifPresent(stylePricingVO::setSecondaryProcessingFee);
-                }catch (Exception e) {
+                } catch (Exception e) {
                     logger.error("StylePricingServiceImpl#dataProcessing 二次加工费用计算异常", e);
                 }
             }
 
             stylePricingVO.setTotalCost(BigDecimalUtil.add(stylePricingVO.getMaterialCost(), stylePricingVO.getPackagingFee(),
                     stylePricingVO.getTestingFee(), stylePricingVO.getSewingProcessingFee(), stylePricingVO.getWoolenYarnProcessingFee(),
-                    stylePricingVO.getCoordinationProcessingFee(),stylePricingVO.getSecondaryProcessingFee(),stylePricingVO.getProcessingFee()));
+                    stylePricingVO.getCoordinationProcessingFee(), stylePricingVO.getSecondaryProcessingFee(), stylePricingVO.getProcessingFee()));
 
             stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
             stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
@@ -316,7 +324,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         }
         return packPricingOtherCosts.stream()
                 .filter(x -> Objects.nonNull(x.getPrice()))
-                .collect(Collectors.toMap(e -> e.getForeignId() + e.getCostsItem(), PackPricingOtherCosts::getPrice, (k1, k2) -> k1));
+                .collect(Collectors.toMap(e -> e.getForeignId() + e.getCostsType(), PackPricingOtherCosts::getPrice, (k1, k2) -> k1));
 
     }
 
