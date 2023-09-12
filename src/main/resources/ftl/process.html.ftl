@@ -4,7 +4,7 @@
 </head>
 <style>
     * {
-        font-family: 'Source Han Serif CN', 'Noto Serif SC', SimSun;
+        font-family: 'Source Han Serif SC', 'Noto Sans SC', SimSun;
         font-size: 12px;
     }
 
@@ -174,6 +174,9 @@
         font-size: 1.5em;
     }
 
+    .table_border, .info_table {
+        margin-top: 10px;
+    }
 </style>
 <body>
 <!-- 页眉 -->

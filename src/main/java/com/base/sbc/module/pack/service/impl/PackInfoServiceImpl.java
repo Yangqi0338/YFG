@@ -584,7 +584,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 BeanUtil.copyProperties(tag, vo);
             }
         }
-        if (StrUtil.isNotBlank(vo.getStylePic())) {
+        if (StrUtil.isNotBlank(vo.getStylePic()) && !StrUtil.contains(vo.getStylePic(), "http")) {
             vo.setStylePic(uploadFileService.getUrlById(vo.getStylePic()));
         }
 
