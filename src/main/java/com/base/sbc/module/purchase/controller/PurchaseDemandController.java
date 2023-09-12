@@ -159,16 +159,16 @@ public class PurchaseDemandController extends BaseController{
 		return updateNotFound();
 	}
 
-//	@ApiOperation(value = "根据设计资料包 生成采购需求单")
-//	@GetMapping("/generatePurchaseDemand")
-//	public ApiResult generatePurchaseDemand(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String id) {
-//		if(StringUtils.isBlank(id)){
-//			return selectAttributeNotRequirements("id");
-//		}
-//		purchaseDemandService.generatePurchaseDemand(userCompany, id);
-//		return selectSuccess("生成成功！");
-//	}
-//
+	@ApiOperation(value = "根据设计资料包 生成采购需求单")
+	@GetMapping("/generatePurchaseDemand")
+	public ApiResult generatePurchaseDemand(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String id, String colors) {
+		if(StringUtils.isBlank(id)){
+			return selectAttributeNotRequirements("id");
+		}
+		purchaseDemandService.generatePurchaseDemand(userCompany, id, colors);
+		return selectSuccess("生成成功！");
+	}
+
 //	@ApiOperation(value = "根据设计资料包 删除")
 //	@GetMapping("/deletePurchaseDemand")
 //	public ApiResult deletePurchaseDemand(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String id) {

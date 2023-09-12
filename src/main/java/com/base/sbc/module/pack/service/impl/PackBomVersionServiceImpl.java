@@ -181,10 +181,6 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         uw.set("lock_flag", lockFlag);
         setUpdateInfo(uw);
         log(id, StrUtil.equals(lockFlag, BaseGlobal.YES) ? "版本锁定" : "版本解锁");
-        if(ccmFeignService.getSwitchByCode("LOCK_GENERATE_PURCHASE_DEMAND") && StrUtil.equals(lockFlag, BaseGlobal.YES)){
-            //版本锁定后，生成采购需求单数据
-            purchaseDemandService.generatePurchaseDemand(userCompany, id);
-        }
         return update(uw);
     }
 
