@@ -353,4 +353,14 @@ public class AmcFeignService {
         log.info("AmcFeignService#teamSave 团队保存返回结果，seasonId:{}. teamName:{},apiResult:{}", seasonId, teamName, JSON.toJSONString(apiResult));
     }
 
+    /**
+     * 产品季默认分配团队
+     * @param seasonId
+     */
+    public void seasonSaveDefaultTeam(String seasonId) {
+        log.info("AmcFeignService#seasonSaveDefaultTeam 产品季默认分配团队，seasonId:{}", seasonId);
+        ApiResult apiResult = amcService.seasonSaveDefaultTeam(seasonId);
+        log.info("AmcFeignService#seasonSaveDefaultTeam 产品季默认分配团队返回结果，seasonId:{},apiResult:{}", seasonId, JSON.toJSONString(apiResult));
+    }
+
 }

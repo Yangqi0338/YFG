@@ -197,4 +197,13 @@ public interface AmcService {
     @PostMapping("/amc/api/token/team/save")
     ApiResult teamSave(@RequestBody Team team);
 
+    /**
+     * 产品季默认分配团队
+     *
+     * @param seasonId
+     * @return
+     */
+    @GetMapping("/amc/api/token/seasonTeams/seasonSaveDefaultTeam")
+    ApiResult seasonSaveDefaultTeam(@RequestParam("seasonId") String seasonId);
+
 }

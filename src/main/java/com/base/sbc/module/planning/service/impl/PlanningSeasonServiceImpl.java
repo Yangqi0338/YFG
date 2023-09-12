@@ -134,7 +134,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             bean.setStatus(BaseGlobal.STATUS_NORMAL);
             save(bean);
             if (ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.ADD_PLANNING_SEASON_DEFAULT_INSERT_TEAM_SWITCH.getKeyCode())) {
-                amcFeignService.teamSave(bean.getId(), "默认团队");
+                amcFeignService.seasonSaveDefaultTeam(bean.getId());
             }
         } else {
             bean = getById(dto.getId());
