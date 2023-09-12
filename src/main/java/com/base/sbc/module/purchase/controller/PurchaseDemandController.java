@@ -161,12 +161,11 @@ public class PurchaseDemandController extends BaseController{
 
 	@ApiOperation(value = "根据设计资料包 生成采购需求单")
 	@GetMapping("/generatePurchaseDemand")
-	public ApiResult generatePurchaseDemand(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String id, String colors) {
+	public ApiResult generatePurchaseDemand(Principal user, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String id, String materialIds, String colors) {
 		if(StringUtils.isBlank(id)){
 			return selectAttributeNotRequirements("id");
 		}
-		purchaseDemandService.generatePurchaseDemand(userCompany, id, colors);
-		return selectSuccess("生成成功！");
+		return purchaseDemandService.generatePurchaseDemand(userCompany, id, materialIds, colors);
 	}
 
 //	@ApiOperation(value = "根据设计资料包 删除")
@@ -185,6 +184,7 @@ public class PurchaseDemandController extends BaseController{
 		if(CollectionUtils.isEmpty(purchaseDemandList)){
 			return updateAttributeNotRequirements("purchaseDemandList");
 		}
+
 		UserCompany userInfo = userCompanyUtils.getCompanyUser(user);
 		return purchaseDemandService.generatePurchaseOrder(userInfo, userCompany, purchaseDemandList);
 	}
