@@ -45,6 +45,13 @@ public class BasicsdatumMaterialQueryDto extends Page {
 	@ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）")
 	private String confirmStatus;
 
+	/** 状态(0正常,1停用) */
+	@ApiModelProperty(value = "状态(0正常,1停用)")
+	private String status;
+
+	/** 下发状态(0:未发，1：下发，2失败，3重开) */
+	@ApiModelProperty(value = "下发状态(0:未发，1：下发，2失败，3重开)")
+	private String	distribute;
 	/**
 	 * 数据来源：1.新增、2.面料企划、3.其他
 	 */
