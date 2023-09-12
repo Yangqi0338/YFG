@@ -207,6 +207,16 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto);
     /**
+     * 类描述：研发总进度
+     *
+     * @address com.base.sbc.module.patternmaking.service.PatternMakingService
+     * @author lxf
+     * @email 123456789@126.com
+     * @date 创建时间：2023-09-12 11:37
+     * @version 1.0
+     */
+    PageInfo allProgressSteps(String userCompany);
+    /**
      * 类描述：打版进度列表，工作台上面的
      *
      * @address com.base.sbc.module.patternmaking.service.PatternMakingService

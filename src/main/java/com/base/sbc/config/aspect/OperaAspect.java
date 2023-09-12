@@ -8,7 +8,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.annotation.OperaLog;
-import com.base.sbc.config.common.annotation.DataIsolation;
+import com.base.sbc.config.common.annotation.ApiDataIsolation;
 import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
@@ -51,7 +51,7 @@ public class OperaAspect {
     private final ApplicationContext applicationContext;
 
     private final OperaLogService operaLogService;
-    @Pointcut("@annotation(com.base.sbc.config.common.annotation.DataIsolation)")
+    @Pointcut("@annotation(com.base.sbc.config.common.annotation.ApiDataIsolation)")
     public void servicePointcut() {
         System.out.println("Pointcut: 不会被执行");
     }
@@ -69,11 +69,11 @@ public class OperaAspect {
         Method method = clazz.getDeclaredMethod(methodName, argClz);
 
         // 判断当前访问的方法是否存在指定注解
-        if (method.isAnnotationPresent(DataIsolation.class)) {
+        if (method.isAnnotationPresent(ApiDataIsolation.class)) {
             String userId = httpServletRequest.getHeader("userId");
             String usercompany = httpServletRequest.getHeader("Usercompany");
             String authorization = httpServletRequest.getHeader("Authorization");
-            DataIsolation dataIsolation = method.getAnnotation(DataIsolation.class);
+            ApiDataIsolation dataIsolation = method.getAnnotation(ApiDataIsolation.class);
             if(!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization) && dataIsolation.state() && StringUtils.isNotBlank(dataIsolation.authority())){
                 // 获取注解标识值与注解描述
                 String operateType = dataIsolation.operateType()?"read":"write";
