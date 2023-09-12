@@ -45,7 +45,7 @@ public class BiJob {
     /**
      * 样衣看板.产前样
      */
-    @Scheduled(cron = "0 0 1 * * ?")
+    //@Scheduled(cron = "0 0 1 * * ?")
     //@Scheduled(cron = "0 * * * * ?")
     public void style(){
         biStyleService.style();
@@ -55,7 +55,7 @@ public class BiJob {
     /**
      * 款式设计
      */
-    @Scheduled(cron = "0 0 1 * * ?")
+    //@Scheduled(cron = "0 0 1 * * ?")
     //@Scheduled(cron = "0 * * * * ?")
     public void sample(){
         biSampleService.sample();
