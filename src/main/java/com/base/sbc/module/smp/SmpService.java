@@ -212,7 +212,7 @@ public class SmpService {
 
             //动态字段
 
-            List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsBySdId(style.getId());
+            List<FieldManagementVo> fieldManagementVoList = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
             if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
                 fieldManagementVoList.forEach(m -> {
                     if ("衣长分类".equals(m.getFieldName())) {

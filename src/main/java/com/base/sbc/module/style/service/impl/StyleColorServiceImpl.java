@@ -986,6 +986,8 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     public Boolean saveStyleColorDynamicData(List<FieldVal> technologyInfo) {
         // 保存工艺信息
         fieldValService.save(technologyInfo.get(0).getForeignId(), FieldValDataGroupConstant.STYLE_COLOR, technologyInfo);
+        /*修改后下发已下发的数据*/
+        dataUpdateScmService.updateStyleColorSendById(technologyInfo.get(0).getForeignId());
         return true;
     }
     /** 自定义方法区 不替换的区域【other_end】 **/
