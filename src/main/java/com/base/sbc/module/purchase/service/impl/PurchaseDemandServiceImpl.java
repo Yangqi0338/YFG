@@ -127,9 +127,28 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
      */
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public void generatePurchaseDemand(String companyCode, String id, String colors) {
+    public ApiResult generatePurchaseDemand(String companyCode, String id, String materialIds, String colors) {
         IdGen idGen = new IdGen();
         UserCompany userCompany = userCompanyUtils.getCompanyUser();
+
+        List<String> packBomIdList = StringUtils.convertList(materialIds);
+        List<String> colorList = StringUtils.convertList(colors);
+
+        QueryWrapper<PurchaseDemand> pdQw = new QueryWrapper<>();
+        pdQw.eq("company_code", companyCode);
+        StringBuffer sql = new StringBuffer("and ");
+
+        for(String packBomId : packBomIdList){
+            for(String color : colorList){
+                sql.append("(pack_bom_id = '" + packBomId +"' and product_color = '" + color + "') OR ");
+            }
+        }
+        sql.delete(sql.length() - 4 , sql.length() -1);
+        pdQw.last(sql.toString());
+        List<PurchaseDemand> oldDataList = list(pdQw);
+        if(CollectionUtil.isNotEmpty(oldDataList)){
+            return ApiResult.error("该物料已经生成过采购需求，请重新选择！", 500);
+        }
 
         //查询资料包-物料清单-物料版本 启用状态的数据
         QueryWrapper<PackBomVersion> versionQw = new QueryWrapper<>();
@@ -149,10 +168,12 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             QueryWrapper<PackBom> packBomQw = new QueryWrapper<>();
             PackUtils.commonQw(packBomQw, packInfo.getId(), "packDesign", "0");
             packBomQw.eq("bom_version_id", packBomVersion.getId());
+            packBomQw.eq("main_flag", "1");
+            packBomQw.in("id", packBomIdList);
             List<PackBom> packBomList = packBomService.list(packBomQw);
             if(CollectionUtil.isEmpty(packBomList)){
                 //没有物料
-                return;
+                return ApiResult.error("找不到物料！", 500);
             }
 
             //查询尺寸配置信息
@@ -181,7 +202,6 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             QueryWrapper<PackBomSize> bomSizeQw;
             QueryWrapper<PackBomColor> bomColorQw;
             List<PurchaseDemand> purchaseDemandList = new ArrayList<>();
-            List<String> colorList = StringUtils.convertList(colors);
             for (PackBom bom : packBomList) {
                 //查询物料清单 - 配码
                 bomSizeQw = new QueryWrapper<>();
@@ -222,6 +242,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                     demand.insertInit(userCompany);
                     demand.setId(idGen.nextIdStr());
                     demand.setCompanyCode(companyCode);
+                    demand.setProductColor(color);
                     demand.setMaterialColor(materialColor);
                     demand.setPurchasedNum(BigDecimal.ZERO);
                     demand.setReadyNum(BigDecimal.ZERO);
@@ -273,8 +294,10 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
 
             if(CollectionUtil.isNotEmpty(purchaseDemandList)){
                 this.saveBatch(purchaseDemandList);
+                return ApiResult.success("生成采购需求成功！", purchaseDemandList.size());
             }
         }
+        return ApiResult.error("生成失败！", 500);
     }
 
     /**
@@ -532,5 +555,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
         List<PurchaseDemand> updateList = new ArrayList<>(purchaseDemandMap.values());
         updateBatchById(updateList);
     }
+
+
 }
 

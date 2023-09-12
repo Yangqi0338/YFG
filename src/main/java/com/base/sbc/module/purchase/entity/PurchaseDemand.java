@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.PurchaseDemand
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-30 14:30:19
+ * @date 创建时间：2023-9-12 15:27:11
  * @version 1.0
  */
 @Data
@@ -72,6 +72,7 @@ public class PurchaseDemand extends BaseDataEntity<String> {
         this.styleName = packInfo.getStyleName();
         this.category = packInfo.getProdCategoryName();
         this.materialCode = material.getMaterialCode();
+        this.packBomId = packBom.getId();
         this.materialType = packBom.getCategoryName();
         this.materialName = packBom.getMaterialName();
         this.supplierCode = packBom.getSupplierId();
@@ -99,6 +100,9 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     /** 物料图片 */
     @ApiModelProperty(value = "物料图片"  )
     private String materialImage;
+    /** 资料包物料清单id */
+    @ApiModelProperty(value = "资料包物料清单id"  )
+    private String packBomId;
     /** 设计款号 */
     @ApiModelProperty(value = "设计款号"  )
     private String designStyleCode;
@@ -142,6 +146,9 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     /** 成分 */
     @ApiModelProperty(value = "成分"  )
     private String component;
+    /** 成衣颜色 */
+    @ApiModelProperty(value = "成衣颜色"  )
+    private String productColor;
     /** 物料颜色 */
     @ApiModelProperty(value = "物料颜色"  )
     private String materialColor;

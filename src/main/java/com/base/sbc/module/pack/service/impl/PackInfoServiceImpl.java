@@ -298,6 +298,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             List<PackBomColor> bomColorList = packBomColorService.list(style.getId(),PackUtils.PACK_TYPE_STYLE);
             Map<String,List<PackBomColor>> bomColorMap = bomColorList.stream().collect(Collectors.groupingBy(PackBomColor::getBomId));
 
+            // 物料清单转仓库配置项， 开：默认勾选主面料逻辑
+            String mainFlag = ccmFeignService.getSwitchByCode(MATERIAL_CREATE_PURCHASEDEMAND.getKeyCode()) ? "1" : "0";
             for (PackBom bom:bomList) {
                 String bomId = IdUtil.getSnowflake().nextIdStr();
                 List<PackBomSize> bomSizes = bomSizeMap.get(bom.getId());
@@ -326,6 +328,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 bom.setBomVersionId(packBomVersionVo.getId());
                 bom.setForeignId(packInfo.getId());
                 bom.setPackType(PackUtils.PACK_TYPE_DESIGN);
+                bom.setMainFlag(mainFlag);
                 bom.updateInit();
             }
             packBomService.saveBatch(bomList);

@@ -25,7 +25,7 @@ import java.util.List;
 public interface PurchaseDemandService extends BaseService<PurchaseDemand>{
     ApiResult cancel(String companyCode, String ids);
 
-    void generatePurchaseDemand(String companyCode, String id, String colors);
+    ApiResult generatePurchaseDemand(String companyCode, String id, String materialIds, String colors);
 
     ApiResult generatePurchaseOrder(UserCompany userCompany, String companyCode, List<PurchaseDemand> purchaseDemandList);
 
