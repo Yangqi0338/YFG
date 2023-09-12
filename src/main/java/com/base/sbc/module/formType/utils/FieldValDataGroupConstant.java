@@ -21,4 +21,9 @@ public interface FieldValDataGroupConstant {
      * 款式设计维度数据
      */
     String SAMPLE_DESIGN_TECHNOLOGY = "SAMPLE_DESIGN_TECHNOLOGY";
+
+    /**
+     * 款式配色维度数据
+     */
+    String STYLE_COLOR = "STYLE_COLOR";
 }

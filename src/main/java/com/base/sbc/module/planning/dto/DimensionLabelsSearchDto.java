@@ -20,7 +20,7 @@ import org.hibernate.validator.constraints.NotBlank;
 public class DimensionLabelsSearchDto {
 
     @ApiModelProperty(value = "款式设计id", example = "0")
-    private String styleId;
+    private String foreignId;
 
     @ApiModelProperty(value = "坑位信息id", example = "0")
     private String planningCategoryItemId;
@@ -47,6 +47,18 @@ public class DimensionLabelsSearchDto {
      */
     @ApiModelProperty(value = "小类code")
     private String prodCategory3rd;
+
+
+    @ApiModelProperty(value = "波段")
+    private String  brand;
+
+
+    @ApiModelProperty(value = "季节")
+    private String  season;
+
+    @ApiModelProperty(value = "季节")
+    private String dataGroup;
+
 
     @ApiModelProperty(value = "品类标识 0品类 1中类")
     private String categoryFlag;

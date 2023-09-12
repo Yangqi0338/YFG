@@ -634,23 +634,23 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         BeanUtil.copyProperties(dto, pdqw);
         // 查询样衣的
         List<PlanningDimensionality> pdList = (List<PlanningDimensionality>) planningDimensionalityService.getDimensionalityList(pdqw).getData();
-        List<FieldVal> fvList = fieldValService.list(dto.getStyleId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+        List<FieldVal> fvList = fieldValService.list(dto.getForeignId(),dto.getDataGroup());
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
             List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
             if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
                 /*用于查询字段配置数据*/
                 stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
-                Style style = getById(dto.getStyleId());
+
             QueryFieldOptionConfigDto queryFieldOptionConfigDto = new QueryFieldOptionConfigDto();
-            if (BaseGlobal.YES.equals(style.getCategoryFlag())) {
-                queryFieldOptionConfigDto.setProdCategory2nd(style.getProdCategory2nd());
+            if (BaseGlobal.YES.equals(dto.getCategoryFlag())) {
+                queryFieldOptionConfigDto.setProdCategory2nd(dto.getProdCategory2nd());
             } else {
-                queryFieldOptionConfigDto.setCategoryCode(style.getProdCategory());
+                queryFieldOptionConfigDto.setCategoryCode(dto.getProdCategory());
             }
             /*查询每个字段下的配置选项*/
-            queryFieldOptionConfigDto.setBrand(style.getBrand());
-            queryFieldOptionConfigDto.setSeason(style.getSeason());
+            queryFieldOptionConfigDto.setBrand(dto.getBrand());
+            queryFieldOptionConfigDto.setSeason(dto.getSeason());
             queryFieldOptionConfigDto.setFieldManagementIdList(stringList2);
             Map<String, List<FieldOptionConfig>> listMap = fieldOptionConfigService.getFieldConfig(queryFieldOptionConfigDto);
             /*赋值*/
@@ -662,21 +662,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             });
             }
             // [3].查询字段值
-            if (CollUtil.isNotEmpty(fieldManagementListByIds) && StrUtil.isNotBlank(dto.getStyleId())) {
+            if (CollUtil.isNotEmpty(fieldManagementListByIds) && StrUtil.isNotBlank(dto.getForeignId())) {
                 fieldManagementService.conversion(fieldManagementListByIds, fvList);
                 result.addAll(fieldManagementListByIds);
             }
         }
-        //查询坑位信息的
-/*        if (StrUtil.isNotBlank(dto.getPlanningCategoryItemId())) {
-            List<FieldManagementVo> seatFmList = planningCategoryItemService.querySeatDimension(dto.getPlanningCategoryItemId(), BaseGlobal.YES,BaseGlobal.NO);
-            fieldManagementService.conversion(seatFmList, fvList);
-            if (CollUtil.isNotEmpty(seatFmList)) {
-                Set<String> fnSet = result.stream().map(FieldManagementVo::getFieldName).collect(Collectors.toSet());
-                List<FieldManagementVo> seatFmListNotInSd = seatFmList.stream().filter(item -> !fnSet.contains(item.getFieldName())).collect(Collectors.toList());
-                result.addAll(0, seatFmListNotInSd);
-            }
-        }*/
         return result;
     }
     @Override
@@ -687,7 +677,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
         BeanUtil.copyProperties(style, dto);
-        dto.setStyleId(id);
+        dto.setForeignId(id);
+        dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         return queryDimensionLabels(dto);
     }
 

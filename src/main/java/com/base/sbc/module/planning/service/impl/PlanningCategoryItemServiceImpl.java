@@ -536,6 +536,11 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         List<FieldManagementVo> fieldList = new ArrayList<>();
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
         queryWrapper.eq("planning_season_id", seat.getPlanningSeasonId());
+        if(StrUtil.equals(categoryFlag,BaseGlobal.YES)){
+            queryWrapper.eq("prod_category2nd",seat.getProdCategory2nd());
+        }else {
+            queryWrapper.eq("prod_category",seat.getProdCategory());
+        }
         PlanningUtils.dimensionCommonQw(queryWrapper, seat);
         List<PlanningDimensionality> dimensionalityList = planningDimensionalityMapper.selectList(queryWrapper);
         if (CollUtil.isNotEmpty(dimensionalityList)) {

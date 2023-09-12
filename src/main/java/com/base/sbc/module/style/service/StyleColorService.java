@@ -9,6 +9,8 @@ package com.base.sbc.module.style.service;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.formType.entity.FieldVal;
+import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.vo.StyleColorVo;
@@ -180,6 +182,18 @@ public interface StyleColorService extends BaseService<StyleColor> {
          */
         Boolean disassociateBom(PublicStyleColorDto publicStyleColorDto);
 
+        /**查询款式配色设计维度数据
+         * @param id 配色id
+         * @return
+         */
+        List<FieldManagementVo> getStyleColorDynamicDataById(String id);
+
+        /**
+         * 保存配色维度数据
+         * @param technologyInfo
+         * @return
+         */
+        Boolean saveStyleColorDynamicData(List<FieldVal> technologyInfo);
 
 // 自定义方法区 不替换的区域【other_end】
 

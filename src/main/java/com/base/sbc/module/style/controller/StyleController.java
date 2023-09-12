@@ -19,6 +19,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
+import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.dto.PackInfoDto;
 import com.base.sbc.module.pack.dto.PlanningDemandStatisticsResultVo;
@@ -123,6 +124,7 @@ public class StyleController extends BaseController{
     @ApiOperation(value = "查询款式设计维度数据(新增时使用)", notes = "")
     @PostMapping("/queryDimensionLabels")
     public List<FieldManagementVo> queryDimensionLabels(@Valid @RequestBody DimensionLabelsSearchDto dto) {
+        dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         return styleService.queryDimensionLabels(dto);
     }
 

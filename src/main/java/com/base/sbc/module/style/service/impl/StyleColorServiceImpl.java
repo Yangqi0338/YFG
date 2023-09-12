@@ -27,11 +27,16 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.formType.entity.FieldVal;
+import com.base.sbc.module.formType.service.FieldValService;
+import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.smp.DataUpdateScmService;
@@ -41,8 +46,8 @@ import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
-import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -96,10 +101,13 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     private final PackInfoService packInfoService;
 
     private final PackInfoMapper packInfoMapper;
-    private final StyleMapper styleMapper;
-
+    @Lazy
+    @Resource
+    private final StyleService styleService;
     private final PackInfoStatusService packInfoStatusService;
     private final CcmFeignService ccmFeignService;
+
+    private final FieldValService fieldValService;
 
 
 /** 自定义方法区 不替换的区域【other_start】 **/
@@ -183,12 +191,14 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         List<StyleColorVo> sampleStyleColorList =new ArrayList<>();
         if(StringUtils.isNotBlank(queryDto.getColorListFlag())){
             queryWrapper.eq("tsc.del_flag", "0");
+            queryWrapper.orderByDesc("tsc.create_date");
 //            查询配色列表
             sampleStyleColorList = baseMapper.colorList(queryWrapper);
         }else {
             queryWrapper.eq("ts.del_flag", "0");
+            queryWrapper.orderByDesc("ts.create_date");
 //            查询款式配色
-            sampleStyleColorList = baseMapper.styleColorList(queryWrapper);
+            sampleStyleColorList = baseMapper.styleColorList (queryWrapper);
             List<String> stringList =  new IdGen().getIds(sampleStyleColorList.size());
             int index =0;
             for (StyleColorVo styleColorVo : sampleStyleColorList) {
@@ -218,7 +228,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     public  List<StyleColorVo> getStyleAccessoryBystyleNo(String designNo) {
         QueryWrapper qw = new QueryWrapper();
         qw.eq("design_no", designNo);
-        Style style = styleMapper.selectOne(qw);
+        Style style = styleService.getOne(qw);
         if (ObjectUtils.isEmpty(style)) {
             throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
@@ -283,7 +293,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         Map<String, BasicsdatumColourLibrary> map = libraryList.stream().collect(Collectors.toMap(BasicsdatumColourLibrary::getId, c -> c));
         /*查询款式主数据*/
         List<String> styleMasterDataIds = list.stream().map(AddRevampStyleColorDto::getStyleId).distinct().collect(Collectors.toList());
-        List<Style> masterDataList = styleMapper.selectBatchIds(styleMasterDataIds);
+        List<Style> masterDataList = styleService.listByIds(styleMasterDataIds);
         Map<String, Style> map1 = masterDataList.stream().collect(Collectors.toMap(Style::getId, s -> s));
         /*款式主数据数据*/
         for (AddRevampStyleColorDto addRevampStyleColorDto : list) {
@@ -479,7 +489,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
                 /**
                  * 先生成波段之前的字符串替换为空，在拼接
                  */
-                Style style = styleMapper.selectById(styleColor.getStyleId());
+                Style style = styleService.getById(styleColor.getStyleId());
                 //获取年份
                 String year = getYearOn(style.getYearName());
                 /*品牌*/
@@ -943,6 +953,39 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         });
         updateBatchById(styleColorList);
         packInfoService.updateBatchById(packInfoList);
+        return true;
+    }
+
+    /**
+     * 查询款式配色设计维度数据
+     *
+     * @param id 配色id
+     * @return
+     */
+    @Override
+    public List<FieldManagementVo> getStyleColorDynamicDataById(String id) {
+        if (StringUtils.isBlank(id)) {
+            throw new OtherException("配色id不能为空");
+        }
+        StyleColor styleColor =  baseMapper.selectById(id);
+        Style style =  styleService.getById(styleColor.getStyleId());
+        DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
+        BeanUtil.copyProperties(style, dto);
+        dto.setForeignId(id);
+        dto.setDataGroup(FieldValDataGroupConstant.STYLE_COLOR);
+        return styleService.queryDimensionLabels(dto);
+    }
+
+    /**
+     * 保存配色维度数据
+     *
+     * @param technologyInfo
+     * @return
+     */
+    @Override
+    public Boolean saveStyleColorDynamicData(List<FieldVal> technologyInfo) {
+        // 保存工艺信息
+        fieldValService.save(technologyInfo.get(0).getForeignId(), FieldValDataGroupConstant.STYLE_COLOR, technologyInfo);
         return true;
     }
     /** 自定义方法区 不替换的区域【other_end】 **/

@@ -12,6 +12,8 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.module.formType.entity.FieldVal;
+import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.style.dto.*;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -174,6 +176,19 @@ public class StyleColorController {
 	public Boolean disassociateBom( @Valid @RequestBody PublicStyleColorDto publicStyleColorDto) {
 		return styleColorService.disassociateBom(publicStyleColorDto);
 	}
+
+	@ApiOperation(value = "查询款式配色设计维度数据", notes = "")
+	@GetMapping("/getStyleColorDynamicDataById")
+	public List<FieldManagementVo> getStyleColorDynamicDataById(String id) {
+		return styleColorService.getStyleColorDynamicDataById(id);
+	}
+
+	@ApiOperation(value = "保存配色维度数据")
+	@PostMapping("/saveStyleColorDynamicData")
+	public Boolean saveStyleColorDynamicData( @Valid @RequestBody List<FieldVal> technologyInfo) {
+		return styleColorService.saveStyleColorDynamicData(technologyInfo);
+	}
+
 
 }
 
