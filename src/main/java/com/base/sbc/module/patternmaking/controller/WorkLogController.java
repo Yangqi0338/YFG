@@ -58,7 +58,7 @@ public class WorkLogController {
 
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")
     @DeleteMapping()
-    @OperaLog(value = "工作小账", operationType = OperationType.DELETE, pathSpEL = "工作小账_", service = WorkLogService.class)
+    @OperaLog(value = "工作小账", operationType = OperationType.DELETE , delIdSpEL = "#p0.id",service = WorkLogService.class)
     public Boolean removeById(IdsDto idsDto) {
         List<String> ids = StringUtils.convertList(idsDto.getId());
         return workLogService.removeByIds(ids);
@@ -66,7 +66,7 @@ public class WorkLogController {
 
     @ApiOperation(value = "保存")
     @PostMapping
-    @OperaLog(value = "工作小账", operationType = OperationType.INSERT_UPDATE, pathSpEL = "工作小账_", service = WorkLogService.class)
+    @OperaLog(value = "工作小账", operationType = OperationType.INSERT_UPDATE, service = WorkLogService.class)
     public WorkLogVo save(@RequestBody WorkLogSaveDto workLog) {
         return workLogService.saveByDto(workLog);
 
@@ -74,7 +74,7 @@ public class WorkLogController {
 
     @ApiOperation(value = "修改")
     @PutMapping
-    @OperaLog(value = "工作小账", operationType = OperationType.INSERT_UPDATE, pathSpEL = "工作小账_", service = WorkLogService.class)
+    @OperaLog(value = "工作小账", operationType = OperationType.INSERT_UPDATE, service = WorkLogService.class)
     public WorkLogVo update(@RequestBody WorkLogSaveDto workLog) {
         boolean b = workLogService.updateById(workLog);
         return BeanUtil.copyProperties(workLog, WorkLogVo.class);

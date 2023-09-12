@@ -584,7 +584,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 BeanUtil.copyProperties(tag, vo);
             }
         }
-        if (StrUtil.isNotBlank(vo.getStylePic())) {
+        if (StrUtil.isNotBlank(vo.getStylePic()) && !StrUtil.contains(vo.getStylePic(), "http")) {
             vo.setStylePic(uploadFileService.getUrlById(vo.getStylePic()));
         }
 
@@ -707,7 +707,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             }
             vo.setIsMainly(styleColor.getIsMainly());
         }
-
+        vo.setDefaultSize(style.getDefaultSize());
+        vo.setBandName(style.getBandName());
         vo.setBrandName(style.getBrandName());
         vo.setStyleNo(detail.getStyleNo());
         vo.setDesigner(CollUtil.getFirst(StrUtil.split(style.getDesigner(), CharUtil.COMMA)));

@@ -162,20 +162,32 @@ public class HangTag extends BaseDataEntity<String> {
     /** 温馨提示 */
     @ApiModelProperty(value = "温馨提示"  )
     private String warmTips;
-    /** 洗标 */
-    @ApiModelProperty(value = "洗标"  )
+    /**
+     * 洗标
+     */
+    @ApiModelProperty(value = "洗标")
     private String washingLabel;
-    /** 洗标名称 */
-    @ApiModelProperty(value = "洗标名称"  )
+    /**
+     * 洗标名称
+     */
+    @ApiModelProperty(value = "洗标名称")
     private String washingLabelName;
-    /** 贮藏要求 */
-    @ApiModelProperty(value = "贮藏要求"  )
+    /**
+     * 贮藏要求
+     */
+    @ApiModelProperty(value = "贮藏要求编码")
     private String storageDemand;
-    /** 产地 */
-    @ApiModelProperty(value = "产地"  )
+    @ApiModelProperty(value = "贮藏要求内容")
+    private String storageDemandName;
+    /**
+     * 产地
+     */
+    @ApiModelProperty(value = "产地")
     private String producer;
-    /** 生产日期 */
-    @ApiModelProperty(value = "生产日期"  )
+    /**
+     * 生产日期
+     */
+    @ApiModelProperty(value = "生产日期")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date produceDate;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/

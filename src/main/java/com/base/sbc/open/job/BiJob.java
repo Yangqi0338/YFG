@@ -24,7 +24,7 @@ public class BiJob {
     /**
      * 尺寸表数据
      */
-    @Scheduled(cron = "0 0 1 * * ?")
+    //@Scheduled(cron = "0 0 1 * * ?")
     //@Scheduled(cron = "0 * * * * ?")
     public void sizeChart(){
         biSizeChartService.sizeChart();
@@ -35,7 +35,7 @@ public class BiJob {
     /**
      * 配色表数据
      */
-    @Scheduled(cron = "0 0 1 * * ?")
+    //@Scheduled(cron = "0 0 1 * * ?")
     //@Scheduled(cron = "0 * * * * ?")
     public void colorway(){
         biColorwayService.colorway();

@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
 /**
  * 类描述：字段值 实体类
  *
@@ -21,7 +22,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.formType.entity.FieldVal
  * @email your email
- * @date 创建时间：2023-7-19 19:19:07
+ * @date 创建时间：2023-9-11 10:36:12
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -48,6 +49,11 @@ public class FieldVal extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "数据分组")
     private String dataGroup;
+    /**
+     * 字段id
+     */
+    @ApiModelProperty(value = "字段id")
+    private String fieldId;
     /**
      * 字段说明
      */

@@ -41,6 +41,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hibernate.validator.constraints.NotBlank;
@@ -256,7 +257,7 @@ public class PackSizeController extends BaseController{
                 //各尺码明细的数量
                 Map<String, String> packSizeDetailNumMap = new HashMap<>();
                 for (int k = 0; k < excel.getLastCellNum(); k++) {
-                    Object val = excel.getCellValue(row, k);
+                    Object val = excel.getCellValueAppoint(row, k, CellType.STRING);
                     if (val != null) {
                         String s = String.valueOf(val);
                         if (k == 0) {

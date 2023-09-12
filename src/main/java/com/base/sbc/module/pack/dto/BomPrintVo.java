@@ -44,6 +44,9 @@ public class BomPrintVo {
     @ApiModelProperty(value = "款号")
     private String styleNo;
 
+    @ApiModelProperty(value = "基础尺码")
+    private String  defaultSize;
+
 
     @ApiModelProperty(value = "是否主推(0否,1:是)")
     private String isMainly;
