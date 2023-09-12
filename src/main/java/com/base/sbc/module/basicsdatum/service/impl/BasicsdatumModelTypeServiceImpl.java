@@ -203,6 +203,8 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             addRevampBasicsdatumModelTypeDto.setBasicsSizeSort(basicsdatumSizeList.get(0).getSort());
         }
         // 查找默认尺码
+        addRevampBasicsdatumModelTypeDto.setDefaultSizeIds("");
+        addRevampBasicsdatumModelTypeDto.setDefaultSizeCode("");
         if(StringUtils.isNotBlank(addRevampBasicsdatumModelTypeDto.getDefaultSize())){
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.in("hangtags", StringUtils.convertList(addRevampBasicsdatumModelTypeDto.getDefaultSize()));
