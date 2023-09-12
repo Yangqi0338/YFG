@@ -4,7 +4,7 @@
 </head>
 <style>
     * {
-        font-family: 'Source Han Serif SC', 'Noto Serif SC', SimSun;
+        font-family: 'Source Han Serif SC', 'Noto Sans SC', SimSun;
         font-size: 12px;
     }
 
