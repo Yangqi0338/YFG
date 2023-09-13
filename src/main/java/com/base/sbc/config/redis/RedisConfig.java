@@ -33,7 +33,7 @@ public class RedisConfig extends CachingConfigurerSupport {
     private String password;
     @Value("${spring.redis.database}")
     private int database;
-    @Value("${redis.databaseAmc}")
+    @Value("${spring.redis.databaseAmc}")
     private int databaseAmc;
     @Value("${spring.redis.pool.max-active}")
     private int maxActive;

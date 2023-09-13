@@ -153,6 +153,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         qw.notEmptyIn("s.year", dto.getYear());
         qw.notEmptyIn("s.season", dto.getSeason());
         qw.notEmptyIn("s.month", dto.getMonth());
+        qw.orderByDesc("t.create_time");
         Page<PreProductionSampleTaskVo> objects = PageHelper.startPage(dto);
         List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
         //设置图
