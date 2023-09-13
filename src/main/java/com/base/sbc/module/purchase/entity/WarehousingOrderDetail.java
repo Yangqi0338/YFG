@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.WarehousingOrderDetail
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-30 10:05:42
+ * @date 创建时间：2023-9-13 19:11:01
  * @version 1.0
  */
 @Data
@@ -62,12 +62,24 @@ public class WarehousingOrderDetail extends BaseDataEntity<String> {
     /** 物料规格 */
     @ApiModelProperty(value = "物料规格"  )
     private String materialSpecifications;
+    /** 物料规格编码 */
+    @ApiModelProperty(value = "物料规格编码"  )
+    private String materialSpecificationsCode;
     /** 款式名称 */
     @ApiModelProperty(value = "款式名称"  )
     private String styleName;
     /** 物料颜色 */
     @ApiModelProperty(value = "物料颜色"  )
     private String materialColor;
+    /** 物料颜色编码 */
+    @ApiModelProperty(value = "物料颜色编码"  )
+    private String materialColorCode;
+    /** 库位 */
+    @ApiModelProperty(value = "库位"  )
+    private String position;
+    /** 库位编码 */
+    @ApiModelProperty(value = "库位编码"  )
+    private String positionCode;
     /** 预计采购数量 */
     @ApiModelProperty(value = "预计采购数量"  )
     private BigDecimal expectedPurchaseNum;

@@ -14,12 +14,12 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CodeGen;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.purchase.entity.PurchaseOrder;
-import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
-import com.base.sbc.module.purchase.entity.WarehousingOrderDetail;
+import com.base.sbc.module.purchase.entity.*;
 import com.base.sbc.module.purchase.mapper.WarehousingOrderMapper;
-import com.base.sbc.module.purchase.entity.WarehousingOrder;
+import com.base.sbc.module.purchase.service.MaterialStockService;
 import com.base.sbc.module.purchase.service.PurchaseOrderService;
 import com.base.sbc.module.purchase.service.WarehousingOrderDetailService;
 import com.base.sbc.module.purchase.service.WarehousingOrderService;
@@ -28,8 +28,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：入库单 service类
@@ -50,6 +53,12 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
 
     @Autowired
     private WarehousingOrderMapper warehousingOrderMapper;
+
+    @Autowired
+    private MaterialStockService materialStockService;
+
+    @Autowired
+    private BasicsdatumMaterialService basicsdatumMaterialService;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -164,11 +173,20 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public void examinePass(UserCompany userCompany, AnswerDto dto) {
+        IdGen idGen = new IdGen();
+
         WarehousingOrder warehousingOrder = getById(dto.getBusinessKey());
         warehousingOrder.setReviewerId(userCompany.getUserId());
         warehousingOrder.setReviewerName(userCompany.getAliasUserName());
         warehousingOrder.setReviewDate(new Date());
         warehousingOrder.setStatus("2");
+
+        // 物料库存 数据
+        QueryWrapper<WarehousingOrderDetail> detailQw = new QueryWrapper<>();
+        detailQw.eq("warehouse_order_id", warehousingOrder.getId());
+        List<WarehousingOrderDetail> orderDetailList = warehousingOrderDetailService.list(detailQw);
+        materialStockService.warehousingMaterialStock(warehousingOrder, orderDetailList, "0");
+
         updateById(warehousingOrder);
     }
 

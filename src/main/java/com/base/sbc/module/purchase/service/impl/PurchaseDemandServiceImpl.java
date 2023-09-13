@@ -218,6 +218,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
 
                 //根据规格分组合计，各个规格的数量
                 Map<String, BigDecimal> specificationsMap = new HashMap<>();
+                Map<String, PackBomSize> packBomSizeMap = new HashMap<>();
                 for (PackBomSize size : packBomSizeList) {
                     BigDecimal num = specificationsMap.get(size.getSize());
                     if (num == null) {
@@ -225,12 +226,18 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                     } else {
                         specificationsMap.put(size.getSize(), BigDecimalUtil.add(num, size.getQuantity() == null ? BigDecimal.ZERO : size.getQuantity()));
                     }
+
+                    PackBomSize packBomSize = packBomSizeMap.get(size.getSize());
+                    if (packBomSize == null) {
+                        packBomSizeMap.put(size.getSize(), size);
+                    }
                 }
 
                 BasicsdatumMaterial material = materialMap.get(bom.getMaterialCode());
                 BasicsdatumSupplier supplier = supplierMap.get(bom.getSupplierId());
 
                 BigDecimal num = specificationsMap.get(packSizeConfigVo.getDefaultSize());
+                PackBomSize packBomSize = packBomSizeMap.get(packSizeConfigVo.getDefaultSize());
 
                 for(String color : colorList) {
                     String materialColor = "";
@@ -238,7 +245,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                     if(packBomColor != null){
                         materialColor = packBomColor.getMaterialColorName();
                     }
-                    PurchaseDemand demand = new PurchaseDemand(packInfo, bom, material, packSizeConfigVo.getDefaultSize(), num);
+                    PurchaseDemand demand = new PurchaseDemand(packInfo, bom, material, packBomSize, num);
                     demand.insertInit(userCompany);
                     demand.setId(idGen.nextIdStr());
                     demand.setCompanyCode(companyCode);
