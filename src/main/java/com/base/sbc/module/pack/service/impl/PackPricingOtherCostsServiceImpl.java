@@ -113,7 +113,9 @@ public class PackPricingOtherCostsServiceImpl extends PackBaseServiceImpl<PackPr
         List<TotalVo> costsItemTotalList = getBaseMapper().newCostsItemTotal(qw,qw1);
         if (CollUtil.isNotEmpty(costsItemTotalList)) {
             for (TotalVo total : costsItemTotalList) {
-                result.put(total.getLabel(), total.getTotal());
+                if(StrUtil.isNotBlank(total.getLabel()) ){
+                    result.put(total.getLabel(), total.getTotal());
+                }
             }
         }
         //物料费用
