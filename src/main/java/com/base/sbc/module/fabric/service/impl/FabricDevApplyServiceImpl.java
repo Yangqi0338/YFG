@@ -156,7 +156,7 @@ public class FabricDevApplyServiceImpl extends BaseServiceImpl<FabricDevApplyMap
      */
     private BasicsdatumMaterialVo saveMaterial(BasicsdatumMaterialSaveDto basicsdatumMaterial, String id) {
         basicsdatumMaterial.setId(id);
-        basicsdatumMaterial.setBizType(BasicsdatumMaterialBizTypeEnum.DEV.getK());
+        basicsdatumMaterial.setBizType(BasicsdatumMaterialBizTypeEnum.DEV_APPLY.getK());
         return basicsdatumMaterialService.saveBasicsdatumMaterial(basicsdatumMaterial);
     }
 

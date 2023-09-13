@@ -60,14 +60,6 @@ public interface FabricDevConfigInfoService extends BaseService<FabricDevConfigI
 
 
     /**
-     * 获取开发申请配置信息
-     *
-     * @param devApplyCode
-     * @return
-     */
-    PageInfo<FabricDevConfigInfoVO> getDevApplyConfigList(String devApplyCode, Integer pageNum, Integer pageSize);
-
-    /**
      * 获取开发信息配置
      *
      * @param devCode

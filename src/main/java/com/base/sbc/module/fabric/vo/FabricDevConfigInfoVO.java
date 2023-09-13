@@ -33,6 +33,8 @@ public class FabricDevConfigInfoVO {
     private String attachmentUrl;
     @ApiModelProperty("状态(0.未处理,1.通过，2.失败)")
     private String status;
+    @ApiModelProperty("供应商")
+    private String suppler;
     @ApiModelProperty("分配状态 未分配，进行中，已完成")
     private String devStatus;
 }

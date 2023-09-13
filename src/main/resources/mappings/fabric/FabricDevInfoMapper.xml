@@ -11,25 +11,28 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
-    <select id="getByDevConfigId" resultType="com.base.sbc.module.fabric.vo.FabricDevConfigInfoVO">
-        SELECT fdi.practical_start_date,
+    <select id="getByDevApplyCode" resultType="com.base.sbc.module.fabric.vo.FabricDevConfigInfoVO">
+        SELECT
+        fdmi.id,
+        fdmi.suppler,
+        fdi.practical_start_date,
         fdi.practical_end_date,
-        fdi.attachment_url,
         fdi.expect_start_date,
         fdi.expect_end_date,
         fdi.operator,
-        fdi.status
-        FROM t_fabric_dev_info fdi
-        join t_fabric_dev_main_info fdmi on fdmi.id = fdi.dev_main_id
+        fdi.attachment_url,
+        fdi.`status`,
+        fdci.dev_name,
+        fdci.dev_code
+        FROM
+        t_fabric_dev_main_info fdmi
+        join t_fabric_dev_info fdi on fdi.dev_main_id = fdmi.id
+        join t_fabric_dev_config_info fdci on fdci.id = fdi.dev_config_id
         <where>
             fdmi.del_flag = '0'
             and fdi.del_flag = '0'
-            and fdi.dev_config_id = #{devConfigId}
-            <if test="devApplyCode != null and devApplyCode != ''">
-               and fdmi.dev_apply_code = #{devApplyCode}
-            </if>
+            and fdmi.dev_apply_code = #{devApplyCode}
         </where>
-        order by fdi.create_date desc limit 1
     </select>
 
     <select id="getByDevMainId" resultType="com.base.sbc.module.fabric.vo.FabricDevConfigInfoVO">

@@ -30,12 +30,10 @@ public interface FabricDevInfoMapper extends BaseMapper<FabricDevInfo> {
     /**
      * 通过开发配置id获取
      *
-     * @param devConfigId
      * @param devApplyCode
      * @return
      */
-    FabricDevConfigInfoVO getByDevConfigId(@Param("devConfigId") String devConfigId,
-                                           @Param("devApplyCode") String devApplyCode);
+    List<FabricDevConfigInfoVO> getByDevApplyCode(@Param("devApplyCode") String devApplyCode);
 
     /**
      * 通过开发主信息id获取

@@ -7,8 +7,6 @@
 package com.base.sbc.module.fabric.service.impl;
 
 import com.alibaba.fastjson2.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.CopyUtil;
@@ -24,7 +22,6 @@ import com.base.sbc.module.fabric.vo.FabricDevConfigInfoListVO;
 import com.base.sbc.module.fabric.vo.FabricDevConfigInfoVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,30 +89,6 @@ public class FabricDevConfigInfoServiceImpl extends BaseServiceImpl<FabricDevCon
     public void del(DelDTO dto) {
         logger.info("FabricDevConfigInfoService#del 删除 dto:{}", JSON.toJSONString(dto));
         super.getBaseMapper().deleteBatchIds(dto.getIds());
-    }
-
-    @Override
-    public PageInfo<FabricDevConfigInfoVO> getDevApplyConfigList(String devApplyCode, Integer pageNum, Integer pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-
-        LambdaQueryWrapper<FabricDevConfigInfo> qw = new QueryWrapper<FabricDevConfigInfo>().lambda()
-                .eq(FabricDevConfigInfo::getDelFlag, "0")
-                .eq(FabricDevConfigInfo::getStatus, "0")
-                .select(FabricDevConfigInfo::getDevCode, FabricDevConfigInfo::getDevName, FabricDevConfigInfo::getId);
-        List<FabricDevConfigInfo> list = super.list(qw);
-        if (CollectionUtils.isEmpty(list)) {
-            return new PageInfo<>();
-        }
-        List<FabricDevConfigInfoVO> fabricDevConfigInfoVOS = list.stream()
-                .map(devConfigInfo -> {
-                    FabricDevConfigInfoVO devInfo = fabricDevInfoService.getByDevConfigId(devConfigInfo.getId(), devApplyCode);
-                    devInfo.setDevName(devConfigInfo.getDevName());
-                    devInfo.setDevCode(devConfigInfo.getDevCode());
-                    devInfo.setId(devConfigInfo.getId());
-                    devInfo.setDevStatus(StringUtils.isEmpty(devInfo.getStatus()) ? "未分配" : StringUtils.equals("0", devInfo.getStatus()) ? "进行中" : "已完成");
-                    return devInfo;
-                }).collect(Collectors.toList());
-        return new PageInfo<>(fabricDevConfigInfoVOS);
     }
 
     @Override

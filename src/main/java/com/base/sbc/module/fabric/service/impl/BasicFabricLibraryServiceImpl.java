@@ -65,9 +65,8 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
         logger.info("BasicFabricLibraryService#saveBasicFabric 保存 fabricDevMainVO：{}", JSON.toJSONString(fabricDevMainVO));
         String companyCode = super.getCompanyCode();
         IdGen idGen = new IdGen();
-        // TODO 通过开发code查询，如果数据存在，则更新
         // 保存物料档案信息
-        BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveMaterial(CopyUtil.copy(fabricDevMainVO.getBasicsdatumMaterial(), BasicsdatumMaterialSaveDto.class), null, BasicsdatumMaterialBizTypeEnum.DEV.getK());
+        BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveMaterial(CopyUtil.copy(fabricDevMainVO.getBasicsdatumMaterial(), BasicsdatumMaterialSaveDto.class), null, BasicsdatumMaterialBizTypeEnum.FABRIC_LIBRARY.getK());
         // 保存基础面料信息
         BasicFabricLibrary basicFabricLibrary = new BasicFabricLibrary();
         String id = idGen.nextIdStr();
@@ -114,7 +113,7 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
         }
 
         // 修改物料信息
-        this.saveMaterial(dto.getBasicsdatumMaterial(), basicFabricLibrary.getMaterialId(), BasicsdatumMaterialBizTypeEnum.DEV.getK());
+        this.saveMaterial(dto.getBasicsdatumMaterial(), basicFabricLibrary.getMaterialId(), BasicsdatumMaterialBizTypeEnum.FABRIC_LIBRARY.getK());
         // 修改基本信息
         fabricDevBasicInfoService.saveBasicInfo(dto.getFabricDevBasicInfo(), basicFabricLibrary.getId());
         // 修改开发主信息

@@ -147,4 +147,6 @@ public class BasicFabricLibraryListVO {
 
     @ApiModelProperty("业务类型：:material.物料、dev.面料开发")
     private String bizType;
+    @ApiModelProperty("开发状态：1.待分配、2进行中3、已完成")
+    private String devStatus;
 }

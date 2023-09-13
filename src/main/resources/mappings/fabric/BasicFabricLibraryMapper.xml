@@ -39,19 +39,14 @@
         bm.material_name,
         bm.image_url,
         IFNULL( bm1.confirm_Status, '0' ) AS approveStatus,
-        bm.biz_type
+        IFNULL( fda.allocation_status, '3' ) AS devStatus
         FROM
         t_basicsdatum_material bm
-        <choose>
-            <when test="dto.bizType != null and dto.bizType !='' and dto.bizType == 'dev'">
-                JOIN t_basic_fabric_library bfl ON bm.id = bfl.material_id and bfl.del_flag = '0'
-            </when>
-            <otherwise>
-                LEFT JOIN t_basic_fabric_library bfl ON bm.id = bfl.material_id and bfl.del_flag = '0'
-            </otherwise>
-        </choose>
-        LEFT JOIN t_fabric_dev_basic_info fdb ON fdb.biz_id = bfl.id
+        LEFT JOIN t_basic_fabric_library bfl ON bm.id = bfl.material_id
+        LEFT JOIN t_fabric_dev_apply fda ON bm.id = fda.material_id
+        LEFT JOIN t_fabric_dev_basic_info fdb ON ( fdb.biz_id = bfl.id OR fdb.biz_id = fda.id )
         LEFT JOIN t_basicsdatum_material bm1 ON bm1.id = fdb.to_material_id
+        AND bfl.del_flag = '0'
         <where>
             bm.del_flag = '0'
             and bm.company_code = #{dto.companyCode}
@@ -74,9 +69,14 @@
                 bm.category3_code = #{dto.categoryId}
                 or bm.category_id = #{dto.categoryId})
             </if>
-            <if test="dto.bizType != null and dto.bizType !=''">
-                and bm.biz_type = #{dto.bizType}
-            </if>
+            <choose>
+                <when test="dto.bizType != null and dto.bizType !=''">
+                    and bm.biz_type = #{dto.bizType}
+                </when>
+                <otherwise>
+                    and ( bm.biz_type ='material' or bm.biz_type ='devApply' or bm.biz_type='fabricLibrary')
+                </otherwise>
+            </choose>
         </where>
         order by bfl.create_date desc
     </select>

@@ -197,7 +197,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			entity.setStatus("0");
 			String categoryCode = entity.getMaterialCode();
 			// 获取并放入最大code(且需要满足自动生成物料编码的开关为空或者未启动)
-			if (!BasicsdatumMaterialBizTypeEnum.DEV.getK().equals(dto.getBizType())  && !ccmFeignService.getSwitchByCode("AUTO_GEN_MATERIAL_CODE")) {
+			if (BasicsdatumMaterialBizTypeEnum.MATERIAL.getK().equals(dto.getBizType())  && !ccmFeignService.getSwitchByCode("AUTO_GEN_MATERIAL_CODE")) {
 				entity.setMaterialCode(getMaxCode(categoryCode));
 			}
 		}

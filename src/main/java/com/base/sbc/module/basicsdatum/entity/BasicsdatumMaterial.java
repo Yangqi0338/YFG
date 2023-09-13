@@ -416,9 +416,9 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
     private String compositionSendStatus;
 
 	/**
-	 * 业务类型:material.物料、dev.面料开发
+	 * 业务类型:material.物料、devApply.面料开发申请、dev.面料开发、fabricLibrary.面料基础库
 	 */
-	@ApiModelProperty(value = "业务类型:material.物料、dev.面料开发")
+	@ApiModelProperty(value = "业务类型:material.物料、devApply.面料开发申请、dev.面料开发、fabricLibrary.面料基础库")
 	private String bizType;
 
 	/**

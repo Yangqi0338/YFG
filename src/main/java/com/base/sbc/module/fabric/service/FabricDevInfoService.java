@@ -33,7 +33,7 @@ public interface FabricDevInfoService extends BaseService<FabricDevInfo> {
      * @param devApplyCode
      * @return
      */
-    FabricDevConfigInfoVO getByDevConfigId(String devConfigId, String devApplyCode);
+    PageInfo<FabricDevConfigInfoVO> getByDevApplyCode(String devApplyCode, Integer pageNum, Integer pageSize);
 
 
     /**

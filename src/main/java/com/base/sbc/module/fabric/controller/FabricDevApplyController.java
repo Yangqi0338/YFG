@@ -12,7 +12,7 @@ import com.base.sbc.module.fabric.dto.FabricDevApplyAllocationDTO;
 import com.base.sbc.module.fabric.dto.FabricDevApplySaveDTO;
 import com.base.sbc.module.fabric.dto.FabricDevSearchDTO;
 import com.base.sbc.module.fabric.service.FabricDevApplyService;
-import com.base.sbc.module.fabric.service.FabricDevConfigInfoService;
+import com.base.sbc.module.fabric.service.FabricDevInfoService;
 import com.base.sbc.module.fabric.vo.FabricDevApplyListVO;
 import com.base.sbc.module.fabric.vo.FabricDevConfigInfoVO;
 import com.github.pagehelper.PageInfo;
@@ -44,7 +44,7 @@ public class FabricDevApplyController extends BaseController {
     @Autowired
     private FabricDevApplyService fabricDevApplyService;
     @Autowired
-    private FabricDevConfigInfoService fabricDevConfigInfoService;
+    private FabricDevInfoService fabricDevInfoService;
 
     @ApiOperation(value = "分页查询")
     @PostMapping("/getDevApplyList")
@@ -72,9 +72,9 @@ public class FabricDevApplyController extends BaseController {
     }
 
 
-    @ApiOperation(value = "获取开发申请配置信息")
-    @GetMapping("/getDevApplyConfigList")
-    public PageInfo<FabricDevConfigInfoVO> getDevApplyConfigList(String devApplyCode, Integer pageNum, Integer pageSize) {
-        return fabricDevConfigInfoService.getDevApplyConfigList(devApplyCode, pageNum, pageSize);
+    @ApiOperation(value = "获取开发申请信息")
+    @GetMapping("/getDevApplyList")
+    public PageInfo<FabricDevConfigInfoVO> getDevApplyList(String devApplyCode, Integer pageNum, Integer pageSize) {
+        return fabricDevInfoService.getByDevApplyCode(devApplyCode, pageNum, pageSize);
     }
 }
