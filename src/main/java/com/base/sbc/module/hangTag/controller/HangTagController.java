@@ -10,9 +10,11 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.Pinyin4jUtil;
 import com.base.sbc.module.hangTag.dto.HangTagDTO;
@@ -27,6 +29,8 @@ import com.base.sbc.module.hangTag.vo.HangTagListVO;
 import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.material.entity.MaterialLabel;
+import com.base.sbc.module.pack.service.PackBusinessOpinionService;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
@@ -83,6 +87,7 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "保存")
     @PostMapping("/save")
+    @OperaLog(value = "吊牌操作记录", operationType = OperationType.INSERT_UPDATE,   service = HangTagService.class)
     public ApiResult save(@Valid @RequestBody HangTagDTO hangTagDTO) {
         String id = hangTagService.save(hangTagDTO, super.getUserCompany());
         return ApiResult.success("保存成功", id);
