@@ -609,6 +609,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         vo.setPatternDesignName(style.getPatternDesignName());
         vo.setSizeRangeName(style.getSizeRangeName());
         vo.setProdCategoryName(style.getProdCategoryName());
+        vo.setWashSkippingFlag(sizeConfig.getWashSkippingFlag());
         PackTechSpecSearchDto techSearch = BeanUtil.copyProperties(dto, PackTechSpecSearchDto.class);
         //工艺信息
         vo.setTechSpecVoList(packTechSpecService.list(techSearch));

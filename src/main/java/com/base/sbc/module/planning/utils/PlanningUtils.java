@@ -7,6 +7,7 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningSeason;
@@ -124,13 +125,15 @@ public class PlanningUtils {
      */
     public static void dimensionCommonQw(BaseQueryWrapper qw, Object bean, String prefix) {
         PlanningCategoryItem dto = BeanUtil.copyProperties(bean, PlanningCategoryItem.class);
-        if (StrUtil.equals(dto.getCategoryFlag(), BaseGlobal.NO)) {
+        if(StrUtil.isBlank(dto.getCategoryFlag())){
+            dto.setCategoryFlag(StrUtil.isBlank(dto.getProdCategory2nd())?BasicNumber.ZERO.getNumber():BasicNumber.ONE.getNumber());
+        }else if (StrUtil.equals(dto.getCategoryFlag(), BasicNumber.ZERO.getNumber())) {
             dto.setProdCategory2nd("");
         }
         if (prefix == null) {
             prefix = "";
         }
-        if (StrUtil.isNotBlank(dto.getProdCategory2nd())) {
+        if (StrUtil.equals(dto.getCategoryFlag(), BasicNumber.ONE.getNumber())) {
             qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), prefix + "prod_category1st", dto.getProdCategory1st());
             qw.eq(prefix + "prod_category", dto.getProdCategory());
             qw.eq(prefix + "prod_category2nd", dto.getProdCategory2nd());

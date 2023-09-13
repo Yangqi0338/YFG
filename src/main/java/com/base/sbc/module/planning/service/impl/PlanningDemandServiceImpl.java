@@ -162,11 +162,9 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         if (StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory2nd())) {
             qw.apply(StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory2nd()), "FIND_IN_SET({0},prod_category2nd)", queryDemandDimensionalityDto.getProdCategory2nd());
         } else {
-            qw.isNull("prod_category2nd");
             qw.apply(StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory()), "FIND_IN_SET({0},category_code)", queryDemandDimensionalityDto.getProdCategory());
         }
-
-
+        /*查询字段配置中的数据*/
         List<FieldOptionConfig> optionConfigList = fieldOptionConfigMapper.selectList(qw);
         /*获取到这个品类下存在的字段*/
         List<String> fieldManagementIdList = optionConfigList.stream().map(FieldOptionConfig::getFieldManagementId).distinct().collect(Collectors.toList());
@@ -178,14 +176,16 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
          * 查询需求占比中依赖于字段id
          */
         List<FieldManagement> fieldManagementList = fieldManagementMapper.selectBatchIds(fieldManagementIdList);
+        /*可选的数据，配置所有数据*/
         map.put("fieldManagement", fieldManagementList);
         QueryWrapper<PlanningDemand> queryWrapper1 = new QueryWrapper<>();
         if (StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory2nd())) {
             queryWrapper1.apply(StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory2nd()), "FIND_IN_SET({0},prod_category2nd)", queryDemandDimensionalityDto.getProdCategory2nd());
         } else {
             queryWrapper1.isNull("prod_category2nd");
-            queryWrapper1.apply(StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory()), "FIND_IN_SET({0},category_code)", queryDemandDimensionalityDto.getProdCategory());
+            queryWrapper1.apply(StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory()), "FIND_IN_SET({0},prod_category)", queryDemandDimensionalityDto.getProdCategory());
         }
+        /*查询维度中已选择的数据*/
         queryWrapper1.eq("planning_season_id", queryDemandDimensionalityDto.getPlanningSeasonId());
         List<PlanningDemand> planningDemandList = baseMapper.selectList(queryWrapper1);
         /*字段id*/
@@ -196,6 +196,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
             queryWrapper.in("id", stringList);
             fieldManagementList2 = fieldManagementMapper.selectList(queryWrapper);
         }
+        /*已选择的数据*/
         map.put("demandDimensionality", fieldManagementList2);
         return ApiResult.success("查询成功", map);
     }

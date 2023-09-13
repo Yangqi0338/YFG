@@ -8,7 +8,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.annotation.OperaLog;
-import com.base.sbc.config.common.annotation.ApiDataIsolation;
+import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
@@ -51,7 +51,7 @@ public class OperaAspect {
     private final ApplicationContext applicationContext;
 
     private final OperaLogService operaLogService;
-    @Pointcut("@annotation(com.base.sbc.config.common.annotation.ApiDataIsolation)")
+    @Pointcut("@annotation(com.base.sbc.config.common.annotation.DataIsolation)")
     public void servicePointcut() {
         System.out.println("Pointcut: 不会被执行");
     }
@@ -69,23 +69,36 @@ public class OperaAspect {
         Method method = clazz.getDeclaredMethod(methodName, argClz);
 
         // 判断当前访问的方法是否存在指定注解
-        if (method.isAnnotationPresent(ApiDataIsolation.class)) {
+        if (method.isAnnotationPresent(DataIsolation.class)) {
             String userId = httpServletRequest.getHeader("userId");
             String usercompany = httpServletRequest.getHeader("Usercompany");
             String authorization = httpServletRequest.getHeader("Authorization");
-            ApiDataIsolation dataIsolation = method.getAnnotation(ApiDataIsolation.class);
+            DataIsolation dataIsolation = method.getAnnotation(DataIsolation.class);
             if(!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization) && dataIsolation.state() && StringUtils.isNotBlank(dataIsolation.authority())){
                 // 获取注解标识值与注解描述
                 String operateType = dataIsolation.operateType()?"read":"write";
                 RedisUtils redisUtils = SpringContextHolder.getBean("redisUtils");
+                String dataPermissionsKey = "USERISOLATION:"+usercompany+":"+userId+":";
+
+                //删除amc的数据权限状态
+                RedisUtils redisUtils1=new RedisUtils();
+                redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplateAmc"));
+                boolean redisType=false;
+                if(redisUtils1.hasKey(dataPermissionsKey+"POWERSTATE")){
+                    redisType=true;
+                    redisUtils1.del(dataPermissionsKey+"POWERSTATE");
+                }
+                if (redisType){
+                    redisUtils.removePattern(dataPermissionsKey);
+                }
                 Map<String,Object> entity=null;
                 Boolean authorityState=false;
-                if (!redisUtils.hasKey(usercompany+":system_setting:user_isolation:"+userId+":"+operateType+"@" + dataIsolation.authority()+":authorityState")) {
+                if (!redisUtils.hasKey(dataPermissionsKey+operateType+"@" + dataIsolation.authority()+":authorityState")) {
                     DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
                     entity= dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,null,dataIsolation.authorityFields());
                     authorityState=entity.containsKey("authorityState")?(Boolean)entity.get("authorityState"):false;
                     if(!authorityState){
-                        redisUtils.set(usercompany+":system_setting:user_isolation:"+userId+":" +operateType+"@" + dataIsolation.authority()+":authorityState", authorityState, 60 * 3);//如数据的隔离3分钟更新一次
+                        redisUtils.set(dataPermissionsKey +operateType+"@" + dataIsolation.authority()+":authorityState", authorityState, 60 * 3);//如数据的隔离3分钟更新一次
                         throw new OtherException("无权限");
                     }
                 }else {

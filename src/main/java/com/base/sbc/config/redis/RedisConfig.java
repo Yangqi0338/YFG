@@ -3,16 +3,19 @@ package com.base.sbc.config.redis;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import redis.clients.jedis.JedisPoolConfig;
+
 /**
  * @author Fred
  * @data 创建时间:2020/2/3
@@ -20,27 +23,62 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 @EnableCaching
 public class RedisConfig extends CachingConfigurerSupport {
+    @Value("${spring.redis.host}")
+    private String host;
 
+    @Value("${spring.redis.port}")
+    private int port;
+
+    @Value("${spring.redis.password}")
+    private String password;
+    @Value("${spring.redis.database}")
+    private int database;
+    @Value("${redis.databaseAmc}")
+    private int databaseAmc;
+    @Value("${spring.redis.pool.max-active}")
+    private int maxActive;
+
+    @Value("${spring.redis.pool.max-idle}")
+    private int maxIdle;
+    @Value("${spring.redis.pool.max-wait}")
+    private int maxWait;
     /**
      * 选择redis作为默认缓存工具
      * @param redisTemplate
      * @return
      */
-    @SuppressWarnings("rawtypes")
 	@Bean
     public CacheManager cacheManager(RedisTemplate redisTemplate) {
         RedisCacheManager rcm = new RedisCacheManager(redisTemplate);
         return rcm;
     }
 
+    @Bean(name="redisTemplateAmc")
+    public RedisTemplate<String, Object> redisTemplateAmc() {
+        return this.redisTemplateInit(databaseAmc);
+    }
+	@Bean(name="redisTemplate")
+    public RedisTemplate<String, Object> redisTemplate() {
+        return this.redisTemplateInit(database);
+    }
+
     /**
      * retemplate相关配置
-     * @param factory
+//     * @param connectionFactory
      * @return
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-	@Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
+    public RedisTemplate<String, Object> redisTemplateInit(int database) {
+        JedisConnectionFactory factory = new JedisConnectionFactory();
+        factory.setHostName(host);
+        factory.setPort(port);
+        factory.setPassword(password);
+        factory.setDatabase(database);
+        JedisPoolConfig poolConfig = new JedisPoolConfig(); // 进行连接池配置
+        poolConfig.setMaxTotal(maxActive);
+        poolConfig.setMaxIdle(maxIdle);
+        poolConfig.setMaxWaitMillis(maxWait);
+        factory.setPoolConfig(poolConfig);
+        factory.afterPropertiesSet(); // 初始化连接池配置
 
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         // 配置连接工厂
@@ -68,7 +106,6 @@ public class RedisConfig extends CachingConfigurerSupport {
 
         return template;
     }
-
     /**
      * 对hash类型的数据操作
      *

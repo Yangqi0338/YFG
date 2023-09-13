@@ -33,13 +33,12 @@ import java.util.List;
  * @date 创建时间：2023-5-9 11:16:15
  */
 @Mapper
-
-@DataIsolation(authority="sample_design")
+@DataIsolation(authority="style")
 public interface StyleMapper extends BaseMapper<Style> {
     /**
      * 自定义方法区 不替换的区域【other_start】
      **/
-    @DataIsolation(authority="sample_design",authorityFields={"s.prod_category","s.brand"})
+    @DataIsolation(authority="style",authorityFields={"s.prod_category","s.brand"})
     List<StylePageVo> selectByQw(@Param(Constants.WRAPPER) QueryWrapper<Style> wrapper);
 
     List<SampleUserVo> getDesignerList(@Param("companyCode") String companyCode);

@@ -526,9 +526,18 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         return true;
     }
 
+    /**
+     * 查询坑位信息的维度数据
+     * @param id
+     * @param isSelected
+     * @param categoryFlag 用于查询品类或中类 0品类1中类
+     * @return
+     */
     @Override
     public List<FieldManagementVo> querySeatDimension(String id, String isSelected,String categoryFlag) {
+        /*查询坑位信息*/
         PlanningCategoryItem seat = getById(id);
+        /*产品季信息*/
         PlanningSeason season = planningSeasonService.getById(seat.getPlanningSeasonId());
         /**
          * 查询标签维度中选中的字段
@@ -536,11 +545,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         List<FieldManagementVo> fieldList = new ArrayList<>();
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
         queryWrapper.eq("planning_season_id", seat.getPlanningSeasonId());
-        if(StrUtil.equals(categoryFlag,BaseGlobal.YES)){
-            queryWrapper.eq("prod_category2nd",seat.getProdCategory2nd());
-        }else {
-            queryWrapper.eq("prod_category",seat.getProdCategory());
-        }
+        seat.setCategoryFlag(categoryFlag);
+        /*拼接处理查询条件*/
         PlanningUtils.dimensionCommonQw(queryWrapper, seat);
         List<PlanningDimensionality> dimensionalityList = planningDimensionalityMapper.selectList(queryWrapper);
         if (CollUtil.isNotEmpty(dimensionalityList)) {
