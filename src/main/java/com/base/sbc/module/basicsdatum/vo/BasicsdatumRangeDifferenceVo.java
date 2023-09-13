@@ -8,6 +8,7 @@ package com.base.sbc.module.basicsdatum.vo;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.difference.entity.Difference;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -78,5 +79,8 @@ public class BasicsdatumRangeDifferenceVo  extends BaseDataEntity<String>{
     private String status;
 
     private String  remarks;
+
+    @ApiModelProperty(value = "公差，档差"  )
+    private  List<Difference> differenceList;
 
 }

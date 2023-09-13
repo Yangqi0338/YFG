@@ -37,63 +37,36 @@ public class Difference extends BaseDataEntity<String> {
     /** 制版ID */
     @ApiModelProperty(value = "档差管理id"  )
     private String rangeDifferenceId;
-    /** 制版ID */
-    @ApiModelProperty(value = "制版ID"  )
-    private String plateBillId;
-    /** 制版号 */
-    @ApiModelProperty(value = "制版号"  )
-    private String plateBillCode;
-    /** 序号 */
-    @ApiModelProperty(value = "序号"  )
-    private Integer sort;
+    /** 部位编码 */
+    @ApiModelProperty(value = "部位编码"  )
+    private String  partCoed;
     /** 部位名称 */
     @ApiModelProperty(value = "部位名称"  )
     private String partName;
-    /** 公差 */
-    @ApiModelProperty(value = "公差"  )
-    private String tolerance;
-    /** 标准值 */
-    @ApiModelProperty(value = "标准值"  )
-    private String standard;
-    /** 工单的所有尺码一一列出来，所有的尺码 */
-    @ApiModelProperty(value = "工单的所有尺码一一列出来，所有的尺码"  )
-    private String size;
     /** 量法 */
     @ApiModelProperty(value = "量法"  )
     private String method;
-    /** 备注 */
-    @ApiModelProperty(value = "备注"  )
-    private String remark;
-    /** 图片（1张） */
-    @ApiModelProperty(value = "图片（1张）"  )
-    private String img;
-    /** 码差 */
-    @ApiModelProperty(value = "码差"  )
-    private String codeError;
-    /** 单位 */
-    @ApiModelProperty(value = "单位"  )
-    private String unit;
-    /** 代码 */
-    @ApiModelProperty(value = "代码"  )
-    private String sizeCode;
-    /** 驳口 */
-    @ApiModelProperty(value = "驳口"  )
-    private String splice;
-    /** 部位倍数 */
-    @ApiModelProperty(value = "部位倍数"  )
-    private String partMultiple;
-    /** 分组名称:default=尺寸量法,工艺明细尺寸=工艺明细尺寸 */
-    @ApiModelProperty(value = "分组名称:default=尺寸量法,工艺明细尺寸=工艺明细尺寸"  )
-    private String groupName;
+    /** 档差 */
+    @ApiModelProperty(value = "档差"  )
+    private String  codeError;
+    /** 公差 */
+    @ApiModelProperty(value = "公差"  )
+    private String tolerance;
     /** 正公差+ */
     @ApiModelProperty(value = "正公差+"  )
     private String positive;
     /** 负公差- */
     @ApiModelProperty(value = "负公差-"  )
     private String minus;
+    /** 备注 */
+    @ApiModelProperty(value = "备注"  )
+    private String remark;
     /** 档差设置，多档差 */
     @ApiModelProperty(value = "档差设置，多档差"  )
     private String codeErrorSetting;
+    //尺码设置
+    @ApiModelProperty(value = "尺码设置"  )
+    private String sizeSetting;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
