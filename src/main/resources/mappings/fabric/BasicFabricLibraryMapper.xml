@@ -39,6 +39,7 @@
         bm.material_name,
         bm.image_url,
         IFNULL( bm1.confirm_Status, '0' ) AS approveStatus,
+        bm.biz_type,
         IFNULL( fda.allocation_status, '3' ) AS devStatus
         FROM
         t_basicsdatum_material bm
