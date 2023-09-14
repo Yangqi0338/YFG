@@ -177,6 +177,14 @@ public class PackBomController extends BaseController{
     }
 
 
+
+    @PostMapping("/unlock")
+    @ApiOperation(value = "物料解锁")
+    public Boolean unlock(@RequestBody IdDto dto) {
+        return packBomService.unlock(dto);
+    }
+
+
 }
 
 

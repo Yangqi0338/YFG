@@ -172,7 +172,6 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private StyleInfoColorService styleInfoColorService;
 
 
-
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
 
@@ -220,8 +219,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         Page<PackInfoListVo> objects = PageHelper.startPage(pageDto);
         List<PackInfoListVo> list = getBaseMapper().queryByQw(qw);
         List<String> stringList = list.stream().map(PackInfoListVo::getId).collect(Collectors.toList());
-        Map<String,String> map = packBomService.getPackSendStatus(stringList);
-        list.forEach(p ->{
+        Map<String, String> map = packBomService.getPackSendStatus(stringList);
+        list.forEach(p -> {
             /*0:全部下发 1:全部未下发 2:部分下发 null:无物料清单*/
             p.setScmSendFlag(map.get(p.getId()));
         });
@@ -294,17 +293,17 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (CollectionUtil.isNotEmpty(bomList)) {
             //保存bom尺码跟颜色
             List<PackBomSize> bomSizeList = packBomSizeService.list(style.getId(), PackUtils.PACK_TYPE_STYLE);
-            Map<String,List<PackBomSize>> bomSizeMap = bomSizeList.stream().collect(Collectors.groupingBy(PackBomSize::getBomId));
-            List<PackBomColor> bomColorList = packBomColorService.list(style.getId(),PackUtils.PACK_TYPE_STYLE);
-            Map<String,List<PackBomColor>> bomColorMap = bomColorList.stream().collect(Collectors.groupingBy(PackBomColor::getBomId));
+            Map<String, List<PackBomSize>> bomSizeMap = bomSizeList.stream().collect(Collectors.groupingBy(PackBomSize::getBomId));
+            List<PackBomColor> bomColorList = packBomColorService.list(style.getId(), PackUtils.PACK_TYPE_STYLE);
+            Map<String, List<PackBomColor>> bomColorMap = bomColorList.stream().collect(Collectors.groupingBy(PackBomColor::getBomId));
 
             // 物料清单转仓库配置项， 开：默认勾选主面料逻辑
             String mainFlag = ccmFeignService.getSwitchByCode(MATERIAL_CREATE_PURCHASEDEMAND.getKeyCode()) ? "1" : "0";
-            for (PackBom bom:bomList) {
+            for (PackBom bom : bomList) {
                 String bomId = IdUtil.getSnowflake().nextIdStr();
                 List<PackBomSize> bomSizes = bomSizeMap.get(bom.getId());
-                if(CollectionUtil.isNotEmpty(bomSizes)){
-                    for(PackBomSize bomSize:bomSizes){
+                if (CollectionUtil.isNotEmpty(bomSizes)) {
+                    for (PackBomSize bomSize : bomSizes) {
                         bomSize.setId(null);
                         bomSize.setBomId(bomId);
                         bomSize.setPackType(PackUtils.PACK_TYPE_DESIGN);
@@ -313,9 +312,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                         bomSize.updateInit();
                     }
                 }
-                List<PackBomColor> bomColors= bomColorMap.get(bom.getId());
-                if(CollectionUtil.isNotEmpty(bomColors)){
-                    for(PackBomColor bomColor:bomColors){
+                List<PackBomColor> bomColors = bomColorMap.get(bom.getId());
+                if (CollectionUtil.isNotEmpty(bomColors)) {
+                    for (PackBomColor bomColor : bomColors) {
                         bomColor.setId(null);
                         bomColor.setBomId(bomId);
                         bomColor.setPackType(PackUtils.PACK_TYPE_DESIGN);
@@ -332,10 +331,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 bom.updateInit();
             }
             packBomService.saveBatch(bomList);
-            if(CollectionUtil.isNotEmpty(bomColorList)){
+            if (CollectionUtil.isNotEmpty(bomColorList)) {
                 packBomColorService.saveBatch(bomColorList);
             }
-            if(CollectionUtil.isNotEmpty(bomSizeList)){
+            if (CollectionUtil.isNotEmpty(bomSizeList)) {
                 packBomSizeService.saveBatch(bomSizeList);
             }
         }
@@ -380,7 +379,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException("物料清单版本未锁定");
         }
         //无配色信息
-        if (ccmFeignService.getSwitchByCode(STYLE_MANY_COLOR.getKeyCode())&&ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH.getKeyCode()) && StringUtils.isAnyBlank(packInfo.getStyleNo(), packInfo.getColor(), packInfo.getStyleColorId())) {
+        if (ccmFeignService.getSwitchByCode(STYLE_MANY_COLOR.getKeyCode()) && ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH.getKeyCode()) && StringUtils.isAnyBlank(packInfo.getStyleNo(), packInfo.getColor(), packInfo.getStyleColorId())) {
             throw new OtherException("没有配色信息");
         }
 
@@ -407,7 +406,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         /*配色下发*/
         dataUpdateScmService.updateStyleColorSend(packInfo.getStyleNo());
         /*xiao消息*/
-        messageUtils.toBigGoodsSendMessage(packInfo.getPlanningSeasonId(),packInfo.getDesignNo(),baseController.getUser());
+        messageUtils.toBigGoodsSendMessage(packInfo.getPlanningSeasonId(), packInfo.getDesignNo(), baseController.getUser());
         return true;
     }
 
@@ -819,7 +818,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         queryWrapper.eq("style_no", packInfo.getStyleNo());
         StyleColor color = styleColorMapper.selectOne(queryWrapper);
         /*验证是否下发*/
-        if(!color.getScmSendFlag().equals(BaseGlobal.NO)){
+        if (!color.getScmSendFlag().equals(BaseGlobal.NO)) {
             throw new OtherException("数据存在已下发");
         }
         packInfo.setColor("");
@@ -854,6 +853,15 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 designPs.setToDesignDate(nowDate);
                 //设置bom 状态
                 changeBomStatus(packInfo.getId(), BasicNumber.ZERO.getNumber());
+                PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
+                /*反审后物料清单的状态改为可编辑*/
+                UpdateWrapper updateWrapper = new UpdateWrapper();
+                updateWrapper.set("scm_send_flag",BaseGlobal.IN_READY);
+                updateWrapper.eq("foreign_id",packInfo.getId());
+                updateWrapper.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
+                updateWrapper.eq("bom_version_id",enableVersion.getId());
+                packBomService.update(updateWrapper);
+
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {

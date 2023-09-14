@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
+import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
@@ -131,6 +132,14 @@ public interface PackBomService extends PackBaseService<PackBom> {
 
 
     List<PackBomVo> list(String foreignId, String packType, String bomVersionId);
+
+
+    /**
+     * 解锁
+     * @param idDto
+     * @return
+     */
+    Boolean unlock(IdDto idDto);
 // 自定义方法区 不替换的区域【other_end】
 
 
