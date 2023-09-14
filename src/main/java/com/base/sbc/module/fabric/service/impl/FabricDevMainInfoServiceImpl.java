@@ -81,7 +81,6 @@ public class FabricDevMainInfoServiceImpl extends BaseServiceImpl<FabricDevMainI
             // 保存物料档案信息
             BasicsdatumMaterialSaveDto basicsdatumMaterialSaveDto = CopyUtil.copy(fabricDevApplyVO.getBasicsdatumMaterial(), BasicsdatumMaterialSaveDto.class);
             BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveMaterial(basicsdatumMaterialSaveDto, null);
-            // TODO 截取
             // 保存面料开发信息
             FabricDevMainInfo fabricDevMainInfo = new FabricDevMainInfo();
             String id = idGen.nextIdStr();

@@ -78,6 +78,9 @@
                     and ( bm.biz_type ='material' or bm.biz_type ='devApply' or bm.biz_type='fabricLibrary')
                 </otherwise>
             </choose>
+            <if test="dto.bizType != null and dto.bizType !='' and dto.bizType !='material'">
+                and (fda.allocation_status != '3' or fdb.to_material_flag = '0')
+            </if>
         </where>
         order by bfl.create_date desc
     </select>

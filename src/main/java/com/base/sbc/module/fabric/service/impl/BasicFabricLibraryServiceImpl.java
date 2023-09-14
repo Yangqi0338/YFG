@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.fabric.service.impl;
 
+import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.constant.BaseConstant;
@@ -87,6 +88,9 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
     public PageInfo<BasicFabricLibraryListVO> getBasicFabricLibraryList(BasicFabricLibrarySearchDTO dto) {
         PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         dto.setCompanyCode(super.getCompanyCode());
+        if (StringUtils.isEmpty(dto.getBizType())) {
+            dto.setBizType("fabricLibrary");
+        }
         List<BasicFabricLibraryListVO> basicFabricLibraryList = super.getBaseMapper().getBasicFabricLibraryList(dto);
         return new PageInfo<>(basicFabricLibraryList);
     }
@@ -136,6 +140,7 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
         BasicsdatumMaterialSaveDto basicsdatumMaterialSaveDto = CopyUtil.copy(basicFabricLibraryVO.getBasicsdatumMaterial(), BasicsdatumMaterialSaveDto.class);
         basicsdatumMaterialSaveDto.setConfirmStatus("0");
         basicsdatumMaterialSaveDto.setSource("2");
+        basicsdatumMaterialSaveDto.setMaterialCode(basicsdatumMaterialSaveDto.getMaterialCode().split("_")[0]);
         BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveMaterial(basicsdatumMaterialSaveDto, null, BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
         // 更新基本信息“是否转至物料档案”、“转至物料档案id”(包括开发、开发申请)
         String devApplyId = fabricDevApplyService.getByDevApplyCode(basicFabricLibraryVO.getDevApplyCode());

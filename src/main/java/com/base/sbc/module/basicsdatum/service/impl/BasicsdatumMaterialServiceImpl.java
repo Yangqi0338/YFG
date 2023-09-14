@@ -404,7 +404,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		qw.eq("bm.confirm_status", "2");
 		qw.eq(StringUtils.isNotEmpty(dto.getStatus()), "bm.status", dto.getStatus());
 		qw.in(StringUtils.isNotEmpty(dto.getDistribute()), "bm.distribute", StringUtils.convertList(dto.getDistribute()));
-		qw.eq(StringUtils.equals("2", dto.getSource()), "fp.planning_season_id", StringUtils.convertList(dto.getPlanningSeasonId()));
+		qw.eq(StringUtils.equals("2", dto.getSource()), "fp.planning_season_id", dto.getPlanningSeasonId());
 		Page<BomSelMaterialVo> page = PageHelper.startPage(dto);
 		List<BomSelMaterialVo> list = getBaseMapper().getBomSelMaterialList(qw,dto.getSource());
 
