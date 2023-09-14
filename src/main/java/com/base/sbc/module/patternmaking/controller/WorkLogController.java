@@ -24,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -78,6 +79,12 @@ public class WorkLogController {
     public WorkLogVo update(@RequestBody WorkLogSaveDto workLog) {
         boolean b = workLogService.updateById(workLog);
         return BeanUtil.copyProperties(workLog, WorkLogVo.class);
+    }
+
+    @ApiOperation(value = "/导出")
+    @GetMapping("/workLogDeriveExcel")
+    public void workLogDeriveExcel(WorkLogSearchDto dto,HttpServletResponse response) throws Exception {
+        workLogService.workLogDeriveExcel(dto,response);
     }
 
 }

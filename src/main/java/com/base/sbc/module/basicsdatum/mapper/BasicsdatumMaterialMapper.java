@@ -46,7 +46,8 @@ public interface BasicsdatumMaterialMapper extends BaseMapper<BasicsdatumMateria
 	List<BasicsdatumMaterialWidthSelectVo> getBasicsdatumMaterialWidthSelect(@Param("companyCode") String companyCode,
 																			 @Param("materialCode") String materialCode);
 
-	List<BomSelMaterialVo> getBomSelMaterialList(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
+	List<BomSelMaterialVo> getBomSelMaterialList(@Param(Constants.WRAPPER) BaseQueryWrapper qw,
+												 @Param("source") String source);
 
 	List<BasicsdatumMaterialOldPageVo> getBasicsdatumMaterialOldPage(@Param("companyCode") String companyCode,
 			@Param("materialCode") String materialCode);

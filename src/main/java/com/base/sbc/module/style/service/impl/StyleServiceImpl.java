@@ -1076,6 +1076,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             detail.setSizeRangeSizes(modelType.getSize());
             detail.setSizeRangeSizeIds(modelType.getSizeIds());
             detail.setSizeRangeSizeCodes(modelType.getSizeCode());
+            detail.setSizeRangeSizeRealCodes(modelType.getSizeRealCode());
         }
         if (StrUtil.isBlank(historyStyleId)) {
             return detail;

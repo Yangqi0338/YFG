@@ -37,6 +37,7 @@ public class MaterialStock extends BaseDataEntity<String> {
     public MaterialStock(WarehousingOrder order, WarehousingOrderDetail orderDetail, BasicsdatumMaterial material){
         this.imgUrl = material.getImageUrl();
         this.materialCode = material.getMaterialCode();
+        this.materialName = material.getMaterialName();
         this.materialSku = material.getMaterialCode() + orderDetail.getMaterialColorCode() + orderDetail.getMaterialSpecificationsCode();
         this.unit = orderDetail.getPurchaseUnit();
         this.materialSpecifications = orderDetail.getMaterialSpecifications();
@@ -59,6 +60,9 @@ public class MaterialStock extends BaseDataEntity<String> {
     /** 物料编码 */
     @ApiModelProperty(value = "物料编码"  )
     private String materialCode;
+    /** 物料名称 */
+    @ApiModelProperty(value = "物料名称"  )
+    private String materialName;
     /** 物料SKU */
     @ApiModelProperty(value = "物料SKU"  )
     private String materialSku;

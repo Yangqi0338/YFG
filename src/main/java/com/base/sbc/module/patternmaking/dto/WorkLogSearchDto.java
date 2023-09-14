@@ -18,6 +18,9 @@ import lombok.Data;
 @ApiModel("工作小账搜索条件 WorkLogSearchDto ")
 public class WorkLogSearchDto extends Page {
 
+    @ApiModelProperty(value = "id")
+    private String id;
+
     @ApiModelProperty(value = "工作日期")
     private String workDate;
     @ApiModelProperty(value = "登记类型:修改、小样、其他")

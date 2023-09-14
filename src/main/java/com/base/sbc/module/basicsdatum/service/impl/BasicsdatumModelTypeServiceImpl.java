@@ -200,7 +200,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("hangtags", addRevampBasicsdatumModelTypeDto.getBasicsSize());
             List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeMapper.selectList(queryWrapper);
-            addRevampBasicsdatumModelTypeDto.setBasicsSizeSort(basicsdatumSizeList.get(0).getSort());
+            addRevampBasicsdatumModelTypeDto.setBasicsSizeSort(CollectionUtils.isEmpty(basicsdatumSizeList) ? null : basicsdatumSizeList.get(0).getSort());
         }
         // 查找默认尺码
         addRevampBasicsdatumModelTypeDto.setDefaultSizeIds("");
@@ -211,12 +211,15 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeMapper.selectList(queryWrapper);
             StringBuffer sizeIds = new StringBuffer();
             StringBuffer sizeCodes = new StringBuffer();
+            StringBuffer sizeRealCodes = new StringBuffer();
             for(BasicsdatumSize item : basicsdatumSizeList){
                 sizeIds.append(item.getId() + ",");
                 sizeCodes.append(item.getSort() + ",");
+                sizeRealCodes.append(item.getCode() + ",");
             }
             addRevampBasicsdatumModelTypeDto.setDefaultSizeIds(sizeIds.deleteCharAt(sizeIds.length() - 1).toString());
             addRevampBasicsdatumModelTypeDto.setDefaultSizeCode(sizeCodes.deleteCharAt(sizeCodes.length() - 1).toString());
+            addRevampBasicsdatumModelTypeDto.setDefaultSizeRealCode(sizeRealCodes.deleteCharAt(sizeCodes.length() - 1).toString());
         }
 
         if (StringUtils.isEmpty(addRevampBasicsdatumModelTypeDto.getId())) {

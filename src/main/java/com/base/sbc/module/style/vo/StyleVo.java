@@ -86,6 +86,9 @@ public class StyleVo extends Style {
     @ApiModelProperty(value = "号型类型尺码编码")
     private String sizeRangeSizeCodes;
 
+    @ApiModelProperty(value = "号型类型尺码真实编码")
+    private String sizeRangeSizeRealCodes;
+
     @ApiModelProperty(value = "款式设计详情-颜色")
     private List<StyleInfoColorVo> styleInfoColorVoList;
     /**

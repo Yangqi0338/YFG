@@ -243,6 +243,9 @@ public class Style extends BaseDataEntity<String> {
     /** 尺码codes */
     @ApiModelProperty(value = "尺码codes"  )
     private String sizeCodes;
+    /** 尺码真实codes */
+    @ApiModelProperty(value = "尺码真实codes"  )
+    private String sizeRealCodes;
     /** 设计师名称 */
     @ApiModelProperty(value = "设计师名称"  )
     private String designer;

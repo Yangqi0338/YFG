@@ -392,21 +392,21 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 	@Override
 	public PageInfo<BomSelMaterialVo> getBomSelMaterialList(BasicsdatumMaterialQueryDto dto) {
 		BaseQueryWrapper<BasicsdatumMaterial> qw = new BaseQueryWrapper<>();
-		qw.andLike(dto.getSearch(), "material_code", "material_name");
-		qw.eq("company_code", this.getCompanyCode());
-		qw.notEmptyLike("material_code_name", dto.getMaterialCodeName());
-		qw.notEmptyLike("material_code", dto.getMaterialCode());
-		qw.notEmptyLike("material_name", dto.getMaterialName());
-		qw.notEmptyIn("status", dto.getStatus());
-		qw.eq("del_flag", BaseGlobal.NO);
-		qw.andLike(dto.getCategoryId(), "category1_code", "category2_code", "category3_code");
-		qw.eq("biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
-		qw.eq("confirm_status", "2");
-		qw.eq(StringUtils.isNotEmpty(dto.getSource()), "source", dto.getSource());
-		qw.eq(StringUtils.isNotEmpty(dto.getStatus()), "status", dto.getStatus());
-		qw.in(StringUtils.isNotEmpty(dto.getDistribute()), "distribute", StringUtils.convertList(dto.getDistribute()));
+		qw.andLike(dto.getSearch(), "bm.material_code", "bm.material_name");
+		qw.eq("bm.company_code", this.getCompanyCode());
+		qw.notEmptyLike("bm.material_code_name", dto.getMaterialCodeName());
+		qw.notEmptyLike("bm.material_code", dto.getMaterialCode());
+		qw.notEmptyLike("bm.material_name", dto.getMaterialName());
+		qw.notEmptyIn("bm.status", dto.getStatus());
+		qw.eq("bm.del_flag", BaseGlobal.NO);
+		qw.andLike(dto.getCategoryId(), "bm.category1_code", "bm.category2_code", "bm.category3_code");
+		qw.eq("bm.biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
+		qw.eq("bm.confirm_status", "2");
+		qw.eq(StringUtils.isNotEmpty(dto.getStatus()), "bm.status", dto.getStatus());
+		qw.in(StringUtils.isNotEmpty(dto.getDistribute()), "bm.distribute", StringUtils.convertList(dto.getDistribute()));
+		qw.eq(StringUtils.equals("2", dto.getSource()), "fp.planning_season_id", StringUtils.convertList(dto.getPlanningSeasonId()));
 		Page<BomSelMaterialVo> page = PageHelper.startPage(dto);
-		List<BomSelMaterialVo> list = getBaseMapper().getBomSelMaterialList(qw);
+		List<BomSelMaterialVo> list = getBaseMapper().getBomSelMaterialList(qw,dto.getSource());
 
 		if (CollUtil.isNotEmpty(list)) {
 			//查询默认供应商
