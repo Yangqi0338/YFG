@@ -22,13 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** 
+/**
  * 类描述：打版管理 service类
  * @address com.base.sbc.module.patternmaking.service.PatternMakingService
  * @author lxl
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-5-29 13:33:05
- * @version 1.0  
+ * @version 1.0
  */
 public interface PatternMakingService extends BaseService<PatternMaking> {
 
@@ -216,7 +216,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @date 创建时间：2023-09-12 11:37
      * @version 1.0
      */
-    PageInfo allProgressSteps(NodestatusPageSearchDto dto, String userCompany);
+    PageInfo<NodeListVo> allProgressSteps(NodestatusPageSearchDto dto, String userCompany);
     /**
      * 类描述：打版进度列表，工作台上面的
      *

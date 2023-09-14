@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -23,6 +24,12 @@ public class StylePricingVO {
     private String downContent;
 
     private String styleId;
+
+    /**
+     * 计控确认成本时间
+     */
+    @ApiModelProperty(value = "计控确认成本时间")
+    private Date controlConfirmTime;
 
     /**
      * 样衣图片

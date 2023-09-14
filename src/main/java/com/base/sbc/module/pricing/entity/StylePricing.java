@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.entity;
 import java.math.BigDecimal;
+import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -61,5 +62,11 @@ public class StylePricing extends BaseDataEntity<String> {
     /** 系列名称 */
     @ApiModelProperty(value = "系列名称"  )
     private String seriesName;
+    /**
+     * 计控确认成本时间
+     */
+    @ApiModelProperty(value = "计控确认成本时间")
+    private Date controlConfirmTime;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

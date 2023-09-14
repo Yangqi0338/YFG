@@ -5,6 +5,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 public class StylePricingSaveDTO {
@@ -52,5 +53,12 @@ public class StylePricingSaveDTO {
     /** 目标成本 */
     @ApiModelProperty(value = "目标成本"  )
     private BigDecimal targetCost;
+
+    /**
+     * 计控确认成本时间
+     */
+    @ApiModelProperty(value = "计控确认成本时间")
+    private Date controlConfirmTime;
+
 
 }

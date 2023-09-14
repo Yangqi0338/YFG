@@ -375,5 +375,98 @@
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
     </select>
+    <select id="getProgressSteps" resultType="com.base.sbc.module.patternmaking.vo.NodeListVo">
+        select ts.design_no                         as designNo,
+               tsc.style_no                         as bulkStyleNo,
+               SUBSTRING_INDEX(ts.designer, ',', 1) as designerName,
+               tuf.url                              as picture,
+               tpci.send_date                       as noNextDraftStartTime,
+               ts.check_start_time                  as noNextDraftEndTime,
+               ts.check_start_time                  as reviewedDraftStartTime,
+               ts.check_end_time                    as reviewedDraftEndTime,
+               ts.check_end_time                    as nextDraftStartTime,
+               tpm.create_date                      as nextDraftEndTime,
+               tpm.prm_send_date                    as punchingCompletedStartTime,
+
+               (select tns.end_date
+                from t_node_status as tns
+                where tns.data_id = tpm.id
+                  and tns.node = '打版任务'
+                  and tns.status = '打版完成')      as punchingCompletedEndTime,
+
+               (select tns.start_date
+                from t_node_status as tns
+                where tns.data_id = tpm.id
+                  and tns.node = '样衣任务'
+                  and tns.status = '车缝进行中')    as sampleClothingCompletedStartTime,
+
+               (select tns.end_date
+                from t_node_status as tns
+                where tns.data_id = tpm.id
+                  and tns.node = '样衣任务'
+                  and tns.status = '车缝完成')      as sampleClothingCompletedEndTime,
+
+               (select tns.end_date
+                from t_node_status as tns
+                where tns.data_id = tpm.id
+                  and tns.node = '样衣任务'
+                  and tns.status = '车缝完成')      as sampleSelectionStartTime,
+
+               (select tpsr.create_date
+                from t_pack_sample_review as tpsr
+                where pack_type = 'packDesign'
+                  and tpsr.foreign_id = tpi.id
+                order by tpsr.create_date desc
+                limit 1)                            as sampleSelectionEndTime,
+
+               null                                 as orderBookProductionStartTime,
+               null                                 as orderBookProductionEndTime,
+               null                                 as bossStyleStartTime,
+               null                                 as bossStyleEndTime,
+               null                                 as riskAssessmentStartTime,
+               null                                 as riskAssessmentEndTime,
+               null                                 as businessEnterprisesStartTime,
+               null                                 as businessEnterprisesEndTime,
+
+               null                                 as sendMainFabricStartTime,
+               tsc.send_main_fabric_date            as sendMainFabricEndTime,
+
+               tsc.design_detail_date               as designDetailDateStartTime,
+               null                                 as designDetailDateEndTime,
+               tsc.design_correct_date              as designCorrectDateStartTime,
+               null                                 as designCorrectDateEndTime,
+               tsc.design_correct_date              as versionRoomCheckVersionStartTime,
+               tsc.correct_style_date               as versionRoomCheckVersionEndTime,
+
+               null                                 as purchaseRequestStartTime,
+               null                                 as purchaseRequestEndTime,
+               null                                 as replyDeliveryTimeStartTime,
+               null                                 as replyDeliveryTimeEndTime,
+               null                                 as surfaceAuxiliaryMaterialTestingStartTime,
+               null                                 as surfaceAuxiliaryMaterialTestingEndTime,
+               null                                 as technicalTableStartTime,
+               null                                 as technicalTableEndTime,
+
+               null                                 as preProductionSampleProductionStartTime,
+               tpis.bulk_prod_tech_confirm_date     as preProductionSampleProductionEndTime,
+               (select control_confirm_time
+                from t_style_pricing as tsp
+                where pack_id = tpi.id
+                order by tsp.create_date desc
+                limit 1)                            as pricingStartTime,
+               null                                 as pricingEndTime,
+
+               null                                 as orderPlacementByAccountingControlStartTime,
+               null                                 as orderPlacementByAccountingControlEndTime
+
+        from t_style as ts
+                 left join t_pattern_making as tpm on ts.id = tpm.style_id and sample_type_name = '初版样'
+                 left join t_planning_category_item as tpci on tpci.id = ts.planning_category_item_id
+                 left join t_style_color as tsc on ts.id = tsc.style_id
+                 left join t_pack_info as tpi on tpi.style_color_id = tsc.id
+                 left join t_pack_info_status as tpis on tpis.foreign_id = tpi.id and tpis.pack_type = 'packBigGoods'
+                 left join t_upload_file as tuf on ts.style_pic = tuf.id
+
+    </select>
 </mapper>
 

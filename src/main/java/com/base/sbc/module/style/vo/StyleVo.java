@@ -91,4 +91,9 @@ public class StyleVo extends Style {
 
     @ApiModelProperty(value = "款式设计详情-颜色")
     private List<StyleInfoColorVo> styleInfoColorVoList;
+    /**
+     * 正确样衣接收时间
+     */
+    @ApiModelProperty(value = "正确样衣接收时间"  )
+    private String correctStyleDate;
 }

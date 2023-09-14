@@ -195,6 +195,11 @@ public class AddRevampStyleColorDto {
     /** 下稿设计师名称 */
     @ApiModelProperty(value = "下稿设计师名称"  )
     private String  senderDesignerName;
+    /**
+     * 正确样衣接收时间
+     */
+    @ApiModelProperty(value = "正确样衣接收时间"  )
+    private String correctStyleDate;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;

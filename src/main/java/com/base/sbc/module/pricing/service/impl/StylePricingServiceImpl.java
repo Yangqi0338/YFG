@@ -46,10 +46,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -193,9 +190,19 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         logger.info("StylePricingService#insertOrUpdate 保存 stylePricingSaveDTO:{}, userCompany:{}", JSON.toJSONString(stylePricingSaveDTO), companyCode);
         StylePricing stylePricing = new StylePricing();
         if (StringUtils.isEmpty(stylePricingSaveDTO.getId())) {
-            stylePricing.setId(new IdGen().nextIdStr());
             stylePricing.insertInit();
+            if ("1".equals(stylePricingSaveDTO.getControlConfirm())){
+                stylePricing.setControlConfirmTime(new Date());
+            }
         } else {
+            if ("1".equals(stylePricingSaveDTO.getControlConfirm())){
+                StylePricing stylePricing1 = this.getById(stylePricingSaveDTO.getId());
+                if (!stylePricingSaveDTO.getControlConfirm().equals(stylePricing1.getControlConfirm())){
+                    stylePricing.setControlConfirmTime(new Date());
+                }
+                stylePricing.setControlConfirmTime(new Date());
+            }
+
             stylePricing.updateInit();
         }
         stylePricing.setCompanyCode(companyCode);
@@ -222,9 +229,21 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                     StylePricing stylePricing = new StylePricing();
                     if (StringUtils.isEmpty(stylePricingSaveDTO.getId())) {
                         stylePricing.insertInit();
+                        if ("1".equals(stylePricingSaveDTO.getControlConfirm())){
+                            stylePricing.setControlConfirmTime(new Date());
+                        }
                     } else {
+                        if ("1".equals(stylePricingSaveDTO.getControlConfirm())){
+                            StylePricing stylePricing1 = this.getById(stylePricingSaveDTO.getId());
+                            if (!stylePricingSaveDTO.getControlConfirm().equals(stylePricing1.getControlConfirm())){
+                                stylePricing.setControlConfirmTime(new Date());
+                            }
+                            stylePricing.setControlConfirmTime(new Date());
+                        }
+
                         stylePricing.updateInit();
                     }
+
                     stylePricing.setCompanyCode(companyCode);
                     BeanUtils.copyProperties(stylePricingSaveDTO, stylePricing);
                     return stylePricing;
