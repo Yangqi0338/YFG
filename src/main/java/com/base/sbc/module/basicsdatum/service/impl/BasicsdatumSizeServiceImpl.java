@@ -41,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -263,12 +264,23 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
         List<BasicsdatumSize> basicsdatumSizeList =baseMapper.selectList(queryWrapper);
         Map<String,String> map =new HashMap<>();
        if(!CollectionUtils.isEmpty(basicsdatumSizeList)){
-           List<String> id =  basicsdatumSizeList.stream().map(BasicsdatumSize::getId).collect(Collectors.toList());
-           List<String> naem =  basicsdatumSizeList.stream().map(BasicsdatumSize::getHangtags).collect(Collectors.toList());
-           List<String> code =  basicsdatumSizeList.stream().map(BasicsdatumSize::getSort).collect(Collectors.toList());
+//           List<String> id =  basicsdatumSizeList.stream().map(BasicsdatumSize::getId).collect(Collectors.toList());
+//           List<String> name =  basicsdatumSizeList.stream().map(BasicsdatumSize::getHangtags).collect(Collectors.toList());
+//           List<String> sort =  basicsdatumSizeList.stream().map(BasicsdatumSize::getSort).collect(Collectors.toList());
+           List<String> id =  new ArrayList<>();
+           List<String> name =  new ArrayList<>();
+           List<String> sort =  new ArrayList<>();
+           List<String> code =  new ArrayList<>();
+           for(BasicsdatumSize size : basicsdatumSizeList){
+               id.add(size.getId());
+               name.add(size.getHangtags());
+               sort.add(size.getSort());
+               code.add(size.getCode());
+           }
            map.put("ids",StringUtils.join(id,","));
-           map.put("name",StringUtils.join(naem,","));
-           map.put("sort",StringUtils.join(code,","));
+           map.put("name",StringUtils.join(name,","));
+           map.put("sort",StringUtils.join(sort,","));
+           map.put("code", StringUtils.join(code,","));
        }
         return map;
     }
