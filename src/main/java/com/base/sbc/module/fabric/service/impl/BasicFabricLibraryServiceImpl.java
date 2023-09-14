@@ -88,9 +88,6 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
     public PageInfo<BasicFabricLibraryListVO> getBasicFabricLibraryList(BasicFabricLibrarySearchDTO dto) {
         PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         dto.setCompanyCode(super.getCompanyCode());
-        if (StringUtils.isEmpty(dto.getBizType())) {
-            dto.setBizType("fabricLibrary");
-        }
         List<BasicFabricLibraryListVO> basicFabricLibraryList = super.getBaseMapper().getBasicFabricLibraryList(dto);
         return new PageInfo<>(basicFabricLibraryList);
     }
