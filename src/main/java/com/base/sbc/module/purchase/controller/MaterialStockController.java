@@ -5,10 +5,18 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.purchase.controller;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.purchase.dto.MaterialStockDTO;
+import com.base.sbc.module.purchase.dto.WarehouseingPageDTO;
 import com.base.sbc.module.purchase.entity.MaterialStock;
+import com.base.sbc.module.purchase.entity.MaterialStockLog;
+import com.base.sbc.module.purchase.entity.WarehousingOrder;
+import com.base.sbc.module.purchase.service.MaterialStockLogService;
 import com.base.sbc.module.purchase.service.MaterialStockService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -33,23 +41,64 @@ import java.util.List;
 @Api(tags = "物料库存")
 @RequestMapping(value = BaseController.SAAS_URL + "/materialStock", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class MaterialStockController{
+public class MaterialStockController extends BaseController{
 
 	@Autowired
 	private MaterialStockService materialStockService;
 
-	@ApiOperation(value = "分页查询")
+	@Autowired
+	private MaterialStockLogService materialStockLogService;
+
+	@ApiOperation(value = "物料库存分页查询")
 	@GetMapping
-	public PageInfo<MaterialStock> page(Page page) {
-		PageHelper.startPage(page);
-		List<MaterialStock> list = materialStockService.list();
-		return new PageInfo<>(list);
+	public ApiResult page(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, MaterialStockDTO page) {
+		QueryWrapper<MaterialStock> qc = new QueryWrapper<>();
+		qc.eq("company_code", userCompany);
+		qc.eq(StringUtils.isNotBlank(page.getWarehouseName()), "warehouse_name", page.getWarehouseName());
+		if(StringUtils.isNotBlank(page.getSearch())){
+			qc.and(wrapper -> wrapper.like("material_code", page.getSearch())
+					.or()
+					.like("material_sku", page.getSearch())
+					.or()
+					.like("material_name", page.getSearch()));
+		}
+		if (!StringUtils.isEmpty(page.getOrderBy())){
+			qc.orderByAsc(page.getOrderBy());
+		}else {
+			qc.orderByDesc("create_date");
+		}
+		if (page.getPageNum() != 0 && page.getPageSize() != 0) {
+			com.github.pagehelper.Page<MaterialStock> materialStockPage = PageHelper.startPage(page.getPageNum(), page.getPageSize());
+			materialStockService.list(qc);
+			PageInfo<MaterialStock> pages = materialStockPage.toPageInfo();
+			return ApiResult.success("success", pages);
+		}
+		return selectNotFound();
 	}
 
-	@ApiOperation(value = "明细-通过id查询")
-	@GetMapping("/{id}")
-	public MaterialStock getById(@PathVariable("id") String id) {
-		return materialStockService.getById(id);
+	@ApiOperation(value = "物料库存日志分页查询")
+	@GetMapping("/materialStockLogPage")
+	public ApiResult materialStockLogPage(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, MaterialStockDTO page) {
+		QueryWrapper<MaterialStockLog> qc = new QueryWrapper<>();
+		qc.eq("company_code", userCompany);
+		qc.eq("material_code", page.getMaterialCode());
+		qc.eq(StringUtils.isNotBlank(page.getWarehouseName()), "warehouse_name", page.getWarehouseName());
+		qc.eq(StringUtils.isNotBlank(page.getType()), "type", page.getType());
+		if(StringUtils.isNotBlank(page.getSearch())){
+			qc.and(wrapper -> wrapper.like("relation_code", page.getSearch()));
+		}
+		if (!StringUtils.isEmpty(page.getOrderBy())){
+			qc.orderByAsc(page.getOrderBy());
+		}else {
+			qc.orderByDesc("create_date");
+		}
+		if (page.getPageNum() != 0 && page.getPageSize() != 0) {
+			com.github.pagehelper.Page<MaterialStockLog> materialStockPage = PageHelper.startPage(page.getPageNum(), page.getPageSize());
+			materialStockLogService.list(qc);
+			PageInfo<MaterialStockLog> pages = materialStockPage.toPageInfo();
+			return ApiResult.success("success", pages);
+		}
+		return selectNotFound();
 	}
 
 }
