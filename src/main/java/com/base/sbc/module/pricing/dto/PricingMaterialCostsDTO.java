@@ -92,6 +92,11 @@ public class PricingMaterialCostsDTO {
     @ApiModelProperty(value = "额定单耗")
     private String ratedUnitConsumption;
     /**
+     * 计控损耗
+     */
+    @ApiModelProperty(value = "计控损耗")
+    private BigDecimal planningLoossRate;
+    /**
      * 合计用量
      */
     @ApiModelProperty(value = "合计用量")

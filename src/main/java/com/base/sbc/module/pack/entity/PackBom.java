@@ -41,10 +41,11 @@ public class PackBom extends BaseDataEntity<String> {
      * 计算成本
      */
     public void calculateCost() {
-        //成本价=单价*用量*(1+损耗)
+        //设计成本价=单价*设计用量*(1+损耗)
+        /*大货成本价=单价*大货用量*(1+额定损耗)*/
         this.cost = Optional.ofNullable(this.price).orElse(BigDecimal.ZERO)
                 .multiply(Optional.ofNullable( this.packType.equals("packDesign")?this.designUnitUse:this.bulkUnitUse)  .orElse(BigDecimal.ZERO)).multiply(
-                        BigDecimal.ONE.add(Optional.ofNullable(this.lossRate).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")))
+                        BigDecimal.ONE.add(Optional.ofNullable(this.packType.equals("packDesign")?this.lossRate:this.planningLoossRate).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")))
                 );
     }
 
@@ -264,6 +265,11 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "额定单耗")
     private String ratedUnitConsumption;
+    /**
+     * 计控损耗
+     */
+    @ApiModelProperty(value = "计控损耗")
+    private BigDecimal planningLoossRate;
     /**
      * 购买币种
      */
