@@ -36,6 +36,7 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
@@ -636,8 +637,21 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public PageInfo allProgressSteps(String userCompany) {
-        // 查询样衣信息
+    public PageInfo allProgressSteps(NodestatusPageSearchDto dto, String userCompany) {
+        //查询节点状态
+//        QueryWrapper<NodeStatus> nsQw = new QueryWrapper<>();
+//        nsQw.eq("company_code", userCompany);
+//        nsQw.eq("end_flg", BaseGlobal.NO);
+//        nsQw.eq("del_flag",BaseGlobal.NO);
+//        nsQw.eq("del_flag",BaseGlobal.NO);
+//        nsQw.orderByAsc("start_date");
+//        Page page = PageHelper.startPage(dto);
+//        List<NodeStatus> nsList = nodeStatusService.list(nsQw);
+//        PageInfo pageInfo = page.toPageInfo();
+//        if (CollUtil.isEmpty(nsList)) {
+//            return retMap;
+//        }
+//        // 查询样衣信息
 //        QueryWrapper<Style> sdQw = new QueryWrapper<>();
 //        sdQw.eq(COMPANY_CODE, getCompanyCode());
 //        sdQw.eq("del_flag", BaseGlobal.NO);

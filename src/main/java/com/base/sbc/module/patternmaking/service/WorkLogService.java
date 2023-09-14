@@ -13,6 +13,9 @@ import com.base.sbc.module.patternmaking.entity.WorkLog;
 import com.base.sbc.module.patternmaking.vo.WorkLogVo;
 import com.github.pagehelper.PageInfo;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 /**
  * 类描述：工作小账 service类
  *
@@ -31,6 +34,14 @@ public interface WorkLogService extends BaseService<WorkLog> {
     PageInfo<WorkLogVo> pageInfo(WorkLogSearchDto dto);
 
     WorkLogVo saveByDto(WorkLogSaveDto workLog);
+
+
+    /**
+     * 导出工作小帐
+     * @param dto
+     * @param response
+     */
+     void workLogDeriveExcel(WorkLogSearchDto dto, HttpServletResponse response) throws IOException;
 
 
 // 自定义方法区 不替换的区域【other_end】

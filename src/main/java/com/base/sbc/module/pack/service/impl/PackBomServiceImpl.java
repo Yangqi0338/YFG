@@ -27,6 +27,7 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomColor;
@@ -344,20 +345,20 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             return result;
         }
 
-    // 是否开启笛莎资料包计算开关 开启后资料包计算都是大货物料费用
-    Boolean ifSwitch = ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.DESIGN_DISHA_DATA_PACKAGE_COUNT.getKeyCode());
-    //款式物料费用=款式物料用量*款式物料单价*（1+损耗率)
-    //大货物料费用=物料大货用量*物料大货单价*（1+损耗率)
-    return bomList.stream().map(packBom -> {
-                BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")));
-                BigDecimal mul = NumberUtil.mul(
-                        ifSwitch ? packBom.getBulkUnitUse() : dto.getPackType().equals("packDesign") ? packBom.getDesignUnitUse() : packBom.getBulkUnitUse(),
-                         packBom.getPrice(),
-                        divide
-                );
-                return mul;
-            }
-    ).reduce((a, b) -> a.add(b)).orElse(BigDecimal.ZERO);
+        // 是否开启笛莎资料包计算开关 开启后资料包计算都是大货物料费用
+        Boolean ifSwitch = ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.DESIGN_DISHA_DATA_PACKAGE_COUNT.getKeyCode());
+        //款式物料费用=款式物料用量*款式物料单价*（1+损耗率)
+        //大货物料费用=物料大货用量*物料大货单价*（1+损耗率)
+        return bomList.stream().map(packBom -> {
+                    BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable(packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")));
+                    BigDecimal mul = NumberUtil.mul(
+                            ifSwitch ? packBom.getBulkUnitUse() : dto.getPackType().equals("packDesign") ? packBom.getDesignUnitUse() : packBom.getBulkUnitUse(),
+                            packBom.getPrice(),
+                            divide
+                    );
+                    return mul;
+                }
+        ).reduce((a, b) -> a.add(b)).orElse(BigDecimal.ZERO);
     }
 
     @Override
@@ -470,6 +471,21 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         qw.eq("bom_version_id", bomVersionId);
         List<PackBom> list = list(qw);
         return BeanUtil.copyToList(list, PackBomVo.class);
+    }
+
+    /**
+     * 解锁
+     *
+     * @param idDto
+     * @return
+     */
+    @Override
+    public Boolean unlock(IdDto idDto) {
+        UpdateWrapper updateWrapper = new UpdateWrapper();
+        updateWrapper.set("scm_send_flag", BaseGlobal.IN_READY);
+        updateWrapper.in("id", com.base.sbc.config.utils.StringUtils.convertList(idDto.getId()));
+        baseMapper.update(null, updateWrapper);
+        return true;
     }
 
 

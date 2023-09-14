@@ -25,6 +25,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackBomVersionMapper;
@@ -215,10 +216,25 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         if (bomVersion == null) {
             throw new OtherException("版本不存在,请先保存");
         }
+        if(StrUtil.equals(bomVersion.getConfirmStatus(),BaseGlobal.STOCK_STATUS_WAIT_CHECK)){
+            throw new OtherException("已提交待审核");
+        }
+
         String foreignId = bomVersion.getForeignId();
         PackInfo packInfo = packInfoService.getById(foreignId);
         if (packInfo == null) {
             throw new OtherException("资料包不存在");
+        }
+        /*校验物料清单是否全部下发*/
+        bomVersion.getForeignId();
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("pack_type", "packBigGoods");
+        queryWrapper.eq("bom_version_id", bomVersion.getId());
+        queryWrapper.eq("foreign_id", bomVersion.getForeignId());
+        queryWrapper.in("scm_send_flag", StringUtils.convertList("0,2"));
+        List<PackBom> packBomList = packBomService.list(queryWrapper);
+        if (CollUtil.isNotEmpty(packBomList)) {
+            throw new OtherException("物料清单存在未下发数据");
         }
         Map<String, Object> variables = BeanUtil.beanToMap(bomVersion);
         boolean flg = flowableService.start(FlowableService.design_bom_pdn + "[" + bomVersion.getVersion() + "]",
@@ -435,21 +451,21 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         Map<String, PackBom> bomMap = new HashMap<>(16);
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         Validator validator = validatorFactory.getValidator();
-        PackBomBigGoodsEmptyCheckDto pe =null;
-        PackBomDesignEmptyCheckDto pd =null;
+        PackBomBigGoodsEmptyCheckDto pe = null;
+        PackBomDesignEmptyCheckDto pd = null;
         List<String> errorMessage = new ArrayList<>(16);
         Map<String, List<String>> errorMsg = new HashMap<>(16);
         for (PackBom packBom : bomList) {
             errorMsg.put(packBom.getId(), CollUtil.newArrayList());
             bomMap.put(packBom.getId(), packBom);
-            if(StrUtil.equals(packBom.getPackType(),"packDesign")){
+            if (StrUtil.equals(packBom.getPackType(), "packDesign")) {
                 pd = BeanUtil.copyProperties(packBom, PackBomDesignEmptyCheckDto.class);
                 Set<ConstraintViolation<PackBomDesignEmptyCheckDto>> validate = validator.validate(pd);
                 if (CollUtil.isNotEmpty(validate)) {
                     errorMsg.get(packBom.getId()).addAll(validate.stream().map(item -> item.getMessage()).collect(Collectors.toList()));
                 }
-            }else {
-                pe  = BeanUtil.copyProperties(packBom, PackBomBigGoodsEmptyCheckDto.class);
+            } else {
+                pe = BeanUtil.copyProperties(packBom, PackBomBigGoodsEmptyCheckDto.class);
                 Set<ConstraintViolation<PackBomBigGoodsEmptyCheckDto>> validate = validator.validate(pe);
                 if (CollUtil.isNotEmpty(validate)) {
                     errorMsg.get(packBom.getId()).addAll(validate.stream().map(item -> item.getMessage()).collect(Collectors.toList()));

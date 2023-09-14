@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModelProperty;
@@ -65,6 +66,7 @@ public class CommonUtils {
             if (ObjectUtil.isEmpty(val)) {
                 continue;
             }
+
             istr.append(arrayList.get(i)).append(":").append(val);
             istr.append(";");
         }
@@ -103,7 +105,7 @@ public class CommonUtils {
      * @param newObj
      * @return
      */
-    public static StringBuilder updateStr(Object oldObj, Object newObj, JSONObject fieldJson) {
+    public static StringBuilder updateStr(Object oldObj, Object newObj, JSONObject fieldJson, JSONArray jsonArray) {
         ArrayList<String> arrayList = new ArrayList<>(fieldJson.keySet());
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -120,6 +122,11 @@ public class CommonUtils {
             if (ObjectUtil.equals(newStr, oldStr)) {
                 continue;
             }
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("name", name);
+            jsonObject.put("oldStr", oldStr);
+            jsonObject.put("newStr", newStr);
+            jsonArray.add(jsonObject);
             stringBuilder.append(name).append(":");
             stringBuilder.append(oldStr).append("->").append(newStr);
 
