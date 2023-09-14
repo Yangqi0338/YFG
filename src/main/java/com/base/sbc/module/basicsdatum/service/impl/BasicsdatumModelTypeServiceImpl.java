@@ -219,7 +219,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             }
             addRevampBasicsdatumModelTypeDto.setDefaultSizeIds(sizeIds.deleteCharAt(sizeIds.length() - 1).toString());
             addRevampBasicsdatumModelTypeDto.setDefaultSizeCode(sizeCodes.deleteCharAt(sizeCodes.length() - 1).toString());
-            addRevampBasicsdatumModelTypeDto.setDefaultSizeRealCode(sizeRealCodes.deleteCharAt(sizeCodes.length() - 1).toString());
+            addRevampBasicsdatumModelTypeDto.setDefaultSizeRealCode(sizeRealCodes.deleteCharAt(sizeRealCodes.length() - 1).toString());
         }
 
         if (StringUtils.isEmpty(addRevampBasicsdatumModelTypeDto.getId())) {
