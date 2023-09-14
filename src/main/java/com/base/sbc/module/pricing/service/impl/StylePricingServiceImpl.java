@@ -16,11 +16,13 @@ import com.base.sbc.config.utils.StyleNoImgUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackPricingCraftCosts;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.entity.PackPricingProcessCosts;
 import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
@@ -111,8 +113,11 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         Map<String, List<PackBomCalculateBaseVo>> packBomCalculateBaseVoS = this.getPackBomCalculateBaseVoS(packId);
         stylePricingList.forEach(stylePricingVO -> {
             List<PackBomCalculateBaseVo> packBomCalculateBaseVos = packBomCalculateBaseVoS.get(stylePricingVO.getId() + stylePricingVO.getPackType());
-            stylePricingVO.setMaterialCost(this.getMaterialCost(packBomCalculateBaseVos));
-
+            PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
+            packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
+            packCommonSearchDto.setForeignId(stylePricingVO.getId());
+            //材料成本
+            stylePricingVO.setMaterialCost(packBomService.calculateCosts(packCommonSearchDto));
             stylePricingVO.setPackagingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "包装费")));
             stylePricingVO.setTestingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "检测费")));
             stylePricingVO.setSewingProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "车缝加工费")));
