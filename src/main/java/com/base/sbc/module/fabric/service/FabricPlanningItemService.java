@@ -39,7 +39,7 @@ public interface FabricPlanningItemService extends BaseService<FabricPlanningIte
      * @param fabricPlanningId
      * @return
      */
-    List<FabricPlanningItemVO> getByFabricPlanningId(String fabricPlanningId);
+    List<FabricPlanningItemVO> getByFabricPlanningId(String fabricPlanningId, String materialFlag);
 
 
 // 自定义方法区 不替换的区域【other_end】

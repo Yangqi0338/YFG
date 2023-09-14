@@ -79,7 +79,9 @@ public class FabricDevMainInfoServiceImpl extends BaseServiceImpl<FabricDevMainI
         String[] suppler = applyAllocationDTO.getSuppler().split(",");
         for (int i = 0; i < supplerIds.length; i++) {
             // 保存物料档案信息
-            BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveMaterial(CopyUtil.copy(fabricDevApplyVO.getBasicsdatumMaterial(), BasicsdatumMaterialSaveDto.class), null);
+            BasicsdatumMaterialSaveDto basicsdatumMaterialSaveDto = CopyUtil.copy(fabricDevApplyVO.getBasicsdatumMaterial(), BasicsdatumMaterialSaveDto.class);
+            BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveMaterial(basicsdatumMaterialSaveDto, null);
+            // TODO 截取
             // 保存面料开发信息
             FabricDevMainInfo fabricDevMainInfo = new FabricDevMainInfo();
             String id = idGen.nextIdStr();
@@ -156,7 +158,7 @@ public class FabricDevMainInfoServiceImpl extends BaseServiceImpl<FabricDevMainI
 
         // 更新开发主信息的实际完成时间
         Date practicalStartDate = aLlPass.stream()
-                .filter(x ->  Objects.nonNull(x.getPracticalStartDate()))
+                .filter(x -> Objects.nonNull(x.getPracticalStartDate()))
                 .sorted(Comparator.comparing(FabricDevInfo::getPracticalStartDate).reversed())
                 .map(FabricDevInfo::getPracticalStartDate)
                 .findFirst()

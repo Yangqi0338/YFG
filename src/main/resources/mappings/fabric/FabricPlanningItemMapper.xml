@@ -38,12 +38,16 @@
         bm.material_name,
         bm.image_url
         FROM t_fabric_planning_item fpi
-        JOIN t_basic_fabric_library bfl on bfl.id = fpi.source_id
-        JOIN t_fabric_dev_basic_info fdb ON fdb.biz_id = bfl.id
-        JOIN t_basicsdatum_material bm ON bm.id = bfl.material_id
+        JOIN t_basicsdatum_material bm ON bm.id = fpi.source_id
+        LEFT JOIN t_basic_fabric_library bfl ON bfl.material_id = fpi.source_id
+        LEFT JOIN t_fabric_dev_apply fda ON fda.material_id = fpi.source_id
+        LEFT JOIN t_fabric_dev_basic_info fdb ON ( fdb.biz_id = bfl.id OR fdb.biz_id = fda.id )
         <where>
             fpi.del_flag = '0'
             and fpi.fabric_planning_id = #{fabricPlanningId}
+            <if test="materialFlag != null and materialFlag != ''">
+                and (bm.biz_type = 'material' or fdb.material_accept_flag='1')
+            </if>
         </where>
     </select>
 

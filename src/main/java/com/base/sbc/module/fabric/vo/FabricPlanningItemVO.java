@@ -28,9 +28,9 @@ public class FabricPlanningItemVO {
     @ApiModelProperty(value = "备注信息")
     private String remarks;
     /**
-     * 来源：1.新增，2.基础面料库、4.其他
+     * 来源：1.新增，2.基础面料库、3.面料开发申请、4.物料档案
      */
-    @ApiModelProperty(value = "来源：1.新增，2.基础面料库、4.其他")
+    @ApiModelProperty(value = "来源：1.新增，2.基础面料库、3.面料开发申请、4.物料档案")
     private String source;
     /**
      * 来源id

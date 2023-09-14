@@ -86,7 +86,7 @@ public class FabricPlanningServiceImpl extends BaseServiceImpl<FabricPlanningMap
             throw new OtherException("数据不存在");
         }
         FabricPlanningVO fabricPlanningVO = CopyUtil.copy(fabricPlanning, FabricPlanningVO.class);
-        fabricPlanningVO.setFabricPlanningItems(fabricPlanningItemService.getByFabricPlanningId(fabricPlanningVO.getId()));
+        fabricPlanningVO.setFabricPlanningItems(fabricPlanningItemService.getByFabricPlanningId(fabricPlanningVO.getId(), null));
         return fabricPlanningVO;
     }
 

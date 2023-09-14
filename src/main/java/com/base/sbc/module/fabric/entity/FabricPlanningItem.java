@@ -40,8 +40,8 @@ public class FabricPlanningItem extends BaseDataEntity<String> {
     /** 面料企划id */
     @ApiModelProperty(value = "面料企划id"  )
     private String fabricPlanningId;
-    /** 来源：1.新增，2.基础面料库、4.其他 */
-    @ApiModelProperty(value = "来源：1.新增，2.基础面料库、4.其他"  )
+    /** 来源：1.新增，2.基础面料库、3.面料开发申请、4.物料档案 */
+    @ApiModelProperty(value = "来源：1.新增，2.基础面料库、3.面料开发申请、4.物料档案"  )
     private String source;
     /** 来源id */
     @ApiModelProperty(value = "来源id"  )

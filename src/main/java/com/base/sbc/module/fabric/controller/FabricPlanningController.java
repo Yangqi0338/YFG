@@ -18,7 +18,6 @@ import com.base.sbc.module.fabric.service.FabricPlanningItemService;
 import com.base.sbc.module.fabric.service.FabricPlanningService;
 import com.base.sbc.module.fabric.vo.FabricPlanningListVO;
 import com.base.sbc.module.fabric.vo.FabricPlanningVO;
-import com.base.sbc.module.planning.vo.ThemePlanningVO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -85,23 +84,23 @@ public class FabricPlanningController extends BaseController {
 
     @ApiOperation(value = "获取面料企划明细")
     @GetMapping("/getByFabricPlanningId")
-    public ApiResult getByFabricPlanningId(@Valid @NotBlank(message = "面料企划id不可为空") String id) {
-        return selectSuccess(fabricPlanningItemService.getByFabricPlanningId(id));
+    public ApiResult getByFabricPlanningId(@Valid @NotBlank(message = "面料企划id不可为空") String id,String materialFlag) {
+        return selectSuccess(fabricPlanningItemService.getByFabricPlanningId(id, materialFlag));
     }
 
     @ApiOperation(value = "删除-通过id查询")
     @DeleteMapping
     public ApiResult delete(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestParam("id") String id) {
-        if(StringUtils.isBlank(id)){
+        if (StringUtils.isBlank(id)) {
             return deleteAttributeNotRequirements("id");
         }
         FabricPlanningVO fabricPlanningVO = fabricPlanningService.getDetail(id);
-        if(CollectionUtil.isNotEmpty(fabricPlanningVO.getFabricPlanningItems())){
+        if (CollectionUtil.isNotEmpty(fabricPlanningVO.getFabricPlanningItems())) {
             return ApiResult.error("该面料企划还存在明细数据无法删除，请处理！", 500);
         }
 
         boolean result = fabricPlanningService.removeById(id);
-        if(result) {
+        if (result) {
             return ApiResult.success("删除成功！");
         }
         return deleteNotFound();
