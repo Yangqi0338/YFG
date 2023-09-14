@@ -16,6 +16,7 @@ import com.base.sbc.module.fabric.service.FabricDevInfoService;
 import com.base.sbc.module.fabric.vo.FabricDevConfigInfoVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -36,6 +37,9 @@ public class FabricDevInfoServiceImpl extends BaseServiceImpl<FabricDevInfoMappe
     // 自定义方法区 不替换的区域【other_start】
     @Override
     public PageInfo<FabricDevConfigInfoVO> getByDevApplyCode(String devApplyCode, Integer pageNum, Integer pageSize) {
+        if (StringUtils.isEmpty(devApplyCode)) {
+            return new PageInfo<>();
+        }
         PageHelper.startPage(pageNum, pageSize);
         return new PageInfo<>(super.getBaseMapper().getByDevApplyCode(devApplyCode));
     }

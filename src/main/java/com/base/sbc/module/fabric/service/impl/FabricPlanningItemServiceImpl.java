@@ -71,8 +71,8 @@ public class FabricPlanningItemServiceImpl extends BaseServiceImpl<FabricPlannin
     }
 
     @Override
-    public List<FabricPlanningItemVO> getByFabricPlanningId(String fabricPlanningId) {
-        return super.getBaseMapper().getByFabricPlanningId(fabricPlanningId);
+    public List<FabricPlanningItemVO> getByFabricPlanningId(String fabricPlanningId, String materialFlag) {
+        return super.getBaseMapper().getByFabricPlanningId(fabricPlanningId, materialFlag);
     }
 
     private List<String> getIdByFabricPlanningId(String fabricPlanningId) {

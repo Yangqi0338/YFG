@@ -73,8 +73,8 @@ public class FabricDevApplyController extends BaseController {
 
 
     @ApiOperation(value = "获取开发申请信息")
-    @GetMapping("/getDevApplyList")
-    public PageInfo<FabricDevConfigInfoVO> getDevApplyList(String devApplyCode, Integer pageNum, Integer pageSize) {
+    @GetMapping("/getByDevApplyCode")
+    public PageInfo<FabricDevConfigInfoVO> getByDevApplyCode(String devApplyCode, Integer pageNum, Integer pageSize) {
         return fabricDevInfoService.getByDevApplyCode(devApplyCode, pageNum, pageSize);
     }
 }
