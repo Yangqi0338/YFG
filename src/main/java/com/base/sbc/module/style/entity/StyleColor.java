@@ -234,6 +234,11 @@ public class StyleColor extends BaseDataEntity<String> {
     @ApiModelProperty(value = "上新时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date newDate;
+    /**
+     * 正确样衣接收时间
+     */
+    @ApiModelProperty(value = "正确样衣接收时间"  )
+    private String correctStyleDate;
     /** 唯一id */
     @ApiModelProperty(value = "唯一id"  )
     private String wareCode;

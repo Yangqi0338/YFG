@@ -438,6 +438,15 @@ public class Style extends BaseDataEntity<String> {
     /** 品类标识 0品类 1中类 */
     @ApiModelProperty(value = "品类标识 0品类 1中类"  )
     private String categoryFlag;
+
+    /**
+     * 提交审核时间
+     */
+    private Date checkStartDate;
+    /**
+     * 审核通过时间
+     */
+    private Date checkEndDate;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

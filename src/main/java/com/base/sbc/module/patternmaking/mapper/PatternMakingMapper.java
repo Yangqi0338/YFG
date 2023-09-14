@@ -9,6 +9,7 @@ package com.base.sbc.module.patternmaking.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.*;
@@ -25,7 +26,7 @@ import java.util.Map;
  * @address com.base.sbc.module.patternmaking.dao.PatternMakingDao
  * @author lxl
  * @email lxl.fml@gmail.com
- * @date 创建时间：2023-5-29 13:33:05 
+ * @date 创建时间：2023-5-29 13:33:05
  * @version 1.0
  */
 @Mapper
@@ -88,6 +89,8 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
 
 
     List<PatternMaking> getPatternMakingSewingStatus(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    List<NodeListVo> getProgressSteps(NodestatusPageSearchDto dto, String userCompany);
 /** 自定义方法区 不替换的区域【other_end】 **/
 }
 

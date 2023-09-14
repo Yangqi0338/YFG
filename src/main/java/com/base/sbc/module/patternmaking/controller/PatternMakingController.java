@@ -202,7 +202,7 @@ public class PatternMakingController {
     }
     @ApiOperation(value = "研发总进度", notes = "")
     @GetMapping("/allProgressSteps")
-    public PageInfo allProgressSteps(NodestatusPageSearchDto dto,@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+    public PageInfo<NodeListVo> allProgressSteps(NodestatusPageSearchDto dto,@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
         return patternMakingService.allProgressSteps(dto,userCompany);
     }
     @ApiOperation(value = "工作台使用的打版进度列表", notes = "")

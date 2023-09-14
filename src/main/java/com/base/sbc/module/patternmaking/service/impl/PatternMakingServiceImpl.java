@@ -637,73 +637,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public PageInfo allProgressSteps(NodestatusPageSearchDto dto, String userCompany) {
-        //查询节点状态
-//        QueryWrapper<NodeStatus> nsQw = new QueryWrapper<>();
-//        nsQw.eq("company_code", userCompany);
-//        nsQw.eq("end_flg", BaseGlobal.NO);
-//        nsQw.eq("del_flag",BaseGlobal.NO);
-//        nsQw.eq("del_flag",BaseGlobal.NO);
-//        nsQw.orderByAsc("start_date");
-//        Page page = PageHelper.startPage(dto);
-//        List<NodeStatus> nsList = nodeStatusService.list(nsQw);
-//        PageInfo pageInfo = page.toPageInfo();
-//        if (CollUtil.isEmpty(nsList)) {
-//            return retMap;
-//        }
-//        // 查询样衣信息
-//        QueryWrapper<Style> sdQw = new QueryWrapper<>();
-//        sdQw.eq(COMPANY_CODE, getCompanyCode());
-//        sdQw.eq("del_flag", BaseGlobal.NO);
-//        sdQw.exists("select id from t_pattern_making where style_id=t_style.id and del_flag='0'");
-//        if (StrUtil.isNotBlank(dto.getOrderBy())) {
-//            dto.setOrderBy("create_date desc");
-//        }
-//        Page page = PageHelper.startPage(dto);
-//        List<Style> sdList = styleService.list(sdQw);
-//        PageInfo pageInfo = page.toPageInfo();
-//        if (CollUtil.isEmpty(sdList)) {
-//            return null;
-//        }
-//        List<StyleStepVo> styleStepVos = BeanUtil.copyToList(sdList, StyleStepVo.class);
-////        PageInfo pageInfo = BeanUtil.copyProperties(sdPageInfo, PageInfo.class, "list");
-////        pageInfo.setList(sampleDesignStepVos);
-//        pageInfo.setList(styleStepVos);
-//        attachmentService.setListStylePic(styleStepVos, "stylePic");
-//        // 查询打版指令
-//        List<String> sdIds = styleStepVos.stream().map(StyleStepVo::getId).collect(Collectors.toList());
-//        QueryWrapper<PatternMaking> pmQw = new QueryWrapper<>();
-//        pmQw.in("style_id", sdIds);
-//        List<PatternMaking> pmList = this.list(pmQw);
-//        if (CollUtil.isEmpty(pmList)) {
-//            return pageInfo;
-//        }
-//        List<String> pmIds = pmList.stream().map(PatternMaking::getId).collect(Collectors.toList());
-//        List<StyleStepVo.PatternMakingStepVo> patternMakingStepVos = BeanUtil.copyToList(pmList, StyleStepVo.PatternMakingStepVo.class);
-//        //查询节点状态
-//        QueryWrapper<NodeStatus> nsQw = new QueryWrapper<>();
-//        nsQw.in("data_id", pmIds);
-//        List<NodeStatus> nsList = nodeStatusService.list(nsQw);
-//        if (CollUtil.isNotEmpty(nsList)) {
-//            Map<String, List<NodeStatus>> nsMap = nsList.stream().collect(Collectors.groupingBy(NodeStatus::getDataId));
-//            for (StyleStepVo.PatternMakingStepVo patternMakingStepVo : patternMakingStepVos) {
-//                Map<String, NodeStatus> stringNodeStatusMap = Optional.ofNullable(nsMap.get(patternMakingStepVo.getId())).map(item -> {
-//                    return item.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> {
-//                        if (DateUtil.compare(b.getStartDate(), a.getStartDate()) > 0) {
-//                            return b;
-//                        }
-//                        return a;
-//                    }));
-//                }).orElse(null);
-//                patternMakingStepVo.setNodeStatus(stringNodeStatusMap);
-//            }
-//        }
-//        LinkedHashMap<String, List<StyleStepVo.PatternMakingStepVo>> pmStepMap = patternMakingStepVos.stream().collect(Collectors.groupingBy(k -> k.getStyleId(), LinkedHashMap::new, Collectors.toList()));
-//        for (StyleStepVo styleStepVo : styleStepVos) {
-//            styleStepVo.setPatternMakingSteps(pmStepMap.get(styleStepVo.getId()));
-//        }
-
-        return null;
+    public PageInfo<NodeListVo> allProgressSteps(NodestatusPageSearchDto dto, String userCompany) {
+        PageHelper.startPage(dto);
+        List<NodeListVo> list =this.getBaseMapper().getProgressSteps(dto,userCompany);
+        return new PageInfo<>(list);
     }
     @Override
     @Transactional(rollbackFor = {Exception.class})
