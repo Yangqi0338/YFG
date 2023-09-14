@@ -6,12 +6,17 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.service.impl;
 
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumModelTypeExcelDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternmaking.dto.WorkLogSaveDto;
 import com.base.sbc.module.patternmaking.dto.WorkLogSearchDto;
@@ -19,12 +24,16 @@ import com.base.sbc.module.patternmaking.entity.WorkLog;
 import com.base.sbc.module.patternmaking.mapper.WorkLogMapper;
 import com.base.sbc.module.patternmaking.service.WorkLogService;
 import com.base.sbc.module.patternmaking.vo.WorkLogVo;
+import com.base.sbc.module.patternmaking.vo.WorkLogVoExcel;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * 类描述：工作小账 service类
@@ -73,6 +82,34 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
         bean.setCode(code);
         save(bean);
         return BeanUtil.copyProperties(workLog, WorkLogVo.class);
+    }
+
+    /**
+     * 导出工作小帐
+     *
+     * @param dto
+     * @param response
+     */
+    @Override
+    public void workLogDeriveExcel(WorkLogSearchDto dto, HttpServletResponse response) throws IOException {
+        BaseQueryWrapper<WorkLog> qw = new BaseQueryWrapper<>();
+
+        qw.notEmptyIn("worker_id", dto.getWorkerId());
+        qw.notEmptyIn("log_type", dto.getLogType());
+        qw.notEmptyIn("num_type", dto.getNumType());
+        qw.in(StringUtils.isNotBlank(dto.getId()) ,"id",StringUtils.convertList(dto.getId()));
+        qw.andLike(dto.getSearch(), "worker", "reference_no", "work_description");
+        if (StrUtil.isNotBlank(dto.getWorkDate())) {
+            qw.between("work_date",
+                    DateUtil.parse(dto.getWorkDate() + " 00:00:00"),
+                    DateUtil.parse(dto.getWorkDate() + " 23:59:59"));
+        }
+        if (StrUtil.isEmpty(dto.getOrderBy())) {
+            dto.setOrderBy("create_date desc");
+        }
+        List<WorkLogVoExcel> list = BeanUtil.copyToList(baseMapper.selectList(qw), WorkLogVoExcel.class);
+        ExcelUtils.exportExcel(list, WorkLogVoExcel.class, "基础资料-号型类型.xlsx", new ExportParams(), response);
+
     }
 
 // 自定义方法区 不替换的区域【other_end】
