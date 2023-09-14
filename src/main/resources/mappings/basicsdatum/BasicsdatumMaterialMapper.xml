@@ -97,33 +97,38 @@
 	</select>
 
 	<select id="getBomSelMaterialList" resultType="com.base.sbc.module.pack.vo.BomSelMaterialVo">
-		SELECT id,
-			   company_code,
-			   id             AS material_id,
-			   category1_code,
-			   category2_code,
-			   category3_code,
-			   material_name,
-			   material_code,
-			   purchase_unit_name,
-			   purchase_unit_code,
-			   stock_unit_code,
-			   stock_unit_name,
-			   STATUS,
-			   material_code_name,
-			   image_url,
-			   category3_name AS categoryName,
-			   ingredient,
-			   gram_weight,
-			   loss_rate,
-			   supplier_factory_ingredient,
-			   auxiliary_material,
-			   remarks,
-			   delivery_code,
-			   delivery_name,
-			   auxiliary_material,
-			   source
-		FROM t_basicsdatum_material ${ ew.customSqlSegment}
+		SELECT bm.id,
+			   bm.company_code,
+			   bm.id             AS material_id,
+			   bm.category1_code,
+			   bm.category2_code,
+			   bm.category3_code,
+			   bm.material_name,
+			   bm.material_code,
+			   bm.purchase_unit_name,
+			   bm.purchase_unit_code,
+			   bm.stock_unit_code,
+			   bm.stock_unit_name,
+			   bm.STATUS,
+			   bm.material_code_name,
+			   bm.image_url,
+			   bm.category3_name AS categoryName,
+			   bm.ingredient,
+			   bm.gram_weight,
+			   bm.loss_rate,
+			   bm.supplier_factory_ingredient,
+			   bm.auxiliary_material,
+			   bm.remarks,
+			   bm.delivery_code,
+			   bm.delivery_name,
+			   bm.auxiliary_material,
+			   bm.source
+		FROM t_basicsdatum_material bm
+		    <if test="source!= null and source !='' and source == '2'">
+				join t_fabric_pool_item fpi on fpi.source_id = bm.id and fpi.del_flag = '0'
+				join t_fabric_pool fp on fp.id = fpi.fabric_pool_id
+			</if>
+		    ${ ew.customSqlSegment}
 	</select>
 
 	<select id="getPurchaseMaterialList" resultType="com.base.sbc.module.basicsdatum.vo.WarehouseMaterialVo">
