@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.PurchaseOrderDetail
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-30 10:05:37
+ * @date 创建时间：2023-9-13 19:10:56
  * @version 1.0
  */
 @Data
@@ -36,12 +36,6 @@ public class PurchaseOrderDetail extends BaseDataEntity<String> {
     /** 采购单编码 */
     @TableField(exist = false)
     private String code;
-    /** 物料颜色编码 */
-    @TableField(exist = false)
-    private String materialColorCode;
-    /** 物料规格编码 */
-    @TableField(exist = false)
-    private String materialSpecificationsCode;
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
@@ -67,6 +61,9 @@ public class PurchaseOrderDetail extends BaseDataEntity<String> {
     /** 物料规格 */
     @ApiModelProperty(value = "物料规格"  )
     private String materialSpecifications;
+    /** 物料规格编码 */
+    @ApiModelProperty(value = "物料规格编码"  )
+    private String materialSpecificationsCode;
     /** 款式名称 */
     @ApiModelProperty(value = "款式名称"  )
     private String styleName;
@@ -100,6 +97,9 @@ public class PurchaseOrderDetail extends BaseDataEntity<String> {
     /** 物料颜色 */
     @ApiModelProperty(value = "物料颜色"  )
     private String materialColor;
+    /** 物料颜色编码 */
+    @ApiModelProperty(value = "物料颜色编码"  )
+    private String materialColorCode;
     /** 损耗 */
     @ApiModelProperty(value = "损耗"  )
     private BigDecimal loss;
@@ -111,7 +111,7 @@ public class PurchaseOrderDetail extends BaseDataEntity<String> {
     private BigDecimal totalAmount;
     /** 物料交期 */
     @ApiModelProperty(value = "物料交期"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date deliveryDate;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )

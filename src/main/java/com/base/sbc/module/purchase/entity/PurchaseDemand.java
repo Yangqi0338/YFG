@@ -12,6 +12,7 @@ import java.util.List;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -25,7 +26,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.PurchaseDemand
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-9-12 15:27:11
+ * @date 创建时间：2023-9-13 19:10:52
  * @version 1.0
  */
 @Data
@@ -64,7 +65,7 @@ public class PurchaseDemand extends BaseDataEntity<String> {
 
     }
 
-    public PurchaseDemand(PackInfo packInfo, PackBom packBom, BasicsdatumMaterial material, String specifications, BigDecimal needNum){
+    public PurchaseDemand(PackInfo packInfo, PackBom packBom, BasicsdatumMaterial material, PackBomSize packBomSize, BigDecimal needNum){
         this.materialImage = material.getImageUrl();
         this.designStyleCode = packInfo.getDesignNo();
         this.plateBillCode = packInfo.getPatternNo();
@@ -84,7 +85,8 @@ public class PurchaseDemand extends BaseDataEntity<String> {
         this.unit = material.getPurchaseUnitCode();
         this.unitName = material.getPurchaseUnitName();
         this.usePosition = packBom.getPartName();
-        this.materialSpecifications = specifications;
+        this.materialSpecifications = packBomSize.getWidth();
+        this.materialSpecificationsCode = packBomSize.getWidthCode();
         this.loss = packBom.getLossRate();
     }
 
@@ -152,6 +154,9 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     /** 物料颜色 */
     @ApiModelProperty(value = "物料颜色"  )
     private String materialColor;
+    /** 物料颜色编码 */
+    @ApiModelProperty(value = "物料颜色编码"  )
+    private String materialColorCode;
     /** 需求数量 */
     @ApiModelProperty(value = "需求数量"  )
     private BigDecimal needNum;
@@ -170,6 +175,9 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     /** 物料规格 */
     @ApiModelProperty(value = "物料规格"  )
     private String materialSpecifications;
+    /** 物料规格编码 */
+    @ApiModelProperty(value = "物料规格编码"  )
+    private String materialSpecificationsCode;
     /** 损耗 */
     @ApiModelProperty(value = "损耗"  )
     private BigDecimal loss;

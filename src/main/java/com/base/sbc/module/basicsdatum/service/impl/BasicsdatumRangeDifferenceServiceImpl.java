@@ -328,6 +328,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         BasicsdatumRangeDifferenceVo basicsdatumRangeDifferenceVo =new BasicsdatumRangeDifferenceVo();
         BasicsdatumRangeDifference basicsdatumRangeDifference =  baseMapper.selectById(id);
         BeanUtils.copyProperties(basicsdatumRangeDifference, basicsdatumRangeDifferenceVo);
+        basicsdatumRangeDifferenceVo.setDifferenceList(differenceService.list(new QueryWrapper<Difference>().eq("range_difference_id", id)));
         return basicsdatumRangeDifferenceVo;
     }
 
