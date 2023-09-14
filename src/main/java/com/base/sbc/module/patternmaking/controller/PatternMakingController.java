@@ -15,6 +15,7 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdDto;
+import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
@@ -201,8 +202,8 @@ public class PatternMakingController {
     }
     @ApiOperation(value = "研发总进度", notes = "")
     @GetMapping("/allProgressSteps")
-    public PageInfo allProgressSteps(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
-        return patternMakingService.allProgressSteps(userCompany);
+    public PageInfo allProgressSteps(NodestatusPageSearchDto dto,@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+        return patternMakingService.allProgressSteps(dto,userCompany);
     }
     @ApiOperation(value = "工作台使用的打版进度列表", notes = "")
     @GetMapping("/work/patternMakingSteps")

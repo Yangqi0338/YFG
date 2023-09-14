@@ -9,6 +9,7 @@ package com.base.sbc.module.patternmaking.service;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.*;
@@ -215,7 +216,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @date 创建时间：2023-09-12 11:37
      * @version 1.0
      */
-    PageInfo allProgressSteps(String userCompany);
+    PageInfo allProgressSteps(NodestatusPageSearchDto dto, String userCompany);
     /**
      * 类描述：打版进度列表，工作台上面的
      *
