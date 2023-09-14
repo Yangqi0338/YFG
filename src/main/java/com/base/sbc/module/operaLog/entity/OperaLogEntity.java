@@ -36,6 +36,11 @@ public class OperaLogEntity extends BaseDataEntity<String> {
     private String content;
 
     /**
+     * 变更json
+     */
+    private String jsonContent;
+
+    /**
      * 路径
      */
     private String path;

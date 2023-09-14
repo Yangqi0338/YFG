@@ -6,6 +6,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -106,6 +107,7 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
         List<String> ustrList = new ArrayList<>();
         List<String> istrList = new ArrayList<>();
         List<String> dstrList = new ArrayList<>();
+        JSONArray jsonArray = new JSONArray();
         String parentId = Opt.ofEmptyAble(dbList).map(a -> a.get(0)).map(b -> (String) BeanUtil.getProperty(b, "foreignId")).orElse("");
         String packType = Opt.ofEmptyAble(dbList).map(a -> a.get(0)).map(b -> (String) BeanUtil.getProperty(b, "packType")).orElse("");
         for (T entity : entityList) {
@@ -120,7 +122,7 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
                 //说明是修改的
                 updateList.add(entity);
                 ids.add(entity.getId());
-                ustrList.add(CommonUtils.updateStr(dbMaps.get(entity.getId()), entity, fieldJson).toString());
+                ustrList.add(CommonUtils.updateStr(dbMaps.get(entity.getId()), entity, fieldJson, jsonArray).toString());
                 dbIds.remove(entity.getId());
                 parentId = Opt.ofBlankAble(parentId).orElse(BeanUtil.getProperty(entity, "foreignId"));
                 packType = Opt.ofBlankAble(packType).orElse(BeanUtil.getProperty(entity, "packType"));

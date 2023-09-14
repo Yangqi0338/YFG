@@ -4,6 +4,7 @@ package com.base.sbc.config.aspect;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
@@ -133,6 +134,8 @@ public class OperaAspect {
         // 获取传入数据
         Object[] args = joinPoint.getArgs();
         StringBuilder stringBuilder = new StringBuilder();
+
+        JSONArray jsonArray =new JSONArray();
         // 获取操作类型
         if (operaLog.operationType() == OperationType.INSERT_UPDATE) {
             String documentId = "";
@@ -155,10 +158,11 @@ public class OperaAspect {
                         IService<?> bean = (IService<?>) applicationContext.getBean(service);
                         Object dbData = bean.getById(documentId);
                         stringBuilder.append("修改");
-                        stringBuilder.append(CommonUtils.updateStr(dbData, pageDto, fieldJson));
+                        stringBuilder.append(CommonUtils.updateStr(dbData, pageDto, fieldJson,jsonArray));
 
                     }
                     operaLogEntity.setContent(stringBuilder.toString());
+                    operaLogEntity.setJsonContent(jsonArray.toJSONString());
                 }
             }
 
