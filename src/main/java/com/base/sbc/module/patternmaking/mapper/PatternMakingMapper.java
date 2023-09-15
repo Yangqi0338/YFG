@@ -90,7 +90,7 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
 
     List<PatternMaking> getPatternMakingSewingStatus(@Param(Constants.WRAPPER) QueryWrapper qw);
 
-    List<NodeListVo> getProgressSteps(NodestatusPageSearchDto dto, String userCompany);
+    List<NodeListVo> getProgressSteps(NodestatusPageSearchDto dto);
 /** 自定义方法区 不替换的区域【other_end】 **/
 }
 

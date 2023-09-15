@@ -638,8 +638,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public PageInfo<NodeListVo> allProgressSteps(NodestatusPageSearchDto dto, String userCompany) {
+        dto.setCompanyCode(userCompany);
         PageHelper.startPage(dto);
-        List<NodeListVo> list =this.getBaseMapper().getProgressSteps(dto,userCompany);
+        List<NodeListVo> list =this.getBaseMapper().getProgressSteps(dto);
         return new PageInfo<>(list);
     }
     @Override

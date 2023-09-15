@@ -34,6 +34,7 @@ public class NodestatusPageSearchDto extends Page {
     @ApiModelProperty(value = "工艺员id", example = "1223333122223333333")
     private String patternDesignId;
 
-    @ApiModelProperty(value = "状态", example = "打版中")
-    private String status;
+    @ApiModelProperty(value = "当前节点", example = "打版中")
+    private String nodeName;
+    private String companyCode;
 }
