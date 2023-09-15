@@ -65,7 +65,7 @@ public class FabricPlanningServiceImpl extends BaseServiceImpl<FabricPlanningMap
     @Transactional
     public void save(FabricPlanningSaveDTO dto) {
         FabricPlanning fabricPlanning = CopyUtil.copy(dto, FabricPlanning.class);
-        if (StringUtils.isEmpty(fabricPlanning.getId())) {
+        if (StringUtils.isEmpty(fabricPlanning.getId()) || fabricPlanning.getId().equals("-")) {
             fabricPlanning.setId(new IdGen().nextIdStr());
             fabricPlanning.setCompanyCode(super.getCompanyCode());
             fabricPlanning.insertInit();

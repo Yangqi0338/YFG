@@ -64,7 +64,7 @@ public class FabricPoolServiceImpl extends BaseServiceImpl<FabricPoolMapper, Fab
     @Override
     public void save(FabricPoolSaveDTO dto) {
         FabricPool fabricPool = CopyUtil.copy(dto, FabricPool.class);
-        if (StringUtils.isEmpty(fabricPool.getId())) {
+        if (StringUtils.isEmpty(fabricPool.getId()) || fabricPool.getId().equals("-")) {
             fabricPool.setId(new IdGen().nextIdStr());
             fabricPool.setCompanyCode(super.getCompanyCode());
             fabricPool.insertInit();
