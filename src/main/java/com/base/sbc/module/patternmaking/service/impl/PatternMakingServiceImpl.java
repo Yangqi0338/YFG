@@ -148,6 +148,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         patternMaking.setReceiveSample(BaseGlobal.NO);
         patternMaking.setExtAuxiliary(BaseGlobal.NO);
         patternMaking.setPatDiff(Opt.ofBlankAble(patternMaking.getPatDiff()).orElse(style.getPatDiff()));
+        patternMaking.setPatternDesignName(style.getPatternDesignName());
+        patternMaking.setPatternDesignId(style.getPatternDesignId());
         save(patternMaking);
 
         return patternMaking;

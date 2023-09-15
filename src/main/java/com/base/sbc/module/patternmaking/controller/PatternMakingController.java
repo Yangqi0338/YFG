@@ -114,7 +114,7 @@ public class PatternMakingController {
     @PutMapping
     public PatternMaking update(@RequestBody PatternMakingDto dto) {
         PatternMaking patternMaking = BeanUtil.copyProperties(dto, PatternMaking.class);
-        patternMakingService.checkPatternNoRepeat(dto.getId(), dto.getPatternNo());
+//        patternMakingService.checkPatternNoRepeat(dto.getId(), dto.getPatternNo());
         patternMakingService.updateById(patternMaking);
         return patternMaking;
     }
