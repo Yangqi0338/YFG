@@ -177,8 +177,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     }
 
     @Override
-    public HangTagVO getDetailsByBulkStyleNo(String bulkStyleNo, String userCompany) {
-        HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(bulkStyleNo, userCompany);
+    public HangTagVO getDetailsByBulkStyleNo(String bulkStyleNo, String userCompany, String selectType) {
+        HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(bulkStyleNo, userCompany, selectType);
         if (hangTagVO != null && StringUtils.isEmpty(hangTagVO.getStatus())) {
             hangTagVO.setStatus(HangTagStatusEnum.NOT_SUBMIT.getK());
         }

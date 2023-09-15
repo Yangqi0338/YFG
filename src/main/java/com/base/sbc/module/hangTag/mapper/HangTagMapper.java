@@ -48,7 +48,9 @@ public interface HangTagMapper extends BaseMapper<HangTag> {
      * @param companyCode
      * @return
      */
-    HangTagVO getDetailsByBulkStyleNo(@Param("bulkStyleNo") String bulkStyleNo, @Param("companyCode") String companyCode);
+    HangTagVO getDetailsByBulkStyleNo(@Param("bulkStyleNo") String bulkStyleNo,
+                                      @Param("companyCode") String companyCode,
+                                      @Param("selectType") String selectType);
 
 // 自定义方法区 不替换的区域【other_end】
 }

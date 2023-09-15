@@ -580,7 +580,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
 
         // 获取吊牌信息
         if (StrUtil.isNotBlank(detail.getStyleNo())) {
-            HangTagVO tag = hangTagService.getDetailsByBulkStyleNo(detail.getStyleNo(), getCompanyCode());
+            HangTagVO tag = hangTagService.getDetailsByBulkStyleNo(detail.getStyleNo(), getCompanyCode(), null);
             if (tag != null) {
                 BeanUtil.copyProperties(tag, vo);
             }
@@ -690,7 +690,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         String stylePicId = style.getStylePic();
         // 获取吊牌信息
         if (StrUtil.isNotBlank(detail.getStyleNo())) {
-            HangTagVO tag = hangTagService.getDetailsByBulkStyleNo(detail.getStyleNo(), getCompanyCode());
+            HangTagVO tag = hangTagService.getDetailsByBulkStyleNo(detail.getStyleNo(), getCompanyCode(), null);
             if (tag != null) {
                 BeanUtil.copyProperties(tag, vo);
             }

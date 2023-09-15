@@ -48,7 +48,7 @@ public interface HangTagService extends BaseService<HangTag> {
      * @param userCompany
      * @return
      */
-    HangTagVO getDetailsByBulkStyleNo(String bulkStyleNo, String userCompany);
+    HangTagVO getDetailsByBulkStyleNo(String bulkStyleNo, String userCompany, String selectType);
 
 
     /**
