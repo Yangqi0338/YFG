@@ -178,7 +178,7 @@ public class PurchaseOrderController extends BaseController{
 
 	@ApiOperation(value = "提交")
 	@GetMapping("/submit")
-	public ApiResult submit(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany,@RequestParam("id") String id) {
+	public ApiResult submit(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, @RequestParam("id") String id) {
 		if(StringUtils.isBlank(id)){
 			return selectAttributeNotRequirements("id");
 		}

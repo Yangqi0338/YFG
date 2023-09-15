@@ -10,6 +10,7 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -193,6 +194,14 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
             if (one!=null){
                 throw new OtherException("排序重复");
             }
+            if(StringUtils.isNotEmpty(addRevampSizeDto.getRealCode())){
+                QueryWrapper<BasicsdatumSize> qw =new QueryWrapper<>();
+                qw.eq("real_code",addRevampSizeDto.getRealCode());
+                BasicsdatumSize repeat = this.getOne(qw);
+                if (repeat != null){
+                    throw new OtherException("编码重复！");
+                }
+            }
             /*新增*/
             BeanUtils.copyProperties(addRevampSizeDto, basicsdatumSize);
             basicsdatumSize.setCompanyCode(baseController.getUserCompany());
@@ -211,6 +220,15 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
                 BasicsdatumSize one = this.getOne(queryWrapper);
                 if (one!=null){
                     throw new OtherException("排序重复");
+                }
+            }
+            if(StringUtils.isNotEmpty(addRevampSizeDto.getRealCode())){
+                QueryWrapper<BasicsdatumSize> qw =new QueryWrapper<>();
+                qw.eq("real_code",addRevampSizeDto.getRealCode());
+                qw.ne("id", basicsdatumSize.getId());
+                BasicsdatumSize one = this.getOne(qw);
+                if (one != null){
+                    throw new OtherException("编码重复！");
                 }
             }
             BeanUtils.copyProperties(addRevampSizeDto, basicsdatumSize);
