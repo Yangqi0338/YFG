@@ -116,6 +116,8 @@ public class HangTagListVO {
     @ApiModelProperty(value = "当前审核用户")
     private String  examineUserNema;
 
+    @ApiModelProperty(value = "当前审核用户id")
+    private String examineUserId;
     /**
      * 确认时间
      */
