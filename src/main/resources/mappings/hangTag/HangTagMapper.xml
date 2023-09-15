@@ -125,12 +125,6 @@
                 and tsd.design_no is not null
             </if>
         </where>
-        <choose>
-            <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
-                GROUP BY tsd.design_no
-            </when>
-
-        </choose>
     </select>
 
     <select id="hangTagPrinting" resultType="com.base.sbc.module.smp.entity.TagPrinting">
