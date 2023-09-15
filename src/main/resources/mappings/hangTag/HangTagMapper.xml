@@ -22,9 +22,16 @@
         tsd.style_type_name AS styleTypeName,
         tsd.size_range_name AS modelTypeName,
         tsd.design_no AS designNo,
-        tssc.style_no AS bulkStyleNo,
-        tssc.color_name AS color,
-        tssc.tag_price AS tagPrice,
+        <choose>
+            <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
+                tsd.design_no as bulkStyleNo,
+            </when>
+            <otherwise>
+                tssc.style_no AS bulkStyleNo,
+                tssc.color_name AS color,
+                tssc.tag_price AS tagPrice,
+            </otherwise>
+        </choose>
         tbmt.model_Type AS modelType,
         ht.id,
         ht.confirm_date,
@@ -54,15 +61,30 @@
         ht.place_order_date,
         ht.STATUS
         FROM
-        t_style_color tssc
-        JOIN t_style tsd ON tssc.style_id = tsd.id
-        LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
-        LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no
+        <choose>
+            <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
+                t_pack_info tpi
+                LEFT JOIN t_pack_info_status ps ON ( tpi.id = ps.foreign_id AND ps.del_flag = '0' )
+                LEFT JOIN t_style tsd ON ( tsd.id = tpi.foreign_id )
+                LEFT JOIN t_hang_tag ht ON tpi.design_no = ht.bulk_style_no
+            </when>
+            <otherwise>
+                t_style_color tssc
+                JOIN t_style tsd ON tssc.style_id = tsd.id
+                LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
+                LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no
+            </otherwise>
+        </choose>
         LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
         LEFT JOIN t_basicsdatum_model_type tbmt ON tsd.size_range = tbmt.id
+
         <where>
-            tssc.del_flag = 0
-            AND tssc.company_code = #{dto.companyCode}
+
+            <if test="dto.selectType == null or dto.selectType == ''">
+                tssc.del_flag = 0
+                AND tssc.company_code = #{dto.companyCode}
+            </if>
+
             <if test="dto.style != null and dto.style != ''">
                 AND tsd.design_no like concat('%',#{dto.style},'%')
             </if>
@@ -70,7 +92,7 @@
                 AND tssc.style_no like concat('%',#{dto.bulkStyleNo},'%')
             </if>
             <if test="dto.ingredient != null and dto.ingredient != ''">
-                AND ht.ingredient  like concat('%',#{dto.ingredient},'%')
+                AND ht.ingredient like concat('%',#{dto.ingredient},'%')
             </if>
             <if test="dto.status != null and dto.status != ''">
                 <choose>
@@ -82,7 +104,6 @@
                     </otherwise>
                 </choose>
             </if>
-
             <if test="dto.confirmDate != null and dto.confirmDate != ''">
                 AND ht.confirm_date like concat('%',#{dto.confirmDate},'%')
             </if>
@@ -100,8 +121,18 @@
                     </otherwise>
                 </choose>
             </if>
+            <if test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
+                and pack_type = 'packBigGoods'
+            </if>
         </where>
-        GROUP BY tssc.style_no
+        <choose>
+            <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
+                GROUP BY tsd.design_no
+            </when>
+            <otherwise>
+                GROUP BY tssc.style_no
+            </otherwise>
+        </choose>
     </select>
 
     <select id="hangTagPrinting" resultType="com.base.sbc.module.smp.entity.TagPrinting">
