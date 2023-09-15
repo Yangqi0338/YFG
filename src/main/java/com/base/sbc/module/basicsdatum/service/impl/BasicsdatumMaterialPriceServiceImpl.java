@@ -66,6 +66,14 @@ public class BasicsdatumMaterialPriceServiceImpl
                 .collect(Collectors.toMap(BasicsdatumMaterialPrice::getMaterialCode, BasicsdatumMaterialPrice::getQuotationPrice, (k1, k2) -> k2));
     }
 
+    @Override
+    public List<BasicsdatumMaterialPrice> getByMaterialCode(String materialCode) {
+        QueryWrapper<BasicsdatumMaterialPrice> qw = new QueryWrapper<>();
+        qw.eq("material_code", materialCode);
+        qw.eq("company_code", getCompanyCode());
+        return super.list(qw);
+    }
+
 // 自定义方法区 不替换的区域【other_end】
 
 }

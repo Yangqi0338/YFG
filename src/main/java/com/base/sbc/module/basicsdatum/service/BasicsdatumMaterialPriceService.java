@@ -34,6 +34,13 @@ public interface BasicsdatumMaterialPriceService extends BaseService<Basicsdatum
      */
     Map<String, BigDecimal> getDefaultSupplerQuotationPrice(List<String> materialCodes);
 
+    /**
+     * 通过物料编码获取
+     * @param materialCode
+     * @return
+     */
+    List<BasicsdatumMaterialPrice> getByMaterialCode(String materialCode);
+
 
 
 
