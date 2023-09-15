@@ -36,7 +36,19 @@ public class MaterialStockLog extends BaseDataEntity<String> {
 
     }
 
-    public MaterialStockLog(WarehousingOrder order, WarehousingOrderDetail orderDetail, BasicsdatumMaterial material,
+    public MaterialStockLog(WarehousingOrder order,BasicsdatumMaterial material,
+                            BigDecimal beforeQuality, BigDecimal quality, BigDecimal stockQuality){
+        this.materialCode = material.getMaterialCode();
+        this.relationCode = order.getCode();
+        this.warehouseId  = order.getWarehouseId();
+        this.warehouseName = order.getWarehouseName();
+        this.agent = order.getAgentName();
+        this.beforeQuality = beforeQuality;
+        this.quality = quality;
+        this.stockQuality = stockQuality;
+    }
+
+    public MaterialStockLog(OutboundOrder order, BasicsdatumMaterial material,
                             BigDecimal beforeQuality, BigDecimal quality, BigDecimal stockQuality){
         this.materialCode = material.getMaterialCode();
         this.relationCode = order.getCode();

@@ -54,7 +54,7 @@ public class MaterialStockController extends BaseController{
 	public ApiResult page(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, MaterialStockDTO page) {
 		QueryWrapper<MaterialStock> qc = new QueryWrapper<>();
 		qc.eq("company_code", userCompany);
-		qc.eq(StringUtils.isNotBlank(page.getWarehouseName()), "warehouse_name", page.getWarehouseName());
+		qc.eq(StringUtils.isNotBlank(page.getWarehouseId()), "warehouse_id", page.getWarehouseId());
 		if(StringUtils.isNotBlank(page.getSearch())){
 			qc.and(wrapper -> wrapper.like("material_code", page.getSearch())
 					.or()
@@ -82,7 +82,7 @@ public class MaterialStockController extends BaseController{
 		QueryWrapper<MaterialStockLog> qc = new QueryWrapper<>();
 		qc.eq("company_code", userCompany);
 		qc.eq("material_code", page.getMaterialCode());
-		qc.eq(StringUtils.isNotBlank(page.getWarehouseName()), "warehouse_name", page.getWarehouseName());
+		qc.eq(StringUtils.isNotBlank(page.getWarehouseId()), "warehouse_id", page.getWarehouseId());
 		qc.eq(StringUtils.isNotBlank(page.getType()), "type", page.getType());
 		if(StringUtils.isNotBlank(page.getSearch())){
 			qc.and(wrapper -> wrapper.like("relation_code", page.getSearch()));

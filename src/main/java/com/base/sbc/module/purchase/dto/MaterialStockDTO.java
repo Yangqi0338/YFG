@@ -9,7 +9,7 @@ import lombok.Data;
 @ApiModel("物料库存列表 or 物料库存日志列表")
 public class MaterialStockDTO extends Page {
     @ApiModelProperty(value = "仓库")
-    private String warehouseName;
+    private String warehouseId;
     @ApiModelProperty(value = "出入库类型(0 入库, 1 出库)")
     private String type;
     @ApiModelProperty(value = "物料编码")

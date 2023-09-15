@@ -14,11 +14,8 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.purchase.entity.MaterialStockLog;
-import com.base.sbc.module.purchase.entity.WarehousingOrder;
-import com.base.sbc.module.purchase.entity.WarehousingOrderDetail;
+import com.base.sbc.module.purchase.entity.*;
 import com.base.sbc.module.purchase.mapper.MaterialStockMapper;
-import com.base.sbc.module.purchase.entity.MaterialStock;
 import com.base.sbc.module.purchase.service.MaterialStockLogService;
 import com.base.sbc.module.purchase.service.MaterialStockService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,12 +63,13 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
         materialQw.in("material_code", materialCodeList);
         materialQw.eq("warehouse_id", order.getWarehouseId());
         List<MaterialStock> materialStockList = materialStockService.list(materialQw);
-        Map<String, MaterialStock> materialStockMap = materialStockList.stream().collect(Collectors.toMap(MaterialStock::getMaterialCode, item -> item));
+        Map<String, MaterialStock> materialStockMap = materialStockList.stream().collect(Collectors.toMap(MaterialStock::getMaterialSku, item -> item));
 
         QueryWrapper<BasicsdatumMaterial> basicQw = new QueryWrapper<>();
         basicQw.in("material_code", materialCodeList);
         List<BasicsdatumMaterial> basicsdatumMaterialList = basicsdatumMaterialService.list(basicQw);
         Map<String, BasicsdatumMaterial> materialMap = basicsdatumMaterialList.stream().collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode, item -> item, (k, v) -> k));
+
 
         List<MaterialStock> addList = new ArrayList<>();
         List<MaterialStock> updateList = new ArrayList<>();
@@ -80,7 +78,7 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
             BigDecimal beforeValue = new BigDecimal(0.0);
             BigDecimal afterValue = new BigDecimal(0.0);
 
-            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialCode());
+            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialCode() + orderDetail.getMaterialColorCode() + orderDetail.getMaterialSpecificationsCode());
             BasicsdatumMaterial material = materialMap.get(orderDetail.getMaterialCode());
             if(materialStock == null){
                 //物料库存中不存在此物料，初始化物料
@@ -110,7 +108,7 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
                 updateList.add(materialStock);
             }
 
-            MaterialStockLog materialStockLog = new MaterialStockLog(order, orderDetail, material, beforeValue, orderDetail.getWarehouseNum(), afterValue);
+            MaterialStockLog materialStockLog = new MaterialStockLog(order, material, beforeValue, orderDetail.getWarehouseNum(), afterValue);
             materialStockLog.setId(idGen.nextIdStr());
             materialStockLog.setCompanyCode(order.getCompanyCode());
             materialStockLog.setType("0");
@@ -130,4 +128,67 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
         }
     }
 
+
+    /**
+     * 出库单 操作 物料库存
+     *
+     * @param order  出库单
+     * @param orderDetailList  出库单明细
+     * @param operation  操作 0 增加 1 减少
+     * */
+    @Override
+    public void outBoundOrderMaterialStock(OutboundOrder order, List<OutboundOrderDetail> orderDetailList, String operation) {
+        IdGen idGen = new IdGen();
+
+        List<String> materialCodeList = orderDetailList.stream().map(OutboundOrderDetail::getMaterialCode).collect(Collectors.toList());
+
+        QueryWrapper<MaterialStock> materialQw = new QueryWrapper<>();
+        materialQw.in("material_code", materialCodeList);
+        materialQw.eq("warehouse_id", order.getWarehouseId());
+        List<MaterialStock> materialStockList = materialStockService.list(materialQw);
+        Map<String, MaterialStock> materialStockMap = materialStockList.stream().collect(Collectors.toMap(MaterialStock::getMaterialSku, item -> item));
+
+        QueryWrapper<BasicsdatumMaterial> basicQw = new QueryWrapper<>();
+        basicQw.in("material_code", materialCodeList);
+        List<BasicsdatumMaterial> basicsdatumMaterialList = basicsdatumMaterialService.list(basicQw);
+        Map<String, BasicsdatumMaterial> materialMap = basicsdatumMaterialList.stream().collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode, item -> item, (k, v) -> k));
+
+
+        List<MaterialStock> updateList = new ArrayList<>();
+        List<MaterialStockLog> materialStockLogList = new ArrayList<>();
+        for(OutboundOrderDetail orderDetail : orderDetailList){
+            BigDecimal beforeValue = new BigDecimal(0.0);
+            BigDecimal afterValue = new BigDecimal(0.0);
+
+            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialSku());
+            BasicsdatumMaterial material = materialMap.get(orderDetail.getMaterialCode());
+            if(materialStock != null){
+                beforeValue = materialStock.getStockQuantity();
+                if(StringUtils.equals(operation, "0")) {
+                    BigDecimal result = BigDecimalUtil.add(materialStock.getStockQuantity(), orderDetail.getOutNum());
+                    materialStock.setStockQuantity(result);
+                    afterValue = result;
+                }else{
+                    BigDecimal result = BigDecimalUtil.sub(materialStock.getStockQuantity(), orderDetail.getOutNum());
+                    materialStock.setStockQuantity(result);
+                    afterValue = result;
+                }
+                updateList.add(materialStock);
+            }
+
+            MaterialStockLog materialStockLog = new MaterialStockLog(order, material, beforeValue, orderDetail.getOutNum(), afterValue);
+            materialStockLog.setId(idGen.nextIdStr());
+            materialStockLog.setCompanyCode(order.getCompanyCode());
+            materialStockLog.setType("1");
+            materialStockLogList.add(materialStockLog);
+        }
+
+        if(CollectionUtil.isNotEmpty(updateList)){
+            materialStockService.updateBatchById(updateList);
+        }
+
+        if(CollectionUtil.isNotEmpty(materialStockLogList)){
+            materialStockLogService.saveBatch(materialStockLogList);
+        }
+    }
 }
