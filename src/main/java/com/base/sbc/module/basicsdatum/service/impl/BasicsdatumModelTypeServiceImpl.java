@@ -209,17 +209,19 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.in("hangtags", StringUtils.convertList(addRevampBasicsdatumModelTypeDto.getDefaultSize()));
             List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeMapper.selectList(queryWrapper);
-            StringBuffer sizeIds = new StringBuffer();
-            StringBuffer sizeCodes = new StringBuffer();
-            StringBuffer sizeRealCodes = new StringBuffer();
-            for(BasicsdatumSize item : basicsdatumSizeList){
-                sizeIds.append(item.getId() + ",");
-                sizeCodes.append(item.getSort() + ",");
-                sizeRealCodes.append(item.getCode() + ",");
+            if(CollectionUtil.isNotEmpty(basicsdatumSizeList)) {
+                StringBuffer sizeIds = new StringBuffer();
+                StringBuffer sizeCodes = new StringBuffer();
+                StringBuffer sizeRealCodes = new StringBuffer();
+                for (BasicsdatumSize item : basicsdatumSizeList) {
+                    sizeIds.append(item.getId() + ",");
+                    sizeCodes.append(item.getSort() + ",");
+                    sizeRealCodes.append(item.getCode() + ",");
+                }
+                addRevampBasicsdatumModelTypeDto.setDefaultSizeIds(sizeIds.deleteCharAt(sizeIds.length() - 1).toString());
+                addRevampBasicsdatumModelTypeDto.setDefaultSizeCode(sizeCodes.deleteCharAt(sizeCodes.length() - 1).toString());
+                addRevampBasicsdatumModelTypeDto.setDefaultSizeRealCode(sizeRealCodes.deleteCharAt(sizeRealCodes.length() - 1).toString());
             }
-            addRevampBasicsdatumModelTypeDto.setDefaultSizeIds(sizeIds.deleteCharAt(sizeIds.length() - 1).toString());
-            addRevampBasicsdatumModelTypeDto.setDefaultSizeCode(sizeCodes.deleteCharAt(sizeCodes.length() - 1).toString());
-            addRevampBasicsdatumModelTypeDto.setDefaultSizeRealCode(sizeRealCodes.deleteCharAt(sizeRealCodes.length() - 1).toString());
         }
 
         if (StringUtils.isEmpty(addRevampBasicsdatumModelTypeDto.getId())) {
