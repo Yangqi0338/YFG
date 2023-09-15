@@ -376,97 +376,183 @@
         </if>
     </select>
     <select id="getProgressSteps" resultType="com.base.sbc.module.patternmaking.vo.NodeListVo">
-        select ts.design_no                         as designNo,
-               tsc.style_no                         as bulkStyleNo,
-               SUBSTRING_INDEX(ts.designer, ',', 1) as designerName,
-               tuf.url                              as picture,
-               tpci.send_date                       as noNextDraftStartTime,
-               ts.check_start_time                  as noNextDraftEndTime,
-               ts.check_start_time                  as reviewedDraftStartTime,
-               ts.check_end_time                    as reviewedDraftEndTime,
-               ts.check_end_time                    as nextDraftStartTime,
-               tpm.create_date                      as nextDraftEndTime,
-               tpm.prm_send_date                    as punchingCompletedStartTime,
+        select ts.design_no as designNo,
+        tsc.style_no as bulkStyleNo,
+        SUBSTRING_INDEX(ts.designer, ',', 1) as designerName,
+        tuf.url as picture,
+        tpci.send_date as noNextDraftStartTime,
+        ts.check_start_time as noNextDraftEndTime,
+        ts.check_start_time as reviewedDraftStartTime,
+        ts.check_end_time as reviewedDraftEndTime,
+        ts.check_end_time as nextDraftStartTime,
+        tpm.create_date as nextDraftEndTime,
+        tpm.prm_send_date as punchingCompletedStartTime,
 
-               (select tns.end_date
+        (select tns.end_date
+        from t_node_status as tns
+        where tns.data_id = tpm.id
+        and tns.node = '打版任务'
+        and tns.status = '打版完成') as punchingCompletedEndTime,
+
+        (select tns.start_date
+        from t_node_status as tns
+        where tns.data_id = tpm.id
+        and tns.node = '样衣任务'
+        and tns.status = '车缝进行中') as sampleClothingCompletedStartTime,
+
+        (select tns.end_date
+        from t_node_status as tns
+        where tns.data_id = tpm.id
+        and tns.node = '样衣任务'
+        and tns.status = '车缝完成') as sampleClothingCompletedEndTime,
+
+        (select tns.end_date
+        from t_node_status as tns
+        where tns.data_id = tpm.id
+        and tns.node = '样衣任务'
+        and tns.status = '车缝完成') as sampleSelectionStartTime,
+
+        (select tpsr.create_date
+        from t_pack_sample_review as tpsr
+        where pack_type = 'packDesign'
+        and tpsr.foreign_id = tpi.id
+        order by tpsr.create_date desc
+        limit 1) as sampleSelectionEndTime,
+
+        null as orderBookProductionStartTime,
+        null as orderBookProductionEndTime,
+        null as bossStyleStartTime,
+        null as bossStyleEndTime,
+        null as riskAssessmentStartTime,
+        null as riskAssessmentEndTime,
+        null as businessEnterprisesStartTime,
+        null as businessEnterprisesEndTime,
+
+        null as sendMainFabricStartTime,
+        tsc.send_main_fabric_date as sendMainFabricEndTime,
+
+        tsc.design_detail_date as designDetailDateStartTime,
+        null as designDetailDateEndTime,
+        tsc.design_correct_date as designCorrectDateStartTime,
+        null as designCorrectDateEndTime,
+        tsc.design_correct_date as versionRoomCheckVersionStartTime,
+        tsc.correct_style_date as versionRoomCheckVersionEndTime,
+
+        null as purchaseRequestStartTime,
+        null as purchaseRequestEndTime,
+        null as replyDeliveryTimeStartTime,
+        null as replyDeliveryTimeEndTime,
+        null as surfaceAuxiliaryMaterialTestingStartTime,
+        null as surfaceAuxiliaryMaterialTestingEndTime,
+        null as technicalTableStartTime,
+        null as technicalTableEndTime,
+
+        null as preProductionSampleProductionStartTime,
+        tpis.bulk_prod_tech_confirm_date as preProductionSampleProductionEndTime,
+        (select control_confirm_time
+        from t_style_pricing as tsp
+        where pack_id = tpi.id
+        order by tsp.create_date desc
+        limit 1) as pricingStartTime,
+        null as pricingEndTime,
+
+        null as orderPlacementByAccountingControlStartTime,
+        null as orderPlacementByAccountingControlEndTime
+
+        from t_style as ts
+        left join t_pattern_making as tpm on ts.id = tpm.style_id and sample_type_name = '初版样' and tpm.del_flag = '0'
+        left join t_planning_category_item as tpci on tpci.id = ts.planning_category_item_id and tpci.del_flag = '0'
+        left join t_style_color as tsc on ts.id = tsc.style_id and tsc.del_flag = '0'
+        left join t_pack_info as tpi on tpi.style_color_id = tsc.id and tpi.del_flag = '0'
+        left join t_pack_info_status as tpis on tpis.foreign_id = tpi.id and tpis.pack_type = 'packBigGoods' and
+        tpis.del_flag = '0'
+        left join t_upload_file as tuf on ts.style_pic = tuf.id and tuf.del_flag = '0'
+        where ts.del_flag = '0'
+        and ts.company_code = #{companyCode}
+        <if test="designerId !=null and designerId != ''">
+            and ts.designer_id like concat('%',#{designerId},'%')
+        </if>
+        <if test="patternDesignId !=null and patternDesignId != ''">
+            and ts.pattern_design_id like concat('%',#{patternDesignId},'%')
+        </if>
+        <if test="devtTypeName !=null and devtTypeName != ''">
+            and ts.devt_type_name = #{devtTypeName}
+        </if>
+        <if test="taskLevelName !=null and taskLevelName != ''">
+            and ts.task_level_name like concat('%',#{taskLevelName},'%')
+        </if>
+        <if test="categoryName !=null and categoryName != ''">
+            and ts.prod_category_name = #{categoryName}
+        </if>
+        <if test="search !=null and search != ''">
+            and (ts.design_no like concat('%',#{search},'%') or ts.style_no like concat('%',#{search},'%'))
+        </if>
+        <if test="nodeName !=null and nodeName != ''">
+            <if test="nodeName == 'noNextDraft'">
+                and (tpci.send_date is not null or ts.check_start_time is not null)
+            </if>
+            <if test="nodeName == 'reviewedDraft'">
+                and (ts.check_start_time is not null or ts.check_end_time is not null)
+            </if>
+            <if test="nodeName == 'nextDraft'">
+                and (ts.check_end_time is not null or tpm.create_date is not null)
+            </if>
+            <if test="nodeName == 'punchingCompleted'">
+                and (tpm.prm_send_date is not null or (select tns.end_date
                 from t_node_status as tns
                 where tns.data_id = tpm.id
-                  and tns.node = '打版任务'
-                  and tns.status = '打版完成')      as punchingCompletedEndTime,
-
-               (select tns.start_date
+                and tns.node = '打版任务'
+                and tns.status = '打版完成') is not null)
+            </if>
+            <if test="nodeName == 'sampleClothingCompleted'">
+                and ( (select tns.start_date
                 from t_node_status as tns
                 where tns.data_id = tpm.id
-                  and tns.node = '样衣任务'
-                  and tns.status = '车缝进行中')    as sampleClothingCompletedStartTime,
-
-               (select tns.end_date
+                and tns.node = '样衣任务'
+                and tns.status = '车缝进行中') is not null or
+                (select tns.end_date
                 from t_node_status as tns
                 where tns.data_id = tpm.id
-                  and tns.node = '样衣任务'
-                  and tns.status = '车缝完成')      as sampleClothingCompletedEndTime,
-
-               (select tns.end_date
+                and tns.node = '样衣任务'
+                and tns.status = '车缝完成') is not null)
+            </if>
+            <if test="nodeName == 'sampleSelection'">
+                and ((select tns.end_date
                 from t_node_status as tns
                 where tns.data_id = tpm.id
-                  and tns.node = '样衣任务'
-                  and tns.status = '车缝完成')      as sampleSelectionStartTime,
-
-               (select tpsr.create_date
+                and tns.node = '样衣任务'
+                and tns.status = '车缝完成') is not null or
+                (select tpsr.create_date
                 from t_pack_sample_review as tpsr
                 where pack_type = 'packDesign'
-                  and tpsr.foreign_id = tpi.id
+                and tpsr.foreign_id = tpi.id
                 order by tpsr.create_date desc
-                limit 1)                            as sampleSelectionEndTime,
-
-               null                                 as orderBookProductionStartTime,
-               null                                 as orderBookProductionEndTime,
-               null                                 as bossStyleStartTime,
-               null                                 as bossStyleEndTime,
-               null                                 as riskAssessmentStartTime,
-               null                                 as riskAssessmentEndTime,
-               null                                 as businessEnterprisesStartTime,
-               null                                 as businessEnterprisesEndTime,
-
-               null                                 as sendMainFabricStartTime,
-               tsc.send_main_fabric_date            as sendMainFabricEndTime,
-
-               tsc.design_detail_date               as designDetailDateStartTime,
-               null                                 as designDetailDateEndTime,
-               tsc.design_correct_date              as designCorrectDateStartTime,
-               null                                 as designCorrectDateEndTime,
-               tsc.design_correct_date              as versionRoomCheckVersionStartTime,
-               tsc.correct_style_date               as versionRoomCheckVersionEndTime,
-
-               null                                 as purchaseRequestStartTime,
-               null                                 as purchaseRequestEndTime,
-               null                                 as replyDeliveryTimeStartTime,
-               null                                 as replyDeliveryTimeEndTime,
-               null                                 as surfaceAuxiliaryMaterialTestingStartTime,
-               null                                 as surfaceAuxiliaryMaterialTestingEndTime,
-               null                                 as technicalTableStartTime,
-               null                                 as technicalTableEndTime,
-
-               null                                 as preProductionSampleProductionStartTime,
-               tpis.bulk_prod_tech_confirm_date     as preProductionSampleProductionEndTime,
-               (select control_confirm_time
+                limit 1) is not null)
+            </if>
+            <if test="nodeName == 'sendMainFabric'">
+                and tsc.send_main_fabric_date is not null
+            </if>
+            <if test="nodeName == 'designDetailDate'">
+                and tsc.design_detail_date is not null
+            </if>
+            <if test="nodeName == 'designCorrectDate'">
+                and tsc.design_correct_date is not null
+            </if>
+            <if test="nodeName == 'versionRoomCheckVersion'">
+                and (tsc.correct_style_date is not null or tsc.design_correct_date is not null)
+            </if>
+            <if test="nodeName == 'preProductionSampleProduction'">
+                and tpis.bulk_prod_tech_confirm_date is not null
+            </if>
+            <if test="nodeName == 'pricing'">
+                and (select control_confirm_time
                 from t_style_pricing as tsp
                 where pack_id = tpi.id
                 order by tsp.create_date desc
-                limit 1)                            as pricingStartTime,
-               null                                 as pricingEndTime,
+                limit 1) is not null
+            </if>
 
-               null                                 as orderPlacementByAccountingControlStartTime,
-               null                                 as orderPlacementByAccountingControlEndTime
-
-        from t_style as ts
-                 left join t_pattern_making as tpm on ts.id = tpm.style_id and sample_type_name = '初版样'
-                 left join t_planning_category_item as tpci on tpci.id = ts.planning_category_item_id
-                 left join t_style_color as tsc on ts.id = tsc.style_id
-                 left join t_pack_info as tpi on tpi.style_color_id = tsc.id
-                 left join t_pack_info_status as tpis on tpis.foreign_id = tpi.id and tpis.pack_type = 'packBigGoods'
-                 left join t_upload_file as tuf on ts.style_pic = tuf.id
-
+        </if>
     </select>
 </mapper>
 
