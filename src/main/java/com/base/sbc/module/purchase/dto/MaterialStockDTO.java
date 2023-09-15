@@ -12,6 +12,6 @@ public class MaterialStockDTO extends Page {
     private String warehouseId;
     @ApiModelProperty(value = "出入库类型(0 入库, 1 出库)")
     private String type;
-    @ApiModelProperty(value = "物料编码")
-    private String materialCode;
+    @ApiModelProperty(value = "物料库存id")
+    private String materialWarehouseId;
 }

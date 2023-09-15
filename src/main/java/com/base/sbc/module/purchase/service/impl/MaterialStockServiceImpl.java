@@ -111,6 +111,7 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
             MaterialStockLog materialStockLog = new MaterialStockLog(order, material, beforeValue, orderDetail.getWarehouseNum(), afterValue);
             materialStockLog.setId(idGen.nextIdStr());
             materialStockLog.setCompanyCode(order.getCompanyCode());
+            materialStockLog.setMaterialWarehouseId(materialStock.getId());
             materialStockLog.setType("0");
             materialStockLogList.add(materialStockLog);
         }
@@ -180,6 +181,7 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
             MaterialStockLog materialStockLog = new MaterialStockLog(order, material, beforeValue, orderDetail.getOutNum(), afterValue);
             materialStockLog.setId(idGen.nextIdStr());
             materialStockLog.setCompanyCode(order.getCompanyCode());
+            materialStockLog.setMaterialWarehouseId(materialStock.getId());
             materialStockLog.setType("1");
             materialStockLogList.add(materialStockLog);
         }

@@ -63,6 +63,9 @@ public class MaterialStockLog extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
+    /** 物料库存id */
+    @ApiModelProperty(value = "物料库存id"  )
+    private String materialWarehouseId;
     /** 物料编码 */
     @ApiModelProperty(value = "物料编码"  )
     private String materialCode;
