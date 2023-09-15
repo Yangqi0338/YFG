@@ -494,7 +494,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             throw new OtherException("当前数据已在审批中");
         }
         style.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
-        style.setCheckStartDate(new Date());
+        style.setCheckStartTime(new Date());
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
         boolean flg = flowableService.start(FlowableService.sample_design_pdn + "[" + style.getDesignNo() + "]", FlowableService.sample_design_pdn, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleDesign/" + id, variables);
@@ -511,7 +511,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 //设置样衣未开款状态为 已开款
                 if(style.getStatus().equals(BaseGlobal.STOCK_STATUS_DRAFT)){
                     style.setStatus("1");
-                    style.setCheckEndDate(new Date());
+                    style.setCheckEndTime(new Date());
                     style.setConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
                 }
             }

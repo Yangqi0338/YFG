@@ -445,11 +445,11 @@ public class Style extends BaseDataEntity<String> {
     /**
      * 提交审核时间
      */
-    private Date checkStartDate;
+    private Date checkStartTime;
     /**
      * 审核通过时间
      */
-    private Date checkEndDate;
+    private Date checkEndTime;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
