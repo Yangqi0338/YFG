@@ -216,7 +216,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
                 for (BasicsdatumSize item : basicsdatumSizeList) {
                     sizeIds.append(item.getId() + ",");
                     sizeCodes.append(item.getSort() + ",");
-                    sizeRealCodes.append(item.getCode() + ",");
+                    sizeRealCodes.append(item.getRealCode() + ",");
                 }
                 addRevampBasicsdatumModelTypeDto.setDefaultSizeIds(sizeIds.deleteCharAt(sizeIds.length() - 1).toString());
                 addRevampBasicsdatumModelTypeDto.setDefaultSizeCode(sizeCodes.deleteCharAt(sizeCodes.length() - 1).toString());

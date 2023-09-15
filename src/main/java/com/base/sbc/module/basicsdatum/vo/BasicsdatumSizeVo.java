@@ -55,5 +55,7 @@ public class BasicsdatumSizeVo extends BaseDataEntity<String> {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
-
+    /** 编码（笛莎） */
+    @ApiModelProperty(value = "编码（笛莎）"  )
+    private String realCode;
 }
