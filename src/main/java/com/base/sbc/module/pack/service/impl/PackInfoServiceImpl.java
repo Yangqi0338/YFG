@@ -732,6 +732,19 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     }
 
     @Override
+    public AttachmentVo saveVideoFile(String foreignId, String packType, String fileId) {
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(foreignId, packType);
+        UpdateWrapper<PackInfoStatus> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PackInfoStatus::getId, packInfoStatus.getId())
+                .set(PackInfoStatus::getTechSpecVideoFileId, Opt.ofBlankAble(fileId).orElse(""));
+        packInfoStatusService.update(uw);
+        if (StrUtil.isBlank(fileId)) {
+            return null;
+        }
+        return attachmentService.getAttachmentByFileId(fileId);
+    }
+
+    @Override
     public boolean delTechSpecFile(PackCommonSearchDto dto) {
         UpdateWrapper qw = new UpdateWrapper();
         PackUtils.commonQw(qw, dto);
@@ -927,6 +940,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         PackInfoListVo packInfoListVo = CollUtil.get(packInfoListVos, 0);
         if (packInfoListVo != null && StrUtil.isNotBlank(packInfoListVo.getTechSpecFileId())) {
             packInfoListVo.setTechSpecFile(attachmentService.getAttachmentByFileId(packInfoListVo.getTechSpecFileId()));
+        }
+        if (packInfoListVo != null && StrUtil.isNotBlank(packInfoListVo.getTechSpecVideoFileId())) {
+            packInfoListVo.setTechSpecVideo(attachmentService.getAttachmentByFileId(packInfoListVo.getTechSpecVideoFileId()));
         }
         return packInfoListVo;
     }

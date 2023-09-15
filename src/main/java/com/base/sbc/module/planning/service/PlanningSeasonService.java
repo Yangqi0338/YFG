@@ -139,5 +139,4 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
      */
     List<ProductSeasonSelectVO> getByYear(String year);
 
-    List<StyleColorVo> getStyleNoList(GetStyleNoListDto dto);
 }

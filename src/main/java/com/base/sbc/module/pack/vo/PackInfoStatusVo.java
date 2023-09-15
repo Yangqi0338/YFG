@@ -156,4 +156,7 @@ public class PackInfoStatusVo {
     @ApiModelProperty(value = "大货反审回设计时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date toDesignDate;
+
+    @ApiModelProperty(value = "工艺说明视频文件id")
+    private String techSpecVideoFileId;
 }

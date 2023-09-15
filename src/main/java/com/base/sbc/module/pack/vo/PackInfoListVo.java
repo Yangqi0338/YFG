@@ -79,7 +79,9 @@ public class PackInfoListVo extends PackInfoStatusVo {
         return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
     }
 
-    @ApiModelProperty(value = "工艺说明文件信息")
+    @ApiModelProperty(value = "工艺说明文件信息(pdf)")
     private AttachmentVo techSpecFile;
+    @ApiModelProperty(value = "工艺说明视频)")
+    private AttachmentVo techSpecVideo;
 
 }

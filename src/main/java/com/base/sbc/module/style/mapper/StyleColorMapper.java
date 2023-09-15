@@ -9,6 +9,7 @@ package com.base.sbc.module.style.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.module.style.vo.DemandOrderSkcVo;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.sample.vo.StyleUploadVo;
 import org.apache.ibatis.annotations.Mapper;
@@ -57,14 +58,23 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
      * @param nweStyleNo
      * @return
      */
-    Boolean reviseAllStyleNo(@Param("styleNo") String styleNo ,@Param("nweStyleNo") String nweStyleNo);
+    Boolean reviseAllStyleNo(@Param("styleNo") String styleNo, @Param("nweStyleNo") String nweStyleNo);
 
     /**
      * 获取款式图上传信息
+     *
      * @param styleColorId
      * @return
      */
     StyleUploadVo getStyleUploadInfo(String styleColorId);
+
+    /**
+     * 用于查询匹配企划需求维度 已下单的配色信息
+     *
+     * @param qw
+     * @return
+     */
+    List<DemandOrderSkcVo> queryDemandOrderSkc(@Param(Constants.WRAPPER) QueryWrapper qw);
 
 // 自定义方法区 不替换的区域【other_end】
 }

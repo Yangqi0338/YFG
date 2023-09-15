@@ -180,6 +180,12 @@ public class PackTechSpecController {
         return packInfoService.genTechSpecFile2(groupUser, dto);
     }
 
+    @ApiOperation(value = "保存工艺视频")
+    @GetMapping("/saveVideoFile")
+    public AttachmentVo saveVideoFile(@Valid PackCommonSearchDto dto, String fileId) {
+        return packInfoService.saveVideoFile(dto.getForeignId(), dto.getPackType(), fileId);
+    }
+
     @ApiOperation(value = "删除工艺说明文件")
     @DeleteMapping("/delTechSpecFile")
     public boolean delTechSpecFile(@Valid PackCommonSearchDto dto) {

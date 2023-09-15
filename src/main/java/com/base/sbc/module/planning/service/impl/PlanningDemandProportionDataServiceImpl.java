@@ -16,6 +16,7 @@ import com.base.sbc.module.planning.dto.SaveUpdateDemandProportionDataDto;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
 import com.base.sbc.module.planning.mapper.PlanningDemandProportionDataMapper;
 import com.base.sbc.module.planning.service.PlanningDemandProportionDataService;
+import com.base.sbc.module.planning.service.PlanningDemandProportionSeatService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,8 @@ import java.util.List;
 public class PlanningDemandProportionDataServiceImpl extends BaseServiceImpl<PlanningDemandProportionDataMapper, PlanningDemandProportionData> implements PlanningDemandProportionDataService {
     @Autowired
     private BaseController baseController;
+    @Autowired
+    private PlanningDemandProportionSeatService planningDemandProportionSeatService;
 
     @Override
     public ApiResult saveUpdate(SaveUpdateDemandProportionDataDto saveUpdateDemandDimensionalityDataDto) {
@@ -63,8 +66,10 @@ public class PlanningDemandProportionDataServiceImpl extends BaseServiceImpl<Pla
      */
     @Override
     public Boolean batchSaveUpdate(List<SaveUpdateDemandProportionDataDto> list) {
-        List<PlanningDemandProportionData > dataList = BeanUtil.copyToList(list, PlanningDemandProportionData.class);
+        List<PlanningDemandProportionData> dataList = BeanUtil.copyToList(list, PlanningDemandProportionData.class);
         saveOrUpdateBatch(dataList);
+        //创建维度位置信息
+        planningDemandProportionSeatService.createByDemand(dataList);
         return true;
     }
 

@@ -33,9 +33,12 @@ public class PlanningBoardSearchDto {
     @ApiModelProperty(value = "波段", required = false, example = "1A")
     private String bandCode;
 
-    @ApiModelProperty(value = "品类", required = false, example = "700655279267643450")
+    @ApiModelProperty(value = "品类", required = false, example = "a1")
     private String prodCategory;
 
+
+    @ApiModelProperty(value = "中类code")
+    private String prodCategory2nd;
     @ApiModelProperty(value = "维度字段id", required = false, example = "122222")
     private String fieldId;
 
