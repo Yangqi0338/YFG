@@ -160,7 +160,8 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
             BigDecimal beforeValue = new BigDecimal(0.0);
             BigDecimal afterValue = new BigDecimal(0.0);
 
-            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialSku());
+//            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialSku());
+            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialCode() + orderDetail.getColorCode() + orderDetail.getSpecificationsCode());
             BasicsdatumMaterial material = materialMap.get(orderDetail.getMaterialCode());
             if(materialStock != null){
                 beforeValue = materialStock.getStockQuantity();
