@@ -81,7 +81,7 @@
             and (fda.allocation_status != '3' or fda.allocation_status is null)
             and (fdb.to_material_flag = '0' OR fdb.to_material_flag IS NULl)
         </where>
-        order by bfl.create_date desc
+        order by bm.create_date desc
     </select>
 
     <select id="getByToMaterialId" resultType="com.base.sbc.module.fabric.entity.BasicFabricLibrary">
