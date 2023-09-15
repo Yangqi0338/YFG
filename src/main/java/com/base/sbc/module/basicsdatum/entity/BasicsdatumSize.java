@@ -5,7 +5,8 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
-
+import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -15,9 +16,9 @@ import lombok.EqualsAndHashCode;
 /**
  * 类描述：基础资料-尺码表 实体类
  * @address com.base.sbc.module.basicsdatum.entity.BasicsdatumSize
- * @author mengfanjiang
- * @email 2915350015@qq.com
- * @date 创建时间：2023-5-17 14:01:34
+ * @author tzy
+ * @email 974849633@qq.com
+ * @date 创建时间：2023-9-15 10:08:49
  * @version 1.0
  */
 @Data
@@ -33,16 +34,23 @@ public class BasicsdatumSize extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
+    /** 编码 */
+    @ApiModelProperty(value = "编码"  )
+    private String code;
     /** 吊牌显示 */
     @ApiModelProperty(value = "吊牌显示"  )
     private String hangtags;
+    /** 状态(0正常,1停用) */
+    @ApiModelProperty(value = "状态(0正常,1停用)"  )
+    private String status;
     /** 号型 */
     @ApiModelProperty(value = "号型"  )
     private String model;
     /** 号型类型 */
     @ApiModelProperty(value = "号型类型"  )
     private String modelType;
-    /*号型类型编码*/
+    /** 号型类型编码 */
+    @ApiModelProperty(value = "号型类型编码"  )
     private String modelTypeCode;
     /** Internal Size */
     @ApiModelProperty(value = "Internal Size"  )
@@ -50,9 +58,6 @@ public class BasicsdatumSize extends BaseDataEntity<String> {
     /** External Size */
     @ApiModelProperty(value = "External Size"  )
     private String externalSize;
-    /** 代码 */
-    @ApiModelProperty(value = "代码"  )
-    private String code;
     /** 排序 */
     @ApiModelProperty(value = "排序"  )
     private String sort;
@@ -71,11 +76,15 @@ public class BasicsdatumSize extends BaseDataEntity<String> {
     /** 欧码 */
     @ApiModelProperty(value = "欧码"  )
     private String europeanSize;
-    /** 显示尺码标识 */
-    @ApiModelProperty(value = "显示尺码标识"  )
+    /** US标签 */
+    @ApiModelProperty(value = "US标签"  )
+    private String labelName;
+    /** 显示尺码标识(0显示，1隐藏) */
+    @ApiModelProperty(value = "显示尺码标识(0显示，1隐藏)"  )
     private String showSizeStatus;
-    /** 状态(0正常,1停用) */
-    @ApiModelProperty(value = "状态(0正常,1停用)"  )
-    private String status;
+    /** 编码（笛莎） */
+    @ApiModelProperty(value = "编码（笛莎）"  )
+    private String realCode;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+
