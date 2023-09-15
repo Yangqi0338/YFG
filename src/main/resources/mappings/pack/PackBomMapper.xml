@@ -415,6 +415,7 @@
             unit_use AS unitNum,
             unit_code AS unitCode,
             loss_rate AS lossRate,
+            planning_looss_rate AS planningLoossRate,
             rated_unit_consumption AS ratedUnitConsumption,
             purchase_currency AS purchaseCurrency,
             price AS price,
