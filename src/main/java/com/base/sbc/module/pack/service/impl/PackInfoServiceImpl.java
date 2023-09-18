@@ -556,8 +556,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     }
 
     @Override
-    public AttachmentVo genTechSpecFile2(GroupUser groupUser, PackCommonSearchDto dto) {
-
+    public GenTechSpecPdfFile queryGenTechSpecPdfFile(GroupUser groupUser, PackCommonSearchDto dto) {
         //获取资料包信息
         PackInfoListVo detail = getDetail(dto.getForeignId(), dto.getPackType());
 
@@ -565,17 +564,17 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException("获取资料包数据失败");
         }
         //获取款式信息
-        Style style = styleService.getById(detail.getForeignId());
+        Style style = styleService.getById(detail.getStyleId());
 
         if (style == null) {
             throw new OtherException("获取款式信息失败");
         }
         GenTechSpecPdfFile vo = new GenTechSpecPdfFile();
         String objectFileName = minioConfig.getDir() + "/" + DateUtils.getDate() + "/" + System.currentTimeMillis() + ".pdf";
+        vo.setObjectFileName(objectFileName);
         String fileWebUrl = String.format("%s/%s/%s", minioConfig.getEndpoint(), minioConfig.getBucketName(), objectFileName);
         //二维码url
         String qrCodeUrl = baseRequestUrl + "/pdm/api/open/qrCode?content=" + URLUtil.encode(fileWebUrl);
-        System.out.println("qrCodeUrl:" + qrCodeUrl);
         vo.setQrCodeUrl(qrCodeUrl);
 
         // 获取吊牌信息
@@ -587,6 +586,11 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         }
         if (StrUtil.isNotBlank(vo.getStylePic()) && !StrUtil.contains(vo.getStylePic(), "http")) {
             vo.setStylePic(uploadFileService.getUrlById(vo.getStylePic()));
+        }
+        if (groupUser == null) {
+            groupUser = new GroupUser();
+            groupUser.setUsername(style.getCreateId());
+            groupUser.setName(style.getCreateName());
         }
 
         //图片
@@ -617,12 +621,18 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //尺寸表
         List<PackSize> sizeList = packSizeService.list(dto.getForeignId(), dto.getPackType());
         vo.setSizeList(BeanUtil.copyToList(sizeList, PackSizeVo.class));
+        return vo;
+    }
+
+    @Override
+    public AttachmentVo genTechSpecFile2(GroupUser groupUser, PackCommonSearchDto dto) {
+        GenTechSpecPdfFile vo = queryGenTechSpecPdfFile(groupUser, dto);
         ByteArrayOutputStream gen = vo.gen();
-        String fileName = Opt.ofBlankAble(detail.getStyleNo()).orElse(detail.getCode()) + ".pdf";
+        String fileName = Opt.ofBlankAble(vo.getStyleNo()).orElse(vo.getPackCode()) + ".pdf";
 
         try {
             MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(gen.toByteArray()));
-            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, objectFileName);
+            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, vo.getObjectFileName());
             // 将文件id保存到状态表
             PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), dto.getPackType());
             packInfoStatus.setTechSpecFileId(attachmentVo.getFileId());
@@ -634,6 +644,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         }
 
     }
+
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
