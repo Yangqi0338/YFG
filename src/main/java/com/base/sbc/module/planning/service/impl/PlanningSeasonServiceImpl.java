@@ -17,7 +17,6 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
-import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.SeatMatchFlagEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
@@ -29,8 +28,14 @@ import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.formType.entity.FieldManagement;
 import com.base.sbc.module.formType.mapper.FieldManagementMapper;
 import com.base.sbc.module.formType.mapper.FieldValMapper;
-import com.base.sbc.module.planning.dto.*;
-import com.base.sbc.module.planning.entity.*;
+import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
+import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
+import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
+import com.base.sbc.module.planning.dto.QueryDemandDto;
+import com.base.sbc.module.planning.entity.PlanningChannel;
+import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
+import com.base.sbc.module.planning.entity.PlanningDemandProportionSeat;
+import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMaterialMapper;
 import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
@@ -288,13 +293,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
 
         vo.setXyData(xyData);
         vo.setDemandSummary(demandSummary);
-        //查询明细
-        QueryWrapper detailQw = new QueryWrapper();
-        planningSummaryQw(detailQw, dto);
-        List<PlanningSummaryDetailVo> detailVoList = planningCategoryItemService.planningSummaryDetail(detailQw);
-        if (CollUtil.isEmpty(detailVoList)) {
-            return vo;
-        }
+
         QueryDemandDto queryDemandDto = new QueryDemandDto();
         BeanUtil.copyProperties(dto, queryDemandDto);
         List<PlanningDemandVo> demandList = planningDemandService.getDemandListById(queryDemandDto);
@@ -329,9 +328,9 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                 BigDecimal div = NumberUtil.div(numEntry.getValue(), total).multiply(new BigDecimal("100"));
                 div = div.setScale(2, RoundingMode.HALF_UP);
                 demandSummary.get(2).add(NumberUtil.toStr(div) + "%");
-                demandSummary.get(3).add("");
-                demandSummary.get(4).add("");
-                demandSummary.get(5).add("");
+                demandSummary.get(3).add("0");
+                demandSummary.get(4).add("0%");
+                demandSummary.get(5).add(String.valueOf(numEntry.getValue()));
             }
         }
         if (CollUtil.isEmpty(proportionData)) {
@@ -506,21 +505,23 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
 
             }
         }
-
-        for (int i = 1; i < demandSummary.get(0).size(); i++) {
-            String valName = demandSummary.get(0).get(i);
-            int valNameCount = MapUtil.getInt(orderTotal, valName, 0);
-            //企划skc数
-            int dcount = NumberUtil.parseInt(demandSummary.get(1).get(i));
-            double div = NumberUtil.div(valNameCount, demandOrderSkcVos.size()) * 100;
-            BigDecimal bigDecimal = new BigDecimal(String.valueOf(div));
-            // 下单skc
-            demandSummary.get(3).set(i, String.valueOf(valNameCount));
-            //下单占比
-            demandSummary.get(4).set(i, NumberUtil.toStr(bigDecimal.setScale(2, RoundingMode.HALF_UP)) + "%");
-            //缺口
-            demandSummary.get(5).set(i, String.valueOf(dcount - MapUtil.getInt(matchTotal, valName, 0)));
+        if (CollUtil.isNotEmpty(demandOrderSkcVos)) {
+            for (int i = 1; i < demandSummary.get(0).size(); i++) {
+                String valName = demandSummary.get(0).get(i);
+                int valNameCount = MapUtil.getInt(orderTotal, valName, 0);
+                //企划skc数
+                int dcount = NumberUtil.parseInt(demandSummary.get(1).get(i));
+                double div = NumberUtil.div(valNameCount, demandOrderSkcVos.size()) * 100;
+                BigDecimal bigDecimal = new BigDecimal(String.valueOf(div));
+                // 下单skc
+                demandSummary.get(3).set(i, String.valueOf(valNameCount));
+                //下单占比
+                demandSummary.get(4).set(i, NumberUtil.toStr(bigDecimal.setScale(2, RoundingMode.HALF_UP)) + "%");
+                //缺口
+                demandSummary.get(5).set(i, String.valueOf(dcount - MapUtil.getInt(matchTotal, valName, 0)));
+            }
         }
+
 
         vo.setYList(CollUtil.sort(dMap.values(), (a, b) -> {
             return StrUtil.compare(a.getValName(), b.getValName(), false);

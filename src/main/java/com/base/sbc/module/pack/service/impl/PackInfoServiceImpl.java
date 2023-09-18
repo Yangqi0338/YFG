@@ -625,7 +625,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         vo.setPicList(packTechSpecService.picList(techSearch));
         //尺寸表
         List<PackSize> sizeList = packSizeService.list(dto.getForeignId(), dto.getPackType());
-        Date newDate = new Date();
+        Date newDate = Opt.ofNullable(detail.getTechSpecVideo()).map(video -> video.getCreateDate()).orElse(new Date());
         vo.setCreateDate(DateUtil.format(newDate, "yy/M/d"));
         vo.setCreateTime(DateUtil.format(newDate, "a HH:mm"));
         vo.setSizeList(BeanUtil.copyToList(sizeList, PackSizeVo.class));
