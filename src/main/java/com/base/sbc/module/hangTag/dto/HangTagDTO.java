@@ -65,12 +65,12 @@ public class HangTagDTO {
     /**
      * 颜色编码
      */
-    @ApiModelProperty(value = "颜色编码")
+    //@ApiModelProperty(value = "颜色编码")
     private String colorCode;
     /**
      * 颜色
      */
-    @ApiModelProperty(value = "颜色")
+    //@ApiModelProperty(value = "颜色")
     private String color;
 
     /**
