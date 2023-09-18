@@ -9,6 +9,7 @@ package com.base.sbc.module.pack.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
@@ -159,9 +160,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
 
     @Autowired
     private MinioConfig minioConfig;
-
     @Value("${baseRequestUrl}")
     private String baseRequestUrl;
+    @Value("${baseFrontEndAddress}")
+    private String baseFrontEndAddress;
 
     @Autowired
     private DataUpdateScmService dataUpdateScmService;
@@ -569,14 +571,21 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (style == null) {
             throw new OtherException("获取款式信息失败");
         }
+
+        if (groupUser == null) {
+            groupUser = new GroupUser();
+            groupUser.setUsername(style.getCreateId());
+            groupUser.setName(style.getCreateName());
+        }
         GenTechSpecPdfFile vo = new GenTechSpecPdfFile();
         String objectFileName = minioConfig.getDir() + "/" + DateUtils.getDate() + "/" + System.currentTimeMillis() + ".pdf";
         vo.setObjectFileName(objectFileName);
-        String fileWebUrl = String.format("%s/%s/%s", minioConfig.getEndpoint(), minioConfig.getBucketName(), objectFileName);
         //二维码url
+        String fileWebUrl = baseFrontEndAddress + "/techSpecView?foreignId=" + dto.getForeignId() + "&packType=" + dto.getPackType() + "&userId=" + groupUser.getId();
+        System.out.println(fileWebUrl);
         String qrCodeUrl = baseRequestUrl + "/pdm/api/open/qrCode?content=" + URLUtil.encode(fileWebUrl);
         vo.setQrCodeUrl(qrCodeUrl);
-
+        System.out.println("qrCodeUrl:" + qrCodeUrl);
         // 获取吊牌信息
         if (StrUtil.isNotBlank(detail.getStyleNo())) {
             HangTagVO tag = hangTagService.getDetailsByBulkStyleNo(detail.getStyleNo(), getCompanyCode(), null);
@@ -586,11 +595,6 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         }
         if (StrUtil.isNotBlank(vo.getStylePic()) && !StrUtil.contains(vo.getStylePic(), "http")) {
             vo.setStylePic(uploadFileService.getUrlById(vo.getStylePic()));
-        }
-        if (groupUser == null) {
-            groupUser = new GroupUser();
-            groupUser.setUsername(style.getCreateId());
-            groupUser.setName(style.getCreateName());
         }
 
         //图片
@@ -620,6 +624,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         vo.setPicList(packTechSpecService.picList(techSearch));
         //尺寸表
         List<PackSize> sizeList = packSizeService.list(dto.getForeignId(), dto.getPackType());
+        Date newDate = new Date();
+        vo.setCreateDate(DateUtil.format(newDate, "yy/M/d"));
+        vo.setCreateTime(DateUtil.format(newDate, "a HH:mm"));
         vo.setSizeList(BeanUtil.copyToList(sizeList, PackSizeVo.class));
         return vo;
     }
@@ -629,7 +636,6 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         GenTechSpecPdfFile vo = queryGenTechSpecPdfFile(groupUser, dto);
         ByteArrayOutputStream gen = vo.gen();
         String fileName = Opt.ofBlankAble(vo.getStyleNo()).orElse(vo.getPackCode()) + ".pdf";
-
         try {
             MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(gen.toByteArray()));
             AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, vo.getObjectFileName());

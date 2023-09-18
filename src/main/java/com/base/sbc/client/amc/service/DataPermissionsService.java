@@ -34,7 +34,7 @@ public class DataPermissionsService {
      * @return
      * @see DataPermissionsBusinessTypeEnum
      */
-    public DataPermissionVO getDataPermissions(String businessType,String operateType) {
+    public List<DataPermissionVO> getDataPermissions(String businessType, String operateType) {
         if (StringUtils.isEmpty(businessType)) {
             throw new OtherException("入参不可为空");
         }
@@ -42,7 +42,7 @@ public class DataPermissionsService {
         if (Objects.isNull(apiResult)) {
             throw new OtherException("获取用户数据权限异常");
         }
-        return JSONArray.parseObject(JSON.toJSONString(apiResult.getData()), DataPermissionVO.class);
+        return JSONArray.parseArray(JSON.toJSONString(apiResult.getData()), DataPermissionVO.class);
     }
 
     /**
@@ -56,7 +56,8 @@ public class DataPermissionsService {
         Map<String,Object> ret=new HashMap<>();
         ret.put("authorityState",Boolean.TRUE);
         ret.put("authorityField","");
-        DataPermissionVO dataPermissions = this.getDataPermissions(businessType,operateType);
+//        DataPermissionVO dataPermissions = this.getDataPermissions(businessType,operateType);
+        DataPermissionVO dataPermissions = null;
         if (Objects.isNull(dataPermissions)) {
             return ret;
         }
