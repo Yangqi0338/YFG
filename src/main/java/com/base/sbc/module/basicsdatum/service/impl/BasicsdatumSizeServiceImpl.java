@@ -194,14 +194,6 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
             if (one!=null){
                 throw new OtherException("排序重复");
             }
-            if(StringUtils.isNotEmpty(addRevampSizeDto.getRealCode())){
-                QueryWrapper<BasicsdatumSize> qw =new QueryWrapper<>();
-                qw.eq("real_code",addRevampSizeDto.getRealCode());
-                BasicsdatumSize repeat = this.getOne(qw);
-                if (repeat != null){
-                    throw new OtherException("编码重复！");
-                }
-            }
             /*新增*/
             BeanUtils.copyProperties(addRevampSizeDto, basicsdatumSize);
             basicsdatumSize.setCompanyCode(baseController.getUserCompany());
@@ -220,15 +212,6 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
                 BasicsdatumSize one = this.getOne(queryWrapper);
                 if (one!=null){
                     throw new OtherException("排序重复");
-                }
-            }
-            if(StringUtils.isNotEmpty(addRevampSizeDto.getRealCode())){
-                QueryWrapper<BasicsdatumSize> qw =new QueryWrapper<>();
-                qw.eq("real_code",addRevampSizeDto.getRealCode());
-                qw.ne("id", basicsdatumSize.getId());
-                BasicsdatumSize one = this.getOne(qw);
-                if (one != null){
-                    throw new OtherException("编码重复！");
                 }
             }
             BeanUtils.copyProperties(addRevampSizeDto, basicsdatumSize);

@@ -13,10 +13,8 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabric.dto.BasicFabricLibrarySaveDTO;
@@ -32,7 +30,6 @@ import com.base.sbc.module.fabric.vo.BasicFabricLibraryVO;
 import com.base.sbc.module.fabric.vo.FabricDevMainVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +61,18 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
     private FabricDevApplyService fabricDevApplyService;
     @Autowired
     private BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
+
+    @Autowired
+    private BasicsdatumMaterialOldService materialOldService;
+    @Autowired
+    private BasicsdatumMaterialWidthService materialWidthService;
+
+    @Autowired
+    private BasicsdatumMaterialColorService materialColorService;
+    @Autowired
+    private BasicsdatumMaterialIngredientService materialIngredientService;
+    @Autowired
+    private BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
 
     @Override
     public void saveBasicFabric(FabricDevMainVO fabricDevMainVO) {
@@ -141,20 +150,16 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
         BasicsdatumMaterialSaveDto basicsdatumMaterialSaveDto = CopyUtil.copy(basicFabricLibraryVO.getBasicsdatumMaterial(), BasicsdatumMaterialSaveDto.class);
         basicsdatumMaterialSaveDto.setConfirmStatus("0");
         basicsdatumMaterialSaveDto.setSource("2");
-        basicsdatumMaterialSaveDto.setMaterialCode(basicsdatumMaterialSaveDto.getMaterialCode().split("_")[0]);
+        String newMaterialCode = basicsdatumMaterialSaveDto.getMaterialCode().split("_")[0];
+        basicsdatumMaterialSaveDto.setMaterialCode(newMaterialCode);
         BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveMaterial(basicsdatumMaterialSaveDto, null, BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
-        List<BasicsdatumMaterialPrice> basicsdatumMaterialPrices = basicsdatumMaterialPriceService.getByMaterialCode(basicFabricLibraryVO.getBasicsdatumMaterial().getMaterialCode());
-        if (CollectionUtils.isNotEmpty(basicsdatumMaterialPrices)) {
-            basicsdatumMaterialPrices.forEach(e -> {
-                e.insertInit();
-                e.setUpdateId(null);
-                e.setUpdateName(null);
-                e.setUpdateDate(null);
-                e.setId(null);
-                e.setMaterialCode(basicsdatumMaterialSaveDto.getMaterialCode());
-            });
-            basicsdatumMaterialPriceService.saveBatch(basicsdatumMaterialPrices);
-        }
+
+        basicsdatumMaterialPriceService.copyByMaterialCode(basicFabricLibraryVO.getBasicsdatumMaterial().getMaterialCode(), newMaterialCode);
+        materialOldService.copyByMaterialCode(basicFabricLibraryVO.getBasicsdatumMaterial().getMaterialCode(), newMaterialCode);
+        materialWidthService.copyByMaterialCode(basicFabricLibraryVO.getBasicsdatumMaterial().getMaterialCode(), newMaterialCode);
+        materialColorService.copyByMaterialCode(basicFabricLibraryVO.getBasicsdatumMaterial().getMaterialCode(), newMaterialCode);
+        materialIngredientService.copyByMaterialCode(basicFabricLibraryVO.getBasicsdatumMaterial().getMaterialCode(), newMaterialCode);
+        basicsdatumMaterialPriceDetailService.copyByMaterialCode(basicFabricLibraryVO.getBasicsdatumMaterial().getMaterialCode(), newMaterialCode);
         // 更新基本信息“是否转至物料档案”、“转至物料档案id”(包括开发、开发申请)
         String devApplyId = fabricDevApplyService.getByDevApplyCode(basicFabricLibraryVO.getDevApplyCode());
         fabricDevBasicInfoService.synchMaterialUpdate(basicsdatumMaterialVo.getId(), YesOrNoEnum.YES.getValueStr(), YesOrNoEnum.NO.getValueStr(),

@@ -7,11 +7,13 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialOld;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialWidthMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,6 +41,25 @@ public class BasicsdatumMaterialWidthServiceImpl
         qw.in("material_code", materialCodeList);
         qw.eq("company_code", getCompanyCode());
         return getBaseMapper().findDefaultToBomSel(qw);
+    }
+
+    @Override
+    public void copyByMaterialCode(String materialCode, String newMaterialCode) {
+        QueryWrapper<BasicsdatumMaterialWidth> qw = new QueryWrapper<>();
+        qw.eq("material_code", materialCode);
+        qw.eq("company_code", getCompanyCode());
+        List<BasicsdatumMaterialWidth> basicsdatumMaterialOlds = super.list(qw);
+        if (CollectionUtils.isNotEmpty(basicsdatumMaterialOlds)) {
+            basicsdatumMaterialOlds.forEach(e -> {
+                e.insertInit();
+                e.setUpdateId(null);
+                e.setUpdateName(null);
+                e.setUpdateDate(null);
+                e.setId(null);
+                e.setMaterialCode(newMaterialCode);
+            });
+            super.saveBatch(basicsdatumMaterialOlds);
+        }
     }
 
 // 自定义方法区 不替换的区域【other_end】

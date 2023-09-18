@@ -20,6 +20,7 @@ import com.base.sbc.module.purchase.service.MaterialStockLogService;
 import com.base.sbc.module.purchase.service.MaterialStockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
      * @param operation  操作 0 增加 1 减少
      * */
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public void warehousingMaterialStock(WarehousingOrder order, List<WarehousingOrderDetail> orderDetailList, String operation) {
         IdGen idGen = new IdGen();
 
@@ -138,6 +140,7 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
      * @param operation  操作 0 增加 1 减少
      * */
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public void outBoundOrderMaterialStock(OutboundOrder order, List<OutboundOrderDetail> orderDetailList, String operation) {
         IdGen idGen = new IdGen();
 

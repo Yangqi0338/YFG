@@ -19,7 +19,12 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 public interface BasicsdatumMaterialIngredientService extends BaseService<BasicsdatumMaterialIngredient>{
 
 // 自定义方法区 不替换的区域【other_start】
-
+    /**
+     * 通过物料编码复制
+     * @param materialCode
+     * @return
+     */
+    void copyByMaterialCode(String materialCode, String newMaterialCode);
 
 
 // 自定义方法区 不替换的区域【other_end】
