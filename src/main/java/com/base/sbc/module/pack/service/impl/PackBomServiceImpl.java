@@ -290,14 +290,6 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         if (CollUtil.isEmpty(templateMaterialList)) {
             throw new OtherException("模板无物料清单");
         }
-        // 校验版本
-        PackBomVersion version = packBomVersionService.checkVersion(bomTemplateSaveDto.getBomVersionId());
-        queryWrapper.clear();
-        QueryWrapper<PackBom> qw = new QueryWrapper();
-        PackUtils.commonQw(qw, version);
-        qw.eq("bom_version_id", version.getId());
-        qw.eq("foreign_id", version.getForeignId()).and(q -> q.ne("bom_template_id", "").or().isNotNull("bom_template_id"));
-        baseMapper.delete(qw);
 
         List<PackBomDto> bomDtoList = BeanUtil.copyToList(templateMaterialList, PackBomDto.class);
         bomDtoList.forEach(b -> {

@@ -6,8 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.module.basicsdatum.dto.SupplierDetailPriceDto;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPriceDetailVo;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPriceDetail;
+import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+
+import java.util.List;
 
 /**
  * 类描述：基础资料-物料档案-供应商报价- service类
@@ -26,6 +31,22 @@ public interface BasicsdatumMaterialPriceDetailService extends IService<Basicsda
      * @return
      */
     void copyByMaterialCode(String materialCode, String newMaterialCode);
+
+    /**
+     * 获取供应商规格颜色
+     * @param supplierDetailPriceDto
+     * @return
+     */
+    List<BasicsdatumMaterialPriceDetailVo>  gatSupplierWidthColorList(SupplierDetailPriceDto supplierDetailPriceDto);
+
+
+    /**
+     * 查询供应商规格
+     * @param materialCodeList
+     * @return
+     */
+    List<BomSelMaterialVo> querySupplierWidth(List<String> materialCodeList);
+
 
 
 // 自定义方法区 不替换的区域【other_end】

@@ -13,5 +13,17 @@
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+    <select id="querySupplierWidth" resultType="com.base.sbc.module.pack.vo.BomSelMaterialVo">
+
+        select
+        tbmp.material_code,
+        tbmp.width AS `translateCode`,
+        tbmp.width_name AS `translate`
+        from   t_basicsdatum_material_price tbmp
+        left join t_basicsdatum_material_price_detail tbmpd on tbmp.id = tbmpd.price_id
+         ${ ew.customSqlSegment}
+
+
+    </select>
 </mapper>
 

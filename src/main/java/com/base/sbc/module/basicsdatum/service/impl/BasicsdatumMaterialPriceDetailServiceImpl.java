@@ -6,28 +6,42 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialOld;
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialPriceDetailMapper;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.SupplierDetailPriceDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPriceDetail;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialPriceDetailMapper;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialPriceMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPriceDetailVo;
+import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：基础资料-物料档案-供应商报价- service类
- * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService
+ *
  * @author your name
+ * @version 1.0
+ * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService
  * @email your email
  * @date 创建时间：2023-7-27 17:53:42
- * @version 1.0
  */
 @Service
 public class BasicsdatumMaterialPriceDetailServiceImpl extends ServiceImpl<BasicsdatumMaterialPriceDetailMapper, BasicsdatumMaterialPriceDetail> implements BasicsdatumMaterialPriceDetailService {
+
+    @Autowired
+    private BasicsdatumMaterialPriceMapper basicsdatumMaterialPriceMapper;
 
     // 自定义方法区 不替换的区域【other_start】
     @Override
@@ -44,6 +58,49 @@ public class BasicsdatumMaterialPriceDetailServiceImpl extends ServiceImpl<Basic
         }
     }
 
+    /**
+     * 获取供应商规格颜色
+     *
+     * @param supplierDetailPriceDto
+     * @return
+     */
+    @Override
+    public List<BasicsdatumMaterialPriceDetailVo> gatSupplierWidthColorList(SupplierDetailPriceDto supplierDetailPriceDto) {
+
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("material_code", supplierDetailPriceDto.getMaterialCode());
+        queryWrapper.eq("supplier_id", supplierDetailPriceDto.getSupplierId());
+        queryWrapper.eq("status", BaseGlobal.STATUS_NORMAL);
+        List<BasicsdatumMaterialPriceDetailVo> list = new ArrayList<>();
+        /*查询出供应商报价*/
+        List<BasicsdatumMaterialPrice> pricelList = basicsdatumMaterialPriceMapper.selectList(queryWrapper);
+        queryWrapper.clear();
+        if (CollUtil.isNotEmpty(pricelList)) {
+            /*查询供应商详情标价*/
+            queryWrapper.in("price_id", pricelList.stream().map(BasicsdatumMaterialPrice::getId).collect(Collectors.toList()));
+            List<BasicsdatumMaterialPriceDetail> priceDetailList = baseMapper.selectList(queryWrapper);
+            if (!org.springframework.util.CollectionUtils.isEmpty(priceDetailList)) {
+                /*用于去重*/
+                boolean b = StringUtils.isNotBlank(supplierDetailPriceDto.getWidth());
+                list = BeanUtil.copyToList(CollUtil.distinct(priceDetailList, b ? BasicsdatumMaterialPriceDetail::getWidth : BasicsdatumMaterialPriceDetail::getColor, true), BasicsdatumMaterialPriceDetailVo.class);
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 查询供应商规格
+     *
+     * @param materialCodeList
+     * @return
+     */
+    @Override
+    public List<BomSelMaterialVo> querySupplierWidth(List<String> materialCodeList) {
+        QueryWrapper qw = new QueryWrapper<>();
+        qw.in("tbmpd.material_code", materialCodeList);
+        qw.in("tbmp.select_flag", BaseGlobal.YES);
+        return baseMapper.querySupplierWidth(qw);
+    }
 
 // 自定义方法区 不替换的区域【other_end】
 

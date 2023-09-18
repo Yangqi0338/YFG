@@ -6,10 +6,18 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
+import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPriceDetail;
-/** 
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
  * 类描述：基础资料-物料档案-供应商报价- dao类
  * @address com.base.sbc.module.basicsdatum.dao.BasicsdatumMaterialPriceDetailDao
  * @author your name  
@@ -22,7 +30,12 @@ public interface BasicsdatumMaterialPriceDetailMapper extends BaseMapper<Basicsd
 // 自定义方法区 不替换的区域【other_start】
 
 
-
+    /**
+     * 查询供应商规格
+     * @param qw
+     * @return
+     */
+    List<BomSelMaterialVo> querySupplierWidth(@Param(Constants.WRAPPER) QueryWrapper qw);
 // 自定义方法区 不替换的区域【other_end】
 }
 

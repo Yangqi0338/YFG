@@ -26,12 +26,10 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
-import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.constant.MaterialConstant;
-import com.base.sbc.module.basicsdatum.controller.BasicsdatumMaterialController;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
@@ -409,27 +407,32 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         Page<BomSelMaterialVo> page = PageHelper.startPage(dto);
         List<BomSelMaterialVo> list = getBaseMapper().getBomSelMaterialList(qw, dto.getSource());
 
-        if (CollUtil.isNotEmpty(list)) {
+		if (CollUtil.isNotEmpty(list)) {
             //查询默认供应商
             List<String> materialCodeList = list.stream().map(BomSelMaterialVo::getMaterialCode).filter(StrUtil::isNotBlank).collect(Collectors.toList());
             List<BomSelMaterialVo> priceList = materialPriceService.findDefaultToBomSel(materialCodeList);
-            List<BomSelMaterialVo> widthList = materialWidthService.findDefaultToBomSel(materialCodeList);
+            /*查询默认供应商规格*/
+            List<BomSelMaterialVo> widthList = basicsdatumMaterialPriceDetailService.querySupplierWidth(materialCodeList);
             Map<String, BomSelMaterialVo> priceMap = Opt.ofEmptyAble(priceList)
                     .map(item -> item.stream().collect(Collectors.toMap(k -> k.getMaterialCode(), v -> v, (a, b) -> a)))
                     .orElse(MapUtil.empty());
-            Map<String, BomSelMaterialVo> widthMap = Opt.ofEmptyAble(widthList)
-                    .map(item -> item.stream().collect(Collectors.toMap(k -> k.getMaterialCode(), v -> v, (a, b) -> a)))
-                    .orElse(MapUtil.empty());
+            Map<String, List<BomSelMaterialVo>> widthMap = widthList.stream().collect(Collectors.groupingBy(BomSelMaterialVo::getMaterialCode));
             list.forEach(i -> {
                 BomSelMaterialVo priceInfo = priceMap.get(i.getMaterialCode());
-                BomSelMaterialVo widthInfo = widthMap.get(i.getMaterialCode());
+                List<BomSelMaterialVo> voList = widthMap.get(i.getMaterialCode());
+                /*查询默认供应商的规格，如果是一个默认显示为多个显示*/
+                if (CollUtil.isNotEmpty(voList)) {
+                    voList = CollUtil.distinct(voList, BomSelMaterialVo::getWidthCode, true);
+                    if (voList.size() == BaseGlobal.ONE) {
+                        BeanUtil.copyProperties(voList.get(0), i, CopyOptions.create().ignoreNullValue());
+                    }
+                }
                 BeanUtil.copyProperties(priceInfo, i, CopyOptions.create().ignoreNullValue());
-                BeanUtil.copyProperties(widthInfo, i, CopyOptions.create().ignoreNullValue());
                 i.setId(IdUtil.randomUUID());
             });
         }
-        return page.toPageInfo();
-    }
+		return page.toPageInfo();
+	}
 
     /**
      * 查询详情

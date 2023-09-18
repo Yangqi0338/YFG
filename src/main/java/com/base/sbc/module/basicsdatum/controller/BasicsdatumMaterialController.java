@@ -20,7 +20,10 @@ import cn.hutool.core.util.ObjectUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService;
+import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
@@ -52,30 +55,9 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.IngredientUtils;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthGroupSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthsSaveDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialOldPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialSelectVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
-import com.base.sbc.module.basicsdatum.vo.WarehouseMaterialVo;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.github.pagehelper.PageInfo;
 
@@ -100,6 +82,9 @@ public class BasicsdatumMaterialController extends BaseController {
 
     @Autowired
     private BasicsdatumMaterialService basicsdatumMaterialService;
+
+    @Autowired
+    private BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
 
     @Autowired
     private BaseController baseController;
@@ -423,4 +408,11 @@ public class BasicsdatumMaterialController extends BaseController {
         }
         return basicsdatumMaterialService.getMaxMaterialCode(data,getUserCompany());
     }
+
+    @ApiOperation(value = "获取供应商规格颜色")
+    @GetMapping("/gatSupplierWidthColorList")
+    public List<BasicsdatumMaterialPriceDetailVo> gatSupplierWidthColorList(SupplierDetailPriceDto supplierDetailPriceDto) {
+        return basicsdatumMaterialPriceDetailService.gatSupplierWidthColorList(supplierDetailPriceDto);
+    }
+
 }
