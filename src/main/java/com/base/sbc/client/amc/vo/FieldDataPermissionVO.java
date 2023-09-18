@@ -27,4 +27,9 @@ public class FieldDataPermissionVO {
      * 条件类型：in.包含、=.等于
      */
     private String conditionType;
+
+    /**
+     * 字段查询类型：and.且、or.或
+     */
+    private String selectType;
 }
