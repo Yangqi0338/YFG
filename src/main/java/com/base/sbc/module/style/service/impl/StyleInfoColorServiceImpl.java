@@ -220,7 +220,7 @@ public class StyleInfoColorServiceImpl extends BaseServiceImpl<StyleInfoColorMap
             // 拼接款式SKU数据： 颜色多个尺码
             styleInfoColorList.forEach(styleInfoColor -> {
                 // 取款式尺码编码
-                List<String> sizeCodeList = com.base.sbc.config.utils.StringUtils.convertList(styleDto.getSizeCodes());
+                List<String> sizeCodeList = com.base.sbc.config.utils.StringUtils.convertList(styleDto.getSizeRealCodes());
                 // 取除款式尺码
                 List<String> productSizeList = com.base.sbc.config.utils.StringUtils.convertList(styleDto.getProductSizes());
                 // 拼接款式SKU ：颜色code + 尺码code
