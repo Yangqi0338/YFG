@@ -46,6 +46,7 @@
 
     .table_border tbody tr, td {
         height: 25px;
+        font-family: 'Source Han Serif SC Medium';
     }
 
     .table_no_border {
