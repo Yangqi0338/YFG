@@ -35,11 +35,11 @@ public interface BasicsdatumMaterialPriceService extends BaseService<Basicsdatum
     Map<String, BigDecimal> getDefaultSupplerQuotationPrice(List<String> materialCodes);
 
     /**
-     * 通过物料编码获取
+     * 通过物料编码复制
      * @param materialCode
      * @return
      */
-    List<BasicsdatumMaterialPrice> getByMaterialCode(String materialCode);
+    void copyByMaterialCode(String materialCode, String newMaterialCode);
 
 
 

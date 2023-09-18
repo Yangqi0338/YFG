@@ -67,11 +67,22 @@ public class BasicsdatumMaterialPriceServiceImpl
     }
 
     @Override
-    public List<BasicsdatumMaterialPrice> getByMaterialCode(String materialCode) {
+    public  void copyByMaterialCode(String materialCode, String newMaterialCode) {
         QueryWrapper<BasicsdatumMaterialPrice> qw = new QueryWrapper<>();
         qw.eq("material_code", materialCode);
         qw.eq("company_code", getCompanyCode());
-        return super.list(qw);
+        List<BasicsdatumMaterialPrice> basicsdatumMaterialPrices = super.list(qw);
+        if (CollectionUtils.isNotEmpty(basicsdatumMaterialPrices)) {
+            basicsdatumMaterialPrices.forEach(e -> {
+                e.insertInit();
+                e.setUpdateId(null);
+                e.setUpdateName(null);
+                e.setUpdateDate(null);
+                e.setId(null);
+                e.setMaterialCode(newMaterialCode);
+            });
+            super.saveBatch(basicsdatumMaterialPrices);
+        }
     }
 
 // 自定义方法区 不替换的区域【other_end】

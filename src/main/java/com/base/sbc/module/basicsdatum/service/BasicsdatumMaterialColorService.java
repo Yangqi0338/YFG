@@ -20,7 +20,12 @@ import com.base.sbc.module.common.service.BaseService;
 public interface BasicsdatumMaterialColorService extends BaseService<BasicsdatumMaterialColor> {
 
 // 自定义方法区 不替换的区域【other_start】
-
+    /**
+     * 通过物料编码复制
+     * @param materialCode
+     * @return
+     */
+    void copyByMaterialCode(String materialCode, String newMaterialCode);
 
 
 // 自定义方法区 不替换的区域【other_end】

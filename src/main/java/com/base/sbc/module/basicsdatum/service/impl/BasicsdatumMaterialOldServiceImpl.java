@@ -6,26 +6,49 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialOldMapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialOld;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialOldMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialOldService;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
-/** 
+
+import java.util.List;
+
+/**
  * 类描述：基础资料-物料档案-旧料号 service类
- * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialOldService
+ *
  * @author your name
+ * @version 1.0
+ * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialOldService
  * @email your email
  * @date 创建时间：2023-8-2 15:37:31
- * @version 1.0  
  */
 @Service
 public class BasicsdatumMaterialOldServiceImpl extends BaseServiceImpl<BasicsdatumMaterialOldMapper, BasicsdatumMaterialOld> implements BasicsdatumMaterialOldService {
+    // 自定义方法区 不替换的区域【other_start】
 
-// 自定义方法区 不替换的区域【other_start】
-
+    @Override
+    public void copyByMaterialCode(String materialCode, String newMaterialCode) {
+        QueryWrapper<BasicsdatumMaterialOld> qw = new QueryWrapper<>();
+        qw.eq("material_code", materialCode);
+        qw.eq("company_code", getCompanyCode());
+        List<BasicsdatumMaterialOld> basicsdatumMaterialOlds = super.list(qw);
+        if (CollectionUtils.isNotEmpty(basicsdatumMaterialOlds)) {
+            basicsdatumMaterialOlds.forEach(e -> {
+                e.insertInit();
+                e.setUpdateId(null);
+                e.setUpdateName(null);
+                e.setUpdateDate(null);
+                e.setId(null);
+                e.setMaterialCode(newMaterialCode);
+            });
+            super.saveBatch(basicsdatumMaterialOlds);
+        }
+    }
 
 
 // 自定义方法区 不替换的区域【other_end】
-	
+
 }

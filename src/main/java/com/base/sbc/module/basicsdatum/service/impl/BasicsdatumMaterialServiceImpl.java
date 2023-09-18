@@ -870,27 +870,35 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 "pdm/api/saas/basicsdatumMaterial/getBasicsdatumMaterial?id=" + dto.getId(), BeanUtil.beanToMap(dto));
     }
 
-    @Override
-    @Transactional(rollbackFor = {OtherException.class, Exception.class})
-    public boolean approval(AnswerDto dto) {
-        BasicsdatumMaterialVo basicsdatumMaterialVo = this.getBasicsdatumMaterial(dto.getBusinessKey());
-        if (Objects.isNull(basicsdatumMaterialVo)) {
-            throw new OtherException("数据不存在");
-        }
-        if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
-            BasicsdatumMaterial basicsdatumMaterial = new BasicsdatumMaterial();
-            basicsdatumMaterial.setId(basicsdatumMaterialVo.getId());
-            basicsdatumMaterial.updateInit();
-            basicsdatumMaterial.setConfirmStatus("2");
-            basicsdatumMaterial.setConfirmId(super.getUserId());
-            basicsdatumMaterial.setConfirmName(super.getUserName());
-            super.updateById(basicsdatumMaterial);
-        } else {
-            super.getBaseMapper().deleteById(basicsdatumMaterialVo.getId());
-        }
-        basicFabricLibraryService.materialApproveProcessing(basicsdatumMaterialVo.getId(), dto.getApprovalType());
-        return true;
-    }
+	@Override
+	@Transactional(rollbackFor = {OtherException.class, Exception.class})
+	public boolean approval(AnswerDto dto) {
+		BasicsdatumMaterialVo basicsdatumMaterialVo = this.getBasicsdatumMaterial(dto.getBusinessKey());
+		if (Objects.isNull(basicsdatumMaterialVo)) {
+			throw new OtherException("数据不存在");
+		}
+		if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+			BasicsdatumMaterial basicsdatumMaterial = new BasicsdatumMaterial();
+			basicsdatumMaterial.setId(basicsdatumMaterialVo.getId());
+			basicsdatumMaterial.updateInit();
+			basicsdatumMaterial.setConfirmStatus("2");
+			basicsdatumMaterial.setConfirmId(super.getUserId());
+			basicsdatumMaterial.setConfirmName(super.getUserName());
+			super.updateById(basicsdatumMaterial);
+		} else {
+			super.getBaseMapper().deleteById(basicsdatumMaterialVo.getId());
+			QueryWrapper queryWrapper = new QueryWrapper();
+			queryWrapper.eq("material_code", basicsdatumMaterialVo.getMaterialCode());
+			materialOldService.remove(queryWrapper);
+			materialColorService.remove(queryWrapper);
+			materialPriceService.remove(queryWrapper);
+			materialIngredientService.remove(queryWrapper);
+			basicsdatumMaterialPriceDetailService.remove(queryWrapper);
+            materialWidthService.remove(queryWrapper);
+		}
+		basicFabricLibraryService.materialApproveProcessing(basicsdatumMaterialVo.getId(), dto.getApprovalType());
+		return true;
+	}
 
     /**
      * 解锁下发
