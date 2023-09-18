@@ -39,7 +39,9 @@ public class BasicsdatumMaterialColorPageVo extends BaseDataEntity<String> {
 	/** 供应商色号 */
 	@ApiModelProperty(value = "供应商色号")
 	private String supplierColorCode;
-
+	/** 颜色图片 */
+	@ApiModelProperty(value = "颜色图片")
+	private String picture;
 	/**是否在报价引用*/
 	private String quote;
 }

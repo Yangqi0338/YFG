@@ -142,5 +142,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 * @return
 	 */
 	Map<String, String> getSource(List<String> materialCodes);
+
+	Boolean saveBasicsdatumMaterialColorList(List<BasicsdatumMaterialColorSaveDto> dtos);
 }
 
