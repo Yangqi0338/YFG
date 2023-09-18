@@ -38,6 +38,14 @@ public class PlanningDemand extends BaseDataEntity<String> {
     /** 产品季id */
     @ApiModelProperty(value = "产品季id"  )
     private String planningSeasonId;
+
+    /** 渠道 */
+    @ApiModelProperty(value = "渠道"  )
+    private String channel;
+    /** 渠道名称 */
+    @ApiModelProperty(value = "渠道名称"  )
+    private String channelName;
+
     /** 大类 */
     @ApiModelProperty(value = "大类")
     private String prodCategory1st;

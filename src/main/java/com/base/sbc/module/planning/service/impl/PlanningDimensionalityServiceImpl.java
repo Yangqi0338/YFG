@@ -65,6 +65,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         BaseQueryWrapper<PlanningDimensionality> qw = new BaseQueryWrapper<>();
         PlanningUtils.dimensionCommonQw(qw, dto);
         qw.eq("planning_season_id", dto.getPlanningSeasonId());
+        qw.eq("channel", dto.getChannel());
         List<PlanningDimensionality> planningDimensionalityList = baseMapper.selectList(qw);
         return ApiResult.success("查询成功", planningDimensionalityList);
     }

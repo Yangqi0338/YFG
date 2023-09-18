@@ -17,6 +17,13 @@ public class SaveDelDemandDto {
     @NotBlank(message = "产品季id不能为空")
     private String planningSeasonId;
 
+    /** 渠道 */
+    @ApiModelProperty(value = "渠道"  )
+    private String channel;
+    /** 渠道名称 */
+    @ApiModelProperty(value = "渠道名称"  )
+    private String channelName;
+
     /** 大类 */
     @ApiModelProperty(value = "大类"  )
     private String prodCategory1st;

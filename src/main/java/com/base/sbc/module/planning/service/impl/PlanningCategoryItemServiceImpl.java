@@ -543,12 +543,15 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         PlanningCategoryItem seat = getById(id);
         /*产品季信息*/
         PlanningSeason season = planningSeasonService.getById(seat.getPlanningSeasonId());
+        /*渠道信息*/
+        PlanningChannel planningChannel = planningChannelService.getById(seat.getPlanningChannelId());
         /**
          * 查询标签维度中选中的字段
          */
         List<FieldManagementVo> fieldList = new ArrayList<>();
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
         queryWrapper.eq("planning_season_id", seat.getPlanningSeasonId());
+        queryWrapper.eq("channel", planningChannel.getChannel());
         seat.setCategoryFlag(categoryFlag);
         /*拼接处理查询条件*/
         PlanningUtils.dimensionCommonQw(queryWrapper, seat);

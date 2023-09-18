@@ -27,6 +27,10 @@ public class DimensionLabelsSearchDto {
     @ApiModelProperty(value = "产品季id", example = "0")
     @NotBlank(message = "产品季id不能为空")
     private String planningSeasonId;
+
+
+    @ApiModelProperty(value = "渠道", example = "0")
+    private String channel;
     /**
      * 大类code
      */

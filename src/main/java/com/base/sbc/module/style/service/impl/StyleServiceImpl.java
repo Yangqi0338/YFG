@@ -949,6 +949,30 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 return result;
             }
         } else if (vo.getLevel() == 0) {
+            /*渠道字典*/
+            Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("channel");
+            Map<String, String> map = dictInfoToMap.get("channel");
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                BasicStructureTreeVo basicStructureTreeVo = new BasicStructureTreeVo();
+                basicStructureTreeVo.setName(entry.getValue());
+                basicStructureTreeVo.setValue(entry.getKey() );
+                basicStructureTreeVoList.add(basicStructureTreeVo);
+            }
+            if (CollUtil.isNotEmpty(planningSeasonList)) {
+                List<ProductCategoryTreeVo> result = basicStructureTreeVoList.stream().map(ps -> {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setId(ps.getId());
+                    tree.setIds(idGen.nextIdStr());
+                    tree.setChannel(ps.getValue());
+                    tree.setChannelName(ps.getName());
+                    tree.setLevel(1);
+                    tree.setPlanningSeasonId(vo.getPlanningSeasonId());
+                    tree.setName(ps.getName());
+                    return tree;
+                }).collect(Collectors.toList());
+                return result;
+            }
+        }else if (vo.getLevel() == 1) {
             basicStructureTreeVoList = ccmFeignService.basicStructureTreeByCode("品类", "", "0");
             if (CollUtil.isNotEmpty(planningSeasonList)) {
                 List<ProductCategoryTreeVo> result = basicStructureTreeVoList.stream().map(ps -> {
@@ -957,21 +981,21 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                     tree.setIds(idGen.nextIdStr());
                     tree.setProdCategory1st(ps.getValue());
                     tree.setProdCategory1stName(ps.getName());
-                    tree.setLevel(1);
+                    tree.setLevel(2);
                     tree.setPlanningSeasonId(vo.getPlanningSeasonId());
                     tree.setName(ps.getName());
                     return tree;
                 }).collect(Collectors.toList());
                 return result;
             }
-        } else if (vo.getLevel() == 1) {
+        } else if (vo.getLevel() == 2) {
             basicStructureTreeVoList = ccmFeignService.queryBasicStructureNextLevelList("品类", vo.getProdCategory1st(), 0);
             if (CollUtil.isNotEmpty(planningSeasonList)) {
                 List<ProductCategoryTreeVo> result = basicStructureTreeVoList.stream().map(ps -> {
                     ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
                     tree.setIds(idGen.nextIdStr());
                     tree.setId(ps.getId());
-                    tree.setLevel(2);
+                    tree.setLevel(3);
                     tree.setChildren(true);
                     tree.setProdCategory(ps.getValue());
                     tree.setProdCategoryName(ps.getName());
@@ -981,13 +1005,13 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 }).collect(Collectors.toList());
                 return result;
             }
-        } else if (vo.getLevel() == 2) {
+        } else if (vo.getLevel() == 3) {
             basicStructureTreeVoList = ccmFeignService.queryBasicStructureNextLevelList("品类", vo.getProdCategory(), 1);
             if (CollUtil.isNotEmpty(planningSeasonList)) {
                 List<ProductCategoryTreeVo> result = basicStructureTreeVoList.stream().map(ps -> {
                     ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
                     tree.setIds(idGen.nextIdStr());
-                    tree.setLevel(3);
+                    tree.setLevel(4);
                     tree.setChildren(false);
                     tree.setProdCategory2nd(ps.getValue());
                     tree.setProdCategory2ndName(ps.getName());

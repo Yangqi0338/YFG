@@ -27,6 +27,12 @@ public class ProductCategoryTreeVo {
     private String planningSeasonId;
     @ApiModelProperty(value = "级别")
     private Integer level;
+    /** 渠道 */
+    @ApiModelProperty(value = "渠道"  )
+    private String channel;
+    /** 渠道名称 */
+    @ApiModelProperty(value = "渠道名称"  )
+    private String channelName;
 
     @ApiModelProperty(value = "是否有子节点")
     private Boolean children;
