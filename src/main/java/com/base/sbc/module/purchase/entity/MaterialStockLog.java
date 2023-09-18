@@ -36,7 +36,19 @@ public class MaterialStockLog extends BaseDataEntity<String> {
 
     }
 
-    public MaterialStockLog(WarehousingOrder order, WarehousingOrderDetail orderDetail, BasicsdatumMaterial material,
+    public MaterialStockLog(WarehousingOrder order,BasicsdatumMaterial material,
+                            BigDecimal beforeQuality, BigDecimal quality, BigDecimal stockQuality){
+        this.materialCode = material.getMaterialCode();
+        this.relationCode = order.getCode();
+        this.warehouseId  = order.getWarehouseId();
+        this.warehouseName = order.getWarehouseName();
+        this.agent = order.getAgentName();
+        this.beforeQuality = beforeQuality;
+        this.quality = quality;
+        this.stockQuality = stockQuality;
+    }
+
+    public MaterialStockLog(OutboundOrder order, BasicsdatumMaterial material,
                             BigDecimal beforeQuality, BigDecimal quality, BigDecimal stockQuality){
         this.materialCode = material.getMaterialCode();
         this.relationCode = order.getCode();
@@ -51,6 +63,9 @@ public class MaterialStockLog extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
+    /** 物料库存id */
+    @ApiModelProperty(value = "物料库存id"  )
+    private String materialWarehouseId;
     /** 物料编码 */
     @ApiModelProperty(value = "物料编码"  )
     private String materialCode;

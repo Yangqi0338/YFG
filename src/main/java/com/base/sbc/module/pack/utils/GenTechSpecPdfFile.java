@@ -44,12 +44,14 @@ import com.itextpdf.layout.property.VerticalAlignment;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -68,8 +70,12 @@ import java.util.stream.Collectors;
 public class GenTechSpecPdfFile {
 
 
+    @ApiModelProperty(value = "minio文件路径")
+    private String objectFileName;
     @ApiModelProperty(value = "企业名称")
     private String companyName;
+    @ApiModelProperty(value = "资料包编码")
+    private String packCode;
     @ApiModelProperty(value = "编辑的尺码")
     private String activeSizes;
 
@@ -183,136 +189,139 @@ public class GenTechSpecPdfFile {
 
     private float lrMargin = 20;
 
-    public ByteArrayOutputStream gen() {
-        try {
-            //处理设计师
-            if (StrUtil.isNotBlank(designer)) {
-                this.designer = CollUtil.getFirst(StrUtil.split(designer, CharUtil.COMMA));
-            }
-            this.placeOrderDateStr = DateUtil.format(placeOrderDate, DatePattern.NORM_DATETIME_PATTERN);
-            this.produceDateStr = DateUtil.format(produceDate, DatePattern.NORM_DATETIME_PATTERN);
-            Date newDate = new Date();
-            this.createDate = DateUtil.format(newDate, "yy/M/d");
-            this.createTime = DateUtil.format(newDate, "a HH:mm");
+    public String toHtml() throws IOException, TemplateException {
+        //处理设计师
+        if (StrUtil.isNotBlank(designer)) {
+            this.designer = CollUtil.getFirst(StrUtil.split(designer, CharUtil.COMMA));
+        }
+        this.placeOrderDateStr = DateUtil.format(placeOrderDate, DatePattern.NORM_DATETIME_PATTERN);
+        this.produceDateStr = DateUtil.format(produceDate, DatePattern.NORM_DATETIME_PATTERN);
+        Date newDate = new Date();
+        this.createDate = DateUtil.format(newDate, "yy/M/d");
+        this.createTime = DateUtil.format(newDate, "a HH:mm");
 
-            List<String> sizeList = StrUtil.split(this.activeSizes, CharUtil.COMMA);
-            boolean washSkippingFlag = StrUtil.equals(this.getWashSkippingFlag(), BaseGlobal.YES);
+        List<String> sizeList = StrUtil.split(this.activeSizes, CharUtil.COMMA);
+        boolean washSkippingFlag = StrUtil.equals(this.getWashSkippingFlag(), BaseGlobal.YES);
 //            washSkippingFlag=true;
-            Configuration config = new Configuration();
-            config.setDefaultEncoding("UTF-8");
-            config.setTemplateLoader(new ClassTemplateLoader(UtilFreemarker.class, "/"));
-            config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+        Configuration config = new Configuration();
+        config.setDefaultEncoding("UTF-8");
+        config.setTemplateLoader(new ClassTemplateLoader(UtilFreemarker.class, "/"));
+        config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 
-            Template template = config.getTemplate("ftl/process.html.ftl");
+        Template template = config.getTemplate("ftl/process.html.ftl");
 
-            String str = JSON.toJSONString(this, JSONWriter.Feature.WriteNullStringAsEmpty);
-            JSONObject dataModel = JSON.parseObject(str);
-            dataModel.put("sizeList", sizeList);
-            int sizeColspan = washSkippingFlag ? 3 : 2;
-            dataModel.put("sizeColspan", sizeColspan);
-            int sizeTitleColspan = sizeColspan * CollUtil.size(sizeList) + 4;
-            dataModel.put("sizeTitleColspan", sizeTitleColspan);
-            dataModel.put("washSkippingFlag", washSkippingFlag);
-            //处理尺码数据
-            // 3个白色开始 2个灰色开始
-            List<Map<String, Object>> dataList = new ArrayList<>(16);
-            ArrayList<String> tdClassList = CollUtil.newArrayList("gb", "wb");
-            Map<Object, Object> sizeClass = new LinkedHashMap<>();
-            //计算尺寸表的背景颜色
-            //默认尺码下标
-            int defaultSizeIndex = CollUtil.indexOf(sizeList, (s) -> StrUtil.equals(s, defaultSize));
-            //部位、描述、列无背景
-            int sizeTdIndex = 0;
-            sizeClass.put(sizeTdIndex++, "");
-            sizeClass.put(sizeTdIndex++, "");
-            String tdBg = "";
-            int sizeResetFlg = defaultSizeIndex;
-            boolean isDefaultSize = false;
-            for (int i = 0; i < sizeList.size(); i++) {
-                isDefaultSize = StrUtil.equals(sizeList.get(i), defaultSize);
-                if (isDefaultSize) {
-                    tdBg = "dgb";
-                } else {
-                    tdBg = CollUtil.get(tdClassList, sizeResetFlg % 2);
-                }
-                for (int j = 0; j < sizeColspan; j++) {
-                    sizeClass.put(sizeTdIndex++, tdBg);
-                }
-                if (isDefaultSize) {
-                    sizeResetFlg = 1;
-                } else {
-                    sizeResetFlg++;
-                }
-
+        String str = JSON.toJSONString(this, JSONWriter.Feature.WriteNullStringAsEmpty);
+        JSONObject dataModel = JSON.parseObject(str);
+        dataModel.put("sizeList", sizeList);
+        int sizeColspan = washSkippingFlag ? 3 : 2;
+        dataModel.put("sizeColspan", sizeColspan);
+        int sizeTitleColspan = sizeColspan * CollUtil.size(sizeList) + 4;
+        dataModel.put("sizeTitleColspan", sizeTitleColspan);
+        dataModel.put("washSkippingFlag", washSkippingFlag);
+        //处理尺码数据
+        // 3个白色开始 2个灰色开始
+        List<Map<String, Object>> dataList = new ArrayList<>(16);
+        ArrayList<String> tdClassList = CollUtil.newArrayList("gb", "wb");
+        Map<Object, Object> sizeClass = new LinkedHashMap<>();
+        //计算尺寸表的背景颜色
+        //默认尺码下标
+        int defaultSizeIndex = CollUtil.indexOf(sizeList, (s) -> StrUtil.equals(s, defaultSize));
+        //部位、描述、列无背景
+        int sizeTdIndex = 0;
+        sizeClass.put(sizeTdIndex++, "");
+        sizeClass.put(sizeTdIndex++, "");
+        String tdBg = "";
+        int sizeResetFlg = defaultSizeIndex;
+        boolean isDefaultSize = false;
+        for (int i = 0; i < sizeList.size(); i++) {
+            isDefaultSize = StrUtil.equals(sizeList.get(i), defaultSize);
+            if (isDefaultSize) {
+                tdBg = "dgb";
+            } else {
+                tdBg = CollUtil.get(tdClassList, sizeResetFlg % 2);
             }
-            // 公差-、公差+列无背景
-            sizeClass.put(sizeTdIndex++, "");
-            sizeClass.put(sizeTdIndex, "");
-            if (CollUtil.isNotEmpty(this.getSizeList())) {
-                for (int i = 0; i < this.getSizeList().size(); i++) {
-                    PackSizeVo packSize = this.getSizeList().get(i);
-                    sizeDataDetail rowData = new sizeDataDetail();
-                    rowData.setRowType(packSize.getRowType());
-                    rowData.setRemark(packSize.getRemark());
-                    List<Map<String, Object>> row = new ArrayList<>();
-                    row.add(new TdDetail(Opt.ofNullable(packSize.getPartName()).orElse("")).toMap());
-                    row.add(new TdDetail(Opt.ofNullable(packSize.getMethod()).orElse(""), "td_lt").toMap());
-                    JSONObject jsonObject = JSONObject.parseObject(packSize.getStandard());
-                    for (int j = 0; j < sizeList.size(); j++) {
-                        String size = sizeList.get(j);
-                        row.add(new TdDetail(MapUtil.getStr(jsonObject, "template" + size, "-")).toMap());
-                        row.add(new TdDetail(MapUtil.getStr(jsonObject, "garment" + size, "-")).toMap());
-                        if (washSkippingFlag) {
-                            row.add(new TdDetail(MapUtil.getStr(jsonObject, "washing" + size, "-")).toMap());
-                        }
+            for (int j = 0; j < sizeColspan; j++) {
+                sizeClass.put(sizeTdIndex++, tdBg);
+            }
+            if (isDefaultSize) {
+                sizeResetFlg = 1;
+            } else {
+                sizeResetFlg++;
+            }
+
+        }
+        // 公差-、公差+列无背景
+        sizeClass.put(sizeTdIndex++, "");
+        sizeClass.put(sizeTdIndex, "");
+        if (CollUtil.isNotEmpty(this.getSizeList())) {
+            for (int i = 0; i < this.getSizeList().size(); i++) {
+                PackSizeVo packSize = this.getSizeList().get(i);
+                sizeDataDetail rowData = new sizeDataDetail();
+                rowData.setRowType(packSize.getRowType());
+                rowData.setRemark(packSize.getRemark());
+                List<Map<String, Object>> row = new ArrayList<>();
+                row.add(new TdDetail(Opt.ofNullable(packSize.getPartName()).orElse("")).toMap());
+                row.add(new TdDetail(Opt.ofNullable(packSize.getMethod()).orElse(""), "td_lt").toMap());
+                JSONObject jsonObject = JSONObject.parseObject(packSize.getStandard());
+                for (int j = 0; j < sizeList.size(); j++) {
+                    String size = sizeList.get(j);
+                    row.add(new TdDetail(MapUtil.getStr(jsonObject, "template" + size, "-")).toMap());
+                    row.add(new TdDetail(MapUtil.getStr(jsonObject, "garment" + size, "-")).toMap());
+                    if (washSkippingFlag) {
+                        row.add(new TdDetail(MapUtil.getStr(jsonObject, "washing" + size, "-")).toMap());
                     }
-                    //公差-
-                    row.add(new TdDetail(Opt.ofBlankAble(packSize.getMinus()).map(minus -> "-" + minus).orElse("")).toMap());
-                    //公差+
-                    row.add(new TdDetail(Opt.ofNullable(packSize.getPositive()).orElse("")).toMap());
-                    rowData.setRowData(row);
-                    dataList.add(rowData.toMap());
                 }
+                //公差-
+                row.add(new TdDetail(Opt.ofBlankAble(packSize.getMinus()).map(minus -> "-" + minus).orElse("")).toMap());
+                //公差+
+                row.add(new TdDetail(Opt.ofNullable(packSize.getPositive()).orElse("")).toMap());
+                rowData.setRowData(row);
+                dataList.add(rowData.toMap());
             }
-            Map<String, List<PackTechAttachmentVo>> picMap = new HashMap<>(16);
-            if (CollUtil.isNotEmpty(this.getPicList())) {
-                picMap = this.getPicList().stream().collect(Collectors.groupingBy(PackTechAttachmentVo::getSpecType));
-            }
-            Map<String, List<PackTechSpecVo>> gyMap = new HashMap<>(16);
-            if (CollUtil.isNotEmpty(this.getTechSpecVoList())) {
+        }
+        Map<String, List<PackTechAttachmentVo>> picMap = new HashMap<>(16);
+        if (CollUtil.isNotEmpty(this.getPicList())) {
+            picMap = this.getPicList().stream().collect(Collectors.groupingBy(PackTechAttachmentVo::getSpecType));
+        }
+        Map<String, List<PackTechSpecVo>> gyMap = new HashMap<>(16);
+        if (CollUtil.isNotEmpty(this.getTechSpecVoList())) {
 //                gyMap = this.getTechSpecVoList().stream().collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
-                gyMap = JSON.parseArray(JSON.toJSONString(this.getTechSpecVoList(), JSONWriter.Feature.WriteNullStringAsEmpty))
-                        .toJavaList(PackTechSpecVo.class)
-                        .stream()
-                        .collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
-            }
+            gyMap = JSON.parseArray(JSON.toJSONString(this.getTechSpecVoList(), JSONWriter.Feature.WriteNullStringAsEmpty))
+                    .toJavaList(PackTechSpecVo.class)
+                    .stream()
+                    .collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
+        }
 
 //            ArrayList<Object> sizeDataListAll = CollUtil.newArrayList();
 //            ListUtil.page(dataList, 18, d -> sizeDataListAll.add(d));
-            dataModel.put("sizeDataList", dataList);
-            dataModel.put("sizeClass", sizeClass.values());
-            dataModel.put("ztbzDataList", Optional.ofNullable(gyMap.get("整烫包装")).orElse(CollUtil.newArrayList()));
-            dataModel.put("cjgyDataList", Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()));
-            dataModel.put("cjgyImgList", Optional.ofNullable(picMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()));
-            List<PackTechSpecVo> xbjDataList = Optional.ofNullable(gyMap.get("小部件")).orElse(CollUtil.newArrayList());
-            dataModel.put("xbjDataList", xbjDataList);
-            dataModel.put("xbjImgList", Optional.ofNullable(picMap.get("小部件")).orElse(CollUtil.newArrayList()));
-            dataModel.put("xbjRowsPan", xbjDataList.size());
+        dataModel.put("sizeDataList", dataList);
+        dataModel.put("sizeClass", sizeClass.values());
+        dataModel.put("ztbzDataList", Optional.ofNullable(gyMap.get("整烫包装")).orElse(CollUtil.newArrayList()));
+        dataModel.put("cjgyDataList", Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()));
+        dataModel.put("cjgyImgList", Optional.ofNullable(picMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()));
+        List<PackTechSpecVo> xbjDataList = Optional.ofNullable(gyMap.get("小部件")).orElse(CollUtil.newArrayList());
+        dataModel.put("xbjDataList", xbjDataList);
+        dataModel.put("xbjImgList", Optional.ofNullable(picMap.get("小部件")).orElse(CollUtil.newArrayList()));
+        dataModel.put("xbjRowsPan", xbjDataList.size());
 
-            List<PackTechSpecVo> jcgyDataList = Optional.ofNullable(gyMap.get("基础工艺")).orElse(CollUtil.newArrayList());
-            dataModel.put("jcgyDataList", jcgyDataList);
-            dataModel.put("jcgyImgList", Optional.ofNullable(picMap.get("基础工艺")).orElse(CollUtil.newArrayList()));
-            dataModel.put("jcgyRowsPan", jcgyDataList.size());
+        List<PackTechSpecVo> jcgyDataList = Optional.ofNullable(gyMap.get("基础工艺")).orElse(CollUtil.newArrayList());
+        dataModel.put("jcgyDataList", jcgyDataList);
+        dataModel.put("jcgyImgList", Optional.ofNullable(picMap.get("基础工艺")).orElse(CollUtil.newArrayList()));
+        dataModel.put("jcgyRowsPan", jcgyDataList.size());
 
-            dataModel.put("zysxImgList", Optional.ofNullable(picMap.get("注意事项")).orElse(CollUtil.newArrayList()));
-            StringWriter writer = new StringWriter();
-            template.process(dataModel, writer);
-            String output = writer.toString();
+        dataModel.put("zysxImgList", Optional.ofNullable(picMap.get("注意事项")).orElse(CollUtil.newArrayList()));
+        StringWriter writer = new StringWriter();
+        template.process(dataModel, writer);
+        String output = writer.toString();
+
+        FileUtil.writeString(output, new File("C:/Users/ZCYLGZ/htmltoPdf.html"), Charset.defaultCharset());
+        return output;
+    }
+
+    public ByteArrayOutputStream gen() {
+        try {
+            String output = toHtml();
             ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
-//            FileUtil.writeString(output, new File("d://process.html"), Charset.defaultCharset());
-//            FileOutputStream fos=new FileOutputStream("D://htmltoPdf.pdf");
-
-            FileUtil.writeString(output, new File("C:/Users/ZCYLGZ/htmltoPdf.html"), Charset.defaultCharset());
             // 创建PDF写入器
             ConverterProperties props = new ConverterProperties();
             props.setCharset("UFT-8");

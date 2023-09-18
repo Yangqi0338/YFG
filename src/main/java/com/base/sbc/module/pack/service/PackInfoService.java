@@ -13,6 +13,7 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
 import com.github.pagehelper.PageInfo;
@@ -113,6 +114,11 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      */
     PackInfoListVo getDetail(String id, String packType);
 
+    /**
+     * @param foreignId 款式设计id
+     * @param packType
+     * @return
+     */
     PackInfoListVo getByQw(String foreignId, String packType);
 
     boolean startApproval(String id);
@@ -188,11 +194,15 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      */
     AttachmentVo genTechSpecFile2(GroupUser groupUser, PackCommonSearchDto dto);
 
+    GenTechSpecPdfFile queryGenTechSpecPdfFile(GroupUser groupUser, PackCommonSearchDto dto);
+
     boolean copyItems(PackCopyDto dto);
 
     BomPrintVo getBomPrint(GroupUser user, PackCommonSearchDto dto);
 
     boolean updatePackInfoStatusField(PackInfoStatusVo dto);
+
+    AttachmentVo saveVideoFile(String foreignId, String packType, String fileId);
 
 
 // 自定义方法区 不替换的区域【other_end】

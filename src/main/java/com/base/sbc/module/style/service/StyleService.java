@@ -17,7 +17,6 @@ import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningChannel;
-import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.dto.*;
@@ -139,7 +138,7 @@ public interface StyleService extends BaseService<Style> {
     Map getDesignDataOverview(String time);
 
 
-    PlanningSummaryVo categoryBandSummary(PlanningBoardSearchDto dto);
+    StyleSummaryVo categoryBandSummary(PlanningBoardSearchDto dto);
 
     List<StyleBoardCategorySummaryVo> categorySummary(PlanningBoardSearchDto dto);
 

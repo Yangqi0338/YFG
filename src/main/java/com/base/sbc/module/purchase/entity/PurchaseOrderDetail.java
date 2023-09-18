@@ -111,7 +111,7 @@ public class PurchaseOrderDetail extends BaseDataEntity<String> {
     private BigDecimal totalAmount;
     /** 物料交期 */
     @ApiModelProperty(value = "物料交期"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date deliveryDate;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )

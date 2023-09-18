@@ -64,7 +64,6 @@ import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
-import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.sample.vo.MaterialVo;
@@ -753,8 +752,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
 
     @Override
-    public PlanningSummaryVo categoryBandSummary(PlanningBoardSearchDto dto) {
-        PlanningSummaryVo vo = new PlanningSummaryVo();
+    public StyleSummaryVo categoryBandSummary(PlanningBoardSearchDto dto) {
+        StyleSummaryVo vo = new StyleSummaryVo();
         //查询波段统计
         QueryWrapper brandTotalQw = new QueryWrapper();
         brandTotalQw.select("sd.band_name as name,count(1) as total");

@@ -9,6 +9,7 @@ package com.base.sbc.module.planning.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.module.common.vo.CountVo;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
@@ -33,6 +34,7 @@ import java.util.Map;
  */
 
 @Mapper
+@DataIsolation(authority = "PlanningCategoryItem")
 public interface PlanningCategoryItemMapper extends BaseMapper<PlanningCategoryItem> {
 
     String selectMaxDesignNo(@Param(Constants.WRAPPER) QueryWrapper qc);
@@ -60,5 +62,5 @@ public interface PlanningCategoryItemMapper extends BaseMapper<PlanningCategoryI
 
     String getStylePicUrlById(@Param("id") String id);
 
-    List<Map<String,Object>> queryOrderSkc(@Param(Constants.WRAPPER) QueryWrapper osQw);
+
 }

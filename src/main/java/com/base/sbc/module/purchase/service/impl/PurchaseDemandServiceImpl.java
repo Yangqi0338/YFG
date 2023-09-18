@@ -443,6 +443,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 detail.setDesignStyleCode(demandInfo.getDesignStyleCode());
                 detail.setPlateBillCode(demandInfo.getPlateBillCode());
                 detail.setMaterialSpecifications(demandInfo.getMaterialSpecifications());
+                detail.setMaterialSpecificationsCode(demandInfo.getMaterialSpecificationsCode());
                 detail.setStyleName(demandInfo.getStyleName());
                 detail.setDeliveryDate(deliveryDate);
 
@@ -453,6 +454,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 detail.setPurchaseNum(demandInfo.getNeedNum());
                 detail.setPrice(demandInfo.getPrice());
                 detail.setMaterialColor(demandInfo.getMaterialColor());
+                detail.setMaterialColorCode(demandInfo.getMaterialColorCode());
                 detail.setLoss(demandInfo.getLoss());
                 BigDecimal amount = BigDecimalUtil.mul(demandInfo.getNeedNum(), demandInfo.getPrice()).setScale(2, BigDecimal.ROUND_DOWN);
                 detail.setTotalAmount(amount);

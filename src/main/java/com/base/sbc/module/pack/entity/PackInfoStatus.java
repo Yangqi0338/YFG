@@ -5,16 +5,15 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.pack.entity;
+import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.util.Date;
 
 /**
  * 类描述：资料包-状态 实体类
@@ -23,7 +22,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfoStatus
  * @email your email
- * @date 创建时间：2023-9-9 13:50:40
+ * @date 创建时间：2023-9-15 13:59:24
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -170,10 +169,15 @@ public class PackInfoStatus extends BaseDataEntity<String> {
     @ApiModelProperty(value = "工艺说明下发状态:0未发送,1发送成功，2发送失败,3重新打开")
     private String techScmSendFlag;
     /**
-     * 工艺说明文件id
+     * 工艺说明文件id(pdf)
      */
-    @ApiModelProperty(value = "工艺说明文件id")
+    @ApiModelProperty(value = "工艺说明文件id(pdf)")
     private String techSpecFileId;
+    /**
+     * 工艺说明视频文件id
+     */
+    @ApiModelProperty(value = "工艺说明视频文件id")
+    private String techSpecVideoFileId;
     /**
      * 唛类信息
      */

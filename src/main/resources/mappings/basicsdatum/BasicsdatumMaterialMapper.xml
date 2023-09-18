@@ -142,11 +142,13 @@
 			m.loss_rate,
 			m.supplier_quotation_price,
 			w.`name` AS width,
+			w.width_code,
 			m.purchase_unit_code,
 			m.purchase_unit_name,
 			m.stock_unit_code,
 			m.stock_unit_name,
-			c.color_name as color,
+			c.color_name AS color,
+			c.color_code,
 			c.supplier_color_code
 		FROM
 			t_basicsdatum_material AS m

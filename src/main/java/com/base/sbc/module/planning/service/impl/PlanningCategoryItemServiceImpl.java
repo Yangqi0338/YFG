@@ -223,10 +223,14 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public void updateCategoryItem(List<PlanningCategoryItemSaveDto> item) {
+        boolean flg;
         for (PlanningCategoryItemSaveDto dto : item) {
             PlanningCategoryItem categoryItem = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
             // 修改
-            updateById(categoryItem);
+            flg = updateById(categoryItem);
+            if (!flg) {
+                throw new OtherException("修改失败,请检查是否有权限");
+            }
             //处理维度标签
             if (StrUtil.equals(dto.getDimensionFlag(), BaseGlobal.YES)) {
                 fieldValService.save(categoryItem.getId(), FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION, dto.getFieldVals());

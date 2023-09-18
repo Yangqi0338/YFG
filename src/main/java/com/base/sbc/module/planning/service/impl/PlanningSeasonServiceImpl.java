@@ -17,6 +17,8 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.enums.SeatMatchFlagEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
@@ -25,29 +27,19 @@ import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.formType.entity.FieldManagement;
-import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.mapper.FieldManagementMapper;
 import com.base.sbc.module.formType.mapper.FieldValMapper;
-import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.planning.dto.*;
-import com.base.sbc.module.planning.entity.PlanningCategoryItem;
-import com.base.sbc.module.planning.entity.PlanningChannel;
-import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
-import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMaterialMapper;
 import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
-import com.base.sbc.module.planning.service.PlanningCategoryItemService;
-import com.base.sbc.module.planning.service.PlanningChannelService;
-import com.base.sbc.module.planning.service.PlanningDemandService;
-import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.vo.*;
-import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.ChartBarVo;
-import com.base.sbc.module.style.vo.StyleColorVo;
+import com.base.sbc.module.style.vo.DemandOrderSkcVo;
 import com.beust.jcommander.internal.Lists;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -60,8 +52,8 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -95,7 +87,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     private StyleService styleService;
     @Resource
     @Lazy
-    private StyleColorService styleColorService;
+    private StyleColorMapper styleColorMapper;
     @Resource
     private BandService bandService;
     @Resource
@@ -107,6 +99,10 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     private FieldValMapper fieldValMapper;
     @Resource
     private PlanningCategoryItemMaterialMapper planningCategoryItemMaterialMapper;
+
+    @Resource
+    private PlanningDemandProportionSeatService seatService;
+
     @Override
     public boolean del(String companyCode, String id) {
         return removeById(id);
@@ -229,7 +225,6 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     }
 
 
-
     @Override
     public void checkBYSRepeat(PlanningSeasonSaveDto dto, String userCompany) {
         QueryWrapper nameQc = new QueryWrapper();
@@ -273,196 +268,266 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public PlanningSummaryVo planningSummary(PlanningBoardSearchDto dto) {
-        PlanningSummaryVo vo = new PlanningSummaryVo();
+        //维度统计数据
+        List<List<String>> demandSummary = CollUtil.newArrayList(
+                //维度
+                CollUtil.newArrayList(),
+                CollUtil.newArrayList("企划skc数"),
+                CollUtil.newArrayList("企划占比"),
+                CollUtil.newArrayList("下单skc"),
+                CollUtil.newArrayList("下单占比"),
+                CollUtil.newArrayList("缺口")
+        );
 
+        //返回结果
+        PlanningSummaryVo vo = new PlanningSummaryVo();
+        Map<String, PlanningBandTotalVo> bMap = new LinkedHashMap<>(16);
+        Map<String, PlanningDimensionTotalVo> dMap = new LinkedHashMap<>(16);
+        Map<String, List<DemandOrderSkcVo>> xyData = new LinkedHashMap<>(16);
+        vo.setXList(bMap.values());
+
+        vo.setXyData(xyData);
+        vo.setDemandSummary(demandSummary);
         //查询明细
         QueryWrapper detailQw = new QueryWrapper();
         planningSummaryQw(detailQw, dto);
         List<PlanningSummaryDetailVo> detailVoList = planningCategoryItemService.planningSummaryDetail(detailQw);
         if (CollUtil.isEmpty(detailVoList)) {
-            return null;
+            return vo;
         }
-        //  默认y 轴为品类,x为波段
-        if (StrUtil.isBlank(dto.getFieldId()) || StrUtil.isBlank(dto.getProdCategory())) {
-
-            Map<String, Long> xMap = new HashMap<>(16);
-            Map<String, Long> yMap = new HashMap<>(16);
-            for (PlanningSummaryDetailVo dv : detailVoList) {
-                if (xMap.containsKey(dv.getBandName())) {
-                    Long aLong = xMap.get(dv.getBandName());
-                    xMap.put(dv.getBandName(), aLong + 1);
+        QueryDemandDto queryDemandDto = new QueryDemandDto();
+        BeanUtil.copyProperties(dto, queryDemandDto);
+        List<PlanningDemandVo> demandList = planningDemandService.getDemandListById(queryDemandDto);
+        PlanningDemandVo planningDemandVo = null;
+        FieldManagement fieldManagement = null;
+        List<PlanningDemandProportionData> proportionData = null;
+        Map<String, PlanningDemandProportionData> proportionDataMap = new HashMap<>(16);
+        //所有维度的值
+        List<String> dValues = new ArrayList<>(6);
+        //组装统计数据
+        if (CollUtil.isNotEmpty(demandList) && CollUtil.isNotEmpty(demandList.get(0).getList())) {
+            planningDemandVo = demandList.get(0);
+            fieldManagement = fieldManagementMapper.selectById(planningDemandVo.getFieldId());
+            demandSummary.get(0).add(planningDemandVo.getDemandName());
+            proportionData = planningDemandVo.getList();
+            Map<String, Integer> numTotal = new HashMap<>(16);
+            Integer total = 0;
+            for (PlanningDemandProportionData e : proportionData) {
+                dValues.add(e.getClassify());
+                int i = Optional.ofNullable(e.getNum()).orElse(0);
+                if (numTotal.containsKey(e.getClassifyName())) {
+                    numTotal.put(e.getClassifyName(), numTotal.get(e.getClassifyName()) + i);
                 } else {
-                    xMap.put(dv.getBandName(), 1L);
+                    numTotal.put(e.getClassifyName(), i);
                 }
-                if (yMap.containsKey(dv.getProdCategoryName())) {
-                    Long aLong = yMap.get(dv.getProdCategoryName());
-                    yMap.put(dv.getProdCategoryName(), aLong + 1);
-                } else {
-                    yMap.put(dv.getProdCategoryName(), 1L);
-                }
+                total = total + i;
+                proportionDataMap.put(e.getId(), e);
             }
-            vo.setXList(xMap.entrySet().stream().map(item -> {
-                DimensionTotalVo dtv = new DimensionTotalVo();
-                dtv.setName(item.getKey());
-                dtv.setTotal(item.getValue());
-                return dtv;
-            }).collect(Collectors.toList()));
-            vo.setYList(yMap.entrySet().stream().map(item -> {
-                DimensionTotalVo dtv = new DimensionTotalVo();
-                dtv.setName(item.getKey());
-                dtv.setTotal(item.getValue());
-                return dtv;
-            }).collect(Collectors.toList()));
-            amcFeignService.setUserAvatarToList(detailVoList);
-            Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getBandName() + StrUtil.DASHED + k.getProdCategoryName()));
-            vo.setXyData(seatData);
-        } else {
-            //维度统计数据
-            List<List<String>> demandSummary=CollUtil.newArrayList(
-                    //维度
-                    CollUtil.newArrayList(),
-                    CollUtil.newArrayList("企划skc数"),
-                    CollUtil.newArrayList("企划占比"),
-                    CollUtil.newArrayList("下单skc"),
-                    CollUtil.newArrayList("下单占比"),
-                    CollUtil.newArrayList("缺口"));
-            //当选择维度时，y轴为维度 （企划需求管理的需求占比）
-            QueryDemandDto queryDemandDto = new QueryDemandDto();
-            queryDemandDto.setPlanningSeasonId(dto.getPlanningSeasonId());
-            queryDemandDto.setProdCategory(dto.getProdCategory());
-            queryDemandDto.setFieldId(dto.getFieldId());
-            List<PlanningDemandVo> demandList = planningDemandService.getDemandListById(queryDemandDto);
-            HashMap<String,List<String>> yValueS = new LinkedHashMap();
-            AtomicInteger dTotal= new AtomicInteger(0);
-            if (CollUtil.isNotEmpty(demandList) && CollUtil.isNotEmpty(demandList.get(0).getList())) {
-                PlanningDemandVo planningDemandVo = demandList.get(0);
-                demandSummary.get(0).add(planningDemandVo.getDemandName());
-                List<PlanningDemandProportionData> list = planningDemandVo.getList();
-                List<DimensionTotalVo> yList = list.stream().map(e -> {
-                    DimensionTotalVo yvo = new DimensionTotalVo();
-                    yvo.setTotal(Optional.ofNullable(e.getNum()).map(Integer::longValue).orElse(0L));
-                    yvo.setName(e.getClassifyName());
-                    dTotal.set(dTotal.get() + Optional.ofNullable(e.getNum()).orElse(0));
-                    demandSummary.get(0).add(e.getClassifyName());
-                    demandSummary.get(1).add(String.valueOf(yvo.getTotal()));
-                    demandSummary.get(2).add(Optional.ofNullable(e.getProportion()).map(a->a.toString()).orElse(""));
-                    yValueS.put(e.getClassifyName(),CollUtil.newArrayList());
-                    return yvo;
-                }).collect(Collectors.toList());
-                vo.setYList(yList);
+            for (Map.Entry<String, Integer> numEntry : numTotal.entrySet()) {
+                demandSummary.get(0).add(numEntry.getKey());
+                demandSummary.get(1).add(String.valueOf(numEntry.getValue()));
+                BigDecimal div = NumberUtil.div(numEntry.getValue(), total).multiply(new BigDecimal("100"));
+                div = div.setScale(2, RoundingMode.HALF_UP);
+                demandSummary.get(2).add(NumberUtil.toStr(div) + "%");
+                demandSummary.get(3).add("");
+                demandSummary.get(4).add("");
+                demandSummary.get(5).add("");
+            }
+        }
+        if (CollUtil.isEmpty(proportionData)) {
+            return vo;
+        }
+        // 组装坑位数据
 
-                if (CollUtil.isNotEmpty(detailVoList)) {
-                    List<Style> updateStyle=new ArrayList<>(16);
-                    List<StyleColor> updateStyleColor=new ArrayList<>(16);
-                    List<String> seatIds = detailVoList.stream().map(PlanningSummaryDetailVo::getId).collect(Collectors.toList());
-                    FieldManagement fieldManagement = fieldManagementMapper.selectById(planningDemandVo.getFieldId());
-                    QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
-                    fvQw.in("foreign_id", seatIds);
-                    fvQw.eq("field_name", fieldManagement.getFieldName());
-                    List<FieldVal> fieldVals = fieldValMapper.selectList(fvQw);
-                    Map<String, FieldVal> seatFvMap = Opt.ofNullable(fieldVals).map(fvs -> {
-                        return fvs.stream().collect(Collectors.toMap(k -> k.getForeignId(), v -> v, (a, b) -> a));
-                    }).orElse(MapUtil.empty());
-                    Map<String, List<PlanningSummaryDetailVo>> seatData = new HashMap<>(16);
-                    Map<String, Long> xMap = new HashMap<>(16);
-                    QueryWrapper<PlanningCategoryItem> snQw=new QueryWrapper<>();
-                    for (PlanningSummaryDetailVo psdv : detailVoList) {
-                        String dv = Optional.ofNullable(seatFvMap.get(psdv.getId())).map(FieldVal::getValName).orElse("_null_");
-                        //维度没匹配跳过
-                        if (!yValueS.containsKey(dv)) {
-                            continue;
-                        }
-                        yValueS.get(dv).add(psdv.getId());
-                        String bandName = psdv.getBandName();
-                        String key = bandName + StrUtil.DASHED + dv;
-                        if (seatData.containsKey(key)) {
-                            seatData.get(key).add(psdv);
-                        } else {
-                            seatData.put(key, CollUtil.newArrayList(psdv));
-                        }
-                        if (xMap.containsKey(bandName)) {
-                            Long aLong = xMap.get(bandName);
-                            xMap.put(bandName, aLong + 1);
-                        } else {
-                            xMap.put(bandName, 1L);
-                        }
-                        //如果大货款号为空 自动设置大货款号
-                        if(StrUtil.isBlank(psdv.getStyleNo())){
-                            snQw.clear();
-                            snQw.eq("c.id",psdv.getId());
-                            snQw.exists("select id from t_field_val where foreign_id=s.id and t_field_val.del_flag='0' and data_group={0} and field_name={1} and val_name={2} ",
-                                    FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY,
-                                    demandSummary.get(0).get(0),
-                                    dv
-                            );
-                            psdv.setDimension(MapUtil.of(demandSummary.get(0).get(0),dv));
-                            snQw.orderByAsc("sc.id");
-                            snQw.last("limit 1");
-                            List<Map<String, Object>> orderSckList = planningCategoryItemMapper.queryOrderSkc(snQw);
-                            if(CollUtil.isNotEmpty(orderSckList)){
-                                Map<String, Object> scMap = orderSckList.get(0);
-                                Style uStyle=new Style();
-                                uStyle.setId(MapUtil.getStr(scMap,"styleId"));
-                                uStyle.setStyleNo(MapUtil.getStr(scMap,"styleNo"));
-                                updateStyle.add(uStyle);
-                                StyleColor uStyleColor=new StyleColor();
-                                uStyleColor.setId(MapUtil.getStr(scMap,"id"));
-                                uStyleColor.setSeatDesignNo(psdv.getDesignNo());
-                                updateStyleColor.add(uStyleColor);
-                            }
-                        }
-                    }
+        //查询配色匹配维度的数据
+        BaseQueryWrapper scQw = new BaseQueryWrapper();
+        scQw.eq("sc.planning_season_id", dto.getPlanningSeasonId());
+        scQw.notEmptyEq("s.prod_category", dto.getProdCategory());
+        scQw.notEmptyEq("s.prod_category2nd", dto.getProdCategory2nd());
+        scQw.eq("fv.field_id", planningDemandVo.getFieldId());
+        scQw.in("fv.val", dValues);
+        scQw.notNull("fv.val");
+        scQw.notNull("fv.val_name");
+        List<DemandOrderSkcVo> demandOrderSkcVos = styleColorMapper.queryDemandOrderSkc(scQw);
+        //key =id
+        Map<String, DemandOrderSkcVo> idSkcMap = new LinkedHashMap<>(16);
+        //key= 波段-维度
+        Map<String, List<DemandOrderSkcVo>> dSkcMap = new LinkedHashMap<>(16);
+        Map<String, Integer> orderTotal = new HashMap<>();
 
-                    vo.setXList(xMap.entrySet().stream().map(item -> {
-                        DimensionTotalVo dtv = new DimensionTotalVo();
-                        dtv.setName(item.getKey());
-                        dtv.setTotal(item.getValue());
-                        return dtv;
-                    }).collect(Collectors.toList()));
-                    vo.setXyData(seatData);
-
-                    // 查询下单skc,计算下单占比、计算缺口
-                    QueryWrapper osQw=new QueryWrapper();
-                    int index=1;
-                    int dTotalInt = dTotal.get();
-                    for (Map.Entry<String, List<String>> d : yValueS.entrySet()) {
-                        List<String> dSeatIds = d.getValue();
-                        int count=0;
-                        if(CollUtil.isNotEmpty(dSeatIds)){
-                            osQw.clear();
-                            osQw.in("c.id",dSeatIds);
-                            osQw.exists("select id from t_field_val where foreign_id=s.id and data_group={0} and field_name={1} and val_name={2}",
-                                    FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY,
-                                    demandSummary.get(0).get(0),
-                                    d.getKey()
-                                    );
-                            List<Map<String, Object>> orderSckList = planningCategoryItemMapper.queryOrderSkc(osQw);
-                            count= CollUtil.size(orderSckList);
-                        }
-                        //下单skc
-                        demandSummary.get(3).add(String.valueOf(count));
-                        //下单占比
-                        BigDecimal xdzb = new BigDecimal(String.valueOf(count)).divide(new BigDecimal(String.valueOf(dTotalInt)),8,BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal("100"));
-                        demandSummary.get(4).add(NumberUtil.toStr(NumberUtil.round(xdzb,2))+"%");
-                        //缺口
-                        String dCount = demandSummary.get(1).get(index);
-                        demandSummary.get(5).add(String.valueOf(NumberUtil.parseInt(dCount)-count));
-                        index++;
-                    }
-                    vo.setDemandSummary(demandSummary);
-
-                    if(CollUtil.isNotEmpty(updateStyle)){
-                        styleService.updateBatchById(updateStyle);
-
-                    }
-                    if(CollUtil.isNotEmpty(updateStyleColor)){
-                        styleColorService.updateBatchById(updateStyleColor);
-                    }
+        if (CollUtil.isNotEmpty(demandOrderSkcVos)) {
+            for (DemandOrderSkcVo demandOrderSkcVo : demandOrderSkcVos) {
+                idSkcMap.put(demandOrderSkcVo.getStyleColorId(), demandOrderSkcVo);
+                String key = demandOrderSkcVo.getBandCode() + StrUtil.DASHED + demandOrderSkcVo.getVal();
+                if (dSkcMap.containsKey(key)) {
+                    dSkcMap.get(key).add(demandOrderSkcVo);
+                } else {
+                    dSkcMap.put(key, CollUtil.newArrayList(demandOrderSkcVo));
+                }
+                if (orderTotal.containsKey(demandOrderSkcVo.getValName())) {
+                    orderTotal.put(demandOrderSkcVo.getValName(), orderTotal.get(demandOrderSkcVo.getValName()) + 1);
+                } else {
+                    orderTotal.put(demandOrderSkcVo.getValName(), 1);
                 }
             }
 
+
+        }
+        // 企划的坑位 (查询企划需求管理坑位信息)
+        List<PlanningDemandProportionSeat> seatList = seatService.findByPid(proportionDataMap.keySet());
+
+        List<PlanningDemandProportionSeat> updateSeatList = new ArrayList<>(16);
+
+        Map<String, Integer> matchTotal = new HashMap<>(16);
+        for (PlanningDemandProportionSeat pseat : seatList) {
+            PlanningDemandProportionSeat u = new PlanningDemandProportionSeat();
+            u.setId(pseat.getId());
+            // 需求数量占比
+            PlanningDemandProportionData pdpd = proportionDataMap.get(pseat.getPlanningDemandProportionDataId());
+            if (pdpd == null) {
+                continue;
+            }
+            //波段的统计
+            PlanningBandTotalVo planningBandTotalVo = bMap.get(pdpd.getBandCode());
+            if (planningBandTotalVo == null) {
+                planningBandTotalVo = BeanUtil.copyProperties(pdpd, PlanningBandTotalVo.class);
+                planningBandTotalVo.planningTotalAdd();
+                bMap.put(pdpd.getBandCode(), planningBandTotalVo);
+            } else {
+                planningBandTotalVo.planningTotalAdd();
+            }
+            //维度的统计
+            PlanningDimensionTotalVo planningDimensionTotalVo = dMap.get(pdpd.getClassify());
+            if (planningDimensionTotalVo == null) {
+                planningDimensionTotalVo = BeanUtil.copyProperties(fieldManagement, PlanningDimensionTotalVo.class);
+                planningDimensionTotalVo.setFieldId(planningDemandVo.getFieldId());
+                planningDimensionTotalVo.setVal(pdpd.getClassify());
+                planningDimensionTotalVo.setValName(pdpd.getClassifyName());
+                planningDimensionTotalVo.planningTotalAdd();
+                dMap.put(pdpd.getClassify(), planningDimensionTotalVo);
+            } else {
+                planningDimensionTotalVo.planningTotalAdd();
+            }
+            String bdkey = pdpd.getBandCode() + StrUtil.DASHED + pdpd.getClassify();
+            //数据
+            DemandOrderSkcVo demandOrderSkcVo = null;
+            // 匹配过
+            if (StrUtil.isNotBlank(pseat.getStyleColorId())) {
+                demandOrderSkcVo = idSkcMap.get(pseat.getStyleColorId());
+            }
+            // 没匹配过 or 匹配过对象跑了
+            if (demandOrderSkcVo == null) {
+                //重新用波段维度匹配
+                List<DemandOrderSkcVo> demandOrderSkcVos1 = dSkcMap.get(bdkey);
+                if (CollUtil.isNotEmpty(demandOrderSkcVos1)) {
+                    demandOrderSkcVo = demandOrderSkcVos1.remove(0);
+                }
+            }
+
+            //最终未匹配 遗憾退场
+            if (demandOrderSkcVo == null) {
+                demandOrderSkcVo = new DemandOrderSkcVo();
+                demandOrderSkcVo.setMatchFlag(SeatMatchFlagEnum.NO.getValue());
+                demandOrderSkcVo.setBandCode(pdpd.getBandCode());
+                demandOrderSkcVo.setBandName(pdpd.getBandName());
+                demandOrderSkcVo.setVal(pdpd.getClassify());
+                demandOrderSkcVo.setValName(pdpd.getClassifyName());
+                u.setStyleColorId("");
+            } else {
+                //发结婚证
+                u.setStyleColorId(demandOrderSkcVo.getStyleColorId());
+                String matchKey = demandOrderSkcVo.getBandCode() + StrUtil.DASHED + demandOrderSkcVo.getVal();
+                // 门当户对 住一起
+                if (StrUtil.equals(bdkey, matchKey)) {
+                    demandOrderSkcVo.setMatchFlag(SeatMatchFlagEnum.YES.getValue());
+                    //移除一个（搬一起住）
+                    dSkcMap.get(bdkey).remove(demandOrderSkcVo);
+                }
+                // 父母包办 分开住
+                else {
+                    demandOrderSkcVo.setMatchBandCode(pdpd.getBandCode());
+                    demandOrderSkcVo.setMatchBandName(pdpd.getBandName());
+                    demandOrderSkcVo.setMatchFlag(SeatMatchFlagEnum.CUSTOM_COLOR.getValue());
+                    demandOrderSkcVo = BeanUtil.copyProperties(demandOrderSkcVo, DemandOrderSkcVo.class);
+                    demandOrderSkcVo.setMatchFlag(SeatMatchFlagEnum.CUSTOM_SEAT.getValue());
+                }
+                if (matchTotal.containsKey(demandOrderSkcVo.getValName())) {
+                    matchTotal.put(demandOrderSkcVo.getValName(), matchTotal.get(demandOrderSkcVo.getValName()) + 1);
+                } else {
+                    matchTotal.put(demandOrderSkcVo.getValName(), 1);
+                }
+
+            }
+            demandOrderSkcVo.setPlanningDemandProportionSeatId(pseat.getId());
+            //放入数据集合
+            if (xyData.containsKey(bdkey)) {
+                xyData.get(bdkey).add(demandOrderSkcVo);
+            } else {
+                xyData.put(bdkey, CollUtil.newArrayList(demandOrderSkcVo));
+            }
+            u.setMatchFlag(demandOrderSkcVo.getMatchFlag());
+            //放入修改集合
+            updateSeatList.add(u);
+        }
+        vo.setSeatIds(updateSeatList.stream().map(item -> item.getId()).collect(Collectors.toList()));
+        seatService.updateBatchById(updateSeatList);
+        //处理未匹配的数据（包括父母包办）
+        for (Map.Entry<String, List<DemandOrderSkcVo>> entrySet : dSkcMap.entrySet()) {
+            List<DemandOrderSkcVo> item = entrySet.getValue();
+            for (DemandOrderSkcVo demandOrderSkcVo : item) {
+                //波段的统计
+                PlanningBandTotalVo planningBandTotalVo = bMap.get(demandOrderSkcVo.getBandCode());
+                if (planningBandTotalVo == null) {
+                    planningBandTotalVo = BeanUtil.copyProperties(demandOrderSkcVo, PlanningBandTotalVo.class);
+                    planningBandTotalVo.totalAdd();
+                    bMap.put(demandOrderSkcVo.getBandCode(), planningBandTotalVo);
+                } else {
+                    planningBandTotalVo.totalAdd();
+                }
+                //维度的统计
+                PlanningDimensionTotalVo planningDimensionTotalVo = dMap.get(demandOrderSkcVo.getVal());
+                if (planningDimensionTotalVo == null) {
+                    planningDimensionTotalVo = BeanUtil.copyProperties(demandOrderSkcVo, PlanningDimensionTotalVo.class);
+                    planningDimensionTotalVo.setFieldId(planningDemandVo.getFieldId());
+                    planningDimensionTotalVo.totalAdd();
+                    dMap.put(demandOrderSkcVo.getVal(), planningDimensionTotalVo);
+                } else {
+                    planningDimensionTotalVo.totalAdd();
+                }
+                String bdkey = demandOrderSkcVo.getBandCode() + StrUtil.DASHED + demandOrderSkcVo.getVal();
+                demandOrderSkcVo.setMatchFlag(Opt.ofBlankAble(demandOrderSkcVo.getMatchFlag()).orElse(SeatMatchFlagEnum.NO_MATCH_COLOR.getValue()));
+                //放入数据集合
+                if (xyData.containsKey(bdkey)) {
+                    xyData.get(bdkey).add(demandOrderSkcVo);
+                } else {
+                    xyData.put(bdkey, CollUtil.newArrayList(demandOrderSkcVo));
+                }
+
+
+            }
         }
 
+        for (int i = 1; i < demandSummary.get(0).size(); i++) {
+            String valName = demandSummary.get(0).get(i);
+            int valNameCount = MapUtil.getInt(orderTotal, valName, 0);
+            //企划skc数
+            int dcount = NumberUtil.parseInt(demandSummary.get(1).get(i));
+            double div = NumberUtil.div(valNameCount, demandOrderSkcVos.size()) * 100;
+            BigDecimal bigDecimal = new BigDecimal(String.valueOf(div));
+            // 下单skc
+            demandSummary.get(3).set(i, String.valueOf(valNameCount));
+            //下单占比
+            demandSummary.get(4).set(i, NumberUtil.toStr(bigDecimal.setScale(2, RoundingMode.HALF_UP)) + "%");
+            //缺口
+            demandSummary.get(5).set(i, String.valueOf(dcount - MapUtil.getInt(matchTotal, valName, 0)));
+        }
+
+        vo.setYList(CollUtil.sort(dMap.values(), (a, b) -> {
+            return StrUtil.compare(a.getValName(), b.getValName(), false);
+        }));
+        vo.setXList(CollUtil.sort(bMap.values(), (a, b) -> {
+            return StrUtil.compare(a.getBandName(), b.getBandName(), false);
+        }));
 
         return vo;
     }
@@ -519,7 +584,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             }
             //统计产品季skc数量
             // Map<String, Long> sckCountMap = planningCategoryItemService.totalSkcByPlanningSeason(null);
-            Map<String, Long> sckCountMap =getSckCountMap(vo.getBandflag());
+            Map<String, Long> sckCountMap = getSckCountMap(vo.getBandflag());
             List<YearSeasonBandVo> slist = seasonList.stream().map(s -> {
                 YearSeasonBandVo v = new YearSeasonBandVo();
                 v.setPlanningSeasonId(s.getId());
@@ -551,15 +616,16 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
 
     /**
      * 查询产品季下的波段或渠道数量
+     *
      * @param bandflag
      * @return
      */
     public Map<String, Long> getSckCountMap(String bandflag) {
         if (StringUtils.isNotBlank(bandflag)) {
             List<Map<String, Long>> list = planningCategoryItemMaterialMapper.getbandSum();
-            Map<String, Long>  map =new HashMap<>();
+            Map<String, Long> map = new HashMap<>();
             for (Map<String, Long> stringLongMap : list) {
-                map.put( String.valueOf(stringLongMap.get("label")) ,stringLongMap.get("count"));
+                map.put(String.valueOf(stringLongMap.get("label")), stringLongMap.get("count"));
             }
             return map;
         }
@@ -577,28 +643,6 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         return CollectionUtils.isEmpty(planningSeasons) ? Lists.newArrayList() : CopyUtil.copy(planningSeasons, ProductSeasonSelectVO.class);
     }
 
-    @Override
-    public List<StyleColorVo> getStyleNoList(GetStyleNoListDto dto) {
-        BaseQueryWrapper<PlanningCategoryItem> snQw=new BaseQueryWrapper<>();
-        snQw.eq("c.planning_season_id",dto.getPlanningSeasonId());
-        snQw.eq("c.prod_category",dto.getProdCategory());
-        //snQw.eq("c.prod_category3rd",psdv.getProdCategory3rd());
-        snQw.eq("c.planning_channel_id",dto.getPlanningChannelId());
-        snQw.and(q->q.isNull("sc.seat_design_no").or(q2->q2.eq("sc.seat_design_no","")));
-
-        if(CollUtil.isNotEmpty(dto.getDimension())){
-            Map.Entry<String, String> dv = dto.getDimension().entrySet().stream().collect(Collectors.toList()).get(0);
-            snQw.exists("select id from t_field_val where foreign_id=s.id and del_flag='0' and data_group={0} and field_name={1} and val_name={2}",
-                    FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY,
-                    dv.getKey(),
-                    dv.getValue()
-            );
-        }
-
-        List<Map<String, Object>> styleNoList = planningCategoryItemMapper.queryOrderSkc(snQw);
-        return BeanUtil.copyToList(styleNoList,StyleColorVo.class);
-    }
-
 
     private void planningSummaryQw(QueryWrapper<T> qw, PlanningBoardSearchDto dto) {
         qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "ci.planning_season_id", dto.getPlanningSeasonId());
@@ -608,8 +652,6 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         qw.in(StrUtil.isNotEmpty(dto.getProdCategory()), "ci.prod_category", StrUtil.split(dto.getProdCategory(), CharUtil.COMMA));
 
     }
-
-
 
 
 }

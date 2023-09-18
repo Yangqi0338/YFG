@@ -2,11 +2,11 @@ package com.base.sbc.module.style.controller;
 
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
-import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.CategoryStylePlanningVo;
 import com.base.sbc.module.style.vo.StyleBoardCategorySummaryVo;
 
+import com.base.sbc.module.style.vo.StyleSummaryVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
@@ -39,7 +39,7 @@ public class StyleBoardController {
 
     @ApiOperation(value = "品类波段汇总", notes = "")
     @GetMapping("/categoryBandSummary")
-    public PlanningSummaryVo categoryBandSummary(@Valid PlanningBoardSearchDto dto) {
+    public StyleSummaryVo categoryBandSummary(@Valid PlanningBoardSearchDto dto) {
         return styleService.categoryBandSummary(dto);
     }
 

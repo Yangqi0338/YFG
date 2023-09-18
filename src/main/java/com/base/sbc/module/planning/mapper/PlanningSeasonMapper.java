@@ -9,6 +9,7 @@ package com.base.sbc.module.planning.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import org.apache.ibatis.annotations.Mapper;
@@ -25,6 +26,7 @@ import java.util.List;
  * @version 1.0
  */
 @Mapper
+@DataIsolation(authority = "PlanningSeason")
 public interface PlanningSeasonMapper extends BaseMapper<PlanningSeason> {
 
 

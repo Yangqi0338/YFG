@@ -6,9 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.purchase.service;
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.purchase.entity.MaterialStock;
-import com.base.sbc.module.purchase.entity.WarehousingOrder;
-import com.base.sbc.module.purchase.entity.WarehousingOrderDetail;
+import com.base.sbc.module.purchase.entity.*;
 
 import java.util.List;
 
@@ -23,5 +21,6 @@ import java.util.List;
 public interface MaterialStockService extends BaseService<MaterialStock>{
 
     void warehousingMaterialStock(WarehousingOrder order, List<WarehousingOrderDetail> orderDetailList, String operation);
-	
+
+    void outBoundOrderMaterialStock(OutboundOrder order, List<OutboundOrderDetail> orderDetailList, String operation);
 }

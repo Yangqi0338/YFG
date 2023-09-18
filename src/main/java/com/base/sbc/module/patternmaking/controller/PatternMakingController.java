@@ -8,6 +8,9 @@ package com.base.sbc.module.patternmaking.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
+import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
@@ -19,6 +22,7 @@ import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
+import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
@@ -39,6 +43,8 @@ import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
 
 /**
  * 类描述：打版管理 Controller类
@@ -61,6 +67,9 @@ public class PatternMakingController {
     @Autowired
     private UserUtils userUtils;
     private final SmpService smpService;
+
+    @Autowired
+    private CcmFeignService ccmFeignService;
 
     @ApiOperation(value = "技术中心看板-任务列表")
     @GetMapping("/technologyCenterTaskList")
@@ -105,7 +114,7 @@ public class PatternMakingController {
     @PutMapping
     public PatternMaking update(@RequestBody PatternMakingDto dto) {
         PatternMaking patternMaking = BeanUtil.copyProperties(dto, PatternMaking.class);
-        patternMakingService.checkPatternNoRepeat(dto.getId(), dto.getPatternNo());
+//        patternMakingService.checkPatternNoRepeat(dto.getId(), dto.getPatternNo());
         patternMakingService.updateById(patternMaking);
         return patternMaking;
     }
@@ -264,7 +273,13 @@ public class PatternMakingController {
     })
     public JSONObject getNodeStatusConfig(Principal user, String node, String status, String dataId) {
         GroupUser userBy = userUtils.getUserBy(user);
-        return patternMakingService.getNodeStatusConfig(userBy, node, status, dataId);
+        JSONObject nodeStatusConfig = patternMakingService.getNodeStatusConfig(userBy, node, status, dataId);
+        // 打版管理-样衣任务-是否显示裁剪开始、完成列表
+        if (ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.PATTERN_MAKING_SAMPLE_CROPPING_SWITCH.getKeyCode())) {
+            nodeStatusConfig.remove(EnumNodeStatus.GARMENT_CUTTING_STARTED.getStatus());
+            nodeStatusConfig.remove(EnumNodeStatus.GARMENT_CUTTING_COMPLETE.getStatus());
+        }
+        return nodeStatusConfig;
     }
 
     @ApiOperation(value = "分配人员(车缝工)", notes = "")

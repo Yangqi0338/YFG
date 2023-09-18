@@ -20,6 +20,7 @@ import com.base.sbc.module.purchase.entity.WarehousingOrder;
 import com.base.sbc.module.purchase.entity.WarehousingOrderDetail;
 import com.base.sbc.module.purchase.mapper.OutboundOrderMapper;
 import com.base.sbc.module.purchase.entity.OutboundOrder;
+import com.base.sbc.module.purchase.service.MaterialStockService;
 import com.base.sbc.module.purchase.service.OutboundOrderDetailService;
 import com.base.sbc.module.purchase.service.OutboundOrderService;
 import com.base.sbc.module.purchase.service.PurchaseDemandService;
@@ -50,6 +51,9 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
 
     @Autowired
     private PurchaseDemandService purchaseDemandService;
+
+    @Autowired
+    private MaterialStockService materialStockService;
 
     @Override
     public ApiResult cancel(String companyCode, String ids) {
@@ -160,6 +164,13 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
         outboundOrder.setReviewerName(userCompany.getAliasUserName());
         outboundOrder.setReviewDate(new Date());
         outboundOrder.setStatus("2");
+
+        // 物料库存 数据
+        QueryWrapper<OutboundOrderDetail> detailQw = new QueryWrapper<>();
+        detailQw.eq("outbound_id", outboundOrder.getId());
+        List<OutboundOrderDetail> detailList = outboundOrderDetailService.list(detailQw);
+        materialStockService.outBoundOrderMaterialStock(outboundOrder, detailList, "1");
+
         updateById(outboundOrder);
     }
 

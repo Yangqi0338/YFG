@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.OutboundOrderDetail
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-30 10:05:48
+ * @date 创建时间：2023-9-18 10:35:54
  * @version 1.0
  */
 @Data
@@ -41,6 +41,9 @@ public class OutboundOrderDetail extends BaseDataEntity<String> {
     /** 来源单id */
     @ApiModelProperty(value = "来源单id"  )
     private String sourceId;
+    /** 物料SKU */
+    @ApiModelProperty(value = "物料SKU"  )
+    private String materialSku;
     /** 物料编码 */
     @ApiModelProperty(value = "物料编码"  )
     private String materialCode;
@@ -62,9 +65,15 @@ public class OutboundOrderDetail extends BaseDataEntity<String> {
     /** 规格 */
     @ApiModelProperty(value = "规格"  )
     private String specifications;
+    /** 规格编码 */
+    @ApiModelProperty(value = "规格编码"  )
+    private String specificationsCode;
     /** 颜色 */
     @ApiModelProperty(value = "颜色"  )
     private String color;
+    /** 颜色编码 */
+    @ApiModelProperty(value = "颜色编码"  )
+    private String colorCode;
     /** 库存单价 */
     @ApiModelProperty(value = "库存单价"  )
     private BigDecimal stockPrice;
@@ -77,6 +86,12 @@ public class OutboundOrderDetail extends BaseDataEntity<String> {
     /** 已出库数 */
     @ApiModelProperty(value = "已出库数"  )
     private BigDecimal outboundNum;
+    /** 库位 */
+    @ApiModelProperty(value = "库位"  )
+    private String position;
+    /** 库位编码 */
+    @ApiModelProperty(value = "库位编码"  )
+    private String positionCode;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
