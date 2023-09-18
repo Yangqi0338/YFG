@@ -583,7 +583,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //二维码url
         String fileWebUrl = baseFrontEndAddress + "/techSpecView?foreignId=" + dto.getForeignId() + "&packType=" + dto.getPackType() + "&userId=" + groupUser.getId();
         System.out.println(fileWebUrl);
-        String qrCodeUrl = baseRequestUrl + "/pdm/api/open/qrCode?content=" + URLUtil.encode(fileWebUrl);
+        System.out.println(URLUtil.encode(fileWebUrl));
+        String qrCodeUrl = baseRequestUrl + "/pdm/api/open/qrCode?content=" + URLUtil.encodeAll(fileWebUrl);
         vo.setQrCodeUrl(qrCodeUrl);
         System.out.println("qrCodeUrl:" + qrCodeUrl);
         // 获取吊牌信息
