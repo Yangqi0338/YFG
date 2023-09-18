@@ -26,7 +26,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.PurchaseDemand
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-9-13 19:10:52
+ * @date 创建时间：2023-9-18 15:59:31
  * @version 1.0
  */
 @Data
@@ -66,6 +66,7 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     }
 
     public PurchaseDemand(PackInfo packInfo, PackBom packBom, BasicsdatumMaterial material, PackBomSize packBomSize, BigDecimal needNum){
+        this.sourceType = "0";
         this.materialImage = material.getImageUrl();
         this.designStyleCode = packInfo.getDesignNo();
         this.plateBillCode = packInfo.getPatternNo();
@@ -90,6 +91,26 @@ public class PurchaseDemand extends BaseDataEntity<String> {
         this.loss = packBom.getLossRate();
     }
 
+    public PurchaseDemand(PurchaseRequest purchaseRequest, PurchaseRequestDetail detail){
+        this.sourceType = "1";
+        this.requestCode = purchaseRequest.getCode();
+        this.materialImage = detail.getImgUrl();
+        this.materialCode = detail.getMaterialCode();
+        this.materialType = detail.getMaterialType();
+        this.materialName = detail.getMaterialName();
+        this.supplierCode = detail.getSupplierId();
+        this.supplierName = detail.getSupplierName();
+        this.supplierColor = detail.getSupplierColor();
+        this.component = detail.getComponent();
+        this.needNum = detail.getRequestNum();
+        this.price = detail.getPrice();
+        this.unit = detail.getUnit();
+        this.usePosition = detail.getUsePosition();
+        this.materialSpecifications = detail.getMaterialSpecifications();
+        this.materialSpecificationsCode = detail.getMaterialSpecificationsCode();
+        this.loss = detail.getLoss();
+    }
+
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
@@ -102,6 +123,12 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     /** 物料图片 */
     @ApiModelProperty(value = "物料图片"  )
     private String materialImage;
+    /** 来源类型（0 资料包，1 采购申请单） */
+    @ApiModelProperty(value = "来源类型（0 资料包，1 采购申请单）"  )
+    private String sourceType;
+    /** 申请单号 */
+    @ApiModelProperty(value = "申请单号"  )
+    private String requestCode;
     /** 资料包物料清单id */
     @ApiModelProperty(value = "资料包物料清单id"  )
     private String packBomId;

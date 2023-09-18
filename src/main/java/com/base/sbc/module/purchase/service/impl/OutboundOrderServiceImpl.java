@@ -26,6 +26,7 @@ import com.base.sbc.module.purchase.service.OutboundOrderService;
 import com.base.sbc.module.purchase.service.PurchaseDemandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -56,6 +57,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
     private MaterialStockService materialStockService;
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public ApiResult cancel(String companyCode, String ids) {
         QueryWrapper<OutboundOrder> qw = new QueryWrapper();
         qw.eq("company_code", companyCode);
@@ -84,6 +86,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public ApiResult addOutbound(UserCompany userCompany, String companyCode, OutboundOrder outboundOrder) {
         IdGen idGen = new IdGen();
 
@@ -123,6 +126,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public ApiResult updateOutbound(UserCompany userCompany, String companyCode, OutboundOrder outboundOrder) {
         IdGen idGen = new IdGen();
         //删除旧数据，返回旧数据所占用的数量
@@ -158,6 +162,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public void examinePass(UserCompany userCompany, AnswerDto dto) {
         OutboundOrder outboundOrder = getById(dto.getBusinessKey());
         outboundOrder.setReviewerId(userCompany.getUserId());
@@ -175,6 +180,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public void examineNoPass(UserCompany userCompany, AnswerDto dto) {
         OutboundOrder outboundOrder = getById(dto.getBusinessKey());
         outboundOrder.setReviewerId(userCompany.getUserId());
@@ -186,6 +192,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public void cancelExamine(UserCompany userCompany, AnswerDto dto) {
         OutboundOrder outboundOrder = getById(dto.getBusinessKey());
         outboundOrder.setReviewerId(userCompany.getUserId());
