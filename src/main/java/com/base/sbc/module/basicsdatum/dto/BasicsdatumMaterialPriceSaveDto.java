@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * 
+ *
  *
  * @author shenzhixiong
  * @email 731139982@qq.com
@@ -78,4 +78,9 @@ public class BasicsdatumMaterialPriceSaveDto {
 	/** 是否默认 */
 	@ApiModelProperty(value = "是否默认")
 	private Boolean selectFlag;
+	/**
+	 * 下发状态:0未下发,1已下发
+	 */
+	@ApiModelProperty(value = "下发状态:0未下发,1已下发")
+	private String scmStatus;
 }

@@ -270,6 +270,7 @@ public class OpenSmpService {
                 basicsdatumMaterialPrice.setUpdateName("外部系统推送");
                 basicsdatumMaterialPrice.setRemarks(quotItem.getComment());
                 basicsdatumMaterialPrice.setIndex(String.valueOf(index.get()));
+                basicsdatumMaterialPrice.setScmStatus("1");
                 basicsdatumMaterialPrices.add(basicsdatumMaterialPrice);
                 index.getAndIncrement();
 

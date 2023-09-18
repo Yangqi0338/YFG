@@ -9,9 +9,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * 
+ *
  * 物料供应商报价数据
- * 
+ *
  * @author shenzhixiong
  * @email 731139982@qq.com
  * @date 2023年6月26日
@@ -77,4 +77,10 @@ public class BasicsdatumMaterialPricePageVo extends BaseDataEntity<String> {
 	/** 是否默认 */
 	@ApiModelProperty(value = "是否默认")
 	private Boolean selectFlag;
+	/**
+	 * 下发状态:0未下发,1已下发
+	 */
+	@ApiModelProperty(value = "下发状态:0未下发,1已下发")
+	private String scmStatus;
+
 }

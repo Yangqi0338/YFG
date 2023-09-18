@@ -93,6 +93,12 @@ public class BasicsdatumMaterialPrice extends BaseDataEntity<String> {
 	@ApiModelProperty(value = "是否默认")
 	private Boolean selectFlag;
 
+	/**
+	 * 下发状态:0未下发,1已下发
+	 */
+		@ApiModelProperty(value = "下发状态:0未下发,1已下发")
+	private String scmStatus;
+
 
 	@TableField(exist = false)
 	private Set<String> indexList;

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.IdGen;
@@ -53,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
 
@@ -119,6 +121,7 @@ public class SmpService {
     private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
     private final PreProductionSampleTaskService preProductionSampleTaskService;
     private final UploadFileService uploadFileService;
+    private final BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
 
     private static final String SMP_URL = "http://10.98.250.31:7006/pdm";
     //private static final String PDM_URL = "http://smp-i.eifini.com/service-manager/pdm";
@@ -451,6 +454,7 @@ public class SmpService {
 
             List<BasicsdatumMaterialPricePageVo> materialPricePageVoList = new ArrayList<>();
             List<BasicsdatumMaterialPricePageVo> list = basicsdatumMaterialService.getBasicsdatumMaterialPriceList(dto).getList();
+            List<String> priceIds = list.stream().map(BasicsdatumMaterialPricePageVo::getId).collect(Collectors.toList());
             //拆分sku
             for (BasicsdatumMaterialPricePageVo basicsdatumMaterialPricePageVo : list) {
                 String[] widths = basicsdatumMaterialPricePageVo.getWidth().split(",");
@@ -520,7 +524,7 @@ public class SmpService {
             //修改状态为已下发
             basicsdatumMaterial.setDistribute("1");
             basicsdatumMaterialService.updateById(basicsdatumMaterial);
-
+            basicsdatumMaterialPriceService.update(new UpdateWrapper<BasicsdatumMaterialPrice>().set("scm_status", "1").in("id", priceIds));
             //提交事务
             dataSourceTransactionManager.commit(transactionStatus);
         } catch (OtherException otherException) {
