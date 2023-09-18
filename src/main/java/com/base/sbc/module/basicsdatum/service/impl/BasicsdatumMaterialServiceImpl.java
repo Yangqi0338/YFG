@@ -485,7 +485,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     public Boolean saveBasicsdatumMaterialWidth(BasicsdatumMaterialWidthSaveDto dto) {
         long count = this.materialWidthService.count(new QueryWrapper<BasicsdatumMaterialWidth>().ne("id", dto.getId())
                 .eq("company_code", this.getCompanyCode()).eq("Material_Code", dto.getMaterialCode())
-                .eq("Width_Code", dto.getWidthCode()));
+                .eq("Width_Code", dto.getWidthCode()).or().eq("name", dto.getName()));
         if (count > 0) {
             throw new OtherException("当前规格已存在");
         }
