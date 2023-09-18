@@ -55,6 +55,7 @@ public class MaterialStockController extends BaseController{
 		QueryWrapper<MaterialStock> qc = new QueryWrapper<>();
 		qc.eq("company_code", userCompany);
 		qc.eq(StringUtils.isNotBlank(page.getWarehouseId()), "warehouse_id", page.getWarehouseId());
+		qc.eq(StringUtils.isNotBlank(page.getDefaultSupplierId()), "default_supplier_id", page.getDefaultSupplierId());
 		if(StringUtils.isNotBlank(page.getSearch())){
 			qc.and(wrapper -> wrapper.like("material_code", page.getSearch())
 					.or()
