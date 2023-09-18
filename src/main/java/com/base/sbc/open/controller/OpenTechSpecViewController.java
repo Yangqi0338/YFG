@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,6 +55,7 @@ public class OpenTechSpecViewController {
         }
         result.put("video", byQw.getTechSpecVideo());
         GenTechSpecPdfFile genTechSpecPdfFile = packInfoService.queryGenTechSpecPdfFile(null, dto);
+        genTechSpecPdfFile.setPdfView(false);
         String html;
         try {
             html = genTechSpecPdfFile.toHtml();
@@ -60,6 +64,27 @@ public class OpenTechSpecViewController {
         }
         result.put("html", html);
         return result;
+    }
+
+    @GetMapping("pdfHtml")
+    public void html(String foreignId, String packType, String userId, HttpServletResponse response) throws IOException {
+        PackCommonSearchDto dto = new PackCommonSearchDto();
+        dto.setForeignId(foreignId);
+        dto.setPackType(packType);
+
+        GenTechSpecPdfFile genTechSpecPdfFile = packInfoService.queryGenTechSpecPdfFile(null, dto);
+        genTechSpecPdfFile.setPdfView(false);
+        String html;
+        try {
+            html = genTechSpecPdfFile.toHtml();
+        } catch (Exception e) {
+            html = e.getMessage();
+        }
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter writer = response.getWriter();
+        writer.write(html);
+        writer.flush();
+        writer.close();
     }
 
 }
