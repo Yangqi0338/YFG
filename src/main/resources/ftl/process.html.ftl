@@ -7,7 +7,6 @@
         font-family: 'Source Han Serif SC', 'Noto Sans SC', SimSun;
         font-size: 12px;
     }
-
     html {
         width: 277mm;
         margin: 50px auto;

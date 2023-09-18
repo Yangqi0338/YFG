@@ -186,6 +186,7 @@ public class GenTechSpecPdfFile {
     @ApiModelProperty(value = "尺寸表")
     private List<PackSizeVo> sizeList;
 
+    private boolean pdfView = true;
 
     private float lrMargin = 20;
 
@@ -196,9 +197,7 @@ public class GenTechSpecPdfFile {
         }
         this.placeOrderDateStr = DateUtil.format(placeOrderDate, DatePattern.NORM_DATETIME_PATTERN);
         this.produceDateStr = DateUtil.format(produceDate, DatePattern.NORM_DATETIME_PATTERN);
-        Date newDate = new Date();
-        this.createDate = DateUtil.format(newDate, "yy/M/d");
-        this.createTime = DateUtil.format(newDate, "a HH:mm");
+
 
         List<String> sizeList = StrUtil.split(this.activeSizes, CharUtil.COMMA);
         boolean washSkippingFlag = StrUtil.equals(this.getWashSkippingFlag(), BaseGlobal.YES);
