@@ -3,8 +3,10 @@ package com.base.sbc.module.common.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.config.enums.OperationType;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 卞康
@@ -54,5 +56,5 @@ public interface BaseService<T> extends IService<T> {
     /**
      * 保存操作日志
      */
-    void saveOperaLog(String id, String type, String name, Object newObject, Object oldObject);
+    void saveOperaLog(String id, String type, String name, Object newObject, Object oldObject, OperaLogEntity operaLogEntity1);
 }

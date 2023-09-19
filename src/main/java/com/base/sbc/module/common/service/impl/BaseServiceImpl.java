@@ -185,7 +185,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         String type = "新增";
         boolean save = this.save(entity);
         if (save) {
-            this.saveOperaLog(entity.getId(), type, name, entity, null);
+            this.saveOperaLog(entity.getId(), type, name, entity, null,null);
         }
         return save;
     }
@@ -201,7 +201,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         T oldEntity = this.getById(entity.getId());
         boolean update = this.updateById(entity);
         if (update) {
-            this.saveOperaLog(entity.getId(), type, name, entity, oldEntity);
+            this.saveOperaLog(entity.getId(), type, name, entity, oldEntity,null);
         }
         return false;
     }
@@ -216,7 +216,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      * @param oldObject 旧对象
      */
     @Override
-    public void saveOperaLog(String id, String type, String name, Object newObject, Object oldObject) {
+    public void saveOperaLog(String id, String type, String name, Object newObject, Object oldObject,OperaLogEntity operaLogEntity1) {
         try {
             OperaLogEntity operaLogEntity = new OperaLogEntity();
             JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
@@ -226,6 +226,10 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
             operaLogEntity.setName(name);
             operaLogEntity.setType(type);
             operaLogService.save(operaLogEntity);
+            if (operaLogEntity1!=null){
+                operaLogEntity1.setId(operaLogEntity.getId());
+                operaLogService.updateById(operaLogEntity1);
+            }
         } catch (Exception e) {
             log.error("保存操作日志失败", e);
         }
