@@ -1,7 +1,5 @@
 package com.base.sbc.module.common.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
 import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -301,9 +299,53 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      * @param oldObject
      */
     @Override
-    public void saveOperaLog(Object newObject, Object oldObject, OperaLogEntity operaLogEntity) {
-        JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
-        operaLogEntity.setJsonContent(jsonArray.toJSONString());
+    public void saveOrUpdateOperaLog(Object newObject, Object oldObject, OperaLogEntity operaLogEntity) {
+        if (oldObject != null) {
+            JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
+            operaLogEntity.setJsonContent(jsonArray.toJSONString());
+        }
         operaLogService.save(operaLogEntity);
+    }
+
+    /**
+     * 批量保存操作日志
+     */
+    @Override
+    public void saveBatchOperaLog(List<Object> newObject, OperaLogEntity operaLogEntity) {
+        List<OperaLogEntity> operaLogEntityList = new ArrayList<>();
+        for (Object o : newObject) {
+            try {
+                operaLogEntity.setId(o.getClass().getField("id").get(o).toString());
+            } catch (Exception ignored) {
+            }
+            operaLogEntityList.add(operaLogEntity);
+        }
+        operaLogService.saveBatch(operaLogEntityList);
+    }
+
+    /**
+     * 批量修改操作日志
+     *
+     * @param newObject
+     * @param oldObject
+     * @param operaLogEntity
+     */
+    @Override
+    public void updateBatchOperaLog(List<Object> newObject, List<Object> oldObject, OperaLogEntity operaLogEntity) {
+        List<OperaLogEntity> operaLogEntityList = new ArrayList<>();
+        for (Object o : newObject) {
+            try {
+                for (Object object : oldObject) {
+                    if (o.getClass().getField("id").get(o).toString().equals(object.getClass().getField("id").toString())) {
+                        JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
+                        operaLogEntity.setJsonContent(jsonArray.toJSONString());
+                    }
+                }
+                operaLogEntity.setId(o.getClass().getField("id").get(o).toString());
+            } catch (Exception ignored) {
+            }
+            operaLogEntityList.add(operaLogEntity);
+        }
+        operaLogService.saveBatch(operaLogEntityList);
     }
 }

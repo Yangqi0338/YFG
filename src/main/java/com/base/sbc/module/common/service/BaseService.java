@@ -67,5 +67,15 @@ public interface BaseService<T> extends IService<T> {
     /**
      * 保存操作日志
      */
-    void saveOperaLog(Object newObject, Object oldObject, OperaLogEntity operaLogEntity);
+    void saveOrUpdateOperaLog(Object newObject, Object oldObject, OperaLogEntity operaLogEntity);
+
+    /**
+     * 批量保存操作日志
+     */
+    void saveBatchOperaLog(List<Object> newObject, OperaLogEntity operaLogEntity);
+
+    /**
+     * 批量修改操作日志
+     */
+    void updateBatchOperaLog(List<Object> newObject,List<Object> oldObject, OperaLogEntity operaLogEntity);
 }
