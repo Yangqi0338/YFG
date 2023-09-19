@@ -312,22 +312,22 @@ public class SqlPrintInterceptor implements Interceptor {
     }
     private String disposeSql(String sql, Boolean type){
         if(type){
-            sql=sql.replaceAll("\\?"," ::;,11,;::")
-                    .replaceAll("\\+"," ::;,22,;::")
-                    .replaceAll("\\|"," ::;,33,;::")
-                    .replaceAll("\\."," ::;,44,;::")
-                    .replaceAll("\\*"," ::;,55,;::")
-                    .replaceAll("\\$"," ::;,66,;::")
-                    .replaceAll("\\("," ::;,77,;::")
-                    .replaceAll("\\)"," ::;,88,;::");
+            sql=sql.replaceAll("\\?"," ::;,11,;:: ")
+                    .replaceAll("\\+"," ::;,22,;:: ")
+                    .replaceAll("\\|"," ::;,33,;:: ")
+                    .replaceAll("\\."," ::;,44,;:: ")
+                    .replaceAll("\\*"," ::;,55,;:: ")
+                    .replaceAll("\\$"," ::;,66,;:: ")
+                    .replaceAll("\\("," ::;,77,;:: ")
+                    .replaceAll("\\)"," ::;,88,;:: ");
         }else {
-            sql=sql.replaceAll(" ::;,11,;::","\\?")
-                    .replaceAll(" ::;,22,;::","\\+")
-                    .replaceAll(" ::;,33,;::","\\|")
-                    .replaceAll(" ::;,44,;::","\\.")
-                    .replaceAll(" ::;,55,;::","\\*")
+            sql=sql.replaceAll(" ::;,11,;:: ","\\?")
+                    .replaceAll(" ::;,22,;:: ","\\+")
+                    .replaceAll(" ::;,33,;:: ","\\|")
+                    .replaceAll(" ::;,44,;:: ","\\.")
+                    .replaceAll(" ::;,55,;:: ","\\*")
                     .replaceAll(" ::;,66,;::","\\$")
-                    .replaceAll(" ::;,77,;::","\\(")
+                    .replaceAll(" ::;,77,;:: ","\\(")
                     .replaceAll(" ::;,88,;::","\\) ");
         }
         return sql;
