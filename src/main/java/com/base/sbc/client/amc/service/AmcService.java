@@ -206,4 +206,13 @@ public interface AmcService {
     @GetMapping("/amc/api/token/seasonTeams/seasonSaveDefaultTeam")
     ApiResult seasonSaveDefaultTeam(@RequestParam("seasonId") String seasonId);
 
+
+    /**
+     * 查询用户
+     * @param userId
+     * @return
+     */
+    @GetMapping("/amc/api/token/user/getUserByUserId")
+    public String getUserByUserId( @RequestParam("userId") String userId);
+
 }

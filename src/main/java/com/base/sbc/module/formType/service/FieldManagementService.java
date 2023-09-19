@@ -13,6 +13,7 @@ import com.base.sbc.module.formType.dto.SaveUpdateFieldManagementDto;
 import com.base.sbc.module.formType.entity.FieldManagement;
 import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -37,10 +38,10 @@ public interface FieldManagementService extends BaseService<FieldManagement> {
 
     /**
      * 查询维度-字段有配置的选项
-     * @param queryFieldManagementDto
+     * @param queryDemandDto
      * @return
      */
-    List<FieldManagementVo> getFieldConfigList(QueryFieldManagementDto queryFieldManagementDto);
+    List<FieldManagementVo> getFieldConfigList(QueryDemandDto queryDemandDto);
 
     ApiResult adjustmentOrder(QueryFieldManagementDto queryFieldManagementDto);
 

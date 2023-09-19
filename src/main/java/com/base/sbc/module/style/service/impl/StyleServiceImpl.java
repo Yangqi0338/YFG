@@ -925,7 +925,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         QueryWrapper<PlanningSeason> qc = new QueryWrapper<>();
         qc.eq("company_code", getCompanyCode());
         qc.eq("del_flag", BasicNumber.ZERO.getNumber());
-        qc.select("id", "name", "season");
+        qc.select("id", "name", "season","brand","brand_name");
         qc.orderByDesc("name");
         /*查询到的产品季*/
         List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
@@ -942,6 +942,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                     tree.setChildren(true);
                     tree.setLevel(0);
                     tree.setSeason(ps.getSeason());
+                    tree.setBrand(ps.getBrand());
+                    tree.setBrandName(ps.getBrandName());
                     tree.setPlanningSeasonId(ps.getId());
                     tree.setName(ps.getName());
                     return tree;

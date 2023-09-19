@@ -165,6 +165,8 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         } else {
             qw.apply(StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory()), "FIND_IN_SET({0},category_code)", queryDemandDimensionalityDto.getProdCategory());
         }
+        qw.apply(StrUtil.isNotBlank(queryDemandDimensionalityDto.getBrand()), "FIND_IN_SET({0},brand)", queryDemandDimensionalityDto.getBrand());
+        qw.eq(StrUtil.isNotBlank(queryDemandDimensionalityDto.getSeason()),"season",queryDemandDimensionalityDto.getSeason());
         /*查询字段配置中的数据*/
         List<FieldOptionConfig> optionConfigList = fieldOptionConfigMapper.selectList(qw);
         /*获取到这个品类下存在的字段*/
@@ -215,6 +217,8 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
             queryWrapper.isNull("prod_category2nd");
         }
         queryWrapper.eq("planning_season_id", saveDelDemandDto.get(0).getPlanningSeasonId());
+        queryWrapper.eq("channel", saveDelDemandDto.get(0).getChannel());
+
         List<PlanningDemand> list = baseMapper.selectList(queryWrapper);
         /*添加的数据*/
         List<SaveDelDemandDto> addList = new ArrayList<>();

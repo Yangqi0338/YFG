@@ -55,6 +55,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,7 +108,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public PatternMaking savePatternMaking(PatternMakingDto dto) {
-//        checkPatternNoRepeat(dto.getId(), dto.getPatternNo());
         Style style = styleService.getById(dto.getStyleId());
         if (style == null) {
             throw new OtherException("款式设计不存在");
@@ -115,15 +115,18 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         QueryWrapper rQw = new QueryWrapper();
         rQw.eq("style_id", dto.getStyleId());
         rQw.eq("del_flag", BaseGlobal.NO);
+        //款的第一个版只能是初版样
+        List<PatternMaking> makingList = baseMapper.selectList(rQw);
         //出版样只能有一个
         if (StrUtil.equals("初版样", dto.getSampleType())) {
-
             rQw.eq("sample_type", dto.getSampleType());
             long count = count(rQw);
             if (count != 0) {
                 throw new OtherException(dto.getSampleType() + "只能有一个");
             }
-        } else {
+        } else if(CollUtil.isEmpty(makingList)) {
+            throw new OtherException("请创建初版样");
+        } else{
             rQw.ne("sample_type", "初版样");
             long count = count(rQw);
             if (count >= 5) {
@@ -187,9 +190,26 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdUw.eq("id", patternMaking.getStyleId());
         sdUw.set("status", BasicNumber.TWO.getNumber());
         styleService.update(sdUw);
+        /**
+         * 当不为初版样时直接下发到打版管理
+         * 不为初版样时还需判断版师是否离职 否则不自动下发，后续下发改版样都取接收版师（再次分配的版师）
+         */
+        if (!StrUtil.equals("初版样", patternMaking.getSampleTypeName())) {
+            /*查看是否离职*/
+            UserCompany userCompany =   amcFeignService.getUserByUserId(patternMaking.getPatternDesignId());
+            if(!StrUtil.equals(userCompany.getIsDimission(),BaseGlobal.YES)){
+                /*自动下发到打板管理*/
+                SetPatternDesignDto setPatternDesignDto =new SetPatternDesignDto();
+                BeanUtils.copyProperties(patternMaking, setPatternDesignDto);
+                /*自动下发打板*/
+                prmSend(setPatternDesignDto);
+            }else {
+                /*初版版师离职后需要手动下发*/
+
+            }
+        }
 
         /*发送消息*/
-
         messageUtils.sampleDesignSendMessage(patternMaking.getPatternRoomId(),patternMaking.getPatternNo(),baseController.getUser());
         // 修改单据
         return update(uw);
@@ -270,8 +290,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.eq("id", dto.getId());
         // 修改单据
         update(uw);
+        /*当为出版样时修改款的版师*/
+        if (StrUtil.equals("初版样", byId.getSampleTypeName())) {
+            Style style = styleService.getById(byId.getStyleId());
+            style.setPatternDesignId(dto.getPatternDesignId());
+            style.setPatternDesignName(dto.getPatternDesignName());
+            styleService.updateById(style);
+        }
         /*消息通知*/
-      messageUtils.prmSendMessage(dto.getPatternDesignId(),byId.getPatternNo(),baseController.getUser());
+        messageUtils.prmSendMessage(dto.getPatternDesignId(),byId.getPatternNo(),baseController.getUser());
         return true;
     }
 
