@@ -454,7 +454,7 @@
         </th>
     </tr>
     <tr class="size_tr gb">
-        <th rowspan="2" style="text-align: center;min-width: 80px;">部位</th>
+        <th rowspan="2" style="text-align: center;width: auto;">部位</th>
         <th rowspan="2" style="text-align: center;">描述</th>
         <#list sizeList as size>
             <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]}">
