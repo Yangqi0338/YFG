@@ -37,7 +37,6 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.IBlockElement;
 import com.itextpdf.layout.element.IElement;
 import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.VerticalAlignment;
@@ -198,10 +197,8 @@ public class GenTechSpecPdfFile {
         this.placeOrderDateStr = DateUtil.format(placeOrderDate, DatePattern.NORM_DATETIME_PATTERN);
         this.produceDateStr = DateUtil.format(produceDate, DatePattern.NORM_DATETIME_PATTERN);
 
-
         List<String> sizeList = StrUtil.split(this.activeSizes, CharUtil.COMMA);
         boolean washSkippingFlag = StrUtil.equals(this.getWashSkippingFlag(), BaseGlobal.YES);
-//            washSkippingFlag=true;
         Configuration config = new Configuration();
         config.setDefaultEncoding("UTF-8");
         config.setTemplateLoader(new ClassTemplateLoader(UtilFreemarker.class, "/"));
@@ -284,15 +281,11 @@ public class GenTechSpecPdfFile {
         }
         Map<String, List<PackTechSpecVo>> gyMap = new HashMap<>(16);
         if (CollUtil.isNotEmpty(this.getTechSpecVoList())) {
-//                gyMap = this.getTechSpecVoList().stream().collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
             gyMap = JSON.parseArray(JSON.toJSONString(this.getTechSpecVoList(), JSONWriter.Feature.WriteNullStringAsEmpty))
                     .toJavaList(PackTechSpecVo.class)
                     .stream()
                     .collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
         }
-
-//            ArrayList<Object> sizeDataListAll = CollUtil.newArrayList();
-//            ListUtil.page(dataList, 18, d -> sizeDataListAll.add(d));
         dataModel.put("sizeDataList", dataList);
         dataModel.put("sizeClass", sizeClass.values());
         dataModel.put("ztbzDataList", Optional.ofNullable(gyMap.get("整烫包装")).orElse(CollUtil.newArrayList()));
@@ -341,24 +334,12 @@ public class GenTechSpecPdfFile {
             document.setMargins(30, lrMargin, 30, lrMargin);
             for (int i = 1; i < elements.size(); i++) {
                 IElement element = elements.get(i);
-
                 // 分页符
                 if (element instanceof HtmlPageBreak) {
                     document.add((HtmlPageBreak) element);
                     //普通块级元素
                 } else {
                     IBlockElement blockElement = (IBlockElement) element;
-                    Table t = (Table) element;
-
-                    if (t.getFooter() != null) {
-                        List<IElement> children = t.getFooter().getCell(0, 0).getChildren();
-                        IElement iElement = children.get(0);
-                        Paragraph h = (Paragraph) iElement;
-//                        String text = ((Text) h.getChildren().get(0)).getText();
-//                        System.out.println("表格:"+text+":"+t.getNumberOfRows());
-//                        h.getChildren().clear();
-//                        h.add("你好33333");
-                    }
                     document.add(blockElement);
                 }
             }

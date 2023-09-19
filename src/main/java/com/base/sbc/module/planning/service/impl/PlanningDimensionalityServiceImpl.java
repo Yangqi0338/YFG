@@ -146,6 +146,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             planningDimensionality = new PlanningDimensionality();
             BeanUtil.copyProperties(dto, planningDimensionality);
             planningDimensionality.setDelFlag(BaseGlobal.NO);
+            planningDimensionality.setId(null);
             baseMapper.insert(planningDimensionality);
         } else {
             /*调整维度*/
