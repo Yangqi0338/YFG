@@ -4,10 +4,11 @@
 </head>
 <style>
     * {
-        font-family: 'Source Han Serif SC', 'Noto Sans SC', SimSun;
+        font-family: 'Source Han Serif CN';
         font-size: 12px;
 
     }
+
     html {
         width: 277mm;
         margin: 50px auto;
@@ -35,7 +36,6 @@
     td {
         padding-left: 4px;
         padding-right: 4px;
-        font-family: 'Source Han Serif SC Medium';
     }
 
     .table_border {
@@ -46,7 +46,7 @@
 
     .table_border tbody tr, td {
         height: 25px;
-        font-family: 'Source Han Serif SC Medium';
+        font-family: 'Source Han Serif CN Medium';
     }
 
     .table_no_border {
