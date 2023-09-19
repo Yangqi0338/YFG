@@ -4,7 +4,7 @@
 </head>
 <style>
     * {
-        font-family: 'Source Han Serif CN';
+        font-family: 'Source Han Serif SC';
         font-size: 12px;
 
     }
@@ -46,7 +46,7 @@
 
     .table_border tbody tr, td {
         height: 25px;
-        font-family: 'Source Han Serif CN Medium';
+        font-family: 'Source Han Serif SC Medium';
     }
 
     .table_no_border {
