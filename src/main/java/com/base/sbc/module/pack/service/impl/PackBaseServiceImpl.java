@@ -164,7 +164,7 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
         log.setParentId(parentId);
         //String pathSqEL = "'资料包-'+#p0.packType+'-'+#p0.foreignId+'-工艺说明-'+#p0.specType";
         log.setPath(CollUtil.join(CollUtil.newArrayList("资料包", packType, parentId, getModeName()), StrUtil.DASHED));
-        log.setDocumentId(CollUtil.join(documentIds, StrUtil.COMMA));
+//        log.setDocumentId(CollUtil.join(documentIds, StrUtil.COMMA));
         operaLogService.save(log);
         return entityList.size();
 
