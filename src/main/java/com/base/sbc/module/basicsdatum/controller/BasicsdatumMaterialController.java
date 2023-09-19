@@ -415,4 +415,9 @@ public class BasicsdatumMaterialController extends BaseController {
         return basicsdatumMaterialPriceDetailService.gatSupplierWidthColorList(supplierDetailPriceDto);
     }
 
+    @ApiOperation(value = "获取供应商详情价格")
+    @GetMapping("/gatSupplierPrice")
+    public BasicsdatumMaterialPriceDetailVo gatSupplierPrice(SupplierDetailPriceDto supplierDetailPriceDto) {
+        return basicsdatumMaterialPriceDetailService.gatSupplierPrice(supplierDetailPriceDto);
+    }
 }

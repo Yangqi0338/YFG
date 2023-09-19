@@ -105,7 +105,7 @@ public class RedisUtils {
 	 * @param pattern
 	 */
 	public void removePattern(String pattern) {
-		Set<String> keys = redisTemplate.keys(pattern);
+		Set<String> keys = redisTemplate.keys(pattern+(pattern.endsWith(":")?"":":")+"*");
 		if (keys.size() > 0) {
 			redisTemplate.delete(keys);
 		}

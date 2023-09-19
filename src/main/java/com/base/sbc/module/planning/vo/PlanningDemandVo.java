@@ -21,6 +21,12 @@ public class PlanningDemandVo {
     /** 状态(0需求,1维度标签) */
     @ApiModelProperty(value = "状态(0需求,1维度标签)"  )
     private String type;
+    /** 渠道 */
+    @ApiModelProperty(value = "渠道"  )
+    private String channel;
+    /** 渠道名称 */
+    @ApiModelProperty(value = "渠道名称"  )
+    private String channelName;
 
     private String formTypeId;
     /** 字段id */

@@ -11,6 +11,7 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CodeGen;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -66,11 +67,14 @@ public class PurchaseRequestServiceImpl extends BaseServiceImpl<PurchaseRequestM
         purchaseRequest.setOrderStatus("0");
         purchaseRequest.setDelFlag("0");
 
+        BigDecimal totalAmount = new BigDecimal(0.0);
         List<PurchaseRequestDetail> purchaseRequestDetailList = purchaseRequest.getDetailList();
         for(PurchaseRequestDetail detail : purchaseRequestDetailList){
             detail.setId(idGen.nextIdStr());
             detail.setRequestId(id);
+            totalAmount = BigDecimalUtil.add(totalAmount, detail.getPrice().multiply(detail.getRequestNum()));
         }
+        purchaseRequest.setTotalAmount(totalAmount);
 
         boolean result = save(purchaseRequest);
         if(result){
@@ -89,12 +93,15 @@ public class PurchaseRequestServiceImpl extends BaseServiceImpl<PurchaseRequestM
         detailQw.eq("request_id", purchaseRequest.getId());
         requestDetailService.physicalDeleteQWrap(detailQw);
 
+        BigDecimal totalAmount = new BigDecimal(0.0);
         purchaseRequest.updateInit(userCompany);
         List<PurchaseRequestDetail> purchaseRequestDetailList = purchaseRequest.getDetailList();
         for(PurchaseRequestDetail detail : purchaseRequestDetailList){
             detail.setId(idGen.nextIdStr());
             detail.setRequestId(purchaseRequest.getId());
+            totalAmount = BigDecimalUtil.add(totalAmount, detail.getPrice().multiply(detail.getRequestNum()));
         }
+        purchaseRequest.setTotalAmount(totalAmount);
 
         boolean result = updateById(purchaseRequest);
         if(result){

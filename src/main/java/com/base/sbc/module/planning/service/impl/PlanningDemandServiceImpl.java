@@ -80,6 +80,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
             queryWrapper.isNull("prod_category2nd");
             queryWrapper.eq("prod_category", queryDemandDimensionalityDto.getProdCategory());
         }
+        queryWrapper.eq("channel", queryDemandDimensionalityDto.getChannel());
         queryWrapper.eq("planning_season_id", queryDemandDimensionalityDto.getPlanningSeasonId());
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
@@ -187,6 +188,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         }
         /*查询维度中已选择的数据*/
         queryWrapper1.eq("planning_season_id", queryDemandDimensionalityDto.getPlanningSeasonId());
+        queryWrapper1.eq("channel", queryDemandDimensionalityDto.getChannel());
         List<PlanningDemand> planningDemandList = baseMapper.selectList(queryWrapper1);
         /*字段id*/
         List<String> stringList = planningDemandList.stream().map(PlanningDemand::getFieldId).collect(Collectors.toList());

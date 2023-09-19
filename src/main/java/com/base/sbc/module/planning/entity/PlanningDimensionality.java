@@ -40,6 +40,14 @@ public class PlanningDimensionality extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "字段管理id")
     private String fieldId;
+
+    /** 渠道 */
+    @ApiModelProperty(value = "渠道"  )
+    private String channel;
+    /** 渠道名称 */
+    @ApiModelProperty(value = "渠道名称"  )
+    private String channelName;
+
     /**
      * 品类id
      */

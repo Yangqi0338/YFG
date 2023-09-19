@@ -148,7 +148,6 @@ public class SqlPrintInterceptor implements Interceptor {
 
                 //sql语句类型 select、delete、insert、update
                 String operateType=sqlCommandType.equals("SELECT")?"read":"write";
-                Map<String,Object> entity=null;
                 String dataPermissionsKey = "USERISOLATION:"+usercompany+":"+userId+":";
                 //删除amc的数据权限状态
                 RedisUtils redisUtils1=new RedisUtils();
@@ -162,15 +161,10 @@ public class SqlPrintInterceptor implements Interceptor {
                 if (redisType){
                     redisUtils.removePattern(dataPermissionsKey);
                 }
-                if (!redisUtils.hasKey(dataPermissionsKey+operateType+"@" + dataIsolation.authority())) {
-                    DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
-                    entity= dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,tablePre,dataIsolation.authorityFields());
-//                Map entity = (Map) manageGroupRole.userDataIsolation(authorization, null, dataIsolation.toString(), userId, className);
-                //默认开启角色的数据隔离
-                    redisUtils.set(dataPermissionsKey +operateType+"@" + dataIsolation.authority(), entity, 60 * 3);//如数据的隔离3分钟更新一次
-                } else {
-                    entity = (Map) redisUtils.get("USERISOLATION:"+usercompany+":"+userId+":" +operateType+"@" + dataIsolation.authority());
-                }
+
+                DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
+                Map<String,Object> entity=dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,tablePre,dataIsolation.authorityFields(),dataPermissionsKey);
+
                 String authorityField = entity.containsKey("authorityField")?(String)entity.get("authorityField"):null;
                 Boolean authorityState=entity.containsKey("authorityState")?(Boolean)entity.get("authorityState"):false;
                 String whereFlag = " ";

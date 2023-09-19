@@ -13,6 +13,9 @@ public class QueryDemandDto {
     @ApiModelProperty(value = "产品季id", required = true, example = "111")
     private String planningSeasonId;
 
+    @ApiModelProperty(value = "渠道", required = true)
+    private String channel;
+
     @ApiModelProperty(value = "品类编码", required = true, example = "111")
     private String prodCategory;
 

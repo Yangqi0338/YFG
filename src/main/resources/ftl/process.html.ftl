@@ -4,9 +4,11 @@
 </head>
 <style>
     * {
-        font-family: 'Source Han Serif SC', 'Noto Sans SC', SimSun;
+        font-family: 'Source Han Serif SC';
         font-size: 12px;
+
     }
+
     html {
         width: 277mm;
         margin: 50px auto;
@@ -44,6 +46,7 @@
 
     .table_border tbody tr, td {
         height: 25px;
+        font-family: 'Source Han Serif SC Medium';
     }
 
     .table_no_border {
@@ -205,7 +208,8 @@
         <td class="gb" style="width:25%;">${extAuxiliaryTechnics}</td>
     </tr>
     <tr>
-        <td class="fg"></td>
+        <td class="fg">
+        </td>
         <td class=" bold">品名*</td>
         <td>${productName}</td>
         <td class="fg"></td>

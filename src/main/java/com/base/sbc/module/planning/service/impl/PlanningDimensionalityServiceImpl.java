@@ -65,6 +65,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         BaseQueryWrapper<PlanningDimensionality> qw = new BaseQueryWrapper<>();
         PlanningUtils.dimensionCommonQw(qw, dto);
         qw.eq("planning_season_id", dto.getPlanningSeasonId());
+        qw.eq("channel", dto.getChannel());
         List<PlanningDimensionality> planningDimensionalityList = baseMapper.selectList(qw);
         return ApiResult.success("查询成功", planningDimensionalityList);
     }
@@ -145,6 +146,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             planningDimensionality = new PlanningDimensionality();
             BeanUtil.copyProperties(dto, planningDimensionality);
             planningDimensionality.setDelFlag(BaseGlobal.NO);
+            planningDimensionality.setId(null);
             baseMapper.insert(planningDimensionality);
         } else {
             /*调整维度*/
