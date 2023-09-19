@@ -104,7 +104,8 @@ public class PurchaseDemand extends BaseDataEntity<String> {
         this.component = detail.getComponent();
         this.needNum = detail.getRequestNum();
         this.price = detail.getPrice();
-        this.unit = detail.getUnit();
+        this.unit = detail.getPurchaseUnit();
+        this.unitName = detail.getPurchaseUnitName();
         this.usePosition = detail.getUsePosition();
         this.materialSpecifications = detail.getMaterialSpecifications();
         this.materialSpecificationsCode = detail.getMaterialSpecificationsCode();
