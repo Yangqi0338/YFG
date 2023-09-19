@@ -10,12 +10,12 @@ public enum OperationType {
     /**
      * 新增
      */
-    //INSERT,
+    INSERT,
 
     /**
      * 修改
      */
-    //UPDATE,
+    UPDATE,
 
     /**
      * 删除

@@ -31,6 +31,7 @@ public class HangTagDTO {
     private static final long serialVersionUID = 1L;
 
     private String id;
+    @ApiModelProperty(value = "面料成分")
     private String ingredient;
     /**
      * 备注信息

@@ -172,7 +172,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public boolean sampleDesignSend(StyleSendDto dto) {
+    public boolean  sampleDesignSend(StyleSendDto dto) {
         EnumNodeStatus enumNodeStatus = EnumNodeStatus.DESIGN_SEND;
         EnumNodeStatus enumNodeStatus2 = EnumNodeStatus.TECHNICAL_ROOM_RECEIVED;
         nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
@@ -198,14 +198,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             /*查看是否离职*/
             UserCompany userCompany =   amcFeignService.getUserByUserId(patternMaking.getPatternDesignId());
             if(!StrUtil.equals(userCompany.getIsDimission(),BaseGlobal.YES)){
-                /*自动下发到打板管理*/
+//                自动下发到打板管理
                 SetPatternDesignDto setPatternDesignDto =new SetPatternDesignDto();
                 BeanUtils.copyProperties(patternMaking, setPatternDesignDto);
-                /*自动下发打板*/
+//                自动下发打板
                 prmSend(setPatternDesignDto);
             }else {
                 /*初版版师离职后需要手动下发*/
-
+                uw.set("first_pattern_design_id", patternMaking.getPatternDesignId());
+                uw.set("first_pattern_design_name", patternMaking.getPatternDesignName());
             }
         }
 
