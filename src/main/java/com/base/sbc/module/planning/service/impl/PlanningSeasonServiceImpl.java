@@ -343,6 +343,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         scQw.eq("sc.planning_season_id", dto.getPlanningSeasonId());
         scQw.notEmptyEq("s.prod_category", dto.getProdCategory());
         scQw.notEmptyEq("s.prod_category2nd", dto.getProdCategory2nd());
+        scQw.notEmptyEq("s.channel", dto.getChannel());
         scQw.eq("fv.field_id", planningDemandVo.getFieldId());
         scQw.in("fv.val", dValues);
         scQw.notNull("fv.val");
