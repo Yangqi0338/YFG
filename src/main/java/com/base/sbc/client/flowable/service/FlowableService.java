@@ -51,6 +51,8 @@ public class FlowableService {
     public static final String FABRIC_POOL = "设计面料池审批";
     public static final String BASICSDATUM_MATERIAL = "物料审批";
 
+    public static final String PURCHASE_REQUEST = "采购申请单";
+
     @Autowired
     FlowableFeignService flowableFeignService;
 
