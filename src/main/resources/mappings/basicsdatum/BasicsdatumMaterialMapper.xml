@@ -134,6 +134,7 @@
 	<select id="getPurchaseMaterialList" resultType="com.base.sbc.module.basicsdatum.vo.WarehouseMaterialVo">
 		SELECT
 			m.id,
+			m.image_url,
 			m.material_code,
 			m.material_name,
 			m.supplier_id,
@@ -147,6 +148,7 @@
 			m.purchase_unit_name,
 			m.stock_unit_code,
 			m.stock_unit_name,
+			m.ingredient,
 			c.color_name AS color,
 			c.color_code,
 			c.supplier_color_code

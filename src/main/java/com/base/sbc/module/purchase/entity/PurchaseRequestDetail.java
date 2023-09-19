@@ -91,7 +91,7 @@ public class PurchaseRequestDetail extends BaseDataEntity<String> {
     private BigDecimal loss;
     /** 需求交期 */
     @ApiModelProperty(value = "需求交期"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date needDate;
     /** 使用部位 */
     @ApiModelProperty(value = "使用部位"  )
