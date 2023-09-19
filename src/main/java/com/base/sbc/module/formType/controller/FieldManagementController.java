@@ -17,6 +17,7 @@ import com.base.sbc.module.formType.entity.FieldManagement;
 import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FieldOptionConfigService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -56,8 +57,8 @@ public class FieldManagementController {
 
 	@ApiOperation(value = "查询维度-字段有配置的选项")
 	@GetMapping("/getFieldConfigList")
-	public List<FieldManagementVo> getFieldConfigList(@Valid QueryFieldManagementDto queryFieldManagementDto) {
-		return fieldManagementService.getFieldConfigList(queryFieldManagementDto);
+	public List<FieldManagementVo> getFieldConfigList(@Valid QueryDemandDto queryDemandDto) {
+		return fieldManagementService.getFieldConfigList(queryDemandDto);
 	}
 
 	@ApiOperation(value = "明细-通过id查询")

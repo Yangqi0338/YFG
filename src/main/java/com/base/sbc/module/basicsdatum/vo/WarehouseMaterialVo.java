@@ -16,6 +16,9 @@ public class WarehouseMaterialVo {
     @ApiModelProperty(value = "物料名称"  )
     private String materialName;
     /** 供应商名称 */
+    @ApiModelProperty(value = "供应商编码"  )
+    private String supplierId;
+    /** 供应商名称 */
     @ApiModelProperty(value = "供应商名称"  )
     private String supplierName;
     /** 材料类型 */
@@ -48,6 +51,9 @@ public class WarehouseMaterialVo {
     /** 成分 */
     @ApiModelProperty(value = "成分"  )
     private String ingredient;
+    /** 物料分类 */
+    @ApiModelProperty(value = "物料分类"  )
+    private String categoryName;
     /** 颜色 */
     @ApiModelProperty(value = "颜色"  )
     private String color;

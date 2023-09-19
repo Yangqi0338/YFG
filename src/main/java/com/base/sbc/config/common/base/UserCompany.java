@@ -177,6 +177,8 @@ public class UserCompany extends BaseDataEntity<String> {
 	private String aliasUserAvatar;
 	/** 员工编号 */
 	private String userCode;
+	/*是否离职*/
+	private String isDimission;
     /*******************************************getset方法区************************************/
     public String getUserId() {
 		return userId;
@@ -251,6 +253,14 @@ public class UserCompany extends BaseDataEntity<String> {
 
 	public void setHttpLog(HttpLog httpLog) {
 		this.httpLog = httpLog;
+	}
+
+	public String getIsDimission() {
+		return isDimission;
+	}
+
+	public void setIsDimission(String isDimission) {
+		this.isDimission = isDimission;
 	}
 }
 

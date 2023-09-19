@@ -8,8 +8,10 @@ package com.base.sbc.module.formType.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -26,6 +28,7 @@ import com.base.sbc.module.formType.mapper.OptionMapper;
 import com.base.sbc.module.formType.service.FieldManagementService;
 import com.base.sbc.module.formType.service.FormTypeService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.github.pagehelper.PageHelper;
@@ -156,20 +159,25 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
      * @return
      */
     @Override
-    public List<FieldManagementVo> getFieldConfigList(QueryFieldManagementDto queryFieldManagementDto) {
+    public List<FieldManagementVo> getFieldConfigList(QueryDemandDto queryDemandDto) {
         /*查询表单的数据*/
         QueryWrapper<FormType> formTypeQueryWrapper = new QueryWrapper<>();
-        formTypeQueryWrapper.eq("code", queryFieldManagementDto.getFormTypeCode());
+        formTypeQueryWrapper.eq("code", queryDemandDto.getFormCode());
         List<FormType> formTypeList = formTypeMapper.selectList(formTypeQueryWrapper);
         if (CollectionUtils.isEmpty(formTypeList)) {
             throw new OtherException("获取表单失败");
         }
         /*品类查询字段配置列表查询品类下的字段id*/
-        QueryWrapper qw = new QueryWrapper();
+        BaseQueryWrapper qw = new BaseQueryWrapper();
         qw.eq("status", BaseGlobal.STATUS_NORMAL);
         qw.eq("form_type_id", formTypeList.get(0).getId());
-        qw.eq("category_code", queryFieldManagementDto.getCategoryId());
-        qw.eq("season", queryFieldManagementDto.getSeason());
+        if (StrUtil.isNotBlank(queryDemandDto.getProdCategory2nd())) {
+            qw.apply(StrUtil.isNotBlank(queryDemandDto.getProdCategory2nd()), "FIND_IN_SET({0},prod_category2nd)", queryDemandDto.getProdCategory2nd());
+        } else {
+            qw.apply(StrUtil.isNotBlank(queryDemandDto.getProdCategory()), "FIND_IN_SET({0},category_code)", queryDemandDto.getProdCategory());
+        }
+        qw.apply(StrUtil.isNotBlank(queryDemandDto.getBrand()), "FIND_IN_SET({0},brand)", queryDemandDto.getBrand());
+        qw.eq(StrUtil.isNotBlank(queryDemandDto.getSeason()),"season",queryDemandDto.getSeason());
         List<FieldOptionConfig> optionConfigList = fieldOptionConfigMapper.selectList(qw);
         /*获取到这个品类下存在的字段*/
         List<String> fieldManagementIdList = optionConfigList.stream().map(FieldOptionConfig::getFieldManagementId).distinct().collect(Collectors.toList());

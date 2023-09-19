@@ -26,4 +26,11 @@ public class QueryDemandDto {
 
     @ApiModelProperty(value = "维度字段id", required = false, example = "122222")
     private String fieldId;
+
+    @ApiModelProperty(value = "品牌")
+    private String brand;
+
+    @ApiModelProperty(value = "季节")
+    private String season;
+
 }
