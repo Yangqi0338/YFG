@@ -21,8 +21,10 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailSer
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPriceDetailVo;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,6 +102,27 @@ public class BasicsdatumMaterialPriceDetailServiceImpl extends ServiceImpl<Basic
         qw.in("tbmpd.material_code", materialCodeList);
         qw.in("tbmp.select_flag", BaseGlobal.YES);
         return baseMapper.querySupplierWidth(qw);
+    }
+
+    /**
+     * 获取供应商详情价格
+     *
+     * @param supplierDetailPriceDto
+     * @return
+     */
+    @Override
+    public BasicsdatumMaterialPriceDetailVo gatSupplierPrice(SupplierDetailPriceDto supplierDetailPriceDto) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("supplier_id",supplierDetailPriceDto.getSupplierId());
+        queryWrapper.eq("material_code",supplierDetailPriceDto.getMaterialCode());
+        queryWrapper.eq("color",supplierDetailPriceDto.getColor());
+        queryWrapper.eq("width",supplierDetailPriceDto.getWidth());
+        BasicsdatumMaterialPriceDetailVo basicsdatumMaterialPriceDetailVo =new BasicsdatumMaterialPriceDetailVo();
+        BasicsdatumMaterialPriceDetail basicsdatumMaterialPriceDetail =  baseMapper.selectOne(queryWrapper);
+        if(!ObjectUtils.isEmpty(basicsdatumMaterialPriceDetail)){
+            BeanUtils.copyProperties(basicsdatumMaterialPriceDetail, basicsdatumMaterialPriceDetailVo);
+        }
+        return basicsdatumMaterialPriceDetailVo;
     }
 
 // 自定义方法区 不替换的区域【other_end】

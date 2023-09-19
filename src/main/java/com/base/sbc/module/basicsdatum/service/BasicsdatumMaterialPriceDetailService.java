@@ -48,6 +48,12 @@ public interface BasicsdatumMaterialPriceDetailService extends IService<Basicsda
     List<BomSelMaterialVo> querySupplierWidth(List<String> materialCodeList);
 
 
+    /**
+     * 获取供应商详情价格
+     * @param supplierDetailPriceDto
+     * @return
+     */
+    BasicsdatumMaterialPriceDetailVo gatSupplierPrice(SupplierDetailPriceDto supplierDetailPriceDto);
 
 // 自定义方法区 不替换的区域【other_end】
 
