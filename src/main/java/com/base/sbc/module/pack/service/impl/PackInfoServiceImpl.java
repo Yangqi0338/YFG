@@ -589,7 +589,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         System.out.println("qrCodeUrl:" + qrCodeUrl);
         // 获取吊牌信息
         if (StrUtil.isNotBlank(detail.getStyleNo())) {
-            HangTagVO tag = hangTagService.getDetailsByBulkStyleNo(detail.getStyleNo(), getCompanyCode(), null);
+            HangTagVO tag = hangTagService.getDetailsByBulkStyleNo(detail.getStyleNo(), style.getCompanyCode(), null);
             if (tag != null) {
                 BeanUtil.copyProperties(tag, vo);
             }
