@@ -48,6 +48,9 @@ public class WarehouseMaterialVo {
     /** 成分 */
     @ApiModelProperty(value = "成分"  )
     private String ingredient;
+    /** 物料分类 */
+    @ApiModelProperty(value = "物料分类"  )
+    private String categoryName;
     /** 颜色 */
     @ApiModelProperty(value = "颜色"  )
     private String color;
