@@ -6,25 +6,26 @@
  *****************************************************************************/
 package com.base.sbc.module.formType.service.impl;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.dto.FieldOptionConfigDto;
+import com.base.sbc.module.formType.dto.FieldOptionConfigExcelDto;
 import com.base.sbc.module.formType.dto.QueryFieldOptionConfigDto;
-import com.base.sbc.module.formType.mapper.FieldOptionConfigMapper;
 import com.base.sbc.module.formType.entity.FieldOptionConfig;
+import com.base.sbc.module.formType.mapper.FieldOptionConfigMapper;
 import com.base.sbc.module.formType.service.FieldOptionConfigService;
 import com.base.sbc.module.formType.vo.FieldOptionConfigVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -116,6 +117,27 @@ public class FieldOptionConfigServiceImpl extends BaseServiceImpl<FieldOptionCon
         /*查询字段配置中的数据*/
         Map<String, List<FieldOptionConfig>> listMap = optionConfigList.stream().collect(Collectors.groupingBy(FieldOptionConfig::getFieldManagementId));
         return listMap;
+    }
+
+    /**
+     * 配置选项导入
+     *
+     * @param file
+     * @param fieldManagementId
+     * @return
+     */
+    @Override
+    public Boolean importExcel(MultipartFile file, String fieldManagementId,String formTypeId) throws Exception {
+        ImportParams params = new ImportParams();
+        params.setNeedSave(false);
+        List<FieldOptionConfigExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), FieldOptionConfigExcelDto.class, params);
+        list.forEach(f ->{
+            f.setFieldManagementId(fieldManagementId);
+            f.setFormTypeId(formTypeId);
+        });
+        List<FieldOptionConfig> optionConfigListl = BeanUtil.copyToList(list, FieldOptionConfig.class);
+        saveOrUpdateBatch(optionConfigListl);
+        return true;
     }
 
 // 自定义方法区 不替换的区域【other_start】

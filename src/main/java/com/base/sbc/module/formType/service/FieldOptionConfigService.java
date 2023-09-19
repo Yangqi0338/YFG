@@ -5,13 +5,14 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.formType.service;
+
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.dto.FieldOptionConfigDto;
 import com.base.sbc.module.formType.dto.QueryFieldOptionConfigDto;
 import com.base.sbc.module.formType.entity.FieldOptionConfig;
-import com.base.sbc.module.formType.vo.FieldOptionConfigVo;
 import com.github.pagehelper.PageInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,14 @@ public interface FieldOptionConfigService extends BaseService<FieldOptionConfig>
     * @return
     */
    Map<String, List<FieldOptionConfig>> getFieldConfig(QueryFieldOptionConfigDto queryFieldOptionConfigDto);
+
+   /**
+    * 配置选项导入
+    * @param file
+    * @param fieldManagementId
+    * @return
+    */
+   Boolean importExcel(MultipartFile file,String fieldManagementId,String formTypeId) throws Exception;
 // 自定义方法区 不替换的区域【other_end】
 
 	
