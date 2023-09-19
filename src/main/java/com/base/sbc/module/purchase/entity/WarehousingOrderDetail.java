@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.WarehousingOrderDetail
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-9-13 19:11:01
+ * @date 创建时间：2023-9-19 14:48:01
  * @version 1.0
  */
 @Data
@@ -104,6 +104,15 @@ public class WarehousingOrderDetail extends BaseDataEntity<String> {
     /** 供应商色号 */
     @ApiModelProperty(value = "供应商色号"  )
     private String supplierColor;
+    /** 供应商id */
+    @ApiModelProperty(value = "供应商id"  )
+    private String supplierId;
+    /** 供应商编码 */
+    @ApiModelProperty(value = "供应商编码"  )
+    private String supplierCode;
+    /** 供应商名称 */
+    @ApiModelProperty(value = "供应商名称"  )
+    private String supplierName;
     /** 入库数量 */
     @ApiModelProperty(value = "入库数量"  )
     private BigDecimal warehouseNum;
