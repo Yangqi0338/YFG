@@ -122,6 +122,14 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 版师id */
     @ApiModelProperty(value = "版师id"  )
     private String patternDesignId;
+
+    /** 初版版师id */
+    @ApiModelProperty(value = "初版版师id"  )
+    private String firstPatternDesignId;
+
+    /** 初版版师名称 */
+    @ApiModelProperty(value = "初版版师名称"  )
+    private String firstPatternDesignName;
     /** 颜色名称 */
     @ApiModelProperty(value = "颜色名称"  )
     private String colorName;

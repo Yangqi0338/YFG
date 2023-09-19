@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.PurchaseRequestDetail
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-9-18 16:53:33
+ * @date 创建时间：2023-9-19 15:29:16
  * @version 1.0
  */
 @Data
@@ -77,9 +77,12 @@ public class PurchaseRequestDetail extends BaseDataEntity<String> {
     /** 申请数量 */
     @ApiModelProperty(value = "申请数量"  )
     private BigDecimal requestNum;
+    /** 采购单位编码 */
+    @ApiModelProperty(value = "采购单位编码"  )
+    private String purchaseUnit;
     /** 采购单位 */
     @ApiModelProperty(value = "采购单位"  )
-    private String unit;
+    private String purchaseUnitName;
     /** 物料规格 */
     @ApiModelProperty(value = "物料规格"  )
     private String materialSpecifications;
@@ -91,7 +94,7 @@ public class PurchaseRequestDetail extends BaseDataEntity<String> {
     private BigDecimal loss;
     /** 需求交期 */
     @ApiModelProperty(value = "需求交期"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date needDate;
     /** 使用部位 */
     @ApiModelProperty(value = "使用部位"  )

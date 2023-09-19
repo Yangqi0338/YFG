@@ -34,6 +34,13 @@ public class ProductCategoryTreeVo {
     @ApiModelProperty(value = "渠道名称"  )
     private String channelName;
 
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+    /** 渠道名称 */
+    @ApiModelProperty(value = "品牌名称"  )
+    private String brandName;
+
     @ApiModelProperty(value = "是否有子节点")
     private Boolean children;
     @ApiModelProperty(value = "大类名称")

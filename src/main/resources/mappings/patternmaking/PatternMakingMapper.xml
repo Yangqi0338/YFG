@@ -45,7 +45,9 @@
         p.break_off_pattern,
         p.pattern_design_name,
         p.color_name,
-        p.color_code
+        p.color_code,
+        p.first_pattern_design_id,
+        p.first_pattern_design_name
         FROM
         t_pattern_making p,
         t_style s

@@ -363,4 +363,20 @@ public class AmcFeignService {
         log.info("AmcFeignService#seasonSaveDefaultTeam 产品季默认分配团队返回结果，seasonId:{},apiResult:{}", seasonId, JSON.toJSONString(apiResult));
     }
 
+
+    public UserCompany getUserByUserId(String userId) {
+        UserCompany userList = null;
+        try {
+            String result = amcService.getUserByUserId( userId);
+            JSONObject jsonObject = JSON.parseObject(result);
+            JSONObject data = jsonObject.getJSONObject(BaseConstant.DATA);
+            userList =  data.toJavaObject(UserCompany.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            userList = null;
+        }
+        return userList;
+    }
+
+
 }

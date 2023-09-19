@@ -6,12 +6,18 @@ import lombok.Data;
 @Data
 public class WarehouseMaterialVo {
     private String id;
+    /** 物料图片 */
+    @ApiModelProperty(value = "物料图片"  )
+    private String imageUrl;
     /** 物料编码 */
     @ApiModelProperty(value = "物料编码"  )
     private String materialCode;
     /** 物料名称 */
     @ApiModelProperty(value = "物料名称"  )
     private String materialName;
+    /** 供应商名称 */
+    @ApiModelProperty(value = "供应商编码"  )
+    private String supplierId;
     /** 供应商名称 */
     @ApiModelProperty(value = "供应商名称"  )
     private String supplierName;
@@ -42,6 +48,12 @@ public class WarehouseMaterialVo {
     /** 库存单位名称 */
     @ApiModelProperty(value = "库存单位名称"  )
     private String stockUnitName;
+    /** 成分 */
+    @ApiModelProperty(value = "成分"  )
+    private String ingredient;
+    /** 物料分类 */
+    @ApiModelProperty(value = "物料分类"  )
+    private String categoryName;
     /** 颜色 */
     @ApiModelProperty(value = "颜色"  )
     private String color;

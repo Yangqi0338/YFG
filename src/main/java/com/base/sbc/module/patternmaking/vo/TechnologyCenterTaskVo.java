@@ -74,6 +74,12 @@ public class TechnologyCenterTaskVo {
     @ApiModelProperty(value = "版师id")
     private String patternDesignId;
 
+    @ApiModelProperty(value = "初版版师名称")
+    private String firstPatternDesignName;
+
+    @ApiModelProperty(value = "初版版师id")
+    private String firstPatternDesignId;
+
     /**
      * 中断样衣(0正常，1中断)
      */

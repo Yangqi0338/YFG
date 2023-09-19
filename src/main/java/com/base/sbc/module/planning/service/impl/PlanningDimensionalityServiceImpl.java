@@ -20,19 +20,15 @@ import com.base.sbc.module.formType.entity.FormType;
 import com.base.sbc.module.formType.mapper.FieldManagementMapper;
 import com.base.sbc.module.formType.mapper.FormTypeMapper;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
-import com.base.sbc.module.planning.dto.SaveDelDimensionalityDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,39 +91,10 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     }
 
     @Override
-    public ApiResult saveBatchDimensionality(List<SaveDelDimensionalityDto> list) {
-        /*查询数据库已存在维度*/
-        QueryWrapper<PlanningDimensionality> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("category_id", list.get(0).getCategoryId());
-        queryWrapper.eq("planning_season_id", list.get(0).getPlanningSeasonId());
-        List<PlanningDimensionality> planningDimensionalityList = baseMapper.selectList(queryWrapper);
-        /*需要删除的数据*/
-        List<PlanningDimensionality> delList = new ArrayList<>();
-        /*添加的数据*/
-        List<SaveDelDimensionalityDto> addList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(planningDimensionalityList)) {
-            addList = list;
-        } else {
-            List<String> stringList = list.stream().map(SaveDelDimensionalityDto::getDimensionalityName).collect(Collectors.toList());
-            delList = planningDimensionalityList.stream().filter(item -> !stringList.contains(item.getDimensionalityName())).collect(Collectors.toList());
-            List<String> stringList1 = planningDimensionalityList.stream().map(PlanningDimensionality::getDimensionalityName).collect(Collectors.toList());
-            addList = list.stream().filter(item -> !StringUtils.isEmpty(item.getDimensionalityName()) && !stringList1.contains(item.getDimensionalityName())).collect(Collectors.toList());
-        }
-        if (!CollectionUtils.isEmpty(delList)) {
-            QueryWrapper<PlanningDimensionality> queryWrapper1 = new QueryWrapper<>();
-            queryWrapper1.in("id", delList.stream().map(PlanningDimensionality::getId).collect(Collectors.toList()));
-            baseMapper.delete(queryWrapper1);
-        }
-        if (!CollectionUtils.isEmpty(addList)) {
-            addList.forEach(s -> {
-                PlanningDimensionality planningDimensionality = new PlanningDimensionality();
-                BeanUtils.copyProperties(s, planningDimensionality);
-                planningDimensionality.setCompanyCode(baseController.getUserCompany());
-                planningDimensionality.insertInit();
-                baseMapper.insert(planningDimensionality);
-            });
-        }
-        return ApiResult.success("操作成功");
+    public Boolean saveBatchDimensionality(List<UpdateDimensionalityDto> list){
+        List<PlanningDimensionality> dimensionalityList = BeanUtil.copyToList(list, PlanningDimensionality.class);
+        saveOrUpdateBatch(dimensionalityList);
+        return true;
     }
 
     @Override
