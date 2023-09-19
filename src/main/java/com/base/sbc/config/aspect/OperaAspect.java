@@ -18,7 +18,9 @@ import com.base.sbc.config.utils.SpElParseUtil;
 import com.base.sbc.config.utils.SpringContextHolder;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -32,8 +34,11 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,6 +50,7 @@ import java.util.Map;
 @Aspect
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class OperaAspect {
     @Resource
     private HttpServletRequest httpServletRequest;
@@ -52,10 +58,12 @@ public class OperaAspect {
     private final ApplicationContext applicationContext;
 
     private final OperaLogService operaLogService;
+
     @Pointcut("@annotation(com.base.sbc.config.common.annotation.DataIsolation)")
     public void servicePointcut() {
         System.out.println("Pointcut: 不会被执行");
     }
+
     @Before(value = "servicePointcut()")
     public void checkPermission(JoinPoint jointPoint) throws Exception {
         // 获取当前访问的class类及类名
@@ -75,39 +83,40 @@ public class OperaAspect {
             String usercompany = httpServletRequest.getHeader("Usercompany");
             String authorization = httpServletRequest.getHeader("Authorization");
             DataIsolation dataIsolation = method.getAnnotation(DataIsolation.class);
-            if(!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization) && dataIsolation.state() && StringUtils.isNotBlank(dataIsolation.authority())){
+            if (!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization) && dataIsolation.state() && StringUtils.isNotBlank(dataIsolation.authority())) {
                 // 获取注解标识值与注解描述
-                String operateType = dataIsolation.operateType()?"read":"write";
+                String operateType = dataIsolation.operateType() ? "read" : "write";
                 RedisUtils redisUtils = SpringContextHolder.getBean("redisUtils");
-                String dataPermissionsKey = "USERISOLATION:"+usercompany+":"+userId+":";
+                String dataPermissionsKey = "USERISOLATION:" + usercompany + ":" + userId + ":";
 
                 //删除amc的数据权限状态
-                RedisUtils redisUtils1=new RedisUtils();
+                RedisUtils redisUtils1 = new RedisUtils();
                 redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplateAmc"));
-                boolean redisType=false;
-                if(redisUtils1.hasKey(dataPermissionsKey+"POWERSTATE")){
-                    redisType=true;
-                    redisUtils1.del(dataPermissionsKey+"POWERSTATE");
+                boolean redisType = false;
+                if (redisUtils1.hasKey(dataPermissionsKey + "POWERSTATE")) {
+                    redisType = true;
+                    redisUtils1.del(dataPermissionsKey + "POWERSTATE");
                 }
-                if (redisType){
+                if (redisType) {
                     redisUtils.removePattern(dataPermissionsKey);
                 }
-                Map<String,Object> entity=null;
-                Boolean authorityState=false;
-                if (!redisUtils.hasKey(dataPermissionsKey+operateType+"@" + dataIsolation.authority()+":authorityState")) {
+                Map<String, Object> entity = null;
+                Boolean authorityState = false;
+                if (!redisUtils.hasKey(dataPermissionsKey + operateType + "@" + dataIsolation.authority() + ":authorityState")) {
                     DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
-                    entity= dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,null,dataIsolation.authorityFields());
-                    authorityState=entity.containsKey("authorityState")?(Boolean)entity.get("authorityState"):false;
-                    if(!authorityState){
-                        redisUtils.set(dataPermissionsKey +operateType+"@" + dataIsolation.authority()+":authorityState", authorityState, 60 * 3);//如数据的隔离3分钟更新一次
+                    entity = dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(), operateType, null, dataIsolation.authorityFields());
+                    authorityState = entity.containsKey("authorityState") ? (Boolean) entity.get("authorityState") : false;
+                    if (!authorityState) {
+                        redisUtils.set(dataPermissionsKey + operateType + "@" + dataIsolation.authority() + ":authorityState", authorityState, 60 * 3);//如数据的隔离3分钟更新一次
                         throw new OtherException("无权限");
                     }
-                }else {
+                } else {
                     throw new OtherException("无权限");
                 }
             }
         }
     }
+
     /**
      * 单个修改保存操作日志切面
      * 新增 在controller层保存返回对象时单据id取返回对象id,
@@ -118,7 +127,7 @@ public class OperaAspect {
      */
     @Around("@annotation(com.base.sbc.config.annotation.OperaLog)")
     public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable {
-        Object proceed = null;
+        Object proceed;
 
         OperaLog operaLog = getOperaLog(joinPoint);
 
@@ -133,35 +142,28 @@ public class OperaAspect {
 
         // 获取传入数据
         Object[] args = joinPoint.getArgs();
-        StringBuilder stringBuilder = new StringBuilder();
 
-        JSONArray jsonArray =new JSONArray();
         // 获取操作类型
         if (operaLog.operationType() == OperationType.INSERT_UPDATE) {
-            String documentId = "";
+            String documentId= null;
             Object pageDto = args[0];
-
+            Object oldEntity;
             boolean isNew = false;
             for (Object arg : args) {
                 if (null != arg) {
                     String idVal = BeanUtil.getProperty(arg, operaLog.idKey());
-                    JSONObject fieldJson = CommonUtils.getFieldJson(arg);
                     if (idVal == null || CommonUtils.isInitId(idVal)) {
                         isNew = true;
                         operaLogEntity.setType("新增");
-                        stringBuilder.append("新增");
-                        stringBuilder.append(CommonUtils.newStr(fieldJson, pageDto));
+                        oldEntity = arg.getClass().newInstance();
                     } else {
                         documentId = BeanUtil.getProperty(pageDto, operaLog.idKey());
                         operaLogEntity.setType("修改");
                         Class<?> service = operaLog.service();
                         IService<?> bean = (IService<?>) applicationContext.getBean(service);
-                        Object dbData = bean.getById(documentId);
-                        stringBuilder.append("修改");
-                        stringBuilder.append(CommonUtils.updateStr(dbData, pageDto, fieldJson,jsonArray));
-
+                        oldEntity = bean.getById(documentId);
                     }
-                    operaLogEntity.setContent(stringBuilder.toString());
+                    JSONArray jsonArray = this.recordField(arg, oldEntity);
                     operaLogEntity.setJsonContent(jsonArray.toJSONString());
                 }
             }
@@ -176,7 +178,7 @@ public class OperaAspect {
             operaLogEntity.setDocumentName(BeanUtil.getProperty(pageDto, "name"));
         } else {
             //说明是删除操作
-            String documentId = "";
+            String documentId;
             proceed = joinPoint.proceed();
             if (StrUtil.isNotBlank(operaLog.delIdSpEL())) {
                 documentId = SpElParseUtil.generateKeyBySpEL(operaLog.delIdSpEL(), joinPoint);
@@ -194,8 +196,69 @@ public class OperaAspect {
         }
 
         // 记录操作日志
-        operaLogService.save(operaLogEntity);
+        try {
+            operaLogService.save(operaLogEntity);
+        }catch (Exception e){
+            log.error("记录操作日志失败",e);
+        }
+
         return proceed;
+    }
+
+    /**
+     * 记录字段
+     */
+    private JSONArray recordField(Object newEntity, Object oldEntity) {
+        JSONArray jsonArray = new JSONArray();
+        Object object= null;
+        try {
+             object = oldEntity.getClass().newInstance();
+
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        BeanUtil.copyProperties(newEntity, object);
+        List<Field> allFields = this.getAllFields(oldEntity.getClass());
+
+        for (Field field : allFields) {
+            field.setAccessible(true);
+
+            ApiModelProperty annotation = field.getAnnotation(ApiModelProperty.class);
+            if (annotation != null) {
+                try {
+                    String oldStr = (String) field.get(oldEntity);
+                    String newStr = (String) field.get(object);
+                    if (!StringUtils.equals(newStr, oldStr)) {
+                        JSONObject jsonObject = new JSONObject();
+                        String name = annotation.value();
+                        jsonObject.put("name", name);
+                        jsonObject.put("oldStr", oldStr);
+                        jsonObject.put("newStr", newStr);
+                        jsonArray.add(jsonObject);
+                    }
+                } catch (Exception ignored) {
+                    ignored.printStackTrace();
+                }
+            }
+        }
+
+        return jsonArray;
+    }
+
+    /**
+     * 获取所有字段
+     */
+    public List<Field> getAllFields(Class<?> clazz) {
+        // 获取当前类的所有字段
+        Field[] declaredFields = clazz.getDeclaredFields();
+        List<Field> fields = new ArrayList<>(Arrays.asList(declaredFields));
+
+        // 获取父类的所有字段
+        Class<?> superClass = clazz.getSuperclass();
+        if (superClass != null) {
+            fields.addAll(getAllFields(superClass));
+        }
+        return fields;
     }
 
 
