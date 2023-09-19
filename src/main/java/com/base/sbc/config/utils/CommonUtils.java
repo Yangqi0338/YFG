@@ -19,6 +19,7 @@ import java.util.*;
 public class CommonUtils {
     /**
      * 取多个set集合相交的数据，集合可为null，不进行筛选，但是任何一个set集合的长度为0，则无任何相交对象
+     *
      * @param sets 可变集合数组
      * @param <T>  集合类型
      * @return 相交的set集合
@@ -178,17 +179,18 @@ public class CommonUtils {
      */
     public static JSONArray recordField(Object newEntity, Object oldEntity) {
         JSONArray jsonArray = new JSONArray();
-        Object object= null;
+        Object object = null;
+        List<Field> allFields = new ArrayList<>();
         try {
-            if (oldEntity==null){
+            if (oldEntity == null) {
                 oldEntity = newEntity.getClass().newInstance();
             }
             object = oldEntity.getClass().newInstance();
+
+            BeanUtil.copyProperties(newEntity, object);
+            allFields = CommonUtils.getAllFields(oldEntity.getClass());
         } catch (InstantiationException | IllegalAccessException ignored) {
         }
-        BeanUtil.copyProperties(newEntity, object);
-        List<Field> allFields = CommonUtils.getAllFields(oldEntity.getClass());
-
         for (Field field : allFields) {
             field.setAccessible(true);
             ApiModelProperty annotation = field.getAnnotation(ApiModelProperty.class);
@@ -206,7 +208,7 @@ public class CommonUtils {
                     }
                     Object o1 = field.get(object);
                     String newStr = "";
-                    if ( o1 != null) {
+                    if (o1 != null) {
                         if (o1 instanceof Date) {
                             newStr = DateUtils.formatDateTime((Date) o1);
                         } else {
@@ -223,7 +225,6 @@ public class CommonUtils {
                         jsonArray.add(jsonObject);
                     }
                 } catch (Exception ignored) {
-                    ignored.printStackTrace();
                 }
             }
         }
