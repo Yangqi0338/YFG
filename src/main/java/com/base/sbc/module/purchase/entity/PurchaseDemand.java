@@ -98,7 +98,7 @@ public class PurchaseDemand extends BaseDataEntity<String> {
         this.materialCode = detail.getMaterialCode();
         this.materialType = detail.getMaterialType();
         this.materialName = detail.getMaterialName();
-        this.supplierCode = detail.getSupplierId();
+        this.supplierCode = detail.getSupplierCode();
         this.supplierName = detail.getSupplierName();
         this.supplierColor = detail.getSupplierColor();
         this.component = detail.getComponent();
@@ -110,6 +110,7 @@ public class PurchaseDemand extends BaseDataEntity<String> {
         this.materialSpecifications = detail.getMaterialSpecifications();
         this.materialSpecificationsCode = detail.getMaterialSpecificationsCode();
         this.loss = detail.getLoss();
+        this.needDate = detail.getNeedDate();
     }
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
