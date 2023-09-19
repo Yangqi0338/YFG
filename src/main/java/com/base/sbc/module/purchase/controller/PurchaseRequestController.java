@@ -96,7 +96,7 @@ public class PurchaseRequestController extends BaseController{
 		PurchaseRequest purchaseRequest = purchaseRequestService.getById(id);
 		if(purchaseRequest != null){
 			QueryWrapper<PurchaseRequestDetail> detailQw = new QueryWrapper<>();
-			detailQw.eq("purchase_order_id", id);
+			detailQw.eq("request_id", id);
 			List<PurchaseRequestDetail> purchaseRequestDetailList = purchaseRequestDetailService.list(detailQw);
 			purchaseRequest.setDetailList(purchaseRequestDetailList);
 			return selectSuccess(purchaseRequest);
