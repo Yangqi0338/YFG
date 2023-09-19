@@ -2,11 +2,12 @@ package com.base.sbc.module.common.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author 卞康
@@ -72,10 +73,16 @@ public interface BaseService<T> extends IService<T> {
     /**
      * 批量保存操作日志
      */
-    void saveBatchOperaLog(List<Object> newObject, OperaLogEntity operaLogEntity);
+    void saveBatchOperaLog(List<T> newObject, OperaLogEntity operaLogEntity);
 
     /**
      * 批量修改操作日志
      */
-    void updateBatchOperaLog(List<Object> newObject,List<Object> oldObject, OperaLogEntity operaLogEntity);
+    void updateBatchOperaLog(List<T> newObject, List<T> oldObject, OperaLogEntity operaLogEntity);
+
+
+    @Transactional(rollbackFor = {Exception.class})
+    boolean removeByIds(Collection<?> list, OperaLogEntity operaLogEntity);
+
+    boolean removeById(Serializable id, OperaLogEntity operaLogEntity);
 }

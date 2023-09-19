@@ -1,5 +1,10 @@
 package com.base.sbc.module.common.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -19,6 +24,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -232,6 +238,9 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateBatchById(List<T> entity, String name) {
+        if (CollUtil.isEmpty(entity)) {
+            return true;
+        }
         String type = "修改";
         List<String> ids = entity.stream().map(BaseEntity::getId).collect(Collectors.toList());
         List<T> oldEntity = this.listByIds(ids);
@@ -311,16 +320,8 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      * 批量保存操作日志
      */
     @Override
-    public void saveBatchOperaLog(List<Object> newObject, OperaLogEntity operaLogEntity) {
-        List<OperaLogEntity> operaLogEntityList = new ArrayList<>();
-        for (Object o : newObject) {
-            try {
-                operaLogEntity.setId(o.getClass().getField("id").get(o).toString());
-            } catch (Exception ignored) {
-            }
-            operaLogEntityList.add(operaLogEntity);
-        }
-        operaLogService.saveBatch(operaLogEntityList);
+    public void saveBatchOperaLog(List<T> newObject, OperaLogEntity operaLogEntity) {
+        updateBatchOperaLog(newObject, null, operaLogEntity);
     }
 
     /**
@@ -331,21 +332,42 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      * @param operaLogEntity
      */
     @Override
-    public void updateBatchOperaLog(List<Object> newObject, List<Object> oldObject, OperaLogEntity operaLogEntity) {
+    public void updateBatchOperaLog(List<T> newObject, List<T> oldObject, OperaLogEntity operaLogEntity) {
         List<OperaLogEntity> operaLogEntityList = new ArrayList<>();
-        for (Object o : newObject) {
-            try {
-                for (Object object : oldObject) {
-                    if (o.getClass().getField("id").get(o).toString().equals(object.getClass().getField("id").toString())) {
-                        JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
-                        operaLogEntity.setJsonContent(jsonArray.toJSONString());
-                    }
-                }
-                operaLogEntity.setId(o.getClass().getField("id").get(o).toString());
-            } catch (Exception ignored) {
-            }
-            operaLogEntityList.add(operaLogEntity);
+        Map<String, T> newMap = Opt.ofNullable(newObject).map(no -> no.stream().collect(Collectors.toMap(BaseEntity::getId, v -> v, (a, b) -> a))).orElse(MapUtil.empty());
+        Map<String, T> oldMap = Opt.ofNullable(oldObject).map(no -> no.stream().collect(Collectors.toMap(BaseEntity::getId, v -> v, (a, b) -> a))).orElse(MapUtil.empty());
+        for (Map.Entry<String, T> entry : newMap.entrySet()) {
+            OperaLogEntity log = BeanUtil.copyProperties(operaLogEntity, OperaLogEntity.class);
+            log.setId(null);
+            String id = entry.getKey();
+            T ne = entry.getValue();
+            T oe = oldMap.get(id);
+            JSONArray jsonArray = CommonUtils.recordField(ne, oe);
+            log.setJsonContent(jsonArray.toJSONString());
+            log.setDocumentId(id);
+            operaLogEntityList.add(log);
         }
         operaLogService.saveBatch(operaLogEntityList);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean removeByIds(Collection<?> list, OperaLogEntity operaLogEntity) {
+        String ids = CollUtil.join(list, StrUtil.COMMA);
+        operaLogEntity.setType("删除");
+        operaLogEntity.setContent(ids);
+        operaLogService.save(operaLogEntity);
+        boolean flg = super.removeByIds(list);
+        return flg;
+    }
+
+    @Override
+    public boolean removeById(Serializable id, OperaLogEntity operaLogEntity) {
+        boolean b = super.removeById(id);
+        operaLogEntity.setType("删除");
+        operaLogEntity.setDocumentId(id.toString());
+        operaLogEntity.setContent(id.toString());
+        operaLogService.save(operaLogEntity);
+        return b;
     }
 }

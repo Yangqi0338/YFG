@@ -6,13 +6,10 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.config.common.base.BaseEntity;
-import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -23,7 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -92,22 +92,15 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
 
     @Override
     public Integer addAndUpdateAndDelList(List<T> entityList, QueryWrapper<T> queryWrapper, boolean delFlg) {
-        OperaLogEntity log = new OperaLogEntity();
         String companyCode = userUtils.getCompanyCode();
         //分类
         // 新增的
-        Collection<T> addList = new ArrayList<>();
+        List<T> addList = new ArrayList<>();
         // 修改的
-        Collection<T> updateList = new ArrayList<>();
-        Collection<String> ids = new ArrayList<>();
+        List<T> updateList = new ArrayList<>();
+        Collection<String> updateIds = new ArrayList<>();
         List<T> dbList = list(queryWrapper);
-        JSONObject fieldJson = CommonUtils.getFieldJson(this.entityClass);
-        Map<String, T> dbMaps = Opt.ofEmptyAble(dbList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.toMap(k -> k.getId(), v -> v));
-        Set<String> dbIds = dbMaps.keySet();
-        List<String> ustrList = new ArrayList<>();
-        List<String> istrList = new ArrayList<>();
-        List<String> dstrList = new ArrayList<>();
-        JSONArray jsonArray = new JSONArray();
+        List<String> dbIds = Opt.ofEmptyAble(dbList).map(a -> a.stream().map(T::getId).collect(Collectors.toList())).orElse(CollUtil.newArrayList());
         String parentId = Opt.ofEmptyAble(dbList).map(a -> a.get(0)).map(b -> (String) BeanUtil.getProperty(b, "foreignId")).orElse("");
         String packType = Opt.ofEmptyAble(dbList).map(a -> a.get(0)).map(b -> (String) BeanUtil.getProperty(b, "packType")).orElse("");
         for (T entity : entityList) {
@@ -117,55 +110,36 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
                 addList.add(entity);
                 parentId = Opt.ofBlankAble(parentId).orElse(BeanUtil.getProperty(entity, "foreignId"));
                 packType = Opt.ofBlankAble(packType).orElse(BeanUtil.getProperty(entity, "packType"));
-                istrList.add(CommonUtils.newStr(fieldJson, entity).toString());
             } else {
                 //说明是修改的
                 updateList.add(entity);
-                ids.add(entity.getId());
-                ustrList.add(CommonUtils.updateStr(dbMaps.get(entity.getId()), entity, fieldJson, jsonArray).toString());
-                dbIds.remove(entity.getId());
+                updateIds.add(entity.getId());
                 parentId = Opt.ofBlankAble(parentId).orElse(BeanUtil.getProperty(entity, "foreignId"));
                 packType = Opt.ofBlankAble(packType).orElse(BeanUtil.getProperty(entity, "packType"));
             }
         }
-        if (CollUtil.isNotEmpty(dbIds)) {
-            dstrList.add(String.join(StrUtil.COMMA, dbIds));
-        }
-        StringBuffer stringBuilder = new StringBuffer();
-        if (CollUtil.isNotEmpty(istrList)) {
-            stringBuilder.append("新增[" + CollUtil.join(istrList, StrUtil.COMMA) + "]");
-        }
-        if (CollUtil.isNotEmpty(ustrList)) {
-            stringBuilder.append("修改[" + CollUtil.join(ustrList, StrUtil.COMMA) + "]");
-        }
+
+        OperaLogEntity baseLog = new OperaLogEntity();
+        baseLog.setParentId(parentId);
+        baseLog.setName(getModeName());
+        System.out.println(getModeName());
+        baseLog.setPath(packType);
         if (delFlg) {
-            if (CollUtil.isNotEmpty(dstrList)) {
-                stringBuilder.append("删除[" + CollUtil.join(dstrList, StrUtil.COMMA) + "]");
-            }
-            queryWrapper.eq("company_code", companyCode);
-            //逻辑删除传进来不存在的
-            if (ids.size() > 0) {
-                queryWrapper.notIn("id", ids);
-            }
-            this.remove(queryWrapper);
+            List<String> delIds = dbIds.stream().filter(item -> !updateIds.contains(item)).collect(Collectors.toList());
+            OperaLogEntity delLog = BeanUtil.copyProperties(baseLog, OperaLogEntity.class);
+            this.removeByIds(delIds, delLog);
+
         }
         //新增
         this.saveBatch(addList);
+        OperaLogEntity addLog = BeanUtil.copyProperties(baseLog, OperaLogEntity.class);
+        addLog.setType("新增");
+        saveBatchOperaLog(addList, addLog);
         //修改
-        this.updateBatchById(updateList);
-
-        List<String> documentIds = new ArrayList<>();
-        documentIds.addAll(dbIds);
-        documentIds.addAll(addList.stream().map(t -> t.getId()).collect(Collectors.toList()));
-        documentIds.addAll(updateList.stream().map(t -> t.getId()).collect(Collectors.toList()));
-        log.setContent(stringBuilder.toString());
-        log.setType("修改");
-        log.setName(getModeName());
-        log.setParentId(parentId);
-        //String pathSqEL = "'资料包-'+#p0.packType+'-'+#p0.foreignId+'-工艺说明-'+#p0.specType";
-        log.setPath(CollUtil.join(CollUtil.newArrayList("资料包", packType, parentId, getModeName()), StrUtil.DASHED));
-//        log.setDocumentId(CollUtil.join(documentIds, StrUtil.COMMA));
-        operaLogService.save(log);
+        this.updateBatchById(updateList, getModeName());
+        OperaLogEntity updateLog = BeanUtil.copyProperties(baseLog, OperaLogEntity.class);
+        updateLog.setType("修改");
+        updateBatchOperaLog(updateList, dbList, updateLog);
         return entityList.size();
 
     }
