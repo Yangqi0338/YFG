@@ -152,6 +152,8 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
         basicsdatumMaterialSaveDto.setSource("2");
         String newMaterialCode = basicsdatumMaterialSaveDto.getMaterialCode().split("_")[0];
         basicsdatumMaterialSaveDto.setMaterialCode(newMaterialCode);
+        basicsdatumMaterialSaveDto.setIngredientList(null);
+        basicsdatumMaterialSaveDto.setFactoryCompositionList(null);
         BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveMaterial(basicsdatumMaterialSaveDto, null, BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
 
         basicsdatumMaterialPriceService.copyByMaterialCode(basicFabricLibraryVO.getBasicsdatumMaterial().getMaterialCode(), newMaterialCode);
