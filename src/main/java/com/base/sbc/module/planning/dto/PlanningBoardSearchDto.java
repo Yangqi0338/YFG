@@ -42,4 +42,7 @@ public class PlanningBoardSearchDto {
     @ApiModelProperty(value = "维度字段id", required = false, example = "122222")
     private String fieldId;
 
+    @ApiModelProperty(value = "渠道", required = true)
+    private String channel;
+
 }
