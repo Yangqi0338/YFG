@@ -35,7 +35,7 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
     ApiResult getFormDimensionality(DimensionLabelsSearchDto DimensionLabelsSearchDto);
 
 
-    ApiResult saveBatchDimensionality(List<SaveDelDimensionalityDto> list);
+    Boolean saveBatchDimensionality(List<UpdateDimensionalityDto> list);
 
     ApiResult delDimensionality(String id);
 
