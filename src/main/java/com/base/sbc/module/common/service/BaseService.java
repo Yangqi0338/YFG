@@ -48,15 +48,21 @@ public interface BaseService<T> extends IService<T> {
 
     boolean save(T entity, String name);
 
+    boolean saveBatch(List<T> entity, String name);
+
     boolean updateById(T entity, String name);
 
-    //void saveOperaLog(String id,OperationType type, String name, Object newObject);
+     boolean updateBatchById(List<T> entity, String name);
+    /**
+     * 保存操作日志
+     */
+    void saveOperaLogBatch( String type, String name, List<T> newObject, List<T> oldObject);
 
 
     /**
      * 保存操作日志
      */
-    void saveOperaLog(String id, String type, String name, Object newObject, Object oldObject);
+    void saveOperaLog( String type, String name, T newObject, T oldObject);
 
     /**
      * 保存操作日志

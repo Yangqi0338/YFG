@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -168,7 +169,6 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      * @param name   模块名称
      * @return boolean
      */
-    @Transactional(rollbackFor = Exception.class)
     public boolean saveOrUpdate(T entity, String name) {
         if (this.getById(entity.getId()) != null) {
             return this.updateById(entity, name);
@@ -179,7 +179,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     /**
      * @param entity
-     * @param name 模块名称
+     * @param name   模块名称
      * @return
      */
     @Override
@@ -187,14 +187,32 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         String type = "新增";
         boolean save = this.save(entity);
         if (save) {
-            this.saveOperaLog(entity.getId(), type, name, entity, null);
+            this.saveOperaLog(type, name, entity, null);
+        }
+        return save;
+    }
+
+    /**
+     * 批量保存日志
+     *
+     * @param entity
+     * @param name
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean saveBatch(List<T> entity, String name) {
+        String type = "新增";
+        boolean save = saveBatch(entity);
+        if (save) {
+            this.saveOperaLogBatch(type, name, entity, new ArrayList<>());
         }
         return save;
     }
 
     /**
      * @param entity
-     * @param name 模块名称
+     * @param name   模块名称
      * @return
      */
     @Override
@@ -203,42 +221,84 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         T oldEntity = this.getById(entity.getId());
         boolean update = this.updateById(entity);
         if (update) {
-            this.saveOperaLog(entity.getId(), type, name, entity, oldEntity);
+            this.saveOperaLog(type, name, entity, oldEntity);
         }
-        return false;
+        return update;
+    }
+
+    /**
+     * @param entity
+     * @param name   模块名称
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateBatchById(List<T> entity, String name) {
+        String type = "修改";
+        List<String> ids = entity.stream().map(BaseEntity::getId).collect(Collectors.toList());
+        List<T> oldEntity = this.listByIds(ids);
+        boolean update = this.updateBatchById(entity);
+        if (update) {
+            this.saveOperaLogBatch(type, name, entity, oldEntity);
+        }
+        return update;
+    }
+
+
+    /**
+     * 批量保存操作日志
+     *
+     * @param type
+     * @param name
+     * @param newObject
+     * @param oldObject
+     */
+    @Override
+    public void saveOperaLogBatch(String type, String name, List<T> newObject, List<T> oldObject) {
+        List<OperaLogEntity> operaLogEntityList = new ArrayList<>();
+
+        for (T t : newObject) {
+            JSONArray jsonArray = new JSONArray();
+            for (T t1 : oldObject) {
+                if (t.getId().equals(t1.getId())) {
+                    jsonArray = CommonUtils.recordField(t, t1);
+                }
+            }
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            operaLogEntity.setDocumentId(t.getId());
+            operaLogEntity.setName(name);
+            operaLogEntity.setType(type);
+            operaLogEntity.setJsonContent(jsonArray.toJSONString());
+            operaLogEntityList.add(operaLogEntity);
+        }
+        operaLogService.saveBatch(operaLogEntityList);
     }
 
     /**
      * 保存操作日志
      *
-     * @param id        主键id
      * @param type      操作类型  新增 修改 删除
      * @param name      模块名称
      * @param newObject 新对象
      * @param oldObject 旧对象
      */
     @Override
-    public void saveOperaLog(String id, String type, String name, Object newObject, Object oldObject) {
-        try {
-            OperaLogEntity operaLogEntity = new OperaLogEntity();
-            JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
-
-            operaLogEntity.setDocumentId(id);
-            operaLogEntity.setJsonContent(jsonArray.toJSONString());
-            operaLogEntity.setName(name);
-            operaLogEntity.setType(type);
-            operaLogService.save(operaLogEntity);
-        } catch (Exception e) {
-            log.error("保存操作日志失败", e);
-        }
+    public void saveOperaLog(String type, String name, T newObject, T oldObject) {
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
+        operaLogEntity.setDocumentId(newObject.getId());
+        operaLogEntity.setJsonContent(jsonArray.toJSONString());
+        operaLogEntity.setName(name);
+        operaLogEntity.setType(type);
+        operaLogService.save(operaLogEntity);
     }
+
 
     /**
      * 保存操作日志
      *
      * @param newObject
      * @param oldObject
-     *
      */
     @Override
     public void saveOperaLog(Object newObject, Object oldObject, OperaLogEntity operaLogEntity) {
