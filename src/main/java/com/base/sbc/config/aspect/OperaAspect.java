@@ -7,39 +7,27 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.annotation.OperaLog;
-import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.config.enums.OperationType;
-import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.SpElParseUtil;
-import com.base.sbc.config.utils.SpringContextHolder;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author 卞康
@@ -60,9 +48,6 @@ public class OperaAspect {
      * 单个修改保存操作日志切面
      * 新增 在controller层保存返回对象时单据id取返回对象id,
      * 修改 取方法参数的id属性
-     *
-     * @param joinPoint
-     * @return
      */
     @Around("@annotation(com.base.sbc.config.annotation.OperaLog)")
     public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -102,7 +87,7 @@ public class OperaAspect {
                         IService<?> bean = (IService<?>) applicationContext.getBean(service);
                         oldEntity = bean.getById(documentId);
                     }
-                    JSONArray jsonArray = this.recordField(arg, oldEntity);
+                    JSONArray jsonArray = CommonUtils.recordField(arg, oldEntity);
                     operaLogEntity.setJsonContent(jsonArray.toJSONString());
                 }
             }
@@ -144,67 +129,8 @@ public class OperaAspect {
         return proceed;
     }
 
-    /**
-     * 记录字段
-     */
-    private JSONArray recordField(Object newEntity, Object oldEntity) {
-        JSONArray jsonArray = new JSONArray();
-        Object object= null;
-        try {
-             object = oldEntity.getClass().newInstance();
-
-        } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        BeanUtil.copyProperties(newEntity, object);
-        List<Field> allFields = this.getAllFields(oldEntity.getClass());
-
-        for (Field field : allFields) {
-            field.setAccessible(true);
-
-            ApiModelProperty annotation = field.getAnnotation(ApiModelProperty.class);
-            if (annotation != null) {
-                try {
-                    String oldStr = (String) field.get(oldEntity);
-                    String newStr = (String) field.get(object);
-                    if (!StringUtils.equals(newStr, oldStr)) {
-                        JSONObject jsonObject = new JSONObject();
-                        String name = annotation.value();
-                        jsonObject.put("name", name);
-                        jsonObject.put("oldStr", oldStr);
-                        jsonObject.put("newStr", newStr);
-                        jsonArray.add(jsonObject);
-                    }
-                } catch (Exception ignored) {
-                    ignored.printStackTrace();
-                }
-            }
-        }
-
-        return jsonArray;
-    }
-
-    /**
-     * 获取所有字段
-     */
-    public List<Field> getAllFields(Class<?> clazz) {
-        // 获取当前类的所有字段
-        Field[] declaredFields = clazz.getDeclaredFields();
-        List<Field> fields = new ArrayList<>(Arrays.asList(declaredFields));
-
-        // 获取父类的所有字段
-        Class<?> superClass = clazz.getSuperclass();
-        if (superClass != null) {
-            fields.addAll(getAllFields(superClass));
-        }
-        return fields;
-    }
-
-
     private OperaLog getOperaLog(ProceedingJoinPoint joinPoint) {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         return methodSignature.getMethod().getAnnotation(OperaLog.class);
     }
-
-
 }

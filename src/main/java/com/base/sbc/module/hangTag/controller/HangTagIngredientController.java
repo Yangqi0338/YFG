@@ -57,7 +57,7 @@ public class HangTagIngredientController extends BaseController{
         String id = hangTag.getId();
         if (StringUtils.isEmpty(id)){
             hangTag.setStatus("1");
-            hangTagService.save(hangTag);
+            hangTagService.save(hangTag,"新增吊牌");
         }else {
             hangTagIngredientService.remove(new QueryWrapper<HangTagIngredient>().eq("hang_tag_id",hangTag.getId()));
         }

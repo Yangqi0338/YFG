@@ -2,6 +2,7 @@ package com.base.sbc.module.common.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.config.enums.OperationType;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ public interface BaseService<T> extends IService<T> {
     /**
      * 慎用！！！！！！！！。
      * 根据id物理删除数据
+     *
      * @param id 主键id
      * @return 操作结果
      */
@@ -33,8 +35,24 @@ public interface BaseService<T> extends IService<T> {
     /**
      * 慎用！！！！！！！！。
      * 根据构造器物理删除数据
+     *
      * @param queryWrapper 构造器
      * @return 删除的数量
      */
     Integer physicalDeleteQWrap(QueryWrapper<T> queryWrapper);
+
+
+    boolean saveOrUpdate(T entity, String name);
+
+    boolean save(T entity, String name);
+
+    boolean updateById(T entity, String name);
+
+    //void saveOperaLog(String id,OperationType type, String name, Object newObject);
+
+
+    /**
+     * 保存操作日志
+     */
+    void saveOperaLog(String id, String type, String name, Object newObject, Object oldObject);
 }

@@ -87,7 +87,7 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "保存")
     @PostMapping("/save")
-    @OperaLog(value = "吊牌操作记录", operationType = OperationType.INSERT_UPDATE,   service = HangTagService.class)
+    //@OperaLog(value = "吊牌操作记录", operationType = OperationType.INSERT_UPDATE, service = HangTagService.class)
     public ApiResult save(@Valid @RequestBody HangTagDTO hangTagDTO) {
         String id = hangTagService.save(hangTagDTO, super.getUserCompany());
         return ApiResult.success("保存成功", id);

@@ -1,5 +1,6 @@
 package com.base.sbc.module.common.service.impl;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -8,11 +9,12 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,9 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Resource
     private JdbcTemplate jdbcTemplate;
+
+    @Resource
+    private OperaLogService operaLogService;
 
     /**
      * 获取企业编码
@@ -130,18 +135,18 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         String customSqlSegment = queryWrapper.getCustomSqlSegment();
 
         Map<String, Object> paramNameValuePairs = queryWrapper.getParamNameValuePairs();
-        ArrayList<Object> list =new ArrayList<>();
+        ArrayList<Object> list = new ArrayList<>();
         int i = 1;
         for (String key : paramNameValuePairs.keySet()) {
-            customSqlSegment=customSqlSegment.replace("#{ew.paramNameValuePairs.MPGENVAL"+i+"}", "?");
-            list.add(paramNameValuePairs.get("MPGENVAL"+i));
+            customSqlSegment = customSqlSegment.replace("#{ew.paramNameValuePairs.MPGENVAL" + i + "}", "?");
+            list.add(paramNameValuePairs.get("MPGENVAL" + i));
             i++;
         }
 
         String sql = String.format("DELETE FROM %s %s", tableName, customSqlSegment);
-        Object[] params =list.toArray();
+        Object[] params = list.toArray();
         int update = jdbcTemplate.update(sql, params);
-        log.warn("=================> 物理删除 SQL： " + sql + " | 参数：" + Arrays.toString(params) + " | 删除的行数：" + update );
+        log.warn("=================> 物理删除 SQL： " + sql + " | 参数：" + Arrays.toString(params) + " | 删除的行数：" + update);
         return update;
     }
 
@@ -154,4 +159,75 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     }
 
 
+    /**
+     * 新增或者更新,并且记录日志
+     *
+     * @param entity 实体对象
+     * @param name   模块名称
+     * @return boolean
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public boolean saveOrUpdate(T entity, String name) {
+        if (this.getById(entity.getId()) != null) {
+            return this.updateById(entity, name);
+        } else {
+            return this.save(entity, name);
+        }
+    }
+
+    /**
+     * @param entity
+     * @param name 模块名称
+     * @return
+     */
+    @Override
+    public boolean save(T entity, String name) {
+        String type = "新增";
+        boolean save = this.save(entity);
+        if (save) {
+            this.saveOperaLog(entity.getId(), type, name, entity, null);
+        }
+        return save;
+    }
+
+    /**
+     * @param entity
+     * @param name 模块名称
+     * @return
+     */
+    @Override
+    public boolean updateById(T entity, String name) {
+        String type = "修改";
+        T oldEntity = this.getById(entity.getId());
+        boolean update = this.updateById(entity);
+        if (update) {
+            this.saveOperaLog(entity.getId(), type, name, entity, oldEntity);
+        }
+        return false;
+    }
+
+    /**
+     * 保存操作日志
+     *
+     * @param id        主键id
+     * @param type      操作类型  新增 修改 删除
+     * @param name      模块名称
+     * @param newObject 新对象
+     * @param oldObject 旧对象
+     */
+    @Override
+    public void saveOperaLog(String id, String type, String name, Object newObject, Object oldObject) {
+        try {
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
+
+            operaLogEntity.setDocumentId(id);
+            operaLogEntity.setJsonContent(jsonArray.toJSONString());
+            operaLogEntity.setName(name);
+            operaLogEntity.setType(type);
+            operaLogService.save(operaLogEntity);
+        } catch (Exception e) {
+            log.error("保存操作日志失败", e);
+        }
+    }
 }
