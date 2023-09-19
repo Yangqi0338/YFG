@@ -1,5 +1,7 @@
 package com.base.sbc.module.common.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -185,7 +187,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         String type = "新增";
         boolean save = this.save(entity);
         if (save) {
-            this.saveOperaLog(entity.getId(), type, name, entity, null,null);
+            this.saveOperaLog(entity.getId(), type, name, entity, null);
         }
         return save;
     }
@@ -201,7 +203,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         T oldEntity = this.getById(entity.getId());
         boolean update = this.updateById(entity);
         if (update) {
-            this.saveOperaLog(entity.getId(), type, name, entity, oldEntity,null);
+            this.saveOperaLog(entity.getId(), type, name, entity, oldEntity);
         }
         return false;
     }
@@ -216,7 +218,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      * @param oldObject 旧对象
      */
     @Override
-    public void saveOperaLog(String id, String type, String name, Object newObject, Object oldObject,OperaLogEntity operaLogEntity1) {
+    public void saveOperaLog(String id, String type, String name, Object newObject, Object oldObject) {
         try {
             OperaLogEntity operaLogEntity = new OperaLogEntity();
             JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
@@ -226,12 +228,22 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
             operaLogEntity.setName(name);
             operaLogEntity.setType(type);
             operaLogService.save(operaLogEntity);
-            if (operaLogEntity1!=null){
-                operaLogEntity1.setId(operaLogEntity.getId());
-                operaLogService.updateById(operaLogEntity1);
-            }
         } catch (Exception e) {
             log.error("保存操作日志失败", e);
         }
+    }
+
+    /**
+     * 保存操作日志
+     *
+     * @param newObject
+     * @param oldObject
+     *
+     */
+    @Override
+    public void saveOperaLog(Object newObject, Object oldObject, OperaLogEntity operaLogEntity) {
+        JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
+        operaLogEntity.setJsonContent(jsonArray.toJSONString());
+        operaLogService.save(operaLogEntity);
     }
 }
