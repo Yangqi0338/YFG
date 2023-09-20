@@ -116,6 +116,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
             detail.setId(idGen.nextIdStr());
             detail.setCompanyCode(companyCode);
             detail.setOutboundId(id);
+            detail.setMaterialSku(detail.getMaterialCode() + detail.getColorCode() + detail.getSpecificationsCode());
 
             totalAmount = BigDecimalUtil.add(totalAmount, detail.getOutNum().multiply(detail.getStockPrice()));
             totalNum = BigDecimalUtil.add(totalNum, detail.getOutNum());
