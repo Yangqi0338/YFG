@@ -96,6 +96,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     private RedisUtils redisUtils;
     @Autowired
     private BaseController baseController;
+
     @Autowired
     private DataPermissionsService dataPermissionsService;
 
@@ -466,8 +467,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
             }
         }
-        amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
         // 版房主管和设计师 看到全部，版师、裁剪工、车缝工、样衣组长看到自己,
+//        amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
+
+        // 数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType(), "s.");
         if (StrUtil.isBlank(dto.getOrderBy())) {
             qw.orderByDesc("p.create_date");
             qw.orderByAsc("p.sort");

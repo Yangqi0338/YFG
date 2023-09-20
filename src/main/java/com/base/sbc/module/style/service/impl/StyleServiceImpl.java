@@ -464,9 +464,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         else if (StrUtil.equals(dto.getUserType(), StylePageDto.userType3)) {
             qw.eq("designer_id", userId);
         }
-        if (StrUtil.isNotBlank(dto.getBusinessType())) {
-            dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType());
-        }
+        //数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType());
         qw.orderByDesc("create_date");
         Page<StylePageVo> objects = PageHelper.startPage(dto);
         getBaseMapper().selectByQw(qw);
@@ -846,7 +845,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             qc.eq("del_flag", BasicNumber.ZERO.getNumber());
             qc.select("id", "name", "season");
             qc.orderByDesc("name");
-            dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.style_info.getK());
+            dataPermissionsService.getDataPermissionsForQw(qc, vo.getBusinessType());
             /*查询到的产品季*/
             List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
             if (CollUtil.isNotEmpty(planningSeasonList)) {
@@ -868,6 +867,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             getProductCategoryTreeQw(vo, qw);
             qw.select("prod_category1st_name,prod_category1st");
             qw.groupBy("prod_category1st_name,prod_category1st");
+            dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
             List result = null;
             if (StrUtil.equals(vo.getDataForm(), "seat")) {
                 result = planningCategoryItemService.listMaps(qw);
@@ -893,6 +893,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             qw.select("prod_category_name,prod_category");
             qw.groupBy("prod_category_name,prod_category");
             List result = null;
+            dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
             if (StrUtil.equals(vo.getDataForm(), "seat")) {
                 result = planningCategoryItemService.listMaps(qw);
             } else {

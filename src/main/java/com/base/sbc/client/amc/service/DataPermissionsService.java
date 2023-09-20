@@ -68,7 +68,10 @@ public class DataPermissionsService {
      * @param tablePre     表别名
      */
     public void getDataPermissionsForQw(QueryWrapper qw, String businessType, String tablePre) {
-        getDataPermissionsForQw(qw, businessType, tablePre,null);
+        if (StrUtil.isBlank(businessType) || qw == null) {
+            return;
+        }
+        getDataPermissionsForQw(qw, businessType, tablePre, null);
     }
     /**
      * @param qw           查询构造器
