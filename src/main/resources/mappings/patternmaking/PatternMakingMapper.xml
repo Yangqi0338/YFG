@@ -471,6 +471,21 @@
         left join t_upload_file as tuf on ts.style_pic = tuf.id and tuf.del_flag = '0'
         where ts.del_flag = '0'
         and ts.company_code = #{companyCode}
+        <if test="year !=null and year != ''">
+            and ts.year_name = #{year}
+        </if>
+        <if test="season !=null and season != ''">
+            and ts.season = #{season}
+        </if>
+        <if test="month !=null and month != ''">
+            and ts.month = #{month}
+        </if>
+        <if test="bandCode !=null and bandCode.length >0">
+            and ts.band_code in
+            <foreach collection="bandCode" item="item" open="(" separator="," close=")">
+                #{item}
+          </foreach>
+        </if>
         <if test="designerId !=null and designerId != ''">
             and ts.designer_id like concat('%',#{designerId},'%')
         </if>
