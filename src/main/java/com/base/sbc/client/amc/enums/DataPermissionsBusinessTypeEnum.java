@@ -9,6 +9,8 @@ public enum DataPermissionsBusinessTypeEnum {
     PlanningCategoryItem("PlanningCategoryItem", "坑位数据"),
     design_task("design_task", "款式设计任务"),
     style_info("style_info", "设计档案"),
+    sample_capacity_total_count("sample_capacity_total_count", "样衣产能总数"),
+    capacity_contrast_statistics("capacity_contrast_statistics", "样衣产能对比"),
     ;
     private final String k;
     private final String v;
