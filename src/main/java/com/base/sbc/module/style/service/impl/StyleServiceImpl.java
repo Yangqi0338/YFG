@@ -1432,7 +1432,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.eq(DEL_FLAG, BaseGlobal.DEL_FLAG_NORMAL);
         qw.select("DISTINCT year,season");
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.design_task.getK());
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_info.getK());
         List<Style> list = list(qw);
         List<DesignDocTreeVo> result = new ArrayList<>(16);
         if (CollUtil.isNotEmpty(list)) {

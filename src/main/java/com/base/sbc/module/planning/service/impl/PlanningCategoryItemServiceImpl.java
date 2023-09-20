@@ -336,9 +336,6 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         return true;
     }
 
-    private void setSeatQw(QueryWrapper<PlanningCategoryItem> qw, ProductCategoryItemSearchDto dto) {
-
-    }
 
     @Override
     public PageInfo<PlanningSeasonOverviewVo> findProductCategoryItem(ProductCategoryItemSearchDto dto) {

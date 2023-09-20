@@ -54,10 +54,19 @@ public class DataPermissionsService {
         return JSONArray.parseArray(JSON.toJSONString(apiResult.getData()), DataPermissionVO.class);
     }
 
+    /**
+     * @param qw           查询构造器
+     * @param businessType 业务对象编码
+     */
     public void getDataPermissionsForQw(QueryWrapper qw, String businessType) {
         getDataPermissionsForQw(qw, businessType, "");
     }
 
+    /**
+     * @param qw           查询构造器
+     * @param businessType 业务对象编码
+     * @param tablePre     表别名
+     */
     public void getDataPermissionsForQw(QueryWrapper qw, String businessType, String tablePre) {
         UserCompany userCompany = companyUserInfo.get();
         String dataPermissionsKey = "USERISOLATION:" + userCompany.getCompanyCode() + ":" + userCompany.getUserId() + ":";
