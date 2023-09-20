@@ -167,6 +167,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         } else {
             qc.eq("confirm_status", "2");
         }
+        qc.orderByDesc("create_date");
         List<BasicsdatumMaterial> list = this.list(qc);
         PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
 

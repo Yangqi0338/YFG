@@ -1,5 +1,6 @@
 package com.base.sbc.module.hangTag.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -14,9 +15,11 @@ public class UpdatePriceDto {
     /**
      * 大货款号
      */
+    @ApiModelProperty(value = "大货款号")
     private String bulkStyleNo;
     /**
      * 吊牌价
      */
+    @ApiModelProperty(value = "吊牌价")
     private BigDecimal tagPrice;
 }

@@ -108,9 +108,11 @@ public class HangTagController extends BaseController {
         //        throw new OtherException("该大货款号已下发并且使用,无法修改吊牌价");
         //    }
         //}
-
+        StyleColor styleColor1 =new StyleColor();
+        BeanUtil.copyProperties(styleColor, styleColor1);
         styleColor.setTagPrice(updatePriceDto.getTagPrice());
         styleColorService.updateById(styleColor);
+        styleColorService.saveOperaLog("修改", "修改吊牌价", styleColor, styleColor1);
         return updateSuccess("修改成功");
     }
 

@@ -370,4 +370,31 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         operaLogService.save(operaLogEntity);
         return b;
     }
+
+    /**
+     * @param ids
+     * @param name
+     * @return
+     */
+    @Override
+    @Transactional
+    public boolean removeByIds(List<String> ids, String name) {
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setName(name);
+        operaLogEntity.setType("删除");
+        operaLogEntity.setContent(CollUtil.join(ids, StrUtil.COMMA));
+        operaLogService.save(operaLogEntity);
+        return super.removeByIds(ids);
+    }
+
+    /**
+     * @param id
+     * @param name
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean removeById(String id, String name) {
+        return this.removeByIds(Collections.singletonList(id), name);
+    }
 }

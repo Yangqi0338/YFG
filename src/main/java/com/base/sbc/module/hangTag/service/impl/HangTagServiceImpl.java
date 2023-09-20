@@ -207,7 +207,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         logger.info("HangTagService#save 保存吊牌 hangTagDTO:{}, userCompany:{}", JSON.toJSONString(hangTagDTO), userCompany);
         HangTag hangTag = new HangTag();
         BeanUtils.copyProperties(hangTagDTO, hangTag);
-        super.saveOrUpdate(hangTag,"吊牌操作记录");
+        super.saveOrUpdate(hangTag,"吊牌管理");
         String id = hangTag.getId();
 
         //List<BasicsdatumMaterialIngredient> materialIngredientList = basicsdatumMaterialController.formatToList(hangTagDTO.getIngredient(), "0", "");
