@@ -390,6 +390,16 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (ccmFeignService.getSwitchByCode(STYLE_MANY_COLOR.getKeyCode()) && ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH.getKeyCode()) && StringUtils.isAnyBlank(packInfo.getStyleNo(), packInfo.getColor(), packInfo.getStyleColorId())) {
             throw new OtherException("没有配色信息");
         }
+        /*判断物料是否全部下发*/
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("foreign_id", version.getForeignId());
+        queryWrapper.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
+        queryWrapper.eq("bom_version_id", version.getId());
+        queryWrapper.in("scm_send_flag", StringUtils.convertList("0,2"));
+        List<PackBom> packBomList = packBomService.list(queryWrapper);
+        if (CollUtil.isNotEmpty(packBomList)) {
+            throw new OtherException("物料清单存在未下发数据");
+        }
 
         PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
         if (ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH.getKeyCode()) && YesOrNoEnum.YES.getValueStr().equals(packDesignStatus.getBomStatus())) {

@@ -199,35 +199,11 @@ public class PackInfoController {
 	public boolean updatePackInfoStatusField(@RequestBody PackInfoStatusVo dto) {
 		return packInfoService.updatePackInfoStatusField(dto);
 	}
+
+/*	@PostMapping("/copyBom")
+	@ApiOperation(value = "复制BOM")
+	public boolean copyBom(@RequestBody PackInfoStatusVo dto) {
+		return packInfoService.updatePackInfoStatusField(dto);
+	}*/
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
