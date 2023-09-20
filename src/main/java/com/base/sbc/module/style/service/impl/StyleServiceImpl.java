@@ -54,7 +54,9 @@ import com.base.sbc.module.hangTag.entity.HangTag;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomSizeService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
@@ -162,8 +164,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     private ThemePlanningService themePlanningService;
     @Autowired
-    private PlanningDemandService planningDemandService;
-    @Autowired
     private PlanningDemandMapper planningDemandMapper;
     @Autowired
     private PlanningDemandProportionDataService planningDemandProportionDataService;
@@ -180,6 +180,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     private FieldOptionConfigService fieldOptionConfigService;
 
+    @Autowired
+    private PackBomSizeService packBomSizeService;
 
     private IdGen idGen = new IdGen();
 
@@ -1085,6 +1087,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (StrUtil.equals(dto.getOverlayFlg(), BaseGlobal.YES)) {
             packBomService.del(dto.getStyleId(), PackUtils.PACK_TYPE_STYLE);
         }
+        Style style =  baseMapper.selectById(dto.getStyleId());
         List<PackBomDto> bomList = dto.getBomList();
         for (PackBomDto packBomDto : bomList) {
             packBomDto.setId(null);
@@ -1092,8 +1095,28 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             packBomDto.setPackType(PackUtils.PACK_TYPE_STYLE);
         }
         List<PackBom> packBoms = BeanUtil.copyToList(bomList, PackBom.class);
-
-        return packBomService.saveBatch(packBoms);
+        packBomService.saveBatch(packBoms);
+        /*保存尺码*/
+        List<String> productSizes = StrUtil.split(style.getProductSizes(), ',');
+        List<String> sizeIds = StrUtil.split(style.getSizeIds(), ',');
+        List<PackBomSize> packBomSizeList = new ArrayList<>();
+        for (PackBom packBom : packBoms) {
+            if (CollUtil.isNotEmpty(productSizes)) {
+                for (int i = 0; i < productSizes.size(); i++) {
+                    PackBomSize packBomSize = new PackBomSize();
+                    packBomSize.setSize(CollUtil.get(productSizes, i));
+                    packBomSize.setSizeId(CollUtil.get(sizeIds, i));
+                    packBomSize.setBomId(packBom.getId());
+                    packBomSize.setWidthCode(packBom.getTranslateCode());
+                    packBomSize.setWidth(packBom.getTranslate());
+                    packBomSizeList.add(packBomSize);
+                }
+            }
+        }
+        if (CollUtil.isNotEmpty(packBomSizeList)) {
+            packBomSizeService.saveBatch(packBomSizeList);
+        }
+        return true;
     }
 
     @Override
