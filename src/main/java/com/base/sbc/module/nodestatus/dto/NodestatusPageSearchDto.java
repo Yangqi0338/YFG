@@ -37,4 +37,9 @@ public class NodestatusPageSearchDto extends Page {
     @ApiModelProperty(value = "当前节点", example = "打版中")
     private String nodeName;
     private String companyCode;
+
+    private String year;
+    private String season;
+    private String month;
+    private String[] bandCode;
 }
