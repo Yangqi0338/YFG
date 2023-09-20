@@ -2,6 +2,7 @@ package com.base.sbc.module.pack.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 
 import java.util.List;
 
@@ -21,22 +22,9 @@ public interface PackBaseService<T> extends BaseService<T> {
      */
     Integer addAndUpdateAndDelList(List<T> entityList, QueryWrapper<T> queryWrapper, boolean delFlg);
 
-    /**
-     * 记入操作日志
-     *
-     * @param id
-     * @param type
-     * @param content
-     */
-    void log(String id, String type, String content);
 
-    /**
-     * 记入操作日志
-     *
-     * @param id
-     * @param type
-     */
-    void log(String id, String type);
+    OperaLogEntity genOperaLogEntity(Object bean, String type);
+
 
     boolean delByIds(String id);
 
@@ -96,4 +84,6 @@ public interface PackBaseService<T> extends BaseService<T> {
      * @return
      */
     boolean sort(String ids, String column);
+
+    boolean log(String id, String type);
 }

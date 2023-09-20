@@ -6,9 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
-import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
@@ -16,7 +14,6 @@ import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackProcessPriceDto;
 import com.base.sbc.module.pack.service.PackProcessPriceService;
-import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackProcessPriceVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -67,7 +64,6 @@ public class PackProcessPriceController {
 
     @ApiOperation(value = "保存/修改", notes = "id为空新增、不为空修改")
     @PostMapping
-    @OperaLog(value = "工序工价", operationType = OperationType.INSERT_UPDATE, pathSpEL = PackUtils.pathSqEL, parentIdSpEl = "#p0.foreignId", service = PackProcessPriceService.class)
     public PackProcessPriceVo save(@RequestBody PackProcessPriceDto dto) {
         return packProcessPriceService.saveByDto(dto);
     }

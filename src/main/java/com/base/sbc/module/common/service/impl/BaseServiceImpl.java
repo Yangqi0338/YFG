@@ -309,10 +309,8 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      */
     @Override
     public void saveOrUpdateOperaLog(Object newObject, Object oldObject, OperaLogEntity operaLogEntity) {
-        if (oldObject != null) {
-            JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
-            operaLogEntity.setJsonContent(jsonArray.toJSONString());
-        }
+        JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
+        operaLogEntity.setJsonContent(jsonArray.toJSONString());
         operaLogService.save(operaLogEntity);
     }
 
@@ -397,4 +395,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     public boolean removeById(String id, String name) {
         return this.removeByIds(Collections.singletonList(id), name);
     }
+
+    @Override
+    public boolean saveLog(OperaLogEntity operaLogEntity) {
+        return operaLogService.save(operaLogEntity);
+    }
+
+
 }

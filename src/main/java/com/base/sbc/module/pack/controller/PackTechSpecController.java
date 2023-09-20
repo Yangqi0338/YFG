@@ -9,9 +9,7 @@ package com.base.sbc.module.pack.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
-import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdsDto;
@@ -102,7 +100,6 @@ public class PackTechSpecController {
 
     @ApiOperation(value = "保存")
     @PostMapping
-    @OperaLog(value = "工艺说明", pathSpEL = PackTechSpecService.pathSqEL, parentIdSpEl = "#dto.foreignId", operationType = OperationType.INSERT_UPDATE, service = PackTechSpecService.class)
     public PackTechSpecVo save(@Valid @RequestBody PackTechSpecDto dto) {
         return packTechSpecService.saveByDto(dto);
     }

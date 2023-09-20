@@ -6,16 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
-import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.PackBusinessOpinionDto;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.service.PackBusinessOpinionService;
-import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBusinessOpinionVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -65,7 +62,6 @@ public class PackBusinessOpinionController {
 
 	@ApiOperation(value = "保存/修改", notes = "id为空新增、不为空修改")
 	@PostMapping
-	@OperaLog(value = "业务意见", operationType = OperationType.INSERT_UPDATE, pathSpEL = PackUtils.pathSqEL, parentIdSpEl = "#p0.foreignId", service = PackBusinessOpinionService.class)
 	public PackBusinessOpinionVo save(@RequestBody PackBusinessOpinionDto dto) {
 		return packBusinessOpinionService.saveByDto(dto);
 	}

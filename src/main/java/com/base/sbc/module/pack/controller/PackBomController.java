@@ -7,19 +7,16 @@
 package com.base.sbc.module.pack.controller;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
-import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
-import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.service.PackBaseService;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
-import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.sample.dto.FabricSummaryDTO;
@@ -114,7 +111,6 @@ public class PackBomController extends BaseController{
 
     @PostMapping("/save")
     @ApiOperation(value = "保存单个物料清单")
-    @OperaLog(value = "物料清单", operationType = OperationType.INSERT_UPDATE, pathSpEL = PackUtils.pathSqEL, parentIdSpEl = "#p0.foreignId", service = PackBomService.class)
     public PackBomVo save(@Valid @RequestBody PackBomDto dto) {
         return packBomService.saveByDto(dto);
     }

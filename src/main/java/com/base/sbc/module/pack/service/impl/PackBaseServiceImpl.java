@@ -44,48 +44,26 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
     @Resource
     private OperaLogService operaLogService;
 
-    @Override
-    @Transactional(rollbackFor = {Exception.class})
-    public void log(String id, String type, String content) {
-        QueryWrapper<T> qw = new QueryWrapper();
-        qw.in("id", StrUtil.split(id, StrUtil.COMMA));
-        qw.last("limit 1");
-        T byId = getOne(qw);
-        if (byId == null) {
-            return;
-        }
-        String foreignId = BeanUtil.getProperty(byId, "foreignId");
-        String packType = BeanUtil.getProperty(byId, "packType");
-        OperaLogEntity log = new OperaLogEntity();
-        log.setDocumentId(id);
-        log.setName(getModeName());
-        log.setContent(content);
-        log.setParentId(foreignId);
-        log.setPath(CollUtil.join(CollUtil.newArrayList("资料包", packType, foreignId, getModeName()), StrUtil.DASHED));
-        log.setType(type);
-        operaLogService.save(log);
-
-    }
-
-    @Override
-    @Transactional(rollbackFor = {Exception.class})
-    public void log(String id, String type) {
-        log(id, type, type + id);
-    }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean removeByIds(Collection<?> list) {
+        if (CollUtil.isEmpty(list)) {
+            return true;
+        }
+        Object first = CollUtil.getFirst(list);
+        T byId = getById((Serializable) first);
         String ids = CollUtil.join(list, StrUtil.COMMA);
-        log(ids, "删除", "删除" + ids);
-        boolean flg = super.removeByIds(list);
+        boolean flg = super.removeByIds(list, genOperaLogEntity(byId, "删除"));
         return flg;
     }
 
     @Override
     public boolean removeById(Serializable id) {
-        log((String) id, "删除", "删除" + id);
-        boolean b = super.removeById(id);
+        T byId = getById(id);
+
+        boolean b = super.removeById(id, genOperaLogEntity(byId, "删除"));
+
         return b;
     }
 
@@ -143,6 +121,25 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
         return entityList.size();
 
     }
+
+    @Override
+    public OperaLogEntity genOperaLogEntity(Object bean, String type) {
+        OperaLogEntity log = new OperaLogEntity();
+        log.setDocumentId(BeanUtil.getProperty(bean, "id"));
+        log.setType(type);
+        log.setName(getModeName());
+        log.setPath(BeanUtil.getProperty(bean, "packType"));
+        log.setParentId(BeanUtil.getProperty(bean, "foreignId"));
+        return log;
+    }
+
+    @Override
+    public boolean save(T entity) {
+        boolean save = super.save(entity);
+        saveOrUpdateOperaLog(entity, null, genOperaLogEntity(entity, "新增"));
+        return save;
+    }
+
 
     @Override
     public boolean del(String foreignId, String packType) {
@@ -232,6 +229,14 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
             uw.set(column, i);
             update(uw);
         }
+        return true;
+    }
+
+    @Override
+    public boolean log(String id, String type) {
+        T byId = getById(id);
+        OperaLogEntity operaLogEntity = genOperaLogEntity(byId, type);
+        operaLogService.save(operaLogEntity);
         return true;
     }
 }

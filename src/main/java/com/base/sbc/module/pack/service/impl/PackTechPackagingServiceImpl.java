@@ -41,6 +41,7 @@ public class PackTechPackagingServiceImpl extends PackBaseServiceImpl<PackTechPa
             save(packaging);
             return packaging;
         } else {
+            saveOrUpdateOperaLog(packaging, db, genOperaLogEntity(db, "修改"));
             BeanUtil.copyProperties(packaging, db, "id");
             updateById(db);
             return db;

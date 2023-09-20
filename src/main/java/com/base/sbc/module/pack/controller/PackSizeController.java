@@ -11,14 +11,12 @@ import cn.hutool.json.JSONObject;
 import com.base.sbc.client.ccm.entity.BasicUnitConfig;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
-import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
-import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.utils.ImportExcel;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
@@ -33,7 +31,6 @@ import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.service.PackSizeConfigService;
 import com.base.sbc.module.pack.service.PackSizeDetailService;
 import com.base.sbc.module.pack.service.PackSizeService;
-import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackSizeConfigVo;
 import com.base.sbc.module.pack.vo.PackSizeVo;
 import com.github.pagehelper.PageInfo;
@@ -110,7 +107,6 @@ public class PackSizeController extends BaseController{
 
     @PostMapping("/save")
     @ApiOperation(value = "保存单个")
-    @OperaLog(value = "尺寸表", operationType = OperationType.INSERT_UPDATE, pathSpEL = PackUtils.pathSqEL, parentIdSpEl = "#p0.foreignId", service = PackSizeService.class)
     public PackSizeVo save(@Valid @RequestBody PackSizeDto dto) {
         return packSizeService.saveByDto(dto);
     }
