@@ -691,6 +691,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         QueryWrapper qw = new QueryWrapper();
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.in(StrUtil.isNotBlank(month), "month", StrUtil.split(month, CharUtil.COMMA));
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.ChartBar.getK(), "");
         amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
         List<ChartBarVo> chartBarVos = getBaseMapper().getBandChart(qw);
         return getChartList(chartBarVos);
@@ -701,6 +702,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         QueryWrapper qw = new QueryWrapper();
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.in(StrUtil.isNotBlank(category), "prod_category", StrUtil.split(category, CharUtil.COMMA));
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.ProductBar.getK(), "");
         amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
         List<ChartBarVo> chartBarVos = getBaseMapper().getCategoryChart(qw);
         ccmFeignService.setCategoryName(chartBarVos, "product", "product");

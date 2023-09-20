@@ -76,7 +76,9 @@ public class DataPermissionsService {
         if (flg && StrUtil.isNotBlank(sql)) {
             qw.apply(sql);
         }
-        System.out.println(dataPermissionsKey);
+        if(!flg){
+            qw.apply(" 1=0 ");
+        }
     }
 
     /**
