@@ -68,9 +68,18 @@ public class DataPermissionsService {
      * @param tablePre     表别名
      */
     public void getDataPermissionsForQw(QueryWrapper qw, String businessType, String tablePre) {
+        getDataPermissionsForQw(qw, businessType, tablePre,null);
+    }
+    /**
+     * @param qw           查询构造器
+     * @param businessType 业务对象编码
+     * @param tablePre     表别名
+     * @param authorityFields     自定义数据隔离字段（代表名的）
+     */
+    public void getDataPermissionsForQw(QueryWrapper qw, String businessType, String tablePre, String[] authorityFields) {
         UserCompany userCompany = companyUserInfo.get();
         String dataPermissionsKey = "USERISOLATION:" + userCompany.getCompanyCode() + ":" + userCompany.getUserId() + ":";
-        Map read = getDataPermissionsForQw(businessType, "read", tablePre, new String[]{}, dataPermissionsKey);
+        Map read = getDataPermissionsForQw(businessType, "read", tablePre,authorityFields, dataPermissionsKey);
         boolean flg = MapUtil.getBool(read, "authorityState", false);
         String sql = MapUtil.getStr(read, "authorityField");
         if (flg && StrUtil.isNotBlank(sql)) {
@@ -80,7 +89,6 @@ public class DataPermissionsService {
             qw.apply(" 1=0 ");
         }
     }
-
     /**
      * 获取数据权限
      *
