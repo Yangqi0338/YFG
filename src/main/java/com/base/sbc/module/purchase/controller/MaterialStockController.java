@@ -80,13 +80,14 @@ public class MaterialStockController extends BaseController{
 
 	@ApiOperation(value = "根据物料SKU查询物料库存数据")
 	@GetMapping("/byMaterialSKU")
-	public ApiResult byMaterialSKU(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String SkuList) {
-		if(StringUtils.isBlank(SkuList)){
-			return selectAttributeNotRequirements("SKU");
+	public ApiResult byMaterialSKU(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String SkuList, String warehouseId) {
+		if(StringUtils.isBlank(SkuList) || StringUtils.isBlank(warehouseId)){
+			return selectAttributeNotRequirements("SKU, warehouseId");
 		}
 
 		QueryWrapper<MaterialStock> qc = new QueryWrapper<>();
 		qc.eq("company_code", userCompany);
+		qc.eq("warehouse_id", warehouseId);
 		qc.in("material_sku", StringUtils.convertList(SkuList));
 		List<MaterialStock> materialStockList = materialStockService.list(qc);
 		if(CollectionUtil.isNotEmpty(materialStockList)){
