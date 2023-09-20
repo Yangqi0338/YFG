@@ -361,24 +361,24 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
         qw.in("id", idList);
         List<PurchaseDemand> purchaseDemandListPlus = list(qw);
 
-        List<String> supplierIdList = new ArrayList<>();
+        List<String> supplierCodeList = new ArrayList<>();
         List<String> materialCodeList = new ArrayList<>();
         //根据供应商分组
         Map<String, List<PurchaseDemand>> supplierDemandMap = new HashMap<>();
         for(PurchaseDemand demand : purchaseDemandListPlus){
-            List<PurchaseDemand> list = supplierDemandMap.get(demand.getSupplierId());
+            List<PurchaseDemand> list = supplierDemandMap.get(demand.getSupplierCode());
             if(CollectionUtil.isEmpty(list)){
                 list = new ArrayList<>();
-                supplierIdList.add(demand.getSupplierId());
+                supplierCodeList.add(demand.getSupplierCode());
             }
             list.add(demand);
-            supplierDemandMap.put(demand.getSupplierId(), list);
+            supplierDemandMap.put(demand.getSupplierCode(), list);
             materialCodeList.add(demand.getMaterialCode());
         }
 
         //供应商信息
         QueryWrapper<BasicsdatumSupplier> supplierQw = new QueryWrapper<>();
-        supplierQw.in("id", supplierIdList);
+        supplierQw.in("supplier_code", supplierCodeList);
         List<BasicsdatumSupplier> supplierList = supplierService.list(supplierQw);
         Map<String, BasicsdatumSupplier> supplierMap = supplierList.stream().collect(Collectors.toMap(BasicsdatumSupplier::getId, item1 -> item1, (item1, item2) -> item1));
 
