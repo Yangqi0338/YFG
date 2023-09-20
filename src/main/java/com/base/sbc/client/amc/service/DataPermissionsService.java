@@ -157,7 +157,7 @@ public class DataPermissionsService {
                         }
 
                         if(StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())){
-                            String fieldName=searchField(authorityFields,fieldDataPermissionVO.getFieldName());
+                            String fieldName=Objects.isNull(authorityFields)?null:searchField(authorityFields,fieldDataPermissionVO.getFieldName());
                             fieldName=(fieldDataPermissionVO.getFieldName().indexOf(".")!=-1)?fieldDataPermissionVO.getFieldName():StringUtils.isNotBlank(fieldName)?fieldName:tablePre+fieldDataPermissionVO.getFieldName();
                             if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType())) {
                                 authorityField.add(fieldName+" in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues())?"()":(fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
