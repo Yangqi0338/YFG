@@ -14,6 +14,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
@@ -178,7 +179,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     @Autowired
     private FieldOptionConfigService fieldOptionConfigService;
-
 
 
     private IdGen idGen = new IdGen();
@@ -464,13 +464,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         else if (StrUtil.equals(dto.getUserType(), StylePageDto.userType3)) {
             qw.eq("designer_id", userId);
         }
-        // 所有
-//        else if (StrUtil.equals(dto.getUserType(), StylePageDto.userType0)) {
-//            Boolean selectFlag = dataPermissionsService.getDataPermissionsForQw(DataPermissionsBusinessTypeEnum.SAMPLE_DESIGN.getK(), qw);
-//            if (selectFlag) {
-//                return new PageInfo<>();
-//            }
-//        }
+        if (StrUtil.isNotBlank(dto.getBusinessType())) {
+            dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType());
+        }
         qw.orderByDesc("create_date");
         Page<StylePageVo> objects = PageHelper.startPage(dto);
         getBaseMapper().selectByQw(qw);
@@ -848,6 +844,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             qc.eq("del_flag", BasicNumber.ZERO.getNumber());
             qc.select("id", "name", "season");
             qc.orderByDesc("name");
+            dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.style_info.getK());
             /*查询到的产品季*/
             List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
             if (CollUtil.isNotEmpty(planningSeasonList)) {
@@ -1372,7 +1369,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qw.eq(StrUtil.isNotBlank(designDocTreeVo.getProdCategory()), "prod_category", designDocTreeVo.getProdCategory());
         qw.eq(StrUtil.isNotBlank(designDocTreeVo.getProdCategory1st()), "prod_category1st", designDocTreeVo.getProdCategory1st());
         qw.select("DISTINCT prod_category,prod_category_name,prod_category1st,prod_category1st_name");
-
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_info.getK());
         List<Style> list = list(qw);
         if (CollUtil.isNotEmpty(list)) {
             Set<String> categoryIdsSet = new HashSet<>(16);
@@ -1414,6 +1411,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qw.notNull("band_code");
         qw.select("DISTINCT band_code,band_name");
         qw.orderByAsc("band_code");
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_info.getK());
         List<Style> list = list(qw);
         if (CollUtil.isNotEmpty(list)) {
             for (Style style : list) {
@@ -1434,6 +1432,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.eq(DEL_FLAG, BaseGlobal.DEL_FLAG_NORMAL);
         qw.select("DISTINCT year,season");
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.design_task.getK());
         List<Style> list = list(qw);
         List<DesignDocTreeVo> result = new ArrayList<>(16);
         if (CollUtil.isNotEmpty(list)) {

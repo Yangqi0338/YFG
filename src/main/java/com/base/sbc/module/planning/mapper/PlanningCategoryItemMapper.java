@@ -9,7 +9,6 @@ package com.base.sbc.module.planning.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.module.common.vo.CountVo;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
@@ -21,7 +20,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 类描述：企划-坑位信息 dao类
@@ -34,7 +32,6 @@ import java.util.Map;
  */
 
 @Mapper
-@DataIsolation(authority = "PlanningCategoryItem")
 public interface PlanningCategoryItemMapper extends BaseMapper<PlanningCategoryItem> {
 
     String selectMaxDesignNo(@Param(Constants.WRAPPER) QueryWrapper qc);

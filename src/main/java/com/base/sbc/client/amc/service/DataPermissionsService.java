@@ -1,7 +1,10 @@
 package com.base.sbc.client.amc.service;
 
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.enums.DataPermissionsConditionTypeEnum;
 import com.base.sbc.client.amc.enums.DataPermissionsRangeEnum;
@@ -9,9 +12,9 @@ import com.base.sbc.client.amc.enums.DataPermissionsSelectTypeEnum;
 import com.base.sbc.client.amc.vo.DataPermissionVO;
 import com.base.sbc.client.amc.vo.FieldDataPermissionVO;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
-import com.base.sbc.config.utils.SpringContextHolder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
 
 @Component
 public class DataPermissionsService {
@@ -41,11 +46,27 @@ public class DataPermissionsService {
         if (StringUtils.isEmpty(businessType)) {
             throw new OtherException("入参不可为空");
         }
-        ApiResult apiResult = amcService.getReadDataPermissions(businessType,operateType);
+        ApiResult apiResult = amcService.getReadDataPermissions(businessType, operateType);
         if (Objects.isNull(apiResult)) {
             throw new OtherException("获取用户数据权限异常");
         }
         return JSONArray.parseArray(JSON.toJSONString(apiResult.getData()), DataPermissionVO.class);
+    }
+
+    public void getDataPermissionsForQw(QueryWrapper qw, String businessType) {
+        getDataPermissionsForQw(qw, businessType, "");
+    }
+
+    public void getDataPermissionsForQw(QueryWrapper qw, String businessType, String tablePre) {
+        UserCompany userCompany = companyUserInfo.get();
+        String dataPermissionsKey = "USERISOLATION:" + userCompany.getCompanyCode() + ":" + userCompany.getUserId() + ":";
+        Map read = getDataPermissionsForQw(businessType, "read", tablePre, new String[]{}, dataPermissionsKey);
+        boolean flg = MapUtil.getBool(read, "authorityState", false);
+        String sql = MapUtil.getStr(read, "authorityField");
+        if (flg && StrUtil.isNotBlank(sql)) {
+            qw.apply(sql);
+        }
+        System.out.println(dataPermissionsKey);
     }
 
     /**
@@ -55,9 +76,9 @@ public class DataPermissionsService {
      * @return
      * @see DataPermissionsBusinessTypeEnum
      */
-    public <T> Map getDataPermissionsForQw(String businessType,String operateType, String tablePre,String[] authorityFields,String dataPermissionsKey) {
-        Map<String,Object> ret=new HashMap<>();
-        ret.put("authorityState",Boolean.TRUE);
+    public <T> Map getDataPermissionsForQw(String businessType, String operateType, String tablePre, String[] authorityFields, String dataPermissionsKey) {
+        Map<String, Object> ret = new HashMap<>();
+        ret.put("authorityState", Boolean.TRUE);
         ret.put("authorityField","");
         List<DataPermissionVO> dataPermissionsList = null;
         if (!redisUtils.hasKey(dataPermissionsKey+operateType+"@" + businessType)) {
@@ -135,6 +156,8 @@ public class DataPermissionsService {
         }
         return ret;
     }
+
+
     private String searchField(String[] arr,String val){
         for (String s:arr) {
             if(s.indexOf(val)!=-1){

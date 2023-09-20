@@ -9,8 +9,10 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -50,6 +52,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.poi.ss.formula.functions.T;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,6 +116,8 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         return removeById(id);
     }
 
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     @Override
     public void checkNameRepeat(PlanningSeasonSaveDto dto, String userCompany) {
@@ -579,6 +584,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             qw.eq(COMPANY_CODE, getCompanyCode());
             qw.lambda().isNotNull(PlanningSeason::getYearName).isNotNull(PlanningSeason::getBrandName);
             qw.orderByDesc("year_name");
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningSeason.getK());
             //查询所有产品季
             List<PlanningSeason> seasonList = list(qw);
             if (CollUtil.isEmpty(seasonList)) {

@@ -63,17 +63,12 @@ public class StyleController extends BaseController {
     @Autowired
     private StyleService styleService;
 
-    @ApiOperation(value = "款式设计(设计任务)")
+    @ApiOperation(value = "分页查询(设计任务,设计档案)")
     @GetMapping()
     public PageInfo pageInfo(@Valid StylePageDto dto) {
         return styleService.queryPageInfo(dto);
     }
 
-    @ApiOperation(value = "设计档案")
-    @GetMapping("/archives")
-    public PageInfo archives(@Valid StylePageDto dto) {
-        return styleService.queryPageInfo(dto);
-    }
 
     /**
      * @param id
