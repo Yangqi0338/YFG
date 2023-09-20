@@ -149,19 +149,6 @@ public class SqlPrintInterceptor implements Interceptor {
                 //sql语句类型 select、delete、insert、update
                 String operateType=sqlCommandType.equals("SELECT")?"read":"write";
                 String dataPermissionsKey = "USERISOLATION:"+usercompany+":"+userId+":";
-                //删除amc的数据权限状态
-                RedisUtils redisUtils1=new RedisUtils();
-                redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplateAmc"));
-                boolean redisType=false;
-                if(redisUtils1.hasKey(dataPermissionsKey+"POWERSTATE")){
-                    redisType=true;
-                    redisUtils1.del(dataPermissionsKey+"POWERSTATE");
-                }
-                redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplate"));
-                if (redisType){
-                    redisUtils.removePattern(dataPermissionsKey);
-                }
-
                 DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
                 Map<String,Object> entity=dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,tablePre,dataIsolation.authorityFields(),dataPermissionsKey);
 

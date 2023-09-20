@@ -15,6 +15,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
+import com.base.sbc.config.utils.SpringContextHolder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +78,18 @@ public class DataPermissionsService {
      * @see DataPermissionsBusinessTypeEnum
      */
     public <T> Map getDataPermissionsForQw(String businessType, String operateType, String tablePre, String[] authorityFields, String dataPermissionsKey) {
+        //删除amc的数据权限状态
+        RedisUtils redisUtils1=new RedisUtils();
+        redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplateAmc"));
+        boolean redisType=false;
+        if(redisUtils1.hasKey(dataPermissionsKey+"POWERSTATE")){
+            redisType=true;
+            redisUtils1.del(dataPermissionsKey+"POWERSTATE");
+        }
+        redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplate"));
+        if (redisType){
+            redisUtils.removePattern(dataPermissionsKey);
+        }
         Map<String, Object> ret = new HashMap<>();
         ret.put("authorityState", Boolean.TRUE);
         ret.put("authorityField","");
