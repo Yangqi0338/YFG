@@ -10,10 +10,7 @@ import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author 卞康
@@ -22,6 +19,7 @@ import java.util.Set;
 public class CommonUtils {
     /**
      * 取多个set集合相交的数据，集合可为null，不进行筛选，但是任何一个set集合的长度为0，则无任何相交对象
+     *
      * @param sets 可变集合数组
      * @param <T>  集合类型
      * @return 相交的set集合
@@ -149,6 +147,88 @@ public class CommonUtils {
         t.setUpdateName(null);
         t.setCreateDate(null);
         t.setUpdateDate(null);
+    }
+
+
+    /**
+     * 获取所有字段,包括父类
+     */
+    public static List<Field> getAllFields(Class<?> clazz) {
+        // 获取当前类的所有字段
+        Field[] declaredFields = clazz.getDeclaredFields();
+        List<Field> fields = new ArrayList<>(Arrays.asList(declaredFields));
+
+        // 获取父类的所有字段
+        Class<?> superClass = clazz.getSuperclass();
+        if (superClass != null) {
+            fields.addAll(getAllFields(superClass));
+        }
+        return fields;
+    }
+
+    /**
+     * 获取所有字段,包括父类
+     */
+    public static List<Field> getAllFields(Object object) {
+        return getAllFields(object.getClass());
+    }
+
+
+    /**
+     * 比较所有记录字段
+     */
+    public static JSONArray recordField(Object newEntity, Object oldEntity) {
+        JSONArray jsonArray = new JSONArray();
+        Object object = null;
+        List<Field> allFields = new ArrayList<>();
+        try {
+            if (oldEntity == null) {
+                oldEntity = newEntity.getClass().newInstance();
+            }
+            object = oldEntity.getClass().newInstance();
+
+            BeanUtil.copyProperties(newEntity, object);
+            allFields = CommonUtils.getAllFields(oldEntity.getClass());
+        } catch (InstantiationException | IllegalAccessException ignored) {
+        }
+        for (Field field : allFields) {
+            field.setAccessible(true);
+            ApiModelProperty annotation = field.getAnnotation(ApiModelProperty.class);
+            if (annotation != null) {
+                try {
+                    String oldStr = "";
+                    Object o = field.get(oldEntity);
+                    if (o != null) {
+                        if (o instanceof Date) {
+                            oldStr = DateUtils.formatDateTime((Date) o);
+                        } else {
+                            oldStr = o.toString();
+                        }
+
+                    }
+                    Object o1 = field.get(object);
+                    String newStr = "";
+                    if (o1 != null) {
+                        if (o1 instanceof Date) {
+                            newStr = DateUtils.formatDateTime((Date) o1);
+                        } else {
+                            newStr = o1.toString();
+                        }
+
+                    }
+                    if (!org.apache.commons.lang3.StringUtils.equals(newStr, oldStr)) {
+                        JSONObject jsonObject = new JSONObject();
+                        String name = annotation.value();
+                        jsonObject.put("name", name);
+                        jsonObject.put("oldStr", oldStr);
+                        jsonObject.put("newStr", newStr);
+                        jsonArray.add(jsonObject);
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        return jsonArray;
     }
 
 }

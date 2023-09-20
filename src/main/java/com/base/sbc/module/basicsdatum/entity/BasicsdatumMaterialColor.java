@@ -54,6 +54,12 @@ public class BasicsdatumMaterialColor extends BaseDataEntity<String> {
     /** 颜色图片 */
     @ApiModelProperty(value = "颜色图片")
     private String picture;
+
+    /**
+     * 下发状态:0未下发,1已下发
+     */
+    @ApiModelProperty(value = "下发状态:0未下发,1已下发")
+    private String scmStatus;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

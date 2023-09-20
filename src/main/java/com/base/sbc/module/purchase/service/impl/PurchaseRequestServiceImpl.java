@@ -137,7 +137,7 @@ public class PurchaseRequestServiceImpl extends BaseServiceImpl<PurchaseRequestM
         IdGen idGen = new IdGen();
 
         PurchaseRequest purchaseRequest = getById(dto.getBusinessKey());
-        purchaseRequest.setReviewer(userCompany.getUserId());
+        purchaseRequest.setReviewer(userCompany.getAliasUserName());
         purchaseRequest.setReviewDate(new Date());
         purchaseRequest.setStatus("2");
 
@@ -167,7 +167,7 @@ public class PurchaseRequestServiceImpl extends BaseServiceImpl<PurchaseRequestM
     @Override
     public void examineNoPass(UserCompany userCompany, AnswerDto dto) {
         PurchaseRequest purchaseRequest = getById(dto.getBusinessKey());
-        purchaseRequest.setReviewer(userCompany.getUserId());
+        purchaseRequest.setReviewer(userCompany.getAliasUserName());
         purchaseRequest.setReviewDate(new Date());
         purchaseRequest.setRejectReason(dto.getConfirmSay());
         purchaseRequest.setStatus("-1");
@@ -177,7 +177,7 @@ public class PurchaseRequestServiceImpl extends BaseServiceImpl<PurchaseRequestM
     @Override
     public void cancelExamine(UserCompany userCompany, AnswerDto dto) {
         PurchaseRequest purchaseRequest = getById(dto.getBusinessKey());
-        purchaseRequest.setReviewer(userCompany.getUserId());
+        purchaseRequest.setReviewer(userCompany.getAliasUserName());
         purchaseRequest.setReviewDate(new Date());
         purchaseRequest.setStatus("0");
         updateById(purchaseRequest);

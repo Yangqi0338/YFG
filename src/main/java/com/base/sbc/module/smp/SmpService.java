@@ -422,12 +422,20 @@ public class SmpService {
             }
             smpMaterialDto.setColorList(colorList);
 
+            //修改颜色为下发状态
+            List<String> collect = list1.stream().map(BasicsdatumMaterialColorPageVo::getId).collect(Collectors.toList());
+            UpdateWrapper<BasicsdatumMaterialColor> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.set("scm_status", "1").in("id", collect);
+            basicsdatumMaterialColorService.update(updateWrapper);
+
+
             //获取材料尺码集合
             QueryWrapper<BasicsdatumMaterialWidth> queryWrapper1 = new QueryWrapper<>();
             queryWrapper1.eq("material_code", basicsdatumMaterial.getMaterialCode());
             queryWrapper1.eq("company_code", userUtils.getCompanyCode());
             List<SmpModuleSize> moduleSizeList = new ArrayList<>();
-            for (BasicsdatumMaterialWidth basicsdatumMaterialWidth : basicsdatumMaterialWidthService.list(queryWrapper1)) {
+            List<BasicsdatumMaterialWidth> list2 = basicsdatumMaterialWidthService.list(queryWrapper1);
+            for (BasicsdatumMaterialWidth basicsdatumMaterialWidth : list2) {
                 SmpModuleSize smpModuleSize = new SmpModuleSize();
                 smpModuleSize.setActive("0".equals(basicsdatumMaterialWidth.getStatus()));
                 smpModuleSize.setSizeCode(basicsdatumMaterialWidth.getName());
@@ -444,6 +452,12 @@ public class SmpService {
                 throw new OtherException("规格不能为空");
             }
             smpMaterialDto.setModuleSizeList(moduleSizeList);
+
+            //修改规格为下发状态
+            List<String> collect1 = list2.stream().map(BasicsdatumMaterialWidth::getId).collect(Collectors.toList());
+            UpdateWrapper<BasicsdatumMaterialWidth> updateWrapper1 = new UpdateWrapper<>();
+            updateWrapper1.set("scm_status", "1").in("id", collect1);
+            basicsdatumMaterialWidthService.update(updateWrapper1);
 
             //获取报价集合
 

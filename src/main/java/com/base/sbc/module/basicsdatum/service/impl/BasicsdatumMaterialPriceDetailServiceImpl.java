@@ -11,6 +11,8 @@ import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.SupplierDetailPriceDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
@@ -119,9 +121,10 @@ public class BasicsdatumMaterialPriceDetailServiceImpl extends ServiceImpl<Basic
         queryWrapper.eq("width",supplierDetailPriceDto.getWidth());
         BasicsdatumMaterialPriceDetailVo basicsdatumMaterialPriceDetailVo =new BasicsdatumMaterialPriceDetailVo();
         BasicsdatumMaterialPriceDetail basicsdatumMaterialPriceDetail =  baseMapper.selectOne(queryWrapper);
-        if(!ObjectUtils.isEmpty(basicsdatumMaterialPriceDetail)){
-            BeanUtils.copyProperties(basicsdatumMaterialPriceDetail, basicsdatumMaterialPriceDetailVo);
+        if(ObjectUtils.isEmpty(basicsdatumMaterialPriceDetail)){
+            throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
+        BeanUtils.copyProperties(basicsdatumMaterialPriceDetail, basicsdatumMaterialPriceDetailVo);
         return basicsdatumMaterialPriceDetailVo;
     }
 

@@ -305,7 +305,7 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
                     }
                 }
             }
-            for (PurchaseOrderDetail detail : purchaseOrder.getPurchaseOrderDetailList()) {
+            for (PurchaseOrderDetail detail : purchaseOrderDetailList) {
                 if (unitMap.get(detail.getPurchaseUnit()) != null) {
                     detail.setPurchaseUnit(unitMap.get(detail.getPurchaseUnit()));
                 }

@@ -44,8 +44,8 @@ public class MaterialStock extends BaseDataEntity<String> {
         this.materialSpecificationsCode = orderDetail.getMaterialSpecificationsCode();
         this.materialColor = orderDetail.getMaterialColor();
         this.materialColorCode = orderDetail.getMaterialColorCode();
-        this.defaultSupplier = order.getSupplierName();
-        this.defaultSupplierId = order.getSupplierId();
+        this.defaultSupplier = orderDetail.getSupplierName();
+        this.defaultSupplierId = orderDetail.getSupplierId();
         this.position = orderDetail.getPosition();
         this.positionCode = orderDetail.getPositionCode();
         this.warehouseId = order.getWarehouseId();

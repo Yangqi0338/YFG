@@ -17,7 +17,9 @@ import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.entity.BasicStructureTree;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -126,6 +128,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     FieldOptionConfigService fieldOptionConfigService;
 
     private IdGen idGen = new IdGen();
+
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
 
     @Override
@@ -370,6 +375,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         // 特殊需求
         qw.eq(StrUtil.isNotBlank(dto.getSpecialNeedsFlag()), "c.special_needs_flag", dto.getSpecialNeedsFlag());
         Page<PlanningSeasonOverviewVo> objects = PageHelper.startPage(dto);
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningCategoryItem.getK(), "c.");
         getBaseMapper().listSeat(qw);
         PageInfo<PlanningSeasonOverviewVo> pageInfo = objects.toPageInfo();
         List<PlanningSeasonOverviewVo> list = pageInfo.getList();
@@ -697,6 +703,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         qw.eq("planning_season_id", planningSeasonId);
         qw.isNotNull("band_name");
         qw.ne("band_name", "");
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningSeason.getK());
         Map<String, Long> result = new HashMap<>(16);
         List<CountVo> list = getBaseMapper().totalBandSkcByPlanningSeason(qw);
         if (CollUtil.isNotEmpty(list)) {

@@ -5,11 +5,10 @@ package com.base.sbc.client.amc.enums;
  * @Date 2023/7/13 9:07
  */
 public enum DataPermissionsBusinessTypeEnum {
-    SAMPLE_DESIGN("sample_design", "款式设计"),
-    PIT_LOCATION("pit_location", "坑位数据"),
-    PLANNING_KANBAN("planning_kanban", "企划看板"),
-    DESIGN_TASK("design_task", "设计任务"),
-    STYLE_INFO("style_info", "款式资料"),
+    PlanningSeason("PlanningSeason", "产品季"),
+    PlanningCategoryItem("PlanningCategoryItem", "坑位数据"),
+    design_task("design_task", "款式设计任务"),
+    style_info("style_info", "设计档案"),
     ;
     private final String k;
     private final String v;

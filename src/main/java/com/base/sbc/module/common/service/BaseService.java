@@ -2,7 +2,11 @@ package com.base.sbc.module.common.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -25,6 +29,7 @@ public interface BaseService<T> extends IService<T> {
     /**
      * 慎用！！！！！！！！。
      * 根据id物理删除数据
+     *
      * @param id 主键id
      * @return 操作结果
      */
@@ -33,8 +38,57 @@ public interface BaseService<T> extends IService<T> {
     /**
      * 慎用！！！！！！！！。
      * 根据构造器物理删除数据
+     *
      * @param queryWrapper 构造器
      * @return 删除的数量
      */
     Integer physicalDeleteQWrap(QueryWrapper<T> queryWrapper);
+
+
+    boolean saveOrUpdate(T entity, String name);
+
+    boolean save(T entity, String name);
+
+    boolean saveBatch(List<T> entity, String name);
+
+    boolean updateById(T entity, String name);
+
+     boolean updateBatchById(List<T> entity, String name);
+    /**
+     * 保存操作日志
+     */
+    void saveOperaLogBatch( String type, String name, List<T> newObject, List<T> oldObject);
+
+
+    /**
+     * 保存操作日志
+     */
+    void saveOperaLog( String type, String name, T newObject, T oldObject);
+
+    /**
+     * 保存操作日志
+     */
+    void saveOrUpdateOperaLog(Object newObject, Object oldObject, OperaLogEntity operaLogEntity);
+
+    /**
+     * 批量保存操作日志
+     */
+    void saveBatchOperaLog(List<T> newObject, OperaLogEntity operaLogEntity);
+
+    /**
+     * 批量修改操作日志
+     */
+    void updateBatchOperaLog(List<T> newObject, List<T> oldObject, OperaLogEntity operaLogEntity);
+
+
+    @Transactional(rollbackFor = {Exception.class})
+    boolean removeByIds(Collection<?> list, OperaLogEntity operaLogEntity);
+
+    boolean removeById(Serializable id, OperaLogEntity operaLogEntity);
+
+    boolean removeByIds(List<String> ids, String name);
+
+    boolean removeById(String id, String name);
+
+    boolean saveLog(OperaLogEntity operaLogEntity);
 }

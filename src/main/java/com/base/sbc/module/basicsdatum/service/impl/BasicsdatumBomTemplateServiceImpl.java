@@ -12,14 +12,12 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBomTemplateDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBomTemplateDto;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumCategoryMeasureMapper;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumCategoryMeasureService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumBomTemplateVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplate;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMapper;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumBomTemplateService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumBomTemplateVo;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -44,7 +42,7 @@ public class BasicsdatumBomTemplateServiceImpl extends BaseServiceImpl<Basicsdat
 
 
     @Autowired
-    private BasicsdatumCategoryMeasureMapper basicsdatumCategoryMeasureMapper;
+    private BasicsdatumBomTemplateMaterialMapper basicsdatumBomTemplateMaterialMapper;
 
 
 // 自定义方法区 不替换的区域【other_start】
@@ -117,7 +115,7 @@ public class BasicsdatumBomTemplateServiceImpl extends BaseServiceImpl<Basicsdat
         List<String> stringList = StringUtils.convertList(id) ;
         QueryWrapper queryWrapper =new QueryWrapper();
         queryWrapper.in("bom_template_id",stringList);
-        basicsdatumCategoryMeasureMapper.delete(queryWrapper);
+        basicsdatumBomTemplateMaterialMapper.delete(queryWrapper);
         baseMapper.deleteBatchIds(stringList);
         return true;
     }

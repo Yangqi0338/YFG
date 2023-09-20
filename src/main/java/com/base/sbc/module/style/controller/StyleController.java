@@ -58,16 +58,18 @@ import java.util.List;
 @Api(tags = "款式设计相关接口")
 @RequestMapping(value = BaseController.SAAS_URL + "/style", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class StyleController extends BaseController{
+public class StyleController extends BaseController {
 
     @Autowired
     private StyleService styleService;
 
-    @ApiOperation(value = "分页查询")
+    @ApiOperation(value = "分页查询(设计任务,设计档案)")
     @GetMapping()
     public PageInfo pageInfo(@Valid StylePageDto dto) {
         return styleService.queryPageInfo(dto);
     }
+
+
     /**
      * @param id
      * @param historyStyleId 引用历史款时使用

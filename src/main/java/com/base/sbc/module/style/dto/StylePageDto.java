@@ -85,4 +85,6 @@ public class StylePageDto extends Page {
 
     @ApiModelProperty(value = "波段code")
     private String bandCode;
+    @ApiModelProperty(value = "业务对象编码(用于数据权限)")
+    private String businessType;
 }

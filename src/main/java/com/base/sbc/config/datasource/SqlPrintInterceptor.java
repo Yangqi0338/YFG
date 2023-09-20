@@ -149,19 +149,6 @@ public class SqlPrintInterceptor implements Interceptor {
                 //sql语句类型 select、delete、insert、update
                 String operateType=sqlCommandType.equals("SELECT")?"read":"write";
                 String dataPermissionsKey = "USERISOLATION:"+usercompany+":"+userId+":";
-                //删除amc的数据权限状态
-                RedisUtils redisUtils1=new RedisUtils();
-                redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplateAmc"));
-                boolean redisType=false;
-                if(redisUtils1.hasKey(dataPermissionsKey+"POWERSTATE")){
-                    redisType=true;
-                    redisUtils1.del(dataPermissionsKey+"POWERSTATE");
-                }
-                redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplate"));
-                if (redisType){
-                    redisUtils.removePattern(dataPermissionsKey);
-                }
-
                 DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
                 Map<String,Object> entity=dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,tablePre,dataIsolation.authorityFields(),dataPermissionsKey);
 
@@ -312,22 +299,22 @@ public class SqlPrintInterceptor implements Interceptor {
     }
     private String disposeSql(String sql, Boolean type){
         if(type){
-            sql=sql.replaceAll("\\?"," ::;,11,;::")
-                    .replaceAll("\\+"," ::;,22,;::")
-                    .replaceAll("\\|"," ::;,33,;::")
-                    .replaceAll("\\."," ::;,44,;::")
-                    .replaceAll("\\*"," ::;,55,;::")
-                    .replaceAll("\\$"," ::;,66,;::")
-                    .replaceAll("\\("," ::;,77,;::")
-                    .replaceAll("\\)"," ::;,88,;::");
+            sql=sql.replaceAll("\\?"," ::;,11,;:: ")
+                    .replaceAll("\\+"," ::;,22,;:: ")
+                    .replaceAll("\\|"," ::;,33,;:: ")
+                    .replaceAll("\\."," ::;,44,;:: ")
+                    .replaceAll("\\*"," ::;,55,;:: ")
+                    .replaceAll("\\$"," ::;,66,;:: ")
+                    .replaceAll("\\("," ::;,77,;:: ")
+                    .replaceAll("\\)"," ::;,88,;:: ");
         }else {
-            sql=sql.replaceAll(" ::;,11,;::","\\?")
-                    .replaceAll(" ::;,22,;::","\\+")
-                    .replaceAll(" ::;,33,;::","\\|")
-                    .replaceAll(" ::;,44,;::","\\.")
-                    .replaceAll(" ::;,55,;::","\\*")
+            sql=sql.replaceAll(" ::;,11,;:: ","\\?")
+                    .replaceAll(" ::;,22,;:: ","\\+")
+                    .replaceAll(" ::;,33,;:: ","\\|")
+                    .replaceAll(" ::;,44,;:: ","\\.")
+                    .replaceAll(" ::;,55,;:: ","\\*")
                     .replaceAll(" ::;,66,;::","\\$")
-                    .replaceAll(" ::;,77,;::","\\(")
+                    .replaceAll(" ::;,77,;:: ","\\(")
                     .replaceAll(" ::;,88,;::","\\) ");
         }
         return sql;

@@ -87,7 +87,6 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "保存")
     @PostMapping("/save")
-    @OperaLog(value = "吊牌操作记录", operationType = OperationType.INSERT_UPDATE,   service = HangTagService.class)
     public ApiResult save(@Valid @RequestBody HangTagDTO hangTagDTO) {
         String id = hangTagService.save(hangTagDTO, super.getUserCompany());
         return ApiResult.success("保存成功", id);
@@ -109,9 +108,11 @@ public class HangTagController extends BaseController {
         //        throw new OtherException("该大货款号已下发并且使用,无法修改吊牌价");
         //    }
         //}
-
+        StyleColor styleColor1 =new StyleColor();
+        BeanUtil.copyProperties(styleColor, styleColor1);
         styleColor.setTagPrice(updatePriceDto.getTagPrice());
         styleColorService.updateById(styleColor);
+        styleColorService.saveOperaLog("修改", "修改吊牌价", styleColor, styleColor1);
         return updateSuccess("修改成功");
     }
 

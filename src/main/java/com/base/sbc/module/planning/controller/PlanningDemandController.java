@@ -120,7 +120,7 @@ public class PlanningDemandController {
 	/*新增删除维度标签*/
 	@ApiOperation(value = "新增删除维度标签")
 	@PostMapping("/saveBatchDimensionality")
-	public ApiResult saveBatchDimensionality(@RequestBody List<SaveDelDimensionalityDto> list) {
+	public Boolean saveBatchDimensionality(@RequestBody List<UpdateDimensionalityDto> list) {
 		return planningDimensionalityService.saveBatchDimensionality(list);
 	}
 

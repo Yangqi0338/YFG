@@ -142,6 +142,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             if (db == null) {
                 throw new OtherException(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND);
             }
+            saveOrUpdateOperaLog(dto, db, genOperaLogEntity(db, "修改"));
             BeanUtil.copyProperties(dto, db);
             PackUtils.setBomVersionInfo(version, db);
             updateById(db);
@@ -316,6 +317,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         uw.in("id", split);
         uw.set("unusable_flag", unusableFlag);
         setUpdateInfo(uw);
+        log(id, StrUtil.equals(unusableFlag, BaseGlobal.YES) ? "停用" : "启用");
         return update(uw);
     }
 

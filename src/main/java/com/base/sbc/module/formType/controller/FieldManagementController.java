@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -108,6 +109,15 @@ public class FieldManagementController {
 	public Boolean startStopFieldOptionConfig(@Valid @RequestBody StartStopDto startStopDto) {
 		return fieldOptionConfigService.startStopFieldOptionConfig(startStopDto);
 	}
+
+
+	@ApiOperation(value = "导入选项配置")
+	@PostMapping("/importExcel")
+	public Boolean importExcel(@RequestParam("file") MultipartFile file ,@RequestParam("fieldManagementId") String fieldManagementId,@RequestParam("formTypeId") String formTypeId) throws Exception {
+		return fieldOptionConfigService.importExcel(file,fieldManagementId,formTypeId);
+	}
+
+
 }
 
 

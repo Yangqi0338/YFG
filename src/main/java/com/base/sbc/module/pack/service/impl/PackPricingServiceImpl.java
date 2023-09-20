@@ -66,6 +66,7 @@ public class PackPricingServiceImpl extends PackBaseServiceImpl<PackPricingMappe
             save(one);
 
         } else {
+            saveOrUpdateOperaLog(dto, one, genOperaLogEntity(one, "修改"));
             BeanUtil.copyProperties(dto, one, "id");
             updateById(one);
         }
