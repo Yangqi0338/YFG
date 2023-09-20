@@ -407,7 +407,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     @Override
     public PageInfo<FabricSummaryVO> fabricSummaryList(FabricSummaryDTO fabricSummaryDTO) {
         Page<FabricSummaryVO> page = PageHelper.startPage(fabricSummaryDTO);
-        baseMapper.fabricSummaryList(fabricSummaryDTO);
+        baseMapper.fabricSummaryList(fabricSummaryDTO, null);
         if (CollectionUtil.isNotEmpty(page.toPageInfo().getList())) {
             for (FabricSummaryVO fabricSummaryVO : page.toPageInfo().getList()) {
                 // 统计物料下被多少款使用
