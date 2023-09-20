@@ -8,12 +8,15 @@ package com.base.sbc.module.style.mapper;
 
 import java.util.List;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.style.dto.StyleGroupQueryDto;
 import com.base.sbc.module.style.entity.StyleGroup;
 import com.base.sbc.module.style.vo.StyleGroupPageVo;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 类描述：款式管理-款式搭配 dao类
@@ -31,7 +34,8 @@ public interface StyleGroupMapper extends BaseMapper<StyleGroup> {
 	 * @param dto
 	 * @return
 	 */
-	List<StyleGroupPageVo> getStyleGroupList(StyleGroupQueryDto dto);
+	List<StyleGroupPageVo> getStyleGroupList(@Param("dto") StyleGroupQueryDto dto,
+											 @Param(Constants.WRAPPER) QueryWrapper qw);
 
 	/**
 	 * 搭配明细查询

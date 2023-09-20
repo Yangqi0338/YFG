@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +47,7 @@ import lombok.RequiredArgsConstructor;
 public class StyleGroupServiceImpl extends BaseServiceImpl<StyleGroupMapper, StyleGroup> implements StyleGroupService {
 
 	private final StyleGroupColorService sampleStyleGroupColorService;
+	private final DataPermissionsService dataPermissionsService;
 
 	@Override
 	public PageInfo<StyleGroupPageVo> getStyleGroupList(StyleGroupQueryDto dto) {
@@ -52,7 +55,9 @@ public class StyleGroupServiceImpl extends BaseServiceImpl<StyleGroupMapper, Sty
 			PageHelper.startPage(dto);
 		}
 		dto.setCompanyCode(this.getCompanyCode());
-		List<StyleGroupPageVo> list = this.baseMapper.getStyleGroupList(dto);
+		QueryWrapper qw = new QueryWrapper();
+		dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_group.getK(), "t2.");
+		List<StyleGroupPageVo> list = this.baseMapper.getStyleGroupList(dto, qw);
 		return new PageInfo<>(list);
 	}
 

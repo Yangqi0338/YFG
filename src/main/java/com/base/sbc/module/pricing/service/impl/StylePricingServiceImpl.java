@@ -8,6 +8,8 @@ package com.base.sbc.module.pricing.service.impl;
 
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -78,6 +80,8 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     private StyleColorService styleColorService;
     @Autowired
     private UserUtils userUtils;
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     private final PackPricingCraftCostsService packPricingCraftCostsService;
     private final PackPricingProcessCostsService packPricingProcessCostsService;
@@ -86,7 +90,9 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     public PageInfo<StylePricingVO> getStylePricingList(Principal user, StylePricingSearchDTO dto) {
         dto.setCompanyCode(super.getCompanyCode());
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
-        List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(dto);
+        QueryWrapper qw = new QueryWrapper();
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
+        List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(dto, qw);
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return page.toPageInfo();
         }
@@ -177,7 +183,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         StylePricingSearchDTO stylePricingSearchDTO = new StylePricingSearchDTO();
         stylePricingSearchDTO.setPackId(packId);
         stylePricingSearchDTO.setCompanyCode(companyCode);
-        List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(stylePricingSearchDTO);
+        List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(stylePricingSearchDTO, null);
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return null;
         }

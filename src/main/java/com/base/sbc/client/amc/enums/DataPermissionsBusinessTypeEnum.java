@@ -13,6 +13,10 @@ public enum DataPermissionsBusinessTypeEnum {
     style_info("style_info", "设计档案"),
     sample_capacity_total_count("sample_capacity_total_count", "样衣产能总数"),
     capacity_contrast_statistics("capacity_contrast_statistics", "样衣产能对比"),
+    style_group("style_group", "款式搭配"),
+    style_order_book("style_order_book", "订货本"),
+    fabric_summary("fabric_summary", "面料汇总"),
+    style_pricing("style_pricing", "款式定价"),
     ;
     private final String k;
     private final String v;

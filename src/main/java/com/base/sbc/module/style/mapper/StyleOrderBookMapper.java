@@ -8,12 +8,15 @@ package com.base.sbc.module.style.mapper;
 
 import java.util.List;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.style.dto.StyleOrderBookQueryDto;
 import com.base.sbc.module.style.entity.StyleOrderBook;
 import com.base.sbc.module.style.vo.StyleOrderBookPageVo;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 类描述：款式管理-订货本 dao类
@@ -31,5 +34,6 @@ public interface StyleOrderBookMapper extends BaseMapper<StyleOrderBook> {
 	 * @param dto
 	 * @return
 	 */
-	List<StyleOrderBookPageVo> getStyleOrderBookList(StyleOrderBookQueryDto dto);
+	List<StyleOrderBookPageVo> getStyleOrderBookList(@Param("dto") StyleOrderBookQueryDto dto,
+													 @Param(Constants.WRAPPER) QueryWrapper qw);
 }

@@ -91,6 +91,9 @@
             <if test="dto.packId != null and dto.packId != ''">
                 and p.id = #{dto.packId}
             </if>
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+            </if>
         </where>
         group by p.id
     </select>

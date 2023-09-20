@@ -6,7 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
@@ -42,7 +44,8 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
      * @param fabricSummaryDTO
      * @return
      */
-    List<FabricSummaryVO> fabricSummaryList(FabricSummaryDTO fabricSummaryDTO);
+    List<FabricSummaryVO> fabricSummaryList(@Param("dto") FabricSummaryDTO fabricSummaryDTO,
+                                            @Param(Constants.WRAPPER) QueryWrapper qw);
 
     /**
      * 根据物料id查询被应用的样衣-款式
