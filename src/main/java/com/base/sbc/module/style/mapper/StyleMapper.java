@@ -33,7 +33,7 @@ import java.util.List;
  * @date 创建时间：2023-5-9 11:16:15
  */
 @Mapper
-@DataIsolation(authority="style")
+//@DataIsolation(authority="style")
 public interface StyleMapper extends BaseMapper<Style> {
     /**
      * 自定义方法区 不替换的区域【other_start】
