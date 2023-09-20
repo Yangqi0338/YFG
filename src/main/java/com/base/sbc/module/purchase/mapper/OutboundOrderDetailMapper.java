@@ -7,9 +7,16 @@
 package com.base.sbc.module.purchase.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.module.purchase.vo.OutBoundOrderDetailVo;
 import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.purchase.entity.OutboundOrderDetail;
-/** 
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
  * 类描述：出库单-明细 dao类
  * @address com.base.sbc.module.purchase.dao.OutboundOrderDetailDao
  * @author tzy  
@@ -19,9 +26,5 @@ import com.base.sbc.module.purchase.entity.OutboundOrderDetail;
  */
 @Mapper
 public interface OutboundOrderDetailMapper extends BaseMapper<OutboundOrderDetail> {
-// 自定义方法区 不替换的区域【other_start】
-
-
-
-// 自定义方法区 不替换的区域【other_end】
+    List<OutBoundOrderDetailVo> relationMaterialStock(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 }

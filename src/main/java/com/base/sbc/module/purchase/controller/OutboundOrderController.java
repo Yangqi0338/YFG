@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.common.base.UserCompany;
@@ -21,8 +22,11 @@ import com.base.sbc.module.purchase.entity.OutboundOrder;
 import com.base.sbc.module.purchase.entity.OutboundOrderDetail;
 import com.base.sbc.module.purchase.entity.WarehousingOrder;
 import com.base.sbc.module.purchase.entity.WarehousingOrderDetail;
+import com.base.sbc.module.purchase.mapper.OutboundOrderDetailMapper;
+import com.base.sbc.module.purchase.mapper.OutboundOrderMapper;
 import com.base.sbc.module.purchase.service.OutboundOrderDetailService;
 import com.base.sbc.module.purchase.service.OutboundOrderService;
+import com.base.sbc.module.purchase.vo.OutBoundOrderDetailVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -54,6 +58,9 @@ public class OutboundOrderController extends BaseController{
 
 	@Autowired
 	private OutboundOrderDetailService outboundOrderDetailService;
+
+	@Autowired
+	private OutboundOrderDetailMapper outboundOrderDetailMapper;
 
 	@Autowired
 	private UserCompanyUtils userCompanyUtils;
@@ -93,10 +100,10 @@ public class OutboundOrderController extends BaseController{
 		}
 		OutboundOrder outboundOrder = outboundOrderService.getById(id);
 		if(outboundOrder != null){
-			QueryWrapper<OutboundOrderDetail> detailQw = new QueryWrapper<>();
+			BaseQueryWrapper<OutboundOrderDetail> detailQw = new BaseQueryWrapper<>();
 			detailQw.eq("outbound_id", id);
-			List<OutboundOrderDetail> orderDetailList = outboundOrderDetailService.list(detailQw);
-			outboundOrder.setOrderDetailList(orderDetailList);
+			List<OutBoundOrderDetailVo> orderDetailList = outboundOrderDetailMapper.relationMaterialStock(detailQw);
+			outboundOrder.setOrderDetailShowList(orderDetailList);
 			return selectSuccess(outboundOrder);
 		}
 		return selectNotFound();

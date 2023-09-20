@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.base.sbc.module.purchase.vo.OutBoundOrderDetailVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -37,6 +38,9 @@ public class OutboundOrder extends BaseDataEntity<String> {
     @TableField(exist = false)
     private List<OutboundOrderDetail> orderDetailList;
 
+    /** 出库单明细 */
+    @TableField(exist = false)
+    private List<OutBoundOrderDetailVo> orderDetailShowList;
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
