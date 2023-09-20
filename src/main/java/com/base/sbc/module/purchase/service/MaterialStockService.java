@@ -23,4 +23,6 @@ public interface MaterialStockService extends BaseService<MaterialStock>{
     void warehousingMaterialStock(WarehousingOrder order, List<WarehousingOrderDetail> orderDetailList, String operation);
 
     void outBoundOrderMaterialStock(OutboundOrder order, List<OutboundOrderDetail> orderDetailList, String operation);
+
+    void outBoundOrderMaterialStockLock(OutboundOrder order, List<OutboundOrderDetail> orderDetailList, String operation);
 }

@@ -5,6 +5,7 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.purchase.controller;
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
@@ -73,6 +74,23 @@ public class MaterialStockController extends BaseController{
 			materialStockService.list(qc);
 			PageInfo<MaterialStock> pages = materialStockPage.toPageInfo();
 			return ApiResult.success("success", pages);
+		}
+		return selectNotFound();
+	}
+
+	@ApiOperation(value = "根据物料SKU查询物料库存数据")
+	@GetMapping("/byMaterialSKU")
+	public ApiResult byMaterialSKU(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String SkuList) {
+		if(StringUtils.isBlank(SkuList)){
+			return selectAttributeNotRequirements("SKU");
+		}
+
+		QueryWrapper<MaterialStock> qc = new QueryWrapper<>();
+		qc.eq("company_code", userCompany);
+		qc.in("material_sku", StringUtils.convertList(SkuList));
+		List<MaterialStock> materialStockList = materialStockService.list(qc);
+		if(CollectionUtil.isNotEmpty(materialStockList)){
+			return selectSuccess(materialStockList);
 		}
 		return selectNotFound();
 	}

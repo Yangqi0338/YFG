@@ -20,66 +20,37 @@ import org.commonmark.renderer.html.HtmlRenderer;
 import gui.ava.html.image.generator.HtmlImageGenerator;
 
 public class HtmlToImgTest {
-	public static void main(String[] args) throws InterruptedException, IOException {
-		String sql = "UPDATE t_style SET create_name=create_id=?company_code=? where id=? AND del_flag='0'";
-		System.out.println(sql.split("UPDATE")[1]);
-		String FF=(sql.substring(1)).split(" where ")[0];
-		List<String> sqlArr=new ArrayList<>();
-		if(sql.indexOf("?")!=-1){
-			String[] sqlArr1=(sql.replaceAll("\\?"," :; ")).split(FF.replaceAll("\\?"," :; ") + " where");
-			for (String s:sqlArr1) {
-				sqlArr.add(s.replaceAll(" :; ","\\?"));
-			}
-		}
-		System.out.println(sqlArr.get(1));
-
-//		String saveImageLocation = "D:\\space-spring\\sjs_yfg_pdm\\src\\test\\java\\com\\base\\sbc\\mdToImg\\md.png";
-//
-//		Parser parser = Parser.builder().build();
-//		Node document = parser.parse("粘衬编号：4121#（水洗衬）粘衬颜色: (      )色\r\n"
-//				+ "粘衬机器温度：**130-135**度，压力**2.5-3kg**,时间：**10-12**秒\r\n" + "根据面料特性适当调整机器温度与压力");
-//		HtmlRenderer renderer = HtmlRenderer.builder().build();
-//		String content = renderer.render(document);
-//		content = content.replace("\n", "<br/>");
-//		if (content.endsWith("<br/>")) {
-//			content = content.substring(0, content.length() - 5);
-//		}
-//		System.out.println(content);
-//		content = "<div style=\"font-size:16px;width:600px\">" + content + "</div>";
-//		content = content.replace("<p>", "<p style=\"line-height:28px;margin:0px\">");
-//		content = content.replace("<strong>", "<strong style=\"line-height:28px;color:red\">");
-//
-//		System.out.println(content);
-//		HtmlImageGenerator gen = new HtmlImageGenerator();
-//		gen.loadHtml(content);
-////		gen.getBufferedImage();// 获取图片流
-//
-//		BufferedImage bufferedImage = gen.getBufferedImage();
-
-//		ImageIcon imageIcon = new ImageIcon(bufferedImage);
-//		Graphics2D g2D = (Graphics2D) bufferedImage.getGraphics();
-//		g2D.drawImage(imageIcon.getImage(), 0, 0, imageIcon.getImageObserver());
-//		int alpha = 0;
-//		for (int j1 = bufferedImage.getMinY(); j1 < bufferedImage.getHeight(); j1++) {
-//			for (int j2 = bufferedImage.getMinX(); j2 < bufferedImage.getWidth(); j2++) {
-//				int rgb = bufferedImage.getRGB(j2, j1);
-//				int R = (rgb & 0xff0000) >> 16;
-//				int G = (rgb & 0xff00) >> 8;
-//				int B = (rgb & 0xff);
-//				if (((255 - R) < 30) && ((255 - G) < 30) && ((255 - B) < 30)) {
-//					rgb = ((alpha + 1) << 24) | (rgb & 0x00ffffff);
-//				}
-//				bufferedImage.setRGB(j2, j1, rgb);
-//			}
-//		}
-//		g2D.drawImage(bufferedImage, 0, 0, imageIcon.getImageObserver());
-//		ImageIO.write(bufferedImage, "png", new File(saveImageLocation));// 直接输出文件
-
-//		gen.saveAsImage(saveImageLocation);
-//		return bufferedImage;
-
+	public static void main(String[] args) {
+		String sql = "SELECT count(0)FROM t_planning_category_item c JOIN t_planning_season s ON (s.id = C.planning_season_id)LEFT JOIN t_style sd ON (sd.planning_category_item_id = c.id AND sd." +
+				"del_flag = '0' )" +
+				"planning_channel_id = '2') " +
+				"where ( C.brand in ('5') ) and c.del flag = 0'";
+		String sss =disposeSql(sql,true);
+		System.out.println(sss);
+		System.out.println(disposeSql(sss,false));
 	}
-
+	public static String disposeSql(String sql, Boolean type){
+		if(type){
+			sql=sql.replaceAll("\\?"," ::;,11,;:: ")
+					.replaceAll("\\+"," ::;,22,;:: ")
+					.replaceAll("\\|"," ::;,33,;:: ")
+					.replaceAll("\\."," ::;,44,;:: ")
+					.replaceAll("\\*"," ::;,55,;:: ")
+					.replaceAll("\\$"," ::;,66,;:: ")
+					.replaceAll("\\("," ::;,77,;:: ")
+					.replaceAll("\\)"," ::;,88,;:: ");
+		}else {
+			sql=sql.replaceAll(" ::;,11,;:: ","\\?")
+					.replaceAll(" ::;,22,;:: ","\\+")
+					.replaceAll(" ::;,33,;:: ","\\|")
+					.replaceAll(" ::;,44,;:: ","\\.")
+					.replaceAll(" ::;,55,;:: ","\\*")
+					.replaceAll(" ::;,66,;:: ","\\$")
+					.replaceAll(" ::;,77,;:: ","\\(")
+					.replaceAll(" ::;,88,;:: ","\\)");
+		}
+		return sql;
+	}
 	/**
 	 * 
 	 * @Description 转换成24位图的BMP
