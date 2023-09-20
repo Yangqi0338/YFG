@@ -106,6 +106,11 @@ public class PackSize extends BaseDataEntity<String> {
     @ApiModelProperty(value = "单位")
     private String unit;
     /**
+     * 单位名称
+     */
+    @ApiModelProperty(value = "单位名称")
+    private String unitName;
+    /**
      * 代码
      */
     @ApiModelProperty(value = "代码")
