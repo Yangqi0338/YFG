@@ -9,13 +9,11 @@ package com.base.sbc.module.planning.service;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
-import com.base.sbc.module.planning.dto.GetStyleNoListDto;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSaveDto;
 import com.base.sbc.module.planning.dto.PlanningSeasonSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.vo.*;
-import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -103,7 +101,7 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
      */
     PlanningSeasonVo getByName(String name);
 
-    List<SelectOptionsVo> getPlanningSeasonOptions(String userCompany);
+    List<SelectOptionsVo> getPlanningSeasonOptions(String userCompany, String businessType);
 
     /**
      * 企划汇总
