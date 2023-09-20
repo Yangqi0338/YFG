@@ -9,7 +9,9 @@ package com.base.sbc.module.sample.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.amc.vo.FieldDataPermissionVO;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.base.BaseController;
@@ -47,7 +49,8 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
 
         @Autowired
         private BaseController baseController;
-
+        @Autowired
+        private DataPermissionsService dataPermissionsService;
         @Autowired
         private MessageUtils messageUtils;
 
@@ -74,7 +77,7 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
                     queryWrapper.eq("create_id", baseController.getUserId());
                 }
             }
-
+            dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"",new String[]{"category_id:id"},true);
             /*查询调样-辅料信息数据*/
             List<FabricIngredientsInfo> fabricIngredientsInfoList = baseMapper.selectList(queryWrapper);
             PageInfo<FabricIngredientsInfo> pageInfo = new PageInfo<>(fabricIngredientsInfoList);

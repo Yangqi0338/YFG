@@ -29,9 +29,10 @@ public @interface DataIsolation {
      * 指定要被数据隔离的标签
      */
     String authority() default "";
+    boolean isAssignFields() default  false; //是否强制指定字段，配合authorityFields使用
     /**
      * 如果数据隔离表没有指定隔离字段的表别人，则该定义有效。指定使用的数据隔离字段,,,不写的话默认是主表的字段
-     * 例子 authorityField={"s.prod_category"}
+     * 例子 authorityField={"s.prod_category（实际使用字段）:prod_category（数据隔离表使用的字段）"}
      */
     String[] authorityFields() default {};
 }
