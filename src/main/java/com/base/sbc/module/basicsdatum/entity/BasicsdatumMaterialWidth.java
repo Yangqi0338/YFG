@@ -46,7 +46,11 @@ public class BasicsdatumMaterialWidth extends BaseDataEntity<String> {
 	@ApiModelProperty(value = "规格名称")
 	private String name;
 
-
+	/**
+	 * 下发状态:0未下发,1已下发
+	 */
+	@ApiModelProperty(value = "下发状态:0未下发,1已下发")
+	private String scmStatus;
 	/** 尺码号型 */
 	private String sizeName;
 	/** 排序码 */
