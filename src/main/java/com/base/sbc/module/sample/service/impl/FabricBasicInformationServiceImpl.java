@@ -7,6 +7,8 @@
 package com.base.sbc.module.sample.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
@@ -50,7 +52,8 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
 
     @Autowired
     private FabricDetailedInformationMapper fabricDetailedInformationMapper;
-
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
     @Autowired
     private MessageUtils messageUtils;
 
@@ -81,6 +84,8 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
         }
         queryWrapper.eq("tfbi.del_flag", BaseGlobal.DEL_FLAG_NORMAL);
         queryWrapper.orderByAsc("tfbi.create_date");
+
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"",new String[]{"tfbi.brand:brand"},true);
         List<FabricInformationVo> list = baseMapper.getFabricInformationList(queryWrapper);
         return new PageInfo<>(list);
     }

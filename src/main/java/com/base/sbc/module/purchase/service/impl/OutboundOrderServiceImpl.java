@@ -76,10 +76,17 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
 
         boolean result = this.updateBatchById(outboundOrderList);
         if (result) {
-            QueryWrapper<OutboundOrderDetail> detailQw = new QueryWrapper<>();
-            detailQw.in("outbound_id", idList);
-            List<OutboundOrderDetail> detailList = outboundOrderDetailService.list(detailQw);
-            purchaseDemandService.manipulateReadyNum(detailList, "1");
+            List<OutboundOrderDetail> allList = new ArrayList<>();
+            for (OutboundOrder item : outboundOrderList) {
+                QueryWrapper<OutboundOrderDetail> detailQw = new QueryWrapper<>();
+                detailQw.eq("outbound_id", item.getId());
+                List<OutboundOrderDetail> detailList = outboundOrderDetailService.list(detailQw);
+
+                // 操作物料库存,锁定库存、可用库存
+                materialStockService.outBoundOrderMaterialStockLock(item, detailList, "1");
+                allList.addAll(detailList);
+            }
+            purchaseDemandService.manipulateReadyNum(allList, "1");
             return ApiResult.success("操作成功！", result);
         }
         return ApiResult.error("操作失败！", 500);
@@ -109,6 +116,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
             detail.setId(idGen.nextIdStr());
             detail.setCompanyCode(companyCode);
             detail.setOutboundId(id);
+            detail.setMaterialSku(detail.getMaterialCode() + detail.getColorCode() + detail.getSpecificationsCode());
 
             totalAmount = BigDecimalUtil.add(totalAmount, detail.getOutNum().multiply(detail.getStockPrice()));
             totalNum = BigDecimalUtil.add(totalNum, detail.getOutNum());
@@ -119,7 +127,10 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
         boolean result = save(outboundOrder);
         if(result){
             outboundOrderDetailService.saveBatch(orderDetailList);
+            // 操作采购需求单的已配料数量
             purchaseDemandService.manipulateReadyNum(orderDetailList, "0");
+            // 操作物料库存,锁定库存、可用库存
+            materialStockService.outBoundOrderMaterialStockLock(outboundOrder, orderDetailList, "0");
             return ApiResult.success("新增成功！", outboundOrder);
         }
         return ApiResult.error("新增失败！", 500);
@@ -134,6 +145,7 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
         detailQw.eq("outbound_id", outboundOrder.getId());
         List<OutboundOrderDetail> detailList = outboundOrderDetailService.list(detailQw);
         purchaseDemandService.manipulateReadyNum(detailList, "1");
+        materialStockService.outBoundOrderMaterialStockLock(outboundOrder, detailList, "1");
         outboundOrderDetailService.physicalDeleteQWrap(detailQw);
 
         outboundOrder.updateInit(userCompany);
@@ -155,7 +167,10 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
         boolean result = updateById(outboundOrder);
         if(result){
             outboundOrderDetailService.saveBatch(orderDetailList);
+            // 操作采购需求单的已配料数量
             purchaseDemandService.manipulateReadyNum(orderDetailList, "0");
+            // 操作物料库存,锁定库存、可用库存
+            materialStockService.outBoundOrderMaterialStockLock(outboundOrder, orderDetailList, "0");
             return ApiResult.success("修改成功！", outboundOrder);
         }
         return ApiResult.error("修改失败！", 500);

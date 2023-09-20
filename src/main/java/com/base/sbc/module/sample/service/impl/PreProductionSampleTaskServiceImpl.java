@@ -13,10 +13,13 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -79,6 +82,8 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     private UserUtils userUtils;
     @Autowired
     private AmcFeignService amcFeignService;
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -155,6 +160,11 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         qw.notEmptyIn("s.month", dto.getMonth());
         qw.orderByDesc("t.create_date");
         Page<PreProductionSampleTaskVo> objects = PageHelper.startPage(dto);
+        if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");
+        } else {
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
+        }
         List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
         //设置图
         attachmentService.setListStylePic(list, "stylePic");

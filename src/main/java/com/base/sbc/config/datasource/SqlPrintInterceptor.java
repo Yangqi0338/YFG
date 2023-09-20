@@ -150,7 +150,7 @@ public class SqlPrintInterceptor implements Interceptor {
                 String operateType=sqlCommandType.equals("SELECT")?"read":"write";
                 String dataPermissionsKey = "USERISOLATION:"+usercompany+":"+userId+":";
                 DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
-                Map<String,Object> entity=dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,tablePre,dataIsolation.authorityFields(),dataPermissionsKey);
+                Map<String,Object> entity=dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,tablePre,dataIsolation.authorityFields(),dataIsolation.isAssignFields(),dataPermissionsKey);
 
                 String authorityField = entity.containsKey("authorityField")?(String)entity.get("authorityField"):null;
                 Boolean authorityState=entity.containsKey("authorityState")?(Boolean)entity.get("authorityState"):false;

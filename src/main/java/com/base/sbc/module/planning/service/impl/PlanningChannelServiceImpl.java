@@ -11,7 +11,9 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -65,6 +67,9 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
     StyleService styleService;
     @Autowired
     AmcFeignService amcFeignService;
+
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})

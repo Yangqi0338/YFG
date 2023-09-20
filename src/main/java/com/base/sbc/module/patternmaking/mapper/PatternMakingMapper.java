@@ -70,14 +70,16 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
      * @param patternMakingWeekMonthViewDto 技术看板DTO
      * @return 返回集合数据
      */
-    List<PatternMakingWeekMonthViewVo> sampleCapacityTotalCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto);
+    List<PatternMakingWeekMonthViewVo> sampleCapacityTotalCount(@Param("dto")  PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,
+                                                                @Param(Constants.WRAPPER) QueryWrapper qw);
 
     /**
      * 根据时间按周月 统计 产能对比 》打版需求
      * @param patternMakingWeekMonthViewDto 技术看板DTO
      * @return 返回集合数据
      */
-    List<PatternMakingWeekMonthViewVo> capacityContrastDemandStatistics(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto);
+    List<PatternMakingWeekMonthViewVo> capacityContrastDemandStatistics(@Param("dto") PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,
+                                                                        @Param(Constants.WRAPPER) QueryWrapper qw);
 
 
     /**
@@ -85,7 +87,8 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
      * @param patternMakingWeekMonthViewDto 技术看板DTO
      * @return 返回集合数据
      */
-    List<PatternMakingWeekMonthViewVo> capacityContrastCapacityStatistics(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto);
+    List<PatternMakingWeekMonthViewVo> capacityContrastCapacityStatistics(@Param("dto") PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,
+                                                                          @Param(Constants.WRAPPER) QueryWrapper qw);
 
 
     List<PatternMaking> getPatternMakingSewingStatus(@Param(Constants.WRAPPER) QueryWrapper qw);

@@ -43,10 +43,14 @@
         WHERE
             bc.del_flag = '0'
             AND b.meet_flag = '1'
-            AND b.company_code = #{companyCode}
-            AND bc.company_code = #{companyCode}
-            AND t1.company_code = #{companyCode}
-            AND t2.company_code = #{companyCode}
+            AND b.company_code = #{dto.companyCode}
+            AND bc.company_code = #{dto.companyCode}
+            AND t1.company_code = #{dto.companyCode}
+            AND t2.company_code = #{dto.companyCode}
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
         ) cbgcd
         LEFT JOIN (
             SELECT
@@ -98,7 +102,7 @@
                 AND ssc.del_flag = '0'
             WHERE
                 pb.pack_type = 'packDesign'
-                AND pb.company_code = #{companyCode}
+                AND pb.company_code = #{dto.companyCode}
                 AND pb.del_flag = '0'
                 AND pbv.`status` = '1'
             GROUP BY
@@ -108,37 +112,37 @@
             AND cbgcd.style_no = bid.style_no_two
         WHERE
             bid.material_code IS NOT NULL
-        <if test="null != search and '' != search">
-            AND (bid.material_code LIKE concat('%',#{search},'%') OR bid.material_name LIKE concat('%',#{search},'%') OR cbgcd.style_no LIKE concat('%',#{search},'%')
-            OR cbgcd.design_no LIKE concat('%',#{search},'%'))
+        <if test="null != dto.search and '' != dto.search">
+            AND (bid.material_code LIKE concat('%',#{dto.search},'%') OR bid.material_name LIKE concat('%',#{dto.search},'%') OR cbgcd.style_no LIKE concat('%',#{dto.search},'%')
+            OR cbgcd.design_no LIKE concat('%',#{dto.search},'%'))
         </if>
-        <if test="null != month and '' != month">
-            AND bid.month = #{month}
+        <if test="null != dto.month and '' != dto.month">
+            AND bid.month = #{dto.month}
         </if>
-        <if test="null != bandCode and '' != bandCode">
-            AND bid.band_code = #{bandCode}
+        <if test="null != dto.bandCode and '' != dto.bandCode">
+            AND bid.band_code = #{dto.bandCode}
         </if>
-        <if test="null != monthList">
+        <if test="null != dto.monthList">
             AND bid.month in
-            <foreach collection="monthList" item=" month" separator="," open="(" close=")">
+            <foreach collection="dto.monthList" item=" month" separator="," open="(" close=")">
                 #{ month}
             </foreach>
         </if>
-        <if test="bandList != null and bandList.size != 0">
+        <if test="dto.bandList != null and dto.bandList.size != 0">
             AND bid.band_code in
-            <foreach collection="bandList" item="bandCode" separator="," open="(" close=")">
+            <foreach collection="dto.bandList" item="bandCode" separator="," open="(" close=")">
                 #{bandCode}
             </foreach>
         </if>
-        <if test="null != supplierId and '' != supplierId">
-            AND bid.supplier_id = #{supplierId}
+        <if test="null != dto.supplierId and '' != dto.supplierId">
+            AND bid.supplier_id = #{dto.supplierId}
         </if>
-        <if test="null != patternDesignId and '' != patternDesignId">
-            AND bid.pattern_design_id = #{patternDesignId}
+        <if test="null != dto.patternDesignId and '' != dto.patternDesignId">
+            AND bid.pattern_design_id = #{dto.patternDesignId}
         </if>
-        <if test="null != designerIds and designerIds.size() > 0">
+        <if test="null != dto.designerIds and dto.designerIds.size() > 0">
             AND bid.designer_id IN
-            <foreach collection="designerIds" item="designerId" open="(" close=")" separator=",">
+            <foreach collection="dto.designerIds" item="designerId" open="(" close=")" separator=",">
                 #{designerId}
             </foreach>
 

@@ -90,21 +90,27 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
 
                 if(StringUtils.equals(operation, "0")) {
                     materialStock.setStockQuantity(orderDetail.getWarehouseNum());
+                    materialStock.setAvailableQuantity(orderDetail.getWarehouseNum());
                     afterValue = orderDetail.getWarehouseNum();
                 }else{
                     materialStock.setStockQuantity(orderDetail.getWarehouseNum().negate());
+                    materialStock.setAvailableQuantity(orderDetail.getWarehouseNum().negate());
                     afterValue = orderDetail.getWarehouseNum().negate();
                 }
                 addList.add(materialStock);
             }else{
                 beforeValue = materialStock.getStockQuantity();
                 if(StringUtils.equals(operation, "0")) {
-                    BigDecimal result = BigDecimalUtil.add(materialStock.getStockQuantity(), orderDetail.getWarehouseNum());
-                    materialStock.setStockQuantity(result);
-                    afterValue = result;
+                    BigDecimal stockQuantity = BigDecimalUtil.add(materialStock.getStockQuantity(), orderDetail.getWarehouseNum());
+                    materialStock.setStockQuantity(stockQuantity);
+                    BigDecimal availableQuantity = BigDecimalUtil.add(materialStock.getAvailableQuantity(), orderDetail.getWarehouseNum());
+                    materialStock.setAvailableQuantity(availableQuantity);
+                    afterValue = stockQuantity;
                 }else{
                     BigDecimal result = BigDecimalUtil.sub(materialStock.getStockQuantity(), orderDetail.getWarehouseNum());
                     materialStock.setStockQuantity(result);
+                    BigDecimal availableQuantity = BigDecimalUtil.sub(materialStock.getAvailableQuantity(), orderDetail.getWarehouseNum());
+                    materialStock.setAvailableQuantity(availableQuantity);
                     afterValue = result;
                 }
                 updateList.add(materialStock);
@@ -129,6 +135,51 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
         if(CollectionUtil.isNotEmpty(materialStockLogList)){
             materialStockLogService.saveBatch(materialStockLogList);
         }
+    }
+
+    /**
+     * 出库单 操作 物料库存 锁定库存，可用库存
+     *
+     * @param order  出库单
+     * @param orderDetailList  出库单明细
+     * @param operation  操作 0 增加 1 减少
+     * */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void outBoundOrderMaterialStockLock(OutboundOrder order, List<OutboundOrderDetail> orderDetailList, String operation) {
+        IdGen idGen = new IdGen();
+
+        List<String> materialCodeList = orderDetailList.stream().map(OutboundOrderDetail::getMaterialCode).collect(Collectors.toList());
+
+        QueryWrapper<MaterialStock> materialQw = new QueryWrapper<>();
+        materialQw.in("material_code", materialCodeList);
+        materialQw.eq("warehouse_id", order.getWarehouseId());
+        List<MaterialStock> materialStockList = materialStockService.list(materialQw);
+        Map<String, MaterialStock> materialStockMap = materialStockList.stream().collect(Collectors.toMap(MaterialStock::getMaterialSku, item -> item));
+
+        List<MaterialStock> updateList = new ArrayList<>();
+        for(OutboundOrderDetail orderDetail : orderDetailList){
+
+//            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialSku());
+            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialCode() + orderDetail.getColorCode() + orderDetail.getSpecificationsCode());
+            if(materialStock != null){
+                if(StringUtils.equals(operation, "0")) {
+                    //锁定库存增加，可用库存减少
+                    materialStock.setLockQuantity(BigDecimalUtil.add(materialStock.getLockQuantity(), orderDetail.getOutNum()));
+                    materialStock.setAvailableQuantity(BigDecimalUtil.sub(materialStock.getAvailableQuantity(), orderDetail.getOutNum()));
+                }else{
+                    //锁定库存减少，可用库存增加
+                    materialStock.setLockQuantity(BigDecimalUtil.sub(materialStock.getLockQuantity(), orderDetail.getOutNum()));
+                    materialStock.setAvailableQuantity(BigDecimalUtil.add(materialStock.getAvailableQuantity(), orderDetail.getOutNum()));
+                }
+                updateList.add(materialStock);
+            }
+        }
+
+        if(CollectionUtil.isNotEmpty(updateList)){
+            materialStockService.updateBatchById(updateList);
+        }
+
     }
 
 
@@ -172,10 +223,13 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
                 if(StringUtils.equals(operation, "0")) {
                     BigDecimal result = BigDecimalUtil.add(materialStock.getStockQuantity(), orderDetail.getOutNum());
                     materialStock.setStockQuantity(result);
+                    materialStock.setLockQuantity(BigDecimalUtil.add(materialStock.getLockQuantity(), orderDetail.getOutNum()));
                     afterValue = result;
                 }else{
+                    // 释放锁定库存，库存总数调整为真实库存数量
                     BigDecimal result = BigDecimalUtil.sub(materialStock.getStockQuantity(), orderDetail.getOutNum());
                     materialStock.setStockQuantity(result);
+                    materialStock.setLockQuantity(BigDecimalUtil.sub(materialStock.getLockQuantity(), orderDetail.getOutNum()));
                     afterValue = result;
                 }
                 updateList.add(materialStock);

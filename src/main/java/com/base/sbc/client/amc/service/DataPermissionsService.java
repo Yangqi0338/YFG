@@ -68,17 +68,31 @@ public class DataPermissionsService {
      * @param tablePre     表别名
      */
     public void getDataPermissionsForQw(QueryWrapper qw, String businessType, String tablePre) {
+        if (StrUtil.isBlank(businessType) || qw == null) {
+            return;
+        }
+        getDataPermissionsForQw(qw, businessType, tablePre,null,false);
+    }
+    /**
+     * @param qw           查询构造器
+     * @param businessType 业务对象编码
+     * @param tablePre     表别名
+     * @param authorityFields     自定义数据隔离字段（代表名的）
+     * @param isAssignFields     是否强制指定字段，配合authorityFields使用
+     */
+    public void getDataPermissionsForQw(QueryWrapper qw, String businessType, String tablePre, String[] authorityFields, boolean isAssignFields) {
         UserCompany userCompany = companyUserInfo.get();
         String dataPermissionsKey = "USERISOLATION:" + userCompany.getCompanyCode() + ":" + userCompany.getUserId() + ":";
-        Map read = getDataPermissionsForQw(businessType, "read", tablePre, new String[]{}, dataPermissionsKey);
+        Map read = getDataPermissionsForQw(businessType, "read", tablePre,authorityFields,isAssignFields, dataPermissionsKey);
         boolean flg = MapUtil.getBool(read, "authorityState", false);
         String sql = MapUtil.getStr(read, "authorityField");
         if (flg && StrUtil.isNotBlank(sql)) {
             qw.apply(sql);
         }
-        System.out.println(dataPermissionsKey);
+        if(!flg){
+            qw.apply(" 1=0 ");
+        }
     }
-
     /**
      * 获取数据权限
      *
@@ -86,7 +100,7 @@ public class DataPermissionsService {
      * @return
      * @see DataPermissionsBusinessTypeEnum
      */
-    public <T> Map getDataPermissionsForQw(String businessType, String operateType, String tablePre, String[] authorityFields, String dataPermissionsKey) {
+    public <T> Map getDataPermissionsForQw(String businessType, String operateType, String tablePre, String[] authorityFields, boolean isAssignFields, String dataPermissionsKey) {
         //删除amc的数据权限状态
         RedisUtils redisUtils1=new RedisUtils();
         redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplateAmc"));
@@ -134,20 +148,25 @@ public class DataPermissionsService {
             return ret;
         }
         List<String> authorityField=new ArrayList<>();
-        dataPermissionsList.forEach(dataPermissions->{
+        datafor:for(DataPermissionVO dataPermissions:dataPermissionsList){
             if(!DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(dataPermissions.getRange())){
                 List<FieldDataPermissionVO> fieldDataPermissions=dataPermissions.getFieldDataPermissions();
                 if (CollectionUtils.isNotEmpty(fieldDataPermissions)) {
                     final String[] sqlType = {authorityField.size()>0?DataPermissionsSelectTypeEnum.OR.getK().equals(dataPermissions.getSelectType()) ? " or ( " : " and ( ":" ( "};
                     authorityField.add(sqlType[0]);
-                    fieldDataPermissions.forEach(fieldDataPermissionVO -> {
+                    fieldfor:for(FieldDataPermissionVO fieldDataPermissionVO:fieldDataPermissions){
                         if(StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName()) || StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())){
                             authorityField.add(!(authorityField.get(authorityField.size()-1).equals(sqlType[0]))?DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType())?" or ":" and ":" ");
                             sqlType[0] ="fromtype2339";
                         }
 
                         if(StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())){
-                            String fieldName=searchField(authorityFields,fieldDataPermissionVO.getFieldName());
+                            String fieldName=Objects.isNull(authorityFields)?null:searchField(authorityFields,fieldDataPermissionVO.getFieldName());
+                            if(isAssignFields && StringUtils.isBlank(fieldName)){
+                                authorityField.remove(authorityField.size()-1);
+                                sqlType[0] =" ( ";
+                                continue fieldfor;
+                            }
                             fieldName=(fieldDataPermissionVO.getFieldName().indexOf(".")!=-1)?fieldDataPermissionVO.getFieldName():StringUtils.isNotBlank(fieldName)?fieldName:tablePre+fieldDataPermissionVO.getFieldName();
                             if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType())) {
                                 authorityField.add(fieldName+" in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues())?"()":(fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
@@ -167,11 +186,11 @@ public class DataPermissionsService {
                         if(StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())){
                             authorityField.add(fieldDataPermissionVO.getSqlField());
                         }
-                    });
+                    };
                     authorityField.add(" ) ");
                 }
             }
-        });
+        };
 
         if(CollectionUtils.isNotEmpty(authorityField)){
             ret.put("authorityField",StringUtils.join(authorityField, " "));
@@ -182,8 +201,9 @@ public class DataPermissionsService {
 
     private String searchField(String[] arr,String val){
         for (String s:arr) {
-            if(s.indexOf(val)!=-1){
-                return s;
+            String[] ss=s.split(":");
+            if(ss[1].equals(val)){
+                return ss[0];
             }
         }
         return null;

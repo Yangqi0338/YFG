@@ -6,7 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
@@ -34,7 +36,8 @@ public interface StylePricingMapper extends BaseMapper<StylePricing> {
      * @param dto
      * @return
      */
-    List<StylePricingVO> getStylePricingList(@Param("dto") StylePricingSearchDTO dto);
+    List<StylePricingVO> getStylePricingList(@Param("dto") StylePricingSearchDTO dto,
+                                             @Param(Constants.WRAPPER) QueryWrapper qw);
 
 // 自定义方法区 不替换的区域【other_end】
 }

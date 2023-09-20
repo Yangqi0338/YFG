@@ -18,7 +18,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.entity.Dept;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
@@ -94,6 +96,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     private RedisUtils redisUtils;
     @Autowired
     private BaseController baseController;
+
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     @Override
     public List<PatternMakingListVo> findBySampleDesignId(String styleId) {
@@ -462,8 +467,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
             }
         }
-        amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
         // 版房主管和设计师 看到全部，版师、裁剪工、车缝工、样衣组长看到自己,
+//        amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
+
+        // 数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType(), "s.");
         if (StrUtil.isBlank(dto.getOrderBy())) {
             qw.orderByDesc("p.create_date");
             qw.orderByAsc("p.sort");
@@ -1097,10 +1105,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             dataLists.add(CollUtil.newArrayList("product", "打版需求数", "打版产能数"));
             // 3、参数校验
             this.paramCheck(patternMakingWeekMonthViewDto);
+            QueryWrapper qw = new QueryWrapper();
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.capacity_contrast_statistics.getK(), "s.");
             // 4、查询数据库  打版需求
-            List<PatternMakingWeekMonthViewVo> demandList = baseMapper.capacityContrastDemandStatistics(patternMakingWeekMonthViewDto);
+            List<PatternMakingWeekMonthViewVo> demandList = baseMapper.capacityContrastDemandStatistics(patternMakingWeekMonthViewDto, qw);
             // 4.1、查询数据库  打版产能
-            List<PatternMakingWeekMonthViewVo> contrastList = baseMapper.capacityContrastCapacityStatistics(patternMakingWeekMonthViewDto);
+            List<PatternMakingWeekMonthViewVo> contrastList = baseMapper.capacityContrastCapacityStatistics(patternMakingWeekMonthViewDto, qw);
             // 4.2、都为空 都返回
             if(CollectionUtil.isEmpty(demandList) && CollectionUtil.isEmpty(contrastList)){
                 return null;
@@ -1168,7 +1178,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         List<String> statusList = CollUtil.newArrayList(EnumNodeStatus.GARMENT_CUTTING_COMPLETE.getStatus(),
                 EnumNodeStatus.GARMENT_SEWING_COMPLETE.getStatus(), EnumNodeStatus.GARMENT_COMPLETE.getStatus());
         patternMakingWeekMonthViewDto.setStatusList(statusList);
-        List<PatternMakingWeekMonthViewVo> patternMakingWeekMonthViewVos = baseMapper.sampleCapacityTotalCount(patternMakingWeekMonthViewDto);
+        QueryWrapper qw = new QueryWrapper();
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sample_capacity_total_count.getK(), "s.");
+        List<PatternMakingWeekMonthViewVo> patternMakingWeekMonthViewVos = baseMapper.sampleCapacityTotalCount(patternMakingWeekMonthViewDto, qw);
         if(CollectionUtil.isEmpty(patternMakingWeekMonthViewVos)){
             return null;
         }

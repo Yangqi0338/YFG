@@ -64,7 +64,7 @@ public class DataIsolationAspect {
                 Map<String,Object> entity=null;
                 Boolean authorityState=false;
                 DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
-                entity= dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,null,dataIsolation.authorityFields(),dataPermissionsKey);
+                entity= dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,null,dataIsolation.authorityFields(),dataIsolation.isAssignFields(),dataPermissionsKey);
                 authorityState=entity.containsKey("authorityState")?(Boolean)entity.get("authorityState"):false;
                 if(!authorityState){
                     redisUtils.set(dataPermissionsKey +operateType+"@" + dataIsolation.authority()+":authorityState", authorityState, 60 * 3);//如数据的隔离3分钟更新一次

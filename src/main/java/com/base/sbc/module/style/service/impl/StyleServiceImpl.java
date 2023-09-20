@@ -464,9 +464,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         else if (StrUtil.equals(dto.getUserType(), StylePageDto.userType3)) {
             qw.eq("designer_id", userId);
         }
-        if (StrUtil.isNotBlank(dto.getBusinessType())) {
-            dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType());
-        }
+        //数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType());
         qw.orderByDesc("create_date");
         Page<StylePageVo> objects = PageHelper.startPage(dto);
         getBaseMapper().selectByQw(qw);
@@ -691,6 +690,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         QueryWrapper qw = new QueryWrapper();
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.in(StrUtil.isNotBlank(month), "month", StrUtil.split(month, CharUtil.COMMA));
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.ChartBar.getK());
         amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
         List<ChartBarVo> chartBarVos = getBaseMapper().getBandChart(qw);
         return getChartList(chartBarVos);
@@ -701,6 +701,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         QueryWrapper qw = new QueryWrapper();
         qw.eq(COMPANY_CODE, getCompanyCode());
         qw.in(StrUtil.isNotBlank(category), "prod_category", StrUtil.split(category, CharUtil.COMMA));
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.ProductBar.getK());
         amcFeignService.teamAuth(qw, "planning_season_id", getUserId());
         List<ChartBarVo> chartBarVos = getBaseMapper().getCategoryChart(qw);
         ccmFeignService.setCategoryName(chartBarVos, "product", "product");
@@ -754,6 +755,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         QueryWrapper brandTotalQw = new QueryWrapper();
         brandTotalQw.select("sd.band_name as name,count(1) as total");
         brandTotalQw.groupBy("sd.band_name");
+        dataPermissionsService.getDataPermissionsForQw(brandTotalQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(),"sd.");
         stylePlanningCommonQw(brandTotalQw, dto);
         List<DimensionTotalVo> bandTotal = getBaseMapper().dimensionTotal(brandTotalQw);
         vo.setXList(PlanningUtils.removeEmptyAndSort(bandTotal));
@@ -762,11 +764,13 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         QueryWrapper categoryQw = new QueryWrapper();
         categoryQw.select("prod_category_name as name,count(1) as total");
         categoryQw.groupBy("prod_category_name");
+        dataPermissionsService.getDataPermissionsForQw(categoryQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(),"sd.");
         stylePlanningCommonQw(categoryQw, dto);
         List<DimensionTotalVo> categoryTotal = getBaseMapper().dimensionTotal(categoryQw);
         vo.setYList(PlanningUtils.removeEmptyAndSort(categoryTotal));
         //查询明细
         QueryWrapper detailQw = new QueryWrapper();
+        dataPermissionsService.getDataPermissionsForQw(categoryQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(),"sd.");
         stylePlanningCommonQw(detailQw, dto);
         List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw);
         if (CollUtil.isNotEmpty(detailVoList)) {
@@ -786,6 +790,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "sd.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
         qw.in(StrUtil.isNotEmpty(dto.getMonth()), "sd.month", StrUtil.split(dto.getMonth(), CharUtil.COMMA));
         qw.in(StrUtil.isNotEmpty(dto.getProdCategory()), "sd.prod_category", StrUtil.split(dto.getProdCategory(), CharUtil.COMMA));
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(),"sd.");
         List<StyleBoardCategorySummaryVo> styleBoardCategorySummaryVos = getBaseMapper().categorySummary(qw);
         // 统计大类数量
         if (CollUtil.isNotEmpty(styleBoardCategorySummaryVos)) {
@@ -817,10 +822,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         QueryWrapper prsQw = new QueryWrapper();
         stylePlanningCommonQw(prsQw, dto);
         prsQw.isNotNull("sender");
+        dataPermissionsService.getDataPermissionsForQw(prsQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(),"sd.");
         Long planRequirementSkc = getBaseMapper().colorCount(prsQw);
         vo.setPlanRequirementSkc(planRequirementSkc);
         //设计需求数
         QueryWrapper<CategoryStylePlanningVo> drsQw = new QueryWrapper<>();
+        dataPermissionsService.getDataPermissionsForQw(drsQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(),"sd.");
         stylePlanningCommonQw(drsQw, dto);
         Long designRequirementSkc = getBaseMapper().colorCount(drsQw);
         vo.setDesignRequirementSkc(designRequirementSkc);
@@ -844,7 +851,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             qc.eq("del_flag", BasicNumber.ZERO.getNumber());
             qc.select("id", "name", "season");
             qc.orderByDesc("name");
-            dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.style_info.getK());
+            dataPermissionsService.getDataPermissionsForQw(qc, vo.getBusinessType());
             /*查询到的产品季*/
             List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
             if (CollUtil.isNotEmpty(planningSeasonList)) {
@@ -866,6 +873,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             getProductCategoryTreeQw(vo, qw);
             qw.select("prod_category1st_name,prod_category1st");
             qw.groupBy("prod_category1st_name,prod_category1st");
+            dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
             List result = null;
             if (StrUtil.equals(vo.getDataForm(), "seat")) {
                 result = planningCategoryItemService.listMaps(qw);
@@ -891,6 +899,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             qw.select("prod_category_name,prod_category");
             qw.groupBy("prod_category_name,prod_category");
             List result = null;
+            dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
             if (StrUtil.equals(vo.getDataForm(), "seat")) {
                 result = planningCategoryItemService.listMaps(qw);
             } else {

@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.module.style.mapper.StyleOrderBookColorMapper;
 import com.base.sbc.module.style.service.StyleGroupService;
 import com.base.sbc.module.style.service.StyleOrderBookColorService;
@@ -68,6 +70,7 @@ public class StyleOrderBookServiceImpl extends BaseServiceImpl<StyleOrderBookMap
 	private final StyleColorService sampleStyleColorService;
 
 	private final StyleOrderBookColorMapper styleOrderBookColorMapper;
+	private final DataPermissionsService dataPermissionsService;
 
 	@Override
 	public PageInfo<StyleOrderBookPageVo> getStyleOrderBookList(StyleOrderBookQueryDto dto) {
@@ -78,7 +81,10 @@ public class StyleOrderBookServiceImpl extends BaseServiceImpl<StyleOrderBookMap
 		String userId = companyUserInfo.get().getUserId();
 		dto.setUserId(userId);
 		dto.setCompanyCode(this.getCompanyCode());
-		List<StyleOrderBookPageVo> list = this.baseMapper.getStyleOrderBookList(dto);
+		QueryWrapper qw = new QueryWrapper();
+		dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "t2.");
+
+		List<StyleOrderBookPageVo> list = this.baseMapper.getStyleOrderBookList(dto, qw);
 		return new PageInfo<>(list);
 	}
 

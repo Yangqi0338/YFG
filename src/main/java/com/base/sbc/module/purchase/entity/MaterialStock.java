@@ -5,23 +5,22 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.purchase.entity;
-import java.math.BigDecimal;
-import java.util.Date;
 
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
 /**
  * 类描述：物料库存 实体类
  * @address com.base.sbc.module.purchase.entity.MaterialStock
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-9-13 15:44:13
+ * @date 创建时间：2023-9-20 14:48:07
  * @version 1.0
  */
 @Data
@@ -50,6 +49,7 @@ public class MaterialStock extends BaseDataEntity<String> {
         this.positionCode = orderDetail.getPositionCode();
         this.warehouseId = order.getWarehouseId();
         this.warehouseName = order.getWarehouseName();
+        this.lockQuantity = BigDecimal.ZERO;
     }
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
@@ -84,6 +84,12 @@ public class MaterialStock extends BaseDataEntity<String> {
     /** 库存数量 */
     @ApiModelProperty(value = "库存数量"  )
     private BigDecimal stockQuantity;
+    /** 锁定库存 */
+    @ApiModelProperty(value = "锁定库存"  )
+    private BigDecimal lockQuantity;
+    /** 可用库存 */
+    @ApiModelProperty(value = "可用库存"  )
+    private BigDecimal availableQuantity;
     /** 默认供应商 */
     @ApiModelProperty(value = "默认供应商"  )
     private String defaultSupplier;
@@ -107,3 +113,4 @@ public class MaterialStock extends BaseDataEntity<String> {
     private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+

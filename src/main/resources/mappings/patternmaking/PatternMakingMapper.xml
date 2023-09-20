@@ -281,42 +281,50 @@
     <select id="sampleCapacityTotalCount" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingWeekMonthViewVo" parameterType="com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto">
         SELECT
         ns.`status`,
-		DATE_FORMAT( ns.start_date, IF(#{weeklyMonth} = 'week','%y年%u周', '%y年%m月') ) AS year_week,
+		DATE_FORMAT( ns.start_date, IF(#{dto.weeklyMonth} = 'week','%y年%u周', '%y年%m月') ) AS year_week,
 		min( ns.start_date ) AS min_date,
 		count( 1 ) AS num
         FROM
              t_node_status ns
         LEFT JOIN t_pattern_making pm on ns.data_id = pm.id
+        LEFT JOIN t_style s on pm.style_id = s.id
         WHERE
             pm.del_flag = '0'
-            AND pm.company_code = #{companyCode}
+            AND pm.company_code = #{dto.companyCode}
             AND ns.node = '样衣任务'
-            <if test="null != statusList and statusList.size() > 0">
+            <if test="null != dto.statusList and dto.statusList.size() > 0">
                 AND ns.`status` IN
-                <foreach collection="statusList" item="status" separator="," open="(" close=")">
+                <foreach collection="dto.statusList" item="status" separator="," open="(" close=")">
                     #{status}
                 </foreach>
             </if>
-            AND ns.start_date BETWEEN #{startTime} AND #{endTime}
+            AND ns.start_date BETWEEN #{dto.startTime} AND #{dto.endTime}
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
         GROUP BY
-            ns.`status`,DATE_FORMAT( ns.start_date, IF(#{weeklyMonth} = 'week','%y%u', '%y%m') )
+            ns.`status`,DATE_FORMAT( ns.start_date, IF(#{dto.weeklyMonth} = 'week','%y%u', '%y%m') )
         ORDER BY
             year_week ASC ;
     </select>
     <!-- 产能对比 》打版需求 -->
     <select id="capacityContrastDemandStatistics" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingWeekMonthViewVo" parameterType="com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto">
         SELECT
-            DATE_FORMAT( pm.create_date, IF ( #{weeklyMonth} = 'week', '%y年%u周', '%y年%m月' ) ) AS year_week,
+            DATE_FORMAT( pm.create_date, IF ( #{dto.weeklyMonth} = 'week', '%y年%u周', '%y年%m月' ) ) AS year_week,
             sum( pm.requirement_num ) as requirement_num_sum
         FROM
             (SELECT pm.* FROM t_pattern_making pm
-                INNER JOIN t_node_status ns on ns.data_id = pm.id AND ns.node = #{node} WHERE pm.del_flag = '0' GROUP BY pm.id) AS pm
+                INNER JOIN t_node_status ns on ns.data_id = pm.id AND ns.node = #{dto.node} WHERE pm.del_flag = '0' GROUP BY pm.id) AS pm
+        LEFT JOIN t_style s on pm.style_id = s.id
         WHERE
             pm.del_flag = '0'
-            AND pm.company_code = #{companyCode}
-            AND pm.create_date BETWEEN #{startTime} AND #{endTime}
+            AND pm.company_code = #{dto.companyCode}
+            AND pm.create_date BETWEEN #{dto.startTime} AND #{dto.endTime}
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
         GROUP BY
-            DATE_FORMAT( pm.create_date, IF ( #{weeklyMonth} = 'week', '%y%u', '%y%m' ) )
+            DATE_FORMAT( pm.create_date, IF ( #{dto.weeklyMonth} = 'week', '%y%u', '%y%m' ) )
         ORDER BY
             year_week ASC
     </select>
@@ -324,7 +332,7 @@
     <!-- 产能对比 》打版产能 先拿到打版管理中版师id，去人员技能去找对应的人员产量多少，计算格式如下： 单位产量 除以 单位内小时数 * 一周168小时 -->
     <select id="capacityContrastCapacityStatistics" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingWeekMonthViewVo" parameterType="com.base.sbc.module.patternmaking.dto.PatternMakingWeekMonthViewDto">
         SELECT
-            DATE_FORMAT( pm.create_date, IF ( #{weeklyMonth} = 'week', '%y年%u周', '%y年%m月' ) ) AS year_week,
+            DATE_FORMAT( pm.create_date, IF ( #{dto.weeklyMonth} = 'week', '%y年%u周', '%y年%m月' ) ) AS year_week,
             ROUND(
                 sum(
                 (
@@ -337,7 +345,7 @@
             ) as requirement_num_sum
         FROM
              (SELECT pm.* FROM t_pattern_making pm
-                INNER JOIN t_node_status ns on ns.data_id = pm.id AND ns.node = #{node} WHERE pm.del_flag = '0' GROUP BY pm.id) AS pm
+                INNER JOIN t_node_status ns on ns.data_id = pm.id AND ns.node = #{dto.node} WHERE pm.del_flag = '0' GROUP BY pm.id) AS pm
             INNER JOIN (
             SELECT DISTINCT
                 ( substring_index( substring_index( a.user_ids,',', b.help_topic_id + 1 ), ',',- 1 ) ) AS user_id,
@@ -348,12 +356,16 @@
                 GROUP BY
                 user_id
         ) u ON pm.pattern_design_id = u.user_id
+            LEFT JOIN t_style s on pm.style_id = s.id
         WHERE
             pm.del_flag = '0'
-            AND pm.company_code = #{companyCode}
-            AND pm.create_date BETWEEN  #{startTime} AND #{endTime}
+            AND pm.company_code = #{dto.companyCode}
+            AND pm.create_date BETWEEN  #{dto.startTime} AND #{dto.endTime}
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
         GROUP BY
-            DATE_FORMAT( pm.create_date, IF ( #{weeklyMonth} = 'week', '%y%u', '%y%m' ) )
+            DATE_FORMAT( pm.create_date, IF ( #{dto.weeklyMonth} = 'week', '%y%u', '%y%m' ) )
         ORDER BY  year_week ASC
 
     </select>

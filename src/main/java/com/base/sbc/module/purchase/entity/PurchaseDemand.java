@@ -81,7 +81,7 @@ public class PurchaseDemand extends BaseDataEntity<String> {
         this.supplierName = packBom.getSupplierName();
         this.supplierColor = material.getSupplierColorNo();
         this.component = packBom.getSupplierFactoryIngredient();
-        this.needNum = needNum;
+        this.needNum = needNum != null ? needNum : BigDecimal.ZERO;
         this.price = packBom.getPrice();
         this.unit = material.getPurchaseUnitCode();
         this.unitName = material.getPurchaseUnitName();

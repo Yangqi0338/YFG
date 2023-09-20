@@ -7,8 +7,23 @@ package com.base.sbc.client.amc.enums;
 public enum DataPermissionsBusinessTypeEnum {
     PlanningSeason("PlanningSeason", "产品季"),
     PlanningCategoryItem("PlanningCategoryItem", "坑位数据"),
+    ChartBar("ChartBar", "波段汇总统计"),
+    ProductBar("ProductBar", "品类汇总统计"),
     design_task("design_task", "款式设计任务"),
     style_info("style_info", "设计档案"),
+    StyleBoard("StyleBoard", "款式看板"),
+    FabricInformation("FabricInformation", "调样管理"),
+    styleColor("styleColor", "款式配色"),
+    packDesign("packDesign", "设计BOM"),
+    packBigGoods("packBigGoods", "标准资料包"),
+    sample_capacity_total_count("sample_capacity_total_count", "样衣产能总数"),
+    capacity_contrast_statistics("capacity_contrast_statistics", "样衣产能对比"),
+    style_group("style_group", "款式搭配"),
+    style_order_book("style_order_book", "订货本"),
+    fabric_summary("fabric_summary", "面料汇总"),
+    style_pricing("style_pricing", "款式定价"),
+    pre_production_sample_task("pre_production_sample_task", "产前样样衣任务"),
+    pre_production_sample_board("pre_production_sample_board", "产前样看板"),
     ;
     private final String k;
     private final String v;

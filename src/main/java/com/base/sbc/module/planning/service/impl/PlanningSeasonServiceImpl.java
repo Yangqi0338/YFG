@@ -267,11 +267,12 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     }
 
     @Override
-    public List<SelectOptionsVo> getPlanningSeasonOptions(String userCompany) {
+    public List<SelectOptionsVo> getPlanningSeasonOptions(String userCompany, String businessType) {
         QueryWrapper qw = new QueryWrapper();
         qw.eq(StrUtil.isNotBlank(userCompany), "COMPANY_CODE", userCompany);
         qw.eq("del_flag", BaseGlobal.NO);
         qw.orderByDesc("name");
+        dataPermissionsService.getDataPermissionsForQw(qw, businessType);
         return getBaseMapper().getPlanningSeasonOptions(qw);
     }
 
