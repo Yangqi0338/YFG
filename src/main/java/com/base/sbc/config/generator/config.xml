@@ -3,9 +3,9 @@
 
 	<params>
 		<!-- Java总路径  生成java文件包的目录 -->
-		<osdir       value="D:\space-spring\sjs_yfg_pdm\src\main\java\com\base\sbc\module"></osdir>
+		<osdir       value="E:\code\shangjie\sjs_yfg_pdm\src\main\java\com\base\sbc\module"></osdir>
 		<!-- xml总路径 -->
-		<xmlosdir    value="D:\space-spring\sjs_yfg_pdm\src\main\resources"></xmlosdir>
+		<xmlosdir    value="E:\code\shangjie\sjs_yfg_pdm\src\main\resources"></xmlosdir>
 		<!-- 总包名 -->
 		<javapackage value="com.base.sbc.module"></javapackage>
 		<!-- 模块名称 -->
@@ -14,8 +14,8 @@
 <!--		<project     value="planning"></project>&lt;!&ndash; 模块名称 &ndash;&gt;-->
 	</params>
 	<tables>
-		<table  project="basicsdatum"     value="t_basicsdatum_material"   genType="2" ></table>
-<!--		<table  project="nodestatus"     value="t_node_status"   genType="1,2,3,4" ></table>-->
+		<!--<table  project="basicsdatum"     value="t_basicsdatum_material"   genType="2" ></table>-->
+		<table  project="basicsdatum"     value="t_size_bulk_style"   genType="1,2,3,4" ></table>
 <!--		<table       value="t_field_val"   genType="2" ></table>-->
 <!--		<table       value="t_upload_file"   genType="2" ></table>-->
 <!--		<table       value="t_attachment"   genType="2" ></table>-->
