@@ -94,6 +94,7 @@ public class PackSizeConfigServiceImpl extends PackBaseServiceImpl<PackSizeConfi
     @Override
     public PackSizeConfigVo saveConfig(PackSizeConfigDto dto) {
         PackSizeConfigVo config = getConfig(dto.getForeignId(), dto.getPackType());
+        saveOrUpdateOperaLog(dto, config, genOperaLogEntity(config, "修改"));
         BeanUtil.copyProperties(dto, config, "id");
         updateById(config);
         return BeanUtil.copyProperties(config, PackSizeConfigVo.class);

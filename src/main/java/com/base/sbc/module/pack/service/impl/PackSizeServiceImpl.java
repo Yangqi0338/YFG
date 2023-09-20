@@ -100,6 +100,7 @@ public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, Pac
             if (dbData == null) {
                 throw new OtherException(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND);
             }
+            saveOrUpdateOperaLog(dto, dbData, genOperaLogEntity(dbData, "修改"));
             BeanUtil.copyProperties(dto, dbData);
             boolean b = updateById(dbData);
             sizeToHtml(new PackCommonSearchDto(dto.getForeignId(), dto.getPackType()));

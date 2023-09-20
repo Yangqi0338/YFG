@@ -86,7 +86,9 @@ public interface BaseService<T> extends IService<T> {
 
     boolean removeById(Serializable id, OperaLogEntity operaLogEntity);
 
-    boolean removeByIds(List<String> ids,String name);
+    boolean removeByIds(List<String> ids, String name);
 
     boolean removeById(String id, String name);
+
+    boolean saveLog(OperaLogEntity operaLogEntity);
 }

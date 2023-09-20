@@ -73,6 +73,7 @@ public class PackSampleReviewServiceImpl extends PackBaseServiceImpl<PackSampleR
             if (dbData == null) {
                 throw new OtherException(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND);
             }
+            saveOrUpdateOperaLog(dto, dbData, genOperaLogEntity(dbData, "修改"));
             BeanUtil.copyProperties(dto, dbData);
             updateById(dbData);
         }

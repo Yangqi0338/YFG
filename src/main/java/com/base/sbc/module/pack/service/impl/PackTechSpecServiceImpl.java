@@ -8,7 +8,6 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -16,7 +15,6 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.MdUtils;
-import com.base.sbc.config.utils.SpElParseUtil;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -107,13 +105,23 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
             if (dbData == null) {
                 throw new OtherException(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND);
             }
-            String oldContent = dbData.getContent();
+            saveOrUpdateOperaLog(dto, dbData, genOperaLogEntity(dbData, "修改"));
             BeanUtil.copyProperties(dto, dbData);
-            genContentImgUrl(dto.getContent(), oldContent, dbData);
+//            String oldContent = dbData.getContent();
+//            genContentImgUrl(dto.getContent(), oldContent, dbData);
             updateById(dbData);
             return BeanUtil.copyProperties(dbData, PackTechSpecVo.class);
         }
     }
+
+    @Override
+    public OperaLogEntity genOperaLogEntity(Object bean, String type) {
+        PackTechSpec bean1 = (PackTechSpec) bean;
+        OperaLogEntity operaLogEntity = super.genOperaLogEntity(bean, type);
+        operaLogEntity.setName(getModeName() + StrUtil.DASHED + bean1.getSpecType());
+        return operaLogEntity;
+    }
+
 
     @Override
     public void genContentImgUrl(String newContent, String oldContent, PackTechSpec bean) {
@@ -254,9 +262,8 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
     @Override
     public PageInfo<OperaLogEntity> operationLog(PackTechSpecPageDto pageDto) {
         QueryWrapper<OperaLogEntity> qw = new QueryWrapper<>();
-        //"'资料包-'+#search.packType+'-'+#search.foreignId+'-工艺说明-'+#search.specType"
-        String path = SpElParseUtil.generateKeyBySpEL(PackTechSpecService.pathSqEL, MapUtil.of("p0", pageDto));
-        qw.eq("path", path);
+        qw.eq("path", pageDto.getPackType());
+        qw.eq("name", getModeName() + StrUtil.DASHED + pageDto.getSpecType());
         qw.orderByDesc("id");
         Page<OperaLogEntity> objects = PageHelper.startPage(pageDto);
         operaLogService.list(qw);
