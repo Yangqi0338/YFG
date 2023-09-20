@@ -78,4 +78,7 @@ public class PatternMakingTaskSearchDto extends Page {
     private String breakOffSample;
 
 
+    @ApiModelProperty(value = "业务对象编码(用于数据权限,patternMakingTask打版任务,sampleTask样衣任务)")
+    private String businessType;
+
 }

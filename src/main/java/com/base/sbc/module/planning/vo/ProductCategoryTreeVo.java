@@ -84,4 +84,7 @@ public class ProductCategoryTreeVo {
     public String getUid() {
         return IdUtil.getSnowflake().nextIdStr();
     }
+
+    @ApiModelProperty(value = "业务对象编码(用于数据权限)")
+    private String businessType;
 }

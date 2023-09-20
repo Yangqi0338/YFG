@@ -11,6 +11,9 @@ public enum DataPermissionsBusinessTypeEnum {
     ProductBar("ProductBar", "品类汇总统计"),
     design_task("design_task", "款式设计任务"),
     style_info("style_info", "设计档案"),
+    styleColor("styleColor", "款式配色"),
+    packDesign("packDesign", "设计BOM"),
+    packBigGoods("packBigGoods", "标准资料包"),
     sample_capacity_total_count("sample_capacity_total_count", "样衣产能总数"),
     capacity_contrast_statistics("capacity_contrast_statistics", "样衣产能对比"),
     ;

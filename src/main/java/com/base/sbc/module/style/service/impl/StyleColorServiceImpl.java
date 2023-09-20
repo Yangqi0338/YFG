@@ -10,6 +10,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.ApiResult;
@@ -53,6 +55,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -108,6 +111,9 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     private final CcmFeignService ccmFeignService;
 
     private final FieldValService fieldValService;
+
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
 
 /** 自定义方法区 不替换的区域【other_start】 **/
@@ -177,24 +183,26 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplier()),"tsc.supplier",queryDto.getSupplier());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplier()),"tsc.supplier",queryDto.getSupplier());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplier()),"tsc.supplier",queryDto.getSupplier());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierColor()),"tsc.supplier_color",queryDto.getSupplierColor());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierAbbreviation()),"tsc.supplier_abbreviation",queryDto.getSupplierAbbreviation());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierNo()),"tsc.supplier_no",queryDto.getSupplierNo());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductName()),"tsc.product_name",queryDto.getProductName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDefectiveName()),"tsc.defective_name",queryDto.getDefectiveName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductHangtagConfirm()),"tsp.control_confirm",queryDto.getProductHangtagConfirm());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlConfirm()),"tsp.product_hangtag_confirm",queryDto.getControlConfirm());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlHangtagConfirm()),"tsp.control_hangtag_confirm",queryDto.getControlHangtagConfirm());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getPatternDesignName()),"ts.pattern_design_name",queryDto.getPatternDesignName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getOrderFlag()),"tsc.order_flag",queryDto.getOrderFlag());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierColor()), "tsc.supplier_color", queryDto.getSupplierColor());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierAbbreviation()), "tsc.supplier_abbreviation", queryDto.getSupplierAbbreviation());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierNo()), "tsc.supplier_no", queryDto.getSupplierNo());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductName()), "tsc.product_name", queryDto.getProductName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDefectiveName()), "tsc.defective_name", queryDto.getDefectiveName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductHangtagConfirm()), "tsp.control_confirm", queryDto.getProductHangtagConfirm());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlConfirm()), "tsp.product_hangtag_confirm", queryDto.getControlConfirm());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlHangtagConfirm()), "tsp.control_hangtag_confirm", queryDto.getControlHangtagConfirm());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getPatternDesignName()), "ts.pattern_design_name", queryDto.getPatternDesignName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getOrderFlag()), "tsc.order_flag", queryDto.getOrderFlag());
+        // 数据权限
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.styleColor.getK(), "ts.");
         /*获取配色数据*/
-        List<StyleColorVo> sampleStyleColorList =new ArrayList<>();
-        if(StringUtils.isNotBlank(queryDto.getColorListFlag())){
+        List<StyleColorVo> sampleStyleColorList = new ArrayList<>();
+        if (StringUtils.isNotBlank(queryDto.getColorListFlag())) {
             queryWrapper.eq("tsc.del_flag", "0");
             queryWrapper.orderByDesc("tsc.create_date");
 //            查询配色列表
             sampleStyleColorList = baseMapper.colorList(queryWrapper);
-        }else {
+        } else {
             queryWrapper.eq("ts.del_flag", "0");
             queryWrapper.orderByDesc("ts.create_date");
 //            查询款式配色
