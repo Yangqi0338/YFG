@@ -161,9 +161,11 @@ public class PatternMakingController {
 
     @ApiOperation(value = "中断打版")
     @GetMapping("/breakOffPattern")
-    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "编号", required = true, paramType = "query")})
-    public boolean breakOffPattern(@Valid @NotBlank(message = "id不能为空") String id) {
-        return patternMakingService.breakOffPattern(id);
+    @ApiImplicitParams(
+            {@ApiImplicitParam(name = "id", value = "编号", required = true, paramType = "query"),
+                    @ApiImplicitParam(name = "flag", value = "0重启，1中断", required = true, paramType = "query")})
+    public boolean breakOffPattern(@Valid @NotBlank(message = "id不能为空") String id, @Valid @NotBlank(message = "flag不能为空") String flag) {
+        return patternMakingService.breakOffPattern(id,flag);
     }
 
 

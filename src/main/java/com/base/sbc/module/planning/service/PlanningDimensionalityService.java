@@ -42,6 +42,13 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
 
     ApiResult saveDimensionality(UpdateDimensionalityDto updateDimensionalityDto);
 
+    /**
+     * 批量保存修改
+     * @param dimensionalityDtoList
+     * @return
+     */
+    Boolean  batchSaveDimensionality(List<UpdateDimensionalityDto> dimensionalityDtoList);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

@@ -120,7 +120,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @param id
      * @return
      */
-    boolean breakOffPattern(String id);
+    boolean breakOffPattern(String id, String flag);
 
     /**
      * 批量下发

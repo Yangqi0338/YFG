@@ -120,8 +120,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         QueryWrapper rQw = new QueryWrapper();
         rQw.eq("style_id", dto.getStyleId());
         rQw.eq("del_flag", BaseGlobal.NO);
-        //款的第一个版只能是初版样
-        List<PatternMaking> makingList = baseMapper.selectList(rQw);
         //出版样只能有一个
         if (StrUtil.equals("初版样", dto.getSampleType())) {
             rQw.eq("sample_type", dto.getSampleType());
@@ -129,8 +127,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             if (count != 0) {
                 throw new OtherException(dto.getSampleType() + "只能有一个");
             }
-        } else if(CollUtil.isEmpty(makingList)) {
-            throw new OtherException("请创建初版样");
         } else{
             rQw.ne("sample_type", "初版样");
             long count = count(rQw);
@@ -196,25 +192,39 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdUw.set("status", BasicNumber.TWO.getNumber());
         styleService.update(sdUw);
         /**
-         * 当不为初版样时直接下发到打版管理
-         * 不为初版样时还需判断版师是否离职 否则不自动下发，后续下发改版样都取接收版师（再次分配的版师）
+         * 1.当第一个下发版是初版样时先下发到技术中心，技术中心下发对版师时同时同步到款式信息 之后的版都自动下发给初版样技术中心指定的版师，
+         * 2。当第一个下发版是改版样时 款式信息中存在版师时自动下发到指定版师 款式中无数据时到技术中心看板手动下发版师同时同步到款式 之后的款都自动下发到该版师
+         *
+         * 其他：档版师离职时到技术中心查询选新版师，同时带出离职版师，
+         * 当初版在技术中心未下发又新建新版时不自动下发给到技术中心手动下发
          */
-        if (!StrUtil.equals("初版样", patternMaking.getSampleTypeName())) {
-            /*查看是否离职*/
-            UserCompany userCompany =   amcFeignService.getUserByUserId(patternMaking.getPatternDesignId());
-            if(!StrUtil.equals(userCompany.getIsDimission(),BaseGlobal.YES)){
-//                自动下发到打板管理
-                SetPatternDesignDto setPatternDesignDto =new SetPatternDesignDto();
-                BeanUtils.copyProperties(patternMaking, setPatternDesignDto);
-//                自动下发打板
-                prmSend(setPatternDesignDto);
-            }else {
-                /*初版版师离职后需要手动下发*/
-                uw.set("first_pattern_design_id", patternMaking.getPatternDesignId());
-                uw.set("first_pattern_design_name", patternMaking.getPatternDesignName());
+        /*判断是不是第一个版*/
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("style_id", patternMaking.getStyleId());
+        qw.eq("design_send_status", "1");
+        List<PatternMaking> list = baseMapper.selectList(qw);
+        Style style = styleService.getById(patternMaking.getStyleId());
+         /*判断是不是初版样*/
+            if (!StrUtil.equals("初版样", patternMaking.getSampleTypeName())) {
+                /*改版样判断没值时手动下发*/
+                if(StrUtil.isNotBlank(style.getPatternDesignName())){
+                    /*自动下发查看版师是否离职*/
+                    UserCompany userCompany = amcFeignService.getUserByUserId(patternMaking.getPatternDesignId());
+                    if (!StrUtil.equals(userCompany.getIsDimission(), BaseGlobal.YES)) {
+                        // 自动下发到打板管理
+                        SetPatternDesignDto setPatternDesignDto = new SetPatternDesignDto();
+                        setPatternDesignDto.setId(dto.getId());
+                        setPatternDesignDto.setPatternDesignId(style.getPatternDesignId());
+                        setPatternDesignDto.setPatternDesignName(style.getPatternDesignName());
+                        //自动下发打板
+                        prmSend(setPatternDesignDto);
+                    }else {
+                        /*初版版师离职后需要手动下发*/
+                        uw.set("first_pattern_design_id", patternMaking.getPatternDesignId());
+                        uw.set("first_pattern_design_name", patternMaking.getPatternDesignName());
+                    }
+                }
             }
-        }
-
         /*发送消息*/
         messageUtils.sampleDesignSendMessage(patternMaking.getPatternRoomId(),patternMaking.getPatternNo(),baseController.getUser());
         // 修改单据
@@ -297,8 +307,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 修改单据
         update(uw);
         /*当为出版样时修改款的版师*/
-        if (StrUtil.equals("初版样", byId.getSampleTypeName())) {
-            Style style = styleService.getById(byId.getStyleId());
+        Style style = styleService.getById(byId.getStyleId());
+        if (StrUtil.equals("初版样", byId.getSampleTypeName()) || StrUtil.isBlank(style.getPatternDesignName())) {
             style.setPatternDesignId(dto.getPatternDesignId());
             style.setPatternDesignName(dto.getPatternDesignName());
             styleService.updateById(style);
@@ -411,10 +421,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public boolean breakOffPattern(String id) {
+    public boolean breakOffPattern(String id, String flag) {
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.in("id", StrUtil.split(id, CharUtil.COMMA));
-        uw.set("break_off_pattern", BaseGlobal.YES);
+        uw.set("break_off_pattern",flag);
         return update(uw);
     }
 

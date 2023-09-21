@@ -682,6 +682,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         BeanUtil.copyProperties(style, dto);
         dto.setForeignId(id);
         dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+        dto.setChannel(style.getChannel());
         return queryDimensionLabels(dto);
     }
 
