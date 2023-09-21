@@ -47,6 +47,8 @@ import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
 import com.base.sbc.module.sample.dto.FabricSummaryDTO;
 import com.base.sbc.module.sample.vo.FabricSummaryVO;
 import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -91,6 +93,9 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
 
     @Autowired
     private BasicsdatumBomTemplateMaterialMapper basicsdatumBomTemplateMaterialMapper;
+
+    @Resource
+    private  StyleService styleService;
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
@@ -292,10 +297,28 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             throw new OtherException("模板无物料清单");
         }
 
+      /*获取款的*/
+        Style style= styleService.getById(bomTemplateSaveDto.getStyleId());
+       String productSizes =  style.getProductSizes();
+       if(StrUtil.isBlank(productSizes)){
+           throw new OtherException("不存在尺码");
+       }
+        String[] productSizess = productSizes.split(",");
+        String[] sizeIds =  style.getSizeIds().split(",");
         List<PackBomDto> bomDtoList = BeanUtil.copyToList(templateMaterialList, PackBomDto.class);
         bomDtoList.forEach(b -> {
             b.setId(null);
             b.setBomTemplateId(bomTemplateSaveDto.getBomTemplateId());
+            List<PackBomSizeDto> sizeDtoList = new ArrayList<>();
+            for (int i = 0; i < productSizess.length; i++) {
+                PackBomSizeDto packBomSizeDto =new PackBomSizeDto();
+                packBomSizeDto.setWidthCode(b.getTranslateCode());
+                packBomSizeDto.setWidth(b.getTranslate());
+                packBomSizeDto.setSize(productSizess[i]);
+                packBomSizeDto.setSizeId(sizeIds[i]);
+                sizeDtoList.add(packBomSizeDto);
+            }
+            b.setPackBomSizeList(sizeDtoList);
         });
         saveBatchByDto(bomTemplateSaveDto.getBomVersionId(), null, bomDtoList);
         return true;
@@ -407,7 +430,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     @Override
     public PageInfo<FabricSummaryVO> fabricSummaryList(FabricSummaryDTO fabricSummaryDTO) {
         Page<FabricSummaryVO> page = PageHelper.startPage(fabricSummaryDTO);
-        baseMapper.fabricSummaryList(fabricSummaryDTO);
+        baseMapper.fabricSummaryList(fabricSummaryDTO, new QueryWrapper());
         if (CollectionUtil.isNotEmpty(page.toPageInfo().getList())) {
             for (FabricSummaryVO fabricSummaryVO : page.toPageInfo().getList()) {
                 // 统计物料下被多少款使用

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.basicsdatum.mapper.SizeBulkStyleMapper">
+    <!--
+        吊牌充绒量和特殊规格额外字段
+        创建人：your name
+        邮箱：your email
+        创建时间：2023-9-20 15:13:40
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+    <select id="listByBulkStyleNoAndSizeType"
+            resultType="com.base.sbc.module.basicsdatum.vo.SizeBulkStyleVo">
+        select tsbs.*,
+        tbs.hangtags as sizeName,
+        tbs.id as sizeId
+        from t_basicsdatum_size tbs
+        left join t_size_bulk_style tsbs on tbs.id = tsbs.size_id and tsbs.bulk_style_no = #{bulkStyleNo} and tsbs.type
+        = #{type}
+        where tbs.del_flag='0'
+        <if test="ids !=null and ids.length>0">
+            and tbs.id in
+            <foreach collection="ids" open="(" item="id" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+</mapper>

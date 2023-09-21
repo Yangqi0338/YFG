@@ -19,4 +19,8 @@ public class BomTemplateSaveDto {
 
     @ApiModelProperty(value = "类型"  )
     private String type;
+
+    @ApiModelProperty(value = "款式id"  )
+    private String styleId;
+
 }
