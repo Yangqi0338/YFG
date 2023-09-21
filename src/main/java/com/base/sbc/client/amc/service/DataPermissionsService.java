@@ -109,7 +109,7 @@ public class DataPermissionsService {
      * @see DataPermissionsBusinessTypeEnum
      */
     public <T> Map getDataPermissionsForQw(String companyCode,String uerId,String businessType, String operateType, String tablePre, String[] authorityFields, boolean isAssignFields) {
-        String dataPermissionsKey = "USERISOLATION:" + companyCode + ":" +businessType+":"+ uerId + ":";
+        String dataPermissionsKey = "USERISOLATION:" + companyCode + ":" +businessType+":";
         //删除amc的数据权限状态
         RedisUtils redisUtils1=new RedisUtils();
         redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplateAmc"));
@@ -122,6 +122,7 @@ public class DataPermissionsService {
         if (redisType){
             redisUtils.removePattern(dataPermissionsKey);
         }
+        dataPermissionsKey += uerId + ":";
         Map<String, Object> ret = new HashMap<>();
         ret.put("authorityState", Boolean.TRUE);
         ret.put("authorityField","");
