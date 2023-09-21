@@ -183,6 +183,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     private PackBomSizeService packBomSizeService;
 
+    @Autowired
+    private PlanningChannelService planningChannelService;
+
     private IdGen idGen = new IdGen();
 
     @Override
@@ -959,13 +962,17 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 return result;
             }
         } else if (vo.getLevel() == 0) {
-            /*渠道字典*/
-            Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("channel");
-            Map<String, String> map = dictInfoToMap.get("channel");
-            for (Map.Entry<String, String> entry : map.entrySet()) {
+            /*获取产品季渠道*/
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.eq("planning_season_id",vo.getPlanningSeasonId());
+            List<PlanningChannel> channelList = planningChannelService.list(queryWrapper);
+            if (!CollUtil.isNotEmpty(channelList)) {
+                return null;
+            }
+            for (PlanningChannel p : channelList) {
                 BasicStructureTreeVo basicStructureTreeVo = new BasicStructureTreeVo();
-                basicStructureTreeVo.setName(entry.getValue());
-                basicStructureTreeVo.setValue(entry.getKey() );
+                basicStructureTreeVo.setName(p.getChannelName());
+                basicStructureTreeVo.setValue(p.getChannel());
                 basicStructureTreeVoList.add(basicStructureTreeVo);
             }
             if (CollUtil.isNotEmpty(planningSeasonList)) {

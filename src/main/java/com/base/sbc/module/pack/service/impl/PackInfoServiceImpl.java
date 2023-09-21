@@ -300,7 +300,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         List<PackBom> bomList = packBomService.list(style.getId(), PackUtils.PACK_TYPE_STYLE);
         if (CollectionUtil.isNotEmpty(bomList)) {
             //保存bom尺码跟颜色
-            List<PackBomSize> bomSizeList = packBomSizeService.list(style.getId(), PackUtils.PACK_TYPE_STYLE);
+            List<String> bomIdList = bomList.stream().map(PackBom::getId).collect(Collectors.toList());
+            QueryWrapper queryWrapper =  new QueryWrapper<>();
+            queryWrapper.in("bom_id",bomIdList);
+            List<PackBomSize> bomSizeList = packBomSizeService.list(queryWrapper);
             Map<String, List<PackBomSize>> bomSizeMap = bomSizeList.stream().collect(Collectors.groupingBy(PackBomSize::getBomId));
             List<PackBomColor> bomColorList = packBomColorService.list(style.getId(), PackUtils.PACK_TYPE_STYLE);
             Map<String, List<PackBomColor>> bomColorMap = bomColorList.stream().collect(Collectors.groupingBy(PackBomColor::getBomId));
@@ -827,6 +830,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (color == null) {
             throw new OtherException("配色数据为空");
         }
+        packInfo.setName(color.getStyleNo());
         packInfo.setColor(color.getColorName());
         packInfo.setColorCode(color.getColorCode());
         packInfo.setStyleNo(color.getStyleNo());

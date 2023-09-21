@@ -58,16 +58,13 @@ public class DataIsolationAspect {
             if(!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization) && dataIsolation.state() && StringUtils.isNotBlank(dataIsolation.authority())){
                 // 获取注解标识值与注解描述
                 String operateType = dataIsolation.operateType()?"read":"write";
-                RedisUtils redisUtils = SpringContextHolder.getBean("redisUtils");
-                String dataPermissionsKey = "USERISOLATION:"+usercompany+":"+userId+":";
 
                 Map<String,Object> entity=null;
                 Boolean authorityState=false;
                 DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
-                entity= dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,null,dataIsolation.authorityFields(),dataIsolation.isAssignFields(),dataPermissionsKey);
+                entity= dataPermissionsService.getDataPermissionsForQw(usercompany,userId,dataIsolation.authority(),operateType,null,dataIsolation.authorityFields(),dataIsolation.isAssignFields());
                 authorityState=entity.containsKey("authorityState")?(Boolean)entity.get("authorityState"):false;
                 if(!authorityState){
-                    redisUtils.set(dataPermissionsKey +operateType+"@" + dataIsolation.authority()+":authorityState", authorityState, 60 * 3);//如数据的隔离3分钟更新一次
                     throw new OtherException("无权限");
                 }
             }

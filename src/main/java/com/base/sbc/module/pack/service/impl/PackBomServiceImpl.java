@@ -15,6 +15,8 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -93,6 +95,8 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
 
     @Autowired
     private BasicsdatumBomTemplateMaterialMapper basicsdatumBomTemplateMaterialMapper;
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     @Resource
     private  StyleService styleService;
@@ -250,6 +254,8 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                     packBomSize.setPackType(version.getPackType());
                     packBomSize.setForeignId(version.getForeignId());
                     packBomSize.setBomVersionId(version.getId());
+                    packBomSize.setWidthCode(packBomDto.getTranslateCode());
+                    packBomSize.setWidth(packBomDto.getTranslate());
                 }
                 bomSizeList.addAll(packBomSizeList);
             }
@@ -430,7 +436,9 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     @Override
     public PageInfo<FabricSummaryVO> fabricSummaryList(FabricSummaryDTO fabricSummaryDTO) {
         Page<FabricSummaryVO> page = PageHelper.startPage(fabricSummaryDTO);
-        baseMapper.fabricSummaryList(fabricSummaryDTO, new QueryWrapper());
+        QueryWrapper qw = new QueryWrapper();
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.fabric_summary.getK(), "t2.");
+        baseMapper.fabricSummaryList(fabricSummaryDTO, qw);
         if (CollectionUtil.isNotEmpty(page.toPageInfo().getList())) {
             for (FabricSummaryVO fabricSummaryVO : page.toPageInfo().getList()) {
                 // 统计物料下被多少款使用
