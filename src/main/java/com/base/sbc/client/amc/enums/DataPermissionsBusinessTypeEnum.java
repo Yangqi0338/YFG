@@ -24,6 +24,8 @@ public enum DataPermissionsBusinessTypeEnum {
     style_pricing("style_pricing", "款式定价"),
     pre_production_sample_task("pre_production_sample_task", "产前样样衣任务"),
     pre_production_sample_board("pre_production_sample_board", "产前样看板"),
+    PatternMakingWeekMonthView("PatternMakingWeekMonthView", "版类对比"),
+    CategorySummaryCount("CategorySummaryCount", "品类汇总统计"),
     ;
     private final String k;
     private final String v;

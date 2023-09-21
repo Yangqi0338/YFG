@@ -56,14 +56,15 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
      * @param patternMakingWeekMonthViewDto 技术看板DTO
      * @return 返回集合数据
      */
-    List<PatternMakingWeekMonthViewVo> versionComparisonViewWeekMonth(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto);
+    List<PatternMakingWeekMonthViewVo> versionComparisonViewWeekMonth(@Param("dto")  PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,@Param(Constants.WRAPPER) QueryWrapper qw);
 
     /**
      * 根据时间按周月品类汇总统计
      * @param patternMakingWeekMonthViewDto 技术看板DTO
      * @return 返回集合数据
      */
-    List<PatternMakingWeekMonthViewVo> categorySummaryCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto);
+    List<PatternMakingWeekMonthViewVo> categorySummaryCount(@Param("dto")  PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,
+                                                            @Param(Constants.WRAPPER) QueryWrapper qw);
 
     /**
      * 根据时间按周月 统计样衣产能总数
