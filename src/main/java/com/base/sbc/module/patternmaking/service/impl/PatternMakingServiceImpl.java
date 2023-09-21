@@ -1095,7 +1095,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
      */
     private Map<String, Object> capacityContrastStatisticsView(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String key) {
         // 1、拼接锁key
-        String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.CAPACITY_CONTRAST + patternMakingWeekMonthViewDto.getCompanyCode();
+        String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.CAPACITY_CONTRAST + patternMakingWeekMonthViewDto.getCompanyCode() + super.getUserId();
         try {
             // 1.1、缓存数据格式
             Map<String,Object> dataMap = Maps.newHashMap();
@@ -1235,7 +1235,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             dataLists.add(arrayList);
         }
         // 8、锁key
-        String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.SAMPLE_CAPACITY_TOTAL + patternMakingWeekMonthViewDto.getCompanyCode();
+        String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.SAMPLE_CAPACITY_TOTAL + patternMakingWeekMonthViewDto.getCompanyCode() + super.getUserId();
         // 8.1 缓存数据
         try {
             this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.MINUTES);
@@ -1326,7 +1326,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 7、拼接数据
         this.joinCategorySummaryData(yearWeekList,dataLists,noPatternDataMap,patternCentreDataMap,completePatternDataMap,requirementNumSumDataMap);
         // 8、锁key
-        String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.CATEGORY_SUMMARY_COUNT + patternMakingWeekMonthViewDto.getCompanyCode();
+        String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.CATEGORY_SUMMARY_COUNT + patternMakingWeekMonthViewDto.getCompanyCode() + super.getUserId();
         // 8.1 缓存数据
         try {
             this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.MINUTES);
@@ -1407,7 +1407,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             }
         }
         // 8、锁key
-        String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.VERSION_COMPARISON + patternMakingWeekMonthViewDto.getCompanyCode();
+        String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.VERSION_COMPARISON + patternMakingWeekMonthViewDto.getCompanyCode() + super.getUserId();
         // 8.1 缓存数据
         try {
             this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.MINUTES);
@@ -1438,12 +1438,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         key.append(patternMakingWeekMonthViewDto.getStartTime());
         key.append(patternMakingWeekMonthViewDto.getEndTime());
         key.append(patternMakingWeekMonthViewDto.getNode());
+        key.append(super.getUserId());
         if(CollectionUtil.isNotEmpty(patternMakingWeekMonthViewDto.getCategoryIds())){
             key.append(StringUtils.convertListToString(patternMakingWeekMonthViewDto.getCategoryIds()));
         }
         Object redisData = redisUtils.get(key.toString());
         // 拼接锁KEY 区分企业缓存数据
-        String lockKey =  TechnologyBoardConstant.CACHE_LOCK + countType + patternMakingWeekMonthViewDto.getCompanyCode();
+        String lockKey =  TechnologyBoardConstant.CACHE_LOCK + countType + patternMakingWeekMonthViewDto.getCompanyCode() + super.getUserId();
         // 如果缓存没有直接返回null，开启线程查数据
         if(null == redisData){
             // 获取锁，只能查询一次
