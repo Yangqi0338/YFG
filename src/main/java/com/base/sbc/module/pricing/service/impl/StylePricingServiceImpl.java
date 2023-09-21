@@ -183,7 +183,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         StylePricingSearchDTO stylePricingSearchDTO = new StylePricingSearchDTO();
         stylePricingSearchDTO.setPackId(packId);
         stylePricingSearchDTO.setCompanyCode(companyCode);
-        List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(stylePricingSearchDTO, null);
+        List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(stylePricingSearchDTO, new QueryWrapper<>());
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return null;
         }
