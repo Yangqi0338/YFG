@@ -194,12 +194,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         Style style = null;
         if (StrUtil.isNotBlank(dto.getId())) {
             style = getById(dto.getId());
+            this.saveOperaLog("修改", "款式设计",style.getStyleName(),style.getDesignNo(),dto,style);
             resetDesignNo(dto, style);
 
             BeanUtil.copyProperties(dto, style);
             setMainStylePic(style, dto.getStylePicList());
 
             this.updateById(style);
+
             planningCategoryItemService.updateBySampleDesignChange(style);
         } else {
             style = saveNewStyle(dto);

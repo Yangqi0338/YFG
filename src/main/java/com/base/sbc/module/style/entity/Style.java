@@ -127,7 +127,7 @@ public class Style extends BaseDataEntity<String> {
     @ApiModelProperty(value = "款式类型名称"  )
     private String styleTypeName;
     /** 款式图id(主图) */
-    @ApiModelProperty(value = "款式图id(主图)"  )
+    //@ApiModelProperty(value = "款式图id(主图)"  )
     private String stylePic;
     /** 品牌 */
     @ApiModelProperty(value = "品牌"  )
