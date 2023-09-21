@@ -250,6 +250,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                     demand.setCompanyCode(companyCode);
                     demand.setProductColor(color);
                     demand.setMaterialColor(materialColor);
+                    demand.setMaterialColorCode(packBomColor != null ? packBomColor.getMaterialColorCode() : "");
                     demand.setPurchasedNum(BigDecimal.ZERO);
                     demand.setReadyNum(BigDecimal.ZERO);
                     demand.setOrderStatus("0");
