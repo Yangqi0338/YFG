@@ -250,7 +250,34 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         }
         ProcessDatabase processDatabase = new ProcessDatabase();
         BeanUtils.copyProperties(addRevampProcessDatabaseDto, processDatabase);
-        return saveOrUpdate(processDatabase);
+        //类别 1：部件库，2：基础工艺，3：外辅工艺，4：裁剪工艺，5：注意事项，6：整烫包装，7：模板部件
+        String type="";
+        switch (addRevampProcessDatabaseDto.getType()){
+            case "1":
+                type="部件库";
+                break;
+            case "2":
+                type="基础工艺";
+                break;
+            case "3":
+                type="外辅工艺";
+                break;
+            case "4":
+                type="裁剪工艺";
+                break;
+            case "5":
+                type="注意事项";
+                break;
+            case "6":
+                type="整烫包装";
+                break;
+            case "7":
+                type="模板部件";
+                break;
+            default:
+                break;
+        }
+        return saveOrUpdate(processDatabase,type,addRevampProcessDatabaseDto.getProcessName(),addRevampProcessDatabaseDto.getCode());
     }
 
     /**

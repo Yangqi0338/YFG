@@ -34,6 +34,8 @@ public class OperaLogController extends BaseController {
     public ApiResult listPage(OperaLogDto operaLogDto) {
         BaseQueryWrapper<OperaLogEntity> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.notEmptyLike("document_id",operaLogDto.getDocumentId());
+        queryWrapper.notEmptyLike("document_name",operaLogDto.getDocumentName());
+        queryWrapper.notEmptyLike("document_code",operaLogDto.getDocumentCode());
         queryWrapper.notEmptyLike("type",operaLogDto.getType());
         queryWrapper.notEmptyLike("name",operaLogDto.getName());
         queryWrapper.between("create_date",operaLogDto.getCreateDate());

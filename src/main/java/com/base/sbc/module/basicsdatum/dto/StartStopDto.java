@@ -16,6 +16,15 @@ public class StartStopDto {
     @NotNull(message = "编号必填")
     private String ids;
 
+    @ApiModelProperty(name = "名称", value = "多个名称加," )
+    private String  names;
+
+    @ApiModelProperty(name = "编码", value = "多个编码加,")
+    private String codes;
+
+    @ApiModelProperty(name = "模块名称", value = "多个编码加,")
+    private String  name;
+
     @ApiModelProperty(value = "状态",  required = true, example = "0")
     @NotBlank(message = "状态必填")
     private String status;

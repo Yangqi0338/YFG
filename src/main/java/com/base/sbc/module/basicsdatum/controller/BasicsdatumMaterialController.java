@@ -25,6 +25,7 @@ import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService;
 import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
 import com.base.sbc.module.pack.entity.PackBomVersion;
@@ -195,8 +196,8 @@ public class BasicsdatumMaterialController extends BaseController {
 
     @ApiOperation(value = "主物料:删除物料及详情")
     @DeleteMapping("/delBasicsdatumMaterial")
-    public Boolean delBasicsdatumMaterial(@RequestParam(value = "id") @NotBlank(message = "id不能为空") String id) {
-        return basicsdatumMaterialService.delBasicsdatumMaterial(id);
+    public Boolean delBasicsdatumMaterial(RemoveDto removeDto) {
+        return basicsdatumMaterialService.delBasicsdatumMaterial( removeDto);
     }
 
     @ApiOperation(value = "主物料：按筛选条件导出")

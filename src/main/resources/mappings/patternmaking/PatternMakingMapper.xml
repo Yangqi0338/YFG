@@ -194,19 +194,22 @@
         FROM
             (
             SELECT
-                sample_type,
-                DATE_FORMAT( create_date, IF(#{weeklyMonth} = 'week','%y年%u周', '%y年%m月') ) AS year_week,
-                min( create_date ) AS min_date,
+                pk.sample_type,
+                DATE_FORMAT( pk.create_date, IF(#{weeklyMonth} = 'week','%y年%u周', '%y年%m月') ) AS year_week,
+                min( pk.create_date ) AS min_date,
                 count( 1 ) AS num
-            FROM
-                t_pattern_making
+            FROM t_pattern_making pk
+            JOIN t_style sd ON sd.id = pk.style_id
             WHERE
-                del_flag = '0'
-                AND sample_type = '初版样'
-                AND company_code = #{companyCode}
-                AND create_date BETWEEN #{startTime} AND #{endTime}
+                pk.del_flag = '0'
+                AND pk.sample_type = '初版样'
+                AND pk.company_code = #{companyCode}
+                AND pk.create_date BETWEEN #{startTime} AND #{endTime}
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+            </if>
             GROUP BY
-                DATE_FORMAT( create_date, IF(#{weeklyMonth} = 'week','%y%u', '%y%m') )
+                DATE_FORMAT( pk.create_date, IF(#{weeklyMonth} = 'week','%y%u', '%y%m') )
             ORDER BY
                 year_week ASC
             )
@@ -217,19 +220,22 @@
         FROM
             (
             SELECT
-                sample_type,
-                DATE_FORMAT( create_date, IF(#{weeklyMonth} = 'week','%y年%u周', '%y年%m月') ) AS year_week,
-                min( create_date ) AS min_date,
+                pk.sample_type,
+                DATE_FORMAT( pk.create_date, IF(#{weeklyMonth} = 'week','%y年%u周', '%y年%m月') ) AS year_week,
+                min( pk.create_date ) AS min_date,
                 count( 1 ) AS num
-            FROM
-                t_pattern_making
+            FROM t_pattern_making pk
+            JOIN t_style sd ON sd.id = pk.style_id
             WHERE
-                del_flag = '0'
-                AND sample_type = '改版样'
-                AND company_code = #{companyCode}
-                AND create_date BETWEEN #{startTime} AND #{endTime}
+                pk.del_flag = '0'
+                AND pk.sample_type = '改版样'
+                AND pk.company_code = #{companyCode}
+                AND pk.create_date BETWEEN #{startTime} AND #{endTime}
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+            </if>
             GROUP BY
-                DATE_FORMAT( create_date, IF(#{weeklyMonth} = 'week','%y%u', '%y%m') )
+                DATE_FORMAT( pk.create_date, IF(#{weeklyMonth} = 'week','%y%u', '%y%m') )
             ORDER BY
                 year_week ASC
             )
@@ -268,7 +274,9 @@
                 #{categoryId}
             </foreach>
         </if>
-
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
             ) pmm
         GROUP BY
             DATE_FORMAT( pmm.create_date, IF(#{weeklyMonth} = 'week','%y%u', '%y%m') )
