@@ -420,6 +420,8 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
             JSONArray jsonArray = CommonUtils.recordField(ne, oe);
             log.setJsonContent(jsonArray.toJSONString());
             log.setDocumentId(id);
+            log.setDocumentName(this.getFieldValueByName(log.getDocumentNameField(), ne));
+            log.setDocumentCode(this.getFieldValueByName(log.getDocumentCodeField(), ne));
             operaLogEntityList.add(log);
         }
         operaLogService.saveBatch(operaLogEntityList);

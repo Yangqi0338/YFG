@@ -527,7 +527,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         boolean b = this.materialWidthService.saveOrUpdate(entity);
         if (b){
             OperaLogEntity operaLogEntity = new OperaLogEntity();
-            operaLogEntity.setName("面料门幅/规格");
+            operaLogEntity.setName("物料档案-门幅/规格");
             operaLogEntity.setType(type);
             operaLogEntity.setDocumentId(entity.getId());
             operaLogEntity.setDocumentCode(entity.getWidthCode());
@@ -585,11 +585,29 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         if (count > 0) {
             throw new OtherException("当前颜色已存在");
         }
+        BasicsdatumMaterialColor oldEntity = null;
+        String type;
         BasicsdatumMaterialColor entity = CopyUtil.copy(dto, BasicsdatumMaterialColor.class);
         if ("-1".equals(entity.getId())) {
             entity.setId(null);
+            type="新增";
+        }else {
+            type="修改";
+            oldEntity = materialColorService.getById(entity.getId());
         }
-        return this.materialColorService.saveOrUpdate(entity);
+        Boolean b= this.materialColorService.saveOrUpdate(entity);
+
+        if (b){
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            operaLogEntity.setName("物料档案-颜色");
+            operaLogEntity.setType(type);
+            operaLogEntity.setDocumentId(entity.getId());
+            operaLogEntity.setDocumentCode(entity.getColorCode());
+            operaLogEntity.setDocumentName(entity.getColorName());
+            operaLogEntity.setParentId(dto.getParentId());
+            materialWidthService.saveOrUpdateOperaLog(entity,oldEntity,operaLogEntity);
+        }
+        return b;
     }
 
     @Override
@@ -606,15 +624,34 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             BasicsdatumMaterialColor entity = CopyUtil.copy(dto, BasicsdatumMaterialColor.class);
             if ("-1".equals(entity.getId())) {
                 entity.setId(null);
+                entity.setCreateDate(null);
+                entity.setUpdateDate(null);
+                entity.setCreateName(null);
+                entity.setCreateId(null);
+                entity.setUpdateId(null);
+                entity.setUpdateName(null);
             }
             list.add(entity);
         }
-        return this.materialColorService.saveOrUpdateBatch(list);
+        boolean b = this.materialColorService.saveOrUpdateBatch(list);
+        if (b){
+            OperaLogEntity operaLogEntity =new OperaLogEntity();
+            operaLogEntity.setName("物料档案-颜色");
+            operaLogEntity.setType("新增");
+            operaLogEntity.setParentId(dtos.get(0).getParentId());
+
+            operaLogEntity.setDocumentCodeField("colorCode");
+            operaLogEntity.setDocumentNameField("colorName");
+            materialColorService.saveBatchOperaLog(list,operaLogEntity);
+        }
+
+
+        return b;
     }
 
     @Override
-    public Boolean delBasicsdatumMaterialColor(String id) {
-        return this.materialColorService.removeBatchByIds(StringUtils.convertList(id));
+    public Boolean delBasicsdatumMaterialColor(RemoveDto removeDto) {
+        return this.materialColorService.removeByIds(removeDto);
     }
 
     @Override
@@ -635,7 +672,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 }
             }
         }
-
+        this.startStopLog(dto);
         return this.materialColorService.update(null, uw);
     }
 

@@ -32,7 +32,7 @@ public class BasicsdatumMaterialColorPageVo extends BaseDataEntity<String> {
 	private String colorCode;
 	/** 颜色代码 */
 	@ApiModelProperty(value = "颜色")
-	private String color;
+	private String colorName;
 	/** 颜色hex */
 	@ApiModelProperty(value = "颜色hex")
 	private String colorHex;

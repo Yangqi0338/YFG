@@ -296,8 +296,8 @@ public class BasicsdatumMaterialController extends BaseController {
 
     @ApiOperation(value = " 物料颜色:删除颜色")
     @DeleteMapping("/delBasicsdatumMaterialColor")
-    public Boolean delBasicsdatumMaterialColor(@RequestParam(value = "id") @NotBlank(message = "id不能为空") String id) {
-        return basicsdatumMaterialService.delBasicsdatumMaterialColor(id);
+    public Boolean delBasicsdatumMaterialColor(RemoveDto removeDto) {
+        return basicsdatumMaterialService.delBasicsdatumMaterialColor(removeDto);
     }
 
     @ApiOperation(value = "物料报价:查询报价列表")

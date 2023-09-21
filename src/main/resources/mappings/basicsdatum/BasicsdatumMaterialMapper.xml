@@ -14,7 +14,7 @@
 		resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo">
 		SELECT
 			t.*,
-		t.color_name as color,
+		t.color_name as colorName,
 		t1.color_hex,
 		tb.color AS quote
 		FROM
