@@ -1147,7 +1147,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             }
 
             // 8. 缓存数据
-            this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.MINUTES);
+            this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.SECONDS);
             return dataMap;
         } catch (Exception e){
             redisUtils.del(lockKey);
@@ -1238,7 +1238,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.SAMPLE_CAPACITY_TOTAL + patternMakingWeekMonthViewDto.getCompanyCode() + super.getUserId();
         // 8.1 缓存数据
         try {
-            this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.MINUTES);
+            this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.SECONDS);
         } catch (Exception e){
             redisUtils.del(lockKey);
             log.error("设置缓存错误：", e);
@@ -1332,7 +1332,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.CATEGORY_SUMMARY_COUNT + patternMakingWeekMonthViewDto.getCompanyCode() + super.getUserId();
         // 8.1 缓存数据
         try {
-            this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.MINUTES);
+            this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.SECONDS);
         } catch (Exception e){
             redisUtils.del(lockKey);
             log.error("设置缓存错误：", e);
@@ -1415,7 +1415,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.VERSION_COMPARISON + patternMakingWeekMonthViewDto.getCompanyCode() + super.getUserId();
         // 8.1 缓存数据
         try {
-            this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.MINUTES);
+            this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.SECONDS);
         } catch (Exception e){
             redisUtils.del(lockKey);
             log.error("设置缓存错误：", e);
