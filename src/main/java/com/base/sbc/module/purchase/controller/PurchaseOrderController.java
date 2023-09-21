@@ -156,7 +156,8 @@ public class PurchaseOrderController extends BaseController{
 	public ApiResult noticePage(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, PurchasePageDTO page) {
 		BaseQueryWrapper<PurchaseOrder> qc = new BaseQueryWrapper<>();
 		qc.eq("company_code", userCompany);
-		qc.eq(StringUtils.isNotBlank(page.getOrderStatus()),"warehouse_status", page.getWarehouseStatus());
+		qc.eq("status", "2");
+		qc.eq(StringUtils.isNotBlank(page.getWarehouseStatus()),"warehouse_status", page.getWarehouseStatus());
 		if(StringUtils.isNotBlank(page.getSearch())){
 			qc.and(wrapper -> wrapper.like("code", page.getSearch())
 					.or()
