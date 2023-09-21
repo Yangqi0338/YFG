@@ -63,6 +63,8 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.STYLE_MANY_COLOR;
+
 /**
  * 类描述：资料包-物料清单 service类
  *
@@ -256,6 +258,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                     packBomSize.setBomVersionId(version.getId());
                     packBomSize.setWidthCode(packBomDto.getTranslateCode());
                     packBomSize.setWidth(packBomDto.getTranslate());
+                    packBomSize.setQuantity(packBomDto.getDesignUnitUse());
                 }
                 bomSizeList.addAll(packBomSizeList);
             }
@@ -269,6 +272,8 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                     packBomColor.setPackType(version.getPackType());
                     packBomColor.setForeignId(version.getForeignId());
                     packBomColor.setBomVersionId(version.getId());
+                    packBomColor.setMaterialColorName(packBomDto.getColor());
+                    packBomColor.setMaterialColorCode(packBomDto.getColorCode());
                     packBomColor.insertInit();
                 }
                 packBomColorList.addAll(packBomColors);
@@ -309,12 +314,17 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
        if(StrUtil.isBlank(productSizes)){
            throw new OtherException("不存在尺码");
        }
+        Boolean styleManyColorSwitch = ccmFeignService.getSwitchByCode(STYLE_MANY_COLOR.getKeyCode());
         String[] productSizess = productSizes.split(",");
         String[] sizeIds =  style.getSizeIds().split(",");
+        String[] colorCodes =  style.getColorCodes().split(",");
+        String[] colors =  style.getProductColors().split(",");
         List<PackBomDto> bomDtoList = BeanUtil.copyToList(templateMaterialList, PackBomDto.class);
         bomDtoList.forEach(b -> {
             b.setId(null);
             b.setBomTemplateId(bomTemplateSaveDto.getBomTemplateId());
+            b.setDesignUnitUse(b.getUnitUse());
+            b.setBulkUnitUse(b.getUnitUse());
             List<PackBomSizeDto> sizeDtoList = new ArrayList<>();
             for (int i = 0; i < productSizess.length; i++) {
                 PackBomSizeDto packBomSizeDto =new PackBomSizeDto();
@@ -325,6 +335,16 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                 sizeDtoList.add(packBomSizeDto);
             }
             b.setPackBomSizeList(sizeDtoList);
+            if (styleManyColorSwitch) {
+                List<PackBomColorDto> colorDtos = new ArrayList<>();
+                for (int i = 0; i < colorCodes.length; i++) {
+                    PackBomColorDto colorDto = new PackBomColorDto();
+                    colorDto.setColorCode(colorCodes[i]);
+                    colorDto.setColorName(colors[i]);
+                    colorDtos.add(colorDto);
+                }
+                b.setPackBomColorDtoList(colorDtos);
+            }
         });
         saveBatchByDto(bomTemplateSaveDto.getBomVersionId(), null, bomDtoList);
         return true;
