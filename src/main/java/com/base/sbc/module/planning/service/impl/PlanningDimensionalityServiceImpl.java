@@ -45,10 +45,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningDimensionalityMapper, PlanningDimensionality> implements PlanningDimensionalityService {
-    @Autowired
-    private BaseController baseController;
-    @Autowired
-    private PlanningDemandMapper planningDemandMapper;
+
     @Autowired
     private FieldManagementMapper fieldManagementMapper;
 
@@ -122,12 +119,6 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             planningDimensionality.updateInit();
             baseMapper.updateById(planningDimensionality);
         }
-        /*调整字段*/
-        FieldManagement fieldManagement = fieldManagementMapper.selectById(dto.getFieldId());
-        fieldManagement.setIsExamine(dto.getIsExamine());
-        fieldManagement.setFieldName(dto.getDimensionalityName());
-        fieldManagement.updateInit();
-        fieldManagementMapper.updateById(fieldManagement);
         return ApiResult.success("操作成功", planningDimensionality);
     }
 
