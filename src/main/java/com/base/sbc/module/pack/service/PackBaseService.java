@@ -22,6 +22,16 @@ public interface PackBaseService<T> extends BaseService<T> {
      */
     Integer addAndUpdateAndDelList(List<T> entityList, QueryWrapper<T> queryWrapper, boolean delFlg);
 
+    /**
+     * 子表的新增 修改 删除
+     * 物料清单的尺码用量规格，颜色 配色
+     *
+     * @param entityList
+     * @param queryWrapper
+     * @param pid
+     * @return
+     */
+    Integer addAndUpdateAndDelListSub(List<T> entityList, QueryWrapper<T> queryWrapper, String pid);
 
     OperaLogEntity genOperaLogEntity(Object bean, String type);
 

@@ -59,7 +59,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -352,17 +351,18 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         attachmentService.setListStylePic(list, "stylePic");
         // 设置版师列表
         if (CollUtil.isNotEmpty(list)) {
-            Map<String, List<PatternDesignVo>> pdMap = new HashMap<>(16);
-            for (TechnologyCenterTaskVo tct : list) {
-                String key = tct.getPlanningSeasonId();
-                if (pdMap.containsKey(key)) {
-                    tct.setPdList(pdMap.get(key));
-                } else {
-                    List<PatternDesignVo> patternDesignList = getPatternDesignList(tct.getPlanningSeasonId());
-                    tct.setPdList(patternDesignList);
-                    pdMap.put(key, patternDesignList);
-                }
-            }
+            //去掉 优化性能
+//            Map<String, List<PatternDesignVo>> pdMap = new HashMap<>(16);
+//            for (TechnologyCenterTaskVo tct : list) {
+//                String key = tct.getPlanningSeasonId();
+//                if (pdMap.containsKey(key)) {
+//                    tct.setPdList(pdMap.get(key));
+//                } else {
+//                    List<PatternDesignVo> patternDesignList = getPatternDesignList(tct.getPlanningSeasonId());
+//                    tct.setPdList(patternDesignList);
+//                    pdMap.put(key, patternDesignList);
+//                }
+//            }
         }
         return page.toPageInfo();
     }
