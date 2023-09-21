@@ -23,6 +23,10 @@ public class OperaLogEntity extends BaseDataEntity<String> {
      */
     private String documentName;
     /**
+     * 单据编码
+     */
+    private String documentCode;
+    /**
      * 操作类型
      */
     private String type;

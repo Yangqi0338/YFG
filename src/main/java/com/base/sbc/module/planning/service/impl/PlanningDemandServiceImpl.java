@@ -185,7 +185,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         if (StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory2nd())) {
             queryWrapper1.apply(StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory2nd()), "FIND_IN_SET({0},prod_category2nd)", queryDemandDimensionalityDto.getProdCategory2nd());
         } else {
-            queryWrapper1.isNull("prod_category2nd");
+            queryWrapper1.apply("(prod_category2nd IS NULL or prod_category2nd = '' )");
             queryWrapper1.apply(StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory()), "FIND_IN_SET({0},prod_category)", queryDemandDimensionalityDto.getProdCategory());
         }
         /*查询维度中已选择的数据*/

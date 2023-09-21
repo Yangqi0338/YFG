@@ -33,6 +33,8 @@ import com.base.sbc.module.purchase.service.MaterialWarehouseService;
 import com.base.sbc.module.purchase.service.PurchaseDemandService;
 import com.base.sbc.module.purchase.service.PurchaseOrderDetailService;
 import com.base.sbc.module.purchase.service.PurchaseOrderService;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.service.StyleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -88,11 +90,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
     private PurchaseOrderDetailService purchaseOrderDetailService;
 
     @Autowired
-    private PackSizeConfigService packSizeConfigService;
-
-    @Autowired
-    @Lazy
-    private PatternMakingService patternMakingService;
+    private StyleService styleService;
 
     @Autowired
     private UserCompanyUtils userCompanyUtils;
@@ -165,6 +163,11 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             qw.last("limit 1");
             PackInfo packInfo = packInfoService.getOne(qw);
 
+            QueryWrapper<Style> styleQw = new QueryWrapper<>();
+            styleQw.eq("company_code", companyCode);
+            styleQw.eq("id", packInfo.getForeignId());
+            Style style = styleService.getOne(styleQw);
+
             QueryWrapper<PackBom> packBomQw = new QueryWrapper<>();
             PackUtils.commonQw(packBomQw, packInfo.getId(), "packDesign", "0");
             packBomQw.eq("bom_version_id", packBomVersion.getId());
@@ -176,10 +179,6 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 return ApiResult.error("找不到物料！", 500);
             }
 
-            //查询尺寸配置信息
-            PackSizeConfigVo packSizeConfigVo = packSizeConfigService.getConfig(packInfo.getId(), "packDesign");
-//            //查询打版指令的成衣颜色
-//            List<PatternMakingListVo> patternMakingListVoList = patternMakingService.findBySampleDesignId(packInfo.getForeignId());
 
             List<String> materialCodeList = new ArrayList<>();
             List<String> supplierIdList = new ArrayList<>();
@@ -236,8 +235,8 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 BasicsdatumMaterial material = materialMap.get(bom.getMaterialCode());
                 BasicsdatumSupplier supplier = supplierMap.get(bom.getSupplierId());
 
-                BigDecimal num = specificationsMap.get(packSizeConfigVo.getDefaultSize());
-                PackBomSize packBomSize = packBomSizeMap.get(packSizeConfigVo.getDefaultSize());
+                BigDecimal num = specificationsMap.get(style.getDefaultSize());
+                PackBomSize packBomSize = packBomSizeMap.get(style.getDefaultSize());
 
                 for(String color : colorList) {
                     String materialColor = "";
