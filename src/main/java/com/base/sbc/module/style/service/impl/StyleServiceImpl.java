@@ -192,9 +192,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public Style saveStyle(StyleSaveDto dto) {
         Style style = null;
-        if (StrUtil.isNotBlank(dto.getId())) {
+        if (CommonUtils.isInitId(dto.getId())) {
+            style = saveNewStyle(dto);
+        } else {
             style = getById(dto.getId());
-            this.saveOperaLog("修改", "款式设计",style.getStyleName(),style.getDesignNo(),dto,style);
+            this.saveOperaLog("修改", "款式设计", style.getStyleName(), style.getDesignNo(), dto, style);
             resetDesignNo(dto, style);
 
             BeanUtil.copyProperties(dto, style);
@@ -203,8 +205,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             this.updateById(style);
 
             planningCategoryItemService.updateBySampleDesignChange(style);
-        } else {
-            style = saveNewStyle(dto);
+
         }
         // 保存工艺信息
         fieldValService.save(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, dto.getTechnologyInfo());
@@ -398,9 +399,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
         // 新增坑位信息
         PlanningCategoryItem categoryItem = new PlanningCategoryItem();
-        BeanUtil.copyProperties(dto, categoryItem);
+        BeanUtil.copyProperties(dto, categoryItem, "id");
         categoryItem.setPlanningSeasonId(planningSeason.getId());
-        categoryItem.setStylePic(dto.getStylePic());
+        if (CollUtil.isNotEmpty(dto.getStylePicList())) {
+            String urlById = uploadFileService.getUrlById(dto.getStylePicList().get(0).getFileId());
+            categoryItem.setStylePic(urlById);
+        }
         categoryItem.setStatus("2");
         categoryItem.setDesigner(userInfo.getAliasUserName() + StrUtil.COMMA + userInfo.getUserCode());
         categoryItem.setDesignerId(userInfo.getUserId());
@@ -413,6 +417,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         designNo = designNo + userInfo.getUserCode();
         categoryItem.setDesignNo(designNo);
+        categoryItem.setOldDesignNo(designNo);
         planningCategoryItemService.save(categoryItem);
 
         // 新增款式设计
@@ -421,7 +426,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         setMainStylePic(style, dto.getStylePicList());
         save(style);
         dto.setPlanningCategoryItemId(categoryItem.getId());
-
         dto.setPlanningSeasonId(planningSeason.getId());
         return style;
     }
