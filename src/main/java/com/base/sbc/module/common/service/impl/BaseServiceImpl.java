@@ -447,10 +447,10 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     @Transactional
     public boolean removeByIds(RemoveDto removeDto) {
         OperaLogEntity operaLogEntity = new OperaLogEntity();
-        Set<String> ids = Collections.singleton(removeDto.getIds());
+        List<String> ids = Arrays.asList(removeDto.getIds().split(","));
         operaLogEntity.setName(removeDto.getName());
         operaLogEntity.setType("删除");
-        operaLogEntity.setContent(CollUtil.join(ids, StrUtil.COMMA));
+        operaLogEntity.setContent(removeDto.getIds());
         operaLogEntity.setDocumentName(removeDto.getNames());
         operaLogEntity.setDocumentCode(removeDto.getCodes());
         operaLogService.save(operaLogEntity);
