@@ -77,7 +77,7 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
                     queryWrapper.eq("create_id", baseController.getUserId());
                 }
             }
-            dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"",new String[]{"category_id:id"},true);
+            dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"",new String[]{"category_id"},true);
             /*查询调样-辅料信息数据*/
             List<FabricIngredientsInfo> fabricIngredientsInfoList = baseMapper.selectList(queryWrapper);
             PageInfo<FabricIngredientsInfo> pageInfo = new PageInfo<>(fabricIngredientsInfoList);

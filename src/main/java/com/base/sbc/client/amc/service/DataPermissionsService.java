@@ -68,10 +68,16 @@ public class DataPermissionsService {
      * @param tablePre     表别名
      */
     public void getDataPermissionsForQw(QueryWrapper qw, String businessType, String tablePre) {
-        if (StrUtil.isBlank(businessType) || qw == null) {
-            return;
-        }
         getDataPermissionsForQw(qw, businessType, tablePre,null,false);
+    }
+    /**
+     * @param qw           查询构造器
+     * @param businessType 业务对象编码
+     * @param tablePre     表别名
+     * @param authorityFields     自定义数据隔离字段（代表名的）
+     */
+    public void getDataPermissionsForQw(QueryWrapper qw, String businessType, String tablePre, String[] authorityFields) {
+        getDataPermissionsForQw(qw, businessType, tablePre,authorityFields,false);
     }
     /**
      * @param qw           查询构造器
@@ -81,6 +87,9 @@ public class DataPermissionsService {
      * @param isAssignFields     是否强制指定字段，配合authorityFields使用
      */
     public void getDataPermissionsForQw(QueryWrapper qw, String businessType, String tablePre, String[] authorityFields, boolean isAssignFields) {
+        if (StrUtil.isBlank(businessType) || qw == null) {
+            return;
+        }
         UserCompany userCompany = companyUserInfo.get();
         String dataPermissionsKey = "USERISOLATION:" + userCompany.getCompanyCode() + ":" + userCompany.getUserId() + ":";
         Map read = getDataPermissionsForQw(businessType, "read", tablePre,authorityFields,isAssignFields, dataPermissionsKey);
@@ -151,43 +160,48 @@ public class DataPermissionsService {
         datafor:for(DataPermissionVO dataPermissions:dataPermissionsList){
             if(!DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(dataPermissions.getRange())){
                 List<FieldDataPermissionVO> fieldDataPermissions=dataPermissions.getFieldDataPermissions();
-                if (CollectionUtils.isNotEmpty(fieldDataPermissions)) {
-                    final String[] sqlType = {authorityField.size()>0?DataPermissionsSelectTypeEnum.OR.getK().equals(dataPermissions.getSelectType()) ? " or ( " : " and ( ":" ( "};
-                    authorityField.add(sqlType[0]);
+                if (CollectionUtils.isNotEmpty(fieldDataPermissions) && fieldDataPermissions.size()>0) {
+                    List<String> fieldArr=new ArrayList<>();
+                    boolean isFieldFlag=false;
+                    final String[] sqlType = {fieldArr.size()>0?DataPermissionsSelectTypeEnum.OR.getK().equals(dataPermissions.getSelectType()) ? " or ( " : " and ( ":" ( "};
+                    fieldArr.add(sqlType[0]);
                     fieldfor:for(FieldDataPermissionVO fieldDataPermissionVO:fieldDataPermissions){
                         if(StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName()) || StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())){
-                            authorityField.add(!(authorityField.get(authorityField.size()-1).equals(sqlType[0]))?DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType())?" or ":" and ":" ");
+                            fieldArr.add(!(fieldArr.get(fieldArr.size()-1).equals(sqlType[0]))?DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType())?" or ":" and ":" ");
                             sqlType[0] ="fromtype2339";
                         }
-
                         if(StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())){
                             String fieldName=Objects.isNull(authorityFields)?null:searchField(authorityFields,fieldDataPermissionVO.getFieldName());
                             if(isAssignFields && StringUtils.isBlank(fieldName)){
-                                authorityField.remove(authorityField.size()-1);
-                                sqlType[0] =" ( ";
+                                fieldArr.remove(fieldArr.size()-1);
+                                sqlType[0] =fieldArr.get(fieldArr.size()-1);
                                 continue fieldfor;
                             }
+                            isFieldFlag=true;
                             fieldName=(fieldDataPermissionVO.getFieldName().indexOf(".")!=-1)?fieldDataPermissionVO.getFieldName():StringUtils.isNotBlank(fieldName)?fieldName:tablePre+fieldDataPermissionVO.getFieldName();
                             if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType())) {
-                                authorityField.add(fieldName+" in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues())?"()":(fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
+                                fieldArr.add(fieldName+" in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues())?"()":(fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
                             }else {
                                 String finalFieldName = fieldName;
                                 if(fieldDataPermissionVO.getFieldValues().size()>1){
-                                    authorityField.add(finalFieldName+" in (");
+                                    fieldArr.add(finalFieldName+" in (");
                                     final String[] fieldValues = {""};
                                     fieldDataPermissionVO.getFieldValues().forEach(e ->{
                                         fieldValues[0] +=(StringUtils.isNotBlank(fieldValues[0])?"','":" '")+e;
                                     });
-                                    authorityField.add(fieldValues[0] +"') ");
+                                    fieldArr.add(fieldValues[0] +"') ");
                                 }
-                                if(fieldDataPermissionVO.getFieldValues().size()==1) authorityField.add(" "+finalFieldName+"='"+fieldDataPermissionVO.getFieldValues().get(0)+"' ");
+                                if(fieldDataPermissionVO.getFieldValues().size()==1) fieldArr.add(" "+finalFieldName+"='"+fieldDataPermissionVO.getFieldValues().get(0)+"' ");
                             }
                         }
                         if(StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())){
-                            authorityField.add(fieldDataPermissionVO.getSqlField());
+                            fieldArr.add(fieldDataPermissionVO.getSqlField());
                         }
                     };
-                    authorityField.add(" ) ");
+                    if(isFieldFlag){
+                        fieldArr.add(" ) ");
+                        authorityField.addAll(fieldArr);
+                    }
                 }
             }
         };
@@ -201,9 +215,12 @@ public class DataPermissionsService {
 
     private String searchField(String[] arr,String val){
         for (String s:arr) {
-            String[] ss=s.split(":");
-            if(ss[1].equals(val)){
-                return ss[0];
+            if(s.indexOf(":")==-1 && (s.endsWith("."+val) || s.equals(val))) return s;
+            if(s.indexOf(":")!=-1){
+                String[] ss=s.split(":");
+                if(ss[1].equals(val)){
+                    return ss[0];
+                }
             }
         }
         return null;
