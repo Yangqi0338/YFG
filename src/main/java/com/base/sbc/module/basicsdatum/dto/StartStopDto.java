@@ -29,4 +29,6 @@ public class StartStopDto {
     @NotBlank(message = "状态必填")
     private String status;
 
+    private String parentId;
+
 }
