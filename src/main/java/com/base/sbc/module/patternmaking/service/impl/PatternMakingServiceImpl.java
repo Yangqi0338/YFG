@@ -42,6 +42,8 @@ import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
@@ -127,7 +129,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             if (count != 0) {
                 throw new OtherException(dto.getSampleType() + "只能有一个");
             }
-        } else{
+        } else {
             rQw.ne("sample_type", "初版样");
             long count = count(rQw);
             if (count >= 5) {
@@ -173,7 +175,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public boolean  sampleDesignSend(StyleSendDto dto) {
+    public boolean sampleDesignSend(StyleSendDto dto) {
         EnumNodeStatus enumNodeStatus = EnumNodeStatus.DESIGN_SEND;
         EnumNodeStatus enumNodeStatus2 = EnumNodeStatus.TECHNICAL_ROOM_RECEIVED;
         nodeStatusService.nodeStatusChange(dto.getId(), enumNodeStatus.getNode(), enumNodeStatus.getStatus(), BaseGlobal.YES, BaseGlobal.YES);
@@ -226,7 +228,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 }
             }
         /*发送消息*/
-        messageUtils.sampleDesignSendMessage(patternMaking.getPatternRoomId(),patternMaking.getPatternNo(),baseController.getUser());
+        messageUtils.sampleDesignSendMessage(patternMaking.getPatternRoomId(), patternMaking.getPatternNo(), baseController.getUser());
+
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setDocumentId(operaLogEntity.getId());
+        operaLogEntity.setType("下发打板");
+        operaLogEntity.setDocumentName(patternMaking.getPatternNo());
+        operaLogEntity.setDocumentCode(patternMaking.getCode());
+        operaLogEntity.setName("打板指令");
+        this.saveLog(operaLogEntity);
         // 修改单据
         return update(uw);
     }
@@ -314,7 +324,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             styleService.updateById(style);
         }
         /*消息通知*/
-        messageUtils.prmSendMessage(dto.getPatternDesignId(),byId.getPatternNo(),baseController.getUser());
+        messageUtils.prmSendMessage(dto.getPatternDesignId(), byId.getPatternNo(), baseController.getUser());
         return true;
     }
 
@@ -421,10 +431,25 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public boolean breakOffPattern(String id, String flag) {
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.in("id", StrUtil.split(id, CharUtil.COMMA));
         uw.set("break_off_pattern",flag);
+        String[] split = id.split(",");
+        List<PatternMaking> patternMakings = this.listByIds(Arrays.asList(split));
+
+        for (PatternMaking patternMaking : patternMakings) {
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            operaLogEntity.setDocumentId(operaLogEntity.getId());
+            operaLogEntity.setType("中断打板");
+            operaLogEntity.setDocumentName(patternMaking.getPatternNo());
+            operaLogEntity.setDocumentCode(patternMaking.getCode());
+            operaLogEntity.setName("打板指令");
+            this.saveLog(operaLogEntity);
+        }
+
+        uw.set("break_off_pattern", flag);
         return update(uw);
     }
 
@@ -582,6 +607,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         attachmentService.saveAttachment(dto.getAttachmentList(), dto.getId(), AttachmentTypeConstant.PATTERN_MAKING_PATTERN);
         return true;
     }
+
     @Override
     public Map patternMakingSteps0(String userCompany) {
         Map<String, List<Map>> retMap = new HashMap<>();
@@ -589,7 +615,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         QueryWrapper<NodeStatus> nsQw = new QueryWrapper<>();
         nsQw.eq("company_code", userCompany);
         nsQw.eq("end_flg", BaseGlobal.NO);
-        nsQw.eq("del_flag",BaseGlobal.NO);
+        nsQw.eq("del_flag", BaseGlobal.NO);
         nsQw.orderByAsc("start_date");
         List<NodeStatus> nsList = nodeStatusService.nsWorkList(nsQw);
         if (CollUtil.isEmpty(nsList)) {
@@ -598,28 +624,29 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (CollUtil.isNotEmpty(nsList)) {
             List<String> pmIds = nsList.stream().map(NodeStatus::getDataId).collect(Collectors.toList());
             QueryWrapper<PatternMaking> pmQw = new QueryWrapper<>();
-            pmQw.in("id",pmIds);
+            pmQw.in("id", pmIds);
             List<Map<String, Object>> pmList = getBaseMapper().workPatternMakingSteps(pmQw);
             if (CollUtil.isEmpty(pmList)) {
                 return retMap;
             }
-            Map<String, String> nsMap = nsList.stream().collect(Collectors.toMap(v -> v.getDataId(),k -> k.getNode() + StrUtil.DASHED + k.getStatus(),  (a, b) -> b));
+            Map<String, String> nsMap = nsList.stream().collect(Collectors.toMap(v -> v.getDataId(), k -> k.getNode() + StrUtil.DASHED + k.getStatus(), (a, b) -> b));
             for (Map patternMaking : pmList) {
-                if(nsMap.containsKey(patternMaking.get("id"))){
-                    List<Map> patternMakings=null;
-                    if(retMap.containsKey(nsMap.get(patternMaking.get("id")))){
-                        patternMakings=retMap.get(nsMap.get(patternMaking.get("id")));
+                if (nsMap.containsKey(patternMaking.get("id"))) {
+                    List<Map> patternMakings = null;
+                    if (retMap.containsKey(nsMap.get(patternMaking.get("id")))) {
+                        patternMakings = retMap.get(nsMap.get(patternMaking.get("id")));
                         patternMakings.add(patternMaking);
-                    }else {
-                        patternMakings=new ArrayList<>();
+                    } else {
+                        patternMakings = new ArrayList<>();
                         patternMakings.add(patternMaking);
                     }
-                    retMap.put(nsMap.get(patternMaking.get("id")),patternMakings);
+                    retMap.put(nsMap.get(patternMaking.get("id")), patternMakings);
                 }
             }
         }
         return retMap;
     }
+
     @Override
     public PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto) {
         // 查询样衣信息
@@ -688,9 +715,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public PageInfo<NodeListVo> allProgressSteps(NodestatusPageSearchDto dto, String userCompany) {
         dto.setCompanyCode(userCompany);
         PageHelper.startPage(dto);
-        List<NodeListVo> list =this.getBaseMapper().getProgressSteps(dto);
+        List<NodeListVo> list = this.getBaseMapper().getProgressSteps(dto);
         return new PageInfo<>(list);
     }
+
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean nodeStatusChange(String userId, List<NodeStatusChangeDto> list, GroupUser groupUser) {
@@ -724,9 +752,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.set("receive_sample", BaseGlobal.YES);
         uw.set("receive_sample_date", new Date());
         /*消息通知*/
-        PatternMaking patternMaking= baseMapper.selectById(id);
-        Style style =  styleService.getById(patternMaking.getStyleId());
-        messageUtils.receiveSampleSendMessage(patternMaking.getPatternRoomId(),style.getDesignNo(),baseController.getUser());
+        PatternMaking patternMaking = baseMapper.selectById(id);
+        Style style = styleService.getById(patternMaking.getStyleId());
+        messageUtils.receiveSampleSendMessage(patternMaking.getPatternRoomId(), style.getDesignNo(), baseController.getUser());
         return update(uw);
     }
 
@@ -898,56 +926,58 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
 
-
     @Override
-    public ArrayList<ArrayList> versionComparisonViewWeekMonth(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String token) {
+    public ArrayList<ArrayList> versionComparisonViewWeekMonth(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String token) {
         // 1、获取缓存数据，过期时间，数据过期后会开启一个新的线程
-        Map<String, Object> dataMap = this.redisGetData(patternMakingWeekMonthViewDto,token,TechnologyBoardConstant.VERSION_COMPARISON);
+        Map<String, Object> dataMap = this.redisGetData(patternMakingWeekMonthViewDto, token, TechnologyBoardConstant.VERSION_COMPARISON);
         // 2、缓存为空则直接返回，
-        if(null == dataMap){
+        if (null == dataMap) {
             return null;
         }
-        return (ArrayList<ArrayList>)dataMap.get("dataLists");
+        return (ArrayList<ArrayList>) dataMap.get("dataLists");
     }
 
     /**
      * 品类汇总统计
+     *
      * @param patternMakingWeekMonthViewDto 技术看板DTO
-     * @param token token
+     * @param token                         token
      * @return 结果集
      */
     @Override
     public ArrayList<ArrayList> categorySummaryCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String token) {
         // 1、获取缓存数据，过期时间，数据过期后会开启一个新的线程
-        Map<String, Object> dataMap = this.redisGetData(patternMakingWeekMonthViewDto,token,TechnologyBoardConstant.CATEGORY_SUMMARY_COUNT);
+        Map<String, Object> dataMap = this.redisGetData(patternMakingWeekMonthViewDto, token, TechnologyBoardConstant.CATEGORY_SUMMARY_COUNT);
         // 2、缓存为空则直接返回，
-        if(null == dataMap){
+        if (null == dataMap) {
             return null;
         }
-        return (ArrayList<ArrayList>)dataMap.get("dataLists");
+        return (ArrayList<ArrayList>) dataMap.get("dataLists");
     }
 
     /**
      * 根据时间按周月 统计样衣产能总数
+     *
      * @param patternMakingWeekMonthViewDto 技术看板DTO
-     * @param token 令牌
+     * @param token                         令牌
      * @return 返回集合数据
      */
     @Override
     public ArrayList<ArrayList> sampleCapacityTotalCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String token) {
         // 1、获取缓存数据，过期时间，数据过期后会开启一个新的线程
-        Map<String, Object> dataMap = this.redisGetData(patternMakingWeekMonthViewDto,token,TechnologyBoardConstant.SAMPLE_CAPACITY_TOTAL);
+        Map<String, Object> dataMap = this.redisGetData(patternMakingWeekMonthViewDto, token, TechnologyBoardConstant.SAMPLE_CAPACITY_TOTAL);
         // 2、缓存为空则直接返回，
-        if(null == dataMap){
+        if (null == dataMap) {
             return null;
         }
-        return (ArrayList<ArrayList>)dataMap.get("dataLists");
+        return (ArrayList<ArrayList>) dataMap.get("dataLists");
     }
 
     /**
      * 产能对比统计
+     *
      * @param patternMakingWeekMonthViewDto 技术看板DTO
-     * @param token token
+     * @param token                         token
      * @return 返回集合数据
      */
     @Override
@@ -1070,22 +1100,22 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             return null;
         }
         List<String> userIds = userList.stream().map(UserCompany::getUserId).collect(Collectors.toList());
-        List<PatternMaking> patternMakings = getBaseMapper().getPatternMakingSewingStatus(new QueryWrapper<>().in("p.stitcher_id",userIds)
-                .isNotNull("p.stitcher_id").gt("p.sewing_status",0));
+        List<PatternMaking> patternMakings = getBaseMapper().getPatternMakingSewingStatus(new QueryWrapper<>().in("p.stitcher_id", userIds)
+                .isNotNull("p.stitcher_id").gt("p.sewing_status", 0));
 
-        Map<String, List<PatternMaking>> qtyMap = patternMakings.stream().collect(Collectors.groupingBy(PatternMaking :: getStitcherId));
+        Map<String, List<PatternMaking>> qtyMap = patternMakings.stream().collect(Collectors.groupingBy(PatternMaking::getStitcherId));
         List<PatternDesignVo> result = new ArrayList<>();
         for (UserCompany user : userList) {
-            PatternDesignVo patternDesignVo = BeanUtil.copyProperties(user,PatternDesignVo.class);
+            PatternDesignVo patternDesignVo = BeanUtil.copyProperties(user, PatternDesignVo.class);
             LinkedHashMap<String, Long> sampleTypeCount = new LinkedHashMap<>(16);
-            if(CollectionUtil.isNotEmpty(qtyMap.get(user.getUserId()))){
-                sampleTypeCount.put("未开始",qtyMap.get(user.getUserId()).stream().filter(f -> "1".equals(f.getSewingStatus())).count());
-                sampleTypeCount.put("进行中",qtyMap.get(user.getUserId()).stream().filter(f -> "2".equals(f.getSewingStatus())).count());
-                sampleTypeCount.put("已完成",qtyMap.get(user.getUserId()).stream().filter(f -> "3".equals(f.getSewingStatus())).count());
-            }else{
-                sampleTypeCount.put("未开始",0L);
-                sampleTypeCount.put("进行中",0L);
-                sampleTypeCount.put("已完成",0L);
+            if (CollectionUtil.isNotEmpty(qtyMap.get(user.getUserId()))) {
+                sampleTypeCount.put("未开始", qtyMap.get(user.getUserId()).stream().filter(f -> "1".equals(f.getSewingStatus())).count());
+                sampleTypeCount.put("进行中", qtyMap.get(user.getUserId()).stream().filter(f -> "2".equals(f.getSewingStatus())).count());
+                sampleTypeCount.put("已完成", qtyMap.get(user.getUserId()).stream().filter(f -> "3".equals(f.getSewingStatus())).count());
+            } else {
+                sampleTypeCount.put("未开始", 0L);
+                sampleTypeCount.put("进行中", 0L);
+                sampleTypeCount.put("已完成", 0L);
             }
             String deptName = Optional.ofNullable(user.getDeptList()).map(item -> item.stream().map(Dept::getName).collect(Collectors.joining(StrUtil.COMMA))).orElse("");
             patternDesignVo.setDeptName(deptName);
@@ -1108,7 +1138,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.CAPACITY_CONTRAST + patternMakingWeekMonthViewDto.getCompanyCode() + super.getUserId();
         try {
             // 1.1、缓存数据格式
-            Map<String,Object> dataMap = Maps.newHashMap();
+            Map<String, Object> dataMap = Maps.newHashMap();
             // 2、返回数据集合
             ArrayList<ArrayList> dataLists = new ArrayList<>();
             // 2.1、添加表头
@@ -1122,7 +1152,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             // 4.1、查询数据库  打版产能
             List<PatternMakingWeekMonthViewVo> contrastList = baseMapper.capacityContrastCapacityStatistics(patternMakingWeekMonthViewDto, qw);
             // 4.2、都为空 都返回
-            if(CollectionUtil.isEmpty(demandList) && CollectionUtil.isEmpty(contrastList)){
+            if (CollectionUtil.isEmpty(demandList) && CollectionUtil.isEmpty(contrastList)) {
                 return null;
             }
             // 5、取出两个集合的有数据的年份，然后汇总，去重有数据的年份
@@ -1140,14 +1170,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 // 添加年份
                 arrayList.add(yearWeek);
                 // 7.1、初版数据
-                if(null != demandMap.get(yearWeek)){
+                if (null != demandMap.get(yearWeek)) {
                     PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = demandMap.get(yearWeek);
                     arrayList.add(null != patternMakingWeekMonthViewVo.getRequirementNumSum() ? patternMakingWeekMonthViewVo.getRequirementNumSum() : String.valueOf(BaseGlobal.ZERO));
                 } else {
                     arrayList.add(String.valueOf(BaseGlobal.ZERO));
                 }
                 // 7.2、改版样数据
-                if(null != contrastMap.get(yearWeek)){
+                if (null != contrastMap.get(yearWeek)) {
                     PatternMakingWeekMonthViewVo revisionTwo = contrastMap.get(yearWeek);
                     arrayList.add(null != revisionTwo.getRequirementNumSum() ? revisionTwo.getRequirementNumSum() : String.valueOf(BaseGlobal.ZERO));
                 } else {
@@ -1157,27 +1187,28 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             }
 
             // 8. 缓存数据
-            this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.SECONDS);
+            this.setRedisData(dataMap, dataLists, key, lockKey, DateUtils.HOUR_MINUTES, DateUtils.SECONDS);
             return dataMap;
-        } catch (Exception e){
+        } catch (Exception e) {
             redisUtils.del(lockKey);
             log.error("设置缓存错误：", e);
             e.printStackTrace();
         } finally {
             redisUtils.del(lockKey);
         }
-       return null;
+        return null;
     }
 
     /**
      * 根据时间按周月 统计样衣产能总数  查询数据库
+     *
      * @param patternMakingWeekMonthViewDto 技术看板DTO
-     * @param key 缓存key
+     * @param key                           缓存key
      * @return 返回集合数据
      */
-    public Map<String,Object> querySampleCapacityTotalCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String key){
+    public Map<String, Object> querySampleCapacityTotalCount(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String key) {
         // 1、缓存数据格式
-        Map<String,Object> dataMap = Maps.newHashMap();
+        Map<String, Object> dataMap = Maps.newHashMap();
         // 2、返回数据集合
         ArrayList<ArrayList> dataLists = new ArrayList<>();
         // 2.1、添加表头
@@ -1191,7 +1222,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         QueryWrapper qw = new QueryWrapper();
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sample_capacity_total_count.getK(), "s.");
         List<PatternMakingWeekMonthViewVo> patternMakingWeekMonthViewVos = baseMapper.sampleCapacityTotalCount(patternMakingWeekMonthViewDto, qw);
-        if(CollectionUtil.isEmpty(patternMakingWeekMonthViewVos)){
+        if (CollectionUtil.isEmpty(patternMakingWeekMonthViewVos)) {
             return null;
         }
         // 6、解析数据 取出有数据的年份
@@ -1201,19 +1232,19 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 .collect(Collectors.groupingBy(item -> item.getStatus()));
         // 6.2、获取车缝完成数据
         Map<String, PatternMakingWeekMonthViewVo> garmentCuttingCompleteMap = Maps.newHashMap();
-        if(null != patternMakingAllMap.get(EnumNodeStatus.GARMENT_CUTTING_COMPLETE.getStatus())){
+        if (null != patternMakingAllMap.get(EnumNodeStatus.GARMENT_CUTTING_COMPLETE.getStatus())) {
             List<PatternMakingWeekMonthViewVo> garmentCuttingCompleteList = patternMakingAllMap.get(EnumNodeStatus.GARMENT_CUTTING_COMPLETE.getStatus());
             garmentCuttingCompleteMap = this.getDataByYearWeek(garmentCuttingCompleteList);
         }
         // 6.3、获取裁剪完成数据
         Map<String, PatternMakingWeekMonthViewVo> garmentSewingCompleteMap = Maps.newHashMap();
-        if(null != patternMakingAllMap.get(EnumNodeStatus.GARMENT_SEWING_COMPLETE.getStatus())){
+        if (null != patternMakingAllMap.get(EnumNodeStatus.GARMENT_SEWING_COMPLETE.getStatus())) {
             List<PatternMakingWeekMonthViewVo> garmentCuttingCompleteList = patternMakingAllMap.get(EnumNodeStatus.GARMENT_SEWING_COMPLETE.getStatus());
             garmentSewingCompleteMap = this.getDataByYearWeek(garmentCuttingCompleteList);
         }
         // 6.4、获取样衣完成数据
         Map<String, PatternMakingWeekMonthViewVo> garmentCompleteMap = Maps.newHashMap();
-        if(null != patternMakingAllMap.get(EnumNodeStatus.GARMENT_COMPLETE.getStatus())){
+        if (null != patternMakingAllMap.get(EnumNodeStatus.GARMENT_COMPLETE.getStatus())) {
             List<PatternMakingWeekMonthViewVo> garmentCuttingCompleteList = patternMakingAllMap.get(EnumNodeStatus.GARMENT_COMPLETE.getStatus());
             garmentCompleteMap = this.getDataByYearWeek(garmentCuttingCompleteList);
         }
@@ -1222,21 +1253,21 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             ArrayList<String> arrayList = new ArrayList<>();
             arrayList.add(yearWeek);
             // 7.1 拼接车缝完成数据 无数据默认为 0
-            if(null != garmentCuttingCompleteMap && null != garmentCuttingCompleteMap.get(yearWeek)){
+            if (null != garmentCuttingCompleteMap && null != garmentCuttingCompleteMap.get(yearWeek)) {
                 PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = garmentCuttingCompleteMap.get(yearWeek);
                 arrayList.add(patternMakingWeekMonthViewVo.getNum());
             } else {
                 arrayList.add(String.valueOf(BaseGlobal.ZERO));
             }
             // 7.2 拼接裁剪完成数据 无数据默认为 0
-            if(null != garmentSewingCompleteMap && null != garmentSewingCompleteMap.get(yearWeek)){
+            if (null != garmentSewingCompleteMap && null != garmentSewingCompleteMap.get(yearWeek)) {
                 PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = garmentSewingCompleteMap.get(yearWeek);
                 arrayList.add(patternMakingWeekMonthViewVo.getNum());
             } else {
                 arrayList.add(String.valueOf(BaseGlobal.ZERO));
             }
             // 7.3 拼接样衣完成数据 无数据默认为 0
-            if(null != garmentCompleteMap && null != garmentCompleteMap.get(yearWeek)){
+            if (null != garmentCompleteMap && null != garmentCompleteMap.get(yearWeek)) {
                 PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = garmentCompleteMap.get(yearWeek);
                 arrayList.add(patternMakingWeekMonthViewVo.getNum());
             } else {
@@ -1248,8 +1279,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.SAMPLE_CAPACITY_TOTAL + patternMakingWeekMonthViewDto.getCompanyCode() + super.getUserId();
         // 8.1 缓存数据
         try {
-            this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.SECONDS);
-        } catch (Exception e){
+            this.setRedisData(dataMap, dataLists, key, lockKey, DateUtils.HOUR_MINUTES, DateUtils.SECONDS);
+        } catch (Exception e) {
             redisUtils.del(lockKey);
             log.error("设置缓存错误：", e);
             e.printStackTrace();
@@ -1261,14 +1292,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
 
     /**
-     *  品类汇总统计
+     * 品类汇总统计
+     *
      * @param patternMakingWeekMonthViewDto 参数
-     * @param key 缓存key
+     * @param key                           缓存key
      * @return 数据
      */
-    private Map<String,Object> queryCategorySummaryCountData(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String key){
+    private Map<String, Object> queryCategorySummaryCountData(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String key) {
         // 1、缓存数据格式
-        Map<String,Object> dataMap = Maps.newHashMap();
+        Map<String, Object> dataMap = Maps.newHashMap();
         // 2、返回数据集合
         ArrayList<ArrayList> dataLists = new ArrayList<>();
         // 参数校验
@@ -1283,10 +1315,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
         QueryWrapper qw = new QueryWrapper();
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.CategorySummaryCount.getK(), "sd.");
-        List<PatternMakingWeekMonthViewVo> noPatternDataList = baseMapper.categorySummaryCount(patternMakingWeekMonthViewDto,qw);
+        List<PatternMakingWeekMonthViewVo> noPatternDataList = baseMapper.categorySummaryCount(patternMakingWeekMonthViewDto, qw);
         // 5.1.1、未打版数据转为Map用于组装数据返回前端
-        Map<String,PatternMakingWeekMonthViewVo> noPatternDataMap = Maps.newHashMap();
-        if(CollectionUtil.isNotEmpty(noPatternDataList)){
+        Map<String, PatternMakingWeekMonthViewVo> noPatternDataMap = Maps.newHashMap();
+        if (CollectionUtil.isNotEmpty(noPatternDataList)) {
             noPatternDataMap = this.getDataByYearWeek(noPatternDataList);
         }
         // 5.1.2、清空查询数据
@@ -1295,10 +1327,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         statusList.add(EnumNodeStatus.SAMPLE_TASK_IN_VERSION.getStatus());
         patternMakingWeekMonthViewDto.setStatusList(statusList);
         patternMakingWeekMonthViewDto.setSampleType(EnumNodeStatus.SAMPLE_TASK_IN_VERSION.getStatus());
-        List<PatternMakingWeekMonthViewVo> patternCentreDataList = baseMapper.categorySummaryCount(patternMakingWeekMonthViewDto,qw);
+        List<PatternMakingWeekMonthViewVo> patternCentreDataList = baseMapper.categorySummaryCount(patternMakingWeekMonthViewDto, qw);
         // 5.2.1 打版中数据转为Map用于组装数据返回前端
-        Map<String,PatternMakingWeekMonthViewVo> patternCentreDataMap = Maps.newHashMap();
-        if(CollectionUtil.isNotEmpty(noPatternDataList)){
+        Map<String, PatternMakingWeekMonthViewVo> patternCentreDataMap = Maps.newHashMap();
+        if (CollectionUtil.isNotEmpty(noPatternDataList)) {
             patternCentreDataMap = this.getDataByYearWeek(patternCentreDataList);
         }
         // 5.2.2 清空查询数据
@@ -1307,10 +1339,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         statusList.add(EnumNodeStatus.SAMPLE_TASK_VERSION_COMPLETE.getStatus());
         patternMakingWeekMonthViewDto.setStatusList(statusList);
         patternMakingWeekMonthViewDto.setSampleType(EnumNodeStatus.SAMPLE_TASK_VERSION_COMPLETE.getStatus());
-        List<PatternMakingWeekMonthViewVo> completePatternDataList = baseMapper.categorySummaryCount(patternMakingWeekMonthViewDto,qw);
-        Map<String,PatternMakingWeekMonthViewVo> completePatternDataMap = Maps.newHashMap();
+        List<PatternMakingWeekMonthViewVo> completePatternDataList = baseMapper.categorySummaryCount(patternMakingWeekMonthViewDto, qw);
+        Map<String, PatternMakingWeekMonthViewVo> completePatternDataMap = Maps.newHashMap();
         // 5.3.1 已完成数据转为Map用于组装数据返回前端
-        if(CollectionUtil.isNotEmpty(noPatternDataList)){
+        if (CollectionUtil.isNotEmpty(noPatternDataList)) {
             completePatternDataMap = this.getDataByYearWeek(completePatternDataList);
         }
         // 5.3.2 清空查询数据
@@ -1318,10 +1350,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 5.4 查询需求总数
         patternMakingWeekMonthViewDto.setStatusList(null);
         patternMakingWeekMonthViewDto.setSampleType("需求数总数");
-        List<PatternMakingWeekMonthViewVo> requirementNumSumDataList = baseMapper.categorySummaryCount(patternMakingWeekMonthViewDto,qw);
-        Map<String,PatternMakingWeekMonthViewVo> requirementNumSumDataMap = Maps.newHashMap();
+        List<PatternMakingWeekMonthViewVo> requirementNumSumDataList = baseMapper.categorySummaryCount(patternMakingWeekMonthViewDto, qw);
+        Map<String, PatternMakingWeekMonthViewVo> requirementNumSumDataMap = Maps.newHashMap();
         // 5.4.1  已完成数据转为Map用于组装数据返回前端
-        if(CollectionUtil.isNotEmpty(noPatternDataList)){
+        if (CollectionUtil.isNotEmpty(noPatternDataList)) {
             requirementNumSumDataMap = this.getDataByYearWeek(requirementNumSumDataList);
         }
         // 6、合并所有数据，取出有数据的年份
@@ -1337,13 +1369,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 6.5 取出有数据的年份并去重
         List<String> yearWeekList = patternDataAllList.stream().map(PatternMakingWeekMonthViewVo::getYearWeek).distinct().collect(Collectors.toList());
         // 7、拼接数据
-        this.joinCategorySummaryData(yearWeekList,dataLists,noPatternDataMap,patternCentreDataMap,completePatternDataMap,requirementNumSumDataMap);
+        this.joinCategorySummaryData(yearWeekList, dataLists, noPatternDataMap, patternCentreDataMap, completePatternDataMap, requirementNumSumDataMap);
         // 8、锁key
         String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.CATEGORY_SUMMARY_COUNT + patternMakingWeekMonthViewDto.getCompanyCode() + super.getUserId();
         // 8.1 缓存数据
         try {
-            this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.SECONDS);
-        } catch (Exception e){
+            this.setRedisData(dataMap, dataLists, key, lockKey, DateUtils.HOUR_MINUTES, DateUtils.SECONDS);
+        } catch (Exception e) {
             redisUtils.del(lockKey);
             log.error("设置缓存错误：", e);
             e.printStackTrace();
@@ -1355,14 +1387,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
 
     /**
-     *  根据时间按周月统计版类对比
+     * 根据时间按周月统计版类对比
+     *
      * @param patternMakingWeekMonthViewDto 技术看板DTO
-     * @param key 缓存KEY
+     * @param key                           缓存KEY
      * @return 根据周返回集合
      */
-    public Map<String,Object> queryVersionComparisonView(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String key){
+    public Map<String, Object> queryVersionComparisonView(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String key) {
         // 1、缓存数据格式
-        Map<String,Object> dataMap = Maps.newHashMap();
+        Map<String, Object> dataMap = Maps.newHashMap();
         // 2、返回数据集合
         ArrayList<ArrayList> dataLists = new ArrayList<>();
         // 2.1、添加表头
@@ -1372,9 +1405,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 5、从数据库查询数据
         QueryWrapper qw = new QueryWrapper();
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PatternMakingWeekMonthView.getK(), "sd.");
-        List<PatternMakingWeekMonthViewVo> dataList = baseMapper.versionComparisonViewWeekMonth(patternMakingWeekMonthViewDto,qw);
+        List<PatternMakingWeekMonthViewVo> dataList = baseMapper.versionComparisonViewWeekMonth(patternMakingWeekMonthViewDto, qw);
         // 6、判断数据是为空
-        if(CollectionUtil.isNotEmpty(dataList)){
+        if (CollectionUtil.isNotEmpty(dataList)) {
             // 6.1 取出所有的时间
             List<String> yearWeekList = dataList.stream().filter(item -> StrUtil.isNotBlank(item.getYearWeek()))
                     .map(m -> m.getYearWeek()).distinct().collect(Collectors.toList());
@@ -1386,7 +1419,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             List<PatternMakingWeekMonthViewVo> firstVersionList = null != sampleTypeMap.get("初版样") ? sampleTypeMap.get("初版样") : new ArrayList<>();
             //  6.3.1 根据时间转换为map
             Map<String, PatternMakingWeekMonthViewVo> firstVersionMap = Maps.newHashMap();
-            if(CollectionUtil.isNotEmpty(firstVersionList)){
+            if (CollectionUtil.isNotEmpty(firstVersionList)) {
                 firstVersionMap = firstVersionList.stream().filter(item -> StrUtil.isNotBlank(item.getYearWeek()))
                         .collect(Collectors.toMap(k -> k.getYearWeek(), v -> v, (a, b) -> b));
             }
@@ -1394,8 +1427,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             // 6.4 取出改版样数据
             List<PatternMakingWeekMonthViewVo> revisionList = null != sampleTypeMap.get("改版样") ? sampleTypeMap.get("改版样") : new ArrayList<>();
             //  6.4.1 根据时间把改版样数据转换为map
-            Map<String,PatternMakingWeekMonthViewVo> revisionMap = Maps.newHashMap();
-            if(CollectionUtil.isNotEmpty(revisionList)){
+            Map<String, PatternMakingWeekMonthViewVo> revisionMap = Maps.newHashMap();
+            if (CollectionUtil.isNotEmpty(revisionList)) {
                 revisionMap = revisionList.stream().filter(item -> StrUtil.isNotBlank(item.getYearWeek()))
                         .collect(Collectors.toMap(k -> k.getYearWeek(), v -> v, (a, b) -> b));
             }
@@ -1405,14 +1438,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 ArrayList<String> arrayList = new ArrayList();
                 arrayList.add(yearWeek);
                 // 7.1、初版数据
-                if(null != firstVersionMap.get(yearWeek)){
+                if (null != firstVersionMap.get(yearWeek)) {
                     PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = firstVersionMap.get(yearWeek);
                     arrayList.add(null != patternMakingWeekMonthViewVo.getNum() ? patternMakingWeekMonthViewVo.getNum() : String.valueOf(BaseGlobal.ZERO));
                 } else {
                     arrayList.add(String.valueOf(BaseGlobal.ZERO));
                 }
                 // 7.2、改版样数据
-                if(null != revisionMap.get(yearWeek)){
+                if (null != revisionMap.get(yearWeek)) {
                     PatternMakingWeekMonthViewVo revisionTwo = revisionMap.get(yearWeek);
                     arrayList.add(null != revisionTwo.getNum() ? revisionTwo.getNum() : String.valueOf(BaseGlobal.ZERO));
                 } else {
@@ -1425,8 +1458,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         String lockKey = TechnologyBoardConstant.CACHE_LOCK + TechnologyBoardConstant.VERSION_COMPARISON + patternMakingWeekMonthViewDto.getCompanyCode() + super.getUserId();
         // 8.1 缓存数据
         try {
-            this.setRedisData(dataMap,dataLists,key,lockKey,DateUtils.HOUR_MINUTES,DateUtils.SECONDS);
-        } catch (Exception e){
+            this.setRedisData(dataMap, dataLists, key, lockKey, DateUtils.HOUR_MINUTES, DateUtils.SECONDS);
+        } catch (Exception e) {
             redisUtils.del(lockKey);
             log.error("设置缓存错误：", e);
             e.printStackTrace();
@@ -1439,12 +1472,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     /**
      * 获取缓存的数据
+     *
      * @param patternMakingWeekMonthViewDto 技术看板DTO
-     * @param token token
-     * @param countType 根据统计类型查询对应的方法
+     * @param token                         token
+     * @param countType                     根据统计类型查询对应的方法
      * @return 数据
      */
-    private Map<String,Object> redisGetData(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String token,String countType){
+    private Map<String, Object> redisGetData(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String token, String countType) {
         // 1、组装缓存key
         StringBuffer key = new StringBuffer();
         key.append(countType);
@@ -1454,23 +1488,23 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         key.append(patternMakingWeekMonthViewDto.getEndTime());
         key.append(patternMakingWeekMonthViewDto.getNode());
         key.append(super.getUserId());
-        if(CollectionUtil.isNotEmpty(patternMakingWeekMonthViewDto.getCategoryIds())){
+        if (CollectionUtil.isNotEmpty(patternMakingWeekMonthViewDto.getCategoryIds())) {
             key.append(StringUtils.convertListToString(patternMakingWeekMonthViewDto.getCategoryIds()));
         }
         Object redisData = redisUtils.get(key.toString());
         // 拼接锁KEY 区分企业缓存数据
-        String lockKey =  TechnologyBoardConstant.CACHE_LOCK + countType + patternMakingWeekMonthViewDto.getCompanyCode() + super.getUserId();
+        String lockKey = TechnologyBoardConstant.CACHE_LOCK + countType + patternMakingWeekMonthViewDto.getCompanyCode() + super.getUserId();
         // 如果缓存没有直接返回null，开启线程查数据
-        if(null == redisData){
+        if (null == redisData) {
             // 获取锁，只能查询一次
-            if(null == redisUtils.get(lockKey)){
+            if (null == redisUtils.get(lockKey)) {
                 try {
                     // 加锁
                     redisUtils.set(lockKey, token + patternMakingWeekMonthViewDto.getCompanyCode());
                     // 查询数据库数据再缓存
-                    return this.getCountType(patternMakingWeekMonthViewDto,key.toString(),countType);
-                }catch (Exception e){
-                    log.error("统计接口报错:{}",e);
+                    return this.getCountType(patternMakingWeekMonthViewDto, key.toString(), countType);
+                } catch (Exception e) {
+                    log.error("统计接口报错:{}", e);
                     redisUtils.del(lockKey);
                 } finally {
                     // 无论成功报错 都会清除锁
@@ -1482,7 +1516,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             return null;
         }
         // 获取缓存数据
-        Map<String,Object> data = (Map<String,Object>)redisData;
+        Map<String, Object> data = (Map<String, Object>) redisData;
         // 获取设置的超时时间
         String timeOut = data.get(TechnologyBoardConstant.TIME_OUT).toString();
         // 获取缓存时间
@@ -1493,11 +1527,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         Date dateOut = DateUtils.getDateByDateType(dateString, timeOut, timeType);
         Date currentDate = new Date();
         // 设置数据的缓存时间已过 开启新的线程去查数据
-        if(dateOut.getTime() - currentDate.getTime() < 0){
+        if (dateOut.getTime() - currentDate.getTime() < 0) {
             // 设置锁，只能查询一次
-            if(null == redisUtils.get(lockKey)){
+            if (null == redisUtils.get(lockKey)) {
                 // 开启线程查数据
-                this.getData(patternMakingWeekMonthViewDto,key.toString(),token,lockKey,countType);
+                this.getData(patternMakingWeekMonthViewDto, key.toString(), token, lockKey, countType);
             }
         }
         return data;
@@ -1505,19 +1539,20 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     /**
      * 开启线程查数据
+     *
      * @param patternMakingWeekMonthViewDto 技术看板DTO
-     * @param key 缓存key
-     * @param token token
-     * @param lockKey 拼接的锁key
+     * @param key                           缓存key
+     * @param token                         token
+     * @param lockKey                       拼接的锁key
      */
-    private void getData(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto,String key,String token,String lockKey,String countType){
-        new Thread(()->{
+    private void getData(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String key, String token, String lockKey, String countType) {
+        new Thread(() -> {
             try {
                 redisUtils.set(lockKey, token + patternMakingWeekMonthViewDto.getCompanyCode());
                 // 查询数据库数据再缓存
-                this.getCountType(patternMakingWeekMonthViewDto,key.toString(),countType);
-            }catch (Exception e){
-                log.error("统计接口报错:{}",e);
+                this.getCountType(patternMakingWeekMonthViewDto, key.toString(), countType);
+            } catch (Exception e) {
+                log.error("统计接口报错:{}", e);
                 redisUtils.del(lockKey);
             } finally {
                 // 无论成功报错 都会清除锁
@@ -1528,65 +1563,67 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     /**
      * 根据类型调取那个方法
+     *
      * @param patternMakingWeekMonthViewDto 参数
-     * @param key 缓存key
-     * @param countType 统计类型
+     * @param key                           缓存key
+     * @param countType                     统计类型
      * @return 数据
      */
-    private Map<String,Object> getCountType(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String key, String countType){
-        if(countType.equals(TechnologyBoardConstant.VERSION_COMPARISON)){
+    private Map<String, Object> getCountType(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String key, String countType) {
+        if (countType.equals(TechnologyBoardConstant.VERSION_COMPARISON)) {
             // 版类对比统计
-            return this.queryVersionComparisonView(patternMakingWeekMonthViewDto,key);
-        } else if(countType.equals(TechnologyBoardConstant.CATEGORY_SUMMARY_COUNT)) {
+            return this.queryVersionComparisonView(patternMakingWeekMonthViewDto, key);
+        } else if (countType.equals(TechnologyBoardConstant.CATEGORY_SUMMARY_COUNT)) {
             // 品类汇总统计
-            return this.queryCategorySummaryCountData(patternMakingWeekMonthViewDto,key);
-        } else if(countType.equals(TechnologyBoardConstant.SAMPLE_CAPACITY_TOTAL)) {
+            return this.queryCategorySummaryCountData(patternMakingWeekMonthViewDto, key);
+        } else if (countType.equals(TechnologyBoardConstant.SAMPLE_CAPACITY_TOTAL)) {
             // 样衣产能总数统计
-            return this.querySampleCapacityTotalCount(patternMakingWeekMonthViewDto,key);
-        } else if(countType.equals(TechnologyBoardConstant.CAPACITY_CONTRAST)) {
+            return this.querySampleCapacityTotalCount(patternMakingWeekMonthViewDto, key);
+        } else if (countType.equals(TechnologyBoardConstant.CAPACITY_CONTRAST)) {
             // 产能对比统计
-            return this.capacityContrastStatisticsView(patternMakingWeekMonthViewDto,key);
+            return this.capacityContrastStatisticsView(patternMakingWeekMonthViewDto, key);
         }
         return null;
     }
 
     /**
      * 拼接数据 (方法建议不超过80行，超过则抽出来)
-     * @param yearWeekList 年份列表
-     * @param dataLists 返回数据列表
-     * @param noPatternDataMap 未开版数据
-     * @param patternCentreDataMap 开版中数据
-     * @param completePatternDataMap 已开版数据
+     *
+     * @param yearWeekList             年份列表
+     * @param dataLists                返回数据列表
+     * @param noPatternDataMap         未开版数据
+     * @param patternCentreDataMap     开版中数据
+     * @param completePatternDataMap   已开版数据
      * @param requirementNumSumDataMap 需求总数数据
      */
-    private void joinCategorySummaryData(List<String> yearWeekList,ArrayList<ArrayList> dataLists, Map<String,PatternMakingWeekMonthViewVo> noPatternDataMap, Map<String,PatternMakingWeekMonthViewVo> patternCentreDataMap
-            , Map<String,PatternMakingWeekMonthViewVo> completePatternDataMap, Map<String,PatternMakingWeekMonthViewVo> requirementNumSumDataMap){
+    private void joinCategorySummaryData(List<String> yearWeekList, ArrayList<ArrayList> dataLists, Map<String, PatternMakingWeekMonthViewVo> noPatternDataMap, Map<String, PatternMakingWeekMonthViewVo> patternCentreDataMap
+            , Map<String, PatternMakingWeekMonthViewVo> completePatternDataMap, Map<String, PatternMakingWeekMonthViewVo> requirementNumSumDataMap) {
         for (String yearWeek : yearWeekList) {
             ArrayList<String> arrayList = new ArrayList();
             arrayList.add(yearWeek);
             // 7.1 拼接未打版数据 无数据默认为 0
-            if(null != noPatternDataMap && null != noPatternDataMap.get(yearWeek)){
+            if (null != noPatternDataMap && null != noPatternDataMap.get(yearWeek)) {
                 PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = noPatternDataMap.get(yearWeek);
                 arrayList.add(patternMakingWeekMonthViewVo.getNum());
             } else {
                 arrayList.add(String.valueOf(BaseGlobal.ZERO));
             }
             // 7.2 拼接打版中数据 无数据默认为 0
-            if(null != patternCentreDataMap && null != patternCentreDataMap.get(yearWeek)){
+            if (null != patternCentreDataMap && null != patternCentreDataMap.get(yearWeek)) {
                 PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = patternCentreDataMap.get(yearWeek);
                 arrayList.add(patternMakingWeekMonthViewVo.getNum());
             } else {
                 arrayList.add(String.valueOf(BaseGlobal.ZERO));
             }
             // 7.3 拼接打版完成数据 无数据默认为 0
-            if(null != completePatternDataMap && null != completePatternDataMap.get(yearWeek)){
+            if (null != completePatternDataMap && null != completePatternDataMap.get(yearWeek)) {
                 PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = completePatternDataMap.get(yearWeek);
                 arrayList.add(patternMakingWeekMonthViewVo.getNum());
             } else {
                 arrayList.add(String.valueOf(BaseGlobal.ZERO));
             }
             // 7.4 拼接需求总数数据 无数据默认为 0
-            if(null != requirementNumSumDataMap && null != requirementNumSumDataMap.get(yearWeek)){
+            if (null != requirementNumSumDataMap && null != requirementNumSumDataMap.get(yearWeek)) {
                 PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = requirementNumSumDataMap.get(yearWeek);
                 arrayList.add(patternMakingWeekMonthViewVo.getRequirementNumSum());
             } else {
@@ -1598,11 +1635,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     /**
      * list转为map
+     *
      * @param list 要转map的数据
      * @return map
      */
-    private Map<String,PatternMakingWeekMonthViewVo> getDataByYearWeek(List<PatternMakingWeekMonthViewVo> list){
-        if(CollectionUtil.isEmpty(list)){
+    private Map<String, PatternMakingWeekMonthViewVo> getDataByYearWeek(List<PatternMakingWeekMonthViewVo> list) {
+        if (CollectionUtil.isEmpty(list)) {
             return null;
         }
         return list.stream().filter(item -> StrUtil.isNotBlank(item.getYearWeek()))
@@ -1611,15 +1649,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     /**
      * 参数校验
+     *
      * @param patternMakingWeekMonthViewDto 校验的参数
      */
-    private void paramCheck(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto){
+    private void paramCheck(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
         // 3.1、时间为空 默认查询当前时间的前一个月数据
-        if(StringUtils.isBlank(patternMakingWeekMonthViewDto.getStartTime()) || StringUtils.isBlank(patternMakingWeekMonthViewDto.getEndTime()) ){
+        if (StringUtils.isBlank(patternMakingWeekMonthViewDto.getStartTime()) || StringUtils.isBlank(patternMakingWeekMonthViewDto.getEndTime())) {
             Date date = new Date();
             // 获取过去时间 默认一个月
-            if(StringUtils.isNotBlank(patternMakingWeekMonthViewDto.getWeeklyMonth())){
-                if(BaseGlobal.WEEK.equals(patternMakingWeekMonthViewDto.getWeeklyMonth())){
+            if (StringUtils.isNotBlank(patternMakingWeekMonthViewDto.getWeeklyMonth())) {
+                if (BaseGlobal.WEEK.equals(patternMakingWeekMonthViewDto.getWeeklyMonth())) {
                     patternMakingWeekMonthViewDto.setStartTime(DateUtils.getMonthAgo(date));
                 } else {
                     // 获取过去一年的时间
@@ -1632,35 +1671,36 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             patternMakingWeekMonthViewDto.setEndTime(DateUtils.formatDateTime(date));
         }
         // 4、判断是否是根据周、月查询
-        if(StringUtils.isBlank(patternMakingWeekMonthViewDto.getWeeklyMonth()) || (!patternMakingWeekMonthViewDto.getWeeklyMonth().equals(BaseGlobal.WEEK) && !patternMakingWeekMonthViewDto.getWeeklyMonth().equals(BaseGlobal.MONTH))){
-            patternMakingWeekMonthViewDto.setWeeklyMonth( BaseGlobal.WEEK);
+        if (StringUtils.isBlank(patternMakingWeekMonthViewDto.getWeeklyMonth()) || (!patternMakingWeekMonthViewDto.getWeeklyMonth().equals(BaseGlobal.WEEK) && !patternMakingWeekMonthViewDto.getWeeklyMonth().equals(BaseGlobal.MONTH))) {
+            patternMakingWeekMonthViewDto.setWeeklyMonth(BaseGlobal.WEEK);
         }
         // 默认为打版任务节点
-        if(StringUtils.isBlank(patternMakingWeekMonthViewDto.getNode())){
+        if (StringUtils.isBlank(patternMakingWeekMonthViewDto.getNode())) {
             patternMakingWeekMonthViewDto.setNode(EnumNodeStatus.SAMPLE_TASK_VERSION_COMPLETE.getNode());
         }
 
     }
 
     /**
-     *  设置缓存数据
-     * @param dataMap 缓存拼接的数据
+     * 设置缓存数据
+     *
+     * @param dataMap   缓存拼接的数据
      * @param dataLists 缓存数据
-     * @param key 缓存key
-     * @param lockKey 锁key
-     * @param timeOut 缓存时间
-     * @param timeType 缓存类型 DateUtils 如 分、时、天
+     * @param key       缓存key
+     * @param lockKey   锁key
+     * @param timeOut   缓存时间
+     * @param timeType  缓存类型 DateUtils 如 分、时、天
      */
-    private void setRedisData(Map<String,Object> dataMap, ArrayList<ArrayList> dataLists, String key,String lockKey,int timeOut,String timeType){
+    private void setRedisData(Map<String, Object> dataMap, ArrayList<ArrayList> dataLists, String key, String lockKey, int timeOut, String timeType) {
         // 8、放入Redis缓存在数据里面设置过期时间
-        dataMap.put("dataLists",dataLists);
+        dataMap.put("dataLists", dataLists);
         // 8.1 数据里设置过期时间为一小时
         dataMap.put(TechnologyBoardConstant.TIME_OUT, timeOut);
         // 8.2 设置过期时间类型
         dataMap.put(TechnologyBoardConstant.TIME_TYPE, timeType);
         // 8.3 数据缓存时间
         dataMap.put(TechnologyBoardConstant.TIME, DateUtils.formatDateTime(new Date()));
-        redisUtils.set(key,dataMap);
+        redisUtils.set(key, dataMap);
         // 9、解除缓存锁
         redisUtils.del(lockKey);
     }
