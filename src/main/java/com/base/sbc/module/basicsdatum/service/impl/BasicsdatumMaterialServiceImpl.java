@@ -37,8 +37,10 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabric.service.BasicFabricLibraryService;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
@@ -214,7 +216,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             smpService.materials(entity.getId().split(","));
         }
         // 保存主信息
-        this.saveOrUpdate(entity);
+        this.saveOrUpdate(entity,"物料档案",entity.getMaterialCodeName(),entity.getMaterialCode());
         return getBasicsdatumMaterial(entity.getId());
     }
 
@@ -347,12 +349,14 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             }
         }
 
+        this.startStopLog(dto);
         return this.update(null, uw);
     }
 
     @Override
-    public Boolean delBasicsdatumMaterial(String id) {
-        List<String> list = StringUtils.convertList(id);
+    @Transactional
+    public Boolean delBasicsdatumMaterial(RemoveDto removeDto) {
+        List<String> list = StringUtils.convertList(removeDto.getIds());
         BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
         qc.select("material_code");
         qc.eq("company_code", this.getCompanyCode());
@@ -360,7 +364,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         List<String> list2 = this.list(qc).stream().map(BasicsdatumMaterial::getMaterialCode)
                 .collect(Collectors.toList());
         // 删除主表
-        this.removeBatchByIds(list);
+        this.removeByIds(removeDto);
         // 删除子表颜色和规格及报价
         this.materialWidthService.remove(new QueryWrapper<BasicsdatumMaterialWidth>()
                 .eq("company_code", this.getCompanyCode()).in("material_code", list2));

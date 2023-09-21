@@ -413,12 +413,13 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	/**
 	 * 面料成分下发状态 0未发送,1发送成功，2发送失败,3重新打开
 	 */
+	@ApiModelProperty(value = "面料成分下发状态 0未发送,1发送成功，2发送失败,3重新打开")
     private String compositionSendStatus;
 
 	/**
 	 * 业务类型:material.物料、devApply.面料开发申请、dev.面料开发、fabricLibrary.面料基础库
 	 */
-	@ApiModelProperty(value = "业务类型:material.物料、devApply.面料开发申请、dev.面料开发、fabricLibrary.面料基础库")
+	//@ApiModelProperty(value = "业务类型:material.物料、devApply.面料开发申请、dev.面料开发、fabricLibrary.面料基础库")
 	private String bizType;
 
 	/**

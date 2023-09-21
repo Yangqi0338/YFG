@@ -29,6 +29,7 @@ import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.github.pagehelper.PageInfo;
@@ -50,7 +51,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 
 	Boolean startStopBasicsdatumMaterial(StartStopDto dto);
 
-	Boolean delBasicsdatumMaterial(String id);
+	Boolean delBasicsdatumMaterial(RemoveDto removeDto);
 
 	BasicsdatumMaterialVo getBasicsdatumMaterial(String id);
 

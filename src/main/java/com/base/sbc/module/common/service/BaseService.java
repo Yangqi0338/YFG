@@ -2,9 +2,9 @@ package com.base.sbc.module.common.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -100,4 +100,11 @@ public interface BaseService<T> extends IService<T> {
 
 
     boolean saveLog(OperaLogEntity operaLogEntity);
+
+
+    /**
+     * 启用与停用并且记录日志
+     */
+    void startStopLog(StartStopDto startStopDto);
+
 }

@@ -17,6 +17,7 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
@@ -188,8 +189,10 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     /**
      * 新增或者更新,并且记录日志
      *
-     * @param entity 实体对象
-     * @param name   模块名称
+     * @param entity       实体对象
+     * @param name         模块名称
+     * @param documentName 名称
+     * @param documentCode 编码
      * @return boolean
      */
     @Override
@@ -460,6 +463,19 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     @Override
     public boolean saveLog(OperaLogEntity operaLogEntity) {
         return operaLogService.save(operaLogEntity);
+    }
+
+    /**
+     * 启用与停用记录日志
+     */
+    @Override
+    public void startStopLog(StartStopDto startStopDto) {
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setDocumentName(startStopDto.getNames());
+        operaLogEntity.setDocumentCode(startStopDto.getCodes());
+        operaLogEntity.setType("0".equals(startStopDto.getStatus()) ? "启用" : "停用");
+        operaLogEntity.setName(startStopDto.getName());
+        this.saveLog(operaLogEntity);
     }
 
 
