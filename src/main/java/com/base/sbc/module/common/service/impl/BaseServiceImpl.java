@@ -17,6 +17,7 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.operaLog.service.OperaLogService;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -173,11 +175,29 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      * @param name   模块名称
      * @return boolean
      */
+    @Override
     public boolean saveOrUpdate(T entity, String name) {
         if (this.getById(entity.getId()) != null) {
             return this.updateById(entity, name);
         } else {
             return this.save(entity, name);
+        }
+    }
+
+
+    /**
+     * 新增或者更新,并且记录日志
+     *
+     * @param entity 实体对象
+     * @param name   模块名称
+     * @return boolean
+     */
+    @Override
+    public boolean saveOrUpdate(T entity, String name, String documentName, String documentCode) {
+        if (this.getById(entity.getId()) != null) {
+            return this.updateById(entity, name, documentName, documentCode);
+        } else {
+            return this.save(entity, name, documentName, documentCode);
         }
     }
 
@@ -192,6 +212,21 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         boolean save = this.save(entity);
         if (save) {
             this.saveOperaLog(type, name, entity, null);
+        }
+        return save;
+    }
+
+    /**
+     * @param entity
+     * @param name   模块名称
+     * @return
+     */
+    @Override
+    public boolean save(T entity, String name, String documentName, String documentCode) {
+        String type = "新增";
+        boolean save = this.save(entity);
+        if (save) {
+            this.saveOperaLog(type, name, documentName, documentCode, entity, null);
         }
         return save;
     }
@@ -236,6 +271,23 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      * @return
      */
     @Override
+    public boolean updateById(T entity, String name, String documentName, String documentCode) {
+        String type = "修改";
+        T oldEntity = this.getById(entity.getId());
+        boolean update = this.updateById(entity);
+        if (update) {
+            this.saveOperaLog(type, name, documentName, documentCode, entity, oldEntity);
+        }
+        return update;
+    }
+
+
+    /**
+     * @param entity
+     * @param name   模块名称
+     * @return
+     */
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateBatchById(List<T> entity, String name) {
         if (CollUtil.isEmpty(entity)) {
@@ -271,10 +323,15 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
                     jsonArray = CommonUtils.recordField(t, t1);
                 }
             }
+            String documentCode = this.getFieldValueByName("code", newObject);
+            String documentName = this.getFieldValueByName("name", newObject);
+
             OperaLogEntity operaLogEntity = new OperaLogEntity();
             operaLogEntity.setDocumentId(t.getId());
             operaLogEntity.setName(name);
             operaLogEntity.setType(type);
+            operaLogEntity.setDocumentName(documentName);
+            operaLogEntity.setDocumentCode(documentCode);
             operaLogEntity.setJsonContent(jsonArray.toJSONString());
             operaLogEntityList.add(operaLogEntity);
         }
@@ -291,11 +348,28 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      */
     @Override
     public void saveOperaLog(String type, String name, T newObject, T oldObject) {
+        String documentCode = this.getFieldValueByName("code", newObject);
+        String documentName = this.getFieldValueByName("name", newObject);
+        this.saveOperaLog(type, name, documentName, documentCode, newObject, oldObject);
+    }
+
+    /**
+     * 保存操作日志
+     *
+     * @param type      操作类型  新增 修改 删除
+     * @param name      模块名称
+     * @param newObject 新对象
+     * @param oldObject 旧对象
+     */
+    @Override
+    public void saveOperaLog(String type, String name, String documentName, String documentCode, T newObject, T oldObject) {
         OperaLogEntity operaLogEntity = new OperaLogEntity();
         JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
         operaLogEntity.setDocumentId(newObject.getId());
         operaLogEntity.setJsonContent(jsonArray.toJSONString());
         operaLogEntity.setName(name);
+        operaLogEntity.setDocumentName(documentName);
+        operaLogEntity.setDocumentCode(documentCode);
         operaLogEntity.setType(type);
         operaLogService.save(operaLogEntity);
     }
@@ -369,31 +443,18 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         return b;
     }
 
-    /**
-     * @param ids
-     * @param name
-     * @return
-     */
     @Override
     @Transactional
-    public boolean removeByIds(List<String> ids, String name) {
+    public boolean removeByIds(RemoveDto removeDto) {
         OperaLogEntity operaLogEntity = new OperaLogEntity();
-        operaLogEntity.setName(name);
+        Set<String> ids = Collections.singleton(removeDto.getIds());
+        operaLogEntity.setName(removeDto.getName());
         operaLogEntity.setType("删除");
         operaLogEntity.setContent(CollUtil.join(ids, StrUtil.COMMA));
+        operaLogEntity.setDocumentName(removeDto.getNames());
+        operaLogEntity.setDocumentCode(removeDto.getCodes());
         operaLogService.save(operaLogEntity);
         return super.removeByIds(ids);
-    }
-
-    /**
-     * @param id
-     * @param name
-     * @return
-     */
-    @Override
-    @Transactional(rollbackFor = {Exception.class})
-    public boolean removeById(String id, String name) {
-        return this.removeByIds(Collections.singletonList(id), name);
     }
 
     @Override
@@ -401,5 +462,18 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         return operaLogService.save(operaLogEntity);
     }
 
+
+    /**
+     * 根据字段名称获取对象的值
+     */
+    private String getFieldValueByName(String fieldName, Object o) {
+        try {
+            Field field = o.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return (String) field.get(o);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
 
 }

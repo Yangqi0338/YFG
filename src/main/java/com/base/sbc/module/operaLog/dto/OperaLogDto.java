@@ -15,6 +15,10 @@ public class OperaLogDto extends Page {
      * 单据id
      */
     private String documentId;
+
+    private String documentCode;
+
+    private String documentName;
     /**
      * 操作类型
      */

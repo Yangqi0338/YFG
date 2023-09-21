@@ -9,6 +9,7 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampProcessDatabaseDto;
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
 import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
 import com.base.sbc.module.basicsdatum.service.ProcessDatabaseService;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -72,7 +74,6 @@ public class ProcessDatabaseController extends BaseController {
      */
     @ApiOperation(value = "新增或者修改工艺资料库")
     @PostMapping("/save")
-    @OperaLog(value = "工艺资料库", operationType = OperationType.INSERT_UPDATE, pathSpEL = PackUtils.pathSqEL, service = ProcessDatabaseService.class)
     public Boolean save(@RequestBody AddRevampProcessDatabaseDto addRevampProcessDatabaseDto){
         return   processDatabaseService.save(addRevampProcessDatabaseDto);
     }
@@ -93,9 +94,8 @@ public class ProcessDatabaseController extends BaseController {
      */
     @ApiOperation(value = "根据id删除")
     @DeleteMapping("/delById")
-    @OperaLog(value = "工艺资料库", operationType = OperationType.DELETE, service = ProcessDatabaseService.class)
-    public ApiResult delById(String id) {
-        return deleteSuccess(processDatabaseService.removeById(id));
+    public ApiResult delById(RemoveDto removeDto) {
+        return deleteSuccess(processDatabaseService.removeByIds(removeDto));
     }
 
     /**
@@ -103,9 +103,8 @@ public class ProcessDatabaseController extends BaseController {
      */
     @ApiOperation(value = "根据id数组批量删除删除")
     @DeleteMapping("/delByIds")
-    @OperaLog(value = "工艺资料库", operationType = OperationType.DELETE, service = ProcessDatabaseService.class)
-    public ApiResult delById(String[] ids) {
-        return deleteSuccess(processDatabaseService.removeBatchByIds(Arrays.asList(ids)));
+    public ApiResult delByIds(RemoveDto removeDto) {
+        return deleteSuccess(processDatabaseService.removeByIds(removeDto));
     }
 
     @ApiOperation(value = "获取所有模板部件")
