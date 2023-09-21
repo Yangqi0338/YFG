@@ -265,8 +265,8 @@ public class BasicsdatumMaterialController extends BaseController {
 
     @ApiOperation(value = "物料规格:删除规格")
     @DeleteMapping("/delBasicsdatumMaterialWidth")
-    public Boolean delBasicsdatumMaterialWidth(@RequestParam(value = "id") @NotBlank(message = "id不能为空") String id) {
-        return basicsdatumMaterialService.delBasicsdatumMaterialWidth(id);
+    public Boolean delBasicsdatumMaterialWidth(RemoveDto removeDto) {
+        return basicsdatumMaterialService.delBasicsdatumMaterialWidth(removeDto);
     }
 
     @ApiOperation(value = "物料颜色:查询颜色列表")

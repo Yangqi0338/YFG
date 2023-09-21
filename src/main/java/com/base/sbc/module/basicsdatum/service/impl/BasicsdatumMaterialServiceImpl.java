@@ -15,6 +15,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -498,7 +499,10 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             throw new OtherException("当前规格已存在");
         }
         BasicsdatumMaterialWidth entity = CopyUtil.copy(dto, BasicsdatumMaterialWidth.class);
+        BasicsdatumMaterialWidth oldEntity = null;
+        String type=null;
         if ("-1".equals(entity.getId())) {
+            type="新增";
             entity.setId(null);
             //生成规格编码,先去查询最大的规格编码
             String code = dto.getMaterialCode() + "SP";
@@ -510,11 +514,29 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 i++;
                 String formatted = String.format("%03d", i);
                 entity.setWidthCode(code + formatted);
+
             } else {
                 entity.setWidthCode(code + "001");
+
             }
+        }else {
+            type="修改";
+            oldEntity = materialWidthService.getById(entity.getId());
         }
-        return this.materialWidthService.saveOrUpdate(entity);
+
+        boolean b = this.materialWidthService.saveOrUpdate(entity);
+        if (b){
+            OperaLogEntity operaLogEntity = new OperaLogEntity();
+            operaLogEntity.setName("面料门幅/规格");
+            operaLogEntity.setType(type);
+            operaLogEntity.setDocumentId(entity.getId());
+            operaLogEntity.setDocumentCode(entity.getWidthCode());
+            operaLogEntity.setDocumentName(entity.getName());
+            operaLogEntity.setParentId(dto.getParentId());
+
+            materialWidthService.saveOrUpdateOperaLog(entity,oldEntity,operaLogEntity);
+        }
+        return b;
     }
 
     @Override
@@ -535,13 +557,13 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 }
             }
         }
-
+        this.startStopLog(dto);
         return this.materialWidthService.update(null, uw);
     }
 
     @Override
-    public Boolean delBasicsdatumMaterialWidth(String id) {
-        return this.materialWidthService.removeBatchByIds(StringUtils.convertList(id));
+    public Boolean delBasicsdatumMaterialWidth(RemoveDto removeDto) {
+        return this.materialWidthService.removeByIds(removeDto);
     }
 
     @Override

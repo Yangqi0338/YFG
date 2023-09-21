@@ -61,7 +61,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 
 	Boolean startStopBasicsdatumMaterialWidth(StartStopDto dto);
 
-	Boolean delBasicsdatumMaterialWidth(String id);
+	Boolean delBasicsdatumMaterialWidth(RemoveDto removeDto);
 
 	PageInfo<BasicsdatumMaterialColorPageVo> getBasicsdatumMaterialColorList(BasicsdatumMaterialColorQueryDto dto);
 

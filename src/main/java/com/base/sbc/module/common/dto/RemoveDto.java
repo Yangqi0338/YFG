@@ -22,4 +22,6 @@ public class RemoveDto {
     @ApiModelProperty(value = "模块名称")
     private String name;
 
+    private String parentId;
+
 }

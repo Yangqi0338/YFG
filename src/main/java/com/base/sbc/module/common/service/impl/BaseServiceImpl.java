@@ -455,6 +455,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         operaLogEntity.setType("删除");
         operaLogEntity.setContent(removeDto.getIds());
         operaLogEntity.setDocumentName(removeDto.getNames());
+        operaLogEntity.setParentId(removeDto.getParentId());
         operaLogEntity.setDocumentCode(removeDto.getCodes());
         operaLogService.save(operaLogEntity);
         return super.removeByIds(ids);
@@ -475,6 +476,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         operaLogEntity.setDocumentCode(startStopDto.getCodes());
         operaLogEntity.setType("0".equals(startStopDto.getStatus()) ? "启用" : "停用");
         operaLogEntity.setName(startStopDto.getName());
+        operaLogEntity.setParentId(startStopDto.getParentId());
         this.saveLog(operaLogEntity);
     }
 
