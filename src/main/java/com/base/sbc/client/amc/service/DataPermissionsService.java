@@ -91,8 +91,7 @@ public class DataPermissionsService {
             return;
         }
         UserCompany userCompany = companyUserInfo.get();
-        String dataPermissionsKey = "USERISOLATION:" + userCompany.getCompanyCode() + ":" + userCompany.getUserId() + ":";
-        Map read = getDataPermissionsForQw(businessType, "read", tablePre,authorityFields,isAssignFields, dataPermissionsKey);
+        Map read = getDataPermissionsForQw(userCompany.getCompanyCode(),userCompany.getUserId(),businessType, "read", tablePre,authorityFields,isAssignFields);
         boolean flg = MapUtil.getBool(read, "authorityState", false);
         String sql = MapUtil.getStr(read, "authorityField");
         if (flg && StrUtil.isNotBlank(sql)) {
@@ -109,7 +108,8 @@ public class DataPermissionsService {
      * @return
      * @see DataPermissionsBusinessTypeEnum
      */
-    public <T> Map getDataPermissionsForQw(String businessType, String operateType, String tablePre, String[] authorityFields, boolean isAssignFields, String dataPermissionsKey) {
+    public <T> Map getDataPermissionsForQw(String companyCode,String uerId,String businessType, String operateType, String tablePre, String[] authorityFields, boolean isAssignFields) {
+        String dataPermissionsKey = "USERISOLATION:" + companyCode + ":" +businessType+":"+ uerId + ":";
         //删除amc的数据权限状态
         RedisUtils redisUtils1=new RedisUtils();
         redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplateAmc"));
@@ -125,13 +125,14 @@ public class DataPermissionsService {
         Map<String, Object> ret = new HashMap<>();
         ret.put("authorityState", Boolean.TRUE);
         ret.put("authorityField","");
+        ret.put("dataPermissionsKey",dataPermissionsKey);
         List<DataPermissionVO> dataPermissionsList = null;
-        if (!redisUtils.hasKey(dataPermissionsKey+operateType+"@" + businessType)) {
+        if (!redisUtils.hasKey(dataPermissionsKey+operateType)) {
             dataPermissionsList = this.getDataPermissions(businessType,operateType);
             //默认开启角色的数据隔离
-            redisUtils.set(dataPermissionsKey +operateType+"@" + businessType, dataPermissionsList, 60 * 3);//如数据的隔离3分钟更新一次
+            redisUtils.set(dataPermissionsKey +operateType, dataPermissionsList, -1);//如数据的隔离不失效
         } else {
-            dataPermissionsList = (List<DataPermissionVO>) redisUtils.get(dataPermissionsKey +operateType+"@" + businessType);
+            dataPermissionsList = (List<DataPermissionVO>) redisUtils.get(dataPermissionsKey +operateType);
         }
         if (CollectionUtils.isEmpty(dataPermissionsList)) {
             return ret;

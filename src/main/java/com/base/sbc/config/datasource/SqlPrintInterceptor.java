@@ -148,9 +148,8 @@ public class SqlPrintInterceptor implements Interceptor {
 
                 //sql语句类型 select、delete、insert、update
                 String operateType=sqlCommandType.equals("SELECT")?"read":"write";
-                String dataPermissionsKey = "USERISOLATION:"+usercompany+":"+userId+":";
                 DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
-                Map<String,Object> entity=dataPermissionsService.getDataPermissionsForQw(dataIsolation.authority(),operateType,tablePre,dataIsolation.authorityFields(),dataIsolation.isAssignFields(),dataPermissionsKey);
+                Map<String,Object> entity=dataPermissionsService.getDataPermissionsForQw(usercompany,userId,dataIsolation.authority(),operateType,tablePre,dataIsolation.authorityFields(),dataIsolation.isAssignFields());
 
                 String authorityField = entity.containsKey("authorityField")?(String)entity.get("authorityField"):null;
                 Boolean authorityState=entity.containsKey("authorityState")?(Boolean)entity.get("authorityState"):false;
