@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.dto;
 
+import com.base.sbc.module.style.entity.StyleColor;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,7 +26,7 @@ import java.util.Date;
  */
 @Data
 @ApiModel("样衣-款式配色 SampleStyleColor")
-public class AddRevampStyleColorDto {
+public class AddRevampStyleColorDto extends StyleColor {
 
     private String id;
     /** 款式(大货款号) */
