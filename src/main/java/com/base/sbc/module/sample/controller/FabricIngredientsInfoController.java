@@ -10,6 +10,7 @@ import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.sample.dto.QueryFabricIngredientsInfoDto;
 import com.base.sbc.module.sample.entity.FabricIngredientsInfo;
 import com.base.sbc.module.sample.service.FabricIngredientsInfoService;
@@ -70,8 +71,8 @@ public class FabricIngredientsInfoController{
 
 	@ApiOperation(value = "删除调样-辅料信息")
 	@DeleteMapping("/delFabricIngredientsInfo")
-	public Boolean delFabricIngredientsInfo(@Valid @NotBlank(message = "编号id不能为空") String id) {
-	return fabricIngredientsInfoService.delFabricIngredientsInfo(id);
+	public Boolean delFabricIngredientsInfo(RemoveDto removeDto) {
+	return fabricIngredientsInfoService.delFabricIngredientsInfo(removeDto);
 	}
 
 	@ApiOperation(value = "明细-通过id查询")

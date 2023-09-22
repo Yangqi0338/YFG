@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.entity;
 import java.util.Date;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -29,7 +31,12 @@ public class FabricIngredientsInfo extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
-
+    @TableField(exist = false)
+    private String codeName;
+    public String getCodeName() {
+        String format = String.format("%06d", this.getCode());
+        return "fldyd"+format;
+    }
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
@@ -129,6 +136,9 @@ public class FabricIngredientsInfo extends BaseDataEntity<String> {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    private Integer code;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

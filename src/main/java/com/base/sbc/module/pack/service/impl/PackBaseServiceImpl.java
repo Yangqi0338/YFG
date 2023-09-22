@@ -71,7 +71,7 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
     @Override
     public Integer addAndUpdateAndDelList(List<T> entityList, QueryWrapper<T> queryWrapper, boolean delFlg) {
         String companyCode = userUtils.getCompanyCode();
-        //分类
+
         // 新增的
         List<T> addList = new ArrayList<>();
         // 修改的
@@ -119,6 +119,12 @@ public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends Bas
         updateLog.setType("修改");
         updateBatchOperaLog(updateList, dbList, updateLog);
         return entityList.size();
+
+    }
+
+    @Override
+    public Integer addAndUpdateAndDelListSub(List<T> entityList, QueryWrapper<T> queryWrapper, String pid) {
+        return 0;
 
     }
 

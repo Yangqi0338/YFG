@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.vo;
 
+import com.base.sbc.module.sample.entity.FabricIngredientsInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,7 +25,7 @@ import java.util.Date;
 @Data
 
 @ApiModel("调样-辅料信息 FabricIngredientsInfo")
-public class FabricIngredientsInfoVo  {
+public class    FabricIngredientsInfoVo  extends FabricIngredientsInfo {
 
     private String id;
     /** 品类id */

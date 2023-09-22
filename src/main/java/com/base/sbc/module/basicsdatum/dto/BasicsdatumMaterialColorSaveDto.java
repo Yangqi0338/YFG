@@ -1,5 +1,6 @@
 package com.base.sbc.module.basicsdatum.dto;
 
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import org.hibernate.validator.constraints.NotBlank;
 
 import io.swagger.annotations.ApiModel;
@@ -15,7 +16,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("保存物料颜色")
-public class BasicsdatumMaterialColorSaveDto {
+public class BasicsdatumMaterialColorSaveDto extends BasicsdatumMaterialColor {
 
 	@NotBlank(message = "ID必填,新增-1")
 	@ApiModelProperty(value = "id", required = true)
@@ -46,5 +47,8 @@ public class BasicsdatumMaterialColorSaveDto {
 	 */
 	@ApiModelProperty(value = "下发状态:0未下发,1已下发")
 	private String scmStatus;
+
+
+	private String parentId;
 
 }

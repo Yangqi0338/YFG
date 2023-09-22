@@ -130,6 +130,13 @@ public class PlanningDemandController {
 		return planningDimensionalityService.saveDimensionality(updateDimensionalityDto);
 	}
 
+
+	@ApiOperation(value = "保存/编辑维度标签")
+	@PostMapping("/batchSaveDimensionality")
+	public Boolean batchSaveDimensionality(@Valid @RequestBody List<UpdateDimensionalityDto> dimensionalityDtoList) {
+		return planningDimensionalityService.batchSaveDimensionality(dimensionalityDtoList);
+	}
+
 	/*删除维度标签*/
 	@ApiOperation(value = "删除维度标签")
 	@DeleteMapping("/delDimensionality")

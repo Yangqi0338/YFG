@@ -67,7 +67,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 
 	Boolean saveBasicsdatumMaterialColor(BasicsdatumMaterialColorSaveDto dto);
 
-	Boolean delBasicsdatumMaterialColor(String id);
+	Boolean delBasicsdatumMaterialColor(RemoveDto removeDto);
 
 	Boolean startStopBasicsdatumMaterialColor(StartStopDto dto);
 

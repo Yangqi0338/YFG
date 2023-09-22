@@ -122,6 +122,24 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         return ApiResult.success("操作成功", planningDimensionality);
     }
 
+    /**
+     * 批量保存修改
+     *
+     * @param dimensionalityDtoList
+     * @return
+     */
+    @Override
+    public Boolean batchSaveDimensionality(List<UpdateDimensionalityDto> dimensionalityDtoList) {
+        List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityDtoList, PlanningDimensionality.class);
+        list.forEach(p -> {
+            if (CommonUtils.isInitId(p.getId())) {
+                p.setId(null);
+            }
+        });
+        saveOrUpdateBatch(list);
+        return true;
+    }
+
 /** 自定义方法区 不替换的区域【other_start】 **/
 
 

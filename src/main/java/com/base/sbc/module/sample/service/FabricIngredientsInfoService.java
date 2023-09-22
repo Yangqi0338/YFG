@@ -8,6 +8,7 @@ package com.base.sbc.module.sample.service;
 
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.sample.dto.AddRevampFabricIngredientsInfoDto;
 import com.base.sbc.module.sample.dto.QueryFabricIngredientsInfoDto;
@@ -15,13 +16,13 @@ import com.base.sbc.module.sample.entity.FabricIngredientsInfo;
 import com.base.sbc.module.sample.vo.FabricIngredientsInfoVo;
 import com.github.pagehelper.PageInfo;
 
-/** 
+/**
  * 类描述：调样-辅料信息 service类
  * @address com.base.sbc.module.sample.service.FabricIngredientsInfoService
  * @author mengfanjiang
  * @email XX.com
  * @date 创建时间：2023-7-14 17:32:38
- * @version 1.0  
+ * @version 1.0
  */
 public interface FabricIngredientsInfoService extends BaseService<FabricIngredientsInfo> {
 
@@ -54,7 +55,7 @@ public interface FabricIngredientsInfoService extends BaseService<FabricIngredie
         * @param id （多个用，）
         * @return boolean
         */
-        Boolean delFabricIngredientsInfo(String id);
+        Boolean delFabricIngredientsInfo(RemoveDto removeDto);
 
 
 
@@ -69,5 +70,5 @@ public interface FabricIngredientsInfoService extends BaseService<FabricIngredie
 
 // 自定义方法区 不替换的区域【other_end】
 
-	
+
 }

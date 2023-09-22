@@ -20,6 +20,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.AddRevampFabricIngredientsInfoDto;
 import com.base.sbc.module.sample.dto.QueryFabricIngredientsInfoDto;
@@ -42,7 +43,7 @@ import java.util.List;
  * @author mengfanjiang
  * @email XX.com
  * @date 创建时间：2023-7-14 17:32:38
- * @version 1.0  
+ * @version 1.0
  */
 @Service
 public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngredientsInfoMapper, FabricIngredientsInfo> implements FabricIngredientsInfoService {
@@ -112,16 +113,18 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
                 fabricIngredientsInfo.setAtactiformStylist(baseController.getUser().getName());
                 fabricIngredientsInfo.setCompanyCode(baseController.getUserCompany());
                 fabricIngredientsInfo.insertInit();
-                baseMapper.insert(fabricIngredientsInfo);
+                this.save(fabricIngredientsInfo);
+                FabricIngredientsInfo f = this.getById(fabricIngredientsInfo.getId());
+                this.saveOperaLog("新增","辅料调样单",null,f.getCodeName(),fabricIngredientsInfo,null);
            } else {
                 /*修改*/
-                fabricIngredientsInfo = baseMapper.selectById(addRevampFabricIngredientsInfoDto.getId());
-                if (ObjectUtils.isEmpty(fabricIngredientsInfo)) {
-                throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
-                }
-                BeanUtils.copyProperties(addRevampFabricIngredientsInfoDto, fabricIngredientsInfo);
-                fabricIngredientsInfo.updateInit();
-                baseMapper.updateById(fabricIngredientsInfo);
+                //fabricIngredientsInfo = baseMapper.selectById(addRevampFabricIngredientsInfoDto.getId());
+                //if (ObjectUtils.isEmpty(fabricIngredientsInfo)) {
+                //throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+                //}
+                //BeanUtils.copyProperties(addRevampFabricIngredientsInfoDto, fabricIngredientsInfo);
+                //fabricIngredientsInfo.updateInit();
+                this.updateById(addRevampFabricIngredientsInfoDto,"辅料调样单",null,addRevampFabricIngredientsInfoDto.getCodeName());
                 }
                 /*发送辅料消息给面辅料专员*/
                 messageUtils.atactiformSendMessage("ingredients",addRevampFabricIngredientsInfoDto.getSubmitFlag(),baseController.getUser());
@@ -132,14 +135,14 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
          /**
          * 方法描述：删除调样-辅料信息
          *
-         * @param id （多个用，）
+
          * @return boolean
          */
          @Override
-         public Boolean delFabricIngredientsInfo(String id) {
-         List<String> ids = StringUtils.convertList(id);
+         public Boolean delFabricIngredientsInfo(RemoveDto removeDto) {
+         //List<String> ids = StringUtils.convertList(id);
            /*批量删除*/
-           baseMapper.deleteBatchIds(ids);
+          this.removeByIds(removeDto);
            return true;
          }
 

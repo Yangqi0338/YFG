@@ -20,6 +20,7 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
@@ -107,6 +108,13 @@ public class PatternMakingController {
     @PostMapping
     public PatternMaking save(@Valid @RequestBody PatternMakingDto dto) {
         PatternMaking patternMaking = patternMakingService.savePatternMaking(dto);
+        OperaLogEntity operaLogEntity =new OperaLogEntity();
+        operaLogEntity.setType("新增");
+        operaLogEntity.setName("打板指令");
+        operaLogEntity.setDocumentId(patternMaking.getId());
+        operaLogEntity.setDocumentCode(patternMaking.getCode());
+        operaLogEntity.setDocumentName(patternMaking.getPatternNo());
+        patternMakingService.saveOrUpdateOperaLog(patternMaking, null, operaLogEntity);
         return patternMaking;
     }
 
@@ -115,7 +123,15 @@ public class PatternMakingController {
     public PatternMaking update(@RequestBody PatternMakingDto dto) {
         PatternMaking patternMaking = BeanUtil.copyProperties(dto, PatternMaking.class);
 //        patternMakingService.checkPatternNoRepeat(dto.getId(), dto.getPatternNo());
+        PatternMaking old = patternMakingService.getById(dto.getId());
         patternMakingService.updateById(patternMaking);
+        OperaLogEntity operaLogEntity =new OperaLogEntity();
+        operaLogEntity.setType("修改");
+        operaLogEntity.setName("打板指令");
+        operaLogEntity.setDocumentId(dto.getId());
+        operaLogEntity.setDocumentCode(dto.getCode());
+        operaLogEntity.setDocumentName(dto.getPatternNo());
+        patternMakingService.saveOrUpdateOperaLog(patternMaking, old, operaLogEntity);
         return patternMaking;
     }
 
@@ -161,9 +177,11 @@ public class PatternMakingController {
 
     @ApiOperation(value = "中断打版")
     @GetMapping("/breakOffPattern")
-    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "编号", required = true, paramType = "query")})
-    public boolean breakOffPattern(@Valid @NotBlank(message = "id不能为空") String id) {
-        return patternMakingService.breakOffPattern(id);
+    @ApiImplicitParams(
+            {@ApiImplicitParam(name = "id", value = "编号", required = true, paramType = "query"),
+                    @ApiImplicitParam(name = "flag", value = "0重启，1中断", required = true, paramType = "query")})
+    public boolean breakOffPattern(@Valid @NotBlank(message = "id不能为空") String id, @Valid @NotBlank(message = "flag不能为空") String flag) {
+        return patternMakingService.breakOffPattern(id,flag);
     }
 
 
@@ -209,11 +227,13 @@ public class PatternMakingController {
     public PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto) {
         return patternMakingService.patternMakingSteps(dto);
     }
+
     @ApiOperation(value = "研发总进度", notes = "")
     @GetMapping("/allProgressSteps")
-    public PageInfo<NodeListVo> allProgressSteps(NodestatusPageSearchDto dto,@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
-        return patternMakingService.allProgressSteps(dto,userCompany);
+    public PageInfo<NodeListVo> allProgressSteps(NodestatusPageSearchDto dto, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+        return patternMakingService.allProgressSteps(dto, userCompany);
     }
+
     @ApiOperation(value = "工作台使用的打版进度列表", notes = "")
     @GetMapping("/work/patternMakingSteps")
     public Map patternMakingSteps0(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
@@ -261,7 +281,7 @@ public class PatternMakingController {
     @GetMapping("/versionComparisonViewWeekMonth")
     public ApiResult versionComparisonViewWeekMonth(@RequestHeader(BaseConstant.AUTHORIZATION) String token, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode, PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
         patternMakingWeekMonthViewDto.setCompanyCode(companyCode);
-        return ApiResult.success("查询成功",patternMakingService.versionComparisonViewWeekMonth(patternMakingWeekMonthViewDto,token));
+        return ApiResult.success("查询成功", patternMakingService.versionComparisonViewWeekMonth(patternMakingWeekMonthViewDto, token));
     }
 
     @ApiOperation(value = "获取节点状态配置", notes = "")
@@ -284,32 +304,34 @@ public class PatternMakingController {
 
     @ApiOperation(value = "分配人员(车缝工)", notes = "")
     @PostMapping("/assignmentUser")
-    public boolean assignmentUser(Principal user,@Valid @RequestBody AssignmentUserDto dto) {
+    public boolean assignmentUser(Principal user, @Valid @RequestBody AssignmentUserDto dto) {
         GroupUser groupUser = userUtils.getUserBy(user);
-        return patternMakingService.assignmentUser(groupUser,dto);
+        return patternMakingService.assignmentUser(groupUser, dto);
     }
+
     @ApiOperation(value = "版师任务明细", notes = "")
     @GetMapping("/pdTaskDetail")
-    public List<PatternDesignVo> pdTaskDetail(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode){
+    public List<PatternDesignVo> pdTaskDetail(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode) {
         return patternMakingService.pdTaskDetail(companyCode);
     }
 
     @ApiOperation(value = "获取制版单-样衣新增", notes = "")
     @GetMapping("/getAllList")
-    public PageInfo getAllList(PatternMakingCommonPageSearchDto dto){
+    public PageInfo getAllList(PatternMakingCommonPageSearchDto dto) {
         return patternMakingService.queryPageInfo(dto);
     }
 
 
     @ApiOperation(value = "品类汇总统计", notes = "")
     @PostMapping("/categorySummaryCount")
-    public ApiResult categorySummaryCount(@RequestHeader(BaseConstant.AUTHORIZATION)String token,@RequestHeader(BaseConstant.USER_COMPANY)String companyCode, @RequestBody PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
+    public ApiResult categorySummaryCount(@RequestHeader(BaseConstant.AUTHORIZATION) String token, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode, @RequestBody PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
         patternMakingWeekMonthViewDto.setCompanyCode(companyCode);
-        return ApiResult.success("查询成功",patternMakingService.categorySummaryCount(patternMakingWeekMonthViewDto,token));
+        return ApiResult.success("查询成功", patternMakingService.categorySummaryCount(patternMakingWeekMonthViewDto, token));
     }
+
     @ApiOperation(value = "统计样衣产能总数", notes = "")
     @PostMapping("/sampleCapacityTotalCount")
-    public ApiResult sampleCapacityTotalCount(@RequestHeader(BaseConstant.AUTHORIZATION)String token,@RequestHeader(BaseConstant.USER_COMPANY)String companyCode, @RequestBody PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
+    public ApiResult sampleCapacityTotalCount(@RequestHeader(BaseConstant.AUTHORIZATION) String token, @RequestHeader(BaseConstant.USER_COMPANY) String companyCode, @RequestBody PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto) {
         patternMakingWeekMonthViewDto.setCompanyCode(companyCode);
         return ApiResult.success("查询成功", patternMakingService.sampleCapacityTotalCount(patternMakingWeekMonthViewDto, token));
     }

@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.sample.dto.QueryDetailFabricDto;
 import com.base.sbc.module.sample.dto.QueryFabricInformationDto;
@@ -14,13 +15,13 @@ import com.base.sbc.module.sample.entity.FabricBasicInformation;
 import com.base.sbc.module.sample.vo.FabricInformationVo;
 import com.github.pagehelper.PageInfo;
 
-/** 
+/**
  * 类描述：面料基本信息 service类
  * @address com.base.sbc.module.sample.service.FabricBasicInformationService
  * @author lxl
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-4-19 18:23:26
- * @version 1.0  
+ * @version 1.0
  */
 public interface FabricBasicInformationService extends BaseService<FabricBasicInformation> {
 
@@ -41,11 +42,11 @@ public interface FabricBasicInformationService extends BaseService<FabricBasicIn
    ApiResult saveUpdateFabricBasic(SaveUpdateFabricBasicInformationDto saveUpdateFabricBasicDto);
 
    /*删除*/
-   ApiResult  delFabric(String id);
+   ApiResult  delFabric(RemoveDto removeDto);
 
    ApiResult getById(QueryDetailFabricDto queryDetailFabricDto);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
-	
+
 }

@@ -15,7 +15,9 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.sample.dto.QueryDetailFabricDto;
 import com.base.sbc.module.sample.dto.QueryFabricInformationDto;
 import com.base.sbc.module.sample.dto.SaveUpdateFabricBasicInformationDto;
@@ -42,7 +44,7 @@ import java.util.List;
  * @author lxl
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-4-19 18:23:26
- * @version 1.0  
+ * @version 1.0
  */
 @Service
 public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBasicInformationMapper, FabricBasicInformation> implements FabricBasicInformationService {
@@ -93,19 +95,24 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
     @Override
     @Transactional(readOnly = false)
     public ApiResult saveUpdateFabricBasic(SaveUpdateFabricBasicInformationDto saveUpdateFabricBasicDto) {
-        FabricBasicInformation fabricBasicInformation = new FabricBasicInformation();
+        //FabricBasicInformation fabricBasicInformation = new FabricBasicInformation();
         if (StringUtils.isNotBlank(saveUpdateFabricBasicDto.getId())) {
             /*调整*/
-            fabricBasicInformation=baseMapper.selectById(saveUpdateFabricBasicDto.getId());
-            BeanUtils.copyProperties(saveUpdateFabricBasicDto,fabricBasicInformation );
-            fabricBasicInformation.updateInit();
-            baseMapper.updateById(fabricBasicInformation);
+            //fabricBasicInformation=baseMapper.selectById(saveUpdateFabricBasicDto.getId());
+            //BeanUtils.copyProperties(saveUpdateFabricBasicDto,fabricBasicInformation );
+            //fabricBasicInformation.updateInit();
+            //OperaLogEntity operaLogEntity = new OperaLogEntity();
+            //operaLogEntity.setName("面料调样单");
+            //operaLogEntity.setDocumentId(fabricBasicInformation.getId());
+            this.updateById(saveUpdateFabricBasicDto,"面料调样单",null,saveUpdateFabricBasicDto.getCodeName());
         } else {
             /*新增*/
-            BeanUtils.copyProperties(saveUpdateFabricBasicDto,fabricBasicInformation );
-            fabricBasicInformation.setCompanyCode(baseController.getUserCompany());
-            fabricBasicInformation.setRegisterDate(new Date());
-            baseMapper.insert(fabricBasicInformation);
+            //BeanUtils.copyProperties(saveUpdateFabricBasicDto,fabricBasicInformation );
+            //fabricBasicInformation.setCompanyCode(baseController.getUserCompany());
+            saveUpdateFabricBasicDto.setRegisterDate(new Date());
+            this.save(saveUpdateFabricBasicDto);
+            FabricBasicInformation f = this.getById(saveUpdateFabricBasicDto.getId());
+            this.saveOperaLog("新增","面料调样单",null,f.getCodeName(),saveUpdateFabricBasicDto,null);
         }
         /*发送面料调样单消息给面辅料专员*/
         messageUtils.atactiformSendMessage("fabric","1",baseController.getUser());
@@ -113,14 +120,14 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
     }
 
     @Override
-    public ApiResult delFabric(String id) {
+    public ApiResult delFabric(RemoveDto removeDto) {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("basic_information_id",id);
+        queryWrapper.eq("basic_information_id",removeDto.getIds());
         FabricDetailedInformation fabricDetailedInformation = fabricDetailedInformationMapper.selectOne(queryWrapper);
         if(!ObjectUtils.isEmpty(fabricDetailedInformation)){
             throw new OtherException("该单存在面料详情无法删除");
         }
-        baseMapper.deleteById(id);
+        this.removeByIds(removeDto);
         return ApiResult.success("操作成功");
     }
 
@@ -145,5 +152,5 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/
-	
+
 }

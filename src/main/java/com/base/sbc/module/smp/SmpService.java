@@ -412,7 +412,7 @@ public class SmpService {
             for (BasicsdatumMaterialColorPageVo basicsdatumMaterialColorPageVo : list1) {
                 SmpColor smpColor = new SmpColor();
                 smpColor.setColorCode(basicsdatumMaterialColorPageVo.getColorCode());
-                smpColor.setColorName(basicsdatumMaterialColorPageVo.getColor());
+                smpColor.setColorName(basicsdatumMaterialColorPageVo.getColorName());
                 smpColor.setActive("0".equals(basicsdatumMaterialColorPageVo.getStatus()));
                 smpColor.setSupplierMatColor(basicsdatumMaterialColorPageVo.getSupplierColorCode());
                 colorList.add(smpColor);
