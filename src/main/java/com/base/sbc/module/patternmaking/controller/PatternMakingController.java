@@ -18,6 +18,7 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdDto;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
@@ -99,9 +100,8 @@ public class PatternMakingController {
 
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")
     @DeleteMapping("/{id}")
-    public Boolean removeById(@PathVariable("id") String id) {
-        List<String> ids = StringUtils.convertList(id);
-        return patternMakingService.removeByIds(ids);
+    public Boolean removeById(RemoveDto removeDto) {
+        return patternMakingService.removeByIds(removeDto);
     }
 
     @ApiOperation(value = "保存")
@@ -113,6 +113,7 @@ public class PatternMakingController {
         operaLogEntity.setName("打板指令");
         operaLogEntity.setDocumentId(patternMaking.getId());
         operaLogEntity.setDocumentCode(patternMaking.getCode());
+        operaLogEntity.setParentId(patternMaking.getStyleId());
         operaLogEntity.setDocumentName(patternMaking.getPatternNo());
         patternMakingService.saveOrUpdateOperaLog(patternMaking, null, operaLogEntity);
         return patternMaking;
@@ -128,6 +129,7 @@ public class PatternMakingController {
         OperaLogEntity operaLogEntity =new OperaLogEntity();
         operaLogEntity.setType("修改");
         operaLogEntity.setName("打板指令");
+        operaLogEntity.setParentId(dto.getStyleId());
         operaLogEntity.setDocumentId(dto.getId());
         operaLogEntity.setDocumentCode(dto.getCode());
         operaLogEntity.setDocumentName(dto.getPatternNo());

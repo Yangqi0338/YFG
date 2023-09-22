@@ -235,6 +235,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         operaLogEntity.setDocumentName(patternMaking.getPatternNo());
         operaLogEntity.setDocumentCode(patternMaking.getCode());
         operaLogEntity.setName("打板指令");
+        operaLogEntity.setParentId(patternMaking.getStyleId());
         this.saveLog(operaLogEntity);
         // 修改单据
         return update(uw);
@@ -446,6 +447,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             operaLogEntity.setDocumentName(patternMaking.getPatternNo());
             operaLogEntity.setDocumentCode(patternMaking.getCode());
             operaLogEntity.setName("打板指令");
+            operaLogEntity.setParentId(patternMaking.getStyleId());
             this.saveLog(operaLogEntity);
         }
 
