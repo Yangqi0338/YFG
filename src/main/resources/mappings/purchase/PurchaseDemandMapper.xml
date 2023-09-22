@@ -10,7 +10,10 @@
       -->
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
-
+    <select id="countPurchaseDemand" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM t_purchase_demand
+        ${ ew.customSqlSegment}
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

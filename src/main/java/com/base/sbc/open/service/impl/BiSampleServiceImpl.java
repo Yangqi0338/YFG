@@ -4,7 +4,6 @@ import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.entity.PackBom;
@@ -15,6 +14,7 @@ import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
+import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
@@ -161,7 +161,7 @@ public class BiSampleServiceImpl extends ServiceImpl<BiSampleMapper, BiSample> i
 
                     //动态字段
 
-                    List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsBySdId(style.getId());
+                    List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabelsByStyle(new DimensionLabelsSearchDto(style.getId()));
                     if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
                         fieldManagementVoList.forEach(m -> {
                             if ("衣长分类".equals(m.getFieldName())) {

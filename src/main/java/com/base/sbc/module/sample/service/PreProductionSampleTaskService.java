@@ -35,7 +35,7 @@ public interface PreProductionSampleTaskService extends BaseService<PreProductio
 
 // 自定义方法区 不替换的区域【other_start】
 
-    boolean enableSetting(String id, String enableFlag);
+    boolean enableSetting(String id, String enableFlag,String code);
 
     boolean taskAssignment(PreTaskAssignmentDto dto);
 

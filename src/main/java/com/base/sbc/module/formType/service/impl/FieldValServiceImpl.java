@@ -7,6 +7,7 @@
 package com.base.sbc.module.formType.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.entity.FieldVal;
@@ -35,6 +36,9 @@ public class FieldValServiceImpl extends BaseServiceImpl<FieldValMapper, FieldVa
 
     @Override
     public List<FieldVal> list(String foreignId, String dataGroup) {
+        if (!StrUtil.isAllNotBlank(foreignId, dataGroup)) {
+            return null;
+        }
         QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
         fvQw.eq("foreign_id", foreignId);
         fvQw.eq("data_group", dataGroup);

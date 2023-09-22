@@ -33,6 +33,9 @@ public class OutBoundOrderDetailVo {
     /** 制版号 */
     @ApiModelProperty(value = "制版号"  )
     private String plateBillCode;
+    /** 成衣颜色 */
+    @ApiModelProperty(value = "成衣颜色"  )
+    private String productColor;
     /** 库存单位 */
     @ApiModelProperty(value = "库存单位"  )
     private String stockUnit;
