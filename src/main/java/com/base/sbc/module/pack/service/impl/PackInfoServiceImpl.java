@@ -791,6 +791,24 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         return attachmentService.getAttachmentByFileId(fileId);
     }
 
+    /**
+     * 删除资料包
+     *
+     * @param ids
+     * @return
+     */
+    @Override
+    public Boolean removeById(String ids) {
+        List<String> stringList = StrUtil.split(ids, ',');
+        List<PackInfo> packInfoList = baseMapper.selectBatchIds(stringList);
+        List<PackInfo> packInfoList1 = packInfoList.stream().filter(p -> StrUtil.isNotBlank(p.getStyleNo())).collect(Collectors.toList());
+        if (!CollUtil.isEmpty(packInfoList1)) {
+            throw new OtherException("资料包存在关联大货数据");
+        }
+        baseMapper.deleteBatchIds(stringList);
+        return true;
+    }
+
     @Override
     public boolean delTechSpecFile(PackCommonSearchDto dto) {
         UpdateWrapper qw = new UpdateWrapper();

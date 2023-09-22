@@ -211,7 +211,12 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @return
      */
     List<OpenStyleDto> getStyleListForLinkMore(String companyCode);
-
+    /**
+     * 删除资料包
+     * @param ids
+     * @return
+     */
+    Boolean removeById(String ids);
 // 自定义方法区 不替换的区域【other_end】
 
 

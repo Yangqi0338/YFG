@@ -92,7 +92,7 @@ public class PackInfoController {
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
 	@DeleteMapping()
 	public Boolean removeById(@Valid IdsDto ids) {
-		return packInfoService.removeByIds(StringUtils.convertList(ids.getId()));
+		return packInfoService.removeById(ids.getId());
 	}
 
 	@ApiOperation(value = "变更日志")
