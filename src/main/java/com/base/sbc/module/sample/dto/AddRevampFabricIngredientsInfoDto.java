@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.dto;
 
+import com.base.sbc.module.sample.entity.FabricIngredientsInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -22,7 +23,7 @@ import java.util.Date;
  */
 @Data
 @ApiModel("调样-辅料信息 FabricIngredientsInfo")
-public class AddRevampFabricIngredientsInfoDto  {
+public class AddRevampFabricIngredientsInfoDto  extends FabricIngredientsInfo {
 
     private String id;
 

@@ -87,7 +87,6 @@ public class FabricBasicInformation extends BaseDataEntity<String> {
     private String remark;
 
 
-    @TableField(exist = false)
     private Integer code;
 
 

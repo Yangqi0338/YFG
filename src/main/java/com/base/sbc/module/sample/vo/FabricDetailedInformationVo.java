@@ -94,6 +94,6 @@ public class FabricDetailedInformationVo extends FabricDetailedInformation {
         return "mldyd"+format;
     }
 
-    @TableField(exist = false)
+
     private Integer code;
 }

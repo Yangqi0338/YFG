@@ -110,7 +110,9 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
             //BeanUtils.copyProperties(saveUpdateFabricBasicDto,fabricBasicInformation );
             //fabricBasicInformation.setCompanyCode(baseController.getUserCompany());
             saveUpdateFabricBasicDto.setRegisterDate(new Date());
-            this.save(saveUpdateFabricBasicDto,"面料调样单",null,saveUpdateFabricBasicDto.getCodeName());
+            this.save(saveUpdateFabricBasicDto);
+            FabricBasicInformation f = this.getById(saveUpdateFabricBasicDto.getId());
+            this.saveOperaLog("新增","面料调样单",null,f.getCodeName(),saveUpdateFabricBasicDto,null);
         }
         /*发送面料调样单消息给面辅料专员*/
         messageUtils.atactiformSendMessage("fabric","1",baseController.getUser());
