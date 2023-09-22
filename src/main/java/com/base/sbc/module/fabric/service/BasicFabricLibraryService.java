@@ -15,6 +15,9 @@ import com.base.sbc.module.fabric.vo.BasicFabricLibraryVO;
 import com.base.sbc.module.fabric.vo.FabricDevMainVO;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 类描述：基础面料库 service类
  *
@@ -70,6 +73,14 @@ public interface BasicFabricLibraryService extends BaseService<BasicFabricLibrar
      * @param materialId
      */
     void materialApproveProcessing(String materialId, String approveStatus);
+
+    /**
+     * 通过物料编码获取
+     *
+     * @param materialCodes
+     * @return
+     */
+    Map<String ,BasicFabricLibraryListVO> getByMaterialCodes(List<String> materialCodes);
 
 
 // 自定义方法区 不替换的区域【other_end】

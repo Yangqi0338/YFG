@@ -65,6 +65,12 @@
             <if test="dto.materialAcceptFlag != null and dto.materialAcceptFlag != ''">
                 and fdb.material_accept_flag = #{dto.materialAcceptFlag}
             </if>
+            <if test="dto.materialCodes != null and dto.materialCodes.size > 0">
+                and bm.material_code in
+                <foreach collection="dto.materialCodes" open="(" item="materialCode" separator="," close=")">
+                    #{materialCode}
+                </foreach>
+            </if>
             <if test="dto.categoryId != null and dto.categoryId != ''">
                 AND (bm.category1_code = #{dto.categoryId} OR bm.category2_code = #{dto.categoryId} or
                 bm.category3_code = #{dto.categoryId}

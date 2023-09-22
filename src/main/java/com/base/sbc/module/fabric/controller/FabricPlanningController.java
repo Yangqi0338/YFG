@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
@@ -84,7 +85,7 @@ public class FabricPlanningController extends BaseController {
 
     @ApiOperation(value = "获取面料企划明细")
     @GetMapping("/getByFabricPlanningId")
-    public ApiResult getByFabricPlanningId(@Valid @NotBlank(message = "面料企划id不可为空") String id,String materialFlag) {
+    public ApiResult getByFabricPlanningId(@Valid @NotBlank(message = "面料企划id不可为空") String id, String materialFlag) {
         return selectSuccess(fabricPlanningItemService.getByFabricPlanningId(id, materialFlag));
     }
 
@@ -104,6 +105,13 @@ public class FabricPlanningController extends BaseController {
             return ApiResult.success("删除成功！");
         }
         return deleteNotFound();
+    }
+
+    @ApiOperation(value = "/导入")
+    @PostMapping("/fabricPlanningItemImportExcel")
+    public ApiResult fabricPlanningItemImportExcel(@RequestParam("file") MultipartFile file,
+                                                   @RequestParam("fabricPlanningId") String fabricPlanningId) {
+        return ApiResult.success("操作成功", fabricPlanningItemService.fabricPlanningItemImportExcel(file, fabricPlanningId));
     }
 
 }

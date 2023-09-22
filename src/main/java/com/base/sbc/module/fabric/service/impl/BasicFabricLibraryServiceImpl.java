@@ -30,14 +30,20 @@ import com.base.sbc.module.fabric.vo.BasicFabricLibraryVO;
 import com.base.sbc.module.fabric.vo.FabricDevMainVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：基础面料库 service类
@@ -183,6 +189,20 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
             fabricDevBasicInfoService.synchMaterialUpdate(null, YesOrNoEnum.NO.getValueStr(), YesOrNoEnum.NO.getValueStr(),
                     basicFabricLibrary.getId(), basicFabricLibrary.getDevMainId(), devApplyId);
         }
+    }
+
+    @Override
+    public Map<String, BasicFabricLibraryListVO> getByMaterialCodes(List<String> materialCodes) {
+        if (CollectionUtils.isEmpty(materialCodes)) {
+            return new HashMap<>();
+        }
+        BasicFabricLibrarySearchDTO dto = new BasicFabricLibrarySearchDTO();
+        dto.setMaterialCodes(materialCodes);
+        dto.setCompanyCode(super.getCompanyCode());
+        List<BasicFabricLibraryListVO> basicFabricLibraryList = super.getBaseMapper().getBasicFabricLibraryList(dto);
+
+        return CollectionUtils.isEmpty(basicFabricLibraryList) ? new HashMap<>() : basicFabricLibraryList.stream()
+                .collect(Collectors.toMap(BasicFabricLibraryListVO::getMaterialCode, Function.identity(), (k1,k2) -> k2));
     }
 
 
