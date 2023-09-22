@@ -9,6 +9,7 @@ package com.base.sbc.module.purchase.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.BigDecimalUtil;
@@ -93,6 +94,9 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
     private StyleService styleService;
 
     @Autowired
+    private PurchaseDemandMapper purchaseDemandMapper;
+
+    @Autowired
     private UserCompanyUtils userCompanyUtils;
 
     @Override
@@ -132,21 +136,21 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
         List<String> packBomIdList = StringUtils.convertList(materialIds);
         List<String> colorList = StringUtils.convertList(colors);
 
-        QueryWrapper<PurchaseDemand> pdQw = new QueryWrapper<>();
-        pdQw.eq("company_code", companyCode);
-        StringBuffer sql = new StringBuffer("and ");
-
-        for(String packBomId : packBomIdList){
-            for(String color : colorList){
-                sql.append("(pack_bom_id = '" + packBomId +"' and product_color = '" + color + "') OR ");
-            }
-        }
-        sql.delete(sql.length() - 4 , sql.length() -1);
-        pdQw.last(sql.toString());
-        List<PurchaseDemand> oldDataList = list(pdQw);
-        if(CollectionUtil.isNotEmpty(oldDataList)){
-            return ApiResult.error("该物料已经生成过采购需求，请重新选择！", 500);
-        }
+//        QueryWrapper<PurchaseDemand> pdQw = new QueryWrapper<>();
+//        pdQw.eq("company_code", companyCode);
+//        StringBuffer sql = new StringBuffer("and ");
+//
+//        for(String packBomId : packBomIdList){
+//            for(String color : colorList){
+//                sql.append("(pack_bom_id = '" + packBomId +"' and product_color = '" + color + "') OR ");
+//            }
+//        }
+//        sql.delete(sql.length() - 4 , sql.length() -1);
+//        pdQw.last(sql.toString());
+//        List<PurchaseDemand> oldDataList = list(pdQw);
+//        if(CollectionUtil.isNotEmpty(oldDataList)){
+//            return ApiResult.error("该物料已经生成过采购需求，请重新选择！", 500);
+//        }
 
         //查询资料包-物料清单-物料版本 启用状态的数据
         QueryWrapper<PackBomVersion> versionQw = new QueryWrapper<>();
@@ -239,6 +243,12 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 PackBomSize packBomSize = packBomSizeMap.get(style.getDefaultSize());
 
                 for(String color : colorList) {
+                    BaseQueryWrapper<PurchaseDemand> pdQw = new BaseQueryWrapper<>();
+                    pdQw.eq("company_code", companyCode);
+                    pdQw.eq("pack_bom_id", bom.getId());
+                    pdQw.eq("product_color", color);
+                    Integer countResult = purchaseDemandMapper.countPurchaseDemand(pdQw);
+
                     String materialColor = "";
                     PackBomColor packBomColor = colorMap.get(color);
                     if(packBomColor != null){
@@ -248,9 +258,10 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                     demand.insertInit(userCompany);
                     demand.setId(idGen.nextIdStr());
                     demand.setCompanyCode(companyCode);
-                    demand.setProductColor(color);
+                    demand.setProductColor(packBomColor != null ? packBomColor.getColorName() : "");
                     demand.setMaterialColor(materialColor);
                     demand.setMaterialColorCode(packBomColor != null ? packBomColor.getMaterialColorCode() : "");
+                    demand.setVersionNo(countResult + 1);
                     demand.setPurchasedNum(BigDecimal.ZERO);
                     demand.setReadyNum(BigDecimal.ZERO);
                     demand.setOrderStatus("0");
@@ -455,6 +466,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 detail.setPrice(demandInfo.getPrice());
                 detail.setMaterialColor(demandInfo.getMaterialColor());
                 detail.setMaterialColorCode(demandInfo.getMaterialColorCode());
+                detail.setProductColor(demandInfo.getProductColor());
                 detail.setLoss(demandInfo.getLoss());
                 BigDecimal amount = BigDecimalUtil.mul(demandInfo.getNeedNum(), demandInfo.getPrice()).setScale(2, BigDecimal.ROUND_DOWN);
                 detail.setTotalAmount(amount);

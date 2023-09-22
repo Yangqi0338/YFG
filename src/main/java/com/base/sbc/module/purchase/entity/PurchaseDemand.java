@@ -24,9 +24,9 @@ import lombok.EqualsAndHashCode;
 /**
  * 类描述：采购-采购需求表 实体类
  * @address com.base.sbc.module.purchase.entity.PurchaseDemand
- * @author tzy
- * @email 974849633@qq.com
- * @date 创建时间：2023-9-18 15:59:31
+ * @author your name
+ * @email your email
+ * @date 创建时间：2023-9-22 10:25:49
  * @version 1.0
  */
 @Data
@@ -134,6 +134,9 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     /** 资料包物料清单id */
     @ApiModelProperty(value = "资料包物料清单id"  )
     private String packBomId;
+    /** 版本号 */
+    @ApiModelProperty(value = "版本号"  )
+    private Integer versionNo;
     /** 设计款号 */
     @ApiModelProperty(value = "设计款号"  )
     private String designStyleCode;
