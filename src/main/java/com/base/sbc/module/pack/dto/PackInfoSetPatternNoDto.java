@@ -30,4 +30,10 @@ public class PackInfoSetPatternNoDto {
     @NotBlank(message = "样板号不能为空")
     private String patternNo;
 
+    private String styleNo;
+
+    private String code;
+
+    private String name;
+
 }

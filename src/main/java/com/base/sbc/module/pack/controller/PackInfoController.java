@@ -13,8 +13,10 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
+import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.vo.*;
@@ -23,12 +25,15 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 类描述：资料包 Controller类
@@ -86,13 +91,23 @@ public class PackInfoController {
 	@ApiOperation(value = "新建BOM(通过款式设计)")
 	@PostMapping("/createByStyle")
 	public PackInfoListVo createByStyle(@Valid @RequestBody CreatePackInfoByStyleDto dto) {
+
+		OperaLogEntity operaLogEntity =new OperaLogEntity();
+		operaLogEntity.setDocumentId(dto.getId());
+		operaLogEntity.setDocumentName(dto.getName());
+
+		operaLogEntity.setParentId(dto.getPatternMakingId());
+		operaLogEntity.setType("新建bom");
+		operaLogEntity.setName(dto.getModelName());
+
+		packInfoService.saveOrUpdateOperaLog(dto,new CreatePackInfoByStyleDto(),operaLogEntity);
 		return packInfoService.createByStyle(dto);
 	}
 
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
 	@DeleteMapping()
-	public Boolean removeById(@Valid IdsDto ids) {
-		return packInfoService.removeByIds(StringUtils.convertList(ids.getId()));
+	public Boolean removeById(RemoveDto removeDto) {
+		return packInfoService.removeByIds(removeDto);
 	}
 
 	@ApiOperation(value = "变更日志")
@@ -153,7 +168,7 @@ public class PackInfoController {
 	/**
 	 * 样衣id查询bom
 	 *
-	 * @param ids
+
 	 * @return
 	 */
 	@ApiOperation(value = "查询设计款号下的bom")
@@ -176,7 +191,9 @@ public class PackInfoController {
 
 	@ApiOperation(value = "关联样板号")
     @PostMapping("/setPatternNo")
+	@Transactional
     public boolean setPatternNo(@Validated @RequestBody PackInfoSetPatternNoDto dto) {
+
         return packInfoService.setPatternNo(dto);
     }
 

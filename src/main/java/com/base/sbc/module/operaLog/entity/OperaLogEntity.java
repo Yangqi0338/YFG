@@ -3,7 +3,7 @@ package com.base.sbc.module.operaLog.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import lombok.Data;
+import lombok.*;
 
 /**
  * @author 卞康

@@ -9,6 +9,7 @@ import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 卞康
@@ -71,6 +72,8 @@ public interface BaseService<T> extends IService<T> {
     void saveOperaLog( String type, String name, T newObject, T oldObject);
 
      void saveOperaLog(String type, String name,String documentName,String documentCode, T newObject, T oldObject);
+
+    public void saveOperaLog(String type, String name, String documentName, String documentCode, Map<String,String> data);
     /**
      * 保存操作日志
      */

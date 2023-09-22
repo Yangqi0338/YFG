@@ -54,7 +54,6 @@ public class OperaAspect {
         Object proceed;
 
         OperaLog operaLog = getOperaLog(joinPoint);
-
         OperaLogEntity operaLogEntity = new OperaLogEntity();
         operaLogEntity.setPath(SpElParseUtil.generateKeyBySpEL(operaLog.pathSpEL(), joinPoint));
         operaLogEntity.setParentId(SpElParseUtil.generateKeyBySpEL(operaLog.parentIdSpEl(), joinPoint));

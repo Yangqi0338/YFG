@@ -244,6 +244,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packInfo.setPatternMakingId(dto.getPatternMakingId());
         UpdateWrapper<PackInfo> uw = new UpdateWrapper<>();
         uw.lambda().eq(PackInfo::getId, dto.getPackId());
+        PackInfo pack =new PackInfo();
+        pack.setPatternNo(dto.getPatternNo());
+        packInfo.setPatternNo(dto.getPatternNo());
+        this.saveOperaLog("关联样板号", dto.getName(),null, dto.getCode(),pack,new PackInfo());
         return update(packInfo, uw);
     }
 
@@ -836,7 +840,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packInfo.setStyleNo(color.getStyleNo());
         packInfo.setStyleColorId(dto.getStyleColorId());
         updateById(packInfo);
-
+        Map<String,String> map = new HashMap<>();
+        map.put("大货款号", "->"+packInfo.getStyleNo());
+        this.saveOperaLog("关联大货款号",dto.getName(),packInfo.getName() ,packInfo.getCode(),map);
         color.setBom(packInfo.getCode());
         styleColorMapper.updateById(color);
         return true;
@@ -879,6 +885,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         updateById(packInfo);
         color.setBom("");
         styleColorMapper.updateById(color);
+        Map<String,String> map = new HashMap<>();
+        //map.put("大货款号", "->"+packInfo.getStyleNo());
+        this.saveOperaLog("取消关联大货款号",dto.getName(),packInfo.getName() ,packInfo.getCode(),map);
         return true;
     }
 

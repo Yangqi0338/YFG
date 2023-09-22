@@ -32,4 +32,6 @@ public class CreatePackInfoByStyleDto {
 
     @ApiModelProperty(value = "是否关联款式BOM物料信息", example = "true")
     private Boolean isWithBom;
+
+    private String modelName;
 }

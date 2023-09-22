@@ -6,6 +6,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -369,6 +370,38 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         OperaLogEntity operaLogEntity = new OperaLogEntity();
         JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
         operaLogEntity.setDocumentId(newObject.getId());
+        operaLogEntity.setJsonContent(jsonArray.toJSONString());
+        operaLogEntity.setName(name);
+        operaLogEntity.setDocumentName(documentName);
+        operaLogEntity.setDocumentCode(documentCode);
+        operaLogEntity.setType(type);
+        operaLogService.save(operaLogEntity);
+    }
+
+
+    /**
+     * 保存操作日志
+     *
+     * @param type 操作类型  新增 修改 删除
+     * @param name 模块名称
+     */
+    @Override
+    public void saveOperaLog(String type, String name, String documentName, String documentCode, Map<String, String> data) {
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        JSONArray jsonArray = new JSONArray();
+
+        for (Map.Entry<String, String> listEntry : data.entrySet()) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("name", listEntry.getKey());
+            if (listEntry.getValue() != null) {
+                String[] split = listEntry.getValue().split("->");
+                jsonObject.put("oldStr", split.length > 0 ? split[0] : "");
+                jsonObject.put("newStr", split.length > 1 ? split[1] : "");
+                jsonArray.add(jsonObject);
+            }
+
+        }
+
         operaLogEntity.setJsonContent(jsonArray.toJSONString());
         operaLogEntity.setName(name);
         operaLogEntity.setDocumentName(documentName);

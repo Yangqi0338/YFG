@@ -22,5 +22,6 @@ public class PackInfoAssociationDto {
     private String packId;
     @ApiModelProperty(value = "款式配色id")
     private String styleColorId;
+    private String name;
 
 }
