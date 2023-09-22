@@ -484,13 +484,30 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
 
     /**
-     * 根据字段名称获取对象的值
+     * 根据字段名称获取对象的值，包括父类的字段
      */
     private String getFieldValueByName(String fieldName, Object o) {
         try {
-            Field field = o.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return (String) field.get(o);
+            Field field = null;
+            Class<?> currentClass = o.getClass();
+
+            // 从当前类及其父类中查找字段
+            while (currentClass != null) {
+                try {
+                    field = currentClass.getDeclaredField(fieldName);
+                    break;  // 找到字段后退出循环
+                } catch (NoSuchFieldException e) {
+                    // 如果当前类没有该字段，尝试查找父类
+                    currentClass = currentClass.getSuperclass();
+                }
+            }
+
+            if (field != null) {
+                field.setAccessible(true);
+                return (String) field.get(o);
+            } else {
+                return null;  // 未找到指定字段
+            }
         } catch (Exception ignored) {
             return null;
         }

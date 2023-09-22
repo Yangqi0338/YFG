@@ -80,7 +80,7 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
         long incr = redisUtils.incr(redisKey, 1);
         String code = StrUtil.padPre(String.valueOf(incr), 8, "0");
         bean.setCode(code);
-        save(bean);
+        this.save(bean,"工作小账");
         return BeanUtil.copyProperties(workLog, WorkLogVo.class);
     }
 
