@@ -19,9 +19,10 @@ SELECT ts.size_range                                                            
        tpsd.garment                                                                               AS 成衣尺寸,
        tpsd.washing                                                                               AS 洗后尺寸,
        tpz.part_code                                                                              AS 测量点ID,
-       ts.design_no                                                                               AS 设计款号
+       ts.design_no                                                                               AS 设计款号,
+       if(ts.del_flag = '0', '存在', '删除')                                          as 删除标识
 FROM t_style ts
          LEFT JOIN t_pack_info as tpi ON tpi.foreign_id = ts.id and tpi.del_flag = '0'
          LEFT JOIN t_pack_size as tpz ON tpz.foreign_id = tpi.id and tpz.del_flag = '0'
          LEFT JOIN t_pack_size_detail as tpsd ON tpsd.foreign_id = tpi.id and pack_size_id = tpz.id and tpsd.del_flag = '0'
-where ts.del_flag = '0'
+

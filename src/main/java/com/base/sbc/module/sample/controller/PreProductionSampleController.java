@@ -16,6 +16,7 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.EnableFlagSettingDto;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
@@ -91,13 +92,13 @@ public class PreProductionSampleController extends BaseController{
     @ApiOperation(value = "任务-启用/停用")
     @PostMapping("/task/enableSetting")
     public boolean enableSetting(@Valid @RequestBody EnableFlagSettingDto dto) {
-        return preProductionSampleTaskService.enableSetting(dto.getId(), dto.getEnableFlag());
+        return preProductionSampleTaskService.enableSetting(dto.getId(), dto.getEnableFlag(),dto.getCode());
     }
 
     @ApiOperation(value = "任务-删除")
     @DeleteMapping("/task/del")
-    public boolean taskDel(@Valid IdsDto idsDto) {
-        return preProductionSampleTaskService.removeBatchByIds(StrUtil.split(idsDto.getId(), CharUtil.COMMA));
+    public boolean taskDel(RemoveDto removeDto) {
+        return preProductionSampleTaskService.removeByIds(removeDto);
     }
 
     @ApiOperation(value = "任务明细", notes = "通过id查询")
@@ -120,8 +121,12 @@ public class PreProductionSampleController extends BaseController{
         update.setSampleBarCode(dto.getSampleBarCode());
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
         uw.lambda().eq(PreProductionSampleTask::getId, dto.getId());
-        preProductionSampleTaskService.update(update, uw);
 
+        PreProductionSampleTask old = preProductionSampleTaskService.getById(dto.getId());
+
+        preProductionSampleTaskService.update(update, uw);
+        PreProductionSampleTask newTask = preProductionSampleTaskService.getById(dto.getId());
+        preProductionSampleTaskService.saveOperaLog("设置样衣条码", "产前样看板", null,newTask.getCode(),newTask,old);
         //下发产前样
         smpService.antenatalSample( new String[]{dto.getId()});
         return  updateSuccess("绑定成功");

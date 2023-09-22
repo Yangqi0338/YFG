@@ -26,6 +26,7 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
+import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
@@ -87,10 +88,24 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean enableSetting(String id, String enableFlag) {
+    public boolean enableSetting(String id, String enableFlag,String code) {
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
         uw.set("enable_flag", enableFlag);
         uw.in("id", StrUtil.split(id, CharUtil.COMMA));
+
+        String type;
+        if ("1".equals(enableFlag)){
+            type="启用";
+        }else {
+            type="停用";
+        }
+        //记录日志
+        OperaLogEntity operaLogEntity =new OperaLogEntity();
+        operaLogEntity.setType(type);
+        operaLogEntity.setName("产前样看板");
+        //operaLogEntity.setDocumentId(id);
+        operaLogEntity.setDocumentCode(code);
+        this.saveLog(operaLogEntity);
         return update(uw);
     }
 
@@ -210,7 +225,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         countQc.eq("style_id", style.getId());
         long count = getBaseMapper().countByQw(countQc);
         task.setCode(Opt.ofBlankAble(packInfo.getStyleNo()).orElse(packInfo.getDesignNo()) + StrUtil.DASHED + (count + 1));
-        return save(task);
+        return save(task,"产前样看板");
     }
 
     @Override
@@ -252,6 +267,8 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
         uw.eq("id", dto.getId());
         update(dto, uw);
+        //记录日志
+        this.saveOperaLog("修改","产前样看板",dto,task);
         return true;
     }
 

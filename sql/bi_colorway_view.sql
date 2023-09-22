@@ -71,7 +71,8 @@ select tsc.style_no                                                             
        ts.designer                                                                                         as 后技术下单员,
        tht.place_order_date                                                                                as 下单时间,
        if(tpts.id > '0', '是', '否')                                                                       as 含外辅工艺,
-       CONCAT(tsc.ware_code, tsc.color_code, ts.default_size)                                              as 默认条形码
+       CONCAT(tsc.ware_code, tsc.color_code, ts.default_size)                                              as 默认条形码,
+       if(tsc.del_flag = '0', '存在', '删除')                                          as 删除标识
 from t_style_color as tsc
          left outer join t_style as ts on ts.id = tsc.style_id
     and ts.del_flag = '0'
@@ -94,7 +95,7 @@ from t_style_color as tsc
     and tpts.del_flag = '0'
     and tpts.pack_type = 'packBigGoods'
     and tpts.spec_type = '外辅工艺'
-where tsc.del_flag = '0'
+
 group by tsc.style_no
 
 

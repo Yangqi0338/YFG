@@ -8,7 +8,7 @@ select ts.id,
        IF('门襟' = tfv.field_name, tfv.val_name, null)                              as 门襟,
        IF('毛纱针型' = tfv.field_name, tfv.val_name, null)                          as 毛纱针型,
        IF('毛纱针法' = tfv.field_name, tfv.val_name, null)                          as 毛纱针法,
-       IF('廓形' = tfv.field_name, tfv.val_name, null)                              as 廓形,
+
        IF('花型' = tfv.field_name, tfv.val_name, null)                              as 花型,
        IF('领型' = tfv.field_name, tfv.val_name, null)                              as 领型,
        IF('材质' = tfv.field_name, tfv.val_name, null)                              as 材质,
@@ -62,9 +62,9 @@ select ts.id,
                                                                           limit 1)) as 样品数,
        ts.revised_design_name                                                       as 改款设计师,
        ts.revised_design_id                                                         as 改款设计师id,
-       ts.positioning_name                                                          as 款式定位
+       ts.positioning_name                                                          as 款式定位,
+       if(ts.del_flag = '0', '存在', '删除')                                          as 删除标识
 from t_style as ts
          left join t_field_val as tfv on ts.id = tfv.foreign_id and tfv.del_flag = '0' and tfv.val_name is not null
-where ts.del_flag = '0'
 group by ts.id
 
