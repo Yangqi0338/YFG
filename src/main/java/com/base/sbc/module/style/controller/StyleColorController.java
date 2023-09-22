@@ -12,6 +12,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.style.dto.*;
@@ -105,8 +106,8 @@ public class StyleColorController {
 
 	@ApiOperation(value = "删除款式配色-款式配色")
 	@DeleteMapping("/delStyleColor")
-	public Boolean delStyleColor(@Valid @NotBlank(message = "编号id不能为空") String id) {
-	return styleColorService.delStyleColor(id);
+	public Boolean delStyleColor(RemoveDto removeDto) {
+	return styleColorService.delStyleColor(removeDto);
 	}
 
 	@ApiOperation(value = "按颜色id删除款式下款式配色-款式配色")

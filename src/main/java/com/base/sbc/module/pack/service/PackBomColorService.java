@@ -44,6 +44,15 @@ public interface PackBomColorService extends  PackBaseService<PackBomColor> {
     Map<String, List<PackBomColorVo>> getByBomIdsToMap(List<String> bomIds);
 
 
+    /**
+     * 通过颜色编码、版本获取物料清单id
+     *
+     * @param colorCode
+     * @return
+     */
+    List<String> getBomIdByColorCode(String colorCode, String bomVersionId);
+
+
 // 自定义方法区 不替换的区域【other_end】
 
 	

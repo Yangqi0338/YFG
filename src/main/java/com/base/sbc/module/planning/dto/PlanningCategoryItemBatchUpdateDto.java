@@ -35,10 +35,10 @@ public class PlanningCategoryItemBatchUpdateDto {
     @ApiModelProperty(value = "样衣需求完成时间")
     private String demandFinishDate;
 
-    @NotBlank(message = "系列不能为空")
+//    @NotBlank(message = "系列不能为空") 换到前端校验了
     @ApiModelProperty(value = "系列id", example = "0", required = true)
     private String seriesId;
-    @NotBlank(message = "系列不能为空")
+//    @NotBlank(message = "系列不能为空")
     @ApiModelProperty(value = "系列名称", example = "0", required = true)
     private String series;
 }

@@ -236,11 +236,11 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
      * 面料检测时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private String materialCheckDate;
+    private Date materialCheckDate;
     /**
      *技术下工艺部正确样时间
      */
-    private String processDepartmentDate;
+    private Date processDepartmentDate;
     /**
      * 裁剪状态:0待接收,1已接收,2进行中,3完成
      */

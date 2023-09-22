@@ -9,12 +9,10 @@ package com.base.sbc.module.pack.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.pack.mapper.PackBomColorMapper;
 import com.base.sbc.module.pack.entity.PackBomColor;
+import com.base.sbc.module.pack.mapper.PackBomColorMapper;
 import com.base.sbc.module.pack.service.PackBomColorService;
 import com.base.sbc.module.pack.vo.PackBomColorVo;
-import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -69,6 +67,11 @@ public class PackBomColorServiceImpl extends PackBaseServiceImpl<PackBomColorMap
             return pbsl.stream().collect(Collectors.groupingBy(PackBomColorVo::getBomId));
         })).orElse(new HashMap<>(2));
         return packBomSizeMap;
+    }
+
+    @Override
+    public List<String> getBomIdByColorCode(String colorCode, String bomVersionId) {
+        return super.getBaseMapper().getBomIdByColorCode(colorCode, bomVersionId);
     }
 
     // 自定义方法区 不替换的区域【other_end】

@@ -8,6 +8,7 @@ package com.base.sbc.module.style.service;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
@@ -93,7 +94,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @param id （多个用，）
          * @return boolean
          */
-        Boolean delStyleColor(String id);
+        Boolean delStyleColor(RemoveDto removeDto);
 
         /**
         * 方法描述：启用停止款式-款式配色

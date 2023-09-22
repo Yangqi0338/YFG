@@ -20,4 +20,6 @@ public class PackBomPageSearchDto extends PackCommonPageSearchDto {
     @ApiModelProperty(value = "版本id")
     @NotBlank(message = "版本id为空")
     private String bomVersionId;
+    @ApiModelProperty(value = "颜色编码")
+    private String styleColorCode;
 }

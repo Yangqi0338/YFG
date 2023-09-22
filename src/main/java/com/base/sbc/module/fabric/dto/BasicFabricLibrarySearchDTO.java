@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @Author xhj
  * @Date 2023/6/26 17:53
@@ -24,6 +26,9 @@ public class BasicFabricLibrarySearchDTO extends Page {
     private String categoryId;
     @ApiModelProperty("业务类型：:material.物料、dev.面料开发")
     private String bizType;
+    @ApiModelProperty("物料编码")
+    private List<String> materialCodes;
+
 
 
     private String companyCode;

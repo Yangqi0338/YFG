@@ -19,9 +19,9 @@ import lombok.EqualsAndHashCode;
 /**
  * 类描述：采购-采购单-明细 实体类
  * @address com.base.sbc.module.purchase.entity.PurchaseOrderDetail
- * @author tzy
- * @email 974849633@qq.com
- * @date 创建时间：2023-9-13 19:10:56
+ * @author your name
+ * @email your email
+ * @date 创建时间：2023-9-22 10:25:55
  * @version 1.0
  */
 @Data
@@ -100,6 +100,9 @@ public class PurchaseOrderDetail extends BaseDataEntity<String> {
     /** 物料颜色编码 */
     @ApiModelProperty(value = "物料颜色编码"  )
     private String materialColorCode;
+    /** 成衣颜色 */
+    @ApiModelProperty(value = "成衣颜色"  )
+    private String productColor;
     /** 损耗 */
     @ApiModelProperty(value = "损耗"  )
     private BigDecimal loss;

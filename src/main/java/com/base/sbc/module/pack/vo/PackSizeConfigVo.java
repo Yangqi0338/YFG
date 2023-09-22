@@ -2,6 +2,7 @@ package com.base.sbc.module.pack.vo;
 
 import com.base.sbc.module.pack.entity.PackSizeConfig;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -17,4 +18,7 @@ import lombok.Data;
 @Data
 @ApiModel("资料包-尺寸表配置 PackSizeConfigVo")
 public class PackSizeConfigVo extends PackSizeConfig {
+
+    @ApiModelProperty(value = "大货款")
+    private String styleNo;
 }

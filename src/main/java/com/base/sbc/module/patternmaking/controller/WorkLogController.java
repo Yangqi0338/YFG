@@ -12,6 +12,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.IdsDto;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.patternmaking.dto.WorkLogSaveDto;
 import com.base.sbc.module.patternmaking.dto.WorkLogSearchDto;
 import com.base.sbc.module.patternmaking.service.WorkLogService;
@@ -59,15 +60,14 @@ public class WorkLogController {
 
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")
     @DeleteMapping()
-    @OperaLog(value = "工作小账", operationType = OperationType.DELETE , delIdSpEL = "#p0.id",service = WorkLogService.class)
-    public Boolean removeById(IdsDto idsDto) {
-        List<String> ids = StringUtils.convertList(idsDto.getId());
-        return workLogService.removeByIds(ids);
+    //@OperaLog(value = "工作小账", operationType = OperationType.DELETE , delIdSpEL = "#p0.id",service = WorkLogService.class)
+    public Boolean removeById(RemoveDto removeDto) {
+        return workLogService.removeByIds(removeDto);
     }
 
     @ApiOperation(value = "保存")
     @PostMapping
-    @OperaLog(value = "工作小账", operationType = OperationType.INSERT_UPDATE, service = WorkLogService.class)
+    //@OperaLog(value = "工作小账", operationType = OperationType.INSERT_UPDATE, service = WorkLogService.class)
     public WorkLogVo save(@RequestBody WorkLogSaveDto workLog) {
         return workLogService.saveByDto(workLog);
 
@@ -75,9 +75,9 @@ public class WorkLogController {
 
     @ApiOperation(value = "修改")
     @PutMapping
-    @OperaLog(value = "工作小账", operationType = OperationType.INSERT_UPDATE, service = WorkLogService.class)
+    //@OperaLog(value = "工作小账", operationType = OperationType.INSERT_UPDATE, service = WorkLogService.class)
     public WorkLogVo update(@RequestBody WorkLogSaveDto workLog) {
-        boolean b = workLogService.updateById(workLog);
+        boolean b = workLogService.updateById(workLog, "工作小账");
         return BeanUtil.copyProperties(workLog, WorkLogVo.class);
     }
 

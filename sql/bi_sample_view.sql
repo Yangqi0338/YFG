@@ -2,13 +2,12 @@ SELECT tpm.id                                                                   
        MAX(IF(tns.node = '打版任务' AND tns.status = '打版完成', tns.end_date, NULL))     AS 纸样完成时间,
        MAX(IF(tns.node = '样衣任务' AND tns.status = '裁剪开始', tns.start_date, NULL))   AS 裁剪开始时间,
        MAX(IF(tns.node = '样衣任务' AND tns.status = '裁剪完成', tns.end_date, NULL))     AS 裁剪完成时间,
-       MAX(IF(tns.node = '样衣任务' AND tns.status = '车缝完成', tns.end_date, NULL))     AS 样衣需求完成日期,
        MAX(IF(tns.node = '样衣任务' AND tns.status = '车缝完成', tns.end_date, NULL))     AS 样衣实际完成日期,
        MAX(IF(tns.node = '样衣任务' AND tns.status = '车缝进行中', tns.start_date, NULL)) AS 车缝开始日期,
        MAX(IF(tns.node = '样衣任务' AND tns.status = '车缝完成', tns.end_date, NULL))     AS 车缝完成日期,
        MAX(IF(tns.node = '样衣任务' AND tns.status = '物料齐套', tns.end_date, NULL))     AS 面辅料齐套,
        ts.style_name                                                                      as 款式样品,
-       IF(ts.enable_flag = '1', '启用', '停用')                                                as 状态,
+       IF(ts.enable_flag = '1', '启用', '停用')                                           as 状态,
        ts.design_no                                                                       as 产品,
        ts.id                                                                              as StyleURL,
        tpm.sgl_kitting_date                                                               as 齐套日期,
@@ -36,7 +35,6 @@ SELECT tpm.id                                                                   
        tpm.pattern_room_id                                                                as 供应商编码,
        tpm.create_date                                                                    as 创建时间,
        tpm.create_name                                                                    as 创建人,
-       tpm.update_date                                                                    as 修改时间,
        tpm.update_name                                                                    as 修改人,
        tpm.requirement_num                                                                as 样衣完成数量,
        if('初版样' = tpm.sample_type_name, tpm.prm_send_date, tpm.design_send_date)       as 下发版师时间（指令）,
@@ -57,7 +55,9 @@ SELECT tpm.id                                                                   
        null                                                                               as 技术收到日期,
        null                                                                               as 收到正确样日期,
        null                                                                               as 查版日期,
-       null                                                                               as 面料检测单日期
+       null                                                                               as 面料检测单日期,
+       GREATEST(tpm.update_date, ts.update_date, tns.update_date)                         as 修改时间,
+       if(tpm.del_flag = '0', '存在', '删除')                                             as 删除标识
 FROM t_pattern_making tpm
          LEFT JOIN t_style ts ON ts.id = tpm.style_id AND ts.del_flag = '0'
          LEFT JOIN t_node_status tns ON tns.data_id = tpm.id AND tns.del_flag = '0'
@@ -67,13 +67,12 @@ SELECT tppst.id                                                                 
        MAX(IF(tns.node = '产前样衣任务' AND tns.status = '打版完成', tns.end_date, NULL))     AS 纸样完成时间,
        MAX(IF(tns.node = '产前样衣任务' AND tns.status = '裁剪开始', tns.start_date, NULL))   AS 裁剪开始时间,
        MAX(IF(tns.node = '产前样衣任务' AND tns.status = '裁剪完成', tns.end_date, NULL))     AS 裁剪完成时间,
-       MAX(IF(tns.node = '产前样衣任务' AND tns.status = '车缝完成', tns.end_date, NULL))     AS 样衣需求完成日期,
        MAX(IF(tns.node = '产前样衣任务' AND tns.status = '车缝完成', tns.end_date, NULL))     AS 样衣实际完成日期,
        MAX(IF(tns.node = '产前样衣任务' AND tns.status = '车缝进行中', tns.start_date, NULL)) AS 车缝开始日期,
        MAX(IF(tns.node = '产前样衣任务' AND tns.status = '车缝完成', tns.end_date, NULL))     AS 车缝完成日期,
        MAX(IF(tns.node = '产前样衣任务' AND tns.status = '物料齐套', tns.end_date, NULL))     AS 面辅料齐套,
        ts.style_name                                                                          as 款式样品,
-       IF(tppst.enable_flag = '1', '启用', '停用')                                                    as 状态,
+       IF(tppst.enable_flag = '1', '启用', '停用')                                            as 状态,
        ts.design_no                                                                           as 产品,
        ts.id                                                                                  as StyleURL,
        tppst.kitting_time                                                                     as 齐套日期,
@@ -101,7 +100,6 @@ SELECT tppst.id                                                                 
        tppst.pattern_room_id                                                                  as 供应商编码,
        tppst.create_date                                                                      as 创建时间,
        tppst.create_name                                                                      as 创建人,
-       tppst.update_date                                                                      as 修改时间,
        tppst.update_name                                                                      as 修改人,
        tppst.requirement_num                                                                  as 样衣完成数量,
        null                                                                                   as 下发版师时间（指令）,
@@ -122,7 +120,9 @@ SELECT tppst.id                                                                 
        tppst.tech_receive_date                                                                as 技术收到日期,
        tppst.tech_receive_date                                                                as 收到正确样日期,
        tppst.sample_cha_ban_data                                                              as 查版日期,
-       tppst.material_check_date                                                              as 面料检测单日期
+       tppst.material_check_date                                                              as 面料检测单日期,
+       GREATEST(tppst.update_date, ts.update_date, tns.update_date)                           as 修改时间,
+       if(tppst.del_flag = '0', '存在', '删除')                                               as 删除标识
 FROM t_pre_production_sample_task tppst
          LEFT JOIN t_style ts ON ts.id = tppst.style_id AND ts.del_flag = '0'
          LEFT JOIN t_node_status tns ON tns.data_id = tppst.id AND tns.del_flag = '0'

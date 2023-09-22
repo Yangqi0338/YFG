@@ -10,6 +10,7 @@ import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.fabric.dto.FabricPlanningItemSaveDTO;
 import com.base.sbc.module.fabric.entity.FabricPlanningItem;
 import com.base.sbc.module.fabric.vo.FabricPlanningItemVO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -40,6 +41,15 @@ public interface FabricPlanningItemService extends BaseService<FabricPlanningIte
      * @return
      */
     List<FabricPlanningItemVO> getByFabricPlanningId(String fabricPlanningId, String materialFlag);
+
+    /**
+     * 导入
+     *
+     * @param file
+     * @param fabricPlanningId
+     * @return
+     */
+    String fabricPlanningItemImportExcel(MultipartFile file, String fabricPlanningId);
 
 
 // 自定义方法区 不替换的区域【other_end】
