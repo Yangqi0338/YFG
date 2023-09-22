@@ -7,9 +7,13 @@
 package com.base.sbc.module.purchase.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.purchase.entity.PurchaseDemand;
-/** 
+import org.apache.ibatis.annotations.Param;
+
+/**
  * 类描述：采购-采购需求表 dao类
  * @address com.base.sbc.module.purchase.dao.PurchaseDemandDao
  * @author tzy  
@@ -19,10 +23,6 @@ import com.base.sbc.module.purchase.entity.PurchaseDemand;
  */
 @Mapper
 public interface PurchaseDemandMapper extends BaseMapper<PurchaseDemand> {
-// 自定义方法区 不替换的区域【other_start】
-
-
-
-// 自定义方法区 不替换的区域【other_end】
+    Integer countPurchaseDemand(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 }
 

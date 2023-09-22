@@ -11,6 +11,7 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -107,12 +108,14 @@ public class FieldOptionConfigServiceImpl extends BaseServiceImpl<FieldOptionCon
      */
     @Override
     public Map<String, List<FieldOptionConfig>> getFieldConfig(QueryFieldOptionConfigDto queryFieldOptionConfigDto) {
-        QueryWrapper queryWrapper = new QueryWrapper();
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
         queryWrapper.in("field_management_id", queryFieldOptionConfigDto.getFieldManagementIdList());
+
+        queryWrapper.eq("season", queryFieldOptionConfigDto.getSeason());
         queryWrapper.eq(StringUtils.isNotBlank(queryFieldOptionConfigDto.getProdCategory2nd()), "prod_category2nd", queryFieldOptionConfigDto.getProdCategory2nd());
         queryWrapper.eq(StringUtils.isNotBlank(queryFieldOptionConfigDto.getCategoryCode()), "category_code", queryFieldOptionConfigDto.getCategoryCode());
-        queryWrapper.eq("season", queryFieldOptionConfigDto.getSeason());
-        queryWrapper.like("brand", queryFieldOptionConfigDto.getBrand());
+
+        queryWrapper.apply("find_in_set(brand,{0})", queryFieldOptionConfigDto.getBrand());
         List<FieldOptionConfig> optionConfigList = baseMapper.selectList(queryWrapper);
         /*查询字段配置中的数据*/
         Map<String, List<FieldOptionConfig>> listMap = optionConfigList.stream().collect(Collectors.groupingBy(FieldOptionConfig::getFieldManagementId));

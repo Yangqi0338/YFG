@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.purchase.entity.OutboundOrderDetail
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-9-20 20:21:17
+ * @date 创建时间：2023-9-22 14:40:09
  * @version 1.0
  */
 @Data
@@ -77,6 +77,9 @@ public class OutboundOrderDetail extends BaseDataEntity<String> {
     /** 颜色编码 */
     @ApiModelProperty(value = "颜色编码"  )
     private String colorCode;
+    /** 成衣颜色 */
+    @ApiModelProperty(value = "成衣颜色"  )
+    private String productColor;
     /** 库存单价 */
     @ApiModelProperty(value = "库存单价"  )
     private BigDecimal stockPrice;

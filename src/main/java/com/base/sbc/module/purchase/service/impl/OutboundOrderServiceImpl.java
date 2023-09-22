@@ -118,7 +118,8 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
             detail.setOutboundId(id);
             detail.setMaterialSku(detail.getMaterialCode() + detail.getColorCode() + detail.getSpecificationsCode());
 
-            totalAmount = BigDecimalUtil.add(totalAmount, detail.getOutNum().multiply(detail.getStockPrice()));
+            BigDecimal stockPrice = detail.getStockPrice() != null ? detail.getStockPrice() : BigDecimal.ZERO;
+            totalAmount = BigDecimalUtil.add(totalAmount, detail.getOutNum().multiply(stockPrice));
             totalNum = BigDecimalUtil.add(totalNum, detail.getOutNum());
         }
 

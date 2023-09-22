@@ -199,7 +199,7 @@ public class PurchaseDemandController extends BaseController{
 					.or()
 					.like("plate_bill_code", page.getSearch()));
 		}
-		qc.groupBy("design_style_code", "plate_bill_code", "style_bom", "DATE(need_date)");
+		qc.groupBy("design_style_code", "plate_bill_code", "style_bom", "version_no");
 		qc.orderByAsc("need_date");
 
 		if (page.getPageNum() != 0 && page.getPageSize() != 0) {
@@ -211,9 +211,9 @@ public class PurchaseDemandController extends BaseController{
 				QueryWrapper<PurchaseDemand> qw = new QueryWrapper<>();
 				qw.eq("company_code", userCompany);
 				qw.eq("design_style_code", item.getDesignStyleCode());
-				qw.eq("plate_bill_code", item.getPlateBillCode());
+				qw.eq(StringUtils.isNotBlank(item.getPlateBillCode()), "plate_bill_code", item.getPlateBillCode());
 				qw.eq("style_bom", item.getStyleBom());
-				qw.eq(item.getNeedDate() != null,"date_format(need_date, '%Y-%m-%d')", DateUtil.format(item.getNeedDate(), "yyyy-MM-dd"));
+				qw.eq("version_no", item.getVersionNo());
 				List<PurchaseDemand> list = purchaseDemandService.list(qw);
 				String isComplete = "齐料";
 				BigDecimal completeNum = BigDecimal.ZERO;
