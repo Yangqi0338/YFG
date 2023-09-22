@@ -1,5 +1,6 @@
 package com.base.sbc.module.sample.dto;
 
+import com.base.sbc.module.sample.entity.FabricBasicInformation;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -10,7 +11,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @ApiModel("保存修改面料基本信息 SaveUpdateFabricBasicDto")
-public class SaveUpdateFabricBasicInformationDto {
+public class SaveUpdateFabricBasicInformationDto extends FabricBasicInformation {
 
     /*存在为修改*/
     @ApiModelProperty(name = "编号id", value = "编号:为空时新增、不为空时修改",  required = false, example = "")

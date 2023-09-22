@@ -8,6 +8,7 @@ package com.base.sbc.module.sample.controller;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.sample.dto.QueryDetailFabricDto;
 import com.base.sbc.module.sample.dto.QueryFabricInformationDto;
 import com.base.sbc.module.sample.dto.SaveUpdateFabricBasicInformationDto;
@@ -60,8 +61,8 @@ public class FabricInformationController {
 
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
 	@DeleteMapping("/delFabric")
-	public ApiResult delFabric(String id) {
-		return fabricBasicInformationService.delFabric(id);
+	public ApiResult delFabric(RemoveDto removeDto) {
+		return fabricBasicInformationService.delFabric(removeDto);
 	}
 
 

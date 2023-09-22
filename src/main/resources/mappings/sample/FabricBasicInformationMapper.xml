@@ -49,7 +49,8 @@
         tfdi.sample_washing_inspection_date,
         tfdi.wash_detection_result,
         tfdi.image_url,
-        tfdi.report_url
+        tfdi.report_url,
+        tfbi.*
         from t_fabric_basic_information tfbi
         left join t_fabric_detailed_information tfdi on tfbi.id=tfdi.basic_information_id  and tfdi.is_draft='0'
         ${ew.customSqlSegment}

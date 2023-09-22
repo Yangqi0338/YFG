@@ -1,5 +1,7 @@
 package com.base.sbc.module.sample.vo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.base.sbc.module.sample.entity.FabricDetailedInformation;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -9,7 +11,7 @@ import java.util.Date;
 
 /*返回de 面料详细信息*/
 @Data
-public class FabricDetailedInformationVo {
+public class FabricDetailedInformationVo extends FabricDetailedInformation {
     private String id;
     /** 面料是否可用(0是，1否) */
     @ApiModelProperty(value = "面料是否可用(0是，1否)"  )
@@ -80,4 +82,18 @@ public class FabricDetailedInformationVo {
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remark;
+
+
+
+    @TableField(exist = false)
+    private String codeName;
+
+    public String getCodeName() {
+
+        String format = String.format("%06d", this.getCode());
+        return "mldyd"+format;
+    }
+
+    @TableField(exist = false)
+    private Integer code;
 }
