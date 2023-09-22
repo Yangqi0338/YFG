@@ -35,7 +35,6 @@ SELECT tpm.id                                                                   
        tpm.pattern_room_id                                                                as 供应商编码,
        tpm.create_date                                                                    as 创建时间,
        tpm.create_name                                                                    as 创建人,
-       tpm.update_date                                                                    as 修改时间,
        tpm.update_name                                                                    as 修改人,
        tpm.requirement_num                                                                as 样衣完成数量,
        if('初版样' = tpm.sample_type_name, tpm.prm_send_date, tpm.design_send_date)       as 下发版师时间（指令）,
@@ -57,7 +56,8 @@ SELECT tpm.id                                                                   
        null                                                                               as 收到正确样日期,
        null                                                                               as 查版日期,
        null                                                                               as 面料检测单日期,
-       if(tpm.del_flag = '0', '存在', '删除')                                               as 删除标识
+       GREATEST(tpm.update_date, ts.update_date, tns.update_date)                         as 修改时间,
+       if(tpm.del_flag = '0', '存在', '删除')                                             as 删除标识
 FROM t_pattern_making tpm
          LEFT JOIN t_style ts ON ts.id = tpm.style_id AND ts.del_flag = '0'
          LEFT JOIN t_node_status tns ON tns.data_id = tpm.id AND tns.del_flag = '0'
@@ -100,7 +100,6 @@ SELECT tppst.id                                                                 
        tppst.pattern_room_id                                                                  as 供应商编码,
        tppst.create_date                                                                      as 创建时间,
        tppst.create_name                                                                      as 创建人,
-       tppst.update_date                                                                      as 修改时间,
        tppst.update_name                                                                      as 修改人,
        tppst.requirement_num                                                                  as 样衣完成数量,
        null                                                                                   as 下发版师时间（指令）,
@@ -122,6 +121,7 @@ SELECT tppst.id                                                                 
        tppst.tech_receive_date                                                                as 收到正确样日期,
        tppst.sample_cha_ban_data                                                              as 查版日期,
        tppst.material_check_date                                                              as 面料检测单日期,
+       GREATEST(tppst.update_date, ts.update_date, tns.update_date)                           as 修改时间,
        if(tppst.del_flag = '0', '存在', '删除')                                               as 删除标识
 FROM t_pre_production_sample_task tppst
          LEFT JOIN t_style ts ON ts.id = tppst.style_id AND ts.del_flag = '0'

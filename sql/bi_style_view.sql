@@ -48,7 +48,7 @@ select ts.id,
        ts.pat_diff_name                                                             as 打版难度,
        ts.create_date                                                               as 创建时间,
        ts.create_name                                                               as 创建人,
-       ts.update_date                                                               as 修改时间,
+       GREATEST(ts.update_date, tfv.update_date)                                    as 修改时间,
        ts.update_name                                                               as 修改人,
        ts.reviewed_design_name                                                      as 审版设计师,
        ts.reviewed_design_id                                                        as 审版设计师id,
@@ -63,7 +63,7 @@ select ts.id,
        ts.revised_design_name                                                       as 改款设计师,
        ts.revised_design_id                                                         as 改款设计师id,
        ts.positioning_name                                                          as 款式定位,
-       if(ts.del_flag = '0', '存在', '删除')                                          as 删除标识
+       if(ts.del_flag = '0', '存在', '删除')                                        as 删除标识
 from t_style as ts
          left join t_field_val as tfv on ts.id = tfv.foreign_id and tfv.del_flag = '0' and tfv.val_name is not null
 group by ts.id
