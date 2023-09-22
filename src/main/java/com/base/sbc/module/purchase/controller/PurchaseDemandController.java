@@ -211,7 +211,7 @@ public class PurchaseDemandController extends BaseController{
 				QueryWrapper<PurchaseDemand> qw = new QueryWrapper<>();
 				qw.eq("company_code", userCompany);
 				qw.eq("design_style_code", item.getDesignStyleCode());
-				qw.eq("plate_bill_code", item.getPlateBillCode());
+				qw.eq(StringUtils.isNotBlank(item.getPlateBillCode()), "plate_bill_code", item.getPlateBillCode());
 				qw.eq("style_bom", item.getStyleBom());
 				qw.eq("version_no", item.getVersionNo());
 				List<PurchaseDemand> list = purchaseDemandService.list(qw);
