@@ -18,7 +18,6 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
-import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.dto.PackInfoDto;
 import com.base.sbc.module.pack.dto.PlanningDemandStatisticsResultVo;
@@ -122,17 +121,14 @@ public class StyleController extends BaseController {
     }
 
 
-    @ApiOperation(value = "查询款式设计维度数据(新增时使用)", notes = "")
-    @PostMapping("/queryDimensionLabels")
-    public List<FieldManagementVo> queryDimensionLabels(@Valid @RequestBody DimensionLabelsSearchDto dto) {
-        dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-        return styleService.queryDimensionLabels(dto);
-    }
-
-    @ApiOperation(value = "查询款式设计维度数据(修改时使用)", notes = "")
-    @GetMapping("/queryDimensionLabelsBySdId")
-    public List<FieldManagementVo> queryDimensionLabelsBySdId(String id) {
-        return styleService.queryDimensionLabelsBySdId(id);
+    @ApiOperation(value = "查询款式设计维度数据", notes = "")
+    @GetMapping("/queryDimensionLabelsByStyle")
+    public List<FieldManagementVo> queryDimensionLabelsByStyle(DimensionLabelsSearchDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        dto.setForeignId(dto.getId());
+        return styleService.queryDimensionLabelsByStyle(dto);
     }
 
     @ApiOperation(value = "设计师列表", notes = "")

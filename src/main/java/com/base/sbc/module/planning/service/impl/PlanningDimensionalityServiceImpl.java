@@ -7,10 +7,10 @@
 package com.base.sbc.module.planning.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
@@ -22,7 +22,6 @@ import com.base.sbc.module.formType.mapper.FormTypeMapper;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
-import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
@@ -55,11 +54,17 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
 
     @Override
     public ApiResult getDimensionalityList(DimensionLabelsSearchDto dto) {
+        //先按中类查，中类没有再查品类
         BaseQueryWrapper<PlanningDimensionality> qw = new BaseQueryWrapper<>();
+        dto.setCategoryFlag("1");
         PlanningUtils.dimensionCommonQw(qw, dto);
-        qw.eq("planning_season_id", dto.getPlanningSeasonId());
-        qw.eq("channel", dto.getChannel());
         List<PlanningDimensionality> planningDimensionalityList = baseMapper.selectList(qw);
+        if (CollUtil.isEmpty(planningDimensionalityList)) {
+            qw = new BaseQueryWrapper<>();
+            dto.setCategoryFlag("0");
+            PlanningUtils.dimensionCommonQw(qw, dto);
+            planningDimensionalityList = baseMapper.selectList(qw);
+        }
         return ApiResult.success("查询成功", planningDimensionalityList);
     }
 

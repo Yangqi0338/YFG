@@ -19,6 +19,17 @@ import org.hibernate.validator.constraints.NotBlank;
 @ApiModel("款式设计维度信息查询条件dto   DimensionLabelsSearchDto")
 public class DimensionLabelsSearchDto {
 
+    public DimensionLabelsSearchDto() {
+    }
+
+    public DimensionLabelsSearchDto(String foreignId) {
+        this.id = this.foreignId;
+        this.foreignId = foreignId;
+    }
+
+    @ApiModelProperty(value = "款式设计id", example = "0")
+    private String id;
+
     @ApiModelProperty(value = "款式设计id", example = "0")
     private String foreignId;
 
