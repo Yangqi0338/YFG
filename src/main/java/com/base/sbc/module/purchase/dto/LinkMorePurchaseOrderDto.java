@@ -7,6 +7,7 @@
 package com.base.sbc.module.purchase.dto;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.purchase.entity.PurchaseOrder;
 import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
 import io.swagger.annotations.ApiModel;
@@ -36,41 +37,45 @@ public class LinkMorePurchaseOrderDto{
     public void init(PurchaseOrder purchaseOrder){
         this.spCode = purchaseOrder.getSupplierCode();
         this.orderDate = purchaseOrder.getPurchaseDate();
-        this.orderType = "原辅料采购（打样专用）";
-        this.whCode = purchaseOrder.getWarehouseName();//没有仓库编码
         this.followMan = purchaseOrder.getPurchaserName();
-        this.remarks = purchaseOrder.getRemarks();
-        this.statuz = 1;
+        this.remark = purchaseOrder.getRemarks();
         this.apiCode = purchaseOrder.getCode();
-        this.checkMan = purchaseOrder.getReviewer();
         this.checkDate = purchaseOrder.getReviewDate();
-        this.accountDate = purchaseOrder.getPurchaseDate();
-        this.payType = "99";
-        this.companyCode = "ds01";
+        if (purchaseOrder.getPurchaseDate() == null){
+            this.accountDate = new Date();
+        }else{
+            this.accountDate = purchaseOrder.getPurchaseDate();
+        }
         if (CollectionUtil.isNotEmpty(purchaseOrder.getPurchaseOrderDetailList())){
             List<Sub> subs = new ArrayList<>();
             for (PurchaseOrderDetail detail : purchaseOrder.getPurchaseOrderDetailList()) {
                 Sub sub = new Sub();
                 sub.init(detail);
+//                sub.setUnitCode("MI");
                 subs.add(sub);
             }
             this.subs = subs;
         }
     }
+
+
+    /**系统类型*/
+    private String SysType = "尚捷";
     /**供应商编码*/
     private String spCode;
     /**采购日期-制单日期*/
     private Date orderDate;
     /**订单类型编码(默认原辅料采购（打样专用）)*/
-    private String orderType;
+//    private String orderType = "原辅料采购（打样专用）";
+    private String orderType = "21-21";
     /**仓库编码*/
     private String whCode;
     /**采购员-跟单员*/
     private String followMan;
     /**备注*/
-    private String remarks;
+    private String remark;
     /**状态*/
-    private Integer statuz;
+    private Integer statuz = 1;
     /**打款方式编码*/
     private String ficType;
     /**采购单号-外部单号*/
@@ -82,11 +87,11 @@ public class LinkMorePurchaseOrderDto{
     /**会计日期，不填默认当前时间*/
     private Date accountDate;
     /**结算方式编码（默认99）*/
-    private String payType;
+    private String payType = "99";
     /**审核人-操作人*/
     private String operator;
     /**主体公司编码（默认ds01）*/
-    private String companyCode;
+    private String companyCode = "ds01";
     /**品牌编码（默认空）*/
     private String brandCode;
 
@@ -103,7 +108,7 @@ public class LinkMorePurchaseOrderDto{
         /** 数量 */
         private BigDecimal qty;
         /**单位（编码）*/
-        private String uintCode;
+        private String unitCode;
         /**规格描述*/
         private String mtSpec;
         /**不含税单价*/
@@ -115,22 +120,33 @@ public class LinkMorePurchaseOrderDto{
         /**匹数*/
         private String checkQty;
         /**备注*/
-        private String remarks;
+        private String remark;
 
         /**
-         * 初始化
+         * 初始化物料
          * @param detail
          */
         public void init(PurchaseOrderDetail detail) {
             this.deliverDate = detail.getDeliveryDate();
-            this.mtSubCode = detail.getMaterialCode()+detail.getMaterialColorCode()+detail.getMaterialSpecificationsCode();//物料编码+颜色编码+规格编码
+            if ("无".equals(detail.getMaterialSpecifications())){
+                this.mtSpec = "";
+                detail.setMaterialSpecificationsCode(this.mtSpec);
+            }else{
+                this.mtSpec = detail.getMaterialSpecifications();
+            }
+            this.mtSubCode = detail.getMaterialCode();//物料编码+颜色编码+规格编码
+            if (StringUtils.isNotBlank(detail.getMaterialColorCode())){
+                this.mtSubCode += detail.getMaterialColorCode();
+            }
+            if(StringUtils.isNotBlank(detail.getMaterialSpecificationsCode())){
+                this.mtSubCode += detail.getMaterialSpecificationsCode();
+            }
             this.qty = detail.getPurchaseNum();
-            this.uintCode = detail.getPurchaseUnit();//编码
-            this.mtSpec = detail.getMaterialSpecifications();
+            this.unitCode = detail.getPurchaseUnit();//编码
             this.cleanPrice = detail.getPrice();
             this.taxRate = new BigDecimal(13);
             this.price = detail.getPrice();
-            this.remarks = detail.getRemarks();
+            this.remark = detail.getRemarks();
         }
     }
 }

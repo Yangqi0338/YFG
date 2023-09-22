@@ -10,6 +10,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Liu YuBin
@@ -19,19 +20,24 @@ import java.util.List;
 @Data
 public class OpenStyleDto {
 
+    private String id;
+
     public void init(Style s){
+        this.id = s.getId();
+        this.Operator = s.getUpdateName();
         this.code = s.getDesignNo();
         this.name = s.getStyleName();
-        this.ctg = s.getProdCategory3rdName();
-        this.year = s.getYearName();
-        this.season = s.getSeasonName();
-        this.band = s.getBandName();
-        this.sizeGroup = s.getSizeRangeName();
+        this.ctg = s.getProdCategory3rd();
+        this.year = s.getYear();
+        this.season = s.getSeason();
+        this.band = this.year+this.season+s.getBandCode();
+//        this.band = s.getBandCode();
+        this.sizeGroup = s.getSizeRange();
         this.designer = s.getDesigner();
-        this.brand = s.getBrandName();
+        this.brand = s.getSeriesId();
         this.ProfileInfo = s.getSilhouette();
         this.sex = s.getSexName();
-        this.Source = s.getChannelName();
+        this.Source = s.getDesignChannelId();
         this.unit = s.getStyleUnitCode();
         this.imgUrl = s.getStylePic();
 //        this.standardRule;//执行标准
@@ -39,19 +45,29 @@ public class OpenStyleDto {
         this.StyleInfo = s.getStyleFlavourName();
         this.isDisable = false;
         this.isPush = true;
-        this.smCode = s.getDesignNo();
-        this.BigCtg = s.getProdCategory1stName();
+//        this.smCode = s.getDesignNo();
+        this.BigCtg = s.getProdCategory();
+        this.SaleInfo = s.getSellingPoint();
 //        private String Composition;//成分
         this.checkExtinfoStatuz = true;
-        this.remark = "";
+        this.remark = s.getRemarks();
 
         //扩展字段
         this.pdtEx = new PdteEx();
         this.pdtEx.initPdteEx(s);
+        this.Att01 = this.pdtEx.getAtt01();
+        this.Att02 = this.pdtEx.getAtt02();
+        this.Att03 = this.pdtEx.getAtt03();
+        this.Att04 = this.pdtEx.getAtt04();
+        this.Att05 = this.pdtEx.getAtt05();
+        this.Att06 = this.pdtEx.getAtt06();
+        this.Att07 = this.pdtEx.getAtt07();
+        this.Att08 = this.pdtEx.getAtt08();
+        this.Att09 = this.pdtEx.getAtt09();
     }
 
 
-
+    private String Operator;//操作人
     private String code;//款式编码
     private String name;//款式名称
     private String ctg;//末级类目
@@ -87,9 +103,22 @@ public class OpenStyleDto {
     private String remark;//备注
     private boolean checkExtinfoStatuz;//是否验证吊牌
 
+
+    private String Att01;//是否授权款
+    private String Att02;//日销价
+    private String Att03;//针梭织
+    private String Att04;//产品线
+    private String Att05;//二级类目
+    private String Att06;//三级类目
+    private String Att07;//四级类目
+    private String Att08;//款式类型
+    private String Att09;//渠道类型
+
     private PdteEx pdtEx;//款式主表扩展表
     private List<Sku> skus;
     private List<Skc> skcs;
+
+    private Map<String,String> sizeMap;//临时使用的尺码数据
 
     /**
      * 吊牌列表
@@ -107,6 +136,7 @@ public class OpenStyleDto {
     @Data
     class PdteEx{
         private void initPdteEx(Style s){
+            this.Att03 = s.getNeedleWeaving();
             //设计品类
             if (StringUtils.isNotBlank(s.getDesignCategoryName())){
                 String[] split = s.getDesignCategoryName().split(" / ");
@@ -159,11 +189,11 @@ public class OpenStyleDto {
      * 初始化sku
      * @param skuList
      */
-    public void initSku(List<StyleInfoSku> skuList){
+    public void initSku(List<StyleInfoSku> skuList,String code){
         List<Sku> skus = new ArrayList<>();
         for (StyleInfoSku sku : skuList) {
             Sku skuDto = new Sku();
-            skuDto.init(sku);
+            skuDto.init(sku,code,this.sizeMap);
             skus.add(skuDto);
         }
         this.skus = skus;
@@ -184,12 +214,25 @@ public class OpenStyleDto {
         private String gbCode;//国标码
         private BigDecimal ZERO = new BigDecimal(0);
 
-        public void init(StyleInfoSku sku) {
-            this.skuCode = sku.getSkuCode();
-            this.sizeCode = sku.getSizeCode();
-            this.sizeName = sku.getSizeName();
-            this.colorCode = sku.getColorCode();
+        public void init(StyleInfoSku sku, String code, Map<String, String> sizeMap) {
+//            this.skuCode = sku.getSkuCode();
+            this.skuCode = code;
+            if (StringUtils.isNotBlank(sku.getColorCode())){
+                this.colorCode = sku.getColorCode();
+                this.skuCode += sku.getColorCode();
+            }
+            if (sizeMap != null && StringUtils.isNotBlank(sizeMap.get(sku.getSizeName()))){
+                this.sizeCode = sizeMap.get(sku.getSizeName());
+                this.skuCode += sizeMap.get(sku.getSizeName());
+//                this.sizeCode = sku.getSizeName();
+//                this.skuCode += sku.getSizeName();
+            }
+//            if (StringUtils.isNotBlank(sku.getSizeCode())){
+//                this.sizeCode = sku.getSizeCode();
+//                this.skuCode += sku.getSizeCode();
+//            }
             this.colorName = sku.getColorName();
+            this.sizeName = sku.getSizeName();
             if (sku.getCostPrice() == null){
                 this.CostPrice = ZERO;
             }else{
@@ -209,9 +252,47 @@ public class OpenStyleDto {
      */
     public void initSkc(List<StyleInfoColor> skcList) {
         List<Skc> skcs = new ArrayList<>();
+//        BigDecimal zero = new BigDecimal(0);
+//        Skc skc1 = new Skc();
+//        Skc skc2 = new Skc();
+//        Skc skc3 = new Skc();
+//        Skc skc4 = new Skc();
+//        skc1.setColorCode("JH");
+//        skc1.setImgUrl(" ");
+//        skc1.setPrice(zero);
+//        skc1.setCostprice(zero);
+//        skc1.setReatilprice(zero);
+//        skc1.setIsDisable(false);
+//
+//        skc2.setColorCode("00");
+//        skc2.setImgUrl(" ");
+//        skc2.setPrice(zero);
+//        skc2.setCostprice(zero);
+//        skc2.setReatilprice(zero);
+//        skc2.setIsDisable(false);
+//
+//        skc3.setColorCode("JJ");
+//        skc3.setImgUrl(" ");
+//        skc3.setPrice(zero);
+//        skc3.setCostprice(zero);
+//        skc3.setReatilprice(zero);
+//        skc3.setIsDisable(false);
+//
+//        skc4.setColorCode("01");
+//        skc4.setImgUrl(" ");
+//        skc4.setPrice(zero);
+//        skc4.setCostprice(zero);
+//        skc4.setReatilprice(zero);
+//        skc4.setIsDisable(false);
+//
+//        skcs.add(skc1);
+//        skcs.add(skc2);
+//        skcs.add(skc3);
+//        skcs.add(skc4);
         for (StyleInfoColor color : skcList) {
             Skc skc = new Skc();
             skc.init(color);
+            skcs.add(skc);
         }
         this.skcs = skcs;
     }

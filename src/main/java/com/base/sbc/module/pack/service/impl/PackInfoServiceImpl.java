@@ -36,11 +36,15 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioConfig;
 import com.base.sbc.config.utils.*;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.eumns.UreportDownEnum;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.UreportService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.hangTag.entity.HangTag;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.hangTag.vo.HangTagVO;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
@@ -56,12 +60,17 @@ import com.base.sbc.module.pricing.vo.PricingVO;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.entity.StyleInfoColor;
+import com.base.sbc.module.style.entity.StyleInfoSku;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.service.StyleInfoColorService;
+import com.base.sbc.module.style.service.StyleInfoSkuService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.open.dto.OpenStyleDto;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -73,10 +82,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
@@ -171,6 +177,10 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private DataUpdateScmService dataUpdateScmService;
     @Autowired
     private CcmFeignService ccmFeignService;
+    @Autowired
+    private StyleInfoSkuService styleInfoSkuService;
+    @Autowired
+    private BasicsdatumSizeService basicsdatumSizeService;
 
     @Resource
     private StyleInfoColorService styleInfoColorService;
@@ -993,6 +1003,118 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     }
 
 
+    @Override
+    public List<OpenStyleDto> getStyleListForLinkMore(String companyCode) {
+        //资料包主表
+        QueryWrapper<PackInfo> qwPack = new QueryWrapper<>();
+        qwPack.eq("company_code",companyCode);
+        //todo 待删除
+//        qwPack.eq("id","1698881540366368768");
+//        qwPack.eq("id","1701427517884424192");
+//        qwPack.eq("id","1701774217148821504");
+//        qwPack.eq("id","1703672791017074688");
+        //查询前一个小时的数据
+        qwPack.last(" AND update_date BETWEEN NOW() - INTERVAL 1 HOUR AND NOW()");
+        List<PackInfo> packList = this.list(qwPack);
+        if (packList.size() == 0){
+            return null;
+        }
+        List<String> packIds = new ArrayList<>();
+        List<String> pIds = new ArrayList<>();
+        Map<String, PackInfo> packInfoMap = new HashMap<>();
+        for (PackInfo packInfo : packList) {
+            packIds.add(packInfo.getForeignId());
+            pIds.add(packInfo.getId());
+            packInfoMap.put(packInfo.getForeignId(),packInfo);
+        }
+
+        //款式主表
+        List<Style> styleList = styleService.listByIds(packIds);
+
+        //查询款式主图
+        List<String> stylePicIds = new ArrayList<>();
+        Map<String, String> fileMap = new HashMap<>();
+        for (Style s : styleList) {
+            List<String> picList = StringUtils.convertList(s.getStylePic());
+            if (picList != null && picList.size() > 0){
+                stylePicIds.add(picList.get(0));
+            }
+        }
+        if (stylePicIds.size() > 0){
+            List<UploadFile> fileList = uploadFileService.listByIds(stylePicIds);
+            fileMap = fileList.stream().collect(Collectors.toMap(f -> f.getId(), f -> f.getUrl(), (f1, f2) -> f2));
+
+        }
+
+        //查询条件
+        List<String> codeList = new ArrayList<>();
+        List<OpenStyleDto> styleDtoList = new ArrayList<>();
+        Map<String, OpenStyleDto> styleDtoMap = Maps.newHashMap();
+        List<String> allProductSizeList = new ArrayList<>();
+        for (Style style : styleList) {
+            OpenStyleDto dto = new OpenStyleDto();
+            style.setStylePic(fileMap.get(style.getStylePic()));
+            dto.init(style);
+            codeList.add(style.getDesignNo());
+            styleDtoList.add(dto);
+            dto.setId(packInfoMap.get(style.getId()).getId());
+            styleDtoMap.put(dto.getId(), dto);
+            allProductSizeList.add(style.getProductSizes()+",");
+
+            //尺码编码数据
+            QueryWrapper<BasicsdatumSize> qwSizeCode = new QueryWrapper<>();
+            qwSizeCode.eq("company_code",companyCode);
+            qwSizeCode.like("model_type",style.getSizeRangeName());
+            qwSizeCode.in("hangtags",StringUtils.convertList(style.getProductSizes()));
+            Map<String, String> sizeMap = basicsdatumSizeService.list(qwSizeCode)
+                    .stream().collect(Collectors.toMap(s -> s.getHangtags(), s -> s.getCode(), (s1, s2) -> s2));
+            dto.setSizeMap(sizeMap);
+        }
+
+
+        //sku数据
+        QueryWrapper<StyleInfoSku> qwSku = new QueryWrapper<>();
+        qwSku.eq("company_code",companyCode);
+        qwSku.eq("pack_type","packBigGoods");
+        qwSku.in("foreign_id",pIds);
+        Map<String, List<StyleInfoSku>> skuMap = styleInfoSkuService.list(qwSku)
+                .stream().collect(Collectors.groupingBy(s -> s.getForeignId()));
+        skuMap.forEach((k,v)->{
+            if (!CollectionUtils.isEmpty(v)){
+                if (styleDtoMap.get(k) != null){
+                    styleDtoMap.get(k).initSku(v,styleDtoMap.get(k).getCode());
+                }
+            }
+        });
+
+        //skc
+        QueryWrapper<StyleInfoColor> qwSkc = new QueryWrapper<>();
+        qwSkc.eq("company_code",companyCode);
+        qwSkc.eq("pack_type","packBigGoods");
+        qwSkc.in("foreign_id",pIds);
+        Map<String, List<StyleInfoColor>> skcMap = styleInfoColorService.list(qwSkc)
+                .stream().collect(Collectors.groupingBy(s -> s.getForeignId()));
+        skcMap.forEach((k,v)->{
+            if (!CollectionUtils.isEmpty(v) && styleDtoMap.get(k) != null){
+                styleDtoMap.get(k).initSkc(v);
+            }
+        });
+
+        //吊牌列表
+        QueryWrapper<HangTag> qwTag = new QueryWrapper<>();
+        qwTag.in("bulk_style_no",codeList);
+        Map<String, HangTag> tagMap = hangTagService.list(qwTag)
+                .stream().collect(Collectors.toMap(t -> t.getBulkStyleNo(), t -> t, (t1, t2) -> t2));
+        if(tagMap.size() > 0){
+            for (OpenStyleDto styleDto : styleDtoList) {
+                if (tagMap.get(styleDto.getCode()) != null){
+                    styleDto.setHangTag(tagMap.get(styleDto.getCode()));
+                }
+            }
+        }
+
+        return styleDtoList;
+    }
 // 自定义方法区 不替换的区域【other_end】
 
 }

@@ -8,8 +8,10 @@ package com.base.sbc.open.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -35,6 +37,7 @@ public class OpenMaterialServiceImpl extends BaseServiceImpl<OpenMaterialMapper,
 
 	private final BasicsdatumMaterialWidthService materialWidthService;
 	private final BasicsdatumMaterialColorService materialColorService;
+	private final BasicsdatumColourLibraryService colourLibraryService;
 
 	@Override
 	public List<OpenMaterialDto> getMaterialList(String companyCode) {
@@ -57,8 +60,31 @@ public class OpenMaterialServiceImpl extends BaseServiceImpl<OpenMaterialMapper,
 			Map<String, List<BasicsdatumMaterialColor>> colorMap = new HashMap<>();
 
 			//组装数据
+			Map<String, String> colorImgMap = new HashMap<>();
 			if (CollectionUtil.isNotEmpty(colorList)){
-				colorMap = colorList.stream().collect(Collectors.groupingBy(c -> c.getMaterialCode()));
+				List<String> colorCodeList = new ArrayList<>();
+				for (BasicsdatumMaterialColor color : colorList) {
+					colorCodeList.add(color.getColorCode());
+					if (colorMap.get(color.getMaterialCode()) != null){
+						colorMap.get(color.getMaterialCode()).add(color);
+					}else{
+						List<BasicsdatumMaterialColor> list = new ArrayList<>();
+						list.add(color);
+						colorMap.put(color.getMaterialCode(),list);
+					}
+				}
+				//查询颜色图片作为物料sub的图片
+				BaseQueryWrapper<BasicsdatumColourLibrary> colorImgQc = new BaseQueryWrapper<>();
+				colorImgQc.eq("company_code",companyCode);
+				colorImgQc.in("colour_code",colorCodeList);
+				colorImgMap = colourLibraryService.list(colorImgQc).stream()
+						.collect(Collectors.toMap(c -> c.getColourCode(), c -> {
+							if (c.getPicture() != null) {
+								return c.getPicture();
+							} else {
+								return "";
+							}
+						}, (c1, c2) -> c2));
 			}
 			if (CollectionUtil.isNotEmpty(widthList)){
 				widthMap = widthList.stream().collect(Collectors.groupingBy(w -> w.getMaterialCode()));
@@ -66,6 +92,9 @@ public class OpenMaterialServiceImpl extends BaseServiceImpl<OpenMaterialMapper,
 			List<OpenMaterialSubsVo> subsList;
 			OpenMaterialSubsVo subs;
 			for (OpenMaterialDto material : result) {
+				if ("9999".equals(material.getWidth()) && "无".equals(material.getWidth())){
+					material.setWidth("");
+				}
 				subsList = new ArrayList<>();
 				if (colorMap.get(material.getMtCode()) != null
 						&& widthMap.get(material.getMtCode()) != null){
@@ -73,6 +102,7 @@ public class OpenMaterialServiceImpl extends BaseServiceImpl<OpenMaterialMapper,
 						for (BasicsdatumMaterialWidth width : widthMap.get(material.getMtCode())) {
 							subs = new OpenMaterialSubsVo();
 							subs.init(color,width,material);
+							subs.setImgPath(colorImgMap.get(subs.getColorCode()));
 							subsList.add(subs);
 						}
 					}
@@ -80,6 +110,7 @@ public class OpenMaterialServiceImpl extends BaseServiceImpl<OpenMaterialMapper,
 					for (BasicsdatumMaterialColor color : colorMap.get(material.getMtCode())) {
 						subs = new OpenMaterialSubsVo();
 						subs.init(color,null,material);
+						subs.setImgPath(colorImgMap.get(subs.getColorCode()));
 						subsList.add(subs);
 					}
 				}else if (widthMap.get(material.getMtCode()) != null){

@@ -54,6 +54,7 @@ import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.github.pagehelper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -557,4 +558,32 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
 
 // 自定义方法区 不替换的区域【other_end】
 
+    @Override
+    public List<PackBomVo> getPackBomVoList(PackCommonPageSearchDto dto) {
+        // 查询物料清单数据
+        List<PackBomVo> packBomVos = baseMapper.getPackBomListOpen(dto);
+        // 查询尺码、颜色信息
+        if (CollUtil.isNotEmpty(packBomVos)) {
+            List<String> bomIds = packBomVos.stream().map(PackBomVo::getId).collect(Collectors.toList());
+            Map<String, List<PackBomSizeVo>> packBomSizeMap = packBomSizeService.getByBomIdsToMap(bomIds);
+            // 查询资料包-物料清单-配色
+            Map<String, List<PackBomColorVo>> packBomColorMap = packBomColorService.getByBomIdsToMap(bomIds);
+            List<String> materialCodes = packBomVos.stream()
+                    .filter(x -> Objects.isNull(x.getBulkPrice()) && Objects.isNull(x.getSupplierPrice()))
+                    .map(PackBomVo::getMaterialCode)
+                    .collect(Collectors.toList());
+            Map<String, BigDecimal> defaultSupplerQuotationPrice = basicsdatumMaterialPriceService.getDefaultSupplerQuotationPrice(materialCodes);
+            for (PackBomVo pbv : packBomVos) {
+                pbv.setPackBomSizeList(packBomSizeMap.get(pbv.getId()));
+                pbv.setPackBomColorVoList(packBomColorMap.get(pbv.getId()));
+                if (Objects.isNull(pbv.getBulkPrice()) && Objects.isNull(pbv.getSupplierPrice())) {
+                    pbv.setBulkPrice(defaultSupplerQuotationPrice.get(pbv.getMaterialCode()));
+                }
+                if (Objects.isNull(pbv.getBulkPrice()) && Objects.nonNull(pbv.getSupplierPrice())) {
+                    pbv.setBulkPrice(pbv.getSupplierPrice());
+                }
+            }
+        }
+        return packBomVos;
+    }
 }

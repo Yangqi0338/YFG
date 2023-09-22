@@ -16,6 +16,7 @@ import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
+import com.base.sbc.open.dto.OpenStyleDto;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -204,6 +205,12 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 
     AttachmentVo saveVideoFile(String foreignId, String packType, String fileId);
 
+    /**
+     * 领猫同步数据
+     * @param companyCode
+     * @return
+     */
+    List<OpenStyleDto> getStyleListForLinkMore(String companyCode);
 
 // 自定义方法区 不替换的区域【other_end】
 

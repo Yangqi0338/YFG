@@ -18,6 +18,9 @@ import java.util.List;
 @ApiModel("基础资料-物料档案open BasicsdatumMaterial")
 public class OpenMaterialDto extends BaseEntity {
 
+    private BigDecimal zero = new BigDecimal(0);
+    private String defaultStoreValue = "M01";
+
     private List<OpenMaterialSubsVo> subs;/*规格集合*/
     private List<String> ImgFiles;/*图片--物料图片附件地址*/
     private String mtCode;/*物料编号--物料编码*/
@@ -40,11 +43,13 @@ public class OpenMaterialDto extends BaseEntity {
     private BigDecimal rollWeight;/*（默认0）--卷重*/
     private String lngShrink;/*经缩--经缩*/
     private String latShrink;/*纬缩--纬缩*/
-    private String status;/*状态（停启用）--是否冻结，*/
-    private boolean isDisable;/*状态（停启用）--是否冻结，*/
+    private String status;/*状态（停启用）--是否冻结，状态(0正常,1停用)*/
+    private boolean IsDisable = false;/*状态（停启用）--是否冻结，*/
+    private boolean IsPrepare;/*是否战略备料*/
+    private String isPrepareStr;/*是否战略备料*/
     private String remark;/*备注--备注*/
     private String ImgPath;/*图片--物料主图路径*/
-    private Boolean IsCoverImg;/*默认false--是否覆盖旧物料图片*/
+    private Boolean IsCoverImg = true;/*默认false（图片展示问题，先传true）--是否覆盖旧物料图片*/
     private BigDecimal price;/*采购报价--成本价*/
     private String defaultStore;/*（默认传-M01）--默认仓库*/
     private String operator;/*修改人--操作人*/
@@ -64,12 +69,23 @@ public class OpenMaterialDto extends BaseEntity {
 
 
     public void init() {
-        if ("0".equals(this.status)){
-            this.isDisable = true;
+//        if ("0".equals(this.status)){
+//            this.IsDisable = false;
+//        }else{
+//            this.IsDisable = true;
+//        }
+        if ("0".equals(this.isPrepareStr)){
+            this.IsPrepare = false;
         }else{
-            this.isDisable = false;
+            this.IsPrepare = true;
         }
+        this.MOQty = zero;
+        this.paperTube = zero;
+        this.spatialDifference = zero;
+        this.rollWeight = zero;
+        this.defaultStore = defaultStoreValue;
         this.mtExtend = new MtExtend(this.Att02,this.Att04);
+        this.Att04 = null;
     }
 
 
@@ -102,7 +118,7 @@ public class OpenMaterialDto extends BaseEntity {
         private BigDecimal num10;
 
         public MtExtend(String att02, String att04) {
-            this.att02 = att02;
+//            this.att02 = att02;
             this.att04 = att04;
         }
     }
