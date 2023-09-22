@@ -63,7 +63,13 @@ public class PurchaseDemandController extends BaseController{
 		if(StringUtils.isNotBlank(page.getSearch())){
 			qc.and(wrapper -> wrapper.like("design_style_code", page.getSearch())
 					.or()
-					.like("plate_bill_code", page.getSearch()));
+					.like("plate_bill_code", page.getSearch())
+					.or()
+					.like("supplier_name", page.getSearch())
+					.or()
+					.like("material_code", page.getSearch())
+					.or()
+					.like("material_name", page.getSearch()));
 		}
 		if (!StringUtils.isEmpty(page.getOrderBy())){
 			qc.orderByAsc(page.getOrderBy());

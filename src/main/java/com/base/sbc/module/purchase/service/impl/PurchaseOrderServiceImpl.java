@@ -98,12 +98,20 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
         purchaseOrder.setWarehouseStatus("0");
         purchaseOrder.setDelFlag("0");
 
+        BigDecimal totalNum = BigDecimal.ZERO;
+        BigDecimal totalAmount = BigDecimal.ZERO;
         List<PurchaseOrderDetail> purchaseOrderDetailList = purchaseOrder.getPurchaseOrderDetailList();
         for(PurchaseOrderDetail detail : purchaseOrderDetailList){
             detail.setId(idGen.nextIdStr());
             detail.setPurchaseOrderId(id);
             detail.setWarehouseNum(BigDecimal.ZERO);
+
+            totalNum = BigDecimalUtil.add(totalNum, detail.getPurchaseNum());
+            totalAmount = BigDecimalUtil.add(totalAmount, detail.getTotalAmount());
         }
+
+        purchaseOrder.setTotal(totalNum);
+        purchaseOrder.setTotalAmount(totalAmount);
 
         boolean result = save(purchaseOrder);
         if(result){
@@ -127,12 +135,19 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
         purchaseDemandService.manipulatePlanNum(oldList, "1");
         purchaseOrderDetailService.remove(detailQw);
 
+        BigDecimal totalNum = BigDecimal.ZERO;
+        BigDecimal totalAmount = BigDecimal.ZERO;
         purchaseOrder.updateInit(userCompany);
         List<PurchaseOrderDetail> purchaseOrderDetailList = purchaseOrder.getPurchaseOrderDetailList();
         for(PurchaseOrderDetail detail : purchaseOrderDetailList){
             detail.setId(idGen.nextIdStr());
             detail.setPurchaseOrderId(purchaseOrder.getId());
+
+            totalNum = BigDecimalUtil.add(totalNum, detail.getPurchaseNum());
+            totalAmount = BigDecimalUtil.add(totalAmount, detail.getTotalAmount());
         }
+        purchaseOrder.setTotal(totalNum);
+        purchaseOrder.setTotalAmount(totalAmount);
 
         boolean result = updateById(purchaseOrder);
         if(result){
