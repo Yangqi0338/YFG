@@ -7,20 +7,33 @@
 package com.base.sbc.module.pack.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.pack.entity.PackBomColor;
-/** 
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
  * 类描述：资料包-物料清单-配色 dao类
+ *
+ * @author LiZan
+ * @version 1.0
  * @address com.base.sbc.module.pack.dao.PackBomColorDao
- * @author LiZan  
- * @email  2682766618@qq.com
- * @date 创建时间：2023-8-23 9:44:43 
- * @version 1.0  
+ * @email 2682766618@qq.com
+ * @date 创建时间：2023-8-23 9:44:43
  */
 @Mapper
 public interface PackBomColorMapper extends BaseMapper<PackBomColor> {
-// 自定义方法区 不替换的区域【other_start】
+    // 自定义方法区 不替换的区域【other_start】
 
+    /**
+     * 通过颜色编码、版本获取物料清单id
+     * @param colorCode
+     * @param bomVersionId
+     * @return
+     */
+    List<String> getBomIdByColorCode(@Param("colorCode") String colorCode,
+                                     @Param("bomVersionId") String bomVersionId);
 
 
 // 自定义方法区 不替换的区域【other_end】
