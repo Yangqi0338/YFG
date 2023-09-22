@@ -27,10 +27,12 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.purchase.dto.LinkMorePurchaseOrderDto;
+import com.base.sbc.module.purchase.entity.MaterialWarehouse;
 import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
 import com.base.sbc.module.purchase.entity.WarehousingOrderDetail;
 import com.base.sbc.module.purchase.mapper.PurchaseOrderMapper;
 import com.base.sbc.module.purchase.entity.PurchaseOrder;
+import com.base.sbc.module.purchase.service.MaterialWarehouseService;
 import com.base.sbc.module.purchase.service.PurchaseDemandService;
 import com.base.sbc.module.purchase.service.PurchaseOrderDetailService;
 import com.base.sbc.module.purchase.service.PurchaseOrderService;
@@ -70,6 +72,9 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
     private BasicsdatumMaterialWidthService widthService;
 
     @Autowired
+    private MaterialWarehouseService materialWarehouseService;
+
+    @Autowired
     private TasService tasService;
 
     @Autowired
@@ -93,12 +98,20 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
         purchaseOrder.setWarehouseStatus("0");
         purchaseOrder.setDelFlag("0");
 
+        BigDecimal totalNum = BigDecimal.ZERO;
+        BigDecimal totalAmount = BigDecimal.ZERO;
         List<PurchaseOrderDetail> purchaseOrderDetailList = purchaseOrder.getPurchaseOrderDetailList();
         for(PurchaseOrderDetail detail : purchaseOrderDetailList){
             detail.setId(idGen.nextIdStr());
             detail.setPurchaseOrderId(id);
             detail.setWarehouseNum(BigDecimal.ZERO);
+
+            totalNum = BigDecimalUtil.add(totalNum, detail.getPurchaseNum());
+            totalAmount = BigDecimalUtil.add(totalAmount, detail.getTotalAmount());
         }
+
+        purchaseOrder.setTotal(totalNum);
+        purchaseOrder.setTotalAmount(totalAmount);
 
         boolean result = save(purchaseOrder);
         if(result){
@@ -122,12 +135,19 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
         purchaseDemandService.manipulatePlanNum(oldList, "1");
         purchaseOrderDetailService.remove(detailQw);
 
+        BigDecimal totalNum = BigDecimal.ZERO;
+        BigDecimal totalAmount = BigDecimal.ZERO;
         purchaseOrder.updateInit(userCompany);
         List<PurchaseOrderDetail> purchaseOrderDetailList = purchaseOrder.getPurchaseOrderDetailList();
         for(PurchaseOrderDetail detail : purchaseOrderDetailList){
             detail.setId(idGen.nextIdStr());
             detail.setPurchaseOrderId(purchaseOrder.getId());
+
+            totalNum = BigDecimalUtil.add(totalNum, detail.getPurchaseNum());
+            totalAmount = BigDecimalUtil.add(totalAmount, detail.getTotalAmount());
         }
+        purchaseOrder.setTotal(totalNum);
+        purchaseOrder.setTotalAmount(totalAmount);
 
         boolean result = updateById(purchaseOrder);
         if(result){
@@ -264,7 +284,8 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
             purchaseOrder.setReviewer(userCompany.getUserId());
             purchaseOrder.setReviewDate(new Date());
             purchaseOrder.setStatus("2");
-            updateById(purchaseOrder);
+            //todo 待删除
+//            updateById(purchaseOrder);
 
             QueryWrapper<PurchaseOrderDetail> detailQw = new QueryWrapper<>();
             detailQw.eq("purchase_order_id", purchaseOrder.getId());
@@ -286,6 +307,8 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
             //获取颜色规格编码
             QueryWrapper<BasicsdatumMaterialColor> colorQueryWrapper = new QueryWrapper<>();
             QueryWrapper<BasicsdatumMaterialWidth> widthQueryWrapper = new QueryWrapper<>();
+            colorQueryWrapper.eq("company_code",userCompany.getCompanyCode());
+            widthQueryWrapper.eq("company_code",userCompany.getCompanyCode());
             colorQueryWrapper.in("material_code",materialCodeList);
             widthQueryWrapper.in("material_code",materialCodeList);
             List<BasicsdatumMaterialColor> colors = colorService.list(colorQueryWrapper);
@@ -305,19 +328,29 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
                     }
                 }
             }
+            String cKey;
+            String wKey;
             for (PurchaseOrderDetail detail : purchaseOrderDetailList) {
                 if (unitMap.get(detail.getPurchaseUnit()) != null) {
                     detail.setPurchaseUnit(unitMap.get(detail.getPurchaseUnit()));
                 }
-                if (colorMap.get(detail.getMaterialColor()) != null) {
-                    detail.setMaterialColorCode(colorMap.get(detail.getMaterialColor()));
+                cKey = detail.getMaterialCode() + detail.getMaterialColor();
+                if (colorMap.get(cKey) != null) {
+                    detail.setMaterialColorCode(colorMap.get(cKey));
                 }
-                if (widthMap.get(detail.getMaterialSpecifications()) != null) {
-                    detail.setMaterialSpecificationsCode(widthMap.get(detail.getMaterialSpecifications()));
+                wKey = detail.getMaterialCode() + detail.getMaterialSpecifications();
+                if (widthMap.get(wKey) != null) {
+                    detail.setMaterialSpecificationsCode(widthMap.get(wKey));
                 }
             }
+            purchaseOrder.setPurchaseOrderDetailList(purchaseOrderDetailList);
             LinkMorePurchaseOrderDto purchaseOrderDto = new LinkMorePurchaseOrderDto();
             purchaseOrderDto.init(purchaseOrder);
+
+            MaterialWarehouse warehouse = materialWarehouseService.getById(purchaseOrder.getWarehouseId());
+            purchaseOrderDto.setOperator(userCompany.getAliasUserName());
+            purchaseOrderDto.setCheckMan(userCompany.getAliasUserName());
+            purchaseOrderDto.setWhCode(warehouse.getCode());
             tasService.pushPurchaseOrder(purchaseOrderDto);
         }
     }

@@ -73,10 +73,11 @@ public class PurchaseOrderController extends BaseController{
 		qc.eq("company_code", userCompany);
 		qc.eq(StringUtils.isNotBlank(page.getOrderStatus()),"order_status", page.getOrderStatus());
 		qc.eq(StringUtils.isNotBlank(page.getStatus()),"status", page.getStatus());
+		qc.eq(StringUtils.isNotBlank(page.getDistributeStatus()),"distribute_status", page.getDistributeStatus());
 		if(StringUtils.isNotBlank(page.getSearch())){
-			qc.and(wrapper -> wrapper.like("design_style_code", page.getSearch())
+			qc.and(wrapper -> wrapper.like("code", page.getSearch())
 					.or()
-					.like("plate_bill_code", page.getSearch()));
+					.like("supplier_name", page.getSearch()));
 		}
 		if (!StringUtils.isEmpty(page.getOrderBy())){
 			qc.orderByAsc(page.getOrderBy());

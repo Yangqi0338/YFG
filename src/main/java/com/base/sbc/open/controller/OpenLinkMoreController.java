@@ -1,30 +1,41 @@
 package com.base.sbc.open.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.http.HttpResponse;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumSupplierDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
-import com.base.sbc.module.basicsdatum.vo.WarehouseMaterialVo;
-import com.base.sbc.module.purchase.entity.DeliveryNotice;
+import com.base.sbc.module.common.entity.Attachment;
+import com.base.sbc.module.common.entity.UploadFile;
+import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.service.UploadFileService;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
+import com.base.sbc.module.pack.entity.*;
+import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.purchase.service.DeliveryNoticeService;
-import com.base.sbc.open.dto.OpenMaterialDto;
 import com.base.sbc.open.dto.OpenMaterialNoticeDto;
+import com.base.sbc.open.dto.OpenStyleBomDto;
+import com.base.sbc.open.dto.OpenStyleDto;
 import com.base.sbc.open.service.OpenMaterialService;
 import com.base.sbc.open.thirdToken.DsLinkMoreScm;
+import com.base.sbc.open.timedTask.DsLinkMoreTimedTask;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -43,24 +54,228 @@ public class OpenLinkMoreController extends BaseController{
     @Autowired
     private OpenMaterialService materialService;
     @Autowired
+    private PackInfoService packInfoService;
+    @Autowired
     private BasicsdatumSupplierService supplierService;
     @Autowired
     private DeliveryNoticeService deliveryNoticeService;
+
+    @Autowired
+    private PackSizeService packSizeService;
+    @Autowired
+    private AttachmentService attachmentService;
+    @Autowired
+    private UploadFileService uploadFileService;
+    @Autowired
+    private PackBomService packBomService;
+    @Autowired
+    private PackBomColorService packBomColorService;
+    @Autowired
+    private PackBomSizeService packBomSizeService;
+    @Autowired
+    private BasicsdatumMaterialService basicsdatumMaterialService;
+    @Autowired
+    private PackTechSpecService packTechSpecService;
+    @Autowired
+    private PackProcessPriceService packProcessPriceService;
+    @Autowired
+    private PackPricingService packPricingService;
+    @Autowired
+    private PackPricingOtherCostsService packPricingOtherCostsService;
+//    @Autowired
+//    private PackCostsService packPricingProcessCostsService;
     @Autowired
     private DsLinkMoreScm linkMoreScm;
+    @Autowired
+    private DsLinkMoreTimedTask timedTask;
 
-    @ApiOperation(value = "物料推送领猫scm测试接口")
+    @ApiOperation(value = "物料推送领猫scm测试接口(已通过测试)")
     @GetMapping("/getMaterialList")
-    public List<WarehouseMaterialVo> getMaterialList(
-            @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, BasicsdatumMaterialQueryDto dto) {
-        List<OpenMaterialDto> purchaseMaterialList = materialService.getMaterialList("677447590605750272");
-        for (OpenMaterialDto materialDto : purchaseMaterialList) {
-            String arges = JSON.toJSONString(materialDto);
-            HttpResponse authTokenOrSign = linkMoreScm.sendToLinkMore("v1/BaseInfo/updatematerial", arges);
-            String body = authTokenOrSign.body();
-            System.out.println(body);
-            break;
+    public ApiResult getMaterialList(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+        timedTask.materialTask();
+        return selectSuccess("ok");
+    }
+
+    @ApiOperation(value = "款式基础信息推送领猫scm测试接口(已通过测试)")
+    @GetMapping("/getStyleListForLinkMore")
+    public ApiResult getStyleListForLinkMore(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+        List<OpenStyleDto> styleList = packInfoService.getStyleListForLinkMore("677447590605750272");
+        if (styleList == null){
+            return null;
         }
+        for (OpenStyleDto dto : styleList) {
+            dto.setDesigner("风音");
+            String arges = JSON.toJSONString(dto);
+            System.out.println(arges);
+//            HttpResponse authTokenOrSign = linkMoreScm.sendToLinkMore("v1/product/updateproduct", arges);
+//            String body = authTokenOrSign.body();
+//            System.out.println("========================"+body);
+        }
+        return selectSuccess(styleList);
+    }
+
+    @ApiOperation(value = "款式资料包推送领猫scm测试接口")
+    @GetMapping("/getStyleBomForLinkMore")
+    public ApiResult getStyleBomForLinkMore(@RequestHeader(BaseConstant.USER_COMPANY) String idStr) {
+        timedTask.styleTask();
+        return null;
+    }
+
+    @ApiOperation(value = "款式资料包推送领猫scm测试接口-附件(已通过测试)")
+    @GetMapping("/getStyleBomForLinkMoreFile")
+    public ApiResult getStyleBomForLinkMoreFile(){
+        //图片附件表
+        QueryWrapper<Attachment> attachmentQw = new QueryWrapper<>();
+        linkMoreScm.openCommonQw(attachmentQw,"1698881540366368768",null,null);
+        attachmentQw.eq("type","packBigGoods-图样附件");
+        List<Attachment> list = attachmentService.list(attachmentQw);
+        List<String> ids = list.stream().map(a -> a.getFileId()).collect(Collectors.toList());
+        List<UploadFile> fileList = uploadFileService.listByIds(ids);
+        Map<String, String> fileMap = fileList.stream().collect(Collectors.toMap(f -> f.getId(), f -> f.getUrl(), (f1, f2) -> f2));
+        OpenStyleBomDto bomDto = new OpenStyleBomDto();
+        bomDto.initAttachmentList(list,fileMap);
+//        for (OpenStyleBomDto.OpenAttachmentDto dto : bomDto.getAttachmentList()) {
+//            dto.setCode("822310301");
+//        }
+
+        String args = JSON.toJSONString(bomDto.getAttachment());
+        logger.info("款式资料包(工序工价)上传领猫上传信息 :{}", args);
+        HttpResponse attachment = linkMoreScm.sendToLinkMore("v1/product/standardbom/updateimgfiles", args);
+        logger.info("款式资料包(工序工价)上传领猫返回信息 :{}", attachment.body());
+        return null;
+    }
+
+    @ApiOperation(value = "款式资料包推送领猫scm测试接口-尺寸表(已通过测试)")
+    @GetMapping("/getStyleBomForLinkMoreSize")
+    public ApiResult getStyleBomForLinkMoreSize(){
+        //尺寸表
+        QueryWrapper<PackSize> sizeQw = new QueryWrapper<>();
+//        linkMoreScm.openCommonQw(sizeQw,"1698881540366368768",null,"packBigGoods");
+        linkMoreScm.openCommonQw(sizeQw,"1701774217148821504",null,"packBigGoods");
+        List<PackSize> list = packSizeService.list(sizeQw);
+
+        OpenStyleBomDto bomDto = new OpenStyleBomDto();
+        bomDto.setCode("922410201");
+        bomDto.initSizeList(list,null);
+
+        String args =JSON.toJSONString(bomDto.getPackSize());
+
+        logger.info("款式资料包(尺码表)上传领猫上传信息 :{}", args);
+        HttpResponse attachment = linkMoreScm.sendToLinkMore("v1/product/standardbom/updatesizeguides", args);
+
+        logger.info("款式资料包(尺码表)上传领猫返回信息 :{}", attachment.body());
+        return null;
+    }
+
+    @ApiOperation(value = "款式资料包推送领猫scm测试接口-物料清单(已通过测试)")
+    @GetMapping("/getStyleBomForLinkMoreMaterial")
+    public ApiResult getStyleBomForLinkMoreMaterial(){
+        //物料清单
+        QueryWrapper<PackBom> bomQw = new QueryWrapper<>();
+        linkMoreScm.openCommonQw(bomQw,"1698881540366368768",null,"packBigGoods");
+        List<PackBom> bomList = packBomService.list(bomQw);
+        List<String> bomCodes = new ArrayList<>();
+        for (PackBom bom : packBomService.list(bomQw)) {
+            bomCodes.add(bom.getMaterialCode());
+        }
+        //物料档案
+        QueryWrapper<BasicsdatumMaterial> materialQW = new QueryWrapper<>();
+        materialQW.in("material_code",bomCodes);
+        Map<String, BasicsdatumMaterial> materialMap = basicsdatumMaterialService.list(materialQW)
+                .stream().collect(Collectors.toMap(p -> p.getMaterialCode(), p -> p, (p1, p2) -> p2));
+        //物料配色
+        QueryWrapper<PackBomColor> bomColorQw = new QueryWrapper<>();
+        linkMoreScm.openCommonQw(bomColorQw,"1698881540366368768",null,"packBigGoods");
+        Map<String, List<PackBomColor>> bomColorMap = packBomColorService.list(bomColorQw)
+                .stream().collect(Collectors.groupingBy(p -> p.getForeignId()));
+        //物料配码
+        QueryWrapper<PackBomSize> bomSizeQw = new QueryWrapper<>();
+        linkMoreScm.openCommonQw(bomSizeQw,"1698881540366368768",null,"packBigGoods");
+        Map<String, List<PackBomSize>> bomSizeMap = packBomSizeService.list(bomSizeQw)
+                .stream().collect(Collectors.groupingBy(p -> p.getForeignId()));
+
+        OpenStyleBomDto bomDto = new OpenStyleBomDto();
+        bomDto.initBomList(bomList,bomColorMap.get("1698881540366368768"),bomSizeMap.get("1698881540366368768"),materialMap, null);
+        String args =JSON.toJSONString(bomDto.getPackBom());
+
+        logger.info("款式资料包(物料表)上传领猫上传信息 :{}", args);
+        HttpResponse attachment = linkMoreScm.sendToLinkMore("v1/product/standardbom/updatematerials", args);
+        logger.info("款式资料包(物料表)上传领猫返回信息 :{}", attachment.body());
+        return null;
+    }
+
+    @ApiOperation(value = "款式资料包推送领猫scm测试接口-工艺说明(已通过测试)")
+    @GetMapping("/getStyleBomForLinkMoreSay")
+    public ApiResult getStyleBomForLinkMoreSay(){
+        //工艺说明
+        QueryWrapper<PackTechSpec> packTechSpecQw = new QueryWrapper<>();
+        linkMoreScm.openCommonQw(packTechSpecQw,"1698881540366368768",null,"packBigGoods");
+        List<PackTechSpec> packTechSpecList = packTechSpecService.list(packTechSpecQw);
+
+        OpenStyleBomDto bomDto = new OpenStyleBomDto();
+        bomDto.initTechSpecList(packTechSpecList);
+        String args =JSON.toJSONString(bomDto.getPackTechSpec());
+
+        logger.info("款式资料包(工艺说明表)上传领猫上传信息 :{}", args);
+        HttpResponse attachment = linkMoreScm.sendToLinkMore("v1/product/standardbom/updateprocguides", args);
+        logger.info("款式资料包(工艺说明表)上传领猫返回信息 :{}", attachment.body());
+        return null;
+    }
+
+    @ApiOperation(value = "款式资料包推送领猫scm测试接口-工序工价(已通过测试)")
+    @GetMapping("/getStyleBomForLinkMorePrice")
+    public ApiResult getStyleBomForLinkMorePrice(){
+        //工序工价
+        QueryWrapper<PackProcessPrice> packProcessPriceQw = new QueryWrapper<>();
+        linkMoreScm.openCommonQw(packProcessPriceQw,"1698881540366368768",null,"packBigGoods");
+        List<PackProcessPrice> priceList = packProcessPriceService.list(packProcessPriceQw);
+
+        OpenStyleBomDto bomDto = new OpenStyleBomDto();
+        bomDto.initPackProcessPriceList(priceList);
+        String args =JSON.toJSONString(bomDto.getPackProcess());
+
+        logger.info("款式资料包(工序工价)上传领猫上传信息 :{}", args);
+        HttpResponse attachment = linkMoreScm.sendToLinkMore("v1/product/standardbom/updateprocedures", args);
+        logger.info("款式资料包(工序工价)上传领猫返回信息 :{}", attachment.body());
+        return null;
+    }
+
+    @ApiOperation(value = "款式资料包推送领猫scm测试接口-核价信息(------未通过测试)")
+    @GetMapping("/getStyleBomForLinkMoreCost")
+    public ApiResult getStyleBomForLinkMoreCost(){
+        //核价信息
+        QueryWrapper<PackPricingProcessCosts> processCostsQw = new QueryWrapper<>();
+        linkMoreScm.openCommonQw(processCostsQw,"1701774217148821504",null,"packBigGoods");
+        QueryWrapper<PackPricingOtherCosts> otherCostsQw = new QueryWrapper<>();
+        linkMoreScm.openCommonQw(otherCostsQw,"1701774217148821504",null,"packBigGoods");
+        otherCostsQw.eq("costs_item","其它费");
+        QueryWrapper<PackPricing> costQw = new QueryWrapper<>();
+        linkMoreScm.openCommonQw(costQw,"1701774217148821504",null,"packBigGoods");
+
+        Map<String,List<PackPricingOtherCosts>> otherCostsMap = packPricingOtherCostsService.list(otherCostsQw)
+                .stream().collect(Collectors.groupingBy(p -> p.getColorCode()));
+        List<PackPricing> pricingList = packPricingService.list(costQw);
+        if (CollectionUtil.isEmpty(pricingList)){
+            return null;
+        }
+        //查询每一个对应的物料
+        List<String> colorList = pricingList.stream().map(p -> p.getColorCode()).collect(Collectors.toList());
+        PackCommonPageSearchDto dto = new PackCommonPageSearchDto();
+        dto.setForeignId("1701774217148821504");
+        dto.setColorCode(StringUtils.convertListToString(colorList));
+        dto.setPackType("packBigGoods");
+        List<PackBomVo> bomCostList = packBomService.getPackBomVoList(dto);
+
+        OpenStyleBomDto bomDto = new OpenStyleBomDto();
+//        bomDto.initCostList(pricingList,otherCostsMap,bomCostList);
+        bomDto.initCostList(pricingList,null,bomCostList,null, null);
+
+//        String args =JSON.toJSONString(bomDto.getCostList().get(0));
+
+//        String ttt = "{\"operator\":\"\",\"extra\":\"\",\"isPush\":true,\"isNotice\":true,\"isForce\":true,\"code\":\"\",\"list\":\"123\"}";
+////        logger.info("款式资料包(核价信息)上传领猫上传信息 :{}", args);
+//        HttpResponse attachment = linkMoreScm.sendToLinkMore("v1/product/standardbom/updateprocguides", ttt);
+//        logger.info("款式资料包(核价信息)上传领猫返回信息 :{}", attachment.body());
         return null;
     }
 
@@ -75,5 +290,4 @@ public class OpenLinkMoreController extends BaseController{
     public ApiResult saveMaterialNotice(@RequestBody List<OpenMaterialNoticeDto> noticeDtoList){
         return deliveryNoticeService.saveNoticeList(noticeDtoList);
     }
-
 }

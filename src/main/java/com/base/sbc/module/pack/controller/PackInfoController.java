@@ -193,7 +193,6 @@ public class PackInfoController {
     @PostMapping("/setPatternNo")
 	@Transactional
     public boolean setPatternNo(@Validated @RequestBody PackInfoSetPatternNoDto dto) {
-
         return packInfoService.setPatternNo(dto);
     }
 

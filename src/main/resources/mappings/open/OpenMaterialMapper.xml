@@ -6,17 +6,17 @@
         SELECT
         	bm.material_code AS mtCode,
         	bm.supplier_id AS spCode,
-        	bm.material_type AS mtType,
-        	bm.category1_name AS mtBigCtg,
-        	bm.category3_name AS mtCtg,
+        	bm.material_category AS mtType,
+        	bm.category2_code AS mtBigCtg,
+        	bm.category3_code AS mtCtg,
         	bm.material_name AS mtName,
-        	bm.purchase_unit_name AS unit,
+        	bm.purchase_unit_code AS unit,
         	bm.loss_rate AS loss,
-        	bm.year_name AS `Year`,
-        	bm.season_name AS Season,
+        	bm.year AS `Year`,
+        	bm.season AS Season,
         	bm.translate AS width,
         	bm.gram_weight AS weight,
-        	bm.material_source AS mtSource,
+        	bm.material_source_name AS mtSource,
         	bm.ingredient AS mtComponent,
         	bm.longitude_shrink AS lngShrink,
         	bm.latitude_shrink AS latShrink,
@@ -29,15 +29,17 @@
         	bm.check_bill_code AS Att04,
         	bm.material_code AS mtSubCode,
         	bm.`supplier_color_no` AS spColorName,
-        	bm.create_date
+        	bm.create_date,
+        	bm.image_url AS ImgPath,
+        	bm.is_strategic AS isPrepareStr
         FROM
         	t_basicsdatum_material AS bm
-        	LEFT JOIN t_basicsdatum_material_price AS bmp ON bm.material_code = bmp.material_code and bm.company_code = bmp.company_code
+        	LEFT JOIN t_basicsdatum_material_price AS bmp ON bm.material_code = bmp.material_code and bm.company_code = bmp.company_code and bmp.select_flag = '1'
         WHERE
         	bm.company_code = #{companyCode}
---         	and	TO_DAYS(bm.update_date) = TO_DAYS(CURDATE())
-			and TO_DAYS(CURDATE()) - TO_DAYS(bm.update_date) = 1
---         	and	bm.create_date >= DATE_SUB(CURDATE(),INTERVAL 7 DAY)
-        -- 	and DATE_FORMAT(bm.create_date,'%Y-%m') = DATE_FORMAT(DATE_SUB(curdate(), INTERVAL 1 MONTH),'%Y-%m')
+--         and bm.material_code in ('FF042330003','SS022410020','WW022410003')
+        	AND bm.update_date BETWEEN NOW() - INTERVAL 1 HOUR AND NOW()
+        	and bm.del_flag = '0'
+        GROUP BY bm.material_code
     </select>
 </mapper>

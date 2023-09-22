@@ -26,17 +26,22 @@ public class OpenMaterialSubsVo extends BaseEntity {
      * @param material
      */
     public void init(BasicsdatumMaterialColor color, BasicsdatumMaterialWidth width, OpenMaterialDto material) {
-        String s = "";
         this.mtSubCode = material.getMtCode();
-        this.ImgPath = material.getImgPath();
         if (color != null){
+            this.mtSubCode += color.getColorCode();
             this.colorCode = color.getColorCode();
             this.colorName = color.getColorName();
             this.spColorName = color.getSupplierColorCode();
         }
         if (width != null){
-            this.specCode = width.getWidthCode();
-            this.specName = width.getName();
+            if ("9999".equals(width.getWidthCode()) && "无".equals(width.getName())){
+                this.specCode = "";
+                this.specName = "";
+            }else{
+                this.specCode = width.getWidthCode();
+                this.specName = width.getName();
+                this.mtSubCode += width.getWidthCode();
+            }
         }
     }
 

@@ -196,16 +196,9 @@ public interface StyleService extends BaseService<Style> {
     List<StyleInfoColorVo> saveBomInfoColorList(PackInfoDto packInfoDto);
 
     /**
-     * 领猫同步数据
-     * @param companyCode
-     * @return
-     */
-    List<OpenStyleDto> getStyleListForLinkMore(String companyCode);
-
-    /**
      * 修改目标成本
      *
-     * @param foreignId
+     * @param id
      * @param productCost
      */
     void updateProductCost(String id, BigDecimal productCost);

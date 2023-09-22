@@ -101,5 +101,11 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
     @MapKey("foreign_id")
     List<Map<String, String>>  getPackSendStatus(@Param("foreignIds") List<String> foreignIds);
 
+    /**
+     *  物料清单查询分页(开放接口)
+     * @param packCommonPageSearchDto 资料包-公共筛选条件
+     * @return 物料清单
+     */
+    List<PackBomVo> getPackBomListOpen(PackCommonPageSearchDto packCommonPageSearchDto);
 // 自定义方法区 不替换的区域【other_end】
 }

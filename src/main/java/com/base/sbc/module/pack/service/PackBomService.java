@@ -143,4 +143,10 @@ public interface PackBomService extends PackBaseService<PackBom> {
 // 自定义方法区 不替换的区域【other_end】
 
 
+    /**
+     * 根据多个颜色查询数据（跳过部分校验）
+     * @param dto
+     * @return
+     */
+    List<PackBomVo> getPackBomVoList(PackCommonPageSearchDto dto);
 }
