@@ -502,7 +502,7 @@ public class SmpService {
 
             for (BasicsdatumMaterialPricePageVo basicsdatumMaterialPricePageVo : materialPricePageVoList) {
                 SmpQuot smpQuot = new SmpQuot();
-                smpQuot.setSupplierSize(basicsdatumMaterialPricePageVo.getWidthName());
+                smpQuot.setSupplierSize(basicsdatumMaterialPricePageVo.getWidthName().replaceAll("<->", ","));
                 smpQuot.setSizeUrl(basicsdatumMaterialPricePageVo.getWidth());
                 smpQuot.setSupplierColorId(basicsdatumMaterialPricePageVo.getColor());
                 smpQuot.setSupplierColorName(basicsdatumMaterialPricePageVo.getColorName());

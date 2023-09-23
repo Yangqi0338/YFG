@@ -211,7 +211,7 @@ public class OpenSmpService {
                 BasicsdatumMaterialWidth basicsdatumMaterialWidth = new BasicsdatumMaterialWidth();
                 basicsdatumMaterialWidth.setStatus(modelItem.isActive() ? "0" : "1");
                 basicsdatumMaterialWidth.setWidthCode(modelItem.getSizeURL());
-                basicsdatumMaterialWidth.setName(modelItem.getSIZECODE());
+                basicsdatumMaterialWidth.setName(modelItem.getSIZECODE().replaceAll(",", "<->"));
                 basicsdatumMaterialWidth.setCode(modelItem.getCODE());
                 basicsdatumMaterialWidth.setSizeName(modelItem.getSIZENAME());
                 basicsdatumMaterialWidth.setSortCode(modelItem.getSORTCODE());
