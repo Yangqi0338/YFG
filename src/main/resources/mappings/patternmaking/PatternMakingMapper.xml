@@ -133,6 +133,8 @@
     <select id="sampleBoardList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardVo">
         SELECT
         p.id AS patternMakingId,
+        p.pattern_design_name ,
+        p.pattern_design_id ,
         s.*,
         p.*
         FROM
