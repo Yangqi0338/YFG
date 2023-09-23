@@ -11,6 +11,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
+import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningDemandProportionDataService;
 import com.base.sbc.module.planning.service.PlanningDemandService;
@@ -71,6 +72,11 @@ public class PlanningDemandController {
 		return planningDemandService.getFormDemand(queryDemandDto);
 	}
 
+	@ApiOperation(value = "删除需求占比")
+	@DeleteMapping("/delDemand")
+	public Boolean delDemand(@Valid @NotBlank(message = "编号id不能为空") String id) {
+		return planningDemandService.delDemand(id);
+	}
 
 	/*穿梭框新增删除需求占比数据*/
 	@ApiOperation(value = "穿梭框新增删除需求占比数据")
@@ -107,8 +113,8 @@ public class PlanningDemandController {
     /*获取维度列表*/
     @ApiOperation(value = "获取维度列表")
     @GetMapping("/getDimensionalityList")
-    public ApiResult getDimensionalityList(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
-        return planningDimensionalityService.getDimensionalityList(queryDemandDimensionalityDto);
+    public List<PlanningDimensionality> getDimensionalityList(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
+        return planningDimensionalityService.getDimensionalityList(queryDemandDimensionalityDto).getPlanningDimensionalities();
     }
 
     /*获取穿梭框表添加维度标签*/

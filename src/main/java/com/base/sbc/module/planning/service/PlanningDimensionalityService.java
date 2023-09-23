@@ -12,6 +12,7 @@ import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.SaveDelDimensionalityDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
+import com.base.sbc.module.planning.vo.DimensionalityListVo;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
      * 自定义方法区 不替换的区域【other_start】
      **/
 
-    ApiResult getDimensionalityList(DimensionLabelsSearchDto DimensionLabelsSearchDto);
+    DimensionalityListVo getDimensionalityList(DimensionLabelsSearchDto DimensionLabelsSearchDto);
 
     ApiResult getFormDimensionality(DimensionLabelsSearchDto DimensionLabelsSearchDto);
 

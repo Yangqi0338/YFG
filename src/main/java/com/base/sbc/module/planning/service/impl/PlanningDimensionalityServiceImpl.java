@@ -25,6 +25,7 @@ import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
+import com.base.sbc.module.planning.vo.DimensionalityListVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +54,8 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
 
 
     @Override
-    public ApiResult getDimensionalityList(DimensionLabelsSearchDto dto) {
+    public DimensionalityListVo getDimensionalityList(DimensionLabelsSearchDto dto) {
+        DimensionalityListVo dimensionalityListVo =new DimensionalityListVo();
         //先按中类查，中类没有再查品类
         BaseQueryWrapper<PlanningDimensionality> qw = new BaseQueryWrapper<>();
         dto.setCategoryFlag("1");
@@ -65,7 +67,9 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             PlanningUtils.dimensionCommonQw(qw, dto);
             planningDimensionalityList = baseMapper.selectList(qw);
         }
-        return ApiResult.success("查询成功", planningDimensionalityList);
+        dimensionalityListVo.setPlanningDimensionalities(planningDimensionalityList);
+        dimensionalityListVo.setCategoryFlag(dto.getCategoryFlag());
+        return dimensionalityListVo;
     }
 
     @Override

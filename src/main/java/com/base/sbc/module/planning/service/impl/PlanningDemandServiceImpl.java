@@ -33,6 +33,7 @@ import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.mapper.PlanningDemandProportionDataMapper;
 import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
 import com.base.sbc.module.planning.service.PlanningDemandService;
+import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.PlanningDemandVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -158,17 +159,11 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         }
         /*品类查询字段配置列表查询品类下的字段id*/
         BaseQueryWrapper qw = new BaseQueryWrapper();
-        qw.eq("status", BaseGlobal.STATUS_NORMAL);
-        qw.eq("form_type_id", formTypeList.get(0).getId());
-        if (StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory2nd())) {
-            qw.apply(StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory2nd()), "FIND_IN_SET({0},prod_category2nd)", queryDemandDimensionalityDto.getProdCategory2nd());
-        } else {
-            qw.apply(StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory()), "FIND_IN_SET({0},category_code)", queryDemandDimensionalityDto.getProdCategory());
-        }
-        qw.apply(StrUtil.isNotBlank(queryDemandDimensionalityDto.getBrand()), "FIND_IN_SET({0},brand)", queryDemandDimensionalityDto.getBrand());
-        qw.eq(StrUtil.isNotBlank(queryDemandDimensionalityDto.getSeason()),"season",queryDemandDimensionalityDto.getSeason());
+        queryDemandDimensionalityDto.setFieldId(formTypeList.get(0).getId());
+        PlanningUtils.fieldConfigQw(qw,queryDemandDimensionalityDto);
         /*查询字段配置中的数据*/
         List<FieldOptionConfig> optionConfigList = fieldOptionConfigMapper.selectList(qw);
+
         /*获取到这个品类下存在的字段*/
         List<String> fieldManagementIdList = optionConfigList.stream().map(FieldOptionConfig::getFieldManagementId).distinct().collect(Collectors.toList());
         if (CollectionUtils.isEmpty(fieldManagementIdList)) {
@@ -258,6 +253,18 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         saveBatch(planningDemandList);
 
         return ApiResult.success("操作成功");
+    }
+
+    /**
+     * 删除需求占比
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public Boolean delDemand(String id) {
+        baseMapper.deleteById(id);
+        return true;
     }
 
 /** 自定义方法区 不替换的区域【other_start】 **/

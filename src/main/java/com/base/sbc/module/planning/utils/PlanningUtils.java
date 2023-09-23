@@ -9,6 +9,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
@@ -130,7 +131,6 @@ public class PlanningUtils {
         qw.notEmptyEq("planning_season_id", dto.getPlanningSeasonId());
         qw.notEmptyEq("channel", dto.getChannel());
 
-
         if (StrUtil.isBlank(dto.getCategoryFlag())) {
             dto.setCategoryFlag(StrUtil.isBlank(dto.getProdCategory2nd()) ? BasicNumber.ZERO.getNumber() : BasicNumber.ONE.getNumber());
         } else if (StrUtil.equals(dto.getCategoryFlag(), BasicNumber.ZERO.getNumber())) {
@@ -148,6 +148,21 @@ public class PlanningUtils {
             qw.eq(prefix + "prod_category", dto.getProdCategory());
             qw.isNull(prefix + "prod_category2nd");
         }
+    }
+
+    //    字段配置
+    public static void fieldConfigQw(BaseQueryWrapper qw, Object bean) {
+        QueryDemandDto dto = BeanUtil.copyProperties(bean, QueryDemandDto.class);
+        /*品类查询字段配置列表查询品类下的字段id*/
+        qw.eq("status", BaseGlobal.STATUS_NORMAL);
+        qw.eq("form_type_id", dto.getFieldId());
+        if (StrUtil.isNotBlank(dto.getProdCategory2nd())) {
+            qw.apply(StrUtil.isNotBlank(dto.getProdCategory2nd()), "FIND_IN_SET({0},prod_category2nd)", dto.getProdCategory2nd());
+        } else {
+            qw.apply(StrUtil.isNotBlank(dto.getProdCategory()), "FIND_IN_SET({0},category_code)", dto.getProdCategory());
+        }
+        qw.apply(StrUtil.isNotBlank(dto.getBrand()), "FIND_IN_SET({0},brand)", dto.getBrand());
+        qw.eq(StrUtil.isNotBlank(dto.getSeason()), "season", dto.getSeason());
     }
 
     public static void dimensionCommonQw(BaseQueryWrapper qw, Object bean) {

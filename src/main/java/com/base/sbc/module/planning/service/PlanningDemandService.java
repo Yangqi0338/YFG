@@ -36,6 +36,15 @@ public interface PlanningDemandService extends BaseService<PlanningDemand> {
 
     /*新增修改*/
     ApiResult saveDel(List<SaveDelDemandDto> saveDelDemandDtos);
+
+    /**
+     * 删除需求占比
+     *
+     * @param id
+     * @return
+     */
+    Boolean delDemand(String id);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 	

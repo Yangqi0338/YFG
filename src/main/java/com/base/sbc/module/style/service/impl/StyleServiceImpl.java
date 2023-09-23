@@ -66,6 +66,7 @@ import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
+import com.base.sbc.module.planning.vo.DimensionalityListVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
@@ -641,7 +642,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         DimensionLabelsSearchDto pdqw = new DimensionLabelsSearchDto();
         BeanUtil.copyProperties(dto, pdqw);
         // 查询样衣的
-        List<PlanningDimensionality> pdList = (List<PlanningDimensionality>) planningDimensionalityService.getDimensionalityList(pdqw).getData();
+        DimensionalityListVo listVo = planningDimensionalityService.getDimensionalityList(pdqw);
+        List<PlanningDimensionality> pdList = listVo.getPlanningDimensionalities();
         List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
@@ -651,7 +653,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
 
                 QueryFieldOptionConfigDto queryFieldOptionConfigDto = new QueryFieldOptionConfigDto();
-                if (BaseGlobal.YES.equals(dto.getCategoryFlag())) {
+                if (BaseGlobal.YES.equals(listVo.getCategoryFlag())) {
                     queryFieldOptionConfigDto.setProdCategory2nd(dto.getProdCategory2nd());
                 } else {
                     queryFieldOptionConfigDto.setCategoryCode(dto.getProdCategory());

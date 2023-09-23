@@ -31,6 +31,7 @@ import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
+import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -169,15 +170,8 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
         }
         /*品类查询字段配置列表查询品类下的字段id*/
         BaseQueryWrapper qw = new BaseQueryWrapper();
-        qw.eq("status", BaseGlobal.STATUS_NORMAL);
-        qw.eq("form_type_id", formTypeList.get(0).getId());
-        if (StrUtil.isNotBlank(queryDemandDto.getProdCategory2nd())) {
-            qw.apply(StrUtil.isNotBlank(queryDemandDto.getProdCategory2nd()), "FIND_IN_SET({0},prod_category2nd)", queryDemandDto.getProdCategory2nd());
-        } else {
-            qw.apply(StrUtil.isNotBlank(queryDemandDto.getProdCategory()), "FIND_IN_SET({0},category_code)", queryDemandDto.getProdCategory());
-        }
-        qw.apply(StrUtil.isNotBlank(queryDemandDto.getBrand()), "FIND_IN_SET({0},brand)", queryDemandDto.getBrand());
-        qw.eq(StrUtil.isNotBlank(queryDemandDto.getSeason()),"season",queryDemandDto.getSeason());
+        queryDemandDto.setFieldId(formTypeList.get(0).getId());
+        PlanningUtils.fieldConfigQw(qw,queryDemandDto);
         List<FieldOptionConfig> optionConfigList = fieldOptionConfigMapper.selectList(qw);
         /*获取到这个品类下存在的字段*/
         List<String> fieldManagementIdList = optionConfigList.stream().map(FieldOptionConfig::getFieldManagementId).distinct().collect(Collectors.toList());
