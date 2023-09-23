@@ -14,7 +14,14 @@
         SELECT fpi.id,
         fpi.remarks,
         fpi.source,
-        fpi.source_id,
+        <choose>
+            <when test="materialFlag != null and materialFlag != ''">
+                ifNull(fdb.to_material_id, fpi.source_id) as sourceId,
+            </when>
+            <otherwise>
+                fpi.source_id,
+            </otherwise>
+        </choose>
         fpi.fabric_label,
         fdb.category1_name,
         fdb.category1_code,
