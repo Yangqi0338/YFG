@@ -12,6 +12,7 @@ public enum DataPermissionsBusinessTypeEnum {
     design_task("design_task", "款式设计任务"),
     style_info("style_info", "设计档案"),
     StyleBoard("StyleBoard", "款式看板"),
+    technologyCenter("technologyCenter", "技术中心看板"),
     FabricInformation("FabricInformation", "调样管理"),
     styleColor("styleColor", "款式配色"),
     packDesign("packDesign", "设计BOM"),

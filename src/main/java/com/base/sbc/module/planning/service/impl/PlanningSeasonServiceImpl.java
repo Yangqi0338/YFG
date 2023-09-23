@@ -272,7 +272,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         qw.eq(StrUtil.isNotBlank(userCompany), "COMPANY_CODE", userCompany);
         qw.eq("del_flag", BaseGlobal.NO);
         qw.orderByDesc("name");
-        dataPermissionsService.getDataPermissionsForQw(qw, businessType);
+        dataPermissionsService.getDataPermissionsForQw(qw, businessType, "", new String[]{"brand"}, true);
         return getBaseMapper().getPlanningSeasonOptions(qw);
     }
 

@@ -43,7 +43,6 @@ import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
-import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
@@ -336,6 +335,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
+        qw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "p.planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), CharUtil.COMMA));
         qw.eq("design_send_status", BaseGlobal.YES);
         qw.eq("s.del_flag", BaseGlobal.NO);
         qw.eq("p.del_flag", BaseGlobal.NO);
@@ -345,7 +345,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         } else {
             dto.setOrderBy(dto.getOrderBy());
         }
-
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK());
         Page<TechnologyCenterTaskVo> page = PageHelper.startPage(dto);
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
         //设置图片

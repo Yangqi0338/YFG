@@ -1,6 +1,7 @@
 package com.base.sbc.module.patternmaking.vo;
 
 
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -154,5 +155,7 @@ public class TechnologyCenterTaskVo {
     @ApiModelProperty(value = "颜色名称")
     private String colorName;
 
-
+    public String getPlanningSeason() {
+        return StrUtil.join(" ", yearName, seasonName, brandName);
+    }
 }

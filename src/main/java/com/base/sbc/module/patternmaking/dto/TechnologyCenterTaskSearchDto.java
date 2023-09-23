@@ -36,5 +36,7 @@ public class TechnologyCenterTaskSearchDto extends Page {
      */
     @ApiModelProperty(value = "版师id", example = "1223333122223333333")
     private String patternDesignId;
+    @ApiModelProperty(value = "产品季id", example = "1223333122223333333")
+    private String planningSeasonId;
 
 }
