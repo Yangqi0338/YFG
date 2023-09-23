@@ -34,7 +34,7 @@ public interface PlanningDemandProportionDataService extends BaseService<Plannin
      * @param list
      * @return
      */
-    Boolean  batchSaveUpdate( List<SaveUpdateDemandProportionDataDto> list);
+    List<PlanningDemandProportionData>  batchSaveUpdate( List<SaveUpdateDemandProportionDataDto> list);
 
     ApiResult del(String id);
 /** 自定义方法区 不替换的区域【other_end】 **/

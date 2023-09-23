@@ -297,6 +297,17 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             BeanUtil.copyProperties(allocationDesignDto, planningCategoryItem);
             planningCategoryItem.setOldDesignNo(newDesignNO);
         }
+/*        List<String> designNoList = planningCategoryItems.stream().map(PlanningCategoryItem::getDesignNo).collect(Collectors.toList());
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.in("design_no", designNoList);
+        List<Style> styleList = styleService.list(queryWrapper);
+        if (CollUtil.isNotEmpty(styleList)) {
+            styleList.forEach(s -> {
+                s.setDesigner(dtoList.get(0).getDesigner());
+                s.setDesignerId(dtoList.get(0).getDesignerId());
+            });
+            styleService.updateBatchById(styleList);
+        }*/
         return updateBatchById(planningCategoryItems);
     }
 

@@ -9,6 +9,7 @@ package com.base.sbc.module.planning.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumLavationReminderExcelDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -65,12 +66,17 @@ public class PlanningDemandProportionDataServiceImpl extends BaseServiceImpl<Pla
      * @return
      */
     @Override
-    public Boolean batchSaveUpdate(List<SaveUpdateDemandProportionDataDto> list) {
+    public List<PlanningDemandProportionData> batchSaveUpdate(List<SaveUpdateDemandProportionDataDto> list) {
         List<PlanningDemandProportionData> dataList = BeanUtil.copyToList(list, PlanningDemandProportionData.class);
+        dataList.forEach(p -> {
+            if (CommonUtils.isInitId(p.getId())) {
+                p.setId(null);
+            }
+        });
         saveOrUpdateBatch(dataList);
         //创建维度位置信息
         planningDemandProportionSeatService.createByDemand(dataList);
-        return true;
+        return dataList;
     }
 
     @Override
