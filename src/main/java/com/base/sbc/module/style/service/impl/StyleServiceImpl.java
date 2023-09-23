@@ -50,7 +50,6 @@ import com.base.sbc.module.formType.service.FieldValService;
 import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.formType.vo.FieldOptionConfigVo;
-import com.base.sbc.module.hangTag.entity.HangTag;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
@@ -85,11 +84,9 @@ import com.base.sbc.module.style.service.StyleInfoColorService;
 import com.base.sbc.module.style.service.StyleInfoSkuService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.*;
-import com.base.sbc.open.dto.OpenStyleDto;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -504,7 +501,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         style.setCheckStartTime(new Date());
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
-        boolean flg = flowableService.start(FlowableService.sample_design_pdn + "[" + style.getDesignNo() + "]", FlowableService.sample_design_pdn, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleDesign/" + id, variables);
+        boolean flg = flowableService.start(FlowableService.sample_design_pdn + "[" + style.getDesignNo() + "]", FlowableService.sample_design_pdn, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id, variables);
         return flg;
     }
 
