@@ -196,169 +196,193 @@
 
 <table class="table_no_border info_table">
     <tr>
-        <!-- 图片-->
-        <td style="width: 20%;" rowspan="10">
-            <img style="width: 100%" src="${stylePic}">
-        </td>
-        <td class="fg"></td>
-        <td class="gb bold" style="width:15%;">大货款号</td>
-        <td class="gb" style="width:25%;">${styleNo}</td>
-        <td class="fg"></td>
-        <td class="gb bold" style="width:15%;">外辅工艺</td>
-        <td class="gb" style="width:25%;">${extAuxiliaryTechnics}</td>
-    </tr>
-    <tr>
-        <td class="fg">
-        </td>
-        <td class=" bold">品名*</td>
-        <td>${productName}</td>
-        <td class="fg"></td>
-        <td class="td_lt bold" rowspan="2">★★注意事项</td>
-        <td class="td_lt" rowspan="2">${mattersAttention}</td>
-    </tr>
-    <tr>
-        <td class="fg"></td>
-        <td class="gb bold">执行标准*</td>
-        <td class="gb bold">${executeStandard}</td>
-    </tr>
-    <tr>
-        <td class="fg"></td>
-        <td class="bold">质量等级</td>
-        <td>${qualityGrade}</td>
-        <td class="fg"></td>
-        <td class="gb bold">洗唛材质备注</td>
-        <td class="gb">${washingMaterialRemarks}</td>
-    </tr>
-    <tr>
-        <td class="fg"></td>
-        <td class="gb bold">安全标题</td>
-        <td class="gb">${saftyTitle}</td>
-        <td class="fg"></td>
-        <td class="bold">充绒量</td>
-        <td>${downContent}</td>
-    </tr>
-    <tr>
-        <td class="fg"></td>
-        <td class="bold">安全类别</td>
-        <td>${saftyType}</td>
-        <td class="fg"></td>
-        <td class="gb bold">特殊规格</td>
-        <td class="gb">${specialSpec}</td>
-    </tr>
-    <tr>
-        <td class="fg"></td>
-        <td class="gb bold">包装形式*</td>
-        <td class="gb">${packagingForm}</td>
-        <td class="fg"></td>
-        <td rowspan="2" class="td_lt bold">面料详情</td>
-        <td rowspan="2" class="td_lt">${fabricDetails}</td>
-    </tr>
-    <tr>
-        <td class="fg"></td>
-        <td class="bold">包装袋标准*</td>
-        <td>${packagingBagStandard}</td>
-    </tr>
-    <tr>
-        <td class="fg"></td>
-        <td class="gb bold">后技术工艺师</td>
-        <td class="gb">${technologistName}</td>
-        <td class="fg"></td>
-        <td class="gb bold">描述</td>
-        <td class="gb">${remarks}</td>
-    </tr>
-    <tr>
-        <td class="fg"></td>
-        <td class="bold">后技术放码师</td>
-        <td>${gradingName}</td>
-    </tr>
-    <!-- 11 -->
-    <tr>
-
-        <td style="text-align: center;font-weight: bold;">
-            扫码查看工艺单
-        </td>
-        <td class="fg"></td>
-        <td class="gb bold">后技术样衣工</td>
-        <td class="gb">${sampleMakerName}</td>
-        <td class="fg"></td>
-        <td class="gb bold">号型类型*</td>
-        <td class="gb">${sizeRangeName}</td>
-    </tr>
-    <tr>
-
-        <!-- 二维码 -->
-        <td rowspan="8">
-            <#if  qrCodeUrl != '' >
-                <img style="width: 100%" src="${qrCodeUrl}">
-            </#if>
-        </td>
-        <td class="fg"></td>
-        <td class="bold">设计师*</td>
-        <td>${designer}</td>
-        <td class="fg"></td>
-        <td class="bold">模板部件</td>
-        <td>${templatePart}</td>
-    </tr>
-    <!-- 13 -->
-    <tr>
-        <td class="fg"></td>
-        <td class="gb bold">版师*</td>
-        <td class="gb">${patternDesignName}</td>
-        <td class="fg"></td>
-        <td class="bold">后技术下单员</td>
-        <td>${placeOrderStaffName}</td>
-    </tr>
-    <tr>
-
-        <td class="fg"></td>
-        <td class="td_lt bold">成分信息*</td>
-        <td class="td_lt">${ingredient}</td>
-        <td class="fg"></td>
-        <td colspan="2" style="vertical-align: top;">
-            <table class="table_no_border gb">
+        <td style="width: 20%;vertical-align: top;text-align: center;" rowspan="5">
+            <table>
                 <tr>
-                    <td class="bold" style="width: 145px;">下单时间</td>
-                    <td>${placeOrderDateStr}</td>
+                    <td style="height: 250px;">
+                        <img style="width: 100%" src="${stylePic}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="bold" style="text-align: center;height: 60px">
+                        扫码查看工艺单
+                    </td>
+                </tr>
+                <tr>
+                    <td style="height: 180px;">
+                        <img style="width: 100%" src="${qrCodeUrl}">
+                    </td>
+                </tr>
+            </table>
+
+
+        </td>
+        <td class="fg" rowspan="5"></td>
+        <td style="width: 40%;vertical-align: top;">
+            <table style="width: 100%;">
+                <tr style="width: 100%;">
+                    <td class="gb bold" style="width:40%;">大货款号</td>
+                    <td class="gb" style="width:60%;">${styleNo}</td>
+                </tr>
+                <tr>
+                    <td class=" bold">品名*</td>
+                    <td>${productName}</td>
+                </tr>
+                <tr>
+                    <td class="gb bold">执行标准*</td>
+                    <td class="gb bold">${executeStandard}</td>
+                </tr>
+                <tr>
+                    <td class="bold">质量等级</td>
+                    <td>${qualityGrade}</td>
+                </tr>
+                <tr>
+                    <td class="gb bold">安全标题</td>
+                    <td class="gb">${saftyTitle}</td>
+                </tr>
+                <tr>
+                    <td class="bold">安全类别</td>
+                    <td>${saftyType}</td>
+                </tr>
+                <tr>
+                    <td class="gb bold">包装形式*</td>
+                    <td class="gb">${packagingForm}</td>
+                </tr>
+                <tr>
+                    <td class="bold">包装袋标准*</td>
+                    <td>${packagingBagStandard}</td>
+                </tr>
+                <tr>
+                    <td class="gb bold">后技术工艺师</td>
+                    <td class="gb">${technologistName}</td>
+                </tr>
+                <tr>
+                    <td class="bold">后技术放码师</td>
+                    <td>${gradingName}</td>
+                </tr>
+                <tr>
+
+                    <td class="gb bold">后技术样衣工</td>
+                    <td class="gb">${sampleMakerName}</td>
+                </tr>
+                <tr>
+                    <td class="bold">设计师*</td>
+                    <td>${designer}</td>
+                </tr>
+                <tr>
+                    <td class="gb bold">版师*</td>
+                    <td class="gb">${patternDesignName}</td>
+                </tr>
+                <tr>
+                    <td class="td_lt bold">成分信息*</td>
+                    <td class="td_lt">${ingredient}</td>
                 </tr>
             </table>
         </td>
-    </tr>
-
-    <tr>
         <td class="fg"></td>
+        <td style="width: 40%;vertical-align: top;">
+            <table style="width: 100%;">
+                <tr style="width: 100%;">
+                    <td class="gb bold" style="width:40%;">外辅工艺</td>
+                    <td class="gb" style="width:60%;">${extAuxiliaryTechnics}</td>
+                </tr>
+                <tr>
+                    <td class="bold">★★注意事项</td>
+                    <td>${mattersAttention}</td>
+                </tr>
+                <tr>
+                    <td class="gb bold">洗唛材质备注</td>
+                    <td class="gb">${washingMaterialRemarks}</td>
+                </tr>
+                <tr>
+                    <td class="bold">充绒量</td>
+                    <td>${downContent}</td>
+                </tr>
+                <tr>
+                    <td class="gb bold">特殊规格</td>
+                    <td class="gb">${specialSpec}</td>
+                </tr>
+                <tr>
+                    <td class="bold">面料详情</td>
+                    <td class="">${fabricDetails}</td>
+                </tr>
+                <tr>
+                    <td class="gb bold">描述</td>
+                    <td class="gb">${remarks}</td>
+                </tr>
+                <tr>
+                    <td class=" bold">号型类型*</td>
+                    <td>${sizeRangeName}</td>
+                </tr>
+                <tr>
+                    <td class=" gb bold">模板部件</td>
+                    <td class="gb">${templatePart}</td>
+                </tr>
+                <tr>
+                    <td class="bold">后技术下单员</td>
+                    <td>${placeOrderStaffName}</td>
+                </tr>
+                <tr>
+                    <td class="gb bold">下单时间</td>
+                    <td class="gb">${placeOrderDateStr}</td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+    <tr>
         <td colspan="5">
             <p class="bold">提示信息</p>
             <hr>
         </td>
     </tr>
     <tr>
-        <td class="fg"></td>
-        <td class="td_lt gb bold">温馨提示*</td>
-        <td class="td_lt gb">
-            <pre>${warmTips}</pre>
+        <td>
+            <table style="width:100%">
+                <tr class="gb" style="width:100%">
+                    <td class="td_lt gb bold" style="width:40%;">温馨提示*</td>
+                    <td class="td_lt gb" style="width:60%;">
+                        <pre>${warmTips}</pre>
+                    </td>
+                </tr>
+            </table>
         </td>
         <td class="fg"></td>
-        <td class="td_lt gb bold">贮藏要求</td>
-        <td class="td_lt gb">${storageDemandName}</td>
+        <td>
+            <table style="width:100%">
+                <tr style="width:100%">
+                    <td class="td_lt gb bold" style="width:40%">贮藏要求</td>
+                    <td class="td_lt gb" style="width:60%">${storageDemandName}</td>
+                </tr>
+            </table>
+        </td>
     </tr>
     <tr>
-        <td class="fg"></td>
         <td colspan="5">
             <p class="bold" style="padding-top: 4px;">如果品类为鞋且非陈列品,请维护属性</p>
             <hr>
         </td>
     </tr>
     <tr>
+        <td>
+            <table style="width:100%">
+                <tr class="gb" style="width:100%">
+                    <td class="td_lt gb bold" style="width:40%;">产地</td>
+                    <td class="td_lt gb" style="width:60%;">
+                        <pre>${producer}</pre>
+                    </td>
+                </tr>
+            </table>
+        </td>
         <td class="fg"></td>
-        <td class="gb bold">产地</td>
-        <td class="gb">${producer}</td>
-        <td class="fg"></td>
-        <td class="gb bold">生产日期</td>
-        <td class="gb">${produceDateStr}</td>
-    </tr>
-    <tr>
-        <!-- 空行 -->
-        <td colspan="6"></td>
+        <td>
+            <table style="width:100%">
+                <tr style="width:100%">
+                    <td class="td_lt gb bold" style="width:40%">生产日期</td>
+                    <td class="td_lt gb" style="width:60%">${produceDateStr}</td>
+                </tr>
+            </table>
+        </td>
     </tr>
     <tr>
         <td colspan="7">
