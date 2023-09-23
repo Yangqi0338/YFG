@@ -111,7 +111,7 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
             detail.setCompanyCode(companyCode);
             detail.setWarehouseOrderId(id);
 
-            totalAmount = BigDecimalUtil.add(totalAmount, detail.getActualAmount());
+            totalAmount = BigDecimalUtil.add(totalAmount, detail.getMoney());
             totalNum = BigDecimalUtil.add(totalNum, detail.getReceivedQuantity());
         }
 
@@ -150,7 +150,7 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
             detail.setId(idGen.nextIdStr());
             detail.setWarehouseOrderId(warehousingOrder.getId());
 
-            totalAmount = BigDecimalUtil.add(totalAmount, detail.getActualAmount());
+            totalAmount = BigDecimalUtil.add(totalAmount, detail.getMoney());
             totalNum = BigDecimalUtil.add(totalNum, detail.getReceivedQuantity());
         }
 
