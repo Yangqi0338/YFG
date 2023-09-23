@@ -191,6 +191,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdUw.eq("id", patternMaking.getStyleId());
         sdUw.set("status", BasicNumber.TWO.getNumber());
         styleService.update(sdUw);
+        update(uw);
         /**
          * 1.当第一个下发版是初版样时先下发到技术中心，技术中心下发对版师时同时同步到款式信息 之后的版都自动下发给初版样技术中心指定的版师，
          * 2。当第一个下发版是改版样时 款式信息中存在版师时自动下发到指定版师 款式中无数据时到技术中心看板手动下发版师同时同步到款式 之后的款都自动下发到该版师
@@ -209,11 +210,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 /*改版样判断没值时手动下发*/
                 if(StrUtil.isNotBlank(style.getPatternDesignName())){
                     /*自动下发查看版师是否离职*/
-                    UserCompany userCompany = amcFeignService.getUserByUserId(patternMaking.getPatternDesignId());
+                    UserCompany userCompany = amcFeignService.getUserByUserId(style.getPatternDesignId());
                     if (!StrUtil.equals(userCompany.getIsDimission(), BaseGlobal.YES)) {
                         // 自动下发到打板管理
                         SetPatternDesignDto setPatternDesignDto = new SetPatternDesignDto();
-                        setPatternDesignDto.setId(dto.getId());
+                        setPatternDesignDto.setId(patternMaking.getId());
                         setPatternDesignDto.setPatternDesignId(style.getPatternDesignId());
                         setPatternDesignDto.setPatternDesignName(style.getPatternDesignName());
                         //自动下发打板
@@ -237,7 +238,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         operaLogEntity.setParentId(patternMaking.getStyleId());
         this.saveLog(operaLogEntity);
         // 修改单据
-        return update(uw);
+        return true;
     }
 
     @Override
