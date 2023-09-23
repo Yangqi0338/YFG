@@ -494,7 +494,7 @@
         where ts.del_flag = '0'
         and ts.company_code = #{companyCode}
         <if test="year !=null and year != ''">
-            and ts.year_name = #{year}
+            and ts.year = #{year}
         </if>
         <if test="season !=null and season != ''">
             and ts.season = #{season}

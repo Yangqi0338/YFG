@@ -10,6 +10,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.planning.dto.*;
+import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningDemandProportionDataService;
 import com.base.sbc.module.planning.service.PlanningDemandService;
@@ -81,7 +82,7 @@ public class PlanningDemandController {
 	/*新增修改需求占比数据表*/
 	@ApiOperation(value = "批量新增修改需求占比数据表")
 	@PostMapping("batchSaveUpdate")
-	public Boolean batchSaveUpdate(@Valid @RequestBody List<SaveUpdateDemandProportionDataDto> list) {
+	public List<PlanningDemandProportionData> batchSaveUpdate(@Valid @RequestBody List<SaveUpdateDemandProportionDataDto> list) {
 		return planningDemandProportionDataService.batchSaveUpdate(list);
 	}
 
