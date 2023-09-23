@@ -19,7 +19,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
  * @author tzy
  * @email 974849633@qq.com
- * @date 创建时间：2023-8-23 15:38:52
+ * @date 创建时间：2023-9-23 11:21:05
  * @version 1.0
  */
 @Data
@@ -181,15 +181,24 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     /** 重点款(1是0否) */
     @ApiModelProperty(value = "重点款(1是0否)"  )
     private String importantStyleFlag;
-    /** 系列id */
-    @ApiModelProperty(value = "系列id"  )
-    private String seriesId;
-    /** 系列名 */
-    @ApiModelProperty(value = "系列名"  )
-    private String series;
     /** 品类标识 0品类 1中类 */
     @ApiModelProperty(value = "品类标识 0品类 1中类"  )
     private String categoryFlag;
+    /** 系列id */
+    @ApiModelProperty(value = "系列id"  )
+    private String seriesId;
+    /** 系列 */
+    @ApiModelProperty(value = "系列"  )
+    private String series;
+    /** 备注 */
+    @ApiModelProperty(value = "备注"  )
+    private String remarks;
+    /** 款式风格 */
+    @ApiModelProperty(value = "款式风格"  )
+    private String styleType;
+    /** 四级类目 */
+    @ApiModelProperty(value = "四级类目"  )
+    private String levelFourType;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

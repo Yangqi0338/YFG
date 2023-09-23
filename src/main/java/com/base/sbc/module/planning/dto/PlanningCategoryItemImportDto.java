@@ -13,9 +13,29 @@ public class PlanningCategoryItemImportDto {
     @Excel(name = "重点款")
     private String importantStyleFlag;
 
-    /** 月份+波段 */
-    @Excel(name = "月份+波段")
-    private String monthBandName;
+    /** 月份 */
+    @Excel(name = "月份")
+    private String month;
+
+    /** 波段 */
+    @Excel(name = "波段")
+    private String band;
+
+    /** 旧款号 */
+    @Excel(name = "旧款号")
+    private String oldDesignNo;
+
+    /** 款式风格 */
+    @Excel(name = "款式风格")
+    private String styleType;
+
+    /** 四级类目 */
+    @Excel(name = "四级类目")
+    private String levelFourType;
+
+    /** 备注 */
+    @Excel(name = "备注")
+    private String remarks;
 
     /** 大类 */
     @Excel(name = "大类")

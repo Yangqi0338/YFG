@@ -297,6 +297,17 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             BeanUtil.copyProperties(allocationDesignDto, planningCategoryItem);
             planningCategoryItem.setOldDesignNo(newDesignNO);
         }
+/*        List<String> designNoList = planningCategoryItems.stream().map(PlanningCategoryItem::getDesignNo).collect(Collectors.toList());
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.in("design_no", designNoList);
+        List<Style> styleList = styleService.list(queryWrapper);
+        if (CollUtil.isNotEmpty(styleList)) {
+            styleList.forEach(s -> {
+                s.setDesigner(dtoList.get(0).getDesigner());
+                s.setDesignerId(dtoList.get(0).getDesignerId());
+            });
+            styleService.updateBatchById(styleList);
+        }*/
         return updateBatchById(planningCategoryItems);
     }
 
@@ -829,12 +840,15 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                         categoryItem.setImportantStyleFlag(StringUtils.equals(itemImportDto.getImportantStyleFlag(), "是") ? "1" : "0");
                         categoryItem.setSpecialNeedsFlag(StringUtils.equals(itemImportDto.getImportantStyleFlag(), "是") ? "1" : "0");
 
-                        String[] arrays = itemImportDto.getMonthBandName().split("-");
-                        categoryItem.setMonth(arrays[0]);
-                        categoryItem.setMonthName(arrays[0]);
-                        categoryItem.setBandCode(arrays[1]);
-                        categoryItem.setBandName(arrays[1]);
+                        categoryItem.setMonth(itemImportDto.getMonth());
+                        categoryItem.setMonthName(itemImportDto.getMonth());
+                        categoryItem.setBandCode(itemImportDto.getBand());
+                        categoryItem.setBandName(itemImportDto.getBand());
 
+                        categoryItem.setRemarks(itemImportDto.getRemarks());
+                        categoryItem.setStyleType(itemImportDto.getStyleType());
+                        categoryItem.setLevelFourType(itemImportDto.getLevelFourType());
+                        categoryItem.setOldDesignNo(itemImportDto.getOldDesignNo());
                         addList.add(categoryItem);
                     }else{
                         dataCorrectErrorList.add(i+1);

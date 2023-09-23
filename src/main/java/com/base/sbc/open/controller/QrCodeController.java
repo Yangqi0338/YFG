@@ -2,6 +2,7 @@ package com.base.sbc.open.controller;
 
 import cn.hutool.core.lang.Opt;
 import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.extra.qrcode.QrConfig;
 import com.base.sbc.config.common.base.BaseController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,8 +33,10 @@ public class QrCodeController {
         @GetMapping
         public void getQrCode(HttpServletResponse response, String content){
             try {
-                String qrCodeContent= Opt.ofBlankAble(content).orElse("无内容");
-                BufferedImage image = QrCodeUtil.generate(qrCodeContent, 128, 128);
+                String qrCodeContent = Opt.ofBlankAble(content).orElse("无内容");
+                QrConfig qrConfig = new QrConfig(128, 128);
+                qrConfig.setMargin(5);
+                BufferedImage image = QrCodeUtil.generate(qrCodeContent, qrConfig);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(image, "png", baos);
                 byte[] bytes = baos.toByteArray();

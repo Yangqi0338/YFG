@@ -1,5 +1,6 @@
 package com.base.sbc.module.planning.excel;
 
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicStructureTree;
 import com.base.sbc.module.band.entity.Band;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -69,22 +70,26 @@ public class ExportPlanningExcel {
 
     /**
      *
-     * @param monthBandMap 月份波段Map
+     * @param bandList 波段集合
+     * @param monthList 月份集合
      * @return
      * @throws Exception
      */
-    public XSSFWorkbook createWorkBook(Map<String, List<Band>> monthBandMap) throws Exception {
+    public XSSFWorkbook createWorkBook(List<Band> bandList, List<BasicBaseDict> monthList) throws Exception {
         // 初始化字体和格式
         init();
 
-        XSSFSheet monthBand = this.objWb.getSheetAt(3);//月份波段 sheet
+        XSSFSheet monthSheet = this.objWb.getSheetAt(3);//月份 sheet
+        XSSFSheet bandSheet = this.objWb.getSheetAt(4);//波段 sheet
 
         int k = 0;
-        for (Map.Entry<String, List<Band>> entry : monthBandMap.entrySet()) {
-            for(Band band : entry.getValue()) {
-                monthBand.createRow(k).createCell(0).setCellValue(entry.getKey() + "-" + band.getBandName());
-                k++;
-            }
+        for(BasicBaseDict month : monthList) {
+            monthSheet.createRow(k).createCell(0).setCellValue(month.getName());
+            k++;
+        }
+        for(Band band : bandList) {
+            bandSheet.createRow(k).createCell(0).setCellValue(band.getBandName());
+            k++;
         }
 
         // 返回创建好的工作薄对象

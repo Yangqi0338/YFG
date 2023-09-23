@@ -6,26 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
 import com.base.sbc.client.flowable.entity.AnswerDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialOldSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthGroupSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthSaveDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthsSaveDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
@@ -33,6 +15,11 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.github.pagehelper.PageInfo;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：基础资料-物料档案 service类
@@ -138,11 +125,12 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	String getMaxMaterialCode(GetMaxCodeRedis data, String userCompany);
 
 	/**
-	 * 通过物料编码获取来源
+	 * 通过物料编码获取来源 和成分
+	 *
 	 * @param materialCodes
 	 * @return
 	 */
-	Map<String, String> getSource(List<String> materialCodes);
+	Map<String, BasicsdatumMaterial> getSourceAndIngredient(List<String> materialCodes);
 
 	Boolean saveBasicsdatumMaterialColorList(List<BasicsdatumMaterialColorSaveDto> dtos);
 }

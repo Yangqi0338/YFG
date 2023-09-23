@@ -281,11 +281,10 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
     public void examinePass(UserCompany userCompany, AnswerDto dto) {
         PurchaseOrder purchaseOrder = getById(dto.getBusinessKey());
         if (ObjectUtil.isNotEmpty(purchaseOrder)){
-            purchaseOrder.setReviewer(userCompany.getUserId());
+            purchaseOrder.setReviewer(userCompany.getAliasUserName());
             purchaseOrder.setReviewDate(new Date());
             purchaseOrder.setStatus("2");
-            //todo 待删除
-//            updateById(purchaseOrder);
+            updateById(purchaseOrder);
 
             QueryWrapper<PurchaseOrderDetail> detailQw = new QueryWrapper<>();
             detailQw.eq("purchase_order_id", purchaseOrder.getId());

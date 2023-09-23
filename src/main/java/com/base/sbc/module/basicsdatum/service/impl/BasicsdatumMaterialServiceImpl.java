@@ -15,7 +15,6 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -1030,20 +1029,20 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     }
 
     @Override
-    public Map<String, String> getSource(List<String> materialCodes) {
+    public Map<String, BasicsdatumMaterial> getSourceAndIngredient(List<String> materialCodes) {
         if (CollectionUtils.isEmpty(materialCodes)) {
             return new HashMap<>();
         }
         LambdaQueryWrapper<BasicsdatumMaterial> qw = new QueryWrapper<BasicsdatumMaterial>().lambda()
                 .in(BasicsdatumMaterial::getMaterialCode, materialCodes)
                 .eq(BasicsdatumMaterial::getDelFlag, "0")
-                .select(BasicsdatumMaterial::getMaterialCode, BasicsdatumMaterial::getSource);
+                .select(BasicsdatumMaterial::getMaterialCode, BasicsdatumMaterial::getSource, BasicsdatumMaterial::getIngredient);
         List<BasicsdatumMaterial> list = super.list(qw);
         if (CollectionUtils.isEmpty(list)) {
             return new HashMap<>();
         }
         return list.stream()
-                .collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode, BasicsdatumMaterial::getSource, (k1, k2) -> k2));
+                .collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode, v -> v, (k1, k2) -> k2));
     }
 
 }

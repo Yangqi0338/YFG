@@ -25,6 +25,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
@@ -55,7 +56,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import com.github.pagehelper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -129,7 +129,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                     .filter(x -> StringUtils.equals(x.getDataSource(), "1"))
                     .map(PackBomVo::getMaterialCode)
                     .collect(Collectors.toList());
-            Map<String, String> sourceMaps = basicsdatumMaterialService.getSource(materialCodes);
+            Map<String, BasicsdatumMaterial> sourceMaps = basicsdatumMaterialService.getSourceAndIngredient(materialCodes);
 
             List<String> bomIds = pbvs.stream().map(PackBomVo::getId).collect(Collectors.toList());
             Map<String, List<PackBomSizeVo>> packBomSizeMap = packBomSizeService.getByBomIdsToMap(bomIds);
@@ -138,7 +138,13 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             for (PackBomVo pbv : pbvs) {
                 pbv.setPackBomSizeList(packBomSizeMap.get(pbv.getId()));
                 pbv.setPackBomColorVoList(packBomColorMap.get(pbv.getId()));
-                pbv.setSource(sourceMaps.get(pbv.getMaterialCode()));
+                BasicsdatumMaterial basicsdatumMaterial = sourceMaps.get(pbv.getMaterialCode());
+                if (basicsdatumMaterial != null) {
+                    pbv.setSource(basicsdatumMaterial.getSource());
+                    //成分取最新的
+                    pbv.setIngredient(basicsdatumMaterial.getIngredient());
+                }
+
             }
         }
         return voPageInfo;
