@@ -829,12 +829,15 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                         categoryItem.setImportantStyleFlag(StringUtils.equals(itemImportDto.getImportantStyleFlag(), "是") ? "1" : "0");
                         categoryItem.setSpecialNeedsFlag(StringUtils.equals(itemImportDto.getImportantStyleFlag(), "是") ? "1" : "0");
 
-                        String[] arrays = itemImportDto.getMonthBandName().split("-");
-                        categoryItem.setMonth(arrays[0]);
-                        categoryItem.setMonthName(arrays[0]);
-                        categoryItem.setBandCode(arrays[1]);
-                        categoryItem.setBandName(arrays[1]);
+                        categoryItem.setMonth(itemImportDto.getMonth());
+                        categoryItem.setMonthName(itemImportDto.getMonth());
+                        categoryItem.setBandCode(itemImportDto.getBand());
+                        categoryItem.setBandName(itemImportDto.getBand());
 
+                        categoryItem.setRemarks(itemImportDto.getRemarks());
+                        categoryItem.setStyleType(itemImportDto.getStyleType());
+                        categoryItem.setLevelFourType(itemImportDto.getLevelFourType());
+                        categoryItem.setOldDesignNo(itemImportDto.getOldDesignNo());
                         addList.add(categoryItem);
                     }else{
                         dataCorrectErrorList.add(i+1);

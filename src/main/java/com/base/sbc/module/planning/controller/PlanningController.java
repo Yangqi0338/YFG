@@ -294,10 +294,8 @@ public class PlanningController extends BaseController {
         QueryWrapper<Band> qc = new QueryWrapper<>();
         qc.eq("company_code", getUserCompany());
         qc.eq("status", BaseGlobal.STATUS_NORMAL);
-        qc.eq("season", season);
-        qc.in("month", monthList);
         List<Band> bandList = bandService.list(qc);
-        Map<String, List<Band>> monthBandMap = bandList.stream().collect(Collectors.groupingBy(Band::getMonth));
+//        Map<String, List<Band>> monthBandMap = bandList.stream().collect(Collectors.groupingBy(Band::getMonth));
 
         // 生成文件名称
         String strFileName = "坑位信息导入模板.xls";
@@ -310,7 +308,7 @@ public class PlanningController extends BaseController {
             response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(strFileName, "UTF-8"));
             // 文档对象
             ExportPlanningExcel excel = new ExportPlanningExcel();
-            XSSFWorkbook objWb = excel.createWorkBook(monthBandMap);
+            XSSFWorkbook objWb = excel.createWorkBook(bandList, baseDictList);
             objWb.write(objStream);
             objStream.flush();
             objStream.close();
