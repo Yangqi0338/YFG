@@ -847,7 +847,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                         categoryItem.setProdCategory3rdName(prodCategory3st.getName());
 
                         categoryItem.setImportantStyleFlag(StringUtils.equals(itemImportDto.getImportantStyleFlag(), "是") ? "1" : "0");
-                        categoryItem.setSpecialNeedsFlag(StringUtils.equals(itemImportDto.getImportantStyleFlag(), "是") ? "1" : "0");
+                        categoryItem.setSpecialNeedsFlag(StringUtils.equals(itemImportDto.getSpecialNeedsFlag(), "是") ? "1" : "0");
 
                         categoryItem.setMonth(itemImportDto.getMonth());
                         categoryItem.setMonthName(itemImportDto.getMonth());
@@ -857,7 +857,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                         categoryItem.setRemarks(itemImportDto.getRemarks());
                         categoryItem.setStyleType(itemImportDto.getStyleType());
                         categoryItem.setLevelFourType(itemImportDto.getLevelFourType());
-                        categoryItem.setOldDesignNo(itemImportDto.getOldDesignNo());
+                        categoryItem.setHisDesignNo(itemImportDto.getOldDesignNo());
                         addList.add(categoryItem);
                     }else{
                         dataCorrectErrorList.add(i+1);

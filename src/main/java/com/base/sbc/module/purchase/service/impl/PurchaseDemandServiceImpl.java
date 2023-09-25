@@ -461,7 +461,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 detail.setSupplierColor(demandInfo.getSupplierColor());
                 detail.setPurchaseUnit(demandInfo.getUnit());
                 detail.setPurchaseUnitName(demandInfo.getUnitName());
-                detail.setConvertUnitRatio(new BigDecimal(material.getPurchaseConvertStock()));
+                detail.setConvertUnitRatio(material.getPurchaseConvertStock() != null ? new BigDecimal(material.getPurchaseConvertStock()) : BigDecimal.ONE);
                 detail.setPurchaseNum(demandInfo.getNeedNum());
                 detail.setPrice(demandInfo.getPrice());
                 detail.setMaterialColor(demandInfo.getMaterialColor());
