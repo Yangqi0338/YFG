@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
 * 类描述：采购-采购需求表 Controller类
@@ -221,14 +222,49 @@ public class PurchaseDemandController extends BaseController{
 				qw.eq("style_bom", item.getStyleBom());
 				qw.eq("version_no", item.getVersionNo());
 				List<PurchaseDemand> list = purchaseDemandService.list(qw);
+				item.setDetailList(list);
+			}
+			return ApiResult.success("success", pages);
+		}
+		return selectNotFound();
+	}
+
+	@ApiOperation(value = "物料齐套分页列表查询")
+	@GetMapping("/materialKittingPage")
+	public ApiResult materialKittingPage(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, DemandPageDTO page) {
+		QueryWrapper<PurchaseDemand> qc = new QueryWrapper<>();
+		qc.eq("company_code", userCompany);
+		if(StringUtils.isNotBlank(page.getSearch())){
+			qc.and(wrapper -> wrapper.like("design_style_code", page.getSearch())
+					.or()
+					.like("style_name", page.getSearch()));
+		}
+		qc.groupBy("design_style_code", "plate_bill_code", "style_bom", "version_no");
+		qc.orderByAsc("need_date");
+
+		if (page.getPageNum() != 0 && page.getPageSize() != 0) {
+			List<PurchaseDemand> purchaseDemandList = purchaseDemandService.list(qc);
+
+			for(PurchaseDemand item : purchaseDemandList){
+				QueryWrapper<PurchaseDemand> qw = new QueryWrapper<>();
+				qw.eq("company_code", userCompany);
+				qw.eq("design_style_code", item.getDesignStyleCode());
+				qw.eq(StringUtils.isNotBlank(item.getPlateBillCode()), "plate_bill_code", item.getPlateBillCode());
+				qw.eq("style_bom", item.getStyleBom());
+				qw.eq("version_no", item.getVersionNo());
+				List<PurchaseDemand> list = purchaseDemandService.list(qw);
 				String isComplete = "齐料";
 				BigDecimal completeNum = BigDecimal.ZERO;
-				for(PurchaseDemand demand : list){
-					if(demand.getReadyNum().compareTo(demand.getNeedNum()) == -1){
-						isComplete = "未齐料";
-					}else {
-						completeNum = completeNum.add(BigDecimal.ONE);
+				if(CollectionUtil.isNotEmpty(list)) {
+					for (PurchaseDemand demand : list) {
+						if (demand.getReadyNum().compareTo(demand.getNeedNum()) == -1) {
+							isComplete = "未齐料";
+						} else {
+							completeNum = completeNum.add(BigDecimal.ONE);
+						}
 					}
+				}else{
+					isComplete = "未齐料";
 				}
 
 				BigDecimal proportion = BigDecimalUtil.equalZero(completeNum) ? BigDecimal.ZERO : completeNum.divide(new BigDecimal(list.size()), 2 , BigDecimal.ROUND_DOWN).multiply(new BigDecimal(100.0));
@@ -236,6 +272,18 @@ public class PurchaseDemandController extends BaseController{
 				item.setIsComplete(isComplete);
 				item.setDetailList(list);
 			}
+
+			if(StringUtils.isNotBlank(page.getIsKitting())){
+				purchaseDemandList = purchaseDemandList.stream().filter(demand -> StringUtils.equals(demand.getIsComplete(), page.getIsKitting())).collect(Collectors.toList());
+			}
+
+			Integer currentStrat = (page.getPageNum() -1 ) * page.getPageSize();
+			Integer currentEnd = page.getPageNum() * page.getPageSize() ;
+			List pageList = purchaseDemandList.subList(currentStrat, currentEnd);
+			PageInfo<PurchaseDemand> pages = new PageInfo<>(purchaseDemandList,1);
+			pages.setList(pageList);
+			pages.setPageSize(page.getPageSize());
+			pages.setPageNum(page.getPageNum());
 			return ApiResult.success("success", pages);
 		}
 		return selectNotFound();

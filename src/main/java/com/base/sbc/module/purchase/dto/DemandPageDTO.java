@@ -14,4 +14,6 @@ public class DemandPageDTO extends Page {
     @ApiModelProperty(value = "审核状态（0待审核 1审核通过 2驳回）")
     private String status;
 
+    @ApiModelProperty(value = "是否齐料")
+    private String isKitting;
 }
