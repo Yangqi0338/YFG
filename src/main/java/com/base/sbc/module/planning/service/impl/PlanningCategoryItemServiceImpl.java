@@ -290,16 +290,24 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         if (dtoList.size() != planningCategoryItems.size()) {
             throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
+        Map<String, PlanningCategoryItem> seatMap = new HashMap<>(16);
+        //key = old designNo val= new  designNo
+        Map<String, String> designNoUpdate = new HashMap<>(16);
         for (PlanningCategoryItem planningCategoryItem : planningCategoryItems) {
+
             AllocationDesignDto allocationDesignDto = dtoMap.get(planningCategoryItem.getId());
             String newDesignNO = PlanningUtils.getNewDesignNo(planningCategoryItem.getDesignNo(), planningCategoryItem.getDesigner(), allocationDesignDto.getDesigner());
+            designNoUpdate.put(planningCategoryItem.getDesignNo(), newDesignNO);
             planningCategoryItem.setDesignNo(newDesignNO);
             BeanUtil.copyProperties(allocationDesignDto, planningCategoryItem);
-            planningCategoryItem.setOldDesignNo(newDesignNO);
+            if (!StrUtil.equals(planningCategoryItem.getStatus(), BasicNumber.TWO.getNumber())) {
+                planningCategoryItem.setOldDesignNo(newDesignNO);
+            }
+            seatMap.put(planningCategoryItem.getId(), planningCategoryItem);
         }
-/*        List<String> designNoList = planningCategoryItems.stream().map(PlanningCategoryItem::getDesignNo).collect(Collectors.toList());
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.in("design_no", designNoList);
+
+        QueryWrapper<Style> queryWrapper = new QueryWrapper();
+        queryWrapper.lambda().in(Style::getPlanningCategoryItemId, seatMap.keySet());
         List<Style> styleList = styleService.list(queryWrapper);
         if (CollUtil.isNotEmpty(styleList)) {
             styleList.forEach(s -> {
@@ -307,7 +315,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                 s.setDesignerId(dtoList.get(0).getDesignerId());
             });
             styleService.updateBatchById(styleList);
-        }*/
+        }
+        styleService.reviseAllDesignNo(designNoUpdate);
         return updateBatchById(planningCategoryItems);
     }
 

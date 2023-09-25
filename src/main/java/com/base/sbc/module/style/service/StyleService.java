@@ -22,8 +22,8 @@ import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.vo.*;
-import com.base.sbc.open.dto.OpenStyleDto;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -217,9 +217,13 @@ public interface StyleService extends BaseService<Style> {
      *
      * @return
      */
-    String getMaxDesignNo(GetMaxCodeRedis data,String userCompany);
+    String getMaxDesignNo(GetMaxCodeRedis data, String userCompany);
 
     void saveDesignNo(Style style);
 
+
+    Boolean reviseAllDesignNo(@Param("oldDesignNo") String oldDesignNo, @Param("newDesignNo") String newDesignNo);
+
+    void reviseAllDesignNo(Map<String, String> designNoUpdate);
 }
 

@@ -36,7 +36,7 @@ public class FieldValServiceImpl extends BaseServiceImpl<FieldValMapper, FieldVa
 
     @Override
     public List<FieldVal> list(String foreignId, String dataGroup) {
-        if (!StrUtil.isAllNotBlank(foreignId, dataGroup)) {
+        if (StrUtil.hasBlank(foreignId, dataGroup)) {
             return null;
         }
         QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();

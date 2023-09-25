@@ -9,7 +9,6 @@ package com.base.sbc.module.style.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.module.patternmaking.vo.PatternMakingForSampleVo;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
@@ -61,5 +60,14 @@ public interface StyleMapper extends BaseMapper<Style> {
     Long colorCount(@Param(Constants.WRAPPER) QueryWrapper prsQw);
 
     String selectMaxDesignNo(@Param(Constants.WRAPPER) QueryWrapper qc);
+
+    /**
+     * 修改所有引用的设计款号
+     *
+     * @param oldDesignNo
+     * @param newDesignNo
+     * @return
+     */
+    Boolean reviseAllDesignNo(@Param("oldDesignNo") String oldDesignNo, @Param("newDesignNo") String newDesignNo);
 }
 

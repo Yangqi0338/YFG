@@ -10,6 +10,24 @@
       -->
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <!--    修改所有设计款号-->
+    <update id="reviseAllDesignNo">
+        update t_style
+        set design_no = #{newDesignNo}
+        where design_no = #{oldDesignNo};
+        update t_planning_category_item
+        set design_no = #{newDesignNo}
+        where design_no = #{oldDesignNo};
+        update t_pack_info
+        set design_no = #{newDesignNo}
+        where design_no = #{oldDesignNo};
+        update t_sample
+        set design_no = #{newDesignNo}
+        where design_no = #{oldDesignNo};
+        update t_style_color
+        set design_no = #{newDesignNo}
+        where design_no = #{oldDesignNo};
+    </update>
     <!-- 分页查询 -->
     <select id="selectByQw" resultType="com.base.sbc.module.style.vo.StylePageVo">
         select *

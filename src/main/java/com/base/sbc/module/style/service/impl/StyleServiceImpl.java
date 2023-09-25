@@ -194,6 +194,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             style = saveNewStyle(dto);
         } else {
             style = getById(dto.getId());
+            String oldDesignNo = style.getDesignNo();
             this.saveOperaLog("修改", "款式设计", style.getStyleName(), style.getDesignNo(), dto, style);
             resetDesignNo(dto, style);
 
@@ -201,7 +202,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             setMainStylePic(style, dto.getStylePicList());
 
             this.updateById(style);
-
+            reviseAllDesignNo(oldDesignNo, style.getDesignNo());
             planningCategoryItemService.updateBySampleDesignChange(style);
 
         }
@@ -1566,6 +1567,24 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             PlanningCategoryItem planningCategoryItem = new PlanningCategoryItem();
             planningCategoryItem.setDesignNo(style.getDesignNo());
             planningCategoryItemService.update(planningCategoryItem, new UpdateWrapper<PlanningCategoryItem>().eq("id", hasStyle.getPlanningCategoryItemId()));
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public Boolean reviseAllDesignNo(String oldDesignNo, String newDesignNo) {
+        if ((StrUtil.hasBlank(oldDesignNo, newDesignNo)) && StrUtil.equals(oldDesignNo, newDesignNo)) {
+            return true;
+        }
+        return baseMapper.reviseAllDesignNo(oldDesignNo, newDesignNo);
+    }
+
+    @Override
+    public void reviseAllDesignNo(Map<String, String> designNoUpdate) {
+        if (CollUtil.isNotEmpty(designNoUpdate)) {
+            for (Map.Entry<String, String> e : designNoUpdate.entrySet()) {
+                reviseAllDesignNo(e.getKey(), e.getValue());
+            }
         }
     }
 
