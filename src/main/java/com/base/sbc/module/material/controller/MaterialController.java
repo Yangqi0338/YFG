@@ -96,31 +96,28 @@ public class MaterialController extends BaseController {
         }
         //if (BasicNumber.ZERO.getNumber().equals(materialSaveDto.getStatus())){
         //    materialSaveDto.setStatus(BasicNumber.ONE.getNumber());
-        //}
-
-
-        // TODO: 2023/5/20 临时修改，保留之前的素材状态信息，驳回则恢复
-        Material material = materialService.getById(materialSaveDto.getId());
-        MaterialSaveDto materialSaveDto1=new MaterialSaveDto();
-        BeanUtil.copyProperties(materialSaveDto,materialSaveDto1);
-        BeanUtil.copyProperties(material,materialSaveDto1);
-        if ("2".equals(material.getStatus())) {
-
-            redisTemplate.opsForValue().set("MTUP:"+materialSaveDto.getId(),materialSaveDto1);
-        }
-
-
-
-
+        //
+        // }
 
         //修改关联标签
         QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
         labelQueryWrapper.eq("material_id", materialSaveDto.getId());
         materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
 
+        //如果仅仅是保存则不提交审核
+        if (!materialSaveDto.isSave()){
+            // TODO: 2023/5/20 临时修改，保留之前的素材状态信息，驳回则恢复
+            Material material = materialService.getById(materialSaveDto.getId());
+            MaterialSaveDto materialSaveDto1=new MaterialSaveDto();
+            BeanUtil.copyProperties(materialSaveDto,materialSaveDto1);
+            BeanUtil.copyProperties(material,materialSaveDto1);
+            if ("2".equals(material.getStatus())) {
+                redisTemplate.opsForValue().set("MTUP:"+materialSaveDto.getId(),materialSaveDto1);
+            }
+            flowableService.start(FlowableService.MATERIAL + materialSaveDto.getMaterialCategoryName(), FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
+                    "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), null, BeanUtil.beanToMap(materialSaveDto));
 
-
-
+        }
 
         ////修改关联尺码
         //QueryWrapper<MaterialSize> sizeQueryWrapper = new QueryWrapper<>();
@@ -133,9 +130,7 @@ public class MaterialController extends BaseController {
         //materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
 
         boolean b = materialService.updateById(materialSaveDto);
-        flowableService.start(FlowableService.MATERIAL + materialSaveDto.getMaterialCategoryName(), FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
-                "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), null, BeanUtil.beanToMap(materialSaveDto));
-        return updateSuccess(b);
+            return updateSuccess(b);
     }
 
     /**

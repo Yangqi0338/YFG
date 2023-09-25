@@ -31,4 +31,6 @@ public class MaterialSaveDto extends Material {
      * 所有颜色
      */
     private List<MaterialColor> colors;
+
+    private boolean save;
 }
