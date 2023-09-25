@@ -65,6 +65,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
 import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
@@ -358,11 +359,17 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     public Boolean delBasicsdatumMaterial(RemoveDto removeDto) {
         List<String> list = StringUtils.convertList(removeDto.getIds());
         BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
+        /*控制是否下发外部SMP系统开关*/
+        Boolean systemSwitch = ccmFeignService.getSwitchByCode(ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH.getKeyCode());
         qc.select("material_code");
         qc.eq("company_code", this.getCompanyCode());
         qc.in("id", list);
+        qc.in(systemSwitch,"distribute",StringUtils.convertList("1,3") );
         List<String> list2 = this.list(qc).stream().map(BasicsdatumMaterial::getMaterialCode)
                 .collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(list2) && systemSwitch) {
+            throw new OtherException("存在已下发数据无法删除");
+        }
         // 删除主表
         this.removeByIds(removeDto);
         // 删除子表颜色和规格及报价

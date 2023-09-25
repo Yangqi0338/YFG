@@ -54,6 +54,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
+
 /**
  * 类描述：基础资料-颜色库 service类
  *
@@ -265,6 +267,16 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
     @Override
     public Boolean delBasicsdatumColourLibrary(String id) {
         List<String> ids = StringUtils.convertList(id);
+        /*控制是否下发外部SMP系统开关*/
+        Boolean systemSwitch = ccmFeignService.getSwitchByCode(ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH.getKeyCode());
+        QueryWrapper<BasicsdatumColourLibrary> queryWrapper = new QueryWrapper();
+        queryWrapper.lambda().in(systemSwitch, BasicsdatumColourLibrary::getScmSendFlag, StringUtils.convertList("1,3"))
+                .in(BasicsdatumColourLibrary::getId, ids);
+        List<BasicsdatumColourLibrary> libraryList = baseMapper.selectList(queryWrapper);
+
+        if (!CollectionUtils.isEmpty(libraryList) && systemSwitch) {
+            throw new OtherException("存在已下发数据无法删除");
+        }
         /*批量删除*/
         baseMapper.deleteBatchIds(ids);
         return true;
