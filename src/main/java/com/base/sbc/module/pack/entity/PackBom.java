@@ -44,8 +44,8 @@ public class PackBom extends BaseDataEntity<String> {
         //设计成本价=单价*设计用量*(1+损耗)
         /*大货成本价=单价*大货用量*(1+额定损耗)*/
         this.cost = Optional.ofNullable(this.price).orElse(BigDecimal.ZERO)
-                .multiply(Optional.ofNullable( this.packType.equals("packDesign")?this.designUnitUse:this.bulkUnitUse)  .orElse(BigDecimal.ZERO)).multiply(
-                        BigDecimal.ONE.add(Optional.ofNullable(this.packType.equals("packDesign")?this.lossRate:this.planningLoossRate).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")))
+                .multiply(Optional.ofNullable(this.packType.equals("packDesign") ? this.designUnitUse : this.bulkUnitUse).orElse(BigDecimal.ZERO)).multiply(
+                        BigDecimal.ONE.add(Optional.ofNullable(this.packType.equals("packDesign") ? this.lossRate : this.planningLoossRate).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")))
                 );
     }
 
@@ -106,7 +106,12 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "资料包类型:packDesign:设计资料包/packBigGoods:标准资料包(大货资料包)")
     private String packType;
     /**
-     * 暂未使用
+     * 在哪个阶段添加:packDesign:设计资料包/packBigGoods:标准资料包(大货资料包)
+     */
+    @ApiModelProperty(value = "在哪个阶段添加:packDesign:设计资料包/packBigGoods:标准资料包(大货资料包)")
+    private String stageFlag;
+    /**
+     * 状态:暂未使用
      */
     @ApiModelProperty(value = "状态:暂未使用")
     private String status;
@@ -114,7 +119,7 @@ public class PackBom extends BaseDataEntity<String> {
      * bom模板id
      */
     @ApiModelProperty(value = "bom模板id")
-    private String  bomTemplateId;
+    private String bomTemplateId;
     /**
      * 主材料标识(0否,1是)
      */
@@ -261,15 +266,15 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "单位")
     private String unitCode;
     /**
-     * 额定单耗
-     */
-    @ApiModelProperty(value = "额定单耗")
-    private String ratedUnitConsumption;
-    /**
      * 计控损耗
      */
     @ApiModelProperty(value = "计控损耗")
     private BigDecimal planningLoossRate;
+    /**
+     * 额定单耗
+     */
+    @ApiModelProperty(value = "额定单耗")
+    private String ratedUnitConsumption;
     /**
      * 购买币种
      */
