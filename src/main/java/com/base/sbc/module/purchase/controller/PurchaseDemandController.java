@@ -278,7 +278,7 @@ public class PurchaseDemandController extends BaseController{
 			}
 
 			Integer currentStrat = (page.getPageNum() -1 ) * page.getPageSize();
-			Integer currentEnd = page.getPageNum() * page.getPageSize() ;
+			Integer currentEnd = page.getPageNum() * page.getPageSize() > purchaseDemandList.size() ? purchaseDemandList.size() : page.getPageNum() * page.getPageSize();
 			List pageList = purchaseDemandList.subList(currentStrat, currentEnd);
 			PageInfo<PurchaseDemand> pages = new PageInfo<>(purchaseDemandList,1);
 			pages.setList(pageList);
