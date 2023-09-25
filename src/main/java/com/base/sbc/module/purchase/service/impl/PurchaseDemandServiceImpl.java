@@ -397,7 +397,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
         QueryWrapper<BasicsdatumMaterial> materialQw = new QueryWrapper<>();
         materialQw.in("material_code", materialCodeList);
         List<BasicsdatumMaterial> materialList = materialService.list(materialQw);
-        Map<String, BasicsdatumMaterial> materialMap = materialList.stream().collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode, item -> item));
+        Map<String, BasicsdatumMaterial> materialMap = materialList.stream().collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode, item -> item, (item1, item2) -> item1));
 
         String maxCode = purchaseOrderMapper.selectMaxCodeByCompany(companyCode);
         String codeOne = maxCode != null ? maxCode : CodeGen.BEGIN_NUM;
