@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
@@ -21,6 +22,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -31,6 +33,7 @@ import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
+import com.base.sbc.module.patternmaking.vo.SampleBoardExcel;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskSearchDto;
 import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
@@ -39,6 +42,7 @@ import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
+import com.base.sbc.module.sample.vo.PreProductionSampleTaskVoExcel;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
@@ -49,6 +53,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.Date;
@@ -187,6 +193,39 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         amcFeignService.setUserAvatarToList(list);
         nodeStatusService.setNodeStatus(list);
         return objects.toPageInfo();
+    }
+
+    /**
+     * 任务-列表导出
+     *
+     * @param response
+     * @param dto
+     */
+    @Override
+    public void taskderiveExcel(HttpServletResponse response, PreProductionSampleTaskSearchDto dto) throws IOException {
+        BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
+        qw.eq(StrUtil.isNotBlank(dto.getNode()), "t.node", dto.getNode());
+        qw.eq(StrUtil.isNotBlank(dto.getStatus()), "t.status", dto.getStatus());
+        qw.notEmptyIn("t.finish_flag", dto.getFinishFlag());
+        qw.andLike(dto.getSearch(), "s.style_no", "t.code");
+        qw.notEmptyIn("s.year", dto.getYear());
+        qw.notEmptyIn("s.season", dto.getSeason());
+        qw.notEmptyIn("s.month", dto.getMonth());
+        qw.orderByDesc("t.create_date");
+        if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");
+        } else {
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
+        }
+        List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
+        //设置图
+        attachmentService.setListStylePic(list, "stylePic");
+        //设置头像
+        amcFeignService.setUserAvatarToList(list);
+        nodeStatusService.setNodeStatus(list);
+
+        List<PreProductionSampleTaskVoExcel> excelList = BeanUtil.copyToList(list, PreProductionSampleTaskVoExcel.class);
+        ExcelUtils.exportExcel(excelList, PreProductionSampleTaskVoExcel.class, "产前样看板.xlsx", new ExportParams(), response);
     }
 
     @Override

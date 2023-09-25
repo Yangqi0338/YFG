@@ -73,9 +73,14 @@ public class SampleBoardVo {
     private String stylePic;
     @ApiModelProperty(value = "品牌")
     private String brand;
+    @ApiModelProperty(value = "品牌")
+    private String brandName;
+
 
     @ApiModelProperty(value = "年份")
     private String year;
+    @ApiModelProperty(value = "年份")
+    private String yearName;
     /**
      * 季节
      */
@@ -106,8 +111,14 @@ public class SampleBoardVo {
     @ApiModelProperty(value = "打版难度")
     private String patDiff;
 
+    @ApiModelProperty(value = "打版难度")
+    private String patDiffName;
+
     @ApiModelProperty(value = "打样顺序")
     private String patSeq;
+
+    @ApiModelProperty(value = "打样顺序")
+    private String patSeqName;
 
     @ApiModelProperty(value = "工艺员确认齐套")
     private String technicianKitting;

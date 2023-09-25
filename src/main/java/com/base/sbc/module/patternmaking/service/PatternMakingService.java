@@ -16,6 +16,8 @@ import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -237,6 +239,13 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
     boolean nodeStatusChange(String userId, List<NodeStatusChangeDto> list, GroupUser groupUser);
 
     PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto);
+
+    /**
+     * 导出样衣看板
+     * @param response
+     * @param dto
+     */
+    void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException;
 
     /**
      * 确认收到样衣

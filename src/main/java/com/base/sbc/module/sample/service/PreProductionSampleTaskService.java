@@ -18,6 +18,8 @@ import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.github.pagehelper.PageInfo;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
@@ -50,6 +52,13 @@ public interface PreProductionSampleTaskService extends BaseService<PreProductio
     boolean nodeStatusChange(String userId, NodeStatusChangeDto dto, GroupUser groupUser);
 
     PageInfo<PreProductionSampleTaskVo> taskList(PreProductionSampleTaskSearchDto dto);
+
+    /**
+     * 任务-列表导出
+     * @param response
+     * @param dto
+     */
+    void taskderiveExcel(HttpServletResponse response, PreProductionSampleTaskSearchDto dto) throws IOException;
 
     boolean nextOrPrev(Principal user, String id, String next);
 

@@ -41,7 +41,9 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -247,6 +249,15 @@ public class PatternMakingController {
     public PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto) {
         return patternMakingService.sampleBoardList(dto);
     }
+
+
+    @ApiOperation(value = "导出", notes = "")
+    @GetMapping("/deriveExcel")
+    public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException {
+         patternMakingService.deriveExcel(response,dto);
+    }
+
+
 
     @ApiOperation(value = "确认收到样衣", notes = "")
     @GetMapping("/receiveSample")

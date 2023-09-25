@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.service.impl;
 
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
@@ -32,8 +33,10 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.DateUtils;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.basicsdatum.dto.ComponentLibraryExcelDto;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
@@ -62,6 +65,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.*;
@@ -746,6 +751,29 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         return objects.toPageInfo();
+    }
+
+    /**
+     * 导出样衣看板
+     *
+     * @param response
+     * @param dto
+     */
+    @Override
+    public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException {
+        QueryWrapper qw = new QueryWrapper();
+        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
+        qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
+        qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
+        qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
+        qw.in(StrUtil.isNotBlank(dto.getBandCode()), "s.band_code", StrUtil.split(dto.getBandCode(), StrUtil.COMMA));
+        qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
+        List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
+        attachmentService.setListStylePic(list, "stylePic");
+        // 设置节点状态数据
+        nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
+        List<SampleBoardExcel> excelList = BeanUtil.copyToList(list, SampleBoardExcel.class);
+        ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams(), response);
     }
 
     @Override
