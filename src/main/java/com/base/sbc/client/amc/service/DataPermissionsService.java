@@ -165,7 +165,7 @@ public class DataPermissionsService {
                 if (CollectionUtils.isNotEmpty(fieldDataPermissions) && fieldDataPermissions.size()>0) {
                     List<String> fieldArr=new ArrayList<>();
                     boolean isFieldFlag=false;
-                    final String[] sqlType = {fieldArr.size()>0?DataPermissionsSelectTypeEnum.OR.getK().equals(dataPermissions.getSelectType()) ? " or ( " : " and ( ":" ( "};
+                    final String[] sqlType = {authorityField.size()>0?DataPermissionsSelectTypeEnum.OR.getK().equals(dataPermissions.getSelectType()) ? " or ( " : " and ( ":" ( "};
                     fieldArr.add(sqlType[0]);
                     fieldfor:for(FieldDataPermissionVO fieldDataPermissionVO:fieldDataPermissions){
                         if(StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName()) || StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())){
