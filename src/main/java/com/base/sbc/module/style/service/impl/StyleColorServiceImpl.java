@@ -20,6 +20,7 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StyleNoImgUtils;
@@ -900,7 +901,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         PackInfoStatus packInfoStatus = packInfoStatusService.getOne(queryWrapper2);
 
         /*复制资料包里面的数据*/
-        packInfoService.copyPack(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType());
+        packInfoService.copyPack(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType(), BasicNumber.ZERO.getNumber());
         /*复制状态*/
         packInfoStatusService.copy(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType());
         /*复制出款式定价确定数据*/

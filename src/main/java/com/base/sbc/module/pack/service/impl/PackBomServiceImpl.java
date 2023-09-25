@@ -9,6 +9,7 @@ package com.base.sbc.module.pack.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
@@ -124,30 +125,35 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         PageInfo<PackBomVo> voPageInfo = CopyUtil.copy(pageInfo, PackBomVo.class);
         // 查询尺码配置
         List<PackBomVo> pbvs = voPageInfo.getList();
-        if (CollUtil.isNotEmpty(pbvs)) {
-            List<String> materialCodes = pbvs.stream()
-                    .filter(x -> StringUtils.equals(x.getDataSource(), "1"))
-                    .map(PackBomVo::getMaterialCode)
-                    .collect(Collectors.toList());
-            Map<String, BasicsdatumMaterial> sourceMaps = basicsdatumMaterialService.getSourceAndIngredient(materialCodes);
+        querySubList(pbvs);
+        return voPageInfo;
+    }
 
-            List<String> bomIds = pbvs.stream().map(PackBomVo::getId).collect(Collectors.toList());
-            Map<String, List<PackBomSizeVo>> packBomSizeMap = packBomSizeService.getByBomIdsToMap(bomIds);
-            // 查询资料包-物料清单-配色
-            Map<String, List<PackBomColorVo>> packBomColorMap = packBomColorService.getByBomIdsToMap(bomIds);
-            for (PackBomVo pbv : pbvs) {
-                pbv.setPackBomSizeList(packBomSizeMap.get(pbv.getId()));
-                pbv.setPackBomColorVoList(packBomColorMap.get(pbv.getId()));
-                BasicsdatumMaterial basicsdatumMaterial = sourceMaps.get(pbv.getMaterialCode());
-                if (basicsdatumMaterial != null) {
-                    pbv.setSource(basicsdatumMaterial.getSource());
-                    //成分取最新的
-                    pbv.setIngredient(basicsdatumMaterial.getIngredient());
-                }
-
+    @Override
+    public void querySubList(List<PackBomVo> list) {
+        if (CollUtil.isEmpty(list)) {
+            return;
+        }
+        List<String> materialCodes = list.stream()
+                .filter(x -> StringUtils.equals(x.getDataSource(), "1"))
+                .map(PackBomVo::getMaterialCode)
+                .collect(Collectors.toList());
+        Map<String, BasicsdatumMaterial> sourceMaps = basicsdatumMaterialService.getSourceAndIngredient(materialCodes);
+        List<String> bomIds = list.stream().map(PackBomVo::getId).collect(Collectors.toList());
+        //配码
+        Map<String, List<PackBomSizeVo>> packBomSizeMap = packBomSizeService.getByBomIdsToMap(bomIds);
+        // 查询资料包-物料清单-配色
+        Map<String, List<PackBomColorVo>> packBomColorMap = packBomColorService.getByBomIdsToMap(bomIds);
+        for (PackBomVo pbv : list) {
+            pbv.setPackBomSizeList(packBomSizeMap.get(pbv.getId()));
+            pbv.setPackBomColorVoList(packBomColorMap.get(pbv.getId()));
+            BasicsdatumMaterial basicsdatumMaterial = sourceMaps.get(pbv.getMaterialCode());
+            if (basicsdatumMaterial != null) {
+                pbv.setSource(basicsdatumMaterial.getSource());
+                //成分取最新的
+                pbv.setIngredient(basicsdatumMaterial.getIngredient());
             }
         }
-        return voPageInfo;
     }
 
     @Override
@@ -162,6 +168,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             packBom.setId(null);
             PackUtils.setBomVersionInfo(version, packBom);
             PackUtils.bomDefaultVal(packBom);
+            packBom.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
             save(packBom);
         } else {
             PackBom db = getById(dto.getId());
@@ -171,6 +178,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             saveOrUpdateOperaLog(dto, db, genOperaLogEntity(db, "修改"));
             BeanUtil.copyProperties(dto, db);
             PackUtils.setBomVersionInfo(version, db);
+            db.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
             updateById(db);
             packBom = db;
         }
@@ -218,6 +226,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         for (PackBom packBom : packBoms) {
             PackUtils.bomDefaultVal(packBom);
             PackUtils.setBomVersionInfo(version, packBom);
+            packBom.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
             if (!CommonUtils.isInitId(packBom.getId())) {
                 pageBomIds.add(packBom.getId());
             } else {
@@ -526,6 +535,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         }
         return map;
     }
+
 
     @Override
     public List<PackBomVo> list(String foreignId, String packType, String bomVersionId) {

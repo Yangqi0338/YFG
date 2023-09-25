@@ -395,6 +395,11 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         if (packInfo == null) {
             throw new OtherException("资料包信息不存在");
         }
+        //查看是否在设计阶段
+        PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
+        if (!StrUtil.equals(packDesignStatus.getBomStatus(), BasicNumber.ZERO.getNumber())) {
+            throw new OtherException("只有在设计阶段才能转大货");
+        }
         //查看版本是否锁定
         PackBomVersion version = packBomVersionService.getEnableVersion(dto);
         if (version == null) {
@@ -421,12 +426,12 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             }
         }
 
-        PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
+
         if (ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH.getKeyCode()) && YesOrNoEnum.YES.getValueStr().equals(packDesignStatus.getBomStatus())) {
             throw new OtherException("已转大货，不可重复转入");
         }
         Date nowDate = new Date();
-        copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
+        copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS, BasicNumber.ONE.getNumber());
         //设置为已转大货
         packDesignStatus.setBomStatus(BasicNumber.ONE.getNumber());
         packDesignStatus.setToBigGoodsDate(nowDate);
@@ -470,13 +475,13 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean copyPack(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+    public boolean copyPack(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String flg) {
         //图样附件、物料清单、尺寸表、工序工价、核价信息、工艺说明、样衣评审、业务意见、吊牌洗唛
 
         //图样附件
         attachmentService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
         //物料清单
-        packBomVersionService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        packBomVersionService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, flg);
         //尺寸表
         packSizeConfigService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
         packSizeService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
@@ -511,6 +516,13 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             throw new OtherException("资料包数据不存在,请先保存");
         }
         PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
+        if (StrUtil.equals(packInfoStatus.getReverseConfirmStatus(), BaseGlobal.STOCK_STATUS_WAIT_CHECK)) {
+            throw new OtherException("不能重复反审");
+        }
+        if (!StrUtil.equals(packInfoStatus.getBomStatus(), BasicNumber.ONE.getNumber())) {
+            throw new OtherException("只有在大货阶段才能反审");
+        }
+
         packInfoStatus.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         packInfoStatusService.updateById(packInfoStatus);
         Map<String, Object> variables = BeanUtil.beanToMap(pack);
@@ -933,7 +945,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
                 Date nowDate = new Date();
-                copyPack(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS, dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN);
+                copyPack(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS, dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN, BasicNumber.TWO.getNumber());
                 bigGoodsPs.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
                 bigGoodsPs.setScmSendFlag(BaseGlobal.NO);
                 // bom阶段设置为样衣阶段

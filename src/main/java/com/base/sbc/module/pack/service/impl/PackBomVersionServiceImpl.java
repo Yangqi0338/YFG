@@ -21,6 +21,7 @@ import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
@@ -29,6 +30,8 @@ import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackBomVersionMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackBomColorVo;
+import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.purchase.service.PurchaseDemandService;
@@ -283,9 +286,18 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         return byId;
     }
 
+    /**
+     * 复制
+     *
+     * @param sourceForeignId
+     * @param sourcePackType
+     * @param targetForeignId
+     * @param targetPackType
+     * @param flg             0 正常拷贝,  1 转大货 ,2 反审
+     * @return
+     */
     @Override
-    @Transactional(rollbackFor = {Exception.class})
-    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String flg) {
         if (StrUtil.equals(sourceForeignId, targetForeignId) && StrUtil.equals(sourcePackType, targetPackType)) {
             return true;
         }
@@ -294,87 +306,138 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
          * eg
          *设计A（物料版本)——大货A（物料版本），大货A（物料版本）反审——设计生成B版本，并启用。修改完成后，下发设计B（物料版本）——大货也变成B版本
          */
-        this.del(targetForeignId, targetPackType);
-        packBomService.del(targetForeignId, targetPackType);
-        packBomSizeService.del(targetForeignId, targetPackType);
-        packBomColorService.del(targetForeignId, targetPackType);
         Snowflake snowflake = IdUtil.getSnowflake();
         Map<String, String> newIdMaps = new HashMap<>(16);
-        // 获取源数据
-        // 1.获取版本
-        QueryWrapper query = new QueryWrapper();
-        query.eq("foreign_id", sourceForeignId);
-        query.eq("pack_type", sourcePackType);
-        List<PackBomVersion> versionsList = list(query);
-        //2.获取物料清单
-        List<PackBom> bomList = packBomService.list(query);
-        // 3获取物料尺码
-        List<PackBomSize> bomSizeList = packBomSizeService.list(query);
+        //物料
+        List<PackBomVo> bomList = null;
+        //配码
+        List<PackBomSizeVo> bomSizeList = null;
+        //配色
+        List<PackBomColor> packBomColorList = null;
+        //处理版本
+        //新版本
+        PackBomVersionVo newVersion = null;
+        //正常拷贝 保存版本
+        if (StrUtil.equals(BasicNumber.ZERO.getNumber(), flg)) {
+            //1获取源启用版本
+            PackBomVersion enableVersion = getEnableVersion(sourceForeignId, sourcePackType);
+            //获取源版本数据
+            bomList = packBomService.list(sourceForeignId, sourcePackType, enableVersion.getId());
+            List<String> bomIds = Opt.ofNullable(bomList).map(bl -> bl.stream().map(PackBomVo::getId).collect(Collectors.toList())).orElse(CollUtil.newArrayList());
+            bomSizeList = packBomSizeService.getByBomIds(bomIds);
+            packBomColorList = BeanUtil.copyToList(packBomColorService.getByBomIds(bomIds), PackBomColor.class);
 
-        //转大货 非空校验
-        if (StrUtil.equals(targetPackType, PackUtils.PACK_TYPE_BIG_GOODS) && ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH.getKeyCode())) {
-            //获取启动版本
-            PackBomVersion version = CollUtil.findOne(versionsList, (a) -> StrUtil.equals(a.getStatus(), BaseGlobal.YES));
-            //获取启动版本的BOM数据
-            Collection<PackBom> packBoms = CollUtil.filterNew(bomList, bom -> StrUtil.equals(version.getId(), bom.getBomVersionId()));
-            Collection<PackBomSize> packBomSizes = CollUtil.filterNew(bomSizeList, bom -> StrUtil.equals(version.getId(), bom.getBomVersionId()));
-            checkBomDataEmptyThrowException(packBoms, packBomSizes);
+            // 创建目标启用版本 并启用
+            PackBomVersionDto versionDto = new PackBomVersionDto();
+            versionDto.setForeignId(targetForeignId);
+            versionDto.setPackType(targetPackType);
+            newVersion = saveVersion(versionDto);
+            //启动版本
+            enable(newVersion);
         }
+        //转大货
+        else if (StrUtil.equals(BasicNumber.ONE.getNumber(), flg)) {
 
-        //保存版本
-        if (CollUtil.isNotEmpty(versionsList)) {
-            for (PackBomVersion version : versionsList) {
-                version.setPackType(targetPackType);
-                version.setForeignId(targetForeignId);
-                String newId = snowflake.nextIdStr();
-                newIdMaps.put(version.getId(), newId);
-                version.setId(newId);
+            //1获取源启用版本
+            PackBomVersion enableVersion = getEnableVersion(sourceForeignId, sourcePackType);
+            //获取源版本数据
+            bomList = packBomService.list(sourceForeignId, sourcePackType, enableVersion.getId());
+            List<String> bomIds = Opt.ofNullable(bomList).map(bl -> bl.stream().map(PackBomVo::getId).collect(Collectors.toList())).orElse(CollUtil.newArrayList());
+            bomSizeList = packBomSizeService.getByBomIds(bomIds);
+            for (PackBomVo packBomVo : bomList) {
+                packBomVo.setLossRate(null);
             }
-            saveBatch(versionsList);
+            packBomColorList = BeanUtil.copyToList(packBomColorService.getByBomIds(bomIds), PackBomColor.class);
+
+            //转大货 非空校验
+            if (ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH.getKeyCode())) {
+                checkBomDataEmptyThrowException(bomList, bomSizeList);
+            }
+            // 创建目标启用版本 并启用
+            PackBomVersionDto versionDto = new PackBomVersionDto();
+            versionDto.setForeignId(targetForeignId);
+            versionDto.setPackType(targetPackType);
+            newVersion = saveVersion(versionDto);
+            //启动版本
+            enable(newVersion);
         }
+        //反审
+        else if (StrUtil.equals(BasicNumber.TWO.getNumber(), flg)) {
+            //1获取目标启用版本
+            PackBomVersion targetEnableVersion = getEnableVersion(targetForeignId, targetPackType);
+            //获取目标数据
+            List<PackBomVo> targetBomList = packBomService.list(targetForeignId, targetPackType, targetEnableVersion.getId());
+            List<String> bomIds = Opt.ofNullable(targetBomList).map(bl -> bl.stream().map(PackBomVo::getId).collect(Collectors.toList())).orElse(CollUtil.newArrayList());
+            List<PackBomSizeVo> targetBomSizeList = packBomSizeService.getByBomIds(bomIds);
+            List<PackBomColorVo> targetPackBomColorList = packBomColorService.getByBomIds(bomIds);
+            // bom 数据为设计阶段数据源数据 + 在大货阶段添加的数据
+            //获取在大货阶段添加的数据
+            PackBomVersion bigEnableVersion = getEnableVersion(sourceForeignId, sourcePackType);
+            List<PackBom> bigBomList = packBomService.list(new QueryWrapper<PackBom>()
+                    .eq("bom_version_id", bigEnableVersion.getId())
+                    .eq("foreign_id", sourceForeignId)
+                    .eq("pack_type", sourcePackType)
+                    .eq("stage_flag", sourcePackType));
+            List<String> bigBimIds = Opt.ofNullable(bigBomList).map(bl -> bl.stream().map(PackBom::getId).collect(Collectors.toList())).orElse(CollUtil.newArrayList());
+            List<PackBomSizeVo> bigBomSizeList = packBomSizeService.getByBomIds(bigBimIds);
+            List<PackBomColorVo> bigPackBomColorList = packBomColorService.getByBomIds(bigBimIds);
+            CollUtil.newArrayList(targetBomList);
+            bomList = CollUtil.unionAll(targetBomList, BeanUtil.copyToList(bigBomList, PackBomVo.class));
+            bomSizeList = CollUtil.unionAll(targetBomSizeList, bigBomSizeList);
+            packBomColorList = CollUtil.unionAll(BeanUtil.copyToList(targetPackBomColorList, PackBomColor.class),
+                    BeanUtil.copyToList(bigPackBomColorList, PackBomColor.class));
+            // 创建目标启用版本 并启用
+            PackBomVersionDto versionDto = new PackBomVersionDto();
+            versionDto.setForeignId(targetForeignId);
+            versionDto.setPackType(targetPackType);
+            newVersion = saveVersion(versionDto);
+            //启动版本
+            enable(newVersion);
+        }
+
+
         //保存物料清单
         if (CollUtil.isNotEmpty(bomList)) {
-            List<PackBomColor> packBomColorListAll = new ArrayList<>();
-            for (PackBom bom : bomList) {
+            for (int i = 0; i < bomList.size(); i++) {
+                PackBom bom = bomList.get(i);
                 // 查询物料清单-单款多色数据
                 QueryWrapper<PackBomColor> bomColorQueryWrapper = new QueryWrapper<>();
                 bomColorQueryWrapper.eq("foreign_id", sourceForeignId);
                 bomColorQueryWrapper.eq("pack_type", sourcePackType);
                 bomColorQueryWrapper.eq("bom_id", bom.getId());
-                List<PackBomColor> packBomColorList = packBomColorService.list(bomColorQueryWrapper);
                 String newId = snowflake.nextIdStr();
                 bom.setPackType(targetPackType);
+                bom.setCode(newVersion.getVersion() + StrUtil.DASHED + (i + 1));
                 bom.setForeignId(targetForeignId);
                 newIdMaps.put(bom.getId(), newId);
                 bom.setId(newId);
-                bom.setBomVersionId(newIdMaps.get(bom.getBomVersionId()));
-                // 复制物料清单-单款多色数据到大货资料包
-                if (CollUtil.isNotEmpty(packBomColorList)) {
-                    for (PackBomColor packBomColor : packBomColorList) {
-                        packBomColor.setId(null);
-                        packBomColor.insertInit();
-                        packBomColor.setBomVersionId(bom.getBomVersionId());
-                        packBomColor.setBomId(bom.getId());
-                        packBomColor.setPackType(bom.getPackType());
-                        packBomColor.setForeignId(bom.getForeignId());
-                    }
-                    packBomColorListAll.addAll(packBomColorList);
-                }
+                bom.setBomVersionId(newVersion.getId());
             }
-            packBomService.saveBatch(bomList);
-            packBomColorService.saveBatch(packBomColorListAll);
+            packBomService.saveBatch(BeanUtil.copyToList(bomList, PackBom.class));
+
+        }
+        // 复制物料清单-单款多色数据到大货资料包
+        if (CollUtil.isNotEmpty(packBomColorList)) {
+            for (PackBomColor packBomColor : packBomColorList) {
+                packBomColor.setId(null);
+                packBomColor.insertInit();
+                packBomColor.setBomVersionId(newVersion.getId());
+                packBomColor.setBomId(newIdMaps.get(packBomColor.getBomId()));
+                packBomColor.setPackType(targetPackType);
+                packBomColor.setForeignId(targetForeignId);
+            }
+            packBomColorService.saveBatch(packBomColorList);
         }
         //保存尺码
         if (CollUtil.isNotEmpty(bomSizeList)) {
             for (PackBomSize bomSize : bomSizeList) {
-                String newId = snowflake.nextIdStr();
                 bomSize.setPackType(targetPackType);
                 bomSize.setForeignId(targetForeignId);
-                bomSize.setId(newId);
-                bomSize.setBomVersionId(newIdMaps.get(bomSize.getBomVersionId()));
+                bomSize.setId(null);
+                bomSize.setBomVersionId(newVersion.getId());
                 bomSize.setBomId(newIdMaps.get(bomSize.getBomId()));
             }
-            packBomSizeService.saveBatch(bomSizeList);
+            packBomSizeService.saveBatch(BeanUtil.copyToList(bomSizeList, PackBomSize.class));
         }
         try {
             // 保存款式设计详情颜色
@@ -389,56 +452,18 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             logger.error("保存款式设计详情颜色错误信息如下：{}", e);
         }
 
-        //大货 到设计 表示反审，则新建一个bom版本
-        if (StrUtil.equals(targetPackType, PackUtils.PACK_TYPE_DESIGN) && StrUtil.equals(sourcePackType, PackUtils.PACK_TYPE_BIG_GOODS)) {
-            //查找启动版本
-            PackBomVersion one = CollUtil.findOne(versionsList, (a) -> StrUtil.equals(a.getStatus(), BaseGlobal.YES));
 
-            //创建一个新版本
-            PackBomVersionDto versionDto = new PackBomVersionDto();
-            versionDto.setForeignId(targetForeignId);
-            versionDto.setPackType(targetPackType);
-            PackBomVersionVo newVersion = saveVersion(versionDto);
-            //启动版本
-            enable(newVersion);
-
-            if (one != null) {
-
-                List<PackBom> newBomList = Opt.ofEmptyAble(bomList).orElse(new ArrayList<>())
-                        .stream().filter((b) -> StrUtil.equals(b.getBomVersionId(), one.getId()))
-                        .collect(Collectors.toList());
-                if (CollUtil.isNotEmpty(newBomList)) {
-                    List<String> bomIds = new ArrayList<>(16);
-                    for (PackBom bom : newBomList) {
-                        String newId = snowflake.nextIdStr();
-                        bom.setPackType(targetPackType);
-                        newIdMaps.put(bom.getId(), newId);
-                        bomIds.add(bom.getId());
-                        bom.setId(newId);
-                        bom.setBomVersionId(newVersion.getId());
-                    }
-                    packBomService.saveBatch(newBomList);
-                    //保存尺码
-                    List<PackBomSize> newBomSizeList = Opt.ofEmptyAble(bomSizeList).orElse(new ArrayList<>()).stream().filter((c) -> bomIds.contains(c.getBomId())).collect(Collectors.toList());
-                    if (CollUtil.isNotEmpty(newBomSizeList)) {
-                        for (PackBomSize bomSize : newBomSizeList) {
-                            String newId = snowflake.nextIdStr();
-                            bomSize.setId(newId);
-                            bomSize.setBomVersionId(newVersion.getId());
-                            bomSize.setBomId(newIdMaps.get(bomSize.getBomId()));
-                        }
-                        packBomSizeService.saveBatch(newBomSizeList);
-                    }
-
-                }
-
-            }
-        }
         return true;
     }
 
     @Override
-    public void checkBomDataEmptyThrowException(Collection<PackBom> bomList, Collection<PackBomSize> bomSizeList) {
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+        return copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, BasicNumber.ZERO.getNumber());
+    }
+
+    @Override
+    public void checkBomDataEmptyThrowException(Collection<? extends PackBom> bomList, Collection<? extends PackBomSize> bomSizeList) {
         if (CollUtil.isEmpty(bomList)) {
             throw new OtherException("物料信息为空");
         }
@@ -506,7 +531,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             validate.forEach(item -> {
                 errorMessage.add(item.getMessage());
             });
-            throw new OtherException(CollUtil.join(errorMessage, StrUtil.COMMA));
+            throw new OtherException("未填写:" + CollUtil.join(errorMessage, StrUtil.COMMA));
         }
 
     }
@@ -522,7 +547,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             validate.forEach(item -> {
                 errorMessage.add(item.getMessage());
             });
-            throw new OtherException(CollUtil.join(errorMessage, StrUtil.COMMA));
+            throw new OtherException("未填写:" + CollUtil.join(errorMessage, StrUtil.COMMA));
         }
     }
 

@@ -127,7 +127,19 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
     PackBomVersion checkVersion(String id);
 
 
-    void checkBomDataEmptyThrowException(Collection<PackBom> bomList, Collection<PackBomSize> bomSizeList);
+    /**
+     * 复制
+     *
+     * @param sourceForeignId
+     * @param sourcePackType
+     * @param targetForeignId
+     * @param targetPackType
+     * @param flg             0 正常拷贝,  1 转大货 ,2 反审
+     * @return
+     */
+    boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String flg);
+
+    void checkBomDataEmptyThrowException(Collection<? extends PackBom> bomList, Collection<? extends PackBomSize> bomSizeList);
 
     void checkBomDataEmptyThrowException(PackBom bom);
 

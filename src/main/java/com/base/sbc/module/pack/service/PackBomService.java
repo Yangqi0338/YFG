@@ -130,6 +130,7 @@ public interface PackBomService extends PackBaseService<PackBom> {
      */
     Map<String, String> getPackSendStatus(List<String> stringList);
 
+    void querySubList(List<PackBomVo> list);
 
     List<PackBomVo> list(String foreignId, String packType, String bomVersionId);
 
