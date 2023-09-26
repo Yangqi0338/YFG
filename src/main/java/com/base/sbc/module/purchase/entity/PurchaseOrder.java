@@ -51,7 +51,7 @@ public class PurchaseOrder extends BaseDataEntity<String> {
     @ApiModelProperty(value = "单据状态（0 正常 1作废）"  )
     private String orderStatus;
     /** 状态（0未审核 1审核通过 2驳回） */
-    @ApiModelProperty(value = "状态（0未审核 1审核通过 2驳回）"  )
+    @ApiModelProperty(value = "状态（0草稿 1待审核 2审核通过 -1驳回）"  )
     private String status;
     /** 下发状态（0未下发 1已下发） */
     @ApiModelProperty(value = "下发状态（0未下发 1已下发）"  )

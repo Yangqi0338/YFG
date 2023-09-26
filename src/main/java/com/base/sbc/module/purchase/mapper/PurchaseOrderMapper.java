@@ -29,5 +29,7 @@ public interface PurchaseOrderMapper extends BaseMapper<PurchaseOrder> {
     String selectMaxCodeByCompany(@Param("companyCode") String companyCode);
 
     List<PurchaseOrder> purchaseRelationoNotice(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
+
+    List<PurchaseOrder> purchaseRelationDetail(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 // 自定义方法区 不替换的区域【other_end】
 }
