@@ -951,6 +951,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qc.eq("del_flag", BasicNumber.ZERO.getNumber());
         qc.select("id", "name", "season", "brand", "brand_name");
         qc.orderByDesc("name");
+        dataPermissionsService.getDataPermissionsForQw(qc, vo.getBusinessType(), "", new String[]{"brand"}, true);
         /*查询到的产品季*/
         List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
         Snowflake idGen = IdUtil.getSnowflake();

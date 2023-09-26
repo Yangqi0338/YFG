@@ -418,6 +418,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("foreign_id", version.getForeignId());
             queryWrapper.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
+            queryWrapper.eq("stage_flag", dto.getPackType());
             queryWrapper.eq("bom_version_id", version.getId());
             queryWrapper.in("scm_send_flag", StringUtils.convertList("0,2"));
             List<PackBom> packBomList = packBomService.list(queryWrapper);
@@ -957,13 +958,13 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 //设置bom 状态
                 changeBomStatus(packInfo.getId(), BasicNumber.ZERO.getNumber());
                 PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
-                /*反审后物料清单的状态改为可编辑*/
+ /*               *//*反审后物料清单的状态改为可编辑*//*
                 UpdateWrapper updateWrapper = new UpdateWrapper();
                 updateWrapper.set("scm_send_flag",BaseGlobal.IN_READY);
                 updateWrapper.eq("foreign_id",packInfo.getId());
                 updateWrapper.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
                 updateWrapper.eq("bom_version_id",enableVersion.getId());
-                packBomService.update(updateWrapper);
+                packBomService.update(updateWrapper);*/
 
             }
             //驳回

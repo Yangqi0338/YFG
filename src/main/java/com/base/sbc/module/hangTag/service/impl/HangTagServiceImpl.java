@@ -10,6 +10,8 @@ import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.flowable.vo.FlowRecordVo;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -25,7 +27,6 @@ import com.base.sbc.module.hangTag.dto.HangTagDTO;
 import com.base.sbc.module.hangTag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangTag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangTag.entity.HangTag;
-import com.base.sbc.module.hangTag.entity.HangTagIngredient;
 import com.base.sbc.module.hangTag.enums.HangTagStatusEnum;
 import com.base.sbc.module.hangTag.enums.OperationDescriptionEnum;
 import com.base.sbc.module.hangTag.mapper.HangTagMapper;
@@ -113,13 +114,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private final StyleService styleService;
     private final BasicsdatumSizeService basicsdatumSizeService;
     private final PackBomService packBomService;
-
+    @Autowired
+    @Lazy
+    private DataPermissionsService dataPermissionsService;
 
     @Override
     public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
         hangTagDTO.setCompanyCode(userCompany);
         PageHelper.startPage(hangTagDTO.getPageNum(), hangTagDTO.getPageSize());
-        List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO);
+        String authSql = dataPermissionsService.getDataPermissionsSql(DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
+        List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
 
         if (hangTagListVOS.isEmpty()) {
             return new PageInfo<>(hangTagListVOS);

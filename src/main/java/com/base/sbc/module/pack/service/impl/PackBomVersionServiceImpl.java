@@ -351,7 +351,11 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
 
             //转大货 非空校验
             if (ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH.getKeyCode())) {
-                checkBomDataEmptyThrowException(bomList, bomSizeList);
+                /*过滤调不是这个阶段新增的数据*/
+                List<PackBomVo> collect = bomList.stream().filter(b -> StrUtil.equals(b.getStageFlag(), b.getPackType())).collect(Collectors.toList());
+                List<String> stringList = collect.stream().map(PackBomVo::getId).collect(Collectors.toList());
+                List<PackBomSizeVo> sizeVoList = bomSizeList.stream().filter(s -> stringList.contains(s.getBomId())).collect(Collectors.toList());
+                checkBomDataEmptyThrowException(collect, sizeVoList);
             }
             // 创建目标启用版本 并启用
             PackBomVersionDto versionDto = new PackBomVersionDto();
@@ -366,8 +370,12 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             //1获取目标启用版本
             PackBomVersion targetEnableVersion = getEnableVersion(targetForeignId, targetPackType);
             //获取目标数据
-            List<PackBomVo> targetBomList = packBomService.list(targetForeignId, targetPackType, targetEnableVersion.getId());
-            List<String> bomIds = Opt.ofNullable(targetBomList).map(bl -> bl.stream().map(PackBomVo::getId).collect(Collectors.toList())).orElse(CollUtil.newArrayList());
+            List<PackBom> targetBomList = packBomService.list(new QueryWrapper<PackBom>()
+                    .eq("bom_version_id", targetEnableVersion.getId())
+                    .eq("foreign_id", targetForeignId)
+                    .eq("pack_type", targetPackType)
+                    .eq("stage_flag", PackUtils.PACK_TYPE_DESIGN));
+            List<String> bomIds = Opt.ofNullable(targetBomList).map(bl -> bl.stream().map(PackBom::getId).collect(Collectors.toList())).orElse(CollUtil.newArrayList());
             List<PackBomSizeVo> targetBomSizeList = packBomSizeService.getByBomIds(bomIds);
             List<PackBomColorVo> targetPackBomColorList = packBomColorService.getByBomIds(bomIds);
             // bom 数据为设计阶段数据源数据 + 在大货阶段添加的数据
@@ -377,12 +385,12 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
                     .eq("bom_version_id", bigEnableVersion.getId())
                     .eq("foreign_id", sourceForeignId)
                     .eq("pack_type", sourcePackType)
-                    .eq("stage_flag", sourcePackType));
+                    .eq("stage_flag", PackUtils.PACK_TYPE_BIG_GOODS));
             List<String> bigBimIds = Opt.ofNullable(bigBomList).map(bl -> bl.stream().map(PackBom::getId).collect(Collectors.toList())).orElse(CollUtil.newArrayList());
             List<PackBomSizeVo> bigBomSizeList = packBomSizeService.getByBomIds(bigBimIds);
             List<PackBomColorVo> bigPackBomColorList = packBomColorService.getByBomIds(bigBimIds);
             CollUtil.newArrayList(targetBomList);
-            bomList = CollUtil.unionAll(targetBomList, BeanUtil.copyToList(bigBomList, PackBomVo.class));
+            bomList = CollUtil.unionAll(BeanUtil.copyToList(targetBomList, PackBomVo.class), BeanUtil.copyToList(bigBomList, PackBomVo.class));
             bomSizeList = CollUtil.unionAll(targetBomSizeList, bigBomSizeList);
             packBomColorList = CollUtil.unionAll(BeanUtil.copyToList(targetPackBomColorList, PackBomColor.class),
                     BeanUtil.copyToList(bigPackBomColorList, PackBomColor.class));

@@ -124,6 +124,10 @@
             <if test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                 and tsd.design_no is not null
             </if>
+
+            <if test="authSql != null and authSql != ''">
+                and (${authSql})
+            </if>
         </where>
     </select>
 
