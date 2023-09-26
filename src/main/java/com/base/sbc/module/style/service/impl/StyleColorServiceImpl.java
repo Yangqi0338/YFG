@@ -40,6 +40,7 @@ import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
@@ -895,10 +896,8 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         copyPackInfo.setColorCode(basicsdatumColourLibrary.getColourCode());
         packInfoService.save(copyPackInfo);
 
-        /*查询bom下的状态*/
-        QueryWrapper queryWrapper2 = new QueryWrapper();
-        queryWrapper2.eq("foreign_id", packInfo.getId());
-        PackInfoStatus packInfoStatus = packInfoStatusService.getOne(queryWrapper2);
+
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
 
         /*复制资料包里面的数据*/
         packInfoService.copyPack(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType(), BasicNumber.ZERO.getNumber());

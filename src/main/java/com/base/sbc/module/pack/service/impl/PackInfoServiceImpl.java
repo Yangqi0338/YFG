@@ -418,6 +418,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("foreign_id", version.getForeignId());
             queryWrapper.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
+            queryWrapper.eq("stage_flag", dto.getPackType());
             queryWrapper.eq("bom_version_id", version.getId());
             queryWrapper.in("scm_send_flag", StringUtils.convertList("0,2"));
             List<PackBom> packBomList = packBomService.list(queryWrapper);
