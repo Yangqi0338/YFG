@@ -997,6 +997,7 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         Style style = styleService.getById(styleColor.getStyleId());
         DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
         BeanUtil.copyProperties(style, dto);
+        dto.setId(styleColor.getStyleId());
         dto.setForeignId(id);
         dto.setDataGroup(FieldValDataGroupConstant.STYLE_COLOR);
         return styleService.queryDimensionLabels(dto);

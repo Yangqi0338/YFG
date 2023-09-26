@@ -38,6 +38,7 @@ import com.base.sbc.config.ureport.minio.MinioConfig;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.eumns.UreportDownEnum;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -811,24 +812,30 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         return attachmentService.getAttachmentByFileId(fileId);
     }
 
-    /**
-     * 删除资料包
-     *
-     * @param ids
-     * @return
-     */
+
+
     @Override
-    public Boolean removeById(String ids) {
-        List<String> stringList = StrUtil.split(ids, ',');
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean removeByIds(RemoveDto removeDto){
+        List<String> stringList = StrUtil.split(removeDto.getIds(), ',');
         List<PackInfo> packInfoList = baseMapper.selectBatchIds(stringList);
         List<PackInfo> packInfoList1 = packInfoList.stream().filter(p -> StrUtil.isNotBlank(p.getStyleNo())).collect(Collectors.toList());
         if (!CollUtil.isEmpty(packInfoList1)) {
             throw new OtherException("资料包存在关联大货数据");
         }
         baseMapper.deleteBatchIds(stringList);
+        /*日志记录*/
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        List<String> ids = Arrays.asList(removeDto.getIds().split(","));
+        operaLogEntity.setName(removeDto.getName());
+        operaLogEntity.setType("删除");
+        operaLogEntity.setContent(removeDto.getIds());
+        operaLogEntity.setDocumentName(removeDto.getNames());
+        operaLogEntity.setParentId(removeDto.getParentId());
+        operaLogEntity.setDocumentCode(removeDto.getCodes());
+        operaLogService.save(operaLogEntity);
         return true;
     }
-
     @Override
     public boolean delTechSpecFile(PackCommonSearchDto dto) {
         UpdateWrapper qw = new UpdateWrapper();

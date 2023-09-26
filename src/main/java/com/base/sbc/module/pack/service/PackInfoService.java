@@ -9,6 +9,7 @@ package com.base.sbc.module.pack.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
@@ -213,11 +214,11 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      */
     List<OpenStyleDto> getStyleListForLinkMore(String companyCode);
     /**
-     * 删除资料包
-     * @param ids
+     * 重写删除资料报
+     * @param removeDto 删除参数
      * @return
      */
-    Boolean removeById(String ids);
+    boolean removeByIds(RemoveDto removeDto);
 // 自定义方法区 不替换的区域【other_end】
 
 
