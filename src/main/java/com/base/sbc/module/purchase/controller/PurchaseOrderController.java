@@ -230,8 +230,8 @@ public class PurchaseOrderController extends BaseController{
 	}
 
 	@ApiOperation(value = "导出采购单")
-	@GetMapping(value = "exportPaymentFilterExcel")
-	public void exportPaymentFilterExcel(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany,
+	@GetMapping(value = "exportPurchaseOrderExcel")
+	public void exportPurchaseOrderExcel(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany,
 										 HttpServletRequest request, HttpServletResponse response, String ids) throws Exception {
 		BaseQueryWrapper<PurchaseOrder> qw = new BaseQueryWrapper<>();
 		qw.in("id", StringUtils.convertList(ids));
