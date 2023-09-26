@@ -351,7 +351,11 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
 
             //转大货 非空校验
             if (ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH.getKeyCode())) {
-                checkBomDataEmptyThrowException(bomList, bomSizeList);
+                /*过滤调不是这个阶段新增的数据*/
+                List<PackBomVo> collect = bomList.stream().filter(b -> StrUtil.equals(b.getStageFlag(), b.getPackType())).collect(Collectors.toList());
+                List<String> stringList = collect.stream().map(PackBomVo::getId).collect(Collectors.toList());
+                List<PackBomSizeVo> sizeVoList = bomSizeList.stream().filter(s -> stringList.contains(s.getBomId())).collect(Collectors.toList());
+                checkBomDataEmptyThrowException(collect, sizeVoList);
             }
             // 创建目标启用版本 并启用
             PackBomVersionDto versionDto = new PackBomVersionDto();
