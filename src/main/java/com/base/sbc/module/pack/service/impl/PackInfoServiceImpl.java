@@ -957,13 +957,13 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 //设置bom 状态
                 changeBomStatus(packInfo.getId(), BasicNumber.ZERO.getNumber());
                 PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
-                /*反审后物料清单的状态改为可编辑*/
+ /*               *//*反审后物料清单的状态改为可编辑*//*
                 UpdateWrapper updateWrapper = new UpdateWrapper();
                 updateWrapper.set("scm_send_flag",BaseGlobal.IN_READY);
                 updateWrapper.eq("foreign_id",packInfo.getId());
                 updateWrapper.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
                 updateWrapper.eq("bom_version_id",enableVersion.getId());
-                packBomService.update(updateWrapper);
+                packBomService.update(updateWrapper);*/
 
             }
             //驳回
