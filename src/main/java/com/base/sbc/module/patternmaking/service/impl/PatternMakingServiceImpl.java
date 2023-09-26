@@ -36,7 +36,6 @@ import com.base.sbc.config.utils.DateUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.module.basicsdatum.dto.ComponentLibraryExcelDto;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
@@ -665,6 +664,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdQw.eq(StrUtil.isNotBlank(dto.getMonth()), "month", dto.getMonth());
         sdQw.eq(StrUtil.isNotBlank(dto.getBandCode()), "band_code", dto.getBandCode());
         sdQw.eq(StrUtil.isNotBlank(dto.getDesignerId()), "designer_id", dto.getDesignerId());
+        sdQw.in(StrUtil.isNotBlank(dto.getDesignerIds()), "designer_id", StrUtil.split(dto.getDesignerIds(), StrUtil.COMMA));
+        sdQw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), StrUtil.COMMA));
+        dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.patternMakingSteps.getK());
         sdQw.eq(COMPANY_CODE, getCompanyCode());
         sdQw.eq("del_flag", BaseGlobal.NO);
         sdQw.eq("status", BasicNumber.TWO.getNumber());
@@ -744,8 +746,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.in(StrUtil.isNotBlank(dto.getBandCode()), "s.band_code", StrUtil.split(dto.getBandCode(), StrUtil.COMMA));
+        qw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "s.planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), StrUtil.COMMA));
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
         Page<SampleBoardVo> objects = PageHelper.startPage(dto);
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK(), "s.");
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
         attachmentService.setListStylePic(list, "stylePic");
         // 设置节点状态数据

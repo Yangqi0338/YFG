@@ -23,6 +23,8 @@ public enum DataPermissionsBusinessTypeEnum {
     style_order_book("style_order_book", "订货本"),
     fabric_summary("fabric_summary", "面料汇总"),
     style_pricing("style_pricing", "款式定价"),
+    sampleBoard("sampleBoard", "样衣看板"),
+    patternMakingSteps("patternMakingSteps", "打版进度"),
     pre_production_sample_task("pre_production_sample_task", "产前样样衣任务"),
     pre_production_sample_board("pre_production_sample_board", "产前样看板"),
     PatternMakingWeekMonthView("PatternMakingWeekMonthView", "版类对比"),
