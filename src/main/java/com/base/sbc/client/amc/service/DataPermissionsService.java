@@ -91,16 +91,41 @@ public class DataPermissionsService {
             return;
         }
         UserCompany userCompany = companyUserInfo.get();
-        Map read = getDataPermissionsForQw(userCompany.getCompanyCode(),userCompany.getUserId(),businessType, "read", tablePre,authorityFields,isAssignFields);
+        Map read = getDataPermissionsForQw(userCompany.getCompanyCode(), userCompany.getUserId(), businessType, "read", tablePre, authorityFields, isAssignFields);
         boolean flg = MapUtil.getBool(read, "authorityState", false);
         String sql = MapUtil.getStr(read, "authorityField");
         if (flg && StrUtil.isNotBlank(sql)) {
             qw.apply(sql);
         }
-        if(!flg){
+        if (!flg) {
             qw.apply(" 1=0 ");
         }
     }
+
+    /**
+     * 获取sql
+     *
+     * @param businessType
+     * @param tablePre
+     * @param authorityFields
+     * @param isAssignFields
+     * @return
+     */
+    public String getDataPermissionsSql(String businessType, String tablePre, String[] authorityFields, boolean isAssignFields) {
+        String sql = null;
+        UserCompany userCompany = companyUserInfo.get();
+        Map read = getDataPermissionsForQw(userCompany.getCompanyCode(), userCompany.getUserId(), businessType, "read", tablePre, authorityFields, isAssignFields);
+        boolean flg = MapUtil.getBool(read, "authorityState", false);
+        String sqlTemp = MapUtil.getStr(read, "authorityField");
+        if (flg && StrUtil.isNotBlank(sqlTemp)) {
+            sql = sqlTemp;
+        }
+        if (!flg) {
+            sql = " 1=0 ";
+        }
+        return sql;
+    }
+
     /**
      * 获取数据权限
      *
@@ -108,8 +133,8 @@ public class DataPermissionsService {
      * @return
      * @see DataPermissionsBusinessTypeEnum
      */
-    public <T> Map getDataPermissionsForQw(String companyCode,String uerId,String businessType, String operateType, String tablePre, String[] authorityFields, boolean isAssignFields) {
-        String dataPermissionsKey = "USERISOLATION:" + companyCode + ":" +businessType+":";
+    public <T> Map getDataPermissionsForQw(String companyCode, String uerId, String businessType, String operateType, String tablePre, String[] authorityFields, boolean isAssignFields) {
+        String dataPermissionsKey = "USERISOLATION:" + companyCode + ":" + businessType + ":";
         //删除amc的数据权限状态
         RedisUtils redisUtils1=new RedisUtils();
         redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplateAmc"));

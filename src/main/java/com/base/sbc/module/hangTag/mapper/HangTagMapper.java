@@ -36,7 +36,7 @@ public interface HangTagMapper extends BaseMapper<HangTag> {
      * @param dto
      * @return
      */
-    List<HangTagListVO> queryList(@Param("dto") HangTagSearchDTO dto);
+    List<HangTagListVO> queryList(@Param("dto") HangTagSearchDTO dto, @Param("authSql") String authSql);
 
 
     List<TagPrinting> hangTagPrinting(@Param("companyCode") String companyCode, @Param("styleNo") String styleNo,@Param("likeQueryFlag") String likeQueryFlag);

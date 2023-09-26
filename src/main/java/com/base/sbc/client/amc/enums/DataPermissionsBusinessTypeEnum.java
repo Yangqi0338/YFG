@@ -25,6 +25,7 @@ public enum DataPermissionsBusinessTypeEnum {
     style_pricing("style_pricing", "款式定价"),
     sampleBoard("sampleBoard", "样衣看板"),
     patternMakingSteps("patternMakingSteps", "打版进度"),
+    hangTagList("hangTagList", "吊牌列表"),
     pre_production_sample_task("pre_production_sample_task", "产前样样衣任务"),
     pre_production_sample_board("pre_production_sample_board", "产前样看板"),
     PatternMakingWeekMonthView("PatternMakingWeekMonthView", "版类对比"),
