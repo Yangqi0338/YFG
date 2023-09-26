@@ -3,6 +3,8 @@ package com.base.sbc.module.basicsdatum.dto;
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * @author 卞康
  * @date 2023/6/5 9:46:03
@@ -82,4 +84,6 @@ public class ProcessDatabaseExcelDto {
     /**  创建者名称 */
     @Excel(name = "创建人")
     private String createName;
+    @Excel(name = "工价")
+    private BigDecimal price;
 }
