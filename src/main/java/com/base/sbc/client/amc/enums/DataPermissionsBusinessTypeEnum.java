@@ -6,6 +6,7 @@ package com.base.sbc.client.amc.enums;
  */
 public enum DataPermissionsBusinessTypeEnum {
     PlanningSeason("PlanningSeason", "产品季"),
+    PlanningChannel("PlanningChannel", "产品季"),
     PlanningCategoryItem("PlanningCategoryItem", "坑位数据"),
     ChartBar("ChartBar", "波段汇总统计"),
     ProductBar("ProductBar", "品类汇总统计"),
