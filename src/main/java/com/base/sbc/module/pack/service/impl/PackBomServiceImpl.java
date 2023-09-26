@@ -66,6 +66,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.STYLE_MANY_COLOR;
 
 /**
@@ -571,10 +572,14 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     @Override
     public boolean delByIds(String id) {
         /*cha*/
+        /*控制是否下发外部SMP系统开关*/
+        Boolean systemSwitch = ccmFeignService.getSwitchByCode(ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH.getKeyCode());
         List<PackBom> packBomList = baseMapper.selectBatchIds(StrUtil.split(id, ','));
-        List<PackBom> packBomList1 = packBomList.stream().filter(s -> StrUtil.equals(s.getScmSendFlag(), BaseGlobal.YES) || StrUtil.equals(s.getScmSendFlag(), BaseGlobal.IN_READY)).collect(Collectors.toList());
-        if (CollUtil.isNotEmpty(packBomList1)) {
-            throw new OtherException("物料中存在已下发数据");
+        if(systemSwitch){
+            List<PackBom> packBomList1 = packBomList.stream().filter(s -> StrUtil.equals(s.getScmSendFlag(), BaseGlobal.YES) || StrUtil.equals(s.getScmSendFlag(), BaseGlobal.IN_READY)).collect(Collectors.toList());
+            if (CollUtil.isNotEmpty(packBomList1)) {
+                throw new OtherException("物料中存在已下发数据");
+            }
         }
         baseMapper.deleteBatchIds(StrUtil.split(id, ','));
         return true;
