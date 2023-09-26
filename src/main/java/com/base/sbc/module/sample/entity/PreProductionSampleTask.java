@@ -252,9 +252,9 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
     @ApiModelProperty(value = "车缝状态:0待接收,1已接收,2进行中,3完成")
     private String sewingStatus;
     /**
-     * 样衣制作评分
+     * 样衣工作量评分
      */
-    @ApiModelProperty(value = "样衣制作评分")
+    @ApiModelProperty(value = "样衣工作量评分")
     private BigDecimal sampleMakingScore;
     /**
      * 流程完成状态:(0未完成,1已完成)
