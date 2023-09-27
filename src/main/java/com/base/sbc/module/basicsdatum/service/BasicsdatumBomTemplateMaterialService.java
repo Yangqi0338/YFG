@@ -5,15 +5,14 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
-import com.base.sbc.module.basicsdatum.dto.AddRevampBomTemplateMaterialDto;
-import com.base.sbc.module.basicsdatum.dto.QueryBomTemplateDto;
-import com.base.sbc.module.basicsdatum.dto.RevampSortDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumBomTemplateMaterialVo;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
 import com.github.pagehelper.PageInfo;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /** 
@@ -98,6 +97,13 @@ public interface BasicsdatumBomTemplateMaterialService extends BaseService<Basic
      * @return
      */
     List<BasicsdatumBomTemplateMaterialVo> getTemplateMateria(String bomTemplateId);
+
+    /**
+     * 批量新增修改物料
+     * @param list
+     * @return
+     */
+    Boolean batchSaveBomTemplate(List<AddRevampBomTemplateMaterialDto> list);
 
 // 自定义方法区 不替换的区域【other_end】
 
