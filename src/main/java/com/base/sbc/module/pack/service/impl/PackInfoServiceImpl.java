@@ -353,6 +353,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 bom.setBomVersionId(packBomVersionVo.getId());
                 bom.setForeignId(packInfo.getId());
                 bom.setPackType(PackUtils.PACK_TYPE_DESIGN);
+                bom.setStageFlag(PackUtils.PACK_TYPE_DESIGN);
                 bom.setMainFlag(mainFlag);
                 bom.updateInit();
             }
