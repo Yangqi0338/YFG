@@ -530,10 +530,17 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
             if (StringUtils.isNotBlank(addRevampStyleColorDto.getSubdivide())) {
                 /**
                  * 修改所有引用的大货款号
+                 * 查看之前有没有细分
                  */
-                baseMapper.reviseAllStyleNo(styleColor.getStyleNo(), styleColor.getStyleNo() + addRevampStyleColorDto.getSubdivide());
+                String styleNo ="";
+                if (StrUtil.isNotBlank(styleColor.getSubdivide())) {
+                    styleNo = styleColor.getStyleNo().replace(styleColor.getSubdivide(), "");
+                } else {
+                    styleNo = styleColor.getStyleNo();
+                }
+                baseMapper.reviseAllStyleNo(styleColor.getStyleNo(), styleNo + addRevampStyleColorDto.getSubdivide());
                 /*新大货款号=大货款号+细分*/
-                addRevampStyleColorDto.setStyleNo(styleColor.getStyleNo() + addRevampStyleColorDto.getSubdivide());
+                addRevampStyleColorDto.setStyleNo(styleNo + addRevampStyleColorDto.getSubdivide());
             }
             if (ObjectUtils.isEmpty(styleColor)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
