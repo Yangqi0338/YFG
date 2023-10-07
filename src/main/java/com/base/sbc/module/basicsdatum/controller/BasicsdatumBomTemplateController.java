@@ -62,6 +62,11 @@ public class BasicsdatumBomTemplateController{
 		return basicsdatumBomTemplateService.addRevampBomTemplate(addRevampBomTemplateDto);
 	}
 
+	@ApiOperation(value = "批量保存")
+	@PostMapping("/batchSaveBomTemplate")
+	public Boolean batchSaveBomTemplate(@Valid @RequestBody List<AddRevampBomTemplateMaterialDto> list) {
+		return basicsdatumBomTemplateMaterialServicel.batchSaveBomTemplate(list);
+	}
 
 	@ApiOperation(value = "删除基础资料-BOM模板")
 	@DeleteMapping("/delBomTemplate")

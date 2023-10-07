@@ -249,6 +249,19 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
         return list;
     }
 
+    /**
+     * 批量新增修改物料
+     *
+     * @param list
+     * @return
+     */
+    @Override
+    public Boolean batchSaveBomTemplate(List<AddRevampBomTemplateMaterialDto> list) {
+        List<BasicsdatumBomTemplateMaterial> templateMaterialList = BeanUtil.copyToList(list, BasicsdatumBomTemplateMaterial.class);
+        saveOrUpdateBatch(templateMaterialList);
+        return true;
+    }
+
 
 // 自定义方法区 不替换的区域【other_end】
 

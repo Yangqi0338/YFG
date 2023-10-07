@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 public class BandServiceImpl extends BaseServiceImpl<BandMapper, Band> implements BandService {
     @Autowired
     private CcmFeignService ccmFeignService;
+
     /**
      * 导入
      *
@@ -49,14 +50,15 @@ public class BandServiceImpl extends BaseServiceImpl<BandMapper, Band> implement
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
         List<BandExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BandExcelDto.class, params);
-        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Quarter");
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Quarter,C8_Brand");
         Map<String, String> map = dictInfoToMap.get("C8_Quarter");
-        list =list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
+        Map<String, String> map1 = dictInfoToMap.get("C8_Brand");
+        list = list.stream().filter(s -> StringUtils.isNotBlank(s.getCode())).collect(Collectors.toList());
         for (BandExcelDto bandExcelDto : list) {
 //            月份
-            if(StringUtils.isNotBlank(bandExcelDto.getMonth())){
+            if (StringUtils.isNotBlank(bandExcelDto.getMonth())) {
                 int month = Integer.parseInt(bandExcelDto.getMonth());
-                bandExcelDto.setMonth(month >= 10 ? String.valueOf(month)  : "0"+String.valueOf( month) );
+                bandExcelDto.setMonth(month >= 10 ? String.valueOf(month) : "0" + String.valueOf(month));
             }
             /*季节*/
             if (StringUtils.isNotEmpty(bandExcelDto.getSeasonName())) {
@@ -66,6 +68,18 @@ public class BandServiceImpl extends BaseServiceImpl<BandMapper, Band> implement
                     if (value.equals(bandExcelDto.getSeasonName())) {
                         bandExcelDto.setSeason(key);
                         bandExcelDto.setSeasonName(value);
+                        break;
+                    }
+                }
+            }
+            /*品牌*/
+            if (StringUtils.isNotEmpty(bandExcelDto.getBrandName())) {
+                for (Map.Entry<String, String> entry : map1.entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                    if (value.equals(bandExcelDto.getBrandName())) {
+                        bandExcelDto.setBrand(key);
+                        bandExcelDto.setBrandName(value);
                         break;
                     }
                 }
@@ -88,11 +102,11 @@ public class BandServiceImpl extends BaseServiceImpl<BandMapper, Band> implement
      */
     @Override
     public void bandDeriveExcel(HttpServletResponse response) throws IOException {
-        QueryWrapper<Band> queryWrapper=new QueryWrapper<>();
-        queryWrapper.eq("del_flag","0");
+        QueryWrapper<Band> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("del_flag", "0");
         queryWrapper.orderByDesc("sort");
-        List<BandExcelDto> list = BeanUtil.copyToList( baseMapper.selectList(queryWrapper), BandExcelDto.class);
-        ExcelUtils.exportExcel(list,  BandExcelDto.class, "基础资料-波段.xlsx",new ExportParams() ,response);
+        List<BandExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BandExcelDto.class);
+        ExcelUtils.exportExcel(list, BandExcelDto.class, "基础资料-波段.xlsx", new ExportParams(), response);
     }
 
     @Override

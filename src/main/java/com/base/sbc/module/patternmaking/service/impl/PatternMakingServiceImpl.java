@@ -380,7 +380,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.set("pattern_design_id", dto.getPatternDesignId());
         uw.set("pattern_design_name", dto.getPatternDesignName());
         uw.eq("id", dto.getId());
-        return update(uw);
+        boolean b = update(uw);
+        PatternMaking patternMaking =baseMapper.selectById(dto.getId());
+//        同步到款式信息
+        UpdateWrapper<Style> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.set("pattern_design_id", dto.getPatternDesignId());
+        updateWrapper.set("pattern_design_name", dto.getPatternDesignName());
+        uw.eq("id", patternMaking.getStyleId());
+        styleService.update(updateWrapper);
+        return b;
 //        return true;
     }
 
