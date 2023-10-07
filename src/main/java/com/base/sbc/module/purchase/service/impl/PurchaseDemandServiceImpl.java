@@ -565,9 +565,9 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
             PurchaseDemand item = purchaseDemandMap.get(details.getSourceId());
             if(item != null){
                 if(StringUtils.equals(type, "0")){
-                    item.setPurchasedNum(BigDecimalUtil.add(item.getReadyNum(), details.getOutNum()));
+                    item.setReadyNum(BigDecimalUtil.add(item.getReadyNum(), details.getOutNum()));
                 }else{
-                    item.setPurchasedNum(BigDecimalUtil.sub(item.getReadyNum(), details.getOutNum()));
+                    item.setReadyNum(BigDecimalUtil.sub(item.getReadyNum(), details.getOutNum()));
                 }
             }
             purchaseDemandMap.put(details.getSourceId(), item);
