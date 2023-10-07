@@ -103,7 +103,7 @@
                 </choose>
             </if>
             <if test="dto.confirmDate != null and dto.confirmDate != ''">
-                AND ht.confirm_date like concat('%',#{dto.confirmDate},'%')
+                AND  DATE_FORMAT(ht.confirm_date,'%Y-%m-%d')  = #{dto.confirmDate}
             </if>
             <if test="dto.designNo != null and dto.designNo != ''">
                 AND tsd.design_no = #{dto.designNo}

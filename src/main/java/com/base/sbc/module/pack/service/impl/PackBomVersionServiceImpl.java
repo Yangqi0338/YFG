@@ -346,6 +346,8 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             bomSizeList = packBomSizeService.getByBomIds(bomIds);
             for (PackBomVo packBomVo : bomList) {
                 packBomVo.setLossRate(null);
+                /*转大货修改变成未下发*/
+                packBomVo.setScmSendFlag("0");
             }
             packBomColorList = BeanUtil.copyToList(packBomColorService.getByBomIds(bomIds), PackBomColor.class);
 

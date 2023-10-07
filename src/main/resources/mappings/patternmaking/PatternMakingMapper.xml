@@ -49,7 +49,8 @@
         p.pattern_room,
         p.pattern_room_id,
         p.first_pattern_design_id,
-        p.first_pattern_design_name
+        p.first_pattern_design_name,
+        p.sample_type_name
         FROM
         t_pattern_making p,
         t_style s

@@ -45,6 +45,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -153,6 +154,7 @@ public class HangTagController extends BaseController {
         if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
             //审核通过
             hangTag.setStatus("5");
+            hangTag.setConfirmDate(new Date());
         } else {
             //审核不通过
             hangTag.setStatus("6");

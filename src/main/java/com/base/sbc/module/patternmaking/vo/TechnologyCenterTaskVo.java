@@ -155,6 +155,10 @@ public class TechnologyCenterTaskVo {
     @ApiModelProperty(value = "颜色名称")
     private String colorName;
 
+    @ApiModelProperty(value = "打板类型")
+    private String   sampleTypeName;
+
+
     public String getPlanningSeason() {
         return StrUtil.join(" ", yearName, seasonName, brandName);
     }

@@ -8,6 +8,7 @@ package com.base.sbc.module.style.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -35,15 +36,23 @@ import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.service.FieldValService;
 import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
+import com.base.sbc.module.pack.entity.PackPricing;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackPricingVo;
+import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
+import com.base.sbc.module.pricing.service.PricingTemplateService;
+import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
+import com.base.sbc.module.pricing.vo.PricingTemplateVO;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
@@ -66,9 +75,11 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -86,7 +97,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
-public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, StyleColor> implements StyleColorService {
+public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceImpl<StyleColorMapper, StyleColor> implements StyleColorService {
 
     private final BaseController baseController;
 
@@ -118,6 +129,11 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
     @Autowired
     private DataPermissionsService dataPermissionsService;
 
+    @Autowired
+    private PackPricingService packPricingService;
+
+    @Autowired
+    private PricingTemplateService pricingTemplateService;
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -651,10 +667,53 @@ public class StyleColorServiceImpl extends BaseServiceImpl<StyleColorMapper, Sty
         if (StringUtils.isBlank(ids)) {
             throw new OtherException("ids为空");
         }
-        List<StyleColor> styleColorList = baseMapper.selectBatchIds(StringUtils.convertList(ids));
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.in("id", StringUtils.convertList(ids));
+        queryWrapper.ne("scm_send_flag", BaseGlobal.YES);
+        List<StyleColor> styleColorList = baseMapper.selectList(queryWrapper);
+        /*查询配色是否下发*/
+        if (CollectionUtils.isEmpty(styleColorList)) {
+            throw new OtherException("存在已下发数据");
+        }
         List<String> stringList = styleColorList.stream().filter(s -> StringUtils.isNotBlank(s.getBom())).map(StyleColor::getId).collect(Collectors.toList());
+        /*禁止下发未关联bom数据*/
         if (CollectionUtils.isEmpty(stringList)) {
             throw new OtherException("无数据关联bom");
+        }
+        /*查询BOM*/
+        queryWrapper.clear();
+        queryWrapper.in("code", styleColorList.stream().map(StyleColor::getBom).collect(Collectors.toList()));
+        List<PackInfo> packInfoList = packInfoService.list(queryWrapper);
+        Map<String, List<PackInfo>> listMap = packInfoList.stream().collect(Collectors.groupingBy(PackInfo::getCode));
+        /*查询配色关联的bom总成本价不等为0*/
+        for (StyleColor styleColor : styleColorList) {
+            PackInfo packInfo = listMap.get(styleColor.getBom()).get(0);
+            PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
+            packCommonSearchDto.setForeignId(packInfo.getId());
+            packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_DESIGN);
+            /*获取保存的公式*/
+            PackPricingVo packPricingVo = packPricingService.getDetail(packCommonSearchDto);
+//            核价信息
+            PackPricing packPricing = packPricingService.get(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
+            /*核价模板详情*/
+            PricingTemplateVO pricingTemplateVO = pricingTemplateService.getDetailsById(packPricing.getPricingTemplateId(), baseController.getUserCompany());
+            List<PricingTemplateItemVO> pricingTemplateItemVOList = pricingTemplateVO.getPricingTemplateItems();
+            if (CollectionUtils.isEmpty(pricingTemplateItemVOList)) {
+                throw new OtherException("无核价模板");
+            }
+            /*查询出显示的公式*/
+            List<PricingTemplateItemVO> pricingTemplateItemVOList1 = pricingTemplateItemVOList.stream().filter(p -> StringUtils.equals(p.getShowFlag(), BaseGlobal.YES)).collect(Collectors.toList());
+            /*获取计算项的值*/
+            JSONObject jsonObject = new JSONObject(packPricingVo.getCalcItemVal());
+            Map<String, Object> map = new HashMap<>();
+            for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+                map.put(entry.getKey(), entry.getValue());
+            }
+            /*总成本*/
+            BigDecimal totalCost = packPricingService.formula(pricingTemplateItemVOList1.get(0).getExpressionShow().replaceAll(",",""), map);
+            if (totalCost.compareTo(BigDecimal.ZERO) == 0) {
+                throw new OtherException("核价成本为0");
+            }
         }
         int i = smpService.goods(StringUtils.convertListToString(stringList).split(","));
         return ApiResult.success("共下发" + ids.split(",").length + "条，成功" + i + "条");

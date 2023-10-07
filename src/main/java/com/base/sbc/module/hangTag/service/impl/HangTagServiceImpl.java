@@ -142,7 +142,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                 e.setExamineUserNema(flowRecordVo.getUserName());
                 e.setExamineUserId(flowRecordVo.getUserId());
                 if (BaseGlobal.YES.equals(flowRecordVo.getEndFlag())) {
-                    e.setConfirmDate(flowRecordVo.getEndTime());
+//                    e.setConfirmDate(flowRecordVo.getEndTime());
                     //e.setStatus("5");  不需要设置为通过,通过或者不通过会在回调页面设置
                 } else {
                     //状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认
