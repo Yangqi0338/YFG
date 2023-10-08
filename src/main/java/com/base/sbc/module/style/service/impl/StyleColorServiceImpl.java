@@ -695,6 +695,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             PackPricingVo packPricingVo = packPricingService.getDetail(packCommonSearchDto);
 //            核价信息
             PackPricing packPricing = packPricingService.get(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
+            if(ObjectUtils.isEmpty(packPricing)){
+                throw new OtherException("无核价信息");
+            }
             /*核价模板详情*/
             PricingTemplateVO pricingTemplateVO = pricingTemplateService.getDetailsById(packPricing.getPricingTemplateId(), baseController.getUserCompany());
             List<PricingTemplateItemVO> pricingTemplateItemVOList = pricingTemplateVO.getPricingTemplateItems();
