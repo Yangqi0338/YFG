@@ -19,10 +19,15 @@ public class PlanningBandTotalVo {
 
     @ApiModelProperty(value = "波段名称", example = "1A")
     private String bandName;
+
     @ApiModelProperty(value = "波段编码", example = "1A")
     private String bandCode;
+
     @ApiModelProperty(value = "企划数量", example = "2")
     private Long planningTotal;
+
+    @ApiModelProperty(value = "下单数量", example = "2")
+    private Long orderTotal;
 
     @ApiModelProperty(value = "总数", example = "2")
     private Long total;
@@ -44,5 +49,15 @@ public class PlanningBandTotalVo {
         }
         totalAdd();
         return planningTotal;
+    }
+
+    public Long orderTotalAdd() {
+        if (orderTotal == null) {
+            orderTotal = 1L;
+        } else {
+            orderTotal++;
+        }
+        totalAdd();
+        return orderTotal;
     }
 }
