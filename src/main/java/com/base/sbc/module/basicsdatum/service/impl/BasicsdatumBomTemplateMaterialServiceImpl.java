@@ -76,7 +76,7 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
         /*查询*/
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("bom_template_id", queryBomTemplateDto.getBomTemplateId());
-        queryWrapper.orderByDesc("sort");
+        queryWrapper.orderByAsc("sort");
         /*查询基础资料-物料数据*/
         Page<BasicsdatumBomTemplateMaterialVo> objects = PageHelper.startPage(queryBomTemplateDto);
         baseMapper.selectList(queryWrapper);
