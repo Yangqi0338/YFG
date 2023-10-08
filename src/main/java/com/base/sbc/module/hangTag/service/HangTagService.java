@@ -16,6 +16,8 @@ import com.base.sbc.module.hangTag.vo.HangTagVO;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.github.pagehelper.PageInfo;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +42,13 @@ public interface HangTagService extends BaseService<HangTag> {
      * @return
      */
     PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany);
+
+    /**
+     * 吊牌导出
+     * @param response
+     * @param hangTagSearchDTO
+     */
+    void deriveExcel(HttpServletResponse response, HangTagSearchDTO hangTagSearchDTO, String userCompany) throws IOException;
 
     /**
      * 详情
