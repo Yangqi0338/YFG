@@ -128,7 +128,7 @@ public class MaterialController extends BaseController {
         //QueryWrapper<MaterialColor> colorQueryWrapper = new QueryWrapper<>();
         //colorQueryWrapper.eq("material_id", materialSaveDto.getId());
         //materialColorService.addAndUpdateAndDelList(materialSaveDto.getColors(),colorQueryWrapper);
-
+        materialService.updateById(materialSaveDto,"创意素材库");
         boolean b = materialService.updateById(materialSaveDto);
             return updateSuccess(b);
     }
