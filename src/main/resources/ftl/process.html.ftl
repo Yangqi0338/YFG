@@ -69,6 +69,7 @@
 
     .one_imgs {
         text-align: center;
+        margin: 5px;
     }
 
     .one_imgs_item {
@@ -526,7 +527,7 @@
     <thead>
     <tr>
         <th colspan="4" class="th_title">
-            <p>基础工艺</p>
+            <p>小部件</p>
             <hr>
         </th>
     </tr>
@@ -558,14 +559,19 @@
         </tr>
     </#list>
     </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="4" style="height: 32px;">小部件-${xbjDataList?size}</td>
+    </tr>
+    </tfoot>
 </table>
 
-<!--    裁剪工艺 -->
+<!--    基础工艺 -->
 <table class="table_border mt" style="page-break-before: always">
     <thead>
     <tr>
         <th colspan="3" class="th_title">
-            <p>裁剪工艺</p>
+            <p>基础工艺</p>
             <hr>
         </th>
     </tr>
@@ -598,7 +604,7 @@
 
     <tfoot>
     <tr>
-        <td colspan="3" style="height: 32px;">裁剪工艺-${jcgyDataList?size}</td>
+        <td colspan="3" style="height: 32px;">基础工艺-${jcgyDataList?size}</td>
     </tr>
     </tfoot>
 </table>
