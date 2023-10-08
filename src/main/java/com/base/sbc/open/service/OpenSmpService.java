@@ -154,7 +154,6 @@ public class OpenSmpService {
         }
 
 
-
         String c8PickingMethod = ccmService.getOpenDictInfo(BaseConstant.DEF_COMPANY_CODE, "C8_PickingMethod");
         JSONArray data2 = JSONObject.parseObject(c8PickingMethod).getJSONArray("data");
         for (int i = 0; i < data2.size(); i++) {
@@ -243,11 +242,11 @@ public class OpenSmpService {
 
                 if (StringUtils.isEmpty(quotItem.getMat_SizeURL()) && !smpOpenMaterialDto.getMODELITEMS().isEmpty()) {
                     for (SmpOpenMaterialDto.ModelItem modelitem : smpOpenMaterialDto.getMODELITEMS()) {
-                        if (basicsdatumMaterialPrice.getWidthName().equals(modelitem.getSIZECODE())){
+                        if (basicsdatumMaterialPrice.getWidthName().equals(modelitem.getSIZECODE())) {
                             basicsdatumMaterialPrice.setWidth(modelitem.getSizeURL());
                         }
                     }
-                }else {
+                } else {
                     basicsdatumMaterialPrice.setWidth(quotItem.getMat_SizeURL());
                 }
 
@@ -255,8 +254,8 @@ public class OpenSmpService {
                 basicsdatumMaterialPrice.setMaterialCode(basicsdatumMaterial.getMaterialCode());
                 basicsdatumMaterialPrice.setSupplierId(quotItem.getSupplierCode());
                 BasicsdatumSupplier basicsdatumSupplier = basicsdatumSupplierService.getOne(new QueryWrapper<BasicsdatumSupplier>().eq("supplier_code", quotItem.getSupplierCode()));
-                if (basicsdatumSupplier==null){
-                    throw new RuntimeException("供应商编码:"+quotItem.getSupplierCode()+",不存在");
+                if (basicsdatumSupplier == null) {
+                    throw new RuntimeException("供应商编码:" + quotItem.getSupplierCode() + ",不存在");
                 }
                 basicsdatumMaterialPrice.setSupplierName(basicsdatumSupplier.getSupplier());
                 basicsdatumMaterialPrice.setColor(quotItem.getSUPPLIERCOLORID());
@@ -277,7 +276,7 @@ public class OpenSmpService {
                 index.getAndIncrement();
 
 
-                if (quotItem.getDefaultQuote()){
+                if (quotItem.getDefaultQuote()) {
                     basicsdatumMaterial.setSupplierName(basicsdatumSupplier.getSupplier());
                     basicsdatumMaterial.setSupplierId(quotItem.getSupplierCode());
                     basicsdatumMaterial.setSupplierFabricCode(quotItem.getSupplierMaterial());
@@ -285,14 +284,16 @@ public class OpenSmpService {
                 }
 
             });
+
+            List<BasicsdatumMaterialPrice> basicsdatumMaterialPriceList = BeanUtil.copyToList(basicsdatumMaterialPrices, BasicsdatumMaterialPrice.class);
             List<BasicsdatumMaterialPrice> list = this.merge(basicsdatumMaterialPrices);
 
-            basicsdatumMaterialPriceService.remove( new QueryWrapper<BasicsdatumMaterialPrice>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
+            basicsdatumMaterialPriceService.remove(new QueryWrapper<BasicsdatumMaterialPrice>().eq("material_code", basicsdatumMaterial.getMaterialCode()));
             basicsdatumMaterialPriceService.saveBatch(list);
             List<BasicsdatumMaterialPriceDetail> basicsdatumMaterialPriceDetails = new ArrayList<>();
             for (BasicsdatumMaterialPrice basicsdatumMaterialPrice : list) {
 
-                for (BasicsdatumMaterialPrice materialPrice : basicsdatumMaterialPrices) {
+                for (BasicsdatumMaterialPrice materialPrice : basicsdatumMaterialPriceList) {
                     if (basicsdatumMaterialPrice.getIndexList().contains(materialPrice.getIndex())) {
                         BasicsdatumMaterialPriceDetail basicsdatumMaterialPriceDetail = new BasicsdatumMaterialPriceDetail();
                         BeanUtil.copyProperties(materialPrice, basicsdatumMaterialPriceDetail);
@@ -374,7 +375,7 @@ public class OpenSmpService {
         //排除第二轮
         Map<String, BasicsdatumMaterialPrice> map1 = new HashMap<>();
         for (BasicsdatumMaterialPrice item : mergedList) {
-            String key = item.getSupplierName() + item.getWidthName()+item.getQuotationPrice();
+            String key = item.getSupplierName() + item.getWidthName() + item.getQuotationPrice();
             if (map1.containsKey(key)) {
                 BasicsdatumMaterialPrice existingItem = map1.get(key);
 
