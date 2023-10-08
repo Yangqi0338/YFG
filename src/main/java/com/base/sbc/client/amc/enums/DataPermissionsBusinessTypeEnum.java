@@ -25,6 +25,7 @@ public enum DataPermissionsBusinessTypeEnum {
     fabric_summary("fabric_summary", "面料汇总"),
     style_pricing("style_pricing", "款式定价"),
     sampleBoard("sampleBoard", "样衣看板"),
+    material("material", "物料清单"),
     patternMakingSteps("patternMakingSteps", "打版进度"),
     hangTagList("hangTagList", "吊牌列表"),
     pre_production_sample_task("pre_production_sample_task", "产前样样衣任务"),

@@ -74,9 +74,9 @@ public class HangTagListVO {
     private String styleType;
 
     /**
-     * 生产类型名称
+     * 款式类型名称
      */
-    @ApiModelProperty(value = "生产类型名称")
+    @ApiModelProperty(value = "款式类型名称")
     private String  styleTypeName;
     /**
      * 颜色编码
@@ -276,5 +276,8 @@ public class HangTagListVO {
      */
     @ApiModelProperty(value = "是否计控成本确认")
     private String planCostConfirm;
+
+
+
 }
 

@@ -18,6 +18,8 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
@@ -108,6 +110,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     private CcmService ccmService;
     @Autowired
     CcmFeignService ccmFeignService;
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
@@ -171,6 +175,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             qc.eq("confirm_status", "2");
         }
         qc.orderByDesc("create_date");
+        dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
         List<BasicsdatumMaterial> list = this.list(qc);
         PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
 
@@ -417,6 +422,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         qw.in(StringUtils.isNotEmpty(dto.getDistribute()), "bm.distribute", StringUtils.convertList(dto.getDistribute()));
         qw.eq(StringUtils.equals("2", dto.getSource()), "fp.planning_season_id", dto.getPlanningSeasonId());
         Page<BomSelMaterialVo> page = PageHelper.startPage(dto);
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.material.getK(), "bm.");
         List<BomSelMaterialVo> list = getBaseMapper().getBomSelMaterialList(qw, dto.getSource());
 
 		if (CollUtil.isNotEmpty(list)) {

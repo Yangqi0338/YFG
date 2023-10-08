@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.hangTag.service.impl;
 
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -18,7 +19,9 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.basicsdatum.controller.BasicsdatumMaterialController;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMeasurementExcelDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -35,6 +38,7 @@ import com.base.sbc.module.hangTag.service.HangTagLogService;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.hangTag.vo.HangTagListVO;
 import com.base.sbc.module.hangTag.vo.HangTagVO;
+import com.base.sbc.module.hangTag.vo.HangTagVoExcel;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
@@ -66,6 +70,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -87,8 +93,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     @Autowired
     private HangTagMapper hangTagMapper;
     @Autowired
-    private HangTagIngredientService hangTagIngredientService;
-    @Autowired
     private EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
     @Autowired
     private HangTagLogService hangTagLogService;
@@ -100,9 +104,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private StyleColorMapper styleColorMapper;
     @Autowired
     private FlowableService flowableService;
-    @Autowired
-    @Lazy
-    private BasicsdatumMaterialController basicsdatumMaterialController;
     @Autowired
     @Lazy
     private StyleColorService styleColorService;
@@ -121,7 +122,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     @Override
     public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
         hangTagDTO.setCompanyCode(userCompany);
-        PageHelper.startPage(hangTagDTO.getPageNum(), hangTagDTO.getPageSize());
+        if(hangTagDTO.getPageNum()!=0 && hangTagDTO.getPageSize()!=0){
+            PageHelper.startPage(hangTagDTO.getPageNum(), hangTagDTO.getPageSize());
+        }
         String authSql = dataPermissionsService.getDataPermissionsSql(DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
         List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
 
@@ -180,6 +183,20 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         }
 
         return new PageInfo<>(hangTagListVOS);
+    }
+
+    /**
+     * 吊牌导出
+     *
+     * @param response
+     * @param hangTagSearchDTO
+     */
+    @Override
+    public void deriveExcel(HttpServletResponse response, HangTagSearchDTO hangTagSearchDTO, String userCompany) throws IOException {
+        /*查询吊牌数据*/
+        List<HangTagListVO> list= queryPageInfo(hangTagSearchDTO,userCompany).getList();
+        List<HangTagVoExcel> hangTagVoExcels = BeanUtil.copyToList(list, HangTagVoExcel.class);
+        ExcelUtils.exportExcel(hangTagVoExcels,  HangTagVoExcel.class, "吊牌.xlsx",new ExportParams() ,response);
     }
 
     @Override

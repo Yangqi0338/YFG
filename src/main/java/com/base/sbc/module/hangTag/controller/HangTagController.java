@@ -31,6 +31,7 @@ import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.material.entity.MaterialLabel;
 import com.base.sbc.module.pack.service.PackBusinessOpinionService;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.patternmaking.dto.PatternMakingCommonPageSearchDto;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
@@ -44,7 +45,9 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -79,6 +82,12 @@ public class HangTagController extends BaseController {
         return hangTagService.queryPageInfo(hangTagSearchDTO, super.getUserCompany());
     }
 
+
+    @ApiOperation(value = "导出", notes = "")
+    @GetMapping("/deriveExcel")
+    public void deriveExcel(HttpServletResponse response, HangTagSearchDTO hangTagSearchDTO) throws IOException {
+        hangTagService.deriveExcel(response,hangTagSearchDTO, super.getUserCompany());
+    }
 
     @ApiOperation(value = "查询详情")
     @GetMapping("/getDetailsByBulkStyleNo")
