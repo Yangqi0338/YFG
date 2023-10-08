@@ -715,7 +715,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             /*总成本*/
             BigDecimal totalCost = packPricingService.formula(pricingTemplateItemVOList1.get(0).getExpressionShow().replaceAll(",",""), map);
             if (totalCost.compareTo(BigDecimal.ZERO) == 0) {
-                throw new OtherException("核价成本为0");
+                throw new OtherException(styleColor.getStyleNo()+"的开发成本为0,请联系设计工艺员添加材料到BOM");
             }
         }
         int i = smpService.goods(StringUtils.convertListToString(stringList).split(","));
