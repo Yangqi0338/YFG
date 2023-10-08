@@ -18,7 +18,7 @@
             t_pack_info_status tpis
                 JOIN t_pack_info tpi ON tpi.id = tpis.foreign_id
         WHERE
-            tpi.style_no = #{styleNo}
+            tpi.style_no = #{styleNo} and tpis.pack_type='packBigGoods'
         group by tpi.style_no
     </select>
 
