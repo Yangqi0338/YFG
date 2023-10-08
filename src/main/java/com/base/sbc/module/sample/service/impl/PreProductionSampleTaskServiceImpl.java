@@ -244,6 +244,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean createByPackInfo(PackInfoListVo vo) {
+
         //
         Style style = styleService.getById(vo.getStyleId());
 
@@ -254,6 +255,17 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         if (packInfo == null) {
             throw new OtherException("标准资料包数据为空");
         }
+
+        //判断是否重复
+        BaseQueryWrapper<PreProductionSampleTask> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("style_id", style.getId());
+        queryWrapper.eq("pack_info_id", packInfo.getId());
+
+        List<PreProductionSampleTask> list = this.list(queryWrapper);
+        if (!list.isEmpty()) {
+            throw new OtherException("该资料包已经生成产前样任务");
+        }
+
         PreProductionSampleTask task = new PreProductionSampleTask();
         task.setStyleId(style.getId());
         task.setPackInfoId(packInfo.getId());
