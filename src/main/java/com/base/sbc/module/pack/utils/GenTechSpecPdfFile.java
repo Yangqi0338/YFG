@@ -4,7 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
@@ -49,10 +48,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -305,8 +302,8 @@ public class GenTechSpecPdfFile {
         StringWriter writer = new StringWriter();
         template.process(dataModel, writer);
         String output = writer.toString();
-
-        FileUtil.writeString(output, new File("C:/Users/ZCYLGZ/htmltoPdf.html"), Charset.defaultCharset());
+//        System.out.println("temp目录路径:"+FileUtil.getTmpDirPath());
+//        FileUtil.writeString(output, new File(FileUtil.getTmpDirPath()+"/htmltoPdf.html"), Charset.defaultCharset());
         return output;
     }
 
