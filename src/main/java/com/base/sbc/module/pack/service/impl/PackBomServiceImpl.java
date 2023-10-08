@@ -228,6 +228,11 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             PackUtils.bomDefaultVal(packBom);
             PackUtils.setBomVersionInfo(version, packBom);
             packBom.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
+            /*判断是默认的规格是否有多个*/
+            if(packBom.getTranslate().indexOf(",")>-1){
+                packBom.setTranslate(null);
+                packBom.setTranslateCode(null);
+            }
             if (!CommonUtils.isInitId(packBom.getId())) {
                 pageBomIds.add(packBom.getId());
             } else {
@@ -236,6 +241,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                 }
                 packBom.setCode(version.getVersion() + StrUtil.DASHED + (++versionBomCount));
             }
+            packBom.setSort(Math.toIntExact(versionBomCount));
             packBom.calculateCost();
         }
         QueryWrapper<PackBom> bomQw = new QueryWrapper<>();
