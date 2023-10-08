@@ -258,5 +258,23 @@ public class HangTagListVO {
      */
     @ApiModelProperty(value = "工艺包颜色规格")
     private String artBagColorSpec;
+
+
+    /**
+     * 商品吊牌价是否确认
+     */
+    @ApiModelProperty(value = "商品吊牌价是否确认")
+    private String productTagPriceConfirm;
+    /**
+     * 计控吊牌价是否确认
+     */
+    @ApiModelProperty(value = "计控吊牌价是否确认")
+    private String planTagPriceConfirm;
+
+    /**
+     * 是否计控成本确认
+     */
+    @ApiModelProperty(value = "是否计控成本确认")
+    private String planCostConfirm;
 }
 
