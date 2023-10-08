@@ -114,6 +114,8 @@ public class PatternMakingTaskListVo {
 
     @ApiModelProperty(value = "打版质量评分")
     private BigDecimal patternMakingScore;
+
+    private String patSeq;
     /**
      * 打版类型
      */

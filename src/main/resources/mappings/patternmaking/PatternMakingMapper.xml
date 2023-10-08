@@ -115,7 +115,8 @@
         p.update_date,
         p.pattern_design_name,
         p.sample_making_score,
-        p.pattern_making_score
+        p.pattern_making_score,
+        p.pat_seq
         FROM
         t_pattern_making p,
         t_style s
