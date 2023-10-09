@@ -322,8 +322,18 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             //1获取源启用版本
             PackBomVersion enableVersion = getEnableVersion(sourceForeignId, sourcePackType);
             //获取源版本数据
-            bomList = packBomService.list(sourceForeignId, sourcePackType, enableVersion.getId());
-            List<String> bomIds = Opt.ofNullable(bomList).map(bl -> bl.stream().map(PackBomVo::getId).collect(Collectors.toList())).orElse(CollUtil.newArrayList());
+            if (enableVersion != null) {
+                bomList = packBomService.list(sourceForeignId, sourcePackType, enableVersion.getId());
+            }
+            List<String> bomIds = new ArrayList<>();
+            if (CollUtil.isNotEmpty(bomList)) {
+                for (PackBomVo packBomVo : bomList) {
+                    bomIds.add(packBomVo.getId());
+                    packBomVo.setScmSendFlag(BaseGlobal.NO);
+                    packBomVo.setStageFlag(PackUtils.PACK_TYPE_DESIGN);
+                }
+            }
+
             bomSizeList = packBomSizeService.getByBomIds(bomIds);
             packBomColorList = BeanUtil.copyToList(packBomColorService.getByBomIds(bomIds), PackBomColor.class);
 

@@ -16,7 +16,7 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 
 @Data
-@ApiModel("资料包-创建商品企划 CreatePackInfoDto")
+@ApiModel("资料包-创建资料包 CreatePackInfoDto")
 public class CreatePackInfoByStyleDto {
 
     @ApiModelProperty(value = "款式id", example = "12333")

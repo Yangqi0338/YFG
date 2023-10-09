@@ -213,12 +213,22 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @return
      */
     List<OpenStyleDto> getStyleListForLinkMore(String companyCode);
+
     /**
      * 重写删除资料报
+     *
      * @param removeDto 删除参数
      * @return
      */
     boolean removeByIds(RemoveDto removeDto);
+
+    /**
+     * BOM 复制
+     *
+     * @param dto
+     * @return
+     */
+    PackInfoListVo copyBom(CopyBomDto dto);
 // 自定义方法区 不替换的区域【other_end】
 
 
