@@ -1,6 +1,8 @@
 package com.base.sbc.module.style.vo;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.annotation.UserAvatar;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -29,6 +31,8 @@ public class DemandOrderSkcVo {
     private String styleNo;
     @ApiModelProperty(value = "设计款号")
     private String designNo;
+    @ApiModelProperty(value = "关联设计款号")
+    private String hisDesignNo;
     @ApiModelProperty(value = "大类code")
     private String prodCategory1st;
     /**
@@ -53,6 +57,9 @@ public class DemandOrderSkcVo {
     private String designer;
     @ApiModelProperty(value = "设计师id")
     private String designerId;
+    @ApiModelProperty(value = "大货款图")
+    private String stylePic;
+
     @ApiModelProperty(value = "设计师头像")
     @UserAvatar("designerId")
     private String designerAvatar;
@@ -84,6 +91,13 @@ public class DemandOrderSkcVo {
 
     @ApiModelProperty(value = "维度企划坑位id")
     private String planningDemandProportionSeatId;
+
+    public String getDesigner() {
+        if (StrUtil.contains(designer, StrUtil.COMMA)) {
+            return CollUtil.getFirst(StrUtil.split(designer, StrUtil.COMMA));
+        }
+        return designer;
+    }
 
     public String getUid() {
         return IdUtil.randomUUID();

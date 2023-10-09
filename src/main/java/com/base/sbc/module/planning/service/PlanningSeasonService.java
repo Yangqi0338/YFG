@@ -16,6 +16,7 @@ import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.vo.*;
 import com.github.pagehelper.PageInfo;
 
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -106,10 +107,11 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
     /**
      * 企划汇总
      *
-     * @param dto 筛选条件
+     * @param user
+     * @param dto  筛选条件
      * @return
      */
-    PlanningSummaryVo planningSummary(PlanningBoardSearchDto dto);
+    PlanningSummaryVo planningSummary(Principal user, PlanningBoardSearchDto dto);
 
     /**
      * 品类汇总

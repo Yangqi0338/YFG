@@ -15,6 +15,7 @@ import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -23,6 +24,8 @@ import com.base.sbc.config.enums.SeatMatchFlagEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StyleNoImgUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -61,6 +64,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -118,6 +122,8 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
 
     @Autowired
     private DataPermissionsService dataPermissionsService;
+    @Autowired
+    private UserUtils userUtils;
 
     @Override
     public void checkNameRepeat(PlanningSeasonSaveDto dto, String userCompany) {
@@ -278,7 +284,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public PlanningSummaryVo planningSummary(PlanningBoardSearchDto dto) {
+    public PlanningSummaryVo planningSummary(Principal user, PlanningBoardSearchDto dto) {
         //维度统计数据
         List<List<String>> demandSummary = CollUtil.newArrayList(
                 //维度
@@ -355,6 +361,10 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         scQw.notNull("fv.val");
         scQw.notNull("fv.val_name");
         List<DemandOrderSkcVo> demandOrderSkcVos = styleColorMapper.queryDemandOrderSkc(scQw);
+        amcFeignService.setUserAvatarToList(demandOrderSkcVos);
+        /*查询款式配色图*/
+        GroupUser userBy = userUtils.getUserBy(user);
+        StyleNoImgUtils.setStyleColorPic(userBy, demandOrderSkcVos, "stylePic");
         //key =id
         Map<String, DemandOrderSkcVo> idSkcMap = new LinkedHashMap<>(16);
         //key= 波段-维度
@@ -440,6 +450,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                 demandOrderSkcVo.setValName(pdpd.getClassifyName());
                 u.setStyleColorId("");
             } else {
+                planningBandTotalVo.orderTotalAdd();
                 //发结婚证
                 u.setStyleColorId(demandOrderSkcVo.getStyleColorId());
                 String matchKey = demandOrderSkcVo.getBandCode() + StrUtil.DASHED + demandOrderSkcVo.getVal();
@@ -451,6 +462,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                 }
                 // 父母包办 分开住
                 else {
+
                     demandOrderSkcVo.setMatchBandCode(pdpd.getBandCode());
                     demandOrderSkcVo.setMatchBandName(pdpd.getBandName());
                     demandOrderSkcVo.setMatchFlag(SeatMatchFlagEnum.CUSTOM_COLOR.getValue());
@@ -485,10 +497,10 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                 PlanningBandTotalVo planningBandTotalVo = bMap.get(demandOrderSkcVo.getBandCode());
                 if (planningBandTotalVo == null) {
                     planningBandTotalVo = BeanUtil.copyProperties(demandOrderSkcVo, PlanningBandTotalVo.class);
-                    planningBandTotalVo.totalAdd();
+                    planningBandTotalVo.orderTotalAdd();
                     bMap.put(demandOrderSkcVo.getBandCode(), planningBandTotalVo);
                 } else {
-                    planningBandTotalVo.totalAdd();
+                    planningBandTotalVo.orderTotalAdd();
                 }
                 //维度的统计
                 PlanningDimensionTotalVo planningDimensionTotalVo = dMap.get(demandOrderSkcVo.getVal());

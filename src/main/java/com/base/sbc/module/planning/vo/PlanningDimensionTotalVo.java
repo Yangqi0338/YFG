@@ -30,10 +30,10 @@ public class PlanningDimensionTotalVo {
     private String valName;
 
     @ApiModelProperty(value = "企划数量", example = "2")
-    private Long planningTotal;
+    private Long planningTotal = 0L;
 
     @ApiModelProperty(value = "总数", example = "2")
-    private Long total;
+    private Long total = 0L;
 
     public Long totalAdd() {
         if (total == null) {
