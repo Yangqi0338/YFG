@@ -8,8 +8,8 @@ package com.base.sbc.module.planning.service;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
-import com.base.sbc.module.planning.dto.SaveDelDimensionalityDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.vo.DimensionalityListVo;
@@ -49,6 +49,15 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
      * @return
      */
     List<PlanningDimensionality>  batchSaveDimensionality(List<UpdateDimensionalityDto> dimensionalityDtoList);
+
+
+    /**
+     * 修改排序
+     * @param queryFieldManagementDto
+     * @return
+     */
+    Boolean regulateSort(QueryFieldManagementDto queryFieldManagementDto);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

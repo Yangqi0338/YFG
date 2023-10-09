@@ -156,7 +156,7 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
     /**
      * 查询维度-字段有配置的选项
      *
-     * @param queryFieldManagementDto
+     * @param queryDemandDto
      * @return
      */
     @Override

@@ -6,13 +6,12 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.controller;
 
-import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
-import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningDemandProportionDataService;
 import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
@@ -50,13 +49,6 @@ public class PlanningDemandController {
 
 	@Resource
 	private PlanningDimensionalityService planningDimensionalityService;
-
-	@Resource
-	private	PlanningCategoryItemService planningCategoryItemService;
-
-
-	@Resource
-	private CcmFeignService ccmFeignService;
 
 	/*品类id获取需求及维度*/
 	@ApiOperation(value = "品类id获取需求列表")
@@ -151,36 +143,10 @@ public class PlanningDemandController {
 		return planningDimensionalityService.delDimensionality(id,sortId);
 	}
 
+	@ApiOperation(value = "调整顺序")
+	@PostMapping("/regulateSort")
+	public Boolean regulateSort(@Valid @RequestBody QueryFieldManagementDto queryFieldManagementDto) {
+		return planningDimensionalityService.regulateSort(queryFieldManagementDto);
+	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

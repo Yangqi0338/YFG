@@ -15,6 +15,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formType.entity.FieldManagement;
 import com.base.sbc.module.formType.entity.FormType;
 import com.base.sbc.module.formType.mapper.FieldManagementMapper;
@@ -61,6 +62,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         BaseQueryWrapper<PlanningDimensionality> qw = new BaseQueryWrapper<>();
         dto.setCategoryFlag("1");
         PlanningUtils.dimensionCommonQw(qw, dto);
+        qw.orderByAsc("sort");
         List<PlanningDimensionality> planningDimensionalityList = baseMapper.selectList(qw);
         if (CollUtil.isEmpty(planningDimensionalityList)) {
             qw = new BaseQueryWrapper<>();
@@ -157,6 +159,29 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         });
         saveOrUpdateBatch(list);
         return list;
+    }
+
+    /**
+     * 修改排序
+     *
+     * @param queryFieldManagementDto
+     * @return
+     */
+    @Override
+    public Boolean regulateSort(QueryFieldManagementDto queryFieldManagementDto) {
+        PlanningDimensionality fieldManagement = new PlanningDimensionality();
+        Integer currentId = baseMapper.selectById(queryFieldManagementDto.getCurrentId()).getSort();
+        Integer targetId = baseMapper.selectById(queryFieldManagementDto.getTargetId()).getSort();
+        fieldManagement.setId(queryFieldManagementDto.getCurrentId());
+        fieldManagement.setSort(targetId);
+        fieldManagement.updateInit();
+        baseMapper.updateById(fieldManagement);
+        PlanningDimensionality fieldManagement1 = new PlanningDimensionality();
+        fieldManagement1.setId(queryFieldManagementDto.getTargetId());
+        fieldManagement1.setSort(currentId);
+        fieldManagement1.updateInit();
+        baseMapper.updateById(fieldManagement1);
+        return true;
     }
 
 /** 自定义方法区 不替换的区域【other_start】 **/
