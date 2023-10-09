@@ -149,17 +149,21 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                     //e.setStatus("5");  不需要设置为通过,通过或者不通过会在回调页面设置
                 } else {
                     //状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认
-                    switch (flowRecordVo.getName()) {
-                        case "大货工艺员确认":
-                            e.setStatus("2");
-                            break;
-                        case "后技术确认":
-                            e.setStatus("3");
-                            break;
-                        case "品控确认":
-                            e.setStatus("4");
-                            break;
+
+                    if (!"6".equals(e.getStatus())){
+                        switch (flowRecordVo.getName()) {
+                            case "大货工艺员确认":
+                                e.setStatus("2");
+                                break;
+                            case "后技术确认":
+                                e.setStatus("3");
+                                break;
+                            case "品控确认":
+                                e.setStatus("4");
+                                break;
+                        }
                     }
+
                 }
             }
             bulkStyleNos.add(e.getBulkStyleNo());
