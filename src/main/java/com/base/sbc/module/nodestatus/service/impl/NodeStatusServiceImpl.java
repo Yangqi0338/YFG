@@ -19,14 +19,11 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
-import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.dto.NodeStatusChangeDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
@@ -258,7 +255,7 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
 
         List<String> msg = new ArrayList<>(4);
         JSONObject auth = check.getJSONObject("auth");
-        boolean authMatch = true;
+        boolean authMatch = false;
         if (ObjectUtil.isNotEmpty(auth)) {
             // 匹配用户
             JSONArray authUserIdArr = auth.getJSONArray("userId");
