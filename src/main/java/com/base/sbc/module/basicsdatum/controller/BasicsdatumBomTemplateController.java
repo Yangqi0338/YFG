@@ -115,8 +115,8 @@ public class BasicsdatumBomTemplateController{
 
 	@ApiOperation(value = "复制BOM模板物料")
 	@PostMapping("/copyBomTemplateMateria")
-	public Boolean copyBomTemplateMateria(@RequestParam("id") String id) {
-		return basicsdatumBomTemplateMaterialServicel.copyBomTemplateMateria(id);
+	public Boolean copyBomTemplateMateria(@Valid @RequestBody IdDto idDto) {
+		return basicsdatumBomTemplateMaterialServicel.copyBomTemplateMateria(idDto.getId());
 	}
 
 	@ApiOperation(value = "修改顺序")

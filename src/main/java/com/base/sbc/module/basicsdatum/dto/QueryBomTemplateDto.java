@@ -29,4 +29,14 @@ public class QueryBomTemplateDto extends Page {
     /** 备注信息 */
     @ApiModelProperty(value = "备注信息"  )
     private String remarks;
+
+    @ApiModelProperty(value = "厂家成分"  )
+    private String  supplierFactoryIngredient;
+
+    @ApiModelProperty(value = "材料"  )
+    private String    materialCodeName;
+
+    @ApiModelProperty(value = "成分"  )
+    private String  ingredient;
+
 }
