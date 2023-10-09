@@ -247,7 +247,7 @@ public class SmpOpenMaterialDto {
         basicsdatumMaterial.setMaterialSourceName(Source);
         basicsdatumMaterial.setCategory1Code(ProductTypeID);
         basicsdatumMaterial.setCategory1Name(ProductType);
-        basicsdatumMaterial.setMaterialCodeName(Code+MaterialName);
+        basicsdatumMaterial.setMaterialCodeName(Code+"_"+MaterialName);
         basicsdatumMaterial.setCategoryName(ProductType);
         //basicsdatumMaterial.setMaterialCategoryName(ProductType);
         //basicsdatumMaterial.setMaterialCategory(ProductTypeID);

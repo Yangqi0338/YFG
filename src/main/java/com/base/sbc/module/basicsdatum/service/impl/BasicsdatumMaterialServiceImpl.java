@@ -208,7 +208,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 entity.setMaterialCode(getMaxCode(categoryCode));
             }
         }
-        entity.setMaterialCodeName(entity.getMaterialCode() + entity.getMaterialName());
+        entity.setMaterialCodeName(entity.getMaterialCode() +"_"+ entity.getMaterialName());
 
         // 特殊逻辑： 如果是面料的时候，需要增加门幅幅宽的数据 给到物料规格
         // if ("fabric".equals(entity.getMaterialType())) {
