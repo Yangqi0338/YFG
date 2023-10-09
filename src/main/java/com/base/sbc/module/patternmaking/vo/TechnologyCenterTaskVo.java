@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -157,6 +158,15 @@ public class TechnologyCenterTaskVo {
 
     @ApiModelProperty(value = "打板类型")
     private String   sampleTypeName;
+
+    @ApiModelProperty(value = "版师工作量评分")
+    private BigDecimal patternMakingScore;
+
+    @ApiModelProperty(value = "设计师")
+    private String designer;
+
+    @ApiModelProperty(value = "改版意见")
+    private String revisionComments;
 
 
     public String getPlanningSeason() {
