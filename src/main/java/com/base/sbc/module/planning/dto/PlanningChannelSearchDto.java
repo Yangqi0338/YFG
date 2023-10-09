@@ -21,5 +21,18 @@ public class PlanningChannelSearchDto extends Page {
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
 
+    @ApiModelProperty(value = "品牌")
+    private String brand;
 
+    @ApiModelProperty(value = "年份")
+    private String year;
+
+    @ApiModelProperty(value = "季节")
+    private String season;
+
+    @ApiModelProperty(value = "渠道")
+    private String channel;
+
+    @ApiModelProperty(value = "性别")
+    private String sex;
 }

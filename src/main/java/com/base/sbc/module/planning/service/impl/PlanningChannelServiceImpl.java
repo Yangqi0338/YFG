@@ -127,7 +127,11 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
         BaseQueryWrapper<PlanningChannel> qw = new BaseQueryWrapper<>();
         qw.lambda().eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), PlanningChannel::getPlanningSeasonId, dto.getPlanningSeasonId());
         qw.eq("c.del_flag", BaseGlobal.NO);
-        qw.andLike(dto.getSearch(), "s.name", "s.brand", "s.brand_name", "s.year", "s.year_name", "s.season", "s.season_name", "c.channel", "c.channel_name");
+        qw.notEmptyEq("s.brand", dto.getBrand());
+        qw.notEmptyEq("s.year", dto.getYear());
+        qw.notEmptyEq("s.season", dto.getSeason());
+        qw.notEmptyEq("c.channel", dto.getChannel());
+        qw.notEmptyLike("c.sex", dto.getSex());
         qw.orderByDesc("id");
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningChannel.getK(), "s.");
         Page<PlanningChannelVo> page = PageHelper.startPage(dto);
