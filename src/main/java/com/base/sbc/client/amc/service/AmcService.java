@@ -71,11 +71,12 @@ public interface AmcService {
 
     /**
      * 获取用户头像
+     *
      * @param ids 用户id
      * @return
      */
-    @GetMapping("/amc/api/token/user/getUserAvatar")
-    public String getUserAvatar( @RequestParam("ids") String ids);
+    @PostMapping("/amc/api/token/user/getUserAvatar")
+    public String getUserAvatar(@RequestBody String ids);
 
     /**
      * 获取数据隔离信息

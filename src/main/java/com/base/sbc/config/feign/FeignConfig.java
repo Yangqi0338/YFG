@@ -38,7 +38,6 @@ public class FeignConfig {
                             }else{
                                 requestTemplate.header("Content-type", "application/json");
                             }
-
                         }
                     }
                 }
