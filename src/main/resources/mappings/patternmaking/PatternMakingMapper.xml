@@ -34,6 +34,7 @@
         s.band_code,
         s.band_name,
         s.style_name,
+        s.designer,
         p.design_send_date,
         p.prm_send_date,
         p.prm_send_status,
@@ -50,7 +51,9 @@
         p.pattern_room_id,
         p.first_pattern_design_id,
         p.first_pattern_design_name,
-        p.sample_type_name
+        p.sample_type_name,
+        p.pattern_making_score,
+        p.revision_comments
         FROM
         t_pattern_making p,
         t_style s
