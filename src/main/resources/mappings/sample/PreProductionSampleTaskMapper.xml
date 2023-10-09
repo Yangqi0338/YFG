@@ -23,15 +23,18 @@
         p.style_no,
         p.color,
         p.prod_category_name,
+
         s.style_pic,
         s.pattern_design_name,
         s.pattern_design_id,
         s.designer,
-        s.designer_id
+        s.designer_id,
+        tpm.pat_seq as patSeq
         FROM
-        t_style s,
-        t_pre_production_sample_task t ,
-        t_pack_info p
+        (t_style s,
+        t_pre_production_sample_task t,
+        t_pack_info p)
+        left join t_pattern_making tpm on tpm.sample_bar_code= t.sample_bar_code
         WHERE
         s.id = t.style_id and p.id=t.pack_info_id
         AND s.del_flag = '0'

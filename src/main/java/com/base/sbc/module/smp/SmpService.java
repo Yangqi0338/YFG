@@ -967,7 +967,10 @@ public class SmpService {
             smpSampleDto.setSupplierNumber(preProductionSampleTask.getPatternRoomId());
             // 图片集合
             UploadFile uploadFile = uploadFileService.getById(style.getStylePic());
-            smpSampleDto.setImgList(Arrays.asList(uploadFile.getUrl().split(",")));
+            if (uploadFile != null){
+                smpSampleDto.setImgList(Arrays.asList(uploadFile.getUrl().split(",")));
+            }
+
 
             smpSampleDto.setId(preProductionSampleTask.getId()); // ID
             smpSampleDto.setCode(preProductionSampleTask.getCode()); // Code

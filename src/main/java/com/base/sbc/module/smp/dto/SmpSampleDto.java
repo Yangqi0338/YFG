@@ -178,12 +178,15 @@ public class SmpSampleDto extends SmpBaseDto {
         sampleBean.setStyle(style);
 
         List<Map<String,String>> images=new ArrayList<>();
-        for (String s : imgList) {
-            Map<String,String> img =new HashMap<>();
-            img.put("Filename",s);
-            images.add(img);
+        if (imgList!=null){
+            for (String s : imgList) {
+                Map<String,String> img =new HashMap<>();
+                img.put("Filename",s);
+                images.add(img);
+            }
+            sampleBean.setImages(images);
         }
-        sampleBean.setImages(images);
+
         return sampleBean;
     }
 }
