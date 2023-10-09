@@ -140,15 +140,15 @@ public class PlanningDemandController {
 
 	@ApiOperation(value = "保存/编辑维度标签")
 	@PostMapping("/batchSaveDimensionality")
-	public Boolean batchSaveDimensionality(@Valid @RequestBody List<UpdateDimensionalityDto> dimensionalityDtoList) {
+	public List<PlanningDimensionality> batchSaveDimensionality(@Valid @RequestBody List<UpdateDimensionalityDto> dimensionalityDtoList) {
 		return planningDimensionalityService.batchSaveDimensionality(dimensionalityDtoList);
 	}
 
 	/*删除维度标签*/
 	@ApiOperation(value = "删除维度标签")
 	@DeleteMapping("/delDimensionality")
-	public ApiResult delDimensionality(@Valid @NotBlank(message = "编号id不能为空") String id) {
-		return planningDimensionalityService.delDimensionality(id);
+	public ApiResult delDimensionality(@Valid @NotBlank(message = "编号id不能为空") String id, String sortId) {
+		return planningDimensionalityService.delDimensionality(id,sortId);
 	}
 
 

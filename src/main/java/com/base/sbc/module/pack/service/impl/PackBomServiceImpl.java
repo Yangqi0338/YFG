@@ -240,8 +240,8 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                     versionBomCount = getBaseMapper().countByVersion(version.getId());
                 }
                 packBom.setCode(version.getVersion() + StrUtil.DASHED + (++versionBomCount));
+                packBom.setSort(Math.toIntExact(versionBomCount));
             }
-            packBom.setSort(Math.toIntExact(versionBomCount));
             packBom.calculateCost();
         }
         QueryWrapper<PackBom> bomQw = new QueryWrapper<>();

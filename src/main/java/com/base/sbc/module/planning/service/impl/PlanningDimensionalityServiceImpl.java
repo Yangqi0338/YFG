@@ -28,6 +28,7 @@ import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionalityListVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -104,9 +105,18 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     }
 
     @Override
-    public ApiResult delDimensionality(String id) {
+    @Transactional(rollbackFor = {Exception.class})
+    public ApiResult delDimensionality(String id,String sortId) {
         List<String> ids = StringUtils.convertList(id);
         baseMapper.deleteBatchIds(ids);
+        if(StringUtils.isNotBlank(sortId)){
+           List<PlanningDimensionality> list = baseMapper.selectBatchIds(StringUtils.convertList(sortId));
+           Integer index =1;
+            for (PlanningDimensionality planningDimensionality : list) {
+                planningDimensionality.setSort(index++);
+            }
+            saveOrUpdateBatch(list);
+        }
         return ApiResult.success("操作成功");
     }
 
@@ -138,7 +148,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
      * @return
      */
     @Override
-    public Boolean batchSaveDimensionality(List<UpdateDimensionalityDto> dimensionalityDtoList) {
+    public List<PlanningDimensionality> batchSaveDimensionality(List<UpdateDimensionalityDto> dimensionalityDtoList) {
         List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityDtoList, PlanningDimensionality.class);
         list.forEach(p -> {
             if (CommonUtils.isInitId(p.getId())) {
@@ -146,7 +156,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             }
         });
         saveOrUpdateBatch(list);
-        return true;
+        return list;
     }
 
 /** 自定义方法区 不替换的区域【other_start】 **/

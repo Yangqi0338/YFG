@@ -98,6 +98,12 @@ public class PlanningDimensionality extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "是否检查")
     private String isExamine;
+
+    /**
+     * 排序
+     */
+    @ApiModelProperty(value = "排序")
+    private Integer sort;
     /**
      * 状态(0正常,1停用)
      */

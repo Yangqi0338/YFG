@@ -38,7 +38,7 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
 
     Boolean saveBatchDimensionality(List<UpdateDimensionalityDto> list);
 
-    ApiResult delDimensionality(String id);
+    ApiResult delDimensionality(String id,String sortId);
 
 
     ApiResult saveDimensionality(UpdateDimensionalityDto updateDimensionalityDto);
@@ -48,7 +48,7 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
      * @param dimensionalityDtoList
      * @return
      */
-    Boolean  batchSaveDimensionality(List<UpdateDimensionalityDto> dimensionalityDtoList);
+    List<PlanningDimensionality>  batchSaveDimensionality(List<UpdateDimensionalityDto> dimensionalityDtoList);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
