@@ -9,14 +9,11 @@ package com.base.sbc.module.pack.controller;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdDto;
-import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
-import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.vo.*;
@@ -32,8 +29,6 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 类描述：资料包 Controller类
@@ -100,8 +95,24 @@ public class PackInfoController {
 		operaLogEntity.setType("新建bom");
 		operaLogEntity.setName(dto.getModelName());
 
-		packInfoService.saveOrUpdateOperaLog(dto,new CreatePackInfoByStyleDto(),operaLogEntity);
+		packInfoService.saveOrUpdateOperaLog(dto, new CreatePackInfoByStyleDto(), operaLogEntity);
 		return packInfoService.createByStyle(dto);
+	}
+
+	@ApiOperation(value = "复制BOM")
+	@PostMapping("/copyBom")
+	public PackInfoListVo copyBom(@Valid @RequestBody CopyBomDto dto) {
+
+		OperaLogEntity operaLogEntity = new OperaLogEntity();
+		operaLogEntity.setDocumentId(dto.getId());
+		operaLogEntity.setDocumentName(dto.getName());
+
+		operaLogEntity.setParentId(dto.getPatternMakingId());
+		operaLogEntity.setType("复制bom");
+		operaLogEntity.setName(dto.getModelName());
+
+		packInfoService.saveOrUpdateOperaLog(dto, new CreatePackInfoByStyleDto(), operaLogEntity);
+		return packInfoService.copyBom(dto);
 	}
 
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")

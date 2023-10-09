@@ -308,7 +308,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             System.out.println("保存款式设计详情颜色错误信息如下：{}" + e);
         }
         if (null == dto.getIsWithBom() || !dto.getIsWithBom()) {
-            return BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
+            PackInfoListVo packInfoListVo = BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
+            packInfoListVo.setPackType(PackUtils.PACK_TYPE_DESIGN);
+            return packInfoListVo;
         }
 
         //如果勾选了关联款式BOM物料信息则复制保存款式设计中的bom信息
@@ -366,7 +368,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             }
         }
 
-        return BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
+        PackInfoListVo packInfoListVo = BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
+        packInfoListVo.setPackType(PackUtils.PACK_TYPE_DESIGN);
+        return packInfoListVo;
     }
 
     @Override
@@ -837,6 +841,23 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         operaLogService.save(operaLogEntity);
         return true;
     }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public PackInfoListVo copyBom(CopyBomDto dto) {
+        // 1 先新建一个资料包
+        PackInfoListVo byStyle = createByStyle(dto);
+        // 2 拷贝资料包数据
+        copyPack(dto.getSourceForeignId(), dto.getSourcePackType(), byStyle.getId(), byStyle.getPackType(), BasicNumber.ZERO.getNumber());
+
+        // 3 将状态表还原
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(byStyle.getId(), byStyle.getPackType());
+        packInfoStatus.setBomStatus(BasicNumber.ZERO.getNumber());
+        packInfoStatus.setScmSendFlag(BasicNumber.ZERO.getNumber());
+        packInfoStatusService.updateById(packInfoStatus);
+        return byStyle;
+    }
+
     @Override
     public boolean delTechSpecFile(PackCommonSearchDto dto) {
         UpdateWrapper qw = new UpdateWrapper();
