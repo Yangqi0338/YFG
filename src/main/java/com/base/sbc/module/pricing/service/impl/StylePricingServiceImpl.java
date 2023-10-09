@@ -304,8 +304,9 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 .map(packBom -> {
                     BigDecimal lossRate = BigDecimalUtil.add(BigDecimal.ONE, BigDecimalUtil.div(packBom.getLossRate(), BigDecimal.valueOf(100), 2), 2);
                     BigDecimal priceTax = BigDecimalUtil.add(BigDecimal.ONE, BigDecimalUtil.div(packBom.getPriceTax(), BigDecimal.valueOf(100), 2), 2);
-                    BigDecimal cost = BigDecimalUtil.mul(2, packBom.getBulkUnitUse(), packBom.getBulkPrice(), lossRate);
-                    return BigDecimalUtil.div(cost, priceTax, 2);
+                    BigDecimal cost = BigDecimalUtil.mul(2, packBom.getBulkUnitUse(), packBom.getPrice(), lossRate);
+                    BigDecimal div = BigDecimalUtil.div(cost, priceTax, 2);
+                    return div;
                 })
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
@@ -324,7 +325,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         return list.stream()
                 .map(packBom -> {
                     BigDecimal lossRate = BigDecimalUtil.add(BigDecimal.ONE, BigDecimalUtil.div(packBom.getLossRate(), BigDecimal.valueOf(100), 2), 2);
-                    return BigDecimalUtil.mul(2, packBom.getBulkUnitUse(), packBom.getBulkPrice(), lossRate);
+                    return BigDecimalUtil.mul(2, packBom.getBulkUnitUse(), packBom.getPrice(), lossRate);
                 })
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);

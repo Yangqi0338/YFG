@@ -17,6 +17,12 @@ public class PackBomCalculateBaseVo {
      */
     @ApiModelProperty(value = "大货单价")
     private BigDecimal bulkPrice;
+
+    /**
+     * 大货单价
+     */
+    @ApiModelProperty(value = "单价")
+    private BigDecimal price;
     /**
      * 损耗%
      */

@@ -438,15 +438,16 @@
 
     <select id="getPackBomCalculateBaseVo" resultType="com.base.sbc.module.pack.vo.PackBomCalculateBaseVo">
         SELECT
-            pb.bulk_unit_use,
-            pb.bulk_price,
-            pb.loss_rate,
-            pb.amount,
-            pb.price_tax,
-            pb.foreign_id,
-            pbv.pack_type
+        pb.bulk_unit_use,
+        pb.bulk_price,
+        pb.loss_rate,
+        pb.amount,
+        pb.price_tax,
+        pb.price,
+        pb.foreign_id,
+        pbv.pack_type
         FROM
-            t_pack_bom pb
+        t_pack_bom pb
         JOIN t_pack_bom_version pbv ON pbv.id = pb.bom_version_id
         WHERE
         pbv.foreign_id IN
