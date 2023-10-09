@@ -75,6 +75,9 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
         }
         /*查询*/
         QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq(StringUtils.isNotBlank(queryBomTemplateDto.getSupplierFactoryIngredient()),"supplier_factory_ingredient",queryBomTemplateDto.getSupplierFactoryIngredient());
+        queryWrapper.eq(StringUtils.isNotBlank(queryBomTemplateDto.getMaterialCodeName()),"material_code_name",queryBomTemplateDto.getMaterialCodeName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryBomTemplateDto.getIngredient()),"ingredient",queryBomTemplateDto.getIngredient());
         queryWrapper.eq("bom_template_id", queryBomTemplateDto.getBomTemplateId());
         queryWrapper.orderByAsc("sort");
         /*查询基础资料-物料数据*/

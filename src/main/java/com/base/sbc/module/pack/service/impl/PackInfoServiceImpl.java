@@ -955,6 +955,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packInfo.setColorCode("");
         packInfo.setStyleNo("");
         packInfo.setStyleColorId("");
+        packInfo.setName(packInfo.getDesignNo()+ packInfo.getStyleName()+" BOM");
         updateById(packInfo);
         color.setBom("");
         styleColorMapper.updateById(color);
