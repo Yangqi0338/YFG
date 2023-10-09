@@ -39,7 +39,7 @@ public class PackBomDesignEmptyCheckDto {
     private BigDecimal supplierPrice;
 
     @ApiModelProperty(value = "供应商物料号")
-    @NotBlank(message = "供应商物料号")
+//    @NotBlank(message = "供应商物料号")
     private String supplierMaterialCode;
 
 

@@ -426,7 +426,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             queryWrapper.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
             queryWrapper.eq("stage_flag", dto.getPackType());
             queryWrapper.eq("bom_version_id", version.getId());
-            queryWrapper.in("scm_send_flag", StringUtils.convertList("0,2"));
+            queryWrapper.in("scm_send_flag", StringUtils.convertList("0,2,3"));
             List<PackBom> packBomList = packBomService.list(queryWrapper);
             if (CollUtil.isNotEmpty(packBomList)) {
                 throw new OtherException("物料清单存在未下发数据");
