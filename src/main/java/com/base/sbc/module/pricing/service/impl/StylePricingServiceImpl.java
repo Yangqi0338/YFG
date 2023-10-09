@@ -305,8 +305,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                     BigDecimal lossRate = BigDecimalUtil.add(BigDecimal.ONE, BigDecimalUtil.div(packBom.getLossRate(), BigDecimal.valueOf(100), 2), 2);
                     BigDecimal priceTax = BigDecimalUtil.add(BigDecimal.ONE, BigDecimalUtil.div(packBom.getPriceTax(), BigDecimal.valueOf(100), 2), 2);
                     BigDecimal cost = BigDecimalUtil.mul(2, packBom.getBulkUnitUse(), packBom.getPrice(), lossRate);
-                    BigDecimal div = BigDecimalUtil.div(cost, priceTax, 2);
-                    return div;
+                    return BigDecimalUtil.div(cost, priceTax, 2);
                 })
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
