@@ -58,7 +58,11 @@ public class SmpController extends BaseController {
     @PutMapping("/color")
     public ApiResult color(String[] ids) {
         Integer i = smpService.color(ids);
-        return insertSuccess("下发："+ids.length+"条，成功："+i+"条");
+        if (ids.length== i) {
+            return insertSuccess("下发：" + ids.length + "条，成功：" + i + "条");
+        } else {
+            return ApiResult.error("下发：" + ids.length + "条，成功：" + i + "条,失败：" + (ids.length - i) + "条", 200);
+        }
     }
 
     /**
