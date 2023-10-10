@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.restTemplate.RestTemplateService;
 import com.base.sbc.config.utils.StringUtils;
@@ -567,10 +568,13 @@ public class SmpService {
         int i = 0;
         List<PackBom> list = packBomService.listByIds(Arrays.asList(ids));
         for (PackBom packBom : list) {
-
+            /*判断物料是否是代用材料的编码
+            * 代用材料编码：0000*/
+            if(packBom.getMaterialCode().equals("0000")){
+                throw new OtherException(packBom.getMaterialName() + "选择的是代用材料,请联系设计工艺员!代用材料不允许下发");
+            }
             packBomVersionService.checkBomDataEmptyThrowException(packBom);
             SmpBomDto smpBomDto = packBom.toSmpBomDto();
-
 
             //bom主表
             PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
@@ -585,7 +589,10 @@ public class SmpService {
             StyleColor styleColor = sampleStyleColorService.getById(packInfo.getStyleColorId());
             if (styleColor == null) {
                 throw new OtherException("未关联配色,无法下发");
-
+            }
+            /*判断配送是否下发*/
+            if(!styleColor.getScmSendFlag().equals(BaseGlobal.STATUS_CLOSE)){
+                throw new OtherException("请下发关联的配色");
             }
             smpBomDto.setPColorCode(styleColor.getColorCode());
             smpBomDto.setPColorName(styleColor.getColorName());
