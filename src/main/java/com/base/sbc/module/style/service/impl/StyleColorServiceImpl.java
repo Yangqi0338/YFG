@@ -395,8 +395,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 //        获取款式下的配色
         String styleNo = brand + yearOn + bandName + category + designNo;
         String number = baseMapper.getStyleColorNumber(styleNo);
-        /*获取最大流水号*/
-        String maxMark = number.replaceAll(styleNo,"");
+        String maxMark ="0";
+        if(StringUtils.isNotBlank(number)){
+            /*获取最大流水号*/
+             maxMark = number.replaceAll(styleNo,"");
+        }
         /*拼接流水号*/
         styleNo = styleNo + (Long.valueOf(maxMark) + index);
         /*查询编码是否重复*/
