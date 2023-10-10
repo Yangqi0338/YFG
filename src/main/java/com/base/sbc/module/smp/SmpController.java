@@ -32,7 +32,11 @@ public class SmpController extends BaseController {
     @PutMapping("/goods")
     public ApiResult goods(String[] ids){
         Integer i = smpService.goods(ids);
-        return insertSuccess("下发："+ids.length+"条，成功："+i+"条");
+        if (ids.length== i) {
+            return insertSuccess("下发：" + ids.length + "条，成功：" + i + "条");
+        } else {
+            return ApiResult.error("下发：" + ids.length + "条，成功：" + i + "条,失败：" + (ids.length - i) + "条", 200);
+        }
     }
 
     /**
@@ -41,7 +45,11 @@ public class SmpController extends BaseController {
     @PutMapping("/material")
     public ApiResult material(String[] ids) {
         Integer i = smpService.materials(ids);
-        return insertSuccess("下发："+ids.length+"条，成功："+i+"条");
+        if (ids.length== i) {
+            return insertSuccess("下发：" + ids.length + "条，成功：" + i + "条");
+        } else {
+            return ApiResult.error("下发：" + ids.length + "条，成功：" + i + "条,失败：" + (ids.length - i) + "条", 200);
+        }
     }
 
     /**
@@ -59,7 +67,11 @@ public class SmpController extends BaseController {
     @PutMapping("/bom")
     public ApiResult bom(String[] ids) {
         Integer i = smpService.bom(ids);
-        return insertSuccess("下发："+ids.length+"条，成功："+i+"条");
+        if (ids.length== i) {
+            return insertSuccess("下发：" + ids.length + "条，成功：" + i + "条");
+        } else {
+            return ApiResult.error("下发：" + ids.length + "条，成功：" + i + "条,失败：" + (ids.length - i) + "条", 200);
+        }
     }
     //
     ///**
@@ -86,7 +98,11 @@ public class SmpController extends BaseController {
     @PutMapping("/processSheet")
     public ApiResult processSheet(@RequestBody List<SmpProcessSheetDto> sheetDtoList) {
         Integer i = smpService.processSheet(sheetDtoList);
-        return insertSuccess("下发：" + sheetDtoList.size() + "条，成功：" + i + "条");
+        if (sheetDtoList.size()== i) {
+            return insertSuccess("下发：" + sheetDtoList.size()+ "条，成功：" + i + "条");
+        } else {
+            return ApiResult.error("下发：" + sheetDtoList.size() + "条，成功：" + i + "条,失败：" + (sheetDtoList.size() - i) + "条", 200);
+        }
     }
 
 
@@ -96,6 +112,10 @@ public class SmpController extends BaseController {
     @PutMapping("/fabricComposition")
     public ApiResult fabricComposition(String[] ids) {
         Integer i = smpService.fabricComposition(ids);
-        return insertSuccess("下发："+ids.length+"条，成功："+i+"条");
+        if (ids.length== i) {
+            return insertSuccess("下发：" + ids.length + "条，成功：" + i + "条");
+        } else {
+            return ApiResult.error("下发：" + ids.length + "条，成功：" + i + "条,失败：" + (ids.length - i) + "条", 200);
+        }
     }
 }
