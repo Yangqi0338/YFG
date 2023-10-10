@@ -39,6 +39,11 @@ public class HangTagVO {
     private String styleId;
 
     /**
+     * 产品季id
+     */
+    private String planningSeasonId;
+
+    /**
      * 款式
      */
     @ApiModelProperty(value = "款式")
