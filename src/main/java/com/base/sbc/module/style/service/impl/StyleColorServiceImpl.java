@@ -513,6 +513,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 throw new OtherException("颜色不能为空");
             }
             BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(addRevampStyleColorDto.getColourLibraryId());
+            if(ObjectUtils.isEmpty(basicsdatumColourLibrary)){
+                throw new OtherException("无颜色");
+            }
             styleColor = baseMapper.selectById(addRevampStyleColorDto.getId());
             StyleColor old = new StyleColor();
             BeanUtil.copyProperties(styleColor, old);
@@ -771,6 +774,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         packInfo.setColorCode(styleColor.getColorCode());
         packInfo.setColor(styleColor.getColorName());
         packInfo.setStyleColorId(styleColor.getId());
+        packInfo.setName(styleColor.getStyleNo());
         baseMapper.updateById(styleColor);
         packInfoService.updateById(packInfo);
         return true;
@@ -1045,6 +1049,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             p.setColorCode("");
             p.setColor("");
             p.setStyleColorId("");
+            p.setName(p.getDesignNo()+ p.getStyleName()+" BOM");
         });
         updateBatchById(styleColorList);
         packInfoService.updateBatchById(packInfoList);

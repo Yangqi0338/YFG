@@ -2,15 +2,12 @@ package com.base.sbc.module.planning.controller;
 
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.common.dto.IdsDto;
-import com.base.sbc.module.planning.dto.GetStyleNoListDto;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
-import com.base.sbc.module.planning.entity.PlanningDemandProportionSeat;
 import com.base.sbc.module.planning.service.PlanningDemandProportionSeatService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import com.base.sbc.module.style.vo.DemandOrderSkcVo;
-import com.base.sbc.module.style.vo.StyleColorVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -22,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -47,8 +45,8 @@ public class PlanningBoardController {
 
     @ApiOperation(value = "企划汇总", notes = "")
     @GetMapping("/planningSummary")
-    public PlanningSummaryVo planningSummary(@Valid PlanningBoardSearchDto dto) {
-        return planningSeasonService.planningSummary(dto);
+    public PlanningSummaryVo planningSummary(Principal user, @Valid PlanningBoardSearchDto dto) {
+        return planningSeasonService.planningSummary(user, dto);
     }
 
 
