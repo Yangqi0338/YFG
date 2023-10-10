@@ -14,6 +14,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -320,6 +321,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.eq("id", dto.getId());
         // 修改单据
         update(uw);
+        sort(byId, false);
         /*当为出版样时修改款的版师*/
         Style style = styleService.getById(byId.getStyleId());
         if (StrUtil.equals("初版样", byId.getSampleTypeName()) || StrUtil.isBlank(style.getPatternDesignName())) {
@@ -915,13 +917,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Transactional(rollbackFor = {Exception.class})
     public boolean assignmentUser(GroupUser groupUser, AssignmentUserDto dto) {
         PatternMaking byId = getById(dto.getId());
+        sort(byId, true);
         byId.setStitcher(dto.getStitcher());
         byId.setStitcherId(dto.getStitcherId());
         byId.setSglKitting(dto.getSglKitting());
         byId.setSglKittingDate(new Date());
         //分配后进入下一节点
         nodeStatusService.nextOrPrev(groupUser, byId, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
-        return updateById(byId);
+        updateById(byId);
+        sort(byId, false);
+        return true;
     }
 
     @Override
@@ -1038,6 +1043,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Transactional(rollbackFor = {Exception.class})
     public boolean nextOrPrev(Principal user, String id, String np) {
         PatternMaking pm = getById(id);
+        sort(pm, true);
         GroupUser groupUser = userUtils.getUserBy(user);
         if (pm == null) {
             throw new OtherException("任务不存在");
@@ -1045,7 +1051,65 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         //跳转
         boolean flg = nodeStatusService.nextOrPrev(groupUser, pm, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, np);
         updateById(pm);
+        //重置排序
+        update(new UpdateWrapper<PatternMaking>().lambda().eq(PatternMaking::getId, id).set(PatternMaking::getSort, null));
+        sort(pm, false);
         return flg;
+    }
+
+    /**
+     * 排序
+     *
+     * @param pm
+     * @param excludeSelf 排除自己
+     */
+    void sort(PatternMaking pm, boolean excludeSelf) {
+        String node = pm.getNode();
+        String status = pm.getStatus();
+        JSONObject nodeStatusConfig = nodeStatusService.getNodeStatusConfig(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, node, status);
+        if (nodeStatusConfig == null) {
+            return;
+        }
+        String userField = nodeStatusConfig.getString("userName");
+        // 样衣组长特殊处理
+        if (StrUtil.equals(userField, "样衣组长")) {
+            userField = "patternRoomId";
+        }
+        if (StrUtil.isBlank(userField)) {
+            return;
+        }
+        boolean hasField = ReflectUtil.hasField(PatternMaking.class, userField);
+        if (!hasField) {
+            return;
+        }
+        //重新排序
+        QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
+        qw.select("id");
+        qw.lambda().eq(PatternMaking::getNode, node).eq(PatternMaking::getStatus, status).eq(PatternMaking::getBreakOffPattern, BaseGlobal.NO).eq(PatternMaking::getBreakOffSample, BaseGlobal.NO);
+        if (excludeSelf) {
+            qw.ne("id", pm.getId());
+        }
+        qw.eq(StrUtil.toUnderlineCase(userField), BeanUtil.getProperty(pm, userField));
+        //黑单处理
+        if (StrUtil.equals(pm.getUrgency(), BasicNumber.ZERO.getNumber())) {
+            qw.lambda().eq(PatternMaking::getUrgency, BasicNumber.ZERO.getNumber());
+        } else {
+            qw.lambda().ne(PatternMaking::getUrgency, BasicNumber.ZERO.getNumber());
+        }
+        qw.last("order by sort is null  , sort asc ");
+
+        List<Map<String, Object>> ids = listMaps(qw);
+        if (CollUtil.isEmpty(ids)) {
+            return;
+        }
+        List<PatternMaking> updataList = new ArrayList<>();
+        for (int i = 0; i < ids.size(); i++) {
+            PatternMaking u = new PatternMaking();
+            u.setId(MapUtil.getStr(ids.get(i), "id"));
+            u.setSort(new BigDecimal(String.valueOf(i)).setScale(0));
+            updataList.add(u);
+        }
+        updateBatchById(updataList);
     }
 
     @Override
