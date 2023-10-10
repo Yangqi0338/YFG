@@ -725,7 +725,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
         }
         int i = smpService.goods(StringUtils.convertListToString(stringList).split(","));
-        return ApiResult.success("共下发" + ids.split(",").length + "条，成功" + i + "条");
+        if (StringUtils.convertList(ids).size()== i) {
+            return ApiResult.success("下发：" + StringUtils.convertList(ids).size() + "条，成功：" + i + "条");
+        } else {
+            return ApiResult.error("下发：" + StringUtils.convertList(ids).size() + "条，成功：" + i + "条,失败：" + (StringUtils.convertList(ids).size() - i) + "条", 200);
+        }
     }
 
     /**
