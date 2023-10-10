@@ -1242,6 +1242,36 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         detail.setSizeRangeSizes(basicsdatumModelType.getSize());
         detail.setSizeRangeSizeIds(basicsdatumModelType.getSizeIds());
         detail.setSizeRangeSizeCodes(basicsdatumModelType.getSizeCode());
+        /*模板部件*/
+        detail.setPatternParts(hisStyle.getPatternParts());
+        detail.setPatternPartsPic(hisStyle.getPatternPartsPic());
+
+       /*任务信息*/
+        detail.setDesigner(hisStyle.getDesigner());
+        detail.setDesignerId(hisStyle.getDesignerId());
+        detail.setTechnicianId(hisStyle.getTechnicianId());
+        detail.setTechnicianName(hisStyle.getTechnicianName());
+        detail.setFabDevelopeId(hisStyle.getFabDevelopeId());
+        detail.setFabDevelopeName(hisStyle.getFabDevelopeName());
+        detail.setMerchDesignId(hisStyle.getMerchDesignId());
+        detail.setMerchDesignName(hisStyle.getMerchDesignName());
+        detail.setReviewedDesignId(hisStyle.getReviewedDesignId());
+        detail.setReviewedDesignName(hisStyle.getReviewedDesignName());
+        detail.setRevisedDesignId(hisStyle.getRevisedDesignId());
+        detail.setRevisedDesignName(hisStyle.getRevisedDesignName());
+        detail.setTaskLevel(hisStyle.getTaskLevel());
+        detail.setTaskLevelName(hisStyle.getTaskLevelName());
+        detail.setPatternDesignName(hisStyle.getPatternDesignName());
+        detail.setPatternDesignId(hisStyle.getPatternDesignId());
+       /*物料信息*/
+        StyleBomSearchDto styleBomSearchDto =new StyleBomSearchDto();
+        styleBomSearchDto.setStyleId(hisStyle.getId());
+      List<PackBomVo> packBomVoList =  bomList(styleBomSearchDto).getList();
+        packBomVoList.forEach(p ->{
+            p.setId(IdUtil.randomUUID());
+            p.setForeignId(detail.getId());
+        });
+        detail.setPackBomVoList(packBomVoList);
         return detail;
     }
 

@@ -4,8 +4,8 @@ package com.base.sbc.module.style.vo;
 import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.sample.vo.MaterialVo;
-import com.base.sbc.module.style.dto.StyleInfoColorDto;
 import com.base.sbc.module.style.entity.Style;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -63,7 +63,8 @@ public class StyleVo extends Style {
     private List<AttachmentVo> stylePicList;
     @ApiModelProperty(value = "关联的素材库")
     private List<MaterialVo> materialList;
-
+    @ApiModelProperty(value = "物料信息")
+    private List<PackBomVo> packBomVoList;
     @ApiModelProperty(value = "款式")
     public String getStyle() {
         return Optional.ofNullable(getDesignNo()).orElse("") + Optional.ofNullable(getStyleName()).orElse("");
