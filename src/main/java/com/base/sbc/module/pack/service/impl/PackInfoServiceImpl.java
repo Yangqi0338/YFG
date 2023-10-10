@@ -981,6 +981,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 bigGoodsPs.setScmSendFlag(BaseGlobal.NO);
                 // bom阶段设置为样衣阶段
                 bigGoodsPs.setBomStatus(BasicNumber.ZERO.getNumber());
+                bigGoodsPs.setDesignTechConfirm(BasicNumber.ZERO.getNumber());
                 designPs.setBomStatus(BasicNumber.ZERO.getNumber());
                 //设置时间
                 bigGoodsPs.setToDesignDate(nowDate);
