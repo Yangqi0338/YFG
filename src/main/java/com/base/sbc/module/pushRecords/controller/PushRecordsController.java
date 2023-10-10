@@ -1,9 +1,15 @@
 package com.base.sbc.module.pushRecords.controller;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.restTemplate.RestTemplateService;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.pushRecords.dto.PushRecordsDto;
 import com.base.sbc.module.pushRecords.entity.PushRecords;
 import com.base.sbc.module.pushRecords.service.PushRecordsService;
@@ -18,7 +24,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -69,5 +79,25 @@ public class PushRecordsController extends BaseController {
             apiResult.setSuccess(false);
         }
         return apiResult;
+    }
+
+    /**
+     * 获取查询条件列表
+     */
+    @GetMapping("/getColumnList")
+    public ApiResult getColumnList(String column){
+        QueryWrapper<PushRecords> queryWrapper = new QueryWrapper<>();
+        String underScoreCase = StringUtils.toUnderScoreCase(column);
+        queryWrapper.select(underScoreCase);
+        queryWrapper.groupBy(underScoreCase);
+        List<PushRecords> list = pushRecordsService.list(queryWrapper);
+        List<Map<String, Object>> collect = list.stream().map(item -> {
+            Map<String, Object> one = new HashMap<>();
+            Object val=BeanUtil.getProperty(item,column);
+            one.put("value",val);
+            one.put("label",val);
+            return one;
+        }).collect(Collectors.toList());
+        return selectSuccess(collect);
     }
 }

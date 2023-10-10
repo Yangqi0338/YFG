@@ -28,6 +28,12 @@ public class PackBomCalculateBaseVo {
      */
     @ApiModelProperty(value = "损耗%")
     private BigDecimal lossRate;
+
+    /**
+     * 计控损耗%
+     */
+    @ApiModelProperty(value = "计控损耗%")
+    private BigDecimal  planningLoossRate;
     /**
      * 金额
      */

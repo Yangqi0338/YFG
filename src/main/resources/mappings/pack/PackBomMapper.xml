@@ -445,7 +445,8 @@
         pb.price_tax,
         pb.price,
         pb.foreign_id,
-        pbv.pack_type
+        pbv.pack_type,
+        pb.planning_looss_rate
         FROM
         t_pack_bom pb
         JOIN t_pack_bom_version pbv ON pbv.id = pb.bom_version_id
