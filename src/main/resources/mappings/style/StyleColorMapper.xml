@@ -78,10 +78,8 @@
         where style_no = #{styleNo}
     </select>
 
-    <select id="getStyleColorNumber" resultType="java.lang.Integer">
-        select count(1)
-        from t_style_color
-        where style_no like concat(#{styleNo}, '%')
+    <select id="getStyleColorNumber" resultType="java.lang.String">
+      select max(style_no) from t_style_color where style_no like concat(#{styleNo}, '%')
     </select>
     <select id="getStyleUploadInfo" resultType="com.base.sbc.module.sample.vo.StyleUploadVo">
         SELECT ssc.style_no,
