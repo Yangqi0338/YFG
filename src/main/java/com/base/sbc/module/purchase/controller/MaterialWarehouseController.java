@@ -79,6 +79,9 @@ public class MaterialWarehouseController extends BaseController{
 	@ApiOperation(value = "查询所有数据")
 	@GetMapping("/queryAll")
 	public ApiResult quyerAll(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+		QueryWrapper<MaterialWarehouse> qw = new QueryWrapper<>();
+		qw.eq("company_code", userCompany);
+		qw.eq("status", "1");
 		List<MaterialWarehouse> warehouseList = materialWarehouseService.list();
 		if(CollectionUtil.isNotEmpty(warehouseList)){
 			return selectSuccess(warehouseList);

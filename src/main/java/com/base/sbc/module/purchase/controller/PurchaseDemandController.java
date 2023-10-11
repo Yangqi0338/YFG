@@ -17,7 +17,9 @@ import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserCompanyUtils;
 import com.base.sbc.module.purchase.dto.DemandPageDTO;
+import com.base.sbc.module.purchase.entity.MaterialStock;
 import com.base.sbc.module.purchase.entity.PurchaseDemand;
+import com.base.sbc.module.purchase.service.MaterialStockService;
 import com.base.sbc.module.purchase.service.PurchaseDemandService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -50,6 +52,9 @@ public class PurchaseDemandController extends BaseController{
 
 	@Autowired
 	private PurchaseDemandService purchaseDemandService;
+
+	@Autowired
+	private MaterialStockService materialStockService;
 
 	@Autowired
 	private UserCompanyUtils userCompanyUtils;
@@ -261,6 +266,17 @@ public class PurchaseDemandController extends BaseController{
 							isComplete = "未齐料";
 						} else {
 							completeNum = completeNum.add(BigDecimal.ONE);
+						}
+
+						if(StringUtils.isNotBlank(page.getWarehouseId())){
+							String materialSku = demand.getMaterialCode() + demand.getMaterialColorCode() + demand.getMaterialSpecificationsCode();
+							QueryWrapper<MaterialStock> materialQw = new QueryWrapper<>();
+							materialQw.eq("material_sku", materialSku);
+							materialQw.eq("warehouse_id", page.getWarehouseId());
+							List<MaterialStock> materialStockList = materialStockService.list(materialQw);
+							if(CollectionUtil.isNotEmpty(materialStockList)){
+								demand.setStockNum(materialStockList.get(0).getStockQuantity());
+							}
 						}
 					}
 				}else{
