@@ -388,7 +388,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         UpdateWrapper<Style> updateWrapper = new UpdateWrapper<>();
         updateWrapper.set("pattern_design_id", dto.getPatternDesignId());
         updateWrapper.set("pattern_design_name", dto.getPatternDesignName());
-        uw.eq("id", patternMaking.getStyleId());
+        updateWrapper.eq("id", patternMaking.getStyleId());
         styleService.update(updateWrapper);
         return b;
 //        return true;
