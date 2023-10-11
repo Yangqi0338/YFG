@@ -14,6 +14,8 @@ import com.base.sbc.module.formType.entity.FieldOptionConfig;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -72,6 +74,13 @@ public interface FieldOptionConfigService extends BaseService<FieldOptionConfig>
     * @return
     */
    Boolean importExcel(MultipartFile file,String fieldManagementId,String formTypeId) throws Exception;
+
+   /**
+    * 导出配置列
+    * @param response
+    * @param fieldManagementId
+    */
+   void deriveExcel(HttpServletResponse response, String fieldManagementId) throws IOException;
 // 自定义方法区 不替换的区域【other_end】
 
 	

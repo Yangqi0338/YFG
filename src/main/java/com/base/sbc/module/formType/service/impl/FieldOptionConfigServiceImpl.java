@@ -7,11 +7,13 @@
 package com.base.sbc.module.formType.service.impl;
 
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -26,8 +28,11 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -130,17 +135,38 @@ public class FieldOptionConfigServiceImpl extends BaseServiceImpl<FieldOptionCon
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean importExcel(MultipartFile file, String fieldManagementId,String formTypeId) throws Exception {
         ImportParams params = new ImportParams();
         params.setNeedSave(false);
+        /*删除之前的数据*/
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("form_type_id", formTypeId);
+        queryWrapper.eq("field_management_id", fieldManagementId);
+        baseMapper.delete(queryWrapper);
+        /*重新导入*/
         List<FieldOptionConfigExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), FieldOptionConfigExcelDto.class, params);
-        list.forEach(f ->{
+        list.forEach(f -> {
             f.setFieldManagementId(fieldManagementId);
             f.setFormTypeId(formTypeId);
         });
         List<FieldOptionConfig> optionConfigListl = BeanUtil.copyToList(list, FieldOptionConfig.class);
         saveOrUpdateBatch(optionConfigListl);
         return true;
+    }
+
+    /**
+     * 导出配置列
+     *
+     * @param response
+     * @param fieldManagementId
+     */
+    @Override
+    public void deriveExcel(HttpServletResponse response, String fieldManagementId) throws IOException {
+        QueryWrapper queryWrapper =new QueryWrapper();
+        queryWrapper.eq("field_management_id",fieldManagementId);
+        List<FieldOptionConfigExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), FieldOptionConfigExcelDto.class);
+        ExcelUtils.exportExcel(list, FieldOptionConfigExcelDto.class, "字段配置选项.xlsx", new ExportParams(), response);
     }
 
 // 自定义方法区 不替换的区域【other_start】
