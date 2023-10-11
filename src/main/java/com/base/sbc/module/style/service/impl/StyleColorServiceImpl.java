@@ -8,7 +8,6 @@ package com.base.sbc.module.style.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -39,20 +38,13 @@ import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
-import com.base.sbc.module.pack.entity.PackPricing;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackInfoStatusService;
-import com.base.sbc.module.pack.service.PackPricingService;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.PackPricingVo;
-import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.pricing.service.PricingTemplateService;
-import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
-import com.base.sbc.module.pricing.vo.PricingTemplateVO;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
@@ -75,11 +67,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -133,8 +123,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     private PackPricingService packPricingService;
 
     @Autowired
-    private PricingTemplateService pricingTemplateService;
-
+    private PackBomService packBomService;
 /** 自定义方法区 不替换的区域【other_start】 **/
 
     /**
@@ -616,7 +605,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      */
     @Override
     public Boolean delStyleColor(RemoveDto removeDto) {
-
+        /*配色数据和BOM关联的不能删除*/
+        List<StyleColor> styleColors = baseMapper.selectBatchIds(StringUtils.convertList(removeDto.getIds()));
+        styleColors = styleColors.stream().filter(s -> StringUtils.isNotBlank(s.getBom())).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(styleColors)) {
+            throw new OtherException("存在BOM关联数据无法删除");
+        }
         /*批量删除*/
         this.removeByIds(removeDto);
         return true;
@@ -667,7 +661,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     /**
      * 方法描述 下发scm
-     *
+     * 已下发数据不能再次下发
+     * 没关联bom的配色不能下发
+     * 物料成本为0的不能下发
+     * 核价里面总成本为0的不能下发
+     * 吊牌价为0不能下发
      * @param ids
      * @return
      */
@@ -694,41 +692,29 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.in("code", styleColorList.stream().map(StyleColor::getBom).collect(Collectors.toList()));
         List<PackInfo> packInfoList = packInfoService.list(queryWrapper);
         Map<String, List<PackInfo>> listMap = packInfoList.stream().collect(Collectors.groupingBy(PackInfo::getCode));
-        /*查询配色关联的bom总成本价不等为0*/
+        /*查询配色关联的bom总成本价不等为0
+         * 先查询物料的总成本 没有则去查询核价里面的总成本*/
         for (StyleColor styleColor : styleColorList) {
             PackInfo packInfo = listMap.get(styleColor.getBom()).get(0);
             PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
             packCommonSearchDto.setForeignId(packInfo.getId());
             packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_DESIGN);
-            /*获取保存的公式*/
-            PackPricingVo packPricingVo = packPricingService.getDetail(packCommonSearchDto);
-//            核价信息
-            PackPricing packPricing = packPricingService.get(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
-            if(ObjectUtils.isEmpty(packPricing)){
-                throw new OtherException("无核价信息");
-            }
-            /*核价模板详情*/
-            PricingTemplateVO pricingTemplateVO = pricingTemplateService.getDetailsById(packPricing.getPricingTemplateId(), baseController.getUserCompany());
-            List<PricingTemplateItemVO> pricingTemplateItemVOList = pricingTemplateVO.getPricingTemplateItems();
-            if (CollectionUtils.isEmpty(pricingTemplateItemVOList)) {
-                throw new OtherException("无核价模板");
-            }
-            /*查询出显示的公式*/
-            List<PricingTemplateItemVO> pricingTemplateItemVOList1 = pricingTemplateItemVOList.stream().filter(p -> StringUtils.equals(p.getShowFlag(), BaseGlobal.YES)).collect(Collectors.toList());
-            /*获取计算项的值*/
-            JSONObject jsonObject = new JSONObject(packPricingVo.getCalcItemVal());
-            Map<String, Object> map = new HashMap<>();
-            for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-                map.put(entry.getKey(), entry.getValue());
-            }
-            /*总成本*/
-            BigDecimal totalCost = packPricingService.formula(pricingTemplateItemVOList1.get(0).getExpressionShow().replaceAll(",",""), map);
-            if (totalCost.compareTo(BigDecimal.ZERO) == 0) {
-                throw new OtherException(styleColor.getStyleNo()+"的开发成本为0,请联系设计工艺员添加材料到BOM");
+            /*核价成本*/
+            BigDecimal packBomCost = packBomService.calculateCosts(packCommonSearchDto);
+            /*物料成本为0时查询核价信息的总成本*/
+            if (packBomCost.compareTo(BigDecimal.ZERO) == 0) {
+                /*核价信息总成本*/
+                Map<String, BigDecimal> otherStatistics = packPricingService.calculateCosts(packCommonSearchDto);
+                /*将value中的值转成LIst汇总成本*/
+                List<BigDecimal> valuesList = new ArrayList<>(otherStatistics.values());
+                BigDecimal totalCost = valuesList.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+                if (totalCost.compareTo(BigDecimal.ZERO) == 0) {
+                    throw new OtherException(styleColor.getStyleNo() + "的开发成本为0,请联系设计工艺员添加材料到BOM");
+                }
             }
         }
         int i = smpService.goods(StringUtils.convertListToString(stringList).split(","));
-        if (StringUtils.convertList(ids).size()== i) {
+        if (StringUtils.convertList(ids).size() == i) {
             return ApiResult.success("下发：" + StringUtils.convertList(ids).size() + "条，成功：" + i + "条");
         } else {
             return ApiResult.error("下发：" + StringUtils.convertList(ids).size() + "条，成功：" + i + "条,失败：" + (StringUtils.convertList(ids).size() - i) + "条", 200);
