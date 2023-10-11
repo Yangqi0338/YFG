@@ -13,10 +13,22 @@ public class PackBomCalculateBaseVo {
     @ApiModelProperty(value = "大货单件用量")
     private BigDecimal bulkUnitUse;
     /**
+     * 设计单件用量
+     */
+    @ApiModelProperty(value = "设计单件用量")
+    private BigDecimal designUnitUse;
+    /**
      * 大货单价
      */
     @ApiModelProperty(value = "大货单价")
     private BigDecimal bulkPrice;
+
+    /**
+     * 设计单价
+     */
+    @ApiModelProperty(value = "设计单价")
+    private BigDecimal designPrice;
+
 
     /**
      * 大货单价

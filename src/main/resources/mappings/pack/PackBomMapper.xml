@@ -439,6 +439,8 @@
     <select id="getPackBomCalculateBaseVo" resultType="com.base.sbc.module.pack.vo.PackBomCalculateBaseVo">
         SELECT
         pb.bulk_unit_use,
+        pb.design_unit_use,
+        pb.design_price,
         pb.bulk_price,
         pb.loss_rate,
         pb.amount,
