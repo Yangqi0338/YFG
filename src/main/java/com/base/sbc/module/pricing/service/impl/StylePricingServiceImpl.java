@@ -302,7 +302,13 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         }
         return list.stream()
                 .map(packBom -> {
-                    BigDecimal lossRate = BigDecimalUtil.add(BigDecimal.ONE, BigDecimalUtil.div(packBom.getPlanningLoossRate(), BigDecimal.valueOf(100), 2), 2);
+                    BigDecimal rate = null;
+                    if ("packDesign".equals(packBom.getPackType())){
+                        rate=packBom.getLossRate();
+                    }else {
+                        rate=packBom.getPlanningLoossRate();
+                    }
+                    BigDecimal lossRate = BigDecimalUtil.add(BigDecimal.ONE, BigDecimalUtil.div(rate, BigDecimal.valueOf(100), 2), 2);
                     BigDecimal priceTax = BigDecimalUtil.add(BigDecimal.ONE, BigDecimalUtil.div(packBom.getPriceTax(), BigDecimal.valueOf(100), 2), 2);
                     BigDecimal cost = BigDecimalUtil.mul(2, packBom.getBulkUnitUse(), packBom.getPrice(), lossRate);
                     return BigDecimalUtil.div(cost, priceTax, 2);
