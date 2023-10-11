@@ -321,6 +321,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
             if (HangTagStatusEnum.CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
                 hangTag.setConfirmDate(new Date());
             }
+            if (HangTagStatusEnum.TO_TECHNICIANS_CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
+                hangTag.setConfirmDate(null);
+            }
             updateHangTags.add(hangTag);
 
         });
