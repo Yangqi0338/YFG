@@ -82,7 +82,7 @@ public class MaterialWarehouseController extends BaseController{
 		QueryWrapper<MaterialWarehouse> qw = new QueryWrapper<>();
 		qw.eq("company_code", userCompany);
 		qw.eq("status", "1");
-		List<MaterialWarehouse> warehouseList = materialWarehouseService.list();
+		List<MaterialWarehouse> warehouseList = materialWarehouseService.list(qw);
 		if(CollectionUtil.isNotEmpty(warehouseList)){
 			return selectSuccess(warehouseList);
 		}
