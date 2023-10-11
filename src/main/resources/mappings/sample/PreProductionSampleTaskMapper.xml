@@ -13,6 +13,7 @@
 
     <select id="taskList" resultType="com.base.sbc.module.sample.vo.PreProductionSampleTaskVo">
         SELECT
+        DISTINCT
         t.*,
         s.brand_name,
         s.year_name,
@@ -34,7 +35,8 @@
         (t_style s,
         t_pre_production_sample_task t,
         t_pack_info p)
-        left join t_pattern_making tpm on tpm.sample_bar_code= t.sample_bar_code
+        left join t_pattern_making tpm ON (tpm.sample_bar_code = t.sample_bar_code and tpm.sample_bar_code!=null and
+        tpm.sample_bar_code !='')
         WHERE
         s.id = t.style_id and p.id=t.pack_info_id
         AND s.del_flag = '0'

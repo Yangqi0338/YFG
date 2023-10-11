@@ -10,8 +10,11 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -32,8 +35,8 @@ import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
+import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
-import com.base.sbc.module.patternmaking.vo.SampleBoardExcel;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskSearchDto;
 import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
@@ -57,6 +60,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -139,6 +143,10 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         for (String id : ids) {
             nodeStatusService.nodeStatusChange(id, node, status, BaseGlobal.YES, BaseGlobal.NO);
         }
+        List<PreProductionSampleTask> preProductionSampleTasks = listByIds(ids);
+        for (PreProductionSampleTask task : preProductionSampleTasks) {
+            sort(task, false);
+        }
         return flg;
     }
 
@@ -179,7 +187,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         qw.notEmptyIn("s.year", dto.getYear());
         qw.notEmptyIn("s.season", dto.getSeason());
         qw.notEmptyIn("s.month", dto.getMonth());
-        qw.orderByDesc("t.create_date");
+        qw.orderByAsc("t.sort");
         Page<PreProductionSampleTaskVo> objects = PageHelper.startPage(dto);
         if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");
@@ -231,6 +239,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     public boolean nextOrPrev(Principal user, String id, String np) {
         PreProductionSampleTask pm = getById(id);
+        sort(pm, true);
         GroupUser groupUser = userUtils.getUserBy(user);
         if (pm == null) {
             throw new OtherException("任务不存在");
@@ -238,7 +247,59 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         //跳转
         boolean flg = nodeStatusService.nextOrPrev(groupUser, pm, NodeStatusConfigService.PRE_PRODUCTION_SAMPLE_TASK, np);
         updateById(pm);
+        sort(pm, false);
         return flg;
+    }
+
+    /**
+     * 排序
+     *
+     * @param pm
+     * @param excludeSelf 排除自己
+     */
+    void sort(PreProductionSampleTask pm, boolean excludeSelf) {
+        String node = pm.getNode();
+        String status = pm.getStatus();
+        JSONObject nodeStatusConfig = nodeStatusService.getNodeStatusConfig(NodeStatusConfigService.PRE_PRODUCTION_SAMPLE_TASK, node, status);
+        if (nodeStatusConfig == null) {
+            return;
+        }
+        String userField = nodeStatusConfig.getString("userName");
+        // 样衣组长特殊处理
+        if (StrUtil.equals(userField, "样衣组长")) {
+            userField = "patternRoomId";
+        }
+        if (StrUtil.isBlank(userField)) {
+            return;
+        }
+        boolean hasField = ReflectUtil.hasField(PatternMaking.class, userField);
+        if (!hasField) {
+            return;
+        }
+        //重新排序
+        QueryWrapper<PreProductionSampleTask> qw = new QueryWrapper<>();
+        qw.select("id");
+        qw.lambda().eq(PreProductionSampleTask::getNode, node).eq(PreProductionSampleTask::getStatus, status);
+        if (excludeSelf) {
+            qw.ne("id", pm.getId());
+        }
+        qw.eq(StrUtil.toUnderlineCase(userField), BeanUtil.getProperty(pm, userField));
+        qw.exists("select id from t_style where id=t_pre_production_sample_task.style_id and del_flag='0'");
+        qw.exists("select id from t_pack_info where id=t_pre_production_sample_task.pack_info_id and del_flag='0'");
+        qw.last("order by sort is null  , sort asc ");
+
+        List<Map<String, Object>> ids = listMaps(qw);
+        if (CollUtil.isEmpty(ids)) {
+            return;
+        }
+        List<PreProductionSampleTask> updataList = new ArrayList<>();
+        for (int i = 0; i < ids.size(); i++) {
+            PreProductionSampleTask u = new PreProductionSampleTask();
+            u.setId(MapUtil.getStr(ids.get(i), "id"));
+            u.setSort(new BigDecimal(String.valueOf(i)).setScale(0));
+            updataList.add(u);
+        }
+        updateBatchById(updataList);
     }
 
     @Override

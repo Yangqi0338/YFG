@@ -16,7 +16,6 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Date;
-
 /**
  * 类描述：产前样-任务 实体类
  *
@@ -24,7 +23,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.sample.entity.PreProductionSampleTask
  * @email your email
- * @date 创建时间：2023-9-9 13:50:40
+ * @date 创建时间：2023-10-11 10:12:38
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -54,6 +53,11 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "款式id")
     private String styleId;
+    /**
+     * 款式主数据id:款式主数据id(t_style_master_data)
+     */
+    @ApiModelProperty(value = "款式主数据id:款式主数据id(t_style_master_data)")
+    private String styleMasterDataId;
     /**
      * 资料包id
      */
@@ -233,15 +237,6 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
     @ApiModelProperty(value = "面辅料信息")
     private String materialInfo;
     /**
-     * 面料检测时间
-     */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date materialCheckDate;
-    /**
-     *技术下工艺部正确样时间
-     */
-    private Date processDepartmentDate;
-    /**
      * 裁剪状态:0待接收,1已接收,2进行中,3完成
      */
     @ApiModelProperty(value = "裁剪状态:0待接收,1已接收,2进行中,3完成")
@@ -278,6 +273,43 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
     @ApiModelProperty(value = "查版日期")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date sampleChaBanData;
+    /**
+     * 面料检测时间
+     */
+    @ApiModelProperty(value = "面料检测时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date materialCheckDate;
+    /**
+     * 技术下工艺部正确样
+     */
+    @ApiModelProperty(value = "技术下工艺部正确样")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date processDepartmentDate;
+    /**
+     * 打样顺序名称
+     */
+    @ApiModelProperty(value = "打样顺序名称")
+    private String patSeqName;
+    /**
+     * 紧急程度名称
+     */
+    @ApiModelProperty(value = "紧急程度名称")
+    private String urgencyName;
+    /**
+     * 打版难度
+     */
+    @ApiModelProperty(value = "打版难度")
+    private String patDiff;
+    /**
+     * 打版难度名称
+     */
+    @ApiModelProperty(value = "打版难度名称")
+    private String patDiffName;
+    /**
+     * 排序
+     */
+    @ApiModelProperty(value = "排序")
+    private BigDecimal sort;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
