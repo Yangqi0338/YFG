@@ -16,4 +16,7 @@ public class DemandPageDTO extends Page {
 
     @ApiModelProperty(value = "是否齐料")
     private String isKitting;
+
+    @ApiModelProperty(value = "仓库id")
+    private String warehouseId;
 }

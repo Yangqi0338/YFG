@@ -57,6 +57,9 @@ public class PurchaseDemand extends BaseDataEntity<String> {
     /** 齐套比例 */
     @TableField(exist = false)
     private BigDecimal proportion;
+    /** 库存数 */
+    @TableField(exist = false)
+    private BigDecimal stockNum;
     /** 明细集合 */
     @TableField(exist = false)
     List<PurchaseDemand> detailList;
