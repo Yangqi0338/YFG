@@ -94,7 +94,7 @@ public class DataPermissionsService {
         Map read = getDataPermissionsForQw(userCompany.getCompanyCode(), userCompany.getUserId(), businessType, "read", tablePre, authorityFields, isAssignFields);
         boolean flg = MapUtil.getBool(read, "authorityState", false);
         String sql = MapUtil.getStr(read, "authorityField");
-        sql = " (  " + sql + ")";
+
         if (flg && StrUtil.isNotBlank(sql)) {
             qw.apply(sql);
         }
@@ -234,8 +234,9 @@ public class DataPermissionsService {
             }
         };
 
-        if(CollectionUtils.isNotEmpty(authorityField)){
-            ret.put("authorityField",StringUtils.join(authorityField, " "));
+        if(CollectionUtils.isNotEmpty(authorityField)) {
+            String authorityFieldStr = "(" + StringUtils.join(authorityField, " ") + ")";
+            ret.put("authorityField", authorityFieldStr);
         }
         return ret;
     }
