@@ -40,6 +40,7 @@ public class OperaLogController extends BaseController {
         queryWrapper.notEmptyLike("parent_id",operaLogDto.getParentId());
         queryWrapper.notEmptyLike("type",operaLogDto.getType());
         queryWrapper.notEmptyLike("name",operaLogDto.getName());
+        queryWrapper.notEmptyLike("create_name",operaLogDto.getCreateName());
         queryWrapper.eq("company_code",userCompany);
         queryWrapper.between("create_date",operaLogDto.getCreateDate());
         queryWrapper.orderByDesc("create_date");
