@@ -49,6 +49,11 @@ public class OpenSmpService {
         JSONObject jsonObject1 = smpOpenMaterialDtoJson.getJSONObject("params");
         JSONArray jSON = jsonObject1.getJSONArray("jSON");
         JSONObject jsonObject = jSON.getJSONObject(0);
+        String weight = jsonObject.getString("weight");
+        if (StringUtils.isNotEmpty(weight)){
+            jsonObject.put("weight",weight.replaceAll("[^0-9.]", ""));
+        }
+
         SmpOpenMaterialDto smpOpenMaterialDto = jsonObject.toJavaObject(SmpOpenMaterialDto.class);
         //初步逻辑：关联编码的，先去查询编码是否存在，如果不存在则返回错误，字段不存在。
         JSONObject images = jsonObject.getJSONObject("images");
