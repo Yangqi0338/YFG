@@ -94,6 +94,7 @@ public class DataPermissionsService {
         Map read = getDataPermissionsForQw(userCompany.getCompanyCode(), userCompany.getUserId(), businessType, "read", tablePre, authorityFields, isAssignFields);
         boolean flg = MapUtil.getBool(read, "authorityState", false);
         String sql = MapUtil.getStr(read, "authorityField");
+        sql = " (  " + sql + ")";
         if (flg && StrUtil.isNotBlank(sql)) {
             qw.apply(sql);
         }
