@@ -71,7 +71,10 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setTolerance(null);
 		smpMaterialDto.setSupplierComposition(factoryComposition);
 		smpMaterialDto.setPickingMethod(pickingMethod);
-		smpMaterialDto.setImgList(Arrays.asList(imageUrl.split(",")));
+		try {
+			smpMaterialDto.setImgList(Arrays.asList(imageUrl.split(",")));
+		}catch (Exception ignored){}
+
 		smpMaterialDto.setId(id);
 		smpMaterialDto.setCreator(getCreateName());
 		smpMaterialDto.setCreateTime(getCreateDate());
