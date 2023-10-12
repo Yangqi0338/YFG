@@ -114,7 +114,7 @@ public class PlanningSummaryDetailVo {
 
     @ApiModelProperty(value = "克重")
     @FieldDisplay(value = "克重", display = true)
-    private BigDecimal gramWeight;
+    private String gramWeight;
 
     @ApiModelProperty(value = "应季节")
     @FieldDisplay(value = "应季节")
