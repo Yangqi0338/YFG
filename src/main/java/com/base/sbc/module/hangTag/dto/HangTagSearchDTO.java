@@ -57,4 +57,6 @@ public class HangTagSearchDTO extends Page {
     @ApiModelProperty(value = "查询类型：packBigGoods.标准资料包")
     private String selectType;
 
+    private String checkType;
+
 }

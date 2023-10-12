@@ -36,5 +36,8 @@ public class HangTagUpdateStatusDTO {
     @ApiModelProperty(value = "状态")
     private String status;
 
+
+    private String checkType;
+
 }
 

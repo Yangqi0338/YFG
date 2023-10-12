@@ -134,38 +134,48 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         /*获取大货款号*/
         List<String> stringList = hangTagListVOS.stream().filter(h -> !StringUtils.isEmpty(h.getBulkStyleNo())).map(HangTagListVO::getBulkStyleNo).distinct().collect(Collectors.toList());
         /*查询流程审批的结果*/
-        // Map<String, FlowRecordVo> flowRecordVoMap = flowableService.getFlowRecordMapBybusinessKey(stringList);
+        Map<String, FlowRecordVo> flowRecordVoMap;
+        if ("2".equals(hangTagDTO.getCheckType())){
+             flowRecordVoMap = flowableService.getFlowRecordMapBybusinessKey(stringList);
+
+        } else {
+            flowRecordVoMap = null;
+        }
         //1A7290012
         // IdGen idGen = new IdGen();
         List<String> bulkStyleNos = new ArrayList<>();
         hangTagListVOS.forEach(e -> {
-            // FlowRecordVo flowRecordVo = flowRecordVoMap.get(e.getBulkStyleNo());
-//             if (!ObjectUtils.isEmpty(flowRecordVo)) {
-// //                判断流程是否完成
-//                 e.setExamineUserNema(flowRecordVo.getUserName());
-//                 e.setExamineUserId(flowRecordVo.getUserId());
-//                 if (BaseGlobal.YES.equals(flowRecordVo.getEndFlag())) {
-// //                    e.setConfirmDate(flowRecordVo.getEndTime());
-//                     //e.setStatus("5");  不需要设置为通过,通过或者不通过会在回调页面设置
-//                 } else {
-//                     //状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认
-//
-//                     if (!"6".equals(e.getStatus())){
-//                         switch (flowRecordVo.getName()) {
-//                             case "大货工艺员确认":
-//                                 e.setStatus("2");
-//                                 break;
-//                             case "后技术确认":
-//                                 e.setStatus("3");
-//                                 break;
-//                             case "品控确认":
-//                                 e.setStatus("4");
-//                                 break;
-//                         }
-//                     }
-//
-//                 }
-//             }
+            if (flowRecordVoMap!=null){
+                FlowRecordVo flowRecordVo = flowRecordVoMap.get(e.getBulkStyleNo());
+                if (!ObjectUtils.isEmpty(flowRecordVo)) {
+//                判断流程是否完成
+                    e.setExamineUserNema(flowRecordVo.getUserName());
+                    e.setExamineUserId(flowRecordVo.getUserId());
+                    if (BaseGlobal.YES.equals(flowRecordVo.getEndFlag())) {
+//                    e.setConfirmDate(flowRecordVo.getEndTime());
+                        //e.setStatus("5");  不需要设置为通过,通过或者不通过会在回调页面设置
+                    } else {
+                        //状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认
+
+                        if (!"6".equals(e.getStatus())){
+                            switch (flowRecordVo.getName()) {
+                                case "大货工艺员确认":
+                                    e.setStatus("2");
+                                    break;
+                                case "后技术确认":
+                                    e.setStatus("3");
+                                    break;
+                                case "品控确认":
+                                    e.setStatus("4");
+                                    break;
+                            }
+                        }
+
+                    }
+                }
+            }
+
+
             bulkStyleNos.add(e.getBulkStyleNo());
 
         });
@@ -265,13 +275,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                 styleColorMapper.updateById(styleColor);
             }
         }
-        //先去掉审批
-//        if ("2".equals(hangTag.getStatus())) {
-//            hangTag = this.getById(hangTag.getId());
-//            //发起审批
-//            flowableService.start(FlowableService.HANGING_TAG_REVIEW + hangTag.getBulkStyleNo(), FlowableService.HANGING_TAG_REVIEW, hangTag.getBulkStyleNo(), "/pdm/api/saas/hangTag/toExamine",
-//                    "/pdm/api/saas/hangTag/toExamine", "/pdm/api/saas/hangTag/toExamine", null, BeanUtil.beanToMap(hangTag));
-//        }
+
+       if ("2".equals(hangTag.getStatus()) && "2".equals(hangTagDTO.getCheckType())) {
+           hangTag = this.getById(hangTag.getId());
+           //发起审批
+           flowableService.start(FlowableService.HANGING_TAG_REVIEW + hangTag.getBulkStyleNo(), FlowableService.HANGING_TAG_REVIEW, hangTag.getBulkStyleNo(), "/pdm/api/saas/hangTag/toExamine",
+                   "/pdm/api/saas/hangTag/toExamine", "/pdm/api/saas/hangTag/toExamine", null, BeanUtil.beanToMap(hangTag));
+       }
         return id;
     }
 
@@ -289,9 +299,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         ArrayList<HangTag> updateHangTags = Lists.newArrayList();
         hangTags.forEach(e -> {
             if (!HangTagStatusEnum.NOT_SUBMIT.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
-                if (HangTagStatusEnum.CONFIRMED.getK().equals(e.getStatus())) {
-                    throw new OtherException("存在已确认数据，请勿重复确认");
-                }
+                // if (HangTagStatusEnum.CONFIRMED.getK().equals(e.getStatus())) {
+                //     throw new OtherException("存在已确认数据，请勿重复确认");
+                // }
                 if (HangTagStatusEnum.NOT_SUBMIT.getK().equals(e.getStatus()) &&
                         !HangTagStatusEnum.TO_TECHNICIANS_CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
                     throw new OtherException("存在待提交数据，请先提交");
@@ -330,13 +340,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         });
         super.updateBatchById(updateHangTags);
         hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds(), OperationDescriptionEnum.getV(hangTagUpdateStatusDTO.getStatus()), userCompany);
-        //发送审批
-        List<HangTag> hangTags1 = this.listByIds(hangTagUpdateStatusDTO.getIds());
-        for (HangTag tag : hangTags1) {
-            flowableService.start(FlowableService.HANGING_TAG_REVIEW + tag.getBulkStyleNo(), FlowableService.HANGING_TAG_REVIEW, tag.getBulkStyleNo(), "/pdm/api/saas/hangTag/toExamine",
-                    "/pdm/api/saas/hangTag/toExamine", "/pdm/api/saas/hangTag/toExamine", null, BeanUtil.beanToMap(tag));
 
+        if ("2".equals(hangTagUpdateStatusDTO.getCheckType())){
+            //发送审批
+            List<HangTag> hangTags1 = this.listByIds(hangTagUpdateStatusDTO.getIds());
+            for (HangTag tag : hangTags1) {
+                flowableService.start(FlowableService.HANGING_TAG_REVIEW + tag.getBulkStyleNo(), FlowableService.HANGING_TAG_REVIEW, tag.getBulkStyleNo(), "/pdm/api/saas/hangTag/toExamine",
+                        "/pdm/api/saas/hangTag/toExamine", "/pdm/api/saas/hangTag/toExamine", null, BeanUtil.beanToMap(tag));
+
+            }
         }
+
     }
 
     @Override

@@ -263,5 +263,7 @@ public class HangTagDTO {
      */
     @ApiModelProperty(value = "成分集合")
     private List<HangTagIngredient> hangTagIngredients;
+
+    private String checkType;
 }
 
