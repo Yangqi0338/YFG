@@ -170,4 +170,14 @@ public class HangTagController extends BaseController {
         }
         return hangTagService.updateById(hangTag);
     }
+
+    /**
+     * 反审
+     */
+    @PostMapping("/counterReview")
+    public ApiResult counterReview(@RequestBody HangTag hangTag) {
+        hangTag.setStatus("2");
+        hangTagService.updateById(hangTag);
+        return updateSuccess("反审成功");
+    }
 }

@@ -297,23 +297,23 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                     throw new OtherException("存在待提交数据，请先提交");
                 }
 
-                //if (HangTagStatusEnum.TO_TECHNICIANS_CONFIRMED.getK().equals(e.getStatus()) &&
-                //        !HangTagStatusEnum.TO_TECHNOLOGIST_CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
-                //    throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
-                //}
                 if (HangTagStatusEnum.TO_TECHNICIANS_CONFIRMED.getK().equals(e.getStatus()) &&
-                        !HangTagStatusEnum.TO_TECHNOLOGIST_CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
-                    throw new OtherException("已提交审核,请等待");
+                       !HangTagStatusEnum.TO_TECHNOLOGIST_CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
+                   throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
                 }
+                // if (HangTagStatusEnum.TO_TECHNICIANS_CONFIRMED.getK().equals(e.getStatus()) &&
+                //         !HangTagStatusEnum.TO_TECHNOLOGIST_CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
+                //     throw new OtherException("已提交审核,请等待");
+                // }
 
-                //if (HangTagStatusEnum.TO_TECHNOLOGIST_CONFIRMED.getK().equals(e.getStatus()) &&
-                //        !HangTagStatusEnum.TO_QUALITY_CONTROL_CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
-                //    throw new OtherException("存在待技术员确认数据，请先技术员确认");
-                //}
-                //if (HangTagStatusEnum.TO_QUALITY_CONTROL_CONFIRMED.getK().equals(e.getStatus()) &&
-                //        !HangTagStatusEnum.CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
-                //    throw new OtherException("存在待品控确认数据，请先品控确认");
-                //}
+                if (HangTagStatusEnum.TO_TECHNOLOGIST_CONFIRMED.getK().equals(e.getStatus()) &&
+                       !HangTagStatusEnum.TO_QUALITY_CONTROL_CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
+                   throw new OtherException("存在待技术员确认数据，请先技术员确认");
+                }
+                if (HangTagStatusEnum.TO_QUALITY_CONTROL_CONFIRMED.getK().equals(e.getStatus()) &&
+                       !HangTagStatusEnum.CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
+                   throw new OtherException("存在待品控确认数据，请先品控确认");
+                }
             }
             HangTag hangTag = new HangTag();
             hangTag.setId(e.getId());
