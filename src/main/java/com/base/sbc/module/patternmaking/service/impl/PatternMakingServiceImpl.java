@@ -871,6 +871,20 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return true;
     }
 
+    /**
+     * 上传样衣图
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public boolean samplePicUpload(SamplePicUploadDto dto) {
+       PatternMaking patternMaking = baseMapper.selectById(dto.getId());
+        patternMaking.setSamplePic(dto.getSamplePic());
+        baseMapper.updateById(patternMaking);
+        return true;
+    }
+
     @Override
     public List prmDataOverview(String time) {
         List result = new ArrayList(16);
@@ -1193,6 +1207,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean setSampleBarCode(SetSampleBarCodeDto dto) {
+        /*查询样衣码是否重复*/
+        QueryWrapper queryWrapper =new QueryWrapper();
+        queryWrapper.eq("sample_bar_code",dto.getSampleBarCode());
+         List<PatternMaking> patternMakingList = baseMapper.selectList(queryWrapper);
+         if(CollUtil.isNotEmpty(patternMakingList)){
+             throw new OtherException("样衣条码重复");
+         }
         PatternMaking update = new PatternMaking();
         update.setSampleBarCode(dto.getSampleBarCode());
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();

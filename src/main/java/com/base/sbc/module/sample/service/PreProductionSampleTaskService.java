@@ -10,6 +10,7 @@ import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
+import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskSearchDto;
 import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
@@ -17,6 +18,8 @@ import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.github.pagehelper.PageInfo;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -70,6 +73,13 @@ public interface PreProductionSampleTaskService extends BaseService<PreProductio
     boolean updateByDto(PreProductionSampleTaskDto dto);
 
     boolean sampleMakingScore(Principal user, String id, BigDecimal score);
+
+    /**
+     *
+     * @param dto
+     * @return
+     */
+    boolean samplePicUpload( SamplePicUploadDto dto);
 // 自定义方法区 不替换的区域【other_end】
 
 
