@@ -216,7 +216,7 @@ public class BasicsdatumMaterialSaveDto {
 	private String density;
 	/** 克重 */
 	@ApiModelProperty(value = "克重")
-	private BigDecimal gramWeight;
+	private String gramWeight;
 	/** 织造类型 */
 	@ApiModelProperty(value = "织造类型")
 	private String weaveType;

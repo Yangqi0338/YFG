@@ -39,7 +39,7 @@ public class FabricDetailedInformationVo extends FabricDetailedInformation {
     private String translate;
     /** 克重 */
     @ApiModelProperty(value = "克重"  )
-    private BigDecimal gramWeight; ;
+    private String gramWeight; ;
     /** 胚布情况 */
     @ApiModelProperty(value = "胚布情况"  )
     private String germinalCondition;

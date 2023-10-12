@@ -154,7 +154,7 @@ public class BasicsdatumMaterialExcelVo {
 	private String density;
 	@Excel(name = "克重")
 	@ApiModelProperty(value = "克重")
-	private BigDecimal gramWeight;
+	private String gramWeight;
 	@Excel(name = "织造类型名称")
 	@ApiModelProperty(value = "织造类型")
 	private String weaveTypeName;

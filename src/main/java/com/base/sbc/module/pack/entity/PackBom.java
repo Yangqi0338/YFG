@@ -399,7 +399,7 @@ public class PackBom extends BaseDataEntity<String> {
      * 克重
      */
     @ApiModelProperty(value = "克重")
-    private BigDecimal gramWeight;
+    private String gramWeight;
     /**
      * 采购单位
      */

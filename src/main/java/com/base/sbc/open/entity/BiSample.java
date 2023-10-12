@@ -96,7 +96,7 @@ public class BiSample {
     /** 领型 */
     private String c8StyleAttrLingXing;
     /** 克重 */
-    private BigDecimal c8StyleAttrKeZhong;
+    private String c8StyleAttrKeZhong;
     /** 开发分类 */
     private String c8StyleAttrDevClass;
     /** 款式工艺 */

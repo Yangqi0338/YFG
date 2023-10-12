@@ -114,7 +114,7 @@ public class BomSelMaterialVo {
     @ApiModelProperty(value = "损耗%")
     private BigDecimal lossRate;
     @ApiModelProperty(value = "克重")
-    private BigDecimal gramWeight;
+    private String gramWeight;
     /**
      * 成本
      */
