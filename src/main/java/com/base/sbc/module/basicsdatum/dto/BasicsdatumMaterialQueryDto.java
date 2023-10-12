@@ -57,7 +57,10 @@ public class BasicsdatumMaterialQueryDto extends Page {
 	 */
 	@ApiModelProperty(value = "数据来源：1.物料档案、2.设计面料")
 	private String source;
-
+	/**
+	 * 附件
+	 */
+	private String attachment;
 	/**
 	 * 产品季id
 	 */

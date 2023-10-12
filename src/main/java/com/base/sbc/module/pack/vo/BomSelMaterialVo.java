@@ -186,5 +186,8 @@ public class BomSelMaterialVo {
     @ApiModelProperty(value = "数据来源：1.新增、2.面料企划、3.其他")
     private String source;
 
-
+    /**
+     * 附件
+     */
+    private String attachment;
 }

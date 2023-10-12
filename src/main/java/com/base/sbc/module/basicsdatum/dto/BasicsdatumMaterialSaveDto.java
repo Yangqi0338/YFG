@@ -28,6 +28,11 @@ public class BasicsdatumMaterialSaveDto {
 	private List<BasicsdatumMaterialIngredient> ingredientList;
 	private List<BasicsdatumMaterialIngredient> factoryCompositionList;
 
+	/**
+	 * 附件
+	 */
+	private String attachment;
+
 	@NotBlank(message = "ID必填,新增-1")
 	@ApiModelProperty(value = "id", required = true)
 	private String id;
@@ -368,4 +373,5 @@ public class BasicsdatumMaterialSaveDto {
 
 	@ApiModelProperty(value = "是否战略备料(0是，1否)")
 	private String isStrategic;
+
 }

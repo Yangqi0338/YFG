@@ -309,5 +309,10 @@ public class HangTagVO {
      */
     @ApiModelProperty(value = "成分信息")
     private String ingredient;
+
+    /**
+     * 附件
+     */
+    private String attachment;
 }
 

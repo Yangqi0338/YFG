@@ -50,4 +50,9 @@ public class BasicsdatumMaterialOldPageVo {
 	/** 面料成分 */
 	@ApiModelProperty(value = "面料成分")
 	private String ingredient;
+
+	/**
+	 * 附件
+	 */
+	private String attachment;
 }

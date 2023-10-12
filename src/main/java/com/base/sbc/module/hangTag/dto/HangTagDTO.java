@@ -265,5 +265,10 @@ public class HangTagDTO {
     private List<HangTagIngredient> hangTagIngredients;
 
     private String checkType;
+
+    /**
+     * 附件
+     */
+    private String attachment;
 }
 

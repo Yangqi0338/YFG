@@ -277,7 +277,10 @@ public class HangTagListVO {
     @ApiModelProperty(value = "是否计控成本确认")
     private String planCostConfirm;
 
-
+    /**
+     * 附件
+     */
+    private String attachment;
 
 }
 
