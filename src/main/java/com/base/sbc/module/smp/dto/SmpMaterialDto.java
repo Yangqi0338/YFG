@@ -53,7 +53,7 @@ public class  SmpMaterialDto extends SmpBaseDto {
     /** 纬缩(%) */
     private BigDecimal weftShrinkage;
     /** 克重(g/m2) */
-    private BigDecimal weight;
+    private String weight;
     /** 成分 */
     private String composition;
     /** JIT标识 */

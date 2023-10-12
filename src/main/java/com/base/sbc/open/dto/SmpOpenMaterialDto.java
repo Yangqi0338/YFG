@@ -139,7 +139,7 @@ public class SmpOpenMaterialDto {
     /**
      * 克重(g/m2)
      */
-    private BigDecimal Weight;
+    private String Weight;
 
     /**
      * 成分
