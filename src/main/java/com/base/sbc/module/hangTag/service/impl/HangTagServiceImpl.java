@@ -138,8 +138,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         //1A7290012
         // IdGen idGen = new IdGen();
         List<String> bulkStyleNos = new ArrayList<>();
-//         hangTagListVOS.forEach(e -> {
-//             FlowRecordVo flowRecordVo = flowRecordVoMap.get(e.getBulkStyleNo());
+        hangTagListVOS.forEach(e -> {
+            // FlowRecordVo flowRecordVo = flowRecordVoMap.get(e.getBulkStyleNo());
 //             if (!ObjectUtils.isEmpty(flowRecordVo)) {
 // //                判断流程是否完成
 //                 e.setExamineUserNema(flowRecordVo.getUserName());
@@ -166,9 +166,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 //
 //                 }
 //             }
-//             bulkStyleNos.add(e.getBulkStyleNo());
-//
-//         });
+            bulkStyleNos.add(e.getBulkStyleNo());
+
+        });
         List<PackInfo> packInfos = packInfoService.list(new QueryWrapper<PackInfo>().in("style_no", bulkStyleNos).select("id", "style_no"));
         List<String> packInfoIds = packInfos.stream().map(PackInfo::getId).collect(Collectors.toList());
         if (!packInfoIds.isEmpty()){
