@@ -229,6 +229,9 @@ public class SampleBoardVo {
     @ApiModelProperty(value = "样衣条码")
     private String sampleBarCode;
 
+    @ApiModelProperty(value = "样衣图")
+    private String samplePic;
+
     public String getId() {
         return patternMakingId;
     }

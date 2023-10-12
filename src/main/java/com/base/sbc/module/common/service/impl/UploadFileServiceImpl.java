@@ -22,6 +22,8 @@ import com.base.sbc.config.utils.DateUtils;
 import com.base.sbc.config.utils.ImgUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialMapper;
 import com.base.sbc.module.common.dto.UploadStylePicDto;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.entity.UploadFile;
@@ -29,9 +31,16 @@ import com.base.sbc.module.common.mapper.UploadFileMapper;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.patternmaking.entity.PatternMaking;
+import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
+import com.base.sbc.module.patternmaking.service.PatternMakingService;
+import com.base.sbc.module.sample.entity.PreProductionSampleTask;
+import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.vo.StyleUploadVo;
+import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
+import com.base.sbc.module.style.mapper.StyleMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
@@ -86,9 +95,117 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     @Autowired
     private MinioConfig minioConfig;
 
+    @Autowired
+    private StyleMapper styleMapper;
+
+    @Autowired
+    private BasicsdatumMaterialMapper basicsdatumMaterialMapper;
+
+    @Autowired
+    private PatternMakingMapper patternMakingMapper;
+
+    @Autowired
+    private PreProductionSampleTaskMapper preProductionSampleTaskMapper;
+
     @Override
     public AttachmentVo uploadToMinio(MultipartFile file) {
         return uploadToMinio(file, null);
+    }
+
+    @Override
+    public AttachmentVo uploadToMinio(MultipartFile file,String type,String code) {
+        try {
+            String md5Hex = DigestUtils.md5DigestAsHex(file.getInputStream());
+            String objectName = "";
+            String extName = FileUtil.extName(file.getOriginalFilename());
+            if (StrUtil.isBlank(extName)) {
+                throw new OtherException("文件无后缀名");
+            }
+            if (StringUtils.isNotBlank(type)) {
+                switch (type) {
+                    /*创意素材库图/附件*/
+                    case "sourceMaterial":
+                        objectName = type + "/" + DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
+                        break;
+                    /*商品企划图*/
+                    /*款式设计（除设计款外其他图片及附件）*/
+                    /*样衣/打版其他附件*/
+                    case "planning":
+                    case "styleOther":
+                    case "sampleOther":
+                        QueryWrapper queryWrapper = new QueryWrapper();
+                        queryWrapper.eq("design_no", code);
+                        Style styel = styleMapper.selectOne(queryWrapper);
+                        if (StringUtils.equals(type, "planning")) {
+                            objectName = type + "/" + styel.getBrandName() + "/" + styel.getYearName() + "/" + styel.getDesignNo() + "." + extName;
+                        } else {
+                            objectName = type + "/" + styel.getBrandName() + "/" + styel.getYearName() + "/" + styel.getDesignNo() + "/" + System.currentTimeMillis() + "." + extName;
+                        }
+                        break;
+                    /*样衣图片（包含产前样）*/
+                    case "sample":
+                         PatternMaking patternMaking = patternMakingMapper.selectById(code);
+                        Style style =  styleMapper.selectById(patternMaking.getStyleId());
+                        objectName = type + "/" + style.getBrandName() + "/" + style.getYearName() + "/" + style.getDesignNo() + "/" + patternMaking.getSampleBarCode() + "." + extName;
+                        break;
+                    /*样衣图片（包含产前样）*/
+                    case "preSample":
+                        PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskMapper.selectById(code);
+                        Style style1 =  styleMapper.selectById(preProductionSampleTask.getStyleId());
+                        objectName = type + "/" + style1.getBrandName() + "/" + style1.getYearName() + "/" + style1.getDesignNo() + "/" + preProductionSampleTask.getSampleBarCode() + "." + extName;
+                        break;
+                    /*设计BOM标准资料包（除工艺单外）*/
+                    case "stylePackage":
+                    case "dataPackageOther":
+                        objectName = type + "/" + code + "/" + System.currentTimeMillis() + "." + extName;
+                        break;
+                    /*物料其他附件*/
+                    case "materialOther":
+                        objectName = type + "/" + System.currentTimeMillis() + "." + extName;
+                        break;
+                    /*系统配置附件/图*/
+                    case "config":
+                        objectName = "system/config" + "/" + System.currentTimeMillis() + "." + extName;
+                        break;
+                    /*物料主图*/
+                    case "material":
+                        /*查询物料的数据*/
+                        QueryWrapper queryWrapper1 = new QueryWrapper();
+                        queryWrapper1.eq("material_code", code);
+                        List<BasicsdatumMaterial> list = basicsdatumMaterialMapper.selectList(queryWrapper1);
+                        if (CollUtil.isEmpty(list)) {
+                            throw new OtherException("没有物料信息");
+                        }
+                        if (StringUtils.isEmpty(list.get(0).getYearName())) {
+                            throw new OtherException("没有年份信息，先保存");
+                        }
+                        objectName = type + "/" + list.get(0).getYearName() + "/" + list.get(0).getSeasonName() + "/" + code + "." + extName;
+                        break;
+                    default:
+                        objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
+                }
+            } else {
+                objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
+            }
+
+            String contentType = file.getContentType();
+            String url = minioUtils.uploadFile(file, objectName, contentType);
+            UploadFile newFile = new UploadFile();
+            newFile.setMd5(md5Hex);
+            newFile.setUrl(url);
+            newFile.setName(file.getOriginalFilename());
+            newFile.setType(contentType);
+            newFile.setStorage("minio");
+            newFile.setStatus(BaseGlobal.STATUS_NORMAL);
+            newFile.setSize(new BigDecimal(String.valueOf(file.getSize())));
+            save(newFile);
+            AttachmentVo attachmentVo = BeanUtil.copyProperties(newFile, AttachmentVo.class, "id");
+            attachmentVo.setFileId(newFile.getId());
+            return attachmentVo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new OtherException("上传失败:" + e.getMessage());
+        }
     }
 
     @Override

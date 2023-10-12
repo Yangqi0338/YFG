@@ -336,6 +336,13 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     boolean finish(String id);
 
+    /**
+     * 上传样衣图
+     * @param dto
+     * @return
+     */
+    boolean samplePicUpload(SamplePicUploadDto dto);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

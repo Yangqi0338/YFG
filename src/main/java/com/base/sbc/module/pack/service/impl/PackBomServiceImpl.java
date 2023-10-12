@@ -333,6 +333,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
 
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("bom_template_id", bomTemplateSaveDto.getBomTemplateId());
+        queryWrapper.eq("status",BaseGlobal.STATUS_NORMAL);
         List<BasicsdatumBomTemplateMaterial> templateMaterialList = basicsdatumBomTemplateMaterialMapper.selectList(queryWrapper);
 
         if (CollUtil.isEmpty(templateMaterialList)) {

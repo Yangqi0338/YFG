@@ -33,9 +33,9 @@ public class SaasUploadController extends BaseController {
 
     @ApiOperation(value = "产品图片上传", notes = "用于产品图片上传，返回上传成功的地址")
     @RequestMapping(value = "/productPic", method = RequestMethod.POST)
-    public ApiResult uploadPicFile(@RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request) throws Throwable {
+    public ApiResult uploadPicFile(@RequestParam(value = "file", required = true) MultipartFile file,String type,String code) throws Throwable {
 //        return filesUtils.uploadBigData(file, FilesUtils.PRODUCT, request);
-        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(file);
+        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(file,type,code);
         return ApiResult.success(FilesUtils.SUCCESS, attachmentVo.getUrl(), BeanUtil.beanToMap(attachmentVo));
     }
     @ApiOperation(value = "大货款图上传", notes = "用于大货图片上传，返回上传成功的地址")
@@ -45,7 +45,7 @@ public class SaasUploadController extends BaseController {
     }
     @ApiOperation(value = "上传文件", notes = "上传文件")
     @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
-    public AttachmentVo uploadFile(@RequestParam(value = "file", required = true) MultipartFile file) throws Throwable {
-        return uploadFileService.uploadToMinio(file);
+    public AttachmentVo uploadFile(@RequestParam(value = "file", required = true) MultipartFile file,String type,String code) throws Throwable {
+        return uploadFileService.uploadToMinio(file,type,code);
     }
 }

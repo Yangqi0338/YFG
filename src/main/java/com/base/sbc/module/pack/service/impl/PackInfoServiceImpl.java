@@ -633,7 +633,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             groupUser.setName(style.getCreateName());
         }
         GenTechSpecPdfFile vo = new GenTechSpecPdfFile();
-        String objectFileName = minioConfig.getDir() + "/" + DateUtils.getDate() + "/" + System.currentTimeMillis() + ".pdf";
+        /*/PDM/DataPackage/品牌/年份/大货款号.pdf*/
+        String objectFileName =  "dataPackage/" +style.getBrandName() + "/" +style.getYearName()+ "/";
         vo.setObjectFileName(objectFileName);
         //二维码url
         String fileWebUrl = baseFrontEndAddress + "/techSpecView?foreignId=" + dto.getForeignId() + "&packType=" + dto.getPackType() + "&userId=" + groupUser.getId();
@@ -694,7 +695,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         String fileName = Opt.ofBlankAble(vo.getStyleNo()).orElse(vo.getPackCode()) + ".pdf";
         try {
             MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(gen.toByteArray()));
-            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, vo.getObjectFileName());
+            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, vo.getObjectFileName()+fileName);
             // 将文件id保存到状态表
             PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), dto.getPackType());
             packInfoStatus.setTechSpecFileId(attachmentVo.getFileId());

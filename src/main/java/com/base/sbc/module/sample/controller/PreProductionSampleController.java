@@ -20,6 +20,7 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
+import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
 import com.base.sbc.module.patternmaking.dto.ScoreDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskSearchDto;
@@ -165,6 +166,12 @@ public class PreProductionSampleController extends BaseController{
     @PostMapping("/task/sampleMakingScore")
     public boolean sampleMakingScore(Principal user, @Validated @RequestBody ScoreDto dto) {
         return preProductionSampleTaskService.sampleMakingScore(user, dto.getId(), dto.getScore());
+    }
+
+    @ApiOperation(value = "样衣图上传", notes = "")
+    @PostMapping("/samplePicUpload")
+    public boolean samplePicUpload(@Validated @RequestBody SamplePicUploadDto dto) {
+        return preProductionSampleTaskService.samplePicUpload(dto);
     }
 }
 

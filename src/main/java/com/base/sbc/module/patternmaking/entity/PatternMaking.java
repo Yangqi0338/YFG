@@ -52,6 +52,9 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 款式设计id */
     @ApiModelProperty(value = "款式设计id"  )
     private String styleId;
+    /** 样衣图片 */
+    @ApiModelProperty(value = "样衣图片"  )
+    private String  samplePic;
     /** 版房 */
     @ApiModelProperty(value = "版房"  )
     private String patternRoom;
