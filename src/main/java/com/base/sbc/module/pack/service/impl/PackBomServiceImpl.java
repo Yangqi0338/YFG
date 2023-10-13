@@ -233,6 +233,11 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                 packBom.setTranslate(null);
                 packBom.setTranslateCode(null);
             }
+            /*判断是默认的颜色是否有多个*/
+            if(packBom.getColor().indexOf(",")>-1){
+                packBom.setColor(null);
+                packBom.setColorCode(null);
+            }
             if (!CommonUtils.isInitId(packBom.getId())) {
                 pageBomIds.add(packBom.getId());
             } else {

@@ -114,17 +114,28 @@ public class BasicsdatumMaterialPriceDetailServiceImpl extends ServiceImpl<Basic
      */
     @Override
     public BasicsdatumMaterialPriceDetailVo gatSupplierPrice(SupplierDetailPriceDto supplierDetailPriceDto) {
+        /**
+         * 获取供应商详情价格
+         * 没有报价时获取默认报价
+         * 有多条数据时获取默认报价
+         */
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("supplier_id",supplierDetailPriceDto.getSupplierId());
-        queryWrapper.eq("material_code",supplierDetailPriceDto.getMaterialCode());
-        queryWrapper.eq("color",supplierDetailPriceDto.getColor());
-        queryWrapper.eq("width",supplierDetailPriceDto.getWidth());
-        BasicsdatumMaterialPriceDetailVo basicsdatumMaterialPriceDetailVo =new BasicsdatumMaterialPriceDetailVo();
-        BasicsdatumMaterialPriceDetail basicsdatumMaterialPriceDetail =  baseMapper.selectOne(queryWrapper);
-        if(ObjectUtils.isEmpty(basicsdatumMaterialPriceDetail)){
-            throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+        queryWrapper.eq("supplier_id", supplierDetailPriceDto.getSupplierId());
+        queryWrapper.eq("material_code", supplierDetailPriceDto.getMaterialCode());
+        queryWrapper.eq("color", supplierDetailPriceDto.getColor());
+        queryWrapper.eq("width", supplierDetailPriceDto.getWidth());
+        BasicsdatumMaterialPriceDetailVo basicsdatumMaterialPriceDetailVo = new BasicsdatumMaterialPriceDetailVo();
+        List<BasicsdatumMaterialPriceDetail> selectList = baseMapper.selectList(queryWrapper);
+        /*取默认的报价*/
+        if (CollUtil.isEmpty(selectList) || selectList.size() != 1) {
+            QueryWrapper queryWrapper1 = new QueryWrapper();
+            queryWrapper1.eq("material_code", supplierDetailPriceDto.getMaterialCode());
+            queryWrapper1.eq("select_flag", BaseGlobal.YES);
+            BasicsdatumMaterialPrice basicsdatumMaterialPrice = basicsdatumMaterialPriceMapper.selectOne(queryWrapper1);
+            BeanUtils.copyProperties(basicsdatumMaterialPrice, basicsdatumMaterialPriceDetailVo);
+            return basicsdatumMaterialPriceDetailVo;
         }
-        BeanUtils.copyProperties(basicsdatumMaterialPriceDetail, basicsdatumMaterialPriceDetailVo);
+        BeanUtils.copyProperties(selectList.get(0), basicsdatumMaterialPriceDetailVo);
         return basicsdatumMaterialPriceDetailVo;
     }
 

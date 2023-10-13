@@ -424,27 +424,16 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         Page<BomSelMaterialVo> page = PageHelper.startPage(dto);
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.material.getK(), "bm.");
         List<BomSelMaterialVo> list = getBaseMapper().getBomSelMaterialList(qw, dto.getSource());
-
 		if (CollUtil.isNotEmpty(list)) {
             //查询默认供应商
             List<String> materialCodeList = list.stream().map(BomSelMaterialVo::getMaterialCode).filter(StrUtil::isNotBlank).collect(Collectors.toList());
+            /*获取默认供应商的颜色规格等信息*/
             List<BomSelMaterialVo> priceList = materialPriceService.findDefaultToBomSel(materialCodeList);
-            /*查询默认供应商规格*/
-            List<BomSelMaterialVo> widthList = basicsdatumMaterialPriceDetailService.querySupplierWidth(materialCodeList);
             Map<String, BomSelMaterialVo> priceMap = Opt.ofEmptyAble(priceList)
                     .map(item -> item.stream().collect(Collectors.toMap(k -> k.getMaterialCode(), v -> v, (a, b) -> a)))
                     .orElse(MapUtil.empty());
-            Map<String, List<BomSelMaterialVo>> widthMap = widthList.stream().collect(Collectors.groupingBy(BomSelMaterialVo::getMaterialCode));
             list.forEach(i -> {
                 BomSelMaterialVo priceInfo = priceMap.get(i.getMaterialCode());
-                List<BomSelMaterialVo> voList = widthMap.get(i.getMaterialCode());
-                /*查询默认供应商的规格，如果是一个默认显示为多个显示*/
-                if (CollUtil.isNotEmpty(voList)) {
-                    voList = CollUtil.distinct(voList, BomSelMaterialVo::getWidthCode, true);
-                    if (voList.size() == BaseGlobal.ONE) {
-                        BeanUtil.copyProperties(voList.get(0), i, CopyOptions.create().ignoreNullValue());
-                    }
-                }
                 BeanUtil.copyProperties(priceInfo, i, CopyOptions.create().ignoreNullValue());
                 i.setId(IdUtil.randomUUID());
             });
@@ -928,6 +917,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         return page.toPageInfo();
     }
 
+    @Override
     public Boolean updateInquiryNumberDeliveryName(BasicsdatumMaterialSaveDto dto) {
         BasicsdatumMaterial basicsdatumMaterial = new BasicsdatumMaterial();
         basicsdatumMaterial.setId(dto.getId());
