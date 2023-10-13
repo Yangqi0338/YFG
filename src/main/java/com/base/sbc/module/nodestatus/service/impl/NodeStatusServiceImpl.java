@@ -351,9 +351,7 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
                 List<NodeStatusVo> nodeStatusVos = BeanUtil.copyToList(nodeStatusList1, NodeStatusVo.class);
                 Map<String, NodeStatusVo> startDataMap = nodeStatusVos.stream().collect(Collectors.toMap(k -> k.getNode() + k.getStatus(), v -> v, (a, b) -> b, LinkedHashMap::new));
                 BeanUtil.setProperty(o, "startDate", Optional.ofNullable(startDataMap.get(node + status)).map(NodeStatusVo::getStartDate).orElse(null));
-                nodeStatusVos.sort((a, b) -> {
-                    return a.getStartDate().compareTo(b.getStartDate());
-                });
+                nodeStatusVos.sort(Comparator.comparing(NodeStatusVo::getStartDate));
                 BeanUtil.setProperty(o, "nodeStatusList", nodeStatusVos);
             }
             if (StrUtil.equals(suspend, BaseGlobal.YES)) {
