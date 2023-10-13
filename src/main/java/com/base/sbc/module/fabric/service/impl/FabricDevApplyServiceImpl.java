@@ -19,6 +19,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabric.dto.FabricDevApplyAllocationDTO;
@@ -66,6 +67,9 @@ public class FabricDevApplyServiceImpl extends BaseServiceImpl<FabricDevApplyMap
     private FabricDevBasicInfoService fabricDevBasicInfoService;
     @Autowired
     private FabricDevMainInfoService fabricDevMainInfoService;
+    @Autowired
+    private BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
+
 
     @Override
     @Transactional
@@ -73,13 +77,14 @@ public class FabricDevApplyServiceImpl extends BaseServiceImpl<FabricDevApplyMap
         logger.info("FabricDevApplyService#devAppSave 保存 fabricDevApplySaveDTO：{}", JSON.toJSONString(fabricDevApplySaveDTO));
         FabricDevApply fabricDevApply = CopyUtil.copy(fabricDevApplySaveDTO, FabricDevApply.class);
         BasicsdatumMaterialSaveDto basicsdatumMaterial = fabricDevApplySaveDTO.getBasicsdatumMaterial();
+        String materialCode = basicsdatumMaterial.getMaterialCode();
         if (StringUtils.isEmpty(fabricDevApplySaveDTO.getId())) {
             fabricDevApply.setId(new IdGen().nextIdStr());
             String companyCode = super.getCompanyCode();
             fabricDevApply.setCompanyCode(companyCode);
             fabricDevApply.insertInit();
             fabricDevApply.setDevApplyCode(codeGen.getIncrCode("K", "devApply", companyCode));
-            basicsdatumMaterial.setMaterialCode(basicsdatumMaterial.getMaterialCode() + "_" + fabricDevApply.getDevApplyCode());
+            basicsdatumMaterial.setMaterialCode(materialCode + "_" + fabricDevApply.getDevApplyCode());
         } else {
             fabricDevApply.updateInit();
             if (StringUtils.isEmpty(fabricDevApply.getMaterialId())) {
@@ -88,6 +93,9 @@ public class FabricDevApplyServiceImpl extends BaseServiceImpl<FabricDevApplyMap
             }
         }
         BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveMaterial(basicsdatumMaterial, fabricDevApply.getMaterialId());
+        if (StringUtils.isEmpty(fabricDevApply.getMaterialId())) {
+            basicsdatumMaterialWidthService.updateMaterialCode(materialCode, basicsdatumMaterial.getMaterialCode());
+        }
         fabricDevApply.setMaterialId(basicsdatumMaterialVo.getId());
         super.saveOrUpdate(fabricDevApply);
         FabricDevBasicInfoVO fabricDevBasicInfoVO = fabricDevBasicInfoService.saveBasicInfo(fabricDevApplySaveDTO.getFabricDevBasicInfo(), fabricDevApply.getId());
