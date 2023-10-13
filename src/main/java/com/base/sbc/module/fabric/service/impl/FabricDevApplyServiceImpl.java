@@ -18,6 +18,7 @@ import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialSaveDto;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
@@ -69,6 +70,8 @@ public class FabricDevApplyServiceImpl extends BaseServiceImpl<FabricDevApplyMap
     private FabricDevMainInfoService fabricDevMainInfoService;
     @Autowired
     private BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
+    @Autowired
+    private BasicsdatumMaterialColorService basicsdatumMaterialcolorService;
 
 
     @Override
@@ -95,6 +98,7 @@ public class FabricDevApplyServiceImpl extends BaseServiceImpl<FabricDevApplyMap
         BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveMaterial(basicsdatumMaterial, fabricDevApply.getMaterialId());
         if (StringUtils.isEmpty(fabricDevApply.getMaterialId())) {
             basicsdatumMaterialWidthService.updateMaterialCode(materialCode, basicsdatumMaterial.getMaterialCode());
+            basicsdatumMaterialcolorService.updateMaterialCode(materialCode, basicsdatumMaterial.getMaterialCode());
         }
         fabricDevApply.setMaterialId(basicsdatumMaterialVo.getId());
         super.saveOrUpdate(fabricDevApply);

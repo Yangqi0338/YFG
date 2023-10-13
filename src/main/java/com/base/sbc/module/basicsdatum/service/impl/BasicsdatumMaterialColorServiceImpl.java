@@ -7,6 +7,8 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialColorMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
@@ -47,6 +49,15 @@ public class BasicsdatumMaterialColorServiceImpl
 			});
 			super.saveBatch(basicsdatumMaterialOlds);
 		}
+	}
+
+	@Override
+	public void updateMaterialCode(String oldMaterialCode, String newMaterialCode) {
+		LambdaUpdateWrapper<BasicsdatumMaterialColor> updateWrapper = new UpdateWrapper<BasicsdatumMaterialColor>()
+				.lambda()
+				.eq(BasicsdatumMaterialColor::getMaterialCode, oldMaterialCode)
+				.set(BasicsdatumMaterialColor::getMaterialCode, newMaterialCode);
+		super.update(updateWrapper);
 	}
 
 
