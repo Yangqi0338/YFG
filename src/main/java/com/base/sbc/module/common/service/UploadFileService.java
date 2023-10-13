@@ -63,6 +63,15 @@ public interface UploadFileService extends BaseService<UploadFile> {
     AttachmentVo uploadToMinio(BufferedImage bufferedImage, String fileName);
 
     /**
+     * 修改图片名称
+     * @param url
+     * @param newUrl
+     * @return
+     */
+    Boolean updatePicName(String url, String newUrl);
+
+
+    /**
      * 通过md5查找文件
      *
      * @param md5

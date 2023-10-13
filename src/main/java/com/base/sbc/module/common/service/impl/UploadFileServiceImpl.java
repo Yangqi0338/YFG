@@ -34,6 +34,8 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
+import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.vo.StyleUploadVo;
@@ -107,6 +109,9 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     @Autowired
     private PreProductionSampleTaskMapper preProductionSampleTaskMapper;
 
+    @Autowired
+    private PlanningCategoryItemMapper planningCategoryItemMapper;
+
     @Override
     public AttachmentVo uploadToMinio(MultipartFile file) {
         return uploadToMinio(file, null);
@@ -128,31 +133,31 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         objectName = type + "/" + DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
                         break;
                     /*商品企划图*/
+                    case "planning":
+                        PlanningCategoryItem planningCategoryItem = planningCategoryItemMapper.selectById(code);
+                        objectName = type + "/" + planningCategoryItem.getBrandName() + "/" + planningCategoryItem.getYearName() + "/" + planningCategoryItem.getDesignNo() + "." + extName;
+                        break;
                     /*款式设计（除设计款外其他图片及附件）*/
                     /*样衣/打版其他附件*/
-                    case "planning":
                     case "styleOther":
                     case "sampleOther":
                         QueryWrapper queryWrapper = new QueryWrapper();
                         queryWrapper.eq("design_no", code);
                         Style styel = styleMapper.selectOne(queryWrapper);
-                        if (StringUtils.equals(type, "planning")) {
-                            objectName = type + "/" + styel.getBrandName() + "/" + styel.getYearName() + "/" + styel.getDesignNo() + "." + extName;
-                        } else {
-                            objectName = type + "/" + styel.getBrandName() + "/" + styel.getYearName() + "/" + styel.getDesignNo() + "/" + System.currentTimeMillis() + "." + extName;
-                        }
+                        objectName = type + "/" + styel.getBrandName() + "/" + styel.getYearName() + "/" + styel.getDesignNo() + "/" + System.currentTimeMillis() + "." + extName;
+
                         break;
                     /*样衣图片（包含产前样）*/
                     case "sample":
-                         PatternMaking patternMaking = patternMakingMapper.selectById(code);
-                        Style style =  styleMapper.selectById(patternMaking.getStyleId());
-                        objectName = type + "/" + style.getBrandName() + "/" + style.getYearName() + "/" + style.getDesignNo() + "/" + patternMaking.getSampleBarCode() + "." + extName;
+                        PatternMaking patternMaking = patternMakingMapper.selectById(code);
+                        Style style = styleMapper.selectById(patternMaking.getStyleId());
+                        objectName = "sample/" + style.getBrandName() + "/" + style.getYearName() + "/" + style.getDesignNo() + "/" + patternMaking.getSampleBarCode() + "." + extName;
                         break;
                     /*样衣图片（包含产前样）*/
                     case "preSample":
                         PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskMapper.selectById(code);
-                        Style style1 =  styleMapper.selectById(preProductionSampleTask.getStyleId());
-                        objectName = type + "/" + style1.getBrandName() + "/" + style1.getYearName() + "/" + style1.getDesignNo() + "/" + preProductionSampleTask.getSampleBarCode() + "." + extName;
+                        Style style1 = styleMapper.selectById(preProductionSampleTask.getStyleId());
+                        objectName = "sample/" + style1.getBrandName() + "/" + style1.getYearName() + "/" + style1.getDesignNo() + "/" + preProductionSampleTask.getSampleBarCode() + "." + extName;
                         break;
                     /*设计BOM标准资料包（除工艺单外）*/
                     case "stylePackage":
@@ -261,6 +266,18 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 修改图片名称
+     *
+     * @param url
+     * @param newUrl
+     * @return
+     */
+    @Override
+    public Boolean updatePicName(String url, String newUrl) {
+        return minioUtils.copyFile(url,newUrl);
     }
 
     @Override

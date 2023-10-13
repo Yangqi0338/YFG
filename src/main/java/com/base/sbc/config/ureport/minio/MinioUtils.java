@@ -62,6 +62,31 @@ public class MinioUtils {
         }
     }
 
+    /**
+     * 复制一个新文件删除之前的
+     * @param url
+     * @param newUrl
+     * @return
+     */
+    public Boolean copyFile(String url, String newUrl){
+        try {
+            String objectName = url.replace(minioConfig.getEndpoint() + "/" + minioConfig.getBucketName(), "");
+            String objectName2 = newUrl.replace(minioConfig.getEndpoint() + "/" + minioConfig.getBucketName(), "");
+            CopyObjectArgs copyObjectArgs =    CopyObjectArgs.builder()
+                    .source(CopySource.builder()
+                            .bucket(minioConfig.getBucketName())
+                            .object(objectName)
+                            .build())
+                    .bucket(minioConfig.getBucketName())
+                    .object(objectName2)
+                    .build();
+            minioClient.copyObject(copyObjectArgs);
+            return  delFile(url);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     /**
      * 获得文件外链

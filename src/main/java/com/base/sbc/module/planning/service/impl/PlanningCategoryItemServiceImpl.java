@@ -451,9 +451,26 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             setTaskLevelDtoList.add(BeanUtil.copyProperties(planningCategoryItem, SetTaskLevelDto.class));
             itemIds.add(planningCategoryItem.getId());
             seasonIds.add(planningCategoryItem.getPlanningSeasonId());
-
+            /*后续再优化*/
             if (StrUtil.isNotBlank(planningCategoryItem.getStylePic())) {
-                fileUrls.add(planningCategoryItem.getStylePic());
+                //获取设计师编码
+                String designerCoding = planningCategoryItem.getDesigner().split(",")[1];
+                /*去掉设计师编码的设计编号*/
+                String rawDesignNo = planningCategoryItem.getDesignNo().replaceAll(designerCoding, "");
+                /*新地址*/
+                String newUrl = planningCategoryItem.getStylePic().replaceAll(rawDesignNo, planningCategoryItem.getDesignNo());
+                /*改图片名称*/
+              boolean b=  uploadFileService.updatePicName(planningCategoryItem.getStylePic(), newUrl);
+              if(!b){
+                  throw new OtherException("修改图片名称错误");
+              }
+                /*修改文件名称加上设计师代码*/
+                fileUrls.add(newUrl);
+//                修改坑位图片 后续优化
+                UpdateWrapper updateWrapper =new UpdateWrapper();
+                updateWrapper.set("style_pic",newUrl);
+                updateWrapper.eq("id",planningCategoryItem.getId());
+                baseMapper.update(null,updateWrapper);
             }
         }
         //查询款式信息是已经存在
@@ -490,7 +507,6 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         seasonQw.in("id", seasonIds);
         List<PlanningSeason> seasonList = planningSeasonService.list(seasonQw);
         Map<String, PlanningSeason> seasonMap = Optional.ofNullable(seasonList).orElse(CollUtil.newArrayList()).stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b));
-
         // 图片文件id
         Map<String, String> fileUrlId = uploadFileService.findMapByUrls(fileUrls);
 
