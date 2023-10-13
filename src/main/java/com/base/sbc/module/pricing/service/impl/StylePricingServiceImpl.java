@@ -7,6 +7,7 @@
 package com.base.sbc.module.pricing.service.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
@@ -160,9 +161,22 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 }
             }
 
+
             stylePricingVO.setTotalCost(BigDecimalUtil.add(stylePricingVO.getMaterialCost(), stylePricingVO.getPackagingFee(),
                     stylePricingVO.getTestingFee(), stylePricingVO.getSewingProcessingFee(), stylePricingVO.getWoolenYarnProcessingFee(),
                     stylePricingVO.getCoordinationProcessingFee(), stylePricingVO.getSecondaryProcessingFee(), stylePricingVO.getProcessingFee()));
+            BigDecimal taxRate = BigDecimal.ONE;
+            if ("CMT".equals(stylePricingVO.getProductionType())){
+
+                System.out.println(stylePricingVO.getCalcItemVal());
+                JSONObject jsonObject = JSON.parseObject(stylePricingVO.getCalcItemVal());
+                if (jsonObject!=null){
+                    taxRate = jsonObject.getBigDecimal("税率");
+
+                }
+                stylePricingVO.setTotalCost(stylePricingVO.getTotalCost().multiply(taxRate));
+            }
+
 
             stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
             stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
@@ -363,7 +377,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         }
         return packPricingOtherCosts.stream()
                 .filter(x -> Objects.nonNull(x.getPrice()))
-                .collect(Collectors.toMap(e -> e.getForeignId() + e.getCostsType(), PackPricingOtherCosts::getPrice, (k1, k2) -> k1));
+                .collect(Collectors.toMap(e -> e.getForeignId() + e.getCostsType(), PackPricingOtherCosts::getPrice,(k1, k2) -> k1));
 
     }
 

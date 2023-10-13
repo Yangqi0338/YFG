@@ -76,6 +76,7 @@ public class StylePricingVO {
     public String getStyle() {
         return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
     }
+
     @ApiModelProperty(value = "款式名称")
     private String styleName;
     /**
@@ -230,9 +231,16 @@ public class StylePricingVO {
     private String productionType;
 
 
-
- @ApiModelProperty(value = "系列编码"  )
+    @ApiModelProperty(value = "系列编码")
     private String series;
-    /** 系列名称 */
-    @ApiModelProperty(value = "系列名称"  )
-    private String seriesName;}
+    /**
+     * 系列名称
+     */
+    @ApiModelProperty(value = "系列名称")
+    private String seriesName;
+
+
+    private String calcItemVal;
+
+}
+
