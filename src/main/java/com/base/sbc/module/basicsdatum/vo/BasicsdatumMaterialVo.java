@@ -357,5 +357,10 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	private String confirmStatus;
 	@ApiModelProperty(value = "是否战略备料(0是，1否)")
 	private String isStrategic;
+
+	/**
+	 * 附件
+	 */
+	private String attachment;
 }
 

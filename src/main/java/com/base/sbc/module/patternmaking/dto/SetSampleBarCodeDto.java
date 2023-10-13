@@ -26,6 +26,6 @@ public class SetSampleBarCodeDto {
     private String id;
 
     @ApiModelProperty(value = "样衣条码")
-    @NotNull(message = "排序不能为空")
+    @NotNull(message = "样衣条码不能为空")
     private String sampleBarCode;
 }

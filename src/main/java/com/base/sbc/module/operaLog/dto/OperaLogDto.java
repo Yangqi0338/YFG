@@ -1,6 +1,7 @@
 package com.base.sbc.module.operaLog.dto;
 
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.module.common.dto.BaseDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import lombok.Data;
  * @mail 247967116@qq.com
  */
 @Data
-public class OperaLogDto extends Page {
+public class OperaLogDto extends BaseDto {
     /**
      * 单据id
      */

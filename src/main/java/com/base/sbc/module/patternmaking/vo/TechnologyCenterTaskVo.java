@@ -42,6 +42,14 @@ public class TechnologyCenterTaskVo {
     private String prodCategory2ndName;
     @ApiModelProperty(value = "小类名称")
     private String prodCategory3rdName;
+    @ApiModelProperty(value = "大类")
+    private String prodCategory1st;
+    @ApiModelProperty(value = "品类")
+    private String prodCategory;
+    @ApiModelProperty(value = "中类")
+    private String prodCategory2nd;
+    @ApiModelProperty(value = "小类")
+    private String prodCategory3rd;
 
     @ApiModelProperty(value = "设计下发时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

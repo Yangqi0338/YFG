@@ -35,6 +35,7 @@ import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
+import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
@@ -187,7 +188,6 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         qw.notEmptyIn("s.year", dto.getYear());
         qw.notEmptyIn("s.season", dto.getSeason());
         qw.notEmptyIn("s.month", dto.getMonth());
-        qw.orderByAsc("t.sort");
         Page<PreProductionSampleTaskVo> objects = PageHelper.startPage(dto);
         if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");
@@ -402,6 +402,18 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
         uw.lambda().eq(PreProductionSampleTask::getId, id);
         return update(updateBean, uw);
+    }
+
+    /**
+     * @param dto
+     * @return
+     */
+    @Override
+    public boolean samplePicUpload(SamplePicUploadDto dto) {
+        PreProductionSampleTask preProductionSampleTask =baseMapper.selectById(dto.getId());
+        preProductionSampleTask.setSamplePic(dto.getSamplePic());
+        baseMapper.updateById(preProductionSampleTask);
+        return true;
     }
 
 // 自定义方法区 不替换的区域【other_end】

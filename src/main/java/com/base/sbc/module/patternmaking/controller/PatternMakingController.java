@@ -10,12 +10,10 @@ import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
-import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
-import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
@@ -47,8 +45,6 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
-
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
 
 /**
  * 类描述：打版管理 Controller类
@@ -413,6 +409,13 @@ public class PatternMakingController {
     public boolean finish(IdDto dto) {
         return patternMakingService.finish(dto.getId());
     }
+
+    @ApiOperation(value = "样衣图上传", notes = "")
+    @PostMapping("/samplePicUpload")
+    public boolean samplePicUpload(@Validated @RequestBody SamplePicUploadDto dto) {
+        return patternMakingService.samplePicUpload(dto);
+    }
+
 }
 
 

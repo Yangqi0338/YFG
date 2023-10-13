@@ -63,6 +63,12 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "资料包id")
     private String packInfoId;
+
+    /**
+     * 样衣图
+     */
+    @ApiModelProperty(value = "样衣图")
+    private String samplePic;
     /**
      * 工艺师id
      */

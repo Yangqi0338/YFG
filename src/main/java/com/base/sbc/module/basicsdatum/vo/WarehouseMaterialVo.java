@@ -63,4 +63,8 @@ public class WarehouseMaterialVo {
     /** 供应商色号 */
     @ApiModelProperty(value = "供应商色号"  )
     private String supplierColorCode;
+    /**
+     * 附件
+     */
+    private String attachment;
 }

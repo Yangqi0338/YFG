@@ -71,7 +71,10 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setTolerance(null);
 		smpMaterialDto.setSupplierComposition(factoryComposition);
 		smpMaterialDto.setPickingMethod(pickingMethod);
-		smpMaterialDto.setImgList(Arrays.asList(imageUrl.split(",")));
+		try {
+			smpMaterialDto.setImgList(Arrays.asList(imageUrl.split(",")));
+		}catch (Exception ignored){}
+
 		smpMaterialDto.setId(id);
 		smpMaterialDto.setCreator(getCreateName());
 		smpMaterialDto.setCreateTime(getCreateDate());
@@ -454,6 +457,11 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	 */
 	@ApiModelProperty(value = "是否战略备料(0是，1否)")
 	private String isStrategic;
+
+	/**
+	 * 附件
+	 */
+	private String attachment;
 	/*****************************
 	 * 数据库字段区 不包含父类公共字段(属性) 【end】
 	 ***********************************/
