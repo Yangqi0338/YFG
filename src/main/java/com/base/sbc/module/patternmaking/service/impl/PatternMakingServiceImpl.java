@@ -26,6 +26,7 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
@@ -33,10 +34,7 @@ import com.base.sbc.config.constant.TechnologyBoardConstant;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
-import com.base.sbc.config.utils.DateUtils;
-import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
@@ -139,6 +137,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 throw new OtherException("只能新建6个打版指令:1个初版样、5个其他");
             }
         }
+        //校验打样顺序重复
+        checkPatSeqRepeat(dto.getStyleId(), null, dto.getPatSeq());
         //查询样衣
         PatternMaking patternMaking = BeanUtil.copyProperties(dto, PatternMaking.class);
         patternMaking.setCode(getNextCode(style));
@@ -162,6 +162,19 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         save(patternMaking);
 
         return patternMaking;
+    }
+
+    @Override
+    public void checkPatSeqRepeat(String styleId, String patternMakingId, String patSeq) {
+        //校验打样顺序重复  patSeq
+        BaseQueryWrapper<PatternMaking> patSeqQw = new BaseQueryWrapper<>();
+        patSeqQw.eq("style_id", styleId);
+        patSeqQw.lambda().eq(PatternMaking::getPatSeq, patSeq);
+        patSeqQw.ne(!CommonUtils.isInitId(patternMakingId), "id", patternMakingId);
+        long patSeqCount = count(patSeqQw);
+        if (patSeqCount > 0) {
+            throw new OtherException("打样顺序重复");
+        }
     }
 
     @Override
@@ -884,6 +897,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         baseMapper.updateById(patternMaking);
         return true;
     }
+
 
     @Override
     public List prmDataOverview(String time) {

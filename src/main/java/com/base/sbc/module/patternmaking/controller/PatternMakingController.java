@@ -97,7 +97,7 @@ public class PatternMakingController {
     }
 
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")
-    @DeleteMapping("/{id}")
+    @DeleteMapping()
     public Boolean removeById(RemoveDto removeDto) {
         return patternMakingService.removeByIds(removeDto);
     }
@@ -122,6 +122,7 @@ public class PatternMakingController {
     public PatternMaking update(@RequestBody PatternMakingDto dto) {
         PatternMaking patternMaking = BeanUtil.copyProperties(dto, PatternMaking.class);
 //        patternMakingService.checkPatternNoRepeat(dto.getId(), dto.getPatternNo());
+        patternMakingService.checkPatSeqRepeat(dto.getStyleId(), dto.getId(), dto.getPatSeq());
         PatternMaking old = patternMakingService.getById(dto.getId());
         patternMakingService.updateById(patternMaking);
         OperaLogEntity operaLogEntity =new OperaLogEntity();
