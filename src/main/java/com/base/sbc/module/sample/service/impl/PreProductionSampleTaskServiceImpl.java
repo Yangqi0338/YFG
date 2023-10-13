@@ -29,6 +29,7 @@ import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
@@ -99,22 +100,22 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean enableSetting(String id, String enableFlag,String code) {
+    public boolean enableSetting(String id, String enableFlag, String code) {
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
         uw.set("enable_flag", enableFlag);
         uw.in("id", StrUtil.split(id, CharUtil.COMMA));
 
         String type;
-        if ("1".equals(enableFlag)){
-            type="启用";
-        }else {
-            type="停用";
+        if ("1".equals(enableFlag)) {
+            type = "启用";
+        } else {
+            type = "停用";
         }
-        //记录日志
-        OperaLogEntity operaLogEntity =new OperaLogEntity();
+        // 记录日志
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
         operaLogEntity.setType(type);
         operaLogEntity.setName("产前样看板");
-        //operaLogEntity.setDocumentId(id);
+        // operaLogEntity.setDocumentId(id);
         operaLogEntity.setDocumentCode(code);
         this.saveLog(operaLogEntity);
         return update(uw);
@@ -195,9 +196,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
         }
         List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
-        //设置图
+        // 设置图
         attachmentService.setListStylePic(list, "stylePic");
-        //设置头像
+        // 设置头像
         amcFeignService.setUserAvatarToList(list);
         nodeStatusService.setNodeStatus(list);
         return objects.toPageInfo();
@@ -226,9 +227,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
         }
         List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
-        //设置图
+        // 设置图
         attachmentService.setListStylePic(list, "stylePic");
-        //设置头像
+        // 设置头像
         amcFeignService.setUserAvatarToList(list);
         nodeStatusService.setNodeStatus(list);
 
@@ -244,7 +245,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         if (pm == null) {
             throw new OtherException("任务不存在");
         }
-        //跳转
+        // 跳转
         boolean flg = nodeStatusService.nextOrPrev(groupUser, pm, NodeStatusConfigService.PRE_PRODUCTION_SAMPLE_TASK, np);
         updateById(pm);
         sort(pm, false);
@@ -276,7 +277,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         if (!hasField) {
             return;
         }
-        //重新排序
+        // 重新排序
         QueryWrapper<PreProductionSampleTask> qw = new QueryWrapper<>();
         qw.select("id");
         qw.lambda().eq(PreProductionSampleTask::getNode, node).eq(PreProductionSampleTask::getStatus, status);
@@ -317,7 +318,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             throw new OtherException("标准资料包数据为空");
         }
 
-        //判断是否重复
+        // 判断是否重复
         BaseQueryWrapper<PreProductionSampleTask> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("style_id", style.getId());
         queryWrapper.eq("pack_info_id", packInfo.getId());
@@ -337,7 +338,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         countQc.eq("style_id", style.getId());
         long count = getBaseMapper().countByQw(countQc);
         task.setCode(Opt.ofBlankAble(packInfo.getStyleNo()).orElse(packInfo.getDesignNo()) + StrUtil.DASHED + (count + 1));
-        return save(task,"产前样看板");
+        return save(task, "产前样看板");
     }
 
     @Override
@@ -349,13 +350,13 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         PreProductionSampleTaskVo task = taskList.get(0);
 
         PreProductionSampleTaskDetailVo result = new PreProductionSampleTaskDetailVo();
-        //查询任务信息
+        // 查询任务信息
         PreProductionSampleTaskVo taskVo = BeanUtil.copyProperties(task, PreProductionSampleTaskVo.class);
-        //设置头像
+        // 设置头像
         amcFeignService.setUserAvatarToObj(taskVo);
-        //查询款式设计信息
+        // 查询款式设计信息
         StyleVo sampleDesignVo = styleService.getDetail(task.getStyleId());
-        //设置头像
+        // 设置头像
         amcFeignService.setUserAvatarToObj(sampleDesignVo);
         result.setTask(taskVo);
         result.setStyle(sampleDesignVo);
@@ -372,15 +373,84 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             throw new OtherException("任务不存在");
         }
 
-        //齐套状态发生改变,修改齐套时间
-        if (!task.getKitting().equals(dto.getKitting())){
+        // 齐套状态发生改变,修改齐套时间
+        if (!task.getKitting().equals(dto.getKitting())) {
             dto.setKittingTime(new Date());
         }
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
         uw.eq("id", dto.getId());
         update(dto, uw);
-        //记录日志
-        this.saveOperaLog("修改","产前样看板",dto,task);
+
+        // 修改裁剪时间和车缝时间
+        QueryWrapper<NodeStatus> queryWrapper1 = new BaseQueryWrapper<>();
+        queryWrapper1.eq("data_id", dto.getId());
+        queryWrapper1.eq("node", "产前样衣任务");
+        queryWrapper1.eq("status", "裁剪开始");
+        if (dto.getCutterStartTime() != null) {
+            NodeStatus nodeStatus1 = new NodeStatus();
+            nodeStatus1.setDataId(dto.getId());
+            nodeStatus1.setNode("产前样衣任务");
+            nodeStatus1.setStatus("裁剪开始");
+            nodeStatus1.setStartFlg("1");
+            nodeStatus1.setStartDate(dto.getCutterStartTime());
+            nodeStatusService.saveOrUpdate(nodeStatus1, queryWrapper1);
+        }else {
+            nodeStatusService.remove(queryWrapper1);
+        }
+
+
+        QueryWrapper<NodeStatus> queryWrapper2 = new BaseQueryWrapper<>();
+        queryWrapper2.eq("data_id", dto.getId());
+        queryWrapper2.eq("node", "产前样衣任务");
+        queryWrapper2.eq("status", "裁剪完成");
+        if (dto.getCutterEndTime()!=null){
+            NodeStatus nodeStatus2 = new NodeStatus();
+            nodeStatus2.setDataId(dto.getId());
+            nodeStatus2.setNode("产前样衣任务");
+            nodeStatus2.setStatus("裁剪完成");
+            nodeStatus2.setEndFlg("1");
+            nodeStatus2.setStartDate(dto.getCutterEndTime());
+            nodeStatusService.saveOrUpdate(nodeStatus2, queryWrapper2);
+        }else {
+            nodeStatusService.remove(queryWrapper2);
+        }
+
+        QueryWrapper<NodeStatus> queryWrapper3 = new BaseQueryWrapper<>();
+        queryWrapper3.eq("data_id", dto.getId());
+        queryWrapper3.eq("node", "产前样衣任务");
+        queryWrapper3.eq("status", "车缝进行中");
+       if (dto.getStitchStartTime()!=null){
+           NodeStatus nodeStatus3 = new NodeStatus();
+           nodeStatus3.setDataId(dto.getId());
+           nodeStatus3.setNode("产前样衣任务");
+           nodeStatus3.setStatus("车缝进行中");
+           nodeStatus3.setStartFlg("1");
+           nodeStatus3.setStartDate(dto.getStitchStartTime());
+           nodeStatusService.saveOrUpdate(nodeStatus3, queryWrapper3);
+       }else {
+              nodeStatusService.remove(queryWrapper3);
+       }
+
+        QueryWrapper<NodeStatus> queryWrapper4 = new BaseQueryWrapper<>();
+        queryWrapper4.eq("data_id", dto.getId());
+        queryWrapper4.eq("node", "产前样衣任务");
+        queryWrapper4.eq("status", "车缝完成");
+        if (dto.getStitchEndTime()!=null){
+            NodeStatus nodeStatus4 = new NodeStatus();
+            nodeStatus4.setDataId(dto.getId());
+            nodeStatus4.setNode("产前样衣任务");
+            nodeStatus4.setStatus("车缝完成");
+            nodeStatus4.setEndFlg("1");
+            nodeStatus4.setStartDate(dto.getStitchEndTime());
+            nodeStatusService.saveOrUpdate(nodeStatus4, queryWrapper4);
+        }else {
+            nodeStatusService.remove(queryWrapper4);
+        }
+
+
+
+        // 记录日志
+        this.saveOperaLog("修改", "产前样看板", dto, task);
         return true;
     }
 
@@ -410,7 +480,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
      */
     @Override
     public boolean samplePicUpload(SamplePicUploadDto dto) {
-        PreProductionSampleTask preProductionSampleTask =baseMapper.selectById(dto.getId());
+        PreProductionSampleTask preProductionSampleTask = baseMapper.selectById(dto.getId());
         preProductionSampleTask.setSamplePic(dto.getSamplePic());
         baseMapper.updateById(preProductionSampleTask);
         return true;

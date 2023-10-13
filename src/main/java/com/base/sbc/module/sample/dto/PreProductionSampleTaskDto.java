@@ -26,4 +26,27 @@ public class PreProductionSampleTaskDto extends PreProductionSampleTask {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updateDate;
 
+    /**
+     * 产前样裁剪开始时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date cutterStartTime;
+
+    /**
+     * 产前样裁剪结束时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date cutterEndTime;
+
+    /**
+     * 产前样车缝开始时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date stitchStartTime;
+
+    /**
+     * 产前样车缝结束时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date stitchEndTime;
 }
