@@ -174,7 +174,9 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                     taxRate = jsonObject.getBigDecimal("税率");
 
                 }
-                stylePricingVO.setTotalCost(stylePricingVO.getTotalCost().multiply(taxRate));
+                if (stylePricingVO.getTotalCost()!=null && taxRate!=null){
+                    stylePricingVO.setTotalCost(stylePricingVO.getTotalCost().multiply(taxRate));
+                }
             }
 
 
