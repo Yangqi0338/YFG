@@ -338,10 +338,20 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     /**
      * 上传样衣图
+     *
      * @param dto
      * @return
      */
     boolean samplePicUpload(SamplePicUploadDto dto);
+
+    /**
+     * 校验打样顺序是否重复
+     *
+     * @param styleId
+     * @param patternMakingId
+     * @param patSeq
+     */
+    void checkPatSeqRepeat(String styleId, String patternMakingId, String patSeq);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
