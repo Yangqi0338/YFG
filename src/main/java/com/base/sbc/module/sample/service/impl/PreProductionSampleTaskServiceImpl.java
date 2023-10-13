@@ -188,7 +188,6 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         qw.notEmptyIn("s.year", dto.getYear());
         qw.notEmptyIn("s.season", dto.getSeason());
         qw.notEmptyIn("s.month", dto.getMonth());
-        qw.orderByAsc("t.sort");
         Page<PreProductionSampleTaskVo> objects = PageHelper.startPage(dto);
         if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");

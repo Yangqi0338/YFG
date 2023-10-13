@@ -7,7 +7,8 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialOld;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialWidthMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
@@ -60,6 +61,15 @@ public class BasicsdatumMaterialWidthServiceImpl
             });
             super.saveBatch(basicsdatumMaterialOlds);
         }
+    }
+
+    @Override
+    public void updateMaterialCode(String oldMaterialCode, String newMaterialCode) {
+        LambdaUpdateWrapper<BasicsdatumMaterialWidth> updateWrapper = new UpdateWrapper<BasicsdatumMaterialWidth>()
+                .lambda()
+                .eq(BasicsdatumMaterialWidth::getMaterialCode, oldMaterialCode)
+                .set(BasicsdatumMaterialWidth::getMaterialCode, newMaterialCode);
+        super.update(updateWrapper);
     }
 
 // 自定义方法区 不替换的区域【other_end】

@@ -33,6 +33,13 @@ public interface BasicsdatumMaterialWidthService extends BaseService<Basicsdatum
      */
     void copyByMaterialCode(String materialCode, String newMaterialCode);
 
+    /**
+     * 更新物料编码
+     * @param oldMaterialCode
+     * @param newMaterialCode
+     */
+    void updateMaterialCode(String oldMaterialCode, String newMaterialCode);
+
 // 自定义方法区 不替换的区域【other_end】
 
 	
