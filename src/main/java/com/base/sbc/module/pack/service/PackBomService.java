@@ -146,8 +146,11 @@ public interface PackBomService extends PackBaseService<PackBom> {
 
     /**
      * 根据多个颜色查询数据（跳过部分校验）
+     *
      * @param dto
      * @return
      */
     List<PackBomVo> getPackBomVoList(PackCommonPageSearchDto dto);
+
+    BigDecimal sumBomCost(PackBomPageSearchDto dto);
 }

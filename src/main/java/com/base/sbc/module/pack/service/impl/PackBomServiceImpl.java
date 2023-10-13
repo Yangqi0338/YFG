@@ -131,6 +131,16 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     }
 
     @Override
+    public BigDecimal sumBomCost(PackBomPageSearchDto dto) {
+        QueryWrapper<PackBom> qw = new QueryWrapper<>();
+        PackUtils.commonQw(qw, dto);
+        qw.eq(StrUtil.isNotBlank(dto.getBomVersionId()), "bom_version_id", dto.getBomVersionId());
+        qw.eq("unusable_flag", BaseGlobal.NO);
+        BigDecimal cost = baseMapper.sumBomCost(qw);
+        return cost;
+    }
+
+    @Override
     public void querySubList(List<PackBomVo> list) {
         if (CollUtil.isEmpty(list)) {
             return;
@@ -627,4 +637,6 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         }
         return packBomVos;
     }
+
+
 }

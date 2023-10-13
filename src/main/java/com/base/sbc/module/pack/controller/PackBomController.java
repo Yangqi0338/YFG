@@ -33,7 +33,10 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：资料包-物料清单 Controller类
@@ -105,8 +108,18 @@ public class PackBomController extends BaseController{
 
     @ApiOperation(value = "物料清单分页查询")
     @GetMapping()
-    public PageInfo<PackBomVo> packBomPage(@Valid PackBomPageSearchDto dto) {
-        return packBomService.pageInfo(dto);
+    public ApiResult packBomPage(@Valid PackBomPageSearchDto dto) {
+        PageInfo<PackBomVo> packBomVoPageInfo = packBomService.pageInfo(dto);
+        BigDecimal costTotal = packBomService.sumBomCost(dto);
+        Map<String, Object> attributes = new HashMap<>(8);
+        attributes.put("costTotal", costTotal);
+        return ApiResult.success(null, packBomVoPageInfo, attributes);
+    }
+
+    @ApiOperation(value = "统计成本")
+    @GetMapping("/queryBomCost")
+    public BigDecimal queryBomCost(@Valid PackBomPageSearchDto dto) {
+        return packBomService.sumBomCost(dto);
     }
 
     @PostMapping("/save")

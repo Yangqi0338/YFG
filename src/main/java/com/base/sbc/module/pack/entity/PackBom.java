@@ -368,12 +368,12 @@ public class PackBom extends BaseDataEntity<String> {
     /**
      * 搭配名称
      */
-    @ApiModelProperty(value = "搭配名称")
+    @ApiModelProperty(value = "搭配编码")
     private String collocationCode;
     /**
      * 搭配编码
      */
-    @ApiModelProperty(value = "搭配编码")
+    @ApiModelProperty(value = "搭配名称")
     private String collocationName;
     /**
      * 货期

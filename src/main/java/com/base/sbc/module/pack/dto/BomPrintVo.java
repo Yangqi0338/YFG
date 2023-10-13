@@ -101,7 +101,11 @@ public class BomPrintVo {
         }
 
         String collect = bomList.stream()
-                .filter(item -> StrUtil.equals("DP008", item.getCollocationCode()) || StrUtil.equals("衬", item.getCollocationName()))
+                .filter(item -> StrUtil.equals("DP008", item.getCollocationCode())
+                        || StrUtil.equals("衬", item.getCollocationName())
+                        || StrUtil.equals("DP026", item.getCollocationCode())
+                        || StrUtil.equals("扑条", item.getCollocationName())
+                )
                 .map(item -> {
                     ArrayList<String> strings = CollUtil.newArrayList(
                             item.getMaterialCode(),
