@@ -63,6 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -137,7 +138,10 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         qw.eq(StrUtil.isNotBlank(dto.getBomVersionId()), "bom_version_id", dto.getBomVersionId());
         qw.eq("unusable_flag", BaseGlobal.NO);
         BigDecimal cost = baseMapper.sumBomCost(qw);
-        return cost;
+        if (cost != null) {
+            return cost.setScale(2, RoundingMode.HALF_UP);
+        }
+        return null;
     }
 
     @Override

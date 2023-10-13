@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.NumberUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
@@ -112,7 +114,7 @@ public class PackBomController extends BaseController{
         PageInfo<PackBomVo> packBomVoPageInfo = packBomService.pageInfo(dto);
         BigDecimal costTotal = packBomService.sumBomCost(dto);
         Map<String, Object> attributes = new HashMap<>(8);
-        attributes.put("costTotal", costTotal);
+        attributes.put("costTotal", Opt.ofNullable(costTotal).map(NumberUtil::toStr).orElse(""));
         return ApiResult.success(null, packBomVoPageInfo, attributes);
     }
 
