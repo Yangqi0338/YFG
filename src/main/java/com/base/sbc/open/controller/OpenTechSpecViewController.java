@@ -67,7 +67,7 @@ public class OpenTechSpecViewController {
     }
 
     @GetMapping("pdfHtml")
-    public void html(String foreignId, String packType, String userId, HttpServletResponse response) throws IOException {
+    public void html(String foreignId, String packType, String userId, String minioDomain, HttpServletResponse response) throws IOException {
         PackCommonSearchDto dto = new PackCommonSearchDto();
         dto.setForeignId(foreignId);
         dto.setPackType(packType);
@@ -77,6 +77,7 @@ public class OpenTechSpecViewController {
         String html;
         try {
             html = genTechSpecPdfFile.toHtml();
+            html = html.replaceAll(minioDomain, "/minio");
         } catch (Exception e) {
             html = e.getMessage();
         }
