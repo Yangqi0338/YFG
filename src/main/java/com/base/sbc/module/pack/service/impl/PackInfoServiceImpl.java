@@ -35,7 +35,10 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioConfig;
-import com.base.sbc.config.utils.*;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StyleNoImgUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.common.dto.RemoveDto;
@@ -173,6 +176,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     private String baseRequestUrl;
     @Value("${baseFrontEndAddress}")
     private String baseFrontEndAddress;
+    @Value("${techSpecView:http://10.98.250.44:8087}")
+    private String techSpecView;
 
     @Autowired
     private DataUpdateScmService dataUpdateScmService;
@@ -637,7 +642,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         String objectFileName =  "dataPackage/" +style.getBrandName() + "/" +style.getYearName()+ "/";
         vo.setObjectFileName(objectFileName);
         //二维码url
-        String fileWebUrl = baseFrontEndAddress + "/techSpecView?foreignId=" + dto.getForeignId() + "&packType=" + dto.getPackType() + "&userId=" + groupUser.getId();
+        String fileWebUrl = techSpecView + "/?foreignId=" + dto.getForeignId() + "&packType=" + dto.getPackType() + "&userId=" + groupUser.getId();
         System.out.println(fileWebUrl);
         System.out.println(URLUtil.encode(fileWebUrl));
         String qrCodeUrl = baseRequestUrl + "/pdm/api/open/qrCode?content=" + URLUtil.encodeAll(fileWebUrl);
