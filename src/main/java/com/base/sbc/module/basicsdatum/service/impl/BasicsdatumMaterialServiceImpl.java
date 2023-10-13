@@ -650,6 +650,21 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         return b;
     }
 
+    /**
+     * 修改供应商图片
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public Boolean updateMaterialPic(BasicsdatumMaterialSaveDto dto) {
+        UpdateWrapper updateWrapper = new UpdateWrapper();
+        updateWrapper.set("image_url",dto.getImageUrl());
+        updateWrapper.eq("id",dto.getId());
+        baseMapper.update(null,updateWrapper);
+        return true;
+    }
+
     @Override
     public Boolean delBasicsdatumMaterialColor(RemoveDto removeDto) {
         return this.materialColorService.removeByIds(removeDto);
@@ -928,15 +943,16 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     }
 
     @Override
-    public void saveSubmit(BasicsdatumMaterialSaveDto dto) {
+    public BasicsdatumMaterialVo saveSubmit(BasicsdatumMaterialSaveDto dto) {
         dto.setConfirmStatus("1");
-        this.saveBasicsdatumMaterial(dto);
+        BasicsdatumMaterialVo basicsdatumMaterialVo =  this.saveBasicsdatumMaterial(dto);
         flowableService.start(FlowableService.BASICSDATUM_MATERIAL,
                 FlowableService.BASICSDATUM_MATERIAL, dto.getId(),
                 "/pdm/api/saas/basicsdatumMaterial/approval",
                 "/pdm/api/saas/basicsdatumMaterial/approval",
                 "/pdm/api/saas/basicsdatumMaterial/approval",
                 "pdm/api/saas/basicsdatumMaterial/getBasicsdatumMaterial?id=" + dto.getId(), BeanUtil.beanToMap(dto));
+        return basicsdatumMaterialVo;
     }
 
 	@Override

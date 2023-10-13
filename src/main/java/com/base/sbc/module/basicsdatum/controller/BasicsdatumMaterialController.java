@@ -352,9 +352,8 @@ public class BasicsdatumMaterialController extends BaseController {
 
     @ApiOperation(value = "保存提交")
     @PostMapping("/saveSubmit")
-    public ApiResult saveSubmit(@Valid @RequestBody BasicsdatumMaterialSaveDto dto) {
-        basicsdatumMaterialService.saveSubmit(dto);
-        return ApiResult.success("操作成功");
+    public BasicsdatumMaterialVo saveSubmit(@Valid @RequestBody BasicsdatumMaterialSaveDto dto) {
+        return basicsdatumMaterialService.saveSubmit(dto);
     }
 
 
@@ -421,4 +420,11 @@ public class BasicsdatumMaterialController extends BaseController {
     public BasicsdatumMaterialPriceDetailVo gatSupplierPrice(SupplierDetailPriceDto supplierDetailPriceDto) {
         return basicsdatumMaterialPriceDetailService.gatSupplierPrice(supplierDetailPriceDto);
     }
+
+    @ApiOperation(value = "修改物料主图")
+    @PostMapping("/updateMaterialPic")
+    public Boolean updateMaterialPic(@Valid @RequestBody BasicsdatumMaterialSaveDto dto) {
+        return basicsdatumMaterialService.updateMaterialPic(dto);
+    }
+
 }

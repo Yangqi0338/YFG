@@ -49,6 +49,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -175,16 +176,14 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                     /*物料主图*/
                     case "material":
                         /*查询物料的数据*/
-                        QueryWrapper queryWrapper1 = new QueryWrapper();
-                        queryWrapper1.eq("material_code", code);
-                        List<BasicsdatumMaterial> list = basicsdatumMaterialMapper.selectList(queryWrapper1);
-                        if (CollUtil.isEmpty(list)) {
+                        BasicsdatumMaterial basicsdatumMaterial = basicsdatumMaterialMapper.selectById(code);
+                        if (ObjectUtils.isEmpty(basicsdatumMaterial)) {
                             throw new OtherException("没有物料信息");
                         }
-                        if (StringUtils.isEmpty(list.get(0).getYearName())) {
+                        if (StringUtils.isEmpty(basicsdatumMaterial.getYearName())) {
                             throw new OtherException("没有年份信息，先保存");
                         }
-                        objectName = type + "/" + list.get(0).getYearName() + "/" + list.get(0).getSeasonName() + "/" + code + "." + extName;
+                        objectName = type + "/" + basicsdatumMaterial.getYearName() + "/" + basicsdatumMaterial.getSeasonName() + "/" + basicsdatumMaterial.getMaterialCode() + "." + extName;
                         break;
                     default:
                         objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;

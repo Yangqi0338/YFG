@@ -95,7 +95,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 * 保存提交
 	 * @param dto
 	 */
-	void saveSubmit(BasicsdatumMaterialSaveDto dto);
+	BasicsdatumMaterialVo saveSubmit(BasicsdatumMaterialSaveDto dto);
 
 	/**
 	 * 审批处理
@@ -133,5 +133,14 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	Map<String, BasicsdatumMaterial> getSourceAndIngredient(List<String> materialCodes);
 
 	Boolean saveBasicsdatumMaterialColorList(List<BasicsdatumMaterialColorSaveDto> dtos);
+
+	/**
+	 * 修改供应商图片
+	 * @param dto
+	 * @return
+	 */
+	Boolean updateMaterialPic(BasicsdatumMaterialSaveDto dto);
+
+
 }
 
