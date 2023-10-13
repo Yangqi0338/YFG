@@ -321,6 +321,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //如果勾选了关联款式BOM物料信息则复制保存款式设计中的bom信息
         List<PackBom> bomList = packBomService.list(style.getId(), PackUtils.PACK_TYPE_STYLE);
         if (CollectionUtil.isNotEmpty(bomList)) {
+            /*过滤停用的*/
+            bomList.stream().filter(b -> StringUtils.equals(b.getStatus(),BaseGlobal.NO)).collect(Collectors.toList());
             //保存bom尺码跟颜色
             List<String> bomIdList = bomList.stream().map(PackBom::getId).collect(Collectors.toList());
             QueryWrapper queryWrapper =  new QueryWrapper<>();
