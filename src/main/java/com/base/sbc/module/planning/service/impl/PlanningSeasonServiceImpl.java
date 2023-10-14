@@ -450,6 +450,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                 demandOrderSkcVo.setValName(pdpd.getClassifyName());
                 u.setStyleColorId("");
             } else {
+                boolean removeSuccess = false;
                 planningBandTotalVo.orderTotalAdd();
                 //发结婚证
                 u.setStyleColorId(demandOrderSkcVo.getStyleColorId());
@@ -458,17 +459,21 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
                 if (StrUtil.equals(bdkey, matchKey)) {
                     demandOrderSkcVo.setMatchFlag(SeatMatchFlagEnum.YES.getValue());
                     //移除一个（搬一起住）
-                    dSkcMap.get(bdkey).remove(demandOrderSkcVo);
+                    removeSuccess = dSkcMap.get(bdkey).remove(demandOrderSkcVo);
                 }
-                // 父母包办 分开住
+                // 父母包办
                 else {
-
-                    demandOrderSkcVo.setMatchBandCode(pdpd.getBandCode());
-                    demandOrderSkcVo.setMatchBandName(pdpd.getBandName());
-                    demandOrderSkcVo.setMatchFlag(SeatMatchFlagEnum.CUSTOM_COLOR.getValue());
-                    demandOrderSkcVo = BeanUtil.copyProperties(demandOrderSkcVo, DemandOrderSkcVo.class);
+//                    demandOrderSkcVo.setMatchBandCode(pdpd.getBandCode());
+//                    demandOrderSkcVo.setMatchBandName(pdpd.getBandName());
+//                    demandOrderSkcVo.setMatchFlag(SeatMatchFlagEnum.CUSTOM_COLOR.getValue());
+//                    demandOrderSkcVo = BeanUtil.copyProperties(demandOrderSkcVo, DemandOrderSkcVo.class);
+                    //移除一个（搬一起住）
+                    removeSuccess = dSkcMap.get(matchKey).remove(demandOrderSkcVo);
                     demandOrderSkcVo.setMatchFlag(SeatMatchFlagEnum.CUSTOM_SEAT.getValue());
+                    // 2023年10月14日 20:34:39 以前分开住 现在改为一起住
+
                 }
+                System.out.println("removeSuccess:" + removeSuccess);
                 if (matchTotal.containsKey(demandOrderSkcVo.getValName())) {
                     matchTotal.put(demandOrderSkcVo.getValName(), matchTotal.get(demandOrderSkcVo.getValName()) + 1);
                 } else {
@@ -489,7 +494,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         }
         vo.setSeatIds(updateSeatList.stream().map(item -> item.getId()).collect(Collectors.toList()));
         seatService.updateBatchById(updateSeatList);
-        //处理未匹配的数据（包括父母包办）
+        //处理未匹配的数据
         for (Map.Entry<String, List<DemandOrderSkcVo>> entrySet : dSkcMap.entrySet()) {
             List<DemandOrderSkcVo> item = entrySet.getValue();
             for (DemandOrderSkcVo demandOrderSkcVo : item) {
