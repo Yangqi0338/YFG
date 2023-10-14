@@ -42,4 +42,20 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String status;
     @ApiModelProperty(value = "产品季id", example = "1223333122223333333")
     private String planningSeasonId;
+
+    private String sampleType;
+
+    private String technicianKittingDate;
+
+    private String bfzgxfsj;
+
+    private String bsjssj;
+
+    private String zysj;
+
+    private String cjsj;
+
+    private String cfsj;
+
+    private String yywcsj;
 }

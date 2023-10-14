@@ -123,7 +123,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         QueryWrapper rQw = new QueryWrapper();
         rQw.eq("style_id", dto.getStyleId());
         rQw.eq("del_flag", BaseGlobal.NO);
-        //出版样只能有一个
+        // 出版样只能有一个
         if (StrUtil.equals("初版样", dto.getSampleType())) {
             rQw.eq("sample_type", dto.getSampleType());
             long count = count(rQw);
@@ -137,9 +137,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 throw new OtherException("只能新建6个打版指令:1个初版样、5个其他");
             }
         }
-        //校验打样顺序重复
+        // 校验打样顺序重复
         checkPatSeqRepeat(dto.getStyleId(), null, dto.getPatSeq());
-        //查询样衣
+        // 查询样衣
         PatternMaking patternMaking = BeanUtil.copyProperties(dto, PatternMaking.class);
         patternMaking.setCode(getNextCode(style));
         patternMaking.setPlanningSeasonId(style.getPlanningSeasonId());
@@ -166,7 +166,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public void checkPatSeqRepeat(String styleId, String patternMakingId, String patSeq) {
-        //校验打样顺序重复  patSeq
+        // 校验打样顺序重复  patSeq
         BaseQueryWrapper<PatternMaking> patSeqQw = new BaseQueryWrapper<>();
         patSeqQw.eq("style_id", styleId);
         patSeqQw.lambda().eq(PatternMaking::getPatSeq, patSeq);
@@ -204,7 +204,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.eq("id", dto.getId());
         setUpdateInfo(uw);
         PatternMaking patternMaking = getById(dto.getId());
-        //将款式设计状态改为已下发
+        // 将款式设计状态改为已下发
         UpdateWrapper<Style> sdUw = new UpdateWrapper<>();
         sdUw.eq("id", patternMaking.getStyleId());
         sdUw.set("status", BasicNumber.TWO.getNumber());
@@ -223,27 +223,27 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq("design_send_status", "1");
         List<PatternMaking> list = baseMapper.selectList(qw);
         Style style = styleService.getById(patternMaking.getStyleId());
-         /*判断是不是初版样*/
-            if (!StrUtil.equals("初版样", patternMaking.getSampleTypeName())) {
-                /*改版样判断没值时手动下发*/
-                if(StrUtil.isNotBlank(style.getPatternDesignName())){
-                    /*自动下发查看版师是否离职*/
-                    UserCompany userCompany = amcFeignService.getUserByUserId(style.getPatternDesignId());
-                    if (!StrUtil.equals(userCompany.getIsDimission(), BaseGlobal.YES)) {
-                        // 自动下发到打板管理
-                        SetPatternDesignDto setPatternDesignDto = new SetPatternDesignDto();
-                        setPatternDesignDto.setId(patternMaking.getId());
-                        setPatternDesignDto.setPatternDesignId(style.getPatternDesignId());
-                        setPatternDesignDto.setPatternDesignName(style.getPatternDesignName());
-                        //自动下发打板
-                        prmSend(setPatternDesignDto);
-                    }else {
-                        /*初版版师离职后需要手动下发*/
-                        uw.set("first_pattern_design_id", patternMaking.getPatternDesignId());
-                        uw.set("first_pattern_design_name", patternMaking.getPatternDesignName());
-                    }
+        /*判断是不是初版样*/
+        if (!StrUtil.equals("初版样", patternMaking.getSampleTypeName())) {
+            /*改版样判断没值时手动下发*/
+            if (StrUtil.isNotBlank(style.getPatternDesignName())) {
+                /*自动下发查看版师是否离职*/
+                UserCompany userCompany = amcFeignService.getUserByUserId(style.getPatternDesignId());
+                if (!StrUtil.equals(userCompany.getIsDimission(), BaseGlobal.YES)) {
+                    // 自动下发到打板管理
+                    SetPatternDesignDto setPatternDesignDto = new SetPatternDesignDto();
+                    setPatternDesignDto.setId(patternMaking.getId());
+                    setPatternDesignDto.setPatternDesignId(style.getPatternDesignId());
+                    setPatternDesignDto.setPatternDesignName(style.getPatternDesignName());
+                    // 自动下发打板
+                    prmSend(setPatternDesignDto);
+                } else {
+                    /*初版版师离职后需要手动下发*/
+                    uw.set("first_pattern_design_id", patternMaking.getPatternDesignId());
+                    uw.set("first_pattern_design_name", patternMaking.getPatternDesignName());
                 }
             }
+        }
         /*发送消息*/
         messageUtils.sampleDesignSendMessage(patternMaking.getPatternRoomId(), patternMaking.getPatternNo(), baseController.getUser());
 
@@ -368,11 +368,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK());
         Page<TechnologyCenterTaskVo> page = PageHelper.startPage(dto);
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
-        //设置图片
+        // 设置图片
         attachmentService.setListStylePic(list, "stylePic");
         // 设置版师列表
         if (CollUtil.isNotEmpty(list)) {
-            //去掉 优化性能
+            // 去掉 优化性能
 //            Map<String, List<PatternDesignVo>> pdMap = new HashMap<>(16);
 //            for (TechnologyCenterTaskVo tct : list) {
 //                String key = tct.getPlanningSeasonId();
@@ -396,7 +396,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.set("pattern_design_name", dto.getPatternDesignName());
         uw.eq("id", dto.getId());
         boolean b = update(uw);
-        PatternMaking patternMaking =baseMapper.selectById(dto.getId());
+        PatternMaking patternMaking = baseMapper.selectById(dto.getId());
 //        同步到款式信息
         UpdateWrapper<Style> updateWrapper = new UpdateWrapper<>();
         updateWrapper.set("pattern_design_id", dto.getPatternDesignId());
@@ -464,7 +464,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public boolean breakOffPattern(String id, String flag) {
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.in("id", StrUtil.split(id, CharUtil.COMMA));
-        uw.set("break_off_pattern",flag);
+        uw.set("break_off_pattern", flag);
         String[] split = id.split(",");
         List<PatternMaking> patternMakings = this.listByIds(Arrays.asList(split));
 
@@ -524,10 +524,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
         if (StrUtil.isNotBlank(dto.getIsBlackList())) {
             if (StrUtil.equals(dto.getIsBlackList(), BasicNumber.ONE.getNumber())) {
-                //只查询黑单
+                // 只查询黑单
                 qw.eq("p.urgency", "0");
             } else {
-                //排除黑单
+                // 排除黑单
                 qw.ne("p.urgency", "0");
 
             }
@@ -544,7 +544,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
         Page<PatternMakingTaskListVo> objects = PageHelper.startPage(dto);
         List<PatternMakingTaskListVo> list = getBaseMapper().patternMakingTaskList(qw);
-        //设置图片
+        // 设置图片
         attachmentService.setListStylePic(list, "stylePic");
         // 设置节点状态
         nodeStatusService.setNodeStatus(list);
@@ -616,11 +616,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
 
         PatternMakingVo vo = BeanUtil.copyProperties(byId, PatternMakingVo.class);
-        //设置头像
+        // 设置头像
         amcFeignService.setUserAvatarToObj(vo);
-        //查询款式设计信息
+        // 查询款式设计信息
         StyleVo sampleDesignVo = styleService.getDetail(vo.getStyleId());
-        //设置头像
+        // 设置头像
         amcFeignService.setUserAvatarToObj(sampleDesignVo);
         StylePmDetailVo result = BeanUtil.copyProperties(sampleDesignVo, StylePmDetailVo.class);
         result.setPatternMaking(vo);
@@ -641,7 +641,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public Map patternMakingSteps0(String userCompany) {
         Map<String, List<Map>> retMap = new HashMap<>();
-        //查询节点状态
+        // 查询节点状态
         QueryWrapper<NodeStatus> nsQw = new QueryWrapper<>();
         nsQw.eq("company_code", userCompany);
         nsQw.eq("end_flg", BaseGlobal.NO);
@@ -718,7 +718,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         List<String> pmIds = pmList.stream().map(PatternMaking::getId).collect(Collectors.toList());
         List<StyleStepVo.PatternMakingStepVo> patternMakingStepVos = BeanUtil.copyToList(pmList, StyleStepVo.PatternMakingStepVo.class);
-        //查询节点状态
+        // 查询节点状态
         QueryWrapper<NodeStatus> nsQw = new QueryWrapper<>();
         nsQw.in("data_id", pmIds);
         List<NodeStatus> nsList = nodeStatusService.list(nsQw);
@@ -763,7 +763,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto) {
-        QueryWrapper qw = new QueryWrapper();
+        QueryWrapper<SampleBoardVo> qw = new QueryWrapper<>();
         qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
@@ -771,6 +771,54 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.in(StrUtil.isNotBlank(dto.getBandCode()), "s.band_code", StrUtil.split(dto.getBandCode(), StrUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "s.planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), StrUtil.COMMA));
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
+        qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getPatternDesignId());
+
+        if (StrUtil.isNotBlank(dto.getSampleType()) && dto.getSampleType().split(",").length > 1) {
+            qw.gt(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "p.technician_kitting_date", dto.getTechnicianKittingDate().split(",")[0]);
+            qw.lt(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "p.technician_kitting_date", dto.getTechnicianKittingDate().split(",")[1]);
+        }
+        if (StrUtil.isNotBlank(dto.getBfzgxfsj()) && dto.getBfzgxfsj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getBfzgxfsj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='技术中心' and status='版房主管下发' and start_date >={0} and {1} >= end_date"
+                    , dto.getBfzgxfsj().split(",")[0], dto.getBfzgxfsj().split(",")[1]);
+        }
+        // bsjssj
+        if (StrUtil.isNotBlank(dto.getBsjssj()) && dto.getBsjssj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getBsjssj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='已接收' and start_date >={0} and {1} >= end_date"
+                    , dto.getBsjssj().split(",")[0], dto.getBsjssj().split(",")[1]);
+        }
+        //zysj
+        if (StrUtil.isNotBlank(dto.getZysj()) && dto.getZysj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getZysj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='打版完成' and start_date >={0} and {1} >= end_date"
+                    , dto.getZysj().split(",")[0], dto.getZysj().split(",")[1]);
+        }
+        //cjsj
+        if (StrUtil.isNotBlank(dto.getCjsj()) && dto.getCjsj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCjsj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪开始' and start_date >={0}"
+                    , dto.getCjsj().split(",")[0]);
+            qw.exists(StrUtil.isNotBlank(dto.getCjsj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪完成' and {0} >= start_date "
+                    , dto.getCjsj().split(",")[1]);
+        }
+        //cfsj
+        if (StrUtil.isNotBlank(dto.getCfsj()) && dto.getCfsj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCfsj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝开始' and start_date >={0}"
+                    , dto.getCfsj().split(",")[0]);
+            qw.exists(StrUtil.isNotBlank(dto.getCfsj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝完成' and {0} >= start_date "
+                    , dto.getCfsj().split(",")[1]);
+        }
+        // yywcsj
+        if (StrUtil.isNotBlank(dto.getYywcsj()) && dto.getYywcsj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getYywcsj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='样衣完成' and start_date >={0} and {1} >= end_date"
+                    , dto.getYywcsj().split(",")[0], dto.getYywcsj().split(",")[1]);
+        }
+
         Page<SampleBoardVo> objects = PageHelper.startPage(dto);
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK(), "s.");
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
@@ -892,7 +940,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
      */
     @Override
     public boolean samplePicUpload(SamplePicUploadDto dto) {
-       PatternMaking patternMaking = baseMapper.selectById(dto.getId());
+        PatternMaking patternMaking = baseMapper.selectById(dto.getId());
         patternMaking.setSamplePic(dto.getSamplePic());
         baseMapper.updateById(patternMaking);
         return true;
@@ -950,7 +998,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         byId.setStitcherId(dto.getStitcherId());
         byId.setSglKitting(dto.getSglKitting());
         byId.setSglKittingDate(new Date());
-        //分配后进入下一节点
+        // 分配后进入下一节点
         nodeStatusService.nextOrPrev(groupUser, byId, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
         updateById(byId);
         sort(byId, false);
@@ -1076,10 +1124,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (pm == null) {
             throw new OtherException("任务不存在");
         }
-        //跳转
+        // 跳转
         boolean flg = nodeStatusService.nextOrPrev(groupUser, pm, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, np);
         updateById(pm);
-        //重置排序
+        // 重置排序
         update(new UpdateWrapper<PatternMaking>().lambda().eq(PatternMaking::getId, id).set(PatternMaking::getSort, null));
         sort(pm, false);
         return flg;
@@ -1110,7 +1158,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (!hasField) {
             return;
         }
-        //重新排序
+        // 重新排序
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
         qw.select("id");
         qw.lambda().eq(PatternMaking::getNode, node).eq(PatternMaking::getStatus, status).eq(PatternMaking::getBreakOffPattern, BaseGlobal.NO).eq(PatternMaking::getBreakOffSample, BaseGlobal.NO);
@@ -1118,7 +1166,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             qw.ne("id", pm.getId());
         }
         qw.eq(StrUtil.toUnderlineCase(userField), BeanUtil.getProperty(pm, userField));
-        //黑单处理
+        // 黑单处理
         if (StrUtil.equals(pm.getUrgency(), BasicNumber.ZERO.getNumber())) {
             qw.lambda().eq(PatternMaking::getUrgency, BasicNumber.ZERO.getNumber());
         } else {
@@ -1148,7 +1196,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             throw new OtherException("打版信息为空");
         }
         GroupUser groupUser = userUtils.getUserBy(user);
-        //校验是否是样衣组长
+        // 校验是否是样衣组长
         boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
         if (!sampleTeamLeader) {
             throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
@@ -1167,7 +1215,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             throw new OtherException("打版信息为空");
         }
         GroupUser groupUser = userUtils.getUserBy(user);
-        //校验是否是样衣组长
+        // 校验是否是样衣组长
         boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
         if (!sampleTeamLeader) {
             throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
@@ -1186,7 +1234,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             throw new OtherException("打版信息为空");
         }
         GroupUser groupUser = userUtils.getUserBy(user);
-        //校验是否是样衣组长
+        // 校验是否是样衣组长
         boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
         if (!sampleTeamLeader) {
             throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
@@ -1206,7 +1254,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             throw new OtherException("打版信息为空");
         }
         GroupUser groupUser = userUtils.getUserBy(user);
-        //校验是否是样衣组长
+        // 校验是否是样衣组长
         boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
         if (!sampleTeamLeader) {
             throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
@@ -1222,12 +1270,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Transactional(rollbackFor = {Exception.class})
     public boolean setSampleBarCode(SetSampleBarCodeDto dto) {
         /*查询样衣码是否重复*/
-        QueryWrapper queryWrapper =new QueryWrapper();
-        queryWrapper.eq("sample_bar_code",dto.getSampleBarCode());
-         List<PatternMaking> patternMakingList = baseMapper.selectList(queryWrapper);
-         if(CollUtil.isNotEmpty(patternMakingList)){
-             throw new OtherException("样衣条码重复");
-         }
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("sample_bar_code", dto.getSampleBarCode());
+        List<PatternMaking> patternMakingList = baseMapper.selectList(queryWrapper);
+        if (CollUtil.isNotEmpty(patternMakingList)) {
+            throw new OtherException("样衣条码重复");
+        }
         PatternMaking update = new PatternMaking();
         update.setSampleBarCode(dto.getSampleBarCode());
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
