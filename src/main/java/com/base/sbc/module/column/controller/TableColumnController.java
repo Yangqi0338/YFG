@@ -1,6 +1,7 @@
 package com.base.sbc.module.column.controller;
 
 import com.base.sbc.client.amc.entity.Group;
+import com.base.sbc.client.amc.entity.Job;
 import com.base.sbc.client.amc.entity.UserGroup;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.ApiResult;
@@ -38,10 +39,10 @@ public class TableColumnController extends BaseController{
     @ApiOperation(value = "根据表格编码获取列")
     @GetMapping("/getTableColumnByTableCode")
     public ApiResult getTableColumnByTableCode(String tableCode, @RequestHeader("userId") String userId) {
-        List<Group> groups = amcService.getByUserId(userId);
-        List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
+        List<Job> jobs = amcService.getByUserId(userId);
+
         //根据用户组id和表格编码获取关联的列
-        List<TableColumns> tableColumns = tableColumnsService.listByTableCodeAndGroupIds(tableCode, groupIds);
+        List<TableColumns> tableColumns = tableColumnsService.listByTableCodeAndGroupIds(tableCode, jobs);
         return selectSuccess(tableColumns);
     }
 }

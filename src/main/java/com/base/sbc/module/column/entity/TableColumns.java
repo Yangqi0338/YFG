@@ -10,4 +10,8 @@ import lombok.Data;
  */
 @Data
 public class TableColumns extends BaseDataEntity<String> {
+    /**
+     * 字段名称
+     */
+    private String title;
 }
