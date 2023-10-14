@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.vo;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -67,10 +68,23 @@ public class StyleColorVo {
     private String  prodCategory1st;
 
     /*
-    大类
-    */
-    @ApiModelProperty(value = "大类"  )
+   大类编码
+   */
+    @ApiModelProperty(value = "大类编码"  )
     private String  prodCategory1stName;
+
+    @ApiModelProperty(value = "中类")
+    private String prodCategory2ndName;
+
+    @ApiModelProperty(value = "中类"  )
+    private String prodCategory2nd;
+
+    @ApiModelProperty(value = "小类编码")
+    private String prodCategory3nd;
+
+    @ApiModelProperty(value = "小类")
+    private String prodCategory3ndName;
+
 
     /**
      * 品类编码
