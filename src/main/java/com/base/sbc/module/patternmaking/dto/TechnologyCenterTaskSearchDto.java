@@ -39,4 +39,16 @@ public class TechnologyCenterTaskSearchDto extends Page {
     @ApiModelProperty(value = "产品季id", example = "1223333122223333333")
     private String planningSeasonId;
 
+    private String designerIds;
+
+    private String prodCategory;
+
+    private String designSendDate;
+
+    private String prmSendDate;
+
+    private String sampleType;
+
+    private String urgencyName;
+
 }
