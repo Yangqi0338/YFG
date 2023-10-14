@@ -1150,10 +1150,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         GroupUser groupUser = userUtils.getUserBy(user);
         //校验是否是样衣组长
-        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
-        if (!sampleTeamLeader) {
-            throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
-        }
+//        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
+//        if (!sampleTeamLeader) {
+//            throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
+//        }
         PatternMaking updateBean = new PatternMaking();
         updateBean.setPatternMakingScore(score);
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();

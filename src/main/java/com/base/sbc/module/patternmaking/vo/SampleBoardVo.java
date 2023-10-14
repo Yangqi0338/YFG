@@ -231,6 +231,8 @@ public class SampleBoardVo {
 
     @ApiModelProperty(value = "样衣图")
     private String samplePic;
+    @ApiModelProperty(value = "挂起备注", example = "")
+    private String suspendRemarks;
 
     public String getId() {
         return patternMakingId;
