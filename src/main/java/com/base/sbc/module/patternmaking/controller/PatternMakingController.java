@@ -8,6 +8,7 @@ package com.base.sbc.module.patternmaking.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.oauth.entity.GroupUser;
@@ -125,7 +126,7 @@ public class PatternMakingController {
         patternMakingService.checkPatSeqRepeat(dto.getStyleId(), dto.getId(), dto.getPatSeq());
         PatternMaking old = patternMakingService.getById(dto.getId());
         patternMakingService.updateById(patternMaking);
-        OperaLogEntity operaLogEntity =new OperaLogEntity();
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
         operaLogEntity.setType("修改");
         operaLogEntity.setName("打板指令");
         operaLogEntity.setParentId(dto.getStyleId());
@@ -136,6 +137,15 @@ public class PatternMakingController {
         return patternMaking;
     }
 
+    @ApiOperation(value = "修改二次加工信息")
+    @PutMapping("/updateSecondProcessing")
+    public boolean updateSecondProcessing(@RequestBody PatternMakingDto dto) {
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.lambda().set(PatternMaking::getSecondProcessing, dto.getSecondProcessing())
+                .eq(PatternMaking::getId, dto.getId());
+        patternMakingService.update(uw);
+        return true;
+    }
 
     @ApiOperation(value = "款式设计下发", notes = "打版指令从款式设计下发到技术中心看板")
     @PostMapping("/sampleDesignSend")

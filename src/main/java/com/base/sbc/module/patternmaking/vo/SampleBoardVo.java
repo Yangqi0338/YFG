@@ -225,8 +225,7 @@ public class SampleBoardVo extends Style {
     private String receiveSample;
     @ApiModelProperty(value = "节点状态")
     private Map<String, NodeStatusVo> nodeStatus;
-    @ApiModelProperty(value = "样衣完成状态:(0未完成,1完成)")
-    private String sampleCompleteFlag;
+
     @ApiModelProperty(value = "样衣条码")
     private String sampleBarCode;
 
@@ -234,6 +233,31 @@ public class SampleBoardVo extends Style {
     private String samplePic;
     @ApiModelProperty(value = "挂起备注", example = "")
     private String suspendRemarks;
+
+
+    @ApiModelProperty(value = "中断打版(0正常，1中断)")
+    private String breakOffPattern;
+    @ApiModelProperty(value = "中断样衣(0正常，1中断)")
+    private String breakOffSample;
+    @ApiModelProperty(value = "样衣完成状态:(0未完成,1完成)")
+    private String sampleCompleteFlag;
+    @ApiModelProperty(value = "版房主管下发状态:(0未下发，1已下发)")
+    private String prmSendStatus;
+    @ApiModelProperty(value = "版房主管下发时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date prmSendDate;
+    @ApiModelProperty(value = "设计下发状态:(0未下发，1已下发)")
+    private String designSendStatus;
+    @ApiModelProperty(value = "设计下发时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date designSendDate;
+    @ApiModelProperty(value = "打版状态:0待接收,1已接收,2进行中,3完成")
+    private String patternStatus;
+    @ApiModelProperty(value = "裁剪状态:0待接收,1已接收,2进行中,3完成")
+    private String cuttingStatus;
+    @ApiModelProperty(value = "车缝状态:0待接收,1已接收,2进行中,3完成")
+    private String sewingStatus;
+
 
     public String getId() {
         return patternMakingId;
