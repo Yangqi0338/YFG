@@ -38,4 +38,6 @@ public class AssignmentUserDto {
     @ApiModelProperty(value = "样衣组长确认齐套")
     @NotBlank(message = "样衣组长确认齐套")
     private String sglKitting;
+    @ApiModelProperty(value = "样衣条码")
+    private String sampleBarCode;
 }
