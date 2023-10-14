@@ -21,7 +21,6 @@ import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -110,6 +109,6 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
      */
     List<PackBomVo> getPackBomListOpen(PackCommonPageSearchDto packCommonPageSearchDto);
 
-    BigDecimal sumBomCost(@Param(Constants.WRAPPER) QueryWrapper<PackBom> qw);
+    List<PackBom> sumBomCost(@Param(Constants.WRAPPER) QueryWrapper<PackBom> qw);
 // 自定义方法区 不替换的区域【other_end】
 }
