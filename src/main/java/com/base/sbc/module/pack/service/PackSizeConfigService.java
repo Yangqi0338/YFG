@@ -34,6 +34,13 @@ public interface PackSizeConfigService extends PackBaseService<PackSizeConfig> {
 
     PageInfo<PackSizeConfigVo> pageInfo(PackSizeConfigSearchDto dto);
 
+    /**
+     * 获取测量部位的当差设置
+     * @param dto
+     * @return
+     */
+    String  gatPartDifference(PackSizeConfigDto dto);
+
 // 自定义方法区 不替换的区域【other_end】
 
 

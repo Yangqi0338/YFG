@@ -93,6 +93,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getCategoryId()),"category_id", queryDto.getCategoryId());
         queryWrapper.notEmptyLike("model_type", queryDto.getModelType());
+        queryWrapper.notEmptyLike("model_type_code", queryDto.getModelTypeCode());
         queryWrapper.notEmptyLike("create_name", queryDto.getCreateName());
         queryWrapper.notEmptyLike("code", queryDto.getCode());
         queryWrapper.notEmptyLike("range_difference", queryDto.getRangeDifference());
