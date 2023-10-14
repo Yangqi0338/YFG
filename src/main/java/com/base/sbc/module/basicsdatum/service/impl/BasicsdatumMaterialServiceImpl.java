@@ -113,6 +113,11 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     @Autowired
     private DataPermissionsService dataPermissionsService;
 
+    @Resource
+    private BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
+    @Resource
+    private BasicsdatumMaterialColorService basicsdatumMaterialColorService;
+
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
     public List<BasicsdatumMaterialIngredient> formatIngredient(
@@ -427,7 +432,16 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 		if (CollUtil.isNotEmpty(list)) {
             //查询默认供应商
             List<String> materialCodeList = list.stream().map(BomSelMaterialVo::getMaterialCode).filter(StrUtil::isNotBlank).collect(Collectors.toList());
-            /*获取默认供应商的颜色规格等信息*/
+
+            QueryWrapper queryWrapper= new QueryWrapper();
+            queryWrapper.in("material_code",materialCodeList);
+            /*查物料中的规格*/
+            List<BasicsdatumMaterialWidth> basicsdatumMaterialWidthList = basicsdatumMaterialWidthService.list(queryWrapper);
+            /*查物料中的颜色*/
+            List<BasicsdatumMaterialColor> basicsdatumMaterialColorList =  basicsdatumMaterialColorService.list(queryWrapper);
+            Map<String,List<BasicsdatumMaterialWidth>>  widthMap  = basicsdatumMaterialWidthList.stream().collect(Collectors.groupingBy(p -> p.getMaterialCode()));
+            Map<String,List<BasicsdatumMaterialColor>>  colorMap  = basicsdatumMaterialColorList.stream().collect(Collectors.groupingBy(p -> p.getMaterialCode()));
+            /*获取默认供应商信息*/
             List<BomSelMaterialVo> priceList = materialPriceService.findDefaultToBomSel(materialCodeList);
             Map<String, BomSelMaterialVo> priceMap = Opt.ofEmptyAble(priceList)
                     .map(item -> item.stream().collect(Collectors.toMap(k -> k.getMaterialCode(), v -> v, (a, b) -> a)))
@@ -435,6 +449,16 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             list.forEach(i -> {
                 BomSelMaterialVo priceInfo = priceMap.get(i.getMaterialCode());
                 BeanUtil.copyProperties(priceInfo, i, CopyOptions.create().ignoreNullValue());
+                List<BasicsdatumMaterialWidth> widthList = widthMap.get(i.getMaterialCode());
+                if(CollUtil.isNotEmpty(widthList) && widthList.size() == BaseGlobal.ONE){
+                    i.setTranslateCode(widthList.get(0).getWidthCode());
+                    i.setTranslate(widthList.get(0).getName());
+                }
+                List<BasicsdatumMaterialColor> colorList = colorMap.get(i.getMaterialCode());
+                if(CollUtil.isNotEmpty(colorList) && colorList.size() == BaseGlobal.ONE){
+                    i.setColor(colorList.get(0).getColorName());
+                    i.setColorCode(colorList.get(0).getColorCode());
+                }
                 i.setId(IdUtil.randomUUID());
             });
         }

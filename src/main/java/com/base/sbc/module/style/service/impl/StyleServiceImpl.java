@@ -1123,6 +1123,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             packBomDto.setId(null);
             packBomDto.setForeignId(dto.getStyleId());
             packBomDto.setPackType(PackUtils.PACK_TYPE_STYLE);
+            packBomDto.setUnusableFlag(BaseGlobal.NO);
         }
         List<PackBom> packBoms = BeanUtil.copyToList(bomList, PackBom.class);
         packBomService.saveBatch(packBoms);
