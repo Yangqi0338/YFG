@@ -1,5 +1,6 @@
 package com.base.sbc.module.patternmaking.vo;
 
+import com.base.sbc.module.style.entity.Style;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -20,7 +21,7 @@ import java.util.Map;
  */
 @Data
 @ApiModel("样衣看板vo SampleBoardVo ")
-public class SampleBoardVo {
+public class SampleBoardVo extends Style {
     @ApiModelProperty(value = "数据id")
     private String id;
     @ApiModelProperty(value = "打版id")
