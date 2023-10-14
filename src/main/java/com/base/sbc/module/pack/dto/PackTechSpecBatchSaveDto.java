@@ -41,4 +41,6 @@ public class PackTechSpecBatchSaveDto {
 
     @ApiModelProperty(value = "覆盖标志")
     private String overlayFlg;
+
+    private String processTypeName;
 }

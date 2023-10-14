@@ -87,6 +87,8 @@ public class PackTechSpec extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "工价")
     private BigDecimal price;
+
+    private String processTypeName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
