@@ -166,7 +166,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public void checkPatSeqRepeat(String styleId, String patternMakingId, String patSeq) {
-        // 校验打样顺序重复  patSeq
+        //校验打样顺序重复  patSeq
         BaseQueryWrapper<PatternMaking> patSeqQw = new BaseQueryWrapper<>();
         patSeqQw.eq("style_id", styleId);
         patSeqQw.lambda().eq(PatternMaking::getPatSeq, patSeq);
@@ -997,6 +997,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         byId.setStitcher(dto.getStitcher());
         byId.setStitcherId(dto.getStitcherId());
         byId.setSglKitting(dto.getSglKitting());
+        byId.setSampleBarCode(dto.getSampleBarCode());
         byId.setSglKittingDate(new Date());
         // 分配后进入下一节点
         nodeStatusService.nextOrPrev(groupUser, byId, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
@@ -1196,11 +1197,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             throw new OtherException("打版信息为空");
         }
         GroupUser groupUser = userUtils.getUserBy(user);
-        // 校验是否是样衣组长
-        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
-        if (!sampleTeamLeader) {
-            throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
-        }
+        //校验是否是样衣组长
+//        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
+//        if (!sampleTeamLeader) {
+//            throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
+//        }
         PatternMaking updateBean = new PatternMaking();
         updateBean.setPatternMakingScore(score);
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();

@@ -435,7 +435,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     public PageInfo queryPageInfo(StylePageDto dto) {
         String companyCode = getCompanyCode();
         String userId = getUserId();
-        QueryWrapper<Style> qw = new QueryWrapper<>();
+        BaseQueryWrapper<Style> qw = new BaseQueryWrapper<>();
         qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("design_no", dto.getSearch()).or().like("his_design_no", dto.getSearch()));
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "year", dto.getYear());
         qw.eq(StrUtil.isNotBlank(dto.getDesignerId()), "designer_id", dto.getDesignerId());
@@ -878,7 +878,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             qc.eq("del_flag", BasicNumber.ZERO.getNumber());
             qc.select("id", "name", "season");
             qc.orderByDesc("name");
-            dataPermissionsService.getDataPermissionsForQw(qc, vo.getBusinessType());
+            dataPermissionsService.getDataPermissionsForQw(qc, vo.getBusinessType(), "", new String[]{"brand"}, true);
             /*查询到的产品季*/
             List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
             if (CollUtil.isNotEmpty(planningSeasonList)) {

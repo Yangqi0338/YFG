@@ -96,7 +96,6 @@
 
     <select id="styleColorList" resultType="com.base.sbc.module.style.vo.StyleColorVo">
             select
-            tsc.*,
             ts.task_level,
             ts.task_level_name,
             ts.style_type,
@@ -131,6 +130,7 @@
             ts.prod_category3rd as prodCategory3nd,
             ts.prod_category3rd_name as prodCategory3ndName,
             ts.id styleId,
+            tsc.*,
             tpi.id packInfoId,
             tsp.control_confirm,
             tsp.product_hangtag_confirm,
