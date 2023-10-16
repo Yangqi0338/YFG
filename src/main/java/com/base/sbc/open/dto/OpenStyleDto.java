@@ -30,8 +30,8 @@ public class OpenStyleDto {
         this.ctg = s.getProdCategory3rd();
         this.year = s.getYear();
         this.season = s.getSeason();
-//        this.band = this.year+this.season+s.getBandCode();
-        this.band = s.getBandCode();
+        this.band = this.year+this.season+s.getBandCode();
+//        this.band = s.getBandCode();
         this.sizeGroup = s.getSizeRange();
         this.designer = s.getDesigner();
         this.brand = s.getSeriesId();

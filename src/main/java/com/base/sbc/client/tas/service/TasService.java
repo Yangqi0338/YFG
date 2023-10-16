@@ -17,7 +17,6 @@ public interface TasService {
 	 * 推送采购单——》领猫
 	 * @return
 	 */
-	//todo 待删除
 	@PostMapping("/tas/api/saas/linkMore/pushPurchaseOrder")
 //	@PostMapping("/api/saas/linkMore/pushPurchaseOrder")
 	String pushPurchaseOrder(@RequestBody LinkMorePurchaseOrderDto purchaseOrderDto);

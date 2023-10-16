@@ -2,8 +2,10 @@ package com.base.sbc.open.timedTask;
 
 import cn.hutool.http.HttpResponse;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
@@ -43,6 +45,7 @@ import org.slf4j.Logger;
 public class DsLinkMoreTimedTask {
 
     protected final Logger logger = LoggerFactory.getLogger(DsLinkMoreTimedTask.class);
+    private final String COMPANY_CODE = "677447590605750272";
 
     @Autowired
     private OpenMaterialService materialService;
@@ -74,13 +77,15 @@ public class DsLinkMoreTimedTask {
     private PackPricingProcessCostsService packPricingProcessCostsService;
     @Autowired
     private DsLinkMoreScm linkMoreScm;
+    @Autowired
+    private CcmService ccmService;
 
     /**
      * 物料定时同步到领猫scm
      */
     @Scheduled(cron = "0 0 * * * ?")
     public void materialTask(){
-        List<OpenMaterialDto> purchaseMaterialList = materialService.getMaterialList("677447590605750272");
+        List<OpenMaterialDto> purchaseMaterialList = materialService.getMaterialList(COMPANY_CODE);
         logger.info("需要同步的物料 :{}", JSON.toJSONString(purchaseMaterialList));
 
         List<String> errorList = new ArrayList<>();
@@ -98,9 +103,34 @@ public class DsLinkMoreTimedTask {
     /**
      * 款式（基础信息）定时同步领猫scm
      */
-//    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 0 * * * ?")
     public void styleTask(){
-        List<OpenStyleDto> styleDtoList = packInfoService.getStyleListForLinkMore("677447590605750272");
+        //获取字典信息
+        String dictInfo = ccmService.getOpenDictInfo(COMPANY_CODE, "C8_Year");
+        JSONArray data = JSONObject.parseObject(dictInfo).getJSONArray("data");
+        Map<String,Map<String,String>> dictMap = new HashMap<>();
+        for (int i = 0; i < data.size(); i++) {
+            JSONObject obj = data.getJSONObject(i);
+            if (StringUtils.isNotBlank(obj.getString("value"))
+                    && StringUtils.isNotBlank(obj.getString("type"))
+                    && StringUtils.isNotBlank(obj.getString("name"))) {
+                if (dictMap.get(obj.getString("type"))!=null){
+                    dictMap.get(obj.getString("type")).put(obj.getString("name"),obj.getString("value"));
+                }else{
+                    Map<String,String> map = new HashMap<>();
+                    map.put(obj.getString("name"),obj.getString("value"));
+                    dictMap.put(obj.getString("type"),map);
+                }
+            }
+        }
+        Map<String, String> yearMap = dictMap.get("C8_Year");
+        if (yearMap == null){
+            logger.info("款式同步失败，获取字典数据失败 :{}", JSON.toJSONString(dictMap));
+            return;
+        }
+
+        //获取款式信息
+        List<OpenStyleDto> styleDtoList = packInfoService.getStyleListForLinkMore(COMPANY_CODE);
 
         List<String> errorList = new ArrayList<>();
         List<String> idList = new ArrayList<>();
@@ -108,6 +138,9 @@ public class DsLinkMoreTimedTask {
         String id;
         Map<String, Map<String, String>> allSizeMap = new HashMap<>();
         for (OpenStyleDto style : styleDtoList) {
+            //设置年份编码
+            style.setYear(yearMap.get(style.getYear()));
+
             id = style.getId();
             allSizeMap.put(style.getCode(),style.getSizeMap());
             style.setId(null);
