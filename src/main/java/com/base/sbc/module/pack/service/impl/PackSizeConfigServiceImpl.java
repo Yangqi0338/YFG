@@ -133,7 +133,7 @@ public class PackSizeConfigServiceImpl extends PackBaseServiceImpl<PackSizeConfi
      * @return
      */
     @Override
-    public String gatPartDifference(PackSizeConfigDto dto) {
+    public Difference gatPartDifference(PackSizeConfigDto dto) {
         /*查配置*/
         PackSizeConfigVo config = getConfig(dto.getForeignId(), dto.getPackType());
         if(StringUtils.isNotBlank(config.getDifferenceCode())){
@@ -143,10 +143,10 @@ public class PackSizeConfigServiceImpl extends PackBaseServiceImpl<PackSizeConfi
             queryWrapper.eq("part_coed",dto.getPartCoed());
             List<Difference> differenceList = differenceService.list(queryWrapper);
             if(CollUtil.isNotEmpty(differenceList)){
-                return differenceList.get(0).getCodeErrorSetting();
+                return differenceList.get(0);
             }
         }
-        return "";
+        return new Difference();
     }
 
     @Override
@@ -199,10 +199,7 @@ public class PackSizeConfigServiceImpl extends PackBaseServiceImpl<PackSizeConfi
                                 }
                             }
                         }
-
-
                     }
-
                     List<PackSize> packSizeList = BeanUtil.copyToList(packSizeVoList, PackSize.class);
                     packSizeService.saveOrUpdateBatch(packSizeList);
 
