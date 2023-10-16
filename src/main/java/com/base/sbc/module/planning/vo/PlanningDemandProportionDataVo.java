@@ -1,18 +1,25 @@
 package com.base.sbc.module.planning.vo;
 
+import cn.hutool.core.util.NumberUtil;
+import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-@Data
-public class PlanningDemandProportionDataVo {
+import java.math.BigDecimal;
 
-    /** 需求维度id */
-    @ApiModelProperty(value = "需求维度id"  )
-    private String demandDimensionalityId;
-    /** 分类,维度 */
-    @ApiModelProperty(value = "分类,维度"  )
-    private String classifyDimensionality;
-    /** 占比，检查 */
-    @ApiModelProperty(value = "占比，检查"  )
-    private String proportionExamine;
+@Data
+public class PlanningDemandProportionDataVo extends PlanningDemandProportionData {
+    @ApiModelProperty(value = "下单数")
+    private Long orderNum;
+    @ApiModelProperty(value = "下单占比")
+    private BigDecimal orderRatio;
+    @ApiModelProperty(value = "缺口")
+    private Long orderGap;
+
+    public String getOrderRatioStr() {
+        if (orderRatio == null) {
+            return "0%";
+        }
+        return NumberUtil.toStr(orderRatio.multiply(new BigDecimal("100"))) + "%";
+    }
 }

@@ -7,8 +7,12 @@
 package com.base.sbc.module.planning.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
@@ -24,23 +28,30 @@ import com.base.sbc.module.formType.mapper.FieldOptionConfigMapper;
 import com.base.sbc.module.formType.mapper.FormTypeMapper;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.formType.vo.FieldOptionConfigVo;
+import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.dto.SaveDelDemandDto;
 import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
+import com.base.sbc.module.planning.entity.PlanningDemandProportionSeat;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.mapper.PlanningDemandProportionDataMapper;
 import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
 import com.base.sbc.module.planning.service.PlanningDemandService;
+import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
+import com.base.sbc.module.planning.vo.PlanningDemandProportionDataVo;
 import com.base.sbc.module.planning.vo.PlanningDemandVo;
+import com.base.sbc.module.planning.vo.PlanningSummaryVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -71,9 +82,11 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     private FieldOptionConfigMapper fieldOptionConfigMapper;
     @Autowired
     private PlanningSeasonMapper planningSeasonMapper;
+    @Autowired
+    private PlanningSeasonService planningSeasonService;
 
     @Override
-    public List<PlanningDemandVo> getDemandListById(QueryDemandDto queryDemandDimensionalityDto) {
+    public List<PlanningDemandVo> getDemandListById(Principal user, QueryDemandDto queryDemandDimensionalityDto) {
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
         if (StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory2nd())) {
             queryWrapper.eq("prod_category2nd", queryDemandDimensionalityDto.getProdCategory2nd());
@@ -130,12 +143,12 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
             /*查询需求数据*/
             QueryWrapper<PlanningDemandProportionData> queryWrapper1 = new QueryWrapper<>();
             queryWrapper1.eq("demand_id", p.getId());
-            List<PlanningDemandProportionData> demandDimensionalityDataList = planningDemandProportionDataMapper.selectList(queryWrapper1);
+            List<PlanningDemandProportionDataVo> demandDimensionalityDataList = BeanUtil.copyToList(planningDemandProportionDataMapper.selectList(queryWrapper1), PlanningDemandProportionDataVo.class);
             p.setList(demandDimensionalityDataList);
             /*禁用下拉框已选中的值*/
             list1.forEach(fieldManagementVo -> {
-                if(fieldManagementVo.getFieldTypeCoding().equals("select")){
-                    List<String> stringList =   p.getList().stream().map(PlanningDemandProportionData::getClassify).collect(Collectors.toList());
+                if (fieldManagementVo.getFieldTypeCoding().equals("select")) {
+                    List<String> stringList = p.getList().stream().map(PlanningDemandProportionData::getClassify).collect(Collectors.toList());
                     fieldManagementVo.getOptionList().forEach(option -> {
                         if (stringList.contains(option.getOptionName())) {
                             option.setDisabled(true);
@@ -143,6 +156,29 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
                     });
                 }
             });
+            //查询下单数、下单占比、缺口
+            if (CollUtil.isNotEmpty(demandDimensionalityDataList) && StrUtil.isNotBlank(queryDemandDimensionalityDto.getOrderInfo())) {
+                PlanningBoardSearchDto dto = BeanUtil.copyProperties(queryDemandDimensionalityDto, PlanningBoardSearchDto.class);
+                dto.setFieldId(p.getFieldId());
+                PlanningSummaryVo planningSummaryVo = planningSeasonService.planningSummary(user, dto, CollUtil.newArrayList(p));
+                Map<String, List<PlanningDemandProportionSeat>> pdpsMap = planningSummaryVo.getSeatList().stream().collect(Collectors.groupingBy(PlanningDemandProportionSeat::getPlanningDemandProportionDataId));
+                //总下单数
+                Long orderTotalNum = Opt.ofNullable(planningSummaryVo.getSeatList())
+                        .map(a -> a.stream().filter(b -> StrUtil.equalsAny(b.getMatchFlag(), "a1", "b2")).count())
+                        .orElse(0L);
+                for (PlanningDemandProportionDataVo pdpd : demandDimensionalityDataList) {
+                    //下单数
+                    Long orderNum = Opt.ofNullable(pdpsMap.get(pdpd.getId()))
+                            .map(a -> a.stream().filter(b -> StrUtil.equalsAny(b.getMatchFlag(), "a1", "b2")).count())
+                            .orElse(0L);
+                    pdpd.setOrderNum(orderNum);
+                    //下单占比
+                    pdpd.setOrderRatio(orderTotalNum == 0 ? BigDecimal.ZERO : NumberUtil.div(orderNum, orderTotalNum));
+                    // 缺口
+                    pdpd.setOrderGap(pdpd.getNum() - orderNum);
+
+                }
+            }
         };
         return list;
     }
@@ -264,6 +300,17 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     @Override
     public Boolean delDemand(String id) {
         baseMapper.deleteById(id);
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean setImportantFlag(PlanningDemand planningDemand) {
+        UpdateWrapper<PlanningDemand> uw = new UpdateWrapper<>();
+        uw.lambda().set(PlanningDemand::getImportantFlag, planningDemand.getImportantFlag())
+                .eq(PlanningDemand::getId, planningDemand.getId())
+        ;
+        update(uw);
         return true;
     }
 

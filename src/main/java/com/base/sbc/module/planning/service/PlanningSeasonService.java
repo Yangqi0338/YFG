@@ -111,7 +111,7 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
      * @param dto  筛选条件
      * @return
      */
-    PlanningSummaryVo planningSummary(Principal user, PlanningBoardSearchDto dto);
+    PlanningSummaryVo planningSummary(Principal user, PlanningBoardSearchDto dto, List<PlanningDemandVo> demandList);
 
     /**
      * 品类汇总

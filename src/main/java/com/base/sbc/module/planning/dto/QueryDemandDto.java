@@ -33,4 +33,6 @@ public class QueryDemandDto {
     @ApiModelProperty(value = "季节")
     private String season;
 
+    @ApiModelProperty(value = "是否查询下单信息")
+    private String orderInfo;
 }
