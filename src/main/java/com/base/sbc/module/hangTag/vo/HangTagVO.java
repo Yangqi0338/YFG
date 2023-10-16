@@ -314,5 +314,7 @@ public class HangTagVO {
      * 附件
      */
     private String attachment;
+
+    private String isTrim;
 }
 
