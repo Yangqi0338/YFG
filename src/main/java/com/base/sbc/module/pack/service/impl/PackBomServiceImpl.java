@@ -131,6 +131,23 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
     }
 
     @Override
+    public BigDecimal sumBomCost(PackBomPageSearchDto dto) {
+        QueryWrapper<PackBom> qw = new QueryWrapper<>();
+        PackUtils.commonQw(qw, dto);
+        qw.eq(StrUtil.isNotBlank(dto.getBomVersionId()), "bom_version_id", dto.getBomVersionId());
+        qw.eq("unusable_flag", BaseGlobal.NO);
+        BigDecimal cost = BigDecimal.ZERO;
+        List<PackBom> bomList = baseMapper.sumBomCost(qw);
+        if (CollUtil.isNotEmpty(bomList)) {
+            for (PackBom packBom : bomList) {
+                packBom.calculateCost();
+                cost = cost.add(packBom.getCost());
+            }
+        }
+        return cost;
+    }
+
+    @Override
     public void querySubList(List<PackBomVo> list) {
         if (CollUtil.isEmpty(list)) {
             return;
@@ -228,11 +245,6 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
             PackUtils.bomDefaultVal(packBom);
             PackUtils.setBomVersionInfo(version, packBom);
             packBom.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
-            /*判断是默认的规格是否有多个*/
-            if(packBom.getTranslate().indexOf(",")>-1){
-                packBom.setTranslate(null);
-                packBom.setTranslateCode(null);
-            }
             if (!CommonUtils.isInitId(packBom.getId())) {
                 pageBomIds.add(packBom.getId());
             } else {
@@ -289,7 +301,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                     packBomSize.setBomVersionId(version.getId());
                     packBomSize.setWidthCode(packBomDto.getTranslateCode());
                     packBomSize.setWidth(packBomDto.getTranslate());
-                    packBomSize.setQuantity(packBomDto.getDesignUnitUse());
+                    packBomSize.setQuantity(StrUtil.equals(packBomDto.getPackType(),PackUtils.PACK_TYPE_DESIGN)?packBomDto.getDesignUnitUse():packBomDto.getBulkUnitUse());
                 }
                 bomSizeList.addAll(packBomSizeList);
             }
@@ -622,4 +634,6 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         }
         return packBomVos;
     }
+
+
 }

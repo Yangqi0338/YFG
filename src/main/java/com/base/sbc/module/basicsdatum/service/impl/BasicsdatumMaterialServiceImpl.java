@@ -113,6 +113,11 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     @Autowired
     private DataPermissionsService dataPermissionsService;
 
+    @Resource
+    private BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
+    @Resource
+    private BasicsdatumMaterialColorService basicsdatumMaterialColorService;
+
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
     public List<BasicsdatumMaterialIngredient> formatIngredient(
@@ -424,28 +429,36 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         Page<BomSelMaterialVo> page = PageHelper.startPage(dto);
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.material.getK(), "bm.");
         List<BomSelMaterialVo> list = getBaseMapper().getBomSelMaterialList(qw, dto.getSource());
-
 		if (CollUtil.isNotEmpty(list)) {
             //查询默认供应商
             List<String> materialCodeList = list.stream().map(BomSelMaterialVo::getMaterialCode).filter(StrUtil::isNotBlank).collect(Collectors.toList());
+
+            QueryWrapper queryWrapper= new QueryWrapper();
+            queryWrapper.in("material_code",materialCodeList);
+            /*查物料中的规格*/
+            List<BasicsdatumMaterialWidth> basicsdatumMaterialWidthList = basicsdatumMaterialWidthService.list(queryWrapper);
+            /*查物料中的颜色*/
+            List<BasicsdatumMaterialColor> basicsdatumMaterialColorList =  basicsdatumMaterialColorService.list(queryWrapper);
+            Map<String,List<BasicsdatumMaterialWidth>>  widthMap  = basicsdatumMaterialWidthList.stream().collect(Collectors.groupingBy(p -> p.getMaterialCode()));
+            Map<String,List<BasicsdatumMaterialColor>>  colorMap  = basicsdatumMaterialColorList.stream().collect(Collectors.groupingBy(p -> p.getMaterialCode()));
+            /*获取默认供应商信息*/
             List<BomSelMaterialVo> priceList = materialPriceService.findDefaultToBomSel(materialCodeList);
-            /*查询默认供应商规格*/
-            List<BomSelMaterialVo> widthList = basicsdatumMaterialPriceDetailService.querySupplierWidth(materialCodeList);
             Map<String, BomSelMaterialVo> priceMap = Opt.ofEmptyAble(priceList)
                     .map(item -> item.stream().collect(Collectors.toMap(k -> k.getMaterialCode(), v -> v, (a, b) -> a)))
                     .orElse(MapUtil.empty());
-            Map<String, List<BomSelMaterialVo>> widthMap = widthList.stream().collect(Collectors.groupingBy(BomSelMaterialVo::getMaterialCode));
             list.forEach(i -> {
                 BomSelMaterialVo priceInfo = priceMap.get(i.getMaterialCode());
-                List<BomSelMaterialVo> voList = widthMap.get(i.getMaterialCode());
-                /*查询默认供应商的规格，如果是一个默认显示为多个显示*/
-                if (CollUtil.isNotEmpty(voList)) {
-                    voList = CollUtil.distinct(voList, BomSelMaterialVo::getWidthCode, true);
-                    if (voList.size() == BaseGlobal.ONE) {
-                        BeanUtil.copyProperties(voList.get(0), i, CopyOptions.create().ignoreNullValue());
-                    }
-                }
                 BeanUtil.copyProperties(priceInfo, i, CopyOptions.create().ignoreNullValue());
+                List<BasicsdatumMaterialWidth> widthList = widthMap.get(i.getMaterialCode());
+                if(CollUtil.isNotEmpty(widthList) && widthList.size() == BaseGlobal.ONE){
+                    i.setTranslateCode(widthList.get(0).getWidthCode());
+                    i.setTranslate(widthList.get(0).getName());
+                }
+                List<BasicsdatumMaterialColor> colorList = colorMap.get(i.getMaterialCode());
+                if(CollUtil.isNotEmpty(colorList) && colorList.size() == BaseGlobal.ONE){
+                    i.setColor(colorList.get(0).getColorName());
+                    i.setColorCode(colorList.get(0).getColorCode());
+                }
                 i.setId(IdUtil.randomUUID());
             });
         }
@@ -659,6 +672,21 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
 
         return b;
+    }
+
+    /**
+     * 修改供应商图片
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public Boolean updateMaterialPic(BasicsdatumMaterialSaveDto dto) {
+        UpdateWrapper updateWrapper = new UpdateWrapper();
+        updateWrapper.set("image_url",dto.getImageUrl());
+        updateWrapper.eq("id",dto.getId());
+        baseMapper.update(null,updateWrapper);
+        return true;
     }
 
     @Override
@@ -937,6 +965,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         return page.toPageInfo();
     }
 
+    @Override
     public Boolean updateInquiryNumberDeliveryName(BasicsdatumMaterialSaveDto dto) {
         BasicsdatumMaterial basicsdatumMaterial = new BasicsdatumMaterial();
         basicsdatumMaterial.setId(dto.getId());
@@ -947,15 +976,16 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     }
 
     @Override
-    public void saveSubmit(BasicsdatumMaterialSaveDto dto) {
+    public BasicsdatumMaterialVo saveSubmit(BasicsdatumMaterialSaveDto dto) {
         dto.setConfirmStatus("1");
-        this.saveBasicsdatumMaterial(dto);
+        BasicsdatumMaterialVo basicsdatumMaterialVo =  this.saveBasicsdatumMaterial(dto);
         flowableService.start(FlowableService.BASICSDATUM_MATERIAL,
                 FlowableService.BASICSDATUM_MATERIAL, dto.getId(),
                 "/pdm/api/saas/basicsdatumMaterial/approval",
                 "/pdm/api/saas/basicsdatumMaterial/approval",
                 "/pdm/api/saas/basicsdatumMaterial/approval",
                 "pdm/api/saas/basicsdatumMaterial/getBasicsdatumMaterial?id=" + dto.getId(), BeanUtil.beanToMap(dto));
+        return basicsdatumMaterialVo;
     }
 
 	@Override

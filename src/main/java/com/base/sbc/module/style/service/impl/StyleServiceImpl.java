@@ -435,7 +435,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     public PageInfo queryPageInfo(StylePageDto dto) {
         String companyCode = getCompanyCode();
         String userId = getUserId();
-        QueryWrapper<Style> qw = new QueryWrapper<>();
+        BaseQueryWrapper<Style> qw = new BaseQueryWrapper<>();
         qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("design_no", dto.getSearch()).or().like("his_design_no", dto.getSearch()));
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "year", dto.getYear());
         qw.eq(StrUtil.isNotBlank(dto.getDesignerId()), "designer_id", dto.getDesignerId());
@@ -642,16 +642,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // 查询样衣的
         DimensionalityListVo listVo = planningDimensionalityService.getDimensionalityList(pdqw);
         List<PlanningDimensionality> pdList = listVo.getPlanningDimensionalities();
-     /*查询配色中无数据时带出款式数据*/
-        List<FieldVal> fvList = new ArrayList<>();
-        if (StrUtil.equals(dto.getDataGroup(), FieldValDataGroupConstant.STYLE_COLOR)) {
-            fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
-            if (!CollUtil.isNotEmpty(fvList)) {
-                dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-                dto.setForeignId(dto.getId());
-            }
-        }
-        fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
+        List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
             List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
@@ -878,7 +869,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             qc.eq("del_flag", BasicNumber.ZERO.getNumber());
             qc.select("id", "name", "season");
             qc.orderByDesc("name");
-            dataPermissionsService.getDataPermissionsForQw(qc, vo.getBusinessType());
+            dataPermissionsService.getDataPermissionsForQw(qc, vo.getBusinessType(), "", new String[]{"brand"}, true);
             /*查询到的产品季*/
             List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
             if (CollUtil.isNotEmpty(planningSeasonList)) {
@@ -1123,6 +1114,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             packBomDto.setId(null);
             packBomDto.setForeignId(dto.getStyleId());
             packBomDto.setPackType(PackUtils.PACK_TYPE_STYLE);
+            packBomDto.setUnusableFlag(BaseGlobal.NO);
         }
         List<PackBom> packBoms = BeanUtil.copyToList(bomList, PackBom.class);
         packBomService.saveBatch(packBoms);

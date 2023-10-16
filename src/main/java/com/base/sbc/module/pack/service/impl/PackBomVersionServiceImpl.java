@@ -198,7 +198,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
 
     @Override
     public List<PackBomVo> getEnableVersionBomList(String foreignId, String packType) {
-        PackBomVersion packBomVersion = get(foreignId, packType);
+        PackBomVersion packBomVersion = getEnableVersion(foreignId, packType);
         return packBomService.list(foreignId, packType, packBomVersion.getId());
     }
 

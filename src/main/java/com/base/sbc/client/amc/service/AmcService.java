@@ -1,5 +1,6 @@
 package com.base.sbc.client.amc.service;
 
+import com.base.sbc.client.amc.entity.Job;
 import com.base.sbc.client.amc.entity.Team;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
@@ -215,5 +216,12 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/token/user/getUserByUserId")
     public String getUserByUserId( @RequestParam("userId") String userId);
+
+
+    /**
+     * 根据用户Id查询用户组id集合
+     */
+    @GetMapping("/amc/api/token/group/getJobByUserId")
+    public List<Job> getByUserId(@RequestParam("userId") String userId);
 
 }

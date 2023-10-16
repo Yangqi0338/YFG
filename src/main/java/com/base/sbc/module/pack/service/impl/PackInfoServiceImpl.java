@@ -312,15 +312,19 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
             e.printStackTrace();
             System.out.println("保存款式设计详情颜色错误信息如下：{}" + e);
         }
+        PackInfoListVo packInfoListVo = BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
+        packInfoListVo.setPackType(PackUtils.PACK_TYPE_DESIGN);
         if (null == dto.getIsWithBom() || !dto.getIsWithBom()) {
-            PackInfoListVo packInfoListVo = BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
-            packInfoListVo.setPackType(PackUtils.PACK_TYPE_DESIGN);
             return packInfoListVo;
         }
-
         //如果勾选了关联款式BOM物料信息则复制保存款式设计中的bom信息
         List<PackBom> bomList = packBomService.list(style.getId(), PackUtils.PACK_TYPE_STYLE);
         if (CollectionUtil.isNotEmpty(bomList)) {
+            /*过滤停用的*/
+            bomList =   bomList.stream().filter(b -> StringUtils.equals(b.getUnusableFlag(),BaseGlobal.NO)).collect(Collectors.toList());
+            if(CollUtil.isEmpty(bomList)){
+                return packInfoListVo;
+            }
             //保存bom尺码跟颜色
             List<String> bomIdList = bomList.stream().map(PackBom::getId).collect(Collectors.toList());
             QueryWrapper queryWrapper =  new QueryWrapper<>();
@@ -372,9 +376,6 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 packBomSizeService.saveBatch(bomSizeList);
             }
         }
-
-        PackInfoListVo packInfoListVo = BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
-        packInfoListVo.setPackType(PackUtils.PACK_TYPE_DESIGN);
         return packInfoListVo;
     }
 

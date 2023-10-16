@@ -22,6 +22,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMeasurementService;
 import com.base.sbc.module.common.dto.IdsDto;
+import com.base.sbc.module.difference.entity.Difference;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackSize;
 import com.base.sbc.module.pack.entity.PackSizeDetail;
@@ -168,12 +169,17 @@ public class PackSizeController extends BaseController{
         return packSizeConfigService.pageInfo(dto);
     }
 
+    @GetMapping("/gatPartDifference")
+    @ApiOperation(value = "获取测量部位的当差设置")
+    public Difference gatPartDifference(PackSizeConfigDto dot) {
+        return packSizeConfigService.gatPartDifference(dot);
+    }
+
     @GetMapping("/references")
     @ApiOperation(value = "引用")
     public boolean references(PackSizeConfigReferencesDto dto) {
         return packSizeService.references(dto);
     }
-
     @ApiOperation(value = "导出资料包尺寸表Excel模板")
     @GetMapping(value = "/packBomSizeExcelTemplate")
     public void packBomSizeExcelTemplate(HttpServletResponse response, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String foreignId, String packType, String ifWashing) {

@@ -99,13 +99,16 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
      * @return
      */
     @MapKey("foreign_id")
-    List<Map<String, String>>  getPackSendStatus(@Param("foreignIds") List<String> foreignIds);
+    List<Map<String, String>> getPackSendStatus(@Param("foreignIds") List<String> foreignIds);
 
     /**
-     *  物料清单查询分页(开放接口)
+     * 物料清单查询分页(开放接口)
+     *
      * @param packCommonPageSearchDto 资料包-公共筛选条件
      * @return 物料清单
      */
     List<PackBomVo> getPackBomListOpen(PackCommonPageSearchDto packCommonPageSearchDto);
+
+    List<PackBom> sumBomCost(@Param(Constants.WRAPPER) QueryWrapper<PackBom> qw);
 // 自定义方法区 不替换的区域【other_end】
 }

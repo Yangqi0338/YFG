@@ -159,17 +159,6 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
         if (!ObjectUtils.isEmpty(addRevampBomTemplateMaterialDto.getUnitUse()) && !ObjectUtils.isEmpty(addRevampBomTemplateMaterialDto.getPrice())) {
             addRevampBomTemplateMaterialDto.setCost(addRevampBomTemplateMaterialDto.getUnitUse().multiply(addRevampBomTemplateMaterialDto.getPrice()));
         }
-        if (StringUtils.isNotBlank(addRevampBomTemplateMaterialDto.getColorCode())) {
-//颜色图
-            QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq("colour_code", addRevampBomTemplateMaterialDto.getColorCode());
-            List<BasicsdatumColourLibrary> libraryList = basicsdatumColourLibraryMapper.selectList(queryWrapper);
-            if (!CollectionUtils.isEmpty(libraryList)) {
-                addRevampBomTemplateMaterialDto.setColorPic(libraryList.get(0).getPicture());
-                addRevampBomTemplateMaterialDto.setColor(libraryList.get(0).getColourName());
-                addRevampBomTemplateMaterialDto.setColorCode(libraryList.get(0).getColourCode());
-            }
-        }
         BeanUtils.copyProperties(addRevampBomTemplateMaterialDto, bomTemplateMaterial);
         baseMapper.updateById(bomTemplateMaterial);
         return true;

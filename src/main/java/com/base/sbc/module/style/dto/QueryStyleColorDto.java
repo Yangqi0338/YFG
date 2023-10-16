@@ -195,4 +195,19 @@ public class QueryStyleColorDto extends Page {
 
     @ApiModelProperty(value = "下单标记")
     private String orderFlag;
+
+    @ApiModelProperty(value = "大类名称"  )
+    private String  prodCategory1stName;
+
+    @ApiModelProperty(value = "中类")
+    private String prodCategory2ndName;
+
+    @ApiModelProperty(value = "中类"  )
+    private String prodCategory2nd;
+
+    @ApiModelProperty(value = "小类编码")
+    private String prodCategory3nd;
+
+    @ApiModelProperty(value = "小类")
+    private String prodCategory3ndName;
 }

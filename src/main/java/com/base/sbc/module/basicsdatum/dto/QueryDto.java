@@ -28,7 +28,9 @@ public class QueryDto extends Page {
     /** 号型类型 */
     @ApiModelProperty(value = "号型类型"  )
     private String modelType;
-
+    /** 号型类型编 */
+    @ApiModelProperty(value = "号型类型编"  )
+    private String modelTypeCode;
     /*编码*/
     @ApiModelProperty(value = "编码"  )
     private String code;

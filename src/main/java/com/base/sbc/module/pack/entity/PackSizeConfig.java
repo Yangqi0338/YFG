@@ -86,6 +86,22 @@ public class PackSizeConfig extends BaseDataEntity<String> {
     @ApiModelProperty(value = "号型名称")
     private String sizeRangeName;
     /**
+     * 档差
+     */
+    @ApiModelProperty(value = "档差")
+    private String  difference;
+
+    /**
+     * 档差id
+     */
+    @ApiModelProperty(value = "档差id")
+    private String  differenceId;
+    /**
+     * 档差编码
+     */
+    @ApiModelProperty(value = "档差编码")
+    private String differenceCode;
+    /**
      * 备注
      */
     @ApiModelProperty(value = "备注")

@@ -19,6 +19,8 @@
         tbmp.material_code,
         tbmp.width AS `translateCode`,
         tbmp.width_name AS `translate`
+        tbmp.color AS `colorCode`
+        tbmp.color_name AS `color`
         from   t_basicsdatum_material_price tbmp
         left join t_basicsdatum_material_price_detail tbmpd on tbmp.id = tbmpd.price_id
          ${ ew.customSqlSegment}

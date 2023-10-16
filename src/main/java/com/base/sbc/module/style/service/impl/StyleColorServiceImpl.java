@@ -164,6 +164,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getDesigner()), "ts.designer", queryDto.getDesigner());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getTechnicianName()), "ts.technician_name", queryDto.getTechnicianName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStatus()), "tsc.status", queryDto.getStatus());
+        queryWrapper.notEmptyLike("ts.prod_category3rd_name",queryDto.getProdCategory3ndName());
+        queryWrapper.notEmptyLike("ts.prod_category2nd_name",queryDto.getProdCategory2ndName());
+        queryWrapper.notEmptyLike("ts.prod_category1st_name",queryDto.getProdCategory1stName());
+
+
         queryWrapper.between("tsc.create_date", queryDto.getCreateDate());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getCreateName()), "tsc.create_name", queryDto.getCreateName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getNewDate()), "tsc.new_date", queryDto.getNewDate());
@@ -308,13 +313,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*颜色数据*/
         Map<String, BasicsdatumColourLibrary> map = libraryList.stream().collect(Collectors.toMap(BasicsdatumColourLibrary::getId, c -> c));
         /*查询款式主数据*/
-        List<String> styleMasterDataIds = list.stream().map(AddRevampStyleColorDto::getStyleId).distinct().collect(Collectors.toList());
-        List<Style> masterDataList = styleService.listByIds(styleMasterDataIds);
-        Map<String, Style> map1 = masterDataList.stream().collect(Collectors.toMap(Style::getId, s -> s));
+        Style style = styleService.getById(list.get(0).getStyleId());
         /*款式主数据数据*/
         for (AddRevampStyleColorDto addRevampStyleColorDto : list) {
             BasicsdatumColourLibrary basicsdatumColourLibrary = map.get(addRevampStyleColorDto.getColourLibraryId());
-            Style style = map1.get(addRevampStyleColorDto.getStyleId());
             addRevampStyleColorDto.setStyleId(style.getId());
             addRevampStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
@@ -323,6 +325,19 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
         List<StyleColor> styleColorList = BeanUtil.copyToList(list, StyleColor.class);
         saveBatch(styleColorList);
+        /*保存维度信息*/
+        /*查询款式中的维度信息*/
+        DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
+        BeanUtil.copyProperties(style, dto);
+        dto.setForeignId(style.getId());
+        dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+        List<FieldManagementVo> fieldManagementVoList =  styleService.queryDimensionLabels(dto);
+        List<FieldVal> fieldValList = BeanUtil.copyToList(fieldManagementVoList, FieldVal.class);
+        /*获取新增的维度信息*/
+        for (StyleColor styleColor : styleColorList) {
+            // 保存工艺信息
+            fieldValService.save(styleColor.getId(), FieldValDataGroupConstant.STYLE_COLOR, fieldValList);
+        }
         return true;
     }
 
