@@ -1089,10 +1089,6 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         //资料包主表
         QueryWrapper<PackInfo> qwPack = new QueryWrapper<>();
         qwPack.eq("company_code",companyCode);
-        //todo 待删除
-//        qwPack.eq("id","1698881540366368768");
-//        qwPack.eq("id","1701427517884424192");
-//        qwPack.eq("id","1701774217148821504");
 //        qwPack.eq("id","1703672791017074688");
         //查询前一个小时的数据
         qwPack.last(" AND update_date BETWEEN NOW() - INTERVAL 1 HOUR AND NOW()");
