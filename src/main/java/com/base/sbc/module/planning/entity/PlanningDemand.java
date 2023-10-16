@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningDemand
  * @email your email
- * @date 创建时间：2023-9-10 13:54:14
+ * @date 创建时间：2023-10-16 15:13:15
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -36,17 +36,21 @@ public class PlanningDemand extends BaseDataEntity<String> {
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 产品季id */
-    @ApiModelProperty(value = "产品季id"  )
+    @ApiModelProperty(value = "产品季id")
     private String planningSeasonId;
-
-    /** 渠道 */
-    @ApiModelProperty(value = "渠道"  )
+    /**
+     * 渠道
+     */
+    @ApiModelProperty(value = "渠道")
     private String channel;
-    /** 渠道名称 */
-    @ApiModelProperty(value = "渠道名称"  )
+    /**
+     * 渠道名称
+     */
+    @ApiModelProperty(value = "渠道名称")
     private String channelName;
-
-    /** 大类 */
+    /**
+     * 大类
+     */
     @ApiModelProperty(value = "大类")
     private String prodCategory1st;
     /**
@@ -89,9 +93,16 @@ public class PlanningDemand extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "字段id")
     private String fieldId;
-    /** 状态(0正常,1停用) */
-    @ApiModelProperty(value = "状态(0正常,1停用)"  )
+    /**
+     * 状态(0正常,1停用)
+     */
+    @ApiModelProperty(value = "状态(0正常,1停用)")
     private String status;
+    /**
+     * 重点维度(0:否,1是)
+     */
+    @ApiModelProperty(value = "重点维度(0:否,1是)")
+    private String importantFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

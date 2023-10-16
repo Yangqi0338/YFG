@@ -193,7 +193,7 @@
 </table>
 
 
-<!--基础信息-->
+<!--基础信息 1 -->
 
 <table class="table_no_border info_table">
     <tr>
@@ -395,80 +395,8 @@
         </td>
     </tr>
 </table>
-<!--    裁剪工艺-->
-<table class="table_border mt" style="page-break-before: always;">
-    <thead>
-    <tr>
-        <th class="th_title" colspan="2">
-            <p>裁剪工艺</p>
-            <hr>
-        </th>
-    </tr>
-    <tr>
-        <th class="item_td gb">工艺项目</th>
-        <th class="content_tr gb">
-            描述
-        </th>
-    </tr>
-    </thead>
-    <tbody>
-    <#list cjgyDataList as item>
-        <tr>
-            <td>${item.item}</td>
-            <td>
-                ${item.content}
-            </td>
-        </tr>
-    </#list>
-    </tbody>
-    <tfoot>
-    <tr>
-        <td colspan="2">裁剪工艺-${cjgyDataList?size} </td>
-    </tr>
-    </tfoot>
-</table>
-<!-- 朴条位置 归拔位置 -->
-<table class="table_border mt" style="page-break-inside: avoid;">
-    <thead>
-    <tr>
-        <th class="th_title">
-            <p>朴条位置 归拔位置</p>
-            <hr>
-        </th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>
-            <#list cjgyImgList as item>
-                <img class="img_item" src="${item.url}"/>
-            </#list>
-        </td>
-    </tr>
-    </tbody>
-</table>
-<#--注意事项-->
-<table class="table_border mt" style="page-break-before: always;page-break-inside: avoid;">
-    <thead>
-    <tr>
-        <th class="th_title">
-            <p>注意事项</p>
-            <hr>
-        </th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>
-            <#list zysxImgList as item>
-                <img class="img_item" src="${item.url}"/>
-            </#list>
-        </td>
-    </tr>
-    </tbody>
-</table>
 
-<!--测量点 -->
+<!--测量点 2 -->
 
 <table class="table_border mt size_table" style="page-break-before: always; ">
     <thead>
@@ -521,8 +449,125 @@
     </tfoot>
 </table>
 
+<#--注意事项 3-->
+<table class="table_border mt" style="page-break-before: always;page-break-inside: avoid;">
+    <thead>
+    <tr>
+        <th class="th_title">
+            <p>注意事项</p>
+            <hr>
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            <#list zysxImgList as item>
+                <img class="img_item" src="${item.url}"/>
+            </#list>
+        </td>
+    </tr>
+    </tbody>
+</table>
 
-<!--    小部件-->
+
+<!--    裁剪工艺 4 1-->
+<table class="table_border mt" style="page-break-before: always;">
+    <thead>
+    <tr>
+        <th class="th_title" colspan="2">
+            <p>裁剪工艺</p>
+            <hr>
+        </th>
+    </tr>
+    <tr>
+        <th class="item_td gb">工艺项目</th>
+        <th class="content_tr gb">
+            描述
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <#list cjgyDataList as item>
+        <tr>
+            <td>${item.item}</td>
+            <td>
+                ${item.content}
+            </td>
+        </tr>
+    </#list>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="2">裁剪工艺-${cjgyDataList?size} </td>
+    </tr>
+    </tfoot>
+</table>
+<!-- 朴条位置 归拔位置 4 2 -->
+<table class="table_border mt" style="page-break-inside: avoid;">
+    <thead>
+    <tr>
+        <th class="th_title">
+            <p>朴条位置 归拔位置</p>
+            <hr>
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            <#list cjgyImgList as item>
+                <img class="img_item" src="${item.url}"/>
+            </#list>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<!--    基础工艺 4 3-->
+<table class="table_border mt" style="page-break-before: always">
+    <thead>
+    <tr>
+        <th colspan="3" class="th_title">
+            <p>基础工艺</p>
+            <hr>
+        </th>
+    </tr>
+    <tr>
+        <th class="gb" style="width: 10%">工艺项目</th>
+        <th class="gb" style="width: 50%">描述</th>
+        <th class="gb" style="width: 50%">图片</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    <#list jcgyDataList as item>
+        <tr>
+            <td>${item.item}</td>
+            <td>
+                ${item.content}
+            </td>
+            <#if  item_index==0 >
+                <td rowspan="${jcgyRowsPan}" style="width: 30%">
+                    <div class="one_imgs">
+                        <#list jcgyImgList as item>
+                            <img class="one_imgs_item" src="${item.url}"/>
+                        </#list>
+                    </div>
+                </td>
+            </#if>
+        </tr>
+    </#list>
+    </tbody>
+
+    <tfoot>
+    <tr>
+        <td colspan="3" style="height: 32px;">基础工艺-${jcgyDataList?size}</td>
+    </tr>
+    </tfoot>
+</table>
+
+
+<!--    小部件 5-->
 <table class="table_border mt" style="page-break-before: always;">
     <thead>
     <tr>
@@ -566,50 +611,7 @@
     </tfoot>
 </table>
 
-<!--    基础工艺 -->
-<table class="table_border mt" style="page-break-before: always">
-    <thead>
-    <tr>
-        <th colspan="3" class="th_title">
-            <p>基础工艺</p>
-            <hr>
-        </th>
-    </tr>
-    <tr>
-        <th class="gb" style="width: 10%">工艺项目</th>
-        <th class="gb" style="width: 50%">描述</th>
-        <th class="gb" style="width: 50%">图片</th>
-
-    </tr>
-    </thead>
-    <tbody>
-    <#list jcgyDataList as item>
-        <tr>
-            <td>${item.item}</td>
-            <td>
-                ${item.content}
-            </td>
-            <#if  item_index==0 >
-                <td rowspan="${jcgyRowsPan}" style="width: 30%">
-                    <div class="one_imgs">
-                        <#list jcgyImgList as item>
-                            <img class="one_imgs_item" src="${item.url}"/>
-                        </#list>
-                    </div>
-                </td>
-            </#if>
-        </tr>
-    </#list>
-    </tbody>
-
-    <tfoot>
-    <tr>
-        <td colspan="3" style="height: 32px;">基础工艺-${jcgyDataList?size}</td>
-    </tr>
-    </tfoot>
-</table>
-
-<!--    整烫包装 -->
+<!--    整烫包装 6-->
 <table class="table_border mt">
     <thead>
     <tr>
@@ -641,6 +643,10 @@
     </tr>
     </tfoot>
 </table>
+
+
+<!--    外辅工艺 7-->
+
 
 </body>
 </html>
