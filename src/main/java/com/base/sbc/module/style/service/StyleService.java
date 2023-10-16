@@ -7,6 +7,7 @@
 package com.base.sbc.module.style.service;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
@@ -225,5 +226,13 @@ public interface StyleService extends BaseService<Style> {
     Boolean reviseAllDesignNo(@Param("oldDesignNo") String oldDesignNo, @Param("newDesignNo") String newDesignNo);
 
     void reviseAllDesignNo(Map<String, String> designNoUpdate);
+
+
+    /**
+     * 款式的停用启用
+     * @param startStopDto
+     * @return
+     */
+    Boolean startStopStyle(StartStopDto startStopDto);
 }
 

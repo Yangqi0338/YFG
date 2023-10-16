@@ -146,7 +146,7 @@ public class FabricPoolServiceImpl extends BaseServiceImpl<FabricPoolMapper, Fab
             return;
         }
         Map<String, List<String>> fabricPlanningId = fabricPlanningItemService.getFabricPlanningId(fabricLibraryMaterialCode);
-        if (Objects.isNull(fabricPlanningId)) {
+        if (Objects.isNull(fabricPlanningId) || fabricPlanningId.size() < 1) {
             return;
         }
 

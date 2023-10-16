@@ -93,7 +93,8 @@
     <select id="getByToMaterialId" resultType="com.base.sbc.module.fabric.entity.BasicFabricLibrary">
         SELECT bfl.id,
                bfl.dev_main_id,
-               bfl.dev_apply_code
+               bfl.dev_apply_code,
+               bfl.material_id
         FROM t_basic_fabric_library bfl
                  JOIN t_fabric_dev_basic_info fdb ON fdb.biz_id = bfl.id
         WHERE to_material_id = #{toMaterialId}

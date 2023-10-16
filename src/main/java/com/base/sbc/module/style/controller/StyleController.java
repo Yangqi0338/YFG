@@ -14,6 +14,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
@@ -210,6 +211,13 @@ public class StyleController extends BaseController {
         styleService.saveDesignNo(style);
         return ApiResult.success("新增成功");
     }
+
+    @ApiOperation(value = "启用/停用", notes = "ids:, status:0启用1停用")
+    @PostMapping("/startStopStyle")
+    public Boolean startStopBasicsdatumWashIcon(@Valid @RequestBody StartStopDto startStopDto) {
+        return styleService.startStopStyle(startStopDto);
+    }
+
 }
 
 

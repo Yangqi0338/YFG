@@ -78,7 +78,7 @@ public class DsLinkMoreTimedTask {
     /**
      * 物料定时同步到领猫scm
      */
-//    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 0 * * * ?")
     public void materialTask(){
         List<OpenMaterialDto> purchaseMaterialList = materialService.getMaterialList("677447590605750272");
         logger.info("需要同步的物料 :{}", JSON.toJSONString(purchaseMaterialList));
