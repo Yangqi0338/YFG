@@ -66,6 +66,9 @@ public class Style extends BaseDataEntity<String> {
     /** 状态:0未开款，1已开款，2已下发打板(完成) */
     @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成)"  )
     private String status;
+    /** 启用状态(0启用，1停用) */
+    @ApiModelProperty(value = "启用状态(0启用，1停用)"  )
+    private String  enableStatus;
     /** 产品季节id */
     @ApiModelProperty(value = "产品季节id"  )
     private String planningSeasonId;

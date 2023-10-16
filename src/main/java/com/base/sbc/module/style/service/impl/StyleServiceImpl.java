@@ -31,7 +31,9 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.band.service.BandService;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumWashIcon;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
@@ -1622,6 +1624,31 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 reviseAllDesignNo(e.getKey(), e.getValue());
             }
         }
+    }
+
+    /**
+     * 款式的停用启用
+     *
+     * @param startStopDto
+     * @return
+     */
+    @Override
+    public Boolean startStopStyle(StartStopDto startStopDto) {
+        /*查看配色是否停用 全部停用款式才可以停用*/
+        if(StrUtil.equals(startStopDto.getStatus(),BaseGlobal.STATUS_CLOSE)){
+            QueryWrapper queryWrapper =new QueryWrapper();
+            queryWrapper.eq("style_id",startStopDto.getIds());
+            queryWrapper.eq("status",BaseGlobal.STATUS_NORMAL);
+            List<StyleColor> list = styleColorMapper.selectList(queryWrapper);
+            if(CollUtil.isNotEmpty(list)){
+                throw new OtherException("配色存在未停用数据");
+            }
+        }
+        UpdateWrapper<Style> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.in("id", com.base.sbc.config.utils.StringUtils.convertList(startStopDto.getIds()));
+        updateWrapper.set("enable_status", startStopDto.getStatus());
+        /*修改状态*/
+        return baseMapper.update(null, updateWrapper) > 0;
     }
 
 }
