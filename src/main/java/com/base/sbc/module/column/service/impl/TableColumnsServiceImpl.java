@@ -36,7 +36,7 @@ public class TableColumnsServiceImpl extends BaseServiceImpl<TableColumnsMapper,
         //     columnNames.add("*");
         // } else
 
-        if (jobs.stream().anyMatch(job -> job.getName().equals("下单员"))) {
+        if (jobs.stream().anyMatch(job -> job.getName().equals("下单员")) && jobs.size()==1) {
             // 下单员
             columnNames.add("scmSendFlag");
             columnNames.add("collocationName");
