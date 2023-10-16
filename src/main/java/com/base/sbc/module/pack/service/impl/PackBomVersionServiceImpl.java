@@ -30,7 +30,6 @@ import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackBomVersionMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.PackBomColorVo;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
@@ -380,32 +379,19 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         //反审
         else if (StrUtil.equals(BasicNumber.TWO.getNumber(), flg)) {
             //1获取目标启用版本
-            PackBomVersion targetEnableVersion = getEnableVersion(targetForeignId, targetPackType);
-            //获取目标数据
-            List<PackBom> targetBomList = packBomService.list(new QueryWrapper<PackBom>()
-                    .eq("bom_version_id", targetEnableVersion.getId())
-                    .eq("foreign_id", targetForeignId)
-                    .eq("pack_type", targetPackType)
-                    .eq("stage_flag", PackUtils.PACK_TYPE_DESIGN));
-            List<String> bomIds = Opt.ofNullable(targetBomList).map(bl -> bl.stream().map(PackBom::getId).collect(Collectors.toList())).orElse(CollUtil.newArrayList());
-            List<PackBomSizeVo> targetBomSizeList = packBomSizeService.getByBomIds(bomIds);
-            List<PackBomColorVo> targetPackBomColorList = packBomColorService.getByBomIds(bomIds);
-            // bom 数据为设计阶段数据源数据 + 在大货阶段添加的数据
-            //获取在大货阶段添加的数据
-            PackBomVersion bigEnableVersion = getEnableVersion(sourceForeignId, sourcePackType);
-            List<PackBom> bigBomList = packBomService.list(new QueryWrapper<PackBom>()
-                    .eq("bom_version_id", bigEnableVersion.getId())
-                    .eq("foreign_id", sourceForeignId)
-                    .eq("pack_type", sourcePackType)
-                    .eq("stage_flag", PackUtils.PACK_TYPE_BIG_GOODS));
-            List<String> bigBimIds = Opt.ofNullable(bigBomList).map(bl -> bl.stream().map(PackBom::getId).collect(Collectors.toList())).orElse(CollUtil.newArrayList());
-            List<PackBomSizeVo> bigBomSizeList = packBomSizeService.getByBomIds(bigBimIds);
-            List<PackBomColorVo> bigPackBomColorList = packBomColorService.getByBomIds(bigBimIds);
-            CollUtil.newArrayList(targetBomList);
-            bomList = CollUtil.unionAll(BeanUtil.copyToList(targetBomList, PackBomVo.class), BeanUtil.copyToList(bigBomList, PackBomVo.class));
-            bomSizeList = CollUtil.unionAll(targetBomSizeList, bigBomSizeList);
-            packBomColorList = CollUtil.unionAll(BeanUtil.copyToList(targetPackBomColorList, PackBomColor.class),
-                    BeanUtil.copyToList(bigPackBomColorList, PackBomColor.class));
+            PackBomVersion enableVersion = getEnableVersion(targetForeignId, targetPackType);
+            //获取源版本数据
+            if (enableVersion != null) {
+                bomList = packBomService.list(sourceForeignId, sourcePackType, enableVersion.getId());
+            }
+            List<String> bomIds = new ArrayList<>();
+            if (CollUtil.isNotEmpty(bomList)) {
+                for (PackBomVo packBomVo : bomList) {
+                    bomIds.add(packBomVo.getId());
+                }
+            }
+            bomSizeList = packBomSizeService.getByBomIds(bomIds);
+            packBomColorList = BeanUtil.copyToList(packBomColorService.getByBomIds(bomIds), PackBomColor.class);
             // 创建目标启用版本 并启用
             PackBomVersionDto versionDto = new PackBomVersionDto();
             versionDto.setForeignId(targetForeignId);
