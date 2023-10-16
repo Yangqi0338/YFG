@@ -3,7 +3,10 @@ package com.base.sbc.open.controller;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.http.HttpResponse;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
@@ -34,6 +37,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -82,8 +86,8 @@ public class OpenLinkMoreController extends BaseController{
     private PackPricingService packPricingService;
     @Autowired
     private PackPricingOtherCostsService packPricingOtherCostsService;
-//    @Autowired
-//    private PackCostsService packPricingProcessCostsService;
+    @Autowired
+    private CcmService ccmService;
     @Autowired
     private DsLinkMoreScm linkMoreScm;
     @Autowired
@@ -281,8 +285,27 @@ public class OpenLinkMoreController extends BaseController{
 
     @ApiOperation(value = "领猫scm推送供应商保存")
     @PostMapping("/saveSupplierLinkMore")
-    public ApiResult saveSupplierLinkMore(@RequestBody List<AddRevampBasicsdatumSupplierDto> addDtoList){
-        return supplierService.addSupplierBatch(addDtoList);
+    public ApiResult saveSupplierLinkMore(@RequestHeader(BaseConstant.USER_COMPANY)String companyCode,@RequestBody List<AddRevampBasicsdatumSupplierDto> addDtoList){
+        //校验数据 字典（结算方式、供应商类型、开发年份）
+        String dictInfo = ccmService.getOpenDictInfo(companyCode, "C8_Year,TradeTerm,C8_Sync_DataStatus");
+        JSONArray data = JSONObject.parseObject(dictInfo).getJSONArray("data");
+        Map<String,Map<String,String>> dictMap = new HashMap<>();
+        for (int i = 0; i < data.size(); i++) {
+            JSONObject obj = data.getJSONObject(i);
+            if (StringUtils.isNotBlank(obj.getString("value"))
+                    && StringUtils.isNotBlank(obj.getString("type"))
+                    && StringUtils.isNotBlank(obj.getString("name"))) {
+                if (dictMap.get(obj.getString("type"))!=null){
+                    dictMap.get(obj.getString("type")).put(obj.getString("name"),obj.getString("value"));
+                }else{
+                    Map<String,String> map = new HashMap<>();
+                    map.put(obj.getString("name"),obj.getString("value"));
+                    dictMap.put(obj.getString("type"),map);
+                }
+            }
+        }
+        //新增数据
+        return supplierService.addSupplierBatch(addDtoList,dictMap);
     }
 
     @ApiOperation(value = "领猫scm推送送货通知单保存")

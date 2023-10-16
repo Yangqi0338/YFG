@@ -332,7 +332,7 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
     }
 
     @Override
-    public ApiResult addSupplierBatch(List<AddRevampBasicsdatumSupplierDto> supplierList) {
+    public ApiResult addSupplierBatch(List<AddRevampBasicsdatumSupplierDto> supplierList, Map<String, Map<String, String>> dictMap) {
         List<BasicsdatumSupplier> insertList = new ArrayList<>();
         List<BasicsdatumSupplier> updateList = new ArrayList<>();
         BasicsdatumSupplier basicsdatumSupplier;
@@ -345,13 +345,38 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
         if (!CollectionUtils.isEmpty(selectList)){
             supplierMap = selectList.stream().collect(Collectors.toMap(s -> s.getSupplierCode(), s -> s, (s1, s2) -> s2));
         }
+        StringBuffer errorStr = new StringBuffer();
+        Map<String, String> yearMap = dictMap.get("C8_Year");
+        Map<String, String> clearingFormMap = dictMap.get("TradeTerm");
+        Map<String, String> typeMap = dictMap.get("C8_Sync_DataStatus");
+
+        if (yearMap == null || clearingFormMap == null || typeMap == null){
+            return ApiResult.error("未获取到字典数据，请检查系统字典；",500);
+        }
 
         for (AddRevampBasicsdatumSupplierDto dto : supplierList) {
             basicsdatumSupplier = new BasicsdatumSupplier();
-            if (StringUtils.isEmpty(dto.getId())) {
-                if (supplierMap.get(dto.getSupplierCode()) != null) {
-                    return ApiResult.error("新增失败：数据重复",500);
-                }
+            if (StringUtils.isBlank(dto.getSupplierCode())){
+                errorStr.append("供应商编码不能为空；");
+            }
+            //校验字典信息
+            if (yearMap.get(dto.getYear())!= null){
+                dto.setYear(yearMap.get(dto.getYear()));
+            }else{
+                errorStr.append("供应商【").append(dto.getSupplierCode()).append("】年份在字典中无对应数据；");
+            }
+            if (clearingFormMap.get(dto.getClearingForm())!= null){
+                dto.setClearingForm(clearingFormMap.get(dto.getClearingForm()));
+            }else{
+                errorStr.append("供应商【").append(dto.getSupplierCode()).append("】结算方式在字典中无对应数据；");
+            }
+            if (typeMap.get(dto.getSupplierType())!= null){
+                dto.setSupplierType(yearMap.get(dto.getSupplierType()));
+            }else{
+                errorStr.append("供应商【").append(dto.getSupplierCode()).append("】供应商类型在字典中无对应数据；");
+            }
+
+            if (supplierMap.get(dto.getSupplierCode()) == null) {
                 /*新增*/
                 BeanUtils.copyProperties(dto, basicsdatumSupplier);
                 basicsdatumSupplier.setCompanyCode(baseController.getUserCompany());
@@ -361,23 +386,23 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
                 insertList.add(basicsdatumSupplier);
             } else {
                 /*修改*/
-                if (supplierMap.get(dto.getSupplierCode()) == null) {
-                    return ApiResult.error("查询失败：找不到数据",400);
-                }
                 basicsdatumSupplier = supplierMap.get(dto.getSupplierCode());
                 BeanUtils.copyProperties(dto, basicsdatumSupplier);
-                basicsdatumSupplier.setDataState("1");
+                basicsdatumSupplier.setDataState("2");
                 basicsdatumSupplier.setCreateName("linkMore");
                 basicsdatumSupplier.setUpdateName("linkMore");
                 updateList.add(basicsdatumSupplier);
             }
+        }
+        if (StringUtils.isNotBlank(errorStr)){
+            return ApiResult.error(errorStr.toString(),500);
+        }
 
-            if (insertList.size() > 0){
-                this.saveBatch(insertList);
-            }
-            if (updateList.size() > 0){
-                this.updateBatchById(updateList);
-            }
+        if (insertList.size() > 0){
+            this.saveBatch(insertList);
+        }
+        if (updateList.size() > 0){
+            this.updateBatchById(updateList);
         }
         ApiResult result = ApiResult.success("新增成功");
         result.setStatus(200);
