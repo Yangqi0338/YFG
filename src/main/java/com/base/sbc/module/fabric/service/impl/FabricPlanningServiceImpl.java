@@ -22,6 +22,7 @@ import com.base.sbc.module.fabric.enums.ApproveStatusEnum;
 import com.base.sbc.module.fabric.mapper.FabricPlanningMapper;
 import com.base.sbc.module.fabric.service.FabricPlanningItemService;
 import com.base.sbc.module.fabric.service.FabricPlanningService;
+import com.base.sbc.module.fabric.service.FabricPoolService;
 import com.base.sbc.module.fabric.vo.FabricPlanningListVO;
 import com.base.sbc.module.fabric.vo.FabricPlanningVO;
 import com.github.pagehelper.PageHelper;
@@ -52,6 +53,8 @@ public class FabricPlanningServiceImpl extends BaseServiceImpl<FabricPlanningMap
     private FabricPlanningItemService fabricPlanningItemService;
     @Autowired
     private FlowableService flowableService;
+    @Autowired
+    private FabricPoolService fabricPoolService;
 
     @Override
     public PageInfo<FabricPlanningListVO> getFabricPlanningList(FabricPlanningSearchDTO dto) {
@@ -77,6 +80,7 @@ public class FabricPlanningServiceImpl extends BaseServiceImpl<FabricPlanningMap
         if (ApproveStatusEnum.UNDER_REVIEW.getK().equals(dto.getApproveStatus())) {
             this.sendApproval(fabricPlanning.getId(), fabricPlanning);
         }
+        fabricPoolService.fabricPlanningSync(fabricPlanning.getId(), dto.getFabricPlanningItems());
     }
 
     @Override

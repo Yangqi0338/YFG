@@ -13,6 +13,7 @@ import com.base.sbc.module.fabric.vo.FabricPlanningItemVO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：面料企划明细 service类
@@ -50,6 +51,14 @@ public interface FabricPlanningItemService extends BaseService<FabricPlanningIte
      * @return
      */
     String fabricPlanningItemImportExcel(MultipartFile file, String fabricPlanningId);
+
+    /**
+     * 通过物料编码获取面料企划id
+     *
+     * @param materialCode
+     * @return
+     */
+    Map<String, List<String>> getFabricPlanningId(String materialCode);
 
 
 // 自定义方法区 不替换的区域【other_end】

@@ -662,6 +662,15 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     }
 
     @Override
+    public String getMaterialCodeById(String id) {
+        LambdaQueryWrapper<BasicsdatumMaterial> qw = new QueryWrapper<BasicsdatumMaterial>().lambda()
+                .eq(BasicsdatumMaterial::getId, id)
+                .select(BasicsdatumMaterial::getMaterialCode);
+        BasicsdatumMaterial basicsdatumMaterial = super.getBaseMapper().selectOne(qw);
+        return Objects.isNull(basicsdatumMaterial) ? null : basicsdatumMaterial.getMaterialCode();
+    }
+
+    @Override
     public Boolean delBasicsdatumMaterialColor(RemoveDto removeDto) {
         return this.materialColorService.removeByIds(removeDto);
     }
@@ -975,7 +984,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 			basicsdatumMaterialPriceDetailService.remove(queryWrapper);
             materialWidthService.remove(queryWrapper);
 		}
-		basicFabricLibraryService.materialApproveProcessing(basicsdatumMaterialVo.getId(), dto.getApprovalType());
+		basicFabricLibraryService.materialApproveProcessing(basicsdatumMaterialVo.getId(), dto.getApprovalType(), basicsdatumMaterialVo.getMaterialCode());
 		return true;
 	}
 

@@ -133,5 +133,12 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	Map<String, BasicsdatumMaterial> getSourceAndIngredient(List<String> materialCodes);
 
 	Boolean saveBasicsdatumMaterialColorList(List<BasicsdatumMaterialColorSaveDto> dtos);
+
+	/**
+	 * 获取物料编码
+	 * @param id
+	 * @return
+	 */
+	String getMaterialCodeById(String id);
 }
 

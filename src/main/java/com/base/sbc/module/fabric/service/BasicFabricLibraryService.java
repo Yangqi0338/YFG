@@ -72,7 +72,7 @@ public interface BasicFabricLibraryService extends BaseService<BasicFabricLibrar
      *
      * @param materialId
      */
-    void materialApproveProcessing(String materialId, String approveStatus);
+    void materialApproveProcessing(String materialId, String approveStatus, String materialCode);
 
     /**
      * 通过物料编码获取

@@ -36,6 +36,13 @@ public interface FabricPlanningItemMapper extends BaseMapper<FabricPlanningItem>
     List<FabricPlanningItemVO> getByFabricPlanningId(@Param("fabricPlanningId") String fabricPlanningId,
                                                      @Param("materialFlag") String materialFlag);
 
+    /**
+     * 通过物料编码获取面料企划id
+     *
+     * @param materialCode
+     * @return
+     */
+    List<FabricPlanningItem> getFabricPlanningId(@Param("materialCode") String materialCode);
 
 // 自定义方法区 不替换的区域【other_end】
 }

@@ -25,12 +25,12 @@ import com.base.sbc.module.fabric.mapper.BasicFabricLibraryMapper;
 import com.base.sbc.module.fabric.service.BasicFabricLibraryService;
 import com.base.sbc.module.fabric.service.FabricDevApplyService;
 import com.base.sbc.module.fabric.service.FabricDevBasicInfoService;
+import com.base.sbc.module.fabric.service.FabricPoolService;
 import com.base.sbc.module.fabric.vo.BasicFabricLibraryListVO;
 import com.base.sbc.module.fabric.vo.BasicFabricLibraryVO;
 import com.base.sbc.module.fabric.vo.FabricDevMainVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +79,8 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
     private BasicsdatumMaterialIngredientService materialIngredientService;
     @Autowired
     private BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
+    @Autowired
+    private FabricPoolService fabricPoolService;
 
     @Override
     public void saveBasicFabric(FabricDevMainVO fabricDevMainVO) {
@@ -175,7 +177,7 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
     }
 
     @Override
-    public void materialApproveProcessing(String materialId, String approveStatus) {
+    public void materialApproveProcessing(String materialId, String approveStatus, String materialCode) {
         BasicFabricLibrary basicFabricLibrary = super.getBaseMapper().getByToMaterialId(materialId);
         if (Objects.isNull(basicFabricLibrary)) {
             return;
@@ -185,6 +187,8 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
         if (BaseConstant.APPROVAL_PASS.equals(approveStatus)) {
             fabricDevBasicInfoService.synchMaterialUpdate(materialId, YesOrNoEnum.YES.getValueStr(), YesOrNoEnum.YES.getValueStr(),
                     basicFabricLibrary.getId(), basicFabricLibrary.getDevMainId(), devApplyId);
+            String fabricLibraryMaterialCode = basicsdatumMaterialService.getMaterialCodeById(basicFabricLibrary.getMaterialId());
+            fabricPoolService.materialReviewPassedSync(fabricLibraryMaterialCode, materialId, materialCode);
         } else {
             fabricDevBasicInfoService.synchMaterialUpdate(null, YesOrNoEnum.NO.getValueStr(), YesOrNoEnum.NO.getValueStr(),
                     basicFabricLibrary.getId(), basicFabricLibrary.getDevMainId(), devApplyId);
@@ -202,7 +206,7 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
         List<BasicFabricLibraryListVO> basicFabricLibraryList = super.getBaseMapper().getBasicFabricLibraryList(dto);
 
         return CollectionUtils.isEmpty(basicFabricLibraryList) ? new HashMap<>() : basicFabricLibraryList.stream()
-                .collect(Collectors.toMap(BasicFabricLibraryListVO::getMaterialCode, Function.identity(), (k1,k2) -> k2));
+                .collect(Collectors.toMap(BasicFabricLibraryListVO::getMaterialCode, Function.identity(), (k1, k2) -> k2));
     }
 
 
