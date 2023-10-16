@@ -146,7 +146,8 @@ public class FabricPlanningItemServiceImpl extends BaseServiceImpl<FabricPlannin
     @Override
     public Map<String, List<String>> getFabricPlanningId(String materialCode) {
         List<FabricPlanningItem> fabricPlanningItems = super.getBaseMapper().getFabricPlanningId(materialCode);
-        return fabricPlanningItems.stream().collect(Collectors.groupingBy(FabricPlanningItem::getFabricPlanningId, Collectors.mapping(FabricPlanningItem::getId, Collectors.toList())));
+        return fabricPlanningItems.stream()
+                .collect(Collectors.groupingBy(FabricPlanningItem::getFabricPlanningId, Collectors.mapping(FabricPlanningItem::getId, Collectors.toList())));
     }
 
     private List<String> getIdByFabricPlanningId(String fabricPlanningId) {
