@@ -119,7 +119,7 @@ public class PackSizeConfigServiceImpl extends PackBaseServiceImpl<PackSizeConfi
         qw.eq("tpsc.del_flag", BaseGlobal.STATUS_NORMAL);
         qw.isNotNull("tpi.style_no");
         qw.ne("tpi.style_no","");
-        qw.andLike(dto.getSearch(), "product_sizes", "size_range_name", "size_codes", "size_range");
+        qw.andLike(dto.getSearch(), "product_sizes", "size_range_name", "size_codes", "size_range","tpi.style_no");
         Page<PackSizeConfigVo> objects = PageHelper.startPage(dto);
         baseMapper.sizeConfigList(qw);
         PageInfo<PackSizeConfigVo> packSizeConfigPageInfo = objects.toPageInfo();
