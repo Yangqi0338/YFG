@@ -1,5 +1,6 @@
 package com.base.sbc.module.pricing.dto;
 
+import com.base.sbc.module.pricing.entity.StylePricing;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
@@ -8,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
-public class StylePricingSaveDTO {
+public class StylePricingSaveDTO extends StylePricing {
     /**
      * 款式定价id
      */
