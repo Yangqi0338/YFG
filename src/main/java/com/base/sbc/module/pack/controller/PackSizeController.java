@@ -21,8 +21,8 @@ import com.base.sbc.config.utils.ImportExcel;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMeasurementService;
-import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
+import com.base.sbc.module.difference.entity.Difference;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackSize;
 import com.base.sbc.module.pack.entity.PackSizeDetail;
@@ -171,7 +171,7 @@ public class PackSizeController extends BaseController{
 
     @GetMapping("/gatPartDifference")
     @ApiOperation(value = "获取测量部位的当差设置")
-    public String gatPartDifference( PackSizeConfigDto dot) {
+    public Difference gatPartDifference(PackSizeConfigDto dot) {
         return packSizeConfigService.gatPartDifference(dot);
     }
 

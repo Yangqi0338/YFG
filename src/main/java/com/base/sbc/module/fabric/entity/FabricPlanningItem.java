@@ -49,5 +49,8 @@ public class FabricPlanningItem extends BaseDataEntity<String> {
     /** 面料标签:1.新面料、2.长青面料、3.延续面料、4.库存面料； */
     @ApiModelProperty(value = "面料标签:1.新面料、2.长青面料、3.延续面料、4.库存面料；"  )
     private String fabricLabel;
+    /** 物料编码*/
+    @ApiModelProperty(value = "物料编码"  )
+    private String materialCode;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

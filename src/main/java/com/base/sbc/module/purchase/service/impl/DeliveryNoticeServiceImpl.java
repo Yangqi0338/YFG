@@ -32,10 +32,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -177,14 +174,26 @@ public class DeliveryNoticeServiceImpl extends BaseServiceImpl<DeliveryNoticeMap
         String name = "LinkMore";
         Date date = new Date();
         List<DeliveryNotice> noticeList = new ArrayList<>();
+        StringBuffer errorStr = new StringBuffer();
+        Map<String,String> noticeMap = new HashMap<>();
+        String key;
         for (OpenMaterialNoticeDto noticeDto : noticeDtoList) {
             DeliveryNotice notice = new DeliveryNotice();
             BeanUtils.copyProperties(noticeDto,notice);
+
+            key = noticeDto.getPurchaseCode() + noticeDto.getSupplierName() + noticeDto.getMaterialName() + noticeDto.getMaterialSpecifications() + noticeDto.getMaterialColor();
+            if (noticeMap.get(key) != null) {
+                errorStr.append("单据【").append(noticeDto.getPurchaseCode()).append("】重复，请检查；");
+                break;
+            }
+            noticeMap.put(key,key);
 
             PurchaseOrderDetail detail = purchaseOrderDetailMap.get(notice.getPurchaseCode() + notice.getMaterialCode() + notice.getMaterialColor() + notice.getMaterialSpecifications());
             if (detail != null){
                 notice.setPurchaseOrderDetailId(detail.getId());
             }else {
+                //没有对应采购单
+                errorStr.append("单据【").append(noticeDto.getPurchaseCode()).append("】没有对应的采购单；");
                 break;
             }
 
@@ -193,6 +202,7 @@ public class DeliveryNoticeServiceImpl extends BaseServiceImpl<DeliveryNoticeMap
                 notice.setSupplierId(supplier.getId());
                 notice.setSupplierName(supplier.getSupplierAbbreviation());
             }else {
+                errorStr.append("单据【").append(noticeDto.getPurchaseCode()).append("】没有对应的供应商；");
                 break;
             }
 
@@ -200,6 +210,7 @@ public class DeliveryNoticeServiceImpl extends BaseServiceImpl<DeliveryNoticeMap
             if (user != null){
                 notice.setPurchaserId(user.getId());
             }else {
+                errorStr.append("单据【").append(noticeDto.getPurchaseCode()).append("】没有对应的采购员；");
                 break;
             }
 
@@ -210,6 +221,9 @@ public class DeliveryNoticeServiceImpl extends BaseServiceImpl<DeliveryNoticeMap
             notice.setUpdateName(name);
             notice.setUpdateDate(date);
             noticeList.add(notice);
+        }
+        if (StringUtils.isNotBlank(errorStr)) {
+            return ApiResult.error(errorStr.toString(), 500);
         }
         this.saveBatch(noticeList);
         return result;

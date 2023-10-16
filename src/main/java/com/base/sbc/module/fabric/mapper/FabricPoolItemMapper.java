@@ -35,5 +35,14 @@ public interface FabricPoolItemMapper extends BaseMapper<FabricPoolItem> {
      */
     List<FabricPoolItemVO> getByFabricPoolId(@Param("fabricPoolId") String fabricPoolId);
 
+
+    /**
+     * 获取来源id
+     *
+     * @param fabricPlanningId
+     * @return
+     */
+    List<FabricPoolItem> getSourceIdByFabricPlanningId(@Param("fabricPlanningId") String fabricPlanningId);
+
 // 自定义方法区 不替换的区域【other_end】
 }

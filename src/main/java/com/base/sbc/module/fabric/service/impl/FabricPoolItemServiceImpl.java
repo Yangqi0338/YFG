@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -74,6 +75,16 @@ public class FabricPoolItemServiceImpl extends BaseServiceImpl<FabricPoolItemMap
     public List<FabricPoolItemVO> getByFabricPoolId(String fabricPoolId) {
         return super.getBaseMapper().getByFabricPoolId(fabricPoolId);
     }
+
+    @Override
+    public Map<String, List<String>> getSourceIdByFabricPlanningId(String fabricPlanningId) {
+        List<FabricPoolItem> fabricPoolItems = super.getBaseMapper().getSourceIdByFabricPlanningId(fabricPlanningId);
+        return CollectionUtils.isEmpty(fabricPoolItems) ?
+                null :
+                fabricPoolItems.stream()
+                        .collect(Collectors.groupingBy(FabricPoolItem::getFabricPoolId, Collectors.mapping(FabricPoolItem::getSourceId, Collectors.toList())));
+    }
+
 
     private List<String> getIdByFabricPoolId(String fabricPoolId) {
         LambdaQueryWrapper<FabricPoolItem> qw = new QueryWrapper<FabricPoolItem>().lambda()

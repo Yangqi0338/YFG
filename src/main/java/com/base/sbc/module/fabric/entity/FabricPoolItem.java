@@ -39,8 +39,8 @@ public class FabricPoolItem extends BaseDataEntity<String> {
     /** 面料企划明细id */
     @ApiModelProperty(value = "面料企划明细id"  )
     private String fabricPlanningItemId;
-    /** 来源：1.新增，2.基础面料库、3.面料企划、4.其他 */
-    @ApiModelProperty(value = "来源：1.新增，2.基础面料库、3.面料企划、4.其他"  )
+    /** 来源：1.新增，2.基础面料库、3.面料开发申请、4.物料档案 */
+    @ApiModelProperty(value = "来源：1.新增，2.基础面料库、3.面料开发申请、4.物料档案"  )
     private String source;
     /** 来源id */
     @ApiModelProperty(value = "来源id"  )
@@ -51,5 +51,8 @@ public class FabricPoolItem extends BaseDataEntity<String> {
     /** 面料池id */
     @ApiModelProperty(value = "面料池id"  )
     private String fabricPoolId;
+    /** 物料编码*/
+    @ApiModelProperty(value = "物料编码"  )
+    private String materialCode;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

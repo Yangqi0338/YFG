@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：基础资料-供应商 service类
@@ -109,7 +110,8 @@ public interface BasicsdatumSupplierService extends BaseService<BasicsdatumSuppl
          * 方法描述：新增修改基础资料-供应商
          *
          * @param supplierList 供应商集合
+         * @param dictMap
          * @return boolean
          */
-        ApiResult addSupplierBatch(List<AddRevampBasicsdatumSupplierDto> supplierList);
+        ApiResult addSupplierBatch(List<AddRevampBasicsdatumSupplierDto> supplierList, Map<String, Map<String, String>> dictMap);
 }

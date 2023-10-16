@@ -8,12 +8,15 @@ package com.base.sbc.module.fabric.service;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.fabric.dto.FabricPlanningItemSaveDTO;
 import com.base.sbc.module.fabric.dto.FabricPlanningSearchDTO;
 import com.base.sbc.module.fabric.dto.FabricPoolSaveDTO;
 import com.base.sbc.module.fabric.entity.FabricPool;
 import com.base.sbc.module.fabric.vo.FabricPoolListVO;
 import com.base.sbc.module.fabric.vo.FabricPoolVO;
 import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * 类描述：面料池 service类
@@ -59,6 +62,19 @@ public interface FabricPoolService extends BaseService<FabricPool> {
      * @return
      */
     boolean approval(AnswerDto dto);
+
+    /**
+     * 面料企划修改同步物料信息
+     */
+    void fabricPlanningSync(String fabricPlanningId, List<FabricPlanningItemSaveDTO> fabricPlanningItems);
+
+    /**
+     * 物料审核通过同步
+     *
+     * @param materialCode
+     * @param materialId
+     */
+    void materialReviewPassedSync(String fabricLibraryMaterialCode, String materialId, String materialCode);
 
 
 // 自定义方法区 不替换的区域【other_end】

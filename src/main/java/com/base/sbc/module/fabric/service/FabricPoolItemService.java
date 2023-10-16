@@ -12,6 +12,7 @@ import com.base.sbc.module.fabric.entity.FabricPoolItem;
 import com.base.sbc.module.fabric.vo.FabricPoolItemVO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：面料池明细 service类
@@ -42,6 +43,12 @@ public interface FabricPoolItemService extends BaseService<FabricPoolItem> {
      */
     List<FabricPoolItemVO> getByFabricPoolId(String fabricPoolId);
 
+    /**
+     * 通过面料企划id获取来源id
+     * @param fabricPlanningId
+     * @return
+     */
+    Map<String, List<String>> getSourceIdByFabricPlanningId(String fabricPlanningId);
 
 // 自定义方法区 不替换的区域【other_end】
 

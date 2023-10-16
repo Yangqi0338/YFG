@@ -301,7 +301,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
                     packBomSize.setBomVersionId(version.getId());
                     packBomSize.setWidthCode(packBomDto.getTranslateCode());
                     packBomSize.setWidth(packBomDto.getTranslate());
-                    packBomSize.setQuantity(packBomDto.getDesignUnitUse());
+                    packBomSize.setQuantity(StrUtil.equals(packBomDto.getPackType(),PackUtils.PACK_TYPE_DESIGN)?packBomDto.getDesignUnitUse():packBomDto.getBulkUnitUse());
                 }
                 bomSizeList.addAll(packBomSizeList);
             }

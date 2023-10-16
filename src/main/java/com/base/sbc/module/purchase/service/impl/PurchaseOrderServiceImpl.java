@@ -284,7 +284,7 @@ public class PurchaseOrderServiceImpl extends BaseServiceImpl<PurchaseOrderMappe
             purchaseOrder.setReviewer(userCompany.getAliasUserName());
             purchaseOrder.setReviewDate(new Date());
             purchaseOrder.setStatus("2");
-            updateById(purchaseOrder);
+//            updateById(purchaseOrder);
 
             QueryWrapper<PurchaseOrderDetail> detailQw = new QueryWrapper<>();
             detailQw.eq("purchase_order_id", purchaseOrder.getId());

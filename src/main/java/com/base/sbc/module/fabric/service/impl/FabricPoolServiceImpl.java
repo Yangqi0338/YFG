@@ -8,6 +8,8 @@ package com.base.sbc.module.fabric.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.IdGen;
@@ -15,24 +17,29 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.fabric.dto.FabricPlanningItemSaveDTO;
 import com.base.sbc.module.fabric.dto.FabricPlanningSearchDTO;
 import com.base.sbc.module.fabric.dto.FabricPoolSaveDTO;
 import com.base.sbc.module.fabric.entity.FabricPool;
+import com.base.sbc.module.fabric.entity.FabricPoolItem;
 import com.base.sbc.module.fabric.enums.ApproveStatusEnum;
+import com.base.sbc.module.fabric.enums.SourceEnum;
 import com.base.sbc.module.fabric.mapper.FabricPoolMapper;
+import com.base.sbc.module.fabric.service.FabricPlanningItemService;
 import com.base.sbc.module.fabric.service.FabricPoolItemService;
 import com.base.sbc.module.fabric.service.FabricPoolService;
 import com.base.sbc.module.fabric.vo.FabricPoolListVO;
 import com.base.sbc.module.fabric.vo.FabricPoolVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：面料池 service类
@@ -52,6 +59,8 @@ public class FabricPoolServiceImpl extends BaseServiceImpl<FabricPoolMapper, Fab
 
     @Autowired
     private FabricPoolItemService fabricPoolItemService;
+    @Autowired
+    private FabricPlanningItemService fabricPlanningItemService;
 
     @Override
     public PageInfo<FabricPoolListVO> getFabricPoolList(FabricPlanningSearchDTO dto) {
@@ -101,6 +110,80 @@ public class FabricPoolServiceImpl extends BaseServiceImpl<FabricPoolMapper, Fab
         fabricPool.updateInit();
         super.updateById(fabricPool);
         return true;
+    }
+
+
+    @Override
+    public void fabricPlanningSync(String fabricPlanningId, List<FabricPlanningItemSaveDTO> fabricPlanningItems) {
+        if (CollectionUtils.isEmpty(fabricPlanningItems)) {
+            return;
+        }
+        Map<String, List<String>> sourceIds = fabricPoolItemService.getSourceIdByFabricPlanningId(fabricPlanningId);
+        if (Objects.isNull(sourceIds)) {
+            return;
+        }
+        String companyCode = super.getCompanyCode();
+        List<FabricPoolItem> fabricPoolItems = new ArrayList<>();
+        sourceIds.forEach((k, v) -> {
+            IdGen idGen = new IdGen();
+            fabricPlanningItems.forEach(e -> {
+                if ((CollectionUtils.isNotEmpty(v) && v.contains(e.getSourceId())) || !SourceEnum.MATERIAL.getK().equals(e.getSource())) {
+                    return;
+                }
+                FabricPoolItem fabricPoolItem = this.getFabricPoolItem(companyCode, k, idGen, e);
+                fabricPoolItems.add(fabricPoolItem);
+            });
+        });
+        if (CollectionUtils.isNotEmpty(fabricPoolItems)) {
+            fabricPoolItemService.saveBatch(fabricPoolItems);
+        }
+
+    }
+
+    @Override
+    public void materialReviewPassedSync(String fabricLibraryMaterialCode, String materialId, String materialCode) {
+        if (StringUtils.isEmpty(materialId)) {
+            return;
+        }
+        Map<String, List<String>> fabricPlanningId = fabricPlanningItemService.getFabricPlanningId(fabricLibraryMaterialCode);
+        if (Objects.isNull(fabricPlanningId)) {
+            return;
+        }
+
+        LambdaQueryWrapper<FabricPool> qw = new QueryWrapper<FabricPool>()
+                .lambda()
+                .in(FabricPool::getFabricPlanningId, fabricPlanningId.keySet());
+        List<FabricPool> list = super.list(qw);
+
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+
+        String companyCode = super.getCompanyCode();
+        List<FabricPoolItem> fabricPoolItems = list.stream()
+                .map(e -> {
+                    FabricPoolItem fabricPoolItem = new FabricPoolItem();
+                    fabricPoolItem.setCompanyCode(companyCode);
+                    fabricPoolItem.insertInit();
+                    fabricPoolItem.setSource(SourceEnum.MATERIAL.getK());
+                    fabricPoolItem.setSourceId(materialId);
+                    fabricPoolItem.setFabricPoolId(e.getId());
+                    fabricPoolItem.setMaterialCode(materialCode);
+                    return fabricPoolItem;
+                }).collect(Collectors.toList());
+        fabricPoolItemService.saveBatch(fabricPoolItems);
+    }
+
+
+    @NotNull
+    private FabricPoolItem getFabricPoolItem(String companyCode, String k, IdGen idGen, FabricPlanningItemSaveDTO e) {
+        FabricPoolItem fabricPoolItem = CopyUtil.copy(e, FabricPoolItem.class);
+        fabricPoolItem.setFabricPoolId(k);
+        fabricPoolItem.setCompanyCode(companyCode);
+        fabricPoolItem.insertInit();
+        fabricPoolItem.setId(idGen.nextIdStr());
+        fabricPoolItem.setSource(SourceEnum.MATERIAL.getK());
+        return fabricPoolItem;
     }
 
     /**

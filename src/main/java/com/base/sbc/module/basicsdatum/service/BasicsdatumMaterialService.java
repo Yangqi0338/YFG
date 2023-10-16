@@ -142,5 +142,12 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	Boolean updateMaterialPic(BasicsdatumMaterialSaveDto dto);
 
 
+
+	/**
+	 * 获取物料编码
+	 * @param id
+	 * @return
+	 */
+	String getMaterialCodeById(String id);
 }
 
