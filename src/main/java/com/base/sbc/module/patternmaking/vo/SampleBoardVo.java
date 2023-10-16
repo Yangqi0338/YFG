@@ -257,8 +257,10 @@ public class SampleBoardVo extends Style {
     private String cuttingStatus;
     @ApiModelProperty(value = "车缝状态:0待接收,1已接收,2进行中,3完成")
     private String sewingStatus;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty(value = "纸样需求完成日期")
     private Date patternReqDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty(value = "样衣需求完成日期")
     private Date demandFinishDate;
 
