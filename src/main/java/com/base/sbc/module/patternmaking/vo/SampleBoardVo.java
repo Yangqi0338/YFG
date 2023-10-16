@@ -258,7 +258,9 @@ public class SampleBoardVo extends Style {
     @ApiModelProperty(value = "车缝状态:0待接收,1已接收,2进行中,3完成")
     private String sewingStatus;
     @ApiModelProperty(value = "纸样需求完成日期")
-    private String patternReqDate;
+    private Date patternReqDate;
+    @ApiModelProperty(value = "样衣需求完成日期")
+    private Date demandFinishDate;
 
 
     public String getId() {
