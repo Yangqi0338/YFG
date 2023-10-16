@@ -642,16 +642,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // 查询样衣的
         DimensionalityListVo listVo = planningDimensionalityService.getDimensionalityList(pdqw);
         List<PlanningDimensionality> pdList = listVo.getPlanningDimensionalities();
-     /*查询配色中无数据时带出款式数据*/
-        List<FieldVal> fvList = new ArrayList<>();
-        if (StrUtil.equals(dto.getDataGroup(), FieldValDataGroupConstant.STYLE_COLOR)) {
-            fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
-            if (!CollUtil.isNotEmpty(fvList)) {
-                dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-                dto.setForeignId(dto.getId());
-            }
-        }
-        fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
+        List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
             List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
