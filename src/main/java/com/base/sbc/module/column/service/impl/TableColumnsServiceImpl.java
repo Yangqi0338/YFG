@@ -35,23 +35,26 @@ public class TableColumnsServiceImpl extends BaseServiceImpl<TableColumnsMapper,
         //     // 管理员
         //     columnNames.add("*");
         // } else
-        // if (jobs.stream().anyMatch(job -> job.getName().equals("下单员"))) {
-        //     // 下单员
-        //     columnNames.add("scmSendFlag");
-        //     columnNames.add("collocationName");
-        //     columnNames.add("mainFlag");
-        //     columnNames.add("imageUrl");
-        //     columnNames.add("materialCodeName");
-        //     columnNames.add("supplierMaterialCode");
-        //     columnNames.add("purchaseUnitName");
-        //     columnNames.add("stockUnitName");
-        //     columnNames.add("translate");
-        //     columnNames.add("designUnitUse");
-        //     columnNames.add("bulkUnitUse");
-        //     columnNames.add("lossRate");
-        //
-        // }
-        columnNames.add("*");
+
+        if (jobs.stream().anyMatch(job -> job.getName().equals("下单员")) && jobs.size()==1) {
+            // 下单员
+            columnNames.add("scmSendFlag");
+            columnNames.add("collocationName");
+            columnNames.add("mainFlag");
+            columnNames.add("imageUrl");
+            columnNames.add("materialCodeName");
+            columnNames.add("supplierMaterialCode");
+            columnNames.add("purchaseUnitName");
+            columnNames.add("stockUnitName");
+            columnNames.add("translate");
+            columnNames.add("designUnitUse");
+            columnNames.add("bulkUnitUse");
+            columnNames.add("lossRate");
+
+        }else {
+            columnNames.add("*");
+        }
+
         for (String columnName : columnNames) {
             TableColumns tableColumn = new TableColumns();
             tableColumn.setTitle(columnName);

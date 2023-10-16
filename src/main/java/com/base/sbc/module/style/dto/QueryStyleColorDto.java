@@ -210,4 +210,8 @@ public class QueryStyleColorDto extends Page {
 
     @ApiModelProperty(value = "小类")
     private String prodCategory3ndName;
+
+    private String seasonName;
+
+    private String yearName;
 }
