@@ -168,6 +168,9 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     /** 目标销价 */
     @ApiModelProperty(value = "目标销价"  )
     private BigDecimal targetSalePrice;
+    /** 目标销价区间 */
+    @ApiModelProperty(value = "目标销价区间"  )
+    private BigDecimal targetSalePriceInterval;
     /** 企划目标倍率 */
     @ApiModelProperty(value = "企划目标倍率"  )
     private BigDecimal planningTargetRate;
