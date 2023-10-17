@@ -383,7 +383,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         //反审
         else if (StrUtil.equals(BasicNumber.TWO.getNumber(), flg)) {
             //1获取目标启用版本
-            PackBomVersion enableVersion = getEnableVersion(targetForeignId, targetPackType);
+            PackBomVersion enableVersion = getEnableVersion(sourceForeignId, sourcePackType);
             //获取源版本数据
             if (enableVersion != null) {
                 bomList = packBomService.list(sourceForeignId, sourcePackType, enableVersion.getId());
