@@ -77,6 +77,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -432,7 +434,20 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         return pageInfo;
     }
 
+    public static void main(String[] args) {
+      String s =  "http://47.97.254.249:9000/deesha/pdm/2023-09-28/1695884813354.png";
 
+
+     System.out.println( getImageNameWithoutExtension(s));
+    }
+    public static String getImageNameWithoutExtension(String imageUrl) {
+        int lastIndexOfSlash = imageUrl.lastIndexOf('/');
+        int lastIndexOfDot = imageUrl.lastIndexOf('.');
+        if (lastIndexOfSlash == -1 || lastIndexOfDot == -1 || lastIndexOfDot < lastIndexOfSlash) {
+            return "";
+        }
+        return imageUrl.substring(lastIndexOfSlash + 1, lastIndexOfDot);
+    }
 
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
@@ -453,12 +468,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             seasonIds.add(planningCategoryItem.getPlanningSeasonId());
             /*后续再优化*/
             if (StrUtil.isNotBlank(planningCategoryItem.getStylePic())) {
-                //获取设计师编码
-                String designerCoding = planningCategoryItem.getDesigner().split(",")[1];
-                /*去掉设计师编码的设计编号*/
-                String rawDesignNo = planningCategoryItem.getDesignNo().replaceAll(designerCoding, "");
                 /*新地址*/
-                String newUrl = planningCategoryItem.getStylePic().replaceAll(rawDesignNo, planningCategoryItem.getDesignNo());
+                String newUrl = planningCategoryItem.getStylePic().replaceAll(getImageNameWithoutExtension(planningCategoryItem.getStylePic()), planningCategoryItem.getDesignNo());
                 /*改图片名称*/
               boolean b=  uploadFileService.updatePicName(planningCategoryItem.getStylePic(), newUrl);
               if(!b){
