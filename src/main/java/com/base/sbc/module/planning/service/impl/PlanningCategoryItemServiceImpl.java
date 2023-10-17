@@ -636,7 +636,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         UpdateWrapper<PlanningCategoryItem> uw = new UpdateWrapper<>();
         uw.eq("id", id);
         uw.set("style_pic", stylePic);
-        return update(uw);
+        update(uw);
+        return true;
     }
 
     @Override
