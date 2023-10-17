@@ -243,7 +243,6 @@ public class OpenStyleBomDto {
             this.setCode(code);
             this.setClock(0);
 
-
             List<OpenMaterialDto> materialDtoList = new ArrayList<>();
             OpenMaterialDto materialDto;
             for (PackBom packBom : packBoms) {
@@ -256,12 +255,6 @@ public class OpenStyleBomDto {
                 if (materialMap.get(packBom.getMaterialCode()) != null){
                     materialDto.setBuyType(materialMap.get(packBom.getMaterialCode()).getSourceType());
                 }
-
-                //todo 待删除
-//                materialDto.setBuyType("自购");
-//                materialDto.setUnit("MI");
-
-
                 materialDtoList.add(materialDto);
             }
             this.materials = materialDtoList;
@@ -508,14 +501,6 @@ public class OpenStyleBomDto {
                 partDtos.add(dto);
             }
             this.parts = partDtos;
-//            this.procMan = p.getCreateName();
-
-//            this.ProcName = p.getProcessName();
-//            this.ProcGroup = "默认";
-//            this.price = p.getProcessPrice();
-//            this.remark = p.getRemarks();
-//            this.procHours = new BigDecimal(1);
-//            this.clock = 0;
         }
 
         private String operator;//操作人
@@ -578,6 +563,7 @@ public class OpenStyleBomDto {
             PackPricing packPricing = packPricings.get(0);
             this.operator = packPricing.getUpdateName();
             this.code = code;
+            Map<String, List<PackPricingProcessCosts>> processMap = processCostsList.stream().collect(Collectors.groupingBy(p -> p.getColorName()));
 
             //单色不做区分
             List<OpenCostItemDto> list = new ArrayList();
@@ -585,6 +571,7 @@ public class OpenStyleBomDto {
             for (PackPricing pricing : packPricings) {
                 itemDto =  new OpenCostItemDto();
                 itemDto.setColor(pricing.getColorCode());
+                itemDto.setFeeVerName(pricing.getColorName() + "-核价单");
 
                 //其他费用清单--运费
                 List<FeeExt> feeExtList = new ArrayList<>();
@@ -602,12 +589,13 @@ public class OpenStyleBomDto {
                     }
                 }
                 //其他费用清单--加工费
-                if (CollectionUtil.isNotEmpty(processCostsList)){
+                List<PackPricingProcessCosts> processMapVar = processMap.get(pricing.getColorName());
+                if (CollectionUtil.isNotEmpty(processMapVar)){
                     //加工费
                     feeExt = new FeeExt();
-                    feeExt.initProcessing(processCostsList.get(0));
+                    feeExt.initProcessing(processMapVar.get(0));
                     BigDecimal num = null;
-                    for (PackPricingProcessCosts costs : processCostsList) {
+                    for (PackPricingProcessCosts costs : processMapVar) {
                         num = BigDecimalUtil.add(num,this.processingPrice(costs.getProcessPrice(),costs.getMultiple()));
                     }
                     feeExt.setCleanPrice(num);
@@ -620,7 +608,7 @@ public class OpenStyleBomDto {
                     Fees fees;
                     for (PackBomVo vo : costBomList) {
                         fees = new Fees();
-                        fees.init(vo,materialMap);
+                        fees.init(vo,materialMap,pricing.getColorName());
                         feesList.add(fees);
                     }
                     itemDto.setFees(feesList);
@@ -658,7 +646,7 @@ public class OpenStyleBomDto {
         @Data
         class OpenCostItemDto{
             private String color;//款式颜色--颜色
-            private String feeVerName = "1";//核价清单版本--默认传：1
+            private String feeVerName;//核价清单版本--核价的款式‘颜色名称’+‘-’+’核价单‘
             private String isMFCheck;//面辅料是否已审核--不传
             private String isOtCheck;//其他费用是否已审核--不传
             private BigDecimal mulRate = new BigDecimal("1.08");//倍率--默认传：1.08
@@ -692,50 +680,46 @@ public class OpenStyleBomDto {
              * 物料费用
              * @param vo
              * @param materialMap
+             * @param colorName
              */
-            public void init(PackBomVo vo, Map<String, BasicsdatumMaterial> materialMap) {
+            public void init(PackBomVo vo, Map<String, BasicsdatumMaterial> materialMap, String colorName) {
                 this.spCode = vo.getSupplierId();
                 this.mtCode = vo.getMaterialCode();//物料编码
                 this.usePart = vo.getPartName();//使用部位
-//                this.useUnit = vo.getPurchaseUnitCode();//使用单位
-//                if ("M".equals(vo.getPurchaseUnitCode())){
-//                    this.useUnit = "MI";//使用单位
-//                }
-                //todo 待删除
-//                this.useUnit = "MI";//使用单位
+                this.useUnit = vo.getPurchaseUnitCode();//使用单位
 
-                this.useAmount = vo.getDesignUnitUse();//用量
+                this.useAmount = vo.getBulkUnitUse();//用量
                 this.lossRate = vo.getLossRate();//损耗
                 this.cleanPrice = vo.getPrice();//不含税单价
                 if (materialMap.get(this.mtCode) != null){
-                    this.width = materialMap.get(this.mtCode).getWidthGroupName();//门幅
+                    this.width = materialMap.get(this.mtCode).getTranslate();//门幅
                 }else{
                     this.width = "";//门幅
                 }
                 this.remark = vo.getRemarks();//备注
-                List<String> str;
+                String str = "";
+                String bomId = "";
                 if (CollectionUtil.isNotEmpty(vo.getPackBomColorVoList())) {
-                    str = new ArrayList<>();
                     for (PackBomColorVo colorVo : vo.getPackBomColorVoList()) {
-                        if (!str.contains(colorVo.getColorCode())) {
-                            str.add(colorVo.getColorCode());
+                        if (colorVo.getColorName() != null && colorVo.getColorName().equals(colorName)){
+                            str = colorVo.getMaterialColorCode();
+                            bomId = colorVo.getBomId();
+                            break;
                         }
                     }
-                    this.colorInfo = StringUtils.convertListToString(str);//颜色编码（多个以逗号分割）
+                    this.colorInfo = str;//颜色编码（多个以逗号分割）
                 }
                 if (CollectionUtil.isNotEmpty(vo.getPackBomSizeList())) {
-                    str = new ArrayList<>();
+                    str = "";
                     for (PackBomSizeVo sizeVo : vo.getPackBomSizeList()) {
-//                        if (!str.contains(sizeVo.getWidthCode())) {
-                        if (!str.contains(sizeVo.getWidthCode()) && !"9999".equals(sizeVo.getWidthCode())) {
-                            str.add(sizeVo.getWidthCode());
+                        if (sizeVo.getBomId() != null && sizeVo.getBomId().equals(bomId)){
+                            if (!"9999".equals(sizeVo.getWidthCode())) {
+                                str = sizeVo.getWidthCode();
+                            }
+                            break;
                         }
                     }
-                    if (str.size() > 0) {
-                        this.specInfo = StringUtils.convertListToString(str);//规格编码（多个以逗号分割）
-                    }else{
-//                        this.specInfo = "无";
-                    }
+                    this.specInfo = str;//规格编码（多个以逗号分割）
                 }
             }
         }
@@ -754,8 +738,8 @@ public class OpenStyleBomDto {
              * @param costs
              */
             public void initFreight(PackPricingOtherCosts costs) {
-                this.ctgCode = "GX02";//费用编码
-                this.cleanPrice = costs.getPrice();//不含税单价                this.remark = costs.getRemarks();//备注
+                this.ctgCode = "21";//费用编码
+                this.cleanPrice = costs.getPrice();//不含税单价
                 this.remark = costs.getRemarks();//备注
             }
 

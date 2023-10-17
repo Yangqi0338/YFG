@@ -46,9 +46,11 @@ import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
+import com.base.sbc.module.patternmaking.entity.ScoreConfig;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
 import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
+import com.base.sbc.module.patternmaking.service.ScoreConfigService;
 import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.entity.Style;
@@ -102,6 +104,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Autowired
     private DataPermissionsService dataPermissionsService;
+    @Autowired
+    private ScoreConfigService scoreConfigService;
 
     @Override
     public List<PatternMakingListVo> findBySampleDesignId(String styleId) {
@@ -146,7 +150,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (StrUtil.equals(dto.getTechnicianKitting(), BaseGlobal.YES)) {
             patternMaking.setTechnicianKittingDate(new Date());
         }
-
+        //设置版师工作量评分
+        patternMaking.setPatternMakingScore(Opt.ofNullable(scoreConfigService.findOne(BeanUtil.copyProperties(style, ScoreConfigSearchDto.class))).map(ScoreConfig::getPatternDefaultScore).orElse(null));
         patternMaking.setSglKitting(BaseGlobal.NO);
         patternMaking.setBreakOffPattern(BaseGlobal.NO);
         patternMaking.setBreakOffSample(BaseGlobal.NO);
@@ -467,10 +472,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
-    public boolean breakOffSample(String id) {
+    public boolean breakOffSample(String id, String flag) {
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
         uw.in("id", StrUtil.split(id, CharUtil.COMMA));
-        uw.set("break_off_sample", BaseGlobal.YES);
+        uw.set("break_off_sample", flag);
         return update(uw);
     }
 

@@ -10,11 +10,13 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.planning.dto.*;
+import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningDemandProportionDataService;
 import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
+import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningDemandVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -50,11 +53,16 @@ public class PlanningDemandController {
 	@Resource
 	private PlanningDimensionalityService planningDimensionalityService;
 
+
+	@Resource
+	private PlanningSeasonService planningSeasonService;
+
 	/*品类id获取需求及维度*/
 	@ApiOperation(value = "品类id获取需求列表")
 	@GetMapping("/getDemandListById")
-	public List<PlanningDemandVo> getDemandListById(QueryDemandDto queryDemandDto) {
-		return planningDemandService.getDemandListById(queryDemandDto);
+	public List<PlanningDemandVo> getDemandListById(Principal user, QueryDemandDto queryDemandDto) {
+		List<PlanningDemandVo> demandListById = planningDemandService.getDemandListById(user, queryDemandDto);
+		return demandListById;
 	}
 
 	/*获取穿梭框表添加需求占比数据*/
@@ -140,7 +148,7 @@ public class PlanningDemandController {
 	@ApiOperation(value = "删除维度标签")
 	@DeleteMapping("/delDimensionality")
 	public ApiResult delDimensionality(@Valid @NotBlank(message = "编号id不能为空") String id, String sortId) {
-		return planningDimensionalityService.delDimensionality(id,sortId);
+		return planningDimensionalityService.delDimensionality(id, sortId);
 	}
 
 	@ApiOperation(value = "调整顺序")
@@ -149,4 +157,15 @@ public class PlanningDemandController {
 		return planningDimensionalityService.regulateSort(queryFieldManagementDto);
 	}
 
+	/**
+	 * 设置重点维度
+	 *
+	 * @param id
+	 * @param importantFlag
+	 * @return
+	 */
+	@PostMapping("/setImportantFlag")
+	public boolean setImportantFlag(@RequestBody PlanningDemand planningDemand) {
+		return planningDemandService.setImportantFlag(planningDemand);
+	}
 }

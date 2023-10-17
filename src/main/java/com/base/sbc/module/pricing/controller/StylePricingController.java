@@ -8,8 +8,12 @@ package com.base.sbc.module.pricing.controller;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.hangTag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
+import com.base.sbc.module.pricing.dto.StylePricingStatusDTO;
+import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.github.pagehelper.PageInfo;
@@ -18,11 +22,15 @@ import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,6 +75,47 @@ public class StylePricingController extends BaseController {
     public ApiResult insertOrUpdateBatch(@Valid @RequestBody List<StylePricingSaveDTO> stylePricingSaveDTO) {
         stylePricingService.insertOrUpdateBatch(stylePricingSaveDTO, super.getUserCompany());
         return updateSuccess("修改成功");
+    }
+    @ApiOperation(value = "提交审核")
+    @PostMapping("/updateStatus")
+    public ApiResult updateStatus( @RequestBody StylePricingStatusDTO dto) {
+        String[] split = dto.getIds().split(",");
+        List<StylePricing> stylePricings = stylePricingService.listByIds(Arrays.asList(split));
+        for (StylePricing stylePricing : stylePricings) {
+
+            if ("1".equals(dto.getControlConfirm()) && "1".equals(stylePricing.getProductHangtagConfirm()) && "1".equals(stylePricing.getControlHangtagConfirm())) {
+                throw new OtherException("存在已经提交审核");
+            }
+            if ("1".equals(dto.getProductHangtagConfirm()) && "0".equals(stylePricing.getControlConfirm())){
+                throw new OtherException("请先计控确认");
+            }
+            if ("1".equals(dto.getControlHangtagConfirm()) && ("0".equals(stylePricing.getProductHangtagConfirm())  || "0".equals(stylePricing.getControlConfirm()))){
+                throw new OtherException("请先商品吊牌确认");
+            }
+            if (!StringUtils.isEmpty(dto.getControlConfirm())){
+                if (dto.getControlConfirm().equals(stylePricing.getControlConfirm())){
+                    throw new OtherException("请勿重复提交");
+                }
+                stylePricing.setControlConfirm(dto.getControlConfirm());
+                stylePricing.setControlConfirmTime(new Date());
+            }
+            if (!StringUtils.isEmpty(dto.getProductHangtagConfirm())){
+                if (dto.getProductHangtagConfirm().equals(stylePricing.getProductHangtagConfirm())){
+                    throw new OtherException("请勿重复提交");
+                }
+                stylePricing.setProductHangtagConfirm(dto.getProductHangtagConfirm());
+                stylePricing.setControlConfirmTime(new Date());
+            }
+            if (!StringUtils.isEmpty(dto.getControlHangtagConfirm())){
+                if (dto.getControlHangtagConfirm().equals(stylePricing.getControlHangtagConfirm())){
+                    throw new OtherException("请勿重复提交");
+                }
+                stylePricing.setControlHangtagConfirm(dto.getControlHangtagConfirm());
+                stylePricing.setControlConfirmTime(new Date());
+            }
+        }
+        stylePricingService.updateBatchById(stylePricings);
+        return updateSuccess("提交成功");
     }
 
 

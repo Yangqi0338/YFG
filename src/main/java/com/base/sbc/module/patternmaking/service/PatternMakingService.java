@@ -112,9 +112,10 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * 中断样衣
      *
      * @param id
+     * @param flag
      * @return
      */
-    boolean breakOffSample(String id);
+    boolean breakOffSample(String id, String flag);
 
     /**
      * 中断打版

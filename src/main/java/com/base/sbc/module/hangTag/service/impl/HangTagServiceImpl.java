@@ -299,9 +299,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         ArrayList<HangTag> updateHangTags = Lists.newArrayList();
         hangTags.forEach(e -> {
             if (!HangTagStatusEnum.NOT_SUBMIT.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
-                // if (HangTagStatusEnum.CONFIRMED.getK().equals(e.getStatus())) {
-                //     throw new OtherException("存在已确认数据，请勿重复确认");
-                // }
+                if (HangTagStatusEnum.CONFIRMED.getK().equals(e.getStatus())) {
+                    throw new OtherException("存在已通过审核数据，请反审");
+                }
                 if (HangTagStatusEnum.NOT_SUBMIT.getK().equals(e.getStatus()) &&
                         !HangTagStatusEnum.TO_TECHNICIANS_CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
                     throw new OtherException("存在待提交数据，请先提交");

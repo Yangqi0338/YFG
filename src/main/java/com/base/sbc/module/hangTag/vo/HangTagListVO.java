@@ -282,5 +282,7 @@ public class HangTagListVO {
      */
     private String attachment;
 
+    private String isTrim;
+
 }
 

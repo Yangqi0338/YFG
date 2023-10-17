@@ -284,7 +284,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public PlanningSummaryVo planningSummary(Principal user, PlanningBoardSearchDto dto) {
+    public PlanningSummaryVo planningSummary(Principal user, PlanningBoardSearchDto dto, List<PlanningDemandVo> demandList) {
         //维度统计数据
         List<List<String>> demandSummary = CollUtil.newArrayList(
                 //维度
@@ -306,13 +306,15 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         vo.setXyData(xyData);
         vo.setDemandSummary(demandSummary);
 
-        QueryDemandDto queryDemandDto = new QueryDemandDto();
-        BeanUtil.copyProperties(dto, queryDemandDto);
-        List<PlanningDemandVo> demandList = planningDemandService.getDemandListById(queryDemandDto);
+        if (demandList == null) {
+            QueryDemandDto queryDemandDto = new QueryDemandDto();
+            BeanUtil.copyProperties(dto, queryDemandDto);
+            demandList = planningDemandService.getDemandListById(user, queryDemandDto);
+        }
         PlanningDemandVo planningDemandVo = null;
         FieldManagement fieldManagement = null;
-        List<PlanningDemandProportionData> proportionData = null;
-        Map<String, PlanningDemandProportionData> proportionDataMap = new HashMap<>(16);
+        List<PlanningDemandProportionDataVo> proportionData = null;
+        Map<String, PlanningDemandProportionDataVo> proportionDataMap = new LinkedHashMap<>(16);
         //所有维度的值
         List<String> dValues = new ArrayList<>(6);
         //组装统计数据
@@ -321,9 +323,9 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             fieldManagement = fieldManagementMapper.selectById(planningDemandVo.getFieldId());
             demandSummary.get(0).add(planningDemandVo.getDemandName());
             proportionData = planningDemandVo.getList();
-            Map<String, Integer> numTotal = new HashMap<>(16);
+            Map<String, Integer> numTotal = new LinkedHashMap<>(16);
             Integer total = 0;
-            for (PlanningDemandProportionData e : proportionData) {
+            for (PlanningDemandProportionDataVo e : proportionData) {
                 dValues.add(e.getClassify());
                 int i = Optional.ofNullable(e.getNum()).orElse(0);
                 if (numTotal.containsKey(e.getClassifyName())) {
@@ -391,7 +393,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         }
         // 企划的坑位 (查询企划需求管理坑位信息)
         List<PlanningDemandProportionSeat> seatList = seatService.findByPid(proportionDataMap.keySet());
-
+        vo.setSeatList(seatList);
         List<PlanningDemandProportionSeat> updateSeatList = new ArrayList<>(16);
 
         Map<String, Integer> matchTotal = new HashMap<>(16);

@@ -2,7 +2,6 @@ package com.base.sbc.module.planning.vo;
 
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.formType.vo.FieldOptionConfigVo;
-import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -29,15 +28,19 @@ public class PlanningDemandVo {
     private String channelName;
 
     private String formTypeId;
-    /** 字段id */
-    @ApiModelProperty(value = "字段id"  )
+    /**
+     * 字段id
+     */
+    @ApiModelProperty(value = "字段id")
     private String fieldId;
 
-    List<PlanningDemandProportionData> list;
+    List<PlanningDemandProportionDataVo> list;
 
     FieldManagementVo fieldManagementVo;
 
     List<FieldOptionConfigVo> configVoList;
 
+    @ApiModelProperty(value = "重点维度(0:否,1是)")
+    private String importantFlag;
 
 }

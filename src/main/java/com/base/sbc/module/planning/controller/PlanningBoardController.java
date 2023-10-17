@@ -46,7 +46,7 @@ public class PlanningBoardController {
     @ApiOperation(value = "企划汇总", notes = "")
     @GetMapping("/planningSummary")
     public PlanningSummaryVo planningSummary(Principal user, @Valid PlanningBoardSearchDto dto) {
-        return planningSeasonService.planningSummary(user, dto);
+        return planningSeasonService.planningSummary(user, dto, null);
     }
 
 

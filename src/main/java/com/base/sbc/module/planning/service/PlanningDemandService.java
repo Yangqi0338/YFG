@@ -12,6 +12,7 @@ import com.base.sbc.module.planning.dto.SaveDelDemandDto;
 import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.vo.PlanningDemandVo;
 
+import java.security.Principal;
 import java.util.List;
 
 /** 
@@ -28,7 +29,7 @@ public interface PlanningDemandService extends BaseService<PlanningDemand> {
      * 自定义方法区 不替换的区域【other_start】
      **/
 
-    List<PlanningDemandVo> getDemandListById(QueryDemandDto queryDemandDimensionalityDto);
+    List<PlanningDemandVo> getDemandListById(Principal user, QueryDemandDto queryDemandDimensionalityDto);
 
 
     ApiResult getFormDemand(QueryDemandDto queryDemandDimensionalityDto);
@@ -45,7 +46,9 @@ public interface PlanningDemandService extends BaseService<PlanningDemand> {
      */
     Boolean delDemand(String id);
 
+    boolean setImportantFlag(PlanningDemand planningDemand);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
-	
+
 }

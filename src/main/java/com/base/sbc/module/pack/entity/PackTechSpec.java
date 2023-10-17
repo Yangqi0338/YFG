@@ -18,11 +18,11 @@ import java.math.BigDecimal;
 /**
  * 类描述：资料包-工艺说明 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackTechSpec
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-24 21:28:23
+ * @email your email
+ * @date 创建时间：2023-10-16 16:48:44
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -87,8 +87,16 @@ public class PackTechSpec extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "工价")
     private BigDecimal price;
-
+    /**
+     * 工艺类型名称
+     */
+    @ApiModelProperty(value = "工艺类型名称")
     private String processTypeName;
+    /**
+     * 工艺类型编码
+     */
+    @ApiModelProperty(value = "工艺类型编码")
+    private String processType;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

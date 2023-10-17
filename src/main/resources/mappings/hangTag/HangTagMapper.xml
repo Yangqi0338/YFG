@@ -31,6 +31,7 @@
                 tssc.style_no AS bulkStyleNo,
                 tssc.color_name AS color,
                 tssc.tag_price AS tagPrice,
+                tssc.is_trim,
             </otherwise>
         </choose>
         tbmt.model_Type AS modelType,
@@ -184,6 +185,7 @@
         tsd.designer as designer,
         tsd.pattern_design_name as patternDesign,
         tsd.planning_season_id as planningSeasonId,
+
         <choose>
             <when test="selectType != null and selectType != '' and selectType =='packBigGoods'">
                 tsd.design_no as bulkStyleNo,
@@ -192,6 +194,7 @@
                 tssc.style_no AS bulkStyleNo,
                 tssc.color_name AS color,
                 tssc.tag_price AS tagPrice,
+                tssc.is_trim,
             </otherwise>
         </choose>
         tuf.url as stylePic,

@@ -10,6 +10,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -27,6 +28,18 @@ public class DsLinkMoreScm {
     @Autowired
     public RedisUtils redisUtils;
 
+    /**正式环境*/
+    private final String PROD = "prod";
+    /**测试环境*/
+    private final String TEST = "test";
+    /**当前服务器类型*/
+    private String serverType;
+
+    @Value("${requestConfig.serverType:test}")
+    public void initServerType(String serverType) {
+        this.serverType = serverType;
+    }
+
     /************************************************************正式环境start*******************************************************/
 
     /**正式环境：appId*/
@@ -43,7 +56,7 @@ public class DsLinkMoreScm {
      * 正式环境获取token
      * @return
      */
-    public String getAuthTokenOrSign() {
+    public String getAuthTokenOrSignProd() {
         //1.远程获取
         String token;
         HttpResponse response = HttpRequest.post(TOKEN_URL).body(getTokenParam(APP_ID,APP_SECRET))
@@ -62,7 +75,7 @@ public class DsLinkMoreScm {
      * @param reqArgs
      * @return
      */
-    public HttpResponse sendToLinkMore(String url, String reqArgs){
+    public HttpResponse sendToLinkMoreProd(String url, String reqArgs){
         String token = (String) redisUtils.get("DS_TOKEN");
         if (StringUtils.isBlank(token)) {
             token = getAuthTokenOrSign();
@@ -129,6 +142,37 @@ public class DsLinkMoreScm {
     }
     /************************************************************测试环境end*******************************************************/
     /************************************************************通用start*******************************************************/
+
+    /**
+     * 获取token
+     * @return
+     */
+    public String getAuthTokenOrSign() {
+        if (this.PROD.equals(this.serverType)) {
+            return getAuthTokenOrSignProd();
+        } else if (this.TEST.equals(this.serverType)) {
+            return getAuthTokenOrSignTest();
+        } else {
+            return getAuthTokenOrSignTest();
+        }
+    }
+
+    /**
+     * 请求领猫接口
+     * @param url
+     * @param reqArgs
+     * @return
+     */
+    public HttpResponse sendToLinkMore(String url, String reqArgs) {
+        if (this.PROD.equals(this.serverType)) {
+            return sendToLinkMoreProd(url, reqArgs);
+        } else if (this.TEST.equals(this.serverType)) {
+            return sendToLinkMoreTest(url, reqArgs);
+        } else {
+            return sendToLinkMoreTest(url, reqArgs);
+        }
+    }
+
     /**
      * 组装请求参数
      *
@@ -199,6 +243,16 @@ public class DsLinkMoreScm {
             qw.in("foreign_id", idList);
         }
     }
+
+    //测试推送
+//    public String getAuthTokenOrSign() {
+//        return getAuthTokenOrSignProd();
+////        return getAuthTokenOrSignTest();
+//    }
+//    public HttpResponse sendToLinkMore(String url, String reqArgs) {
+//        return sendToLinkMoreProd(url, reqArgs);
+////        return sendToLinkMoreTest(url, reqArgs);
+//    }
     /************************************************************通用end*******************************************************/
 
 }

@@ -1,6 +1,8 @@
 package com.base.sbc.module.planning.vo;
 
+import com.base.sbc.module.planning.entity.PlanningDemandProportionSeat;
 import com.base.sbc.module.style.vo.DemandOrderSkcVo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -36,4 +38,6 @@ public class PlanningSummaryVo {
 
     @ApiModelProperty(value = "需求维度坑位id")
     private List<String> seatIds;
+    @JsonIgnore
+    private List<PlanningDemandProportionSeat> seatList;
 }

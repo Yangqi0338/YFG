@@ -176,7 +176,20 @@ public class HangTagController extends BaseController {
      */
     @PostMapping("/counterReview")
     public ApiResult counterReview(@RequestBody HangTag hangTag) {
-        hangTag.setStatus("2");
+
+        if ("6".equals(hangTag.getStatus())) {
+            hangTag.setStatus("2");
+        }
+        if ("5".equals(hangTag.getStatus())) {
+            hangTag.setStatus("2");
+        }
+        if ("4".equals(hangTag.getStatus())) {
+            hangTag.setStatus("3");
+        }
+        if ("3".equals(hangTag.getStatus())) {
+            hangTag.setStatus("2");
+        }
+
         hangTagService.updateById(hangTag);
         return updateSuccess("反审成功");
     }
