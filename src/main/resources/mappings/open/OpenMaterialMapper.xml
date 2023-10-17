@@ -37,9 +37,10 @@
         	LEFT JOIN t_basicsdatum_material_price AS bmp ON bm.material_code = bmp.material_code and bm.company_code = bmp.company_code and bmp.select_flag = '1'
         WHERE
         	bm.company_code = #{companyCode}
---         and bm.material_code in ('FF042330003','SS022410020','WW022410003')
-        	AND bm.update_date BETWEEN NOW() - INTERVAL 1 HOUR AND NOW()
+        	AND bm.update_date BETWEEN NOW() - INTERVAL 15 MINUTE AND NOW()
         	and bm.del_flag = '0'
         GROUP BY bm.material_code
+--         and bm.material_code in ('FF042330003','SS022410020','WW022410003')
+--         	AND bm.update_date BETWEEN NOW() - INTERVAL 1 HOUR AND NOW()
     </select>
 </mapper>

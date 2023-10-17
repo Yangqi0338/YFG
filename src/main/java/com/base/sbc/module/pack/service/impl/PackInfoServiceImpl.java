@@ -1097,7 +1097,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         qwPack.eq("company_code",companyCode);
 //        qwPack.eq("id","1703672791017074688");
         //查询前一个小时的数据
-        qwPack.last(" AND update_date BETWEEN NOW() - INTERVAL 1 HOUR AND NOW()");
+//        qwPack.last(" AND update_date BETWEEN NOW() - INTERVAL 1 HOUR AND NOW()");
+        //查询前15分钟的数据
+        qwPack.last(" AND update_date BETWEEN NOW() - INTERVAL 15 MINUTE AND NOW()");
         List<PackInfo> packList = this.list(qwPack);
         if (packList.size() == 0){
             return null;
