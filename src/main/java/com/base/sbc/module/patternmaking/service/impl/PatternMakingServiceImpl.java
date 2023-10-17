@@ -127,6 +127,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         QueryWrapper rQw = new QueryWrapper();
         rQw.eq("style_id", dto.getStyleId());
         rQw.eq("del_flag", BaseGlobal.NO);
+        BigDecimal patternMakingScore = BigDecimal.ZERO;
         // 出版样只能有一个
         if (StrUtil.equals("初版样", dto.getSampleType())) {
             rQw.eq("sample_type", dto.getSampleType());
@@ -134,6 +135,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             if (count != 0) {
                 throw new OtherException(dto.getSampleType() + "只能有一个");
             }
+            patternMakingScore = Opt.ofNullable(scoreConfigService.findOne(BeanUtil.copyProperties(style, ScoreConfigSearchDto.class))).map(ScoreConfig::getPatternDefaultScore).orElse(BigDecimal.ZERO);
         } else {
             rQw.ne("sample_type", "初版样");
             long count = count(rQw);
@@ -151,7 +153,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             patternMaking.setTechnicianKittingDate(new Date());
         }
         //设置版师工作量评分
-        patternMaking.setPatternMakingScore(Opt.ofNullable(scoreConfigService.findOne(BeanUtil.copyProperties(style, ScoreConfigSearchDto.class))).map(ScoreConfig::getPatternDefaultScore).orElse(null));
+        patternMaking.setPatternMakingScore(patternMakingScore);
         patternMaking.setSglKitting(BaseGlobal.NO);
         patternMaking.setBreakOffPattern(BaseGlobal.NO);
         patternMaking.setBreakOffSample(BaseGlobal.NO);
