@@ -3,6 +3,8 @@ package com.base.sbc.module.planning.dto;
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class PlanningCategoryItemImportDto {
     /** 特殊需求 */
@@ -48,4 +50,16 @@ public class PlanningCategoryItemImportDto {
     /** 小类 */
     @Excel(name = "小类")
     private String prodCategory3rd;
+    /** 目标销价 */
+    @Excel(name = "目标销价")
+    private BigDecimal targetSalePrice;
+    /** 目标销价区间 */
+    @Excel(name = "目标销价区间")
+    private BigDecimal targetSalePriceInterval;
+    /** 企划目标倍率 */
+    @Excel(name = "企划目标倍率")
+    private BigDecimal planningTargetRate;
+    /** 目标成本 */
+    @Excel(name = "目标成本")
+    private BigDecimal productCost;
 }

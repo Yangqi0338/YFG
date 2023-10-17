@@ -874,6 +874,10 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                         categoryItem.setStyleType(itemImportDto.getStyleType());
                         categoryItem.setLevelFourType(itemImportDto.getLevelFourType());
                         categoryItem.setHisDesignNo(itemImportDto.getOldDesignNo());
+                        categoryItem.setTargetSalePrice(itemImportDto.getTargetSalePrice());
+                        categoryItem.setTargetSalePriceInterval(itemImportDto.getTargetSalePriceInterval());
+                        categoryItem.setPlanningTargetRate(itemImportDto.getPlanningTargetRate());
+                        categoryItem.setProductCost(itemImportDto.getProductCost());
                         addList.add(categoryItem);
                     }else{
                         dataCorrectErrorList.add(i+1);
