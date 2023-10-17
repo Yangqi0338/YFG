@@ -23,6 +23,7 @@ import com.base.sbc.open.service.OpenMaterialService;
 import com.base.sbc.open.thirdToken.DsLinkMoreScm;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -46,6 +47,17 @@ public class DsLinkMoreTimedTask {
 
     protected final Logger logger = LoggerFactory.getLogger(DsLinkMoreTimedTask.class);
     private final String COMPANY_CODE = "677447590605750272";
+
+    /**正式环境 - 笛莎*/
+    private final String PROD = "prod";
+    /**测试环境 - 笛莎*/
+    private final String TEST = "test";
+    /**当前服务器类型 测试环境不打开定时任务*/
+    private String serverType;
+    @Value("${requestConfig.serverType:test}")
+    public void initServerType(String serverType) {
+        this.serverType = serverType;
+    }
 
     @Autowired
     private OpenMaterialService materialService;
@@ -86,7 +98,15 @@ public class DsLinkMoreTimedTask {
 //    @Scheduled(cron = "0 0 * * * ?")
     @Scheduled(cron = "* 0/15 * * * ?")
     public void materialTask(){
+        //测试环境不打开定时任务
+        if (TEST.equals(this.serverType)){
+            return;
+        }
         List<OpenMaterialDto> purchaseMaterialList = materialService.getMaterialList(COMPANY_CODE);
+        if (purchaseMaterialList == null || purchaseMaterialList.isEmpty()) {
+            logger.info("暂无物料需要同步");
+            return;
+        }
         logger.info("需要同步的物料 :{}", JSON.toJSONString(purchaseMaterialList));
 
         List<String> errorList = new ArrayList<>();
@@ -107,9 +127,17 @@ public class DsLinkMoreTimedTask {
 //    @Scheduled(cron = "0 0 * * * ?")
     @Scheduled(cron = "* 0/15 * * * ?")
     public void styleTask(){
+        //测试环境不打开定时任务
+        if (TEST.equals(this.serverType)){
+            return;
+        }
         //获取字典信息
         String dictInfo = ccmService.getOpenDictInfo(COMPANY_CODE, "C8_Year");
         JSONArray data = JSONObject.parseObject(dictInfo).getJSONArray("data");
+        if (data == null){
+            logger.info("款式同步失败，获取字典数据失败 :{}", dictInfo);
+            return;
+        }
         Map<String,Map<String,String>> dictMap = new HashMap<>();
         for (int i = 0; i < data.size(); i++) {
             JSONObject obj = data.getJSONObject(i);
@@ -134,7 +162,7 @@ public class DsLinkMoreTimedTask {
         //获取款式信息
         List<OpenStyleDto> styleDtoList = packInfoService.getStyleListForLinkMore(COMPANY_CODE);
         if (styleDtoList==null || styleDtoList.isEmpty()){
-            logger.info("款式同步失败，获取款式数据失败 :{}", JSON.toJSONString(styleDtoList));
+            logger.info("暂无款式需要同步");
             return;
         }
         List<String> errorList = new ArrayList<>();
