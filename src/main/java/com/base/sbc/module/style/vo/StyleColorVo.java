@@ -415,4 +415,7 @@ public class StyleColorVo {
     private String  orderFlag;
 
     private String wareCode;
+
+    @ApiModelProperty(value = "rfid标记(0否 1是)"  )
+    private String rfidFlag;
 }
