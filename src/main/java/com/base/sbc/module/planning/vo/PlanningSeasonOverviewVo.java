@@ -55,4 +55,6 @@ public class PlanningSeasonOverviewVo extends PlanningCategoryItem {
 
     @ApiModelProperty(value = "关联的素材库列表")
     List<PlanningCategoryItemMaterial> materialVoList;
+    @ApiModelProperty(value = "渠道序号")
+    Integer sort;
 }

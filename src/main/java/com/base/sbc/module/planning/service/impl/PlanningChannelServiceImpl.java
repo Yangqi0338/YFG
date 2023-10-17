@@ -21,6 +21,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.CountVo;
+import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.planning.dto.PlanningChannelDto;
 import com.base.sbc.module.planning.dto.PlanningChannelSearchDto;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
@@ -84,6 +85,7 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
             BeanUtil.copyProperties(planningSeason, planningChannel);
             CommonUtils.resetCreateUpdate(planningChannel);
             planningChannel.setId(null);
+            planningChannel.setSort(super.getBaseMapper().getMaxSort(dto.getPlanningSeasonId()) + 1);
             save(planningChannel);
             return BeanUtil.copyProperties(planningChannel, PlanningChannelVo.class);
         } else {
@@ -181,6 +183,11 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
             }
         }
         return result;
+    }
+
+    @Override
+    public List<SelectOptionsVo> channelClassifSelection(String planningSeasonId) {
+        return super.getBaseMapper().channelClassifSelection(planningSeasonId);
     }
 
 

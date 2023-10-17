@@ -73,6 +73,9 @@ public class PlanningChannel extends BaseDataEntity<String> {
     /** 产品线名称 */
     @ApiModelProperty(value = "产品线名称"  )
     private String productLineName;
+    /** 渠道序号 */
+    @ApiModelProperty(value = "渠道序号"  )
+    private Integer sort;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

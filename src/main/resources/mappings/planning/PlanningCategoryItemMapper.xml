@@ -20,10 +20,12 @@
         c.*,
         s.name as name,
         sd.`status` AS sd_status,
-        sd.confirm_status AS sd_confirm_status
+        sd.confirm_status AS sd_confirm_status,
+        pc.sort
         FROM
         t_planning_category_item c
         join t_planning_season s on(s.id=c.planning_season_id )
+        join t_planning_channel pc on(pc.id=c.planning_channel_id )
         LEFT JOIN t_style sd ON ( sd.planning_category_item_id = c.id AND sd.del_flag = '0' )
         WHERE
         c.del_flag = '0'

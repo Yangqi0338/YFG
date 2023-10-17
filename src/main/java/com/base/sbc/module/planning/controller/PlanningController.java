@@ -332,4 +332,10 @@ public class PlanningController extends BaseController {
                                          @RequestParam("planningChannelId") String planningChannelId) throws Exception {
         return planningCategoryItemService.importPlanningExcel(file, planningChannelId);
     }
+
+    @ApiOperation(value = "渠道分类下拉框选择")
+    @GetMapping("/channelClassifSelection")
+    public ApiResult channelClassifSelection(String planningSeasonId) {
+        return selectSuccess(planningChannelService.channelClassifSelection(planningSeasonId));
+    }
 }

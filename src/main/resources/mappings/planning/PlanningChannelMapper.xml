@@ -18,6 +18,25 @@
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
     </select>
+    <select id="getMaxSort" resultType="java.lang.Integer">
+        SELECT max(sort)
+        from t_planning_channel
+        where planning_season_id = #{planningSeasonId}
+    </select>
+
+    <select id="channelClassifSelection" resultType="com.base.sbc.module.common.vo.SelectOptionsVo">
+        SELECT
+        concat( channel_name, "-", sort ) AS label,
+        id AS value
+        FROM
+        t_planning_channel
+        <where>
+            del_flag = '0'
+            <if test="planningSeasonId !=null and planningSeasonId !=''">
+                AND planning_season_id = #{planningSeasonId}
+            </if>
+        </where>
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

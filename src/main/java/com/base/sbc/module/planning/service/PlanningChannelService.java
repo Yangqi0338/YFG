@@ -7,12 +7,14 @@
 package com.base.sbc.module.planning.service;
 
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.planning.dto.PlanningChannelDto;
 import com.base.sbc.module.planning.dto.PlanningChannelSearchDto;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.vo.PlanningChannelVo;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,6 +41,14 @@ public interface PlanningChannelService extends BaseService<PlanningChannel> {
     boolean delChannel(String id);
 
     Map<String, Long> countByPlanningSeason();
+
+    /**
+     * 渠道分类下拉选择
+     *
+     * @param planningSeasonId
+     * @return
+     */
+    List<SelectOptionsVo> channelClassifSelection(String planningSeasonId);
 
 
 // 自定义方法区 不替换的区域【other_end】
