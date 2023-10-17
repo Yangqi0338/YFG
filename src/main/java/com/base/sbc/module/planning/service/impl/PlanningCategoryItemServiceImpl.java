@@ -434,20 +434,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         return pageInfo;
     }
 
-    public static void main(String[] args) {
-      String s =  "http://47.97.254.249:9000/deesha/pdm/2023-09-28/1695884813354.png";
 
 
-     System.out.println( getImageNameWithoutExtension(s));
-    }
-    public static String getImageNameWithoutExtension(String imageUrl) {
-        int lastIndexOfSlash = imageUrl.lastIndexOf('/');
-        int lastIndexOfDot = imageUrl.lastIndexOf('.');
-        if (lastIndexOfSlash == -1 || lastIndexOfDot == -1 || lastIndexOfDot < lastIndexOfSlash) {
-            return "";
-        }
-        return imageUrl.substring(lastIndexOfSlash + 1, lastIndexOfDot);
-    }
 
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
@@ -469,19 +457,19 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             /*后续再优化*/
             if (StrUtil.isNotBlank(planningCategoryItem.getStylePic())) {
                 /*新地址*/
-                String newUrl = planningCategoryItem.getStylePic().replaceAll(getImageNameWithoutExtension(planningCategoryItem.getStylePic()), planningCategoryItem.getDesignNo());
+                String newUrl = planningCategoryItem.getStylePic().replaceAll(StringUtils.getImageNameWithoutExtension(planningCategoryItem.getStylePic()), planningCategoryItem.getDesignNo());
                 /*改图片名称*/
-              boolean b=  uploadFileService.updatePicName(planningCategoryItem.getStylePic(), newUrl);
-              if(!b){
-                  throw new OtherException("修改图片名称错误");
-              }
+                boolean b = uploadFileService.updatePicName(planningCategoryItem.getStylePic(), newUrl);
+                if (!b) {
+                    throw new OtherException("修改图片名称错误");
+                }
                 /*修改文件名称加上设计师代码*/
                 fileUrls.add(newUrl);
 //                修改坑位图片 后续优化
-                UpdateWrapper updateWrapper =new UpdateWrapper();
-                updateWrapper.set("style_pic",newUrl);
-                updateWrapper.eq("id",planningCategoryItem.getId());
-                baseMapper.update(null,updateWrapper);
+                UpdateWrapper updateWrapper = new UpdateWrapper();
+                updateWrapper.set("style_pic", newUrl);
+                updateWrapper.eq("id", planningCategoryItem.getId());
+                baseMapper.update(null, updateWrapper);
             }
         }
         //查询款式信息是已经存在

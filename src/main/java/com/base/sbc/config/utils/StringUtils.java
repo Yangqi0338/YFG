@@ -625,4 +625,18 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		int blue = Integer.parseInt(components[2].trim());
 		return new int[]{red, green, blue};
 	}
+
+	/**
+	 * 地址获取图片名称
+	 * @param imageUrl
+	 * @return
+	 */
+	public static String getImageNameWithoutExtension(String imageUrl) {
+		int lastIndexOfSlash = imageUrl.lastIndexOf('/');
+		int lastIndexOfDot = imageUrl.lastIndexOf('.');
+		if (lastIndexOfSlash == -1 || lastIndexOfDot == -1 || lastIndexOfDot < lastIndexOfSlash) {
+			return "";
+		}
+		return imageUrl.substring(lastIndexOfSlash + 1, lastIndexOfDot);
+	}
 }
