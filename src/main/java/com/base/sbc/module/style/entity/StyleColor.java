@@ -263,6 +263,9 @@ public class StyleColor extends BaseDataEntity<String> {
     /** 下单标记（0否 1是） */
     @ApiModelProperty(value = "下单标记（0否 1是）"  )
     private String orderFlag;
+    /** rfid标记(0否 1是) */
+    @ApiModelProperty(value = "rfid标记(0否 1是)"  )
+    private String rfidFlag;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;

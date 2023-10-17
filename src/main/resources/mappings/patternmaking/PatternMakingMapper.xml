@@ -144,6 +144,7 @@
         p.id AS patternMakingId,
         p.pattern_design_name ,
         p.pattern_design_id ,
+        p.pat_diff,p.pat_diff_name,
         s.*,
         p.*
         FROM

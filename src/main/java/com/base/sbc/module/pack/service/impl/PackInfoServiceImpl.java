@@ -427,14 +427,20 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         /*判断物料是否全部下发*/
         Boolean issuedToExternalSmpSystemSwitch = ccmFeignService.getSwitchByCode(ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH.getKeyCode());
         if (issuedToExternalSmpSystemSwitch) {
-            QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq("foreign_id", version.getForeignId());
-            queryWrapper.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
-            queryWrapper.eq("stage_flag", dto.getPackType());
-            queryWrapper.eq("bom_version_id", version.getId());
-            queryWrapper.in("scm_send_flag", StringUtils.convertList("0,2,3"));
-            List<PackBom> packBomList = packBomService.list(queryWrapper);
-            if (CollUtil.isNotEmpty(packBomList)) {
+            /*查询物料*/
+            List<PackBomVo> packBomVoList = packBomService.list(version.getForeignId(), PackUtils.PACK_TYPE_DESIGN, version.getId());
+            StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
+            /*判断是否使用rfid*/
+            if (StrUtil.equals(styleColor.getRfidFlag(), BaseGlobal.STATUS_CLOSE)) {
+                /*查询有没有RFID*/
+                List<PackBomVo> packBomVoList2 = packBomVoList.stream().filter(p -> p.getMaterialName().contains("RFID")).collect(Collectors.toList());
+                if (CollUtil.isEmpty(packBomVoList2)) {
+                    throw new OtherException("物料清单不存在RFID有关物料");
+                }
+            }
+            List<String> scmSendFlagList = StringUtils.convertList("0,2,3");
+            List<PackBomVo> packBomVoList1 = packBomVoList.stream().filter(p -> scmSendFlagList.contains(p.getScmSendFlag())).collect(Collectors.toList());
+            if (CollUtil.isNotEmpty(packBomVoList1)) {
                 throw new OtherException("物料清单存在未下发数据");
             }
         }
@@ -1091,7 +1097,9 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         qwPack.eq("company_code",companyCode);
 //        qwPack.eq("id","1703672791017074688");
         //查询前一个小时的数据
-        qwPack.last(" AND update_date BETWEEN NOW() - INTERVAL 1 HOUR AND NOW()");
+//        qwPack.last(" AND update_date BETWEEN NOW() - INTERVAL 1 HOUR AND NOW()");
+        //查询前15分钟的数据
+        qwPack.last(" AND update_date BETWEEN NOW() - INTERVAL 15 MINUTE AND NOW()");
         List<PackInfo> packList = this.list(qwPack);
         if (packList.size() == 0){
             return null;

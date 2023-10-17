@@ -80,8 +80,6 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
     @Resource
     private FlowableService flowableService;
     @Resource
-    private PurchaseDemandService purchaseDemandService;
-    @Resource
     private CcmFeignService ccmFeignService;
     @Resource
     private StyleInfoColorService styleInfoColorService;
@@ -230,7 +228,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         queryWrapper.eq("pack_type", "packBigGoods");
         queryWrapper.eq("bom_version_id", bomVersion.getId());
         queryWrapper.eq("foreign_id", bomVersion.getForeignId());
-        queryWrapper.in("scm_send_flag", StringUtils.convertList("0,2"));
+        queryWrapper.in("scm_send_flag", StringUtils.convertList("0,2,3"));
         List<PackBom> packBomList = packBomService.list(queryWrapper);
         if (CollUtil.isNotEmpty(packBomList)) {
             throw new OtherException("物料清单存在未下发数据");
@@ -383,7 +381,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
         //反审
         else if (StrUtil.equals(BasicNumber.TWO.getNumber(), flg)) {
             //1获取目标启用版本
-            PackBomVersion enableVersion = getEnableVersion(targetForeignId, targetPackType);
+            PackBomVersion enableVersion = getEnableVersion(sourceForeignId, sourcePackType);
             //获取源版本数据
             if (enableVersion != null) {
                 bomList = packBomService.list(sourceForeignId, sourcePackType, enableVersion.getId());

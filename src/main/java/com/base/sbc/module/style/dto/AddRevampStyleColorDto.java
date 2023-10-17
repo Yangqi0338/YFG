@@ -201,6 +201,9 @@ public class AddRevampStyleColorDto extends StyleColor {
      */
     @ApiModelProperty(value = "正确样衣接收时间"  )
     private String correctStyleDate;
+    /** rfid标记(0否 1是) */
+    @ApiModelProperty(value = "rfid标记(0否 1是)"  )
+    private String rfidFlag;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
