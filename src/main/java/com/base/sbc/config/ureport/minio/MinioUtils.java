@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Component
@@ -62,6 +64,22 @@ public class MinioUtils {
         }
     }
 
+    public String getUrl(String str){
+        int fourthSlashIndex = str.indexOf("/", str.indexOf("/", str.indexOf("/", str.indexOf("/") + 1) + 1) + 1);
+        if (fourthSlashIndex != -1) {
+            String result = str.substring(fourthSlashIndex + 1);
+           return result;
+        } else {
+            return "";
+        }
+    }
+
+    public String getBucketName(String str){
+        int thirdSlashIndex = str.indexOf("/", str.indexOf("/") + 1 + str.indexOf("/", str.indexOf("/") + 1));
+        int fourthSlashIndex = str.indexOf("/", thirdSlashIndex + 1);
+        String result = str.substring(thirdSlashIndex + 1, fourthSlashIndex);
+        return result;
+    }
     /**
      * 复制一个新文件删除之前的
      * @param url
@@ -74,11 +92,11 @@ public class MinioUtils {
             String objectName2 = newUrl.replace(minioConfig.getEndpoint() + "/" + minioConfig.getBucketName(), "");
             CopyObjectArgs copyObjectArgs =    CopyObjectArgs.builder()
                     .source(CopySource.builder()
-                            .bucket(minioConfig.getBucketName())
-                            .object(objectName)
+                            .bucket(getBucketName(url))
+                            .object(getUrl(url))
                             .build())
-                    .bucket(minioConfig.getBucketName())
-                    .object(objectName2)
+                    .bucket(getBucketName(newUrl))
+                    .object(getUrl(newUrl))
                     .build();
             minioClient.copyObject(copyObjectArgs);
             return  delFile(url);

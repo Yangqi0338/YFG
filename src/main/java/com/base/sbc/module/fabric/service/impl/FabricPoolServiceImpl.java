@@ -174,6 +174,11 @@ public class FabricPoolServiceImpl extends BaseServiceImpl<FabricPoolMapper, Fab
         fabricPoolItemService.saveBatch(fabricPoolItems);
     }
 
+    @Override
+    public void delete(String id) {
+        super.getBaseMapper().deleteById(id);
+    }
+
 
     @NotNull
     private FabricPoolItem getFabricPoolItem(String companyCode, String k, IdGen idGen, FabricPlanningItemSaveDTO e) {

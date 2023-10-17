@@ -460,26 +460,23 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             setTaskLevelDtoList.add(BeanUtil.copyProperties(planningCategoryItem, SetTaskLevelDto.class));
             itemIds.add(planningCategoryItem.getId());
             seasonIds.add(planningCategoryItem.getPlanningSeasonId());
-            if (StrUtil.isNotBlank(planningCategoryItem.getStylePic())) {
-                fileUrls.add(planningCategoryItem.getStylePic());
-            }
             /*后续再优化*/
-/*            if (StrUtil.isNotBlank(planningCategoryItem.getStylePic())) {
-                *//*新地址*//*
+            if (StrUtil.isNotBlank(planningCategoryItem.getStylePic())) {
+//                新地址
                 String newUrl = planningCategoryItem.getStylePic().replaceAll(StringUtils.getImageNameWithoutExtension(planningCategoryItem.getStylePic()), planningCategoryItem.getDesignNo());
-                *//*改图片名称*//*
+//                改图片名称
                 boolean b = uploadFileService.updatePicName(planningCategoryItem.getStylePic(), newUrl);
                 if (!b) {
                     throw new OtherException("修改图片名称错误");
                 }
-                *//*修改文件名称加上设计师代码*//*
+//                修改文件名称加上设计师代码
                 fileUrls.add(newUrl);
 //                修改坑位图片 后续优化
                 UpdateWrapper updateWrapper = new UpdateWrapper();
                 updateWrapper.set("style_pic", newUrl);
                 updateWrapper.eq("id", planningCategoryItem.getId());
                 baseMapper.update(null, updateWrapper);
-            }*/
+            }
         }
         //查询款式信息是已经存在
         QueryWrapper<Style> sqw = new QueryWrapper<>();

@@ -26,7 +26,7 @@
         fp.planning_season,
         count(fpi.id) as fabricCount
         FROM t_fabric_pool fp
-        left join t_fabric_pool_item fpi on fpi.fabric_pool_id = fp.id
+        left join t_fabric_pool_item fpi on fpi.fabric_pool_id = fp.id and fpi.del_flag='0'
         <where>
             fp.del_flag = '0'
             <if test="dto.year != null and dto.year != ''">
