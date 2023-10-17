@@ -76,5 +76,12 @@ public class FabricPoolController extends BaseController {
         return fabricPoolService.approval(dto);
     }
 
+    @ApiOperation(value = "获取详情")
+    @GetMapping("/delete")
+    public ApiResult delete(@Valid @NotBlank(message = "面料池id不可为空") String id) {
+        fabricPoolService.delete(id);
+        return deleteSuccess("删除成功");
+    }
+
 }
 

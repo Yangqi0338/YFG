@@ -76,6 +76,12 @@ public interface FabricPoolService extends BaseService<FabricPool> {
      */
     void materialReviewPassedSync(String fabricLibraryMaterialCode, String materialId, String materialCode);
 
+    /**
+     * 通过id删除
+     * @param id
+     */
+    void delete(String id);
+
 
 // 自定义方法区 不替换的区域【other_end】
 
