@@ -146,7 +146,8 @@
         p.pattern_design_id ,
         p.pat_diff,p.pat_diff_name,
         s.*,
-        p.*
+        p.*,
+        p.demand_finish_date as demandFinishDate
         FROM
         t_style s
         LEFT JOIN t_pattern_making p ON ( s.id = p.style_id )
