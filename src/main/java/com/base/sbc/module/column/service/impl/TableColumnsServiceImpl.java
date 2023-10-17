@@ -36,18 +36,21 @@ public class TableColumnsServiceImpl extends BaseServiceImpl<TableColumnsMapper,
         //     columnNames.add("*");
         // } else
 
-        if (jobs.stream().anyMatch(job -> job.getName().equals("下单员")) && jobs.size()==1) {
+        if (jobs.stream().anyMatch(job -> "下单员".equals(job.getName()) || "外发技术下单员".equals(job.getName())) && jobs.size()==1) {
             // 下单员
+            columnNames.add("row-select");
             columnNames.add("scmSendFlag");
             columnNames.add("collocationName");
             columnNames.add("mainFlag");
             columnNames.add("imageUrl");
             columnNames.add("materialCodeName");
+
             columnNames.add("supplierMaterialCode");
             columnNames.add("purchaseUnitName");
             columnNames.add("stockUnitName");
+            columnNames.add("colorCode");
             columnNames.add("translate");
-            columnNames.add("designUnitUse");
+            columnNames.add("partName");
             columnNames.add("bulkUnitUse");
             columnNames.add("lossRate");
 
