@@ -425,6 +425,11 @@ public class PackBom extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "数据来源:(1物料档案,2调样管理)")
     private String dataSource;
+
+    /**
+     * 门幅 -迪沙
+     */
+    private String translateDs;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
