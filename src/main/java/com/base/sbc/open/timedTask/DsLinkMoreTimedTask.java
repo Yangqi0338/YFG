@@ -133,7 +133,10 @@ public class DsLinkMoreTimedTask {
 
         //获取款式信息
         List<OpenStyleDto> styleDtoList = packInfoService.getStyleListForLinkMore(COMPANY_CODE);
-
+        if (styleDtoList==null || styleDtoList.isEmpty()){
+            logger.info("款式同步失败，获取款式数据失败 :{}", JSON.toJSONString(styleDtoList));
+            return;
+        }
         List<String> errorList = new ArrayList<>();
         List<String> idList = new ArrayList<>();
         Map<String,OpenStyleDto> idMap = new HashMap<>();

@@ -49,6 +49,7 @@ public class TableColumnsServiceImpl extends BaseServiceImpl<TableColumnsMapper,
             columnNames.add("purchaseUnitName");
             columnNames.add("stockUnitName");
             columnNames.add("colorCode");
+            columnNames.add("colorHex");
             columnNames.add("translate");
             columnNames.add("partName");
             columnNames.add("bulkUnitUse");
