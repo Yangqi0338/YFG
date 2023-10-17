@@ -407,6 +407,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 //                }
 //            }
         }
+        nodeStatusService.setNodeStatus(list);
         return page.toPageInfo();
     }
 

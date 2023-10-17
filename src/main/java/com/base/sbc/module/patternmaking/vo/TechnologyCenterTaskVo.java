@@ -8,8 +8,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：技术中心看板-任务列表
@@ -175,7 +175,17 @@ public class TechnologyCenterTaskVo {
 
     @ApiModelProperty(value = "改版意见")
     private String revisionComments;
+    @ApiModelProperty(value = "开始时间")
+    @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
+    private Date startDate;
+    private List<NodeStatusVo> nodeStatusList;
 
+
+    public Map<String, NodeStatusVo> getNodeStatus() {
+        return Optional.ofNullable(nodeStatusList).map(ns -> {
+            return ns.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> b));
+        }).orElse(new HashMap<>(4));
+    }
 
     public String getPlanningSeason() {
         return StrUtil.join(" ", yearName, seasonName, brandName);
