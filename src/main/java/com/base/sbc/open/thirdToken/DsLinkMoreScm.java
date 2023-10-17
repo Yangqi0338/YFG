@@ -35,7 +35,7 @@ public class DsLinkMoreScm {
     /**当前服务器类型*/
     private String serverType;
 
-    @Value("${requestConfig.serverType:prod}")
+    @Value("${requestConfig.serverType:test}")
     public void initServerType(String serverType) {
         this.serverType = serverType;
     }
