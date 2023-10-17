@@ -124,8 +124,8 @@ public class FabricPoolServiceImpl extends BaseServiceImpl<FabricPoolMapper, Fab
         }
         String companyCode = super.getCompanyCode();
         List<FabricPoolItem> fabricPoolItems = new ArrayList<>();
+        IdGen idGen = new IdGen();
         sourceIds.forEach((k, v) -> {
-            IdGen idGen = new IdGen();
             fabricPlanningItems.forEach(e -> {
                 if ((CollectionUtils.isNotEmpty(v) && v.contains(e.getSourceId())) || !SourceEnum.MATERIAL.getK().equals(e.getSource())) {
                     return;

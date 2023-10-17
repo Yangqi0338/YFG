@@ -51,10 +51,10 @@ public class PlanningCategoryItemImportDto {
     @Excel(name = "小类")
     private String prodCategory3rd;
     /** 目标销价 */
-    @Excel(name = "目标销价")
+    @Excel(name = "目标销价起始")
     private BigDecimal targetSalePrice;
     /** 目标销价区间 */
-    @Excel(name = "目标销价区间")
+    @Excel(name = "目标销价终止")
     private BigDecimal targetSalePriceInterval;
     /** 企划目标倍率 */
     @Excel(name = "企划目标倍率")
@@ -62,4 +62,7 @@ public class PlanningCategoryItemImportDto {
     /** 目标成本 */
     @Excel(name = "目标成本")
     private BigDecimal productCost;
+    /** 款图 */
+    @Excel(name = "款图",type = 2)
+    private String stylePic;
 }

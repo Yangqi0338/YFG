@@ -11,6 +11,7 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ReUtil;
@@ -35,6 +36,7 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
@@ -42,6 +44,7 @@ import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.common.vo.CountVo;
 import com.base.sbc.module.formType.dto.QueryFieldOptionConfigDto;
 import com.base.sbc.module.formType.entity.FieldOptionConfig;
@@ -76,6 +79,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -133,6 +137,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
     @Autowired
     private DataPermissionsService dataPermissionsService;
+    @Autowired
+    private MinioUtils minioUtils;
 
 
     @Override
@@ -881,6 +887,13 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                         categoryItem.setTargetSalePriceInterval(itemImportDto.getTargetSalePriceInterval());
                         categoryItem.setPlanningTargetRate(itemImportDto.getPlanningTargetRate());
                         categoryItem.setProductCost(itemImportDto.getProductCost());
+                        if (StringUtils.isNotEmpty(itemImportDto.getStylePic())) {
+                            File file1 = new File(itemImportDto.getStylePic());
+                            String extName = FileUtil.extName(file1.getName());
+                            String objectName = "planning/" + categoryItem.getBrandName() + "/" + categoryItem.getYearName() + "/" + categoryItem.getDesignNo() + "/" + System.currentTimeMillis() + "." + extName;
+                            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), objectName);
+                            categoryItem.setStylePic(attachmentVo.getUrl());
+                        }
                         addList.add(categoryItem);
                     }else{
                         dataCorrectErrorList.add(i+1);
