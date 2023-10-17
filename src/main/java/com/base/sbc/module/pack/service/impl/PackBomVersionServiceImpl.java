@@ -356,7 +356,7 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
                 packBomVo.setLossRate(null);
                 /*转大货修改变成未下发*/
                 packBomVo.setScmSendFlag("0");
-                if (partNameList.contains(packBomVo.getPartName())) {
+                if (partNameList.contains(packBomVo.getCollocationName())) {
                     packBomVo.setUnusableFlag(BaseGlobal.STATUS_NORMAL);
                 }
             }
