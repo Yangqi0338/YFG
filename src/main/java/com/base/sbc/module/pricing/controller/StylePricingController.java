@@ -80,6 +80,9 @@ public class StylePricingController extends BaseController {
     @PostMapping("/updateStatus")
     public ApiResult updateStatus( @RequestBody StylePricingStatusDTO dto) {
         String[] split = dto.getIds().split(",");
+        if (split.length == 0){
+            throw new OtherException("存在为生成数据,请先点击修改保存");
+        }
         List<StylePricing> stylePricings = stylePricingService.listByIds(Arrays.asList(split));
         for (StylePricing stylePricing : stylePricings) {
 
