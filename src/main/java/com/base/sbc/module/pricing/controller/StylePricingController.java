@@ -6,7 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.hangTag.dto.HangTagUpdateStatusDTO;
@@ -15,6 +17,7 @@ import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.dto.StylePricingStatusDTO;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
+import com.base.sbc.module.pricing.service.impl.StylePricingServiceImpl;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -28,10 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 类描述：款式定价 Controller类
@@ -80,10 +80,23 @@ public class StylePricingController extends BaseController {
     @PostMapping("/updateStatus")
     public ApiResult updateStatus( @RequestBody StylePricingStatusDTO dto) {
         String[] split = dto.getIds().split(",");
-        if (split.length == 0){
-            throw new OtherException("存在未生成数据,请先点击修改保存");
+        List<String> list = new ArrayList<>();
+        for (String s : split) {
+            //说明stylePricing不存在,新建
+            if (s.contains("packInfo:")){
+                String packInfoId = s.replace("packInfo:", "");
+                StylePricing stylePricing =new StylePricing();
+                stylePricing.setPackId(packInfoId);
+                stylePricing.setCompanyCode(super.getUserCompany());
+                stylePricingService.save(stylePricing);
+                s=stylePricing.getId();
+            }
+            list.add(s);
         }
-        List<StylePricing> stylePricings = stylePricingService.listByIds(Arrays.asList(split));
+
+
+
+        List<StylePricing> stylePricings = stylePricingService.listByIds(list);
         for (StylePricing stylePricing : stylePricings) {
 
             if ("1".equals(dto.getControlConfirm()) && "1".equals(stylePricing.getProductHangtagConfirm()) && "1".equals(stylePricing.getControlHangtagConfirm())) {
