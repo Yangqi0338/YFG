@@ -984,22 +984,18 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             if (!CollUtil.isNotEmpty(channelList)) {
                 return null;
             }
-            for (PlanningChannel p : channelList) {
-                BasicStructureTreeVo basicStructureTreeVo = new BasicStructureTreeVo();
-                basicStructureTreeVo.setName(p.getChannelName());
-                basicStructureTreeVo.setValue(p.getChannel());
-                basicStructureTreeVoList.add(basicStructureTreeVo);
-            }
             if (CollUtil.isNotEmpty(planningSeasonList)) {
-                List<ProductCategoryTreeVo> result = basicStructureTreeVoList.stream().map(ps -> {
+                List<ProductCategoryTreeVo> result = channelList.stream().map(ps -> {
                     ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
                     tree.setId(ps.getId());
+                    tree.setPlanningChannelId(ps.getId());
+                    tree.setName(ps.getChannelName() + "-" + ps.getSexName() + "-" + ps.getCreateName());
                     tree.setIds(idGen.nextIdStr());
-                    tree.setChannel(ps.getValue());
-                    tree.setChannelName(ps.getName());
+                    tree.setChannel(ps.getChannel());
+                    tree.setChannelName(ps.getChannelName());
                     tree.setLevel(1);
                     tree.setPlanningSeasonId(vo.getPlanningSeasonId());
-                    tree.setName(ps.getName());
+
                     return tree;
                 }).collect(Collectors.toList());
                 return result;

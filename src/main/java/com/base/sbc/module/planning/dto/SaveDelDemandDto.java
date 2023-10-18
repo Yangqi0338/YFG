@@ -13,19 +13,28 @@ import javax.validation.constraints.NotNull;
 public class SaveDelDemandDto {
 
     /*产品季id*/
-    @ApiModelProperty(value = "产品季id" ,required = true,example = "111")
+    @ApiModelProperty(value = "产品季id", required = true, example = "111")
     @NotBlank(message = "产品季id不能为空")
     private String planningSeasonId;
 
-    /** 渠道 */
-    @ApiModelProperty(value = "渠道"  )
+    /**
+     * 渠道
+     */
+    @ApiModelProperty(value = "渠道")
     private String channel;
-    /** 渠道名称 */
-    @ApiModelProperty(value = "渠道名称"  )
+
+    @ApiModelProperty(value = "渠道id")
+    private String planningChannelId;
+    /**
+     * 渠道名称
+     */
+    @ApiModelProperty(value = "渠道名称")
     private String channelName;
 
-    /** 大类 */
-    @ApiModelProperty(value = "大类"  )
+    /**
+     * 大类
+     */
+    @ApiModelProperty(value = "大类")
     private String prodCategory1st;
     /**
      * 大类名称

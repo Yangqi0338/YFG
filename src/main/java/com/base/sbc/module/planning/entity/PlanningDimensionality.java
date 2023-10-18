@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningDimensionality
  * @email your email
- * @date 创建时间：2023-10-16 15:13:14
+ * @date 创建时间：2023-10-18 20:55:20
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -40,6 +40,11 @@ public class PlanningDimensionality extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "字段管理id")
     private String fieldId;
+    /**
+     * 渠道企划id
+     */
+    @ApiModelProperty(value = "渠道企划id")
+    private String planningChannelId;
     /**
      * 渠道
      */

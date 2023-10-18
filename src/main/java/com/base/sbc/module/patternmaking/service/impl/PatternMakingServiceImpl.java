@@ -1236,9 +1236,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 重新排序
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
         qw.select("id");
-        qw.lambda().eq(PatternMaking::getNode, node).eq(PatternMaking::getStatus, status).eq(PatternMaking::getBreakOffPattern, BaseGlobal.NO).eq(PatternMaking::getBreakOffSample, BaseGlobal.NO);
+        qw.lambda().eq(PatternMaking::getNode, node).eq(PatternMaking::getStatus, status);
         if (excludeSelf) {
             qw.ne("id", pm.getId());
+        }
+        if (StrUtil.equals(node, "打版任务")) {
+            qw.eq("break_off_pattern", "0");
+        }
+        if (StrUtil.equals(node, "样衣任务")) {
+            qw.eq("break_off_sample", "0");
         }
         qw.eq(StrUtil.toUnderlineCase(userField), BeanUtil.getProperty(pm, userField));
         // 黑单处理

@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningDemand
  * @email your email
- * @date 创建时间：2023-10-16 15:13:15
+ * @date 创建时间：2023-10-18 20:55:20
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -28,16 +28,23 @@ import lombok.EqualsAndHashCode;
 @ApiModel("企划-需求表 PlanningDemand")
 public class PlanningDemand extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private static final long serialVersionUID = 1L;
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
-	/**********************************实体存放的其他字段区 【other_end】******************************************/
+    /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 产品季id */
+    /**
+     * 产品季id
+     */
     @ApiModelProperty(value = "产品季id")
     private String planningSeasonId;
+    /**
+     * 渠道企划id
+     */
+    @ApiModelProperty(value = "渠道企划id")
+    private String planningChannelId;
     /**
      * 渠道
      */
