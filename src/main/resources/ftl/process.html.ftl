@@ -422,11 +422,19 @@
 
     <tr>
         <#list sizeList as size>
-            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">样板<br>尺寸</td>
-            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}">成衣<br>尺寸</td>
-            <#if washSkippingFlag>
-                <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}">洗后<br>尺寸</td>
+            <#if isFob>
+                <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">成衣<br>尺寸</td>
+                <#if washSkippingFlag>
+                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}">洗后<br>尺寸</td>
+                </#if>
+            <#else>
+                <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">样板<br>尺寸</td>
+                <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}">成衣<br>尺寸</td>
+                <#if washSkippingFlag>
+                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}">洗后<br>尺寸</td>
+                </#if>
             </#if>
+
         </#list>
     </tr>
     </thead>
@@ -452,203 +460,243 @@
 </table>
 
 <#--注意事项 3-->
-<table class="table_border mt" style="page-break-before: always;page-break-inside: avoid;">
-    <thead>
-    <tr>
-        <th class="th_title">
-            <p>注意事项</p>
-            <hr>
-        </th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>
-            <#list zysxImgList as item>
-                <img class="img_item" src="${item.url}"/>
-            </#list>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
+<#if zysxShow>
+    <table class="table_border mt" style="page-break-before: always;page-break-inside: avoid;">
+        <thead>
+        <tr>
+            <th class="th_title">
+                <p>注意事项</p>
+                <hr>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <#list zysxImgList as item>
+                    <img class="img_item" src="${item.url}"/>
+                </#list>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</#if>
 
 <!--    裁剪工艺 4 1-->
-<table class="table_border mt" style="page-break-before: always;">
-    <thead>
-    <tr>
-        <th class="th_title" colspan="2">
-            <p>裁剪工艺</p>
-            <hr>
-        </th>
-    </tr>
-    <tr>
-        <th class="item_td gb">工艺项目</th>
-        <th class="content_tr gb">
-            描述
-        </th>
-    </tr>
-    </thead>
-    <tbody>
-    <#list cjgyDataList as item>
+<#if cjgyShow>
+    <table class="table_border mt" style="page-break-before: always;">
+        <thead>
         <tr>
-            <td>${item.item}</td>
-            <td>
-                ${item.content}
-            </td>
+            <th class="th_title" colspan="2">
+                <p>裁剪工艺</p>
+                <hr>
+            </th>
         </tr>
-    </#list>
-    </tbody>
-    <tfoot>
-    <tr>
-        <td colspan="2">裁剪工艺-${cjgyDataList?size} </td>
-    </tr>
-    </tfoot>
-</table>
-<!-- 朴条位置 归拔位置 4 2 -->
-<table class="table_border mt" style="page-break-inside: avoid;">
-    <thead>
-    <tr>
-        <th class="th_title">
-            <p>朴条位置 归拔位置</p>
-            <hr>
-        </th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>
-            <#list cjgyImgList as item>
-                <img class="img_item" src="${item.url}"/>
-            </#list>
-        </td>
-    </tr>
-    </tbody>
-</table>
-<!--    基础工艺 4 3-->
-<table class="table_border mt" style="page-break-before: always">
-    <thead>
-    <tr>
-        <th colspan="3" class="th_title">
-            <p>基础工艺</p>
-            <hr>
-        </th>
-    </tr>
-    <tr>
-        <th class="gb" style="width: 10%">工艺项目</th>
-        <th class="gb" style="width: 50%">描述</th>
-        <th class="gb" style="width: 50%">图片</th>
-
-    </tr>
-    </thead>
-    <tbody>
-    <#list jcgyDataList as item>
         <tr>
-            <td>${item.item}</td>
-            <td>
-                ${item.content}
-            </td>
-            <#if  item_index==0 >
-                <td rowspan="${jcgyRowsPan}" style="width: 30%">
-                    <div class="one_imgs">
-                        <#list jcgyImgList as item>
-                            <img class="one_imgs_item" src="${item.url}"/>
-                        </#list>
-                    </div>
+            <th class="item_td gb">工艺项目</th>
+            <th class="content_tr gb">
+                描述
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <#list cjgyDataList as item>
+            <tr>
+                <td>${item.item}</td>
+                <td>
+                    ${item.content}
                 </td>
-            </#if>
+            </tr>
+        </#list>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="2">裁剪工艺-${cjgyDataList?size} </td>
         </tr>
-    </#list>
-    </tbody>
+        </tfoot>
+    </table>
+</#if>
+<!-- 朴条位置 归拔位置 4 2 -->
+<#if cjgyImgShow>
+    <table class="table_border mt" style="page-break-inside: avoid;">
+        <thead>
+        <tr>
+            <th class="th_title">
+                <p>朴条位置 归拔位置</p>
+                <hr>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <#list cjgyImgList as item>
+                    <img class="img_item" src="${item.url}"/>
+                </#list>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</#if>
+<!--    基础工艺 4 3-->
+<#if jcgyShow>
+    <table class="table_border mt" style="page-break-before: always">
+        <thead>
+        <tr>
+            <th colspan="3" class="th_title">
+                <p>基础工艺</p>
+                <hr>
+            </th>
+        </tr>
+        <tr>
+            <th class="gb" style="width: 10%">工艺项目</th>
+            <th class="gb" style="width: 50%">描述</th>
+            <th class="gb" style="width: 50%">图片</th>
 
-    <tfoot>
-    <tr>
-        <td colspan="3" style="height: 32px;">基础工艺-${jcgyDataList?size}</td>
-    </tr>
-    </tfoot>
-</table>
+        </tr>
+        </thead>
+        <tbody>
+        <#list jcgyDataList as item>
+            <tr>
+                <td>${item.item}</td>
+                <td>
+                    ${item.content}
+                </td>
+                <#if  item_index==0 >
+                    <td rowspan="${jcgyRowsPan}" style="width: 30%">
+                        <div class="one_imgs">
+                            <#list jcgyImgList as item>
+                                <img class="one_imgs_item" src="${item.url}"/>
+                            </#list>
+                        </div>
+                    </td>
+                </#if>
+            </tr>
+        </#list>
+        </tbody>
 
+        <tfoot>
+        <tr>
+            <td colspan="3" style="height: 32px;">基础工艺-${jcgyDataList?size}</td>
+        </tr>
+        </tfoot>
+    </table>
+</#if>
 
 <!--    小部件 5-->
-<table class="table_border mt" style="page-break-before: always;">
-    <thead>
-    <tr>
-        <th colspan="4" class="th_title">
-            <p>小部件</p>
-            <hr>
-        </th>
-    </tr>
-    <tr>
-
-        <th class="gb" style="width: 10%">图片</th>
-        <th class="gb" style="width: 10%">编码</th>
-        <th class="gb" style="width: 10%">工艺项目</th>
-        <th class="gb" style="width: 50%">工艺描述</th>
-    </tr>
-    </thead>
-    <tbody>
-    <#list xbjDataList as item>
+<#if xbjShow>
+    <table class="table_border mt" style="page-break-before: always;">
+        <thead>
         <tr>
-            <#if item_index==0>
-                <td rowspan="${xbjRowsPan}" style="width: 30%">
-                    <div class="one_imgs">
-                        <#list xbjImgList as item>
-                            <img class="one_imgs_item" src="${item.url}"/>
-                        </#list>
-                    </div>
+            <th colspan="4" class="th_title">
+                <p>小部件</p>
+                <hr>
+            </th>
+        </tr>
+        <tr>
+
+            <th class="gb" style="width: 10%">图片</th>
+            <th class="gb" style="width: 10%">编码</th>
+            <th class="gb" style="width: 10%">工艺项目</th>
+            <th class="gb" style="width: 50%">工艺描述</th>
+        </tr>
+        </thead>
+        <tbody>
+        <#list xbjDataList as item>
+            <tr>
+                <#if item_index==0>
+                    <td rowspan="${xbjRowsPan}" style="width: 30%">
+                        <div class="one_imgs">
+                            <#list xbjImgList as item>
+                                <img class="one_imgs_item" src="${item.url}"/>
+                            </#list>
+                        </div>
+                    </td>
+                </#if>
+                <td>${item.itemCode}</td>
+                <td>${item.item}</td>
+                <td>
+                    ${item.content}
                 </td>
-            </#if>
-            <td>${item.itemCode}</td>
-            <td>${item.item}</td>
-            <td>
-                ${item.content}
-            </td>
-        </tr>
-    </#list>
-    </tbody>
-    <tfoot>
-    <tr>
-        <td colspan="4" style="height: 32px;">小部件-${xbjDataList?size}</td>
-    </tr>
-    </tfoot>
-</table>
-
-<!--    整烫包装 6-->
-<table class="table_border mt">
-    <thead>
-    <tr>
-        <th colspan="2" class="th_title">
-            <p>整烫包装</p>
-            <hr>
-        </th>
-    </tr>
-    <tr>
-
-        <th class="gb" style="width: 10%">工艺项目</th>
-        <th class="gb" style="width: 50%">描述</th>
-
-    </tr>
-    </thead>
-    <tbody>
-    <#list ztbzDataList as item>
+            </tr>
+        </#list>
+        </tbody>
+        <tfoot>
         <tr>
-            <td>${item.item}</td>
-            <td>
-                ${item.content}
-            </td>
+            <td colspan="4" style="height: 32px;">小部件-${xbjDataList?size}</td>
         </tr>
-    </#list>
-    </tbody>
-    <tfoot>
-    <tr>
-        <td colspan="3" style="height: 32px;">整烫包装-${ztbzDataList?size}</td>
-    </tr>
-    </tfoot>
-</table>
+        </tfoot>
+    </table>
+</#if>
+<!--    整烫包装 6-->
+<#if ztbzShow>
+    <table class="table_border mt">
+        <thead>
+        <tr>
+            <th colspan="2" class="th_title">
+                <p>整烫包装</p>
+                <hr>
+            </th>
+        </tr>
+        <tr>
 
+            <th class="gb" style="width: 10%">工艺项目</th>
+            <th class="gb" style="width: 50%">描述</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        <#list ztbzDataList as item>
+            <tr>
+                <td>${item.item}</td>
+                <td>
+                    ${item.content}
+                </td>
+            </tr>
+        </#list>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="3" style="height: 32px;">整烫包装-${ztbzDataList?size}</td>
+        </tr>
+        </tfoot>
+    </table>
+</#if>
 
 <!--    外辅工艺 7-->
+<#if wfgyShow>
+    <table class="table_border mt">
+        <thead>
+        <tr>
+            <th colspan="2" class="th_title">
+                <p>外辅工艺</p>
+                <hr>
+            </th>
+        </tr>
+        <tr>
 
+            <th class="gb" style="width: 10%">工艺项目</th>
+            <th class="gb" style="width: 50%">描述</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        <#list wfgyDataList as item>
+            <tr>
+                <td>${item.item}</td>
+                <td>
+                    ${item.content}
+                </td>
+            </tr>
+        </#list>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="3" style="height: 32px;">外辅工艺-${wfgyDataList?size}</td>
+        </tr>
+        </tfoot>
+    </table>
+</#if>
 
 </body>
 </html>

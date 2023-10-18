@@ -7,6 +7,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
@@ -172,6 +173,14 @@ public class GenTechSpecPdfFile {
     private String qrCodeUrl;
     @ApiModelProperty(value = "尺码")
     private String defaultSize;
+    @ApiModelProperty(value = "生产类型")
+    private String devtType;
+
+    public boolean isFob() {
+        return StrUtil.equals(devtType, "FOB");
+//        return true;
+    }
+
     @ApiModelProperty(value = "工艺信息")
     private List<PackTechSpecVo> techSpecVoList;
 
@@ -206,7 +215,13 @@ public class GenTechSpecPdfFile {
         String str = JSON.toJSONString(this, JSONWriter.Feature.WriteNullStringAsEmpty);
         JSONObject dataModel = JSON.parseObject(str);
         dataModel.put("sizeList", sizeList);
-        int sizeColspan = washSkippingFlag ? 3 : 2;
+        int sizeColspan = 1;
+        if (washSkippingFlag) {
+            sizeColspan++;
+        }
+        if (!isFob()) {
+            sizeColspan++;
+        }
         dataModel.put("sizeColspan", sizeColspan);
         int sizeTitleColspan = sizeColspan * CollUtil.size(sizeList) + 4;
         dataModel.put("sizeTitleColspan", sizeTitleColspan);
@@ -258,14 +273,16 @@ public class GenTechSpecPdfFile {
                 JSONObject jsonObject = JSONObject.parseObject(packSize.getStandard());
                 for (int j = 0; j < sizeList.size(); j++) {
                     String size = sizeList.get(j);
-                    row.add(new TdDetail(MapUtil.getStr(jsonObject, "template" + size, "-")).toMap());
+                    if (!isFob()) {
+                        row.add(new TdDetail(MapUtil.getStr(jsonObject, "template" + size, "-")).toMap());
+                    }
                     row.add(new TdDetail(MapUtil.getStr(jsonObject, "garment" + size, "-")).toMap());
                     if (washSkippingFlag) {
                         row.add(new TdDetail(MapUtil.getStr(jsonObject, "washing" + size, "-")).toMap());
                     }
                 }
                 //公差-
-                row.add(new TdDetail(Opt.ofBlankAble(packSize.getMinus()).map(minus -> "-" + minus).orElse("")).toMap());
+                row.add(new TdDetail(Opt.ofBlankAble(packSize.getMinus()).map(minus -> minus.contains("-") ? minus : ("-" + minus)).orElse("")).toMap());
                 //公差+
                 row.add(new TdDetail(Opt.ofNullable(packSize.getPositive()).orElse("")).toMap());
                 rowData.setRowData(row);
@@ -283,6 +300,7 @@ public class GenTechSpecPdfFile {
                     .stream()
                     .collect(Collectors.groupingBy(PackTechSpecVo::getSpecType));
         }
+        dataModel.put("isFob", isFob());
         dataModel.put("sizeDataList", dataList);
         dataModel.put("sizeClass", sizeClass.values());
         dataModel.put("ztbzDataList", Optional.ofNullable(gyMap.get("整烫包装")).orElse(CollUtil.newArrayList()));
@@ -299,10 +317,25 @@ public class GenTechSpecPdfFile {
         dataModel.put("jcgyRowsPan", jcgyDataList.size());
 
         dataModel.put("zysxImgList", Optional.ofNullable(picMap.get("注意事项")).orElse(CollUtil.newArrayList()));
+
+        // 裁剪工艺是否显示
+        dataModel.put("cjgyShow", isFob() ? ObjectUtil.isNotEmpty(dataModel.get("cjgyDataList")) : true);
+        dataModel.put("cjgyImgShow", isFob() ? ObjectUtil.isNotEmpty(dataModel.get("cjgyImgList")) : true);
+        // 小部件是否显示
+        dataModel.put("xbjShow", isFob() ? ObjectUtil.isNotEmpty(dataModel.get("xbjDataList")) : true);
+        //注意事项是否显示
+        dataModel.put("zysxShow", isFob() ? ObjectUtil.isNotEmpty(dataModel.get("zysxImgList")) : true);
+        // 基础工艺是否显示
+        dataModel.put("jcgyShow", isFob() ? ObjectUtil.isNotEmpty(dataModel.get("jcgyDataList")) : true);
+        // 整烫包装 是否显示
+        dataModel.put("ztbzShow", isFob() ? ObjectUtil.isNotEmpty(dataModel.get("ztbzDataList")) : true);
+        // 外辅工艺 是否显示
+        dataModel.put("wfgyDataList", Optional.ofNullable(gyMap.get("外辅工艺")).orElse(CollUtil.newArrayList()));
+        dataModel.put("wfgyShow", isFob() ? ObjectUtil.isNotEmpty(dataModel.get("wfgyDataList")) : false);
         StringWriter writer = new StringWriter();
         template.process(dataModel, writer);
         String output = writer.toString();
-//        System.out.println("temp目录路径:"+FileUtil.getTmpDirPath());
+//        System.out.println("temp目录路径:"+FileUtil.getTmpDirPath()+"htmltoPdf.html");
 //        FileUtil.writeString(output, new File(FileUtil.getTmpDirPath()+"/htmltoPdf.html"), Charset.defaultCharset());
         return output;
     }
