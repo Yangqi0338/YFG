@@ -632,9 +632,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                  */
                 String styleNo = "";
                 if (StrUtil.isNotBlank(styleColor.getSubdivide())) {
-                    styleNo = styleColor.getStyleNo().replace(styleColor.getSubdivide(), "");
+                    styleNo = addRevampStyleColorDto.getStyleNo().replace(styleColor.getSubdivide(), "");
                 } else {
-                    styleNo = styleColor.getStyleNo();
+                    styleNo = addRevampStyleColorDto.getStyleNo();
                 }
                 baseMapper.reviseAllStyleNo(styleColor.getStyleNo(), styleNo + addRevampStyleColorDto.getSubdivide());
                 /*新大货款号=大货款号+细分*/
