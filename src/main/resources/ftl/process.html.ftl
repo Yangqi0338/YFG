@@ -180,6 +180,15 @@
     .table_border, .info_table {
         margin-top: 10px;
     }
+
+    .partNameClass {
+        width: auto;
+    }
+
+    .methodClass div {
+        max-width: 200px;
+        word-break: break-all;
+    }
 </style>
 <body>
 <!-- 页眉 -->
@@ -409,7 +418,7 @@
         </th>
     </tr>
     <tr class="size_tr gb">
-        <th rowspan="2" style="text-align: center;width: auto;">部位</th>
+        <th rowspan="2" style="text-align: center;" class="partNameClass">部位</th>
         <th rowspan="2" style="text-align: center;">描述</th>
         <#list sizeList as size>
             <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]}">
@@ -445,7 +454,9 @@
                 <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
             <#else>
                 <#list item.rowData as c>
-                    <td class="${c.className} ${sizeClass[c_index]}"> ${c.text}</td>
+                    <td class="${c.className} ${sizeClass[c_index]}">
+                        <div style="word-break: break-all;">${c.text}</div>
+                    </td>
                 </#list>
             </#if>
         </tr>
