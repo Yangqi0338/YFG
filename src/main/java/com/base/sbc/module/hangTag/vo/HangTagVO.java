@@ -316,5 +316,7 @@ public class HangTagVO {
     private String attachment;
 
     private String isTrim;
+
+    private String produceTypeName;
 }
 
