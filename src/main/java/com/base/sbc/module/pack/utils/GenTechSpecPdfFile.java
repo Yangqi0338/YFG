@@ -268,8 +268,8 @@ public class GenTechSpecPdfFile {
                 rowData.setRowType(packSize.getRowType());
                 rowData.setRemark(packSize.getRemark());
                 List<Map<String, Object>> row = new ArrayList<>();
-                row.add(new TdDetail(Opt.ofNullable(packSize.getPartName()).orElse("")).toMap());
-                row.add(new TdDetail(Opt.ofNullable(packSize.getMethod()).orElse(""), "td_lt").toMap());
+                row.add(new TdDetail(Opt.ofNullable(packSize.getPartName()).orElse(""), "partNameClass").toMap());
+                row.add(new TdDetail(Opt.ofNullable(packSize.getMethod()).orElse(""), "td_lt methodClass").toMap());
                 JSONObject jsonObject = JSONObject.parseObject(packSize.getStandard());
                 for (int j = 0; j < sizeList.size(); j++) {
                     String size = sizeList.get(j);
@@ -335,7 +335,7 @@ public class GenTechSpecPdfFile {
         StringWriter writer = new StringWriter();
         template.process(dataModel, writer);
         String output = writer.toString();
-//        System.out.println("temp目录路径:"+FileUtil.getTmpDirPath()+"htmltoPdf.html");
+//        System.out.println("temp目录路径:"+ FileUtil.getTmpDirPath()+"htmltoPdf.html");
 //        FileUtil.writeString(output, new File(FileUtil.getTmpDirPath()+"/htmltoPdf.html"), Charset.defaultCharset());
         return output;
     }
