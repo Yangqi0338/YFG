@@ -79,7 +79,9 @@
     </select>
 
     <select id="getStyleColorNumber" resultType="java.lang.String">
-      select max(style_no) from t_style_color where style_no like concat(#{styleNo}, '%')
+    SELECT MAX(CAST(SUBSTRING(style_no, #{length1}) AS UNSIGNED)) AS max_serial_number
+    FROM t_style_color
+    WHERE style_no LIKE concat(#{styleNo}, '%')
     </select>
     <select id="getStyleUploadInfo" resultType="com.base.sbc.module.sample.vo.StyleUploadVo">
         SELECT ssc.style_no,

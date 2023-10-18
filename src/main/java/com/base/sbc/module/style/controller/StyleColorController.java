@@ -190,6 +190,13 @@ public class StyleColorController {
 		return styleColorService.saveStyleColorDynamicData(technologyInfo);
 	}
 
+	@ApiOperation(value = "查询款式配色主款配饰数据", notes = "")
+	@GetMapping("/getStyleMainAccessoriesList")
+	public PageInfo<StyleColorVo> getStyleMainAccessoriesList(Principal user,QueryStyleColorDto dto) {
+		return styleColorService.getStyleMainAccessoriesList(user,dto);
+	}
+
+
 
 }
 

@@ -16,12 +16,9 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.flowable.vo.FlowRecordVo;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.module.basicsdatum.controller.BasicsdatumMaterialController;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumMeasurementExcelDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -30,6 +27,8 @@ import com.base.sbc.module.hangTag.dto.HangTagDTO;
 import com.base.sbc.module.hangTag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangTag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangTag.entity.HangTag;
+import com.base.sbc.module.hangTag.entity.HangTagIngredient;
+import com.base.sbc.module.hangTag.entity.HangTagLog;
 import com.base.sbc.module.hangTag.enums.HangTagStatusEnum;
 import com.base.sbc.module.hangTag.enums.OperationDescriptionEnum;
 import com.base.sbc.module.hangTag.mapper.HangTagMapper;
@@ -118,6 +117,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     @Autowired
     @Lazy
     private DataPermissionsService dataPermissionsService;
+
+    @Autowired
+    private HangTagIngredientService hangTagIngredientService;
 
     @Override
     public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -507,6 +509,42 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
             return null;
         }
         return uploadFileService.getUrlById(techSpecFileId);
+    }
+
+    /**
+     * 复制吊牌
+     *
+     * @param styleNo
+     * @param newStyleNo
+     * @return
+     */
+    @Override
+    public Boolean copyPack(String styleNo, String newStyleNo) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("bulk_style_no", styleNo);
+        HangTag hangTag = baseMapper.selectOne(queryWrapper);
+        if (!ObjectUtils.isEmpty(hangTag)) {
+            /*存在吊牌时 复制吊牌*/
+            hangTag.setId(null);
+            hangTag.setStyleNo(newStyleNo);
+            hangTag.setStatus(BaseGlobal.STATUS_CLOSE);
+            /*查询成分*/
+            queryWrapper.clear();
+            queryWrapper.eq("hang_tag_id", hangTag.getId());
+            List<HangTagIngredient> hangTagIngredientList = hangTagIngredientService.list(queryWrapper);
+            save(hangTag);
+            /*复制成分*/
+            hangTagIngredientList.forEach(i -> {
+                i.setId(null);
+                i.setHangTagId(hangTag.getId());
+            });
+            hangTagIngredientService.saveBatch(hangTagIngredientList);
+            HangTagLog hangTagLog = new HangTagLog();
+            hangTagLog.setHangTagId(hangTag.getId());
+            hangTagLog.setOperationDescription("报错款复制");
+            hangTagLogService.save(hangTagLog);
+        }
+        return true;
     }
 
 

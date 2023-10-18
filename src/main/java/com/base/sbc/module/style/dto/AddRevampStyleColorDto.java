@@ -14,6 +14,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 类描述：新增修改样衣-款式配色 dto类
@@ -212,4 +213,8 @@ public class AddRevampStyleColorDto extends StyleColor {
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
+
+    /** 款式主款配饰 */
+    @ApiModelProperty(value = "款式主款配饰"  )
+    List<StyleMainAccessoriesSaveDto> saveDtoList;
 }

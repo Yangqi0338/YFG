@@ -7,6 +7,9 @@ import lombok.Data;
 @Data
 /*查询款式配色*/
 public class QueryStyleColorDto extends Page {
+
+    @ApiModelProperty(value = "id")
+    private String id;
     /**
      * 样衣id
      */

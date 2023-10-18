@@ -199,6 +199,13 @@ public interface StyleColorService extends BaseService<StyleColor> {
          */
         Boolean saveStyleColorDynamicData(List<FieldVal> technologyInfo);
 
+        /**
+         * 查询款式配色主款配饰数据
+         * @param dto
+         * @return
+         */
+        PageInfo<StyleColorVo> getStyleMainAccessoriesList(Principal user,QueryStyleColorDto dto);
+
 // 自定义方法区 不替换的区域【other_end】
 
 

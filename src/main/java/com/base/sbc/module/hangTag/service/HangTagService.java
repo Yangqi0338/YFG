@@ -94,6 +94,15 @@ public interface HangTagService extends BaseService<HangTag> {
     String getTechSpecFileByStyleNo(String styleNo);
 
 
+    /**
+     * 复制吊牌
+     *
+     * @param styleNo
+     * @param newStyleNo
+     * @return
+     */
+    Boolean copyPack(String styleNo, String newStyleNo);
+
 // 自定义方法区 不替换的区域【other_end】
 
 
