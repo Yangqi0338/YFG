@@ -58,4 +58,6 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String cfsj;
 
     private String yywcsj;
+
+    private String sampleBarCode;
 }
