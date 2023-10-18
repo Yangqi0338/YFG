@@ -43,6 +43,9 @@ public class HangTagIngredient extends BaseDataEntity<String> {
     /** 成分备注编码 */
     private String descriptionRemarksCode;
 
+    /** 是否换行 */
+    private String wrapOrNot;
+
     /** 成分说明 */
     private String ingredientDescription;
 
