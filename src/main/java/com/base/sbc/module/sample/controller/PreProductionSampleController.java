@@ -9,9 +9,12 @@ package com.base.sbc.module.sample.controller;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.EnableFlagSettingDto;
 import com.base.sbc.module.common.dto.IdDto;
@@ -126,6 +129,11 @@ public class PreProductionSampleController extends BaseController{
     @ApiOperation(value = "设置样衣条码", notes = "")
     @PostMapping("/setSampleBarCode")
     public ApiResult setSampleBarCode(@Validated @RequestBody PreTaskAssignmentSampleBarCodeDto dto) {
+        QueryWrapper<PreProductionSampleTask> queryWrapper =new BaseQueryWrapper<>();
+        queryWrapper.eq("sample_bar_code",dto.getSampleBarCode());
+        queryWrapper.ne("id",dto.getId());
+        queryWrapper.eq("del_flag", BaseGlobal.NO);
+
         PreProductionSampleTask update = new PreProductionSampleTask();
         update.setSampleBarCode(dto.getSampleBarCode());
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
@@ -137,7 +145,7 @@ public class PreProductionSampleController extends BaseController{
         PreProductionSampleTask newTask = preProductionSampleTaskService.getById(dto.getId());
         preProductionSampleTaskService.saveOperaLog("设置样衣条码", "产前样看板", null,newTask.getCode(),newTask,old);
         //下发产前样
-//        smpService.antenatalSample( new String[]{dto.getId()});
+       smpService.antenatalSample( new String[]{dto.getId()});
         return  updateSuccess("绑定成功");
 
     }
