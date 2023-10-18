@@ -33,7 +33,6 @@ import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumWashIcon;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
@@ -335,13 +334,13 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 String newDesignNo = PlanningUtils.getNewDesignNo(dto.getDesignNo(), db.getDesigner(), dto.getDesigner());
                 dto.setDesignNo(newDesignNo);
             } else {
-                QueryWrapper qw = new QueryWrapper();
-                qw.eq("design_no", dto.getDesignNo());
-                qw.ne(!initId, "id", dto.getId());
-                long count = count(qw);
-                if (count > 0) {
-                    throw new OtherException("设计款号重复");
-                }
+                // QueryWrapper qw = new QueryWrapper();
+                //qw.eq("design_no", dto.getDesignNo());
+                //qw.ne(!initId, "id", dto.getId());
+                // long count = count(qw);
+                //if (count > 0) {
+                //throw new OtherException("设计款号重复");
+                // }
             }
 
         }
