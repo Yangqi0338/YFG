@@ -263,7 +263,21 @@ public class SampleBoardVo extends Style {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty(value = "样衣需求完成日期")
     private Date demandFinishDate;
+    /**
+     * 放码师id
+     */
+    @ApiModelProperty(value = "放码师id")
+    private String gradingId;
+    /**
+     * 放码师名称
+     */
+    @ApiModelProperty(value = "放码师名称")
+    private String gradingName;
 
+    /** 放码时间 */
+    @ApiModelProperty(value = "放码时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date gradingDate;
 
     public String getId() {
         return patternMakingId;

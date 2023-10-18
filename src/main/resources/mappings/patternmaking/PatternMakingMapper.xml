@@ -123,7 +123,10 @@
         p.pattern_design_name,
         p.sample_making_score,
         p.pattern_making_score,
-        p.pat_seq
+        p.pat_seq,
+        p.grading_id,
+        p.grading_name,
+        p.grading_date
         FROM
         t_pattern_making p,
         t_style s

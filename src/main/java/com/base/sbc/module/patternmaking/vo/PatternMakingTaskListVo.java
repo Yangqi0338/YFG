@@ -2,6 +2,7 @@ package com.base.sbc.module.patternmaking.vo;
 
 
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
  */
 @Data
 @ApiModel("打样任务-列表Vo PatternMakingTaskListVo ")
-public class PatternMakingTaskListVo {
+public class PatternMakingTaskListVo extends PatternMaking {
 
     @ApiModelProperty(value = "id")
     private String id;
@@ -116,6 +117,21 @@ public class PatternMakingTaskListVo {
     private BigDecimal patternMakingScore;
 
     private String patSeq;
+    /**
+     * 放码师id
+     */
+    @ApiModelProperty(value = "放码师id")
+    private String gradingId;
+    /**
+     * 放码师名称
+     */
+    @ApiModelProperty(value = "放码师名称")
+    private String gradingName;
+
+    /** 放码时间 */
+    @ApiModelProperty(value = "放码时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date gradingDate;
     /**
      * 打版类型
      */

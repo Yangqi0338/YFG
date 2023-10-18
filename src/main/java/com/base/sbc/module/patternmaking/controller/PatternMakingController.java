@@ -427,6 +427,13 @@ public class PatternMakingController {
         return patternMakingService.samplePicUpload(dto);
     }
 
+
+    @PostMapping("/updateGrading")
+    @ApiOperation(value = "修改放码师")
+    public boolean updateGrading(@Validated @RequestBody PatternMaking patternMaking) {
+        return patternMakingService.updateById(patternMaking);
+    }
+
 }
 
 

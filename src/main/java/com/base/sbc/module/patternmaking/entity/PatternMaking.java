@@ -264,6 +264,21 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 流程完成状态:(0未完成,1已完成) */
     @ApiModelProperty(value = "流程完成状态:(0未完成,1已完成)"  )
     private String finishFlag;
+    /**
+     * 放码师id
+     */
+    @ApiModelProperty(value = "放码师id")
+    private String gradingId;
+    /**
+     * 放码师名称
+     */
+    @ApiModelProperty(value = "放码师名称")
+    private String gradingName;
+
+    /** 放码时间 */
+    @ApiModelProperty(value = "放码时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date gradingDate;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
