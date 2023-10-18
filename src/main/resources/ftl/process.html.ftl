@@ -276,7 +276,9 @@
                 </tr>
                 <tr>
                     <td class="td_lt bold">成分信息*</td>
-                    <td class="td_lt">${ingredient}</td>
+                    <td class="td_lt">
+                        <pre>${ingredient}</pre>
+                    </td>
                 </tr>
             </table>
         </td>
