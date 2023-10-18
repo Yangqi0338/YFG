@@ -666,18 +666,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         String styleNos = mainAccessoriesList1.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.joining(","));
                         String colorNames = mainAccessoriesList1.stream().map(StyleMainAccessories::getColorName).collect(Collectors.joining(","));
                         if (StringUtils.equals(color.getIsTrim(), BaseGlobal.NO)) {
-                            color.setAccessory( StringUtils.isNotBlank(colorNames) ?colorNames+","+color.getColorName():colorNames);
-                            color.setAccessoryNo(StringUtils.isNotBlank(styleNos) ?styleNos+","+color.getStyleNo():styleNos);
+                            color.setAccessory( StringUtils.isNotBlank(colorNames) ?colorNames:styleColor.getColorName());
+                            color.setAccessoryNo(StringUtils.isNotBlank(styleNos) ?styleNos:styleColor.getStyleNo());
                         } else {
-                            color.setPrincipalStyle(  StringUtils.isNotBlank(colorNames) ?colorNames+","+color.getColorName():colorNames);
-                            color.setPrincipalStyleNo(StringUtils.isNotBlank(styleNos) ?styleNos+","+color.getStyleNo():styleNos);
+                            color.setPrincipalStyle(  StringUtils.isNotBlank(colorNames) ?colorNames:styleColor.getColorName());
+                            color.setPrincipalStyleNo(StringUtils.isNotBlank(styleNos) ?styleNos:styleColor.getStyleNo());
                         }
                         StyleMainAccessories styleMainAccessories =new StyleMainAccessories();
-                        styleMainAccessories.setIsTrim(color.getIsTrim());
+                        styleMainAccessories.setIsTrim(styleColor.getIsTrim());
                         styleMainAccessories.setStyleColorId(color.getId());
-                        styleMainAccessories.setColorCode(color.getColorCode());
-                        styleMainAccessories.setColorName(color.getColorName());
-                        styleMainAccessories.setStyleNo(color.getStyleNo());
+                        styleMainAccessories.setColorCode(styleColor.getColorCode());
+                        styleMainAccessories.setColorName(styleColor.getColorName());
+                        styleMainAccessories.setStyleNo(styleColor.getStyleNo());
                         accessoriesList.add(styleMainAccessories);
                     }
                     saveOrUpdateBatch(colorList);
