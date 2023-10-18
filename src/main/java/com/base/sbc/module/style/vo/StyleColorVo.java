@@ -418,4 +418,10 @@ public class StyleColorVo {
 
     @ApiModelProperty(value = "rfid标记(0否 1是)"  )
     private String rfidFlag;
+
+
+    /**
+     * 工艺师
+     */
+    private String technologistName;
 }

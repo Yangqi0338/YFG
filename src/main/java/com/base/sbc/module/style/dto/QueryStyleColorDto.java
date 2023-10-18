@@ -214,4 +214,10 @@ public class QueryStyleColorDto extends Page {
     private String seasonName;
 
     private String yearName;
+
+
+    /**
+     * 工艺师
+     */
+    private String technologistName;
 }

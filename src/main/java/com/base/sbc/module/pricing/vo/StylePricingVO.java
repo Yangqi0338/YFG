@@ -240,6 +240,9 @@ public class StylePricingVO {
     private String seriesName;
 
 
+    @ApiModelProperty(value = "产品风格编码产品风格编码")
+    private String productStyleName;
+
     private String calcItemVal;
 
 }

@@ -35,6 +35,9 @@ public interface BasicsdatumMaterialMapper extends BaseMapper<BasicsdatumMateria
                                                                          @Param("status") String status
     );
 
+
+	List<BasicsdatumMaterialColorPageVo> getBasicsdatumMaterialColorListQw(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
+
     List<BasicsdatumMaterialWidthPageVo> getBasicsdatumMaterialWidthList(@Param("companyCode") String companyCode,
                                                                          @Param("materialCode") String materialCode,
                                                                          @Param("status") String status

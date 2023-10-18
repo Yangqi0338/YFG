@@ -351,14 +351,10 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             bomList = packBomService.list(sourceForeignId, sourcePackType, enableVersion.getId());
             List<String> bomIds = Opt.ofNullable(bomList).map(bl -> bl.stream().map(PackBomVo::getId).collect(Collectors.toList())).orElse(CollUtil.newArrayList());
             bomSizeList = packBomSizeService.getByBomIds(bomIds);
-            List<String> partNameList = StringUtils.convertList("扑条,衬");
             for (PackBomVo packBomVo : bomList) {
                 packBomVo.setLossRate(null);
                 /*转大货修改变成未下发*/
                 packBomVo.setScmSendFlag("0");
-                if (partNameList.contains(packBomVo.getCollocationName())) {
-                    packBomVo.setUnusableFlag(BaseGlobal.STATUS_NORMAL);
-                }
             }
             packBomColorList = BeanUtil.copyToList(packBomColorService.getByBomIds(bomIds), PackBomColor.class);
 

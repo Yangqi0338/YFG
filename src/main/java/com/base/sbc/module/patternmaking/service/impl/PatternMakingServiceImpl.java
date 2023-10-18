@@ -1342,6 +1342,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         /*查询样衣码是否重复*/
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("sample_bar_code", dto.getSampleBarCode());
+        queryWrapper.ne("id", dto.getId());
+        queryWrapper.eq("del_flag", BaseGlobal.NO);
         List<PatternMaking> patternMakingList = baseMapper.selectList(queryWrapper);
         if (CollUtil.isNotEmpty(patternMakingList)) {
             throw new OtherException("样衣条码重复");
