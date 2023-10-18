@@ -521,6 +521,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      * @return
      */
     public String getYearOn(String year) {
+        if (StrUtil.equals(year, "2099")) {
+            return "99";
+        }
         String yearOn = "";
         int initial = Integer.parseInt("2019");
         int year1 = Integer.parseInt(year);
