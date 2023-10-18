@@ -34,6 +34,7 @@ import com.base.sbc.config.constant.TechnologyBoardConstant;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -96,6 +97,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Autowired
     private UserUtils userUtils;
+    @Autowired
+    private MinioUtils minioUtils;
 
     @Autowired
     private RedisUtils redisUtils;
@@ -848,6 +851,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         attachmentService.setListStylePic(list, "stylePic");
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
+        minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
         return objects.toPageInfo();
     }
 
@@ -1010,7 +1014,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public boolean samplePicUpload(SamplePicUploadDto dto) {
         PatternMaking patternMaking = baseMapper.selectById(dto.getId());
-        patternMaking.setSamplePic(dto.getSamplePic());
+        patternMaking.setSamplePic(CommonUtils.removeQuery(dto.getSamplePic()));
         baseMapper.updateById(patternMaking);
         return true;
     }

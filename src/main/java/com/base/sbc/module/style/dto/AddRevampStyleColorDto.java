@@ -193,16 +193,21 @@ public class AddRevampStyleColorDto extends StyleColor {
     /** 下稿设计师 */
     @ApiModelProperty(value = "下稿设计师"  )
     private String  senderDesignerId;
-    /** 下稿设计师名称 */
-    @ApiModelProperty(value = "下稿设计师名称"  )
-    private String  senderDesignerName;
+    /**
+     * 下稿设计师名称
+     */
+    @ApiModelProperty(value = "下稿设计师名称")
+    private String senderDesignerName;
     /**
      * 正确样衣接收时间
      */
-    @ApiModelProperty(value = "正确样衣接收时间"  )
-    private String correctStyleDate;
-    /** rfid标记(0否 1是) */
-    @ApiModelProperty(value = "rfid标记(0否 1是)"  )
+    @ApiModelProperty(value = "正确样衣接收时间")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date correctStyleDate;
+    /**
+     * rfid标记(0否 1是)
+     */
+    @ApiModelProperty(value = "rfid标记(0否 1是)")
     private String rfidFlag;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )

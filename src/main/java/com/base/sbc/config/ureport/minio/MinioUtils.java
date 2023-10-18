@@ -1,8 +1,15 @@
 package com.base.sbc.config.ureport.minio;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.DateUtils;
 import io.minio.*;
+import io.minio.errors.*;
 import io.minio.http.Method;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -119,6 +130,71 @@ public class MinioUtils {
         return minioClient.getPresignedObjectUrl(args);
     }
 
+    /**
+     * 获取资源的访问路径
+     *
+     * @param url
+     * @return
+     */
+    public String getObjectUrl(String url) {
+        if (StrUtil.isBlank(url)) {
+            return url;
+        }
+        if (!url.startsWith(minioConfig.getEndpoint())) {
+            return url;
+        }
+        String tempUrl = URLUtil.getPath(url).substring(1);
+        // 去掉参数
+
+        int firstIndex = tempUrl.indexOf("/");
+        String bucketName = tempUrl.substring(0, firstIndex);
+        String objectName = tempUrl.substring(firstIndex + 1);
+        GetPresignedObjectUrlArgs args = GetPresignedObjectUrlArgs.builder().bucket(bucketName).object(objectName).expiry(1, TimeUnit.DAYS).method(Method.GET).build();
+        String presignedObjectUrl = null;
+        try {
+            presignedObjectUrl = minioClient.getPresignedObjectUrl(args);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return url;
+        }
+        return presignedObjectUrl;
+    }
+
+    /**
+     * 给 list 设置访问地址
+     *
+     * @param list
+     * @param property 属性
+     */
+    public void setObjectUrlToList(List list, String... property) {
+        if (CollUtil.isEmpty(list) || ArrayUtil.isEmpty(property)) {
+            return;
+        }
+        for (Object o : list) {
+            for (String s : property) {
+                setObjectUrlToObject(o, s);
+            }
+        }
+    }
+
+    /**
+     * 给obj 设置 访问地址
+     *
+     * @param o        bean or map
+     * @param property 属性
+     */
+    public void setObjectUrlToObject(Object o, String... property) {
+        if (ObjectUtil.isEmpty(o) || ArrayUtil.isEmpty(property)) {
+            return;
+        }
+        for (String s : property) {
+            Object val = BeanUtil.getProperty(o, s);
+            if (ObjectUtil.isEmpty(val)) {
+                continue;
+            }
+            BeanUtil.setProperty(o, s, getObjectUrl(String.valueOf(val)));
+        }
+    }
 
     /**
      * file转MultipartFile
@@ -135,7 +211,11 @@ public class MinioUtils {
 
     public boolean delFile(String url) {
         try {
-            String objectName = url.replace(minioConfig.getEndpoint() + "/" + minioConfig.getBucketName(), "");
+            String tempUrl = URLUtil.getPath(url).substring(1);
+            // 去掉参数
+            int firstIndex = tempUrl.indexOf("/");
+            String objectName = tempUrl.substring(firstIndex + 1);
+
             RemoveObjectArgs removeObjectArgs = RemoveObjectArgs.builder()
                     .bucket(minioConfig.getBucketName())
                     .object(objectName)

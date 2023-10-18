@@ -8,6 +8,7 @@ import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.Pinyin4jUtil;
 import com.base.sbc.config.utils.StringUtils;
@@ -57,6 +58,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
 
     private final AmcFeignService amcFeignService;
     private final CcmFeignService ccmFeignService;
+    private final MinioUtils minioUtils;
 
     private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
@@ -216,6 +218,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
                 }
             }
         }
+        minioUtils.setObjectUrlToList(materialAllDtolist, "picUrl");
         return new PageInfo<>(materialAllDtolist);
     }
 

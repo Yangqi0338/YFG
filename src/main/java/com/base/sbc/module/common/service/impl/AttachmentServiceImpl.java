@@ -104,6 +104,7 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
     @Override
     public List<AttachmentVo> findByQw(QueryWrapper queryWrapper) {
         List<AttachmentVo> byQw = getBaseMapper().findByQw(queryWrapper);
+        minioUtils.setObjectUrlToList(byQw, "url");
         return byQw;
     }
 

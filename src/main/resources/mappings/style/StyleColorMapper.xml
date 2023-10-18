@@ -167,7 +167,6 @@
             ts.prod_category_name,
             ts.his_design_no,
             ts.style_name,
-            tsp.product_style as `styleFlavourName`,
             ts.designer_id,
             ts.designer,
             ts.technician_id,

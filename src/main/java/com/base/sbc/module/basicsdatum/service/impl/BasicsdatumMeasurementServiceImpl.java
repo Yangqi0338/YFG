@@ -19,6 +19,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampMeasurementDto;
@@ -85,17 +86,18 @@ public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<Basicsdat
         queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCode()),"code",queryDto.getCode());
         queryWrapper.in(StringUtils.isNotEmpty(queryDto.getCodes()),"code",StringUtils.convertList(queryDto.getCodes()));
         queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getStatus()),"status", queryDto.getStatus());
-        if (queryDto.getCreateDate()!=null && queryDto.getCreateDate().length>0){
-            queryWrapper.ge(StringUtils.isNotEmpty(queryDto.getCreateDate()[0]),"create_date",queryDto.getCreateDate()[0]);
-            if (queryDto.getCreateDate().length>1){
-                queryWrapper.and(i->i.le(StringUtils.isNotEmpty(queryDto.getCreateDate()[1]),"create_date",queryDto.getCreateDate()[1]));
+        if (queryDto.getCreateDate() != null && queryDto.getCreateDate().length > 0) {
+            queryWrapper.ge(StringUtils.isNotEmpty(queryDto.getCreateDate()[0]), "create_date", queryDto.getCreateDate()[0]);
+            if (queryDto.getCreateDate().length > 1) {
+                queryWrapper.and(i -> i.le(StringUtils.isNotEmpty(queryDto.getCreateDate()[1]), "create_date", queryDto.getCreateDate()[1]));
             }
         }
         queryWrapper.orderByDesc("create_date");
         queryWrapper.like(StrUtil.isNotEmpty(queryDto.getMeasurement()), "measurement", queryDto.getMeasurement());
         /*查询基础资料-号型类型数据*/
         Page<BasicsdatumMeasurementVo> objects = PageHelper.startPage(queryDto);
-        getBaseMapper().selectList(queryWrapper);
+        List<BasicsdatumMeasurement> basicsdatumMeasurements = getBaseMapper().selectList(queryWrapper);
+        minioUtils.setObjectUrlToList(basicsdatumMeasurements, "image");
         return objects.toPageInfo();
     }
 
@@ -173,6 +175,7 @@ public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<Basicsdat
      */
     @Override
     public Boolean addRevampMeasurement(AddRevampMeasurementDto addRevampMeasurementDto) {
+        CommonUtils.removeQuery(addRevampMeasurementDto, "image");
         BasicsdatumMeasurement basicsdatumMeasurement = new BasicsdatumMeasurement();
         QueryWrapper<BasicsdatumMeasurement> queryWrapper=new QueryWrapper<>();
         queryWrapper.eq("code",addRevampMeasurementDto.getCode());

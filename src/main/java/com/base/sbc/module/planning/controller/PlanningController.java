@@ -20,6 +20,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.band.entity.Band;
 import com.base.sbc.module.band.service.BandService;
@@ -102,6 +103,8 @@ public class PlanningController extends BaseController {
     private CcmFeignService ccmFeignService;
     @Autowired
     private AmcFeignService amcFeignService;
+    @Autowired
+    private MinioUtils minioUtils;
     private IdGen idGen = new IdGen();
 
     @ApiOperation(value = "保存产品季", notes = "")
@@ -205,7 +208,9 @@ public class PlanningController extends BaseController {
             dto = new ProductCategoryItemSearchDto();
         }
         dto.setOrderBy("c.id desc ");
-        return planningCategoryItemService.findProductCategoryItem(dto);
+        PageInfo<PlanningSeasonOverviewVo> productCategoryItem = planningCategoryItemService.findProductCategoryItem(dto);
+        minioUtils.setObjectUrlToList(productCategoryItem.getList(), "stylePic");
+        return productCategoryItem;
     }
 
     @ApiOperation(value = "修改图片")

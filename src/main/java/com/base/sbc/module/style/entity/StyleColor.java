@@ -19,11 +19,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
  * 类描述：款式-款式配色 实体类
- * @address com.base.sbc.module.style.entity.StyleColor
+ *
  * @author your name
- * @email your email
- * @date 创建时间：2023-8-28 19:53:24
  * @version 1.0
+ * @address com.base.sbc.module.style.entity.StyleColor
+ * @email your email
+ * @date 创建时间：2023-10-18 15:18:35
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -234,11 +235,6 @@ public class StyleColor extends BaseDataEntity<String> {
     @ApiModelProperty(value = "上新时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date newDate;
-    /**
-     * 正确样衣接收时间
-     */
-    @ApiModelProperty(value = "正确样衣接收时间"  )
-    private String correctStyleDate;
     /** 唯一id */
     @ApiModelProperty(value = "唯一id"  )
     private String wareCode;
@@ -258,17 +254,39 @@ public class StyleColor extends BaseDataEntity<String> {
     @ApiModelProperty(value = "下稿设计师"  )
     private String senderDesignerId;
     /** 下稿设计师名称 */
-    @ApiModelProperty(value = "下稿设计师名称"  )
+    @ApiModelProperty(value = "下稿设计师名称")
     private String senderDesignerName;
-    /** 下单标记（0否 1是） */
-    @ApiModelProperty(value = "下单标记（0否 1是）"  )
+    /**
+     * 下单标记（0否 1是）
+     */
+    @ApiModelProperty(value = "下单标记（0否 1是）")
     private String orderFlag;
-    /** rfid标记(0否 1是) */
-    @ApiModelProperty(value = "rfid标记(0否 1是)"  )
+    /**
+     * rfid标记(0否 1是)
+     */
+    @ApiModelProperty(value = "rfid标记(0否 1是)")
     private String rfidFlag;
-    /** 备注 */
-    @ApiModelProperty(value = "备注"  )
+    /**
+     * 备注
+     */
+    @ApiModelProperty(value = "备注")
     private String remarks;
+    /**
+     * 正确样衣接收时间
+     */
+    @ApiModelProperty(value = "正确样衣接收时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date correctStyleDate;
+    /**
+     * 产品风格编码
+     */
+    @ApiModelProperty(value = "产品风格编码")
+    private String productStyle;
+    /**
+     * 产品风格
+     */
+    @ApiModelProperty(value = "产品风格")
+    private String productStyleName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

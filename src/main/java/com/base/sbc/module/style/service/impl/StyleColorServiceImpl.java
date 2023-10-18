@@ -1028,6 +1028,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         super.updateById(styleColor);
     }
 
+    @Override
+    public void updateProductStyle(String id, String productStyle, String productStyleName) {
+        StyleColor styleColor = new StyleColor();
+        styleColor.setId(id);
+        styleColor.setProductStyle(productStyle);
+        styleColor.setProductStyleName(productStyleName);
+        super.updateById(styleColor);
+    }
+
     /**
      * 取消关联Bom
      *

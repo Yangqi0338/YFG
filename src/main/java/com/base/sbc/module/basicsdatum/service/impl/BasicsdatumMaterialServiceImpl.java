@@ -30,6 +30,7 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.constant.MaterialConstant;
 import com.base.sbc.module.basicsdatum.dto.*;
@@ -100,6 +101,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Autowired
     private RedisUtils redisUtils;
+    @Autowired
+    private MinioUtils minioUtils;
     /**
      * 解决循环依赖报错的问题
      */
@@ -199,11 +202,14 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             }
 
         }
+        minioUtils.setObjectUrlToList(copy.getList(), "imageUrl");
         return copy;
     }
 
     @Override
     public BasicsdatumMaterialVo saveBasicsdatumMaterial(BasicsdatumMaterialSaveDto dto) {
+        CommonUtils.removeQuery(dto, "imageUrl");
+        CommonUtils.removeQuerySplit(dto, ",", "attachment");
         BasicsdatumMaterial entity = CopyUtil.copy(dto, BasicsdatumMaterial.class);
         if ("-1".equals(entity.getId())) {
             entity.setId(null);
@@ -687,8 +693,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     @Override
     public Boolean updateMaterialPic(BasicsdatumMaterialSaveDto dto) {
         UpdateWrapper updateWrapper = new UpdateWrapper();
-        updateWrapper.set("image_url",dto.getImageUrl());
-        updateWrapper.eq("id",dto.getId());
+        updateWrapper.set("image_url", CommonUtils.removeQuery(dto.getImageUrl()));
+        updateWrapper.eq("id", dto.getId());
         baseMapper.update(null,updateWrapper);
         return true;
     }

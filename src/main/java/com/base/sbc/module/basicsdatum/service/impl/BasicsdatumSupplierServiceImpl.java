@@ -111,6 +111,7 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
         PageInfo<BasicsdatumSupplier> pageInfo = new PageInfo<>(basicsdatumSupplierList);
         /*转换vo*/
         List<BasicsdatumSupplierVo> list = BeanUtil.copyToList(basicsdatumSupplierList, BasicsdatumSupplierVo.class);
+        minioUtils.setObjectUrlToList(list, "picture");
         PageInfo<BasicsdatumSupplierVo> pageInfo1 = new PageInfo<>();
         pageInfo1.setList(list);
         pageInfo1.setTotal(pageInfo.getTotal());

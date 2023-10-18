@@ -406,17 +406,23 @@ public class StyleColorVo {
     @ApiModelProperty(value = "下稿设计师名称"  )
     private String  senderDesignerName;
 
-    /** 备注 */
-    @ApiModelProperty(value = "备注"  )
+    /**
+     * 备注
+     */
+    @ApiModelProperty(value = "备注")
     private String remarks;
 
-    /** 下单标记（0否 1是） */
-    @ApiModelProperty(value = "下单标记（0否 1是）"  )
-    private String  orderFlag;
+    /**
+     * 下单标记（0否 1是）
+     */
+    @ApiModelProperty(value = "下单标记（0否 1是）")
+    private String orderFlag;
 
     private String wareCode;
+    @ApiModelProperty(value = "款式风格")
+    private String productStyle;
 
-    @ApiModelProperty(value = "rfid标记(0否 1是)"  )
+    @ApiModelProperty(value = "rfid标记(0否 1是)")
     private String rfidFlag;
 
 

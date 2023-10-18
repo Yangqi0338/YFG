@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -232,9 +233,13 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         super.saveOrUpdate(stylePricing);
 
         StylePricing pricing = super.getById(stylePricing.getId());
+        PackInfo packInfo = packInfoService.getById(stylePricingSaveDTO.getPackId());
+        if (packInfo != null && StrUtil.isNotBlank(packInfo.getStyleColorId())) {
+            styleColorService.updateProductStyle(packInfo.getStyleColorId(), stylePricing.getProductStyle(), stylePricing.getProductStyleName());
 
+        }
         if (YesOrNoEnum.NO.getValueStr().equals(pricing.getProductHangtagConfirm()) || YesOrNoEnum.NO.getValueStr().equals(pricing.getControlHangtagConfirm())) {
-            PackInfo packInfo = packInfoService.getById(stylePricingSaveDTO.getPackId());
+
             if (Objects.isNull(packInfo)) {
                 return;
             }

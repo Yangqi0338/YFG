@@ -10,6 +10,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.material.dto.CategoryIdDto;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
@@ -78,6 +79,7 @@ public class MaterialController extends BaseController {
 
         for (Material material : materialList) {
             material.setStatus(BasicNumber.ZERO.getNumber());
+            material.setPicUrl(CommonUtils.removeQuery(material.getPicUrl()));
         }
 
         materialService.saveBatch(materialList);

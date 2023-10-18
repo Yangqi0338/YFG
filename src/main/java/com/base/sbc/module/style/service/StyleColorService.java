@@ -168,22 +168,25 @@ public interface StyleColorService extends BaseService<StyleColor> {
          */
         Boolean updateOrderFlag(PublicStyleColorDto publicStyleColorDto);
 
-        /**
-         * 修改吊牌价
-         * @param id
-         * @param tagPrice
-         */
-        void updateTagPrice(String id, BigDecimal tagPrice);
+    /**
+     * 修改吊牌价
+     *
+     * @param id
+     * @param tagPrice
+     */
+    void updateTagPrice(String id, BigDecimal tagPrice);
 
-        /**
-         * 取消关联Bom
-         *
-         * @param publicStyleColorDto
-         * @return
-         */
-        Boolean disassociateBom(PublicStyleColorDto publicStyleColorDto);
+    void updateProductStyle(String id, String productStyle, String productStyleName);
 
-        /**查询款式配色设计维度数据
+    /**
+     * 取消关联Bom
+     *
+     * @param publicStyleColorDto
+     * @return
+     */
+    Boolean disassociateBom(PublicStyleColorDto publicStyleColorDto);
+
+    /**查询款式配色设计维度数据
          * @param id 配色id
          * @return
          */

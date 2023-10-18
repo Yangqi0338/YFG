@@ -25,6 +25,8 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -93,6 +95,8 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     private PackInfoService packInfoService;
     @Autowired
     private UserUtils userUtils;
+    @Autowired
+    private MinioUtils minioUtils;
     @Autowired
     private AmcFeignService amcFeignService;
     @Autowired
@@ -201,6 +205,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         // 设置头像
         amcFeignService.setUserAvatarToList(list);
         nodeStatusService.setNodeStatus(list);
+        minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
         return objects.toPageInfo();
     }
 
@@ -481,7 +486,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     public boolean samplePicUpload(SamplePicUploadDto dto) {
         PreProductionSampleTask preProductionSampleTask = baseMapper.selectById(dto.getId());
-        preProductionSampleTask.setSamplePic(dto.getSamplePic());
+        preProductionSampleTask.setSamplePic(CommonUtils.removeQuery(dto.getSamplePic()));
         baseMapper.updateById(preProductionSampleTask);
         return true;
     }

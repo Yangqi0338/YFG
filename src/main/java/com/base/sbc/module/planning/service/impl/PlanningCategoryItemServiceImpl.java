@@ -640,7 +640,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     public boolean updateStylePic(String id, String stylePic) {
         UpdateWrapper<PlanningCategoryItem> uw = new UpdateWrapper<>();
         uw.eq("id", id);
-        uw.set("style_pic", stylePic);
+        uw.set("style_pic", CommonUtils.removeQuery(stylePic));
         update(uw);
         return true;
     }

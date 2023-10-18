@@ -251,7 +251,8 @@ public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMap
         } else {
             attachmentVos = attachmentService.findByforeignIdTypeLikeStart(dto.getForeignId(), dto.getPackType() + StrUtil.DASHED);
         }
-        return BeanUtil.copyToList(attachmentVos, PackTechAttachmentVo.class);
+        List<PackTechAttachmentVo> packTechAttachmentVos = BeanUtil.copyToList(attachmentVos, PackTechAttachmentVo.class);
+        return packTechAttachmentVos;
     }
 
     @Override

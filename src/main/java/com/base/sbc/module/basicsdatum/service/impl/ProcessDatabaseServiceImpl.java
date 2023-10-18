@@ -12,6 +12,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
@@ -277,6 +278,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
             default:
                 break;
         }
+        CommonUtils.removeQuery(processDatabase, "picture");
         return saveOrUpdate(processDatabase,type,addRevampProcessDatabaseDto.getProcessName(),addRevampProcessDatabaseDto.getCode());
     }
 
@@ -312,6 +314,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
 
         PageHelper.startPage(pageDto);
         List<ProcessDatabase> list = this.list(queryWrapper);
+        minioUtils.setObjectUrlToList(list, "picture");
         return new PageInfo<>(list);
     }
 

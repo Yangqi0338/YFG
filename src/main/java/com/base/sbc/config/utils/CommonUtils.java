@@ -1,6 +1,7 @@
 package com.base.sbc.config.utils;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -11,6 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -231,4 +233,50 @@ public class CommonUtils {
         return jsonArray;
     }
 
+    /**
+     * 去除参数
+     *
+     * @param url
+     * @return
+     */
+    public static String removeQuery(String url) {
+        if (StrUtil.isBlank(url)) {
+            return url;
+        }
+        int i = url.indexOf("?");
+        if (i == -1) {
+            return url;
+        }
+        return url.substring(0, url.indexOf("?"));
+    }
+
+    public static void removeQuery(Object o, String... p) {
+        if (ObjectUtil.isEmpty(o) || ObjectUtil.isEmpty(p)) {
+            return;
+        }
+        for (String s : p) {
+            String url = BeanUtil.getProperty(o, s);
+            if (StrUtil.isBlank(url)) {
+                continue;
+            }
+
+            BeanUtil.setProperty(o, s, removeQuery(url));
+        }
+    }
+
+    public static void removeQuerySplit(Object o, String split, String p) {
+        if (ObjectUtil.isEmpty(o) || ObjectUtil.isEmpty(p)) {
+            return;
+        }
+        String url = BeanUtil.getProperty(o, p);
+        if (StrUtil.isBlank(url)) {
+            return;
+        }
+        if (StrUtil.contains(url, StrUtil.COMMA)) {
+            String newUrl = StrUtil.split(url, StrUtil.COMMA).stream().map(u -> {
+                return removeQuery(u);
+            }).collect(Collectors.joining(","));
+            BeanUtil.setProperty(o, p, newUrl);
+        }
+    }
 }

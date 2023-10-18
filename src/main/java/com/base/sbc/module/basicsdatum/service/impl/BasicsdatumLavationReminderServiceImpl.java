@@ -91,6 +91,7 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
 
             /*查询基础资料-洗涤图标与温馨提示数据*/
             List<BasicsdatumLavationReminderVo> basicsdatumLavationReminderList = baseMapper.getLavationReminderList(queryWrapper);
+            minioUtils.setObjectUrlToList(basicsdatumLavationReminderList, "url");
             PageInfo<BasicsdatumLavationReminderVo> pageInfo = new PageInfo<>(basicsdatumLavationReminderList);
             return pageInfo;
         }

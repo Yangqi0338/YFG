@@ -3,11 +3,15 @@ package com.base.sbc.module.common.vo;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.unit.DataSizeUtil;
+import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.SpringContextHolder;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -59,6 +63,12 @@ public class AttachmentVo {
     @JsonIgnore
     @ApiModelProperty(value = "附件类型")
     private String attachmentType;
+
+
+    public String getUrl() {
+        MinioUtils minioUtils = SpringContextHolder.getBean("minioUtils");
+        return minioUtils.getObjectUrl(url);
+    }
 
     /**
      * 获取大小

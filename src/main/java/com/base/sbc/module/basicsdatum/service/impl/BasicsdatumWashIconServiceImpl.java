@@ -14,6 +14,8 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumWashIconDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
@@ -42,23 +44,25 @@ import java.util.List;
  * @author mengfanjiang
  * @email XX.com
  * @date 创建时间：2023-7-27 17:27:54
- * @version 1.0  
+ * @version 1.0
  */
 @Service
 public class BasicsdatumWashIconServiceImpl extends BaseServiceImpl<BasicsdatumWashIconMapper, BasicsdatumWashIcon> implements BasicsdatumWashIconService {
 
-        @Autowired
-        private BaseController baseController;
+    @Autowired
+    private BaseController baseController;
+    @Autowired
+    private MinioUtils minioUtils;
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
-        /**
-        * 基础资料-洗涤图标分页查询
-        *
-        * @param queryDto
-        * @return
-        */
-        @Override
+    /**
+     * 基础资料-洗涤图标分页查询
+     *
+     * @param queryDto
+     * @return
+     */
+    @Override
         public PageInfo<BasicsdatumWashIconVo> getBasicsdatumWashIconList(QueryDto queryDto) {
             /*分页*/
             BaseQueryWrapper<BasicsdatumWashIcon> queryWrapper = new BaseQueryWrapper<>();
@@ -71,7 +75,8 @@ public class BasicsdatumWashIconServiceImpl extends BaseServiceImpl<BasicsdatumW
             /*查询基础资料-洗涤图标数据*/
             Page<BasicsdatumWashIconVo> objects = PageHelper.startPage(queryDto);
             getBaseMapper().selectList(queryWrapper);
-            return objects.toPageInfo();
+        minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "url");
+        return objects.toPageInfo();
         }
 
 
@@ -86,7 +91,8 @@ public class BasicsdatumWashIconServiceImpl extends BaseServiceImpl<BasicsdatumW
         */
         @Override
         public Boolean addRevampBasicsdatumWashIcon(AddRevampBasicsdatumWashIconDto addRevampBasicsdatumWashIconDto) {
-                BasicsdatumWashIcon basicsdatumWashIcon = new BasicsdatumWashIcon();
+            CommonUtils.removeQuery(addRevampBasicsdatumWashIconDto, "url");
+            BasicsdatumWashIcon basicsdatumWashIcon = new BasicsdatumWashIcon();
             if (StringUtils.isEmpty(addRevampBasicsdatumWashIconDto.getId())) {
                 QueryWrapper<BasicsdatumWashIcon> queryWrapper=new QueryWrapper<>();
                 queryWrapper.eq("code",addRevampBasicsdatumWashIconDto.getCode());
@@ -99,18 +105,18 @@ public class BasicsdatumWashIconServiceImpl extends BaseServiceImpl<BasicsdatumW
                 basicsdatumWashIcon.setCompanyCode(baseController.getUserCompany());
                 basicsdatumWashIcon.insertInit();
                 baseMapper.insert(basicsdatumWashIcon);
-           } else {
+            } else {
                 /*修改*/
                 basicsdatumWashIcon = baseMapper.selectById(addRevampBasicsdatumWashIconDto.getId());
                 if (ObjectUtils.isEmpty(basicsdatumWashIcon)) {
-                throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
+                    throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
                 }
                 BeanUtils.copyProperties(addRevampBasicsdatumWashIconDto, basicsdatumWashIcon);
                 basicsdatumWashIcon.updateInit();
                 baseMapper.updateById(basicsdatumWashIcon);
-                }
-                return true;
-         }
+            }
+            return true;
+        }
 
 
          /**

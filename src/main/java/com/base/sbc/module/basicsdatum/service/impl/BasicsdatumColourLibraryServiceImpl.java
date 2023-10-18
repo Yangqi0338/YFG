@@ -20,6 +20,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumColourLibraryDto;
@@ -105,8 +106,8 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         queryWrapper.eq(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getIsStyle()), "is_style", queryBasicsdatumColourLibraryDto.getIsStyle());
         queryWrapper.eq(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getIsMaterials()), "is_materials", queryBasicsdatumColourLibraryDto.getIsMaterials());
         queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getPantone()), "pantone", queryBasicsdatumColourLibraryDto.getPantone());
-        queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColorType()),"color_type", queryBasicsdatumColourLibraryDto.getColorType());
-        queryWrapper.in(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getScmSendFlag()),"scm_send_flag", StringUtils.convertList(queryBasicsdatumColourLibraryDto.getScmSendFlag()));
+        queryWrapper.like(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getColorType()), "color_type", queryBasicsdatumColourLibraryDto.getColorType());
+        queryWrapper.in(!StringUtils.isEmpty(queryBasicsdatumColourLibraryDto.getScmSendFlag()), "scm_send_flag", StringUtils.convertList(queryBasicsdatumColourLibraryDto.getScmSendFlag()));
         if (StringUtils.isNotEmpty(queryBasicsdatumColourLibraryDto.getSearch())) {
             queryWrapper.andLike(queryBasicsdatumColourLibraryDto.getSearch(), "colour_code", "colour_name");
         }
@@ -114,7 +115,8 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         /*查询基础资料-颜色库数据*/
         queryWrapper.orderByDesc("create_date");
         Page<BasicsdatumColourLibraryVo> objects = PageHelper.startPage(queryBasicsdatumColourLibraryDto);
-        getBaseMapper().selectList(queryWrapper);
+        List<BasicsdatumColourLibrary> basicsdatumColourLibraries = getBaseMapper().selectList(queryWrapper);
+        minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "picture");
         return objects.toPageInfo();
     }
 
@@ -228,6 +230,7 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
      */
     @Override
     public Boolean addRevampBasicsdatumColourLibrary(AddRevampBasicsdatumColourLibraryDto addRevampBasicsdatumColourLibraryDto) {
+        CommonUtils.removeQuery(addRevampBasicsdatumColourLibraryDto, "picture");
         BasicsdatumColourLibrary basicsdatumColourLibrary = new BasicsdatumColourLibrary();
         if (StringUtils.isEmpty(addRevampBasicsdatumColourLibraryDto.getId())) {
             QueryWrapper<BasicsdatumColourLibrary> queryWrapper = new QueryWrapper<>();
