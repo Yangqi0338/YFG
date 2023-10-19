@@ -274,6 +274,18 @@ public class SampleBoardVo extends Style {
     @ApiModelProperty(value = "放码师名称")
     private String gradingName;
 
+    /**
+     * 打样工艺员id
+     */
+    @ApiModelProperty(value = "打样工艺员id")
+    private String patternTechnicianId;
+
+    /**
+     * 打样工艺员名称
+     */
+    @ApiModelProperty(value = "打样工艺员名称")
+    private String patternTechnicianName;
+
     /** 放码时间 */
     @ApiModelProperty(value = "放码时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
