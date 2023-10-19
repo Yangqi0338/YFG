@@ -81,8 +81,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -238,6 +236,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     public void updateCategoryItem(List<PlanningCategoryItemSaveDto> item) {
         boolean flg;
         for (PlanningCategoryItemSaveDto dto : item) {
+            CommonUtils.removeQuery(dto, "stylePic");
             PlanningCategoryItem categoryItem = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
             // 修改
             flg = updateById(categoryItem);
@@ -441,6 +440,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                 }
             }
         }
+        minioUtils.setObjectUrlToList(pageInfo.getList(), "stylePic");
         return pageInfo;
     }
 

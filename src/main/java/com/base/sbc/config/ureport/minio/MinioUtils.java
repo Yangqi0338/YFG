@@ -7,9 +7,9 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.DateUtils;
 import io.minio.*;
-import io.minio.errors.*;
 import io.minio.http.Method;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Component
@@ -99,9 +95,11 @@ public class MinioUtils {
      */
     public Boolean copyFile(String url, String newUrl){
         try {
+            url = CommonUtils.removeQuery(url);
+            newUrl = CommonUtils.removeQuery(newUrl);
             String objectName = url.replace(minioConfig.getEndpoint() + "/" + minioConfig.getBucketName(), "");
             String objectName2 = newUrl.replace(minioConfig.getEndpoint() + "/" + minioConfig.getBucketName(), "");
-            CopyObjectArgs copyObjectArgs =    CopyObjectArgs.builder()
+            CopyObjectArgs copyObjectArgs = CopyObjectArgs.builder()
                     .source(CopySource.builder()
                             .bucket(getBucketName(url))
                             .object(getUrl(url))
