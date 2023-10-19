@@ -386,6 +386,8 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             if (CollUtil.isNotEmpty(bomList)) {
                 for (PackBomVo packBomVo : bomList) {
                     bomIds.add(packBomVo.getId());
+                    /*修改状态为未下发*/
+                    packBomVo.setScmSendFlag(BaseGlobal.STATUS_NORMAL);
                 }
             }
             bomSizeList = packBomSizeService.getByBomIds(bomIds);
