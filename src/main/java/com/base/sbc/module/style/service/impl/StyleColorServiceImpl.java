@@ -41,10 +41,7 @@ import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.pack.service.PackBomService;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackInfoStatusService;
-import com.base.sbc.module.pack.service.PackPricingService;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.pricing.entity.StylePricing;
@@ -130,6 +127,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Autowired
     private PackBomService packBomService;
+
+    @Autowired
+    private PackBomVersionService packBomVersionService;
 
     @Autowired
     private StyleMainAccessoriesService styleMainAccessoriesService;
@@ -1030,7 +1030,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /**
          *复制一个配色次品款
          * 校验 计控吊牌确定已确定
-         * 大货款号加上次品编号，改为次品 ，同时复制一个bom名称为次品编号 复制一个未审核的吊牌
+         * 大货款号加上次品编号，改为次品 ，同时复制一个bom名称为大货款号加次品编号
+         * 复制一个未审核的吊牌
+         * 复制出的BOM是样品阶段，里面的物料也修改未样品阶段未下发
          */
         if (StringUtils.isBlank(publicStyleColorDto.getDefectiveName())) {
             throw new OtherException("次品必填");
@@ -1045,6 +1047,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         StyleColor styleColor = baseMapper.selectById(publicStyleColorDto.getId());
         if (ObjectUtils.isEmpty(styleColor) || StringUtils.isBlank(styleColor.getBom())) {
             throw new OtherException("id错误无数据或该配色无bom");
+        }
+        if( StringUtils.isNotEmpty(styleColor.getDefectiveName())){
+            throw new OtherException("报次款不能生成报次款");
         }
         /*查询次品的大货款号是否重复*/
         int i = baseMapper.isStyleNoExist(styleColor.getStyleNo() + publicStyleColorDto.getDefectiveNo());
@@ -1090,6 +1095,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         copyStyleColor.setBom(styleColor.getDesignNo() + StrUtil.DASHED + (count + 1));
         copyStyleColor.setWareCode(null);
         copyStyleColor.setScmSendFlag(BaseGlobal.NO);
+        copyStyleColor.setBomStatus(BaseGlobal.STATUS_NORMAL);
         copyStyleColor.setId(null);
         baseMapper.insert(copyStyleColor);
 
@@ -1101,7 +1107,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         copyPackInfo.setStyleNo(copyStyleColor.getStyleNo());
         copyPackInfo.setStyleColorId(copyStyleColor.getId());
         copyPackInfo.setCode(styleColor.getDesignNo() + StrUtil.DASHED + (count + 1));
-        copyPackInfo.setName(publicStyleColorDto.getDefectiveNo());
+        copyPackInfo.setName(styleColor.getStyleNo()+publicStyleColorDto.getDefectiveNo());
         copyPackInfo.setColor(basicsdatumColourLibrary.getColourName());
         copyPackInfo.setColorCode(basicsdatumColourLibrary.getColourCode());
         packInfoService.save(copyPackInfo);
@@ -1112,6 +1118,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         packInfoService.copyPack(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType(), BasicNumber.ZERO.getNumber());
         /*复制状态*/
         packInfoStatusService.copy(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType());
+        /*查询BOM状态，BOM阶段修改未为样品 BOM里面物料也修改为样品*/
+        /*复制出来的BOM*/
+        PackInfoStatus copyPackInfoStatus =   packInfoStatusService.get(copyPackInfo.getId(),packInfoStatus.getPackType());
+        copyPackInfoStatus.setBomStatus(BaseGlobal.STATUS_NORMAL);
+        packInfoStatusService.updateById(copyPackInfoStatus);
+
+/*        *//*查询物料清单*//*
+        List<PackBomVo> packBomVoList = packBomVersionService.getEnableVersionBomList(copyPackInfo.getId(), packInfoStatus.getPackType());
+        packBomVoList.forEach(p -> p.setStageFlag(PackUtils.PACK_TYPE_DESIGN));
+        *//*修改阶段*//*
+        List<PackBom> packBomList = BeanUtil.copyToList(packBomVoList, PackBom.class);
+        packBomService.saveOrUpdateBatch(packBomList);*/
         /*复制出款式定价确定数据*/
         StylePricing stylePricing = new StylePricing();
         stylePricing.setControlConfirm(styleColorVo.getControlConfirm());

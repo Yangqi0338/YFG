@@ -170,12 +170,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
     @Autowired
     private BaseController baseController;
 
-    @Autowired
-    private MinioConfig minioConfig;
     @Value("${baseRequestUrl}")
     private String baseRequestUrl;
-    @Value("${baseFrontEndAddress}")
-    private String baseFrontEndAddress;
     @Value("${techSpecView:http://10.98.250.44:8087}")
     private String techSpecView;
 
@@ -439,7 +435,7 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 }
             }
             List<String> scmSendFlagList = StringUtils.convertList("0,2,3");
-            List<PackBomVo> packBomVoList1 = packBomVoList.stream().filter(p -> scmSendFlagList.contains(p.getScmSendFlag())).collect(Collectors.toList());
+            List<PackBomVo> packBomVoList1 = packBomVoList.stream().filter(p -> scmSendFlagList.contains(p.getScmSendFlag()) && StringUtils.equals(p.getStageFlag(),PackUtils.PACK_TYPE_DESIGN)).collect(Collectors.toList());
             if (CollUtil.isNotEmpty(packBomVoList1)) {
                 throw new OtherException("物料清单存在未下发数据");
             }
@@ -1001,8 +997,12 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
                 designPs.setToDesignDate(nowDate);
                 //设置bom 状态
                 changeBomStatus(packInfo.getId(), BasicNumber.ZERO.getNumber());
-                PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
- /*               *//*反审后物料清单的状态改为可编辑*//*
+                /*修改配色中的状态*/
+                StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
+                styleColor.setBomStatus(BasicNumber.ZERO.getNumber());
+                styleColorMapper.updateById(styleColor);
+                /*         PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
+               *//*反审后物料清单的状态改为可编辑*//*
                 UpdateWrapper updateWrapper = new UpdateWrapper();
                 updateWrapper.set("scm_send_flag",BaseGlobal.IN_READY);
                 updateWrapper.eq("foreign_id",packInfo.getId());
