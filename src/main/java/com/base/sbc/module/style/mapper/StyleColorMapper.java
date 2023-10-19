@@ -76,5 +76,13 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
      */
     List<DemandOrderSkcVo> queryDemandOrderSkc(@Param(Constants.WRAPPER) QueryWrapper qw);
 
+
+    /**
+     * 查询出配色中关联的主款或配饰
+     * @param ids
+     * @return
+     */
+    List<StyleColor> getStyleMainAccessories(@Param("ids") List<String> ids);
+
 // 自定义方法区 不替换的区域【other_end】
 }

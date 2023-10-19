@@ -817,17 +817,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             throw new OtherException("ids为空");
         }
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.in("id", StringUtils.convertList(ids));
-        queryWrapper.ne("scm_send_flag", BaseGlobal.YES);
-        List<StyleColor> styleColorList = baseMapper.selectList(queryWrapper);
+/*        queryWrapper.in("id", StringUtils.convertList(ids));
+        queryWrapper.ne("scm_send_flag", BaseGlobal.YES);*/
+        List<StyleColor> styleColorList = baseMapper.getStyleMainAccessories(StringUtils.convertList(ids));
         /*查询配色是否下发*/
         if (CollectionUtils.isEmpty(styleColorList)) {
             throw new OtherException("存在已下发数据");
         }
         List<String> stringList = styleColorList.stream().filter(s -> StringUtils.isNotBlank(s.getBom())).map(StyleColor::getId).collect(Collectors.toList());
         /*禁止下发未关联bom数据*/
-        if (CollectionUtils.isEmpty(stringList)) {
-            throw new OtherException("无数据关联bom");
+        if (CollectionUtils.isEmpty(stringList) || styleColorList.size() != stringList.size() ) {
+            throw new OtherException("无关联BOM，或主款配饰未关联BOM");
         }
         /*查询BOM*/
         queryWrapper.clear();
@@ -856,10 +856,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
         }
         int i = smpService.goods(StringUtils.convertListToString(stringList).split(","));
-        if (StringUtils.convertList(ids).size() == i) {
-            return ApiResult.success("下发：" + StringUtils.convertList(ids).size() + "条，成功：" + i + "条");
+        if (stringList.size() == i) {
+            return ApiResult.success("下发：" + stringList.size() + "条，成功：" + i + "条");
         } else {
-            return ApiResult.error("下发：" + StringUtils.convertList(ids).size() + "条，成功：" + i + "条,失败：" + (StringUtils.convertList(ids).size() - i) + "条", 200);
+            return ApiResult.error("下发：" + stringList.size() + "条，成功：" + i + "条,失败：" + (stringList.size() - i) + "条", 200);
         }
     }
 
