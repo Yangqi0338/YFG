@@ -236,6 +236,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     public void updateCategoryItem(List<PlanningCategoryItemSaveDto> item) {
         boolean flg;
         for (PlanningCategoryItemSaveDto dto : item) {
+            CommonUtils.removeQuery(dto, "stylePic");
             PlanningCategoryItem categoryItem = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
             // 修改
             flg = updateById(categoryItem);
