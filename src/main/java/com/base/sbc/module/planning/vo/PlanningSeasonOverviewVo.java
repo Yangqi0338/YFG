@@ -57,4 +57,9 @@ public class PlanningSeasonOverviewVo extends PlanningCategoryItem {
     List<PlanningCategoryItemMaterial> materialVoList;
     @ApiModelProperty(value = "渠道序号")
     Integer sort;
+
+    /**
+     * 产品线
+     */
+    private String productLineName;
 }

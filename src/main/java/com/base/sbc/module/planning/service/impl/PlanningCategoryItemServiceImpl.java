@@ -367,7 +367,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
     @Override
     public PageInfo<PlanningSeasonOverviewVo> findProductCategoryItem(ProductCategoryItemSearchDto dto) {
-        QueryWrapper<PlanningCategoryItem> qw = new QueryWrapper();
+        BaseQueryWrapper<PlanningCategoryItem> qw = new BaseQueryWrapper<>();
         // 设计款号
         qw.and(StrUtil.isNotBlank(dto.getSearch()), qwi -> qwi.like("c.design_no", dto.getSearch()).or().like("s.name", dto.getSearch()));
         //产品季
@@ -377,6 +377,10 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         //波段
         qw.eq(StrUtil.isNotBlank(dto.getBandCode()), "c.band_code", dto.getBandCode());
         qw.eq(StrUtil.isNotBlank(dto.getBandName()), "c.band_name", dto.getBandName());
+        //渠道
+        qw.notEmptyEq("c.channel_name", dto.getChannelName());
+        //产品线
+        qw.notEmptyEq("pc.product_line_name", dto.getProductLineName());
         qw.eq(StrUtil.isNotBlank(dto.getPlanningChannelId()), "c.planning_channel_id", dto.getPlanningChannelId());
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), "c.prod_category1st", dto.getProdCategory1st());
         // 品类
