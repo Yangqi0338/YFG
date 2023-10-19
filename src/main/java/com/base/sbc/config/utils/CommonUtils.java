@@ -1,7 +1,6 @@
 package com.base.sbc.config.utils;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -272,11 +271,11 @@ public class CommonUtils {
         if (StrUtil.isBlank(url)) {
             return;
         }
-        if (StrUtil.contains(url, StrUtil.COMMA)) {
-            String newUrl = StrUtil.split(url, StrUtil.COMMA).stream().map(u -> {
-                return removeQuery(u);
-            }).collect(Collectors.joining(","));
-            BeanUtil.setProperty(o, p, newUrl);
-        }
+        String newUrl = StrUtil.split(url, StrUtil.COMMA).stream().map(u -> {
+            return removeQuery(u);
+        }).collect(Collectors.joining(","));
+        BeanUtil.setProperty(o, p, newUrl);
     }
+
+
 }

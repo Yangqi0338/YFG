@@ -191,6 +191,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public Style saveStyle(StyleSaveDto dto) {
         Style style = null;
+        CommonUtils.removeQuerySplit(dto, ",", "patternPartsPic");
         if (CommonUtils.isInitId(dto.getId())) {
             style = saveNewStyle(dto);
         } else {
