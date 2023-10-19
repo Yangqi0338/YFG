@@ -30,6 +30,16 @@ public interface StyleMainAccessoriesService extends BaseService<StyleMainAccess
      */
   List<StyleMainAccessories> styleMainAccessoriesList(String styleColorId,String isTrim);
 
+
+
+    /**
+     * 清除主款或配饰
+     * @param styleColorId
+     * @param isTrim
+     * @return
+     */
+    Boolean delMainAccessories(String styleColorId,String isTrim);
+
 // 自定义方法区 不替换的区域【other_end】
 
 	

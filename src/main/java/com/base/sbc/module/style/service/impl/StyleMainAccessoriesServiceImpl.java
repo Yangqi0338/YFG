@@ -40,6 +40,22 @@ public class StyleMainAccessoriesServiceImpl extends BaseServiceImpl<StyleMainAc
         return baseMapper.selectList(queryWrapper);
     }
 
+    /**
+     * 清除主款或配饰
+     *
+     * @param styleColorId
+     * @param isTrim
+     * @return
+     */
+    @Override
+    public Boolean delMainAccessories(String styleColorId, String isTrim) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("style_color_id", styleColorId);
+        queryWrapper.eq("is_trim", isTrim);
+        baseMapper.delete(queryWrapper);
+        return true;
+    }
+
 // 自定义方法区 不替换的区域【other_start】
 
 
