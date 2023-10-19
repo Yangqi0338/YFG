@@ -526,13 +526,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         if (!ObjectUtils.isEmpty(hangTag)) {
             /*存在吊牌时 复制吊牌*/
             hangTag.setId(null);
-            hangTag.setStyleNo(newStyleNo);
+            hangTag.setBulkStyleNo(newStyleNo);
             hangTag.setStatus(BaseGlobal.STATUS_CLOSE);
+            save(hangTag);
             /*查询成分*/
             queryWrapper.clear();
             queryWrapper.eq("hang_tag_id", hangTag.getId());
             List<HangTagIngredient> hangTagIngredientList = hangTagIngredientService.list(queryWrapper);
-            save(hangTag);
             /*复制成分*/
             hangTagIngredientList.forEach(i -> {
                 i.setId(null);
