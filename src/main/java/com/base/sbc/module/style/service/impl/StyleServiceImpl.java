@@ -891,10 +891,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         //第二级 大类
         else if (vo.getLevel() == 0) {
-            QueryWrapper qw = new QueryWrapper();
+            BaseQueryWrapper qw = new BaseQueryWrapper();
             getProductCategoryTreeQw(vo, qw);
             qw.select("prod_category1st_name,prod_category1st");
             qw.groupBy("prod_category1st_name,prod_category1st");
+            qw.notNull("prod_category1st_name");
             dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
             List result = null;
             if (StrUtil.equals(vo.getDataForm(), "seat")) {
@@ -916,10 +917,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         //第3级 品类
         else if (vo.getLevel() == 1) {
-            QueryWrapper qw = new QueryWrapper<>();
+            BaseQueryWrapper qw = new BaseQueryWrapper<>();
             getProductCategoryTreeQw(vo, qw);
             qw.select("prod_category_name,prod_category");
             qw.groupBy("prod_category_name,prod_category");
+            qw.notNull("prod_category_name");
             List result = null;
             dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
             if (StrUtil.equals(vo.getDataForm(), "seat")) {
