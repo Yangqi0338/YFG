@@ -601,7 +601,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColor = baseMapper.selectById(addRevampStyleColorDto.getId());
             StyleColor old = new StyleColor();
             BeanUtil.copyProperties(styleColor, old);
-            if (!addRevampStyleColorDto.getBandCode().equals(styleColor.getBandCode())) {
+            /*判断是否修改波段
+            * 当配色未下发时可以修改会影响大货款号
+            * 当配色下发后可以修改波段不会影响大货款号*/
+            if (! StringUtils.equals(addRevampStyleColorDto.getBandCode(),styleColor.getBandCode())  &&  !StringUtils.equals(styleColor.getScmSendFlag(),BaseGlobal.IN_READY)  ) {
                 /*新大货款号 ：换标波段生成的字符*/
                 /**
                  * 先生成波段之前的字符串替换为空，在拼接
@@ -694,6 +697,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     queryWrapper.eq("is_trim", addRevampStyleColorDto.getIsTrim());
                     styleMainAccessoriesService.addAndUpdateAndDelList(accessoriesList, queryWrapper);
                 }
+            }else {
+                /*清楚主款配饰*/
+                styleMainAccessoriesService.delMainAccessories(addRevampStyleColorDto.getId(),addRevampStyleColorDto.getIsTrim());
             }
             addRevampStyleColorDto.setStyleColorPic(styleColor.getStyleColorPic());
             BeanUtils.copyProperties(addRevampStyleColorDto, styleColor);
@@ -1071,6 +1077,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*查询配色关联的资料包*/
         QueryWrapper queryWrapper1 = new QueryWrapper();
         queryWrapper1.eq("style_color_id", styleColor.getId());
+        queryWrapper1.eq("style_no", styleColor.getStyleNo());
         PackInfo packInfo = packInfoService.getOne(queryWrapper1);
 
         /*复制配色数据*/
@@ -1096,6 +1103,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         copyStyleColor.setWareCode(null);
         copyStyleColor.setScmSendFlag(BaseGlobal.NO);
         copyStyleColor.setBomStatus(BaseGlobal.STATUS_NORMAL);
+        copyStyleColor.setPrincipalStyleNo("");
+        copyStyleColor.setPrincipalStyle("");
+        copyStyleColor.setAccessoryNo("");
+        copyStyleColor.setAccessory("");
         copyStyleColor.setId(null);
         baseMapper.insert(copyStyleColor);
 
