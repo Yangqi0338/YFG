@@ -397,9 +397,14 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         paraMap.put("brand", styleUploadVo.getBrand()); //品牌
         paraMap.put("year", styleUploadVo.getYear()); //年份
         paraMap.put("quarter", styleUploadVo.getSeason()); //季节
+        /*图片名称*/
         paraMap.put("picname", styleUploadVo.getStyleNo()); //图片新的名称，以此名称为准
         paraMap.put("pictype", pictype);//图片文件类型 0 jpg ；1 png
+        /*PDM_Style:款式图
+        * PDM：大货款图*/
         paraMap.put("folderName", "PDM");//文件夹
+        /*正式环境传 0 或者不穿
+        * 测试环境传：1*/
         paraMap.put("debug", "1"); //传递plm图片
         paraMap.put("useraccount", useraccount); //传递plm图片
         paraMap.put("model", "0"); //传递plm图片
