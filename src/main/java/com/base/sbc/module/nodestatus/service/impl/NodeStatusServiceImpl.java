@@ -300,6 +300,8 @@ public class NodeStatusServiceImpl extends BaseServiceImpl<NodeStatusMapper, Nod
                 }
                 authMatch = deptMatch;
             }
+        } else {
+            authMatch = true;
         }
 
         //非空校验
