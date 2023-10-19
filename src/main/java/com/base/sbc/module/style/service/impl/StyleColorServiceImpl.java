@@ -601,7 +601,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColor = baseMapper.selectById(addRevampStyleColorDto.getId());
             StyleColor old = new StyleColor();
             BeanUtil.copyProperties(styleColor, old);
-            if (!addRevampStyleColorDto.getBandCode().equals(styleColor.getBandCode())) {
+            /*判断是否修改波段
+            * 当配色未下发时可以修改会影响大货款号
+            * 当配色下发后可以修改波段不会影响大货款号*/
+            if (! StringUtils.equals(addRevampStyleColorDto.getBandCode(),styleColor.getBandCode())  &&  !StringUtils.equals(styleColor.getScmSendFlag(),BaseGlobal.IN_READY)  ) {
                 /*新大货款号 ：换标波段生成的字符*/
                 /**
                  * 先生成波段之前的字符串替换为空，在拼接
