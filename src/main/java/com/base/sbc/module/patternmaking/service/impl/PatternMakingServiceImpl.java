@@ -1214,7 +1214,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
      * @param pm
      * @param excludeSelf 排除自己
      */
-    void sort(PatternMaking pm, boolean excludeSelf) {
+    public void sort(PatternMaking pm, boolean excludeSelf) {
         String node = pm.getNode();
         String status = pm.getStatus();
         JSONObject nodeStatusConfig = nodeStatusService.getNodeStatusConfig(NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, node, status);

@@ -303,6 +303,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     ArrayList<ArrayList> capacityContrastStatistics(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String token);
 
+    void sort(PatternMaking pm, boolean excludeSelf);
+
     boolean nextOrPrev(Principal user, String id, String np);
 
     boolean patternMakingScore(Principal user, String id, BigDecimal score);

@@ -7,6 +7,7 @@
 package com.base.sbc.module.patternmaking.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
@@ -125,7 +126,13 @@ public class PatternMakingController {
 //        patternMakingService.checkPatternNoRepeat(dto.getId(), dto.getPatternNo());
         patternMakingService.checkPatSeqRepeat(dto.getStyleId(), dto.getId(), dto.getPatSeq());
         PatternMaking old = patternMakingService.getById(dto.getId());
+        if (StrUtil.isAllNotBlank(dto.getNode(), dto.getStatus())) {
+            patternMakingService.sort(old, true);
+        }
         patternMakingService.updateById(patternMaking);
+        if (StrUtil.isAllNotBlank(dto.getNode(), dto.getStatus())) {
+            patternMakingService.sort(dto, false);
+        }
         OperaLogEntity operaLogEntity = new OperaLogEntity();
         operaLogEntity.setType("修改");
         operaLogEntity.setName("打板指令");
