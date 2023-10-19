@@ -62,6 +62,7 @@ public class StyleController extends BaseController {
     @Autowired
     private StyleService styleService;
 
+
     @ApiOperation(value = "分页查询(设计任务,设计档案)")
     @GetMapping()
     public PageInfo pageInfo(@Valid StylePageDto dto) {
@@ -77,7 +78,9 @@ public class StyleController extends BaseController {
     @ApiOperation(value = "明细信息")
     @GetMapping("/{id}")
     public StyleVo getDetail(@PathVariable("id") String id, String historyStyleId) {
-        return styleService.getDetail(id, historyStyleId);
+        StyleVo detail = styleService.getDetail(id, historyStyleId);
+
+        return detail;
     }
 
     @ApiOperation(value = "保存")

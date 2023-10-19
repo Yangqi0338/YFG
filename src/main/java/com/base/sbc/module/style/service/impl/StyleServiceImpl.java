@@ -29,6 +29,7 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
@@ -127,7 +128,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     private PlanningSeasonService planningSeasonService;
 
-
+    @Autowired
+    private MinioUtils minioUtils;
     @Autowired
     private PlanningCategoryItemService planningCategoryItemService;
 
@@ -1152,6 +1154,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             detail.setSizeRangeSizeCodes(modelType.getSizeCode());
             detail.setSizeRangeSizeRealCodes(modelType.getSizeRealCode());
         }
+        // mini 加密
+        minioUtils.setObjectUrlToObject(detail, "seatStylePic", "patternPartsPic");
         if (StrUtil.isBlank(historyStyleId)) {
             return detail;
         }

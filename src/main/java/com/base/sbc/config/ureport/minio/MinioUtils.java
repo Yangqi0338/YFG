@@ -2,10 +2,7 @@ package com.base.sbc.config.ureport.minio;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
+import cn.hutool.core.util.*;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.DateUtils;
@@ -24,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -141,21 +139,25 @@ public class MinioUtils {
         if (!url.startsWith(minioConfig.getEndpoint())) {
             return url;
         }
-        String tempUrl = URLUtil.getPath(url).substring(1);
-        // 去掉参数
-
-        int firstIndex = tempUrl.indexOf("/");
-        String bucketName = tempUrl.substring(0, firstIndex);
-        String objectName = tempUrl.substring(firstIndex + 1);
-        GetPresignedObjectUrlArgs args = GetPresignedObjectUrlArgs.builder().bucket(bucketName).object(objectName).expiry(1, TimeUnit.DAYS).method(Method.GET).build();
-        String presignedObjectUrl = null;
         try {
-            presignedObjectUrl = minioClient.getPresignedObjectUrl(args);
+            List<String> split = StrUtil.split(url, CharUtil.COMMA);
+            return split.stream().map(url1 -> {
+                String tempUrl = URLUtil.getPath(url1).substring(1);
+                int firstIndex = tempUrl.indexOf("/");
+                String bucketName = tempUrl.substring(0, firstIndex);
+                String objectName = tempUrl.substring(firstIndex + 1);
+                GetPresignedObjectUrlArgs args = GetPresignedObjectUrlArgs.builder().bucket(bucketName).object(objectName).expiry(1, TimeUnit.DAYS).method(Method.GET).build();
+                String presignedObjectUrl = null;
+                try {
+                    presignedObjectUrl = minioClient.getPresignedObjectUrl(args);
+                } catch (Exception e) {
+                    return tempUrl;
+                }
+                return presignedObjectUrl;
+            }).collect(Collectors.joining(StrUtil.COMMA));
         } catch (Exception e) {
-            e.printStackTrace();
             return url;
         }
-        return presignedObjectUrl;
     }
 
     /**
