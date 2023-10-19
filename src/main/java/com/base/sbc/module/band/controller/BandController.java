@@ -6,14 +6,13 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.band.dto.BandSaveDto;
 import com.base.sbc.module.band.dto.BandStartStopDto;
-import com.base.sbc.module.band.dto.queryBandDto;
+import com.base.sbc.module.band.dto.QueryBandDto;
 import com.base.sbc.module.band.entity.Band;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.band.vo.BandQueryReturnVo;
@@ -79,7 +78,7 @@ public class BandController extends BaseController {
             @ApiImplicitParam(name = "search", value = "查询字段", required = false, dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "order", value = "排序", required = false, dataType = "String", paramType = "query")
     })
-    public ApiResult listQuery(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, queryBandDto queryBandDto) {
+    public ApiResult listQuery(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, QueryBandDto queryBandDto) {
         QueryWrapper<Band> qc = new QueryWrapper<>();
         qc.eq("company_code", userCompany);
         qc.like(StringUtils.isNotBlank(queryBandDto.getBandName()),"band_name",queryBandDto.getBandName());

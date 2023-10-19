@@ -264,7 +264,7 @@ public class GenTechSpecPdfFile {
         if (CollUtil.isNotEmpty(this.getSizeList())) {
             for (int i = 0; i < this.getSizeList().size(); i++) {
                 PackSizeVo packSize = this.getSizeList().get(i);
-                sizeDataDetail rowData = new sizeDataDetail();
+                SizeDataDetail rowData = new SizeDataDetail();
                 rowData.setRowType(packSize.getRowType());
                 rowData.setRemark(packSize.getRemark());
                 List<Map<String, Object>> row = new ArrayList<>();
@@ -395,7 +395,7 @@ public class GenTechSpecPdfFile {
     }
 
     @Data
-    class sizeDataDetail {
+    class SizeDataDetail {
         private String rowType;
         private String remark;
         private List<Map<String, Object>> rowData;

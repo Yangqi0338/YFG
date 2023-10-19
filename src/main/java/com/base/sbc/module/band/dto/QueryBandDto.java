@@ -4,7 +4,7 @@ import com.base.sbc.config.common.base.Page;
 import lombok.Data;
 
 @Data
-public class queryBandDto extends Page {
+public class QueryBandDto extends Page {
     /*波段名称*/
     private String bandName;
     /*季节*/
