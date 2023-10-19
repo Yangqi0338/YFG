@@ -510,7 +510,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             copy.setFactoryCompositionList(
                     list.stream().filter(item -> "1".equals(item.getType())).collect(Collectors.toList()));
         }
-
+        minioUtils.setObjectUrlToObject(copy, "imageUrl");
         return copy;
     }
 
