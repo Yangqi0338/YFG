@@ -9,6 +9,8 @@ package com.base.sbc.module.planning.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.lang.Snowflake;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -17,27 +19,31 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formType.entity.FieldManagement;
 import com.base.sbc.module.formType.entity.FieldOptionConfig;
+import com.base.sbc.module.formType.entity.FieldVal;
 import com.base.sbc.module.formType.entity.FormType;
 import com.base.sbc.module.formType.mapper.FieldManagementMapper;
 import com.base.sbc.module.formType.mapper.FieldOptionConfigMapper;
 import com.base.sbc.module.formType.mapper.FormTypeMapper;
+import com.base.sbc.module.formType.service.FieldValService;
+import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formType.vo.FieldManagementVo;
 import com.base.sbc.module.formType.vo.FieldOptionConfigVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.dto.SaveDelDemandDto;
-import com.base.sbc.module.planning.entity.PlanningDemand;
-import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
-import com.base.sbc.module.planning.entity.PlanningDemandProportionSeat;
-import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.dto.SyncToSeatDto;
+import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.mapper.PlanningDemandProportionDataMapper;
 import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
+import com.base.sbc.module.planning.service.PlanningCategoryItemService;
+import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
@@ -52,11 +58,10 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
  * 类描述：企划-需求维度表 service类
@@ -74,6 +79,8 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     @Autowired
     private FieldManagementMapper fieldManagementMapper;
     @Autowired
+    private FieldValService fieldValService;
+    @Autowired
     private FormTypeMapper formTypeMapper;
     @Autowired
     private PlanningDemandProportionDataMapper planningDemandProportionDataMapper;
@@ -84,6 +91,10 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     private PlanningSeasonMapper planningSeasonMapper;
     @Autowired
     private PlanningSeasonService planningSeasonService;
+    @Autowired
+    private PlanningCategoryItemService planningCategoryItemService;
+    @Autowired
+    private PlanningChannelService planningChannelService;
 
     @Override
     public List<PlanningDemandVo> getDemandListById(Principal user, QueryDemandDto queryDemandDimensionalityDto) {
@@ -313,6 +324,118 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         update(uw);
         return true;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean syncToSeat(SyncToSeatDto dto) {
+        PlanningChannel channel = planningChannelService.getById(dto.getPlanningChannelId());
+        if (channel == null) {
+            throw new OtherException("渠道为空");
+        }
+        List<PlanningDemand> demands = listByIds(dto.getIds());
+        if (CollUtil.isEmpty(demands)) {
+            throw new OtherException("无维度数据");
+        }
+
+        List<PlanningDemand> demandList = new ArrayList<>();
+        List<String> ids = new ArrayList<>();
+        Map<String, PlanningDemand> demandMap = new LinkedHashMap<>();
+        List<String> fieldIds = new ArrayList<>();
+        for (PlanningDemand demand : demands) {
+            if (StrUtil.equals(demand.getSyncFlag(), BaseGlobal.NO)) {
+                demandList.add(demand);
+                ids.add(demand.getId());
+                demandMap.put(demand.getId(), demand);
+                fieldIds.add(demand.getFieldId());
+            }
+        }
+        if (CollUtil.isEmpty(demandList)) {
+            throw new OtherException("无法重复同步");
+        }
+        QueryWrapper<PlanningDemandProportionData> pdpdQw = new QueryWrapper<>();
+        pdpdQw.lambda().in(PlanningDemandProportionData::getDemandId, ids);
+        List<PlanningDemandProportionData> planningDemandProportionData = planningDemandProportionDataMapper.selectList(pdpdQw);
+        if (CollUtil.isEmpty(planningDemandProportionData)) {
+            throw new OtherException("无维度数据");
+        }
+        //统计有几个坑位
+        int seatCount = 0;
+        for (PlanningDemandProportionData pdpd : planningDemandProportionData) {
+            seatCount += Opt.ofNullable(pdpd.getNum()).orElse(0);
+        }
+        if (seatCount == 0) {
+            throw new OtherException("未填写数量");
+        }
+        //生成设计款号
+        PlanningCategoryItem designNoGen = BeanUtil.copyProperties(channel, PlanningCategoryItem.class);
+        designNoGen.setProdCategory(demands.get(0).getProdCategory());
+        List<String> nextCode = planningCategoryItemService.getNextCode(designNoGen, seatCount);
+        String categoryFlag = StrUtil.isBlank(demands.get(0).getProdCategory2nd()) ? "0" : "1";
+        // 查询字段信息
+        List<FieldManagement> fieldManagements = fieldManagementMapper.selectBatchIds(fieldIds);
+        if (CollUtil.isEmpty(fieldManagements)) {
+            throw new OtherException("获取维度字段信息失败，请重新配置");
+        }
+        Map<String, FieldManagement> fmMap = fieldManagements.stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> a));
+        //创建坑位
+        List<PlanningCategoryItem> seatList = new ArrayList<>();
+
+        Snowflake snowflake = IdUtil.getSnowflake();
+        List<FieldVal> seatFvList = new ArrayList<>();
+        int seatIdx = 0;
+        for (PlanningDemandProportionData pdpd : planningDemandProportionData) {
+            Integer num = pdpd.getNum();
+            if (num == null || num == 0) {
+                continue;
+            }
+            PlanningDemand planningDemand = demandMap.get(pdpd.getDemandId());
+            FieldManagement fieldManagement = fmMap.get(planningDemand.getFieldId());
+            //创建 维度数据
+            FieldVal fv = new FieldVal();
+            fv.setDataGroup(FieldValDataGroupConstant.PLANNING_CATEGORY_ITEM_DIMENSION);
+            fv.setFieldId(planningDemand.getFieldId());
+            fv.setFieldExplain(fieldManagement.getFieldExplain());
+            fv.setFieldName(fieldManagement.getFieldName());
+            fv.setVal(pdpd.getClassify());
+            fv.setValName(pdpd.getClassifyName());
+            for (Integer i = 0; i < num; i++) {
+                PlanningCategoryItem seat = BeanUtil.copyProperties(channel, PlanningCategoryItem.class, "status", "id");
+                seat.setPlanningChannelId(dto.getPlanningChannelId());
+                seat.setBandCode(pdpd.getBandCode());
+                seat.setBandName(pdpd.getBandName());
+                seat.setId(snowflake.nextIdStr());
+                seat.setCategoryFlag(categoryFlag);
+                seat.setDesignNo(CollUtil.get(nextCode, seatIdx++));
+                seat.setProdCategory1st(planningDemand.getProdCategory1st());
+                seat.setProdCategory1stName(planningDemand.getProdCategory1stName());
+                seat.setProdCategory(planningDemand.getProdCategory());
+                seat.setProdCategoryName(planningDemand.getProdCategoryName());
+                seat.setProdCategory2nd(planningDemand.getProdCategory2nd());
+                seat.setProdCategory2ndName(planningDemand.getProdCategory2ndName());
+                seatList.add(seat);
+                FieldVal seatFv = BeanUtil.copyProperties(fv, FieldVal.class);
+                seatFv.setForeignId(seat.getId());
+                seatFvList.add(seatFv);
+            }
+
+        }
+        if (CollUtil.isEmpty(seatList)) {
+            throw new OtherException("数量为空");
+        }
+        //保存数据
+        UserCompany userCompany = companyUserInfo.get();
+        UpdateWrapper<PlanningDemand> uw = new UpdateWrapper<>();
+        uw.lambda().in(PlanningDemand::getId, ids).set(PlanningDemand::getSyncFlag, BaseGlobal.YES)
+                .set(PlanningDemand::getSyncDate, new Date())
+                .set(PlanningDemand::getSyncUserName, userCompany.getAliasUserName());
+        update(uw);
+        //保存坑位信息
+        planningCategoryItemService.saveBatch(seatList);
+        //保存坑位的维度数据
+        fieldValService.saveBatch(seatFvList);
+        return true;
+    }
+
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 

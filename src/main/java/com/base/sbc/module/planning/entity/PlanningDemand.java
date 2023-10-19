@@ -8,10 +8,13 @@ package com.base.sbc.module.planning.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Date;
 
 /**
  * 类描述：企划-需求表 实体类
@@ -20,7 +23,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.planning.entity.PlanningDemand
  * @email your email
- * @date 创建时间：2023-10-18 20:55:20
+ * @date 创建时间：2023-10-19 15:44:31
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -110,6 +113,22 @@ public class PlanningDemand extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "重点维度(0:否,1是)")
     private String importantFlag;
+    /**
+     * 是否同步(0:否,1是)
+     */
+    @ApiModelProperty(value = "是否同步(0:否,1是)")
+    private String syncFlag;
+    /**
+     * 同步时间
+     */
+    @ApiModelProperty(value = "同步时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date syncDate;
+    /**
+     * 同步人员
+     */
+    @ApiModelProperty(value = "同步人员")
+    private String syncUserName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

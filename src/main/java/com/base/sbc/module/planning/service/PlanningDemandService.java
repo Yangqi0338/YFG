@@ -5,10 +5,12 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.planning.service;
+
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.dto.SaveDelDemandDto;
+import com.base.sbc.module.planning.dto.SyncToSeatDto;
 import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.vo.PlanningDemandVo;
 
@@ -47,6 +49,9 @@ public interface PlanningDemandService extends BaseService<PlanningDemand> {
     Boolean delDemand(String id);
 
     boolean setImportantFlag(PlanningDemand planningDemand);
+
+    boolean syncToSeat(SyncToSeatDto dto);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

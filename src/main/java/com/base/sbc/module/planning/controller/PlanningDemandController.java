@@ -110,19 +110,25 @@ public class PlanningDemandController {
 	/*维度相关接口*/
 
 
-    /*获取维度列表*/
-    @ApiOperation(value = "获取维度列表")
-    @GetMapping("/getDimensionalityList")
-    public List<PlanningDimensionality> getDimensionalityList(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
-        return planningDimensionalityService.getDimensionalityList(queryDemandDimensionalityDto).getPlanningDimensionalities();
-    }
+	/*获取维度列表*/
+	@ApiOperation(value = "获取维度列表")
+	@GetMapping("/getDimensionalityList")
+	public List<PlanningDimensionality> getDimensionalityList(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
+		return planningDimensionalityService.getDimensionalityList(queryDemandDimensionalityDto).getPlanningDimensionalities();
+	}
 
-    /*获取穿梭框表添加维度标签*/
-    @ApiOperation(value = "获取穿梭框表维度标签")
-    @GetMapping("/getFormDimensionality")
-    public ApiResult getFormDimensionality(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
-        return planningDimensionalityService.getFormDimensionality(queryDemandDimensionalityDto);
-    }
+	@ApiOperation(value = "同步需求占比到坑位")
+	@PostMapping("/syncToSeat")
+	public boolean syncToSeat(@RequestBody SyncToSeatDto dto) {
+		return planningDemandService.syncToSeat(dto);
+	}
+
+	/*获取穿梭框表添加维度标签*/
+	@ApiOperation(value = "获取穿梭框表维度标签")
+	@GetMapping("/getFormDimensionality")
+	public ApiResult getFormDimensionality(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
+		return planningDimensionalityService.getFormDimensionality(queryDemandDimensionalityDto);
+	}
 
 	/*新增删除维度标签*/
 	@ApiOperation(value = "新增删除维度标签")
