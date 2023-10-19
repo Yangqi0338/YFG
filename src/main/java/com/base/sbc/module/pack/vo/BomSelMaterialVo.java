@@ -73,6 +73,9 @@ public class BomSelMaterialVo {
 
     @ApiModelProperty(value = "门幅/规格（通用）名称")
     private String translate;
+
+    @ApiModelProperty(value = "门幅")
+    private String translateDs;
     /**
      * 颜色名称
      */

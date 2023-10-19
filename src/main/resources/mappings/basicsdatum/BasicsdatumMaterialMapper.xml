@@ -134,7 +134,8 @@
 			   bm.delivery_code,
 			   bm.delivery_name,
 			   bm.auxiliary_material,
-			   bm.source
+			   bm.source,
+			   bm.translate as translateDs
 		FROM t_basicsdatum_material bm
 		    <if test="source!= null and source !='' and source == 2">
 				join t_fabric_pool_item fpi on fpi.source_id = bm.id and fpi.del_flag = '0'
