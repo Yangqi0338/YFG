@@ -81,8 +81,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -437,6 +435,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                 }
             }
         }
+        minioUtils.setObjectUrlToList(pageInfo.getList(), "stylePic");
         return pageInfo;
     }
 
