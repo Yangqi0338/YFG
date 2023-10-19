@@ -362,5 +362,10 @@ public class BasicsdatumMaterialVo extends BaseDataEntity<String> {
 	 * 附件
 	 */
 	private String attachment;
+
+	/**
+	 * 附件名称
+	 */
+	private String attachmentName;
 }
 
