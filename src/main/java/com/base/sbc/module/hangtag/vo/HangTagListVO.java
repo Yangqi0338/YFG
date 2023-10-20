@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.vo;
 
+import com.base.sbc.module.hangtag.entity.HangTag;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -23,7 +24,7 @@ import java.util.Date;
  * @date 创建时间：2023-6-26 17:15:52
  */
 @Data
-public class HangTagListVO {
+public class HangTagListVO extends HangTag {
 
     private static final long serialVersionUID = 1L;
 

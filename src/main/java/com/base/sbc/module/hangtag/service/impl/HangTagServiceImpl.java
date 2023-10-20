@@ -286,6 +286,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
            flowableService.start(FlowableService.HANGING_TAG_REVIEW + hangTag.getBulkStyleNo(), FlowableService.HANGING_TAG_REVIEW, hangTag.getBulkStyleNo(), "/pdm/api/saas/hangTag/toExamine",
                    "/pdm/api/saas/hangTag/toExamine", "/pdm/api/saas/hangTag/toExamine", null, BeanUtil.beanToMap(hangTag));
        }
+       //如果提交审核默认通过第一个审核
+       if ("2".equals(hangTag.getStatus()) && !"2".equals(hangTagDTO.getCheckType())){
+           hangTag.setStatus("3");
+              this.updateById(hangTag);
+       }
         return id;
     }
 
