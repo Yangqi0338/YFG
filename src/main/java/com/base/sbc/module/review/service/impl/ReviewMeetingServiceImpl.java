@@ -6,14 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.review.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
-import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.CodeGen;
 import com.base.sbc.config.utils.RedisCodeGenUtils;
@@ -24,7 +21,6 @@ import com.base.sbc.module.review.entity.*;
 import com.base.sbc.module.review.mapper.ReviewMeetingLogMapper;
 import com.base.sbc.module.review.mapper.ReviewMeetingMapper;
 import com.base.sbc.module.review.service.*;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

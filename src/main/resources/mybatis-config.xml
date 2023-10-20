@@ -39,7 +39,6 @@
 	<!-- 类型别名 -->
 	<typeAliases>
 		<!-- 查询条件构造器 -->
-		<typeAlias alias="queryCondition" type="com.base.sbc.config.common.QueryCondition"/>
 	</typeAliases>
 	
 	<mappers>

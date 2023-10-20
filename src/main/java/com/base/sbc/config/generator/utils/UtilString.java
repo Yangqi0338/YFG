@@ -114,7 +114,7 @@ public class UtilString {
 	 */
 	public static String mybatisType(String sqlTypeName) {
 		String type = "";
-		if (sqlTypeName == null || "".equals(sqlTypeName.trim())) {
+		if (sqlTypeName == null || sqlTypeName.trim().isEmpty()) {
 			return null;
 		}
         switch (sqlTypeName) {

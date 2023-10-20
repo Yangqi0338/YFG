@@ -9,7 +9,6 @@ package com.base.sbc.module.review.controller;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.constant.BaseConstant;

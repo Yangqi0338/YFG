@@ -5,22 +5,20 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.purchase.controller;
+
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.QueryCondition;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.DateUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserCompanyUtils;
 import com.base.sbc.module.purchase.dto.PurchasePageDTO;
-import com.base.sbc.module.purchase.entity.PurchaseDemand;
 import com.base.sbc.module.purchase.entity.PurchaseOrder;
 import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
 import com.base.sbc.module.purchase.excel.PurchaseOrderExcel;
@@ -31,14 +29,12 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -48,8 +44,6 @@ import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
 * 类描述：采购-采购单 Controller类
