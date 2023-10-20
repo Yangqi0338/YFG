@@ -971,7 +971,10 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         for (WarehouseMaterialVo item : list) {
             item.setId(IdUtil.randomUUID());
         }
-        return page.toPageInfo();
+        if (page != null) {
+            return page.toPageInfo();
+        }
+        return new PageInfo<>(list);
     }
 
     @Override
@@ -981,7 +984,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         basicsdatumMaterial.setInquiryNumber(dto.getInquiryNumber());
         basicsdatumMaterial.setDeliveryName(dto.getDeliveryName());
         int countNum = this.baseMapper.updateById(basicsdatumMaterial);
-        return countNum > 0 ? true : false;
+        return countNum > 0;
     }
 
     @Override

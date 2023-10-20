@@ -1439,22 +1439,18 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             Map<String, PatternMakingWeekMonthViewVo> contrastMap = this.getDataByYearWeek(contrastList);
             // 7、 循环有数据的年份，拼接数据
             for (String yearWeek : yearWeekList) {
-                ArrayList<String> arrayList = new ArrayList();
+                ArrayList<String> arrayList = new ArrayList<>();
                 // 添加年份
                 arrayList.add(yearWeek);
                 // 7.1、初版数据
-                if (null != demandMap.get(yearWeek)) {
+                if (demandMap != null && null != demandMap.get(yearWeek)) {
                     PatternMakingWeekMonthViewVo patternMakingWeekMonthViewVo = demandMap.get(yearWeek);
                     arrayList.add(null != patternMakingWeekMonthViewVo.getRequirementNumSum() ? patternMakingWeekMonthViewVo.getRequirementNumSum() : String.valueOf(BaseGlobal.ZERO));
-                } else {
-                    arrayList.add(String.valueOf(BaseGlobal.ZERO));
                 }
                 // 7.2、改版样数据
-                if (null != contrastMap.get(yearWeek)) {
+                if (contrastMap != null && null != contrastMap.get(yearWeek)) {
                     PatternMakingWeekMonthViewVo revisionTwo = contrastMap.get(yearWeek);
                     arrayList.add(null != revisionTwo.getRequirementNumSum() ? revisionTwo.getRequirementNumSum() : String.valueOf(BaseGlobal.ZERO));
-                } else {
-                    arrayList.add(String.valueOf(BaseGlobal.ZERO));
                 }
                 dataLists.add(arrayList);
             }

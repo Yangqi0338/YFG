@@ -171,6 +171,9 @@ public class ReviewMeetingController extends BaseController{
 					qw = new QueryWrapper<>();
 					qw.eq("company_code", companyCode);
 					qw.eq("meeting_id", reviewMeeting.getId());
+					if (userCompany == null) {
+						throw new RuntimeException("用户信息不存在");
+					}
 					qw.eq("create_id", userCompany.getUserId());
 					List<ReviewMeetingPeople> peopleList = peopleService.list(qw);
 					if(CollectionUtil.isNotEmpty(peopleList)){

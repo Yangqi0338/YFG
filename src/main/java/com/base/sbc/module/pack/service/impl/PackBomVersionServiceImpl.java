@@ -323,10 +323,12 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             }
             List<String> bomIds = new ArrayList<>();
             if (CollUtil.isNotEmpty(bomList)) {
-                for (PackBomVo packBomVo : bomList) {
-                    bomIds.add(packBomVo.getId());
-                    packBomVo.setScmSendFlag(BaseGlobal.NO);
-                    packBomVo.setStageFlag(PackUtils.PACK_TYPE_DESIGN);
+                if (bomList != null) {
+                    for (PackBomVo packBomVo : bomList) {
+                        bomIds.add(packBomVo.getId());
+                        packBomVo.setScmSendFlag(BaseGlobal.NO);
+                        packBomVo.setStageFlag(PackUtils.PACK_TYPE_DESIGN);
+                    }
                 }
             }
 

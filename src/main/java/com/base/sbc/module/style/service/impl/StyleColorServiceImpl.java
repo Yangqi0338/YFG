@@ -241,7 +241,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             List<String> stringList = IdGen.getIds(sampleStyleColorList.size());
             int index = 0;
             for (StyleColorVo styleColorVo : sampleStyleColorList) {
-                styleColorVo.setIssuerId(stringList.get(index));
+                if (stringList != null) {
+                    styleColorVo.setIssuerId(stringList.get(index));
+                }
                 index++;
             }
         }
@@ -254,8 +256,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             StyleNoImgUtils.setStyleColorPic(userBy, sampleStyleColorList, "styleColorPic");
         }
 
-        PageInfo<StyleColorVo> pageInfo = new PageInfo<>(sampleStyleColorList);
-        return pageInfo;
+        return new PageInfo<>(sampleStyleColorList);
     }
 
     /**

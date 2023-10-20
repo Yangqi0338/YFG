@@ -49,7 +49,7 @@ public class StyleNoImgUtils {
 			if (StrUtil.isBlank(v)) {
 				continue;
 			}
-			BeanUtil.setProperty(l, fileIdKey, Optional.ofNullable(StyleNoImgUtils.getStyleNoImgUrl(userBy,v)).orElse(""));
+			BeanUtil.setProperty(l, fileIdKey, Optional.of(StyleNoImgUtils.getStyleNoImgUrl(userBy,v)).orElse(""));
 		}
 	}
 

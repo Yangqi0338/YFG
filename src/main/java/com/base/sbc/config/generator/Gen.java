@@ -18,6 +18,7 @@ import com.base.sbc.config.utils.StringUtils;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -35,7 +36,7 @@ public class Gen {
 
 	public static void main(String[] args) {
 		//配置文件路径
-		String mavenDir =  (new File(Gen.class.getResource("").getPath()).toString()+"\\").replaceAll("\\\\", "\\\\\\\\").replaceAll("target", "src").replaceAll("classes", "main\\\\\\\\java");
+		String mavenDir =  (new File(Objects.requireNonNull(Gen.class.getResource("")).getPath()) +"\\").replaceAll("\\\\", "\\\\\\\\").replaceAll("target", "src").replaceAll("classes", "main\\\\\\\\java");
 		// 多返回了包名
 		String configFilePath = mavenDir+CONFIGXMLNAME;
 		// 1.创建目录
