@@ -76,8 +76,6 @@ public class StyleNoImgUtils {
 			appkeyP = URLEncoder.encode(EncryptUtil.EncryptE2(appKey, salt), "utf-8");
 			badgeP = URLEncoder.encode(EncryptUtil.EncryptE2(badge, appSecret), "utf-8");
 			nameP = URLEncoder.encode(EncryptUtil.EncryptE2(name, appSecret), "utf-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

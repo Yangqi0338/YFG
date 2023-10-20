@@ -478,7 +478,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             maxMark = number;
         }
         /*拼接流水号*/
-        styleNo = styleNo + (Long.valueOf(maxMark) + index);
+        styleNo = styleNo + (Long.parseLong(maxMark) + index);
         /*查询编码是否重复*/
         int i = baseMapper.isStyleNoExist(styleNo);
         if (i != 0) {

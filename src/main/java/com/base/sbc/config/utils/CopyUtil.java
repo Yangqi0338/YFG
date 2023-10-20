@@ -108,11 +108,9 @@ public class CopyUtil {
 									  String children) {
 		List<D> list = mapperFactory.getMapperFacade().mapAsList(source, target);
 		List<D> treeList = new ArrayList<>();
-		Map<String, D> map = new HashMap<String, D>(10);
-		list.stream().forEach(item -> {
-			map.put(String.valueOf(getValue(item, code)), item);
-		});
-		list.stream().forEach(item -> {
+		Map<String, D> map = new HashMap<>(10);
+		list.forEach(item -> map.put(String.valueOf(getValue(item, code)), item));
+		list.forEach(item -> {
 			D parent = map.get(String.valueOf(getValue(item, parentCode)));
 			if (parent != null) {
 				@SuppressWarnings("unchecked")

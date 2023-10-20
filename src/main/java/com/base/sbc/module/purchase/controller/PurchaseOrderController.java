@@ -234,29 +234,20 @@ public class PurchaseOrderController extends BaseController{
 		// 生成文件名称
 		String time = DateUtils.formatDate(new Date(), "yyyyMMddHHmmss");// 格式化当前系统日期
 		String strFileName = "采购单_" + time + ".xlsx";
-		OutputStream objStream = null;
-		try {
-			objStream = response.getOutputStream();
-			response.reset();
-			// 设置文件类型
-			response.setContentType("application/x-msdownload");// 下载
-			request.setCharacterEncoding("UTF-8");
-			response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(strFileName, "UTF-8"));
+        try (OutputStream objStream = response.getOutputStream()) {
+            response.reset();
+            // 设置文件类型
+            response.setContentType("application/x-msdownload");// 下载
+            request.setCharacterEncoding("UTF-8");
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(strFileName, "UTF-8"));
 
-			PurchaseOrderExcel excel = new PurchaseOrderExcel();
-			XSSFWorkbook objWb = excel.createWorkBook(purchaseOrderList);
-			objWb.write(objStream);
-			objStream.flush();
-			objStream.close();
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+            PurchaseOrderExcel excel = new PurchaseOrderExcel();
+            XSSFWorkbook objWb = excel.createWorkBook(purchaseOrderList);
+            objWb.write(objStream);
+            objStream.flush();
 		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (objStream != null) {
-				objStream.close();
-			}
-		}
+            e.printStackTrace();
+        }
 	}
 }
 

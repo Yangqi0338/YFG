@@ -100,7 +100,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
             JEP jep = new JEP();
             for (Map.Entry<String, Object> item : itemVal.entrySet()) {
                 if (NumberUtil.isNumber(String.valueOf(item.getValue()))) {
-                    jep.addVariable(item.getKey(), Double.valueOf(item.getValue().toString()));
+                    jep.addVariable(item.getKey(), Double.parseDouble(item.getValue().toString()));
                 }
             }
             jep.parseExpression(formula);

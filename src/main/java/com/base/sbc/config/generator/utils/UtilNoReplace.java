@@ -40,8 +40,6 @@ public class UtilNoReplace {
 				sb.append(s).append("\n");
 			}
 			bReader.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -115,8 +113,6 @@ public class UtilNoReplace {
 				sb.append(s + "\n");
 			}
 			bReader.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

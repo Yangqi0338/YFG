@@ -26,7 +26,7 @@ public class UtilFreemarker {
 	 * @return list
 	 */
 	public static List<String> getColumnName(String tableName) {
-		List<String> retCol = new LinkedList<String>();
+		List<String> retCol = new LinkedList<>();
 		List<String> columns = UtilDb.getColumnNameByTableNameWithList(tableName);
 		for(String column : columns){
 			retCol.add(UtilString.dbNameToVarName(column));
@@ -39,7 +39,7 @@ public class UtilFreemarker {
 	 * @return list
 	 */
 	public static List<String> getColumnNameForMybatis(String tableName) {
-		List<String> retCol = new LinkedList<String>();
+		List<String> retCol = new LinkedList<>();
 		List<String> columns = UtilDb.getColumnNameByTableNameWithList(tableName);
 		for(String column : columns){
 			retCol.add(column);
@@ -82,7 +82,7 @@ public class UtilFreemarker {
 	 * @return list
 	 */
 	public static List<String> getRemarks(String tableName) {
-		List<String> remarks = new ArrayList<String>();
+		List<String> remarks;
 		remarks = UtilDb.getColumnRemarksByTableNameWithList(tableName);
 		return remarks;
 	}
@@ -93,7 +93,7 @@ public class UtilFreemarker {
 	 * @return list
 	 */
 	public static List<String> getColumnType(String tableName) {
-		List<String> retTypes = new ArrayList<String>();
+		List<String> retTypes = new ArrayList<>();
 		List<String> types = UtilDb.getColumnTyBypeTableNameWithList(tableName);
 		for(String type : types){
 			retTypes.add(UtilString.dbTypeToJavaType(type));
@@ -106,7 +106,7 @@ public class UtilFreemarker {
 	 * @return list
 	 */
 	public static List<String> getMybatisType(String tableName) {
-		List<String> retTypes = new ArrayList<String>();
+		List<String> retTypes = new ArrayList<>();
 		List<String> types = UtilDb.getColumnTyBypeTableNameWithList(tableName);
 		for (String type : types) {
 			retTypes.add(UtilString.mybatisType(type));
@@ -127,7 +127,7 @@ public class UtilFreemarker {
 	 * @return Map
 	 */
 	public static Map<Object, Object> getTableInfo(String tableName){
-		Map<Object, Object> map = new HashMap<Object, Object>(16);
+		Map<Object, Object> map = new HashMap<>(16);
 		map.put("title",          getTitle(tableName));
 		map.put("columns",        getColumnName(tableName));
 		map.put("mybatisColumns", getColumnNameForMybatis(tableName));

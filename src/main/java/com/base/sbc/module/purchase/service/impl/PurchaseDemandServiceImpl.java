@@ -42,6 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -468,7 +469,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
                 detail.setMaterialColorCode(demandInfo.getMaterialColorCode());
                 detail.setProductColor(demandInfo.getProductColor());
                 detail.setLoss(demandInfo.getLoss());
-                BigDecimal amount = BigDecimalUtil.mul(demandInfo.getNeedNum(), demandInfo.getPrice()).setScale(2, BigDecimal.ROUND_DOWN);
+                BigDecimal amount = BigDecimalUtil.mul(demandInfo.getNeedNum(), demandInfo.getPrice()).setScale(2, RoundingMode.DOWN);
                 detail.setTotalAmount(amount);
                 detail.setWarehouseNum(BigDecimal.ZERO);
 

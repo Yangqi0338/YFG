@@ -149,7 +149,7 @@ public abstract class AbstractPackBaseServiceImpl<M extends BaseMapper<T>, T ext
 
     @Override
     public boolean del(String foreignId, String packType) {
-        QueryWrapper<T> delQw = new QueryWrapper<T>();
+        QueryWrapper<T> delQw = new QueryWrapper<>();
         delQw.eq("foreign_id", foreignId);
         delQw.eq("pack_type", packType);
         return remove(delQw);
@@ -162,7 +162,7 @@ public abstract class AbstractPackBaseServiceImpl<M extends BaseMapper<T>, T ext
 
     @Override
     public T get(String foreignId, String packType) {
-        QueryWrapper<T> query = new QueryWrapper<T>();
+        QueryWrapper<T> query = new QueryWrapper<>();
         query.eq("foreign_id", foreignId);
         query.eq("pack_type", packType);
         query.last("limit 1");
@@ -171,7 +171,7 @@ public abstract class AbstractPackBaseServiceImpl<M extends BaseMapper<T>, T ext
 
     @Override
     public List<T> list(String foreignId, String packType) {
-        QueryWrapper<T> query = new QueryWrapper<T>();
+        QueryWrapper<T> query = new QueryWrapper<>();
         query.eq("foreign_id", foreignId);
         query.eq("pack_type", packType);
         return list(query);
@@ -184,7 +184,7 @@ public abstract class AbstractPackBaseServiceImpl<M extends BaseMapper<T>, T ext
         }
 
         del(targetForeignId, targetPackType);
-        QueryWrapper<T> query = new QueryWrapper<T>();
+        QueryWrapper<T> query = new QueryWrapper<>();
         query.eq("foreign_id", sourceForeignId);
         query.eq("pack_type", sourcePackType);
         List<T> list = list(query);
@@ -203,7 +203,7 @@ public abstract class AbstractPackBaseServiceImpl<M extends BaseMapper<T>, T ext
     @Transactional(rollbackFor = {Exception.class})
     public boolean move(String id, String column, int moveType) {
         T byId = getById(id);
-        QueryWrapper<T> query = new QueryWrapper<T>();
+        QueryWrapper<T> query = new QueryWrapper<>();
         query.eq("foreign_id", BeanUtil.getProperty(byId, "foreignId"));
         query.eq("pack_type", BeanUtil.getProperty(byId, "packType"));
         query.orderByAsc(column);
@@ -217,7 +217,7 @@ public abstract class AbstractPackBaseServiceImpl<M extends BaseMapper<T>, T ext
             Collections.swap(objects, i, moveIndex);
         }
         for (int j = 0; j < objects.size(); j++) {
-            UpdateWrapper<T> uw = new UpdateWrapper<T>();
+            UpdateWrapper<T> uw = new UpdateWrapper<>();
             uw.set(column, j + 1);
             uw.eq("id", objects.get(j));
             update(uw);

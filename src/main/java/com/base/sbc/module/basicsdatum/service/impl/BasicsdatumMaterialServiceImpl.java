@@ -314,15 +314,15 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
      */
     private String getMaxCode(String categoryCode) {
         // 物料序号
-        Integer num = 0;
+        int num;
         // 生成的物料编码
-        String materialCode = "";
+        String materialCode;
         // 组成物料编码缓存KEY
         String materialCodeKey = MaterialConstant.MATERIAL_CODE_KEY + categoryCode + this.getCompanyCode();
         if (redisUtils.hasKey(materialCodeKey)) {
             // 获取物料编码数值
             String categoryCodeKey = redisUtils.get(materialCodeKey).toString();
-            num = Integer.valueOf(categoryCodeKey) + BaseGlobal.ONE;
+            num = Integer.parseInt(categoryCodeKey) + BaseGlobal.ONE;
             // 重新设置编码数值
             redisUtils.set(materialCodeKey, num);
             return ProducerNumUtil.getPrefixNum(categoryCode, num);
@@ -342,7 +342,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 "ORDER BY SUBSTRING(material_code,-5) DESC  limit 1 ");
         BasicsdatumMaterial one = this.baseMapper.selectOne(qc);
         if (one != null && null != one.getMaterialCode()) {
-            num = Integer.valueOf(one.getMaterialCode());
+            num = Integer.parseInt(one.getMaterialCode());
             materialCode = ProducerNumUtil.getPrefixNum(categoryCode, ++num);
         } else {
             num = BaseGlobal.ONE;

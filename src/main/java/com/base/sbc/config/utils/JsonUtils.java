@@ -54,7 +54,7 @@ public class JsonUtils {
         if (StringUtils.isEmpty(key) || StringUtils.isEmpty(value)) {
             return null;
         }
-        Map<String, String> map = new HashMap<String, String>(4);
+        Map<String, String> map = new HashMap<>(4);
         map.put(key, value);
         return beanToJson(map, null);
     }

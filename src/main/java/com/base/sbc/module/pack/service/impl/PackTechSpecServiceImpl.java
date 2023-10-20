@@ -169,7 +169,7 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
 
         if (StrUtil.isNotBlank(dto.getOverlayFlg())) {
             //删除
-            QueryWrapper<PackTechSpec> delQw = new QueryWrapper<PackTechSpec>();
+            QueryWrapper<PackTechSpec> delQw = new QueryWrapper<>();
             delQw.eq("foreign_id", dto.getForeignId());
             delQw.eq("pack_type", dto.getPackType());
             delQw.eq("spec_type", dto.getSpecType());
@@ -226,7 +226,7 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
 //        delQw.in("spec_type",items);
 //        remove(delQw);
         //复制
-        QueryWrapper<PackTechSpec> query = new QueryWrapper<PackTechSpec>();
+        QueryWrapper<PackTechSpec> query = new QueryWrapper<>();
         query.eq("foreign_id", sourceForeignId);
         query.eq("pack_type", sourcePackType);
         query.in("spec_type", items);

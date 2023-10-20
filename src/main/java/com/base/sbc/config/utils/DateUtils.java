@@ -122,7 +122,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 	/** 显示到毫秒（数字格式） */
 	public static final String FORMAT_NO_MILLISECOND = "yyyyMMddHHmmssSSS";
 	/** 时间格式化器集合 */
-	private static final Map<String, SimpleDateFormat> STRING_SIMPLE_DATE_FORMAT_HASH_MAP = new HashMap<String, SimpleDateFormat>();
+	private static final Map<String, SimpleDateFormat> STRING_SIMPLE_DATE_FORMAT_HASH_MAP = new HashMap<>();
 
 	static {
 		STRING_SIMPLE_DATE_FORMAT_HASH_MAP.put(FORMAT_DATE, new SimpleDateFormat(FORMAT_DATE));

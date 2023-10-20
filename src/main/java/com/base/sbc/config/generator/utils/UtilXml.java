@@ -29,7 +29,7 @@ import java.util.List;
 public class UtilXml {
 	public static Params params = new Params();
 	public static DataSource dataSource = new DataSource();
-	public static List<Tables> tableList = new ArrayList<Tables>();
+	public static List<Tables> tableList = new ArrayList<>();
 
 	@SuppressWarnings("unchecked")
 	public static void parseXml(String xmlResource){

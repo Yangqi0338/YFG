@@ -83,7 +83,7 @@ public class UtilDb {
 	 * @return List<String>
 	 */
 	public static List<String> getColumnRemarksByTableNameWithList(String tableName) {
-		List<String> columnComments = new LinkedList<String>();
+		List<String> columnComments = new LinkedList<>();
 		connection();
 		try {
 			dmd = conn.getMetaData();
@@ -103,7 +103,7 @@ public class UtilDb {
 	 * @return List<String>
 	 */
 	public static List<String> getColumnNameByTableNameWithList(String tableName) {
-		List<String> columnComments = new LinkedList<String>();
+		List<String> columnComments = new LinkedList<>();
 		connection();
 		try {
 			dmd = conn.getMetaData();
@@ -123,7 +123,7 @@ public class UtilDb {
 	 * @return List<String>
 	 */
 	public static List<String> getColumnTyBypeTableNameWithList(String tableName) {
-		List<String> tableNames = new LinkedList<String>();
+		List<String> tableNames = new LinkedList<>();
 		connection();
 		try {
 			dmd = conn.getMetaData();
@@ -142,7 +142,7 @@ public class UtilDb {
 	 * @return List<String>
 	 */
 	public static List<String> getTableNames() {
-		List<String> tableNames = new LinkedList<String>();
+		List<String> tableNames = new LinkedList<>();
 		connection();
 		try {
 			dmd = conn.getMetaData();

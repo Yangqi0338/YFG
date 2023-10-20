@@ -385,7 +385,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         }
 
         String path =  file.toURI().getPath(); //图片路径
-        Map<String, String> paraMap = new HashMap<String, String>();
+        Map<String, String> paraMap = new HashMap<>();
 
         /*账号*/
         String useraccount = userBy.getUsername();
@@ -413,9 +413,9 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         String md5 = useraccount + key + APPsecret;
         String allStrP = DigestUtils.md5DigestAsHex(md5.getBytes());
         paraMap.put("md5", allStrP); //传递plm图片
-        Map<String, String> fileMap = new HashMap<String, String>();
+        Map<String, String> fileMap = new HashMap<>();
         fileMap.put("img", path);
-        String res = "";
+        String res;
         try {
             res = ImgUtils.formUpload(UPLOAD_PHOTO, paraMap, fileMap);
         } catch (Exception e) {

@@ -169,7 +169,7 @@ public class FilesUtils {
      */
     public ApiResult uploadBigData(MultipartFile file, String folder, HttpServletRequest request) throws Throwable {
         String applyCompany = request.getHeader(BaseConstant.USER_COMPANY);
-        String fileName = UUID.randomUUID().toString() + file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+        String fileName = UUID.randomUUID() + file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
         // 创建OSSClient实例。
         OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
         /* 步骤1：初始化一个分片上传事件。
@@ -181,7 +181,7 @@ public class FilesUtils {
 
         /* 步骤2：上传分片。
          */
-        List<PartETag> partETags = new ArrayList<PartETag>();
+        List<PartETag> partETags = new ArrayList<>();
         // 计算文件有多少个分片。
         final long partSize = 1 * 1024 * 1024L;
         long fileLength = file.getSize();

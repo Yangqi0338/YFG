@@ -148,8 +148,6 @@ public class ImgUtils {
 			if (!FTPReply.isPositiveCompletion(reply)) {
 				ftp.disconnect();
 			}
-		} catch (SocketException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -253,7 +251,7 @@ public class ImgUtils {
 			reader = null;
 		} catch (Exception e) {
 			System.out.println("发送POST请求出错。" + urlStr);
-			logger.error("调用丽晶图片上传服务异常：" + e.toString());
+			logger.error("调用丽晶图片上传服务异常：" + e);
 			e.printStackTrace();
 			return null;
 		} finally {

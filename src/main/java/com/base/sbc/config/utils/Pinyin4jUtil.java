@@ -118,19 +118,19 @@ public class Pinyin4jUtil {
      */  
     private static List<Map<String, Integer>> discountTheChinese(String theStr) {  
         // 去除重复拼音后的拼音列表  
-        List<Map<String, Integer>> mapList = new ArrayList<Map<String, Integer>>();  
+        List<Map<String, Integer>> mapList = new ArrayList<>();
         // 用于处理每个字的多音字，去掉重复  
-        Map<String, Integer> onlyOne = null;  
+        Map<String, Integer> onlyOne;
         String[] firsts = theStr.split(" ");  
         // 读出每个汉字的拼音  
         for (String str : firsts) {  
-            onlyOne = new Hashtable<String, Integer>();  
+            onlyOne = new Hashtable<>();
             String[] china = str.split(",");  
             // 多音字处理  
             for (String s : china) {  
                 Integer count = onlyOne.get(s);  
                 if (count == null) {  
-                    onlyOne.put(s, new Integer(1));  
+                    onlyOne.put(s, 1);
                 } else {  
                     onlyOne.remove(s);  
                     count++;  

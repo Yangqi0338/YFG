@@ -32,6 +32,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -283,7 +284,7 @@ public class PurchaseDemandController extends BaseController{
 					isComplete = "未齐料";
 				}
 
-				BigDecimal proportion = BigDecimalUtil.equalZero(completeNum) ? BigDecimal.ZERO : completeNum.divide(new BigDecimal(list.size()), 2 , BigDecimal.ROUND_DOWN).multiply(new BigDecimal(100.0));
+				BigDecimal proportion = BigDecimalUtil.equalZero(completeNum) ? BigDecimal.ZERO : completeNum.divide(new BigDecimal(list.size()), 2 , RoundingMode.DOWN).multiply(new BigDecimal(100.0));
 				item.setProportion(proportion);
 				item.setIsComplete(isComplete);
 				item.setDetailList(list);
@@ -294,7 +295,7 @@ public class PurchaseDemandController extends BaseController{
 			}
 
 			Integer currentStrat = (page.getPageNum() -1 ) * page.getPageSize();
-			Integer currentEnd = page.getPageNum() * page.getPageSize() > purchaseDemandList.size() ? purchaseDemandList.size() : page.getPageNum() * page.getPageSize();
+			Integer currentEnd = Math.min(page.getPageNum() * page.getPageSize(), purchaseDemandList.size());
 			List pageList = purchaseDemandList.subList(currentStrat, currentEnd);
 			PageInfo<PurchaseDemand> pages = new PageInfo<>(purchaseDemandList,1);
 			pages.setList(pageList);

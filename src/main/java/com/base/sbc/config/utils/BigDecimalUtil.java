@@ -292,7 +292,7 @@ public class BigDecimalUtil {
 		}
 		BigDecimal b1 =  BigDecimal.valueOf(v1);
 		BigDecimal b2 =  BigDecimal.valueOf(v2);
-		return b1.divide(b2, scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+		return b1.divide(b2, scale, RoundingMode.HALF_UP).doubleValue();
 	}
 	
 	/**
@@ -315,7 +315,7 @@ public class BigDecimalUtil {
 		if(v2 == null || (BigDecimal.ZERO).compareTo(v2) == 0 ){
 			return BigDecimal.ZERO;
 		}
-		return v1.divide(v2, scale, BigDecimal.ROUND_HALF_UP);
+		return v1.divide(v2, scale, RoundingMode.HALF_UP);
 	}
 
 	/**
@@ -331,7 +331,7 @@ public class BigDecimalUtil {
 		}
 		BigDecimal b =  BigDecimal.valueOf(v);
 		BigDecimal one = new BigDecimal("1");
-		return b.divide(one, scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+		return b.divide(one, scale, RoundingMode.HALF_UP).doubleValue();
 	}
 	
 	/** 万变成分
@@ -343,7 +343,7 @@ public class BigDecimalUtil {
 		if(money.indexOf(Constants.COMMA) > 0){
 			money = StringUtils.remove(money, Constants.COMMA);
 		}
-		BigDecimal moneyd = BigDecimal.valueOf(Double.valueOf(money));
+		BigDecimal moneyd = BigDecimal.valueOf(Double.parseDouble(money));
 		moneyd = moneyd.multiply(BigDecimal.valueOf(1000000));
 		return moneyd.longValue();
 	}

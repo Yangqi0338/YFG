@@ -309,7 +309,7 @@ public class ReflectUtil {
      * @return List<String>    返回类型 
      */
     public static List<String> getAllFieldNames(Class<?> clazz){
-    	List<String> lstFieldNames = new ArrayList<String>();
+    	List<String> lstFieldNames = new ArrayList<>();
     	Field[] fields = clazz.getDeclaredFields();
     	for(Field field:fields){
     		lstFieldNames.add(field.getName());
@@ -376,9 +376,7 @@ public class ReflectUtil {
          for(int i=0;i<obj.length;i++){
              try {
                 obj[i]=cla.newInstance();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
+            } catch (InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
             }
          }

@@ -567,7 +567,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         sampleVo.setAttachmentList(attachmentVoList);
 
         // 关联的素材库
-        QueryWrapper<PlanningCategoryItemMaterial> mqw = new QueryWrapper<PlanningCategoryItemMaterial>();
+        QueryWrapper<PlanningCategoryItemMaterial> mqw = new QueryWrapper<>();
         mqw.eq("planning_category_item_id", style.getPlanningCategoryItemId());
         mqw.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
         List<PlanningCategoryItemMaterial> list = planningCategoryItemMaterialService.list(mqw);
@@ -741,7 +741,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         long qhxfxqzs = this.count(qhxfxqzsQw);
         result.put("企划下发需求总数", qhxfxqzs);
         // 设计需求总数(统计从坑位下发的数据 + 新建的数据)
-        QueryWrapper<Style> sjxqzsQw = new QueryWrapper<Style>();
+        QueryWrapper<Style> sjxqzsQw = new QueryWrapper<>();
         sjxqzsQw.isNull("sender");
         getDesignDataOverviewCommonQw(sjxqzsQw, timeRange);
         long sjxqzs = this.count(sjxqzsQw);
@@ -761,7 +761,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         result.put("已开款", ykk);
 
         //已下发数 状态为2
-        QueryWrapper<Style> yxfsQw = new QueryWrapper<Style>();
+        QueryWrapper<Style> yxfsQw = new QueryWrapper<>();
         yxfsQw.eq("status", BasicNumber.TWO.getNumber());
         getDesignDataOverviewCommonQw(yxfsQw, timeRange);
         long yxfs = this.count(yxfsQw);
@@ -1418,7 +1418,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     private List<List> getChartList(List<ChartBarVo> chartBarVos) {
         List first = CollUtil.newArrayList("product", "总数", "未开款数", "已开款数", "已下发打版");
-        List<List> result = new ArrayList<List>(16);
+        List<List> result = new ArrayList<>(16);
         result.add(first);
         if (CollUtil.isNotEmpty(chartBarVos)) {
             Map<String, List<ChartBarVo>> productMap = chartBarVos.stream().collect(Collectors.groupingBy(ChartBarVo::getProduct));
