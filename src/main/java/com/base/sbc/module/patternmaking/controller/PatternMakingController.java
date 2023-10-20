@@ -38,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -331,9 +332,15 @@ public class PatternMakingController {
 
     @ApiOperation(value = "分配人员(车缝工)", notes = "")
     @PostMapping("/assignmentUser")
+    @Transactional(rollbackFor = Exception.class)
     public boolean assignmentUser(Principal user, @Valid @RequestBody AssignmentUserDto dto) {
         GroupUser groupUser = userUtils.getUserBy(user);
-        return patternMakingService.assignmentUser(groupUser, dto);
+        boolean b = patternMakingService.assignmentUser(groupUser, dto);
+
+        if (b && StrUtil.isNotBlank(dto.getSampleBarCode())){
+            smpService.sample(new String[]{dto.getId()});
+        }
+        return b;
     }
 
     @ApiOperation(value = "版师任务明细", notes = "")
