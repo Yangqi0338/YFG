@@ -68,7 +68,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 */
 	public static String convertStrsToStr(String[] strs) {
 		if (strs != null && strs.length > 0) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			for (String string : strs) {
 				sb.append("'").append(string.trim()).append("'").append(D);
 			}
@@ -84,12 +84,12 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * @return
 	 */
 	public static String convertListToString(List<String> list) {
-		if (list != null && list.size() > 0) {
+		if (list != null && !list.isEmpty()) {
 			StringBuilder sb = new StringBuilder();
 			for (String string : list) {
 				sb.append(string).append(D);
 			}
-			return sb.toString().substring(0,sb.length()-1);
+			return sb.substring(0,sb.length()-1);
 		}
 		return "";
 	}
@@ -318,7 +318,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		if (param == null) {
 			return "";
 		}
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		int n = 0;
 		char temp;
 		// 是不是HTML代码

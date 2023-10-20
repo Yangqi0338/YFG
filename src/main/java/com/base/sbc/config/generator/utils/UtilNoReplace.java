@@ -37,7 +37,7 @@ public class UtilNoReplace {
 			// 逐行读取文件内容，不读取换行符和末尾的空格
 			while ((s = bReader.readLine()) != null) {
 				// 将读取的字符串添加换行符后累加存放在缓存中
-				sb.append(s + "\n");
+				sb.append(s).append("\n");
 			}
 			bReader.close();
 		} catch (FileNotFoundException e) {
@@ -49,7 +49,7 @@ public class UtilNoReplace {
 		PrintWriter pw;
 		try {
 			pw = new PrintWriter(new FileWriter(fileName));
-			pw.println(replaceAll(sb.toString(),OTHER_START,OTHER_END,startEnd));
+			pw.println(replaceAll(sb.toString(), startEnd));
 			pw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -59,27 +59,26 @@ public class UtilNoReplace {
 	
 	/**
 	 * 替换文件的内容
+	 *
 	 * @param htmlString
-	 * @param start
-	 * @param end
 	 * @param newString
 	 * @return
 	 */
-	private static String replaceAll(String htmlString, String start, String end, String newString) {
-		StringBuffer modString = new StringBuffer(htmlString.length());
+	private static String replaceAll(String htmlString, String newString) {
+		StringBuilder modString = new StringBuilder(htmlString.length());
 		int i = 0, j = 0, j2 = 0;
 		while (true) {
 			// first check if there are any matching start & end
-			i = htmlString.indexOf(start, j2);
+			i = htmlString.indexOf(UtilNoReplace.OTHER_START, j2);
 			if (i != -1) {
-				j = htmlString.indexOf(end, i);
+				j = htmlString.indexOf(UtilNoReplace.OTHER_END, i);
 			} else {
-				j = htmlString.indexOf(end, j2);
+				j = htmlString.indexOf(UtilNoReplace.OTHER_END, j2);
 			}
 			if ((i != -1) && (j != -1)) {
-				modString.append(htmlString.substring(j2, i)).append(newString);
+				modString.append(htmlString, j2, i).append(newString);
 				// 此处不可以改为
-				j2 = j + end.length();
+				j2 = j + UtilNoReplace.OTHER_END.length();
 			} else {
 				modString.append(htmlString.substring(j2));
 				break;

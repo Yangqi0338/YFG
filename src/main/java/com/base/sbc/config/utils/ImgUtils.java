@@ -15,6 +15,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -185,60 +186,55 @@ public class ImgUtils {
 			OutputStream out = new DataOutputStream(conn.getOutputStream());
 			// text
 			if (textMap != null) {
-				StringBuffer strBuf = new StringBuffer();
-				Iterator<Map.Entry<String, String>> iter = textMap.entrySet().iterator();
+				StringBuilder strBuf = new StringBuilder();
 				/*if (strBuf.length() == 0) {
 					return null;
 				}*/
-				while (iter.hasNext()) {
-					Map.Entry<String, String> entry = iter.next();
-					String inputName = (String) entry.getKey();
-					String inputValue = (String) entry.getValue();
-					if (inputValue == null) {
-						continue;
-					}
-					strBuf.append("\r\n").append("--").append(BOUNDARY).append("\r\n");
-					strBuf.append("Content-Disposition: form-data; name=\"" + inputName + "\"\r\n\r\n");
-					strBuf.append(inputValue);
-				}
+                for (Map.Entry<String, String> entry : textMap.entrySet()) {
+                    String inputName = entry.getKey();
+                    String inputValue = entry.getValue();
+                    if (inputValue == null) {
+                        continue;
+                    }
+                    strBuf.append("\r\n").append("--").append(BOUNDARY).append("\r\n");
+                    strBuf.append("Content-Disposition: form-data; name=\"").append(inputName).append("\"\r\n\r\n");
+                    strBuf.append(inputValue);
+                }
 				out.write(strBuf.toString().getBytes());
 			}
 
 			// file
 			if (fileMap != null) {
-				Iterator<Map.Entry<String, String>> iter = fileMap.entrySet().iterator();
-				while (iter.hasNext()) {
-					Map.Entry<String, String> entry = iter.next();
-					String inputName = (String) entry.getKey();
-					String inputValue = (String) entry.getValue();
-					if (inputValue == null) {
-						continue;
-					}
-					File file = new File(inputValue);
-					String filename = file.getName();
+                for (Map.Entry<String, String> entry : fileMap.entrySet()) {
+                    String inputName = entry.getKey();
+                    String inputValue = (String) entry.getValue();
+                    if (inputValue == null) {
+                        continue;
+                    }
+                    File file = new File(inputValue);
+                    String filename = file.getName();
 
-					if (filename.endsWith("bmp")) {
-						String newPath = covertBmpToJpg(inputValue);
-						file = new File(newPath);
-					}
+                    if (filename.endsWith("bmp")) {
+                        String newPath = covertBmpToJpg(inputValue);
+                        file = new File(newPath);
+                    }
 
-					MagicMatch match = Magic.getMagicMatch(file, false, true);
-					String contentType = match.getMimeType();
+                    MagicMatch match = Magic.getMagicMatch(file, false, true);
+                    String contentType = match.getMimeType();
 
-					StringBuffer strBuf = new StringBuffer();
-					strBuf.append("\r\n").append("--").append(BOUNDARY).append("\r\n");
-					strBuf.append("Content-Disposition: form-data; name=\"" + inputName + "\"; filename=\"" + filename + "\"\r\n");
-					strBuf.append("Content-Type:" + contentType + "\r\n\r\n");
+					String strBuf = "\r\n" + "--" + BOUNDARY + "\r\n" +
+							"Content-Disposition: form-data; name=\"" + inputName + "\"; filename=\"" + filename + "\"\r\n" +
+							"Content-Type:" + contentType + "\r\n\r\n";
 
-					out.write(strBuf.toString().getBytes());
-					DataInputStream in = new DataInputStream(new FileInputStream(file));
-					int bytes = 0;
-					byte[] bufferOut = new byte[1024];
-					while ((bytes = in.read(bufferOut)) != -1) {
-						out.write(bufferOut, 0, bytes);
-					}
-					in.close();
-				}
+                    out.write(strBuf.getBytes());
+                    DataInputStream in = new DataInputStream(Files.newInputStream(file.toPath()));
+                    int bytes = 0;
+                    byte[] bufferOut = new byte[1024];
+                    while ((bytes = in.read(bufferOut)) != -1) {
+                        out.write(bufferOut, 0, bytes);
+                    }
+                    in.close();
+                }
 			}
 			byte[] endData = ("\r\n--" + BOUNDARY + "--\r\n").getBytes();
 			out.write(endData);
@@ -246,7 +242,7 @@ public class ImgUtils {
 			out.close();
 
 			// 读取返回数据
-			StringBuffer strBuf = new StringBuffer();
+			StringBuilder strBuf = new StringBuilder();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			String line = null;
 			while ((line = reader.readLine()) != null) {

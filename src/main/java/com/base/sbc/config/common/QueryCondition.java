@@ -425,7 +425,7 @@ public final class QueryCondition extends BaseEntity {
      * @return
      */
     public QueryCondition andLikeOr(Object value, String... columns) {
-        StringBuffer sBuffer = new StringBuffer("(");
+        StringBuilder sBuffer = new StringBuilder("(");
         for (int i = 0; i < columns.length; i++) {
             sBuffer.append(columns[i]).append(" like concat(concat('%','").append(value).append("'),'%')");
             //如果不是最后一个

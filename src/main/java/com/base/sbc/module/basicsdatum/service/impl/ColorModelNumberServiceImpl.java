@@ -79,30 +79,30 @@ public class ColorModelNumberServiceImpl extends BaseServiceImpl<ColorModelNumbe
         String type ="";
         String dict = "";
         String level ="";
-        if(name.indexOf("包装袋标准")!= -1){
+        if(name.contains("包装袋标准")){
             type="1";
             dict = "C8_PackageType";
-        }else if(name.indexOf("廓形")!= -1){
+        }else if(name.contains("廓形")){
             type="2";
             level="1";
-        }else if(name.indexOf("形状功能描述")!= -1){
+        }else if(name.contains("形状功能描述")){
             type="3";
             dict = "C8_Mat2ndCategory";
-        }else if(name.indexOf("性别")!= -1){
+        }else if(name.contains("性别")){
             type="4";
             dict = "C8_Brand";
-        }else if(name.indexOf("打样顺序")!= -1){
+        }else if(name.contains("打样顺序")){
             type="5";
-        }else if(name.indexOf("打版难易度")!= -1){
+        }else if(name.contains("打版难易度")){
             type="6";
             dict="DevtType";
-        }else if(name.indexOf("款式来源")!= -1){
+        }else if(name.contains("款式来源")){
             type="7";
             dict="DevtType";
-        }else if(name.indexOf("淘宝分类")!= -1){
+        }else if(name.contains("淘宝分类")){
             type="8";
             level="2";
-        }else if(name.indexOf("色号和型号")!= -1){
+        }else if(name.contains("色号和型号")){
             type="9";
             dict="C8_Mat2ndCategory";
         }

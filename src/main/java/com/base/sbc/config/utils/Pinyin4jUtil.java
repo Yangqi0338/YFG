@@ -34,7 +34,7 @@ public class Pinyin4jUtil {
      * @return 拼音 
      */  
     public static String converterToFirstSpell(String chines) {  
-        StringBuffer pinyinName = new StringBuffer();  
+        StringBuilder pinyinName = new StringBuilder();
         char[] nameChar = chines.toCharArray();  
         HanyuPinyinOutputFormat defaultFormat = new HanyuPinyinOutputFormat();  
         defaultFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);  
@@ -79,7 +79,7 @@ public class Pinyin4jUtil {
      * @return 拼音 
      */  
     public static String converterToSpell(String chines) {  
-        StringBuffer pinyinName = new StringBuffer();  
+        StringBuilder pinyinName = new StringBuilder();
         char[] nameChar = chines.toCharArray();  
         HanyuPinyinOutputFormat defaultFormat = new HanyuPinyinOutputFormat();  
         defaultFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);  

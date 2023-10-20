@@ -67,22 +67,22 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         /*类别 1：部件库，2：基础工艺，3：外辅工艺，4：裁剪工艺，5：注意事项，6：整烫包装，7：模板部件*/
         String name = split[0];
         String dict = "";
-        if (name.indexOf("部件库") != -1) {
+        if (name.contains("部件库")) {
             dict = "C8_SpecCategory";
             type = "1";
-        } else if (name.indexOf("基础工艺") != -1) {
+        } else if (name.contains("基础工艺")) {
             dict = "C8_SewingType";
             type = "2";
-        } else if (name.indexOf("外辅工艺") != -1) {
+        } else if (name.contains("外辅工艺")) {
             type = "3";
-        } else if (name.indexOf("裁剪工艺") != -1) {
+        } else if (name.contains("裁剪工艺")) {
             type = "4";
-        } else if (name.indexOf("注意事项") != -1) {
+        } else if (name.contains("注意事项")) {
             type = "5";
-        } else if (name.indexOf("整烫包装") != -1) {
+        } else if (name.contains("整烫包装")) {
             dict = "C8_SewingType";
             type = "6";
-        } else if (name.indexOf("模板部件") != -1) {
+        } else if (name.contains("模板部件")) {
             dict = "C8_SpecCategory,C8_Brand";
             type = "7";
         }

@@ -65,28 +65,28 @@ public class Gen {
 			map.put("hasInteger",CollUtil.contains(columnTypes,"Integer"));
 
 			//不存在  或者  包含1
-			if(StringUtils.isBlank(table.getGenType())||table.getGenType().indexOf(Tables.GENXML)!=-1) {
+			if(StringUtils.isBlank(table.getGenType())|| table.getGenType().contains(Tables.GENXML)) {
 				// 1.xml
 				String xmlName =  params.getXmlosdir()+ File.separatorChar +"mappings"+ File.separatorChar +project+ File.separatorChar + javaClassName + "Mapper.xml";
 				System.out.println("输出文件："+map.get("title")+"的mapper.xml件");
 				UtilFreemarker.generateFile(xmlName, "ftl/xml.ftl", map);
 			}
 			//不存在  或者  包含1
-			if(StringUtils.isBlank(table.getGenType())||table.getGenType().indexOf(Tables.GENENTITY)!=-1) {
+			if(StringUtils.isBlank(table.getGenType())|| table.getGenType().contains(Tables.GENENTITY)) {
 				//2.entity
 				String entityName = javaPath + "entity" + File.separatorChar + javaClassName + ".java";
 				System.out.println("输出文件："+map.get("title")+"的实体类");
 				UtilFreemarker.generateFile(entityName, "ftl/entity.ftl", map);
 			}
 			//不存在  或者  包含3
-			if(StringUtils.isBlank(table.getGenType())||table.getGenType().indexOf(Tables.GENDAO)!=-1) {
+			if(StringUtils.isBlank(table.getGenType())|| table.getGenType().contains(Tables.GENDAO)) {
 				//3.dao
 				String daoName = javaPath +  "mapper" + File.separatorChar + javaClassName + "Mapper.java";
 				System.out.println("输出文件："+map.get("title")+"的dao类");
 				UtilFreemarker.generateFile(daoName,  "ftl/dao.ftl", map);
 			}
 			//不存在  或者  包含4
-			if(StringUtils.isBlank(table.getGenType())||table.getGenType().indexOf(Tables.GENSERVICE)!=-1) {
+			if(StringUtils.isBlank(table.getGenType())|| table.getGenType().contains(Tables.GENSERVICE)) {
 				//4.service
 				String serviceName = javaPath +  "service" + File.separatorChar + javaClassName + "Service.java";
 				System.out.println("输出文件："+map.get("title")+"的service类");
@@ -98,7 +98,7 @@ public class Gen {
 				UtilFreemarker.generateFile(serviceImplName,  "ftl/serviceImpl.ftl", map);
 			}
 			//不存在  或者  包含5
-			if(StringUtils.isBlank(table.getGenType())||table.getGenType().indexOf(Tables.GENCONTROLLER)!=-1) {
+			if(StringUtils.isBlank(table.getGenType())|| table.getGenType().contains(Tables.GENCONTROLLER)) {
 				//5.controller
 				String controllerName = javaPath +  "controller" + File.separatorChar + javaClassName + "Controller.java";
 				System.out.println("输出文件："+map.get("title")+"的控制器类");

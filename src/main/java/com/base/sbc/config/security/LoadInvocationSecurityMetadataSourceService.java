@@ -53,7 +53,7 @@ public class LoadInvocationSecurityMetadataSourceService implements FilterInvoca
 		String applyCompany = request.getHeader(BaseConstant.USER_COMPANY);
 
 		//saas 头部需要包含userCompany  如果请求的是saas模块，直接转至decide 方法
-		if(request.getRequestURI().indexOf(SAAS)!=-1) {
+		if(request.getRequestURI().contains(SAAS)) {
 			//用户当前选择企业的ID
 			String userCompany = request.getHeader(BaseConstant.USER_COMPANY);
 			if(StringUtils.isBlank(userCompany)) {

@@ -1753,7 +1753,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
      */
     private Map<String, Object> redisGetData(PatternMakingWeekMonthViewDto patternMakingWeekMonthViewDto, String token, String countType) {
         // 1、组装缓存key
-        StringBuffer key = new StringBuffer();
+        StringBuilder key = new StringBuilder();
         key.append(countType);
         key.append(patternMakingWeekMonthViewDto.getCompanyCode());
         key.append(patternMakingWeekMonthViewDto.getWeeklyMonth());

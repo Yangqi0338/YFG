@@ -88,7 +88,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStatus()),"status", queryDto.getStatus());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getPdmTypeName()),"pdm_type_name", queryDto.getPdmTypeName());
         if(StringUtils.isNotBlank(queryDto.getCategoryId())){
-            if(queryDto.getCategoryId().indexOf(",")!=-1){
+            if(queryDto.getCategoryId().contains(",")){
                 queryWrapper.apply(StringUtils.findInSet(queryDto.getCategoryId(),"category_id"));
             }else {
                 queryWrapper.like(StringUtils.isNotBlank(queryDto.getCategoryId()),"category_id", queryDto.getCategoryId());
@@ -209,13 +209,13 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
             queryWrapper.in("hangtags", StringUtils.convertList(addRevampBasicsdatumModelTypeDto.getDefaultSize()));
             List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeMapper.selectList(queryWrapper);
             if(CollectionUtil.isNotEmpty(basicsdatumSizeList)) {
-                StringBuffer sizeIds = new StringBuffer();
-                StringBuffer sizeCodes = new StringBuffer();
-                StringBuffer sizeRealCodes = new StringBuffer();
+                StringBuilder sizeIds = new StringBuilder();
+                StringBuilder sizeCodes = new StringBuilder();
+                StringBuilder sizeRealCodes = new StringBuilder();
                 for (BasicsdatumSize item : basicsdatumSizeList) {
-                    sizeIds.append(item.getId() + ",");
-                    sizeCodes.append(item.getCode() + ",");
-                    sizeRealCodes.append(item.getRealCode() + ",");
+                    sizeIds.append(item.getId()).append(",");
+                    sizeCodes.append(item.getCode()).append(",");
+                    sizeRealCodes.append(item.getRealCode()).append(",");
                 }
                 addRevampBasicsdatumModelTypeDto.setDefaultSizeIds(sizeIds.deleteCharAt(sizeIds.length() - 1).toString());
                 addRevampBasicsdatumModelTypeDto.setDefaultSizeCode(sizeCodes.deleteCharAt(sizeCodes.length() - 1).toString());
@@ -320,8 +320,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
         QueryWrapper<BasicsdatumModelType> qw = new QueryWrapper<>();
         qw.eq("company_code", companyCode);
         qw.eq("code", code);
-        List<BasicsdatumModelType> basicsdatumModelTypeList = list(qw);
-        return basicsdatumModelTypeList;
+        return list(qw);
     }
 
     /** 自定义方法区 不替换的区域【other_end】 **/

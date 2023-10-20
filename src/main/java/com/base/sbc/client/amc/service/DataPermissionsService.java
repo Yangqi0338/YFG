@@ -153,7 +153,7 @@ public class DataPermissionsService {
         ret.put("authorityState", Boolean.TRUE);
         ret.put("authorityField","");
         ret.put("dataPermissionsKey",dataPermissionsKey);
-        List<DataPermissionVO> dataPermissionsList = null;
+        List<DataPermissionVO> dataPermissionsList;
         if (!redisUtils.hasKey(dataPermissionsKey+operateType)) {
             dataPermissionsList = this.getDataPermissions(businessType,operateType);
             //默认开启角色的数据隔离
@@ -185,56 +185,57 @@ public class DataPermissionsService {
             return ret;
         }
         List<String> authorityField=new ArrayList<>();
-        datafor:for(DataPermissionVO dataPermissions:dataPermissionsList){
-            if(!DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(dataPermissions.getRange())){
-                List<FieldDataPermissionVO> fieldDataPermissions=dataPermissions.getFieldDataPermissions();
-                if (CollectionUtils.isNotEmpty(fieldDataPermissions) && fieldDataPermissions.size()>0) {
-                    List<String> fieldArr=new ArrayList<>();
-                    boolean isFieldFlag=false;
-                    final String[] sqlType = {authorityField.size()>0?DataPermissionsSelectTypeEnum.OR.getK().equals(dataPermissions.getSelectType()) ? " or ( " : " and ( ":" ( "};
+        for (DataPermissionVO dataPermissions : dataPermissionsList) {
+            if (!DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(dataPermissions.getRange())) {
+                List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
+                if (CollectionUtils.isNotEmpty(fieldDataPermissions) && !fieldDataPermissions.isEmpty()) {
+                    List<String> fieldArr = new ArrayList<>();
+                    boolean isFieldFlag = false;
+                    final String[] sqlType = {!authorityField.isEmpty() ? DataPermissionsSelectTypeEnum.OR.getK().equals(dataPermissions.getSelectType()) ? " or ( " : " and ( " : " ( "};
                     fieldArr.add(sqlType[0]);
-                    fieldfor:for(FieldDataPermissionVO fieldDataPermissionVO:fieldDataPermissions){
-                        if(StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName()) || StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())){
-                            fieldArr.add(!(fieldArr.get(fieldArr.size()-1).equals(sqlType[0]))?DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType())?" or ":" and ":" ");
-                            sqlType[0] ="fromtype2339";
+                    for (FieldDataPermissionVO fieldDataPermissionVO : fieldDataPermissions) {
+                        if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName()) || StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())) {
+                            fieldArr.add(!(fieldArr.get(fieldArr.size() - 1).equals(sqlType[0])) ? DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and " : " ");
+                            sqlType[0] = "fromtype2339";
                         }
-                        if(StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())){
-                            String fieldName=Objects.isNull(authorityFields)?null:searchField(authorityFields,fieldDataPermissionVO.getFieldName());
-                            if(isAssignFields && StringUtils.isBlank(fieldName)){
-                                fieldArr.remove(fieldArr.size()-1);
-                                sqlType[0] =fieldArr.get(fieldArr.size()-1);
-                                continue fieldfor;
+                        if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())) {
+                            String fieldName = Objects.isNull(authorityFields) ? null : searchField(authorityFields, fieldDataPermissionVO.getFieldName());
+                            if (isAssignFields && StringUtils.isBlank(fieldName)) {
+                                fieldArr.remove(fieldArr.size() - 1);
+                                sqlType[0] = fieldArr.get(fieldArr.size() - 1);
+                                continue;
                             }
-                            isFieldFlag=true;
-                            fieldName=(fieldDataPermissionVO.getFieldName().indexOf(".")!=-1)?fieldDataPermissionVO.getFieldName():StringUtils.isNotBlank(fieldName)?fieldName:tablePre+fieldDataPermissionVO.getFieldName();
+                            isFieldFlag = true;
+                            fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() : StringUtils.isNotBlank(fieldName) ? fieldName : tablePre + fieldDataPermissionVO.getFieldName();
                             if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType())) {
-                                fieldArr.add(fieldName+" in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues())?"()":(fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
-                            }else {
-                                String finalFieldName = fieldName;
-                                if(fieldDataPermissionVO.getFieldValues().size()>1){
-                                    fieldArr.add(finalFieldName+" in (");
+                                fieldArr.add(fieldName + " in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
+                            } else {
+                                if (fieldDataPermissionVO.getFieldValues().size() > 1) {
+                                    fieldArr.add(fieldName + " in (");
                                     final String[] fieldValues = {""};
-                                    fieldDataPermissionVO.getFieldValues().forEach(e ->{
-                                        fieldValues[0] +=(StringUtils.isNotBlank(fieldValues[0])?"','":" '")+e;
+                                    fieldDataPermissionVO.getFieldValues().forEach(e -> {
+                                        fieldValues[0] += (StringUtils.isNotBlank(fieldValues[0]) ? "','" : " '") + e;
                                     });
-                                    fieldArr.add(fieldValues[0] +"') ");
+                                    fieldArr.add(fieldValues[0] + "') ");
                                 }
-                                if(fieldDataPermissionVO.getFieldValues().size()==1) {
-                                    fieldArr.add(" "+finalFieldName+"='"+fieldDataPermissionVO.getFieldValues().get(0)+"' ");
+                                if (fieldDataPermissionVO.getFieldValues().size() == 1) {
+                                    fieldArr.add(" " + fieldName + "='" + fieldDataPermissionVO.getFieldValues().get(0) + "' ");
                                 }
                             }
                         }
-                        if(StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())){
+                        if (StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())) {
                             fieldArr.add(fieldDataPermissionVO.getSqlField());
                         }
-                    };
-                    if(isFieldFlag){
+                    }
+                    ;
+                    if (isFieldFlag) {
                         fieldArr.add(" ) ");
                         authorityField.addAll(fieldArr);
                     }
                 }
             }
-        };
+        }
+        ;
 
         if(CollectionUtils.isNotEmpty(authorityField)) {
             String authorityFieldStr = "(" + StringUtils.join(authorityField, " ") + ")";
@@ -246,10 +247,10 @@ public class DataPermissionsService {
 
     private String searchField(String[] arr,String val){
         for (String s:arr) {
-            if(s.indexOf(":")==-1 && (s.endsWith("."+val) || s.equals(val))) {
+            if(!s.contains(":") && (s.endsWith("."+val) || s.equals(val))) {
                 return s;
             }
-            if(s.indexOf(":")!=-1){
+            if(s.contains(":")){
                 String[] ss=s.split(":");
                 if(ss[1].equals(val)){
                     return ss[0];

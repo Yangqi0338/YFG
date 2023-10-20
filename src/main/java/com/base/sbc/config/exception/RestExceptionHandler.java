@@ -183,7 +183,7 @@ public class RestExceptionHandler {
      * @return
      */
     private String appendException(Exception e) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < Constants.FOUR; i++) {
             StackTraceElement row = e.getStackTrace()[i];
             sb.append(row.getClassName()).append(".").append(row.getMethodName())
