@@ -15,7 +15,6 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -215,7 +214,7 @@ public class BasicsdatumModelTypeServiceImpl extends BaseServiceImpl<Basicsdatum
                 StringBuffer sizeRealCodes = new StringBuffer();
                 for (BasicsdatumSize item : basicsdatumSizeList) {
                     sizeIds.append(item.getId() + ",");
-                    sizeCodes.append(item.getSort() + ",");
+                    sizeCodes.append(item.getCode() + ",");
                     sizeRealCodes.append(item.getRealCode() + ",");
                 }
                 addRevampBasicsdatumModelTypeDto.setDefaultSizeIds(sizeIds.deleteCharAt(sizeIds.length() - 1).toString());
