@@ -39,6 +39,7 @@
         	bm.company_code = #{companyCode}
         	AND bm.update_date BETWEEN NOW() - INTERVAL 15 MINUTE AND NOW()
         	and bm.del_flag = '0'
+        	and bm.biz_type = 'material'
         GROUP BY bm.material_code
 --         and bm.material_code in ('FF042330003','SS022410020','WW022410003')
 --         	AND bm.update_date BETWEEN NOW() - INTERVAL 1 HOUR AND NOW()
