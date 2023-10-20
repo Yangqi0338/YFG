@@ -431,18 +431,18 @@ public class EncryptUtil {
 	private static byte[] discardNonBase64Bytes(byte[] data) {
 		byte[] temp = new byte[data.length];
 		int bytesCopied = 0;
-		for (int i = 0; i < data.length; i++) {
-			if (isValidBase64Byte(data[i])) {
-				temp[bytesCopied++] = data[i];
-			}
-		}
+        for (byte datum : data) {
+            if (isValidBase64Byte(datum)) {
+                temp[bytesCopied++] = datum;
+            }
+        }
 		byte[] newData = new byte[bytesCopied];
 		System.arraycopy(temp, 0, newData, 0, bytesCopied);
 		return newData;
 	}
 
 	private static String discardNonBase64Chars(String data) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		int length = data.length();
 		for (int i = 0; i < length; i++) {
 			if (isValidBase64Byte((byte) (data.charAt(i)))) {

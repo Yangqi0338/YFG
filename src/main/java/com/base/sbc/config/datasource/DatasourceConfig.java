@@ -71,7 +71,7 @@ public class DatasourceConfig {
     
     
 	
-    @Bean(name="dataSource",destroyMethod = "close", initMethod="init")
+    @Bean(name="dataSource")
     @Primary
     public DataSource dataSource(){  
         DruidDataSource datasource = new DruidDataSource();  

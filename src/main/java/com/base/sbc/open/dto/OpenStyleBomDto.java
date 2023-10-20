@@ -59,13 +59,12 @@ public class OpenStyleBomDto {
             dto.setOperator(attachment.getUpdateName());
             List<String> imgList = new ArrayList<>();
             int num = 1;
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < attachments.size(); i++) {
-                Attachment a = attachments.get(i);
+            StringBuilder sb = new StringBuilder();
+            for (Attachment a : attachments) {
                 if (fileMap.get(a.getFileId()) != null) {
                     imgList.add(fileMap.get(a.getFileId()));
                 }
-                if (StringUtils.isNotBlank(a.getRemarks())){
+                if (StringUtils.isNotBlank(a.getRemarks())) {
                     sb.append("第").append(num).append("张：").append(a.getRemarks()).append(";");
                 }
                 num++;
@@ -96,7 +95,7 @@ public class OpenStyleBomDto {
      * @param sizeMap
      */
     public void initSizeList(List<PackSize> sizes, Map<String, String> sizeMap){
-        if (sizes != null && sizes.size() > 0){
+        if (sizes != null && !sizes.isEmpty()){
             OpenPackSizeDto sizeDto = new OpenPackSizeDto();
             sizeDto.init(sizes,sizeMap);
             sizeDto.setCode(this.code);
@@ -207,10 +206,10 @@ public class OpenStyleBomDto {
         Map<String, List<PackBomColor>> colorMap = new HashMap<>();
         Map<String, List<PackBomSize>> sizeMap = new HashMap<>();
         if (CollectionUtil.isNotEmpty(packBomColors)){
-            colorMap = packBomColors.stream().collect(Collectors.groupingBy(c->c.getBomId()));
+            colorMap = packBomColors.stream().collect(Collectors.groupingBy(PackBomColor::getBomId));
         }
         if (CollectionUtil.isNotEmpty(packBomSizes)){
-            sizeMap = packBomSizes.stream().collect(Collectors.groupingBy(c->c.getBomId()));
+            sizeMap = packBomSizes.stream().collect(Collectors.groupingBy(PackBomSize::getBomId));
         }
         OpenPackBomDto packBomDto = new OpenPackBomDto();
         packBomDto.init(this.code,packBoms,colorMap,sizeMap,materialMap,styleSizeMap);
@@ -312,8 +311,8 @@ public class OpenStyleBomDto {
                              Map<String, String> styleSizeMap) {
                 List<OpenMaterialDetail> detailList = new ArrayList<>();
                 OpenMaterialDetail detail;
-                if (colorList != null && colorList.size()>0){
-                    if (sizeList != null && sizeList.size()>0){
+                if (colorList != null && !colorList.isEmpty()){
+                    if (sizeList != null && !sizeList.isEmpty()){
                         for (PackBomColor color : colorList) {
                             for (PackBomSize size : sizeList) {
                                 if ("无".equals(size.getWidth())){
@@ -338,7 +337,7 @@ public class OpenStyleBomDto {
                             detailList.add(detail);
                         }
                     }
-                }else if (sizeList != null && sizeList.size()>0){
+                }else if (sizeList != null && !sizeList.isEmpty()){
                     for (PackBomSize size : sizeList) {
                         if ("无".equals(size.getWidth())){
 //                            size.setWidthCode("");
@@ -566,7 +565,7 @@ public class OpenStyleBomDto {
             Map<String, List<PackPricingProcessCosts>> processMap = processCostsList.stream().collect(Collectors.groupingBy(p -> p.getColorName()));
 
             //单色不做区分
-            List<OpenCostItemDto> list = new ArrayList();
+            List<OpenCostItemDto> list = new ArrayList<>();
             OpenCostItemDto itemDto;
             for (PackPricing pricing : packPricings) {
                 itemDto =  new OpenCostItemDto();

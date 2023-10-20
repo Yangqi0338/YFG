@@ -486,20 +486,20 @@ public class SmpService {
                 String[] widths = basicsdatumMaterialPricePageVo.getWidth().split(",");
                 String[] colors = basicsdatumMaterialPricePageVo.getColor().split(",");
 
-                for (int i = 0; i < colors.length; i++) {
-                    for (int j = 0; j < widths.length; j++) {
+                for (String color : colors) {
+                    for (String width : widths) {
                         BasicsdatumMaterialPricePageVo basicsdatumMaterialPricePageVo1 = new BasicsdatumMaterialPricePageVo();
                         BeanUtil.copyProperties(basicsdatumMaterialPricePageVo, basicsdatumMaterialPricePageVo1);
-                        basicsdatumMaterialPricePageVo1.setColor(colors[i]);
-                        basicsdatumMaterialPricePageVo1.setWidth(widths[j]);
+                        basicsdatumMaterialPricePageVo1.setColor(color);
+                        basicsdatumMaterialPricePageVo1.setWidth(width);
                         try {
                             for (SmpColor smpColor : colorList) {
-                                if (colors[i].equals(smpColor.getColorCode())) {
+                                if (color.equals(smpColor.getColorCode())) {
                                     basicsdatumMaterialPricePageVo1.setColorName(smpColor.getColorName());
                                 }
                             }
                             for (SmpModuleSize smpModuleSize : moduleSizeList) {
-                                if (widths[j].equals(smpModuleSize.getSizeUrl())) {
+                                if (width.equals(smpModuleSize.getSizeUrl())) {
                                     basicsdatumMaterialPricePageVo1.setWidthName(smpModuleSize.getSizeCode());
                                 }
                             }

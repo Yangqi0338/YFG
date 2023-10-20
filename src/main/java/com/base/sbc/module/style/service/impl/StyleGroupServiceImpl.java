@@ -143,16 +143,16 @@ public class StyleGroupServiceImpl extends BaseServiceImpl<StyleGroupMapper, Sty
 
 			StyleGroupColor entity;
 			List<StyleGroupColor> list = new ArrayList<>();
-			for (int i = 0; i < styles.length; i++) {
-				if (StringUtils.isBlank(styles[i])) {
-					continue;
-				}
-				entity = new StyleGroupColor();
-				entity.setCompanyCode(this.getCompanyCode());
-				entity.setStyleNo(styles[i]);
-				entity.setGroupCode(dto.getGroupCode());
-				list.add(entity);
-			}
+            for (String style : styles) {
+                if (StringUtils.isBlank(style)) {
+                    continue;
+                }
+                entity = new StyleGroupColor();
+                entity.setCompanyCode(this.getCompanyCode());
+                entity.setStyleNo(style);
+                entity.setGroupCode(dto.getGroupCode());
+                list.add(entity);
+            }
 			this.sampleStyleGroupColorService.saveBatch(list);
 		} else {
 			StyleGroupColor entity = CopyUtil.copy(dto, StyleGroupColor.class);

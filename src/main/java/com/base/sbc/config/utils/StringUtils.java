@@ -543,10 +543,10 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		StringBuilder result = new StringBuilder();
 		StringBuilder val = new StringBuilder();
 		String[] vals = split(objectString, ".");
-		for (int i = 0; i < vals.length; i++) {
-			val.append("." + vals[i]);
-			result.append("!" + (val.substring(1)) + "?'':");
-		}
+        for (String s : vals) {
+            val.append(".").append(s);
+            result.append("!").append(val.substring(1)).append("?'':");
+        }
 		result.append(val.substring(1));
 		return result.toString();
 	}
@@ -578,17 +578,17 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	 * FIND_IN_SET('9', category_id)
 	 */
 	public static String findInSet(String strings,String field) {
-		String s ="";
+		StringBuilder s = new StringBuilder();
 		if(isNotBlank(strings)){
 			String[] strings1 = strings.split(",");
 			for (int i = 0; i < strings1.length; i++) {
-			    	s += " FIND_IN_SET('"+strings1[i]+"', "+field+") ";
+			    	s.append(" FIND_IN_SET('").append(strings1[i]).append("', ").append(field).append(") ");
 				if(i != strings1.length-1){
-					s += " or ";
+					s.append(" or ");
 				}
 			}
 		}
-		return s;
+		return s.toString();
 	}
 
 	/**

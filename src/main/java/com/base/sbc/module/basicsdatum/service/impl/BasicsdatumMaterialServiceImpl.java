@@ -139,8 +139,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     private List<BasicsdatumMaterialIngredient> formatToList(String str) {
         String[] strs = str.split(",");
         List<BasicsdatumMaterialIngredient> list = new ArrayList<>();
-        for (int i = 0; i < strs.length; i++) {
-            String ingredients = strs[i];
+        for (String ingredients : strs) {
             BasicsdatumMaterialIngredient in = new BasicsdatumMaterialIngredient();
             in.setRatio(BigDecimalUtil.valueOf(ingredients.split("%")[0]));
             String nameSay = ingredients.split("%")[1];

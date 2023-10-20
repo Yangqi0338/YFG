@@ -38,32 +38,32 @@ public class Pinyin4jUtil {
         char[] nameChar = chines.toCharArray();  
         HanyuPinyinOutputFormat defaultFormat = new HanyuPinyinOutputFormat();  
         defaultFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);  
-        defaultFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);  
-        for (int i = 0; i < nameChar.length; i++) {  
-            if (nameChar[i] > 128) {  
-                try {  
-                    // 取得当前汉字的所有全拼  
-                    String[] strs = PinyinHelper.toHanyuPinyinStringArray(  
-                            nameChar[i], defaultFormat);  
-                    if (strs != null) {  
-                        for (int j = 0; j < strs.length; j++) {  
-                            // 取首字母  
-                            pinyinName.append(strs[j].charAt(0));  
-                            if (j != strs.length - 1) {  
-                                pinyinName.append(",");  
-                            }  
-                        }  
-                    }  
-                    // else {  
-                    // pinyinName.append(nameChar[i]);  
-                    // }  
-                } catch (BadHanyuPinyinOutputFormatCombination e) {  
-                    e.printStackTrace();  
-                }  
-            } else {  
-                pinyinName.append(nameChar[i]);  
-            }  
-            pinyinName.append(" ");  
+        defaultFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
+        for (char c : nameChar) {
+            if (c > 128) {
+                try {
+                    // 取得当前汉字的所有全拼
+                    String[] strs = PinyinHelper.toHanyuPinyinStringArray(
+                            c, defaultFormat);
+                    if (strs != null) {
+                        for (int j = 0; j < strs.length; j++) {
+                            // 取首字母
+                            pinyinName.append(strs[j].charAt(0));
+                            if (j != strs.length - 1) {
+                                pinyinName.append(",");
+                            }
+                        }
+                    }
+                    // else {
+                    // pinyinName.append(nameChar[i]);
+                    // }
+                } catch (BadHanyuPinyinOutputFormatCombination e) {
+                    e.printStackTrace();
+                }
+            } else {
+                pinyinName.append(c);
+            }
+            pinyinName.append(" ");
         }  
         // return pinyinName.toString();  
         return parseTheChineseByObject(discountTheChinese(pinyinName.toString()));  
@@ -83,28 +83,28 @@ public class Pinyin4jUtil {
         char[] nameChar = chines.toCharArray();  
         HanyuPinyinOutputFormat defaultFormat = new HanyuPinyinOutputFormat();  
         defaultFormat.setCaseType(HanyuPinyinCaseType.LOWERCASE);  
-        defaultFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);  
-        for (int i = 0; i < nameChar.length; i++) {  
-            if (nameChar[i] > 128) {  
-                try {  
-                    // 取得当前汉字的所有全拼  
-                    String[] strs = PinyinHelper.toHanyuPinyinStringArray(  
-                            nameChar[i], defaultFormat);  
-                    if (strs != null) {  
-                        for (int j = 0; j < strs.length; j++) {  
-                            pinyinName.append(strs[j]);  
-                            if (j != strs.length - 1) {  
-                                pinyinName.append(",");  
-                            }  
-                        }  
-                    }  
-                } catch (BadHanyuPinyinOutputFormatCombination e) {  
-                    e.printStackTrace();  
-                }  
-            } else {  
-                pinyinName.append(nameChar[i]);  
-            }  
-            pinyinName.append(" ");  
+        defaultFormat.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
+        for (char c : nameChar) {
+            if (c > 128) {
+                try {
+                    // 取得当前汉字的所有全拼
+                    String[] strs = PinyinHelper.toHanyuPinyinStringArray(
+                            c, defaultFormat);
+                    if (strs != null) {
+                        for (int j = 0; j < strs.length; j++) {
+                            pinyinName.append(strs[j]);
+                            if (j != strs.length - 1) {
+                                pinyinName.append(",");
+                            }
+                        }
+                    }
+                } catch (BadHanyuPinyinOutputFormatCombination e) {
+                    e.printStackTrace();
+                }
+            } else {
+                pinyinName.append(c);
+            }
+            pinyinName.append(" ");
         }  
         // return pinyinName.toString();  
         return parseTheChineseByObject(discountTheChinese(pinyinName.toString()));  
@@ -152,44 +152,43 @@ public class Pinyin4jUtil {
         // 用于统计每一次,集合组合数据
         Map<String, Integer> first = null;
         // 遍历每一组集合
-        for (int i = 0; i < list.size(); i++) {  
-            // 每一组集合与上一次组合的Map  
-            Map<String, Integer> temp = new Hashtable<String, Integer>();  
-            // 第一次循环，first为空  
-            if (first != null) {  
-                // 取出上次组合与此次集合的字符，并保存  
-                for (String s : first.keySet()) {  
-                    for (String s1 : list.get(i).keySet()) {  
-                        String str = s + s1;  
-                        temp.put(str, 1);  
-                    }  
-                }  
-                // 清理上一次组合数据  
-                if (temp != null && temp.size() > 0) {  
-                    first.clear();  
-                }  
-            } else {  
-                for (String s : list.get(i).keySet()) {  
-                    String str = s;  
-                    temp.put(str, 1);  
-                }  
-            }  
+        for (Map<String, Integer> stringIntegerMap : list) {
+            // 每一组集合与上一次组合的Map
+            Map<String, Integer> temp = new Hashtable<>();
+            // 第一次循环，first为空
+            if (first != null) {
+                // 取出上次组合与此次集合的字符，并保存
+                for (String s : first.keySet()) {
+                    for (String s1 : stringIntegerMap.keySet()) {
+                        String str = s + s1;
+                        temp.put(str, 1);
+                    }
+                }
+                // 清理上一次组合数据
+                if (!temp.isEmpty()) {
+                    first.clear();
+                }
+            } else {
+                for (String s : stringIntegerMap.keySet()) {
+                    temp.put(s, 1);
+                }
+            }
             // 保存组合数据以便下次循环使用  
-            if (temp != null && temp.size() > 0) {  
-                first = temp;  
-            }  
+            if (!temp.isEmpty()) {
+                first = temp;
+            }
         }  
-        String returnStr = "";  
+        StringBuilder returnStr = new StringBuilder();
         if (first != null) {  
             // 遍历取出组合字符串  
             for (String str : first.keySet()) {  
-                returnStr += (str + ",");  
+                returnStr.append(str).append(",");
             }  
         }  
-        if (returnStr.length() > 0) {  
-            returnStr = returnStr.substring(0, returnStr.length() - 1);  
+        if (returnStr.length() > 0) {
+            returnStr = new StringBuilder(returnStr.substring(0, returnStr.length() - 1));
         }  
-        return returnStr;  
+        return returnStr.toString();
     }
 
 

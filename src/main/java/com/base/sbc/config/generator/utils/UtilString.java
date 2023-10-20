@@ -72,29 +72,39 @@ public class UtilString {
 	 * @return java类型
 	 */
 	public static String dbTypeToJavaType(String columnType) {
-		String type = "";
-		if (columnType == null || "".equals(columnType.trim())) {
+		String type;
+		if (columnType == null || columnType.trim().isEmpty()) {
 			return null;
 		}
-		if (VARCHAR.equals(columnType) || CHAR.equals(columnType)
-				|| TEXT.equals(columnType)) {
-			type = STRING;
-		} else if (DATE.equals(columnType) || DATETIME.equals(columnType)) {
-			type = DATE1;
-		} else if (INT.equals(columnType)
-				|| INT_UNSIGNED.equals(columnType)) {
-			type = INTEGER;
-		} else if (MEDIUMBLOB.equals(columnType)
-				|| VARBINARY.equals(columnType)) {
-			type = BYTE_ARR;
-		} else if (DECIMAL.equals(columnType)) {
-			type = BIG_DECIMAL;
-		} else if (BIGINT.equals(columnType)) {
-			type = STRING;
-		} else {
-			System.out.println("未知的字段类型[" + columnType + "]");
-			type = null;
-		}
+        switch (columnType) {
+            case VARCHAR:
+            case CHAR:
+            case TEXT:
+                type = STRING;
+                break;
+            case DATE:
+            case DATETIME:
+                type = DATE1;
+                break;
+            case INT:
+            case INT_UNSIGNED:
+                type = INTEGER;
+                break;
+            case MEDIUMBLOB:
+            case VARBINARY:
+                type = BYTE_ARR;
+                break;
+            case DECIMAL:
+                type = BIG_DECIMAL;
+                break;
+            case BIGINT:
+                type = STRING;
+                break;
+            default:
+                System.out.println("未知的字段类型[" + columnType + "]");
+                type = null;
+                break;
+        }
 		return type;
 	}
 	/**
@@ -107,26 +117,39 @@ public class UtilString {
 		if (sqlTypeName == null || "".equals(sqlTypeName.trim())) {
 			return null;
 		}
-		if (VARCHAR.equals(sqlTypeName) || TEXT.equals(sqlTypeName)) {
-			type = VARCHAR;
-		} else if (TINYBLOB.equals(sqlTypeName) || BLOB.equals(sqlTypeName)
-				|| MEDIUMBLOB.equals(sqlTypeName)
-				|| VARBINARY.equals(sqlTypeName)) {
-			type = BLOB;
-		} else if (CHAR.equals(sqlTypeName)) {
-			type = CHAR;
-		} else if (INT.equals(sqlTypeName) || INT_UNSIGNED.equals(sqlTypeName)) {
-			type = "INTEGER";
-		} else if (DATETIME.equals(sqlTypeName) || DATE.equals(sqlTypeName)) {
-			type = "TIMESTAMP";
-		} else if (DECIMAL.equals(sqlTypeName)) {
-			type = DECIMAL;
-		}  else if (BIGINT.equals(sqlTypeName)) {
-			type = BIGINT;
-		}else {
-			System.out.println("未知的数据库类型[" + sqlTypeName + "]");
-			type = null;
-		}
+        switch (sqlTypeName) {
+            case VARCHAR:
+            case TEXT:
+                type = VARCHAR;
+                break;
+            case TINYBLOB:
+            case BLOB:
+            case MEDIUMBLOB:
+            case VARBINARY:
+                type = BLOB;
+                break;
+            case CHAR:
+                type = CHAR;
+                break;
+            case INT:
+            case INT_UNSIGNED:
+                type = "INTEGER";
+                break;
+            case DATETIME:
+            case DATE:
+                type = "TIMESTAMP";
+                break;
+            case DECIMAL:
+                type = DECIMAL;
+                break;
+            case BIGINT:
+                type = BIGINT;
+                break;
+            default:
+                System.out.println("未知的数据库类型[" + sqlTypeName + "]");
+                type = null;
+                break;
+        }
 		return type;
 	}
 	/*public static String getFileName(String tableName, String flag){

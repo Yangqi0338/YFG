@@ -208,25 +208,37 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         QueryWrapper<ProcessDatabase> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("type", type);
 
-        if ("1".equals(type)) {
-            /*部件库*/
-            List<ComponentLibraryExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), ComponentLibraryExcelDto.class);
-            ExcelUtils.exportExcel(list, ComponentLibraryExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
-        } else if ("2".equals(type) || "6".equals(type) ) {
-            /*基础工艺*/
-            List<BasicsCraftExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsCraftExcelDto.class);
-            ExcelUtils.exportExcel(list, BasicsCraftExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
-        } else if ("3".equals(type)) {
-            /*外辅工艺*/
-            List<ExternalCraftExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), ExternalCraftExcelDto.class);
-            ExcelUtils.exportExcel(list, ExternalCraftExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
-        } else if ("7".equals(type)) {
-            /*模板部件*/
-            List<FormworkComponentExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), FormworkComponentExcelDto.class);
-            ExcelUtils.exportExcel(list, FormworkComponentExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
-        }else  {
-            List<CraftMaterialExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), CraftMaterialExcelDto.class);
-            ExcelUtils.exportExcel(list, CraftMaterialExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
+        switch (type) {
+            case "1": {
+                /*部件库*/
+                List<ComponentLibraryExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), ComponentLibraryExcelDto.class);
+                ExcelUtils.exportExcel(list, ComponentLibraryExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
+                break;
+            }
+            case "2":
+            case "6": {
+                /*基础工艺*/
+                List<BasicsCraftExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsCraftExcelDto.class);
+                ExcelUtils.exportExcel(list, BasicsCraftExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
+                break;
+            }
+            case "3": {
+                /*外辅工艺*/
+                List<ExternalCraftExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), ExternalCraftExcelDto.class);
+                ExcelUtils.exportExcel(list, ExternalCraftExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
+                break;
+            }
+            case "7": {
+                /*模板部件*/
+                List<FormworkComponentExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), FormworkComponentExcelDto.class);
+                ExcelUtils.exportExcel(list, FormworkComponentExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
+                break;
+            }
+            default: {
+                List<CraftMaterialExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), CraftMaterialExcelDto.class);
+                ExcelUtils.exportExcel(list, CraftMaterialExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
+                break;
+            }
         }
 
 

@@ -30,7 +30,7 @@ public class CommonUtils {
         List<Set<T>> setList = new ArrayList<>();
         for (Set<T> set : sets) {
             if (set != null) {
-                if (set.size() == 0) {
+                if (set.isEmpty()) {
                     return new HashSet<>();
                 }
                 setList.add(set);
@@ -60,13 +60,13 @@ public class CommonUtils {
         StringBuilder istr = new StringBuilder();
         istr.append("{");
         ArrayList<String> arrayList = new ArrayList<>(fieldJson.keySet());
-        for (int i = 0; i < arrayList.size(); i++) {
-            Object val = BeanUtil.getProperty(newObj, fieldJson.getString(arrayList.get(i)));
+        for (String s : arrayList) {
+            Object val = BeanUtil.getProperty(newObj, fieldJson.getString(s));
             if (ObjectUtil.isEmpty(val)) {
                 continue;
             }
 
-            istr.append(arrayList.get(i)).append(":").append(val);
+            istr.append(s).append(":").append(val);
             istr.append(";");
         }
         istr.append("}");
@@ -109,8 +109,7 @@ public class CommonUtils {
 
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("{(id=" + BeanUtil.getProperty(oldObj, "id") + ")");
-        for (int i = 0; i < arrayList.size(); i++) {
-            String name = arrayList.get(i);
+        for (String name : arrayList) {
             String key = fieldJson.getString(name);
             Object oldStr = BeanUtil.getProperty(oldObj, key);
             Object newStr = BeanUtil.getProperty(newObj, key);

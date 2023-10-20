@@ -241,8 +241,8 @@ public class GenTechSpecPdfFile {
         String tdBg = "";
         int sizeResetFlg = defaultSizeIndex;
         boolean isDefaultSize = false;
-        for (int i = 0; i < sizeList.size(); i++) {
-            isDefaultSize = StrUtil.equals(sizeList.get(i), defaultSize);
+        for (String s : sizeList) {
+            isDefaultSize = StrUtil.equals(s, defaultSize);
             if (isDefaultSize) {
                 tdBg = "dgb";
             } else {
@@ -271,8 +271,7 @@ public class GenTechSpecPdfFile {
                 row.add(new TdDetail(Opt.ofNullable(packSize.getPartName()).orElse(""), "partNameClass").toMap());
                 row.add(new TdDetail(Opt.ofNullable(packSize.getMethod()).orElse(""), "td_lt methodClass").toMap());
                 JSONObject jsonObject = JSONObject.parseObject(packSize.getStandard());
-                for (int j = 0; j < sizeList.size(); j++) {
-                    String size = sizeList.get(j);
+                for (String size : sizeList) {
                     if (!isFob()) {
                         row.add(new TdDetail(MapUtil.getStr(jsonObject, "template" + size, "-")).toMap());
                     }
@@ -319,25 +318,24 @@ public class GenTechSpecPdfFile {
         dataModel.put("zysxImgList", Optional.ofNullable(picMap.get("注意事项")).orElse(CollUtil.newArrayList()));
 
         // 裁剪工艺是否显示
-        dataModel.put("cjgyShow", isFob() ? ObjectUtil.isNotEmpty(dataModel.get("cjgyDataList")) : true);
-        dataModel.put("cjgyImgShow", isFob() ? ObjectUtil.isNotEmpty(dataModel.get("cjgyImgList")) : true);
+        dataModel.put("cjgyShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("cjgyDataList")));
+        dataModel.put("cjgyImgShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("cjgyImgList")));
         // 小部件是否显示
-        dataModel.put("xbjShow", isFob() ? ObjectUtil.isNotEmpty(dataModel.get("xbjDataList")) : true);
+        dataModel.put("xbjShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("xbjDataList")));
         //注意事项是否显示
-        dataModel.put("zysxShow", isFob() ? ObjectUtil.isNotEmpty(dataModel.get("zysxImgList")) : true);
+        dataModel.put("zysxShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("zysxImgList")));
         // 基础工艺是否显示
-        dataModel.put("jcgyShow", isFob() ? ObjectUtil.isNotEmpty(dataModel.get("jcgyDataList")) : true);
+        dataModel.put("jcgyShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("jcgyDataList")));
         // 整烫包装 是否显示
-        dataModel.put("ztbzShow", isFob() ? ObjectUtil.isNotEmpty(dataModel.get("ztbzDataList")) : true);
+        dataModel.put("ztbzShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("ztbzDataList")));
         // 外辅工艺 是否显示
         dataModel.put("wfgyDataList", Optional.ofNullable(gyMap.get("外辅工艺")).orElse(CollUtil.newArrayList()));
-        dataModel.put("wfgyShow", isFob() ? ObjectUtil.isNotEmpty(dataModel.get("wfgyDataList")) : false);
+        dataModel.put("wfgyShow", isFob() && ObjectUtil.isNotEmpty(dataModel.get("wfgyDataList")));
         StringWriter writer = new StringWriter();
         template.process(dataModel, writer);
-        String output = writer.toString();
-//        System.out.println("temp目录路径:"+ FileUtil.getTmpDirPath()+"htmltoPdf.html");
+        //        System.out.println("temp目录路径:"+ FileUtil.getTmpDirPath()+"htmltoPdf.html");
 //        FileUtil.writeString(output, new File(FileUtil.getTmpDirPath()+"/htmltoPdf.html"), Charset.defaultCharset());
-        return output;
+        return writer.toString();
     }
 
     public ByteArrayOutputStream gen() {
