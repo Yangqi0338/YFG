@@ -586,7 +586,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         StyleVo sampleVo = BeanUtil.copyProperties(style, StyleVo.class);
         // mini 加密
-        minioUtils.setObjectUrlToObject(sampleVo, "seatStylePic", "patternPartsPic");
+
         sampleVo.setCustomStylePicUploadOpen(customStylePicUpload.isOpen());
         //查询附件
         List<AttachmentVo> attachmentVoList = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
@@ -613,6 +613,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
 
         sampleVo.setSeatStylePic(planningCategoryItemService.getStylePicUrlById(sampleVo.getPlanningCategoryItemId()));
+        minioUtils.setObjectUrlToObject(sampleVo, "seatStylePic", "patternPartsPic");
 //        //维度标签
 //        sampleVo.setDimensionLabels(queryDimensionLabelsBySdId(id));
 

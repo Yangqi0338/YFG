@@ -464,6 +464,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             setTaskLevelDtoList.add(BeanUtil.copyProperties(planningCategoryItem, SetTaskLevelDto.class));
             itemIds.add(planningCategoryItem.getId());
             seasonIds.add(planningCategoryItem.getPlanningSeasonId());
+            CommonUtils.removeQuery(planningCategoryItem, "stylePic");
             /*后续再优化*/
             if (StrUtil.isNotBlank(planningCategoryItem.getStylePic())) {
 //                新地址

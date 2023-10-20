@@ -5,24 +5,25 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.entity;
-import java.math.BigDecimal;
-import java.util.Date;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  * 类描述：打版管理 实体类
- * @address com.base.sbc.module.patternmaking.entity.PatternMaking
- * @author mengfanjiang
- * @email XX.com
- * @date 创建时间：2023-8-30 13:52:02
+ *
+ * @author your name
  * @version 1.0
+ * @address com.base.sbc.module.patternmaking.entity.PatternMaking
+ * @email your email
+ * @date 创建时间：2023-10-20 21:33:03
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -49,14 +50,20 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 产品季节id */
     @ApiModelProperty(value = "产品季节id"  )
     private String planningSeasonId;
-    /** 款式设计id */
-    @ApiModelProperty(value = "款式设计id"  )
+    /**
+     * 款式设计id
+     */
+    @ApiModelProperty(value = "款式设计id")
     private String styleId;
-    /** 样衣图片 */
-    @ApiModelProperty(value = "样衣图片"  )
-    private String  samplePic;
-    /** 版房 */
-    @ApiModelProperty(value = "版房"  )
+    /**
+     * 样衣图片
+     */
+    @ApiModelProperty(value = "样衣图片")
+    private String samplePic;
+    /**
+     * 版房
+     */
+    @ApiModelProperty(value = "版房")
     private String patternRoom;
     /** 版房id */
     @ApiModelProperty(value = "版房id"  )
@@ -125,11 +132,9 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 版师id */
     @ApiModelProperty(value = "版师id"  )
     private String patternDesignId;
-
     /** 初版版师id */
     @ApiModelProperty(value = "初版版师id"  )
     private String firstPatternDesignId;
-
     /** 初版版师名称 */
     @ApiModelProperty(value = "初版版师名称"  )
     private String firstPatternDesignName;
@@ -181,28 +186,42 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "样衣工质量评分"  )
     private BigDecimal sampleMakingQualityScore;
     /** 版师工作量评分 */
-    @ApiModelProperty(value = "版师工作量评分"  )
+    @ApiModelProperty(value = "版师工作量评分")
     private BigDecimal patternMakingScore;
-    /** 版师质量评分 */
-    @ApiModelProperty(value = "版师质量评分"  )
+    /**
+     * 版师质量评分
+     */
+    @ApiModelProperty(value = "版师质量评分")
     private BigDecimal patternMakingQualityScore;
-    /** 车缝工名称 */
-    @ApiModelProperty(value = "车缝工名称"  )
+    /**
+     * 车缝工名称
+     */
+    @ApiModelProperty(value = "车缝工名称")
     private String stitcher;
-    /** 车缝工id */
-    @ApiModelProperty(value = "车缝工id"  )
+    /**
+     * 车缝工id
+     */
+    @ApiModelProperty(value = "车缝工id")
     private String stitcherId;
-    /** 二次加工(0否，1是) */
-    @ApiModelProperty(value = "二次加工(0否，1是)"  )
+    /**
+     * 二次加工
+     */
+    @ApiModelProperty(value = "二次加工")
     private String secondProcessing;
-    /** 打样设计师id */
-    @ApiModelProperty(value = "打样设计师id"  )
+    /**
+     * 打样设计师id
+     */
+    @ApiModelProperty(value = "打样设计师id")
     private String patternDesignerId;
-    /** 打样设计师 */
-    @ApiModelProperty(value = "打样设计师"  )
+    /**
+     * 打样设计师
+     */
+    @ApiModelProperty(value = "打样设计师")
     private String patternDesignerName;
-    /** 打样工艺员id */
-    @ApiModelProperty(value = "打样工艺员id"  )
+    /**
+     * 打样工艺员id
+     */
+    @ApiModelProperty(value = "打样工艺员id")
     private String patternTechnicianId;
     /** 打样工艺员 */
     @ApiModelProperty(value = "打样工艺员"  )
@@ -252,18 +271,37 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 样衣完成状态:(0未完成,1完成) */
     @ApiModelProperty(value = "样衣完成状态:(0未完成,1完成)"  )
     private String sampleCompleteFlag;
-    /** 打版状态:0待接收,1已接收,2进行中,3完成 */
-    @ApiModelProperty(value = "打版状态:0待接收,1已接收,2进行中,3完成"  )
+    /**
+     * 打版状态:0待接收,1已接收,2进行中,3完成
+     */
+    @ApiModelProperty(value = "打版状态:0待接收,1已接收,2进行中,3完成")
     private String patternStatus;
-    /** 裁剪状态:0待接收,1已接收,2进行中,3完成 */
-    @ApiModelProperty(value = "裁剪状态:0待接收,1已接收,2进行中,3完成"  )
+    /**
+     * 裁剪状态:0待接收,1已接收,2进行中,3完成
+     */
+    @ApiModelProperty(value = "裁剪状态:0待接收,1已接收,2进行中,3完成")
     private String cuttingStatus;
-    /** 车缝状态:0待接收,1已接收,2进行中,3完成 */
-    @ApiModelProperty(value = "车缝状态:0待接收,1已接收,2进行中,3完成"  )
+    /**
+     * 车缝状态:0待接收,1已接收,2进行中,3完成
+     */
+    @ApiModelProperty(value = "车缝状态:0待接收,1已接收,2进行中,3完成")
     private String sewingStatus;
-    /** 流程完成状态:(0未完成,1已完成) */
-    @ApiModelProperty(value = "流程完成状态:(0未完成,1已完成)"  )
+    /**
+     * 流程完成状态:(0未完成,1已完成)
+     */
+    @ApiModelProperty(value = "流程完成状态:(0未完成,1已完成)")
     private String finishFlag;
+    /**
+     * 下发给样衣组长时间
+     */
+    @ApiModelProperty(value = "下发给样衣组长时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sampleLeaderSendDate;
+    /**
+     * 下发给样衣组长状态:(0未下发，1已下发)
+     */
+    @ApiModelProperty(value = "下发给样衣组长状态:(0未下发，1已下发)")
+    private String sampleLeaderSendStatus;
     /**
      * 放码师id
      */
@@ -274,11 +312,17 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "放码师名称")
     private String gradingName;
-
-    /** 放码时间 */
+    /**
+     * 放码时间
+     */
     @ApiModelProperty(value = "放码时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date gradingDate;
+    /**
+     * 完成数量
+     */
+    @ApiModelProperty(value = "完成数量")
+    private BigDecimal sampleFinishNum;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
