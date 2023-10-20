@@ -92,6 +92,9 @@ public class MinioUtils {
      * @return
      */
     public Boolean copyFile(String url, String newUrl){
+        if (StrUtil.equals(url, newUrl)) {
+            return true;
+        }
         try {
             url = CommonUtils.removeQuery(url);
             newUrl = CommonUtils.removeQuery(newUrl);
