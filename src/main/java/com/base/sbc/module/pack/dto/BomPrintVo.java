@@ -111,11 +111,10 @@ public class BomPrintVo {
                             item.getMaterialCode(),
                             item.getMaterialName(),
                             item.getColor() + item.getColorCode(),
-                            Opt.ofNullable(item.getUnitUse()).map(unitUse -> NumberUtil.toStr(unitUse)).orElse("") + item.getStockUnitName(),
+                            Opt.ofNullable(item.getUnitUse()).map(NumberUtil::toStr).orElse("") + item.getStockUnitName(),
                             "件"
                     );
-                    String join = CollUtil.join(CollUtil.removeBlank(strings), "/");
-                    return join;
+                    return CollUtil.join(CollUtil.removeBlank(strings), "/");
                 }).collect(Collectors.joining(" "));
         return collect;
     }

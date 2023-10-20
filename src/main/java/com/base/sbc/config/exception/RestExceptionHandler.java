@@ -86,7 +86,7 @@ public class RestExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ApiResult handleServiceException(ConstraintViolationException e) {
         Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
-        Set<String> messages = violations.stream().map(item -> item.getMessage()).collect(Collectors.toSet());
+        Set<String> messages = violations.stream().map(ConstraintViolation::getMessage).collect(Collectors.toSet());
         String message = CollUtil.join(messages, StrUtil.COMMA);
         logger.error("参数验证失败(@Validated验证实体的异常)", e);
 //        return error(BaseErrorEnum.ERR_CONSTRAINT_VIOLATIONEXCEPTION.getErrorMessage(),message);

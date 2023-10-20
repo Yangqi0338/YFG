@@ -116,7 +116,7 @@ public class CopyUtil {
 				@SuppressWarnings("unchecked")
 				List<D> items = (List<D>) getValue(parent, children);
 				if (items == null) {
-					items = new ArrayList<D>();
+					items = new ArrayList<>();
 				}
 				items.add(item);
 				setValue(parent, children, items);

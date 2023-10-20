@@ -338,13 +338,13 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
         List<BasicsdatumSupplier> updateList = new ArrayList<>();
         BasicsdatumSupplier basicsdatumSupplier;
 
-        List<String> codeList = supplierList.stream().map(s -> s.getSupplierCode()).collect(Collectors.toList());
+        List<String> codeList = supplierList.stream().map(AddRevampBasicsdatumSupplierDto::getSupplierCode).collect(Collectors.toList());
         QueryWrapper<BasicsdatumSupplier> queryWrapper = new QueryWrapper<>();
         queryWrapper.in("supplier_code", codeList);
         List<BasicsdatumSupplier> selectList = baseMapper.selectList(queryWrapper);
         Map<String, BasicsdatumSupplier> supplierMap = new HashMap<>();
         if (!CollectionUtils.isEmpty(selectList)){
-            supplierMap = selectList.stream().collect(Collectors.toMap(s -> s.getSupplierCode(), s -> s, (s1, s2) -> s2));
+            supplierMap = selectList.stream().collect(Collectors.toMap(BasicsdatumSupplier::getSupplierCode, s -> s, (s1, s2) -> s2));
         }
         StringBuffer errorStr = new StringBuffer();
         Map<String, String> yearMap = dictMap.get("C8_Year");
@@ -399,10 +399,10 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
             return ApiResult.error(errorStr.toString(),500);
         }
 
-        if (insertList.size() > 0){
+        if (!insertList.isEmpty()){
             this.saveBatch(insertList);
         }
-        if (updateList.size() > 0){
+        if (!updateList.isEmpty()){
             this.updateBatchById(updateList);
         }
         ApiResult result = ApiResult.success("新增成功");

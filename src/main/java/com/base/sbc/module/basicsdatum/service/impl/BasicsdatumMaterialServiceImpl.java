@@ -447,12 +447,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             queryWrapper.clear();
             queryWrapper.in("t.material_code",materialCodeList);
             List<BasicsdatumMaterialColorPageVo> basicsdatumMaterialColorList =  basicsdatumMaterialMapper.getBasicsdatumMaterialColorListQw(queryWrapper);
-            Map<String,List<BasicsdatumMaterialWidth>>  widthMap  = basicsdatumMaterialWidthList.stream().collect(Collectors.groupingBy(p -> p.getMaterialCode()));
-            Map<String,List<BasicsdatumMaterialColorPageVo>>  colorMap  = basicsdatumMaterialColorList.stream().collect(Collectors.groupingBy(p -> p.getMaterialCode()));
+            Map<String,List<BasicsdatumMaterialWidth>>  widthMap  = basicsdatumMaterialWidthList.stream().collect(Collectors.groupingBy(BasicsdatumMaterialWidth::getMaterialCode));
+            Map<String,List<BasicsdatumMaterialColorPageVo>>  colorMap  = basicsdatumMaterialColorList.stream().collect(Collectors.groupingBy(BasicsdatumMaterialColorPageVo::getMaterialCode));
             /*获取默认供应商信息*/
             List<BomSelMaterialVo> priceList = materialPriceService.findDefaultToBomSel(materialCodeList);
             Map<String, BomSelMaterialVo> priceMap = Opt.ofEmptyAble(priceList)
-                    .map(item -> item.stream().collect(Collectors.toMap(k -> k.getMaterialCode(), v -> v, (a, b) -> a)))
+                    .map(item -> item.stream().collect(Collectors.toMap(BomSelMaterialVo::getMaterialCode, v -> v, (a, b) -> a)))
                     .orElse(MapUtil.empty());
             list.forEach(i -> {
                 BomSelMaterialVo priceInfo = priceMap.get(i.getMaterialCode());

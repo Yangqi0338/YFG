@@ -95,10 +95,9 @@ public class CcmFeignService {
 
     public Map<String, BasicStructureTreeVo> findStructureTreeByCategoryIdsToMap(String categoryIds) {
         List<BasicStructureTreeVo> list = findStructureTreeByCategoryIds(categoryIds);
-        Map<String, BasicStructureTreeVo> map = Opt.ofNullable(list)
-                .map(e -> e.stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b)))
+        return Opt.ofNullable(list)
+                .map(e -> e.stream().collect(Collectors.toMap(BasicStructureTreeVo::getId, v -> v, (a, b) -> b)))
                 .orElse(MapUtil.empty());
-        return map;
     }
 
     /**

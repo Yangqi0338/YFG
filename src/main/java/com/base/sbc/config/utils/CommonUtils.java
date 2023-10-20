@@ -270,9 +270,7 @@ public class CommonUtils {
         if (StrUtil.isBlank(url)) {
             return;
         }
-        String newUrl = StrUtil.split(url, StrUtil.COMMA).stream().map(u -> {
-            return removeQuery(u);
-        }).collect(Collectors.joining(","));
+        String newUrl = StrUtil.split(url, StrUtil.COMMA).stream().map(CommonUtils::removeQuery).collect(Collectors.joining(","));
         BeanUtil.setProperty(o, p, newUrl);
     }
 

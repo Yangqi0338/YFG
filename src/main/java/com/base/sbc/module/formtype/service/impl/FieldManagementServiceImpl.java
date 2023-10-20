@@ -230,7 +230,7 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
         fmQw.apply("FIND_IN_SET({0},category_id)", categoryId);
         fmQw.select("id");
         List<Object> objectList = this.listObjs(fmQw);
-        List<String> ids = objectList.stream().map(item -> item.toString()).collect(Collectors.toList());
+        List<String> ids = objectList.stream().map(Object::toString).collect(Collectors.toList());
         return getFieldManagementListByIds(ids);
     }
 
@@ -240,7 +240,7 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
             return;
         }
         Map<String, FieldVal> valMap = Optional.ofNullable(valueList).orElse(new ArrayList<>())
-                .stream().collect(Collectors.toMap(k -> k.getFieldName(), v -> v, (a, b) -> b));
+                .stream().collect(Collectors.toMap(FieldVal::getFieldName, v -> v, (a, b) -> b));
         for (FieldManagementVo vo : fieldList) {
             vo.setFieldId(vo.getId());
             vo.setId(Optional.ofNullable(valMap.get(vo.getFieldName())).map(FieldVal::getId).orElse(idGen.nextIdStr()));

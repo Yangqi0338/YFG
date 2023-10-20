@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioConfig;
@@ -302,7 +303,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         if (CollUtil.isEmpty(list)) {
             return result;
         }
-        result = list.stream().collect(Collectors.toMap(k -> k.getUrl(), v -> v.getId(), (a, b) -> b));
+        result = list.stream().collect(Collectors.toMap(UploadFile::getUrl, BaseEntity::getId, (a, b) -> b));
         return result;
     }
 

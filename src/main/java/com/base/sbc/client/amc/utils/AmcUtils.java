@@ -42,7 +42,7 @@ public class AmcUtils {
     public static Map<String,UserCompany> parseStrToMap(String str){
         List<UserCompany> userCompanies = parseStrToList(str);
         if(CollUtil.isNotEmpty(userCompanies)){
-            return  userCompanies.stream().collect(Collectors.toMap(k->k.getUserId(),v->v,(a,b)->b));
+            return  userCompanies.stream().collect(Collectors.toMap(UserCompany::getUserId, v->v,(a, b)->b));
         }
         return MapUtil.empty();
     }

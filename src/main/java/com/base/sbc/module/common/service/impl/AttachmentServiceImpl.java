@@ -129,7 +129,7 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
         if (CollUtil.isEmpty(byQw)) {
             return;
         }
-        Map<String, AttachmentVo> collect = byQw.stream().collect(Collectors.toMap(k -> k.getFileId(), v -> v, (a, b) -> a));
+        Map<String, AttachmentVo> collect = byQw.stream().collect(Collectors.toMap(AttachmentVo::getFileId, v -> v, (a, b) -> a));
         for (Object vo : list) {
             String v = BeanUtil.getProperty(vo, fileIdKey);
             if (StrUtil.isBlank(v)) {

@@ -448,7 +448,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                     );
                     return mul;
                 }
-        ).reduce((a, b) -> a.add(b)).orElse(BigDecimal.ZERO);
+        ).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
     }
 
     @Override

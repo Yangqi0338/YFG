@@ -213,12 +213,7 @@ public class FilesUtils {
         /* 步骤3：完成分片上传。
          */
         // 排序。partETags必须按分片号升序排列。
-        Collections.sort(partETags, new Comparator<PartETag>() {
-            @Override
-            public int compare(PartETag p1, PartETag p2) {
-                return p1.getPartNumber() - p2.getPartNumber();
-            }
-        });
+        partETags.sort(Comparator.comparingInt(PartETag::getPartNumber));
         // 在执行该操作时，需要提供所有有效的partETags。OSS收到提交的partETags后，会逐一验证每个分片的有效性。当所有的数据分片验证通过后，OSS将把这些分片组合成一个完整的文件。
         CompleteMultipartUploadRequest completeMultipartUploadRequest =
                 new CompleteMultipartUploadRequest(bucketName, applyCompany + folder + fileName, uploadId, partETags);
