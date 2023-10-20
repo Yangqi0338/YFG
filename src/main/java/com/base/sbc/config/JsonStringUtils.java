@@ -14,7 +14,7 @@ import java.util.List;
  * @date 2023/8/21 11:06:18
  * @mail 247967116@qq.com
  */
-public class JSONStringUtils {
+public class JsonStringUtils {
 
     /**
      * 将对象转为json字符串,空字段转为默认值或者空字符串
@@ -22,7 +22,7 @@ public class JSONStringUtils {
      * @return json字符串
      */
     public static String toJSONString(Object o) {
-        List<Field> allFields = JSONStringUtils.getAllFields(o.getClass());
+        List<Field> allFields = JsonStringUtils.getAllFields(o.getClass());
         for (Field field : allFields) {
             Class<?> type = field.getType();
             String name = type.getName();

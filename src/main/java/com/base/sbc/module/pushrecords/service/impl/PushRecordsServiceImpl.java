@@ -8,7 +8,7 @@ package com.base.sbc.module.pushrecords.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.base.sbc.config.JSONStringUtils;
+import com.base.sbc.config.JsonStringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pushrecords.mapper.PushRecordsMapper;
 import com.base.sbc.module.pushrecords.entity.PushRecords;
@@ -44,7 +44,7 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
     public Boolean pushRecordSave(HttpResp httpResp, Object data, String moduleName, String functionName) {
         PushRecords pushRecords = new PushRecords();
 
-        String jsonString = JSONStringUtils.toJSONString(data);
+        String jsonString = JsonStringUtils.toJSONString(data);
         JSONObject json = JSON.parseObject(jsonString);
 
         pushRecords.setModuleName(moduleName);
