@@ -32,7 +32,7 @@ public class RedisCodeGenUtils {
 	}
 	public static final String BEGIN_NUM="001";
 	/**单例锁Map*/
-	public static final HashMap<String, Object> lockMap = new HashMap<>();
+	public static final HashMap<String, Object> LOCK_MAP = new HashMap<>();
 
 	@Resource
 	private RedisUtils redisUtils;
@@ -328,7 +328,7 @@ public class RedisCodeGenUtils {
 					int reLockSecondMills = reLockSecond*100;
 					int waitTimes = 0;
 					while (isExist){
-						if (lockMap.containsKey(key)){
+						if (LOCK_MAP.containsKey(key)){
 							waitTimes+=1;
 							//3.5线程先睡眠10毫米
 							try {
@@ -352,7 +352,7 @@ public class RedisCodeGenUtils {
 			}finally {
 				//4.释放资源
 				if (canSelect){
-					lockMap.remove(key);
+					LOCK_MAP.remove(key);
 				}
 			}
 		}
@@ -395,10 +395,10 @@ public class RedisCodeGenUtils {
 	 * @return
 	 */
 	private synchronized Boolean isSyncBusiness(String key){
-		if (lockMap.containsKey(key)){
+		if (LOCK_MAP.containsKey(key)){
 			return false;
 		}else {
-			lockMap.put(key, key);
+			LOCK_MAP.put(key, key);
 			return true;
 		}
 	}

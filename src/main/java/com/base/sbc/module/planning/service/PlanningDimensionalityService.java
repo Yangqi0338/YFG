@@ -8,7 +8,7 @@ package com.base.sbc.module.planning.service;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
+import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;

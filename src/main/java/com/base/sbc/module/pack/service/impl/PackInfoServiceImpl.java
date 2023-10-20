@@ -34,7 +34,6 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.ureport.minio.MinioConfig;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
@@ -541,8 +540,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packInfoStatus.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         packInfoStatusService.updateById(packInfoStatus);
         Map<String, Object> variables = BeanUtil.beanToMap(pack);
-        boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]",
-                FlowableService.big_goods_reverse, id,
+        boolean flg = flowableService.start(FlowableService.BIG_GOODS_REVERSE + "[" + pack.getCode() + "]",
+                FlowableService.BIG_GOODS_REVERSE, id,
                 "/pdm/api/saas/packInfo/reverseApproval",
                 "/pdm/api/saas/packInfo/reverseApproval",
                 "/pdm/api/saas/packInfo/reverseApproval",
@@ -561,8 +560,8 @@ public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, Pac
         packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         packInfoStatusService.updateById(packInfoStatus);
         Map<String, Object> variables = BeanUtil.beanToMap(pack);
-        boolean flg = flowableService.start(FlowableService.big_goods_reverse + "[" + pack.getCode() + "]",
-                FlowableService.big_goods_reverse, id,
+        boolean flg = flowableService.start(FlowableService.BIG_GOODS_REVERSE + "[" + pack.getCode() + "]",
+                FlowableService.BIG_GOODS_REVERSE, id,
                 "/pdm/api/saas/packInfo/approval",
                 "/pdm/api/saas/packInfo/approval",
                 "/pdm/api/saas/packInfo/approval",

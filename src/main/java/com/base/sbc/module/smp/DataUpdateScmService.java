@@ -56,7 +56,7 @@ public class DataUpdateScmService {
     public void updateStyleColorSendById(String styleColorId) {
         StyleColor styleColor = styleColorMapper.selectById(styleColorId);
         if (!ObjectUtils.isEmpty(styleColor)) {
-            if (styleColor.getScmSendFlag().equals(BaseGlobal.STATUS_CLOSE) || styleColor.getScmSendFlag().equals("3")) {
+            if (styleColor.getScmSendFlag().equals(BaseGlobal.STATUS_CLOSE) || "3".equals(styleColor.getScmSendFlag())) {
                 smpService.goods(styleColorId.split(","));
             }
         }
@@ -130,7 +130,7 @@ public class DataUpdateScmService {
     public void updateColorSendById(String colorId) {
       BasicsdatumColourLibrary basicsdatumColourLibrary =   basicsdatumColourLibraryMapper.selectById(colorId);
       if(!ObjectUtils.isEmpty(basicsdatumColourLibrary)){
-          if (basicsdatumColourLibrary.getScmSendFlag().equals(BaseGlobal.STATUS_CLOSE) || basicsdatumColourLibrary.getScmSendFlag().equals("3")) {
+          if (basicsdatumColourLibrary.getScmSendFlag().equals(BaseGlobal.STATUS_CLOSE) || "3".equals(basicsdatumColourLibrary.getScmSendFlag())) {
               smpService.color(basicsdatumColourLibrary.getId().split(","));
           }
       }

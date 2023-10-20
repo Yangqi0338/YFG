@@ -170,6 +170,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                                 case "品控确认":
                                     e.setStatus("4");
                                     break;
+                                default:
+                                    break;
                             }
                         }
 

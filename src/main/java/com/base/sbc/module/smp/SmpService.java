@@ -25,7 +25,7 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.hangTag.dto.UpdatePriceDto;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
@@ -570,7 +570,7 @@ public class SmpService {
         for (PackBom packBom : list) {
             /*判断物料是否是代用材料的编码
             * 代用材料编码：0000*/
-            if(packBom.getMaterialCode().equals("0000")){
+            if("0000".equals(packBom.getMaterialCode())){
                 throw new OtherException(packBom.getMaterialName() + "选择的是代用材料,请联系设计工艺员!代用材料不允许下发");
             }
             packBomVersionService.checkBomDataEmptyThrowException(packBom);

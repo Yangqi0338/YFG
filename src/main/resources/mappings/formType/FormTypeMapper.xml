@@ -8,18 +8,18 @@
         创建时间：2023-4-15 9:17:01
         版本号：1.0
       -->
-    <resultMap type="com.base.sbc.module.formType.vo.PagingFormTypeVo" id="formTypeMaps">
+    <resultMap type="com.base.sbc.module.formtype.vo.PagingFormTypeVo" id="formTypeMaps">
         <id column="id" property="id"/>
         <result column="group_name" property="groupName"/>
         <result column="status" property="status"/>
         <association property="list"  javaType="arraylist"  column="id"    select="getFormTypeList"> </association>
     </resultMap>
 
-<!--    <resultMap type="com.base.sbc.module.formType.vo.PagingFormTypeVo" id="formTypeMaps">
+<!--    <resultMap type="com.base.sbc.module.formtype.vo.PagingFormTypeVo" id="formTypeMaps">
         <id column="ftg_id" property="id"/>
         <result column="group_name" property="groupName"/>
         <result column="status" property="status"/>
-        <collection property="list" ofType="com.base.sbc.module.formType.vo.FormTypeVo"  >
+        <collection property="list" ofType="com.base.sbc.module.formtype.vo.FormTypeVo"  >
             <id column="ft_id" property="id"/>
             <result column="ft_name" property="groupName"/>
             <result column="coding" property="coding"/>
@@ -32,7 +32,7 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
-    <select id="getFormTypeIsGroup" resultType="com.base.sbc.module.formType.vo.PagingFormTypeVo" resultMap="formTypeMaps">
+    <select id="getFormTypeIsGroup" resultType="com.base.sbc.module.formtype.vo.PagingFormTypeVo" resultMap="formTypeMaps">
         select
         ftg.id ,
         ftg.group_name,
@@ -43,7 +43,7 @@
         order By ftg.create_date desc
     </select>
 
-    <select id="getFormTypeList" resultType="com.base.sbc.module.formType.vo.FormTypeVo">
+    <select id="getFormTypeList" resultType="com.base.sbc.module.formtype.vo.FormTypeVo">
       select
      ft.id ,
      ft.name groupName,

@@ -147,7 +147,7 @@ public class WarehousingOrderController extends BaseController{
 				return ApiResult.error("请选择草稿状态的单据！", 500);
 			}
 
-			Boolean result = flowableService.start("单号:"+ warehousingOrder.getCode(), flowableService.WAREHOUSING_ORDER, warehousingOrder.getId(),
+			Boolean result = flowableService.start("单号:"+ warehousingOrder.getCode(), FlowableService.WAREHOUSING_ORDER, warehousingOrder.getId(),
 					"/pdm/api/saas/warehousingOrder/examine", "/pdm/api/saas/warehousingOrder/examine",
 					"/pdm/api/saas/warehousingOrder/examine", null, BeanUtil.beanToMap(warehousingOrder));
 			if(result){

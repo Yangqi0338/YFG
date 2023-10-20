@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-07-01 10:37
  */
 public class PackUtils {
-    public static final String pathSqEL = "'资料包-'+#p0.packType+'-'+#p0.foreignId";
+    public static final String PATH_SQ_EL = "'资料包-'+#p0.packType+'-'+#p0.foreignId";
 
     /**
      * 资料包类型 设计资料包

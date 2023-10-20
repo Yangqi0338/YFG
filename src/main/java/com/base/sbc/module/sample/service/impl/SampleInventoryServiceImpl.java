@@ -171,15 +171,18 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
         if (StringUtils.isNotEmpty(dto.getStatus()) && !StringUtils.equals(dto.getStatus(), "0")) {
             qw.eq("si2.status", dto.getStatus());
         }
-        if (null != dto.getStartDate())
+        if (null != dto.getStartDate()) {
             qw.ge("si2.start_date", dto.getStartDate());
-        if (null != dto.getEndDate())
+        }
+        if (null != dto.getEndDate()) {
             qw.le("si2.end_date", dto.getEndDate());
+        }
 //        if (null != dto.getEndDate())
 //            qw.le("si2.code", dto.getCode());
-        if (null != dto.getSearch())
+        if (null != dto.getSearch()) {
             qw.like("si2.name", dto.getSearch()).
                     or().like("si2.code", dto.getSearch());
+        }
 
         qw.orderByDesc("si2.create_date");
         dto.setCompanyCode(getCompanyCode());
@@ -197,8 +200,9 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
     public PageInfo getListBySampleItem(SampleInventoryPageDto dto) {
         QueryWrapper<SampleInventoryVo> qw = new QueryWrapper<>();
         qw.eq("si2.company_code", getCompanyCode());
-        if (null != dto.getStatus())
+        if (null != dto.getStatus()) {
             qw.eq("si2.status", dto.getStatus());
+        }
         qw.orderByDesc("si2.create_date");
 
         Page<SampleSaleVo> objects = PageHelper.startPage(dto);

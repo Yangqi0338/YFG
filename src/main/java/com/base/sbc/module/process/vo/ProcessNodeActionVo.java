@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.process.vo;
 
-import com.base.sbc.module.formType.entity.FieldManagement;
+import com.base.sbc.module.formtype.entity.FieldManagement;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

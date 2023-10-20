@@ -29,7 +29,7 @@ public interface WorkLogService extends BaseService<WorkLog> {
 
 // 自定义方法区 不替换的区域【other_start】
 
-    String redis_key = "workLog:";
+    String REDIS_KEY = "workLog:";
 
     PageInfo<WorkLogVo> pageInfo(WorkLogSearchDto dto);
 

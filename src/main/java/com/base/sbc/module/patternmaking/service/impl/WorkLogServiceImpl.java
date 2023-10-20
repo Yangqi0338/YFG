@@ -15,8 +15,6 @@ import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumModelTypeExcelDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternmaking.dto.WorkLogSaveDto;
 import com.base.sbc.module.patternmaking.dto.WorkLogSearchDto;
@@ -76,7 +74,7 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
     @Override
     public WorkLogVo saveByDto(WorkLogSaveDto workLog) {
         WorkLog bean = BeanUtil.copyProperties(workLog, WorkLog.class);
-        String redisKey = redis_key + getCompanyCode();
+        String redisKey = REDIS_KEY + getCompanyCode();
         long incr = redisUtils.incr(redisKey, 1);
         String code = StrUtil.padPre(String.valueOf(incr), 8, "0");
         bean.setCode(code);

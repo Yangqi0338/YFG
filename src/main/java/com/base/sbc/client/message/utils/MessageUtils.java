@@ -140,7 +140,7 @@ public class MessageUtils {
         Map<String, String> map = new HashMap<>();
         String userId = "";
         ModelMessage modelMessage = new ModelMessage();
-        if (type.equals("fabric")) {
+        if ("fabric".equals(type)) {
             map.put("title", "面料调样单");
         } else {
             map.put("title", "辅料调样单");
@@ -249,7 +249,7 @@ public class MessageUtils {
                         map.put("avatar", groupUser.getAvatar());
                         String node =   BeanUtil.getProperty(bean, "node");
                         /*判断阶段*/
-                        if(node.equals("打版任务")){
+                        if("打版任务".equals(node)){
                             /*是否是黑蛋*/
                             if(urgency1.equals(BaseGlobal.NO)){
                               /*黑蛋打板*/

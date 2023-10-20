@@ -21,19 +21,19 @@ public class StylePageDto extends Page {
     /**
      * 所有
      */
-    public static final String userType0 = "0";
+    public static final String USER_TYPE_0 = "0";
     /**
      * 1我下发的
      */
-    public static final String userType1 = "1";
+    public static final String USER_TYPE_1 = "1";
     /**
      * 2我创建的
      */
-    public static final String userType2 = "2";
+    public static final String USER_TYPE_2 = "2";
     /**
      * 3我负责的
      */
-    public static final String userType3 = "3";
+    public static final String USER_TYPE_3 = "3";
     /**
      * 年份
      */

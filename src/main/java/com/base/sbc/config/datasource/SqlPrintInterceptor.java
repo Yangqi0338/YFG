@@ -54,7 +54,7 @@ import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.company
 })
 public class SqlPrintInterceptor implements Interceptor {
 
-    private static Log logger = LogFactory.getLog(SqlPrintInterceptor.class);
+    private static final Log logger = LogFactory.getLog(SqlPrintInterceptor.class);
 
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -78,7 +78,7 @@ public class SqlPrintInterceptor implements Interceptor {
             String usercompany = httpServletRequest.getHeader("Usercompany");
             String authorization = httpServletRequest.getHeader("Authorization");
             String sqlCommandType = mappedStatement.getSqlCommandType().toString();
-            if (!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization) && !sqlCommandType.equals("INSERT")){
+            if (!StringUtils.isBlank(usercompany) && !StringUtils.isBlank(userId) && !StringUtils.isBlank(authorization) && !"INSERT".equals(sqlCommandType)){
                 getAuthoritySql( boundSql, statementId, mappedStatement, sql,sqlCommandType);
             }
         }catch (Exception e){
@@ -87,7 +87,7 @@ public class SqlPrintInterceptor implements Interceptor {
 
 
         Configuration configuration = mappedStatement.getConfiguration();
-        Object parameterObject = null;
+        Object parameterObject;
 
         parameterObject = boundSql.getParameterObject();
         String sql1 = getSql(boundSql, parameterObject, configuration);
@@ -127,10 +127,7 @@ public class SqlPrintInterceptor implements Interceptor {
             DataIsolation dataIsolation = getDataIsolationAnnotation(mappedStatement);
             boolean isExecute = false;
             if (!Objects.isNull(dataIsolation) && dataIsolation.state() && StringUtils.isNotBlank(dataIsolation.authority())) {
-                isExecute = true;
-                if (!ObjectUtils.isEmpty(dataIsolation.groups()) && !arrSearch(dataIsolation.groups(), funName)) {
-                    isExecute = false;
-                }
+                isExecute = ObjectUtils.isEmpty(dataIsolation.groups()) || arrSearch(dataIsolation.groups(), funName);
             }
             if (isExecute) {
                 //获取当前用户id
@@ -147,12 +144,12 @@ public class SqlPrintInterceptor implements Interceptor {
                 RedisUtils redisUtils = SpringContextHolder.getBean("redisUtils");
 
                 //sql语句类型 select、delete、insert、update
-                String operateType=sqlCommandType.equals("SELECT")?"read":"write";
+                String operateType= "SELECT".equals(sqlCommandType)?"read":"write";
                 DataPermissionsService dataPermissionsService = SpringContextHolder.getBean("dataPermissionsService");
                 Map<String,Object> entity=dataPermissionsService.getDataPermissionsForQw(usercompany,userId,dataIsolation.authority(),operateType,tablePre,dataIsolation.authorityFields(),dataIsolation.isAssignFields());
 
                 String authorityField = entity.containsKey("authorityField")?(String)entity.get("authorityField"):null;
-                Boolean authorityState=entity.containsKey("authorityState")?(Boolean)entity.get("authorityState"):false;
+                boolean authorityState=entity.containsKey("authorityState")?(Boolean)entity.get("authorityState"):false;
                 String whereFlag = " ";
                 if (authorityState && StringUtils.isNotBlank(authorityField)) {
                     whereFlag +=  authorityField + " and ";
@@ -188,8 +185,8 @@ public class SqlPrintInterceptor implements Interceptor {
             String id = mappedStatement.getId();
             String className = id.substring(0, id.lastIndexOf("."));
             String methodName = id.substring(id.lastIndexOf(".") + 1);
-            methodName=methodName.indexOf("_")!=-1?methodName.substring(0,methodName.indexOf("_")):methodName;
-            Class classType = Class.forName(className);
+            methodName= methodName.contains("_") ?methodName.substring(0,methodName.indexOf("_")):methodName;
+            Class<?> classType = Class.forName(className);
             final Method[] method = classType.getMethods();
             for (Method me : method) {
                 if (me.getName().equals(methodName) && me.isAnnotationPresent(DataIsolation.class)) {
@@ -228,15 +225,15 @@ public class SqlPrintInterceptor implements Interceptor {
     private Map getTable(String sql, String sqlCommandType) {
         sql = sql.replaceAll(" {2,}", " ").replaceAll("\\( ", "\\(").replaceAll("\\) ", "\\)").replaceAll("select ","SELECT ").replaceAll(" from "," FROM ").replaceAll(" join "," JOIN ").replaceAll(" as "," AS ").replaceAll(" where "," WHERE ");
         sql=disposeSql(sql,true);
-        Map<String,Object> ret = new HashMap<>();
+        Map<String,Object> ret = new HashMap<>(10);
         String table = "";
-        String fromStr = "";
+        String fromStr;
         String fromSuf="";
-        if((sqlCommandType.toUpperCase()).equals("SELECT")){
+        if("SELECT".equalsIgnoreCase(sqlCommandType)){
             int fromCount=searchStrBycount(sql," FROM ");
             if(fromCount>0){
-                int start = 1;
-                int end=0;
+                int start;
+                int end;
                 int index=8;
                 fromfor:for (int i = 0; i < fromCount; i++) {
                     fromStr=sql.substring(0,sql.indexOf(" FROM ",index));
@@ -246,15 +243,15 @@ public class SqlPrintInterceptor implements Interceptor {
                         fromSuf=sql.substring(sql.indexOf(" FROM ",index)+6);
                         String[] arrAs=fromSuf.split(" ");
                         for (int j = 1; j <arrAs.length-1; j++) {
-                            if(arrAs[j].equals("AS")){
+                            if("AS".equals(arrAs[j])){
                                 table=arrAs[j+1];
                                 break fromfor;
-                            }else if(arrAs[j+1].equals("WHERE") || arrAs[j+1].equals("JOIN") || (j+2<arrAs.length && arrAs[j+2].equals("JOIN"))){
+                            }else if("WHERE".equals(arrAs[j+1]) || "JOIN".equals(arrAs[j+1]) || (j+2<arrAs.length && "JOIN".equals(arrAs[j+2]))){
                                 table=arrAs[j];
                                 break fromfor;
                             }
                         }
-                        break fromfor;
+                        break;
                     }
                     index=fromStr.length()+1;
                 }
@@ -269,13 +266,13 @@ public class SqlPrintInterceptor implements Interceptor {
         return ret;
     }
     private Map<String,Object> disposeWhere(String fromSuf, String sql){
-        Map ret = new HashMap<>();
+        Map ret = new HashMap<>(10);
         List<String> sqlArr=new ArrayList<>();
         boolean isWhere = false;
-        int start = -1;
-        int end=0;
+        int start;
+        int end;
         int index=0;
-        String whereStr = "";
+        String whereStr;
         int whereCount=searchStrBycount(fromSuf," WHERE ");
         if(whereCount>0){
             wherefor:for (int i = 0; i < whereCount; i++) {
@@ -333,8 +330,7 @@ public class SqlPrintInterceptor implements Interceptor {
         List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
         TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
         if (parameterMappings != null) {
-            for (int i = 0; i < parameterMappings.size(); i++) {
-                ParameterMapping parameterMapping = parameterMappings.get(i);
+            for (ParameterMapping parameterMapping : parameterMappings) {
                 if (parameterMapping.getMode() != ParameterMode.OUT) {
                     Object value;
                     String propertyName = parameterMapping.getProperty();

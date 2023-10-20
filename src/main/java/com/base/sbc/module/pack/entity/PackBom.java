@@ -44,8 +44,8 @@ public class PackBom extends BaseDataEntity<String> {
         //设计成本价=单价*设计用量*(1+损耗)
         /*大货成本价=单价*大货用量*(1+额定损耗)*/
         this.cost = Optional.ofNullable(this.price).orElse(BigDecimal.ZERO)
-                .multiply(Optional.ofNullable(this.packType.equals("packDesign") ? this.designUnitUse : this.bulkUnitUse).orElse(BigDecimal.ZERO)).multiply(
-                        BigDecimal.ONE.add(Optional.ofNullable(this.packType.equals("packDesign") ? this.lossRate : this.planningLoossRate).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")))
+                .multiply(Optional.ofNullable("packDesign".equals(this.packType) ? this.designUnitUse : this.bulkUnitUse).orElse(BigDecimal.ZERO)).multiply(
+                        BigDecimal.ONE.add(Optional.ofNullable("packDesign".equals(this.packType) ? this.lossRate : this.planningLoossRate).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")))
                 );
     }
 

@@ -85,8 +85,8 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
         Map<String, Object> variables = BeanUtil.beanToMap(packInfoStatus);
         packInfoStatus.setTechSpecConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         updateById(packInfoStatus);
-        boolean flg = flowableService.start(FlowableService.pack_tech_pdn + "[" + packInfo.getCode() + "]",
-                FlowableService.pack_tech_pdn,
+        boolean flg = flowableService.start(FlowableService.PACK_TECH_PDN + "[" + packInfo.getCode() + "]",
+                FlowableService.PACK_TECH_PDN,
                 packInfoStatus.getId(),
                 "/pdm/api/saas/packTechSpec/approval",
                 "/pdm/api/saas/packTechSpec/approval",
@@ -155,8 +155,8 @@ public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatu
         packInfoStatus.setSizeConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         updateById(packInfoStatus);
         Map<String, Object> variables = BeanUtil.beanToMap(packInfoStatus);
-        boolean flg = flowableService.start(FlowableService.pack_tech_pdn + "[" + packInfo.getCode() + "]",
-                FlowableService.pack_tech_pdn,
+        boolean flg = flowableService.start(FlowableService.PACK_TECH_PDN + "[" + packInfo.getCode() + "]",
+                FlowableService.PACK_TECH_PDN,
                 packInfoStatus.getId(),
                 "/pdm/api/saas/packSize/approval",
                 "/pdm/api/saas/packSize/approval",

@@ -2,6 +2,7 @@ package com.base.sbc.config.utils;
 
 import net.sf.jmimemagic.Magic;
 import net.sf.jmimemagic.MagicMatch;
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
@@ -102,7 +103,7 @@ public class ImgUtils {
 				if (ff.getName().equals(fileName)) {
 					File localFile = new File(flocalFilePath + ff.getName());
 					OutputStream is = new FileOutputStream(localFile);
-					ftpClient.setFileType(ftpClient.BINARY_FILE_TYPE);
+					ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
 					ftpClient.retrieveFile(ff.getName(), is);
 					is.close();
 				}
@@ -138,7 +139,7 @@ public class ImgUtils {
 				}
 				ftp.setControlEncoding(LOCAL_CHARSET);
 				ftp.enterLocalPassiveMode();// 设置被动模式
-				ftp.setFileType(ftp.BINARY_FILE_TYPE);// 设置传输的模式
+				ftp.setFileType(FTP.BINARY_FILE_TYPE);// 设置传输的模式
 			} else {
 					logger.info	("Connet ftpServer error! Please check user or password");
 				}

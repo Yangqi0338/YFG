@@ -3,7 +3,7 @@ package com.base.sbc.module.style.vo;
 
 import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.sample.vo.MaterialVo;
 import com.base.sbc.module.style.entity.Style;

@@ -200,10 +200,11 @@ public class EncryptUtil {
 		byte[] keyArray = new byte[16];
 		byte[] keyArray1 = key.getBytes();
 		for (int i = 1; i <= keyArray.length; i++) {
-			if (i <= keyArray1.length)
-				keyArray[i - 1] = keyArray1[i - 1];
-			else
-				break;
+			if (i <= keyArray1.length) {
+                keyArray[i - 1] = keyArray1[i - 1];
+            } else {
+                break;
+            }
 		}
 		byte[] data = encrypt(str.getBytes(), keyArray);
 		String s = Encode(data);
@@ -216,8 +217,9 @@ public class EncryptUtil {
 		for (int i = 1; i <= raw.length; i++) {
 			if (i <= keyArray.length) {
 				keyArray[i - 1] = raw[i - 1];
-			} else
-				break;
+			} else {
+                break;
+            }
 		}
 		SecretKeySpec skeySpec = new SecretKeySpec(keyArray, "AES");
 		Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");// "算法/模式/补码方式"

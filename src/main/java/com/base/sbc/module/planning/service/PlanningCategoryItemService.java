@@ -11,7 +11,7 @@ import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningChannel;

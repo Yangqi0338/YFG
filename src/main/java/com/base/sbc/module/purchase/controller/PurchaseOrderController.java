@@ -204,7 +204,7 @@ public class PurchaseOrderController extends BaseController{
 				return ApiResult.error("请选择草稿状态的单据！", 500);
 			}
 
-			Boolean result = flowableService.start("单号:"+purchaseOrder.getCode(), flowableService.PURCHASE_ORDER, purchaseOrder.getId(),
+			Boolean result = flowableService.start("单号:"+purchaseOrder.getCode(), FlowableService.PURCHASE_ORDER, purchaseOrder.getId(),
 					"/pdm/api/saas/purchaseOrder/examine", "/pdm/api/saas/purchaseOrder/examine", "/pdm/api/saas/purchaseOrder/examine",
 					null, BeanUtil.beanToMap(purchaseOrder));
 			if(result){

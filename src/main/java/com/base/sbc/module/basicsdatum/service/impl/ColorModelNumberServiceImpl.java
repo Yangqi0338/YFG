@@ -109,7 +109,7 @@ public class ColorModelNumberServiceImpl extends BaseServiceImpl<ColorModelNumbe
         if (StringUtils.isNotBlank(dict)) {
             Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap(dict);
             map = dictInfoToMap.get(dict);
-        } else if(type.equals("5")){
+        } else if("5".equals(type)){
             QueryWrapper queryWrapper =  new QueryWrapper<>();
             queryWrapper.eq("file_name","6");
             colorModelNumbers1 = baseMapper.selectList(queryWrapper);
@@ -132,7 +132,7 @@ public class ColorModelNumberServiceImpl extends BaseServiceImpl<ColorModelNumbe
                             stringList.add(key);
                         }
                     }
-                }else if(type.equals("5")){
+                }else if("5".equals(type)){
                     /*依赖打版难易度*/
                     stringList =   colorModelNumbers1.stream().filter(c -> c.getName().equals(colorModelNumber.getMat2ndCategoryName())).map(ColorModelNumber::getCode).collect(Collectors.toList());
                 }else {

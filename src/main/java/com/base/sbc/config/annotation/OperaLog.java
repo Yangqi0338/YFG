@@ -1,7 +1,7 @@
 package com.base.sbc.config.annotation;
 
-import com.base.sbc.config.common.base.BaseService;
 import com.base.sbc.config.enums.OperationType;
+import com.base.sbc.module.common.service.BaseService;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

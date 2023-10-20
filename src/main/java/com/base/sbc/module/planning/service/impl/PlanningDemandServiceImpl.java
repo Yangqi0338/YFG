@@ -22,18 +22,18 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
-import com.base.sbc.module.formType.entity.FieldManagement;
-import com.base.sbc.module.formType.entity.FieldOptionConfig;
-import com.base.sbc.module.formType.entity.FieldVal;
-import com.base.sbc.module.formType.entity.FormType;
-import com.base.sbc.module.formType.mapper.FieldManagementMapper;
-import com.base.sbc.module.formType.mapper.FieldOptionConfigMapper;
-import com.base.sbc.module.formType.mapper.FormTypeMapper;
-import com.base.sbc.module.formType.service.FieldValService;
-import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
-import com.base.sbc.module.formType.vo.FieldManagementVo;
-import com.base.sbc.module.formType.vo.FieldOptionConfigVo;
+import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
+import com.base.sbc.module.formtype.entity.FieldManagement;
+import com.base.sbc.module.formtype.entity.FieldOptionConfig;
+import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.entity.FormType;
+import com.base.sbc.module.formtype.mapper.FieldManagementMapper;
+import com.base.sbc.module.formtype.mapper.FieldOptionConfigMapper;
+import com.base.sbc.module.formtype.mapper.FormTypeMapper;
+import com.base.sbc.module.formtype.service.FieldValService;
+import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
+import com.base.sbc.module.formtype.vo.FieldOptionConfigVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.dto.SaveDelDemandDto;
@@ -158,7 +158,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
             p.setList(demandDimensionalityDataList);
             /*禁用下拉框已选中的值*/
             list1.forEach(fieldManagementVo -> {
-                if (fieldManagementVo.getFieldTypeCoding().equals("select")) {
+                if ("select".equals(fieldManagementVo.getFieldTypeCoding())) {
                     List<String> stringList = p.getList().stream().map(PlanningDemandProportionData::getClassify).collect(Collectors.toList());
                     fieldManagementVo.getOptionList().forEach(option -> {
                         if (stringList.contains(option.getOptionName())) {

@@ -219,7 +219,9 @@ public class DataPermissionsService {
                                     });
                                     fieldArr.add(fieldValues[0] +"') ");
                                 }
-                                if(fieldDataPermissionVO.getFieldValues().size()==1) fieldArr.add(" "+finalFieldName+"='"+fieldDataPermissionVO.getFieldValues().get(0)+"' ");
+                                if(fieldDataPermissionVO.getFieldValues().size()==1) {
+                                    fieldArr.add(" "+finalFieldName+"='"+fieldDataPermissionVO.getFieldValues().get(0)+"' ");
+                                }
                             }
                         }
                         if(StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())){
@@ -244,7 +246,9 @@ public class DataPermissionsService {
 
     private String searchField(String[] arr,String val){
         for (String s:arr) {
-            if(s.indexOf(":")==-1 && (s.endsWith("."+val) || s.equals(val))) return s;
+            if(s.indexOf(":")==-1 && (s.endsWith("."+val) || s.equals(val))) {
+                return s;
+            }
             if(s.indexOf(":")!=-1){
                 String[] ss=s.split(":");
                 if(ss[1].equals(val)){

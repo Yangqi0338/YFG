@@ -155,7 +155,7 @@ public class OutboundOrderController extends BaseController{
 				return ApiResult.error("请选择草稿状态的单据！", 500);
 			}
 
-			Boolean result = flowableService.start("单号:"+ outboundOrder.getCode(), flowableService.OUTBOUND_ORDER, outboundOrder.getId(),
+			Boolean result = flowableService.start("单号:"+ outboundOrder.getCode(), FlowableService.OUTBOUND_ORDER, outboundOrder.getId(),
 					"/pdm/api/saas/outboundOrder/examine", "/pdm/api/saas/outboundOrder/examine",
 					"/pdm/api/saas/outboundOrder/examine", null, BeanUtil.beanToMap(outboundOrder));
 			if(result){

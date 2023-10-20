@@ -11,6 +11,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+import lombok.Getter;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import java.io.Serializable;
@@ -24,6 +26,7 @@ import java.util.Map;
  * @date 创建时间：2017年4月8日 上午9:26:55
  * @version 1.0
  */
+@Data
 public abstract class BaseEntity implements Serializable{
 	private static final long serialVersionUID = -1274762284724633163L;
 	/** 删除标记（0：正常；1：删除；2：审核；）*/
@@ -38,6 +41,7 @@ public abstract class BaseEntity implements Serializable{
 	protected String id;
 
 	/** 公司编码 */
+	@Getter
 	@TableField(fill = FieldFill.INSERT)
 	protected String companyCode;
 
@@ -55,16 +59,9 @@ public abstract class BaseEntity implements Serializable{
 		this.id = id;
 	}
 
-	public String getId() {
-		return id;
-	}
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public String getCompanyCode() {
-		return companyCode;
 	}
 
 	public void setCompanyCode(String companyCode) {
@@ -104,8 +101,12 @@ public abstract class BaseEntity implements Serializable{
             return false;
         }
         BaseEntity that = (BaseEntity) obj;
-        return null == this.getId() ? false : this.getId().equals(that.getId());
+        return null != this.getId() && this.getId().equals(that.getId());
     }
+	@Override
+	public int hashCode() {
+		return null == getId() ? 0 : getId().hashCode();
+	}
 
    @Override
     public String toString() {

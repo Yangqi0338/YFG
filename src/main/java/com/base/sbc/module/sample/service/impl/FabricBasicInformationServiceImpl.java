@@ -66,7 +66,7 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
       }
         QueryWrapper queryWrapper = new QueryWrapper<>();
         if(StringUtils.isNotBlank(queryFabricInformationDto.getOriginate())){
-            if(queryFabricInformationDto.getOriginate().equals("0")){
+            if("0".equals(queryFabricInformationDto.getOriginate())){
                 queryWrapper.eq("tfbi.create_id", baseController.getUserId());
             }
         }

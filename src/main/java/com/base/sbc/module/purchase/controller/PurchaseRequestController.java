@@ -5,20 +5,18 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.purchase.controller;
+
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserCompanyUtils;
 import com.base.sbc.module.purchase.dto.PurchasePageDTO;
-import com.base.sbc.module.purchase.entity.PurchaseOrder;
-import com.base.sbc.module.purchase.entity.PurchaseOrderDetail;
 import com.base.sbc.module.purchase.entity.PurchaseRequest;
 import com.base.sbc.module.purchase.entity.PurchaseRequestDetail;
 import com.base.sbc.module.purchase.service.PurchaseRequestDetailService;
@@ -153,7 +151,7 @@ public class PurchaseRequestController extends BaseController{
 				return ApiResult.error("请选择草稿状态的单据！", 500);
 			}
 
-			Boolean result = flowableService.start("单号:"+purchaseRequest.getCode(), flowableService.PURCHASE_REQUEST, purchaseRequest.getId(),
+			Boolean result = flowableService.start("单号:"+purchaseRequest.getCode(), FlowableService.PURCHASE_REQUEST, purchaseRequest.getId(),
 					"/pdm/api/saas/purchaseRequest/examine", "/pdm/api/saas/purchaseRequest/examine",
 					"/pdm/api/saas/purchaseRequest/examine",null, BeanUtil.beanToMap(purchaseRequest));
 			if(result){

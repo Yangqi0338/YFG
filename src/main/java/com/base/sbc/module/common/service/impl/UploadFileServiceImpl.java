@@ -377,9 +377,9 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         /*图片类型 （0 jpg,1 png 可以不传 默认0），非必填*/
         String pictype = "0";
         if (StringUtils.isNotBlank(type)) {
-            if (type.equalsIgnoreCase("jpg")) {
+            if ("jpg".equalsIgnoreCase(type)) {
                 pictype = "0";
-            } else if (type.equalsIgnoreCase("png")) {
+            } else if ("png".equalsIgnoreCase(type)) {
                 pictype = "1";
             }
         }

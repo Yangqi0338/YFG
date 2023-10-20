@@ -50,9 +50,9 @@ public class FieldDisplayConfigServiceImpl extends BaseServiceImpl<FieldDisplayC
         //获取默认配置
         List<FieldDisplayVo> defaultList = new ArrayList<>(16);
         Class clzz = null;
-        if (StrUtil.equals(type, styleBoard)) {
+        if (StrUtil.equals(type, STYLE_BOARD)) {
             clzz = PlanningSummaryDetailVo.class;
-        } else if (StrUtil.equals(type, planningBoard)) {
+        } else if (StrUtil.equals(type, PLANNING_BOARD)) {
             clzz = PlanningSummaryDetailVo.class;
         }
         if (clzz == null) {

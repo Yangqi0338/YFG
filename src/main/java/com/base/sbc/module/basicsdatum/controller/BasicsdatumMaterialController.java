@@ -93,6 +93,9 @@ public class BasicsdatumMaterialController extends BaseController {
     private final PackBomService packBomService;
     private final PackBomVersionService packBomVersionService;
 
+    Pattern pattern = Pattern.compile("^([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
+    Pattern pattern2 = Pattern.compile("(\\S+?)(?:\\(([^)]*)\\))?\\s+([0-9]*\\.?[0-9]+)");
+
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
     public List<BasicsdatumMaterialIngredient> formatIngredient(
@@ -112,9 +115,7 @@ public class BasicsdatumMaterialController extends BaseController {
     public List<BasicsdatumMaterialIngredient> formatToList(String str, String type, String materialCode) {
         String[] strs = str.split(",");
         List<BasicsdatumMaterialIngredient> list = new ArrayList<>();
-        for (int i = 0; i < strs.length; i++) {
-            String ingredients = strs[i];
-            Pattern pattern = Pattern.compile("^([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
+        for (String ingredients : strs) {
             Matcher matcher = pattern.matcher(ingredients.trim());
             BasicsdatumMaterialIngredient in = new BasicsdatumMaterialIngredient();
 
@@ -132,7 +133,6 @@ public class BasicsdatumMaterialController extends BaseController {
         if (list.size() == 1) {
             if (list.get(0).getRatio() == null) {
                 list = new ArrayList<>();
-                Pattern pattern2 = Pattern.compile("(\\S+?)(?:\\(([^)]*)\\))?\\s+([0-9]*\\.?[0-9]+)");
                 Matcher matcher = pattern2.matcher(str);
                 while (matcher.find()) {
                     BasicsdatumMaterialIngredient in = new BasicsdatumMaterialIngredient();

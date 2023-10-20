@@ -8,7 +8,7 @@ package com.base.sbc.module.planning.controller;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.formType.dto.QueryFieldManagementDto;
+import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;

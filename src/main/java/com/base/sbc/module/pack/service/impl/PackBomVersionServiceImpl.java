@@ -33,7 +33,6 @@ import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
-import com.base.sbc.module.purchase.service.PurchaseDemandService;
 import com.base.sbc.module.style.service.StyleInfoColorService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -234,8 +233,8 @@ public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersio
             throw new OtherException("物料清单存在未下发数据");
         }
         Map<String, Object> variables = BeanUtil.beanToMap(bomVersion);
-        boolean flg = flowableService.start(FlowableService.design_bom_pdn + "[" + bomVersion.getVersion() + "]",
-                FlowableService.design_bom_pdn, id, "/pdm/api/saas/packBom/version/approval",
+        boolean flg = flowableService.start(FlowableService.DESIGN_BOM_PDN + "[" + bomVersion.getVersion() + "]",
+                FlowableService.DESIGN_BOM_PDN, id, "/pdm/api/saas/packBom/version/approval",
                 "/pdm/api/saas/packBom/version/approval", "/pdm/api/saas/packBom/version/approval", StrUtil.format("/styleManagement/dataPackage?id={}&styleId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()), variables);
         if (flg) {
             bomVersion.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);

@@ -16,8 +16,8 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.SpringContextHolder;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.formType.entity.FieldManagement;
-import com.base.sbc.module.formType.mapper.FieldManagementMapper;
+import com.base.sbc.module.formtype.entity.FieldManagement;
+import com.base.sbc.module.formtype.mapper.FieldManagementMapper;
 import com.base.sbc.module.process.dto.InitiateProcessDto;
 import com.base.sbc.module.process.entity.*;
 import com.base.sbc.module.process.mapper.*;
@@ -82,6 +82,8 @@ public class ProcessBusinessInstanceServiceImpl extends BaseServiceImpl<ProcessB
 
     @Autowired
     private FieldManagementMapper fieldManagementMapper;
+
+    Pattern pattern = Pattern.compile("\\$\\{(.+?)\\}");
 
     /**
      * 描述- 发起流程
@@ -188,7 +190,7 @@ public class ProcessBusinessInstanceServiceImpl extends BaseServiceImpl<ProcessB
         }
 
         // 判断规则 -1表示全员
-        if (!processNodeStatusConditionVo.getRuleUserId().equals("-1") && !processNodeStatusConditionVo.getRuleUserId().equals(baseController.getUserId())) {
+        if (!"-1".equals(processNodeStatusConditionVo.getRuleUserId()) && !processNodeStatusConditionVo.getRuleUserId().equals(baseController.getUserId())) {
             throw new OtherException("该用户无此操作");
         }
         /*获取当前节点*/
@@ -396,13 +398,13 @@ public class ProcessBusinessInstanceServiceImpl extends BaseServiceImpl<ProcessB
                 FieldManagement fieldManagement = fieldManagementMapper.selectById(u.getFieldManagementId());
                 /*转换成数据库字段*/
                 String FieldName = camelCaseToUnderscore(fieldManagement.getFieldName());
-                if (u.getType().equals("0")) {
+                if ("0".equals(u.getType())) {
                     updateWrapper.set(FieldName, u.getUpdateText());
-                } else if (u.getType().equals("1")) {
+                } else if ("1".equals(u.getType())) {
                     updateWrapper.set(FieldName, baseController.getUserId());
-                } else if (u.getType().equals("2")) {
+                } else if ("2".equals(u.getType())) {
                     updateWrapper.set(FieldName, new Date());
-                } else if (u.getType().equals("3")) {
+                } else if ("3".equals(u.getType())) {
                     Object s1 = BeanUtil.getProperty(objectData, fieldManagement.getFieldName());
                     if (!ObjectUtils.isEmpty(s1)) {
                         updateWrapper.set(FieldName, s1.toString());
@@ -491,7 +493,6 @@ public class ProcessBusinessInstanceServiceImpl extends BaseServiceImpl<ProcessB
      * str
      */
     public String getPlaceholder(String str) {
-        Pattern pattern = Pattern.compile("\\$\\{(.+?)\\}");
         Matcher matcher = pattern.matcher(str);
         String placeholders = "";
         while (matcher.find()) {

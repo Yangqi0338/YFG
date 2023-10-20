@@ -1,6 +1,6 @@
 package com.base.sbc.module.planning.dto;
 
-import com.base.sbc.module.formType.entity.FieldVal;
+import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;

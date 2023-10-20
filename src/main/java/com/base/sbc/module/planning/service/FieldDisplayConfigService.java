@@ -29,12 +29,12 @@ public interface FieldDisplayConfigService extends BaseService<FieldDisplayConfi
     /**
      * 款式看板
      */
-    String styleBoard = "styleBoard";
+    String STYLE_BOARD = "styleBoard";
 
     /**
      * 企划看板
      */
-    String planningBoard = "planningBoard";
+    String PLANNING_BOARD = "planningBoard";
 
     /**
      * 获取配置 key=default为默认配置,key=user为用户配置

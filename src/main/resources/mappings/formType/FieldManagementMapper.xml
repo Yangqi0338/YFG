@@ -8,7 +8,7 @@
         创建时间：2023-4-15 18:33:51
         版本号：1.0
       -->
-    <resultMap type="com.base.sbc.module.formType.vo.FieldManagementVo" id="fieldManagementMaps">
+    <resultMap type="com.base.sbc.module.formtype.vo.FieldManagementVo" id="fieldManagementMaps">
         <result column="id" property="id"/>
         <result column="form_type_id" property="formTypeId"/>
         <result column="group_name" property="groupName"/>
@@ -33,7 +33,7 @@
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
-    <select id="getFieldManagementList" resultType="com.base.sbc.module.formType.vo.FieldManagementVo" resultMap="fieldManagementMaps">
+    <select id="getFieldManagementList" resultType="com.base.sbc.module.formtype.vo.FieldManagementVo" resultMap="fieldManagementMaps">
         select
         tfm.id,
         tfm.form_type_id,
@@ -87,7 +87,7 @@
         order By tfm.sequence desc
     </select>
 
-    <select id="getOptionList" resultType="com.base.sbc.module.formType.entity.Option" >
+    <select id="getOptionList" resultType="com.base.sbc.module.formtype.entity.Option" >
         select
         option_name optionName,
         id id,

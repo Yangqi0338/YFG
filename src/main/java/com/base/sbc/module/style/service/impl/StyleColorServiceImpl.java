@@ -32,10 +32,10 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.formType.entity.FieldVal;
-import com.base.sbc.module.formType.service.FieldValService;
-import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
-import com.base.sbc.module.formType.vo.FieldManagementVo;
+import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldValService;
+import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackInfo;
@@ -137,6 +137,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Autowired
     private HangTagService hangTagService;
 
+    Pattern pattern = Pattern.compile("[a-z||A-Z]");
+
+
 /** 自定义方法区 不替换的区域【other_start】 **/
 
     /**
@@ -235,7 +238,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             queryWrapper.orderByDesc("ts.create_date");
 //            查询款式配色
             sampleStyleColorList = baseMapper.styleColorList(queryWrapper);
-            List<String> stringList = new IdGen().getIds(sampleStyleColorList.size());
+            List<String> stringList = IdGen.getIds(sampleStyleColorList.size());
             int index = 0;
             for (StyleColorVo styleColorVo : sampleStyleColorList) {
                 styleColorVo.setIssuerId(stringList.get(index));
@@ -493,7 +496,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      */
     public String getBandName(String bandName) {
         // 使用正则表达式匹配字母
-        Pattern pattern = Pattern.compile("[a-z||A-Z]");
         Matcher matcher = pattern.matcher(bandName);
         String Letter = "";
         String month = "";
@@ -549,7 +551,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public String getMonth(String bandName, String s) {
         String month = bandName.replace(s, "");
         if (!month.matches("[1-9]")) {
-            month = month.equals("10") ? "A" : month.equals("11") ? "B" : month.equals("12") ? "C" : "";
+            month = "10".equals(month) ? "A" : "11".equals(month) ? "B" : "12".equals(month) ? "C" : "";
         }
         return month;
     }

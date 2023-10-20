@@ -74,7 +74,7 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
             queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getDevTypeName()),"dev_type_name",queryFabricIngredientsInfoDto.getDevTypeName());
 
             if(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getOriginate())){
-                if(queryFabricIngredientsInfoDto.getOriginate().equals("0")){
+                if("0".equals(queryFabricIngredientsInfoDto.getOriginate())){
                     queryWrapper.eq("create_id", baseController.getUserId());
                 }
             }

@@ -435,7 +435,7 @@ public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackB
         // 是否开启笛莎资料包计算开关 开启后资料包计算都是大货物料费用
         Boolean ifSwitch = ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.DESIGN_DISHA_DATA_PACKAGE_COUNT.getKeyCode());
         /*设计还是大货*/
-        Boolean loss = dto.getPackType().equals("packDesign");
+        Boolean loss = "packDesign".equals(dto.getPackType());
         //款式物料费用=款式物料用量*款式物料单价*（1+损耗率)
         //大货物料费用=物料大货用量*物料大货单价*（1+额定损耗率)
         return bomList.stream().map(packBom -> {

@@ -43,15 +43,15 @@ import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.base.sbc.module.formType.dto.QueryFieldOptionConfigDto;
-import com.base.sbc.module.formType.entity.FieldOptionConfig;
-import com.base.sbc.module.formType.entity.FieldVal;
-import com.base.sbc.module.formType.service.FieldManagementService;
-import com.base.sbc.module.formType.service.FieldOptionConfigService;
-import com.base.sbc.module.formType.service.FieldValService;
-import com.base.sbc.module.formType.utils.FieldValDataGroupConstant;
-import com.base.sbc.module.formType.vo.FieldManagementVo;
-import com.base.sbc.module.formType.vo.FieldOptionConfigVo;
+import com.base.sbc.module.formtype.dto.QueryFieldOptionConfigDto;
+import com.base.sbc.module.formtype.entity.FieldOptionConfig;
+import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldManagementService;
+import com.base.sbc.module.formtype.service.FieldOptionConfigService;
+import com.base.sbc.module.formtype.service.FieldValService;
+import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
+import com.base.sbc.module.formtype.vo.FieldOptionConfigVo;
 import com.base.sbc.module.hangTag.service.HangTagService;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
@@ -467,16 +467,16 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qw.eq(BaseConstant.COMPANY_CODE, companyCode);
 
         //1我下发的
-        if (StrUtil.equals(dto.getUserType(), StylePageDto.userType1)) {
+        if (StrUtil.equals(dto.getUserType(), StylePageDto.USER_TYPE_1)) {
             qw.eq("sender", userId);
         }
         //2我创建的
-        else if (StrUtil.equals(dto.getUserType(), StylePageDto.userType2)) {
+        else if (StrUtil.equals(dto.getUserType(), StylePageDto.USER_TYPE_2)) {
             qw.isNull("sender");
             qw.eq("create_id", userId);
         }
         //3我负责的
-        else if (StrUtil.equals(dto.getUserType(), StylePageDto.userType3)) {
+        else if (StrUtil.equals(dto.getUserType(), StylePageDto.USER_TYPE_3)) {
             qw.eq("designer_id", userId);
         }
         //数据权限
@@ -506,7 +506,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         style.setCheckStartTime(new Date());
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
-        boolean flg = flowableService.start(FlowableService.sample_design_pdn + "[" + style.getDesignNo() + "]", FlowableService.sample_design_pdn, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id, variables);
+        boolean flg = flowableService.start(FlowableService.SAMPLE_DESIGN_PDN + "[" + style.getDesignNo() + "]", FlowableService.SAMPLE_DESIGN_PDN, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id, variables);
         return flg;
     }
 

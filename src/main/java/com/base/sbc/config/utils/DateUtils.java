@@ -122,19 +122,19 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 	/** 显示到毫秒（数字格式） */
 	public static final String FORMAT_NO_MILLISECOND = "yyyyMMddHHmmssSSS";
 	/** 时间格式化器集合 */
-	private static final Map<String, SimpleDateFormat> simpleDateFormatMap = new HashMap<String, SimpleDateFormat>();
+	private static final Map<String, SimpleDateFormat> STRING_SIMPLE_DATE_FORMAT_HASH_MAP = new HashMap<String, SimpleDateFormat>();
 
 	static {
-		simpleDateFormatMap.put(FORMAT_DATE, new SimpleDateFormat(FORMAT_DATE));
-		simpleDateFormatMap.put(FORMAT_HOUR, new SimpleDateFormat(FORMAT_HOUR));
-		simpleDateFormatMap.put(FORMAT_MINUTE, new SimpleDateFormat(FORMAT_MINUTE));
-		simpleDateFormatMap.put(FORMAT_SECOND, new SimpleDateFormat(FORMAT_SECOND));
-		simpleDateFormatMap.put(FORMAT_MILLISECOND, new SimpleDateFormat(FORMAT_MILLISECOND));
-		simpleDateFormatMap.put(FORMAT_NO_DATE, new SimpleDateFormat(FORMAT_NO_DATE));
-		simpleDateFormatMap.put(FORMAT_NO_HOUR, new SimpleDateFormat(FORMAT_NO_HOUR));
-		simpleDateFormatMap.put(FORMAT_NO_MINUTE, new SimpleDateFormat(FORMAT_NO_MINUTE));
-		simpleDateFormatMap.put(FORMAT_NO_SECOND, new SimpleDateFormat(FORMAT_NO_SECOND));
-		simpleDateFormatMap.put(FORMAT_NO_MILLISECOND, new SimpleDateFormat(FORMAT_NO_MILLISECOND));
+		STRING_SIMPLE_DATE_FORMAT_HASH_MAP.put(FORMAT_DATE, new SimpleDateFormat(FORMAT_DATE));
+		STRING_SIMPLE_DATE_FORMAT_HASH_MAP.put(FORMAT_HOUR, new SimpleDateFormat(FORMAT_HOUR));
+		STRING_SIMPLE_DATE_FORMAT_HASH_MAP.put(FORMAT_MINUTE, new SimpleDateFormat(FORMAT_MINUTE));
+		STRING_SIMPLE_DATE_FORMAT_HASH_MAP.put(FORMAT_SECOND, new SimpleDateFormat(FORMAT_SECOND));
+		STRING_SIMPLE_DATE_FORMAT_HASH_MAP.put(FORMAT_MILLISECOND, new SimpleDateFormat(FORMAT_MILLISECOND));
+		STRING_SIMPLE_DATE_FORMAT_HASH_MAP.put(FORMAT_NO_DATE, new SimpleDateFormat(FORMAT_NO_DATE));
+		STRING_SIMPLE_DATE_FORMAT_HASH_MAP.put(FORMAT_NO_HOUR, new SimpleDateFormat(FORMAT_NO_HOUR));
+		STRING_SIMPLE_DATE_FORMAT_HASH_MAP.put(FORMAT_NO_MINUTE, new SimpleDateFormat(FORMAT_NO_MINUTE));
+		STRING_SIMPLE_DATE_FORMAT_HASH_MAP.put(FORMAT_NO_SECOND, new SimpleDateFormat(FORMAT_NO_SECOND));
+		STRING_SIMPLE_DATE_FORMAT_HASH_MAP.put(FORMAT_NO_MILLISECOND, new SimpleDateFormat(FORMAT_NO_MILLISECOND));
 	}
 
 	/**
@@ -179,7 +179,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 	 * @return 时间格式化器
 	 */
 	private static SimpleDateFormat getSimpleDateFormat(String formatStyle) {
-		SimpleDateFormat dateFormat = simpleDateFormatMap.get(formatStyle);
+		SimpleDateFormat dateFormat = STRING_SIMPLE_DATE_FORMAT_HASH_MAP.get(formatStyle);
 		if (Objects.nonNull(dateFormat)) {
 			return dateFormat;
 		}

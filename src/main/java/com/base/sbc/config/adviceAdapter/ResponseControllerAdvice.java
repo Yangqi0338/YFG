@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.util.Collection;
 
+import static com.base.sbc.client.amc.service.AmcFeignService.userPlanningSeasonId;
+
 /**
  * 统一返回
  *
@@ -154,7 +156,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
         }finally {
             httpLogService.save(httpLog);
             companyUserInfo.remove();
-            AmcFeignService.userPlanningSeasonId.remove();
+            userPlanningSeasonId.remove();
         }
 
 

@@ -104,7 +104,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
             map = dictInfoToMap.get(dict.split(",")[0]);
         }
         List<BasicCategoryDot> basicCategoryDotList = new ArrayList<>();
-        if (type.equals("7")) {
+        if ("7".equals(type)) {
             basicCategoryDotList = ccmFeignService.getTreeByNamelList("品类", "1");
             map1 = dictInfoToMap.get(dict.split(",")[1]);
         }
@@ -119,7 +119,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
                 }
             }
 
-            if (type.equals(BaseGlobal.OUT) || type.equals("7")) {
+            if (type.equals(BaseGlobal.OUT) || "7".equals(type)) {
                 /*部件*/
                 if (StringUtils.isNotBlank(processDatabaseExcelDto.getComponentName())) {
                     String[] componentNames = processDatabaseExcelDto.getComponentName().replaceAll(" ", "").split(",");
@@ -134,7 +134,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
                     processDatabaseExcelDto.setComponent(StringUtils.join(stringList, ","));
                     processDatabaseExcelDto.setComponentName(StringUtils.join(stringList1, ","));
                 }
-            } else if (type.equals(BaseGlobal.OUT_READY) || type.equals("6")) {
+            } else if (type.equals(BaseGlobal.OUT_READY) || "6".equals(type)) {
 
                 /*工艺类型*/
                 if (StringUtils.isNotBlank(processDatabaseExcelDto.getProcessTypeName())) {
@@ -153,7 +153,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
 
             }
 
-            if (type.equals("7")) {
+            if ("7".equals(type)) {
 //                processDatabaseExcelDto.setProcessType(processDatabaseExcelDto.getComponentCategory());
                 /*品类*/
                 if (StringUtils.isNotBlank(processDatabaseExcelDto.getCategoryName())) {
@@ -208,19 +208,19 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         QueryWrapper<ProcessDatabase> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("type", type);
 
-        if (type.equals("1")) {
+        if ("1".equals(type)) {
             /*部件库*/
             List<ComponentLibraryExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), ComponentLibraryExcelDto.class);
             ExcelUtils.exportExcel(list, ComponentLibraryExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
-        } else if (type.equals("2") || type.equals("6") ) {
+        } else if ("2".equals(type) || "6".equals(type) ) {
             /*基础工艺*/
             List<BasicsCraftExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), BasicsCraftExcelDto.class);
             ExcelUtils.exportExcel(list, BasicsCraftExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
-        } else if (type.equals("3")) {
+        } else if ("3".equals(type)) {
             /*外辅工艺*/
             List<ExternalCraftExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), ExternalCraftExcelDto.class);
             ExcelUtils.exportExcel(list, ExternalCraftExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
-        } else if (type.equals("7")) {
+        } else if ("7".equals(type)) {
             /*模板部件*/
             List<FormworkComponentExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), FormworkComponentExcelDto.class);
             ExcelUtils.exportExcel(list, FormworkComponentExcelDto.class, "基础资料.xlsx", new ExportParams(), response);

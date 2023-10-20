@@ -30,14 +30,14 @@ import java.util.Map;
 public class FlowableService {
 
 
-    public static final String sample_design_pdn = "款式设计审批";
-    public static final String big_goods_reverse = "大货资料包反审";
-    public static final String design_bom_pdn = "设计BOM物料审批";
+    public static final String SAMPLE_DESIGN_PDN = "款式设计审批";
+    public static final String BIG_GOODS_REVERSE = "大货资料包反审";
+    public static final String DESIGN_BOM_PDN = "设计BOM物料审批";
 
     public static final String MATERIAL = "素材审批";
 
     public static final String HANGING_TAG_REVIEW = "吊牌审核";
-    public static final String pack_tech_pdn = "工艺说明审批";
+    public static final String PACK_TECH_PDN = "工艺说明审批";
 
     public static final String SAMPLE_ARCHIVES = "样衣档案审批";
 

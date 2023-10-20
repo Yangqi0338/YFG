@@ -89,7 +89,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
         queryWrapper.between("create_date",dto.getCreateDate());
 
         if (StringUtils.isNotEmpty(dto.getAll())){
-            if(dto.getAll().equals("0")){
+            if("0".equals(dto.getAll())){
                 queryWrapper.eq("model_type_code","").or().isNull("model_type_code");
             }else {
                 queryWrapper.like("model_type_code", dto.getModelType()).or().eq("model_type_code","").or().isNull("model_type_code");

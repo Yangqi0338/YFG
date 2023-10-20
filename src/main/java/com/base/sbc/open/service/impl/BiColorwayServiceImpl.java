@@ -128,6 +128,8 @@ public class BiColorwayServiceImpl extends ServiceImpl<BiColorwayMapper, BiColor
                     case "3":
                         status = "重新打开 ";
                         break;
+                    default:
+                        break;
                 }
             }
 
