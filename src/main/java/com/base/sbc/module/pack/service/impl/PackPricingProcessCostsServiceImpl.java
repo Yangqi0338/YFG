@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-7-10 16:09:56
  */
 @Service
-public class PackPricingProcessCostsServiceImpl extends PackBaseServiceImpl<PackPricingProcessCostsMapper, PackPricingProcessCosts> implements PackPricingProcessCostsService {
+public class PackPricingProcessCostsServiceImpl extends AbstractPackBaseServiceImpl<PackPricingProcessCostsMapper, PackPricingProcessCosts> implements PackPricingProcessCostsService {
 
 
 // 自定义方法区 不替换的区域【other_start】

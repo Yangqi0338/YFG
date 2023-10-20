@@ -53,7 +53,7 @@ import java.util.Optional;
  * @date 创建时间：2023-7-5 15:41:45
  */
 @Service
-public class PackTechSpecServiceImpl extends PackBaseServiceImpl<PackTechSpecMapper, PackTechSpec> implements PackTechSpecService {
+public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTechSpecMapper, PackTechSpec> implements PackTechSpecService {
 
 
     // 自定义方法区 不替换的区域【other_start】

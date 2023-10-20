@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-7-1 16:37:24
  */
 @Service
-public class PackBomSizeServiceImpl extends PackBaseServiceImpl<PackBomSizeMapper, PackBomSize> implements PackBomSizeService {
+public class PackBomSizeServiceImpl extends AbstractPackBaseServiceImpl<PackBomSizeMapper, PackBomSize> implements PackBomSizeService {
 
     // 自定义方法区 不替换的区域【other_start】
 

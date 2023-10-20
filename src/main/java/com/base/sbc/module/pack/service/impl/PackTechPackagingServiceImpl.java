@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
  * @date 创建时间：2023-7-13 14:24:40
  */
 @Service
-public class PackTechPackagingServiceImpl extends PackBaseServiceImpl<PackTechPackagingMapper, PackTechPackaging> implements PackTechPackagingService {
+public class PackTechPackagingServiceImpl extends AbstractPackBaseServiceImpl<PackTechPackagingMapper, PackTechPackaging> implements PackTechPackagingService {
 
 
 // 自定义方法区 不替换的区域【other_start】

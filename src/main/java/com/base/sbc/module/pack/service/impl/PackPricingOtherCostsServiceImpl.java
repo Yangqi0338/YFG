@@ -46,7 +46,7 @@ import java.util.Map;
  * @date 创建时间：2023-7-10 13:35:18
  */
 @Service
-public class PackPricingOtherCostsServiceImpl extends PackBaseServiceImpl<PackPricingOtherCostsMapper, PackPricingOtherCosts> implements PackPricingOtherCostsService {
+public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImpl<PackPricingOtherCostsMapper, PackPricingOtherCosts> implements PackPricingOtherCostsService {
 
 
 // 自定义方法区 不替换的区域【other_start】

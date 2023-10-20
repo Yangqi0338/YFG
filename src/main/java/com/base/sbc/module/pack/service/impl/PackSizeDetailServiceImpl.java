@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-8-18 10:56:19
  */
 @Service
-public class PackSizeDetailServiceImpl extends PackBaseServiceImpl<PackSizeDetailMapper, PackSizeDetail> implements PackSizeDetailService {
+public class PackSizeDetailServiceImpl extends AbstractPackBaseServiceImpl<PackSizeDetailMapper, PackSizeDetail> implements PackSizeDetailService {
 
 
 // 自定义方法区 不替换的区域【other_start】

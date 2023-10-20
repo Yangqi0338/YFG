@@ -79,7 +79,7 @@ import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.STYLE_MANY_COLOR;
  * @date 创建时间：2023-7-1 16:37:22
  */
 @Service
-public class PackBomServiceImpl extends PackBaseServiceImpl<PackBomMapper, PackBom> implements PackBomService {
+public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMapper, PackBom> implements PackBomService {
 
 // 自定义方法区 不替换的区域【other_start】
 

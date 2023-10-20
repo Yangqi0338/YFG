@@ -31,11 +31,11 @@ import java.util.stream.Collectors;
  *
  * @author lixianglin
  * @version 1.0
- * @address com.base.sbc.module.pack.service.impl.PackBaseServiceImpl
+ * @address com.base.sbc.module.pack.service.impl.AbstractPackBaseServiceImpl
  * @email li_xianglin@126.com
  * @date 创建时间：2023-07-08 09:40
  */
-public abstract class PackBaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> extends BaseServiceImpl<M, T> implements PackBaseService<T> {
+public abstract class AbstractPackBaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> extends BaseServiceImpl<M, T> implements PackBaseService<T> {
 
     abstract String getModeName();
 

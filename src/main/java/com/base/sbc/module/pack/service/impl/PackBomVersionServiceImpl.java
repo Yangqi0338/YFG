@@ -62,7 +62,7 @@ import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG
  * @date 创建时间：2023-7-1 16:37:20
  */
 @Service
-public class PackBomVersionServiceImpl extends PackBaseServiceImpl<PackBomVersionMapper, PackBomVersion> implements PackBomVersionService {
+public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackBomVersionMapper, PackBomVersion> implements PackBomVersionService {
 
     protected static Logger logger = LoggerFactory.getLogger(PackBomVersionServiceImpl.class);
 

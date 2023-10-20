@@ -35,7 +35,7 @@ import java.util.Map;
  * @date 创建时间：2023-7-10 13:35:16
  */
 @Service
-public class PackPricingServiceImpl extends PackBaseServiceImpl<PackPricingMapper, PackPricing> implements PackPricingService {
+public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPricingMapper, PackPricing> implements PackPricingService {
 
 
 // 自定义方法区 不替换的区域【other_start】

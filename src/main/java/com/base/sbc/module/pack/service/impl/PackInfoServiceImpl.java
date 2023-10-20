@@ -100,7 +100,7 @@ import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
  * @date 创建时间：2023-7-6 17:13:01
  */
 @Service
-public class PackInfoServiceImpl extends PackBaseServiceImpl<PackInfoMapper, PackInfo> implements PackInfoService {
+public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMapper, PackInfo> implements PackInfoService {
 
 
 // 自定义方法区 不替换的区域【other_start】

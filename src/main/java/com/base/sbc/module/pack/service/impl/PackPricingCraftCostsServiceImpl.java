@@ -42,7 +42,7 @@ import java.util.List;
  * @date 创建时间：2023-7-10 16:09:53
  */
 @Service
-public class PackPricingCraftCostsServiceImpl extends PackBaseServiceImpl<PackPricingCraftCostsMapper, PackPricingCraftCosts> implements PackPricingCraftCostsService {
+public class PackPricingCraftCostsServiceImpl extends AbstractPackBaseServiceImpl<PackPricingCraftCostsMapper, PackPricingCraftCosts> implements PackPricingCraftCostsService {
 
 // 自定义方法区 不替换的区域【other_start】
 

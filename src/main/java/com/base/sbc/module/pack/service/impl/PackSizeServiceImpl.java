@@ -49,7 +49,7 @@ import java.util.Map;
  * @date 创建时间：2023-7-1 10:14:51
  */
 @Service
-public class PackSizeServiceImpl extends PackBaseServiceImpl<PackSizeMapper, PackSize> implements PackSizeService {
+public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMapper, PackSize> implements PackSizeService {
 
 
 // 自定义方法区 不替换的区域【other_start】

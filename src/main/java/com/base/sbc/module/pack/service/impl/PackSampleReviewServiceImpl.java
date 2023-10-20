@@ -36,7 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @date 创建时间：2023-7-5 11:09:05
  */
 @Service
-public class PackSampleReviewServiceImpl extends PackBaseServiceImpl<PackSampleReviewMapper, PackSampleReview> implements PackSampleReviewService {
+public class PackSampleReviewServiceImpl extends AbstractPackBaseServiceImpl<PackSampleReviewMapper, PackSampleReview> implements PackSampleReviewService {
 
 // 自定义方法区 不替换的区域【other_start】
 

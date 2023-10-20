@@ -46,7 +46,7 @@ import java.util.List;
  * @date 创建时间：2023-7-5 14:12:07
  */
 @Service
-public class PackProcessPriceServiceImpl extends PackBaseServiceImpl<PackProcessPriceMapper, PackProcessPrice> implements PackProcessPriceService {
+public class PackProcessPriceServiceImpl extends AbstractPackBaseServiceImpl<PackProcessPriceMapper, PackProcessPrice> implements PackProcessPriceService {
 
 // 自定义方法区 不替换的区域【other_start】
 

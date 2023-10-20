@@ -14,10 +14,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumRangeDifferenceService;
 import com.base.sbc.module.difference.entity.Difference;
 import com.base.sbc.module.difference.service.DifferenceService;
@@ -62,7 +60,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-9-1 14:07:14
  */
 @Service
-public class PackSizeConfigServiceImpl extends PackBaseServiceImpl<PackSizeConfigMapper, PackSizeConfig> implements PackSizeConfigService {
+public class PackSizeConfigServiceImpl extends AbstractPackBaseServiceImpl<PackSizeConfigMapper, PackSizeConfig> implements PackSizeConfigService {
 
 // 自定义方法区 不替换的区域【other_start】
 

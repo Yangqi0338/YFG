@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * @date 创建时间：2023-8-23 9:44:43
  */
 @Service
-public class PackBomColorServiceImpl extends PackBaseServiceImpl<PackBomColorMapper, PackBomColor> implements PackBomColorService {
+public class PackBomColorServiceImpl extends AbstractPackBaseServiceImpl<PackBomColorMapper, PackBomColor> implements PackBomColorService {
     @Override
     String getModeName() {
         return "物料颜色";

@@ -36,7 +36,7 @@ import java.util.Map;
  * @date 创建时间：2023-7-13 9:17:47
  */
 @Service
-public class PackInfoStatusServiceImpl extends PackBaseServiceImpl<PackInfoStatusMapper, PackInfoStatus> implements PackInfoStatusService {
+public class PackInfoStatusServiceImpl extends AbstractPackBaseServiceImpl<PackInfoStatusMapper, PackInfoStatus> implements PackInfoStatusService {
 
 
 // 自定义方法区 不替换的区域【other_start】
