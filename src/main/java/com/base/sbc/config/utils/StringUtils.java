@@ -10,6 +10,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -53,9 +54,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 	public static List<String> convertStrsToList(String[] strs) {
 		List<String> list = Lists.newArrayList();
 		if (strs != null && strs.length > 0) {
-			for (String string : strs) {
-				list.add(string);
-			}
+			list.addAll(Arrays.asList(strs));
 		}
 		return list;
 	}

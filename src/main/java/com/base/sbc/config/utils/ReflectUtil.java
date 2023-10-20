@@ -430,7 +430,7 @@ public class ReflectUtil {
     	public String getType() {
     		return type;
     	}
-    	private String type;
+    	private final String type;
     	DataType(String type){
     		this.type=type;
     	}

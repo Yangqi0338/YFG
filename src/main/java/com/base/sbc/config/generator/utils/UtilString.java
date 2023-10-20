@@ -57,7 +57,7 @@ public class UtilString {
 			char ch = columnName.charAt(i);
 			if (ch == '_') {
 				toUpper = true;
-			} else if (toUpper == true) {
+			} else if (toUpper) {
 				fieldName.append(Character.toUpperCase(ch));
 				toUpper = false;
 			} else {

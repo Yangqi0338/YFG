@@ -375,10 +375,10 @@ public class ImportExcel {
 						Reflections.invokeMethod(e, mthodName, new Class[] { valType }, new Object[] { val });
 					}
 				}
-				sb.append(val + ", ");
+				sb.append(val).append(", ");
 			}
 			dataList.add(e);
-			log.debug("Read success: [" + i + "] " + sb.toString());
+			log.debug("Read success: [" + i + "] " + sb);
 		}
 		return dataList;
 	}

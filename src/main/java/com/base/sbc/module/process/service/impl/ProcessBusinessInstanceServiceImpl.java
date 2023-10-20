@@ -494,10 +494,10 @@ public class ProcessBusinessInstanceServiceImpl extends BaseServiceImpl<ProcessB
      */
     public String getPlaceholder(String str) {
         Matcher matcher = pattern.matcher(str);
-        String placeholders = "";
+        StringBuilder placeholders = new StringBuilder();
         while (matcher.find()) {
             String placeholder = matcher.group(1);
-            placeholders += placeholder + ",";
+            placeholders.append(placeholder).append(",");
         }
         return placeholders.substring(0, placeholders.length() - 1);
     }

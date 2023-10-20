@@ -498,16 +498,16 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public String getBandName(String bandName) {
         // 使用正则表达式匹配字母
         Matcher matcher = pattern.matcher(bandName);
-        String Letter = "";
+        StringBuilder Letter = new StringBuilder();
         String month = "";
         // 打印匹配到的字母
         while (matcher.find()) {
-            Letter += matcher.group();
+            Letter.append(matcher.group());
         }
-        if (!StringUtils.isEmpty(Letter)) {
-            month = getMonth(bandName, Letter);
-            Letter = Letter.toUpperCase();
-            char[] charArray = Letter.toCharArray();
+        if (!StringUtils.isEmpty(Letter.toString())) {
+            month = getMonth(bandName, Letter.toString());
+            Letter = new StringBuilder(Letter.toString().toUpperCase());
+            char[] charArray = Letter.toString().toCharArray();
             int char1 = charArray[0];
             bandName = String.valueOf(char1 - 64);
         } else {

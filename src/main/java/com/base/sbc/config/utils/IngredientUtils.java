@@ -80,14 +80,14 @@ public class IngredientUtils {
 		// 转换
 		str = numberChineseSort(str);
 		boolean isNumber = false;
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		for (int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
 			boolean digit = Character.isDigit(c) || c == '.';
 			if (i != 0 && isNumber == digit) {
-				s += c;
+				s.append(c);
 			} else {
-				s += (isNumber ? "%" : ",") + String.valueOf(c);
+				s.append(isNumber ? "%" : ",").append(c);
 			}
 			isNumber = digit;
 		}
@@ -101,10 +101,10 @@ public class IngredientUtils {
 	 * @return
 	 */
 	public static String numberChineseSort(String str) {
-		String result = "";
+		StringBuilder result = new StringBuilder();
 		List<String> list = new ArrayList<>();
 		boolean isNumber = false;
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		for (int i = 0; i < str.length(); i++) {
 			char c = str.charAt(i);
 			boolean digit = Character.isDigit(c) || c == '.';
@@ -113,13 +113,13 @@ public class IngredientUtils {
 			}
 
 			if (isNumber == digit) {
-				s += c;
+				s.append(c);
 				if (i == str.length() - 1) {
-					list.add(s);
+					list.add(s.toString());
 				}
 			} else {
-				list.add(s);
-				s = String.valueOf(c);
+				list.add(s.toString());
+				s = new StringBuilder(String.valueOf(c));
 			}
 			isNumber = digit;
 		}
@@ -129,10 +129,10 @@ public class IngredientUtils {
 		// 数字与中文互换
 		for (int i = 0; i < list.size(); i++) {
 			if (i % 2 != 0) {
-				result += list.get(i) + list.get(i - 1);
+				result.append(list.get(i)).append(list.get(i - 1));
 			}
 		}
-		return result;
+		return result.toString();
 	}
 
 	/**

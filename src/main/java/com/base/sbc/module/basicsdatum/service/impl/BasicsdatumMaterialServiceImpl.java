@@ -771,7 +771,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         }
         this.materialPriceService.saveOrUpdate(entity);
         // 如果当前是默认：批量修改其他物料未非默认，同时修改主信息的默认物料
-        if (entity != null && entity.getSelectFlag() != null && entity.getSelectFlag() == true) {
+        if (entity.getSelectFlag() != null && entity.getSelectFlag()) {
             this.materialPriceService.update(new UpdateWrapper<BasicsdatumMaterialPrice>()
                     .eq(COMPANY_CODE, getCompanyCode()).eq("material_code", entity.getMaterialCode())
                     .ne("id", entity.getId()).set("select_flag", "0"));

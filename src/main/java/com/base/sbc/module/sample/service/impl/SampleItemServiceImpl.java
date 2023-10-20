@@ -150,7 +150,7 @@ public class SampleItemServiceImpl extends BaseServiceImpl<SampleItemMapper, Sam
             sampleMapper.updateById(sample);
         }
 
-        return index > 0 ? true : false;
+        return index > 0;
     }
 
     @Override

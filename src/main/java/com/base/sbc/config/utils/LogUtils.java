@@ -128,7 +128,7 @@ public class LogUtils<T> {
 	               if("tips".equals(name)) {
 	            	   name="说明信息";
 	               }
-	               str.append("修改").append(name).append(o1).append("→" + o2+"</br>");
+	               str.append("修改").append(name).append(o1).append("→").append(o2).append("</br>");
 	               i++;
 	            }
 	         }

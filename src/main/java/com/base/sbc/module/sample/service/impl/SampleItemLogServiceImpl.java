@@ -55,7 +55,7 @@ public class SampleItemLogServiceImpl extends BaseServiceImpl<SampleItemLogMappe
         log.setRemarks(remarks);
 
         Integer count = mapper.insert(log);
-        return count > 0 ? true : false;
+        return count > 0;
     }
 
     @Override

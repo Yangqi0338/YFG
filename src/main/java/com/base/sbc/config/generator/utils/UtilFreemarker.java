@@ -39,12 +39,8 @@ public class UtilFreemarker {
 	 * @return list
 	 */
 	public static List<String> getColumnNameForMybatis(String tableName) {
-		List<String> retCol = new LinkedList<>();
-		List<String> columns = UtilDb.getColumnNameByTableNameWithList(tableName);
-		for(String column : columns){
-			retCol.add(column);
-		}
-		return retCol;
+        List<String> columns = UtilDb.getColumnNameByTableNameWithList(tableName);
+        return new LinkedList<>(columns);
 	}
 	/**
 	 * 得到表中列字段长度最长的列字段

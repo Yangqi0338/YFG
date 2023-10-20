@@ -76,9 +76,9 @@ public class ReviewResultServiceImpl extends BaseServiceImpl<ReviewResultMapper,
                     StringBuilder noPassResult = new StringBuilder();
                     for (ReviewResultDetail reviewResultDetail : detailList) {
                         if ("1".equals(reviewResultDetail.getReviewResult())) {
-                            passResult.append(reviewResultDetail.getMeetingResult() + ",");
+                            passResult.append(reviewResultDetail.getMeetingResult()).append(",");
                         } else {
-                            noPassResult.append(reviewResultDetail.getMeetingResult() + ",");
+                            noPassResult.append(reviewResultDetail.getMeetingResult()).append(",");
                         }
                     }
                     if(passResult.length() > 0) {
