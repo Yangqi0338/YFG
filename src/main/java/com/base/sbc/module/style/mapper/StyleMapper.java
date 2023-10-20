@@ -13,6 +13,7 @@ import com.base.sbc.module.patternmaking.vo.PatternMakingForSampleVo;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
+import com.base.sbc.module.sample.vo.StyleUploadVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.vo.ChartBarVo;
 import com.base.sbc.module.style.vo.StyleBoardCategorySummaryVo;
@@ -69,5 +70,7 @@ public interface StyleMapper extends BaseMapper<Style> {
      * @return
      */
     Boolean reviseAllDesignNo(@Param("oldDesignNo") String oldDesignNo, @Param("newDesignNo") String newDesignNo);
+
+    StyleUploadVo getStyleUploadInfo(@Param("styleId") String styleId);
 }
 

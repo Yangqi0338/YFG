@@ -13,8 +13,10 @@ public class StyleUploadVo {
      * 大货款号
      */
     @ApiModelProperty(value = "大货款号")
-    private String  styleNo;
+    private String styleNo;
 
+    @ApiModelProperty(value = "设计款图")
+    private String designNo;
     /**
      * 品牌
      */

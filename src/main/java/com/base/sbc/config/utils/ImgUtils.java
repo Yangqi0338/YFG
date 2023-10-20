@@ -1,5 +1,8 @@
 package com.base.sbc.config.utils;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpUtil;
 import net.sf.jmimemagic.Magic;
 import net.sf.jmimemagic.MagicMatch;
 import org.apache.commons.net.ftp.FTP;
@@ -253,25 +256,30 @@ public class ImgUtils {
 			System.out.println("发送POST请求出错。" + urlStr);
 			logger.error("调用丽晶图片上传服务异常：" + e);
 			e.printStackTrace();
-			return null;
-		} finally {
-			if (conn != null) {
-				conn.disconnect();
-				conn = null;
-			}
-		}
-		return res;
-	}
+            return null;
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+                conn = null;
+            }
+        }
+        return res;
+    }
 
-	private static String covertBmpToJpg(String path) {
-		String newPath = "";
-		FileOutputStream out = null;
-		try {
-			File file = new File(path);
-			Image img = ImageIO.read(file);
-			BufferedImage tag = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
-			// 创建JPG图像
-			BufferedImage jpgImage = new BufferedImage(tag.getWidth(), tag.getHeight(), BufferedImage.TYPE_INT_RGB);
+    public static String uploadDesignPic(String url, Map<String, Object> form) {
+        String post = HttpUtil.post(url, form);
+        return post;
+    }
+
+    private static String covertBmpToJpg(String path) {
+        String newPath = "";
+        FileOutputStream out = null;
+        try {
+            File file = new File(path);
+            Image img = ImageIO.read(file);
+            BufferedImage tag = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
+            // 创建JPG图像
+            BufferedImage jpgImage = new BufferedImage(tag.getWidth(), tag.getHeight(), BufferedImage.TYPE_INT_RGB);
 			jpgImage.createGraphics().drawImage(tag, 0, 0, Color.WHITE, null);
 			// 将JPG图像保存为文件
 			ImageIO.write(jpgImage, "jpg", new File(newPath));

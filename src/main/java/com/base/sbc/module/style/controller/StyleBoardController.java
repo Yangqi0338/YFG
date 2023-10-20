@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -39,8 +40,8 @@ public class StyleBoardController {
 
     @ApiOperation(value = "品类波段汇总", notes = "")
     @GetMapping("/categoryBandSummary")
-    public StyleSummaryVo categoryBandSummary(@Valid PlanningBoardSearchDto dto) {
-        return styleService.categoryBandSummary(dto);
+    public StyleSummaryVo categoryBandSummary(Principal user, @Valid PlanningBoardSearchDto dto) {
+        return styleService.categoryBandSummary(user, dto);
     }
 
     @ApiOperation(value = "品类数据汇总", notes = "")

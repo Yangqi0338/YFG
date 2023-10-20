@@ -18,8 +18,10 @@ import lombok.Data;
 @ApiModel("款式设计附件保存修改 SampleDto")
 public class SampleAttachmentDto {
 
-    @ApiModelProperty(value = "附件id"  )
+    @ApiModelProperty(value = "附件id")
     private String id;
-    @ApiModelProperty(value = "文件id"  )
+    @ApiModelProperty(value = "文件id")
     private String fileId;
+    @ApiModelProperty(value = "文件名称")
+    private String fileName;
 }

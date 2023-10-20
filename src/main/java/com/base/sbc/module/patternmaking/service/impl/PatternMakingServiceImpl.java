@@ -108,6 +108,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Autowired
     private DataPermissionsService dataPermissionsService;
     @Autowired
+    private StylePicUtils stylePicUtils;
+    @Autowired
     private ScoreConfigService scoreConfigService;
 
     @Override
@@ -394,7 +396,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         Page<TechnologyCenterTaskVo> page = PageHelper.startPage(dto);
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
         // 设置图片
-        attachmentService.setListStylePic(list, "stylePic");
+        stylePicUtils.setStylePic(list, "stylePic");
         // 设置版师列表
         if (CollUtil.isNotEmpty(list)) {
             // 去掉 优化性能
@@ -571,7 +573,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         Page<PatternMakingTaskListVo> objects = PageHelper.startPage(dto);
         List<PatternMakingTaskListVo> list = getBaseMapper().patternMakingTaskList(qw);
         // 设置图片
-        attachmentService.setListStylePic(list, "stylePic");
+        stylePicUtils.setStylePic(list, "stylePic");
         // 设置节点状态
         nodeStatusService.setNodeStatus(list);
         return objects.toPageInfo();
@@ -733,7 +735,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 //        PageInfo pageInfo = BeanUtil.copyProperties(sdPageInfo, PageInfo.class, "list");
 //        pageInfo.setList(sampleDesignStepVos);
         pageInfo.setList(styleStepVos);
-        attachmentService.setListStylePic(styleStepVos, "stylePic");
+        stylePicUtils.setStylePic(styleStepVos, "stylePic");
         // 查询打版指令
         List<String> sdIds = styleStepVos.stream().map(StyleStepVo::getId).collect(Collectors.toList());
         QueryWrapper<PatternMaking> pmQw = new QueryWrapper<>();
@@ -849,7 +851,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         Page<SampleBoardVo> objects = PageHelper.startPage(dto);
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK(), "s.");
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
-        attachmentService.setListStylePic(list, "stylePic");
+        stylePicUtils.setStylePic(list, "stylePic");
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
@@ -918,7 +920,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     , dto.getYywcsj().split(",")[0], dto.getYywcsj().split(",")[1]);
         }
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
-        attachmentService.setListStylePic(list, "stylePic");
+        stylePicUtils.setStylePic(list, "stylePic");
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         List<SampleBoardExcel> excelList = BeanUtil.copyToList(list, SampleBoardExcel.class);

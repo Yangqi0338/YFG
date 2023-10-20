@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -65,8 +66,8 @@ public class StyleController extends BaseController {
 
     @ApiOperation(value = "分页查询(设计任务,设计档案)")
     @GetMapping()
-    public PageInfo pageInfo(@Valid StylePageDto dto) {
-        return styleService.queryPageInfo(dto);
+    public PageInfo pageInfo(Principal user, @Valid StylePageDto dto) {
+        return styleService.queryPageInfo(user, dto);
     }
 
 
@@ -88,6 +89,12 @@ public class StyleController extends BaseController {
     public StyleVo save(@RequestBody StyleSaveDto dto) {
         Style style = styleService.saveStyle(dto);
         return styleService.getDetail(style.getId());
+    }
+
+    @ApiOperation(value = "设置主图")
+    @PostMapping("/setMainPic")
+    public boolean setMainPic(@RequestBody StyleSaveDto dto) {
+        return styleService.setMainPic(dto);
     }
 
     @ApiOperation(value = "发送打板指令")

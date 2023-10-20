@@ -147,6 +147,14 @@
         select max(design_no)
         from t_style ${ ew.customSqlSegment}
     </select>
+    <select id="getStyleUploadInfo" resultType="com.base.sbc.module.sample.vo.StyleUploadVo">
+        SELECT old_design_no as design_no,
+               brand,
+               brand_name, year, year_name, season, season_name
+        FROM t_style
+        where id = #{styleId}
+
+    </select>
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

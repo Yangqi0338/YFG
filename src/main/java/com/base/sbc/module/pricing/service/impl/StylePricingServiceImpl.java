@@ -13,10 +13,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.oauth.entity.GroupUser;
-import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.utils.BigDecimalUtil;
-import com.base.sbc.config.utils.StyleNoImgUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -83,6 +82,8 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     @Autowired
     private UserUtils userUtils;
     @Autowired
+    private StylePicUtils stylePicUtils;
+    @Autowired
     private DataPermissionsService dataPermissionsService;
 
     private final PackPricingCraftCostsService packPricingCraftCostsService;
@@ -99,7 +100,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             return page.toPageInfo();
         }
         GroupUser userBy = userUtils.getUserBy(user);
-        StyleNoImgUtils.setStyleColorPic(userBy, stylePricingList, "styleColorPic");
+        stylePicUtils.setStylePic(userBy, stylePricingList, "styleColorPic");
         this.dataProcessing(stylePricingList, dto.getCompanyCode());
         return new PageInfo<>(stylePricingList);
     }
@@ -189,7 +190,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             //实际倍率 = 吊牌价/总成本
             stylePricingVO.setActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getTotalCost(), 2));
         });
-        attachmentService.setListStylePic(stylePricingList, "sampleDesignPic");
+        stylePicUtils.setStylePic(stylePricingList, "sampleDesignPic");
     }
 
     @Override

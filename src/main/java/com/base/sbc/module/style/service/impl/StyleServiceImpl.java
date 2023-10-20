@@ -22,6 +22,8 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.CustomStylePicUpload;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -31,6 +33,8 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
@@ -76,14 +80,12 @@ import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PlmStyleSizeParam;
 import com.base.sbc.module.style.dto.*;
-import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.entity.StyleInfoColor;
-import com.base.sbc.module.style.entity.StyleInfoSku;
+import com.base.sbc.module.style.entity.*;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.StyleInfoColorService;
 import com.base.sbc.module.style.service.StyleInfoSkuService;
+import com.base.sbc.module.style.service.StylePicService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
@@ -100,6 +102,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -130,6 +133,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     @Autowired
     private MinioUtils minioUtils;
+    @Autowired
+    private StylePicUtils stylePicUtils;
+
+    @Autowired
+    private StylePicService stylePicService;
     @Autowired
     private PlanningCategoryItemService planningCategoryItemService;
 
@@ -187,6 +195,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     private PlanningChannelService planningChannelService;
 
+    @Autowired
+    private CustomStylePicUpload customStylePicUpload;
+
+    @Autowired
+    private UserUtils userUtils;
+
     private IdGen idGen = new IdGen();
 
     @Override
@@ -214,8 +228,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         fieldValService.save(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, dto.getTechnologyInfo());
         // 附件信息
         saveFiles(style.getId(), dto.getAttachmentList(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
-        // 图片信息
-        saveFiles(style.getId(), dto.getStylePicList(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
+        // 保存图片信息
+        if (!customStylePicUpload.isOpen()) {
+            saveFiles(style.getId(), dto.getStylePicList(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
+        }
+
 
         //保存关联的素材库
         planningCategoryItemMaterialService.saveMaterialList(dto);
@@ -436,8 +453,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
 
     @Override
-    public PageInfo queryPageInfo(StylePageDto dto) {
+    public PageInfo queryPageInfo(Principal user, StylePageDto dto) {
         String companyCode = getCompanyCode();
+        GroupUser userBy = userUtils.getUserBy(user);
         String userId = getUserId();
         BaseQueryWrapper<Style> qw = new BaseQueryWrapper<>();
         qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("design_no", dto.getSearch()).or().like("his_design_no", dto.getSearch()));
@@ -486,7 +504,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         getBaseMapper().selectByQw(qw);
         List<StylePageVo> result = objects.getResult();
         // 设置图片
-        attachmentService.setListStylePic(result, "stylePic");
+        if (customStylePicUpload.isOpen()) {
+            stylePicUtils.setStylePic(userBy, result, "stylePic");
+        } else {
+            stylePicUtils.setStylePic(result, "stylePic");
+        }
+
         amcFeignService.addUserAvatarToList(result, "designerId", "aliasUserAvatar");
         return objects.toPageInfo();
     }
@@ -562,6 +585,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             return null;
         }
         StyleVo sampleVo = BeanUtil.copyProperties(style, StyleVo.class);
+        // mini 加密
+        minioUtils.setObjectUrlToObject(sampleVo, "seatStylePic", "patternPartsPic");
+        sampleVo.setCustomStylePicUploadOpen(customStylePicUpload.isOpen());
         //查询附件
         List<AttachmentVo> attachmentVoList = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
         sampleVo.setAttachmentList(attachmentVoList);
@@ -578,21 +604,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         //波段
 //        sampleVo.setBandName(bandService.getNameByCode(sampleVo.getBandCode()));
         // 款式图片
-        List<AttachmentVo> stylePicList = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
-        sampleVo.setStylePicList(stylePicList);
-        if (StrUtil.isNotBlank(sampleVo.getStylePic())) {
-            String fileId = sampleVo.getStylePic();
-            AttachmentVo one = CollUtil.findOne(stylePicList, (a) -> StrUtil.equals(a.getFileId(), fileId));
-            sampleVo.setStylePic(Optional.ofNullable(one).map(AttachmentVo::getUrl).orElse(uploadFileService.getUrlById(sampleVo.getStylePic())));
-            //旧数据处理
-            if (CollUtil.isEmpty(stylePicList)) {
-                AttachmentVo attachmentVo = new AttachmentVo();
-                attachmentVo.setFileId(fileId);
-                attachmentVo.setUrl(sampleVo.getStylePic());
-                attachmentVo.setId(IdUtil.randomUUID());
-                sampleVo.setStylePicList(CollUtil.newArrayList(attachmentVo));
-            }
+        if (customStylePicUpload.isOpen()) {
+            List<StylePicVo> stylePicVos = stylePicService.listByStyleId(style.getId());
+            sampleVo.setStylePicList(stylePicVos);
+        } else {
+            List<AttachmentVo> stylePicList = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
+            sampleVo.setStylePicList(BeanUtil.copyToList(stylePicList, StylePicVo.class));
         }
+
         sampleVo.setSeatStylePic(planningCategoryItemService.getStylePicUrlById(sampleVo.getPlanningCategoryItemId()));
 //        //维度标签
 //        sampleVo.setDimensionLabels(queryDimensionLabelsBySdId(id));
@@ -771,7 +790,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
 
     @Override
-    public StyleSummaryVo categoryBandSummary(PlanningBoardSearchDto dto) {
+    public StyleSummaryVo categoryBandSummary(Principal user, PlanningBoardSearchDto dto) {
+        GroupUser userBy = userUtils.getUserBy(user);
         StyleSummaryVo vo = new StyleSummaryVo();
         //查询波段统计
         QueryWrapper brandTotalQw = new QueryWrapper();
@@ -797,7 +817,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw);
         if (CollUtil.isNotEmpty(detailVoList)) {
             amcFeignService.setUserAvatarToList(detailVoList);
-            attachmentService.setListStylePic(detailVoList, "stylePic");
+            stylePicUtils.setStylePic(userBy, detailVoList, "stylePic");
             Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getBandName() + StrUtil.DASHED + k.getProdCategoryName()));
             vo.setXyData(seatData);
         }
@@ -1156,8 +1176,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             detail.setSizeRangeSizeCodes(modelType.getSizeCode());
             detail.setSizeRangeSizeRealCodes(modelType.getSizeRealCode());
         }
-        // mini 加密
-        minioUtils.setObjectUrlToObject(detail, "seatStylePic", "patternPartsPic");
         if (StrUtil.isBlank(historyStyleId)) {
             return detail;
         }
@@ -1263,15 +1281,18 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         detail.setTaskLevelName(hisStyle.getTaskLevelName());
         detail.setPatternDesignName(hisStyle.getPatternDesignName());
         detail.setPatternDesignId(hisStyle.getPatternDesignId());
-       /*物料信息*/
-        StyleBomSearchDto styleBomSearchDto =new StyleBomSearchDto();
+        /*物料信息*/
+        StyleBomSearchDto styleBomSearchDto = new StyleBomSearchDto();
         styleBomSearchDto.setStyleId(hisStyle.getId());
-      List<PackBomVo> packBomVoList =  bomList(styleBomSearchDto).getList();
-        packBomVoList.forEach(p ->{
+        List<PackBomVo> packBomVoList = bomList(styleBomSearchDto).getList();
+        packBomVoList.forEach(p -> {
             p.setId(IdUtil.randomUUID());
             p.setForeignId(detail.getId());
         });
         detail.setPackBomVoList(packBomVoList);
+
+        // mini 加密
+        minioUtils.setObjectUrlToObject(detail, "seatStylePic", "patternPartsPic");
         return detail;
     }
 
@@ -1651,6 +1672,26 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         updateWrapper.set("enable_status", startStopDto.getStatus());
         /*修改状态*/
         return baseMapper.update(null, updateWrapper) > 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean setMainPic(StyleSaveDto dto) {
+        UpdateWrapper<Style> uw = new UpdateWrapper<>();
+        uw.lambda().eq(Style::getId, dto.getId())
+                .set(Style::getStylePic, dto.getStylePic());
+        update(uw);
+        UpdateWrapper<StylePic> picUw1 = new UpdateWrapper<>();
+        picUw1.lambda().eq(StylePic::getStyleId, dto.getId()).set(StylePic::getMainPicFlag, BaseGlobal.NO);
+        stylePicService.update(picUw1);
+        UpdateWrapper<StylePic> picUw2 = new UpdateWrapper<>();
+        picUw2.lambda()
+                .eq(StylePic::getStyleId, dto.getId())
+                .eq(StylePic::getFileName, dto.getStylePic())
+                .set(StylePic::getMainPicFlag, BaseGlobal.YES);
+        stylePicService.update(picUw2);
+
+        return true;
     }
 
 }

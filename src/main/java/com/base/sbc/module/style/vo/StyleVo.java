@@ -7,6 +7,7 @@ import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.sample.vo.MaterialVo;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StylePic;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -60,7 +61,7 @@ public class StyleVo extends Style {
     @ApiModelProperty(value = "附件")
     private List<AttachmentVo> attachmentList;
     @ApiModelProperty(value = "款式图片信息")
-    private List<AttachmentVo> stylePicList;
+    private List<StylePicVo> stylePicList;
     @ApiModelProperty(value = "关联的素材库")
     private List<MaterialVo> materialList;
     @ApiModelProperty(value = "物料信息")
@@ -95,6 +96,11 @@ public class StyleVo extends Style {
     /**
      * 正确样衣接收时间
      */
-    @ApiModelProperty(value = "正确样衣接收时间"  )
+    @ApiModelProperty(value = "正确样衣接收时间")
     private String correctStyleDate;
+
+    /**
+     * 自定义款图上传配置 1开启
+     */
+    private Boolean customStylePicUploadOpen;
 }

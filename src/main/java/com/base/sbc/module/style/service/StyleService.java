@@ -27,6 +27,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
@@ -63,10 +64,11 @@ public interface StyleService extends BaseService<Style> {
     /**
      * 分页查询
      *
+     * @param user
      * @param dto
      * @return
      */
-    PageInfo queryPageInfo(StylePageDto dto);
+    PageInfo queryPageInfo(Principal user, StylePageDto dto);
 
 
     /**
@@ -138,7 +140,7 @@ public interface StyleService extends BaseService<Style> {
     Map getDesignDataOverview(String time);
 
 
-    StyleSummaryVo categoryBandSummary(PlanningBoardSearchDto dto);
+    StyleSummaryVo categoryBandSummary(Principal user, PlanningBoardSearchDto dto);
 
     List<StyleBoardCategorySummaryVo> categorySummary(PlanningBoardSearchDto dto);
 
@@ -230,9 +232,12 @@ public interface StyleService extends BaseService<Style> {
 
     /**
      * 款式的停用启用
+     *
      * @param startStopDto
      * @return
      */
     Boolean startStopStyle(StartStopDto startStopDto);
+
+    boolean setMainPic(StyleSaveDto dto);
 }
 

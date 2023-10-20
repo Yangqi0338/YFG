@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.common.service;
 
+import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.UploadStylePicDto;
 import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -95,10 +96,24 @@ public interface UploadFileService extends BaseService<UploadFile> {
 
     /**
      * 上传款式图
+     *
      * @return
      */
     Boolean uploadStyleImage(UploadStylePicDto uploadStylePicDto, Principal user) throws Exception;
 
+    /**
+     * 上传款式设计图
+     *
+     * @param uploadStylePicDto
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    Object uploadDesignImage(UploadStylePicDto uploadStylePicDto, Principal user) throws Exception;
+
+    boolean delStyleImage(DelStylePicDto dto, Principal user);
+
+    boolean delDesignImage(DelStylePicDto dto, Principal user);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

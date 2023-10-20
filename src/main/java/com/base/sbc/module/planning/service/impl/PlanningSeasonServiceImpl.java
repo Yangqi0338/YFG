@@ -24,7 +24,7 @@ import com.base.sbc.config.enums.SeatMatchFlagEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.utils.StyleNoImgUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.common.dto.AdTree;
@@ -86,7 +86,8 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     @Resource
     private CcmFeignService ccmFeignService;
 
-
+    @Autowired
+    private StylePicUtils stylePicUtils;
     @Resource
     private PlanningChannelService planningChannelService;
     @Resource
@@ -366,7 +367,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         amcFeignService.setUserAvatarToList(demandOrderSkcVos);
         /*查询款式配色图*/
         GroupUser userBy = userUtils.getUserBy(user);
-        StyleNoImgUtils.setStyleColorPic(userBy, demandOrderSkcVos, "stylePic");
+        stylePicUtils.setStylePic(userBy, demandOrderSkcVos, "stylePic");
         //key =id
         Map<String, DemandOrderSkcVo> idSkcMap = new LinkedHashMap<>(16);
         //key= 波段-维度

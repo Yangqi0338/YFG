@@ -1,10 +1,15 @@
 package com.base.sbc.module.common.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.CustomStylePicUpload;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.FtpUtil;
+import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.UploadStylePicDto;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -15,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 
 @RestController
@@ -30,22 +34,61 @@ public class SaasUploadController extends BaseController {
 
     @Autowired
     private FtpUtil util;
+    @Autowired
+    private CustomStylePicUpload customStylePicUpload;
 
     @ApiOperation(value = "产品图片上传", notes = "用于产品图片上传，返回上传成功的地址")
     @RequestMapping(value = "/productPic", method = RequestMethod.POST)
-    public ApiResult uploadPicFile(@RequestParam(value = "file", required = true) MultipartFile file,String type,String code) throws Throwable {
+    public ApiResult uploadPicFile(@RequestParam(value = "file", required = true) MultipartFile file, String type, String code) {
 //        return filesUtils.uploadBigData(file, FilesUtils.PRODUCT, request);
-        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(file,type,code);
+        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(file, type, code);
         return ApiResult.success(FilesUtils.SUCCESS, attachmentVo.getUrl(), BeanUtil.beanToMap(attachmentVo));
     }
-    @ApiOperation(value = "大货款图上传", notes = "用于大货图片上传，返回上传成功的地址")
+
+    @ApiOperation(value = "大货款图,设计款图上传", notes = "用于大货图片、设计款图上传")
     @PostMapping(value = "/uploadStylePic")
-    public Boolean uploadStylePic( Principal user,UploadStylePicDto uploadStylePicDto) throws Throwable {
-        return uploadFileService.uploadStyleImage(uploadStylePicDto,user);
+    public Object uploadStylePic(Principal user, UploadStylePicDto uploadStylePicDto) {
+
+        if (!customStylePicUpload.isOpen()) {
+            // return uploadPicFile(uploadStylePicDto.getFile(),null,null);
+        }
+        try {
+            //上传大货款图
+            if (StrUtil.isNotBlank(uploadStylePicDto.getStyleColorId())) {
+                return uploadFileService.uploadStyleImage(uploadStylePicDto, user);
+            }
+            //上传设计款图
+            if (StrUtil.isNotBlank(uploadStylePicDto.getStyleId())) {
+                return uploadFileService.uploadDesignImage(uploadStylePicDto, user);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new OtherException("上传失败:" + e.getMessage());
+        }
+        throw new OtherException("缺少参数");
     }
+
+    @ApiOperation(value = "删除设计款图或者大货款图")
+    @GetMapping("/delStylePic")
+    public boolean delStylePic(Principal user, DelStylePicDto dto) {
+        if (!customStylePicUpload.isOpen()) {
+            return true;
+        }
+        //上传大货款图
+        if (StrUtil.isNotBlank(dto.getStyleColorId())) {
+            return uploadFileService.delStyleImage(dto, user);
+        }
+        //上传设计款图
+        if (StrUtil.isNotBlank(dto.getStyleId())) {
+            return uploadFileService.delDesignImage(dto, user);
+        }
+
+        throw new OtherException("缺少参数");
+    }
+
     @ApiOperation(value = "上传文件", notes = "上传文件")
     @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
-    public AttachmentVo uploadFile(@RequestParam(value = "file", required = true) MultipartFile file,String type,String code) throws Throwable {
-        return uploadFileService.uploadToMinio(file,type,code);
+    public AttachmentVo uploadFile(@RequestParam(value = "file", required = true) MultipartFile file, String type, String code) throws Throwable {
+        return uploadFileService.uploadToMinio(file, type, code);
     }
 }

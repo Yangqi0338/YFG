@@ -28,6 +28,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -101,6 +102,8 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     private AmcFeignService amcFeignService;
     @Autowired
     private DataPermissionsService dataPermissionsService;
+    @Autowired
+    private StylePicUtils stylePicUtils;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -201,7 +204,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         }
         List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
         // 设置图
-        attachmentService.setListStylePic(list, "stylePic");
+        stylePicUtils.setStylePic(list, "stylePic");
         // 设置头像
         amcFeignService.setUserAvatarToList(list);
         nodeStatusService.setNodeStatus(list);
@@ -233,7 +236,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         }
         List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
         // 设置图
-        attachmentService.setListStylePic(list, "stylePic");
+        stylePicUtils.setStylePic(list, "stylePic");
         // 设置头像
         amcFeignService.setUserAvatarToList(list);
         nodeStatusService.setNodeStatus(list);

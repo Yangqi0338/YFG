@@ -24,7 +24,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.utils.StyleNoImgUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
@@ -104,6 +104,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     private final StylePricingMapper stylePricingMapper;
 
+    @Autowired
+    private StylePicUtils stylePicUtils;
     @Lazy
     @Resource
     private SmpService smpService;
@@ -248,12 +250,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
         }
         /*查询款式图*/
-        attachmentService.setListStylePic(sampleStyleColorList, "stylePic");
+        stylePicUtils.setStylePic(sampleStyleColorList, "stylePic");
 
         if (user != null) {
             /*查询款式配色图*/
             GroupUser userBy = userUtils.getUserBy(user);
-            StyleNoImgUtils.setStyleColorPic(userBy, sampleStyleColorList, "styleColorPic");
+            stylePicUtils.setStylePic(userBy, sampleStyleColorList, "styleColorPic");
         }
 
         return new PageInfo<>(sampleStyleColorList);
@@ -1291,7 +1293,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColorVoList = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), StyleColorVo.class);
             /*查询款式配色图*/
             GroupUser userBy = userUtils.getUserBy(user);
-            StyleNoImgUtils.setStyleColorPic(userBy, styleColorVoList, "styleColorPic");
+            stylePicUtils.setStylePic(userBy, styleColorVoList, "styleColorPic");
         }
         PageInfo<StyleColorVo> pageInfo = new PageInfo<>(styleColorVoList);
         return pageInfo;

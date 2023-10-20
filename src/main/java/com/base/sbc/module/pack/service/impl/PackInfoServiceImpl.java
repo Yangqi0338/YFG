@@ -37,7 +37,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.utils.StyleNoImgUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.common.dto.RemoveDto;
@@ -153,6 +153,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Resource
     private UreportService ureportService;
 
+    @Autowired
+    private StylePicUtils stylePicUtils;
     @Resource
     private StyleColorMapper styleColorMapper;
 
@@ -188,6 +190,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Autowired
     private DataPermissionsService dataPermissionsService;
 
+
     @Override
     public PageInfo<StylePackInfoListVo> pageBySampleDesign(PackInfoSearchPageDto pageDto) {
 
@@ -212,7 +215,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         List<StylePackInfoListVo> sdpList = pageInfo.getList();
         if (CollUtil.isNotEmpty(sdpList)) {
             //图片
-            attachmentService.setListStylePic(sdpList, "stylePic");
+            stylePicUtils.setStylePic(sdpList, "stylePic");
             List<String> sdIds = sdpList.stream().map(StylePackInfoListVo::getId).collect(Collectors.toList());
 
             Map<String, List<PackInfoListVo>> piMaps = queryListToMapGroupByForeignId(sdIds, PackUtils.PACK_TYPE_DESIGN);
@@ -243,7 +246,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             /*0:全部下发 1:全部未下发 2:部分下发 null:无物料清单*/
             p.setScmSendFlag(map.get(p.getId()));
         });
-        attachmentService.setListStylePic(list, "stylePic");
+        stylePicUtils.setStylePic(list, "stylePic");
         return objects.toPageInfo();
     }
 
@@ -665,7 +668,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         if (StrUtil.isNotBlank(detail.getStyleColorId())) {
             StyleColor styleColor = styleColorMapper.selectById(detail.getStyleColorId());
             if (styleColor != null && StrUtil.isNotBlank(styleColor.getStyleColorPic())) {
-                String styleNoImgUrl = StyleNoImgUtils.getStyleNoImgUrl(groupUser, styleColor.getStyleColorPic());
+                String styleNoImgUrl = stylePicUtils.getImgUrl(groupUser, styleColor.getStyleColorPic());
                 vo.setStylePic(styleNoImgUrl);
             }
         }
@@ -785,7 +788,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         if (styleColor != null) {
             //图片
             if (StrUtil.isNotBlank(styleColor.getStyleColorPic())) {
-                String styleNoImgUrl = StyleNoImgUtils.getStyleNoImgUrl(user, styleColor.getStyleColorPic());
+                String styleNoImgUrl = stylePicUtils.getImgUrl(user, styleColor.getStyleColorPic());
                 vo.setStylePic(styleNoImgUrl);
             }
             vo.setIsMainly(styleColor.getIsMainly());
@@ -1051,7 +1054,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         Page<PackInfoListVo> page = PageHelper.startPage(pageDto);
 //        list(sdQw);
         List<PackInfoListVo> packInfoListVos = queryByQw(sdQw);
-        attachmentService.setListStylePic(packInfoListVos, "stylePic");
+        stylePicUtils.setStylePic(packInfoListVos, "stylePic");
         PageInfo<BigGoodsPackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), BigGoodsPackInfoListVo.class);
         return pageInfo;
     }
