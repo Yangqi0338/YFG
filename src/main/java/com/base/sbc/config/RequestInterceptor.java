@@ -2,8 +2,8 @@ package com.base.sbc.config;
 
 import com.alibaba.fastjson2.JSON;
 import com.base.sbc.config.common.base.UserCompany;
-import com.base.sbc.module.httpLog.entity.HttpLog;
-import com.base.sbc.module.httpLog.service.HttpLogService;
+import com.base.sbc.module.httplog.entity.HttpLog;
+import com.base.sbc.module.httplog.service.HttpLogService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.UUID;
 
-import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
 
 /**

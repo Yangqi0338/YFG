@@ -11,7 +11,7 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.base.sbc.module.operaLog.entity.OperaLogEntity;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;

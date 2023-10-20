@@ -21,8 +21,8 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.operaLog.entity.OperaLogEntity;
-import com.base.sbc.module.operaLog.service.OperaLogService;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.operalog.service.OperaLogService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 

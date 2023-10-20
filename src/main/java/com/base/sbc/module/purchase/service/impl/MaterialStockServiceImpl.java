@@ -77,8 +77,8 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
         List<MaterialStock> updateList = new ArrayList<>();
         List<MaterialStockLog> materialStockLogList = new ArrayList<>();
         for(WarehousingOrderDetail orderDetail : orderDetailList){
-            BigDecimal beforeValue = new BigDecimal(0.0);
-            BigDecimal afterValue = new BigDecimal(0.0);
+            BigDecimal beforeValue =  BigDecimal.valueOf(0.0);
+            BigDecimal afterValue =  BigDecimal.valueOf(0.0);
 
             MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialCode() + orderDetail.getMaterialColorCode() + orderDetail.getMaterialSpecificationsCode());
             BasicsdatumMaterial material = materialMap.get(orderDetail.getMaterialCode());
@@ -212,8 +212,8 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
         List<MaterialStock> updateList = new ArrayList<>();
         List<MaterialStockLog> materialStockLogList = new ArrayList<>();
         for(OutboundOrderDetail orderDetail : orderDetailList){
-            BigDecimal beforeValue = new BigDecimal(0.0);
-            BigDecimal afterValue = new BigDecimal(0.0);
+            BigDecimal beforeValue = BigDecimal.valueOf(0.0);
+            BigDecimal afterValue = BigDecimal.valueOf(0.0);
 
 //            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialSku());
             MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialCode() + orderDetail.getColorCode() + orderDetail.getSpecificationsCode());

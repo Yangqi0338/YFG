@@ -6,7 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service.impl;
 
-import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;

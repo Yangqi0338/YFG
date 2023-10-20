@@ -8,7 +8,7 @@ import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.SpringContextHolder;
-import com.base.sbc.module.httpLog.entity.HttpLog;
+import com.base.sbc.module.httplog.entity.HttpLog;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -38,7 +38,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
  * MyBatis 将mybatis要执行的sql拦截打印出来

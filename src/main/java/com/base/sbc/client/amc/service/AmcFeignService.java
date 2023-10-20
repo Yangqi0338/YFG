@@ -195,6 +195,8 @@ public class AmcFeignService {
         } catch (Exception e) {
             e.printStackTrace();
             userList = new ArrayList<>(2);
+        }finally {
+            userPlanningSeasonId.remove();
         }
         return userList;
 
@@ -373,7 +375,6 @@ public class AmcFeignService {
             userList =  data.toJavaObject(UserCompany.class);
         } catch (Exception e) {
             e.printStackTrace();
-            userList = null;
         }
         return userList;
     }

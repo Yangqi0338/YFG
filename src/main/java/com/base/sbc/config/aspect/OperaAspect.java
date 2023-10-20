@@ -5,18 +5,15 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.SpElParseUtil;
-import com.base.sbc.module.operaLog.entity.OperaLogEntity;
-import com.base.sbc.module.operaLog.service.OperaLogService;
-import io.swagger.annotations.ApiModelProperty;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.operalog.service.OperaLogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -24,10 +21,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author 卞康

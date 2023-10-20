@@ -2,7 +2,7 @@ package com.base.sbc.module.pack.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.operaLog.entity.OperaLogEntity;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
 
 import java.util.List;
 

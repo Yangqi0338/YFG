@@ -17,7 +17,6 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.operaLog.entity.OperaLogEntity;
 import com.base.sbc.module.sample.dto.QueryDetailFabricDto;
 import com.base.sbc.module.sample.dto.QueryFabricInformationDto;
 import com.base.sbc.module.sample.dto.SaveUpdateFabricBasicInformationDto;

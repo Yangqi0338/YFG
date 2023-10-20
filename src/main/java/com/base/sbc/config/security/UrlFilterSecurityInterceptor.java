@@ -19,7 +19,7 @@ import javax.servlet.*;
 import java.io.IOException;
 import java.util.Objects;
 
-import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
  * @author Fred

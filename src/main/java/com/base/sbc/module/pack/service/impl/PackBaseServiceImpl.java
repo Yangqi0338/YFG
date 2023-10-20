@@ -13,8 +13,8 @@ import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.operaLog.entity.OperaLogEntity;
-import com.base.sbc.module.operaLog.service.OperaLogService;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.pack.service.PackBaseService;
 import org.springframework.transaction.annotation.Transactional;
 

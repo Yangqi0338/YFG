@@ -165,11 +165,12 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 				break;
 			// 默认秒
 			default:
-				calculationType = SECOND_MILLISECONDS;
-				break;
+                break;
 		}
 		// 4、拿到设置缓存时间和缓存时间做计算，得到缓存过期时间
-		date.setTime(date.getTime() + (Long.valueOf(timeOut) * calculationType));
+		if (date != null) {
+			date.setTime(date.getTime() + (Long.parseLong(timeOut) * calculationType));
+		}
 		return date;
 	}
 	/**

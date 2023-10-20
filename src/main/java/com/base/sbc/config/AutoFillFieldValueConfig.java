@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
-import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
  * mybatis-plus自动填充字段值配置

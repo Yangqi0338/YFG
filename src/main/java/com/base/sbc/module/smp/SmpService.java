@@ -11,7 +11,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.restTemplate.RestTemplateService;
+import com.base.sbc.config.resttemplate.RestTemplateService;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
@@ -26,7 +26,7 @@ import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
-import com.base.sbc.module.hangTag.dto.UpdatePriceDto;
+import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -35,7 +35,7 @@ import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
-import com.base.sbc.module.pushRecords.service.PushRecordsService;
+import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.smp.dto.*;
@@ -323,7 +323,7 @@ public class SmpService {
 
                         smpGoodsDto.setActualRate(stylePricingVO.getActualMagnification());
 
-                    } catch (Exception e) {
+                    } catch (Exception ignored) {
 
                     }
                     downContent = stylePricingVO.getDownContent();

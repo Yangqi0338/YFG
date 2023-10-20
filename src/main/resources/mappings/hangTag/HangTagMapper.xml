@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.base.sbc.module.hangTag.mapper.HangTagMapper">
+<mapper namespace="com.base.sbc.module.hangtag.mapper.HangTagMapper">
     <!--
         吊牌表
         创建人：xhj
@@ -12,7 +12,7 @@
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
     <!-- selectType = 'packBigGoods'则只查大货数据， -->
-    <select id="queryList" resultType="com.base.sbc.module.hangTag.vo.HangTagListVO">
+    <select id="queryList" resultType="com.base.sbc.module.hangtag.vo.HangTagListVO">
         SELECT
         CONCAT( tsd.design_no, tsd.style_name ) AS style,
         tsd.id as styleId,
@@ -175,7 +175,7 @@
     </select>
 
 
-    <select id="getDetailsByBulkStyleNo" resultType="com.base.sbc.module.hangTag.vo.HangTagVO">
+    <select id="getDetailsByBulkStyleNo" resultType="com.base.sbc.module.hangtag.vo.HangTagVO">
         SELECT
         tsd.design_no AS style,
         tsd.devt_type AS produceType,

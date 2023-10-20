@@ -76,7 +76,7 @@ public class ImgUtils {
 			if (ftp.isConnected()) {
 				try {
 					ftp.disconnect();
-				} catch (IOException ioe) {
+				} catch (IOException ignored) {
 				}
 			}
 		}

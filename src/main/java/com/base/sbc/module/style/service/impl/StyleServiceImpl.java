@@ -52,7 +52,7 @@ import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.formtype.vo.FieldOptionConfigVo;
-import com.base.sbc.module.hangTag.service.HangTagService;
+import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;

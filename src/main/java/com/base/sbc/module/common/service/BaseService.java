@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.RemoveDto;
-import com.base.sbc.module.operaLog.entity.OperaLogEntity;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
 
 import java.io.Serializable;
 import java.util.Collection;

@@ -15,7 +15,7 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.vo.AttachmentVo;
-import com.base.sbc.module.operaLog.entity.OperaLogEntity;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackTechPackaging;
 import com.base.sbc.module.pack.service.PackInfoService;

@@ -61,7 +61,7 @@ import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
  * 类描述：企划-需求维度表 service类

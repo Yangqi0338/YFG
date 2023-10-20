@@ -10,7 +10,7 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialIngredientService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
-import com.base.sbc.module.hangTag.service.HangTagService;
+import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.open.dto.MtBpReqDto;

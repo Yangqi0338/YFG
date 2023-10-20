@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Principal;
 
-import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
  * @author Fred
@@ -53,8 +53,10 @@ public class UserUtils {
 			String data =  jsonx.getJSONObject("data").toJSONString();
 			if(jsonx.getBoolean(Constants.SUCCESS)) {
 				GroupUser gu = (GroupUser)JsonUtils.jsonToBean(data, GroupUser.class);
-				redisUtils.set(USER_ID+userName, gu.getId());
-				userId = gu.getId();
+				if (gu != null) {
+					redisUtils.set(USER_ID+userName, gu.getId());
+					userId = gu.getId();
+				}
 			}
 		}
 		return userId;

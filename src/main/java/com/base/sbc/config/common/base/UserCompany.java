@@ -9,7 +9,7 @@ package com.base.sbc.config.common.base;
 import com.base.sbc.client.amc.entity.CompanyPost;
 import com.base.sbc.client.amc.entity.Dept;
 import com.base.sbc.client.amc.entity.Job;
-import com.base.sbc.module.httpLog.entity.HttpLog;
+import com.base.sbc.module.httplog.entity.HttpLog;
 
 import java.util.List;
 

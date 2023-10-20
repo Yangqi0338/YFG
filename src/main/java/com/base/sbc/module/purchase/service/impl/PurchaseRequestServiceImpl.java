@@ -67,7 +67,7 @@ public class PurchaseRequestServiceImpl extends BaseServiceImpl<PurchaseRequestM
         purchaseRequest.setOrderStatus("0");
         purchaseRequest.setDelFlag("0");
 
-        BigDecimal totalAmount = new BigDecimal(0.0);
+        BigDecimal totalAmount = BigDecimal.valueOf(0.0);
         List<PurchaseRequestDetail> purchaseRequestDetailList = purchaseRequest.getDetailList();
         for(PurchaseRequestDetail detail : purchaseRequestDetailList){
             detail.setId(idGen.nextIdStr());
@@ -93,7 +93,7 @@ public class PurchaseRequestServiceImpl extends BaseServiceImpl<PurchaseRequestM
         detailQw.eq("request_id", purchaseRequest.getId());
         requestDetailService.physicalDeleteQWrap(detailQw);
 
-        BigDecimal totalAmount = new BigDecimal(0.0);
+        BigDecimal totalAmount =BigDecimal.valueOf(0.0);
         purchaseRequest.updateInit(userCompany);
         List<PurchaseRequestDetail> purchaseRequestDetailList = purchaseRequest.getDetailList();
         for(PurchaseRequestDetail detail : purchaseRequestDetailList){

@@ -16,7 +16,7 @@ import org.hibernate.validator.constraints.Length;
 
 import java.util.Date;
 
-import static com.base.sbc.config.adviceAdapter.ResponseControllerAdvice.companyUserInfo;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
  * @author 卞康

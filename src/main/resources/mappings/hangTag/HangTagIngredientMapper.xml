@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.base.sbc.module.hangTag.mapper.HangTagIngredientMapper">
+<mapper namespace="com.base.sbc.module.hangtag.mapper.HangTagIngredientMapper">
     <!--
         吊牌成分表
         创建人：xhj
@@ -10,7 +10,7 @@
       -->
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
-    <select id="getIngredientListByHangTagId" resultType="com.base.sbc.module.hangTag.vo.HangTagIngredientVO">
+    <select id="getIngredientListByHangTagId" resultType="com.base.sbc.module.hangtag.vo.HangTagIngredientVO">
         select
         id,
         remarks,

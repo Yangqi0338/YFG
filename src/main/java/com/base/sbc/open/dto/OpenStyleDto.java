@@ -1,7 +1,7 @@
 package com.base.sbc.open.dto;
 
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.hangTag.entity.HangTag;
+import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleInfoColor;
 import com.base.sbc.module.style.entity.StyleInfoSku;
