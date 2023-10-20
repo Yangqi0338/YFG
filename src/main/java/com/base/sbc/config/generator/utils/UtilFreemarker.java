@@ -9,6 +9,9 @@ import freemarker.template.TemplateExceptionHandler;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 /** 
@@ -138,18 +141,26 @@ public class UtilFreemarker {
 	public static void generateFile(String fileName, String templateName, Map<Object, Object> map){
 		//获取不要修改的文字
 		String startEnd = UtilNoReplace.getNoReplaceText(fileName);
-		
+		BufferedWriter out = null;
 		Configuration config = new Configuration();
 		config.setDefaultEncoding("UTF-8");
 		config.setTemplateLoader(new ClassTemplateLoader(UtilFreemarker.class, "/"));
 		config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 		try{
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"));
+			out = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(Paths.get(fileName)), StandardCharsets.UTF_8));
 			Template template = config.getTemplate(templateName);
 			template.process(map, out);
 			out.close();
 		}catch(Exception e){
 			e.printStackTrace();
+		}finally {
+			if(out != null){
+				try{
+					out.close();
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+			}
 		}
 		if(StringUtils.isNoneBlank(startEnd)) {
 			//新字符串覆盖
