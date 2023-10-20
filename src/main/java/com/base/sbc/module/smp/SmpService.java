@@ -238,7 +238,8 @@ public class SmpService {
                         smpGoodsDto.setSleeveId(m.getVal());
                         smpGoodsDto.setSleeveName(m.getValName());
                     }
-                    if ("胸围".equals(m.getFieldName())) {
+                    //胸围
+                    if ("Bust".equals(m.getFieldName())) {
                         smpGoodsDto.setBust(m.getVal());
                     }
                     if ("门襟".equals(m.getFieldName())) {
@@ -253,7 +254,8 @@ public class SmpService {
                         smpGoodsDto.setYarnNeedleId(m.getVal());
                         smpGoodsDto.setYarnNeedleName(m.getValName());
                     }
-                    if ("廓形".equals(m.getFieldName())) {
+                    //廓形
+                    if ("Profile".equals(m.getFieldName())) {
                         smpGoodsDto.setProfileId(m.getVal());
                         smpGoodsDto.setProfileName(m.getValName());
                     }
@@ -261,7 +263,8 @@ public class SmpService {
                         smpGoodsDto.setFlowerId(m.getVal());
                         smpGoodsDto.setFlowerName(m.getValName());
                     }
-                    if ("领型".equals(m.getFieldName())) {
+                    //领型
+                    if ("Collar".equals(m.getFieldName())) {
                         smpGoodsDto.setLingXingId(m.getVal());
                         smpGoodsDto.setLingXingName(m.getValName());
                     }
@@ -271,8 +274,8 @@ public class SmpService {
                     }
                 });
             }
-
-
+            //生产类型
+            smpGoodsDto.setProductionType(styleColor.getDevtType());
             smpGoodsDto.setBandName(style.getBandName());
 
             smpGoodsDto.setAccessories(StringUtils.isNotEmpty(styleColor.getAccessoryNo()));
@@ -317,7 +320,12 @@ public class SmpService {
                 if (stylePricingVO != null) {
                     smpGoodsDto.setBomPhase("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
                     smpGoodsDto.setPriceConfirm("1".equals(stylePricingVO.getProductTagPriceConfirm()));
-                    smpGoodsDto.setPlanCost(stylePricingVO.getPlanCost());
+
+                    //计控实际成本
+                    if ("1".equals(stylePricingVO.getPlanCostConfirm())) {
+                        smpGoodsDto.setPlanCost(stylePricingVO.getPlanCost());
+                    }
+
                     smpGoodsDto.setPlanningRate(stylePricingVO.getPlanningRatio());
                     try {
 
@@ -368,6 +376,9 @@ public class SmpService {
                 smpSizes.add(smpSize);
             }
             smpGoodsDto.setItemList(smpSizes);
+            // if (true){
+            //     return null;
+            // }
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", smpGoodsDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpGoodsDto, "smp", "商品主数据下发");
             if (aBoolean) {

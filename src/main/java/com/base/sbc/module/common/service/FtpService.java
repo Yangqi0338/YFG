@@ -7,11 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Service
-public class FTPService {
+public class FtpService {
 
     private final FTPClient ftpClient;
 
-    public FTPService(FTPClient ftpClient) {
+    public FtpService(FTPClient ftpClient) {
         this.ftpClient = ftpClient;
     }
 

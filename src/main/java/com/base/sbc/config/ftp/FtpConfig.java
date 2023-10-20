@@ -13,7 +13,7 @@ import java.io.IOException;
  * @mail 247967116@qq.com
  */
 @Configuration
-public class FTPConfig {
+public class FtpConfig {
 
     @Value("${ftp.server}")
     private String server;

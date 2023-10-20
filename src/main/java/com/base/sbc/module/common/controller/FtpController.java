@@ -2,7 +2,7 @@ package com.base.sbc.module.common.controller;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.common.service.FTPService;
+import com.base.sbc.module.common.service.FtpService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +24,7 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 public class FtpController extends BaseController {
 
-    private final FTPService ftpService;
+    private final FtpService ftpService;
 
 
     @PostMapping("/upload")
