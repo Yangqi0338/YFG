@@ -275,7 +275,7 @@ public class SmpService {
                 });
             }
             //生产类型
-            smpGoodsDto.setProductionType(styleColor.getDevtType());
+            smpGoodsDto.setProductionType(styleColor.getDevtTypeName());
             smpGoodsDto.setBandName(style.getBandName());
 
             smpGoodsDto.setAccessories(StringUtils.isNotEmpty(styleColor.getAccessoryNo()));
