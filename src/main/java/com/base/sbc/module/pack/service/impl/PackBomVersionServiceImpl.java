@@ -86,7 +86,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
     private StyleInfoColorService styleInfoColorService;
     @Resource
     private PackBomColorService packBomColorService;
-
+    @Resource
     private BasicsdatumSupplierService basicsdatumSupplierService;
 
     @Override
