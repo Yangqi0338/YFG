@@ -32,4 +32,10 @@ public class PackBomVo extends PackBom {
      */
     @ApiModelProperty(value = "物料数据来源：1.新增、2.面料企划、3.其他")
     private String source;
+
+    /**
+     * 供应商简称
+     */
+    @ApiModelProperty(value = "供应商简称")
+    private String supplierAbbreviation;
 }

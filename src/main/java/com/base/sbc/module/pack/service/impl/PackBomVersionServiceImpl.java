@@ -25,6 +25,8 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackBomVersionMapper;
@@ -84,6 +86,8 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
     private StyleInfoColorService styleInfoColorService;
     @Resource
     private PackBomColorService packBomColorService;
+
+    private BasicsdatumSupplierService basicsdatumSupplierService;
 
     @Override
     public PageInfo<PackBomVersionVo> pageInfo(PackCommonPageSearchDto dto) {
@@ -195,7 +199,15 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
     @Override
     public List<PackBomVo> getEnableVersionBomList(String foreignId, String packType) {
         PackBomVersion packBomVersion = getEnableVersion(foreignId, packType);
-        return packBomService.list(foreignId, packType, packBomVersion.getId());
+        List<PackBomVo> list = packBomService.list(foreignId, packType, packBomVersion.getId());
+        List<String> ids = list.stream().map(PackBomVo::getSupplierId).collect(Collectors.toList());
+        List<BasicsdatumSupplier> basicsdatumSuppliers = basicsdatumSupplierService.listByIds(ids);
+        basicsdatumSuppliers.forEach(b -> list.forEach(l -> {
+            if (StrUtil.equals(b.getId(), l.getSupplierId())) {
+                l.setSupplierAbbreviation(b.getSupplierAbbreviation());
+            }
+        }));
+        return list;
     }
 
     @Override
