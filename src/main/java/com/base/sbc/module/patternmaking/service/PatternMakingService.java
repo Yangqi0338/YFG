@@ -307,6 +307,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     boolean nextOrPrev(Principal user, String id, String np);
 
+    void checkBreak(PatternMaking pm);
+
     boolean patternMakingScore(Principal user, String id, BigDecimal score);
 
     boolean sampleMakingScore(Principal user, String id, BigDecimal score);

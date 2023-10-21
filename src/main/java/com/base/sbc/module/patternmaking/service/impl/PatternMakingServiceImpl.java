@@ -1196,6 +1196,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Transactional(rollbackFor = {Exception.class})
     public boolean nextOrPrev(Principal user, String id, String np) {
         PatternMaking pm = getById(id);
+        checkBreak(pm);
         sort(pm, true);
         GroupUser groupUser = userUtils.getUserBy(user);
         if (pm == null) {
@@ -1203,12 +1204,24 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         // 跳转
         boolean flg = nodeStatusService.nextOrPrev(groupUser, pm, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, np);
+        checkBreak(pm);
         updateById(pm);
         // 重置排序
         update(new UpdateWrapper<PatternMaking>().lambda().eq(PatternMaking::getId, id).set(PatternMaking::getSort, null));
         sort(pm, false);
         return flg;
     }
+
+    @Override
+    public void checkBreak(PatternMaking pm) {
+        if (StrUtil.equals(pm.getNode(), "打版任务") && StrUtil.equals(pm.getBreakOffPattern(), BaseGlobal.YES)) {
+            throw new OtherException("打版任务已中断");
+        }
+        if (StrUtil.equals(pm.getNode(), "样衣任务") && StrUtil.equals(pm.getBreakOffSample(), BaseGlobal.YES)) {
+            throw new OtherException("样衣任务已中断");
+        }
+    }
+
 
     /**
      * 排序
