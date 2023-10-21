@@ -2,6 +2,7 @@ package com.base.sbc.config;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.utils.StringUtils;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
@@ -18,41 +19,39 @@ import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.company
 
 @Component
 public class AutoFillFieldValueConfig implements MetaObjectHandler {
-    String userName;
-    String userId;
-    String companyCode;
 
     @Override
     public void insertFill(MetaObject metaObject) {
-        userInfo();
+        UserCompany userCompany = userInfo();
         this.strictInsertFill(metaObject, "createDate", Date.class, new Date());
-        this.strictInsertFill(metaObject, "createName", String.class, userName);
-        this.strictInsertFill(metaObject, "createId", String.class, userId);
+        this.strictInsertFill(metaObject, "createName", String.class, userCompany.getAliasUserName());
+        this.strictInsertFill(metaObject, "createId", String.class, userCompany.getUserId());
         this.strictInsertFill(metaObject, "updateDate", Date.class, new Date());
-        this.strictInsertFill(metaObject, "updateName", String.class, userName);
-        this.strictInsertFill(metaObject, "updateId", String.class, userId);
-        this.strictInsertFill(metaObject, "companyCode", String.class, companyCode);
+        this.strictInsertFill(metaObject, "updateName", String.class, userCompany.getAliasUserName());
+        this.strictInsertFill(metaObject, "updateId", String.class, userCompany.getUserId());
+        this.strictInsertFill(metaObject, "companyCode", String.class, userCompany.getCompanyCode());
         this.strictInsertFill(metaObject, "delFlag", String.class, "0");
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        userInfo();
+        UserCompany userCompany = userInfo();
         this.setFieldValByName("updateDate", new Date(),metaObject);
-        this.strictInsertFill(metaObject, "updateName", String.class, userName);
-        this.strictInsertFill(metaObject, "updateId", String.class, userId);
+        this.strictInsertFill(metaObject, "updateName", String.class, userCompany.getAliasUserName());
+        this.strictInsertFill(metaObject, "updateId", String.class, userCompany.getUserId());
     }
 
-    private void userInfo() {
+    private UserCompany userInfo() {
         UserCompany userCompany = 	companyUserInfo.get();
         if (userCompany == null) {
-            this.userName = "系统管理员";
-            this.userId = "0";
-            this.companyCode = "0";
-        } else {
-            this.userName = userCompany.getAliasUserName();
-            this.userId = userCompany.getUserId();
-            this.companyCode = userCompany.getCompanyCode();
+            userCompany =new UserCompany();
+            userCompany.setAliasUserName("系统管理员");
+            userCompany.setUserId("0");
+            userCompany.setCompanyCode("0");
         }
+        if (StringUtils.isEmpty(userCompany.getUserId()) || StringUtils.isEmpty(userCompany.getCompanyCode())) {
+            throw new RuntimeException("非法操作，当前登录用户信息不完整");
+        }
+        return userCompany;
     }
 }
