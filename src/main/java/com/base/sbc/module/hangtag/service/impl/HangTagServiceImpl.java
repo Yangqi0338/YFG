@@ -299,8 +299,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     public void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, String userCompany) {
         logger.info("HangTagService#updateStatus 更新状态 hangTagUpdateStatusDTO:{}, userCompany:{}", JSON.toJSONString(hangTagUpdateStatusDTO), userCompany);
         LambdaQueryWrapper<HangTag> queryWrapper = new QueryWrapper<HangTag>().lambda()
-                .in(HangTag::getId, hangTagUpdateStatusDTO.getIds())
-                .eq(HangTag::getCompanyCode, userCompany);
+                .in(HangTag::getId, hangTagUpdateStatusDTO.getIds());
+                // .eq(HangTag::getCompanyCode, userCompany);
         List<HangTag> hangTags = super.list(queryWrapper);
         if (CollectionUtils.isEmpty(hangTags)) {
             throw new OtherException("存在未填写数据，请先填写");
