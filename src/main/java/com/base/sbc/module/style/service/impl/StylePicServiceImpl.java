@@ -8,14 +8,13 @@ package com.base.sbc.module.style.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.style.mapper.StylePicMapper;
 import com.base.sbc.module.style.entity.StylePic;
+import com.base.sbc.module.style.mapper.StylePicMapper;
 import com.base.sbc.module.style.service.StylePicService;
 import com.base.sbc.module.style.vo.StylePicVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +73,7 @@ public class StylePicServiceImpl extends BaseServiceImpl<StylePicMapper, StylePi
         if (CollUtil.isNotEmpty(list)) {
             return list.stream().map(stylePic -> {
                 StylePicVo stylePicVo = BeanUtil.copyProperties(stylePic, StylePicVo.class);
-                stylePicVo.setUrl(stylePicUtils.getImgUrl(userBy, stylePic.getFileName()));
+                stylePicVo.setUrl(stylePicUtils.getStyleUrl(stylePic.getFileName()));
                 return stylePicVo;
             }).collect(Collectors.toList());
         }

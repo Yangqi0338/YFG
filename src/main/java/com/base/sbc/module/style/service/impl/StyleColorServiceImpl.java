@@ -255,7 +255,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (user != null) {
             /*查询款式配色图*/
             GroupUser userBy = userUtils.getUserBy(user);
-            stylePicUtils.setStylePic(userBy, sampleStyleColorList, "styleColorPic");
+            stylePicUtils.setStyleColorPic2(sampleStyleColorList, "styleColorPic");
         }
 
         return new PageInfo<>(sampleStyleColorList);
@@ -1293,7 +1293,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColorVoList = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), StyleColorVo.class);
             /*查询款式配色图*/
             GroupUser userBy = userUtils.getUserBy(user);
-            stylePicUtils.setStylePic(userBy, styleColorVoList, "styleColorPic");
+            stylePicUtils.setStyleColorPic2(styleColorVoList, "styleColorPic");
         }
         PageInfo<StyleColorVo> pageInfo = new PageInfo<>(styleColorVoList);
         return pageInfo;

@@ -6,13 +6,16 @@ import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.CustomStylePicUpload;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.DigestUtils;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
@@ -29,22 +32,53 @@ public class StylePicUtils {
 
     @Autowired
     CustomStylePicUpload customStylePicUpload;
+    @Autowired
+    AttachmentService attachmentService;
 
-    public void setStylePic(List list, String fileIdKey) {
+    public GroupUser getGroupUser() {
         UserCompany userCompany = companyUserInfo.get();
         GroupUser userBy = new GroupUser();
         userBy.setUsername(userCompany.getUserId());
         userBy.setName(userCompany.getAliasUserName());
-        setStylePic(userBy, list, fileIdKey);
+        return userBy;
+    }
+
+
+    /**
+     * 获取款式设计图片的url
+     *
+     * @param stylePic
+     * @return
+     */
+    public String getStyleUrl(String stylePic) {
+        if (customStylePicUpload.isOpen()) {
+            return getStyleColorUrl2(stylePic);
+        }
+        AttachmentVo attachmentVo = attachmentService.getAttachmentByFileId(stylePic);
+        return Optional.ofNullable(attachmentVo).map(v -> v.getUrl()).orElse(null);
     }
 
     /**
-     * 设置款式配色图
-     * @param userBy
+     * 款式设计图
+     *
+     * @param list
+     * @param fileIdKey
+     */
+    public void setStylePic(List list, String fileIdKey) {
+        if (customStylePicUpload.isOpen()) {
+            setStyleColorPic2(list, fileIdKey);
+        } else {
+            attachmentService.setListStylePic(list, fileIdKey);
+        }
+    }
+
+    /**
+     * 获取大货款号的图片
+     *
      * @param list
      * @param fileIdKey 修改字段
      */
-    public void setStylePic(GroupUser userBy, List list, String fileIdKey) {
+    public void setStyleColorPic2(List list, String fileIdKey) {
         if (CollUtil.isEmpty(list)) {
             return;
         }
@@ -64,20 +98,21 @@ public class StylePicUtils {
             if (StrUtil.isBlank(v)) {
                 continue;
             }
-            BeanUtil.setProperty(l, fileIdKey, Optional.of(getImgUrl(userBy, v)).orElse(""));
+            BeanUtil.setProperty(l, fileIdKey, Optional.of(getStyleColorUrl2(v)).orElse(""));
         }
     }
 
 
-	/**
-     * 通过款号获取款式水印图片
+    /**
+     * 获取大货款号的url
      *
      * @return
      */
-    public String getImgUrl(GroupUser userBy, String styleNo) {
+    public String getStyleColorUrl2(String fileName) {
+        GroupUser userBy = getGroupUser();
         // 获取当前用户的工号和姓名
-        String badge = userBy.getUsername(); // 当前登录人工号
-        String name = userBy.getName();// 当前用户姓名
+        String badge = userBy.getUsername();
+        String name = userBy.getName();
         // 密钥相关
         String appKey = customStylePicUpload.getKey();
         String salt = customStylePicUpload.getSalt();
@@ -93,11 +128,11 @@ public class StylePicUtils {
             nameP = URLEncoder.encode(EncryptUtil.EncryptE2(name, appSecret), "utf-8");
         } catch (Exception e) {
             e.printStackTrace();
-		}
-		String allStr = badge + name + styleNo + tiemStr + appKey + appSecret;
-		String allStrP = DigestUtils.md5DigestAsHex(allStr.getBytes());
+        }
+        String allStr = badge + name + fileName + tiemStr + appKey + appSecret;
+        String allStrP = DigestUtils.md5DigestAsHex(allStr.getBytes());
 		String param = "&useraccount=" + badgeP + "&username=" + nameP + "&time=" + tiemStr + "&key=" + appkeyP
 				+ "&md5=" + allStrP;
-		return customStylePicUpload.getViewUrl() + styleNo + param;
+        return customStylePicUpload.getViewUrl() + fileName + param;
     }
 }

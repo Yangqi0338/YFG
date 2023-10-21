@@ -489,7 +489,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             sp.setStyleId(dto.getStyleId());
             stylePicService.save(sp);
             StylePicVo stylePicVo = BeanUtil.copyProperties(sp, StylePicVo.class);
-            stylePicVo.setUrl(stylePicUtils.getImgUrl(userBy, fileName));
+            stylePicVo.setUrl(stylePicUtils.getStyleColorUrl2(fileName));
             return stylePicVo;
         } else {
             throw new OtherException(jsonObject.get("Msg").toString());

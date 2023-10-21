@@ -504,11 +504,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         getBaseMapper().selectByQw(qw);
         List<StylePageVo> result = objects.getResult();
         // 设置图片
-        if (customStylePicUpload.isOpen()) {
-            stylePicUtils.setStylePic(userBy, result, "stylePic");
-        } else {
-            stylePicUtils.setStylePic(result, "stylePic");
-        }
+        stylePicUtils.setStylePic(result, "stylePic");
+
 
         amcFeignService.addUserAvatarToList(result, "designerId", "aliasUserAvatar");
         return objects.toPageInfo();
@@ -818,7 +815,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw);
         if (CollUtil.isNotEmpty(detailVoList)) {
             amcFeignService.setUserAvatarToList(detailVoList);
-            stylePicUtils.setStylePic(userBy, detailVoList, "stylePic");
+            stylePicUtils.setStylePic(detailVoList, "stylePic");
             Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getBandName() + StrUtil.DASHED + k.getProdCategoryName()));
             vo.setXyData(seatData);
         }
