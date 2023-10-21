@@ -227,11 +227,13 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag) {
         if (StrUtil.equals(sourceForeignId, targetForeignId) && StrUtil.equals(sourcePackType, targetPackType)) {
             return true;
         }
-        delByForeignIdType(targetForeignId, targetPackType);
+        if (StrUtil.equals(overlayFlag, BaseGlobal.YES)) {
+            delByForeignIdType(targetForeignId, targetPackType);
+        }
         QueryWrapper qw = new QueryWrapper();
         qw.eq("foreign_id", sourceForeignId);
         qw.likeRight("type", sourcePackType + StrUtil.DASHED);

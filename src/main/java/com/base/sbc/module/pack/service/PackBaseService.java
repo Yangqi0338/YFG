@@ -72,9 +72,10 @@ public interface PackBaseService<T> extends BaseService<T> {
      * @param sourcePackType
      * @param targetForeignId
      * @param targetPackType
+     * @param overlayFlag     覆盖标识1 为覆盖
      * @return
      */
-    boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType);
+    boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag);
 
 
     /**

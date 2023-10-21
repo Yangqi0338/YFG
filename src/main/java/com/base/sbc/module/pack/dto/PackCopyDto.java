@@ -22,8 +22,6 @@ public class PackCopyDto {
     @ApiModelProperty(value = "源资料包类型")
     private String sourcePackType;
 
-    @ApiModelProperty(value = "配色id")
-    private String styleColorId;
     @ApiModelProperty(value = "目标资料包id")
     private String targetForeignId;
     @ApiModelProperty(value = "目标资料包类型")

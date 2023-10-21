@@ -293,7 +293,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
      * @return
      */
     @Override
-    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String flg) {
+    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag, String flg) {
         if (StrUtil.equals(sourceForeignId, targetForeignId) && StrUtil.equals(sourcePackType, targetPackType)) {
             return true;
         }
@@ -327,7 +327,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
                     for (PackBomVo packBomVo : bomList) {
                         bomIds.add(packBomVo.getId());
                         packBomVo.setScmSendFlag(BaseGlobal.NO);
-                        packBomVo.setStageFlag(PackUtils.PACK_TYPE_DESIGN);
+                        packBomVo.setStageFlag(sourcePackType);
                     }
                 }
             }
@@ -335,13 +335,8 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             bomSizeList = packBomSizeService.getByBomIds(bomIds);
             packBomColorList = BeanUtil.copyToList(packBomColorService.getByBomIds(bomIds), PackBomColor.class);
 
-            // 创建目标启用版本 并启用
-            PackBomVersionDto versionDto = new PackBomVersionDto();
-            versionDto.setForeignId(targetForeignId);
-            versionDto.setPackType(targetPackType);
-            newVersion = saveVersion(versionDto);
-            //启动版本
-            enable(newVersion);
+            // 1获取目标启用版本
+            newVersion = BeanUtil.copyProperties(getEnableVersion(targetForeignId, targetPackType), PackBomVersionVo.class);
         }
         //转大货
         else if (StrUtil.equals(BasicNumber.ONE.getNumber(), flg)) {
@@ -466,8 +461,8 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
-        return copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, BasicNumber.ZERO.getNumber());
+    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag) {
+        return copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag, BasicNumber.ZERO.getNumber());
     }
 
     @Override

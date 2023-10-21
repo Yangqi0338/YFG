@@ -84,7 +84,7 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @param flg             0 正常拷贝,  1 转大货 ,2 反审
      * @return
      */
-    boolean copyPack(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String flg);
+    boolean copyPack(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag, String flg);
 
     /**
      * 开启审批

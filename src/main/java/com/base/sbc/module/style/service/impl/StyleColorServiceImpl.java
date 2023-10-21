@@ -1131,9 +1131,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         PackInfoStatus packInfoStatus = packInfoStatusService.get(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
 
         /*复制资料包里面的数据*/
-        packInfoService.copyPack(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType(), BasicNumber.ZERO.getNumber());
+        packInfoService.copyPack(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType(), BaseGlobal.YES, BasicNumber.ZERO.getNumber());
         /*复制状态*/
-        packInfoStatusService.copy(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType());
+        packInfoStatusService.copy(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType(), BaseGlobal.YES);
         /*查询BOM状态，BOM阶段修改未为样品 BOM里面物料也修改为样品*/
         /*复制出来的BOM*/
         PackInfoStatus copyPackInfoStatus =   packInfoStatusService.get(copyPackInfo.getId(),packInfoStatus.getPackType());

@@ -449,7 +449,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             throw new OtherException("已转大货，不可重复转入");
         }
         Date nowDate = new Date();
-        copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS, BasicNumber.ONE.getNumber());
+        copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS, BaseGlobal.YES, BasicNumber.ONE.getNumber());
         //设置为已转大货
         packDesignStatus.setBomStatus(BasicNumber.ONE.getNumber());
         packDesignStatus.setToBigGoodsDate(nowDate);
@@ -493,35 +493,35 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean copyPack(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String flg) {
+    public boolean copyPack(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag, String flg) {
         //图样附件、物料清单、尺寸表、工序工价、核价信息、工艺说明、样衣评审、业务意见、吊牌洗唛
 
         //图样附件
-        attachmentService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        attachmentService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
         //物料清单
-        packBomVersionService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, flg);
+        packBomVersionService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag, flg);
         //尺寸表
-        packSizeConfigService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
-        packSizeService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        packSizeConfigService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
+        packSizeService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
         //工序工价
-        packProcessPriceService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        packProcessPriceService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
         //核价信息
         // 基础
-        packPricingService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        packPricingService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
         // 二次加工费
-        packPricingCraftCostsService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        packPricingCraftCostsService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
         //加工费
-        packPricingProcessCostsService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        packPricingProcessCostsService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
         // 其他费用
-        packPricingOtherCostsService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        packPricingOtherCostsService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
         //工艺说明
-        packTechSpecService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        packTechSpecService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
         // 工艺说明包装方式
-        packTechPackagingService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        packTechPackagingService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
         //样衣评审
-        packSampleReviewService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        packSampleReviewService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
         //业务意见
-        packBusinessOpinionService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType);
+        packBusinessOpinionService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
 
         return true;
     }
@@ -723,34 +723,18 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean copyItems(PackCopyDto dto) {
-
-        if (StrUtil.isNotBlank(dto.getStyleColorId())) {
-            //查询资料包信息
-            QueryWrapper<PackInfo> packQw = new QueryWrapper();
-            packQw.eq("style_color_id", dto.getStyleColorId());
-            packQw.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
-            List<PackInfoListVo> packInfoListVos = baseMapper.queryByQw(packQw);
-            if (CollUtil.isEmpty(packInfoListVos)) {
-                throw new OtherException("找不到款式配色的BOM信息");
-            }
-            PackInfoListVo packInfoListVo = packInfoListVos.get(0);
-            dto.setSourceForeignId(packInfoListVo.getId());
-            dto.setSourcePackType(packInfoListVo.getPackType());
-        }
-
-
         if (StrUtil.contains(dto.getItem(), "物料清单")) {
-            packBomVersionService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+            packBomVersionService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.NO, "0");
         }
         if (StrUtil.contains(dto.getItem(), "尺寸表")) {
-            packSizeService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
-            packSizeConfigService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+            packSizeService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.NO);
+            packSizeConfigService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.YES);
         }
 
         if (StrUtil.contains(dto.getItem(), "工艺说明")) {
-            attachmentService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
-            packTechSpecService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
-            packTechPackagingService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+            attachmentService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.NO);
+            packTechSpecService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.NO);
+            packTechPackagingService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.NO);
         }
         return true;
     }
@@ -860,7 +844,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         // 1 先新建一个资料包
         PackInfoListVo byStyle = createByStyle(dto);
         // 2 拷贝资料包数据
-        copyPack(dto.getSourceForeignId(), dto.getSourcePackType(), byStyle.getId(), byStyle.getPackType(), BasicNumber.ZERO.getNumber());
+        copyPack(dto.getSourceForeignId(), dto.getSourcePackType(), byStyle.getId(), byStyle.getPackType(), BasicNumber.ZERO.getNumber(), BaseGlobal.YES);
 
         // 3 将状态表还原
         PackInfoStatus packInfoStatus = packInfoStatusService.get(byStyle.getId(), byStyle.getPackType());
@@ -992,7 +976,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
                 Date nowDate = new Date();
-                copyPack(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS, dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN, BasicNumber.TWO.getNumber());
+                copyPack(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS, dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN, BaseGlobal.YES, BasicNumber.TWO.getNumber());
                 bigGoodsPs.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
                 bigGoodsPs.setScmSendFlag(BaseGlobal.NO);
                 // bom阶段设置为样衣阶段

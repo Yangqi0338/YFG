@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.config.common.base.BaseEntity;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -178,12 +179,13 @@ public abstract class AbstractPackBaseServiceImpl<M extends BaseMapper<T>, T ext
     }
 
     @Override
-    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag) {
         if (StrUtil.equals(sourceForeignId, targetForeignId) && StrUtil.equals(sourcePackType, targetPackType)) {
             return true;
         }
-
-        del(targetForeignId, targetPackType);
+        if (StrUtil.equals(overlayFlag, BaseGlobal.YES)) {
+            del(targetForeignId, targetPackType);
+        }
         QueryWrapper<T> query = new QueryWrapper<>();
         query.eq("foreign_id", sourceForeignId);
         query.eq("pack_type", sourcePackType);

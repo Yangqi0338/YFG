@@ -116,7 +116,7 @@ public interface AttachmentService extends BaseService<Attachment> {
      * @param targetPackType
      * @return
      */
-    boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType);
+    boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag);
 
     /**
      * 复制工艺说明文件

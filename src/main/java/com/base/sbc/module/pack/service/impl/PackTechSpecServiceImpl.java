@@ -11,6 +11,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
@@ -205,7 +206,7 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
         copyItem(packInfoListVo.getId(), packInfoListVo.getPackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getItem());
         if (StrUtil.contains(dto.getItem(), "包装方式和体积重量")) {
             // 工艺说明包装方式
-            packTechPackagingService.copy(packInfoListVo.getId(), packInfoListVo.getPackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+            packTechPackagingService.copy(packInfoListVo.getId(), packInfoListVo.getPackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.NO);
         }
 
 

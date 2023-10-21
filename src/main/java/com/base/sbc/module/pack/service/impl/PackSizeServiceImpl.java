@@ -12,6 +12,7 @@ import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
@@ -206,21 +207,23 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean references(PackSizeConfigReferencesDto dto) {
-        packSizeConfigService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
-        this.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType());
+        packSizeConfigService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.NO);
+        this.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.NO);
         return true;
     }
 
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType) {
+    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag) {
         if (StrUtil.equals(sourceForeignId, targetForeignId) && StrUtil.equals(sourcePackType, targetPackType)) {
             return true;
         }
-        //删除目标数据
-        del(targetForeignId, targetPackType);
-        packSizeDetailService.del(targetForeignId, targetPackType);
+        if (StrUtil.equals(overlayFlag, BaseGlobal.YES)) {
+            //删除目标数据
+            del(targetForeignId, targetPackType);
+            packSizeDetailService.del(targetForeignId, targetPackType);
+        }
 
         //复制尺码表
         List<PackSize> sizeList = list(sourceForeignId, sourcePackType);
