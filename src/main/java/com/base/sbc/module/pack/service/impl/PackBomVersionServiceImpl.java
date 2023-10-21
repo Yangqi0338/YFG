@@ -201,9 +201,9 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
         PackBomVersion packBomVersion = getEnableVersion(foreignId, packType);
         List<PackBomVo> list = packBomService.list(foreignId, packType, packBomVersion.getId());
         List<String> ids = list.stream().map(PackBomVo::getSupplierId).collect(Collectors.toList());
-        List<BasicsdatumSupplier> basicsdatumSuppliers = basicsdatumSupplierService.listByIds(ids);
+        List<BasicsdatumSupplier> basicsdatumSuppliers = basicsdatumSupplierService.list(new QueryWrapper<BasicsdatumSupplier>().in("supplier_code",ids));
         basicsdatumSuppliers.forEach(b -> list.forEach(l -> {
-            if (StrUtil.equals(b.getId(), l.getSupplierId())) {
+            if (StrUtil.equals(b.getSupplierCode(), l.getSupplierId())) {
                 l.setSupplierAbbreviation(b.getSupplierAbbreviation());
             }
         }));
