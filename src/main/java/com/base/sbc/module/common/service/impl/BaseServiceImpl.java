@@ -70,6 +70,19 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     }
 
     /**
+     * 跟据字段名称和字段集合查询列表
+     * @param fieldName 字段名称
+     * @param list     数据集合
+     * @return 查询结果
+     */
+    @Override
+    public List<T> listByField(String fieldName, Collection<?> list) {
+        QueryWrapper<T> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in(fieldName, list);
+        return this.list(queryWrapper);
+    }
+
+    /**
      * 批量提交修改，逻辑删除新增修改
      *
      * @param entityList   实体列表

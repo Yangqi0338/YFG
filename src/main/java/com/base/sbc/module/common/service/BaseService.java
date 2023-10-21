@@ -19,6 +19,15 @@ import java.util.Map;
 public interface BaseService<T> extends IService<T> {
 
     /**
+     * 跟据字段名称和字段集合查询列表
+     * @param fieldName 字段名称
+     * @param list     数据集合
+     * @return 查询结果
+     */
+    List<T> listByField(String fieldName, Collection<?> list);
+
+
+    /**
      * 批量提交修改，逻辑删除新增修改
      *
      * @param entityList   实体列表
