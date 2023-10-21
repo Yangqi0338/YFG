@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.vo;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
@@ -173,7 +174,7 @@ public class HangTagVO {
      * 款式图片地址
      */
     private String stylePic;
-
+    private String styleColorPic;
     /**
      * 外辅助工艺
      */
@@ -318,5 +319,12 @@ public class HangTagVO {
     private String isTrim;
 
     private String produceTypeName;
+
+    public String getStylePic() {
+        if (StrUtil.isNotBlank(styleColorPic)) {
+            return styleColorPic;
+        }
+        return stylePic;
+    }
 }
 

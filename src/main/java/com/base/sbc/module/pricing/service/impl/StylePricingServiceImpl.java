@@ -12,7 +12,6 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
-import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.StylePicUtils;
@@ -99,8 +98,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return page.toPageInfo();
         }
-        GroupUser userBy = userUtils.getUserBy(user);
-        stylePicUtils.setStylePic(userBy, stylePricingList, "styleColorPic");
+        stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic");
         this.dataProcessing(stylePricingList, dto.getCompanyCode());
         return new PageInfo<>(stylePricingList);
     }

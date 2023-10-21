@@ -15,7 +15,6 @@ import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
-import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -366,8 +365,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         List<DemandOrderSkcVo> demandOrderSkcVos = styleColorMapper.queryDemandOrderSkc(scQw);
         amcFeignService.setUserAvatarToList(demandOrderSkcVos);
         /*查询款式配色图*/
-        GroupUser userBy = userUtils.getUserBy(user);
-        stylePicUtils.setStylePic(userBy, demandOrderSkcVos, "stylePic");
+        stylePicUtils.setStylePic(demandOrderSkcVos, "stylePic");
         //key =id
         Map<String, DemandOrderSkcVo> idSkcMap = new LinkedHashMap<>(16);
         //key= 波段-维度

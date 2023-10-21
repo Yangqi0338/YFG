@@ -247,6 +247,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             p.setScmSendFlag(map.get(p.getId()));
         });
         stylePicUtils.setStylePic(list, "stylePic");
+        stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return objects.toPageInfo();
     }
 
@@ -661,14 +662,14 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             }
         }
         if (StrUtil.isNotBlank(vo.getStylePic()) && !StrUtil.contains(vo.getStylePic(), "http")) {
-            vo.setStylePic(uploadFileService.getUrlById(vo.getStylePic()));
+            vo.setStylePic(stylePicUtils.getStyleUrl(vo.getStylePic()));
         }
 
         //图片
         if (StrUtil.isNotBlank(detail.getStyleColorId())) {
             StyleColor styleColor = styleColorMapper.selectById(detail.getStyleColorId());
             if (styleColor != null && StrUtil.isNotBlank(styleColor.getStyleColorPic())) {
-                String styleNoImgUrl = stylePicUtils.getImgUrl(groupUser, styleColor.getStyleColorPic());
+                String styleNoImgUrl = stylePicUtils.getStyleColorUrl2(styleColor.getStyleColorPic());
                 vo.setStylePic(styleNoImgUrl);
             }
         }
@@ -788,7 +789,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         if (styleColor != null) {
             //图片
             if (StrUtil.isNotBlank(styleColor.getStyleColorPic())) {
-                String styleNoImgUrl = stylePicUtils.getImgUrl(user, styleColor.getStyleColorPic());
+                String styleNoImgUrl = stylePicUtils.getStyleColorUrl2(styleColor.getStyleColorPic());
                 vo.setStylePic(styleNoImgUrl);
             }
             vo.setIsMainly(styleColor.getIsMainly());
@@ -956,21 +957,25 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         }
 
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("style_no", packInfo.getStyleNo());
+        queryWrapper.eq("id", packInfo.getStyleColorId());
+        queryWrapper.last("limit 1");
         StyleColor color = styleColorMapper.selectOne(queryWrapper);
         /*验证是否下发*/
-        if (!color.getScmSendFlag().equals(BaseGlobal.NO)) {
-            throw new OtherException("数据存在已下发");
+        if (color != null) {
+            if (!color.getScmSendFlag().equals(BaseGlobal.NO)) {
+                throw new OtherException("数据存在已下发");
+            }
+            color.setBom("");
+            styleColorMapper.updateById(color);
         }
         packInfo.setColor("");
         packInfo.setColorCode("");
         packInfo.setStyleNo("");
         packInfo.setStyleColorId("");
-        packInfo.setName(packInfo.getDesignNo()+ packInfo.getStyleName()+" BOM");
+        packInfo.setName(packInfo.getDesignNo() + packInfo.getStyleName() + " BOM");
         updateById(packInfo);
-        color.setBom("");
-        styleColorMapper.updateById(color);
-        Map<String,String> map = new HashMap<>();
+
+        Map<String, String> map = new HashMap<>();
         //map.put("大货款号", "->"+packInfo.getStyleNo());
         this.saveOperaLog("取消关联大货款号",dto.getName(),packInfo.getName() ,packInfo.getCode(),map);
         return true;

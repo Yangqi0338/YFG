@@ -195,9 +195,11 @@
                 tssc.color_name AS color,
                 tssc.tag_price AS tagPrice,
                 tssc.is_trim,
+                tssc.style_color_pic ,
             </otherwise>
         </choose>
-        tuf.url as stylePic,
+
+        tsd.style_pic,
         ht.*,
         IFNULL(ht.template_part,tsd.pattern_parts) as templatePart
         FROM
@@ -213,7 +215,6 @@
                 LEFT JOIN t_hang_tag ht ON tssc.style_no = ht.bulk_style_no
             </otherwise>
         </choose>
-        Left Join t_upload_file tuf on tsd.style_pic = tuf.id
         <where>
             <choose>
                 <when test="selectType != null and selectType != '' and selectType =='packBigGoods'">

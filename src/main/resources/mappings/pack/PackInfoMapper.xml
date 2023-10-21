@@ -15,6 +15,7 @@
         select *
         from (SELECT p.*,
                      sd.style_pic,
+                     sc.style_color_pic,
                      sd.brand,
                      sd.brand_name,
                      ps.pack_type,
@@ -48,6 +49,7 @@
               FROM t_pack_info p
                        LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0')
                        left join t_style sd on (sd.id = p.foreign_id)
+                       left join t_style_color sc on (sc.id = p.style_color_id and sc.del_flag = '0')
               where p.del_flag = '0') t
             ${ ew.customSqlSegment}
     </select>

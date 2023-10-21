@@ -1,5 +1,6 @@
 package com.base.sbc.module.pack.vo;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -45,6 +46,8 @@ public class PackInfoListVo extends PackInfoStatusVo {
     private String styleNo;
     @ApiModelProperty(value = "款式图")
     private String stylePic;
+    @ApiModelProperty(value = "大货款图")
+    private String styleColorPic;
     /**
      * 款式名称
      */
@@ -84,4 +87,10 @@ public class PackInfoListVo extends PackInfoStatusVo {
     @ApiModelProperty(value = "工艺说明视频)")
     private AttachmentVo techSpecVideo;
 
+    public String getStylePic() {
+        if (StrUtil.isNotBlank(styleColorPic)) {
+            return styleColorPic;
+        }
+        return stylePic;
+    }
 }
