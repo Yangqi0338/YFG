@@ -17,8 +17,12 @@ import lombok.Data;
 @Data
 @ApiModel("资料包-复制dto PackCopyDto")
 public class PackCopyDto {
+
+
     @ApiModelProperty(value = "源资料包id")
     private String sourceForeignId;
+    @ApiModelProperty(value = "覆盖标识:1覆盖")
+    private String overlayFlag;
     @ApiModelProperty(value = "源资料包类型")
     private String sourcePackType;
 

@@ -105,6 +105,12 @@ public class BomPrintVo {
                         || StrUtil.equals("衬", item.getCollocationName())
                         || StrUtil.equals("DP026", item.getCollocationCode())
                         || StrUtil.equals("扑条", item.getCollocationName())
+
+                        || StrUtil.equals("DP014", item.getCollocationCode())
+                        || StrUtil.equals("棉", item.getCollocationName())
+
+                        || StrUtil.equals("DP015", item.getCollocationCode())
+                        || StrUtil.equals("羽绒", item.getCollocationName())
                 )
                 .map(item -> {
                     ArrayList<String> strings = CollUtil.newArrayList(
