@@ -7,6 +7,7 @@
 package com.base.sbc.module.patternmaking.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
@@ -924,7 +925,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         List<SampleBoardExcel> excelList = BeanUtil.copyToList(list, SampleBoardExcel.class);
-        ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams(), response);
+        ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("title", "sheetName", ExcelType.HSSF), response);
     }
 
     @Override
@@ -950,7 +951,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 .isNotNull(PatternMaking::getPatternDesignName)
                 .ne(PatternMaking::getPatternDesignName, "")
                 .ne(PatternMaking::getPatternDesignId, "")
-                .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
+                // .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
         ;
         List<Map<String, Object>> maps = listMaps(qw);
         List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
@@ -967,7 +968,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 .isNotNull(PatternMaking::getCutterId)
                 .ne(PatternMaking::getCutterName, "")
                 .ne(PatternMaking::getCutterId, "")
-                .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
+                // .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
         ;
         List<Map<String, Object>> maps = listMaps(qw);
         List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
@@ -984,7 +985,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 .isNotNull(PatternMaking::getStitcherId)
                 .ne(PatternMaking::getStitcher, "")
                 .ne(PatternMaking::getStitcherId, "")
-                .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
+                // .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
         ;
 
         List<Map<String, Object>> maps = listMaps(qw);

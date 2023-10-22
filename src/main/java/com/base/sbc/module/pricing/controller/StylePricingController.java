@@ -9,6 +9,8 @@ package com.base.sbc.module.pricing.controller;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.support.ExcelTypeEnum;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
@@ -72,7 +74,8 @@ public class StylePricingController extends BaseController {
     public void exportStylePricingList(Principal user, StylePricingSearchDTO stylePricingSearchDTO, HttpServletResponse response) throws IOException {
         PageInfo<StylePricingVO> stylePricingList = stylePricingService.getStylePricingList(user, stylePricingSearchDTO);
         //导出
-        ExcelUtils.exportExcel(stylePricingList.getList(),  StylePricingVO.class, "款式定价.xlsx",new ExportParams() ,response);
+        // EasyExcel.write(response.getOutputStream(), StylePricingVO.class).excelType(ExcelTypeEnum.CSV).sheet("款式定价").doWrite(stylePricingList.getList());
+        ExcelUtils.exportExcel(stylePricingList.getList(),  StylePricingVO.class, "款式定价.xlsx",new ExportParams("title","sheetName",ExcelType.HSSF) ,response);
     }
 
 
