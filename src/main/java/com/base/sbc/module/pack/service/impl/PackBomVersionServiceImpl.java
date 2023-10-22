@@ -361,6 +361,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             bomSizeList = packBomSizeService.getByBomIds(bomIds);
             for (PackBomVo packBomVo : bomList) {
                 packBomVo.setLossRate(null);
+                //转大货 大货单件用量=设计单件用量
                 packBomVo.setBulkUnitUse(packBomVo.getDesignUnitUse());
                 /*转大货修改变成未下发*/
                 packBomVo.setScmSendFlag("0");

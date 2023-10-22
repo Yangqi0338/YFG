@@ -45,23 +45,26 @@ public class QueryStyleColorDto extends Page {
     @ApiModelProperty(value = "是否款式"  )
     private String isTrim;
 
-    @ApiModelProperty(value = "是否上会"  )
+    @ApiModelProperty(value = "是否上会")
     private String meetFlag;
 
-    @ApiModelProperty(value = "产品季id"  )
-    private String  planningSeasonId;
+    @ApiModelProperty(value = "产品季id")
+    private String planningSeasonId;
 
-    @ApiModelProperty(value = "大类"  )
+    @ApiModelProperty(value = "大类")
     private String prodCategory1st;
 
-    @ApiModelProperty(value = "品类"  )
+    @ApiModelProperty(value = "品类编码")
+    private String prodCategory;
+
+    @ApiModelProperty(value = "品类")
     private String prodCategoryName;
 
-    @ApiModelProperty(value = "款式状态"  )
-    private String  styleStatus;
+    @ApiModelProperty(value = "款式状态")
+    private String styleStatus;
 
-    @ApiModelProperty(value = "配色"  )
-    private String  colorName;
+    @ApiModelProperty(value = "配色")
+    private String colorName;
 
     @ApiModelProperty(value = "款号"  )
     private String   designNo;
