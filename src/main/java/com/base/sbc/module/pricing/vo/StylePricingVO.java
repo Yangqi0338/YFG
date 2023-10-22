@@ -37,7 +37,7 @@ public class StylePricingVO {
      * 样衣图片
      */
     @ApiModelProperty(value = "样衣图片")
-    @Excel(name = "样衣图片",type = 2)
+    @Excel(name = "样衣图片",type = 2,width = 20,height=60)
     private String styleColorPic;
     /**
      * 代码
