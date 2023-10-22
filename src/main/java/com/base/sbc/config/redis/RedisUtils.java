@@ -110,6 +110,43 @@ public class RedisUtils {
 			redisTemplate.delete(keys);
 		}
 	}
+	/**
+	 * 批量删除key 根据前后缀删除
+	 * @param pattern
+	 */
+	public void removePatternAndSuffix(String pattern,String suffix) {
+		String[] suffixs=suffix.split(",");
+		Set<String> keys = redisTemplate.keys(pattern+(pattern.endsWith(":")?"":":")+"*");
+		if (keys.size() > 0) {
+			for(String key : keys)
+			{
+				for (String s:suffixs) {
+					if(key.endsWith(s)){
+						redisTemplate.delete(key);
+					}
+				}
+			}
+		}
+	}
+	/**
+	 * 批量删除key 根据前缀与中间值删除
+	 * @param pattern
+	 */
+	public void removePatternAndIndexOf(String pattern,String indexOf) {
+		String[] suffixs=indexOf.split(",");
+		Set<String> keys = redisTemplate.keys(pattern+(pattern.endsWith(":")?"":":")+"*");
+		if (keys.size() > 0) {
+			for(String key : keys)
+			{
+				String str=key.split(pattern)[1];
+				for (String s:suffixs) {
+					if(str.indexOf(":"+s+":")!=-1){
+						redisTemplate.delete(key);
+					}
+				}
+			}
+		}
+	}
 	//============================String=============================
 	/**
 	 * 普通缓存获取

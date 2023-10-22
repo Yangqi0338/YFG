@@ -135,17 +135,28 @@ public class DataPermissionsService {
      * @see DataPermissionsBusinessTypeEnum
      */
     public <T> Map getDataPermissionsForQw(String companyCode, String uerId, String businessType, String operateType, String tablePre, String[] authorityFields, boolean isAssignFields) {
-        String dataPermissionsKey = "USERISOLATION:" + companyCode + ":" + businessType + ":";
+        String dataPermissionsKey = "USERISOLATION:" + companyCode + ":";
         //删除amc的数据权限状态
         RedisUtils redisUtils1=new RedisUtils();
         redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplateAmc"));
-        boolean redisType=false;
-        if(redisUtils1.hasKey(dataPermissionsKey+"POWERSTATE")){
-            redisType=true;
-            redisUtils1.del(dataPermissionsKey+"POWERSTATE");
+        Map<String,Object> redisType=new HashMap<>();
+        if(redisUtils1.hasKey(dataPermissionsKey+"businessTypeAll:POWERSTATE")){
+            String businessTypeAllByUerId= (String) redisUtils1.get(dataPermissionsKey+"businessTypeAll:POWERSTATE");
+            if(businessTypeAllByUerId.indexOf(uerId) !=-1){
+                redisType.put("0",businessTypeAllByUerId);
+                redisUtils1.del(dataPermissionsKey+"businessTypeAll:POWERSTATE");
+            }
+        }
+        if(redisUtils1.hasKey(dataPermissionsKey + businessType + ":"+"POWERSTATE")){
+            redisType.put("1","");
+            redisUtils1.del(dataPermissionsKey + businessType + ":"+"POWERSTATE");
         }
         redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplate"));
-        if (redisType){
+        if (redisType.containsKey("0")){
+            redisUtils.removePatternAndIndexOf(dataPermissionsKey, (String) redisType.get("0"));
+        }
+        dataPermissionsKey = dataPermissionsKey + businessType + ":";
+        if (redisType.containsKey("1")){
             redisUtils.removePattern(dataPermissionsKey);
         }
         dataPermissionsKey += uerId + ":";
