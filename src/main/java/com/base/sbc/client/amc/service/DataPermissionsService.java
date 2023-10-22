@@ -169,7 +169,7 @@ public class DataPermissionsService {
             dataPermissionsList = this.getDataPermissions(businessType,operateType);
             //默认开启角色的数据隔离
             Random random=new Random();
-            redisUtils.set(dataPermissionsKey +operateType, dataPermissionsList, 10*12*60*60*(random.nextInt(3)+1));//如数据的隔离不失效
+            redisUtils.set(dataPermissionsKey +operateType, dataPermissionsList, 10*12*60*60*(random.nextInt(4)+1));//如数据的隔离不失效
         } else {
             dataPermissionsList = (List<DataPermissionVO>) redisUtils.get(dataPermissionsKey +operateType);
         }
