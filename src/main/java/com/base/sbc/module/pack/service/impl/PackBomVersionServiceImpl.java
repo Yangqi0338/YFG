@@ -53,6 +53,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.STYLE_MANY_COLOR;
 
 /**
  * 类描述：资料包-物料清单-物料版本 service类
@@ -309,7 +310,6 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
         if (StrUtil.equals(sourceForeignId, targetForeignId) && StrUtil.equals(sourcePackType, targetPackType)) {
             return true;
         }
-
         /**
          * eg
          *设计A（物料版本)——大货A（物料版本），大货A（物料版本）反审——设计生成B版本，并启用。修改完成后，下发设计B（物料版本）——大货也变成B版本
@@ -327,6 +327,8 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
         PackBomVersionVo newVersion = null;
         //正常拷贝 保存版本
         if (StrUtil.equals(BasicNumber.ZERO.getNumber(), flg)) {
+
+
             //1获取源启用版本
             PackBomVersion enableVersion = getEnableVersion(sourceForeignId, sourcePackType);
             //获取源版本数据
@@ -349,6 +351,24 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
 
             // 1获取目标启用版本
             newVersion = BeanUtil.copyProperties(getEnableVersion(targetForeignId, targetPackType), PackBomVersionVo.class);
+            if (newVersion == null) {
+                // 创建目标启用版本 并启用
+                PackBomVersionDto versionDto = new PackBomVersionDto();
+                versionDto.setForeignId(targetForeignId);
+                versionDto.setPackType(targetPackType);
+                newVersion = saveVersion(versionDto);
+                //启动版本
+                enable(newVersion);
+            } else {
+                //覆盖 删除目标数据
+                if (StrUtil.equals(overlayFlag, BaseGlobal.YES)) {
+                    QueryWrapper delQw = new QueryWrapper();
+                    delQw.eq("bom_version_id", newVersion.getId());
+                    packBomService.remove(delQw);
+                    packBomSizeService.remove(delQw);
+                    packBomColorService.remove(delQw);
+                }
+            }
         }
         //转大货
         else if (StrUtil.equals(BasicNumber.ONE.getNumber(), flg)) {
@@ -455,17 +475,20 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             }
             packBomSizeService.saveBatch(BeanUtil.copyToList(bomSizeList, PackBomSize.class));
         }
-        try {
-            // 保存款式设计详情颜色
-            PackInfoDto packInfoDto = new PackInfoDto();
-            packInfoDto.setId(sourceForeignId);
-            packInfoDto.setSourcePackType(sourcePackType);
-            packInfoDto.setTargetPackType(targetPackType);
-            packInfoDto.setTargetForeignId(targetForeignId);
-            styleInfoColorService.insertStyleInfoColorList(packInfoDto);
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("保存款式设计详情颜色错误信息如下：{}", e);
+        Boolean styleManyColorSwitch = ccmFeignService.getSwitchByCode(STYLE_MANY_COLOR.getKeyCode());
+        if (styleManyColorSwitch) {
+            try {
+                // 保存款式设计详情颜色
+                PackInfoDto packInfoDto = new PackInfoDto();
+                packInfoDto.setId(sourceForeignId);
+                packInfoDto.setSourcePackType(sourcePackType);
+                packInfoDto.setTargetPackType(targetPackType);
+                packInfoDto.setTargetForeignId(targetForeignId);
+                styleInfoColorService.insertStyleInfoColorList(packInfoDto);
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.error("保存款式设计详情颜色错误信息如下：{}", e);
+            }
         }
 
 
