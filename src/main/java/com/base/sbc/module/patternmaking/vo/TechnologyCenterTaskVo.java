@@ -179,7 +179,15 @@ public class TechnologyCenterTaskVo {
     @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
     private Date startDate;
     private List<NodeStatusVo> nodeStatusList;
-
+    /**
+     * 纸样需求完成日期
+     */
+    @ApiModelProperty(value = "纸样需求完成日期")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date patternReqDate;
+    @ApiModelProperty(value = "样衣需求完成时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date demandFinishDate;
 
     public Map<String, NodeStatusVo> getNodeStatus() {
         return Optional.ofNullable(nodeStatusList).map(ns -> {
