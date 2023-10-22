@@ -2,6 +2,7 @@ package com.base.sbc.module.common.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
@@ -25,6 +26,12 @@ public interface BaseService<T> extends IService<T> {
      * @return 查询结果
      */
     List<T> listByField(String fieldName, Collection<?> list);
+
+
+    /**
+     * 根据传入的对象，查询符合条件的数据
+     */
+    List<T> listByObject(Object object, BaseQueryWrapper<T> baseQueryWrapper, String ...exFields);
 
 
     /**

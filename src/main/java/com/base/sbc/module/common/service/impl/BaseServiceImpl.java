@@ -13,6 +13,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.base.sbc.config.annotation.QueryField;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.utils.CommonUtils;
@@ -71,15 +73,79 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     /**
      * 跟据字段名称和字段集合查询列表
+     *
      * @param fieldName 字段名称
-     * @param list     数据集合
+     * @param list      数据集合
      * @return 查询结果
      */
     @Override
     public List<T> listByField(String fieldName, Collection<?> list) {
         QueryWrapper<T> queryWrapper = new QueryWrapper<>();
+        // 驼峰转下划线
+        fieldName = StringUtils.toUnderScoreCase(fieldName);
         queryWrapper.in(fieldName, list);
         return this.list(queryWrapper);
+    }
+
+    /**
+     * 根据传入的对象，查询符合条件的数据,默认模糊查询
+     * 根据注解in字段,确定是否是in查询
+     * 根据注解not字段,确定是否是not查询
+     * 根据注解like字段,确定是否是like查询
+     *
+     * @param object   传入的对象
+     * @param exFields 排除的字段
+     * @return 查询结果
+     */
+    @Override
+    public List<T> listByObject(Object object, BaseQueryWrapper<T> baseQueryWrapper, String... exFields) {
+        // todo 未完成
+        List<Field> allFields = CommonUtils.getAllFields(object);
+        // 去掉排除的字段
+        List<String> exFieldList = Arrays.asList(exFields);
+        allFields = allFields.stream().filter(field -> !exFieldList.contains(field.getName())).collect(Collectors.toList());
+        for (Field field : allFields) {
+            try {
+                //如果值为空，跳过
+                if (field.get(object) == null) {
+                    continue;
+                }
+                field.setAccessible(true);
+                // 驼峰转下划线
+                String fieldName = StringUtils.toUnderScoreCase(field.getName());
+                //如果没有注解就按照默认模糊查询
+                QueryField annotation = field.getAnnotation(QueryField.class);
+                if(annotation== null){
+                    baseQueryWrapper.like(fieldName, field.get(object));
+                    continue;
+                }
+                //根据注解type字段,进行查询
+                CommonUtils.getAllMethod(baseQueryWrapper).forEach(method -> {
+                    if (method.getName().equals(annotation.type())) {
+                        try {
+                            if (annotation.type().equals("in")) {
+                                // 如果是in查询，需要传入集合,如果不是集合，就转成集合
+                                if (!(field.get(object) instanceof Collection)) {
+                                    Collection<Object> list = new ArrayList<>();
+                                    list.add(field.get(object));
+                                    method.invoke(baseQueryWrapper, fieldName, list);
+                                    return;
+                                }
+                            }
+
+                            method.invoke(baseQueryWrapper, fieldName, field.get(object));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -93,7 +159,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     @Override
     public Integer addAndUpdateAndDelList(List<T> entityList, QueryWrapper<T> queryWrapper) {
         String companyCode = userUtils.getCompanyCode();
-        //分类
+        // 分类
         // 新增的
         Collection<T> addList = new ArrayList<>();
         // 修改的
@@ -102,11 +168,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         Collection<String> ids = new ArrayList<>();
         for (T entity : entityList) {
             if (StringUtils.isEmpty(entity.getId()) || entity.getId().contains("-")) {
-                //说明是新增的
+                // 说明是新增的
                 entity.setId(null);
                 addList.add(entity);
             } else {
-                //说明是修改的
+                // 说明是修改的
                 updateList.add(entity);
                 ids.add(entity.getId());
             }
@@ -114,14 +180,14 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         if (!StringUtils.isEmpty(companyCode) && !"0".equals(companyCode)) {
             queryWrapper.eq("company_code", companyCode);
         }
-        //逻辑删除传进来不存在的
+        // 逻辑删除传进来不存在的
         if (!ids.isEmpty()) {
             queryWrapper.notIn("id", ids);
         }
         this.remove(queryWrapper);
-        //新增
+        // 新增
         this.saveBatch(addList);
-        //修改
+        // 修改
         this.updateBatchById(updateList);
 
         return entityList.size();

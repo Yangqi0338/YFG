@@ -10,6 +10,7 @@ import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -171,6 +172,14 @@ public class CommonUtils {
      */
     public static List<Field> getAllFields(Object object) {
         return getAllFields(object.getClass());
+    }
+
+
+    /**
+     * 获取所有的公开方法,包括父类
+     */
+    public static List<Method> getAllMethod(Object object){
+       return Arrays.asList(object.getClass().getMethods());
     }
 
 
