@@ -18,6 +18,8 @@ import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
+import com.base.sbc.module.formtype.entity.FieldValOld;
+import com.base.sbc.module.formtype.service.FieldValOldService;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.pack.dto.PackInfoDto;
 import com.base.sbc.module.pack.dto.PlanningDemandStatisticsResultVo;
@@ -62,6 +64,8 @@ public class StyleController extends BaseController {
 
     @Autowired
     private StyleService styleService;
+    @Autowired
+    private FieldValOldService fieldValOldService;
 
 
     @ApiOperation(value = "分页查询(设计任务,设计档案)")
@@ -70,7 +74,11 @@ public class StyleController extends BaseController {
         return styleService.queryPageInfo(user, dto);
     }
 
-
+    @ApiOperation(value = "旧维度查询(维度信息)")
+    @GetMapping("/fieid/{dataGroup}/{id}")
+    public List<FieldValOld> fieIdOldInfo(@PathVariable("dataGroup") String dataGroup, @PathVariable("id") String id) {
+        return fieldValOldService.list(id,dataGroup);
+    }
     /**
      * @param id
      * @param historyStyleId 引用历史款时使用
