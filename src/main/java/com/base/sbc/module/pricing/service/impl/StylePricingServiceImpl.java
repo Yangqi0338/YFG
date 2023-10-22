@@ -12,6 +12,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.StylePicUtils;
@@ -92,7 +93,12 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     public PageInfo<StylePricingVO> getStylePricingList(Principal user, StylePricingSearchDTO dto) {
         dto.setCompanyCode(super.getCompanyCode());
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
-        QueryWrapper qw = new QueryWrapper();
+        BaseQueryWrapper qw = new BaseQueryWrapper();
+        qw.notEmptyEq("sd.year", dto.getYear());
+        qw.notEmptyEq("sd.season", dto.getSeason());
+        qw.notEmptyEq("sd.month", dto.getMonth());
+        qw.notEmptyEq("ssc.tag_price", dto.getTagPrice());
+
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
         List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(dto, qw);
         if (CollectionUtils.isEmpty(stylePricingList)) {

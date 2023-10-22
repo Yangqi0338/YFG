@@ -33,4 +33,9 @@ public class StylePricingSearchDTO extends Page {
 
     private String packId;
 
+    private String month;
+    private String season;
+    private String year;
+    private String tagPrice;
+
 }
