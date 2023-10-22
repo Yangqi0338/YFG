@@ -950,7 +950,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 .isNotNull(PatternMaking::getPatternDesignName)
                 .ne(PatternMaking::getPatternDesignName, "")
                 .ne(PatternMaking::getPatternDesignId, "")
-                .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
+                // .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
         ;
         List<Map<String, Object>> maps = listMaps(qw);
         List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
@@ -967,7 +967,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 .isNotNull(PatternMaking::getCutterId)
                 .ne(PatternMaking::getCutterName, "")
                 .ne(PatternMaking::getCutterId, "")
-                .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
+                // .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
         ;
         List<Map<String, Object>> maps = listMaps(qw);
         List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
@@ -984,7 +984,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 .isNotNull(PatternMaking::getStitcherId)
                 .ne(PatternMaking::getStitcher, "")
                 .ne(PatternMaking::getStitcherId, "")
-                .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
+                // .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
         ;
 
         List<Map<String, Object>> maps = listMaps(qw);
