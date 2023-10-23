@@ -1045,6 +1045,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 //        list(sdQw);
         List<PackInfoListVo> packInfoListVos = queryByQw(sdQw);
         stylePicUtils.setStylePic(packInfoListVos, "stylePic");
+        stylePicUtils.setStylePic(packInfoListVos, "styleColorPic");
         PageInfo<BigGoodsPackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), BigGoodsPackInfoListVo.class);
         return pageInfo;
     }
