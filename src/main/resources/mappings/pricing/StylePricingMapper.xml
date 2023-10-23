@@ -29,7 +29,7 @@
         sd.style_type_name as styleType,
         sd.id as styleId,
         ht.product_name as productName,
-        GROUP_CONCAT( hti.type, '(', hti.percentage, ')' ) AS ingredient,
+        ht.ingredient,
         ssc.tag_price as tagPrice,
         ssc.supplier as supplierName,
         ssc.supplier_abbreviation as supplierAbbreviation,

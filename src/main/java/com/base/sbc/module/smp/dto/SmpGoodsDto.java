@@ -181,7 +181,8 @@ public class SmpGoodsDto extends SmpBaseDto {
     private Boolean accessories;
     /**厂家*/
     private String manufacture;
-
+    /**厂家编码*/
+    private String manufactureCode;
     /**上新时间*/
     private Date saleTime;
     /**系列id*/
