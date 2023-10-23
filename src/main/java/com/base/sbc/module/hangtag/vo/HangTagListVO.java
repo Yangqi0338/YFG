@@ -185,7 +185,7 @@ public class HangTagListVO extends HangTag {
      */
     @ApiModelProperty(value = "成分信息")
     public String ingredient;
-
+    private String repIngredient;
 
     /**
      * 温馨提示

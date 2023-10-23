@@ -270,5 +270,6 @@ public class HangTagDTO {
      * 附件
      */
     private String attachment;
+    private String repIngredient;
 }
 

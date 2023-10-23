@@ -185,6 +185,8 @@ public class HangTag extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "产地")
     private String producer;
+
+    private String repIngredient;
     /**
      * 生产日期
      */
