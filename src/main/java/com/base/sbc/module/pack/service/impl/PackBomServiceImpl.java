@@ -51,6 +51,7 @@ import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
 import com.base.sbc.module.sample.dto.FabricSummaryDTO;
 import com.base.sbc.module.sample.vo.FabricSummaryVO;
 import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
+import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
@@ -109,6 +110,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     private StyleService styleService;
     @Resource
     private MinioUtils minioUtils;
+
+    @Resource
+    private SmpService smpService;
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
@@ -204,6 +208,12 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             db.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
             updateById(db);
             packBom = db;
+            /*核价信息编辑物料清单的可编辑状态直接下发*/
+            List<String> stringList = com.base.sbc.config.utils.StringUtils.convertList("1,3");
+            if (stringList.contains(db.getScmSendFlag()) && StrUtil.equals(dto.getPricingSendFlag(), BaseGlobal.STATUS_CLOSE)) {
+                /*下发*/
+                smpService.bom(db.getId().split(","));
+            }
         }
         //保存尺寸表
         List<PackBomSizeDto> packBomSizeDtoList = Optional.ofNullable(dto.getPackBomSizeList()).orElse(new ArrayList<>(2));
