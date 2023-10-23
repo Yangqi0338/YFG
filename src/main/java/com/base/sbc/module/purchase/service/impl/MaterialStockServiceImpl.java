@@ -65,7 +65,7 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
         materialQw.in("material_code", materialCodeList);
         materialQw.eq("warehouse_id", order.getWarehouseId());
         List<MaterialStock> materialStockList = materialStockService.list(materialQw);
-        Map<String, MaterialStock> materialStockMap = materialStockList.stream().collect(Collectors.toMap(MaterialStock::getMaterialSku, item -> item));
+        Map<String, MaterialStock> materialStockMap = materialStockList.stream().collect(Collectors.toMap(materialStock -> materialStock.getMaterialSku() + materialStock.getPositionCode(), item -> item));
 
         QueryWrapper<BasicsdatumMaterial> basicQw = new QueryWrapper<>();
         basicQw.in("material_code", materialCodeList);
@@ -80,7 +80,7 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
             BigDecimal beforeValue =  BigDecimal.valueOf(0.0);
             BigDecimal afterValue =  BigDecimal.valueOf(0.0);
 
-            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialCode() + orderDetail.getMaterialColorCode() + orderDetail.getMaterialSpecificationsCode());
+            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialCode() + orderDetail.getMaterialColorCode() + orderDetail.getMaterialSpecificationsCode() + orderDetail.getPositionCode());
             BasicsdatumMaterial material = materialMap.get(orderDetail.getMaterialCode());
             if(materialStock == null){
                 //物料库存中不存在此物料，初始化物料
@@ -155,13 +155,13 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
         materialQw.in("material_code", materialCodeList);
         materialQw.eq("warehouse_id", order.getWarehouseId());
         List<MaterialStock> materialStockList = materialStockService.list(materialQw);
-        Map<String, MaterialStock> materialStockMap = materialStockList.stream().collect(Collectors.toMap(MaterialStock::getMaterialSku, item -> item));
+        Map<String, MaterialStock> materialStockMap = materialStockList.stream().collect(Collectors.toMap(materialStock -> materialStock.getMaterialSku() + materialStock.getPositionCode(), item -> item));
 
         List<MaterialStock> updateList = new ArrayList<>();
         for(OutboundOrderDetail orderDetail : orderDetailList){
 
 //            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialSku());
-            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialCode() + orderDetail.getColorCode() + orderDetail.getSpecificationsCode());
+            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialCode() + orderDetail.getColorCode() + orderDetail.getSpecificationsCode() + orderDetail.getPositionCode());
             if(materialStock != null){
                 if(StringUtils.equals(operation, "0")) {
                     //锁定库存增加，可用库存减少
@@ -201,7 +201,7 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
         materialQw.in("material_code", materialCodeList);
         materialQw.eq("warehouse_id", order.getWarehouseId());
         List<MaterialStock> materialStockList = materialStockService.list(materialQw);
-        Map<String, MaterialStock> materialStockMap = materialStockList.stream().collect(Collectors.toMap(MaterialStock::getMaterialSku, item -> item));
+        Map<String, MaterialStock> materialStockMap = materialStockList.stream().collect(Collectors.toMap(materialStock -> materialStock.getMaterialSku() + materialStock.getPositionCode(), item -> item));
 
         QueryWrapper<BasicsdatumMaterial> basicQw = new QueryWrapper<>();
         basicQw.in("material_code", materialCodeList);
@@ -216,7 +216,7 @@ public class MaterialStockServiceImpl extends BaseServiceImpl<MaterialStockMappe
             BigDecimal afterValue = BigDecimal.valueOf(0.0);
 
 //            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialSku());
-            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialCode() + orderDetail.getColorCode() + orderDetail.getSpecificationsCode());
+            MaterialStock materialStock = materialStockMap.get(orderDetail.getMaterialCode() + orderDetail.getColorCode() + orderDetail.getSpecificationsCode() + orderDetail.getPositionCode());
             BasicsdatumMaterial material = materialMap.get(orderDetail.getMaterialCode());
             if(materialStock != null){
                 beforeValue = materialStock.getStockQuantity();
