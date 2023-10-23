@@ -124,25 +124,31 @@ public class DeliveryNoticeServiceImpl extends BaseServiceImpl<DeliveryNoticeMap
         List<String> supplierCodeList = new ArrayList<>();
         List<String> names = new ArrayList<>();
         for (OpenMaterialNoticeDto noticeDto : noticeDtoList) {
-            if (!supplierCodeList.contains(noticeDto.getSupplierName())){
+            if (StringUtils.isNotBlank(noticeDto.getSupplierName())
+                    && !supplierCodeList.contains(noticeDto.getSupplierName())){
                 supplierCodeList.add(noticeDto.getSupplierName());
             }
-            if (!purchaseCodeList.contains(noticeDto.getPurchaseCode())){
+            if (StringUtils.isNotBlank(noticeDto.getPurchaseCode())
+                    &&!purchaseCodeList.contains(noticeDto.getPurchaseCode())){
                 purchaseCodeList.add(noticeDto.getPurchaseCode());
             }
-            if (!names.contains(noticeDto.getPurchaseCode())){
+            if (StringUtils.isNotBlank(noticeDto.getSupplierName())
+                    &&!names.contains(noticeDto.getPurchaserName())){
                 names.add(noticeDto.getPurchaserName());
             }
         }
 
         //查询采购单明细数据
         Map<String, PurchaseOrderDetail> purchaseOrderDetailMap = Maps.newHashMap();
+        Map<String, PurchaseOrderDetail> purchaseOrderMaterialMap = Maps.newHashMap();
         if (purchaseCodeList.size() > 0){
             QueryWrapper<PurchaseOrderDetail> purchaseQw = new QueryWrapper<>();
             purchaseQw.in("tpo.code",purchaseCodeList);
             List<PurchaseOrderDetail> purchaseOrderDetailList = purchaseOrderDetailService.selectPurchaseCode(purchaseQw);
-            purchaseOrderDetailMap = purchaseOrderDetailList.stream()
-                    .collect(Collectors.toMap(p -> p.getCode()+p.getMaterialCode()+p.getMaterialColor()+p.getMaterialSpecifications(),p->p,(p1,p2)->p2));
+            for (PurchaseOrderDetail detail : purchaseOrderDetailList) {
+                purchaseOrderDetailMap.put(detail.getCode(), detail);
+                purchaseOrderMaterialMap.put(detail.getCode() + detail.getMaterialCode() + detail.getMaterialColor() + detail.getMaterialSpecifications(), detail);
+            }
         }
 
         //查询供应商数据
@@ -181,6 +187,17 @@ public class DeliveryNoticeServiceImpl extends BaseServiceImpl<DeliveryNoticeMap
             DeliveryNotice notice = new DeliveryNotice();
             BeanUtils.copyProperties(noticeDto,notice);
 
+            //校验采购单
+            PurchaseOrderDetail detail = purchaseOrderDetailMap.get(notice.getPurchaseCode());
+            if (detail != null){
+                notice.setPurchaseOrderDetailId(detail.getId());
+            }else {
+                //没有对应采购单
+                errorStr.append("单据【").append(noticeDto.getPurchaseCode()).append("】没有对应的采购单；");
+                break;
+            }
+
+            //采购单是否重复、校验到物料
             key = noticeDto.getPurchaseCode() + noticeDto.getSupplierName() + noticeDto.getMaterialName() + noticeDto.getMaterialSpecifications() + noticeDto.getMaterialColor();
             if (noticeMap.get(key) != null) {
                 errorStr.append("单据【").append(noticeDto.getPurchaseCode()).append("】重复，请检查；");
@@ -188,12 +205,10 @@ public class DeliveryNoticeServiceImpl extends BaseServiceImpl<DeliveryNoticeMap
             }
             noticeMap.put(key,key);
 
-            PurchaseOrderDetail detail = purchaseOrderDetailMap.get(notice.getPurchaseCode() + notice.getMaterialCode() + notice.getMaterialColor() + notice.getMaterialSpecifications());
-            if (detail != null){
-                notice.setPurchaseOrderDetailId(detail.getId());
-            }else {
-                //没有对应采购单
-                errorStr.append("单据【").append(noticeDto.getPurchaseCode()).append("】没有对应的采购单；");
+            //校验采购单物料
+            detail = purchaseOrderMaterialMap.get(notice.getPurchaseCode() + notice.getMaterialCode() + notice.getMaterialColor() + notice.getMaterialSpecifications());
+            if (detail == null){
+                errorStr.append("采购单【").append(noticeDto.getPurchaseCode()).append("】没有对应的物料，请检查；");
                 break;
             }
 
@@ -206,12 +221,14 @@ public class DeliveryNoticeServiceImpl extends BaseServiceImpl<DeliveryNoticeMap
                 break;
             }
 
-            OpenUserDto user = userMap.get(notice.getPurchaserName());
-            if (user != null){
-                notice.setPurchaserId(user.getId());
-            }else {
-                errorStr.append("单据【").append(noticeDto.getPurchaseCode()).append("】没有对应的采购员；");
-                break;
+            if (StringUtils.isNotBlank(notice.getPurchaserName())) {
+                OpenUserDto user = userMap.get(notice.getPurchaserName());
+                if (user != null) {
+                    notice.setPurchaserId(user.getId());
+                } else {
+                    errorStr.append("单据【").append(noticeDto.getPurchaseCode()).append("】没有对应的采购员；");
+                    break;
+                }
             }
 
             notice.preInsert(String.valueOf(idGen.nextId()));
