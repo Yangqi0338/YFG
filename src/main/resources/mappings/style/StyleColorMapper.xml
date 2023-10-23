@@ -134,6 +134,7 @@
             ts.id styleId,
             tsc.*,
             tpi.id packInfoId,
+            tpi.name infoName,
             tsp.control_confirm,
             tsp.product_hangtag_confirm,
             tsp.control_hangtag_confirm,
@@ -150,6 +151,7 @@
         select
             tsc.*,
             tpi.id packInfoId,
+            tpi.name infoName,
             ts.task_level,
             ts.task_level_name,
             ts.style_type,
