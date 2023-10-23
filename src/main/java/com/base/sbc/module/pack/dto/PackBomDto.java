@@ -32,4 +32,7 @@ public class PackBomDto extends PackBom {
     @ApiModelProperty(value = "物料清单-配色列表")
     private List<PackBomColorDto> packBomColorDtoList;
 
+    @ApiModelProperty(value = "核价信息是否下发标识")
+    private String pricingSendFlag;
+
 }
