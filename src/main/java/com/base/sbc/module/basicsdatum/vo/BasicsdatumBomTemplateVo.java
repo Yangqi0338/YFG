@@ -1,11 +1,12 @@
 package com.base.sbc.module.basicsdatum.vo;
 
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplate;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
 /*bom模板返回前端类*/
-public class BasicsdatumBomTemplateVo {
+public class BasicsdatumBomTemplateVo extends BasicsdatumBomTemplate {
     /** 编码 */
     @ApiModelProperty(value = "编码"  )
     private String code;
