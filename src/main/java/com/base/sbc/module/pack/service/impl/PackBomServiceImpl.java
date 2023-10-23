@@ -23,6 +23,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
@@ -105,7 +106,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     private DataPermissionsService dataPermissionsService;
 
     @Resource
-    private  StyleService styleService;
+    private StyleService styleService;
+    @Resource
+    private MinioUtils minioUtils;
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
@@ -121,7 +124,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             qw.in("id", bomIds);
         }
         Page<PackBom> page = PageHelper.startPage(dto);
-        list(qw);
+        List<PackBom> list = list(qw);
+        minioUtils.setObjectUrlToList(list, "imageUrl");
         PageInfo<PackBom> pageInfo = page.toPageInfo();
         PageInfo<PackBomVo> voPageInfo = CopyUtil.copy(pageInfo, PackBomVo.class);
         // 查询尺码配置
