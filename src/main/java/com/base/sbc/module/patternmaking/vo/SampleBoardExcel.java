@@ -53,7 +53,7 @@ public class SampleBoardExcel {
     private String revisionComments;
 
     @ApiModelProperty(value = "款图")
-    @Excel(name = "改版意见", type = 2)
+    @Excel(name = "款图", type = 2, imageType = 1)
     private String stylePic;
 
     @ApiModelProperty(value = "设计款号")

@@ -57,6 +57,8 @@
         p.first_pattern_design_name,
         p.sample_type_name,
         p.pattern_making_score,
+        p.demand_finish_date,
+        p.pattern_req_date,
         p.revision_comments
         FROM
         t_pattern_making p,
