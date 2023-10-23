@@ -437,16 +437,20 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         }
 
         // 是否开启笛莎资料包计算开关 开启后资料包计算都是大货物料费用
-        Boolean ifSwitch = ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.DESIGN_DISHA_DATA_PACKAGE_COUNT.getKeyCode());
-        /*设计还是大货*/
+        Boolean ifSwitch =false;
+        try {
+            ifSwitch  = ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.DESIGN_DISHA_DATA_PACKAGE_COUNT.getKeyCode());
+        }catch (Exception ignored){}
+            /*设计还是大货*/
         Boolean loss = "packDesign".equals(dto.getPackType());
         //款式物料费用=款式物料用量*款式物料单价*（1+损耗率)
         //大货物料费用=物料大货用量*物料大货单价*（1+额定损耗率)
+        Boolean finalIfSwitch = ifSwitch;
         return bomList.stream().map(packBom -> {
             /*获取损耗率*/
-                    BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable( ifSwitch || !loss ?packBom.getPlanningLoossRate():packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")));
+                    BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable( finalIfSwitch || !loss ?packBom.getPlanningLoossRate():packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")));
                     BigDecimal mul = NumberUtil.mul(
-                            ifSwitch || !loss? packBom.getBulkUnitUse() :  packBom.getDesignUnitUse() ,
+                            finalIfSwitch || !loss? packBom.getBulkUnitUse() :  packBom.getDesignUnitUse() ,
                             packBom.getPrice(),
                             divide
                     );
