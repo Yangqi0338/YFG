@@ -1,12 +1,15 @@
 package com.base.sbc.config.utils;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.exception.OtherException;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.lang.reflect.Field;
@@ -19,6 +22,9 @@ import java.util.stream.Collectors;
  * @date 2023/3/31 15:46:55
  */
 public class CommonUtils {
+
+    public static final String[] image_accept = {"jpg", "png", "jpeg"};
+
     /**
      * 取多个set集合相交的数据，集合可为null，不进行筛选，但是任何一个set集合的长度为0，则无任何相交对象
      *
@@ -283,5 +289,23 @@ public class CommonUtils {
         BeanUtil.setProperty(o, p, newUrl);
     }
 
+    /**
+     * 判断是否图片
+     *
+     * @param fileName
+     * @param throwException
+     * @return
+     */
+    public static boolean isImage(String fileName, boolean throwException) {
+        String s = FileUtil.extName(fileName).toLowerCase();
+        if (ArrayUtil.contains(image_accept, s)) {
+            return true;
+        } else {
+            if (throwException) {
+                throw new OtherException("图片格式只支持:" + ArrayUtil.join(image_accept, ","));
+            }
+            return false;
+        }
+    }
 
 }

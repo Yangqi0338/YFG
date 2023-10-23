@@ -424,6 +424,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.set("pattern_design_id", dto.getPatternDesignId());
         uw.set("pattern_design_name", dto.getPatternDesignName());
         uw.eq("id", dto.getId());
+        setUpdateInfo(uw);
         boolean b = update(uw);
         PatternMaking patternMaking = baseMapper.selectById(dto.getId());
 //        同步到款式信息
@@ -535,8 +536,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public PageInfo<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto) {
-        QueryWrapper qw = new QueryWrapper();
-        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
+        BaseQueryWrapper qw = new BaseQueryWrapper();
+//        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
+        qw.andLike(dto.getSearch(), "s.design_no", "p.code");
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());

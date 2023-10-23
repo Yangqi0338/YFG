@@ -111,6 +111,11 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
             detail.setCompanyCode(companyCode);
             detail.setWarehouseOrderId(id);
 
+            if("9999".equals(detail.getMaterialSpecificationsCode())){
+                // 如果规格编码为9999，则视为没有规格，清空规格编码
+                detail.setMaterialSpecificationsCode("");
+            }
+
             totalAmount = BigDecimalUtil.add(totalAmount, detail.getMoney());
             totalNum = BigDecimalUtil.add(totalNum, detail.getReceivedQuantity());
         }
@@ -149,6 +154,11 @@ public class WarehousingOrderServiceImpl extends BaseServiceImpl<WarehousingOrde
         for(WarehousingOrderDetail detail : warehousingOrderDetailList){
             detail.setId(idGen.nextIdStr());
             detail.setWarehouseOrderId(warehousingOrder.getId());
+
+            if("9999".equals(detail.getMaterialSpecificationsCode())){
+                // 如果规格编码为9999，则视为没有规格，清空规格编码
+                detail.setMaterialSpecificationsCode("");
+            }
 
             totalAmount = BigDecimalUtil.add(totalAmount, detail.getMoney());
             totalNum = BigDecimalUtil.add(totalNum, detail.getReceivedQuantity());

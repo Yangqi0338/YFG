@@ -109,6 +109,9 @@ public class StylePicUtils {
      * @return
      */
     public String getStyleColorUrl2(String fileName) {
+        if (StrUtil.isBlank(fileName)) {
+            return null;
+        }
         GroupUser userBy = getGroupUser();
         // 获取当前用户的工号和姓名
         String badge = userBy.getUsername();

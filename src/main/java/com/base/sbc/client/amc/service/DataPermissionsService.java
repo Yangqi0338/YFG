@@ -139,11 +139,25 @@ public class DataPermissionsService {
         //删除amc的数据权限状态
         RedisUtils redisUtils1=new RedisUtils();
         redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplateAmc"));
-        Map<String,Object> redisType=new HashMap<>();
+        Map<String,String> redisType=new HashMap<>();
         if(redisUtils1.hasKey(dataPermissionsKey+"businessTypeAll:POWERSTATE")){
             String businessTypeAllByUerId= (String) redisUtils1.get(dataPermissionsKey+"businessTypeAll:POWERSTATE");
             if(businessTypeAllByUerId.indexOf(uerId) !=-1){
-                redisType.put("0",businessTypeAllByUerId);
+                redisType.put("0",uerId);
+                if(!businessTypeAllByUerId.equals(uerId)){
+                    String[] autoUserIds=businessTypeAllByUerId.split(uerId);
+                    businessTypeAllByUerId=autoUserIds[0].endsWith(",")?(autoUserIds[0].substring(0,autoUserIds[0].length()-2)):autoUserIds[0].startsWith(",")?(autoUserIds[0].substring(1)):autoUserIds[0];
+                    if(autoUserIds.length>1){
+                        businessTypeAllByUerId+=(StringUtils.isNotBlank(businessTypeAllByUerId)?",":"")+(autoUserIds[1].endsWith(",")?(autoUserIds[1].substring(0,autoUserIds[1].length()-2)):autoUserIds[1].startsWith(",")?(autoUserIds[1].substring(1)):autoUserIds[1]);
+                    }
+                }else {
+                    businessTypeAllByUerId="";
+                }
+                if(StringUtils.isNotBlank(businessTypeAllByUerId)){
+                    redisUtils1.set(dataPermissionsKey+"businessTypeAll:POWERSTATE",businessTypeAllByUerId);
+                }
+            }
+            if(StringUtils.isBlank(businessTypeAllByUerId)){
                 redisUtils1.del(dataPermissionsKey+"businessTypeAll:POWERSTATE");
             }
         }
@@ -153,7 +167,7 @@ public class DataPermissionsService {
         }
         redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplate"));
         if (redisType.containsKey("0")){
-            redisUtils.removePatternAndIndexOf(dataPermissionsKey, (String) redisType.get("0"));
+            redisUtils.removePatternAndIndexOf(dataPermissionsKey, redisType.get("0"));
         }
         dataPermissionsKey = dataPermissionsKey + businessType + ":";
         if (redisType.containsKey("1")){

@@ -5,8 +5,8 @@ import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.CustomStylePicUpload;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.FtpUtil;
 import com.base.sbc.module.common.dto.DelStylePicDto;
@@ -37,10 +37,12 @@ public class SaasUploadController extends BaseController {
     @Autowired
     private CustomStylePicUpload customStylePicUpload;
 
+
     @ApiOperation(value = "产品图片上传", notes = "用于产品图片上传，返回上传成功的地址")
     @RequestMapping(value = "/productPic", method = RequestMethod.POST)
     public ApiResult uploadPicFile(@RequestParam(value = "file", required = true) MultipartFile file, String type, String code) {
 //        return filesUtils.uploadBigData(file, FilesUtils.PRODUCT, request);
+        CommonUtils.isImage(file.getOriginalFilename(), true);
         AttachmentVo attachmentVo = uploadFileService.uploadToMinio(file, type, code);
         return ApiResult.success(FilesUtils.SUCCESS, attachmentVo.getUrl(), BeanUtil.beanToMap(attachmentVo));
     }
@@ -48,9 +50,9 @@ public class SaasUploadController extends BaseController {
     @ApiOperation(value = "大货款图,设计款图上传", notes = "用于大货图片、设计款图上传")
     @PostMapping(value = "/uploadStylePic")
     public Object uploadStylePic(Principal user, UploadStylePicDto uploadStylePicDto) {
-
+        CommonUtils.isImage(uploadStylePicDto.getFile().getOriginalFilename(), true);
         if (!customStylePicUpload.isOpen()) {
-            // return uploadPicFile(uploadStylePicDto.getFile(),null,null);
+            return uploadPicFile(uploadStylePicDto.getFile(), null, null);
         }
         try {
             //上传大货款图
