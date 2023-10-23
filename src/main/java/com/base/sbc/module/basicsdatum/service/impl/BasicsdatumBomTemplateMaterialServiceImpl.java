@@ -10,17 +10,18 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBomTemplateMaterialDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBomTemplateDto;
 import com.base.sbc.module.basicsdatum.dto.RevampSortDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumBomTemplateMaterialService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumBomTemplateMaterialVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumBomTemplateMaterialService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -47,6 +48,8 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
 
     @Autowired
     private BasicsdatumColourLibraryMapper basicsdatumColourLibraryMapper;
+    @Autowired
+    private MinioUtils minioUtils;
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -63,14 +66,15 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
         }
         /*查询*/
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq(StringUtils.isNotBlank(queryBomTemplateDto.getSupplierFactoryIngredient()),"supplier_factory_ingredient",queryBomTemplateDto.getSupplierFactoryIngredient());
-        queryWrapper.eq(StringUtils.isNotBlank(queryBomTemplateDto.getMaterialCodeName()),"material_code_name",queryBomTemplateDto.getMaterialCodeName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryBomTemplateDto.getIngredient()),"ingredient",queryBomTemplateDto.getIngredient());
+        queryWrapper.eq(StringUtils.isNotBlank(queryBomTemplateDto.getSupplierFactoryIngredient()), "supplier_factory_ingredient", queryBomTemplateDto.getSupplierFactoryIngredient());
+        queryWrapper.eq(StringUtils.isNotBlank(queryBomTemplateDto.getMaterialCodeName()), "material_code_name", queryBomTemplateDto.getMaterialCodeName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryBomTemplateDto.getIngredient()), "ingredient", queryBomTemplateDto.getIngredient());
         queryWrapper.eq("bom_template_id", queryBomTemplateDto.getBomTemplateId());
         queryWrapper.orderByAsc("sort");
         /*查询基础资料-物料数据*/
         Page<BasicsdatumBomTemplateMaterialVo> objects = PageHelper.startPage(queryBomTemplateDto);
-        baseMapper.selectList(queryWrapper);
+        List list = baseMapper.selectList(queryWrapper);
+        minioUtils.setObjectUrlToList(list, "imageUrl");
         return objects.toPageInfo();
     }
 
