@@ -305,7 +305,10 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                     packBomSize.setBomVersionId(version.getId());
                     packBomSize.setWidthCode(packBomDto.getTranslateCode());
                     packBomSize.setWidth(packBomDto.getTranslate());
-                    packBomSize.setQuantity(StrUtil.equals(packBomDto.getPackType(),PackUtils.PACK_TYPE_DESIGN)?packBomDto.getDesignUnitUse():packBomDto.getBulkUnitUse());
+                    packBomSize.setQuantity(
+                            Opt.ofNullable(packBomSize.getQuantity()).orElse(
+                            StrUtil.equals(packBomDto.getPackType(),PackUtils.PACK_TYPE_DESIGN)?packBomDto.getDesignUnitUse():packBomDto.getBulkUnitUse())
+                    );
                 }
                 bomSizeList.addAll(packBomSizeList);
             }
@@ -319,8 +322,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                     packBomColor.setPackType(version.getPackType());
                     packBomColor.setForeignId(version.getForeignId());
                     packBomColor.setBomVersionId(version.getId());
-                    packBomColor.setMaterialColorName(packBomDto.getColor());
-                    packBomColor.setMaterialColorCode(packBomDto.getColorCode());
+                    packBomColor.setMaterialColorName(StrUtil.isEmpty(packBomColor.getMaterialColorName()) ? packBomDto.getColor() : packBomColor.getMaterialColorName());
+                    packBomColor.setMaterialColorCode(StrUtil.isEmpty(packBomColor.getMaterialColorCode()) ? packBomDto.getColorCode() : packBomColor.getMaterialColorCode());
                     packBomColor.insertInit();
                 }
                 packBomColorList.addAll(packBomColors);
