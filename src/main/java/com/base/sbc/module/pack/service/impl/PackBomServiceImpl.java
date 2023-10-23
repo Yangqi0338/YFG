@@ -349,27 +349,25 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public Boolean bomTemplateSave(BomTemplateSaveDto bomTemplateSaveDto) {
-
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("bom_template_id", bomTemplateSaveDto.getBomTemplateId());
-        queryWrapper.eq("status",BaseGlobal.STATUS_NORMAL);
-        List<BasicsdatumBomTemplateMaterial> templateMaterialList = basicsdatumBomTemplateMaterialMapper.selectList(queryWrapper);
-
+        if (CollUtil.isEmpty(bomTemplateSaveDto.getMaterialList())) {
+            throw new OtherException("为选中模板");
+        }
+        /*获取模板中的物料*/
+        List<BasicsdatumBomTemplateMaterial> templateMaterialList = basicsdatumBomTemplateMaterialMapper.selectBatchIds(bomTemplateSaveDto.getMaterialList());
         if (CollUtil.isEmpty(templateMaterialList)) {
             throw new OtherException("模板无物料清单");
         }
-
-      /*获取款的*/
-        Style style= styleService.getById(bomTemplateSaveDto.getStyleId());
-       String productSizes =  style.getProductSizes();
-       if(StrUtil.isBlank(productSizes)){
-           throw new OtherException("不存在尺码");
-       }
+        /*获取款的*/
+        Style style = styleService.getById(bomTemplateSaveDto.getStyleId());
+        String productSizes = style.getProductSizes();
+        if (StrUtil.isBlank(productSizes)) {
+            throw new OtherException("不存在尺码");
+        }
         Boolean styleManyColorSwitch = ccmFeignService.getSwitchByCode(STYLE_MANY_COLOR.getKeyCode());
         String[] productSizess = productSizes.split(",");
-        String[] sizeIds =  style.getSizeIds().split(",");
-        String[] colorCodes =  style.getColorCodes().split(",");
-        String[] colors =  style.getProductColors().split(",");
+        String[] sizeIds = style.getSizeIds().split(",");
+        String[] colorCodes = style.getColorCodes().split(",");
+        String[] colors = style.getProductColors().split(",");
         List<PackBomDto> bomDtoList = BeanUtil.copyToList(templateMaterialList, PackBomDto.class);
         bomDtoList.forEach(b -> {
             b.setId(null);
@@ -378,7 +376,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             b.setBulkUnitUse(b.getUnitUse());
             List<PackBomSizeDto> sizeDtoList = new ArrayList<>();
             for (int i = 0; i < productSizess.length; i++) {
-                PackBomSizeDto packBomSizeDto =new PackBomSizeDto();
+                PackBomSizeDto packBomSizeDto = new PackBomSizeDto();
                 packBomSizeDto.setWidthCode(b.getTranslateCode());
                 packBomSizeDto.setWidth(b.getTranslate());
                 packBomSizeDto.setSize(productSizess[i]);

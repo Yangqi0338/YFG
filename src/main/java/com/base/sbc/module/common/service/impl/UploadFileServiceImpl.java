@@ -142,12 +142,12 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                 switch (type) {
                     /*创意素材库图/附件*/
                     case "sourceMaterial":
-                        objectName = type + "/" + DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
+                        objectName =  "SourceMaterial/" + DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
                         break;
                     /*商品企划图*/
                     case "planning":
                         PlanningCategoryItem planningCategoryItem = planningCategoryItemMapper.selectById(code);
-                        objectName = type + "/" + planningCategoryItem.getBrandName() + "/" + planningCategoryItem.getYearName() + "/" + planningCategoryItem.getDesignNo() + "." + extName;
+                        objectName = "Planning/" + planningCategoryItem.getBrandName() + "/" + planningCategoryItem.getYearName() + "/" + planningCategoryItem.getDesignNo() + "." + extName;
                         break;
                     /*款式设计（除设计款外其他图片及附件）*/
                     /*样衣/打版其他附件*/
@@ -156,6 +156,11 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         QueryWrapper queryWrapper = new QueryWrapper();
                         queryWrapper.eq("design_no", code);
                         Style styel = styleMapper.selectOne(queryWrapper);
+                        if(StrUtil.equals(type,"styleOther")){
+                            type ="StyleOther" ;
+                        }else {
+                            type ="SampleOther" ;
+                        }
                         objectName = type + "/" + styel.getBrandName() + "/" + styel.getYearName() + "/" + styel.getDesignNo() + "/" + System.currentTimeMillis() + "." + extName;
 
                         break;
@@ -163,26 +168,28 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                     case "sample":
                         PatternMaking patternMaking = patternMakingMapper.selectById(code);
                         Style style = styleMapper.selectById(patternMaking.getStyleId());
-                        objectName = "sample/" + style.getBrandName() + "/" + style.getYearName() + "/" + style.getDesignNo() + "/" + patternMaking.getSampleBarCode() + "." + extName;
+                        objectName = "Sample/" + style.getBrandName() + "/" + style.getYearName() + "/" + style.getDesignNo() + "/" + patternMaking.getSampleBarCode() + "." + extName;
                         break;
                     /*样衣图片（包含产前样）*/
                     case "preSample":
                         PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskMapper.selectById(code);
                         Style style1 = styleMapper.selectById(preProductionSampleTask.getStyleId());
-                        objectName = "sample/" + style1.getBrandName() + "/" + style1.getYearName() + "/" + style1.getDesignNo() + "/" + preProductionSampleTask.getSampleBarCode() + "." + extName;
+                        objectName = "Sample/" + style1.getBrandName() + "/" + style1.getYearName() + "/" + style1.getDesignNo() + "/" + preProductionSampleTask.getSampleBarCode() + "." + extName;
                         break;
                     /*设计BOM标准资料包（除工艺单外）*/
                     case "stylePackage":
+                        objectName = "StylePackage/" + code + "/" + System.currentTimeMillis() + "." + extName;
+                        break;
                     case "dataPackageOther":
-                        objectName = type + "/" + code + "/" + System.currentTimeMillis() + "." + extName;
+                        objectName =  "DataPackageOther/" + code + "/" + System.currentTimeMillis() + "." + extName;
                         break;
                     /*物料其他附件*/
                     case "materialOther":
-                        objectName = type + "/" + System.currentTimeMillis() + "." + extName;
+                        objectName =  "MaterialOther/" + System.currentTimeMillis() + "." + extName;
                         break;
                     /*系统配置附件/图*/
                     case "config":
-                        objectName = "system/config" + "/" + System.currentTimeMillis() + "." + extName;
+                        objectName = "System/Config" + "/" + System.currentTimeMillis() + "." + extName;
                         break;
                     /*物料主图*/
                     case "material":
@@ -194,7 +201,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         if (StringUtils.isEmpty(basicsdatumMaterial.getYearName())) {
                             throw new OtherException("没有年份信息，先保存");
                         }
-                        objectName = type + "/" + basicsdatumMaterial.getYearName() + "/" + basicsdatumMaterial.getSeasonName() + "/" + basicsdatumMaterial.getMaterialCode() + "." + extName;
+                        objectName =  "Material/" + basicsdatumMaterial.getYearName() + "/" + basicsdatumMaterial.getSeasonName() + "/" + basicsdatumMaterial.getMaterialCode() + "." + extName;
                         break;
                     default:
                         objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
