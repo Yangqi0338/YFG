@@ -140,11 +140,11 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             }
             if (StringUtils.isNotBlank(type)) {
                 switch (type) {
-                    /*创意素材库图/附件*/
+                    /*创意素材库图/附件 t_material.pic_url*/
                     case "sourceMaterial":
                         objectName =  "SourceMaterial/" + DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
                         break;
-                    /*商品企划图*/
+                    /*商品企划图 t_planning_category_item.style_pic */
                     case "planning":
                         PlanningCategoryItem planningCategoryItem = planningCategoryItemMapper.selectById(code);
                         objectName = "Planning/" + planningCategoryItem.getBrandName() + "/" + planningCategoryItem.getYearName() + "/" + planningCategoryItem.getDesignNo() + "." + extName;
@@ -164,19 +164,19 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         objectName = type + "/" + styel.getBrandName() + "/" + styel.getYearName() + "/" + styel.getDesignNo() + "/" + System.currentTimeMillis() + "." + extName;
 
                         break;
-                    /*样衣图片（包含产前样）*/
+                    /*样衣图片（包含产前样） t_pattern_making.sample_pic */
                     case "sample":
                         PatternMaking patternMaking = patternMakingMapper.selectById(code);
                         Style style = styleMapper.selectById(patternMaking.getStyleId());
                         objectName = "Sample/" + style.getBrandName() + "/" + style.getYearName() + "/" + style.getDesignNo() + "/" + patternMaking.getSampleBarCode() + "." + extName;
                         break;
-                    /*样衣图片（包含产前样）*/
+                    /*样衣图片（包含产前样） t_pre_production_sample_task.sample_pic */
                     case "preSample":
                         PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskMapper.selectById(code);
                         Style style1 = styleMapper.selectById(preProductionSampleTask.getStyleId());
                         objectName = "Sample/" + style1.getBrandName() + "/" + style1.getYearName() + "/" + style1.getDesignNo() + "/" + preProductionSampleTask.getSampleBarCode() + "." + extName;
                         break;
-                    /*设计BOM标准资料包（除工艺单外）*/
+                    /*设计BOM标准资料包（除工艺单外）upload_file */
                     case "stylePackage":
                         objectName = "StylePackage/" + code + "/" + System.currentTimeMillis() + "." + extName;
                         break;

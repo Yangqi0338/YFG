@@ -181,6 +181,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public PackBomVo saveByDto(PackBomDto dto) {
+        CommonUtils.removeQuery(dto, "imageUrl");
         dto.calculateCost();
         PackBom packBom = BeanUtil.copyProperties(dto, PackBom.class);
         PackBomVersion version = packBomVersionService.checkVersion(dto.getBomVersionId());
@@ -234,6 +235,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean saveBatchByDto(String bomVersionId, String overlayFlg, List<PackBomDto> dtoList) {
+        CommonUtils.removeQueryList(dtoList, "imageUrl");
         // 校验版本
         PackBomVersion version = packBomVersionService.checkVersion(bomVersionId);
         if (CollUtil.isEmpty(dtoList)) {

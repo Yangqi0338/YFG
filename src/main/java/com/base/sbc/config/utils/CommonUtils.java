@@ -1,6 +1,7 @@
 package com.base.sbc.config.utils;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -261,6 +262,15 @@ public class CommonUtils {
             return url;
         }
         return url.substring(0, url.indexOf("?"));
+    }
+
+    public static void removeQueryList(List list, String... p) {
+        if (CollUtil.isEmpty(list)) {
+            return;
+        }
+        for (Object o : list) {
+            removeQuery(o, p);
+        }
     }
 
     public static void removeQuery(Object o, String... p) {
