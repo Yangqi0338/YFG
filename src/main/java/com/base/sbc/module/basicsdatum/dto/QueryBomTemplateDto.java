@@ -39,4 +39,7 @@ public class QueryBomTemplateDto extends Page {
     @ApiModelProperty(value = "成分"  )
     private String  ingredient;
 
+    @ApiModelProperty(value = "bom类型"  )
+    private String bomStatus;
+
 }

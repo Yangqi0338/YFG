@@ -62,7 +62,7 @@ public class BasicsdatumBomTemplateServiceImpl extends BaseServiceImpl<Basicsdat
         queryWrapper.like(StringUtils.isNotBlank(queryBomTemplateDto.getName()),"name",queryBomTemplateDto.getName());
         queryWrapper.like(StringUtils.isNotBlank(queryBomTemplateDto.getBrand()),"brand",queryBomTemplateDto.getBrand());
         queryWrapper.like(StringUtils.isNotBlank(queryBomTemplateDto.getBrandName()),"brand_name",queryBomTemplateDto.getBrandName());
-
+        queryWrapper.like(StringUtils.isNotBlank(queryBomTemplateDto.getBomStatus()),"bom_status",queryBomTemplateDto.getBomStatus());
         /*查询基础资料-号型类型数据*/
         Page<BasicsdatumBomTemplateVo> objects = PageHelper.startPage(queryBomTemplateDto);
         baseMapper.selectList(queryWrapper);

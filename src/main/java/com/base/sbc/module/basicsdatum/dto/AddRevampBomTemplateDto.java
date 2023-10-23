@@ -1,5 +1,6 @@
 package com.base.sbc.module.basicsdatum.dto;
 
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplate;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -7,7 +8,7 @@ import lombok.Data;
  * 用于bom模板新增修改
  */
 @Data
-public class AddRevampBomTemplateDto {
+public class AddRevampBomTemplateDto extends BasicsdatumBomTemplate {
     private String id;
     /** 编码 */
     @ApiModelProperty(value = "编码"  )
