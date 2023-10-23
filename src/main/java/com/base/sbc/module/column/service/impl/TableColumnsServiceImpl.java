@@ -55,6 +55,9 @@ public class TableColumnsServiceImpl extends BaseServiceImpl<TableColumnsMapper,
             columnNames.add("purchaseUnitName");
             columnNames.add("colorHex");
             columnNames.add("lossRate");
+            columnNames.add("price");
+            columnNames.add("cost");
+            columnNames.add("supplierId");
 
         }else {
             columnNames.add("*");
