@@ -725,6 +725,12 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Transactional(rollbackFor = {Exception.class})
     public boolean copyItems(PackCopyDto dto) {
         if (StrUtil.contains(dto.getItem(), "物料清单")) {
+            /*区分是不是迁移数据*/
+            PackInfo packInfo = baseMapper.selectById(dto.getSourceForeignId());
+            if (StringUtils.equals(packInfo.getHistoricalData(), BaseGlobal.STATUS_CLOSE)) {
+                /*迁移数据时在那个阶段就复制那个阶段的数据*/
+
+            }
             packBomVersionService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag(), "0");
         }
         if (StrUtil.contains(dto.getItem(), "尺寸表")) {

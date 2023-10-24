@@ -90,9 +90,11 @@ public interface PricingTemplateService extends BaseService<PricingTemplate> {
 
     /**
      * 获取默认模板
+     * @param devtType
+     * @param userCompany
      * @return
      */
-    PricingTemplateVO getDefaultPricingTemplate( String userCompany);
+    PricingTemplateVO getDefaultPricingTemplate( String devtType,String userCompany);
 
     // 自定义方法区 不替换的区域【other_end】
 

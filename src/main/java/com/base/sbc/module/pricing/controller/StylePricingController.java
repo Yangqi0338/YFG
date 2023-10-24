@@ -9,14 +9,14 @@ package com.base.sbc.module.pricing.controller;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.support.ExcelTypeEnum;
+import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.module.basicsdatum.dto.ColorModelNumberExcelDto;
+import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.dto.StylePricingStatusDTO;
@@ -24,12 +24,10 @@ import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.github.pagehelper.PageInfo;
-import com.netflix.ribbon.proxy.annotation.Http;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -39,7 +37,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：款式定价 Controller类
@@ -58,8 +59,17 @@ public class StylePricingController extends BaseController {
 
     @Autowired
     private StylePricingService stylePricingService;
+
     @Autowired
-    private StylePicUtils stylePicUtils;
+    private MessageUtils messageUtils;
+
+    @Autowired
+    private BaseController baseController;
+
+    @Autowired
+    private PackInfoService packInfoService;
+
+
     @ApiOperation(value = "获取款式定价列表")
     @PostMapping("/getStylePricingList")
     public PageInfo<StylePricingVO> getStylePricingList(Principal user, @Valid @RequestBody StylePricingSearchDTO stylePricingSearchDTO) {
@@ -153,39 +163,18 @@ public class StylePricingController extends BaseController {
             }
         }
         stylePricingService.updateBatchById(stylePricings);
+        List<String> packIdList = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
+        /*获取款式下的关联的款*/
+        List<PackInfo> packInfoList = packInfoService.listByIds(packIdList);
+        /*计控确认成本消息通知*/
+        if(StrUtil.equals(dto.getControlConfirm(), BaseGlobal.STATUS_CLOSE)){
+            for (PackInfo packInfo : packInfoList) {
+                messageUtils.stylePricingSendMessage("M商品企划",packInfo.getDesignNo(),packInfo.getPlanningSeasonId(),"1",baseController.getUser());
+            }
+        }
         return updateSuccess("提交成功");
     }
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

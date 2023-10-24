@@ -129,7 +129,7 @@ public class PricingTemplateController extends BaseController {
 
     @ApiOperation(value = "获取默认模板")
     @GetMapping("/getDefaultPricingTemplate")
-    public PricingTemplateVO  getDefaultPricingTemplate(){
-        return pricingTemplateService.getDefaultPricingTemplate( super.getUserCompany());
+    public PricingTemplateVO  getDefaultPricingTemplate(String devtType){
+        return pricingTemplateService.getDefaultPricingTemplate( devtType ,super.getUserCompany());
     }
 }
