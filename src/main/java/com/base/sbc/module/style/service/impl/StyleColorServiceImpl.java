@@ -154,7 +154,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto queryDto) {
 
         /*分页*/
-        queryDto.setOrderBy("ts.design_no asc,tsc.create_date desc");
+        queryDto.setOrderBy("tsc.create_date desc");
         PageHelper.startPage(queryDto);
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleId()), "tsc.style_id", queryDto.getStyleId());
