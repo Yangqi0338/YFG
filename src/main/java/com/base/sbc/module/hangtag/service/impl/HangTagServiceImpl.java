@@ -19,6 +19,7 @@ import com.base.sbc.config.CustomStylePicUpload;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
@@ -125,6 +126,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
     @Autowired
     private HangTagIngredientService hangTagIngredientService;
+
+    private final MinioUtils minioUtils;
 
     @Override
     public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -522,7 +525,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         if (StringUtils.isEmpty(techSpecFileId)) {
             return null;
         }
-        return uploadFileService.getUrlById(techSpecFileId);
+        String url = uploadFileService.getUrlById(techSpecFileId);
+        return minioUtils.getObjectUrl(url);
     }
 
     /**
