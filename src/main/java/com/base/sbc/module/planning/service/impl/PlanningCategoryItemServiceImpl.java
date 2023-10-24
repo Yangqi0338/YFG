@@ -275,6 +275,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         if (StrUtil.isBlank(maxCode)) {
             return null;
         }
+        System.out.println("正则:" + textFormats + "最大值:" + maxCode);
         // 替换,保留流水号
         String formatStr = CollUtil.join(textFormats, "");
         try {
@@ -500,6 +501,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             itemIds.add(planningCategoryItem.getId());
             seasonIds.add(planningCategoryItem.getPlanningSeasonId());
             CommonUtils.removeQuery(planningCategoryItem, "stylePic");
+            UpdateWrapper updateWrapper = new UpdateWrapper();
             /*后续再优化*/
             if (StrUtil.isNotBlank(planningCategoryItem.getStylePic())) {
 //                新地址
@@ -512,11 +514,13 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 //                修改文件名称加上设计师代码
                 fileUrls.add(newUrl);
 //                修改坑位图片 后续优化
-                UpdateWrapper updateWrapper = new UpdateWrapper();
+
                 updateWrapper.set("style_pic", newUrl);
-                updateWrapper.eq("id", planningCategoryItem.getId());
-                baseMapper.update(null, updateWrapper);
+
             }
+            updateWrapper.set("old_design_no", planningCategoryItem.getDesignNo());
+            updateWrapper.eq("id", planningCategoryItem.getId());
+            update(updateWrapper);
         }
         //查询款式信息是已经存在
         QueryWrapper<Style> sqw = new QueryWrapper<>();
@@ -990,6 +994,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             categoryItem.setId(null);
             CommonUtils.resetCreateUpdate(categoryItem);
             categoryItem.setDesignNo(s);
+            categoryItem.setOldDesignNo(s);
             saveList.add(categoryItem);
         }
         return saveBatch(saveList);
