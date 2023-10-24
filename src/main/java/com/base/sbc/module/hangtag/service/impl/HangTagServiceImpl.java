@@ -20,6 +20,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
@@ -140,7 +141,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
             hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
         }
          List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
-
+        minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
         if (hangTagListVOS.isEmpty()) {
             return new PageInfo<>(hangTagListVOS);
         }
@@ -233,6 +234,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(bulkStyleNo, userCompany, selectType);
         hangTagVO.setStylePic(stylePicUtils.getStyleUrl(hangTagVO.getStylePic()));
         hangTagVO.setStyleColorPic(stylePicUtils.getStyleColorUrl2(hangTagVO.getStyleColorPic()));
+        minioUtils.setObjectUrlToObject(hangTagVO, "washingLabel");
         if (hangTagVO != null && StringUtils.isEmpty(hangTagVO.getStatus())) {
             hangTagVO.setStatus(HangTagStatusEnum.NOT_SUBMIT.getK());
         }
@@ -258,6 +260,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     public String save(HangTagDTO hangTagDTO, String userCompany) {
         logger.info("HangTagService#save 保存吊牌 hangTagDTO:{}, userCompany:{}", JSON.toJSONString(hangTagDTO), userCompany);
         HangTag hangTag = new HangTag();
+        CommonUtils.removeQuery(hangTagDTO,"washingLabel");
         BeanUtils.copyProperties(hangTagDTO, hangTag);
         super.saveOrUpdate(hangTag,"吊牌管理");
         String id = hangTag.getId();
