@@ -17,6 +17,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Optional;
 
 /**
@@ -45,7 +46,7 @@ public class PackBom extends BaseDataEntity<String> {
         /*大货成本价=单价*大货用量*(1+额定损耗)*/
         this.cost = Optional.ofNullable(this.price).orElse(BigDecimal.ZERO)
                 .multiply(Optional.ofNullable("packDesign".equals(this.packType) ? this.designUnitUse : this.bulkUnitUse).orElse(BigDecimal.ZERO)).multiply(
-                        BigDecimal.ONE.add(Optional.ofNullable("packDesign".equals(this.packType) ? this.lossRate : this.planningLoossRate).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")))
+                        BigDecimal.ONE.add(Optional.ofNullable("packDesign".equals(this.packType) ? this.lossRate : this.planningLoossRate).orElse(BigDecimal.ZERO).divide(new BigDecimal("100"), 3, RoundingMode.HALF_UP))
                 );
     }
 

@@ -40,4 +40,7 @@ public class AssignmentUserDto {
     private String sglKitting;
     @ApiModelProperty(value = "样衣条码")
     private String sampleBarCode;
+
+    @ApiModelProperty(value = "分配车缝工备注")
+    private String stitcherRemark;
 }

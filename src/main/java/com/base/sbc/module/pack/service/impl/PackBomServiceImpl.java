@@ -65,6 +65,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -460,16 +461,16 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         //大货物料费用=物料大货用量*物料大货单价*（1+额定损耗率)
         Boolean finalIfSwitch = ifSwitch;
         return bomList.stream().map(packBom -> {
-            /*获取损耗率*/
-                    BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable( finalIfSwitch || !loss ?packBom.getPlanningLoossRate():packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100")));
+                    /*获取损耗率*/
+                    BigDecimal divide = BigDecimal.ONE.add(Optional.ofNullable(finalIfSwitch || !loss ? packBom.getPlanningLoossRate() : packBom.getLossRate()).orElse(BigDecimal.ZERO).divide(new BigDecimal("100"), 3, RoundingMode.HALF_UP));
                     BigDecimal mul = NumberUtil.mul(
-                            finalIfSwitch || !loss? packBom.getBulkUnitUse() :  packBom.getDesignUnitUse() ,
+                            finalIfSwitch || !loss ? packBom.getBulkUnitUse() : packBom.getDesignUnitUse(),
                             packBom.getPrice(),
                             divide
                     );
                     return mul;
                 }
-        ).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+        ).reduce(BigDecimal::add).orElse(BigDecimal.ZERO).setScale(3, RoundingMode.HALF_UP);
     }
 
     @Override
