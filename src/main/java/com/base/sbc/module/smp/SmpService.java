@@ -88,7 +88,6 @@ public class SmpService {
 
     private final PackInfoService packInfoService;
 
-    private final StyleColorService sampleStyleColorService;
 
     private final PackBomService packBomService;
     private final PackBomVersionService packBomVersionService;
@@ -139,7 +138,7 @@ public class SmpService {
         int i = 0;
 
 
-        List<StyleColor> styleColors = sampleStyleColorService.listByIds(Arrays.asList(ids));
+        List<StyleColor> styleColors = styleColorService.listByIds(Arrays.asList(ids));
 
         for (StyleColor styleColor : styleColors) {
             SmpGoodsDto smpGoodsDto = styleColor.toSmpGoodsDto();
@@ -387,7 +386,7 @@ public class SmpService {
             } else {
                 styleColor.setScmSendFlag("2");
             }
-            sampleStyleColorService.updateById(styleColor);
+            styleColorService.updateById(styleColor);
         }
         return i;
     }
@@ -597,7 +596,7 @@ public class SmpService {
             //"0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production"
             smpBomDto.setBomStage(stylePricingVO.getBomStage());
             //样衣-款式配色
-            StyleColor styleColor = sampleStyleColorService.getById(packInfo.getStyleColorId());
+            StyleColor styleColor = styleColorService.getById(packInfo.getStyleColorId());
             if (styleColor == null) {
                 throw new OtherException("未关联配色,无法下发");
             }
