@@ -63,9 +63,14 @@ public class BasicsdatumIngredientServiceImpl extends BaseServiceImpl<Basicsdatu
         */
         @Override
         public PageInfo<BasicsdatumIngredientVo> getBasicsdatumIngredientList(BasicsdatumIngredientDto queryDto) {
+            BaseQueryWrapper<BasicsdatumIngredient> queryWrapper = new BaseQueryWrapper<>();
+            if(StringUtils.isNotBlank(queryDto.getOrder())){
+                queryDto.setOrderBy(queryDto.getOrder());
+            }else {
+                queryWrapper.orderByDesc("create_date");
+            }
             /*分页*/
             PageHelper.startPage(queryDto);
-            BaseQueryWrapper<BasicsdatumIngredient> queryWrapper = new BaseQueryWrapper<>();
             queryWrapper.eq("company_code", baseController.getUserCompany());
             queryWrapper.notEmptyLike("material",queryDto.getMaterial());
             queryWrapper.notEmptyLike("code",queryDto.getCode());
@@ -73,7 +78,6 @@ public class BasicsdatumIngredientServiceImpl extends BaseServiceImpl<Basicsdatu
             queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getCreateName()),"create_name",queryDto.getCreateName());
             queryWrapper.eq(StringUtils.isNotEmpty(queryDto.getStatus()),"status",queryDto.getStatus());
             queryWrapper.between("create_date",queryDto.getCreateDate());
-            queryWrapper.orderByDesc("create_date");
 
             /*查询基础资料-材料成分数据*/
             List<BasicsdatumIngredient> basicsdatumIngredientList = baseMapper.selectList(queryWrapper);

@@ -181,6 +181,11 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
         UpdateWrapper<PackBomVersion> uw = new UpdateWrapper<>();
         uw.in("id", StrUtil.split(id, CharUtil.COMMA));
         uw.set("lock_flag", lockFlag);
+        PackBomVersion packBomVersion = baseMapper.selectById(id);
+        /*解锁取消大货制单员确认*/
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(packBomVersion.getForeignId(),packBomVersion.getPackType());
+        packInfoStatus.setBulkOrderClerkConfirm(BaseGlobal.NO);
+        packInfoStatusService.updateById(packInfoStatus);
         setUpdateInfo(uw);
         log(id, StrUtil.equals(lockFlag, BaseGlobal.YES) ? "版本锁定" : "版本解锁");
         return update(uw);
@@ -268,7 +273,8 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
                 version.setConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
                 packInfoStatus.setBulkOrderClerkConfirm(BaseGlobal.YES);
                 packInfoStatus.setBulkOrderClerkConfirmDate(new Date());
-
+                /*审核通过锁定状态*/
+                version.setLockFlag(BaseGlobal.STATUS_CLOSE);
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {

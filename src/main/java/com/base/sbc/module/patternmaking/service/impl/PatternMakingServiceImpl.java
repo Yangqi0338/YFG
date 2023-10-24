@@ -217,12 +217,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.eq("id", dto.getId());
         setUpdateInfo(uw);
         PatternMaking patternMaking = getById(dto.getId());
-        // 将款式设计状态改为已下发
-        UpdateWrapper<Style> sdUw = new UpdateWrapper<>();
-        sdUw.eq("id", patternMaking.getStyleId());
-        sdUw.set("status", BasicNumber.TWO.getNumber());
-        styleService.update(sdUw);
-        update(uw);
+
         /**
          * 1.当第一个下发版是初版样时先下发到技术中心，技术中心下发对版师时同时同步到款式信息 之后的版都自动下发给初版样技术中心指定的版师，
          * 2。当第一个下发版是改版样时 款式信息中存在版师时自动下发到指定版师 款式中无数据时到技术中心看板手动下发版师同时同步到款式 之后的款都自动下发到该版师
@@ -257,6 +252,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 }
             }
         }
+
+        // 将款式设计状态改为已下发
+        UpdateWrapper<Style> sdUw = new UpdateWrapper<>();
+        sdUw.eq("id", patternMaking.getStyleId());
+        sdUw.set("status", BasicNumber.TWO.getNumber());
+        styleService.update(sdUw);
+        update(uw);
         /*发送消息*/
         messageUtils.sampleDesignSendMessage(patternMaking.getPatternRoomId(), patternMaking.getPatternNo(), baseController.getUser());
 
@@ -350,11 +352,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sort(byId, false);
         /*当为出版样时修改款的版师*/
         Style style = styleService.getById(byId.getStyleId());
+        style.setStatus(BasicNumber.TWO.getNumber());
         if (StrUtil.equals("初版样", byId.getSampleTypeName()) || StrUtil.isBlank(style.getPatternDesignName())) {
             style.setPatternDesignId(dto.getPatternDesignId());
             style.setPatternDesignName(dto.getPatternDesignName());
-            styleService.updateById(style);
         }
+        styleService.updateById(style);
         /*消息通知*/
         messageUtils.prmSendMessage(dto.getPatternDesignId(), byId.getPatternNo(), baseController.getUser());
         return true;

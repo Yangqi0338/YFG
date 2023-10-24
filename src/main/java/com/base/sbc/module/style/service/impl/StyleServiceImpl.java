@@ -495,7 +495,21 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         //3我负责的
         else if (StrUtil.equals(dto.getUserType(), StylePageDto.USER_TYPE_3)) {
-            qw.eq("designer_id", userId);
+            qw.and(aqw -> aqw.lambda()
+                    //设计师
+                    .eq(Style::getDesignerId, userId)
+                    //设计工艺员id
+                    .or().eq(Style::getTechnicianId, userId)
+                    //材料专员id
+                    .or().eq(Style::getFabDevelopeId, userId)
+                    //跟款设计师Id
+                    .or().eq(Style::getMerchDesignId, userId)
+                    //审版设计师id
+                    .or().eq(Style::getReviewedDesignId, userId)
+                    //revisedDesignId
+                    .or().eq(Style::getRevisedDesignId, userId)
+            );
+
         }
         //数据权限
         dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType());
