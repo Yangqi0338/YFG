@@ -62,6 +62,8 @@ public interface StyleMapper extends BaseMapper<Style> {
 
     String selectMaxDesignNo(@Param(Constants.WRAPPER) QueryWrapper qc);
 
+    String selectMaxOldDesignNo(@Param(Constants.WRAPPER) QueryWrapper qc);
+
     /**
      * 修改所有引用的设计款号
      *

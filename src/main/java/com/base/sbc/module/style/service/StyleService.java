@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
@@ -239,5 +240,7 @@ public interface StyleService extends BaseService<Style> {
     Boolean startStopStyle(StartStopDto startStopDto);
 
     boolean setMainPic(StyleSaveDto dto);
+
+    String selectMaxOldDesignNo(QueryWrapper qc);
 }
 

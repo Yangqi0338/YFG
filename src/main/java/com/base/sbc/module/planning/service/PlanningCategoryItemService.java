@@ -71,6 +71,7 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
 
     /**
      * 获取最大流水号
+     *
      * @param data
      * @param userCompany
      * @return
@@ -78,7 +79,17 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
     String getMaxDesignNo(GetMaxCodeRedis data, String userCompany);
 
     /**
+     * 获取最大流水号
+     *
+     * @param data
+     * @param userCompany
+     * @return
+     */
+    String getStyleMaxOldDesignNo(GetMaxCodeRedis data, String userCompany);
+
+    /**
      * 分配设计师
+     *
      * @param dtoList
      * @return
      */

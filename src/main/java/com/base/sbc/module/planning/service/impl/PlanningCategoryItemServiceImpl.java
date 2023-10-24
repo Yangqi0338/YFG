@@ -289,6 +289,41 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     }
 
     @Override
+    public String getStyleMaxOldDesignNo(GetMaxCodeRedis data, String userCompany) {
+        List<String> regexps = new ArrayList<>(12);
+        List<String> textFormats = new ArrayList<>(12);
+        data.getValueMap().forEach((key, val) -> {
+            if (BaseConstant.FLOWING.equals(key)) {
+                textFormats.add("(" + val + ")");
+            } else {
+                textFormats.add(String.valueOf(val));
+            }
+            regexps.add(String.valueOf(val));
+        });
+        String regexp = "^" + CollUtil.join(regexps, "");
+        System.out.println("传过来的正则:" + regexp);
+        QueryWrapper qc = new QueryWrapper();
+        qc.eq(COMPANY_CODE, userCompany);
+        qc.apply(" old_design_no REGEXP '" + regexp + "'");
+        qc.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
+        String maxCode = styleService.selectMaxOldDesignNo(qc);
+        if (StrUtil.isBlank(maxCode)) {
+            return null;
+        }
+        // 替换,保留流水号
+        String formatStr = CollUtil.join(textFormats, "");
+        try {
+            String flowing = ReUtil.get(formatStr, maxCode, 1);
+            if (StrUtil.isNotBlank(flowing)) {
+                return flowing;
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public boolean allocationDesign(List<AllocationDesignDto> dtoList) {
         // 查询数据是否存在

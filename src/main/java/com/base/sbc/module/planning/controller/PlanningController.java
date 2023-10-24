@@ -2,7 +2,9 @@ package com.base.sbc.module.planning.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
@@ -226,7 +228,17 @@ public class PlanningController extends BaseController {
         if (ObjectUtil.isEmpty(data.getValueMap())) {
             throw new OtherException("条件不能为空");
         }
-        return planningCategoryItemService.getMaxDesignNo(data, getUserCompany());
+        String styleMaxOldDesignNo = planningCategoryItemService.getStyleMaxOldDesignNo(data, getUserCompany());
+        String maxDesignNo = planningCategoryItemService.getMaxDesignNo(data, getUserCompany());
+        if (StrUtil.isNotBlank(styleMaxOldDesignNo)) {
+            if (StrUtil.isBlank(maxDesignNo)) {
+                return styleMaxOldDesignNo;
+            } else {
+                int max = NumberUtil.max(Integer.parseInt(styleMaxOldDesignNo), Integer.parseInt(maxDesignNo));
+                return String.valueOf(max);
+            }
+        }
+        return maxDesignNo;
 
     }
 
