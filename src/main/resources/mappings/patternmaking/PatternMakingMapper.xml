@@ -113,6 +113,8 @@
         p.technician_kitting,
         p.sort,
         p.suspend,
+        p.suspend_remarks,
+        p.suspend_status,
         p.planning_season_id,
         p.pattern_design_id,
         p.stitcher,

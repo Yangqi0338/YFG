@@ -8,11 +8,13 @@ package com.base.sbc.module.pricing.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -67,6 +69,9 @@ public class PricingTemplateServiceImpl extends BaseServiceImpl<PricingTemplateM
     private PricingTemplateItemService pricingTemplateItemService;
     @Autowired
     private PricingTemplateMapper pricingTemplateMapper;
+
+    @Autowired
+    private CcmFeignService ccmFeignService;
 
     @Override
     public PageInfo<PricingTemplateVO> queryPageInfo(PricingTemplateSearchDTO dto, String userCompany) {
@@ -137,17 +142,22 @@ public class PricingTemplateServiceImpl extends BaseServiceImpl<PricingTemplateM
                 .eq(PricingTemplate::getCompanyCode, userCompany);
         pricingTemplateMapper.delete(wrapper);
     }
-
     @Transactional
     @Override
     public void defaultSetting(String id, String userCompany) {
         logger.info("PricingTemplateService#defaultSetting 默认设置 id:{}, userCompany:{}", id, userCompany);
+        /*查询模板详情*/
+        PricingTemplate pricing =new PricingTemplate();
+        if(ccmFeignService.getSwitchByCode("PRICING_DEVT_TYOE_DEFAULT_TEMPLATE")){
+            pricing = baseMapper.selectById(id);
+        }
         PricingTemplate pricingTemplate = new PricingTemplate();
         pricingTemplate.setDefaultFlag(YesOrNoEnum.NO.getValueStr());
         LambdaUpdateWrapper<PricingTemplate> wrapper = new UpdateWrapper<PricingTemplate>().lambda()
                 .eq(PricingTemplate::getCompanyCode, userCompany)
                 .eq(PricingTemplate::getDefaultFlag, YesOrNoEnum.YES.getValueStr())
-                .eq(PricingTemplate::getDelFlag, YesOrNoEnum.NO.getValueStr());
+                .eq(PricingTemplate::getDelFlag, YesOrNoEnum.NO.getValueStr())
+                .eq(StrUtil.isNotBlank(pricing.getDevtType()),PricingTemplate::getDevtType, pricing.getDevtType());
         super.update(pricingTemplate, wrapper);
 
         PricingTemplate template = new PricingTemplate();
@@ -155,7 +165,8 @@ public class PricingTemplateServiceImpl extends BaseServiceImpl<PricingTemplateM
         LambdaUpdateWrapper<PricingTemplate> updateWrapper = new UpdateWrapper<PricingTemplate>().lambda()
                 .in(PricingTemplate::getId, id)
                 .eq(PricingTemplate::getCompanyCode, userCompany)
-                .eq(PricingTemplate::getDelFlag, YesOrNoEnum.NO.getValueStr());
+                .eq(PricingTemplate::getDelFlag, YesOrNoEnum.NO.getValueStr())
+                .eq(StrUtil.isNotBlank(pricing.getDevtType()),PricingTemplate::getDevtType, pricing.getDevtType());
         super.update(template, updateWrapper);
 
     }
@@ -197,18 +208,23 @@ public class PricingTemplateServiceImpl extends BaseServiceImpl<PricingTemplateM
         }
         return new ArrayList<>(nameMap.values());
     }
-
     /**
      * 获取默认模板
      *
+     * @param devtType
+     * @param userCompany
      * @return
      */
     @Override
-    public PricingTemplateVO getDefaultPricingTemplate( String userCompany) {
+    public PricingTemplateVO getDefaultPricingTemplate( String devtType,String userCompany) {
         PricingTemplateVO pricingTemplateVO=new PricingTemplateVO();
         QueryWrapper queryWrapper =new QueryWrapper();
         queryWrapper.eq("company_code", userCompany);
         queryWrapper.eq("default_flag", BaseGlobal.YES);
+        /*是否使用生产类型判断*/
+        if(ccmFeignService.getSwitchByCode("PRICING_DEVT_TYOE_DEFAULT_TEMPLATE")){
+            queryWrapper.eq(StrUtil.isNotBlank(devtType) ,"devt_type",devtType);
+        }
         List<PricingTemplate> templateList =  baseMapper.selectList(queryWrapper);
         if(CollUtil.isEmpty(templateList)){
             throw new OtherException("无默认模板");

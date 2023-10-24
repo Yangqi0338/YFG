@@ -247,22 +247,22 @@ public class MessageUtils {
                         map.put("userId", groupUser.getId());
                         map.put("userName", groupUser.getName());
                         map.put("avatar", groupUser.getAvatar());
-                        String node =   BeanUtil.getProperty(bean, "node");
+                        String node = BeanUtil.getProperty(bean, "node");
                         /*判断阶段*/
-                        if("打版任务".equals(node)){
+                        if ("打版任务".equals(node)) {
                             /*是否是黑蛋*/
-                            if(urgency1.equals(BaseGlobal.NO)){
-                              /*黑蛋打板*/
+                            if (urgency1.equals(BaseGlobal.NO)) {
+                                /*黑蛋打板*/
                                 map.put("address", "/patternMaking/blackTask/blackPatternMakingTask");
-                            }else {
+                            } else {
                                 map.put("address", "/patternMaking/patternMakingTask");
                             }
-                        }else {
+                        } else {
                             /*是否是黑蛋*/
-                            if(urgency1.equals(BaseGlobal.NO)){
+                            if (urgency1.equals(BaseGlobal.NO)) {
                                 /*黑蛋打板*/
                                 map.put("address", "/patternMaking/blackTask/blackSampleClothesTask");
-                            }else {
+                            } else {
                                 map.put("address", "/patternMaking/sampleClothesTask");
                             }
                         }
@@ -357,26 +357,56 @@ public class MessageUtils {
     /**
      * 确认收到样衣消息提醒
      *
-     * @param patternRoomId
+     * @param userId
      * @param designNo
      * @param groupUser
      */
     @Async
     public void prmSendMessage(String userId, String designNo, GroupUser groupUser) {
+        if (StringUtils.isNotBlank(userId)) {
+            log.info("————————————————————————确认收到样衣消息提醒发送提醒消息用户" + userId);
+            Map<String, String> map = new HashMap<>();
+            map.put("title", designNo);
+            map.put("userId", groupUser.getId());
+            map.put("userName", groupUser.getName());
+            map.put("avatar", groupUser.getAvatar());
+            ModelMessage modelMessage = new ModelMessage();
+            modelMessage.setUserIds(userId);
+            modelMessage.setModelCode("YFG008");
+            modelMessage.setParams(map);
+            String s = messagesService.sendNoticeByModel(modelMessage);
+        }
+    }
+
+    /**
+     * 款式定价消息通知
+     * @param role
+     * @param designNo
+     * @param seasonId
+     * @param stage
+     * @param groupUser
+     */
+//    @Async
+    public void stylePricingSendMessage(String role,String designNo,String seasonId,String stage, GroupUser groupUser) {
+        if (StringUtils.isNotBlank(role)) {
+            String userId = amcFeignService.getUserGroupUserId(seasonId, "", role);
             if (StringUtils.isNotBlank(userId)) {
-                log.info("————————————————————————确认收到样衣消息提醒发送提醒消息用户" + userId);
+                log.info("————————————————————————款式定价消息提醒发送提醒消息用户" + userId);
+                String title = "";
+                if (StringUtils.equals(stage, BaseGlobal.STATUS_CLOSE)) {
+                    title = designNo + "计控成本已确定";
+                }
                 Map<String, String> map = new HashMap<>();
-                map.put("title", designNo);
+                map.put("title", title);
                 map.put("userId", groupUser.getId());
                 map.put("userName", groupUser.getName());
                 map.put("avatar", groupUser.getAvatar());
                 ModelMessage modelMessage = new ModelMessage();
                 modelMessage.setUserIds(userId);
-                modelMessage.setModelCode("YFG008");
+                modelMessage.setModelCode("YFG009");
                 modelMessage.setParams(map);
                 String s = messagesService.sendNoticeByModel(modelMessage);
             }
+        }
     }
-
-
 }

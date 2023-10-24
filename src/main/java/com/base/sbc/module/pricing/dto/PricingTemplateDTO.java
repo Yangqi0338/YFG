@@ -58,6 +58,13 @@ public class PricingTemplateDTO {
     @ApiModelProperty(value = "是否默认0.否,1.是")
     private String defaultFlag;
 
+    /** 模板名称 */
+    @ApiModelProperty(value = "模板名称"  )
+    private String devtType;
+
+    /** 生产类型名称 */
+    @ApiModelProperty(value = "生产类型名称"  )
+    private String devtTypeName;
     /**
      * 核价模板明细
      */

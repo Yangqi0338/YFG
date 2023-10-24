@@ -47,6 +47,15 @@ public class PricingTemplate extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "状态(0)停用,(1)启用")
     private String status;
+
+    /** 模板名称 */
+    @ApiModelProperty(value = "模板名称"  )
+    private String devtType;
+
+    /** 生产类型名称 */
+    @ApiModelProperty(value = "生产类型名称"  )
+    private String devtTypeName;
+
     /** 是否默认0.否,1.是 */
     @ApiModelProperty(value = "是否默认0.否,1.是"  )
     private String defaultFlag;

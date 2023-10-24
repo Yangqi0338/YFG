@@ -341,7 +341,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
                     for (PackBomVo packBomVo : bomList) {
                         bomIds.add(packBomVo.getId());
                         packBomVo.setScmSendFlag(BaseGlobal.NO);
-                        packBomVo.setStageFlag(sourcePackType);
+                        packBomVo.setStageFlag(targetPackType);
                     }
                 }
             }
