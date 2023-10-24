@@ -59,9 +59,7 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
         qw.notEmptyIn("num_type", dto.getNumType());
         qw.andLike(dto.getSearch(), "worker", "reference_no", "work_description");
         if (StrUtil.isNotBlank(dto.getWorkDate())) {
-            qw.between("work_date",
-                    DateUtil.parse(dto.getWorkDate() + " 00:00:00"),
-                    DateUtil.parse(dto.getWorkDate() + " 23:59:59"));
+            qw.between("work_date", dto.getWorkDate().split(","));
         }
         if (StrUtil.isEmpty(dto.getOrderBy())) {
             dto.setOrderBy("create_date desc");
