@@ -136,8 +136,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
             PageHelper.startPage(hangTagDTO.getPageNum(), hangTagDTO.getPageSize());
         }
         String authSql = dataPermissionsService.getDataPermissionsSql(DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
-        hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
-        List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
+        if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
+            hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
+        }
+         List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
 
         if (hangTagListVOS.isEmpty()) {
             return new PageInfo<>(hangTagListVOS);
