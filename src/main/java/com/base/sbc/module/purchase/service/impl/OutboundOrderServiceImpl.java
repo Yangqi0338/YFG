@@ -159,7 +159,9 @@ public class OutboundOrderServiceImpl extends BaseServiceImpl<OutboundOrderMappe
             detail.setCompanyCode(companyCode);
             detail.setOutboundId(outboundOrder.getId());
 
-            totalAmount = BigDecimalUtil.add(totalAmount, detail.getOutNum().multiply(detail.getStockPrice()));
+            BigDecimal currenAmount = BigDecimalUtil.equalZero(detail.getStockPrice()) ?
+                    BigDecimal.ZERO : detail.getOutNum().multiply(detail.getStockPrice()).setScale(2, BigDecimal.ROUND_DOWN);
+            totalAmount = BigDecimalUtil.add(totalAmount, currenAmount);
             totalNum = BigDecimalUtil.add(totalNum, detail.getOutNum());
         }
 
