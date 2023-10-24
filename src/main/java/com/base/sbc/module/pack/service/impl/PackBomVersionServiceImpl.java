@@ -389,8 +389,8 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
                 packBomVo.setLossRate(null);
                 //转大货 大货单件用量=设计单件用量
                 packBomVo.setBulkUnitUse(packBomVo.getDesignUnitUse());
-                /*转大货修改变成未下发*/
-                packBomVo.setScmSendFlag("0");
+                /*转大货修改变成可编辑*/
+                packBomVo.setScmSendFlag(BaseGlobal.IN_READY);
             }
             packBomColorList = BeanUtil.copyToList(packBomColorService.getByBomIds(bomIds), PackBomColor.class);
 
