@@ -65,6 +65,17 @@ public class PatternMakingTaskListVo extends PatternMaking {
     @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
     private Date updateDate;
     /**
+     * 挂起状态(“打胚样”“打净样”“做纸样”)
+     */
+    @ApiModelProperty(value = "挂起状态(“打胚样”“打净样”“做纸样”)")
+    private String suspendStatus;
+    /**
+     * 挂起备注
+     */
+    @ApiModelProperty(value = "挂起备注")
+    private String suspendRemarks;
+
+    /**
      * 样衣条码
      */
     @ApiModelProperty(value = "样衣条码")
