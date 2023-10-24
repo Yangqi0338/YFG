@@ -17,4 +17,7 @@ public class BasicsdatumIngredientDto extends QueryDto{
 
     @ApiModelProperty(value = "状态")
     private String status;
+
+    @ApiModelProperty(value = "排序")
+    private String order;
 }
