@@ -103,8 +103,8 @@ public class MessageUtils {
 
     /**
      * 产品季下发提醒
-     *
-     * @param userId 用户id
+     * @param list
+     * @param groupUser
      */
     @Async
     public void seasonSendMessage(List<PlanningCategoryItem> list, GroupUser groupUser) {
@@ -221,6 +221,7 @@ public class MessageUtils {
                     String deptUserType = msg.getString("deptUserType");
                     String val = msg.getString("val");
                     String patternNo = msg.getString("patternNo");
+                    String stitcherRemark =  BeanUtil.getProperty(bean, "stitcherRemark");
                     /*发送的用户*/
                     String userId = "";
                     if (StrUtil.equals(userType, "user")) {
@@ -243,6 +244,11 @@ public class MessageUtils {
                     if (StringUtils.isNotBlank(userId)) {
                         Map<String, String> map = new HashMap<>();
                         map.put("patternNo", BeanUtil.getProperty(bean, patternNo));
+                        if(StrUtil.isNotBlank(stitcherRemark)){
+                            map.put("stitcherRemark","备注："+ stitcherRemark);
+                        }else {
+                            map.put("stitcherRemark", "");
+                        }
                         map.put("status", status);
                         map.put("userId", groupUser.getId());
                         map.put("userName", groupUser.getName());
