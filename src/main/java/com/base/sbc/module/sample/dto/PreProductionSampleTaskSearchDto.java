@@ -37,4 +37,6 @@ public class PreProductionSampleTaskSearchDto extends Page {
 
     @ApiModelProperty(value = "流程完成状态:(0未完成,1已完成)")
     private String finishFlag;
+
+    private String prodCategory;
 }

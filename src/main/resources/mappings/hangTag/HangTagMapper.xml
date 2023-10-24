@@ -65,7 +65,8 @@
         tsp.product_hangtag_confirm as productTagPriceConfirm,
         tsp.control_hangtag_confirm as planTagPriceConfirm,
         tppst.grading_name as gradingName,
-        tppst.technologist_name as technologistName
+        tppst.technologist_name as technologistName,
+        tppst.stitcher as sampleMakerName
         FROM
         <choose>
             <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
@@ -94,8 +95,14 @@
             <if test="dto.style != null and dto.style != ''">
                 AND tsd.design_no like concat('%',#{dto.style},'%')
             </if>
-            <if test="dto.bulkStyleNo != null and dto.bulkStyleNo != ''">
-                AND tssc.style_no like concat('%',#{dto.bulkStyleNo},'%')
+            <if test="dto.bulkStyleNos != null and dto.bulkStyleNos.length > 0 ">
+
+                AND
+                (
+                    <foreach collection="dto.bulkStyleNos" item="item" index="index" separator="or">
+                    tssc.style_no like concat('%',#{item},'%')
+                    </foreach>
+                )
             </if>
             <if test="dto.ingredient != null and dto.ingredient != ''">
                 AND ht.ingredient like concat('%',#{dto.ingredient},'%')
@@ -208,6 +215,7 @@
         ht.*,
         tppst.grading_name as gradingName,
         tppst.technologist_name as technologistName,
+        tppst.stitcher as sampleMakerName,
         IFNULL(ht.template_part,tsd.pattern_parts) as templatePart
         FROM
         <choose>

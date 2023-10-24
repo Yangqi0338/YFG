@@ -196,6 +196,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         qw.notEmptyIn("s.year", dto.getYear());
         qw.notEmptyIn("s.season", dto.getSeason());
         qw.notEmptyIn("s.month", dto.getMonth());
+         qw.notEmptyEq("s.prod_category", dto.getProdCategory());
         Page<PreProductionSampleTaskVo> objects = PageHelper.startPage(dto);
         if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");
@@ -376,6 +377,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean updateByDto(PreProductionSampleTaskDto dto) {
+        CommonUtils.removeQuery(dto, "samplePic","stylePic");
         PreProductionSampleTask task = getById(dto.getId());
         if (task == null) {
             throw new OtherException("任务不存在");
