@@ -13,11 +13,14 @@
 
     <select id="queryByQw" resultType="com.base.sbc.module.pack.vo.PackInfoListVo">
         select *
-        from (SELECT p.*,
+        from (SELECT
+                     p.*,
                      sd.style_pic,
                      sc.style_color_pic,
                      sd.brand,
                      sd.brand_name,
+                     sd.devt_type devtType,
+                     sd.devt_type_name devtTypeName,
                      ps.pack_type,
                      ps.enable_flag,
                      ps.scm_send_flag,
