@@ -1270,11 +1270,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         qw.eq(StrUtil.toUnderlineCase(userField), BeanUtil.getProperty(pm, userField));
         // 黑单处理
-        if (StrUtil.equals(pm.getUrgency(), BasicNumber.ZERO.getNumber())) {
-            qw.lambda().eq(PatternMaking::getUrgency, BasicNumber.ZERO.getNumber());
-        } else {
-            qw.lambda().ne(PatternMaking::getUrgency, BasicNumber.ZERO.getNumber());
-        }
+//        if (StrUtil.equals(pm.getUrgency(), BasicNumber.ZERO.getNumber())) {
+//            qw.lambda().eq(PatternMaking::getUrgency, BasicNumber.ZERO.getNumber());
+//        } else {
+//            qw.lambda().ne(PatternMaking::getUrgency, BasicNumber.ZERO.getNumber());
+//        }
         qw.last("order by sort is null  , sort asc ");
 
         List<Map<String, Object>> ids = listMaps(qw);
