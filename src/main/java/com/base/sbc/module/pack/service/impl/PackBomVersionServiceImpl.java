@@ -422,8 +422,11 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             if (CollUtil.isNotEmpty(bomList)) {
                 for (PackBomVo packBomVo : bomList) {
                     bomIds.add(packBomVo.getId());
-                    /*修改状态为未下发*/
-                    packBomVo.setScmSendFlag(BaseGlobal.STATUS_NORMAL);
+                    /*已下发的数据反审修改成可修改*/
+                    if(StringUtils.equals(packBomVo.getScmSendFlag(),BaseGlobal.YES)){
+                        packBomVo.setScmSendFlag(BaseGlobal.IN_READY);
+                    }
+
                 }
             }
             bomSizeList = packBomSizeService.getByBomIds(bomIds);

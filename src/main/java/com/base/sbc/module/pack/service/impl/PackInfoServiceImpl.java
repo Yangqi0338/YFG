@@ -12,6 +12,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
@@ -725,13 +726,91 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Transactional(rollbackFor = {Exception.class})
     public boolean copyItems(PackCopyDto dto) {
         if (StrUtil.contains(dto.getItem(), "物料清单")) {
-            /*区分是不是迁移数据*/
+            /**
+             * 物料清单引用历史款
+             * 当选中的是pam新增新增的款时物料清单不区分添加的阶段 全都加入阶段修改未样品
+             * 当选中的是原系统迁移的数据时先查询大货阶段添加的 如果没有再查询样品阶段的数据
+             */
+            /*查询目标复制资料*/
             PackInfo packInfo = baseMapper.selectById(dto.getSourceForeignId());
+            /*区分是不是迁移数据*/
             if (StringUtils.equals(packInfo.getHistoricalData(), BaseGlobal.STATUS_CLOSE)) {
+                Snowflake snowflake = IdUtil.getSnowflake();
+                /*查询引用的版本*/
+                PackBomVersion packBomVersion = packBomVersionService.getEnableVersion(dto.getSourceForeignId(), dto.getSourcePackType());
+                /*目标原版本*/
+                PackBomVersion packBomVersion1 = packBomVersionService.getEnableVersion(dto.getTargetForeignId(), dto.getTargetPackType());
                 /*迁移数据时在那个阶段就复制那个阶段的数据*/
+                if (StringUtils.equals(dto.getOverlayFlag(), BaseGlobal.YES)) {
+                    /*覆盖先删除再新增*/
+                    QueryWrapper delQw = new QueryWrapper();
+                    delQw.eq("bom_version_id", packBomVersion1.getId());
+                    packBomService.remove(delQw);
+                    packBomSizeService.remove(delQw);
+                }
 
+                /*如果是迁移数据先查询大货的物料清单，如何大货物料不存在再查样品*/
+                List<PackBomVo> packBomVoList = packBomService.list(packInfo.getId(), PackUtils.PACK_TYPE_BIG_GOODS, packBomVersion.getId());
+                packBomVoList = packBomVoList.stream().filter(p -> StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_BIG_GOODS)).collect(Collectors.toList());
+                if (CollUtil.isEmpty(packBomVoList)) {
+                    /*查样品*/
+                    packBomVoList = packBomService.list(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN, packBomVersion.getId());
+                    packBomVoList = packBomVoList.stream().filter(p -> StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_DESIGN)).collect(Collectors.toList());
+                }
+                /*查询原资料报*/
+                PackInfo packInfo1 = baseMapper.selectById(dto.getTargetForeignId());
+                /*查询款里面的尺码*/
+                Style style = styleService.getById(packInfo1.getForeignId());
+                List<String> sizeIds = null;
+                List<String> productSizes = null;
+                /*获取款里面选中的尺码*/
+                if (StringUtils.isNotBlank(style.getSizeIds())) {
+                    sizeIds = StringUtils.convertList(style.getSizeIds());
+                    productSizes = StringUtils.convertList(style.getProductSizes());
+                }
+                /*新增的尺码*/
+                List<PackBomSize> bomSizeList = new ArrayList<>();
+                /*新增到物料清单里*/
+                if (CollUtil.isNotEmpty(packBomVoList)) {
+                    List<PackBom> bomList = BeanUtil.copyToList(packBomVoList, PackBom.class);
+                    //保存物料清单
+                    for (int i = 0; i < bomList.size(); i++) {
+                        PackBom bom = bomList.get(i);
+                        // 设置nom的数据
+                        String newId = snowflake.nextIdStr();
+                        bom.setPackType(dto.getTargetPackType());
+                        bom.setCode(packBomVersion1.getVersion() + StrUtil.DASHED + (i + 1));
+                        bom.setForeignId(dto.getTargetForeignId());
+                        bom.setId(newId);
+                        bom.setBomVersionId(packBomVersion1.getId());
+                        bom.setScmSendFlag(BaseGlobal.NO);
+                        /*获取尺码的数据*/
+                        if (CollUtil.isNotEmpty(sizeIds)) {
+                            for (int i1 = 0; i1 < sizeIds.size(); i1++) {
+                                PackBomSize packBomSize = new PackBomSize();
+                                packBomSize.setForeignId(dto.getTargetForeignId());
+                                packBomSize.setSizeId(sizeIds.get(i1));
+                                packBomSize.setSize(productSizes.get(i1));
+                                packBomSize.setWidth(bom.getTranslate());
+                                packBomSize.setWidthCode(bom.getTranslateCode());
+                                packBomSize.setBomId(newId);
+                                packBomSize.setBomVersionId(packBomVersion1.getId());
+                                packBomSize.setQuantity(StrUtil.equals(bom.getStageFlag(), PackUtils.PACK_TYPE_DESIGN) ? bom.getUnitUse() : bom.getBulkUnitUse());
+                                packBomSize.setPackType(dto.getTargetPackType());
+                                bomSizeList.add(packBomSize);
+                            }
+                        }
+                        bom.setStageFlag(PackUtils.PACK_TYPE_DESIGN);
+                    }
+                    /*新增的物料*/
+                    packBomService.saveBatch(bomList);
+                    if (CollUtil.isNotEmpty(bomSizeList)) {
+                        packBomSizeService.saveBatch(bomSizeList);
+                    }
+                }
+            } else {
+                packBomVersionService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag(), "0");
             }
-            packBomVersionService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag(), "0");
         }
         if (StrUtil.contains(dto.getItem(), "尺寸表")) {
             packSizeService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
@@ -741,7 +820,6 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         if (StrUtil.contains(dto.getItem(), "工艺说明")) {
             attachmentService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
             packTechSpecService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
-
         }
         return true;
     }
