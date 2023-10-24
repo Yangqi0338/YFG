@@ -23,25 +23,25 @@ import redis.clients.jedis.JedisPoolConfig;
 @Configuration
 @EnableCaching
 public class RedisConfig extends CachingConfigurerSupport {
-    @Value("${spring.redis.host}")
-    private String host;
-
-    @Value("${spring.redis.port}")
-    private int port;
-
-    @Value("${spring.redis.password}")
-    private String password;
+//    @Value("${spring.redis.host}")
+//    private String host;
+//
+//    @Value("${spring.redis.port}")
+//    private int port;
+//
+//    @Value("${spring.redis.password}")
+//    private String password;
     @Value("${spring.redis.database}")
     private int database;
     @Value("${spring.redis.databaseAmc}")
     private int databaseAmc;
-    @Value("${spring.redis.pool.max-active}")
-    private int maxActive;
-
-    @Value("${spring.redis.pool.max-idle}")
-    private int maxIdle;
-    @Value("${spring.redis.pool.max-wait}")
-    private int maxWait;
+//    @Value("${spring.redis.pool.max-active}")
+//    private int maxActive;
+//
+//    @Value("${spring.redis.pool.max-idle}")
+//    private int maxIdle;
+//    @Value("${spring.redis.pool.max-wait}")
+//    private int maxWait;
     /**
      * 选择redis作为默认缓存工具
      * @param redisTemplate
@@ -53,13 +53,14 @@ public class RedisConfig extends CachingConfigurerSupport {
         return rcm;
     }
 
+    // TODO 此处需要删除，通过接口的方式获取数据 @lixianglin
     @Bean(name="redisTemplateAmc")
-    public RedisTemplate<String, Object> redisTemplateAmc() {
-        return this.redisTemplateInit(databaseAmc);
+    public RedisTemplate<String, Object> redisTemplateAmc(JedisConnectionFactory jedisConnectionFactory) {
+        return this.redisTemplateInit(databaseAmc, jedisConnectionFactory);
     }
 	@Bean(name="redisTemplate")
-    public RedisTemplate<String, Object> redisTemplate() {
-        return this.redisTemplateInit(database);
+    public RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory jedisConnectionFactory) {
+        return this.redisTemplateInit(database, jedisConnectionFactory);
     }
 
     /**
@@ -67,17 +68,17 @@ public class RedisConfig extends CachingConfigurerSupport {
 //     * @param connectionFactory
      * @return
      */
-    public RedisTemplate<String, Object> redisTemplateInit(int database) {
-        JedisConnectionFactory factory = new JedisConnectionFactory();
-        factory.setHostName(host);
-        factory.setPort(port);
-        factory.setPassword(password);
+    public RedisTemplate<String, Object> redisTemplateInit(int database, JedisConnectionFactory factory) {
+//        JedisConnectionFactory factory = new JedisConnectionFactory();
+//        factory.setHostName(host);
+//        factory.setPort(port);
+//        factory.setPassword(password);
         factory.setDatabase(database);
-        JedisPoolConfig poolConfig = new JedisPoolConfig(); // 进行连接池配置
-        poolConfig.setMaxTotal(maxActive);
-        poolConfig.setMaxIdle(maxIdle);
-        poolConfig.setMaxWaitMillis(maxWait);
-        factory.setPoolConfig(poolConfig);
+//        JedisPoolConfig poolConfig = new JedisPoolConfig(); // 进行连接池配置
+//        poolConfig.setMaxTotal(maxActive);
+//        poolConfig.setMaxIdle(maxIdle);
+//        poolConfig.setMaxWaitMillis(maxWait);
+//        factory.setPoolConfig(poolConfig);
         factory.afterPropertiesSet(); // 初始化连接池配置
 
         RedisTemplate<String, Object> template = new RedisTemplate<>();
