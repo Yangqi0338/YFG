@@ -189,6 +189,11 @@ public class TechnologyCenterTaskVo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date demandFinishDate;
 
+    @ApiModelProperty(value = "当前节点")
+    private String node;
+    @ApiModelProperty(value = "打版任务当前状态")
+    private String pmStatus;
+
     public Map<String, NodeStatusVo> getNodeStatus() {
         return Optional.ofNullable(nodeStatusList).map(ns -> {
             return ns.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> b));

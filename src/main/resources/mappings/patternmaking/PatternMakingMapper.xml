@@ -58,6 +58,8 @@
         p.sample_type_name,
         p.pattern_making_score,
         p.demand_finish_date,
+        p.node,
+        p.status as `pmStatus`,
         p.pattern_req_date,
         p.revision_comments
         FROM
